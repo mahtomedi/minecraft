@@ -1,0 +1,364 @@
+package net.minecraft.world.inventory;
+
+import java.util.Map;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.EnchantedBookItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.level.block.AnvilBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+public class AnvilMenu extends AbstractContainerMenu {
+    private static final Logger LOGGER = LogManager.getLogger();
+    private final Container resultSlots = new ResultContainer();
+    private final Container repairSlots = new SimpleContainer(2) {
+        @Override
+        public void setChanged() {
+            super.setChanged();
+            AnvilMenu.this.slotsChanged(this);
+        }
+    };
+    private final DataSlot cost = DataSlot.standalone();
+    private final ContainerLevelAccess access;
+    private int repairItemCountCost;
+    private String itemName;
+    private final Player player;
+
+    public AnvilMenu(int param0, Inventory param1) {
+        this(param0, param1, ContainerLevelAccess.NULL);
+    }
+
+    public AnvilMenu(int param0, Inventory param1, final ContainerLevelAccess param2) {
+        super(MenuType.ANVIL, param0);
+        this.access = param2;
+        this.player = param1.player;
+        this.addDataSlot(this.cost);
+        this.addSlot(new Slot(this.repairSlots, 0, 27, 47));
+        this.addSlot(new Slot(this.repairSlots, 1, 76, 47));
+        this.addSlot(new Slot(this.resultSlots, 2, 134, 47) {
+            @Override
+            public boolean mayPlace(ItemStack param0) {
+                return false;
+            }
+
+            @Override
+            public boolean mayPickup(Player param0) {
+                return (param0.abilities.instabuild || param0.experienceLevel >= AnvilMenu.this.cost.get()) && AnvilMenu.this.cost.get() > 0 && this.hasItem();
+            }
+
+            @Override
+            public ItemStack onTake(Player param0, ItemStack param1) {
+                if (!param0.abilities.instabuild) {
+                    param0.giveExperienceLevels(-AnvilMenu.this.cost.get());
+                }
+
+                AnvilMenu.this.repairSlots.setItem(0, ItemStack.EMPTY);
+                if (AnvilMenu.this.repairItemCountCost > 0) {
+                    ItemStack var0 = AnvilMenu.this.repairSlots.getItem(1);
+                    if (!var0.isEmpty() && var0.getCount() > AnvilMenu.this.repairItemCountCost) {
+                        var0.shrink(AnvilMenu.this.repairItemCountCost);
+                        AnvilMenu.this.repairSlots.setItem(1, var0);
+                    } else {
+                        AnvilMenu.this.repairSlots.setItem(1, ItemStack.EMPTY);
+                    }
+                } else {
+                    AnvilMenu.this.repairSlots.setItem(1, ItemStack.EMPTY);
+                }
+
+                AnvilMenu.this.cost.set(0);
+                param2.execute((param1x, param2xx) -> {
+                    BlockState var0x = param1x.getBlockState(param2xx);
+                    if (!param0.abilities.instabuild && var0x.is(BlockTags.ANVIL) && param0.getRandom().nextFloat() < 0.12F) {
+                        BlockState var1x = AnvilBlock.damage(var0x);
+                        if (var1x == null) {
+                            param1x.removeBlock(param2xx, false);
+                            param1x.levelEvent(1029, param2xx, 0);
+                        } else {
+                            param1x.setBlock(param2xx, var1x, 2);
+                            param1x.levelEvent(1030, param2xx, 0);
+                        }
+                    } else {
+                        param1x.levelEvent(1030, param2xx, 0);
+                    }
+
+                });
+                return param1;
+            }
+        });
+
+        for(int var0 = 0; var0 < 3; ++var0) {
+            for(int var1 = 0; var1 < 9; ++var1) {
+                this.addSlot(new Slot(param1, var1 + var0 * 9 + 9, 8 + var1 * 18, 84 + var0 * 18));
+            }
+        }
+
+        for(int var2 = 0; var2 < 9; ++var2) {
+            this.addSlot(new Slot(param1, var2, 8 + var2 * 18, 142));
+        }
+
+    }
+
+    @Override
+    public void slotsChanged(Container param0) {
+        super.slotsChanged(param0);
+        if (param0 == this.repairSlots) {
+            this.createResult();
+        }
+
+    }
+
+    public void createResult() {
+        ItemStack var0 = this.repairSlots.getItem(0);
+        this.cost.set(1);
+        int var1 = 0;
+        int var2 = 0;
+        int var3 = 0;
+        if (var0.isEmpty()) {
+            this.resultSlots.setItem(0, ItemStack.EMPTY);
+            this.cost.set(0);
+        } else {
+            ItemStack var4 = var0.copy();
+            ItemStack var5 = this.repairSlots.getItem(1);
+            Map<Enchantment, Integer> var6 = EnchantmentHelper.getEnchantments(var4);
+            var2 += var0.getBaseRepairCost() + (var5.isEmpty() ? 0 : var5.getBaseRepairCost());
+            this.repairItemCountCost = 0;
+            if (!var5.isEmpty()) {
+                boolean var7 = var5.getItem() == Items.ENCHANTED_BOOK && !EnchantedBookItem.getEnchantments(var5).isEmpty();
+                if (var4.isDamageableItem() && var4.getItem().isValidRepairItem(var0, var5)) {
+                    int var8 = Math.min(var4.getDamageValue(), var4.getMaxDamage() / 4);
+                    if (var8 <= 0) {
+                        this.resultSlots.setItem(0, ItemStack.EMPTY);
+                        this.cost.set(0);
+                        return;
+                    }
+
+                    int var9;
+                    for(var9 = 0; var8 > 0 && var9 < var5.getCount(); ++var9) {
+                        int var10 = var4.getDamageValue() - var8;
+                        var4.setDamageValue(var10);
+                        ++var1;
+                        var8 = Math.min(var4.getDamageValue(), var4.getMaxDamage() / 4);
+                    }
+
+                    this.repairItemCountCost = var9;
+                } else {
+                    if (!var7 && (var4.getItem() != var5.getItem() || !var4.isDamageableItem())) {
+                        this.resultSlots.setItem(0, ItemStack.EMPTY);
+                        this.cost.set(0);
+                        return;
+                    }
+
+                    if (var4.isDamageableItem() && !var7) {
+                        int var11 = var0.getMaxDamage() - var0.getDamageValue();
+                        int var12 = var5.getMaxDamage() - var5.getDamageValue();
+                        int var13 = var12 + var4.getMaxDamage() * 12 / 100;
+                        int var14 = var11 + var13;
+                        int var15 = var4.getMaxDamage() - var14;
+                        if (var15 < 0) {
+                            var15 = 0;
+                        }
+
+                        if (var15 < var4.getDamageValue()) {
+                            var4.setDamageValue(var15);
+                            var1 += 2;
+                        }
+                    }
+
+                    Map<Enchantment, Integer> var16 = EnchantmentHelper.getEnchantments(var5);
+                    boolean var17 = false;
+                    boolean var18 = false;
+
+                    for(Enchantment var19 : var16.keySet()) {
+                        if (var19 != null) {
+                            int var20 = var6.containsKey(var19) ? var6.get(var19) : 0;
+                            int var21 = var16.get(var19);
+                            var21 = var20 == var21 ? var21 + 1 : Math.max(var21, var20);
+                            boolean var22 = var19.canEnchant(var0);
+                            if (this.player.abilities.instabuild || var0.getItem() == Items.ENCHANTED_BOOK) {
+                                var22 = true;
+                            }
+
+                            for(Enchantment var23 : var6.keySet()) {
+                                if (var23 != var19 && !var19.isCompatibleWith(var23)) {
+                                    var22 = false;
+                                    ++var1;
+                                }
+                            }
+
+                            if (!var22) {
+                                var18 = true;
+                            } else {
+                                var17 = true;
+                                if (var21 > var19.getMaxLevel()) {
+                                    var21 = var19.getMaxLevel();
+                                }
+
+                                var6.put(var19, var21);
+                                int var24 = 0;
+                                switch(var19.getRarity()) {
+                                    case COMMON:
+                                        var24 = 1;
+                                        break;
+                                    case UNCOMMON:
+                                        var24 = 2;
+                                        break;
+                                    case RARE:
+                                        var24 = 4;
+                                        break;
+                                    case VERY_RARE:
+                                        var24 = 8;
+                                }
+
+                                if (var7) {
+                                    var24 = Math.max(1, var24 / 2);
+                                }
+
+                                var1 += var24 * var21;
+                                if (var0.getCount() > 1) {
+                                    var1 = 40;
+                                }
+                            }
+                        }
+                    }
+
+                    if (var18 && !var17) {
+                        this.resultSlots.setItem(0, ItemStack.EMPTY);
+                        this.cost.set(0);
+                        return;
+                    }
+                }
+            }
+
+            if (StringUtils.isBlank(this.itemName)) {
+                if (var0.hasCustomHoverName()) {
+                    var3 = 1;
+                    var1 += var3;
+                    var4.resetHoverName();
+                }
+            } else if (!this.itemName.equals(var0.getHoverName().getString())) {
+                var3 = 1;
+                var1 += var3;
+                var4.setHoverName(new TextComponent(this.itemName));
+            }
+
+            this.cost.set(var2 + var1);
+            if (var1 <= 0) {
+                var4 = ItemStack.EMPTY;
+            }
+
+            if (var3 == var1 && var3 > 0 && this.cost.get() >= 40) {
+                this.cost.set(39);
+            }
+
+            if (this.cost.get() >= 40 && !this.player.abilities.instabuild) {
+                var4 = ItemStack.EMPTY;
+            }
+
+            if (!var4.isEmpty()) {
+                int var25 = var4.getBaseRepairCost();
+                if (!var5.isEmpty() && var25 < var5.getBaseRepairCost()) {
+                    var25 = var5.getBaseRepairCost();
+                }
+
+                if (var3 != var1 || var3 == 0) {
+                    var25 = calculateIncreasedRepairCost(var25);
+                }
+
+                var4.setRepairCost(var25);
+                EnchantmentHelper.setEnchantments(var6, var4);
+            }
+
+            this.resultSlots.setItem(0, var4);
+            this.broadcastChanges();
+        }
+    }
+
+    public static int calculateIncreasedRepairCost(int param0) {
+        return param0 * 2 + 1;
+    }
+
+    @Override
+    public void removed(Player param0) {
+        super.removed(param0);
+        this.access.execute((param1, param2) -> this.clearContainer(param0, param1, this.repairSlots));
+    }
+
+    @Override
+    public boolean stillValid(Player param0) {
+        return this.access
+            .evaluate(
+                (param1, param2) -> !param1.getBlockState(param2).is(BlockTags.ANVIL)
+                        ? false
+                        : param0.distanceToSqr((double)param2.getX() + 0.5, (double)param2.getY() + 0.5, (double)param2.getZ() + 0.5) <= 64.0,
+                true
+            );
+    }
+
+    @Override
+    public ItemStack quickMoveStack(Player param0, int param1) {
+        ItemStack var0 = ItemStack.EMPTY;
+        Slot var1 = this.slots.get(param1);
+        if (var1 != null && var1.hasItem()) {
+            ItemStack var2 = var1.getItem();
+            var0 = var2.copy();
+            if (param1 == 2) {
+                if (!this.moveItemStackTo(var2, 3, 39, true)) {
+                    return ItemStack.EMPTY;
+                }
+
+                var1.onQuickCraft(var2, var0);
+            } else if (param1 != 0 && param1 != 1) {
+                if (param1 >= 3 && param1 < 39 && !this.moveItemStackTo(var2, 0, 2, false)) {
+                    return ItemStack.EMPTY;
+                }
+            } else if (!this.moveItemStackTo(var2, 3, 39, false)) {
+                return ItemStack.EMPTY;
+            }
+
+            if (var2.isEmpty()) {
+                var1.set(ItemStack.EMPTY);
+            } else {
+                var1.setChanged();
+            }
+
+            if (var2.getCount() == var0.getCount()) {
+                return ItemStack.EMPTY;
+            }
+
+            var1.onTake(param0, var2);
+        }
+
+        return var0;
+    }
+
+    public void setItemName(String param0) {
+        this.itemName = param0;
+        if (this.getSlot(2).hasItem()) {
+            ItemStack var0 = this.getSlot(2).getItem();
+            if (StringUtils.isBlank(param0)) {
+                var0.resetHoverName();
+            } else {
+                var0.setHoverName(new TextComponent(this.itemName));
+            }
+        }
+
+        this.createResult();
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public int getCost() {
+        return this.cost.get();
+    }
+}

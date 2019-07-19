@@ -1,0 +1,48 @@
+package net.minecraft.network.protocol.game;
+
+import java.io.IOException;
+import javax.annotation.Nullable;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.world.entity.Entity;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
+public class ClientboundSetEntityLinkPacket implements Packet<ClientGamePacketListener> {
+    private int sourceId;
+    private int destId;
+
+    public ClientboundSetEntityLinkPacket() {
+    }
+
+    public ClientboundSetEntityLinkPacket(Entity param0, @Nullable Entity param1) {
+        this.sourceId = param0.getId();
+        this.destId = param1 != null ? param1.getId() : 0;
+    }
+
+    @Override
+    public void read(FriendlyByteBuf param0) throws IOException {
+        this.sourceId = param0.readInt();
+        this.destId = param0.readInt();
+    }
+
+    @Override
+    public void write(FriendlyByteBuf param0) throws IOException {
+        param0.writeInt(this.sourceId);
+        param0.writeInt(this.destId);
+    }
+
+    public void handle(ClientGamePacketListener param0) {
+        param0.handleEntityLinkPacket(this);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public int getSourceId() {
+        return this.sourceId;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public int getDestId() {
+        return this.destId;
+    }
+}

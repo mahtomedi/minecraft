@@ -1,0 +1,2082 @@
+package net.minecraft.world.entity.player;
+
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.mojang.authlib.GameProfile;
+import com.mojang.datafixers.util.Either;
+import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.UUID;
+import java.util.function.Predicate;
+import javax.annotation.Nullable;
+import net.minecraft.SharedConstants;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.stats.Stat;
+import net.minecraft.stats.Stats;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.util.Mth;
+import net.minecraft.util.Unit;
+import net.minecraft.world.Container;
+import net.minecraft.world.Difficulty;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffectUtil;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobType;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.animal.Parrot;
+import net.minecraft.world.entity.animal.Pig;
+import net.minecraft.world.entity.animal.horse.AbstractHorse;
+import net.minecraft.world.entity.boss.EnderDragonPart;
+import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.entity.fishing.FishingHook;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.monster.SharedMonsterAttributes;
+import net.minecraft.world.entity.vehicle.AbstractMinecart;
+import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.food.FoodData;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.inventory.PlayerEnderChestContainer;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.AxeItem;
+import net.minecraft.world.item.ElytraItem;
+import net.minecraft.world.item.ItemCooldowns;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ProjectileWeaponItem;
+import net.minecraft.world.item.SwordItem;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.trading.MerchantOffers;
+import net.minecraft.world.level.BaseCommandBlock;
+import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.BedBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.entity.CommandBlockEntity;
+import net.minecraft.world.level.block.entity.JigsawBlockEntity;
+import net.minecraft.world.level.block.entity.SignBlockEntity;
+import net.minecraft.world.level.block.entity.StructureBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.pattern.BlockInWorld;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.scores.PlayerTeam;
+import net.minecraft.world.scores.Scoreboard;
+import net.minecraft.world.scores.Team;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
+public abstract class Player extends LivingEntity {
+    public static final EntityDimensions STANDING_DIMENSIONS = EntityDimensions.scalable(0.6F, 1.8F);
+    private static final Map<Pose, EntityDimensions> POSES = ImmutableMap.<Pose, EntityDimensions>builder()
+        .put(Pose.STANDING, STANDING_DIMENSIONS)
+        .put(Pose.SLEEPING, SLEEPING_DIMENSIONS)
+        .put(Pose.FALL_FLYING, EntityDimensions.scalable(0.6F, 0.6F))
+        .put(Pose.SWIMMING, EntityDimensions.scalable(0.6F, 0.6F))
+        .put(Pose.SPIN_ATTACK, EntityDimensions.scalable(0.6F, 0.6F))
+        .put(Pose.SNEAKING, EntityDimensions.scalable(0.6F, 1.5F))
+        .put(Pose.DYING, EntityDimensions.fixed(0.2F, 0.2F))
+        .build();
+    private static final EntityDataAccessor<Float> DATA_PLAYER_ABSORPTION_ID = SynchedEntityData.defineId(Player.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Integer> DATA_SCORE_ID = SynchedEntityData.defineId(Player.class, EntityDataSerializers.INT);
+    protected static final EntityDataAccessor<Byte> DATA_PLAYER_MODE_CUSTOMISATION = SynchedEntityData.defineId(Player.class, EntityDataSerializers.BYTE);
+    protected static final EntityDataAccessor<Byte> DATA_PLAYER_MAIN_HAND = SynchedEntityData.defineId(Player.class, EntityDataSerializers.BYTE);
+    protected static final EntityDataAccessor<CompoundTag> DATA_SHOULDER_LEFT = SynchedEntityData.defineId(Player.class, EntityDataSerializers.COMPOUND_TAG);
+    protected static final EntityDataAccessor<CompoundTag> DATA_SHOULDER_RIGHT = SynchedEntityData.defineId(Player.class, EntityDataSerializers.COMPOUND_TAG);
+    private long timeEntitySatOnShoulder;
+    public final Inventory inventory = new Inventory(this);
+    protected PlayerEnderChestContainer enderChestInventory = new PlayerEnderChestContainer();
+    public final InventoryMenu inventoryMenu;
+    public AbstractContainerMenu containerMenu;
+    protected FoodData foodData = new FoodData();
+    protected int jumpTriggerTime;
+    public float oBob;
+    public float bob;
+    public int takeXpDelay;
+    public double xCloakO;
+    public double yCloakO;
+    public double zCloakO;
+    public double xCloak;
+    public double yCloak;
+    public double zCloak;
+    private int sleepCounter;
+    protected boolean wasUnderwater;
+    private BlockPos respawnPosition;
+    private boolean respawnForced;
+    public final Abilities abilities = new Abilities();
+    public int experienceLevel;
+    public int totalExperience;
+    public float experienceProgress;
+    protected int enchantmentSeed;
+    protected final float defaultFlySpeed = 0.02F;
+    private int lastLevelUpTime;
+    private final GameProfile gameProfile;
+    @OnlyIn(Dist.CLIENT)
+    private boolean reducedDebugInfo;
+    private ItemStack lastItemInMainHand = ItemStack.EMPTY;
+    private final ItemCooldowns cooldowns = this.createItemCooldowns();
+    @Nullable
+    public FishingHook fishing;
+
+    public Player(Level param0, GameProfile param1) {
+        super(EntityType.PLAYER, param0);
+        this.setUUID(createPlayerUUID(param1));
+        this.gameProfile = param1;
+        this.inventoryMenu = new InventoryMenu(this.inventory, !param0.isClientSide, this);
+        this.containerMenu = this.inventoryMenu;
+        BlockPos var0 = param0.getSharedSpawnPos();
+        this.moveTo((double)var0.getX() + 0.5, (double)(var0.getY() + 1), (double)var0.getZ() + 0.5, 0.0F, 0.0F);
+        this.rotOffs = 180.0F;
+    }
+
+    public boolean blockActionRestricted(Level param0, BlockPos param1, GameType param2) {
+        if (!param2.isBlockPlacingRestricted()) {
+            return false;
+        } else if (param2 == GameType.SPECTATOR) {
+            return true;
+        } else if (this.mayBuild()) {
+            return false;
+        } else {
+            ItemStack var0 = this.getMainHandItem();
+            return var0.isEmpty() || !var0.hasAdventureModeBreakTagForBlock(param0.getTagManager(), new BlockInWorld(param0, param1, false));
+        }
+    }
+
+    @Override
+    protected void registerAttributes() {
+        super.registerAttributes();
+        this.getAttributes().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(1.0);
+        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.1F);
+        this.getAttributes().registerAttribute(SharedMonsterAttributes.ATTACK_SPEED);
+        this.getAttributes().registerAttribute(SharedMonsterAttributes.LUCK);
+    }
+
+    @Override
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(DATA_PLAYER_ABSORPTION_ID, 0.0F);
+        this.entityData.define(DATA_SCORE_ID, 0);
+        this.entityData.define(DATA_PLAYER_MODE_CUSTOMISATION, (byte)0);
+        this.entityData.define(DATA_PLAYER_MAIN_HAND, (byte)1);
+        this.entityData.define(DATA_SHOULDER_LEFT, new CompoundTag());
+        this.entityData.define(DATA_SHOULDER_RIGHT, new CompoundTag());
+    }
+
+    @Override
+    public void tick() {
+        this.noPhysics = this.isSpectator();
+        if (this.isSpectator()) {
+            this.onGround = false;
+        }
+
+        if (this.takeXpDelay > 0) {
+            --this.takeXpDelay;
+        }
+
+        if (this.isSleeping()) {
+            ++this.sleepCounter;
+            if (this.sleepCounter > 100) {
+                this.sleepCounter = 100;
+            }
+
+            if (!this.level.isClientSide && this.level.isDay()) {
+                this.stopSleepInBed(false, true, true);
+            }
+        } else if (this.sleepCounter > 0) {
+            ++this.sleepCounter;
+            if (this.sleepCounter >= 110) {
+                this.sleepCounter = 0;
+            }
+        }
+
+        this.updateIsUnderwater();
+        super.tick();
+        if (!this.level.isClientSide && this.containerMenu != null && !this.containerMenu.stillValid(this)) {
+            this.closeContainer();
+            this.containerMenu = this.inventoryMenu;
+        }
+
+        if (this.isOnFire() && this.abilities.invulnerable) {
+            this.clearFire();
+        }
+
+        this.moveCloak();
+        if (!this.level.isClientSide) {
+            this.foodData.tick(this);
+            this.awardStat(Stats.PLAY_ONE_MINUTE);
+            if (this.isAlive()) {
+                this.awardStat(Stats.TIME_SINCE_DEATH);
+            }
+
+            if (this.isSneaking()) {
+                this.awardStat(Stats.SNEAK_TIME);
+            }
+
+            if (!this.isSleeping()) {
+                this.awardStat(Stats.TIME_SINCE_REST);
+            }
+        }
+
+        int var0 = 29999999;
+        double var1 = Mth.clamp(this.x, -2.9999999E7, 2.9999999E7);
+        double var2 = Mth.clamp(this.z, -2.9999999E7, 2.9999999E7);
+        if (var1 != this.x || var2 != this.z) {
+            this.setPos(var1, this.y, var2);
+        }
+
+        ++this.attackStrengthTicker;
+        ItemStack var3 = this.getMainHandItem();
+        if (!ItemStack.matches(this.lastItemInMainHand, var3)) {
+            if (!ItemStack.isSameIgnoreDurability(this.lastItemInMainHand, var3)) {
+                this.resetAttackStrengthTicker();
+            }
+
+            this.lastItemInMainHand = var3.isEmpty() ? ItemStack.EMPTY : var3.copy();
+        }
+
+        this.turtleHelmetTick();
+        this.cooldowns.tick();
+        this.updatePlayerPose();
+    }
+
+    protected boolean updateIsUnderwater() {
+        this.wasUnderwater = this.isUnderLiquid(FluidTags.WATER, true);
+        return this.wasUnderwater;
+    }
+
+    private void turtleHelmetTick() {
+        ItemStack var0 = this.getItemBySlot(EquipmentSlot.HEAD);
+        if (var0.getItem() == Items.TURTLE_HELMET && !this.isUnderLiquid(FluidTags.WATER)) {
+            this.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING, 200, 0, false, false, true));
+        }
+
+    }
+
+    protected ItemCooldowns createItemCooldowns() {
+        return new ItemCooldowns();
+    }
+
+    private void moveCloak() {
+        this.xCloakO = this.xCloak;
+        this.yCloakO = this.yCloak;
+        this.zCloakO = this.zCloak;
+        double var0 = this.x - this.xCloak;
+        double var1 = this.y - this.yCloak;
+        double var2 = this.z - this.zCloak;
+        double var3 = 10.0;
+        if (var0 > 10.0) {
+            this.xCloak = this.x;
+            this.xCloakO = this.xCloak;
+        }
+
+        if (var2 > 10.0) {
+            this.zCloak = this.z;
+            this.zCloakO = this.zCloak;
+        }
+
+        if (var1 > 10.0) {
+            this.yCloak = this.y;
+            this.yCloakO = this.yCloak;
+        }
+
+        if (var0 < -10.0) {
+            this.xCloak = this.x;
+            this.xCloakO = this.xCloak;
+        }
+
+        if (var2 < -10.0) {
+            this.zCloak = this.z;
+            this.zCloakO = this.zCloak;
+        }
+
+        if (var1 < -10.0) {
+            this.yCloak = this.y;
+            this.yCloakO = this.yCloak;
+        }
+
+        this.xCloak += var0 * 0.25;
+        this.zCloak += var2 * 0.25;
+        this.yCloak += var1 * 0.25;
+    }
+
+    protected void updatePlayerPose() {
+        if (this.canEnterPose(Pose.SWIMMING)) {
+            Pose var0;
+            if (this.isFallFlying()) {
+                var0 = Pose.FALL_FLYING;
+            } else if (this.isSleeping()) {
+                var0 = Pose.SLEEPING;
+            } else if (this.isSwimming()) {
+                var0 = Pose.SWIMMING;
+            } else if (this.isAutoSpinAttack()) {
+                var0 = Pose.SPIN_ATTACK;
+            } else if (this.isSneaking() && !this.abilities.flying) {
+                var0 = Pose.SNEAKING;
+            } else {
+                var0 = Pose.STANDING;
+            }
+
+            Pose var6;
+            if (this.isSpectator() || this.isPassenger() || this.canEnterPose(var0)) {
+                var6 = var0;
+            } else if (this.canEnterPose(Pose.SNEAKING)) {
+                var6 = Pose.SNEAKING;
+            } else {
+                var6 = Pose.SWIMMING;
+            }
+
+            this.setPose(var6);
+        }
+    }
+
+    @Override
+    public int getPortalWaitTime() {
+        return this.abilities.invulnerable ? 1 : 80;
+    }
+
+    @Override
+    protected SoundEvent getSwimSound() {
+        return SoundEvents.PLAYER_SWIM;
+    }
+
+    @Override
+    protected SoundEvent getSwimSplashSound() {
+        return SoundEvents.PLAYER_SPLASH;
+    }
+
+    @Override
+    protected SoundEvent getSwimHighSpeedSplashSound() {
+        return SoundEvents.PLAYER_SPLASH_HIGH_SPEED;
+    }
+
+    @Override
+    public int getDimensionChangingDelay() {
+        return 10;
+    }
+
+    @Override
+    public void playSound(SoundEvent param0, float param1, float param2) {
+        this.level.playSound(this, this.x, this.y, this.z, param0, this.getSoundSource(), param1, param2);
+    }
+
+    public void playNotifySound(SoundEvent param0, SoundSource param1, float param2, float param3) {
+    }
+
+    @Override
+    public SoundSource getSoundSource() {
+        return SoundSource.PLAYERS;
+    }
+
+    @Override
+    protected int getFireImmuneTicks() {
+        return 20;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public void handleEntityEvent(byte param0) {
+        if (param0 == 9) {
+            this.completeUsingItem();
+        } else if (param0 == 23) {
+            this.reducedDebugInfo = false;
+        } else if (param0 == 22) {
+            this.reducedDebugInfo = true;
+        } else if (param0 == 43) {
+            this.addParticlesAroundSelf(ParticleTypes.CLOUD);
+        } else {
+            super.handleEntityEvent(param0);
+        }
+
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private void addParticlesAroundSelf(ParticleOptions param0) {
+        for(int var0 = 0; var0 < 5; ++var0) {
+            double var1 = this.random.nextGaussian() * 0.02;
+            double var2 = this.random.nextGaussian() * 0.02;
+            double var3 = this.random.nextGaussian() * 0.02;
+            this.level
+                .addParticle(
+                    param0,
+                    this.x + (double)(this.random.nextFloat() * this.getBbWidth() * 2.0F) - (double)this.getBbWidth(),
+                    this.y + 1.0 + (double)(this.random.nextFloat() * this.getBbHeight()),
+                    this.z + (double)(this.random.nextFloat() * this.getBbWidth() * 2.0F) - (double)this.getBbWidth(),
+                    var1,
+                    var2,
+                    var3
+                );
+        }
+
+    }
+
+    protected void closeContainer() {
+        this.containerMenu = this.inventoryMenu;
+    }
+
+    @Override
+    public void rideTick() {
+        if (!this.level.isClientSide && this.isSneaking() && this.isPassenger()) {
+            this.stopRiding();
+            this.setSneaking(false);
+        } else {
+            double var0 = this.x;
+            double var1 = this.y;
+            double var2 = this.z;
+            float var3 = this.yRot;
+            float var4 = this.xRot;
+            super.rideTick();
+            this.oBob = this.bob;
+            this.bob = 0.0F;
+            this.checkRidingStatistiscs(this.x - var0, this.y - var1, this.z - var2);
+            if (this.getVehicle() instanceof Pig) {
+                this.xRot = var4;
+                this.yRot = var3;
+                this.yBodyRot = ((Pig)this.getVehicle()).yBodyRot;
+            }
+
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public void resetPos() {
+        this.setPose(Pose.STANDING);
+        super.resetPos();
+        this.setHealth(this.getMaxHealth());
+        this.deathTime = 0;
+    }
+
+    @Override
+    protected void serverAiStep() {
+        super.serverAiStep();
+        this.updateSwingTime();
+        this.yHeadRot = this.yRot;
+    }
+
+    @Override
+    public void aiStep() {
+        if (this.jumpTriggerTime > 0) {
+            --this.jumpTriggerTime;
+        }
+
+        if (this.level.getDifficulty() == Difficulty.PEACEFUL && this.level.getGameRules().getBoolean(GameRules.RULE_NATURAL_REGENERATION)) {
+            if (this.getHealth() < this.getMaxHealth() && this.tickCount % 20 == 0) {
+                this.heal(1.0F);
+            }
+
+            if (this.foodData.needsFood() && this.tickCount % 10 == 0) {
+                this.foodData.setFoodLevel(this.foodData.getFoodLevel() + 1);
+            }
+        }
+
+        this.inventory.tick();
+        this.oBob = this.bob;
+        super.aiStep();
+        AttributeInstance var0 = this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
+        if (!this.level.isClientSide) {
+            var0.setBaseValue((double)this.abilities.getWalkingSpeed());
+        }
+
+        this.flyingSpeed = 0.02F;
+        if (this.isSprinting()) {
+            this.flyingSpeed = (float)((double)this.flyingSpeed + 0.005999999865889549);
+        }
+
+        this.setSpeed((float)var0.getValue());
+        float var2;
+        if (this.onGround && !(this.getHealth() <= 0.0F) && !this.isSwimming()) {
+            var2 = Math.min(0.1F, Mth.sqrt(getHorizontalDistanceSqr(this.getDeltaMovement())));
+        } else {
+            var2 = 0.0F;
+        }
+
+        this.bob += (var2 - this.bob) * 0.4F;
+        if (this.getHealth() > 0.0F && !this.isSpectator()) {
+            AABB var3;
+            if (this.isPassenger() && !this.getVehicle().removed) {
+                var3 = this.getBoundingBox().minmax(this.getVehicle().getBoundingBox()).inflate(1.0, 0.0, 1.0);
+            } else {
+                var3 = this.getBoundingBox().inflate(1.0, 0.5, 1.0);
+            }
+
+            List<Entity> var5 = this.level.getEntities(this, var3);
+
+            for(int var6 = 0; var6 < var5.size(); ++var6) {
+                Entity var7 = var5.get(var6);
+                if (!var7.removed) {
+                    this.touch(var7);
+                }
+            }
+        }
+
+        this.playShoulderEntityAmbientSound(this.getShoulderEntityLeft());
+        this.playShoulderEntityAmbientSound(this.getShoulderEntityRight());
+        if (!this.level.isClientSide && (this.fallDistance > 0.5F || this.isInWater() || this.isPassenger()) || this.abilities.flying || this.isSleeping()) {
+            this.removeEntitiesOnShoulder();
+        }
+
+    }
+
+    private void playShoulderEntityAmbientSound(@Nullable CompoundTag param0) {
+        if (param0 != null && !param0.contains("Silent") || !param0.getBoolean("Silent")) {
+            String var0 = param0.getString("id");
+            EntityType.byString(var0).filter(param0x -> param0x == EntityType.PARROT).ifPresent(param0x -> Parrot.playAmbientSound(this.level, this));
+        }
+
+    }
+
+    private void touch(Entity param0) {
+        param0.playerTouch(this);
+    }
+
+    public int getScore() {
+        return this.entityData.get(DATA_SCORE_ID);
+    }
+
+    public void setScore(int param0) {
+        this.entityData.set(DATA_SCORE_ID, param0);
+    }
+
+    public void increaseScore(int param0) {
+        int var0 = this.getScore();
+        this.entityData.set(DATA_SCORE_ID, var0 + param0);
+    }
+
+    @Override
+    public void die(DamageSource param0) {
+        super.die(param0);
+        this.setPos(this.x, this.y, this.z);
+        if (!this.isSpectator()) {
+            this.dropAllDeathLoot(param0);
+        }
+
+        if (param0 != null) {
+            this.setDeltaMovement(
+                (double)(-Mth.cos((this.hurtDir + this.yRot) * (float) (Math.PI / 180.0)) * 0.1F),
+                0.1F,
+                (double)(-Mth.sin((this.hurtDir + this.yRot) * (float) (Math.PI / 180.0)) * 0.1F)
+            );
+        } else {
+            this.setDeltaMovement(0.0, 0.1, 0.0);
+        }
+
+        this.awardStat(Stats.DEATHS);
+        this.resetStat(Stats.CUSTOM.get(Stats.TIME_SINCE_DEATH));
+        this.resetStat(Stats.CUSTOM.get(Stats.TIME_SINCE_REST));
+        this.clearFire();
+        this.setSharedFlag(0, false);
+    }
+
+    @Override
+    protected void dropEquipment() {
+        super.dropEquipment();
+        if (!this.level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
+            this.destroyVanishingCursedItems();
+            this.inventory.dropAll();
+        }
+
+    }
+
+    protected void destroyVanishingCursedItems() {
+        for(int var0 = 0; var0 < this.inventory.getContainerSize(); ++var0) {
+            ItemStack var1 = this.inventory.getItem(var0);
+            if (!var1.isEmpty() && EnchantmentHelper.hasVanishingCurse(var1)) {
+                this.inventory.removeItemNoUpdate(var0);
+            }
+        }
+
+    }
+
+    @Override
+    protected SoundEvent getHurtSound(DamageSource param0) {
+        if (param0 == DamageSource.ON_FIRE) {
+            return SoundEvents.PLAYER_HURT_ON_FIRE;
+        } else if (param0 == DamageSource.DROWN) {
+            return SoundEvents.PLAYER_HURT_DROWN;
+        } else {
+            return param0 == DamageSource.SWEET_BERRY_BUSH ? SoundEvents.PLAYER_HURT_SWEET_BERRY_BUSH : SoundEvents.PLAYER_HURT;
+        }
+    }
+
+    @Override
+    protected SoundEvent getDeathSound() {
+        return SoundEvents.PLAYER_DEATH;
+    }
+
+    @Nullable
+    public ItemEntity drop(boolean param0) {
+        return this.drop(
+            this.inventory.removeItem(this.inventory.selected, param0 && !this.inventory.getSelected().isEmpty() ? this.inventory.getSelected().getCount() : 1),
+            false,
+            true
+        );
+    }
+
+    @Nullable
+    public ItemEntity drop(ItemStack param0, boolean param1) {
+        return this.drop(param0, false, param1);
+    }
+
+    @Nullable
+    public ItemEntity drop(ItemStack param0, boolean param1, boolean param2) {
+        if (param0.isEmpty()) {
+            return null;
+        } else {
+            double var0 = this.y - 0.3F + (double)this.getEyeHeight();
+            ItemEntity var1 = new ItemEntity(this.level, this.x, var0, this.z, param0);
+            var1.setPickUpDelay(40);
+            if (param2) {
+                var1.setThrower(this.getUUID());
+            }
+
+            if (param1) {
+                float var2 = this.random.nextFloat() * 0.5F;
+                float var3 = this.random.nextFloat() * (float) (Math.PI * 2);
+                this.setDeltaMovement((double)(-Mth.sin(var3) * var2), 0.2F, (double)(Mth.cos(var3) * var2));
+            } else {
+                float var4 = 0.3F;
+                float var5 = Mth.sin(this.xRot * (float) (Math.PI / 180.0));
+                float var6 = Mth.cos(this.xRot * (float) (Math.PI / 180.0));
+                float var7 = Mth.sin(this.yRot * (float) (Math.PI / 180.0));
+                float var8 = Mth.cos(this.yRot * (float) (Math.PI / 180.0));
+                float var9 = this.random.nextFloat() * (float) (Math.PI * 2);
+                float var10 = 0.02F * this.random.nextFloat();
+                var1.setDeltaMovement(
+                    (double)(-var7 * var6 * 0.3F) + Math.cos((double)var9) * (double)var10,
+                    (double)(-var5 * 0.3F + 0.1F + (this.random.nextFloat() - this.random.nextFloat()) * 0.1F),
+                    (double)(var8 * var6 * 0.3F) + Math.sin((double)var9) * (double)var10
+                );
+            }
+
+            return var1;
+        }
+    }
+
+    public float getDestroySpeed(BlockState param0) {
+        float var0 = this.inventory.getDestroySpeed(param0);
+        if (var0 > 1.0F) {
+            int var1 = EnchantmentHelper.getBlockEfficiency(this);
+            ItemStack var2 = this.getMainHandItem();
+            if (var1 > 0 && !var2.isEmpty()) {
+                var0 += (float)(var1 * var1 + 1);
+            }
+        }
+
+        if (MobEffectUtil.hasDigSpeed(this)) {
+            var0 *= 1.0F + (float)(MobEffectUtil.getDigSpeedAmplification(this) + 1) * 0.2F;
+        }
+
+        if (this.hasEffect(MobEffects.DIG_SLOWDOWN)) {
+            float var3;
+            switch(this.getEffect(MobEffects.DIG_SLOWDOWN).getAmplifier()) {
+                case 0:
+                    var3 = 0.3F;
+                    break;
+                case 1:
+                    var3 = 0.09F;
+                    break;
+                case 2:
+                    var3 = 0.0027F;
+                    break;
+                case 3:
+                default:
+                    var3 = 8.1E-4F;
+            }
+
+            var0 *= var3;
+        }
+
+        if (this.isUnderLiquid(FluidTags.WATER) && !EnchantmentHelper.hasAquaAffinity(this)) {
+            var0 /= 5.0F;
+        }
+
+        if (!this.onGround) {
+            var0 /= 5.0F;
+        }
+
+        return var0;
+    }
+
+    public boolean canDestroy(BlockState param0) {
+        return param0.getMaterial().isAlwaysDestroyable() || this.inventory.canDestroy(param0);
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag param0) {
+        super.readAdditionalSaveData(param0);
+        this.setUUID(createPlayerUUID(this.gameProfile));
+        ListTag var0 = param0.getList("Inventory", 10);
+        this.inventory.load(var0);
+        this.inventory.selected = param0.getInt("SelectedItemSlot");
+        this.sleepCounter = param0.getShort("SleepTimer");
+        this.experienceProgress = param0.getFloat("XpP");
+        this.experienceLevel = param0.getInt("XpLevel");
+        this.totalExperience = param0.getInt("XpTotal");
+        this.enchantmentSeed = param0.getInt("XpSeed");
+        if (this.enchantmentSeed == 0) {
+            this.enchantmentSeed = this.random.nextInt();
+        }
+
+        this.setScore(param0.getInt("Score"));
+        if (param0.contains("SpawnX", 99) && param0.contains("SpawnY", 99) && param0.contains("SpawnZ", 99)) {
+            this.respawnPosition = new BlockPos(param0.getInt("SpawnX"), param0.getInt("SpawnY"), param0.getInt("SpawnZ"));
+            this.respawnForced = param0.getBoolean("SpawnForced");
+        }
+
+        this.foodData.readAdditionalSaveData(param0);
+        this.abilities.loadSaveData(param0);
+        if (param0.contains("EnderItems", 9)) {
+            this.enderChestInventory.fromTag(param0.getList("EnderItems", 10));
+        }
+
+        if (param0.contains("ShoulderEntityLeft", 10)) {
+            this.setShoulderEntityLeft(param0.getCompound("ShoulderEntityLeft"));
+        }
+
+        if (param0.contains("ShoulderEntityRight", 10)) {
+            this.setShoulderEntityRight(param0.getCompound("ShoulderEntityRight"));
+        }
+
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundTag param0) {
+        super.addAdditionalSaveData(param0);
+        param0.putInt("DataVersion", SharedConstants.getCurrentVersion().getWorldVersion());
+        param0.put("Inventory", this.inventory.save(new ListTag()));
+        param0.putInt("SelectedItemSlot", this.inventory.selected);
+        param0.putShort("SleepTimer", (short)this.sleepCounter);
+        param0.putFloat("XpP", this.experienceProgress);
+        param0.putInt("XpLevel", this.experienceLevel);
+        param0.putInt("XpTotal", this.totalExperience);
+        param0.putInt("XpSeed", this.enchantmentSeed);
+        param0.putInt("Score", this.getScore());
+        if (this.respawnPosition != null) {
+            param0.putInt("SpawnX", this.respawnPosition.getX());
+            param0.putInt("SpawnY", this.respawnPosition.getY());
+            param0.putInt("SpawnZ", this.respawnPosition.getZ());
+            param0.putBoolean("SpawnForced", this.respawnForced);
+        }
+
+        this.foodData.addAdditionalSaveData(param0);
+        this.abilities.addSaveData(param0);
+        param0.put("EnderItems", this.enderChestInventory.createTag());
+        if (!this.getShoulderEntityLeft().isEmpty()) {
+            param0.put("ShoulderEntityLeft", this.getShoulderEntityLeft());
+        }
+
+        if (!this.getShoulderEntityRight().isEmpty()) {
+            param0.put("ShoulderEntityRight", this.getShoulderEntityRight());
+        }
+
+    }
+
+    @Override
+    public boolean hurt(DamageSource param0, float param1) {
+        if (this.isInvulnerableTo(param0)) {
+            return false;
+        } else if (this.abilities.invulnerable && !param0.isBypassInvul()) {
+            return false;
+        } else {
+            this.noActionTime = 0;
+            if (this.getHealth() <= 0.0F) {
+                return false;
+            } else {
+                this.removeEntitiesOnShoulder();
+                if (param0.scalesWithDifficulty()) {
+                    if (this.level.getDifficulty() == Difficulty.PEACEFUL) {
+                        param1 = 0.0F;
+                    }
+
+                    if (this.level.getDifficulty() == Difficulty.EASY) {
+                        param1 = Math.min(param1 / 2.0F + 1.0F, param1);
+                    }
+
+                    if (this.level.getDifficulty() == Difficulty.HARD) {
+                        param1 = param1 * 3.0F / 2.0F;
+                    }
+                }
+
+                return param1 == 0.0F ? false : super.hurt(param0, param1);
+            }
+        }
+    }
+
+    @Override
+    protected void blockUsingShield(LivingEntity param0) {
+        super.blockUsingShield(param0);
+        if (param0.getMainHandItem().getItem() instanceof AxeItem) {
+            this.disableShield(true);
+        }
+
+    }
+
+    public boolean canHarmPlayer(Player param0) {
+        Team var0 = this.getTeam();
+        Team var1 = param0.getTeam();
+        if (var0 == null) {
+            return true;
+        } else {
+            return !var0.isAlliedTo(var1) ? true : var0.isAllowFriendlyFire();
+        }
+    }
+
+    @Override
+    protected void hurtArmor(float param0) {
+        this.inventory.hurtArmor(param0);
+    }
+
+    @Override
+    protected void hurtCurrentlyUsedShield(float param0) {
+        if (param0 >= 3.0F && this.useItem.getItem() == Items.SHIELD) {
+            int var0 = 1 + Mth.floor(param0);
+            InteractionHand var1 = this.getUsedItemHand();
+            this.useItem.hurtAndBreak(var0, this, param1 -> param1.broadcastBreakEvent(var1));
+            if (this.useItem.isEmpty()) {
+                if (var1 == InteractionHand.MAIN_HAND) {
+                    this.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+                } else {
+                    this.setItemSlot(EquipmentSlot.OFFHAND, ItemStack.EMPTY);
+                }
+
+                this.useItem = ItemStack.EMPTY;
+                this.playSound(SoundEvents.SHIELD_BREAK, 0.8F, 0.8F + this.level.random.nextFloat() * 0.4F);
+            }
+        }
+
+    }
+
+    @Override
+    protected void actuallyHurt(DamageSource param0, float param1) {
+        if (!this.isInvulnerableTo(param0)) {
+            param1 = this.getDamageAfterArmorAbsorb(param0, param1);
+            param1 = this.getDamageAfterMagicAbsorb(param0, param1);
+            float var8 = Math.max(param1 - this.getAbsorptionAmount(), 0.0F);
+            this.setAbsorptionAmount(this.getAbsorptionAmount() - (param1 - var8));
+            float var1 = param1 - var8;
+            if (var1 > 0.0F && var1 < 3.4028235E37F) {
+                this.awardStat(Stats.DAMAGE_ABSORBED, Math.round(var1 * 10.0F));
+            }
+
+            if (var8 != 0.0F) {
+                this.causeFoodExhaustion(param0.getFoodExhaustion());
+                float var2 = this.getHealth();
+                this.setHealth(this.getHealth() - var8);
+                this.getCombatTracker().recordDamage(param0, var2, var8);
+                if (var8 < 3.4028235E37F) {
+                    this.awardStat(Stats.DAMAGE_TAKEN, Math.round(var8 * 10.0F));
+                }
+
+            }
+        }
+    }
+
+    public void openTextEdit(SignBlockEntity param0) {
+    }
+
+    public void openMinecartCommandBlock(BaseCommandBlock param0) {
+    }
+
+    public void openCommandBlock(CommandBlockEntity param0) {
+    }
+
+    public void openStructureBlock(StructureBlockEntity param0) {
+    }
+
+    public void openJigsawBlock(JigsawBlockEntity param0) {
+    }
+
+    public void openHorseInventory(AbstractHorse param0, Container param1) {
+    }
+
+    public OptionalInt openMenu(@Nullable MenuProvider param0) {
+        return OptionalInt.empty();
+    }
+
+    public void sendMerchantOffers(int param0, MerchantOffers param1, int param2, int param3, boolean param4, boolean param5) {
+    }
+
+    public void openItemGui(ItemStack param0, InteractionHand param1) {
+    }
+
+    public InteractionResult interactOn(Entity param0, InteractionHand param1) {
+        if (this.isSpectator()) {
+            if (param0 instanceof MenuProvider) {
+                this.openMenu((MenuProvider)param0);
+            }
+
+            return InteractionResult.PASS;
+        } else {
+            ItemStack var0 = this.getItemInHand(param1);
+            ItemStack var1 = var0.isEmpty() ? ItemStack.EMPTY : var0.copy();
+            if (param0.interact(this, param1)) {
+                if (this.abilities.instabuild && var0 == this.getItemInHand(param1) && var0.getCount() < var1.getCount()) {
+                    var0.setCount(var1.getCount());
+                }
+
+                return InteractionResult.SUCCESS;
+            } else {
+                if (!var0.isEmpty() && param0 instanceof LivingEntity) {
+                    if (this.abilities.instabuild) {
+                        var0 = var1;
+                    }
+
+                    if (var0.interactEnemy(this, (LivingEntity)param0, param1)) {
+                        if (var0.isEmpty() && !this.abilities.instabuild) {
+                            this.setItemInHand(param1, ItemStack.EMPTY);
+                        }
+
+                        return InteractionResult.SUCCESS;
+                    }
+                }
+
+                return InteractionResult.PASS;
+            }
+        }
+    }
+
+    @Override
+    public double getRidingHeight() {
+        return -0.35;
+    }
+
+    @Override
+    public void stopRiding() {
+        super.stopRiding();
+        this.boardingCooldown = 0;
+    }
+
+    @Override
+    protected boolean isImmobile() {
+        return super.isImmobile() || this.isSleeping();
+    }
+
+    public void attack(Entity param0) {
+        if (param0.isAttackable()) {
+            if (!param0.skipAttackInteraction(this)) {
+                float var0 = (float)this.getAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getValue();
+                float var1;
+                if (param0 instanceof LivingEntity) {
+                    var1 = EnchantmentHelper.getDamageBonus(this.getMainHandItem(), ((LivingEntity)param0).getMobType());
+                } else {
+                    var1 = EnchantmentHelper.getDamageBonus(this.getMainHandItem(), MobType.UNDEFINED);
+                }
+
+                float var3 = this.getAttackStrengthScale(0.5F);
+                var0 *= 0.2F + var3 * var3 * 0.8F;
+                var1 *= var3;
+                this.resetAttackStrengthTicker();
+                if (var0 > 0.0F || var1 > 0.0F) {
+                    boolean var4 = var3 > 0.9F;
+                    boolean var5 = false;
+                    int var6 = 0;
+                    var6 += EnchantmentHelper.getKnockbackBonus(this);
+                    if (this.isSprinting() && var4) {
+                        this.level.playSound(null, this.x, this.y, this.z, SoundEvents.PLAYER_ATTACK_KNOCKBACK, this.getSoundSource(), 1.0F, 1.0F);
+                        ++var6;
+                        var5 = true;
+                    }
+
+                    boolean var7 = var4
+                        && this.fallDistance > 0.0F
+                        && !this.onGround
+                        && !this.onLadder()
+                        && !this.isInWater()
+                        && !this.hasEffect(MobEffects.BLINDNESS)
+                        && !this.isPassenger()
+                        && param0 instanceof LivingEntity;
+                    var7 = var7 && !this.isSprinting();
+                    if (var7) {
+                        var0 *= 1.5F;
+                    }
+
+                    var0 += var1;
+                    boolean var8 = false;
+                    double var9 = (double)(this.walkDist - this.walkDistO);
+                    if (var4 && !var7 && !var5 && this.onGround && var9 < (double)this.getSpeed()) {
+                        ItemStack var10 = this.getItemInHand(InteractionHand.MAIN_HAND);
+                        if (var10.getItem() instanceof SwordItem) {
+                            var8 = true;
+                        }
+                    }
+
+                    float var11 = 0.0F;
+                    boolean var12 = false;
+                    int var13 = EnchantmentHelper.getFireAspect(this);
+                    if (param0 instanceof LivingEntity) {
+                        var11 = ((LivingEntity)param0).getHealth();
+                        if (var13 > 0 && !param0.isOnFire()) {
+                            var12 = true;
+                            param0.setSecondsOnFire(1);
+                        }
+                    }
+
+                    Vec3 var14 = param0.getDeltaMovement();
+                    boolean var15 = param0.hurt(DamageSource.playerAttack(this), var0);
+                    if (var15) {
+                        if (var6 > 0) {
+                            if (param0 instanceof LivingEntity) {
+                                ((LivingEntity)param0)
+                                    .knockback(
+                                        this,
+                                        (float)var6 * 0.5F,
+                                        (double)Mth.sin(this.yRot * (float) (Math.PI / 180.0)),
+                                        (double)(-Mth.cos(this.yRot * (float) (Math.PI / 180.0)))
+                                    );
+                            } else {
+                                param0.push(
+                                    (double)(-Mth.sin(this.yRot * (float) (Math.PI / 180.0)) * (float)var6 * 0.5F),
+                                    0.1,
+                                    (double)(Mth.cos(this.yRot * (float) (Math.PI / 180.0)) * (float)var6 * 0.5F)
+                                );
+                            }
+
+                            this.setDeltaMovement(this.getDeltaMovement().multiply(0.6, 1.0, 0.6));
+                            this.setSprinting(false);
+                        }
+
+                        if (var8) {
+                            float var16 = 1.0F + EnchantmentHelper.getSweepingDamageRatio(this) * var0;
+
+                            for(LivingEntity var18 : this.level.getEntitiesOfClass(LivingEntity.class, param0.getBoundingBox().inflate(1.0, 0.25, 1.0))) {
+                                if (var18 != this
+                                    && var18 != param0
+                                    && !this.isAlliedTo(var18)
+                                    && (!(var18 instanceof ArmorStand) || !((ArmorStand)var18).isMarker())
+                                    && this.distanceToSqr(var18) < 9.0) {
+                                    var18.knockback(
+                                        this,
+                                        0.4F,
+                                        (double)Mth.sin(this.yRot * (float) (Math.PI / 180.0)),
+                                        (double)(-Mth.cos(this.yRot * (float) (Math.PI / 180.0)))
+                                    );
+                                    var18.hurt(DamageSource.playerAttack(this), var16);
+                                }
+                            }
+
+                            this.level.playSound(null, this.x, this.y, this.z, SoundEvents.PLAYER_ATTACK_SWEEP, this.getSoundSource(), 1.0F, 1.0F);
+                            this.sweepAttack();
+                        }
+
+                        if (param0 instanceof ServerPlayer && param0.hurtMarked) {
+                            ((ServerPlayer)param0).connection.send(new ClientboundSetEntityMotionPacket(param0));
+                            param0.hurtMarked = false;
+                            param0.setDeltaMovement(var14);
+                        }
+
+                        if (var7) {
+                            this.level.playSound(null, this.x, this.y, this.z, SoundEvents.PLAYER_ATTACK_CRIT, this.getSoundSource(), 1.0F, 1.0F);
+                            this.crit(param0);
+                        }
+
+                        if (!var7 && !var8) {
+                            if (var4) {
+                                this.level.playSound(null, this.x, this.y, this.z, SoundEvents.PLAYER_ATTACK_STRONG, this.getSoundSource(), 1.0F, 1.0F);
+                            } else {
+                                this.level.playSound(null, this.x, this.y, this.z, SoundEvents.PLAYER_ATTACK_WEAK, this.getSoundSource(), 1.0F, 1.0F);
+                            }
+                        }
+
+                        if (var1 > 0.0F) {
+                            this.magicCrit(param0);
+                        }
+
+                        this.setLastHurtMob(param0);
+                        if (param0 instanceof LivingEntity) {
+                            EnchantmentHelper.doPostHurtEffects((LivingEntity)param0, this);
+                        }
+
+                        EnchantmentHelper.doPostDamageEffects(this, param0);
+                        ItemStack var19 = this.getMainHandItem();
+                        Entity var20 = param0;
+                        if (param0 instanceof EnderDragonPart) {
+                            var20 = ((EnderDragonPart)param0).parentMob;
+                        }
+
+                        if (!this.level.isClientSide && !var19.isEmpty() && var20 instanceof LivingEntity) {
+                            var19.hurtEnemy((LivingEntity)var20, this);
+                            if (var19.isEmpty()) {
+                                this.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+                            }
+                        }
+
+                        if (param0 instanceof LivingEntity) {
+                            float var21 = var11 - ((LivingEntity)param0).getHealth();
+                            this.awardStat(Stats.DAMAGE_DEALT, Math.round(var21 * 10.0F));
+                            if (var13 > 0) {
+                                param0.setSecondsOnFire(var13 * 4);
+                            }
+
+                            if (this.level instanceof ServerLevel && var21 > 2.0F) {
+                                int var22 = (int)((double)var21 * 0.5);
+                                ((ServerLevel)this.level)
+                                    .sendParticles(
+                                        ParticleTypes.DAMAGE_INDICATOR,
+                                        param0.x,
+                                        param0.y + (double)(param0.getBbHeight() * 0.5F),
+                                        param0.z,
+                                        var22,
+                                        0.1,
+                                        0.0,
+                                        0.1,
+                                        0.2
+                                    );
+                            }
+                        }
+
+                        this.causeFoodExhaustion(0.1F);
+                    } else {
+                        this.level.playSound(null, this.x, this.y, this.z, SoundEvents.PLAYER_ATTACK_NODAMAGE, this.getSoundSource(), 1.0F, 1.0F);
+                        if (var12) {
+                            param0.clearFire();
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+
+    @Override
+    protected void doAutoAttackOnTouch(LivingEntity param0) {
+        this.attack(param0);
+    }
+
+    public void disableShield(boolean param0) {
+        float var0 = 0.25F + (float)EnchantmentHelper.getBlockEfficiency(this) * 0.05F;
+        if (param0) {
+            var0 += 0.75F;
+        }
+
+        if (this.random.nextFloat() < var0) {
+            this.getCooldowns().addCooldown(Items.SHIELD, 100);
+            this.stopUsingItem();
+            this.level.broadcastEntityEvent(this, (byte)30);
+        }
+
+    }
+
+    public void crit(Entity param0) {
+    }
+
+    public void magicCrit(Entity param0) {
+    }
+
+    public void sweepAttack() {
+        double var0 = (double)(-Mth.sin(this.yRot * (float) (Math.PI / 180.0)));
+        double var1 = (double)Mth.cos(this.yRot * (float) (Math.PI / 180.0));
+        if (this.level instanceof ServerLevel) {
+            ((ServerLevel)this.level)
+                .sendParticles(ParticleTypes.SWEEP_ATTACK, this.x + var0, this.y + (double)this.getBbHeight() * 0.5, this.z + var1, 0, var0, 0.0, var1, 0.0);
+        }
+
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public void respawn() {
+    }
+
+    @Override
+    public void remove() {
+        super.remove();
+        this.inventoryMenu.removed(this);
+        if (this.containerMenu != null) {
+            this.containerMenu.removed(this);
+        }
+
+    }
+
+    public boolean isLocalPlayer() {
+        return false;
+    }
+
+    public GameProfile getGameProfile() {
+        return this.gameProfile;
+    }
+
+    public Either<Player.BedSleepingProblem, Unit> startSleepInBed(BlockPos param0) {
+        Direction var0 = this.level.getBlockState(param0).getValue(HorizontalDirectionalBlock.FACING);
+        if (!this.level.isClientSide) {
+            if (this.isSleeping() || !this.isAlive()) {
+                return Either.left(Player.BedSleepingProblem.OTHER_PROBLEM);
+            }
+
+            if (!this.level.dimension.isNaturalDimension()) {
+                return Either.left(Player.BedSleepingProblem.NOT_POSSIBLE_HERE);
+            }
+
+            if (this.level.isDay()) {
+                return Either.left(Player.BedSleepingProblem.NOT_POSSIBLE_NOW);
+            }
+
+            if (!this.bedInRange(param0, var0)) {
+                return Either.left(Player.BedSleepingProblem.TOO_FAR_AWAY);
+            }
+
+            if (this.bedBlocked(param0, var0)) {
+                return Either.left(Player.BedSleepingProblem.OBSTRUCTED);
+            }
+
+            if (!this.isCreative()) {
+                double var1 = 8.0;
+                double var2 = 5.0;
+                List<Monster> var3 = this.level
+                    .getEntitiesOfClass(
+                        Monster.class,
+                        new AABB(
+                            (double)param0.getX() - 8.0,
+                            (double)param0.getY() - 5.0,
+                            (double)param0.getZ() - 8.0,
+                            (double)param0.getX() + 8.0,
+                            (double)param0.getY() + 5.0,
+                            (double)param0.getZ() + 8.0
+                        ),
+                        param0x -> param0x.isPreventingPlayerRest(this)
+                    );
+                if (!var3.isEmpty()) {
+                    return Either.left(Player.BedSleepingProblem.NOT_SAFE);
+                }
+            }
+        }
+
+        this.startSleeping(param0);
+        this.sleepCounter = 0;
+        if (this.level instanceof ServerLevel) {
+            ((ServerLevel)this.level).updateSleepingPlayerList();
+        }
+
+        return Either.right(Unit.INSTANCE);
+    }
+
+    @Override
+    public void startSleeping(BlockPos param0) {
+        this.resetStat(Stats.CUSTOM.get(Stats.TIME_SINCE_REST));
+        super.startSleeping(param0);
+    }
+
+    private boolean bedInRange(BlockPos param0, Direction param1) {
+        if (Math.abs(this.x - (double)param0.getX()) <= 3.0
+            && Math.abs(this.y - (double)param0.getY()) <= 2.0
+            && Math.abs(this.z - (double)param0.getZ()) <= 3.0) {
+            return true;
+        } else {
+            BlockPos var0 = param0.relative(param1.getOpposite());
+            return Math.abs(this.x - (double)var0.getX()) <= 3.0
+                && Math.abs(this.y - (double)var0.getY()) <= 2.0
+                && Math.abs(this.z - (double)var0.getZ()) <= 3.0;
+        }
+    }
+
+    private boolean bedBlocked(BlockPos param0, Direction param1) {
+        BlockPos var0 = param0.above();
+        return !this.freeAt(var0) || !this.freeAt(var0.relative(param1.getOpposite()));
+    }
+
+    public void stopSleepInBed(boolean param0, boolean param1, boolean param2) {
+        Optional<BlockPos> var0 = this.getSleepingPos();
+        super.stopSleeping();
+        if (this.level instanceof ServerLevel && param1) {
+            ((ServerLevel)this.level).updateSleepingPlayerList();
+        }
+
+        this.sleepCounter = param0 ? 0 : 100;
+        if (param2) {
+            var0.ifPresent(param0x -> this.setRespawnPosition(param0x, false));
+        }
+
+    }
+
+    @Override
+    public void stopSleeping() {
+        this.stopSleepInBed(true, true, false);
+    }
+
+    public static Optional<Vec3> checkBedValidRespawnPosition(LevelReader param0, BlockPos param1, boolean param2) {
+        Block var0 = param0.getBlockState(param1).getBlock();
+        if (!(var0 instanceof BedBlock)) {
+            if (!param2) {
+                return Optional.empty();
+            } else {
+                boolean var1 = var0.isPossibleToRespawnInThis();
+                boolean var2 = param0.getBlockState(param1.above()).getBlock().isPossibleToRespawnInThis();
+                return var1 && var2
+                    ? Optional.of(new Vec3((double)param1.getX() + 0.5, (double)param1.getY() + 0.1, (double)param1.getZ() + 0.5))
+                    : Optional.empty();
+            }
+        } else {
+            return BedBlock.findStandUpPosition(EntityType.PLAYER, param0, param1, 0);
+        }
+    }
+
+    public boolean isSleepingLongEnough() {
+        return this.isSleeping() && this.sleepCounter >= 100;
+    }
+
+    public int getSleepTimer() {
+        return this.sleepCounter;
+    }
+
+    public void displayClientMessage(Component param0, boolean param1) {
+    }
+
+    public BlockPos getRespawnPosition() {
+        return this.respawnPosition;
+    }
+
+    public boolean isRespawnForced() {
+        return this.respawnForced;
+    }
+
+    public void setRespawnPosition(BlockPos param0, boolean param1) {
+        if (param0 != null) {
+            this.respawnPosition = param0;
+            this.respawnForced = param1;
+        } else {
+            this.respawnPosition = null;
+            this.respawnForced = false;
+        }
+
+    }
+
+    public void awardStat(ResourceLocation param0) {
+        this.awardStat(Stats.CUSTOM.get(param0));
+    }
+
+    public void awardStat(ResourceLocation param0, int param1) {
+        this.awardStat(Stats.CUSTOM.get(param0), param1);
+    }
+
+    public void awardStat(Stat<?> param0) {
+        this.awardStat(param0, 1);
+    }
+
+    public void awardStat(Stat<?> param0, int param1) {
+    }
+
+    public void resetStat(Stat<?> param0) {
+    }
+
+    public int awardRecipes(Collection<Recipe<?>> param0) {
+        return 0;
+    }
+
+    public void awardRecipesByKey(ResourceLocation[] param0) {
+    }
+
+    public int resetRecipes(Collection<Recipe<?>> param0) {
+        return 0;
+    }
+
+    @Override
+    public void jumpFromGround() {
+        super.jumpFromGround();
+        this.awardStat(Stats.JUMP);
+        if (this.isSprinting()) {
+            this.causeFoodExhaustion(0.2F);
+        } else {
+            this.causeFoodExhaustion(0.05F);
+        }
+
+    }
+
+    @Override
+    public void travel(Vec3 param0) {
+        double var0 = this.x;
+        double var1 = this.y;
+        double var2 = this.z;
+        if (this.isSwimming() && !this.isPassenger()) {
+            double var3 = this.getLookAngle().y;
+            double var4 = var3 < -0.2 ? 0.085 : 0.06;
+            if (var3 <= 0.0 || this.jumping || !this.level.getBlockState(new BlockPos(this.x, this.y + 1.0 - 0.1, this.z)).getFluidState().isEmpty()) {
+                Vec3 var5 = this.getDeltaMovement();
+                this.setDeltaMovement(var5.add(0.0, (var3 - var5.y) * var4, 0.0));
+            }
+        }
+
+        if (this.abilities.flying && !this.isPassenger()) {
+            double var6 = this.getDeltaMovement().y;
+            float var7 = this.flyingSpeed;
+            this.flyingSpeed = this.abilities.getFlyingSpeed() * (float)(this.isSprinting() ? 2 : 1);
+            super.travel(param0);
+            Vec3 var8 = this.getDeltaMovement();
+            this.setDeltaMovement(var8.x, var6 * 0.6, var8.z);
+            this.flyingSpeed = var7;
+            this.fallDistance = 0.0F;
+            this.setSharedFlag(7, false);
+        } else {
+            super.travel(param0);
+        }
+
+        this.checkMovementStatistics(this.x - var0, this.y - var1, this.z - var2);
+    }
+
+    @Override
+    public void updateSwimming() {
+        if (this.abilities.flying) {
+            this.setSwimming(false);
+        } else {
+            super.updateSwimming();
+        }
+
+    }
+
+    protected boolean freeAt(BlockPos param0) {
+        return !this.level.getBlockState(param0).isViewBlocking(this.level, param0);
+    }
+
+    @Override
+    public float getSpeed() {
+        return (float)this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getValue();
+    }
+
+    public void checkMovementStatistics(double param0, double param1, double param2) {
+        if (!this.isPassenger()) {
+            if (this.isSwimming()) {
+                int var0 = Math.round(Mth.sqrt(param0 * param0 + param1 * param1 + param2 * param2) * 100.0F);
+                if (var0 > 0) {
+                    this.awardStat(Stats.SWIM_ONE_CM, var0);
+                    this.causeFoodExhaustion(0.01F * (float)var0 * 0.01F);
+                }
+            } else if (this.isUnderLiquid(FluidTags.WATER, true)) {
+                int var1 = Math.round(Mth.sqrt(param0 * param0 + param1 * param1 + param2 * param2) * 100.0F);
+                if (var1 > 0) {
+                    this.awardStat(Stats.WALK_UNDER_WATER_ONE_CM, var1);
+                    this.causeFoodExhaustion(0.01F * (float)var1 * 0.01F);
+                }
+            } else if (this.isInWater()) {
+                int var2 = Math.round(Mth.sqrt(param0 * param0 + param2 * param2) * 100.0F);
+                if (var2 > 0) {
+                    this.awardStat(Stats.WALK_ON_WATER_ONE_CM, var2);
+                    this.causeFoodExhaustion(0.01F * (float)var2 * 0.01F);
+                }
+            } else if (this.onLadder()) {
+                if (param1 > 0.0) {
+                    this.awardStat(Stats.CLIMB_ONE_CM, (int)Math.round(param1 * 100.0));
+                }
+            } else if (this.onGround) {
+                int var3 = Math.round(Mth.sqrt(param0 * param0 + param2 * param2) * 100.0F);
+                if (var3 > 0) {
+                    if (this.isSprinting()) {
+                        this.awardStat(Stats.SPRINT_ONE_CM, var3);
+                        this.causeFoodExhaustion(0.1F * (float)var3 * 0.01F);
+                    } else if (this.isSneaking()) {
+                        this.awardStat(Stats.CROUCH_ONE_CM, var3);
+                        this.causeFoodExhaustion(0.0F * (float)var3 * 0.01F);
+                    } else {
+                        this.awardStat(Stats.WALK_ONE_CM, var3);
+                        this.causeFoodExhaustion(0.0F * (float)var3 * 0.01F);
+                    }
+                }
+            } else if (this.isFallFlying()) {
+                int var4 = Math.round(Mth.sqrt(param0 * param0 + param1 * param1 + param2 * param2) * 100.0F);
+                this.awardStat(Stats.AVIATE_ONE_CM, var4);
+            } else {
+                int var5 = Math.round(Mth.sqrt(param0 * param0 + param2 * param2) * 100.0F);
+                if (var5 > 25) {
+                    this.awardStat(Stats.FLY_ONE_CM, var5);
+                }
+            }
+
+        }
+    }
+
+    private void checkRidingStatistiscs(double param0, double param1, double param2) {
+        if (this.isPassenger()) {
+            int var0 = Math.round(Mth.sqrt(param0 * param0 + param1 * param1 + param2 * param2) * 100.0F);
+            if (var0 > 0) {
+                if (this.getVehicle() instanceof AbstractMinecart) {
+                    this.awardStat(Stats.MINECART_ONE_CM, var0);
+                } else if (this.getVehicle() instanceof Boat) {
+                    this.awardStat(Stats.BOAT_ONE_CM, var0);
+                } else if (this.getVehicle() instanceof Pig) {
+                    this.awardStat(Stats.PIG_ONE_CM, var0);
+                } else if (this.getVehicle() instanceof AbstractHorse) {
+                    this.awardStat(Stats.HORSE_ONE_CM, var0);
+                }
+            }
+        }
+
+    }
+
+    @Override
+    public void causeFallDamage(float param0, float param1) {
+        if (!this.abilities.mayfly) {
+            if (param0 >= 2.0F) {
+                this.awardStat(Stats.FALL_ONE_CM, (int)Math.round((double)param0 * 100.0));
+            }
+
+            super.causeFallDamage(param0, param1);
+        }
+    }
+
+    @Override
+    protected void doWaterSplashEffect() {
+        if (!this.isSpectator()) {
+            super.doWaterSplashEffect();
+        }
+
+    }
+
+    @Override
+    protected SoundEvent getFallDamageSound(int param0) {
+        return param0 > 4 ? SoundEvents.PLAYER_BIG_FALL : SoundEvents.PLAYER_SMALL_FALL;
+    }
+
+    @Override
+    public void killed(LivingEntity param0) {
+        this.awardStat(Stats.ENTITY_KILLED.get(param0.getType()));
+    }
+
+    @Override
+    public void makeStuckInBlock(BlockState param0, Vec3 param1) {
+        if (!this.abilities.flying) {
+            super.makeStuckInBlock(param0, param1);
+        }
+
+    }
+
+    public void giveExperiencePoints(int param0) {
+        this.increaseScore(param0);
+        this.experienceProgress += (float)param0 / (float)this.getXpNeededForNextLevel();
+        this.totalExperience = Mth.clamp(this.totalExperience + param0, 0, Integer.MAX_VALUE);
+
+        while(this.experienceProgress < 0.0F) {
+            float var0 = this.experienceProgress * (float)this.getXpNeededForNextLevel();
+            if (this.experienceLevel > 0) {
+                this.giveExperienceLevels(-1);
+                this.experienceProgress = 1.0F + var0 / (float)this.getXpNeededForNextLevel();
+            } else {
+                this.giveExperienceLevels(-1);
+                this.experienceProgress = 0.0F;
+            }
+        }
+
+        while(this.experienceProgress >= 1.0F) {
+            this.experienceProgress = (this.experienceProgress - 1.0F) * (float)this.getXpNeededForNextLevel();
+            this.giveExperienceLevels(1);
+            this.experienceProgress /= (float)this.getXpNeededForNextLevel();
+        }
+
+    }
+
+    public int getEnchantmentSeed() {
+        return this.enchantmentSeed;
+    }
+
+    public void onEnchantmentPerformed(ItemStack param0, int param1) {
+        this.experienceLevel -= param1;
+        if (this.experienceLevel < 0) {
+            this.experienceLevel = 0;
+            this.experienceProgress = 0.0F;
+            this.totalExperience = 0;
+        }
+
+        this.enchantmentSeed = this.random.nextInt();
+    }
+
+    public void giveExperienceLevels(int param0) {
+        this.experienceLevel += param0;
+        if (this.experienceLevel < 0) {
+            this.experienceLevel = 0;
+            this.experienceProgress = 0.0F;
+            this.totalExperience = 0;
+        }
+
+        if (param0 > 0 && this.experienceLevel % 5 == 0 && (float)this.lastLevelUpTime < (float)this.tickCount - 100.0F) {
+            float var0 = this.experienceLevel > 30 ? 1.0F : (float)this.experienceLevel / 30.0F;
+            this.level.playSound(null, this.x, this.y, this.z, SoundEvents.PLAYER_LEVELUP, this.getSoundSource(), var0 * 0.75F, 1.0F);
+            this.lastLevelUpTime = this.tickCount;
+        }
+
+    }
+
+    public int getXpNeededForNextLevel() {
+        if (this.experienceLevel >= 30) {
+            return 112 + (this.experienceLevel - 30) * 9;
+        } else {
+            return this.experienceLevel >= 15 ? 37 + (this.experienceLevel - 15) * 5 : 7 + this.experienceLevel * 2;
+        }
+    }
+
+    public void causeFoodExhaustion(float param0) {
+        if (!this.abilities.invulnerable) {
+            if (!this.level.isClientSide) {
+                this.foodData.addExhaustion(param0);
+            }
+
+        }
+    }
+
+    public FoodData getFoodData() {
+        return this.foodData;
+    }
+
+    public boolean canEat(boolean param0) {
+        return !this.abilities.invulnerable && (param0 || this.foodData.needsFood());
+    }
+
+    public boolean isHurt() {
+        return this.getHealth() > 0.0F && this.getHealth() < this.getMaxHealth();
+    }
+
+    public boolean mayBuild() {
+        return this.abilities.mayBuild;
+    }
+
+    public boolean mayUseItemAt(BlockPos param0, Direction param1, ItemStack param2) {
+        if (this.abilities.mayBuild) {
+            return true;
+        } else {
+            BlockPos var0 = param0.relative(param1.getOpposite());
+            BlockInWorld var1 = new BlockInWorld(this.level, var0, false);
+            return param2.hasAdventureModePlaceTagForBlock(this.level.getTagManager(), var1);
+        }
+    }
+
+    @Override
+    protected int getExperienceReward(Player param0) {
+        if (!this.level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY) && !this.isSpectator()) {
+            int var0 = this.experienceLevel * 7;
+            return var0 > 100 ? 100 : var0;
+        } else {
+            return 0;
+        }
+    }
+
+    @Override
+    protected boolean isAlwaysExperienceDropper() {
+        return true;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public boolean shouldShowName() {
+        return true;
+    }
+
+    @Override
+    protected boolean makeStepSound() {
+        return !this.abilities.flying;
+    }
+
+    public void onUpdateAbilities() {
+    }
+
+    public void setGameMode(GameType param0) {
+    }
+
+    @Override
+    public Component getName() {
+        return new TextComponent(this.gameProfile.getName());
+    }
+
+    public PlayerEnderChestContainer getEnderChestInventory() {
+        return this.enderChestInventory;
+    }
+
+    @Override
+    public ItemStack getItemBySlot(EquipmentSlot param0) {
+        if (param0 == EquipmentSlot.MAINHAND) {
+            return this.inventory.getSelected();
+        } else if (param0 == EquipmentSlot.OFFHAND) {
+            return this.inventory.offhand.get(0);
+        } else {
+            return param0.getType() == EquipmentSlot.Type.ARMOR ? this.inventory.armor.get(param0.getIndex()) : ItemStack.EMPTY;
+        }
+    }
+
+    @Override
+    public void setItemSlot(EquipmentSlot param0, ItemStack param1) {
+        if (param0 == EquipmentSlot.MAINHAND) {
+            this.playEquipSound(param1);
+            this.inventory.items.set(this.inventory.selected, param1);
+        } else if (param0 == EquipmentSlot.OFFHAND) {
+            this.playEquipSound(param1);
+            this.inventory.offhand.set(0, param1);
+        } else if (param0.getType() == EquipmentSlot.Type.ARMOR) {
+            this.playEquipSound(param1);
+            this.inventory.armor.set(param0.getIndex(), param1);
+        }
+
+    }
+
+    public boolean addItem(ItemStack param0) {
+        this.playEquipSound(param0);
+        return this.inventory.add(param0);
+    }
+
+    @Override
+    public Iterable<ItemStack> getHandSlots() {
+        return Lists.newArrayList(this.getMainHandItem(), this.getOffhandItem());
+    }
+
+    @Override
+    public Iterable<ItemStack> getArmorSlots() {
+        return this.inventory.armor;
+    }
+
+    public boolean setEntityOnShoulder(CompoundTag param0) {
+        if (this.isPassenger() || !this.onGround || this.isInWater()) {
+            return false;
+        } else if (this.getShoulderEntityLeft().isEmpty()) {
+            this.setShoulderEntityLeft(param0);
+            this.timeEntitySatOnShoulder = this.level.getGameTime();
+            return true;
+        } else if (this.getShoulderEntityRight().isEmpty()) {
+            this.setShoulderEntityRight(param0);
+            this.timeEntitySatOnShoulder = this.level.getGameTime();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    protected void removeEntitiesOnShoulder() {
+        if (this.timeEntitySatOnShoulder + 20L < this.level.getGameTime()) {
+            this.respawnEntityOnShoulder(this.getShoulderEntityLeft());
+            this.setShoulderEntityLeft(new CompoundTag());
+            this.respawnEntityOnShoulder(this.getShoulderEntityRight());
+            this.setShoulderEntityRight(new CompoundTag());
+        }
+
+    }
+
+    private void respawnEntityOnShoulder(CompoundTag param0) {
+        if (!this.level.isClientSide && !param0.isEmpty()) {
+            EntityType.create(param0, this.level).ifPresent(param0x -> {
+                if (param0x instanceof TamableAnimal) {
+                    ((TamableAnimal)param0x).setOwnerUUID(this.uuid);
+                }
+
+                param0x.setPos(this.x, this.y + 0.7F, this.z);
+                ((ServerLevel)this.level).addWithUUID(param0x);
+            });
+        }
+
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public boolean isInvisibleTo(Player param0) {
+        if (!this.isInvisible()) {
+            return false;
+        } else if (param0.isSpectator()) {
+            return false;
+        } else {
+            Team var0 = this.getTeam();
+            return var0 == null || param0 == null || param0.getTeam() != var0 || !var0.canSeeFriendlyInvisibles();
+        }
+    }
+
+    @Override
+    public abstract boolean isSpectator();
+
+    @Override
+    public boolean isSwimming() {
+        return !this.abilities.flying && !this.isSpectator() && super.isSwimming();
+    }
+
+    public abstract boolean isCreative();
+
+    @Override
+    public boolean isPushedByWater() {
+        return !this.abilities.flying;
+    }
+
+    public Scoreboard getScoreboard() {
+        return this.level.getScoreboard();
+    }
+
+    @Override
+    public Component getDisplayName() {
+        Component var0 = PlayerTeam.formatNameForTeam(this.getTeam(), this.getName());
+        return this.decorateDisplayNameComponent(var0);
+    }
+
+    public Component getDisplayNameWithUuid() {
+        return new TextComponent("").append(this.getName()).append(" (").append(this.gameProfile.getId().toString()).append(")");
+    }
+
+    private Component decorateDisplayNameComponent(Component param0) {
+        String var0 = this.getGameProfile().getName();
+        return param0.withStyle(
+            param1 -> param1.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/tell " + var0 + " "))
+                    .setHoverEvent(this.createHoverEvent())
+                    .setInsertion(var0)
+        );
+    }
+
+    @Override
+    public String getScoreboardName() {
+        return this.getGameProfile().getName();
+    }
+
+    @Override
+    public float getStandingEyeHeight(Pose param0, EntityDimensions param1) {
+        switch(param0) {
+            case SWIMMING:
+            case FALL_FLYING:
+            case SPIN_ATTACK:
+                return 0.4F;
+            case SNEAKING:
+                return 1.27F;
+            default:
+                return 1.62F;
+        }
+    }
+
+    @Override
+    public void setAbsorptionAmount(float param0) {
+        if (param0 < 0.0F) {
+            param0 = 0.0F;
+        }
+
+        this.getEntityData().set(DATA_PLAYER_ABSORPTION_ID, param0);
+    }
+
+    @Override
+    public float getAbsorptionAmount() {
+        return this.getEntityData().get(DATA_PLAYER_ABSORPTION_ID);
+    }
+
+    public static UUID createPlayerUUID(GameProfile param0) {
+        UUID var0 = param0.getId();
+        if (var0 == null) {
+            var0 = createPlayerUUID(param0.getName());
+        }
+
+        return var0;
+    }
+
+    public static UUID createPlayerUUID(String param0) {
+        return UUID.nameUUIDFromBytes(("OfflinePlayer:" + param0).getBytes(StandardCharsets.UTF_8));
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public boolean isModelPartShown(PlayerModelPart param0) {
+        return (this.getEntityData().get(DATA_PLAYER_MODE_CUSTOMISATION) & param0.getMask()) == param0.getMask();
+    }
+
+    @Override
+    public boolean setSlot(int param0, ItemStack param1) {
+        if (param0 >= 0 && param0 < this.inventory.items.size()) {
+            this.inventory.setItem(param0, param1);
+            return true;
+        } else {
+            EquipmentSlot var0;
+            if (param0 == 100 + EquipmentSlot.HEAD.getIndex()) {
+                var0 = EquipmentSlot.HEAD;
+            } else if (param0 == 100 + EquipmentSlot.CHEST.getIndex()) {
+                var0 = EquipmentSlot.CHEST;
+            } else if (param0 == 100 + EquipmentSlot.LEGS.getIndex()) {
+                var0 = EquipmentSlot.LEGS;
+            } else if (param0 == 100 + EquipmentSlot.FEET.getIndex()) {
+                var0 = EquipmentSlot.FEET;
+            } else {
+                var0 = null;
+            }
+
+            if (param0 == 98) {
+                this.setItemSlot(EquipmentSlot.MAINHAND, param1);
+                return true;
+            } else if (param0 == 99) {
+                this.setItemSlot(EquipmentSlot.OFFHAND, param1);
+                return true;
+            } else if (var0 == null) {
+                int var5 = param0 - 200;
+                if (var5 >= 0 && var5 < this.enderChestInventory.getContainerSize()) {
+                    this.enderChestInventory.setItem(var5, param1);
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                if (!param1.isEmpty()) {
+                    if (!(param1.getItem() instanceof ArmorItem) && !(param1.getItem() instanceof ElytraItem)) {
+                        if (var0 != EquipmentSlot.HEAD) {
+                            return false;
+                        }
+                    } else if (Mob.getEquipmentSlotForItem(param1) != var0) {
+                        return false;
+                    }
+                }
+
+                this.inventory.setItem(var0.getIndex() + this.inventory.items.size(), param1);
+                return true;
+            }
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public boolean isReducedDebugInfo() {
+        return this.reducedDebugInfo;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public void setReducedDebugInfo(boolean param0) {
+        this.reducedDebugInfo = param0;
+    }
+
+    @Override
+    public HumanoidArm getMainArm() {
+        return this.entityData.get(DATA_PLAYER_MAIN_HAND) == 0 ? HumanoidArm.LEFT : HumanoidArm.RIGHT;
+    }
+
+    public void setMainArm(HumanoidArm param0) {
+        this.entityData.set(DATA_PLAYER_MAIN_HAND, (byte)(param0 == HumanoidArm.LEFT ? 0 : 1));
+    }
+
+    public CompoundTag getShoulderEntityLeft() {
+        return this.entityData.get(DATA_SHOULDER_LEFT);
+    }
+
+    protected void setShoulderEntityLeft(CompoundTag param0) {
+        this.entityData.set(DATA_SHOULDER_LEFT, param0);
+    }
+
+    public CompoundTag getShoulderEntityRight() {
+        return this.entityData.get(DATA_SHOULDER_RIGHT);
+    }
+
+    protected void setShoulderEntityRight(CompoundTag param0) {
+        this.entityData.set(DATA_SHOULDER_RIGHT, param0);
+    }
+
+    public float getCurrentItemAttackStrengthDelay() {
+        return (float)(1.0 / this.getAttribute(SharedMonsterAttributes.ATTACK_SPEED).getValue() * 20.0);
+    }
+
+    public float getAttackStrengthScale(float param0) {
+        return Mth.clamp(((float)this.attackStrengthTicker + param0) / this.getCurrentItemAttackStrengthDelay(), 0.0F, 1.0F);
+    }
+
+    public void resetAttackStrengthTicker() {
+        this.attackStrengthTicker = 0;
+    }
+
+    public ItemCooldowns getCooldowns() {
+        return this.cooldowns;
+    }
+
+    public float getLuck() {
+        return (float)this.getAttribute(SharedMonsterAttributes.LUCK).getValue();
+    }
+
+    public boolean canUseGameMasterBlocks() {
+        return this.abilities.instabuild && this.getPermissionLevel() >= 2;
+    }
+
+    @Override
+    public boolean canTakeItem(ItemStack param0) {
+        EquipmentSlot var0 = Mob.getEquipmentSlotForItem(param0);
+        return this.getItemBySlot(var0).isEmpty();
+    }
+
+    @Override
+    public EntityDimensions getDimensions(Pose param0) {
+        return POSES.getOrDefault(param0, STANDING_DIMENSIONS);
+    }
+
+    @Override
+    public ItemStack getProjectile(ItemStack param0) {
+        if (!(param0.getItem() instanceof ProjectileWeaponItem)) {
+            return ItemStack.EMPTY;
+        } else {
+            Predicate<ItemStack> var0 = ((ProjectileWeaponItem)param0.getItem()).getSupportedHeldProjectiles();
+            ItemStack var1 = ProjectileWeaponItem.getHeldProjectile(this, var0);
+            if (!var1.isEmpty()) {
+                return var1;
+            } else {
+                var0 = ((ProjectileWeaponItem)param0.getItem()).getAllSupportedProjectiles();
+
+                for(int var2 = 0; var2 < this.inventory.getContainerSize(); ++var2) {
+                    ItemStack var3 = this.inventory.getItem(var2);
+                    if (var0.test(var3)) {
+                        return var3;
+                    }
+                }
+
+                return this.abilities.instabuild ? new ItemStack(Items.ARROW) : ItemStack.EMPTY;
+            }
+        }
+    }
+
+    @Override
+    public ItemStack eat(Level param0, ItemStack param1) {
+        this.getFoodData().eat(param1.getItem(), param1);
+        this.awardStat(Stats.ITEM_USED.get(param1.getItem()));
+        param0.playSound(null, this.x, this.y, this.z, SoundEvents.PLAYER_BURP, SoundSource.PLAYERS, 0.5F, param0.random.nextFloat() * 0.1F + 0.9F);
+        if (this instanceof ServerPlayer) {
+            CriteriaTriggers.CONSUME_ITEM.trigger((ServerPlayer)this, param1);
+        }
+
+        return super.eat(param0, param1);
+    }
+
+    public static enum BedSleepingProblem {
+        NOT_POSSIBLE_HERE,
+        NOT_POSSIBLE_NOW(new TranslatableComponent("block.minecraft.bed.no_sleep")),
+        TOO_FAR_AWAY(new TranslatableComponent("block.minecraft.bed.too_far_away")),
+        OBSTRUCTED(new TranslatableComponent("block.minecraft.bed.obstructed")),
+        OTHER_PROBLEM,
+        NOT_SAFE(new TranslatableComponent("block.minecraft.bed.not_safe"));
+
+        @Nullable
+        private final Component message;
+
+        private BedSleepingProblem() {
+            this.message = null;
+        }
+
+        private BedSleepingProblem(Component param0) {
+            this.message = param0;
+        }
+
+        @Nullable
+        public Component getMessage() {
+            return this.message;
+        }
+    }
+}

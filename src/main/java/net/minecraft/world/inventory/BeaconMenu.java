@@ -1,0 +1,176 @@
+package net.minecraft.world.inventory;
+
+import javax.annotation.Nullable;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
+public class BeaconMenu extends AbstractContainerMenu {
+    private final Container beacon = new SimpleContainer(1) {
+        @Override
+        public boolean canPlaceItem(int param0, ItemStack param1) {
+            return param1.getItem() == Items.EMERALD
+                || param1.getItem() == Items.DIAMOND
+                || param1.getItem() == Items.GOLD_INGOT
+                || param1.getItem() == Items.IRON_INGOT;
+        }
+
+        @Override
+        public int getMaxStackSize() {
+            return 1;
+        }
+    };
+    private final BeaconMenu.PaymentSlot paymentSlot;
+    private final ContainerLevelAccess access;
+    private final ContainerData beaconData;
+
+    public BeaconMenu(int param0, Container param1) {
+        this(param0, param1, new SimpleContainerData(3), ContainerLevelAccess.NULL);
+    }
+
+    public BeaconMenu(int param0, Container param1, ContainerData param2, ContainerLevelAccess param3) {
+        super(MenuType.BEACON, param0);
+        checkContainerDataCount(param2, 3);
+        this.beaconData = param2;
+        this.access = param3;
+        this.paymentSlot = new BeaconMenu.PaymentSlot(this.beacon, 0, 136, 110);
+        this.addSlot(this.paymentSlot);
+        this.addDataSlots(param2);
+        int var0 = 36;
+        int var1 = 137;
+
+        for(int var2 = 0; var2 < 3; ++var2) {
+            for(int var3 = 0; var3 < 9; ++var3) {
+                this.addSlot(new Slot(param1, var3 + var2 * 9 + 9, 36 + var3 * 18, 137 + var2 * 18));
+            }
+        }
+
+        for(int var4 = 0; var4 < 9; ++var4) {
+            this.addSlot(new Slot(param1, var4, 36 + var4 * 18, 195));
+        }
+
+    }
+
+    @Override
+    public void removed(Player param0) {
+        super.removed(param0);
+        if (!param0.level.isClientSide) {
+            ItemStack var0 = this.paymentSlot.remove(this.paymentSlot.getMaxStackSize());
+            if (!var0.isEmpty()) {
+                param0.drop(var0, false);
+            }
+
+        }
+    }
+
+    @Override
+    public boolean stillValid(Player param0) {
+        return stillValid(this.access, param0, Blocks.BEACON);
+    }
+
+    @Override
+    public void setData(int param0, int param1) {
+        super.setData(param0, param1);
+        this.broadcastChanges();
+    }
+
+    @Override
+    public ItemStack quickMoveStack(Player param0, int param1) {
+        ItemStack var0 = ItemStack.EMPTY;
+        Slot var1 = this.slots.get(param1);
+        if (var1 != null && var1.hasItem()) {
+            ItemStack var2 = var1.getItem();
+            var0 = var2.copy();
+            if (param1 == 0) {
+                if (!this.moveItemStackTo(var2, 1, 37, true)) {
+                    return ItemStack.EMPTY;
+                }
+
+                var1.onQuickCraft(var2, var0);
+            } else if (!this.paymentSlot.hasItem() && this.paymentSlot.mayPlace(var2) && var2.getCount() == 1) {
+                if (!this.moveItemStackTo(var2, 0, 1, false)) {
+                    return ItemStack.EMPTY;
+                }
+            } else if (param1 >= 1 && param1 < 28) {
+                if (!this.moveItemStackTo(var2, 28, 37, false)) {
+                    return ItemStack.EMPTY;
+                }
+            } else if (param1 >= 28 && param1 < 37) {
+                if (!this.moveItemStackTo(var2, 1, 28, false)) {
+                    return ItemStack.EMPTY;
+                }
+            } else if (!this.moveItemStackTo(var2, 1, 37, false)) {
+                return ItemStack.EMPTY;
+            }
+
+            if (var2.isEmpty()) {
+                var1.set(ItemStack.EMPTY);
+            } else {
+                var1.setChanged();
+            }
+
+            if (var2.getCount() == var0.getCount()) {
+                return ItemStack.EMPTY;
+            }
+
+            var1.onTake(param0, var2);
+        }
+
+        return var0;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public int getLevels() {
+        return this.beaconData.get(0);
+    }
+
+    @Nullable
+    @OnlyIn(Dist.CLIENT)
+    public MobEffect getPrimaryEffect() {
+        return MobEffect.byId(this.beaconData.get(1));
+    }
+
+    @Nullable
+    @OnlyIn(Dist.CLIENT)
+    public MobEffect getSecondaryEffect() {
+        return MobEffect.byId(this.beaconData.get(2));
+    }
+
+    public void updateEffects(int param0, int param1) {
+        if (this.paymentSlot.hasItem()) {
+            this.beaconData.set(1, param0);
+            this.beaconData.set(2, param1);
+            this.paymentSlot.remove(1);
+        }
+
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public boolean hasPayment() {
+        return !this.beacon.getItem(0).isEmpty();
+    }
+
+    class PaymentSlot extends Slot {
+        public PaymentSlot(Container param0, int param1, int param2, int param3) {
+            super(param0, param1, param2, param3);
+        }
+
+        @Override
+        public boolean mayPlace(ItemStack param0) {
+            Item var0 = param0.getItem();
+            return var0 == Items.EMERALD || var0 == Items.DIAMOND || var0 == Items.GOLD_INGOT || var0 == Items.IRON_INGOT;
+        }
+
+        @Override
+        public int getMaxStackSize() {
+            return 1;
+        }
+    }
+}

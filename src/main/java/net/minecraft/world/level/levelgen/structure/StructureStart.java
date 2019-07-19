@@ -1,0 +1,170 @@
+package net.minecraft.world.level.levelgen.structure;
+
+import com.google.common.collect.Lists;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.WorldgenRandom;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.StructureFeature;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
+
+public abstract class StructureStart {
+    public static final StructureStart INVALID_START = new StructureStart(Feature.MINESHAFT, 0, 0, Biomes.PLAINS, BoundingBox.getUnknownBox(), 0, 0L) {
+        @Override
+        public void generatePieces(ChunkGenerator<?> param0, StructureManager param1, int param2, int param3, Biome param4) {
+        }
+    };
+    private final StructureFeature<?> feature;
+    protected final List<StructurePiece> pieces = Lists.newArrayList();
+    protected BoundingBox boundingBox;
+    private final int chunkX;
+    private final int chunkZ;
+    private final Biome biome;
+    private int references;
+    protected final WorldgenRandom random;
+
+    public StructureStart(StructureFeature<?> param0, int param1, int param2, Biome param3, BoundingBox param4, int param5, long param6) {
+        this.feature = param0;
+        this.chunkX = param1;
+        this.chunkZ = param2;
+        this.references = param5;
+        this.biome = param3;
+        this.random = new WorldgenRandom();
+        this.random.setLargeFeatureSeed(param6, param1, param2);
+        this.boundingBox = param4;
+    }
+
+    public abstract void generatePieces(ChunkGenerator<?> var1, StructureManager var2, int var3, int var4, Biome var5);
+
+    public BoundingBox getBoundingBox() {
+        return this.boundingBox;
+    }
+
+    public List<StructurePiece> getPieces() {
+        return this.pieces;
+    }
+
+    public void postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
+        synchronized(this.pieces) {
+            Iterator<StructurePiece> var0 = this.pieces.iterator();
+
+            while(var0.hasNext()) {
+                StructurePiece var1 = var0.next();
+                if (var1.getBoundingBox().intersects(param2) && !var1.postProcess(param0, param1, param2, param3)) {
+                    var0.remove();
+                }
+            }
+
+            this.calculateBoundingBox();
+        }
+    }
+
+    protected void calculateBoundingBox() {
+        this.boundingBox = BoundingBox.getUnknownBox();
+
+        for(StructurePiece var0 : this.pieces) {
+            this.boundingBox.expand(var0.getBoundingBox());
+        }
+
+    }
+
+    public CompoundTag createTag(int param0, int param1) {
+        CompoundTag var0 = new CompoundTag();
+        if (this.isValid()) {
+            var0.putString("id", Registry.STRUCTURE_FEATURE.getKey(this.getFeature()).toString());
+            var0.putString("biome", Registry.BIOME.getKey(this.biome).toString());
+            var0.putInt("ChunkX", param0);
+            var0.putInt("ChunkZ", param1);
+            var0.putInt("references", this.references);
+            var0.put("BB", this.boundingBox.createTag());
+            ListTag var1 = new ListTag();
+            synchronized(this.pieces) {
+                for(StructurePiece var2 : this.pieces) {
+                    var1.add(var2.createTag());
+                }
+            }
+
+            var0.put("Children", var1);
+            return var0;
+        } else {
+            var0.putString("id", "INVALID");
+            return var0;
+        }
+    }
+
+    protected void moveBelowSeaLevel(int param0, Random param1, int param2) {
+        int var0 = param0 - param2;
+        int var1 = this.boundingBox.getYSpan() + 1;
+        if (var1 < var0) {
+            var1 += param1.nextInt(var0 - var1);
+        }
+
+        int var2 = var1 - this.boundingBox.y1;
+        this.boundingBox.move(0, var2, 0);
+
+        for(StructurePiece var3 : this.pieces) {
+            var3.move(0, var2, 0);
+        }
+
+    }
+
+    protected void moveInsideHeights(Random param0, int param1, int param2) {
+        int var0 = param2 - param1 + 1 - this.boundingBox.getYSpan();
+        int var1;
+        if (var0 > 1) {
+            var1 = param1 + param0.nextInt(var0);
+        } else {
+            var1 = param1;
+        }
+
+        int var3 = var1 - this.boundingBox.y0;
+        this.boundingBox.move(0, var3, 0);
+
+        for(StructurePiece var4 : this.pieces) {
+            var4.move(0, var3, 0);
+        }
+
+    }
+
+    public boolean isValid() {
+        return !this.pieces.isEmpty();
+    }
+
+    public int getChunkX() {
+        return this.chunkX;
+    }
+
+    public int getChunkZ() {
+        return this.chunkZ;
+    }
+
+    public BlockPos getLocatePos() {
+        return new BlockPos(this.chunkX << 4, 0, this.chunkZ << 4);
+    }
+
+    public boolean canBeReferenced() {
+        return this.references < this.getMaxReferences();
+    }
+
+    public void addReference() {
+        ++this.references;
+    }
+
+    protected int getMaxReferences() {
+        return 1;
+    }
+
+    public StructureFeature<?> getFeature() {
+        return this.feature;
+    }
+}

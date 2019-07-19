@@ -1,0 +1,115 @@
+package net.minecraft.world.level.storage.loot.functions;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSyntaxException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Random;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.EnchantedBookItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentInstance;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+public class EnchantRandomlyFunction extends LootItemConditionalFunction {
+    private static final Logger LOGGER = LogManager.getLogger();
+    private final List<Enchantment> enchantments;
+
+    private EnchantRandomlyFunction(LootItemCondition[] param0, Collection<Enchantment> param1) {
+        super(param0);
+        this.enchantments = ImmutableList.copyOf(param1);
+    }
+
+    @Override
+    public ItemStack run(ItemStack param0, LootContext param1) {
+        Random var0 = param1.getRandom();
+        Enchantment var3;
+        if (this.enchantments.isEmpty()) {
+            List<Enchantment> var1 = Lists.newArrayList();
+
+            for(Enchantment var2 : Registry.ENCHANTMENT) {
+                if (param0.getItem() == Items.BOOK || var2.canEnchant(param0)) {
+                    var1.add(var2);
+                }
+            }
+
+            if (var1.isEmpty()) {
+                LOGGER.warn("Couldn't find a compatible enchantment for {}", param0);
+                return param0;
+            }
+
+            var3 = var1.get(var0.nextInt(var1.size()));
+        } else {
+            var3 = this.enchantments.get(var0.nextInt(this.enchantments.size()));
+        }
+
+        int var5 = Mth.nextInt(var0, var3.getMinLevel(), var3.getMaxLevel());
+        if (param0.getItem() == Items.BOOK) {
+            param0 = new ItemStack(Items.ENCHANTED_BOOK);
+            EnchantedBookItem.addEnchantment(param0, new EnchantmentInstance(var3, var5));
+        } else {
+            param0.enchant(var3, var5);
+        }
+
+        return param0;
+    }
+
+    public static LootItemConditionalFunction.Builder<?> randomApplicableEnchantment() {
+        return simpleBuilder(param0 -> new EnchantRandomlyFunction(param0, ImmutableList.of()));
+    }
+
+    public static class Serializer extends LootItemConditionalFunction.Serializer<EnchantRandomlyFunction> {
+        public Serializer() {
+            super(new ResourceLocation("enchant_randomly"), EnchantRandomlyFunction.class);
+        }
+
+        public void serialize(JsonObject param0, EnchantRandomlyFunction param1, JsonSerializationContext param2) {
+            super.serialize(param0, param1, param2);
+            if (!param1.enchantments.isEmpty()) {
+                JsonArray var0 = new JsonArray();
+
+                for(Enchantment var1 : param1.enchantments) {
+                    ResourceLocation var2 = Registry.ENCHANTMENT.getKey(var1);
+                    if (var2 == null) {
+                        throw new IllegalArgumentException("Don't know how to serialize enchantment " + var1);
+                    }
+
+                    var0.add(new JsonPrimitive(var2.toString()));
+                }
+
+                param0.add("enchantments", var0);
+            }
+
+        }
+
+        public EnchantRandomlyFunction deserialize(JsonObject param0, JsonDeserializationContext param1, LootItemCondition[] param2) {
+            List<Enchantment> var0 = Lists.newArrayList();
+            if (param0.has("enchantments")) {
+                for(JsonElement var2 : GsonHelper.getAsJsonArray(param0, "enchantments")) {
+                    String var3 = GsonHelper.convertToString(var2, "enchantment");
+                    Enchantment var4 = Registry.ENCHANTMENT
+                        .getOptional(new ResourceLocation(var3))
+                        .orElseThrow(() -> new JsonSyntaxException("Unknown enchantment '" + var3 + "'"));
+                    var0.add(var4);
+                }
+            }
+
+            return new EnchantRandomlyFunction(param2, var0);
+        }
+    }
+}

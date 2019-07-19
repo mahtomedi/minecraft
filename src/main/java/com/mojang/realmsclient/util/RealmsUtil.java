@@ -1,0 +1,76 @@
+package com.mojang.realmsclient.util;
+
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.minecraft.MinecraftProfileTexture;
+import com.mojang.authlib.minecraft.MinecraftSessionService;
+import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
+import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
+import com.mojang.util.UUIDTypeAdapter;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import net.minecraft.realms.Realms;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
+@OnlyIn(Dist.CLIENT)
+public class RealmsUtil {
+    private static final YggdrasilAuthenticationService authenticationService = new YggdrasilAuthenticationService(
+        Realms.getProxy(), UUID.randomUUID().toString()
+    );
+    private static final MinecraftSessionService sessionService = authenticationService.createMinecraftSessionService();
+    public static LoadingCache<String, GameProfile> gameProfileCache = CacheBuilder.newBuilder()
+        .expireAfterWrite(60L, TimeUnit.MINUTES)
+        .build(new CacheLoader<String, GameProfile>() {
+            public GameProfile load(String param0) throws Exception {
+                GameProfile var0 = RealmsUtil.sessionService.fillProfileProperties(new GameProfile(UUIDTypeAdapter.fromString(param0), null), false);
+                if (var0 == null) {
+                    throw new Exception("Couldn't get profile");
+                } else {
+                    return var0;
+                }
+            }
+        });
+
+    public static String uuidToName(String param0) throws Exception {
+        GameProfile var0 = gameProfileCache.get(param0);
+        return var0.getName();
+    }
+
+    public static Map<Type, MinecraftProfileTexture> getTextures(String param0) {
+        try {
+            GameProfile var0 = gameProfileCache.get(param0);
+            return sessionService.getTextures(var0, false);
+        } catch (Exception var2) {
+            return new HashMap<>();
+        }
+    }
+
+    public static void browseTo(String param0) {
+        Realms.openUri(param0);
+    }
+
+    public static String convertToAgePresentation(Long param0) {
+        if (param0 < 0L) {
+            return "right now";
+        } else {
+            long var0 = param0 / 1000L;
+            if (var0 < 60L) {
+                return (var0 == 1L ? "1 second" : var0 + " seconds") + " ago";
+            } else if (var0 < 3600L) {
+                long var1 = var0 / 60L;
+                return (var1 == 1L ? "1 minute" : var1 + " minutes") + " ago";
+            } else if (var0 < 86400L) {
+                long var2 = var0 / 3600L;
+                return (var2 == 1L ? "1 hour" : var2 + " hours") + " ago";
+            } else {
+                long var3 = var0 / 86400L;
+                return (var3 == 1L ? "1 day" : var3 + " days") + " ago";
+            }
+        }
+    }
+}

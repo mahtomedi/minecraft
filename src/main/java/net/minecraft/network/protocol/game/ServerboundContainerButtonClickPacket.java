@@ -1,0 +1,45 @@
+package net.minecraft.network.protocol.game;
+
+import java.io.IOException;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.Packet;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
+public class ServerboundContainerButtonClickPacket implements Packet<ServerGamePacketListener> {
+    private int containerId;
+    private int buttonId;
+
+    public ServerboundContainerButtonClickPacket() {
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public ServerboundContainerButtonClickPacket(int param0, int param1) {
+        this.containerId = param0;
+        this.buttonId = param1;
+    }
+
+    public void handle(ServerGamePacketListener param0) {
+        param0.handleContainerButtonClick(this);
+    }
+
+    @Override
+    public void read(FriendlyByteBuf param0) throws IOException {
+        this.containerId = param0.readByte();
+        this.buttonId = param0.readByte();
+    }
+
+    @Override
+    public void write(FriendlyByteBuf param0) throws IOException {
+        param0.writeByte(this.containerId);
+        param0.writeByte(this.buttonId);
+    }
+
+    public int getContainerId() {
+        return this.containerId;
+    }
+
+    public int getButtonId() {
+        return this.buttonId;
+    }
+}

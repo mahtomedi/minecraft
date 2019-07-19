@@ -1,0 +1,84 @@
+package net.minecraft.world.level.storage.loot.entries;
+
+import com.google.common.collect.Lists;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.LootTableProblemCollector;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
+import org.apache.commons.lang3.ArrayUtils;
+
+public class AlternativesEntry extends CompositeEntryBase {
+    AlternativesEntry(LootPoolEntryContainer[] param0, LootItemCondition[] param1) {
+        super(param0, param1);
+    }
+
+    @Override
+    protected ComposableEntryContainer compose(ComposableEntryContainer[] param0) {
+        switch(param0.length) {
+            case 0:
+                return ALWAYS_FALSE;
+            case 1:
+                return param0[0];
+            case 2:
+                return param0[0].or(param0[1]);
+            default:
+                return (param1, param2) -> {
+                    for(ComposableEntryContainer var0 : param0) {
+                        if (var0.expand(param1, param2)) {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                };
+        }
+    }
+
+    @Override
+    public void validate(
+        LootTableProblemCollector param0, Function<ResourceLocation, LootTable> param1, Set<ResourceLocation> param2, LootContextParamSet param3
+    ) {
+        super.validate(param0, param1, param2, param3);
+
+        for(int var0 = 0; var0 < this.children.length - 1; ++var0) {
+            if (ArrayUtils.isEmpty((Object[])this.children[var0].conditions)) {
+                param0.reportProblem("Unreachable entry!");
+            }
+        }
+
+    }
+
+    public static AlternativesEntry.Builder alternatives(LootPoolEntryContainer.Builder<?>... param0) {
+        return new AlternativesEntry.Builder(param0);
+    }
+
+    public static class Builder extends LootPoolEntryContainer.Builder<AlternativesEntry.Builder> {
+        private final List<LootPoolEntryContainer> entries = Lists.newArrayList();
+
+        public Builder(LootPoolEntryContainer.Builder<?>... param0) {
+            for(LootPoolEntryContainer.Builder<?> var0 : param0) {
+                this.entries.add(var0.build());
+            }
+
+        }
+
+        protected AlternativesEntry.Builder getThis() {
+            return this;
+        }
+
+        @Override
+        public AlternativesEntry.Builder otherwise(LootPoolEntryContainer.Builder<?> param0) {
+            this.entries.add(param0.build());
+            return this;
+        }
+
+        @Override
+        public LootPoolEntryContainer build() {
+            return new AlternativesEntry(this.entries.toArray(new LootPoolEntryContainer[0]), this.getConditions());
+        }
+    }
+}

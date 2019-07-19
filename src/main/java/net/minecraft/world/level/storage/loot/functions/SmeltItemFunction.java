@@ -1,0 +1,58 @@
+package net.minecraft.world.level.storage.loot.functions;
+
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonObject;
+import java.util.Optional;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.SmeltingRecipe;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+public class SmeltItemFunction extends LootItemConditionalFunction {
+    private static final Logger LOGGER = LogManager.getLogger();
+
+    private SmeltItemFunction(LootItemCondition[] param0) {
+        super(param0);
+    }
+
+    @Override
+    public ItemStack run(ItemStack param0, LootContext param1) {
+        if (param0.isEmpty()) {
+            return param0;
+        } else {
+            Optional<SmeltingRecipe> var0 = param1.getLevel()
+                .getRecipeManager()
+                .getRecipeFor(RecipeType.SMELTING, new SimpleContainer(param0), param1.getLevel());
+            if (var0.isPresent()) {
+                ItemStack var1 = var0.get().getResultItem();
+                if (!var1.isEmpty()) {
+                    ItemStack var2 = var1.copy();
+                    var2.setCount(param0.getCount());
+                    return var2;
+                }
+            }
+
+            LOGGER.warn("Couldn't smelt {} because there is no smelting recipe", param0);
+            return param0;
+        }
+    }
+
+    public static LootItemConditionalFunction.Builder<?> smelted() {
+        return simpleBuilder(SmeltItemFunction::new);
+    }
+
+    public static class Serializer extends LootItemConditionalFunction.Serializer<SmeltItemFunction> {
+        protected Serializer() {
+            super(new ResourceLocation("furnace_smelt"), SmeltItemFunction.class);
+        }
+
+        public SmeltItemFunction deserialize(JsonObject param0, JsonDeserializationContext param1, LootItemCondition[] param2) {
+            return new SmeltItemFunction(param2);
+        }
+    }
+}

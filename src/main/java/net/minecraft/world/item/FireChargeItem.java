@@ -1,0 +1,47 @@
+package net.minecraft.world.item;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CampfireBlock;
+import net.minecraft.world.level.block.FireBlock;
+import net.minecraft.world.level.block.state.BlockState;
+
+public class FireChargeItem extends Item {
+    public FireChargeItem(Item.Properties param0) {
+        super(param0);
+    }
+
+    @Override
+    public InteractionResult useOn(UseOnContext param0) {
+        Level var0 = param0.getLevel();
+        if (var0.isClientSide) {
+            return InteractionResult.SUCCESS;
+        } else {
+            BlockPos var1 = param0.getClickedPos();
+            BlockState var2 = var0.getBlockState(var1);
+            if (var2.getBlock() == Blocks.CAMPFIRE) {
+                if (!var2.getValue(CampfireBlock.LIT) && !var2.getValue(CampfireBlock.WATERLOGGED)) {
+                    this.playSound(var0, var1);
+                    var0.setBlockAndUpdate(var1, var2.setValue(CampfireBlock.LIT, Boolean.valueOf(true)));
+                }
+            } else {
+                var1 = var1.relative(param0.getClickedFace());
+                if (var0.getBlockState(var1).isAir()) {
+                    this.playSound(var0, var1);
+                    var0.setBlockAndUpdate(var1, ((FireBlock)Blocks.FIRE).getStateForPlacement(var0, var1));
+                }
+            }
+
+            param0.getItemInHand().shrink(1);
+            return InteractionResult.SUCCESS;
+        }
+    }
+
+    private void playSound(Level param0, BlockPos param1) {
+        param0.playSound(null, param1, SoundEvents.FIRECHARGE_USE, SoundSource.BLOCKS, 1.0F, (random.nextFloat() - random.nextFloat()) * 0.2F + 1.0F);
+    }
+}

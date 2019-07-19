@@ -1,0 +1,156 @@
+package net.minecraft.client.gui.components;
+
+import com.google.common.collect.Lists;
+import com.mojang.blaze3d.platform.GlStateManager;
+import java.util.Iterator;
+import java.util.List;
+import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.resources.sounds.SoundInstance;
+import net.minecraft.client.sounds.SoundEventListener;
+import net.minecraft.client.sounds.WeighedSoundEvents;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
+@OnlyIn(Dist.CLIENT)
+public class SubtitleOverlay extends GuiComponent implements SoundEventListener {
+    private final Minecraft minecraft;
+    private final List<SubtitleOverlay.Subtitle> subtitles = Lists.newArrayList();
+    private boolean isListening;
+
+    public SubtitleOverlay(Minecraft param0) {
+        this.minecraft = param0;
+    }
+
+    public void render() {
+        if (!this.isListening && this.minecraft.options.showSubtitles) {
+            this.minecraft.getSoundManager().addListener(this);
+            this.isListening = true;
+        } else if (this.isListening && !this.minecraft.options.showSubtitles) {
+            this.minecraft.getSoundManager().removeListener(this);
+            this.isListening = false;
+        }
+
+        if (this.isListening && !this.subtitles.isEmpty()) {
+            GlStateManager.pushMatrix();
+            GlStateManager.enableBlend();
+            GlStateManager.blendFuncSeparate(
+                GlStateManager.SourceFactor.SRC_ALPHA,
+                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+                GlStateManager.SourceFactor.ONE,
+                GlStateManager.DestFactor.ZERO
+            );
+            Vec3 var0 = new Vec3(this.minecraft.player.x, this.minecraft.player.y + (double)this.minecraft.player.getEyeHeight(), this.minecraft.player.z);
+            Vec3 var1 = new Vec3(0.0, 0.0, -1.0)
+                .xRot(-this.minecraft.player.xRot * (float) (Math.PI / 180.0))
+                .yRot(-this.minecraft.player.yRot * (float) (Math.PI / 180.0));
+            Vec3 var2 = new Vec3(0.0, 1.0, 0.0)
+                .xRot(-this.minecraft.player.xRot * (float) (Math.PI / 180.0))
+                .yRot(-this.minecraft.player.yRot * (float) (Math.PI / 180.0));
+            Vec3 var3 = var1.cross(var2);
+            int var4 = 0;
+            int var5 = 0;
+            Iterator<SubtitleOverlay.Subtitle> var6 = this.subtitles.iterator();
+
+            while(var6.hasNext()) {
+                SubtitleOverlay.Subtitle var7 = var6.next();
+                if (var7.getTime() + 3000L <= Util.getMillis()) {
+                    var6.remove();
+                } else {
+                    var5 = Math.max(var5, this.minecraft.font.width(var7.getText()));
+                }
+            }
+
+            var5 += this.minecraft.font.width("<") + this.minecraft.font.width(" ") + this.minecraft.font.width(">") + this.minecraft.font.width(" ");
+
+            for(SubtitleOverlay.Subtitle var8 : this.subtitles) {
+                int var9 = 255;
+                String var10 = var8.getText();
+                Vec3 var11 = var8.getLocation().subtract(var0).normalize();
+                double var12 = -var3.dot(var11);
+                double var13 = -var1.dot(var11);
+                boolean var14 = var13 > 0.5;
+                int var15 = var5 / 2;
+                int var16 = 9;
+                int var17 = var16 / 2;
+                float var18 = 1.0F;
+                int var19 = this.minecraft.font.width(var10);
+                int var20 = Mth.floor(Mth.clampedLerp(255.0, 75.0, (double)((float)(Util.getMillis() - var8.getTime()) / 3000.0F)));
+                int var21 = var20 << 16 | var20 << 8 | var20;
+                GlStateManager.pushMatrix();
+                GlStateManager.translatef(
+                    (float)this.minecraft.window.getGuiScaledWidth() - (float)var15 * 1.0F - 2.0F,
+                    (float)(this.minecraft.window.getGuiScaledHeight() - 30) - (float)(var4 * (var16 + 1)) * 1.0F,
+                    0.0F
+                );
+                GlStateManager.scalef(1.0F, 1.0F, 1.0F);
+                fill(-var15 - 1, -var17 - 1, var15 + 1, var17 + 1, this.minecraft.options.getBackgroundColor(0.8F));
+                GlStateManager.enableBlend();
+                if (!var14) {
+                    if (var12 > 0.0) {
+                        this.minecraft.font.draw(">", (float)(var15 - this.minecraft.font.width(">")), (float)(-var17), var21 + -16777216);
+                    } else if (var12 < 0.0) {
+                        this.minecraft.font.draw("<", (float)(-var15), (float)(-var17), var21 + -16777216);
+                    }
+                }
+
+                this.minecraft.font.draw(var10, (float)(-var19 / 2), (float)(-var17), var21 + -16777216);
+                GlStateManager.popMatrix();
+                ++var4;
+            }
+
+            GlStateManager.disableBlend();
+            GlStateManager.popMatrix();
+        }
+    }
+
+    @Override
+    public void onPlaySound(SoundInstance param0, WeighedSoundEvents param1) {
+        if (param1.getSubtitle() != null) {
+            String var0 = param1.getSubtitle().getColoredString();
+            if (!this.subtitles.isEmpty()) {
+                for(SubtitleOverlay.Subtitle var1 : this.subtitles) {
+                    if (var1.getText().equals(var0)) {
+                        var1.refresh(new Vec3((double)param0.getX(), (double)param0.getY(), (double)param0.getZ()));
+                        return;
+                    }
+                }
+            }
+
+            this.subtitles.add(new SubtitleOverlay.Subtitle(var0, new Vec3((double)param0.getX(), (double)param0.getY(), (double)param0.getZ())));
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public class Subtitle {
+        private final String text;
+        private long time;
+        private Vec3 location;
+
+        public Subtitle(String param1, Vec3 param2) {
+            this.text = param1;
+            this.location = param2;
+            this.time = Util.getMillis();
+        }
+
+        public String getText() {
+            return this.text;
+        }
+
+        public long getTime() {
+            return this.time;
+        }
+
+        public Vec3 getLocation() {
+            return this.location;
+        }
+
+        public void refresh(Vec3 param0) {
+            this.location = param0;
+            this.time = Util.getMillis();
+        }
+    }
+}
