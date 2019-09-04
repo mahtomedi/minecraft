@@ -35,10 +35,10 @@ public class ErodedBadlandsSurfaceBuilder extends BadlandsSurfaceBuilder {
         SurfaceBuilderBaseConfiguration param11
     ) {
         double var0 = 0.0;
-        double var1 = Math.min(Math.abs(param6), this.pillarNoise.getValue((double)param3 * 0.25, (double)param4 * 0.25));
+        double var1 = Math.min(Math.abs(param6), this.pillarNoise.getValue((double)param3 * 0.25, (double)param4 * 0.25, false) * 15.0);
         if (var1 > 0.0) {
             double var2 = 0.001953125;
-            double var3 = Math.abs(this.pillarRoofNoise.getValue((double)param3 * 0.001953125, (double)param4 * 0.001953125));
+            double var3 = Math.abs(this.pillarRoofNoise.getValue((double)param3 * 0.001953125, (double)param4 * 0.001953125, false));
             var0 = var1 * var1 * 2.5;
             double var4 = Math.ceil(var3 * 50.0) + 14.0;
             if (var0 > var4) {

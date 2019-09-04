@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.block;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -92,7 +92,7 @@ public class ModelBlockRenderer {
             param6.setSeed(param7);
             List<BakedQuad> var3 = param1.getQuads(param2, var2, param6);
             if (!var3.isEmpty() && (!param5 || Block.shouldRenderFace(param2, param0, param3, var2))) {
-                int var4 = param2.getLightColor(param0, param3.relative(var2));
+                int var4 = param0.getLightColor(param2, param3.relative(var2));
                 this.renderModelFaceFlat(param0, param2, param3, var4, false, param4, var3, var1);
                 var0 = true;
             }
@@ -233,7 +233,7 @@ public class ModelBlockRenderer {
             if (param4) {
                 this.calculateShape(param0, param1, param2, var6.getVertices(), var6.getDirection(), null, param7);
                 BlockPos var7 = param7.get(0) ? param2.relative(var6.getDirection()) : param2;
-                param3 = param1.getLightColor(param0, var7);
+                param3 = param0.getLightColor(param1, var7);
             }
 
             param5.putBulkData(var6.getVertices());
@@ -272,13 +272,13 @@ public class ModelBlockRenderer {
     }
 
     public void renderSingleBlock(BakedModel param0, BlockState param1, float param2, boolean param3) {
-        GlStateManager.rotatef(90.0F, 0.0F, 1.0F, 0.0F);
+        RenderSystem.rotatef(90.0F, 0.0F, 1.0F, 0.0F);
         int var0 = this.blockColors.getColor(param1, null, null, 0);
         float var1 = (float)(var0 >> 16 & 0xFF) / 255.0F;
         float var2 = (float)(var0 >> 8 & 0xFF) / 255.0F;
         float var3 = (float)(var0 & 0xFF) / 255.0F;
         if (!param3) {
-            GlStateManager.color4f(param2, param2, param2, 1.0F);
+            RenderSystem.color4f(param2, param2, param2, 1.0F);
         }
 
         this.renderModel(param1, param0, param2, var1, var2, var3);
@@ -880,7 +880,7 @@ public class ModelBlockRenderer {
                 }
             }
 
-            int var2 = param0.getLightColor(param1, param2);
+            int var2 = param1.getLightColor(param0, param2);
             if (this.enabled) {
                 if (this.colorCache.size() == 100) {
                     this.colorCache.removeFirstInt();

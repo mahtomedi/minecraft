@@ -125,6 +125,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
         MemoryModuleType.HEARD_BELL_TIME,
         MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
         MemoryModuleType.LAST_SLEPT,
+        MemoryModuleType.LAST_WOKEN,
         MemoryModuleType.LAST_WORKED_AT_POI,
         MemoryModuleType.GOLEM_LAST_SEEN_TIME
     );
@@ -367,7 +368,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
 
     private boolean needsToRestock() {
         for(MerchantOffer var0 : this.getOffers()) {
-            if (var0.isOutOfStock()) {
+            if (var0.needsRestock()) {
                 return true;
             }
         }
@@ -376,21 +377,23 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
     }
 
     private boolean allowedToRestock() {
-        return this.numberOfRestocksToday < 2 && this.level.getGameTime() > this.lastRestockGameTime + 2400L;
+        return this.numberOfRestocksToday == 0 || this.numberOfRestocksToday < 2 && this.level.getGameTime() > this.lastRestockGameTime + 2400L;
     }
 
     public boolean shouldRestock() {
         long var0 = this.lastRestockGameTime + 12000L;
-        boolean var1 = this.level.getGameTime() > var0;
-        long var2 = this.level.getDayTime();
+        long var1 = this.level.getGameTime();
+        boolean var2 = var1 > var0;
+        long var3 = this.level.getDayTime();
         if (this.lastRestockCheckDayTime > 0L) {
-            long var3 = this.lastRestockCheckDayTime / 24000L;
-            long var4 = var2 / 24000L;
-            var1 |= var4 > var3;
+            long var4 = this.lastRestockCheckDayTime / 24000L;
+            long var5 = var3 / 24000L;
+            var2 |= var5 > var4;
         }
 
-        this.lastRestockCheckDayTime = var2;
-        if (var1) {
+        this.lastRestockCheckDayTime = var3;
+        if (var2) {
+            this.lastRestockGameTime = var1;
             this.resetNumberOfRestocks();
         }
 
@@ -511,7 +514,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
     }
 
     public void playWorkSound() {
-        SoundEvent var0 = this.getVillagerData().getProfession().getJobPoiType().getUseSound();
+        SoundEvent var0 = this.getVillagerData().getProfession().getWorkSound();
         if (var0 != null) {
             this.playSound(var0, this.getSoundVolume(), this.getVoicePitch());
         }
@@ -975,6 +978,12 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
     public void startSleeping(BlockPos param0) {
         super.startSleeping(param0);
         this.brain.setMemory(MemoryModuleType.LAST_SLEPT, SerializableLong.of(this.level.getGameTime()));
+    }
+
+    @Override
+    public void stopSleeping() {
+        super.stopSleeping();
+        this.brain.setMemory(MemoryModuleType.LAST_WOKEN, SerializableLong.of(this.level.getGameTime()));
     }
 
     private boolean golemSpawnConditionsMet(long param0) {

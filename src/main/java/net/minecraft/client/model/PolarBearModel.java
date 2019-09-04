@@ -1,6 +1,6 @@
 package net.minecraft.client.model;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.entity.animal.PolarBear;
 import net.minecraftforge.api.distmarker.Dist;
@@ -54,20 +54,20 @@ public class PolarBearModel<T extends PolarBear> extends QuadrupedModel<T> {
             float var0 = 2.0F;
             this.yHeadOffs = 16.0F;
             this.zHeadOffs = 4.0F;
-            GlStateManager.pushMatrix();
-            GlStateManager.scalef(0.6666667F, 0.6666667F, 0.6666667F);
-            GlStateManager.translatef(0.0F, this.yHeadOffs * param6, this.zHeadOffs * param6);
+            RenderSystem.pushMatrix();
+            RenderSystem.scalef(0.6666667F, 0.6666667F, 0.6666667F);
+            RenderSystem.translatef(0.0F, this.yHeadOffs * param6, this.zHeadOffs * param6);
             this.head.render(param6);
-            GlStateManager.popMatrix();
-            GlStateManager.pushMatrix();
-            GlStateManager.scalef(0.5F, 0.5F, 0.5F);
-            GlStateManager.translatef(0.0F, 24.0F * param6, 0.0F);
+            RenderSystem.popMatrix();
+            RenderSystem.pushMatrix();
+            RenderSystem.scalef(0.5F, 0.5F, 0.5F);
+            RenderSystem.translatef(0.0F, 24.0F * param6, 0.0F);
             this.body.render(param6);
             this.leg0.render(param6);
             this.leg1.render(param6);
             this.leg2.render(param6);
             this.leg3.render(param6);
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
         } else {
             this.head.render(param6);
             this.body.render(param6);

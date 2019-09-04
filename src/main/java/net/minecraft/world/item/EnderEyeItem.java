@@ -2,6 +2,7 @@ package net.minecraft.world.item;
 
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -67,8 +68,11 @@ public class EnderEyeItem extends Item {
             return new InteractionResultHolder<>(InteractionResult.PASS, var0);
         } else {
             param1.startUsingItem(param2);
-            if (!param0.isClientSide) {
-                BlockPos var2 = param0.getChunkSource().getGenerator().findNearestMapFeature(param0, "Stronghold", new BlockPos(param1), 100, false);
+            if (param0 instanceof ServerLevel) {
+                BlockPos var2 = ((ServerLevel)param0)
+                    .getChunkSource()
+                    .getGenerator()
+                    .findNearestMapFeature(param0, "Stronghold", new BlockPos(param1), 100, false);
                 if (var2 != null) {
                     EyeOfEnder var3 = new EyeOfEnder(param0, param1.x, param1.y + (double)(param1.getBbHeight() / 2.0F), param1.z);
                     var3.setItem(var0);

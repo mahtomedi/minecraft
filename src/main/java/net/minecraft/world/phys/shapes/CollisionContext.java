@@ -13,7 +13,7 @@ public interface CollisionContext {
         return new EntityCollisionContext(param0);
     }
 
-    boolean isSneaking();
+    boolean isDescending();
 
     boolean isAbove(VoxelShape var1, BlockPos var2, boolean var3);
 

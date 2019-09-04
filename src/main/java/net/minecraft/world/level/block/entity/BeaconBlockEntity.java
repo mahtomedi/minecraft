@@ -47,7 +47,7 @@ public class BeaconBlockEntity extends BlockEntity implements MenuProvider, Tick
     private static final Set<MobEffect> VALID_EFFECTS = Arrays.stream(BEACON_EFFECTS).flatMap(Arrays::stream).collect(Collectors.toSet());
     private List<BeaconBlockEntity.BeaconBeamSection> beamSections = Lists.newArrayList();
     private List<BeaconBlockEntity.BeaconBeamSection> checkingBeamSections = Lists.newArrayList();
-    private int levels = 0;
+    private int levels;
     private int lastCheckY = -1;
     @Nullable
     private MobEffect primaryPower;

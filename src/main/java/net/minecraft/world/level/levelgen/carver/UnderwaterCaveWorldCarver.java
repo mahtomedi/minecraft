@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -65,12 +66,12 @@ public class UnderwaterCaveWorldCarver extends CaveWorldCarver {
     @Override
     protected boolean carveBlock(
         ChunkAccess param0,
-        BitSet param1,
-        Random param2,
-        BlockPos.MutableBlockPos param3,
+        Function<BlockPos, Biome> param1,
+        BitSet param2,
+        Random param3,
         BlockPos.MutableBlockPos param4,
         BlockPos.MutableBlockPos param5,
-        int param6,
+        BlockPos.MutableBlockPos param6,
         int param7,
         int param8,
         int param9,
@@ -78,9 +79,10 @@ public class UnderwaterCaveWorldCarver extends CaveWorldCarver {
         int param11,
         int param12,
         int param13,
-        AtomicBoolean param14
+        int param14,
+        AtomicBoolean param15
     ) {
-        return carveBlock(this, param0, param1, param2, param3, param6, param7, param8, param9, param10, param11, param12, param13);
+        return carveBlock(this, param0, param2, param3, param4, param7, param8, param9, param10, param11, param12, param13, param14);
     }
 
     protected static boolean carveBlock(

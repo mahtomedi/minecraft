@@ -73,9 +73,10 @@ public class FeaturePoolElement extends StructurePoolElement {
     }
 
     @Override
-    public boolean place(StructureManager param0, LevelAccessor param1, BlockPos param2, Rotation param3, BoundingBox param4, Random param5) {
-        ChunkGenerator<?> var0 = param1.getChunkSource().getGenerator();
-        return this.feature.place(param1, var0, param5, param2);
+    public boolean place(
+        StructureManager param0, LevelAccessor param1, ChunkGenerator<?> param2, BlockPos param3, Rotation param4, BoundingBox param5, Random param6
+    ) {
+        return this.feature.place(param1, param2, param6, param3);
     }
 
     @Override

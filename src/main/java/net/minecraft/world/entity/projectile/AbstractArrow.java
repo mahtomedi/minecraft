@@ -580,7 +580,7 @@ public abstract class AbstractArrow extends Entity implements Projectile {
     protected abstract ItemStack getPickupItem();
 
     @Override
-    protected boolean makeStepSound() {
+    protected boolean isMovementNoisy() {
         return false;
     }
 

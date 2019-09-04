@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.WitchModel;
 import net.minecraft.client.renderer.entity.layers.WitchItemLayer;
 import net.minecraft.resources.ResourceLocation;
@@ -28,6 +28,6 @@ public class WitchRenderer extends MobRenderer<Witch, WitchModel<Witch>> {
 
     protected void scale(Witch param0, float param1) {
         float var0 = 0.9375F;
-        GlStateManager.scalef(0.9375F, 0.9375F, 0.9375F);
+        RenderSystem.scalef(0.9375F, 0.9375F, 0.9375F);
     }
 }

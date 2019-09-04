@@ -6,6 +6,7 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
@@ -50,7 +51,7 @@ public class NetherPortalBlock extends Block {
     }
 
     @Override
-    public void tick(BlockState param0, Level param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         if (param1.dimension.isNaturalDimension()
             && param1.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING)
             && param3.nextInt(2000) < param1.getDifficulty().getId()) {
@@ -178,7 +179,7 @@ public class NetherPortalBlock extends Block {
         param0.add(AXIS);
     }
 
-    public BlockPattern.BlockPatternMatch getPortalShape(LevelAccessor param0, BlockPos param1) {
+    public static BlockPattern.BlockPatternMatch getPortalShape(LevelAccessor param0, BlockPos param1) {
         Direction.Axis var0 = Direction.Axis.Z;
         NetherPortalBlock.PortalShape var1 = new NetherPortalBlock.PortalShape(param0, param1, Direction.Axis.X);
         LoadingCache<BlockPos, BlockInWorld> var2 = BlockPattern.createLevelCache(param0, true);

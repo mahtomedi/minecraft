@@ -2,8 +2,6 @@ package net.minecraft.world.level;
 
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -11,13 +9,10 @@ import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.EmptyLevelChunk;
-import net.minecraft.world.level.dimension.Dimension;
-import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class PathNavigationRegion implements LevelReader {
+public class PathNavigationRegion implements BlockGetter, CollisionGetter {
     protected final int centerX;
     protected final int centerZ;
     protected final ChunkAccess[][] chunks;
@@ -51,14 +46,11 @@ public class PathNavigationRegion implements LevelReader {
 
     }
 
-    @Override
-    public int getRawBrightness(BlockPos param0, int param1) {
-        return this.level.getRawBrightness(param0, param1);
+    private ChunkAccess getChunk(BlockPos param0) {
+        return this.getChunk(param0.getX() >> 4, param0.getZ() >> 4);
     }
 
-    @Nullable
-    @Override
-    public ChunkAccess getChunk(int param0, int param1, ChunkStatus param2, boolean param3) {
+    private ChunkAccess getChunk(int param0, int param1) {
         int var0 = param0 - this.centerX;
         int var1 = param1 - this.centerZ;
         if (var0 >= 0 && var0 < this.chunks.length && var1 >= 0 && var1 < this.chunks[var0].length) {
@@ -70,50 +62,13 @@ public class PathNavigationRegion implements LevelReader {
     }
 
     @Override
-    public boolean hasChunk(int param0, int param1) {
-        int var0 = param0 - this.centerX;
-        int var1 = param1 - this.centerZ;
-        return var0 >= 0 && var0 < this.chunks.length && var1 >= 0 && var1 < this.chunks[var0].length;
-    }
-
-    @Override
-    public BlockPos getHeightmapPos(Heightmap.Types param0, BlockPos param1) {
-        return this.level.getHeightmapPos(param0, param1);
-    }
-
-    @Override
-    public int getHeight(Heightmap.Types param0, int param1, int param2) {
-        return this.level.getHeight(param0, param1, param2);
-    }
-
-    @Override
-    public int getSkyDarken() {
-        return this.level.getSkyDarken();
-    }
-
-    @Override
     public WorldBorder getWorldBorder() {
         return this.level.getWorldBorder();
     }
 
     @Override
-    public boolean isUnobstructed(@Nullable Entity param0, VoxelShape param1) {
-        return true;
-    }
-
-    @Override
-    public boolean isClientSide() {
-        return false;
-    }
-
-    @Override
-    public int getSeaLevel() {
-        return this.level.getSeaLevel();
-    }
-
-    @Override
-    public Dimension getDimension() {
-        return this.level.getDimension();
+    public BlockGetter getChunkForCollisions(int param0, int param1) {
+        return this.getChunk(param0, param1);
     }
 
     @Nullable
@@ -141,16 +96,5 @@ public class PathNavigationRegion implements LevelReader {
             ChunkAccess var0 = this.getChunk(param0);
             return var0.getFluidState(param0);
         }
-    }
-
-    @Override
-    public Biome getBiome(BlockPos param0) {
-        ChunkAccess var0 = this.getChunk(param0);
-        return var0.getBiome(param0);
-    }
-
-    @Override
-    public int getBrightness(LightLayer param0, BlockPos param1) {
-        return this.level.getBrightness(param0, param1);
     }
 }

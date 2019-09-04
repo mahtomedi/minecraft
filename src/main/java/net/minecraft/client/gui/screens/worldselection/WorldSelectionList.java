@@ -1,8 +1,8 @@
 package net.minecraft.client.gui.screens.worldselection;
 
 import com.google.common.hash.Hashing;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -214,15 +214,15 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
             this.minecraft.font.draw(var0, (float)(param2 + 32 + 3), (float)(param1 + 1), 16777215);
             this.minecraft.font.draw(var1, (float)(param2 + 32 + 3), (float)(param1 + 9 + 3), 8421504);
             this.minecraft.font.draw(var2, (float)(param2 + 32 + 3), (float)(param1 + 9 + 9 + 3), 8421504);
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             this.minecraft.getTextureManager().bind(this.icon != null ? this.iconLocation : WorldSelectionList.ICON_MISSING);
-            GlStateManager.enableBlend();
+            RenderSystem.enableBlend();
             GuiComponent.blit(param2, param1, 0.0F, 0.0F, 32, 32, 32, 32);
-            GlStateManager.disableBlend();
+            RenderSystem.disableBlend();
             if (this.minecraft.options.touchscreen || param7) {
                 this.minecraft.getTextureManager().bind(WorldSelectionList.ICON_OVERLAY_LOCATION);
                 GuiComponent.fill(param2, param1, param2 + 32, param1 + 32, -1601138544);
-                GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
                 int var4 = param5 - param2;
                 int var5 = var4 < 32 ? 32 : 0;
                 if (this.summary.markVersionInList()) {

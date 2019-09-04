@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity.layers;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.SkeletonModel;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
@@ -22,7 +22,7 @@ public class StrayClothingLayer<T extends Mob & RangedAttackMob, M extends Entit
     public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6, float param7) {
         this.getParentModel().copyPropertiesTo(this.layerModel);
         this.layerModel.prepareMobModel(param0, param1, param2, param3);
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.bindTexture(STRAY_CLOTHES_LOCATION);
         this.layerModel.render(param0, param1, param2, param4, param5, param6, param7);
     }

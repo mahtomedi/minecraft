@@ -57,6 +57,7 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobType;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -116,7 +117,7 @@ public abstract class Player extends LivingEntity {
         .put(Pose.FALL_FLYING, EntityDimensions.scalable(0.6F, 0.6F))
         .put(Pose.SWIMMING, EntityDimensions.scalable(0.6F, 0.6F))
         .put(Pose.SPIN_ATTACK, EntityDimensions.scalable(0.6F, 0.6F))
-        .put(Pose.SNEAKING, EntityDimensions.scalable(0.6F, 1.5F))
+        .put(Pose.CROUCHING, EntityDimensions.scalable(0.6F, 1.5F))
         .put(Pose.DYING, EntityDimensions.fixed(0.2F, 0.2F))
         .build();
     private static final EntityDataAccessor<Float> DATA_PLAYER_ABSORPTION_ID = SynchedEntityData.defineId(Player.class, EntityDataSerializers.FLOAT);
@@ -222,7 +223,7 @@ public abstract class Player extends LivingEntity {
             }
 
             if (!this.level.isClientSide && this.level.isDay()) {
-                this.stopSleepInBed(false, true, true);
+                this.stopSleepInBed(false, true);
             }
         } else if (this.sleepCounter > 0) {
             ++this.sleepCounter;
@@ -250,8 +251,8 @@ public abstract class Player extends LivingEntity {
                 this.awardStat(Stats.TIME_SINCE_DEATH);
             }
 
-            if (this.isSneaking()) {
-                this.awardStat(Stats.SNEAK_TIME);
+            if (this.isDiscrete()) {
+                this.awardStat(Stats.CROUCH_TIME);
             }
 
             if (!this.isSleeping()) {
@@ -279,6 +280,18 @@ public abstract class Player extends LivingEntity {
         this.turtleHelmetTick();
         this.cooldowns.tick();
         this.updatePlayerPose();
+    }
+
+    public boolean isSecondaryUseActive() {
+        return this.isShiftKeyDown();
+    }
+
+    protected boolean wantsToStopRiding() {
+        return this.isShiftKeyDown();
+    }
+
+    protected boolean isStayingOnGroundSurface() {
+        return this.isShiftKeyDown();
     }
 
     protected boolean updateIsUnderwater() {
@@ -352,8 +365,8 @@ public abstract class Player extends LivingEntity {
                 var0 = Pose.SWIMMING;
             } else if (this.isAutoSpinAttack()) {
                 var0 = Pose.SPIN_ATTACK;
-            } else if (this.isSneaking() && !this.abilities.flying) {
-                var0 = Pose.SNEAKING;
+            } else if (this.isShiftKeyDown() && !this.abilities.flying) {
+                var0 = Pose.CROUCHING;
             } else {
                 var0 = Pose.STANDING;
             }
@@ -361,8 +374,8 @@ public abstract class Player extends LivingEntity {
             Pose var6;
             if (this.isSpectator() || this.isPassenger() || this.canEnterPose(var0)) {
                 var6 = var0;
-            } else if (this.canEnterPose(Pose.SNEAKING)) {
-                var6 = Pose.SNEAKING;
+            } else if (this.canEnterPose(Pose.CROUCHING)) {
+                var6 = Pose.CROUCHING;
             } else {
                 var6 = Pose.SWIMMING;
             }
@@ -457,9 +470,9 @@ public abstract class Player extends LivingEntity {
 
     @Override
     public void rideTick() {
-        if (!this.level.isClientSide && this.isSneaking() && this.isPassenger()) {
+        if (!this.level.isClientSide && this.wantsToStopRiding() && this.isPassenger()) {
             this.stopRiding();
-            this.setSneaking(false);
+            this.setShiftKeyDown(false);
         } else {
             double var0 = this.x;
             double var1 = this.y;
@@ -814,6 +827,21 @@ public abstract class Player extends LivingEntity {
     }
 
     @Override
+    public boolean isInvulnerableTo(DamageSource param0) {
+        if (super.isInvulnerableTo(param0)) {
+            return true;
+        } else if (param0 == DamageSource.DROWN) {
+            return !this.level.getGameRules().getBoolean(GameRules.RULE_DROWNING_DAMAGE);
+        } else if (param0 == DamageSource.FALL) {
+            return !this.level.getGameRules().getBoolean(GameRules.RULE_FALL_DAMAGE);
+        } else if (param0 != DamageSource.ON_FIRE && param0 != DamageSource.IN_FIRE) {
+            return false;
+        } else {
+            return !this.level.getGameRules().getBoolean(GameRules.RULE_FIRE_DAMAGE);
+        }
+    }
+
+    @Override
     public boolean hurt(DamageSource param0, float param1) {
         if (this.isInvulnerableTo(param0)) {
             return false;
@@ -991,6 +1019,57 @@ public abstract class Player extends LivingEntity {
     @Override
     protected boolean isImmobile() {
         return super.isImmobile() || this.isSleeping();
+    }
+
+    @Override
+    protected Vec3 maybeBackOffFromEdge(Vec3 param0, MoverType param1) {
+        if ((param1 == MoverType.SELF || param1 == MoverType.PLAYER) && this.onGround && this.isStayingOnGroundSurface()) {
+            double var0 = param0.x;
+            double var1 = param0.z;
+            double var2 = 0.05;
+
+            while(var0 != 0.0 && this.level.noCollision(this, this.getBoundingBox().move(var0, (double)(-this.maxUpStep), 0.0))) {
+                if (var0 < 0.05 && var0 >= -0.05) {
+                    var0 = 0.0;
+                } else if (var0 > 0.0) {
+                    var0 -= 0.05;
+                } else {
+                    var0 += 0.05;
+                }
+            }
+
+            while(var1 != 0.0 && this.level.noCollision(this, this.getBoundingBox().move(0.0, (double)(-this.maxUpStep), var1))) {
+                if (var1 < 0.05 && var1 >= -0.05) {
+                    var1 = 0.0;
+                } else if (var1 > 0.0) {
+                    var1 -= 0.05;
+                } else {
+                    var1 += 0.05;
+                }
+            }
+
+            while(var0 != 0.0 && var1 != 0.0 && this.level.noCollision(this, this.getBoundingBox().move(var0, (double)(-this.maxUpStep), var1))) {
+                if (var0 < 0.05 && var0 >= -0.05) {
+                    var0 = 0.0;
+                } else if (var0 > 0.0) {
+                    var0 -= 0.05;
+                } else {
+                    var0 += 0.05;
+                }
+
+                if (var1 < 0.05 && var1 >= -0.05) {
+                    var1 = 0.0;
+                } else if (var1 > 0.0) {
+                    var1 -= 0.05;
+                } else {
+                    var1 += 0.05;
+                }
+            }
+
+            param0 = new Vec3(var0, param0.y, var1);
+        }
+
+        return param0;
     }
 
     public void attack(Entity param0) {
@@ -1248,6 +1327,7 @@ public abstract class Player extends LivingEntity {
             }
 
             if (this.level.isDay()) {
+                this.setRespawnPosition(param0, false);
                 return Either.left(Player.BedSleepingProblem.NOT_POSSIBLE_NOW);
             }
 
@@ -1293,6 +1373,7 @@ public abstract class Player extends LivingEntity {
     @Override
     public void startSleeping(BlockPos param0) {
         this.resetStat(Stats.CUSTOM.get(Stats.TIME_SINCE_REST));
+        this.setRespawnPosition(param0, false);
         super.startSleeping(param0);
     }
 
@@ -1314,23 +1395,18 @@ public abstract class Player extends LivingEntity {
         return !this.freeAt(var0) || !this.freeAt(var0.relative(param1.getOpposite()));
     }
 
-    public void stopSleepInBed(boolean param0, boolean param1, boolean param2) {
-        Optional<BlockPos> var0 = this.getSleepingPos();
+    public void stopSleepInBed(boolean param0, boolean param1) {
         super.stopSleeping();
         if (this.level instanceof ServerLevel && param1) {
             ((ServerLevel)this.level).updateSleepingPlayerList();
         }
 
         this.sleepCounter = param0 ? 0 : 100;
-        if (param2) {
-            var0.ifPresent(param0x -> this.setRespawnPosition(param0x, false));
-        }
-
     }
 
     @Override
     public void stopSleeping() {
-        this.stopSleepInBed(true, true, false);
+        this.stopSleepInBed(true, true);
     }
 
     public static Optional<Vec3> checkBedValidRespawnPosition(LevelReader param0, BlockPos param1, boolean param2) {
@@ -1501,7 +1577,7 @@ public abstract class Player extends LivingEntity {
                     if (this.isSprinting()) {
                         this.awardStat(Stats.SPRINT_ONE_CM, var3);
                         this.causeFoodExhaustion(0.1F * (float)var3 * 0.01F);
-                    } else if (this.isSneaking()) {
+                    } else if (this.isCrouching()) {
                         this.awardStat(Stats.CROUCH_ONE_CM, var3);
                         this.causeFoodExhaustion(0.0F * (float)var3 * 0.01F);
                     } else {
@@ -1697,8 +1773,8 @@ public abstract class Player extends LivingEntity {
     }
 
     @Override
-    protected boolean makeStepSound() {
-        return !this.abilities.flying;
+    protected boolean isMovementNoisy() {
+        return !this.abilities.flying && (!this.onGround || !this.isDiscrete());
     }
 
     public void onUpdateAbilities() {
@@ -1860,7 +1936,7 @@ public abstract class Player extends LivingEntity {
             case FALL_FLYING:
             case SPIN_ATTACK:
                 return 0.4F;
-            case SNEAKING:
+            case CROUCHING:
                 return 1.27F;
             default:
                 return 1.62F;

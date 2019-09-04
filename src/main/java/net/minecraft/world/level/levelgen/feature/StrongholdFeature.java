@@ -11,6 +11,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -30,18 +31,18 @@ public class StrongholdFeature extends StructureFeature<NoneFeatureConfiguration
     }
 
     @Override
-    public boolean isFeatureChunk(ChunkGenerator<?> param0, Random param1, int param2, int param3) {
-        if (this.currentSeed != param0.getSeed()) {
+    public boolean isFeatureChunk(BiomeManager param0, ChunkGenerator<?> param1, Random param2, int param3, int param4, Biome param5) {
+        if (this.currentSeed != param1.getSeed()) {
             this.reset();
         }
 
         if (!this.isSpotSelected) {
-            this.generatePositions(param0);
+            this.generatePositions(param1);
             this.isSpotSelected = true;
         }
 
         for(ChunkPos var0 : this.strongholdPos) {
-            if (param2 == var0.x && param3 == var0.z) {
+            if (param3 == var0.x && param4 == var0.z) {
                 return true;
             }
         }
@@ -141,7 +142,7 @@ public class StrongholdFeature extends StructureFeature<NoneFeatureConfiguration
                 double var13 = (double)(4 * var2 + var2 * var11 * 6) + (var7.nextDouble() - 0.5) * (double)var2 * 2.5;
                 int var14 = (int)Math.round(Math.cos(var8) * var13);
                 int var15 = (int)Math.round(Math.sin(var8) * var13);
-                BlockPos var16 = param0.getBiomeSource().findBiome((var14 << 4) + 8, (var15 << 4) + 8, 112, var0, var7);
+                BlockPos var16 = param0.getBiomeSource().findBiomeHorizontal((var14 << 4) + 8, param0.getSeaLevel(), (var15 << 4) + 8, 112, var0, var7);
                 if (var16 != null) {
                     var14 = var16.getX() >> 4;
                     var15 = var16.getZ() >> 4;
@@ -165,8 +166,8 @@ public class StrongholdFeature extends StructureFeature<NoneFeatureConfiguration
     }
 
     public static class StrongholdStart extends StructureStart {
-        public StrongholdStart(StructureFeature<?> param0, int param1, int param2, Biome param3, BoundingBox param4, int param5, long param6) {
-            super(param0, param1, param2, param3, param4, param5, param6);
+        public StrongholdStart(StructureFeature<?> param0, int param1, int param2, BoundingBox param3, int param4, long param5) {
+            super(param0, param1, param2, param3, param4, param5);
         }
 
         @Override

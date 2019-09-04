@@ -1,7 +1,7 @@
 package net.minecraft.client.renderer.entity.layers;
 
-import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.SpiderModel;
 import net.minecraft.client.renderer.GameRenderer;
@@ -22,20 +22,20 @@ public class SpiderEyesLayer<T extends Entity, M extends SpiderModel<T>> extends
     @Override
     public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6, float param7) {
         this.bindTexture(SPIDER_EYES_LOCATION);
-        GlStateManager.enableBlend();
-        GlStateManager.disableAlphaTest();
-        GlStateManager.blendFunc(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
+        RenderSystem.enableBlend();
+        RenderSystem.disableAlphaTest();
+        RenderSystem.blendFunc(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
         if (param0.isInvisible()) {
-            GlStateManager.depthMask(false);
+            RenderSystem.depthMask(false);
         } else {
-            GlStateManager.depthMask(true);
+            RenderSystem.depthMask(true);
         }
 
         int var0 = 61680;
         int var1 = var0 % 65536;
         int var2 = var0 / 65536;
-        GLX.glMultiTexCoord2f(GLX.GL_TEXTURE1, (float)var1, (float)var2);
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.glMultiTexCoord2f(33985, (float)var1, (float)var2);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         GameRenderer var3 = Minecraft.getInstance().gameRenderer;
         var3.resetFogColor(true);
         this.getParentModel().render(param0, param1, param2, param4, param5, param6, param7);
@@ -43,11 +43,11 @@ public class SpiderEyesLayer<T extends Entity, M extends SpiderModel<T>> extends
         var0 = param0.getLightColor();
         var1 = var0 % 65536;
         var2 = var0 / 65536;
-        GLX.glMultiTexCoord2f(GLX.GL_TEXTURE1, (float)var1, (float)var2);
+        RenderSystem.glMultiTexCoord2f(33985, (float)var1, (float)var2);
         this.setLightColor(param0);
-        GlStateManager.depthMask(true);
-        GlStateManager.disableBlend();
-        GlStateManager.enableAlphaTest();
+        RenderSystem.depthMask(true);
+        RenderSystem.disableBlend();
+        RenderSystem.enableAlphaTest();
     }
 
     @Override

@@ -4,6 +4,7 @@ import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -175,10 +176,8 @@ public class LecternBlock extends BaseEntityBlock {
     }
 
     @Override
-    public void tick(BlockState param0, Level param1, BlockPos param2, Random param3) {
-        if (!param1.isClientSide) {
-            changePowered(param1, param2, param0, false);
-        }
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+        changePowered(param1, param2, param0, false);
     }
 
     @Override

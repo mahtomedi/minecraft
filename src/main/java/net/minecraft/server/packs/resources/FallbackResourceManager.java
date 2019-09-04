@@ -3,6 +3,7 @@ package net.minecraft.server.packs.resources;
 import com.google.common.collect.Lists;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -132,13 +133,12 @@ public class FallbackResourceManager implements ResourceManager {
         return new ResourceLocation(param0.getNamespace(), param0.getPath() + ".mcmeta");
     }
 
-    static class LeakedResourceWarningInputStream extends InputStream {
-        private final InputStream wrapped;
+    static class LeakedResourceWarningInputStream extends FilterInputStream {
         private final String message;
         private boolean closed;
 
         public LeakedResourceWarningInputStream(InputStream param0, ResourceLocation param1, String param2) {
-            this.wrapped = param0;
+            super(param0);
             ByteArrayOutputStream var0 = new ByteArrayOutputStream();
             new Exception().printStackTrace(new PrintStream(var0));
             this.message = "Leaked resource: '" + param1 + "' loaded from pack: '" + param2 + "'\n" + var0;
@@ -146,7 +146,7 @@ public class FallbackResourceManager implements ResourceManager {
 
         @Override
         public void close() throws IOException {
-            this.wrapped.close();
+            super.close();
             this.closed = true;
         }
 
@@ -157,11 +157,6 @@ public class FallbackResourceManager implements ResourceManager {
             }
 
             super.finalize();
-        }
-
-        @Override
-        public int read() throws IOException {
-            return this.wrapped.read();
         }
     }
 }

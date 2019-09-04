@@ -4,6 +4,7 @@ import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Ordering;
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.Comparator;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -135,10 +136,10 @@ public class PlayerTabOverlay extends GuiComponent {
             int var27 = var14 + var25 * var13 + var25 * 5;
             int var28 = var15 + var26 * 9;
             fill(var27, var28, var27 + var13, var28 + 8, var23);
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            GlStateManager.enableAlphaTest();
-            GlStateManager.enableBlend();
-            GlStateManager.blendFuncSeparate(
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.enableAlphaTest();
+            RenderSystem.enableBlend();
+            RenderSystem.blendFuncSeparate(
                 GlStateManager.SourceFactor.SRC_ALPHA,
                 GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
                 GlStateManager.SourceFactor.ONE,
@@ -198,7 +199,7 @@ public class PlayerTabOverlay extends GuiComponent {
     }
 
     protected void renderPingIcon(int param0, int param1, int param2, PlayerInfo param3) {
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.minecraft.getTextureManager().bind(GUI_ICONS_LOCATION);
         int var0 = 0;
         int var1;

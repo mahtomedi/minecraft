@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.PhantomModel;
 import net.minecraft.client.renderer.entity.layers.PhantomEyesLayer;
 import net.minecraft.resources.ResourceLocation;
@@ -24,12 +24,12 @@ public class PhantomRenderer extends MobRenderer<Phantom, PhantomModel<Phantom>>
     protected void scale(Phantom param0, float param1) {
         int var0 = param0.getPhantomSize();
         float var1 = 1.0F + 0.15F * (float)var0;
-        GlStateManager.scalef(var1, var1, var1);
-        GlStateManager.translatef(0.0F, 1.3125F, 0.1875F);
+        RenderSystem.scalef(var1, var1, var1);
+        RenderSystem.translatef(0.0F, 1.3125F, 0.1875F);
     }
 
     protected void setupRotations(Phantom param0, float param1, float param2, float param3) {
         super.setupRotations(param0, param1, param2, param3);
-        GlStateManager.rotatef(param0.xRot, 1.0F, 0.0F, 0.0F);
+        RenderSystem.rotatef(param0.xRot, 1.0F, 0.0F, 0.0F);
     }
 }

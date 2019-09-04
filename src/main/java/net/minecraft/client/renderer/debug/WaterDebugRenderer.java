@@ -1,6 +1,7 @@
 package net.minecraft.client.renderer.debug;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -27,16 +28,16 @@ public class WaterDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
         double var3 = var0.getPosition().z;
         BlockPos var4 = this.minecraft.player.getCommandSenderBlockPosition();
         LevelReader var5 = this.minecraft.player.level;
-        GlStateManager.enableBlend();
-        GlStateManager.blendFuncSeparate(
+        RenderSystem.enableBlend();
+        RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.SRC_ALPHA,
             GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
             GlStateManager.SourceFactor.ONE,
             GlStateManager.DestFactor.ZERO
         );
-        GlStateManager.color4f(0.0F, 1.0F, 0.0F, 0.75F);
-        GlStateManager.disableTexture();
-        GlStateManager.lineWidth(6.0F);
+        RenderSystem.color4f(0.0F, 1.0F, 0.0F, 0.75F);
+        RenderSystem.disableTexture();
+        RenderSystem.lineWidth(6.0F);
 
         for(BlockPos var6 : BlockPos.betweenClosed(var4.offset(-10, -10, -10), var4.offset(10, 10, 10))) {
             FluidState var7 = var5.getFluidState(var6);
@@ -73,7 +74,7 @@ public class WaterDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
             }
         }
 
-        GlStateManager.enableTexture();
-        GlStateManager.disableBlend();
+        RenderSystem.enableTexture();
+        RenderSystem.disableBlend();
     }
 }

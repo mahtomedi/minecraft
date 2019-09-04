@@ -16,6 +16,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.properties.StructureMode;
+import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockIgnoreProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.JigsawReplacementProcessor;
@@ -88,16 +89,18 @@ public class SinglePoolElement extends StructurePoolElement {
     }
 
     @Override
-    public boolean place(StructureManager param0, LevelAccessor param1, BlockPos param2, Rotation param3, BoundingBox param4, Random param5) {
+    public boolean place(
+        StructureManager param0, LevelAccessor param1, ChunkGenerator<?> param2, BlockPos param3, Rotation param4, BoundingBox param5, Random param6
+    ) {
         StructureTemplate var0 = param0.getOrCreate(this.location);
-        StructurePlaceSettings var1 = this.getSettings(param3, param4);
-        if (!var0.placeInWorld(param1, param2, var1, 18)) {
+        StructurePlaceSettings var1 = this.getSettings(param4, param5);
+        if (!var0.placeInWorld(param1, param3, var1, 18)) {
             return false;
         } else {
             for(StructureTemplate.StructureBlockInfo var3 : StructureTemplate.processBlockInfos(
-                param1, param2, var1, this.getDataMarkers(param0, param2, param3, false)
+                param1, param3, var1, this.getDataMarkers(param0, param3, param4, false)
             )) {
-                this.handleDataMarker(param1, var3, param2, param3, param5, param4);
+                this.handleDataMarker(param1, var3, param3, param4, param6, param5);
             }
 
             return true;

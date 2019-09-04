@@ -352,7 +352,7 @@ public class ServerPlayer extends Player implements ContainerListener {
             if (var4.isAlive()) {
                 this.absMoveTo(var4.x, var4.y, var4.z, var4.yRot, var4.xRot);
                 this.getLevel().getChunkSource().move(this);
-                if (this.isSneaking()) {
+                if (this.wantsToStopRiding()) {
                     this.setCamera(this);
                 }
             } else {
@@ -604,8 +604,11 @@ public class ServerPlayer extends Player implements ContainerListener {
             ServerLevel var1 = this.server.getLevel(var0);
             this.dimension = param0;
             ServerLevel var2 = this.server.getLevel(param0);
-            LevelData var3 = this.level.getLevelData();
-            this.connection.send(new ClientboundRespawnPacket(param0, var3.getGeneratorType(), this.gameMode.getGameModeForPlayer()));
+            LevelData var3 = var2.getLevelData();
+            this.connection
+                .send(
+                    new ClientboundRespawnPacket(param0, LevelData.obfuscateSeed(var3.getSeed()), var3.getGeneratorType(), this.gameMode.getGameModeForPlayer())
+                );
             this.connection.send(new ClientboundChangeDifficultyPacket(var3.getDifficulty(), var3.isDifficultyLocked()));
             PlayerList var4 = this.server.getPlayerList();
             var4.sendPlayerPermissionLevel(this);
@@ -743,12 +746,12 @@ public class ServerPlayer extends Player implements ContainerListener {
     }
 
     @Override
-    public void stopSleepInBed(boolean param0, boolean param1, boolean param2) {
+    public void stopSleepInBed(boolean param0, boolean param1) {
         if (this.isSleeping()) {
             this.getLevel().getChunkSource().broadcastAndSend(this, new ClientboundAnimatePacket(this, 2));
         }
 
-        super.stopSleepInBed(param0, param1, param2);
+        super.stopSleepInBed(param0, param1);
         if (this.connection != null) {
             this.connection.teleport(this.x, this.y, this.z, this.yRot, this.xRot);
         }
@@ -947,7 +950,7 @@ public class ServerPlayer extends Player implements ContainerListener {
             }
 
             this.jumping = param2;
-            this.setSneaking(param3);
+            this.setShiftKeyDown(param3);
         }
 
     }
@@ -995,7 +998,7 @@ public class ServerPlayer extends Player implements ContainerListener {
         this.disconnected = true;
         this.ejectPassengers();
         if (this.isSleeping()) {
-            this.stopSleepInBed(true, false, false);
+            this.stopSleepInBed(true, false);
         }
 
     }
@@ -1316,7 +1319,12 @@ public class ServerPlayer extends Player implements ContainerListener {
             ServerLevel var0 = this.getLevel();
             this.dimension = param0.dimension.getType();
             LevelData var1 = param0.getLevelData();
-            this.connection.send(new ClientboundRespawnPacket(this.dimension, var1.getGeneratorType(), this.gameMode.getGameModeForPlayer()));
+            this.connection
+                .send(
+                    new ClientboundRespawnPacket(
+                        this.dimension, LevelData.obfuscateSeed(var1.getSeed()), var1.getGeneratorType(), this.gameMode.getGameModeForPlayer()
+                    )
+                );
             this.connection.send(new ClientboundChangeDifficultyPacket(var1.getDifficulty(), var1.isDifficultyLocked()));
             this.server.getPlayerList().sendPlayerPermissionLevel(this);
             var0.removePlayerImmediately(this);
@@ -1339,7 +1347,10 @@ public class ServerPlayer extends Player implements ContainerListener {
     }
 
     public void untrackChunk(ChunkPos param0) {
-        this.connection.send(new ClientboundForgetLevelChunkPacket(param0.x, param0.z));
+        if (this.isAlive()) {
+            this.connection.send(new ClientboundForgetLevelChunkPacket(param0.x, param0.z));
+        }
+
     }
 
     public SectionPos getLastSectionPos() {

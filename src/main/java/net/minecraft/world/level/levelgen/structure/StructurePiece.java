@@ -24,6 +24,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.entity.DispenserBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
 import net.minecraft.world.level.material.FluidState;
@@ -82,7 +83,7 @@ public abstract class StructurePiece {
     public void addChildren(StructurePiece param0, List<StructurePiece> param1, Random param2) {
     }
 
-    public abstract boolean postProcess(LevelAccessor var1, Random var2, BoundingBox var3, ChunkPos var4);
+    public abstract boolean postProcess(LevelAccessor var1, ChunkGenerator<?> var2, Random var3, BoundingBox var4, ChunkPos var5);
 
     public BoundingBox getBoundingBox() {
         return this.boundingBox;

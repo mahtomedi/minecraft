@@ -2,6 +2,7 @@ package net.minecraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.MemoryTracker;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -27,10 +28,10 @@ public class TheEndPortalRenderer extends BlockEntityRenderer<TheEndPortalBlockE
     private final FloatBuffer buffer = MemoryTracker.createFloatBuffer(16);
 
     public void render(TheEndPortalBlockEntity param0, double param1, double param2, double param3, float param4, int param5) {
-        GlStateManager.disableLighting();
+        RenderSystem.disableLighting();
         RANDOM.setSeed(31100L);
-        GlStateManager.getMatrix(2982, MODELVIEW);
-        GlStateManager.getMatrix(2983, PROJECTION);
+        RenderSystem.getMatrix(2982, MODELVIEW);
+        RenderSystem.getMatrix(2983, PROJECTION);
         double var0 = param1 * param1 + param2 * param2 + param3 * param3;
         int var1 = this.getPasses(var0);
         float var2 = this.getOffset();
@@ -38,13 +39,13 @@ public class TheEndPortalRenderer extends BlockEntityRenderer<TheEndPortalBlockE
         GameRenderer var4 = Minecraft.getInstance().gameRenderer;
 
         for(int var5 = 0; var5 < var1; ++var5) {
-            GlStateManager.pushMatrix();
+            RenderSystem.pushMatrix();
             float var6 = 2.0F / (float)(18 - var5);
             if (var5 == 0) {
                 this.bindTexture(END_SKY_LOCATION);
                 var6 = 0.15F;
-                GlStateManager.enableBlend();
-                GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+                RenderSystem.enableBlend();
+                RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
             }
 
             if (var5 >= 1) {
@@ -54,31 +55,31 @@ public class TheEndPortalRenderer extends BlockEntityRenderer<TheEndPortalBlockE
             }
 
             if (var5 == 1) {
-                GlStateManager.enableBlend();
-                GlStateManager.blendFunc(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
+                RenderSystem.enableBlend();
+                RenderSystem.blendFunc(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
             }
 
-            GlStateManager.texGenMode(GlStateManager.TexGen.S, 9216);
-            GlStateManager.texGenMode(GlStateManager.TexGen.T, 9216);
-            GlStateManager.texGenMode(GlStateManager.TexGen.R, 9216);
-            GlStateManager.texGenParam(GlStateManager.TexGen.S, 9474, this.getBuffer(1.0F, 0.0F, 0.0F, 0.0F));
-            GlStateManager.texGenParam(GlStateManager.TexGen.T, 9474, this.getBuffer(0.0F, 1.0F, 0.0F, 0.0F));
-            GlStateManager.texGenParam(GlStateManager.TexGen.R, 9474, this.getBuffer(0.0F, 0.0F, 1.0F, 0.0F));
-            GlStateManager.enableTexGen(GlStateManager.TexGen.S);
-            GlStateManager.enableTexGen(GlStateManager.TexGen.T);
-            GlStateManager.enableTexGen(GlStateManager.TexGen.R);
-            GlStateManager.popMatrix();
-            GlStateManager.matrixMode(5890);
-            GlStateManager.pushMatrix();
-            GlStateManager.loadIdentity();
-            GlStateManager.translatef(0.5F, 0.5F, 0.0F);
-            GlStateManager.scalef(0.5F, 0.5F, 1.0F);
+            RenderSystem.texGenMode(GlStateManager.TexGen.S, 9216);
+            RenderSystem.texGenMode(GlStateManager.TexGen.T, 9216);
+            RenderSystem.texGenMode(GlStateManager.TexGen.R, 9216);
+            RenderSystem.texGenParam(GlStateManager.TexGen.S, 9474, this.getBuffer(1.0F, 0.0F, 0.0F, 0.0F));
+            RenderSystem.texGenParam(GlStateManager.TexGen.T, 9474, this.getBuffer(0.0F, 1.0F, 0.0F, 0.0F));
+            RenderSystem.texGenParam(GlStateManager.TexGen.R, 9474, this.getBuffer(0.0F, 0.0F, 1.0F, 0.0F));
+            RenderSystem.enableTexGen(GlStateManager.TexGen.S);
+            RenderSystem.enableTexGen(GlStateManager.TexGen.T);
+            RenderSystem.enableTexGen(GlStateManager.TexGen.R);
+            RenderSystem.popMatrix();
+            RenderSystem.matrixMode(5890);
+            RenderSystem.pushMatrix();
+            RenderSystem.loadIdentity();
+            RenderSystem.translatef(0.5F, 0.5F, 0.0F);
+            RenderSystem.scalef(0.5F, 0.5F, 1.0F);
             float var7 = (float)(var5 + 1);
-            GlStateManager.translatef(17.0F / var7, (2.0F + var7 / 1.5F) * ((float)(Util.getMillis() % 800000L) / 800000.0F), 0.0F);
-            GlStateManager.rotatef((var7 * var7 * 4321.0F + var7 * 9.0F) * 2.0F, 0.0F, 0.0F, 1.0F);
-            GlStateManager.scalef(4.5F - var7 / 4.0F, 4.5F - var7 / 4.0F, 1.0F);
-            GlStateManager.multMatrix(PROJECTION);
-            GlStateManager.multMatrix(MODELVIEW);
+            RenderSystem.translatef(17.0F / var7, (2.0F + var7 / 1.5F) * ((float)(Util.getMillis() % 800000L) / 800000.0F), 0.0F);
+            RenderSystem.rotatef((var7 * var7 * 4321.0F + var7 * 9.0F) * 2.0F, 0.0F, 0.0F, 1.0F);
+            RenderSystem.scalef(4.5F - var7 / 4.0F, 4.5F - var7 / 4.0F, 1.0F);
+            RenderSystem.multMatrix(PROJECTION);
+            RenderSystem.multMatrix(MODELVIEW);
             Tesselator var8 = Tesselator.getInstance();
             BufferBuilder var9 = var8.getBuilder();
             var9.begin(7, DefaultVertexFormat.POSITION_COLOR);
@@ -128,16 +129,16 @@ public class TheEndPortalRenderer extends BlockEntityRenderer<TheEndPortalBlockE
             }
 
             var8.end();
-            GlStateManager.popMatrix();
-            GlStateManager.matrixMode(5888);
+            RenderSystem.popMatrix();
+            RenderSystem.matrixMode(5888);
             this.bindTexture(END_SKY_LOCATION);
         }
 
-        GlStateManager.disableBlend();
-        GlStateManager.disableTexGen(GlStateManager.TexGen.S);
-        GlStateManager.disableTexGen(GlStateManager.TexGen.T);
-        GlStateManager.disableTexGen(GlStateManager.TexGen.R);
-        GlStateManager.enableLighting();
+        RenderSystem.disableBlend();
+        RenderSystem.disableTexGen(GlStateManager.TexGen.S);
+        RenderSystem.disableTexGen(GlStateManager.TexGen.T);
+        RenderSystem.disableTexGen(GlStateManager.TexGen.R);
+        RenderSystem.enableLighting();
         if (var3) {
             var4.resetFogColor(false);
         }

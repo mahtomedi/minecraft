@@ -6,6 +6,7 @@ import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -39,18 +40,15 @@ public class EndCityFeature extends StructureFeature<NoneFeatureConfiguration> {
     }
 
     @Override
-    public boolean isFeatureChunk(ChunkGenerator<?> param0, Random param1, int param2, int param3) {
-        ChunkPos var0 = this.getPotentialFeatureChunkFromLocationWithOffset(param0, param1, param2, param3, 0, 0);
-        if (param2 == var0.x && param3 == var0.z) {
-            Biome var1 = param0.getBiomeSource().getBiome(new BlockPos((param2 << 4) + 9, 0, (param3 << 4) + 9));
-            if (!param0.isBiomeValidStartForStructure(var1, Feature.END_CITY)) {
-                return false;
-            } else {
-                int var2 = getYPositionForFeature(param2, param3, param0);
-                return var2 >= 60;
-            }
-        } else {
+    public boolean isFeatureChunk(BiomeManager param0, ChunkGenerator<?> param1, Random param2, int param3, int param4, Biome param5) {
+        ChunkPos var0 = this.getPotentialFeatureChunkFromLocationWithOffset(param1, param2, param3, param4, 0, 0);
+        if (param3 != var0.x || param4 != var0.z) {
             return false;
+        } else if (!param1.isBiomeValidStartForStructure(param5, Feature.END_CITY)) {
+            return false;
+        } else {
+            int var1 = getYPositionForFeature(param3, param4, param1);
+            return var1 >= 60;
         }
     }
 
@@ -93,8 +91,8 @@ public class EndCityFeature extends StructureFeature<NoneFeatureConfiguration> {
     }
 
     public static class EndCityStart extends StructureStart {
-        public EndCityStart(StructureFeature<?> param0, int param1, int param2, Biome param3, BoundingBox param4, int param5, long param6) {
-            super(param0, param1, param2, param3, param4, param5, param6);
+        public EndCityStart(StructureFeature<?> param0, int param1, int param2, BoundingBox param3, int param4, long param5) {
+            super(param0, param1, param2, param3, param4, param5);
         }
 
         @Override

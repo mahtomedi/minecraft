@@ -33,7 +33,7 @@ public abstract class RegionFileStorage implements AutoCloseable {
             }
 
             File var2 = new File(this.folder, "r." + param0.getRegionX() + "." + param0.getRegionZ() + ".mca");
-            RegionFile var3 = new RegionFile(var2);
+            RegionFile var3 = new RegionFile(var2, this.folder);
             this.regionCache.putAndMoveToFirst(var0, var3);
             return var3;
         }

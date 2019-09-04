@@ -1,7 +1,7 @@
 package net.minecraft.client.renderer.culling;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.MemoryTracker;
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import net.minecraft.util.Mth;
@@ -32,8 +32,8 @@ public class Frustum extends FrustumData {
         ((Buffer)this._proj).clear();
         ((Buffer)this._modl).clear();
         ((Buffer)this._clip).clear();
-        GlStateManager.getMatrix(2983, this._proj);
-        GlStateManager.getMatrix(2982, this._modl);
+        RenderSystem.getMatrix(2983, this._proj);
+        RenderSystem.getMatrix(2982, this._modl);
         float[] var0 = this.projectionMatrix;
         float[] var1 = this.modelViewMatrix;
         ((Buffer)this._proj).flip().limit(16);

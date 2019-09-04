@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.SlimeModel;
 import net.minecraft.client.renderer.entity.layers.SlimeOuterLayer;
 import net.minecraft.resources.ResourceLocation;
@@ -25,11 +25,11 @@ public class SlimeRenderer extends MobRenderer<Slime, SlimeModel<Slime>> {
 
     protected void scale(Slime param0, float param1) {
         float var0 = 0.999F;
-        GlStateManager.scalef(0.999F, 0.999F, 0.999F);
+        RenderSystem.scalef(0.999F, 0.999F, 0.999F);
         float var1 = (float)param0.getSize();
         float var2 = Mth.lerp(param1, param0.oSquish, param0.squish) / (var1 * 0.5F + 1.0F);
         float var3 = 1.0F / (var2 + 1.0F);
-        GlStateManager.scalef(var3 * var1, 1.0F / var3 * var1, var3 * var1);
+        RenderSystem.scalef(var3 * var1, 1.0F / var3 * var1, var3 * var1);
     }
 
     protected ResourceLocation getTextureLocation(Slime param0) {

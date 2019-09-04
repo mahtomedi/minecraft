@@ -16,7 +16,7 @@ public class UploadResult {
     @OnlyIn(Dist.CLIENT)
     public static class Builder {
         private int statusCode = -1;
-        private String errorMessage = null;
+        private String errorMessage;
 
         public UploadResult.Builder withStatusCode(int param0) {
             this.statusCode = param0;

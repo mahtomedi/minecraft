@@ -6,10 +6,10 @@ import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.BlockLayer;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockState;
@@ -156,91 +156,89 @@ public class VineBlock extends Block {
     }
 
     @Override
-    public void tick(BlockState param0, Level param1, BlockPos param2, Random param3) {
-        if (!param1.isClientSide) {
-            BlockState var0 = this.getUpdatedState(param0, param1, param2);
-            if (var0 != param0) {
-                if (this.hasFaces(var0)) {
-                    param1.setBlock(param2, var0, 2);
-                } else {
-                    dropResources(param0, param1, param2);
-                    param1.removeBlock(param2, false);
-                }
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+        BlockState var0 = this.getUpdatedState(param0, param1, param2);
+        if (var0 != param0) {
+            if (this.hasFaces(var0)) {
+                param1.setBlock(param2, var0, 2);
+            } else {
+                dropResources(param0, param1, param2);
+                param1.removeBlock(param2, false);
+            }
 
-            } else if (param1.random.nextInt(4) == 0) {
-                Direction var1 = Direction.getRandomFace(param3);
-                BlockPos var2 = param2.above();
-                if (var1.getAxis().isHorizontal() && !param0.getValue(getPropertyForFace(var1))) {
-                    if (this.canSpread(param1, param2)) {
-                        BlockPos var3 = param2.relative(var1);
-                        BlockState var4 = param1.getBlockState(var3);
-                        if (var4.isAir()) {
-                            Direction var5 = var1.getClockWise();
-                            Direction var6 = var1.getCounterClockWise();
-                            boolean var7 = param0.getValue(getPropertyForFace(var5));
-                            boolean var8 = param0.getValue(getPropertyForFace(var6));
-                            BlockPos var9 = var3.relative(var5);
-                            BlockPos var10 = var3.relative(var6);
-                            if (var7 && isAcceptableNeighbour(param1, var9, var5)) {
-                                param1.setBlock(var3, this.defaultBlockState().setValue(getPropertyForFace(var5), Boolean.valueOf(true)), 2);
-                            } else if (var8 && isAcceptableNeighbour(param1, var10, var6)) {
-                                param1.setBlock(var3, this.defaultBlockState().setValue(getPropertyForFace(var6), Boolean.valueOf(true)), 2);
-                            } else {
-                                Direction var11 = var1.getOpposite();
-                                if (var7 && param1.isEmptyBlock(var9) && isAcceptableNeighbour(param1, param2.relative(var5), var11)) {
-                                    param1.setBlock(var9, this.defaultBlockState().setValue(getPropertyForFace(var11), Boolean.valueOf(true)), 2);
-                                } else if (var8 && param1.isEmptyBlock(var10) && isAcceptableNeighbour(param1, param2.relative(var6), var11)) {
-                                    param1.setBlock(var10, this.defaultBlockState().setValue(getPropertyForFace(var11), Boolean.valueOf(true)), 2);
-                                } else if ((double)param1.random.nextFloat() < 0.05 && isAcceptableNeighbour(param1, var3.above(), Direction.UP)) {
-                                    param1.setBlock(var3, this.defaultBlockState().setValue(UP, Boolean.valueOf(true)), 2);
-                                }
-                            }
-                        } else if (isAcceptableNeighbour(param1, var3, var1)) {
-                            param1.setBlock(param2, param0.setValue(getPropertyForFace(var1), Boolean.valueOf(true)), 2);
-                        }
-
-                    }
-                } else {
-                    if (var1 == Direction.UP && param2.getY() < 255) {
-                        if (this.canSupportAtFace(param1, param2, var1)) {
-                            param1.setBlock(param2, param0.setValue(UP, Boolean.valueOf(true)), 2);
-                            return;
-                        }
-
-                        if (param1.isEmptyBlock(var2)) {
-                            if (!this.canSpread(param1, param2)) {
-                                return;
-                            }
-
-                            BlockState var12 = param0;
-
-                            for(Direction var13 : Direction.Plane.HORIZONTAL) {
-                                if (param3.nextBoolean() || !isAcceptableNeighbour(param1, var2.relative(var13), Direction.UP)) {
-                                    var12 = var12.setValue(getPropertyForFace(var13), Boolean.valueOf(false));
-                                }
-                            }
-
-                            if (this.hasHorizontalConnection(var12)) {
-                                param1.setBlock(var2, var12, 2);
-                            }
-
-                            return;
-                        }
-                    }
-
-                    if (param2.getY() > 0) {
-                        BlockPos var14 = param2.below();
-                        BlockState var15 = param1.getBlockState(var14);
-                        if (var15.isAir() || var15.getBlock() == this) {
-                            BlockState var16 = var15.isAir() ? this.defaultBlockState() : var15;
-                            BlockState var17 = this.copyRandomFaces(param0, var16, param3);
-                            if (var16 != var17 && this.hasHorizontalConnection(var17)) {
-                                param1.setBlock(var14, var17, 2);
+        } else if (param1.random.nextInt(4) == 0) {
+            Direction var1 = Direction.getRandomFace(param3);
+            BlockPos var2 = param2.above();
+            if (var1.getAxis().isHorizontal() && !param0.getValue(getPropertyForFace(var1))) {
+                if (this.canSpread(param1, param2)) {
+                    BlockPos var3 = param2.relative(var1);
+                    BlockState var4 = param1.getBlockState(var3);
+                    if (var4.isAir()) {
+                        Direction var5 = var1.getClockWise();
+                        Direction var6 = var1.getCounterClockWise();
+                        boolean var7 = param0.getValue(getPropertyForFace(var5));
+                        boolean var8 = param0.getValue(getPropertyForFace(var6));
+                        BlockPos var9 = var3.relative(var5);
+                        BlockPos var10 = var3.relative(var6);
+                        if (var7 && isAcceptableNeighbour(param1, var9, var5)) {
+                            param1.setBlock(var3, this.defaultBlockState().setValue(getPropertyForFace(var5), Boolean.valueOf(true)), 2);
+                        } else if (var8 && isAcceptableNeighbour(param1, var10, var6)) {
+                            param1.setBlock(var3, this.defaultBlockState().setValue(getPropertyForFace(var6), Boolean.valueOf(true)), 2);
+                        } else {
+                            Direction var11 = var1.getOpposite();
+                            if (var7 && param1.isEmptyBlock(var9) && isAcceptableNeighbour(param1, param2.relative(var5), var11)) {
+                                param1.setBlock(var9, this.defaultBlockState().setValue(getPropertyForFace(var11), Boolean.valueOf(true)), 2);
+                            } else if (var8 && param1.isEmptyBlock(var10) && isAcceptableNeighbour(param1, param2.relative(var6), var11)) {
+                                param1.setBlock(var10, this.defaultBlockState().setValue(getPropertyForFace(var11), Boolean.valueOf(true)), 2);
+                            } else if ((double)param1.random.nextFloat() < 0.05 && isAcceptableNeighbour(param1, var3.above(), Direction.UP)) {
+                                param1.setBlock(var3, this.defaultBlockState().setValue(UP, Boolean.valueOf(true)), 2);
                             }
                         }
+                    } else if (isAcceptableNeighbour(param1, var3, var1)) {
+                        param1.setBlock(param2, param0.setValue(getPropertyForFace(var1), Boolean.valueOf(true)), 2);
                     }
 
                 }
+            } else {
+                if (var1 == Direction.UP && param2.getY() < 255) {
+                    if (this.canSupportAtFace(param1, param2, var1)) {
+                        param1.setBlock(param2, param0.setValue(UP, Boolean.valueOf(true)), 2);
+                        return;
+                    }
+
+                    if (param1.isEmptyBlock(var2)) {
+                        if (!this.canSpread(param1, param2)) {
+                            return;
+                        }
+
+                        BlockState var12 = param0;
+
+                        for(Direction var13 : Direction.Plane.HORIZONTAL) {
+                            if (param3.nextBoolean() || !isAcceptableNeighbour(param1, var2.relative(var13), Direction.UP)) {
+                                var12 = var12.setValue(getPropertyForFace(var13), Boolean.valueOf(false));
+                            }
+                        }
+
+                        if (this.hasHorizontalConnection(var12)) {
+                            param1.setBlock(var2, var12, 2);
+                        }
+
+                        return;
+                    }
+                }
+
+                if (param2.getY() > 0) {
+                    BlockPos var14 = param2.below();
+                    BlockState var15 = param1.getBlockState(var14);
+                    if (var15.isAir() || var15.getBlock() == this) {
+                        BlockState var16 = var15.isAir() ? this.defaultBlockState() : var15;
+                        BlockState var17 = this.copyRandomFaces(param0, var16, param3);
+                        if (var16 != var17 && this.hasHorizontalConnection(var17)) {
+                            param1.setBlock(var14, var17, 2);
+                        }
+                    }
+                }
+
             }
         }
     }

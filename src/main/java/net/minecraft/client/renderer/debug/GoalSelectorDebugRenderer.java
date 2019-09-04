@@ -2,6 +2,7 @@ package net.minecraft.client.renderer.debug;
 
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.client.Camera;
@@ -31,15 +32,15 @@ public class GoalSelectorDebugRenderer implements DebugRenderer.SimpleDebugRende
     @Override
     public void render(long param0) {
         Camera var0 = this.minecraft.gameRenderer.getMainCamera();
-        GlStateManager.pushMatrix();
-        GlStateManager.enableBlend();
-        GlStateManager.blendFuncSeparate(
+        RenderSystem.pushMatrix();
+        RenderSystem.enableBlend();
+        RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.SRC_ALPHA,
             GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
             GlStateManager.SourceFactor.ONE,
             GlStateManager.DestFactor.ZERO
         );
-        GlStateManager.disableTexture();
+        RenderSystem.disableTexture();
         BlockPos var1 = new BlockPos(var0.getPosition().x, 0.0, var0.getPosition().z);
         this.goalSelectors.forEach((param1, param2) -> {
             for(int var0x = 0; var0x < param2.size(); ++var0x) {
@@ -54,9 +55,9 @@ public class GoalSelectorDebugRenderer implements DebugRenderer.SimpleDebugRende
             }
 
         });
-        GlStateManager.enableDepthTest();
-        GlStateManager.enableTexture();
-        GlStateManager.popMatrix();
+        RenderSystem.enableDepthTest();
+        RenderSystem.enableTexture();
+        RenderSystem.popMatrix();
     }
 
     @OnlyIn(Dist.CLIENT)

@@ -7,6 +7,7 @@ import net.minecraft.world.level.BlockLayer;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.pathfinder.PathComputationType;
 
 public class BushBlock extends Block {
     protected BushBlock(Block.Properties param0) {
@@ -37,5 +38,10 @@ public class BushBlock extends Block {
     @Override
     public boolean propagatesSkylightDown(BlockState param0, BlockGetter param1, BlockPos param2) {
         return true;
+    }
+
+    @Override
+    public boolean isPathfindable(BlockState param0, BlockGetter param1, BlockPos param2, PathComputationType param3) {
+        return param3 == PathComputationType.AIR && !this.hasCollision ? true : super.isPathfindable(param0, param1, param2, param3);
     }
 }

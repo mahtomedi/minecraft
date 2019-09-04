@@ -2,6 +2,7 @@ package net.minecraft.world.level.block;
 
 import java.util.Random;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -51,7 +52,7 @@ public class SweetBerryBushBlock extends BushBlock implements BonemealableBlock 
     }
 
     @Override
-    public void tick(BlockState param0, Level param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         super.tick(param0, param1, param2, param3);
         int var0 = param0.getValue(AGE);
         if (var0 < 3 && param3.nextInt(5) == 0 && param1.getRawBrightness(param2.above(), 0) >= 9) {
@@ -62,7 +63,7 @@ public class SweetBerryBushBlock extends BushBlock implements BonemealableBlock 
 
     @Override
     public void entityInside(BlockState param0, Level param1, BlockPos param2, Entity param3) {
-        if (param3 instanceof LivingEntity && param3.getType() != EntityType.FOX) {
+        if (param3 instanceof LivingEntity && param3.getType() != EntityType.FOX && param3.getType() != EntityType.BEE) {
             param3.makeStuckInBlock(param0, new Vec3(0.8F, 0.75, 0.8F));
             if (!param1.isClientSide && param0.getValue(AGE) > 0 && (param3.xOld != param3.x || param3.zOld != param3.z)) {
                 double var0 = Math.abs(param3.x - param3.xOld);
@@ -108,7 +109,7 @@ public class SweetBerryBushBlock extends BushBlock implements BonemealableBlock 
     }
 
     @Override
-    public void performBonemeal(Level param0, Random param1, BlockPos param2, BlockState param3) {
+    public void performBonemeal(ServerLevel param0, Random param1, BlockPos param2, BlockState param3) {
         int var0 = Math.min(3, param3.getValue(AGE) + 1);
         param0.setBlock(param2, param3.setValue(AGE, Integer.valueOf(var0)), 2);
     }

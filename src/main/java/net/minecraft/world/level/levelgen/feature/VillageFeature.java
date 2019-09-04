@@ -6,6 +6,7 @@ import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.structure.BeardedStructureStart;
@@ -36,14 +37,9 @@ public class VillageFeature extends StructureFeature<VillageConfiguration> {
     }
 
     @Override
-    public boolean isFeatureChunk(ChunkGenerator<?> param0, Random param1, int param2, int param3) {
-        ChunkPos var0 = this.getPotentialFeatureChunkFromLocationWithOffset(param0, param1, param2, param3, 0, 0);
-        if (param2 == var0.x && param3 == var0.z) {
-            Biome var1 = param0.getBiomeSource().getBiome(new BlockPos((param2 << 4) + 9, 0, (param3 << 4) + 9));
-            return param0.isBiomeValidStartForStructure(var1, Feature.VILLAGE);
-        } else {
-            return false;
-        }
+    public boolean isFeatureChunk(BiomeManager param0, ChunkGenerator<?> param1, Random param2, int param3, int param4, Biome param5) {
+        ChunkPos var0 = this.getPotentialFeatureChunkFromLocationWithOffset(param1, param2, param3, param4, 0, 0);
+        return param3 == var0.x && param4 == var0.z ? param1.isBiomeValidStartForStructure(param5, Feature.VILLAGE) : false;
     }
 
     @Override
@@ -62,8 +58,8 @@ public class VillageFeature extends StructureFeature<VillageConfiguration> {
     }
 
     public static class FeatureStart extends BeardedStructureStart {
-        public FeatureStart(StructureFeature<?> param0, int param1, int param2, Biome param3, BoundingBox param4, int param5, long param6) {
-            super(param0, param1, param2, param3, param4, param5, param6);
+        public FeatureStart(StructureFeature<?> param0, int param1, int param2, BoundingBox param3, int param4, long param5) {
+            super(param0, param1, param2, param3, param4, param5);
         }
 
         @Override

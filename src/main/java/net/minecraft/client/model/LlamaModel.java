@@ -1,6 +1,6 @@
 package net.minecraft.client.model;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.entity.animal.horse.AbstractChestedHorse;
 import net.minecraftforge.api.distmarker.Dist;
@@ -62,29 +62,29 @@ public class LlamaModel<T extends AbstractChestedHorse> extends QuadrupedModel<T
         this.setupAnim(param0, param1, param2, param3, param4, param5, param6);
         if (this.young) {
             float var1 = 2.0F;
-            GlStateManager.pushMatrix();
-            GlStateManager.translatef(0.0F, this.yHeadOffs * param6, this.zHeadOffs * param6);
-            GlStateManager.popMatrix();
-            GlStateManager.pushMatrix();
+            RenderSystem.pushMatrix();
+            RenderSystem.translatef(0.0F, this.yHeadOffs * param6, this.zHeadOffs * param6);
+            RenderSystem.popMatrix();
+            RenderSystem.pushMatrix();
             float var2 = 0.7F;
-            GlStateManager.scalef(0.71428573F, 0.64935064F, 0.7936508F);
-            GlStateManager.translatef(0.0F, 21.0F * param6, 0.22F);
+            RenderSystem.scalef(0.71428573F, 0.64935064F, 0.7936508F);
+            RenderSystem.translatef(0.0F, 21.0F * param6, 0.22F);
             this.head.render(param6);
-            GlStateManager.popMatrix();
-            GlStateManager.pushMatrix();
+            RenderSystem.popMatrix();
+            RenderSystem.pushMatrix();
             float var3 = 1.1F;
-            GlStateManager.scalef(0.625F, 0.45454544F, 0.45454544F);
-            GlStateManager.translatef(0.0F, 33.0F * param6, 0.0F);
+            RenderSystem.scalef(0.625F, 0.45454544F, 0.45454544F);
+            RenderSystem.translatef(0.0F, 33.0F * param6, 0.0F);
             this.body.render(param6);
-            GlStateManager.popMatrix();
-            GlStateManager.pushMatrix();
-            GlStateManager.scalef(0.45454544F, 0.41322312F, 0.45454544F);
-            GlStateManager.translatef(0.0F, 33.0F * param6, 0.0F);
+            RenderSystem.popMatrix();
+            RenderSystem.pushMatrix();
+            RenderSystem.scalef(0.45454544F, 0.41322312F, 0.45454544F);
+            RenderSystem.translatef(0.0F, 33.0F * param6, 0.0F);
             this.leg0.render(param6);
             this.leg1.render(param6);
             this.leg2.render(param6);
             this.leg3.render(param6);
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
         } else {
             this.head.render(param6);
             this.body.render(param6);

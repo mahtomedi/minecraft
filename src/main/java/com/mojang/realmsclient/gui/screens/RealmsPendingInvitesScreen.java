@@ -1,6 +1,6 @@
 package com.mojang.realmsclient.gui.screens;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.realmsclient.RealmsMainScreen;
 import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.dto.PendingInvite;
@@ -273,7 +273,7 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
             RealmsPendingInvitesScreen.this.drawString(RealmsPendingInvitesScreen.getAge(param0), param1 + 38, param2 + 24, 7105644);
             RowButton.drawButtonsInRow(this.rowButtons, RealmsPendingInvitesScreen.this.pendingInvitationSelectionList, param1, param2, param3, param4);
             RealmsTextureManager.withBoundFace(param0.worldOwnerUuid, () -> {
-                GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
                 RealmsScreen.blit(param1, param2, 8.0F, 8.0F, 8, 8, 32, 32, 64, 64);
                 RealmsScreen.blit(param1, param2, 40.0F, 8.0F, 8, 8, 32, 32, 64, 64);
             });
@@ -288,10 +288,10 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
             @Override
             protected void draw(int param0, int param1, boolean param2) {
                 RealmsScreen.bind("realms:textures/gui/realms/accept_icon.png");
-                GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-                GlStateManager.pushMatrix();
+                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                RenderSystem.pushMatrix();
                 RealmsScreen.blit(param0, param1, param2 ? 19.0F : 0.0F, 0.0F, 18, 18, 37, 18);
-                GlStateManager.popMatrix();
+                RenderSystem.popMatrix();
                 if (param2) {
                     RealmsPendingInvitesScreen.this.toolTip = RealmsScreen.getLocalizedString("mco.invites.button.accept");
                 }
@@ -313,10 +313,10 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
             @Override
             protected void draw(int param0, int param1, boolean param2) {
                 RealmsScreen.bind("realms:textures/gui/realms/reject_icon.png");
-                GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-                GlStateManager.pushMatrix();
+                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                RenderSystem.pushMatrix();
                 RealmsScreen.blit(param0, param1, param2 ? 19.0F : 0.0F, 0.0F, 18, 18, 37, 18);
-                GlStateManager.popMatrix();
+                RenderSystem.popMatrix();
                 if (param2) {
                     RealmsPendingInvitesScreen.this.toolTip = RealmsScreen.getLocalizedString("mco.invites.button.reject");
                 }

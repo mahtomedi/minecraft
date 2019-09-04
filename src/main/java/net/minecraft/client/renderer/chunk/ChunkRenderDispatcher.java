@@ -7,8 +7,6 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListenableFutureTask;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.mojang.blaze3d.platform.GLX;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.VertexBuffer;
@@ -229,12 +227,7 @@ public class ChunkRenderDispatcher {
 
     public ListenableFuture<Void> uploadChunkLayer(BlockLayer param0, BufferBuilder param1, RenderChunk param2, CompiledChunk param3, double param4) {
         if (Minecraft.getInstance().isSameThread()) {
-            if (GLX.useVbo()) {
-                this.uploadChunkLayer(param1, param2.getBuffer(param0.ordinal()));
-            } else {
-                this.compileChunkLayerIntoGlList(param1, ((ListedRenderChunk)param2).getGlListId(param0, param3));
-            }
-
+            this.uploadChunkLayer(param1, param2.getBuffer(param0.ordinal()));
             param1.offset(0.0, 0.0, 0.0);
             return Futures.immediateFuture(null);
         } else {
@@ -244,12 +237,6 @@ public class ChunkRenderDispatcher {
                 return var0;
             }
         }
-    }
-
-    private void compileChunkLayerIntoGlList(BufferBuilder param0, int param1) {
-        GlStateManager.newList(param1, 4864);
-        this.uploader.end(param0);
-        GlStateManager.endList();
     }
 
     private void uploadChunkLayer(BufferBuilder param0, VertexBuffer param1) {

@@ -164,7 +164,7 @@ public class Bat extends AmbientCreature {
     }
 
     @Override
-    protected boolean makeStepSound() {
+    protected boolean isMovementNoisy() {
         return false;
     }
 

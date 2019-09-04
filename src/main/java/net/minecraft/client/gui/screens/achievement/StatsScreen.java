@@ -2,8 +2,8 @@ package net.minecraft.client.gui.screens.achievement;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.Tesselator;
 import java.util.Comparator;
 import java.util.List;
@@ -137,15 +137,15 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
 
     private void blitSlot(int param0, int param1, Item param2) {
         this.blitSlotIcon(param0 + 1, param1 + 1, 0, 0);
-        GlStateManager.enableRescaleNormal();
+        RenderSystem.enableRescaleNormal();
         Lighting.turnOnGui();
         this.itemRenderer.renderGuiItem(param2.getDefaultInstance(), param0 + 2, param1 + 2);
         Lighting.turnOff();
-        GlStateManager.disableRescaleNormal();
+        RenderSystem.disableRescaleNormal();
     }
 
     private void blitSlotIcon(int param0, int param1, int param2, int param3) {
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.minecraft.getTextureManager().bind(STATS_ICON_LOCATION);
         blit(param0, param1, this.blitOffset, (float)param2, (float)param3, 18, 18, 128, 128);
     }

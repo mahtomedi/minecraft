@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.blockentity;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.DyeColor;
@@ -15,10 +15,10 @@ public class TheEndGatewayRenderer extends TheEndPortalRenderer {
 
     @Override
     public void render(TheEndPortalBlockEntity param0, double param1, double param2, double param3, float param4, int param5) {
-        GlStateManager.disableFog();
+        RenderSystem.disableFog();
         TheEndGatewayBlockEntity var0 = (TheEndGatewayBlockEntity)param0;
         if (var0.isSpawning() || var0.isCoolingDown()) {
-            GlStateManager.alphaFunc(516, 0.1F);
+            RenderSystem.alphaFunc(516, 0.1F);
             this.bindTexture(BEAM_LOCATION);
             float var1 = var0.isSpawning() ? var0.getSpawnPercent(param4) : var0.getCooldownPercent(param4);
             double var2 = var0.isSpawning() ? 256.0 - param2 : 50.0;
@@ -30,7 +30,7 @@ public class TheEndGatewayRenderer extends TheEndPortalRenderer {
         }
 
         super.render(param0, param1, param2, param3, param4, param5);
-        GlStateManager.enableFog();
+        RenderSystem.enableFog();
     }
 
     @Override

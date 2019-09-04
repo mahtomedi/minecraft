@@ -159,7 +159,7 @@ public class Ravager extends Raider {
                     BlockState var5 = this.level.getBlockState(var4);
                     Block var6 = var5.getBlock();
                     if (var6 instanceof LeavesBlock) {
-                        var2 = this.level.destroyBlock(var4, true) || var2;
+                        var2 = this.level.destroyBlock(var4, true, this) || var2;
                     }
                 }
 

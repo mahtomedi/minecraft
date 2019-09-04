@@ -18,6 +18,7 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
+import net.minecraft.Util;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -71,7 +72,7 @@ public class SectionStorage<R extends Serializable> extends RegionFileStorage {
                 this.readColumn(var0.chunk());
                 var1 = this.get(param0);
                 if (var1 == null) {
-                    throw new IllegalStateException();
+                    throw (IllegalStateException)Util.pauseInIde(new IllegalStateException());
                 } else {
                     return var1;
                 }

@@ -1,6 +1,6 @@
 package com.mojang.realmsclient.gui.screens;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.dto.Backup;
 import com.mojang.realmsclient.dto.RealmsServer;
@@ -415,11 +415,11 @@ public class RealmsBackupScreen extends RealmsScreen {
                 && param3 < RealmsBackupScreen.this.height() - 15
                 && param3 > 32;
             RealmsScreen.bind("realms:textures/gui/realms/restore_icon.png");
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            GlStateManager.pushMatrix();
-            GlStateManager.scalef(0.5F, 0.5F, 0.5F);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.pushMatrix();
+            RenderSystem.scalef(0.5F, 0.5F, 0.5F);
             RealmsScreen.blit(param0 * 2, param1 * 2, 0.0F, var0 ? 28.0F : 0.0F, 23, 28, 23, 56);
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
             if (var0) {
                 RealmsBackupScreen.this.toolTip = RealmsScreen.getLocalizedString("mco.backup.button.restore");
             }
@@ -434,11 +434,11 @@ public class RealmsBackupScreen extends RealmsScreen {
                 && param3 < RealmsBackupScreen.this.height() - 15
                 && param3 > 32;
             RealmsScreen.bind("realms:textures/gui/realms/plus_icon.png");
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            GlStateManager.pushMatrix();
-            GlStateManager.scalef(0.5F, 0.5F, 0.5F);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.pushMatrix();
+            RenderSystem.scalef(0.5F, 0.5F, 0.5F);
             RealmsScreen.blit(param0 * 2, param1 * 2, 0.0F, var0 ? 15.0F : 0.0F, 15, 15, 15, 30);
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
             if (var0) {
                 RealmsBackupScreen.this.toolTip = RealmsScreen.getLocalizedString("mco.backup.changes.tooltip");
             }

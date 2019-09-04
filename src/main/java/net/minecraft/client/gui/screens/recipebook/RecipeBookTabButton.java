@@ -1,7 +1,7 @@
 package net.minecraft.client.gui.screens.recipebook;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.List;
 import net.minecraft.client.ClientRecipeBook;
 import net.minecraft.client.Minecraft;
@@ -45,15 +45,15 @@ public class RecipeBookTabButton extends StateSwitchingButton {
     public void renderButton(int param0, int param1, float param2) {
         if (this.animationTime > 0.0F) {
             float var0 = 1.0F + 0.1F * (float)Math.sin((double)(this.animationTime / 15.0F * (float) Math.PI));
-            GlStateManager.pushMatrix();
-            GlStateManager.translatef((float)(this.x + 8), (float)(this.y + 12), 0.0F);
-            GlStateManager.scalef(1.0F, var0, 1.0F);
-            GlStateManager.translatef((float)(-(this.x + 8)), (float)(-(this.y + 12)), 0.0F);
+            RenderSystem.pushMatrix();
+            RenderSystem.translatef((float)(this.x + 8), (float)(this.y + 12), 0.0F);
+            RenderSystem.scalef(1.0F, var0, 1.0F);
+            RenderSystem.translatef((float)(-(this.x + 8)), (float)(-(this.y + 12)), 0.0F);
         }
 
         Minecraft var1 = Minecraft.getInstance();
         var1.getTextureManager().bind(this.resourceLocation);
-        GlStateManager.disableDepthTest();
+        RenderSystem.disableDepthTest();
         int var2 = this.xTexStart;
         int var3 = this.yTexStart;
         if (this.isStateTriggered) {
@@ -69,16 +69,16 @@ public class RecipeBookTabButton extends StateSwitchingButton {
             var4 -= 2;
         }
 
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.blit(var4, this.y, var2, var3, this.width, this.height);
-        GlStateManager.enableDepthTest();
+        RenderSystem.enableDepthTest();
         Lighting.turnOnGui();
-        GlStateManager.disableLighting();
+        RenderSystem.disableLighting();
         this.renderIcon(var1.getItemRenderer());
-        GlStateManager.enableLighting();
+        RenderSystem.enableLighting();
         Lighting.turnOff();
         if (this.animationTime > 0.0F) {
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
             this.animationTime -= param2;
         }
 

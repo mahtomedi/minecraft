@@ -12,7 +12,7 @@ import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.TridentItem;
 import net.minecraft.world.level.block.AbstractSkullBlock;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.PumpkinBlock;
+import net.minecraft.world.level.block.CarvedPumpkinBlock;
 
 public enum EnchantmentCategory {
     ALL {
@@ -97,7 +97,7 @@ public enum EnchantmentCategory {
         @Override
         public boolean canEnchant(Item param0) {
             Block var0 = Block.byItem(param0);
-            return param0 instanceof ArmorItem || param0 instanceof ElytraItem || var0 instanceof AbstractSkullBlock || var0 instanceof PumpkinBlock;
+            return param0 instanceof ArmorItem || param0 instanceof ElytraItem || var0 instanceof AbstractSkullBlock || var0 instanceof CarvedPumpkinBlock;
         }
     },
     CROSSBOW {

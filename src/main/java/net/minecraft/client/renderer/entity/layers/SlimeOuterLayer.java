@@ -1,6 +1,7 @@
 package net.minecraft.client.renderer.entity.layers;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.SlimeModel;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
@@ -19,14 +20,14 @@ public class SlimeOuterLayer<T extends Entity> extends RenderLayer<T, SlimeModel
     @Override
     public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6, float param7) {
         if (!param0.isInvisible()) {
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            GlStateManager.enableNormalize();
-            GlStateManager.enableBlend();
-            GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.enableNormalize();
+            RenderSystem.enableBlend();
+            RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
             this.getParentModel().copyPropertiesTo(this.model);
             this.model.render(param0, param1, param2, param4, param5, param6, param7);
-            GlStateManager.disableBlend();
-            GlStateManager.disableNormalize();
+            RenderSystem.disableBlend();
+            RenderSystem.disableNormalize();
         }
     }
 

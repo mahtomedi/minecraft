@@ -1,6 +1,6 @@
 package net.minecraft.client.gui.screens.inventory;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 import net.minecraft.client.gui.screens.recipebook.RecipeUpdateListener;
@@ -71,7 +71,7 @@ public class CraftingScreen extends AbstractContainerScreen<CraftingMenu> implem
 
     @Override
     protected void renderBg(float param0, int param1, int param2) {
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.minecraft.getTextureManager().bind(CRAFTING_TABLE_LOCATION);
         int var0 = this.leftPos;
         int var1 = (this.height - this.imageHeight) / 2;

@@ -1,7 +1,7 @@
 package net.minecraft.client.gui.components;
 
 import com.google.common.collect.Maps;
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.client.Minecraft;
@@ -29,7 +29,7 @@ public class BossHealthOverlay extends GuiComponent {
 
             for(LerpingBossEvent var2 : this.events.values()) {
                 int var3 = var0 / 2 - 91;
-                GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
                 this.minecraft.getTextureManager().bind(GUI_BARS_LOCATION);
                 this.drawBar(var3, var1, var2);
                 String var5 = var2.getName().getColoredString();

@@ -332,7 +332,7 @@ public class WitherBoss extends Monster implements RangedAttackMob {
                                 BlockPos var23 = new BlockPos(var20, var21, var22);
                                 BlockState var24 = this.level.getBlockState(var23);
                                 if (canDestroy(var24)) {
-                                    var16 = this.level.destroyBlock(var23, true) || var16;
+                                    var16 = this.level.destroyBlock(var23, true, this) || var16;
                                 }
                             }
                         }

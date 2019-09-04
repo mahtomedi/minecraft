@@ -1,7 +1,7 @@
 package net.minecraft.client.gui.components.toasts;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.List;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.DisplayInfo;
@@ -25,7 +25,7 @@ public class AdvancementToast implements Toast {
     @Override
     public Toast.Visibility render(ToastComponent param0, long param1) {
         param0.getMinecraft().getTextureManager().bind(TEXTURE);
-        GlStateManager.color3f(1.0F, 1.0F, 1.0F);
+        RenderSystem.color3f(1.0F, 1.0F, 1.0F);
         DisplayInfo var0 = this.advancement.getDisplay();
         param0.blit(0, 0, 0, 0, 160, 32);
         if (var0 != null) {

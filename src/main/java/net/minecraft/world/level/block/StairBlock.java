@@ -4,6 +4,7 @@ import java.util.Random;
 import java.util.stream.IntStream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -160,7 +161,7 @@ public class StairBlock extends Block implements SimpleWaterloggedBlock {
     }
 
     @Override
-    public void tick(BlockState param0, Level param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         this.base.tick(param0, param1, param2, param3);
     }
 

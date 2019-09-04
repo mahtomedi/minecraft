@@ -27,6 +27,7 @@ public class LoomMenu extends AbstractContainerMenu {
     private final Slot dyeSlot;
     private final Slot patternSlot;
     private final Slot resultSlot;
+    private long lastSoundTime;
     private final Container inputContainer = new SimpleContainer(3) {
         @Override
         public void setChanged() {
@@ -82,7 +83,14 @@ public class LoomMenu extends AbstractContainerMenu {
                     LoomMenu.this.selectedBannerPatternIndex.set(0);
                 }
 
-                param2.execute((param0x, param1x) -> param0x.playSound(null, param1x, SoundEvents.UI_LOOM_TAKE_RESULT, SoundSource.BLOCKS, 1.0F, 1.0F));
+                param2.execute((param0x, param1x) -> {
+                    long var0 = param0x.getGameTime();
+                    if (LoomMenu.this.lastSoundTime != var0) {
+                        param0x.playSound(null, param1x, SoundEvents.UI_LOOM_TAKE_RESULT, SoundSource.BLOCKS, 1.0F, 1.0F);
+                        LoomMenu.this.lastSoundTime = var0;
+                    }
+
+                });
                 return super.onTake(param0, param1);
             }
         });

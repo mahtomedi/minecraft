@@ -2,6 +2,7 @@ package net.minecraft.client.gui.components;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.Iterator;
 import java.util.List;
 import net.minecraft.Util;
@@ -35,9 +36,9 @@ public class SubtitleOverlay extends GuiComponent implements SoundEventListener 
         }
 
         if (this.isListening && !this.subtitles.isEmpty()) {
-            GlStateManager.pushMatrix();
-            GlStateManager.enableBlend();
-            GlStateManager.blendFuncSeparate(
+            RenderSystem.pushMatrix();
+            RenderSystem.enableBlend();
+            RenderSystem.blendFuncSeparate(
                 GlStateManager.SourceFactor.SRC_ALPHA,
                 GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
                 GlStateManager.SourceFactor.ONE,
@@ -80,15 +81,15 @@ public class SubtitleOverlay extends GuiComponent implements SoundEventListener 
                 int var19 = this.minecraft.font.width(var10);
                 int var20 = Mth.floor(Mth.clampedLerp(255.0, 75.0, (double)((float)(Util.getMillis() - var8.getTime()) / 3000.0F)));
                 int var21 = var20 << 16 | var20 << 8 | var20;
-                GlStateManager.pushMatrix();
-                GlStateManager.translatef(
+                RenderSystem.pushMatrix();
+                RenderSystem.translatef(
                     (float)this.minecraft.window.getGuiScaledWidth() - (float)var15 * 1.0F - 2.0F,
                     (float)(this.minecraft.window.getGuiScaledHeight() - 30) - (float)(var4 * (var16 + 1)) * 1.0F,
                     0.0F
                 );
-                GlStateManager.scalef(1.0F, 1.0F, 1.0F);
+                RenderSystem.scalef(1.0F, 1.0F, 1.0F);
                 fill(-var15 - 1, -var17 - 1, var15 + 1, var17 + 1, this.minecraft.options.getBackgroundColor(0.8F));
-                GlStateManager.enableBlend();
+                RenderSystem.enableBlend();
                 if (!var14) {
                     if (var12 > 0.0) {
                         this.minecraft.font.draw(">", (float)(var15 - this.minecraft.font.width(">")), (float)(-var17), var21 + -16777216);
@@ -98,12 +99,12 @@ public class SubtitleOverlay extends GuiComponent implements SoundEventListener 
                 }
 
                 this.minecraft.font.draw(var10, (float)(-var19 / 2), (float)(-var17), var21 + -16777216);
-                GlStateManager.popMatrix();
+                RenderSystem.popMatrix();
                 ++var4;
             }
 
-            GlStateManager.disableBlend();
-            GlStateManager.popMatrix();
+            RenderSystem.disableBlend();
+            RenderSystem.popMatrix();
         }
     }
 

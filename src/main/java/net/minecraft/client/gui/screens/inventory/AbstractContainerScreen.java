@@ -1,10 +1,9 @@
 package net.minecraft.client.gui.screens.inventory;
 
 import com.google.common.collect.Sets;
-import com.mojang.blaze3d.platform.GLX;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.Set;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
@@ -74,21 +73,21 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
         int var0 = this.leftPos;
         int var1 = this.topPos;
         this.renderBg(param2, param0, param1);
-        GlStateManager.disableRescaleNormal();
+        RenderSystem.disableRescaleNormal();
         Lighting.turnOff();
-        GlStateManager.disableLighting();
-        GlStateManager.disableDepthTest();
+        RenderSystem.disableLighting();
+        RenderSystem.disableDepthTest();
         super.render(param0, param1, param2);
         Lighting.turnOnGui();
-        GlStateManager.pushMatrix();
-        GlStateManager.translatef((float)var0, (float)var1, 0.0F);
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.enableRescaleNormal();
+        RenderSystem.pushMatrix();
+        RenderSystem.translatef((float)var0, (float)var1, 0.0F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.enableRescaleNormal();
         this.hoveredSlot = null;
         int var2 = 240;
         int var3 = 240;
-        GLX.glMultiTexCoord2f(GLX.GL_TEXTURE1, 240.0F, 240.0F);
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.glMultiTexCoord2f(33985, 240.0F, 240.0F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 
         for(int var4 = 0; var4 < this.menu.slots.size(); ++var4) {
             Slot var5 = this.menu.slots.get(var4);
@@ -98,15 +97,15 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
 
             if (this.isHovering(var5, (double)param0, (double)param1) && var5.isActive()) {
                 this.hoveredSlot = var5;
-                GlStateManager.disableLighting();
-                GlStateManager.disableDepthTest();
+                RenderSystem.disableLighting();
+                RenderSystem.disableDepthTest();
                 int var6 = var5.x;
                 int var7 = var5.y;
-                GlStateManager.colorMask(true, true, true, false);
+                RenderSystem.colorMask(true, true, true, false);
                 this.fillGradient(var6, var7, var6 + 16, var7 + 16, -2130706433, -2130706433);
-                GlStateManager.colorMask(true, true, true, true);
-                GlStateManager.enableLighting();
-                GlStateManager.enableDepthTest();
+                RenderSystem.colorMask(true, true, true, true);
+                RenderSystem.enableLighting();
+                RenderSystem.enableDepthTest();
             }
         }
 
@@ -147,9 +146,9 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
             this.renderFloatingItem(this.snapbackItem, var16, var17, null);
         }
 
-        GlStateManager.popMatrix();
-        GlStateManager.enableLighting();
-        GlStateManager.enableDepthTest();
+        RenderSystem.popMatrix();
+        RenderSystem.enableLighting();
+        RenderSystem.enableDepthTest();
         Lighting.turnOn();
     }
 
@@ -161,7 +160,7 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
     }
 
     private void renderFloatingItem(ItemStack param0, int param1, int param2, String param3) {
-        GlStateManager.translatef(0.0F, 0.0F, 32.0F);
+        RenderSystem.translatef(0.0F, 0.0F, 32.0F);
         this.blitOffset = 200;
         this.itemRenderer.blitOffset = 200.0F;
         this.itemRenderer.renderAndDecorateItem(param0, param1, param2);
@@ -214,10 +213,10 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
             String var8 = param0.getNoItemIcon();
             if (var8 != null) {
                 TextureAtlasSprite var9 = this.minecraft.getTextureAtlas().getTexture(var8);
-                GlStateManager.disableLighting();
+                RenderSystem.disableLighting();
                 this.minecraft.getTextureManager().bind(TextureAtlas.LOCATION_BLOCKS);
                 blit(var0, var1, this.blitOffset, 16, 16, var9);
-                GlStateManager.enableLighting();
+                RenderSystem.enableLighting();
                 var4 = true;
             }
         }
@@ -227,7 +226,7 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
                 fill(var0, var1, var0 + 16, var1 + 16, -2130706433);
             }
 
-            GlStateManager.enableDepthTest();
+            RenderSystem.enableDepthTest();
             this.itemRenderer.renderAndDecorateItem(this.minecraft.player, var2, var0, var1);
             this.itemRenderer.renderGuiItemDecorations(this.font, var2, var0, var1, var6);
         }

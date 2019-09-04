@@ -170,7 +170,7 @@ public class SkeletonHorse extends AbstractHorse {
             return false;
         } else if (this.isBaby()) {
             return super.mobInteract(param0, param1);
-        } else if (param0.isSneaking()) {
+        } else if (param0.isSecondaryUseActive()) {
             this.openInventory(param0);
             return true;
         } else if (this.isVehicle()) {

@@ -1,9 +1,8 @@
 package net.minecraft.client;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.platform.GLX;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -62,19 +61,11 @@ public class Screenshot {
     }
 
     public static NativeImage takeScreenshot(int param0, int param1, RenderTarget param2) {
-        if (GLX.isUsingFBOs()) {
-            param0 = param2.width;
-            param1 = param2.height;
-        }
-
+        param0 = param2.width;
+        param1 = param2.height;
         NativeImage var0 = new NativeImage(param0, param1, false);
-        if (GLX.isUsingFBOs()) {
-            GlStateManager.bindTexture(param2.colorTextureId);
-            var0.downloadTexture(0, true);
-        } else {
-            var0.downloadFrameBuffer(true);
-        }
-
+        RenderSystem.bindTexture(param2.colorTextureId);
+        var0.downloadTexture(0, true);
         var0.flipY();
         return var0;
     }

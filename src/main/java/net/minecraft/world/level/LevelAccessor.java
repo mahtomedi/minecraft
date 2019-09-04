@@ -15,6 +15,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.dimension.Dimension;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.phys.AABB;
@@ -84,5 +85,10 @@ public interface LevelAccessor extends EntityGetter, LevelReader, LevelSimulated
     @Override
     default boolean isUnobstructed(@Nullable Entity param0, VoxelShape param1) {
         return EntityGetter.super.isUnobstructed(param0, param1);
+    }
+
+    @Override
+    default BlockPos getHeightmapPos(Heightmap.Types param0, BlockPos param1) {
+        return LevelReader.super.getHeightmapPos(param0, param1);
     }
 }

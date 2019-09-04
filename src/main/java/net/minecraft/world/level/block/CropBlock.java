@@ -2,6 +2,7 @@ package net.minecraft.world.level.block;
 
 import java.util.Random;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.monster.Ravager;
@@ -70,7 +71,7 @@ public class CropBlock extends BushBlock implements BonemealableBlock {
     }
 
     @Override
-    public void tick(BlockState param0, Level param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         super.tick(param0, param1, param2, param3);
         if (param1.getRawBrightness(param2, 0) >= 9) {
             int var0 = this.getAge(param0);
@@ -150,7 +151,7 @@ public class CropBlock extends BushBlock implements BonemealableBlock {
     @Override
     public void entityInside(BlockState param0, Level param1, BlockPos param2, Entity param3) {
         if (param3 instanceof Ravager && param1.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
-            param1.destroyBlock(param2, true);
+            param1.destroyBlock(param2, true, param3);
         }
 
         super.entityInside(param0, param1, param2, param3);
@@ -178,7 +179,7 @@ public class CropBlock extends BushBlock implements BonemealableBlock {
     }
 
     @Override
-    public void performBonemeal(Level param0, Random param1, BlockPos param2, BlockState param3) {
+    public void performBonemeal(ServerLevel param0, Random param1, BlockPos param2, BlockState param3) {
         this.growCrops(param0, param2, param3);
     }
 

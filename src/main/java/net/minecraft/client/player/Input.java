@@ -13,9 +13,9 @@ public class Input {
     public boolean left;
     public boolean right;
     public boolean jumping;
-    public boolean sneakKeyDown;
+    public boolean shiftKeyDown;
 
-    public void tick(boolean param0, boolean param1) {
+    public void tick(boolean param0) {
     }
 
     public Vec2 getMoveVector() {

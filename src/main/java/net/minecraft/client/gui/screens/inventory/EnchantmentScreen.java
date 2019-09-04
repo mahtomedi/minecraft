@@ -1,8 +1,8 @@
 package net.minecraft.client.gui.screens.inventory;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.math.Matrix4f;
 import java.util.List;
 import java.util.Random;
@@ -71,34 +71,34 @@ public class EnchantmentScreen extends AbstractContainerScreen<EnchantmentMenu> 
 
     @Override
     protected void renderBg(float param0, int param1, int param2) {
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.minecraft.getTextureManager().bind(ENCHANTING_TABLE_LOCATION);
         int var0 = (this.width - this.imageWidth) / 2;
         int var1 = (this.height - this.imageHeight) / 2;
         this.blit(var0, var1, 0, 0, this.imageWidth, this.imageHeight);
-        GlStateManager.pushMatrix();
-        GlStateManager.matrixMode(5889);
-        GlStateManager.pushMatrix();
-        GlStateManager.loadIdentity();
+        RenderSystem.pushMatrix();
+        RenderSystem.matrixMode(5889);
+        RenderSystem.pushMatrix();
+        RenderSystem.loadIdentity();
         int var2 = (int)this.minecraft.window.getGuiScale();
-        GlStateManager.viewport((this.width - 320) / 2 * var2, (this.height - 240) / 2 * var2, 320 * var2, 240 * var2);
-        GlStateManager.translatef(-0.34F, 0.23F, 0.0F);
-        GlStateManager.multMatrix(Matrix4f.perspective(90.0, 1.3333334F, 9.0F, 80.0F));
+        RenderSystem.viewport((this.width - 320) / 2 * var2, (this.height - 240) / 2 * var2, 320 * var2, 240 * var2);
+        RenderSystem.translatef(-0.34F, 0.23F, 0.0F);
+        RenderSystem.multMatrix(Matrix4f.perspective(90.0, 1.3333334F, 9.0F, 80.0F));
         float var3 = 1.0F;
-        GlStateManager.matrixMode(5888);
-        GlStateManager.loadIdentity();
+        RenderSystem.matrixMode(5888);
+        RenderSystem.loadIdentity();
         Lighting.turnOn();
-        GlStateManager.translatef(0.0F, 3.3F, -16.0F);
-        GlStateManager.scalef(1.0F, 1.0F, 1.0F);
+        RenderSystem.translatef(0.0F, 3.3F, -16.0F);
+        RenderSystem.scalef(1.0F, 1.0F, 1.0F);
         float var4 = 5.0F;
-        GlStateManager.scalef(5.0F, 5.0F, 5.0F);
-        GlStateManager.rotatef(180.0F, 0.0F, 0.0F, 1.0F);
+        RenderSystem.scalef(5.0F, 5.0F, 5.0F);
+        RenderSystem.rotatef(180.0F, 0.0F, 0.0F, 1.0F);
         this.minecraft.getTextureManager().bind(ENCHANTING_BOOK_LOCATION);
-        GlStateManager.rotatef(20.0F, 1.0F, 0.0F, 0.0F);
+        RenderSystem.rotatef(20.0F, 1.0F, 0.0F, 0.0F);
         float var5 = Mth.lerp(param0, this.oOpen, this.open);
-        GlStateManager.translatef((1.0F - var5) * 0.2F, (1.0F - var5) * 0.1F, (1.0F - var5) * 0.25F);
-        GlStateManager.rotatef(-(1.0F - var5) * 90.0F - 90.0F, 0.0F, 1.0F, 0.0F);
-        GlStateManager.rotatef(180.0F, 1.0F, 0.0F, 0.0F);
+        RenderSystem.translatef((1.0F - var5) * 0.2F, (1.0F - var5) * 0.1F, (1.0F - var5) * 0.25F);
+        RenderSystem.rotatef(-(1.0F - var5) * 90.0F - 90.0F, 0.0F, 1.0F, 0.0F);
+        RenderSystem.rotatef(180.0F, 1.0F, 0.0F, 0.0F);
         float var6 = Mth.lerp(param0, this.oFlip, this.flip) + 0.25F;
         float var7 = Mth.lerp(param0, this.oFlip, this.flip) + 0.75F;
         var6 = (var6 - (float)Mth.fastFloor((double)var6)) * 1.6F - 0.3F;
@@ -119,17 +119,17 @@ public class EnchantmentScreen extends AbstractContainerScreen<EnchantmentMenu> 
             var7 = 1.0F;
         }
 
-        GlStateManager.enableRescaleNormal();
+        RenderSystem.enableRescaleNormal();
         BOOK_MODEL.render(0.0F, var6, var7, var5, 0.0F, 0.0625F);
-        GlStateManager.disableRescaleNormal();
+        RenderSystem.disableRescaleNormal();
         Lighting.turnOff();
-        GlStateManager.matrixMode(5889);
-        GlStateManager.viewport(0, 0, this.minecraft.window.getWidth(), this.minecraft.window.getHeight());
-        GlStateManager.popMatrix();
-        GlStateManager.matrixMode(5888);
-        GlStateManager.popMatrix();
+        RenderSystem.matrixMode(5889);
+        RenderSystem.viewport(0, 0, this.minecraft.window.getWidth(), this.minecraft.window.getHeight());
+        RenderSystem.popMatrix();
+        RenderSystem.matrixMode(5888);
+        RenderSystem.popMatrix();
         Lighting.turnOff();
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         EnchantmentNames.getInstance().initSeed((long)this.menu.getEnchantmentSeed());
         int var8 = this.menu.getGoldCount();
 
@@ -139,7 +139,7 @@ public class EnchantmentScreen extends AbstractContainerScreen<EnchantmentMenu> 
             this.blitOffset = 0;
             this.minecraft.getTextureManager().bind(ENCHANTING_TABLE_LOCATION);
             int var12 = this.menu.costs[var9];
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             if (var12 == 0) {
                 this.blit(var10, var1 + 14 + 19 * var9, 0, 185, 108, 19);
             } else {

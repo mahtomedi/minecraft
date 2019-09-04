@@ -13,7 +13,7 @@ public class EntityFlagsPredicate {
     @Nullable
     private final Boolean isOnFire;
     @Nullable
-    private final Boolean isSneaking;
+    private final Boolean isCrouching;
     @Nullable
     private final Boolean isSprinting;
     @Nullable
@@ -25,7 +25,7 @@ public class EntityFlagsPredicate {
         @Nullable Boolean param0, @Nullable Boolean param1, @Nullable Boolean param2, @Nullable Boolean param3, @Nullable Boolean param4
     ) {
         this.isOnFire = param0;
-        this.isSneaking = param1;
+        this.isCrouching = param1;
         this.isSprinting = param2;
         this.isSwimming = param3;
         this.isBaby = param4;
@@ -34,7 +34,7 @@ public class EntityFlagsPredicate {
     public boolean matches(Entity param0) {
         if (this.isOnFire != null && param0.isOnFire() != this.isOnFire) {
             return false;
-        } else if (this.isSneaking != null && param0.isSneaking() != this.isSneaking) {
+        } else if (this.isCrouching != null && param0.isCrouching() != this.isCrouching) {
             return false;
         } else if (this.isSprinting != null && param0.isSprinting() != this.isSprinting) {
             return false;
@@ -77,7 +77,7 @@ public class EntityFlagsPredicate {
         } else {
             JsonObject var0 = new JsonObject();
             this.addOptionalBoolean(var0, "is_on_fire", this.isOnFire);
-            this.addOptionalBoolean(var0, "is_sneaking", this.isSneaking);
+            this.addOptionalBoolean(var0, "is_sneaking", this.isCrouching);
             this.addOptionalBoolean(var0, "is_sprinting", this.isSprinting);
             this.addOptionalBoolean(var0, "is_swimming", this.isSwimming);
             this.addOptionalBoolean(var0, "is_baby", this.isBaby);
@@ -89,7 +89,7 @@ public class EntityFlagsPredicate {
         @Nullable
         private Boolean isOnFire;
         @Nullable
-        private Boolean isSneaking;
+        private Boolean isCrouching;
         @Nullable
         private Boolean isSprinting;
         @Nullable
@@ -107,7 +107,7 @@ public class EntityFlagsPredicate {
         }
 
         public EntityFlagsPredicate build() {
-            return new EntityFlagsPredicate(this.isOnFire, this.isSneaking, this.isSprinting, this.isSwimming, this.isBaby);
+            return new EntityFlagsPredicate(this.isOnFire, this.isCrouching, this.isSprinting, this.isSwimming, this.isBaby);
         }
     }
 }

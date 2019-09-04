@@ -2,6 +2,7 @@ package net.minecraft.client.gui.screens;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -171,23 +172,23 @@ public class WinScreen extends Screen {
         int var2 = this.height + 50;
         this.time += param2;
         float var3 = -this.time * this.scrollSpeed;
-        GlStateManager.pushMatrix();
-        GlStateManager.translatef(0.0F, var3, 0.0F);
+        RenderSystem.pushMatrix();
+        RenderSystem.translatef(0.0F, var3, 0.0F);
         this.minecraft.getTextureManager().bind(LOGO_LOCATION);
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.enableAlphaTest();
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.enableAlphaTest();
         this.blit(var1, var2, 0, 0, 155, 44);
         this.blit(var1 + 155, var2, 0, 45, 155, 44);
         this.minecraft.getTextureManager().bind(EDITION_LOCATION);
         blit(var1 + 88, var2 + 37, 0.0F, 0.0F, 98, 14, 128, 16);
-        GlStateManager.disableAlphaTest();
+        RenderSystem.disableAlphaTest();
         int var4 = var2 + 100;
 
         for(int var5 = 0; var5 < this.lines.size(); ++var5) {
             if (var5 == this.lines.size() - 1) {
                 float var6 = (float)var4 + var3 - (float)(this.height / 2 - 6);
                 if (var6 < 0.0F) {
-                    GlStateManager.translatef(0.0F, -var6, 0.0F);
+                    RenderSystem.translatef(0.0F, -var6, 0.0F);
                 }
             }
 
@@ -204,10 +205,10 @@ public class WinScreen extends Screen {
             var4 += 12;
         }
 
-        GlStateManager.popMatrix();
+        RenderSystem.popMatrix();
         this.minecraft.getTextureManager().bind(VIGNETTE_LOCATION);
-        GlStateManager.enableBlend();
-        GlStateManager.blendFunc(GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR);
+        RenderSystem.enableBlend();
+        RenderSystem.blendFunc(GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR);
         int var8 = this.width;
         int var9 = this.height;
         Tesselator var10 = Tesselator.getInstance();
@@ -218,7 +219,7 @@ public class WinScreen extends Screen {
         var11.vertex((double)var8, 0.0, (double)this.blitOffset).uv(1.0, 0.0).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
         var11.vertex(0.0, 0.0, (double)this.blitOffset).uv(0.0, 0.0).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
         var10.end();
-        GlStateManager.disableBlend();
+        RenderSystem.disableBlend();
         super.render(param0, param1, param2);
     }
 }

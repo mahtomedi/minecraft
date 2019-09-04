@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.level.Level;
@@ -53,9 +54,9 @@ public class BoneMealItem extends Item {
         if (var0.getBlock() instanceof BonemealableBlock) {
             BonemealableBlock var1 = (BonemealableBlock)var0.getBlock();
             if (var1.isValidBonemealTarget(param1, param2, var0, param1.isClientSide)) {
-                if (!param1.isClientSide) {
+                if (param1 instanceof ServerLevel) {
                     if (var1.isBonemealSuccess(param1, param1.random, param2, var0)) {
-                        var1.performBonemeal(param1, param1.random, param2, var0);
+                        var1.performBonemeal((ServerLevel)param1, param1.random, param2, var0);
                     }
 
                     param0.shrink(1);
@@ -70,8 +71,10 @@ public class BoneMealItem extends Item {
 
     public static boolean growWaterPlant(ItemStack param0, Level param1, BlockPos param2, @Nullable Direction param3) {
         if (param1.getBlockState(param2).getBlock() == Blocks.WATER && param1.getFluidState(param2).getAmount() == 8) {
-            if (!param1.isClientSide) {
-                label79:
+            if (!(param1 instanceof ServerLevel)) {
+                return true;
+            } else {
+                label80:
                 for(int var0 = 0; var0 < 128; ++var0) {
                     BlockPos var1 = param2;
                     Biome var2 = param1.getBiome(param2);
@@ -81,7 +84,7 @@ public class BoneMealItem extends Item {
                         var1 = var1.offset(random.nextInt(3) - 1, (random.nextInt(3) - 1) * random.nextInt(3) / 2, random.nextInt(3) - 1);
                         var2 = param1.getBiome(var1);
                         if (param1.getBlockState(var1).isCollisionShapeFullBlock(param1, var1)) {
-                            continue label79;
+                            continue label80;
                         }
                     }
 
@@ -104,15 +107,14 @@ public class BoneMealItem extends Item {
                         if (var6.getBlock() == Blocks.WATER && param1.getFluidState(var1).getAmount() == 8) {
                             param1.setBlock(var1, var3, 3);
                         } else if (var6.getBlock() == Blocks.SEAGRASS && random.nextInt(10) == 0) {
-                            ((BonemealableBlock)Blocks.SEAGRASS).performBonemeal(param1, random, var1, var6);
+                            ((BonemealableBlock)Blocks.SEAGRASS).performBonemeal((ServerLevel)param1, random, var1, var6);
                         }
                     }
                 }
 
                 param0.shrink(1);
+                return true;
             }
-
-            return true;
         } else {
             return false;
         }

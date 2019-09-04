@@ -40,8 +40,6 @@ public abstract class ChunkSource implements AutoCloseable, LightChunkGetter {
 
     public abstract String gatherStats();
 
-    public abstract ChunkGenerator<?> getGenerator();
-
     @Override
     public void close() throws IOException {
     }

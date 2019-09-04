@@ -9,6 +9,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -44,11 +45,11 @@ public class WoodlandMansionFeature extends StructureFeature<NoneFeatureConfigur
     }
 
     @Override
-    public boolean isFeatureChunk(ChunkGenerator<?> param0, Random param1, int param2, int param3) {
-        ChunkPos var0 = this.getPotentialFeatureChunkFromLocationWithOffset(param0, param1, param2, param3, 0, 0);
-        if (param2 == var0.x && param3 == var0.z) {
-            for(Biome var2 : param0.getBiomeSource().getBiomesWithin(param2 * 16 + 9, param3 * 16 + 9, 32)) {
-                if (!param0.isBiomeValidStartForStructure(var2, Feature.WOODLAND_MANSION)) {
+    public boolean isFeatureChunk(BiomeManager param0, ChunkGenerator<?> param1, Random param2, int param3, int param4, Biome param5) {
+        ChunkPos var0 = this.getPotentialFeatureChunkFromLocationWithOffset(param1, param2, param3, param4, 0, 0);
+        if (param3 == var0.x && param4 == var0.z) {
+            for(Biome var2 : param1.getBiomeSource().getBiomesWithin(param3 * 16 + 9, param1.getSeaLevel(), param4 * 16 + 9, 32)) {
+                if (!param1.isBiomeValidStartForStructure(var2, Feature.WOODLAND_MANSION)) {
                     return false;
                 }
             }
@@ -75,8 +76,8 @@ public class WoodlandMansionFeature extends StructureFeature<NoneFeatureConfigur
     }
 
     public static class WoodlandMansionStart extends StructureStart {
-        public WoodlandMansionStart(StructureFeature<?> param0, int param1, int param2, Biome param3, BoundingBox param4, int param5, long param6) {
-            super(param0, param1, param2, param3, param4, param5, param6);
+        public WoodlandMansionStart(StructureFeature<?> param0, int param1, int param2, BoundingBox param3, int param4, long param5) {
+            super(param0, param1, param2, param3, param4, param5);
         }
 
         @Override
@@ -110,12 +111,12 @@ public class WoodlandMansionFeature extends StructureFeature<NoneFeatureConfigur
         }
 
         @Override
-        public void postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
-            super.postProcess(param0, param1, param2, param3);
+        public void postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+            super.postProcess(param0, param1, param2, param3, param4);
             int var0 = this.boundingBox.y0;
 
-            for(int var1 = param2.x0; var1 <= param2.x1; ++var1) {
-                for(int var2 = param2.z0; var2 <= param2.z1; ++var2) {
+            for(int var1 = param3.x0; var1 <= param3.x1; ++var1) {
+                for(int var2 = param3.z0; var2 <= param3.z1; ++var2) {
                     BlockPos var3 = new BlockPos(var1, var0, var2);
                     if (!param0.isEmptyBlock(var3) && this.boundingBox.isInside(var3)) {
                         boolean var4 = false;

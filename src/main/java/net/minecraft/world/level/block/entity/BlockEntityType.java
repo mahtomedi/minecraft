@@ -195,6 +195,9 @@ public class BlockEntityType<T extends BlockEntity> {
     public static final BlockEntityType<CampfireBlockEntity> CAMPFIRE = register(
         "campfire", BlockEntityType.Builder.of(CampfireBlockEntity::new, Blocks.CAMPFIRE)
     );
+    public static final BlockEntityType<BeehiveBlockEntity> BEEHIVE = register(
+        "beehive", BlockEntityType.Builder.of(BeehiveBlockEntity::new, Blocks.BEE_NEST, Blocks.BEE_HIVE)
+    );
     private final Supplier<? extends T> factory;
     private final Set<Block> validBlocks;
     private final Type<?> dataType;
@@ -211,12 +214,11 @@ public class BlockEntityType<T extends BlockEntity> {
             var0 = DataFixers.getDataFixer()
                 .getSchema(DataFixUtils.makeKey(SharedConstants.getCurrentVersion().getWorldVersion()))
                 .getChoiceType(References.BLOCK_ENTITY, param0);
-        } catch (IllegalStateException var4) {
+        } catch (IllegalArgumentException var4) {
+            LOGGER.error("No data fixer registered for block entity {}", param0);
             if (SharedConstants.IS_RUNNING_IN_IDE) {
                 throw var4;
             }
-
-            LOGGER.warn("No data fixer registered for block entity {}", param0);
         }
 
         if (param1.validBlocks.isEmpty()) {

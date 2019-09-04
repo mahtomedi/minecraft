@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.IllagerModel;
 import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
 import net.minecraft.world.entity.monster.AbstractIllager;
@@ -21,6 +21,6 @@ public abstract class IllagerRenderer<T extends AbstractIllager> extends MobRend
 
     protected void scale(T param0, float param1) {
         float var0 = 0.9375F;
-        GlStateManager.scalef(0.9375F, 0.9375F, 0.9375F);
+        RenderSystem.scalef(0.9375F, 0.9375F, 0.9375F);
     }
 }

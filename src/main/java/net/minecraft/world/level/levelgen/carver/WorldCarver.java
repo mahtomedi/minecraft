@@ -12,6 +12,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -92,31 +93,32 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
 
     protected boolean carveSphere(
         ChunkAccess param0,
-        long param1,
-        int param2,
+        Function<BlockPos, Biome> param1,
+        long param2,
         int param3,
         int param4,
-        double param5,
+        int param5,
         double param6,
         double param7,
         double param8,
         double param9,
-        BitSet param10
+        double param10,
+        BitSet param11
     ) {
-        Random var0 = new Random(param1 + (long)param3 + (long)param4);
-        double var1 = (double)(param3 * 16 + 8);
-        double var2 = (double)(param4 * 16 + 8);
-        if (!(param5 < var1 - 16.0 - param8 * 2.0)
-            && !(param7 < var2 - 16.0 - param8 * 2.0)
-            && !(param5 > var1 + 16.0 + param8 * 2.0)
-            && !(param7 > var2 + 16.0 + param8 * 2.0)) {
-            int var3 = Math.max(Mth.floor(param5 - param8) - param3 * 16 - 1, 0);
-            int var4 = Math.min(Mth.floor(param5 + param8) - param3 * 16 + 1, 16);
-            int var5 = Math.max(Mth.floor(param6 - param9) - 1, 1);
-            int var6 = Math.min(Mth.floor(param6 + param9) + 1, this.genHeight - 8);
-            int var7 = Math.max(Mth.floor(param7 - param8) - param4 * 16 - 1, 0);
-            int var8 = Math.min(Mth.floor(param7 + param8) - param4 * 16 + 1, 16);
-            if (this.hasWater(param0, param3, param4, var3, var4, var5, var6, var7, var8)) {
+        Random var0 = new Random(param2 + (long)param4 + (long)param5);
+        double var1 = (double)(param4 * 16 + 8);
+        double var2 = (double)(param5 * 16 + 8);
+        if (!(param6 < var1 - 16.0 - param9 * 2.0)
+            && !(param8 < var2 - 16.0 - param9 * 2.0)
+            && !(param6 > var1 + 16.0 + param9 * 2.0)
+            && !(param8 > var2 + 16.0 + param9 * 2.0)) {
+            int var3 = Math.max(Mth.floor(param6 - param9) - param4 * 16 - 1, 0);
+            int var4 = Math.min(Mth.floor(param6 + param9) - param4 * 16 + 1, 16);
+            int var5 = Math.max(Mth.floor(param7 - param10) - 1, 1);
+            int var6 = Math.min(Mth.floor(param7 + param10) + 1, this.genHeight - 8);
+            int var7 = Math.max(Mth.floor(param8 - param9) - param5 * 16 - 1, 0);
+            int var8 = Math.min(Mth.floor(param8 + param9) - param5 * 16 + 1, 16);
+            if (this.hasWater(param0, param4, param5, var3, var4, var5, var6, var7, var8)) {
                 return false;
             } else {
                 boolean var9 = false;
@@ -125,20 +127,20 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
                 BlockPos.MutableBlockPos var12 = new BlockPos.MutableBlockPos();
 
                 for(int var13 = var3; var13 < var4; ++var13) {
-                    int var14 = var13 + param3 * 16;
-                    double var15 = ((double)var14 + 0.5 - param5) / param8;
+                    int var14 = var13 + param4 * 16;
+                    double var15 = ((double)var14 + 0.5 - param6) / param9;
 
                     for(int var16 = var7; var16 < var8; ++var16) {
-                        int var17 = var16 + param4 * 16;
-                        double var18 = ((double)var17 + 0.5 - param7) / param8;
+                        int var17 = var16 + param5 * 16;
+                        double var18 = ((double)var17 + 0.5 - param8) / param9;
                         if (!(var15 * var15 + var18 * var18 >= 1.0)) {
                             AtomicBoolean var19 = new AtomicBoolean(false);
 
                             for(int var20 = var6; var20 > var5; --var20) {
-                                double var21 = ((double)var20 - 0.5 - param6) / param9;
+                                double var21 = ((double)var20 - 0.5 - param7) / param10;
                                 if (!this.skip(var15, var21, var18, var20)) {
                                     var9 |= this.carveBlock(
-                                        param0, param10, var0, var10, var11, var12, param2, param3, param4, var14, var17, var13, var20, var16, var19
+                                        param0, param1, param11, var0, var10, var11, var12, param3, param4, param5, var14, var17, var13, var20, var16, var19
                                     );
                                 }
                             }
@@ -155,12 +157,12 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
 
     protected boolean carveBlock(
         ChunkAccess param0,
-        BitSet param1,
-        Random param2,
-        BlockPos.MutableBlockPos param3,
+        Function<BlockPos, Biome> param1,
+        BitSet param2,
+        Random param3,
         BlockPos.MutableBlockPos param4,
         BlockPos.MutableBlockPos param5,
-        int param6,
+        BlockPos.MutableBlockPos param6,
         int param7,
         int param8,
         int param9,
@@ -168,31 +170,32 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
         int param11,
         int param12,
         int param13,
-        AtomicBoolean param14
+        int param14,
+        AtomicBoolean param15
     ) {
-        int var0 = param11 | param13 << 4 | param12 << 8;
-        if (param1.get(var0)) {
+        int var0 = param12 | param14 << 4 | param13 << 8;
+        if (param2.get(var0)) {
             return false;
         } else {
-            param1.set(var0);
-            param3.set(param9, param12, param10);
-            BlockState var1 = param0.getBlockState(param3);
-            BlockState var2 = param0.getBlockState(param4.set(param3).move(Direction.UP));
+            param2.set(var0);
+            param4.set(param10, param13, param11);
+            BlockState var1 = param0.getBlockState(param4);
+            BlockState var2 = param0.getBlockState(param5.set(param4).move(Direction.UP));
             if (var1.getBlock() == Blocks.GRASS_BLOCK || var1.getBlock() == Blocks.MYCELIUM) {
-                param14.set(true);
+                param15.set(true);
             }
 
             if (!this.canReplaceBlock(var1, var2)) {
                 return false;
             } else {
-                if (param12 < 11) {
-                    param0.setBlockState(param3, LAVA.createLegacyBlock(), false);
+                if (param13 < 11) {
+                    param0.setBlockState(param4, LAVA.createLegacyBlock(), false);
                 } else {
-                    param0.setBlockState(param3, CAVE_AIR, false);
-                    if (param14.get()) {
-                        param5.set(param3).move(Direction.DOWN);
-                        if (param0.getBlockState(param5).getBlock() == Blocks.DIRT) {
-                            param0.setBlockState(param5, param0.getBiome(param3).getSurfaceBuilderConfig().getTopMaterial(), false);
+                    param0.setBlockState(param4, CAVE_AIR, false);
+                    if (param15.get()) {
+                        param6.set(param4).move(Direction.DOWN);
+                        if (param0.getBlockState(param6).getBlock() == Blocks.DIRT) {
+                            param0.setBlockState(param6, param1.apply(param4).getSurfaceBuilderConfig().getTopMaterial(), false);
                         }
                     }
                 }
@@ -202,7 +205,9 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
         }
     }
 
-    public abstract boolean carve(ChunkAccess var1, Random var2, int var3, int var4, int var5, int var6, int var7, BitSet var8, C var9);
+    public abstract boolean carve(
+        ChunkAccess var1, Function<BlockPos, Biome> var2, Random var3, int var4, int var5, int var6, int var7, int var8, BitSet var9, C var10
+    );
 
     public abstract boolean isStartChunk(Random var1, int var2, int var3, C var4);
 

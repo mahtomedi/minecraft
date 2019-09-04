@@ -1,7 +1,7 @@
 package com.mojang.blaze3d.shaders;
 
 import com.google.common.collect.Maps;
-import com.mojang.blaze3d.platform.GLX;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.TextureUtil;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,13 +25,13 @@ public class Program {
 
     public void attachToEffect(Effect param0) {
         ++this.references;
-        GLX.glAttachShader(param0.getId(), this.id);
+        GlStateManager.glAttachShader(param0.getId(), this.id);
     }
 
     public void close() {
         --this.references;
         if (this.references <= 0) {
-            GLX.glDeleteShader(this.id);
+            GlStateManager.glDeleteShader(this.id);
             this.type.getPrograms().remove(this.name);
         }
 
@@ -46,11 +46,11 @@ public class Program {
         if (var0 == null) {
             throw new IOException("Could not load program " + param0.getName());
         } else {
-            int var1 = GLX.glCreateShader(param0.getGlType());
-            GLX.glShaderSource(var1, var0);
-            GLX.glCompileShader(var1);
-            if (GLX.glGetShaderi(var1, GLX.GL_COMPILE_STATUS) == 0) {
-                String var2 = StringUtils.trim(GLX.glGetShaderInfoLog(var1, 32768));
+            int var1 = GlStateManager.glCreateShader(param0.getGlType());
+            GlStateManager.glShaderSource(var1, var0);
+            GlStateManager.glCompileShader(var1);
+            if (GlStateManager.glGetShaderi(var1, 35713) == 0) {
+                String var2 = StringUtils.trim(GlStateManager.glGetShaderInfoLog(var1, 32768));
                 throw new IOException("Couldn't compile " + param0.getName() + " program: " + var2);
             } else {
                 Program var3 = new Program(param0, var1, param1);
@@ -62,8 +62,8 @@ public class Program {
 
     @OnlyIn(Dist.CLIENT)
     public static enum Type {
-        VERTEX("vertex", ".vsh", GLX.GL_VERTEX_SHADER),
-        FRAGMENT("fragment", ".fsh", GLX.GL_FRAGMENT_SHADER);
+        VERTEX("vertex", ".vsh", 35633),
+        FRAGMENT("fragment", ".fsh", 35632);
 
         private final String name;
         private final String extension;

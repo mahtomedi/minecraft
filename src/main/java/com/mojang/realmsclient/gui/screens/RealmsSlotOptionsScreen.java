@@ -42,7 +42,7 @@ public class RealmsSlotOptionsScreen extends RealmsScreen {
     String[] gameModes;
     String[][] gameModeHints;
     private RealmsLabel titleLabel;
-    private RealmsLabel warningLabel = null;
+    private RealmsLabel warningLabel;
 
     public RealmsSlotOptionsScreen(RealmsConfigureWorldScreen param0, RealmsWorldOptions param1, RealmsServer.WorldType param2, int param3) {
         this.parent = param0;

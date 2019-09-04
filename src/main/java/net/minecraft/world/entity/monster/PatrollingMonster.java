@@ -1,6 +1,7 @@
 package net.minecraft.world.entity.monster;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -137,6 +138,10 @@ public abstract class PatrollingMonster extends Monster {
         return this.patrolling;
     }
 
+    protected void setPatrolling(boolean param0) {
+        this.patrolling = param0;
+    }
+
     public static class LongDistancePatrolGoal<T extends PatrollingMonster> extends Goal {
         private final T mob;
         private final double speedModifier;
@@ -167,30 +172,35 @@ public abstract class PatrollingMonster extends Monster {
             boolean var0 = this.mob.isPatrolLeader();
             PathNavigation var1 = this.mob.getNavigation();
             if (var1.isDone()) {
-                if (var0 && this.mob.getPatrolTarget().closerThan(this.mob.position(), 10.0)) {
+                List<PatrollingMonster> var2 = this.findPatrolCompanions();
+                if (this.mob.isPatrolling() && var2.isEmpty()) {
+                    this.mob.setPatrolling(false);
+                } else if (var0 && this.mob.getPatrolTarget().closerThan(this.mob.position(), 10.0)) {
                     this.mob.findPatrolTarget();
                 } else {
-                    Vec3 var2 = new Vec3(this.mob.getPatrolTarget());
-                    Vec3 var3 = new Vec3(this.mob.x, this.mob.y, this.mob.z);
-                    Vec3 var4 = var3.subtract(var2);
-                    var2 = var4.yRot(90.0F).scale(0.4).add(var2);
-                    Vec3 var5 = var2.subtract(var3).normalize().scale(10.0).add(var3);
-                    BlockPos var6 = new BlockPos(var5);
-                    var6 = this.mob.level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, var6);
-                    if (!var1.moveTo((double)var6.getX(), (double)var6.getY(), (double)var6.getZ(), var0 ? this.leaderSpeedModifier : this.speedModifier)) {
+                    Vec3 var3 = new Vec3(this.mob.getPatrolTarget());
+                    Vec3 var4 = new Vec3(this.mob.x, this.mob.y, this.mob.z);
+                    Vec3 var5 = var4.subtract(var3);
+                    var3 = var5.yRot(90.0F).scale(0.4).add(var3);
+                    Vec3 var6 = var3.subtract(var4).normalize().scale(10.0).add(var4);
+                    BlockPos var7 = new BlockPos(var6);
+                    var7 = this.mob.level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, var7);
+                    if (!var1.moveTo((double)var7.getX(), (double)var7.getY(), (double)var7.getZ(), var0 ? this.leaderSpeedModifier : this.speedModifier)) {
                         this.moveRandomly();
                     } else if (var0) {
-                        for(PatrollingMonster var8 : this.mob
-                            .level
-                            .getEntitiesOfClass(
-                                PatrollingMonster.class, this.mob.getBoundingBox().inflate(16.0), param0 -> !param0.isPatrolLeader() && param0.canJoinPatrol()
-                            )) {
-                            var8.setPatrolTarget(var6);
+                        for(PatrollingMonster var8 : var2) {
+                            var8.setPatrolTarget(var7);
                         }
                     }
                 }
             }
 
+        }
+
+        private List<PatrollingMonster> findPatrolCompanions() {
+            return this.mob
+                .level
+                .getEntitiesOfClass(PatrollingMonster.class, this.mob.getBoundingBox().inflate(16.0), param0 -> param0.canJoinPatrol() && !param0.is(this.mob));
         }
 
         private void moveRandomly() {

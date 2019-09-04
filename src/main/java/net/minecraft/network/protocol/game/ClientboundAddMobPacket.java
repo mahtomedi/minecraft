@@ -1,13 +1,10 @@
 package net.minecraft.network.protocol.game;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.UUID;
-import javax.annotation.Nullable;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
@@ -27,8 +24,6 @@ public class ClientboundAddMobPacket implements Packet<ClientGamePacketListener>
     private byte yRot;
     private byte xRot;
     private byte yHeadRot;
-    private SynchedEntityData entityData;
-    private List<SynchedEntityData.DataItem<?>> unpack;
 
     public ClientboundAddMobPacket() {
     }
@@ -51,7 +46,6 @@ public class ClientboundAddMobPacket implements Packet<ClientGamePacketListener>
         this.xd = (int)(var2 * 8000.0);
         this.yd = (int)(var3 * 8000.0);
         this.zd = (int)(var4 * 8000.0);
-        this.entityData = param0.getEntityData();
     }
 
     @Override
@@ -68,7 +62,6 @@ public class ClientboundAddMobPacket implements Packet<ClientGamePacketListener>
         this.xd = param0.readShort();
         this.yd = param0.readShort();
         this.zd = param0.readShort();
-        this.unpack = SynchedEntityData.unpack(param0);
     }
 
     @Override
@@ -85,17 +78,10 @@ public class ClientboundAddMobPacket implements Packet<ClientGamePacketListener>
         param0.writeShort(this.xd);
         param0.writeShort(this.yd);
         param0.writeShort(this.zd);
-        this.entityData.packAll(param0);
     }
 
     public void handle(ClientGamePacketListener param0) {
         param0.handleAddMob(this);
-    }
-
-    @Nullable
-    @OnlyIn(Dist.CLIENT)
-    public List<SynchedEntityData.DataItem<?>> getUnpackedData() {
-        return this.unpack;
     }
 
     @OnlyIn(Dist.CLIENT)

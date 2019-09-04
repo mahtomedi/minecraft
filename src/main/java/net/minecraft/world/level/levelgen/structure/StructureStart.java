@@ -11,7 +11,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.Feature;
@@ -19,7 +18,7 @@ import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 
 public abstract class StructureStart {
-    public static final StructureStart INVALID_START = new StructureStart(Feature.MINESHAFT, 0, 0, Biomes.PLAINS, BoundingBox.getUnknownBox(), 0, 0L) {
+    public static final StructureStart INVALID_START = new StructureStart(Feature.MINESHAFT, 0, 0, BoundingBox.getUnknownBox(), 0, 0L) {
         @Override
         public void generatePieces(ChunkGenerator<?> param0, StructureManager param1, int param2, int param3, Biome param4) {
         }
@@ -29,19 +28,17 @@ public abstract class StructureStart {
     protected BoundingBox boundingBox;
     private final int chunkX;
     private final int chunkZ;
-    private final Biome biome;
     private int references;
     protected final WorldgenRandom random;
 
-    public StructureStart(StructureFeature<?> param0, int param1, int param2, Biome param3, BoundingBox param4, int param5, long param6) {
+    public StructureStart(StructureFeature<?> param0, int param1, int param2, BoundingBox param3, int param4, long param5) {
         this.feature = param0;
         this.chunkX = param1;
         this.chunkZ = param2;
-        this.references = param5;
-        this.biome = param3;
+        this.references = param4;
         this.random = new WorldgenRandom();
-        this.random.setLargeFeatureSeed(param6, param1, param2);
-        this.boundingBox = param4;
+        this.random.setLargeFeatureSeed(param5, param1, param2);
+        this.boundingBox = param3;
     }
 
     public abstract void generatePieces(ChunkGenerator<?> var1, StructureManager var2, int var3, int var4, Biome var5);
@@ -54,13 +51,13 @@ public abstract class StructureStart {
         return this.pieces;
     }
 
-    public void postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
+    public void postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
         synchronized(this.pieces) {
             Iterator<StructurePiece> var0 = this.pieces.iterator();
 
             while(var0.hasNext()) {
                 StructurePiece var1 = var0.next();
-                if (var1.getBoundingBox().intersects(param2) && !var1.postProcess(param0, param1, param2, param3)) {
+                if (var1.getBoundingBox().intersects(param3) && !var1.postProcess(param0, param1, param2, param3, param4)) {
                     var0.remove();
                 }
             }
@@ -82,7 +79,6 @@ public abstract class StructureStart {
         CompoundTag var0 = new CompoundTag();
         if (this.isValid()) {
             var0.putString("id", Registry.STRUCTURE_FEATURE.getKey(this.getFeature()).toString());
-            var0.putString("biome", Registry.BIOME.getKey(this.biome).toString());
             var0.putInt("ChunkX", param0);
             var0.putInt("ChunkZ", param1);
             var0.putInt("references", this.references);

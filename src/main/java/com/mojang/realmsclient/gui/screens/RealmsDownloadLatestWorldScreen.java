@@ -1,10 +1,11 @@
 package com.mojang.realmsclient.gui.screens;
 
+import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.RateLimiter;
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.realmsclient.client.FileDownload;
 import com.mojang.realmsclient.dto.WorldDownload;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
@@ -102,7 +103,7 @@ public class RealmsDownloadLatestWorldScreen extends RealmsScreen {
         super.tick();
         ++this.animTick;
         if (this.status != null && this.narrationRateLimiter.tryAcquire(1)) {
-            ArrayList<String> var0 = new ArrayList<>();
+            List<String> var0 = Lists.newArrayList();
             var0.add(this.downloadTitle);
             var0.add(this.status);
             if (this.progress != null) {
@@ -176,8 +177,8 @@ public class RealmsDownloadLatestWorldScreen extends RealmsScreen {
     private void drawProgressBar() {
         double var0 = this.downloadStatus.bytesWritten.doubleValue() / this.downloadStatus.totalBytes.doubleValue() * 100.0;
         this.progress = String.format(Locale.ROOT, "%.1f", var0);
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.disableTexture();
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.disableTexture();
         Tezzelator var1 = Tezzelator.instance;
         var1.begin(7, RealmsDefaultVertexFormat.POSITION_COLOR);
         double var2 = (double)(this.width() / 2 - 100);
@@ -191,7 +192,7 @@ public class RealmsDownloadLatestWorldScreen extends RealmsScreen {
         var1.vertex(var2 + 200.0 * var0 / 100.0, 80.0, 0.0).color(128, 128, 128, 255).endVertex();
         var1.vertex(var2, 80.0, 0.0).color(128, 128, 128, 255).endVertex();
         var1.end();
-        GlStateManager.enableTexture();
+        RenderSystem.enableTexture();
         this.drawCenteredString(this.progress + " %", this.width() / 2, 84, 16777215);
     }
 
@@ -247,79 +248,68 @@ public class RealmsDownloadLatestWorldScreen extends RealmsScreen {
     }
 
     private void downloadSave() {
-        (new Thread() {
-                @Override
-                public void run() {
-                    try {
-                        if (RealmsDownloadLatestWorldScreen.downloadLock.tryLock(1L, TimeUnit.SECONDS)) {
-                            RealmsDownloadLatestWorldScreen.this.status = RealmsScreen.getLocalizedString("mco.download.preparing");
-                            if (RealmsDownloadLatestWorldScreen.this.cancelled) {
-                                RealmsDownloadLatestWorldScreen.this.downloadCancelled();
-                                return;
-                            }
-    
-                            RealmsDownloadLatestWorldScreen.this.status = RealmsScreen.getLocalizedString(
-                                "mco.download.downloading", RealmsDownloadLatestWorldScreen.this.worldName
-                            );
-                            FileDownload var0 = new FileDownload();
-                            var0.contentLength(RealmsDownloadLatestWorldScreen.this.worldDownload.downloadLink);
-                            var0.download(
-                                RealmsDownloadLatestWorldScreen.this.worldDownload,
-                                RealmsDownloadLatestWorldScreen.this.worldName,
-                                RealmsDownloadLatestWorldScreen.this.downloadStatus,
-                                RealmsDownloadLatestWorldScreen.this.getLevelStorageSource()
-                            );
-    
-                            while(!var0.isFinished()) {
-                                if (var0.isError()) {
-                                    var0.cancel();
-                                    RealmsDownloadLatestWorldScreen.this.errorMessage = RealmsScreen.getLocalizedString("mco.download.failed");
-                                    RealmsDownloadLatestWorldScreen.this.cancelButton.setMessage(RealmsScreen.getLocalizedString("gui.done"));
-                                    return;
-                                }
-    
-                                if (var0.isExtracting()) {
-                                    RealmsDownloadLatestWorldScreen.this.extracting = true;
-                                }
-    
-                                if (RealmsDownloadLatestWorldScreen.this.cancelled) {
-                                    var0.cancel();
-                                    RealmsDownloadLatestWorldScreen.this.downloadCancelled();
-                                    return;
-                                }
-    
-                                try {
-                                    Thread.sleep(500L);
-                                } catch (InterruptedException var8) {
-                                    RealmsDownloadLatestWorldScreen.LOGGER.error("Failed to check Realms backup download status");
-                                }
-                            }
-    
-                            RealmsDownloadLatestWorldScreen.this.finished = true;
-                            RealmsDownloadLatestWorldScreen.this.status = RealmsScreen.getLocalizedString("mco.download.done");
-                            RealmsDownloadLatestWorldScreen.this.cancelButton.setMessage(RealmsScreen.getLocalizedString("gui.done"));
-                            return;
-                        }
-                    } catch (InterruptedException var9) {
-                        RealmsDownloadLatestWorldScreen.LOGGER.error("Could not acquire upload lock");
+        new Thread(() -> {
+            try {
+                if (downloadLock.tryLock(1L, TimeUnit.SECONDS)) {
+                    this.status = getLocalizedString("mco.download.preparing");
+                    if (this.cancelled) {
+                        this.downloadCancelled();
                         return;
-                    } catch (Exception var10) {
-                        RealmsDownloadLatestWorldScreen.this.errorMessage = RealmsScreen.getLocalizedString("mco.download.failed");
-                        var10.printStackTrace();
-                        return;
-                    } finally {
-                        if (!RealmsDownloadLatestWorldScreen.downloadLock.isHeldByCurrentThread()) {
-                            return;
-                        }
-    
-                        RealmsDownloadLatestWorldScreen.downloadLock.unlock();
-                        RealmsDownloadLatestWorldScreen.this.showDots = false;
-                        RealmsDownloadLatestWorldScreen.this.finished = true;
                     }
-    
+
+                    this.status = getLocalizedString("mco.download.downloading", new Object[]{this.worldName});
+                    FileDownload var0 = new FileDownload();
+                    var0.contentLength(this.worldDownload.downloadLink);
+                    var0.download(this.worldDownload, this.worldName, this.downloadStatus, this.getLevelStorageSource());
+
+                    while(!var0.isFinished()) {
+                        if (var0.isError()) {
+                            var0.cancel();
+                            this.errorMessage = getLocalizedString("mco.download.failed");
+                            this.cancelButton.setMessage(getLocalizedString("gui.done"));
+                            return;
+                        }
+
+                        if (var0.isExtracting()) {
+                            this.extracting = true;
+                        }
+
+                        if (this.cancelled) {
+                            var0.cancel();
+                            this.downloadCancelled();
+                            return;
+                        }
+
+                        try {
+                            Thread.sleep(500L);
+                        } catch (InterruptedException var8) {
+                            LOGGER.error("Failed to check Realms backup download status");
+                        }
+                    }
+
+                    this.finished = true;
+                    this.status = getLocalizedString("mco.download.done");
+                    this.cancelButton.setMessage(getLocalizedString("gui.done"));
+                    return;
                 }
-            })
-            .start();
+            } catch (InterruptedException var9) {
+                LOGGER.error("Could not acquire upload lock");
+                return;
+            } catch (Exception var10) {
+                this.errorMessage = getLocalizedString("mco.download.failed");
+                var10.printStackTrace();
+                return;
+            } finally {
+                if (!downloadLock.isHeldByCurrentThread()) {
+                    return;
+                }
+
+                downloadLock.unlock();
+                this.showDots = false;
+                this.finished = true;
+            }
+
+        }).start();
     }
 
     private void downloadCancelled() {

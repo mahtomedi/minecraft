@@ -8,6 +8,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockGetter;
@@ -144,10 +145,10 @@ public class TheEndGatewayBlockEntity extends TheEndPortalBlockEntity implements
     }
 
     public void teleportEntity(Entity param0) {
-        if (!this.level.isClientSide && !this.isCoolingDown()) {
+        if (this.level instanceof ServerLevel && !this.isCoolingDown()) {
             this.teleportCooldown = 100;
             if (this.exitPortal == null && this.level.dimension instanceof TheEndDimension) {
-                this.findExitPortal();
+                this.findExitPortal((ServerLevel)this.level);
             }
 
             if (this.exitPortal != null) {
@@ -165,34 +166,34 @@ public class TheEndGatewayBlockEntity extends TheEndPortalBlockEntity implements
         return var0.above();
     }
 
-    private void findExitPortal() {
+    private void findExitPortal(ServerLevel param0) {
         Vec3 var0 = new Vec3((double)this.getBlockPos().getX(), 0.0, (double)this.getBlockPos().getZ()).normalize();
         Vec3 var1 = var0.scale(1024.0);
 
-        for(int var2 = 16; getChunk(this.level, var1).getHighestSectionPosition() > 0 && var2-- > 0; var1 = var1.add(var0.scale(-16.0))) {
+        for(int var2 = 16; getChunk(param0, var1).getHighestSectionPosition() > 0 && var2-- > 0; var1 = var1.add(var0.scale(-16.0))) {
             LOGGER.debug("Skipping backwards past nonempty chunk at {}", var1);
         }
 
-        for(int var5 = 16; getChunk(this.level, var1).getHighestSectionPosition() == 0 && var5-- > 0; var1 = var1.add(var0.scale(16.0))) {
+        for(int var6 = 16; getChunk(param0, var1).getHighestSectionPosition() == 0 && var6-- > 0; var1 = var1.add(var0.scale(16.0))) {
             LOGGER.debug("Skipping forward past empty chunk at {}", var1);
         }
 
         LOGGER.debug("Found chunk at {}", var1);
-        LevelChunk var3 = getChunk(this.level, var1);
+        LevelChunk var3 = getChunk(param0, var1);
         this.exitPortal = findValidSpawnInChunk(var3);
         if (this.exitPortal == null) {
             this.exitPortal = new BlockPos(var1.x + 0.5, 75.0, var1.z + 0.5);
             LOGGER.debug("Failed to find suitable block, settling on {}", this.exitPortal);
             Feature.END_ISLAND
-                .place(this.level, this.level.getChunkSource().getGenerator(), new Random(this.exitPortal.asLong()), this.exitPortal, FeatureConfiguration.NONE);
+                .place(param0, param0.getChunkSource().getGenerator(), new Random(this.exitPortal.asLong()), this.exitPortal, FeatureConfiguration.NONE);
         } else {
             LOGGER.debug("Found block at {}", this.exitPortal);
         }
 
-        this.exitPortal = findTallestBlock(this.level, this.exitPortal, 16, true);
+        this.exitPortal = findTallestBlock(param0, this.exitPortal, 16, true);
         LOGGER.debug("Creating portal at {}", this.exitPortal);
         this.exitPortal = this.exitPortal.above(10);
-        this.createExitPortal(this.exitPortal);
+        this.createExitPortal(param0, this.exitPortal);
         this.setChanged();
     }
 
@@ -248,9 +249,9 @@ public class TheEndGatewayBlockEntity extends TheEndPortalBlockEntity implements
         return var4;
     }
 
-    private void createExitPortal(BlockPos param0) {
+    private void createExitPortal(ServerLevel param0, BlockPos param1) {
         Feature.END_GATEWAY
-            .place(this.level, this.level.getChunkSource().getGenerator(), new Random(), param0, EndGatewayConfiguration.knownExit(this.getBlockPos(), false));
+            .place(param0, param0.getChunkSource().getGenerator(), new Random(), param1, EndGatewayConfiguration.knownExit(this.getBlockPos(), false));
     }
 
     @OnlyIn(Dist.CLIENT)

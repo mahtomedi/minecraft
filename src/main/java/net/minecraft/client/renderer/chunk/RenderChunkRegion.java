@@ -4,11 +4,11 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockAndBiomeGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LightLayer;
-import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -106,15 +106,13 @@ public class RenderChunkRegion implements BlockAndBiomeGetter {
     }
 
     @Override
-    public int getBrightness(LightLayer param0, BlockPos param1) {
-        return this.level.getBrightness(param0, param1);
+    public LevelLightEngine getLightEngine() {
+        return this.level.getLightEngine();
     }
 
     @Override
-    public Biome getBiome(BlockPos param0) {
-        int var0 = (param0.getX() >> 4) - this.centerX;
-        int var1 = (param0.getZ() >> 4) - this.centerZ;
-        return this.chunks[var0][var1].getBiome(param0);
+    public BiomeManager getBiomeManager() {
+        return this.level.getBiomeManager();
     }
 
     @Nullable

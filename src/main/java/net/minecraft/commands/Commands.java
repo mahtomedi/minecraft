@@ -13,7 +13,10 @@ import com.mojang.brigadier.tree.RootCommandNode;
 import java.util.Map;
 import java.util.function.Predicate;
 import net.minecraft.ChatFormatting;
+import net.minecraft.SharedConstants;
+import net.minecraft.Util;
 import net.minecraft.commands.synchronization.SuggestionProviders;
+import net.minecraft.gametest.framework.TestCommand;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
@@ -149,6 +152,10 @@ public class Commands {
         TriggerCommand.register(this.dispatcher);
         WeatherCommand.register(this.dispatcher);
         WorldBorderCommand.register(this.dispatcher);
+        if (SharedConstants.IS_RUNNING_IN_IDE) {
+            TestCommand.register(this.dispatcher);
+        }
+
         if (param0) {
             BanIpCommands.register(this.dispatcher);
             BanListCommands.register(this.dispatcher);
@@ -212,6 +219,7 @@ public class Commands {
             } catch (Exception var15) {
                 Component var7 = new TextComponent(var15.getMessage() == null ? var15.getClass().getName() : var15.getMessage());
                 if (LOGGER.isDebugEnabled()) {
+                    LOGGER.error("Command exception: {}", param1, var15);
                     StackTraceElement[] var8 = var15.getStackTrace();
 
                     for(int var9 = 0; var9 < Math.min(var8.length, 3); ++var9) {
@@ -227,6 +235,11 @@ public class Commands {
                 param0.sendFailure(
                     new TranslatableComponent("command.failed").withStyle(param1x -> param1x.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, var7)))
                 );
+                if (SharedConstants.IS_RUNNING_IN_IDE) {
+                    param0.sendFailure(new TextComponent(Util.describeError(var15)));
+                    LOGGER.error("'" + param1 + "' threw an exception", (Throwable)var15);
+                }
+
                 return 0;
             }
 

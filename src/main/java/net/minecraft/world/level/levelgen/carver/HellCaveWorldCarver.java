@@ -7,6 +7,7 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -53,12 +54,12 @@ public class HellCaveWorldCarver extends CaveWorldCarver {
     @Override
     protected boolean carveBlock(
         ChunkAccess param0,
-        BitSet param1,
-        Random param2,
-        BlockPos.MutableBlockPos param3,
+        Function<BlockPos, Biome> param1,
+        BitSet param2,
+        Random param3,
         BlockPos.MutableBlockPos param4,
         BlockPos.MutableBlockPos param5,
-        int param6,
+        BlockPos.MutableBlockPos param6,
         int param7,
         int param8,
         int param9,
@@ -66,23 +67,24 @@ public class HellCaveWorldCarver extends CaveWorldCarver {
         int param11,
         int param12,
         int param13,
-        AtomicBoolean param14
+        int param14,
+        AtomicBoolean param15
     ) {
-        int var0 = param11 | param13 << 4 | param12 << 8;
-        if (param1.get(var0)) {
+        int var0 = param12 | param14 << 4 | param13 << 8;
+        if (param2.get(var0)) {
             return false;
         } else {
-            param1.set(var0);
-            param3.set(param9, param12, param10);
-            if (this.canReplaceBlock(param0.getBlockState(param3))) {
+            param2.set(var0);
+            param4.set(param10, param13, param11);
+            if (this.canReplaceBlock(param0.getBlockState(param4))) {
                 BlockState var1;
-                if (param12 <= 31) {
+                if (param13 <= 31) {
                     var1 = LAVA.createLegacyBlock();
                 } else {
                     var1 = CAVE_AIR;
                 }
 
-                param0.setBlockState(param3, var1, false);
+                param0.setBlockState(param4, var1, false);
                 return true;
             } else {
                 return false;

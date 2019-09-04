@@ -5,10 +5,10 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.PathNavigationRegion;
 
 public abstract class NodeEvaluator {
-    protected LevelReader level;
+    protected PathNavigationRegion level;
     protected Mob mob;
     protected final Int2ObjectMap<Node> nodes = new Int2ObjectOpenHashMap<>();
     protected int entityWidth;
@@ -18,7 +18,7 @@ public abstract class NodeEvaluator {
     protected boolean canOpenDoors;
     protected boolean canFloat;
 
-    public void prepare(LevelReader param0, Mob param1) {
+    public void prepare(PathNavigationRegion param0, Mob param1) {
         this.level = param0;
         this.mob = param1;
         this.nodes.clear();

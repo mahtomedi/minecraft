@@ -71,11 +71,11 @@ public class DebugStickItem extends Item {
                         var6 = var2.iterator().next();
                     }
 
-                    BlockState var7 = cycleState(param1, var6, param0.isSneaking());
+                    BlockState var7 = cycleState(param1, var6, param0.isSecondaryUseActive());
                     param2.setBlock(param3, var7, 18);
                     message(param0, new TranslatableComponent(this.getDescriptionId() + ".update", var6.getName(), getNameHelper(var7, var6)));
                 } else {
-                    var6 = getRelative(var2, var6, param0.isSneaking());
+                    var6 = getRelative(var2, var6, param0.isSecondaryUseActive());
                     String var8 = var6.getName();
                     var4.putString(var3, var8);
                     message(param0, new TranslatableComponent(this.getDescriptionId() + ".select", var8, getNameHelper(param1, var6)));

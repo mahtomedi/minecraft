@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.VexModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.monster.Vex;
@@ -21,6 +21,6 @@ public class VexRenderer extends HumanoidMobRenderer<Vex, VexModel> {
     }
 
     protected void scale(Vex param0, float param1) {
-        GlStateManager.scalef(0.4F, 0.4F, 0.4F);
+        RenderSystem.scalef(0.4F, 0.4F, 0.4F);
     }
 }

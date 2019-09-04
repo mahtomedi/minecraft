@@ -8,7 +8,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.CartographyMenu;
+import net.minecraft.world.inventory.CartographyTableMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -32,7 +32,7 @@ public class CartographyTableBlock extends Block {
     @Override
     public MenuProvider getMenuProvider(BlockState param0, Level param1, BlockPos param2) {
         return new SimpleMenuProvider(
-            (param2x, param3, param4) -> new CartographyMenu(param2x, param3, ContainerLevelAccess.create(param1, param2)), CONTAINER_TITLE
+            (param2x, param3, param4) -> new CartographyTableMenu(param2x, param3, ContainerLevelAccess.create(param1, param2)), CONTAINER_TITLE
         );
     }
 }

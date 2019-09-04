@@ -2,6 +2,7 @@ package net.minecraft.world.entity.ai.goal;
 
 import java.util.EnumSet;
 import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
@@ -38,7 +39,7 @@ public class TemptGoal extends Goal {
         this.items = param3;
         this.canScare = param2;
         this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
-        if (!(param0.getNavigation() instanceof GroundPathNavigation)) {
+        if (!(param0.getNavigation() instanceof GroundPathNavigation) && !(param0.getNavigation() instanceof FlyingPathNavigation)) {
             throw new IllegalArgumentException("Unsupported mob type for TemptGoal");
         }
     }

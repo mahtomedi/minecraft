@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.CreeperModel;
 import net.minecraft.client.renderer.entity.layers.CreeperPowerLayer;
 import net.minecraft.resources.ResourceLocation;
@@ -26,7 +26,7 @@ public class CreeperRenderer extends MobRenderer<Creeper, CreeperModel<Creeper>>
         var0 *= var0;
         float var2 = (1.0F + var0 * 0.4F) * var1;
         float var3 = (1.0F + var0 * 0.1F) / var1;
-        GlStateManager.scalef(var2, var3, var2);
+        RenderSystem.scalef(var2, var3, var2);
     }
 
     protected int getOverlayColor(Creeper param0, float param1, float param2) {

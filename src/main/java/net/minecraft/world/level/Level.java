@@ -31,9 +31,10 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -43,13 +44,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.predicate.BlockMaterialPredicate;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.dimension.Dimension;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.Material;
@@ -63,7 +64,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public abstract class Level implements AutoCloseable, BlockAndBiomeGetter, LevelAccessor {
+public abstract class Level implements AutoCloseable, LevelAccessor {
     protected static final Logger LOGGER = LogManager.getLogger();
     private static final Direction[] DIRECTIONS = Direction.values();
     public final List<BlockEntity> blockEntityList = Lists.newArrayList();
@@ -88,6 +89,7 @@ public abstract class Level implements AutoCloseable, BlockAndBiomeGetter, Level
     public final boolean isClientSide;
     protected boolean updatingBlockEntities;
     private final WorldBorder worldBorder;
+    private final BiomeManager biomeManager;
 
     protected Level(LevelData param0, DimensionType param1, BiFunction<Level, Dimension, ChunkSource> param2, ProfilerFiller param3, boolean param4) {
         this.profiler = param3;
@@ -97,18 +99,7 @@ public abstract class Level implements AutoCloseable, BlockAndBiomeGetter, Level
         this.isClientSide = param4;
         this.worldBorder = this.dimension.createWorldBorder();
         this.thread = Thread.currentThread();
-    }
-
-    @Override
-    public Biome getBiome(BlockPos param0) {
-        ChunkSource var0 = this.getChunkSource();
-        LevelChunk var1 = var0.getChunk(param0.getX() >> 4, param0.getZ() >> 4, false);
-        if (var1 != null) {
-            return var1.getBiome(param0);
-        } else {
-            ChunkGenerator<?> var2 = this.getChunkSource().getGenerator();
-            return var2 == null ? Biomes.PLAINS : var2.getBiomeSource().getBiome(param0);
-        }
+        this.biomeManager = new BiomeManager(this, param4 ? param0.getSeed() : LevelData.obfuscateSeed(param0.getSeed()), param1.getBiomeZoomer());
     }
 
     @Override
@@ -239,7 +230,7 @@ public abstract class Level implements AutoCloseable, BlockAndBiomeGetter, Level
     }
 
     @Override
-    public boolean destroyBlock(BlockPos param0, boolean param1) {
+    public boolean destroyBlock(BlockPos param0, boolean param1, @Nullable Entity param2) {
         BlockState var0 = this.getBlockState(param0);
         if (var0.isAir()) {
             return false;
@@ -248,7 +239,7 @@ public abstract class Level implements AutoCloseable, BlockAndBiomeGetter, Level
             this.levelEvent(2001, param0, Block.getId(var0));
             if (param1) {
                 BlockEntity var2 = var0.getBlock().isEntityBlock() ? this.getBlockEntity(param0) : null;
-                Block.dropResources(var0, this, param0, var2);
+                Block.dropResources(var0, this, param0, var2, param2, ItemStack.EMPTY);
             }
 
             return this.setBlock(param0, var1.createLegacyBlock(), 3);
@@ -336,21 +327,6 @@ public abstract class Level implements AutoCloseable, BlockAndBiomeGetter, Level
     }
 
     @Override
-    public int getRawBrightness(BlockPos param0, int param1) {
-        if (param0.getX() < -30000000 || param0.getZ() < -30000000 || param0.getX() >= 30000000 || param0.getZ() >= 30000000) {
-            return 15;
-        } else if (param0.getY() < 0) {
-            return 0;
-        } else {
-            if (param0.getY() >= 256) {
-                param0 = new BlockPos(param0.getX(), 255, param0.getZ());
-            }
-
-            return this.getChunkAt(param0).getRawBrightness(param0, param1);
-        }
-    }
-
-    @Override
     public int getHeight(Heightmap.Types param0, int param1, int param2) {
         int var1;
         if (param1 >= -30000000 && param2 >= -30000000 && param1 < 30000000 && param2 < 30000000) {
@@ -367,8 +343,8 @@ public abstract class Level implements AutoCloseable, BlockAndBiomeGetter, Level
     }
 
     @Override
-    public int getBrightness(LightLayer param0, BlockPos param1) {
-        return this.getChunkSource().getLightEngine().getLayerListener(param0).getLightValue(param1);
+    public LevelLightEngine getLightEngine() {
+        return this.getChunkSource().getLightEngine();
     }
 
     @Override
@@ -897,9 +873,10 @@ public abstract class Level implements AutoCloseable, BlockAndBiomeGetter, Level
         this.chunkSource.close();
     }
 
+    @Nullable
     @Override
-    public ChunkStatus statusForCollisions() {
-        return ChunkStatus.FULL;
+    public BlockGetter getChunkForCollisions(int param0, int param1) {
+        return this.getChunk(param0, param1, ChunkStatus.FULL, false);
     }
 
     @Override
@@ -1299,11 +1276,6 @@ public abstract class Level implements AutoCloseable, BlockAndBiomeGetter, Level
         throw new UnsupportedOperationException("Can't send packets to server unless you're on the client.");
     }
 
-    @Nullable
-    public BlockPos findNearestMapFeature(String param0, BlockPos param1, int param2, boolean param3) {
-        return null;
-    }
-
     @Override
     public Dimension getDimension() {
         return this.dimension;
@@ -1338,7 +1310,7 @@ public abstract class Level implements AutoCloseable, BlockAndBiomeGetter, Level
     }
 
     @Override
-    public BlockPos getHeightmapPos(Heightmap.Types param0, BlockPos param1) {
-        return new BlockPos(param1.getX(), this.getHeight(param0, param1.getX(), param1.getZ()), param1.getZ());
+    public BiomeManager getBiomeManager() {
+        return this.biomeManager;
     }
 }

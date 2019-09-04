@@ -1,7 +1,7 @@
 package net.minecraft.client.gui.components;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -44,9 +44,9 @@ public class ChatComponent extends GuiComponent {
 
                 double var3 = this.getScale();
                 int var4 = Mth.ceil((double)this.getWidth() / var3);
-                GlStateManager.pushMatrix();
-                GlStateManager.translatef(2.0F, 8.0F, 0.0F);
-                GlStateManager.scaled(var3, var3, 1.0);
+                RenderSystem.pushMatrix();
+                RenderSystem.translatef(2.0F, 8.0F, 0.0F);
+                RenderSystem.scaled(var3, var3, 1.0);
                 double var5 = this.minecraft.options.chatOpacity * 0.9F + 0.1F;
                 double var6 = this.minecraft.options.textBackgroundOpacity;
                 int var7 = 0;
@@ -65,10 +65,10 @@ public class ChatComponent extends GuiComponent {
                                 int var15 = -var8 * 9;
                                 fill(-2, var15 - 9, 0 + var4 + 4, var15, var13 << 24);
                                 String var16 = var9.getMessage().getColoredString();
-                                GlStateManager.enableBlend();
+                                RenderSystem.enableBlend();
                                 this.minecraft.font.drawShadow(var16, 0.0F, (float)(var15 - 8), 16777215 + (var12 << 24));
-                                GlStateManager.disableAlphaTest();
-                                GlStateManager.disableBlend();
+                                RenderSystem.disableAlphaTest();
+                                RenderSystem.disableBlend();
                             }
                         }
                     }
@@ -76,7 +76,7 @@ public class ChatComponent extends GuiComponent {
 
                 if (var2) {
                     int var17 = 9;
-                    GlStateManager.translatef(-3.0F, 0.0F, 0.0F);
+                    RenderSystem.translatef(-3.0F, 0.0F, 0.0F);
                     int var18 = var1 * var17 + var1;
                     int var19 = var7 * var17 + var7;
                     int var20 = this.chatScrollbarPos * var19 / var1;
@@ -89,7 +89,7 @@ public class ChatComponent extends GuiComponent {
                     }
                 }
 
-                GlStateManager.popMatrix();
+                RenderSystem.popMatrix();
             }
         }
     }

@@ -1,6 +1,7 @@
 package net.minecraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -80,11 +81,11 @@ public class StructureBlockRenderer extends BlockEntityRenderer<StructureBlockEn
                     int var31 = 127;
                     Tesselator var32 = Tesselator.getInstance();
                     BufferBuilder var33 = var32.getBuilder();
-                    GlStateManager.disableFog();
-                    GlStateManager.disableLighting();
-                    GlStateManager.disableTexture();
-                    GlStateManager.enableBlend();
-                    GlStateManager.blendFuncSeparate(
+                    RenderSystem.disableFog();
+                    RenderSystem.disableLighting();
+                    RenderSystem.disableTexture();
+                    RenderSystem.enableBlend();
+                    RenderSystem.blendFuncSeparate(
                         GlStateManager.SourceFactor.SRC_ALPHA,
                         GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
                         GlStateManager.SourceFactor.ONE,
@@ -101,12 +102,12 @@ public class StructureBlockRenderer extends BlockEntityRenderer<StructureBlockEn
                     }
 
                     this.setOverlayRenderState(false);
-                    GlStateManager.lineWidth(1.0F);
-                    GlStateManager.enableLighting();
-                    GlStateManager.enableTexture();
-                    GlStateManager.enableDepthTest();
-                    GlStateManager.depthMask(true);
-                    GlStateManager.enableFog();
+                    RenderSystem.lineWidth(1.0F);
+                    RenderSystem.enableLighting();
+                    RenderSystem.enableTexture();
+                    RenderSystem.enableDepthTest();
+                    RenderSystem.depthMask(true);
+                    RenderSystem.enableFog();
                 }
             }
         }
@@ -115,7 +116,7 @@ public class StructureBlockRenderer extends BlockEntityRenderer<StructureBlockEn
     private void renderInvisibleBlocks(
         StructureBlockEntity param0, double param1, double param2, double param3, BlockPos param4, Tesselator param5, BufferBuilder param6, boolean param7
     ) {
-        GlStateManager.lineWidth(param7 ? 3.0F : 1.0F);
+        RenderSystem.lineWidth(param7 ? 3.0F : 1.0F);
         param6.begin(3, DefaultVertexFormat.POSITION_COLOR);
         BlockGetter var0 = param0.getLevel();
         BlockPos var1 = param0.getBlockPos();
@@ -159,7 +160,7 @@ public class StructureBlockRenderer extends BlockEntityRenderer<StructureBlockEn
         int param9,
         int param10
     ) {
-        GlStateManager.lineWidth(2.0F);
+        RenderSystem.lineWidth(2.0F);
         param1.begin(3, DefaultVertexFormat.POSITION_COLOR);
         param1.vertex(param2, param3, param4).color((float)param9, (float)param9, (float)param9, 0.0F).endVertex();
         param1.vertex(param2, param3, param4).color(param9, param9, param9, param8).endVertex();
@@ -180,7 +181,7 @@ public class StructureBlockRenderer extends BlockEntityRenderer<StructureBlockEn
         param1.vertex(param5, param3, param4).color(param9, param9, param9, param8).endVertex();
         param1.vertex(param5, param3, param4).color((float)param9, (float)param9, (float)param9, 0.0F).endVertex();
         param0.end();
-        GlStateManager.lineWidth(1.0F);
+        RenderSystem.lineWidth(1.0F);
     }
 
     public boolean shouldRenderOffScreen(StructureBlockEntity param0) {

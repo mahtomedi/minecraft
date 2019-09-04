@@ -2017,6 +2017,8 @@ public class Blocks {
         "jigsaw", new JigsawBlock(Block.Properties.of(Material.METAL, MaterialColor.COLOR_LIGHT_GRAY).strength(-1.0F, 3600000.0F).noDrops())
     );
     public static final Block COMPOSTER = register("composter", new ComposterBlock(Block.Properties.of(Material.WOOD).strength(0.6F).sound(SoundType.WOOD)));
+    public static final Block BEE_NEST = register("bee_nest", new BeehiveBlock(Block.Properties.of(Material.WOOD).strength(0.3F).sound(SoundType.WOOD)));
+    public static final Block BEE_HIVE = register("bee_hive", new BeehiveBlock(Block.Properties.of(Material.WOOD).strength(0.6F).sound(SoundType.WOOD)));
 
     private static Block register(String param0, Block param1) {
         return Registry.register(Registry.BLOCK, param0, param1);

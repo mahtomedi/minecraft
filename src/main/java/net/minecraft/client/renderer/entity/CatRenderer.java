@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import javax.annotation.Nullable;
 import net.minecraft.client.model.CatModel;
 import net.minecraft.client.renderer.entity.layers.CatCollarLayer;
@@ -27,20 +27,20 @@ public class CatRenderer extends MobRenderer<Cat, CatModel<Cat>> {
 
     protected void scale(Cat param0, float param1) {
         super.scale(param0, param1);
-        GlStateManager.scalef(0.8F, 0.8F, 0.8F);
+        RenderSystem.scalef(0.8F, 0.8F, 0.8F);
     }
 
     protected void setupRotations(Cat param0, float param1, float param2, float param3) {
         super.setupRotations(param0, param1, param2, param3);
         float var0 = param0.getLieDownAmount(param3);
         if (var0 > 0.0F) {
-            GlStateManager.translatef(0.4F * var0, 0.15F * var0, 0.1F * var0);
-            GlStateManager.rotatef(Mth.rotLerp(var0, 0.0F, 90.0F), 0.0F, 0.0F, 1.0F);
+            RenderSystem.translatef(0.4F * var0, 0.15F * var0, 0.1F * var0);
+            RenderSystem.rotatef(Mth.rotLerp(var0, 0.0F, 90.0F), 0.0F, 0.0F, 1.0F);
             BlockPos var1 = new BlockPos(param0);
 
             for(Player var3 : param0.level.getEntitiesOfClass(Player.class, new AABB(var1).inflate(2.0, 2.0, 2.0))) {
                 if (var3.isSleeping()) {
-                    GlStateManager.translatef(0.15F * var0, 0.0F, 0.0F);
+                    RenderSystem.translatef(0.15F * var0, 0.0F, 0.0F);
                     break;
                 }
             }

@@ -1,9 +1,9 @@
 package net.minecraft.client.renderer;
 
 import com.google.common.base.MoreObjects;
-import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -68,43 +68,43 @@ public class ItemInHandRenderer {
         if (!param1.isEmpty()) {
             Item var0 = param1.getItem();
             Block var1 = Block.byItem(var0);
-            GlStateManager.pushMatrix();
+            RenderSystem.pushMatrix();
             boolean var2 = this.itemRenderer.isGui3d(param1) && var1.getRenderLayer() == BlockLayer.TRANSLUCENT;
             if (var2) {
-                GlStateManager.depthMask(false);
+                RenderSystem.depthMask(false);
             }
 
             this.itemRenderer.renderWithMobState(param1, param0, param2, param3);
             if (var2) {
-                GlStateManager.depthMask(true);
+                RenderSystem.depthMask(true);
             }
 
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
         }
     }
 
     private void enableLight(float param0, float param1) {
-        GlStateManager.pushMatrix();
-        GlStateManager.rotatef(param0, 1.0F, 0.0F, 0.0F);
-        GlStateManager.rotatef(param1, 0.0F, 1.0F, 0.0F);
+        RenderSystem.pushMatrix();
+        RenderSystem.rotatef(param0, 1.0F, 0.0F, 0.0F);
+        RenderSystem.rotatef(param1, 0.0F, 1.0F, 0.0F);
         Lighting.turnOn();
-        GlStateManager.popMatrix();
+        RenderSystem.popMatrix();
     }
 
     private void setLightValue() {
         AbstractClientPlayer var0 = this.minecraft.player;
-        int var1 = this.minecraft.level.getLightColor(new BlockPos(var0.x, var0.y + (double)var0.getEyeHeight(), var0.z), 0);
+        int var1 = this.minecraft.level.getLightColor(new BlockPos(var0.x, var0.y + (double)var0.getEyeHeight(), var0.z));
         float var2 = (float)(var1 & 65535);
         float var3 = (float)(var1 >> 16);
-        GLX.glMultiTexCoord2f(GLX.GL_TEXTURE1, var2, var3);
+        RenderSystem.glMultiTexCoord2f(33985, var2, var3);
     }
 
     private void setPlayerBob(float param0) {
         LocalPlayer var0 = this.minecraft.player;
         float var1 = Mth.lerp(param0, var0.xBobO, var0.xBob);
         float var2 = Mth.lerp(param0, var0.yBobO, var0.yBob);
-        GlStateManager.rotatef((var0.getViewXRot(param0) - var1) * 0.1F, 1.0F, 0.0F, 0.0F);
-        GlStateManager.rotatef((var0.getViewYRot(param0) - var2) * 0.1F, 0.0F, 1.0F, 0.0F);
+        RenderSystem.rotatef((var0.getViewXRot(param0) - var1) * 0.1F, 1.0F, 0.0F, 0.0F);
+        RenderSystem.rotatef((var0.getViewYRot(param0) - var2) * 0.1F, 0.0F, 1.0F, 0.0F);
     }
 
     private float calculateMapTilt(float param0) {
@@ -115,13 +115,13 @@ public class ItemInHandRenderer {
 
     private void renderMapHands() {
         if (!this.minecraft.player.isInvisible()) {
-            GlStateManager.disableCull();
-            GlStateManager.pushMatrix();
-            GlStateManager.rotatef(90.0F, 0.0F, 1.0F, 0.0F);
+            RenderSystem.disableCull();
+            RenderSystem.pushMatrix();
+            RenderSystem.rotatef(90.0F, 0.0F, 1.0F, 0.0F);
             this.renderMapHand(HumanoidArm.RIGHT);
             this.renderMapHand(HumanoidArm.LEFT);
-            GlStateManager.popMatrix();
-            GlStateManager.enableCull();
+            RenderSystem.popMatrix();
+            RenderSystem.enableCull();
         }
     }
 
@@ -129,70 +129,70 @@ public class ItemInHandRenderer {
         this.minecraft.getTextureManager().bind(this.minecraft.player.getSkinTextureLocation());
         EntityRenderer<AbstractClientPlayer> var0 = this.entityRenderDispatcher.getRenderer(this.minecraft.player);
         PlayerRenderer var1 = (PlayerRenderer)var0;
-        GlStateManager.pushMatrix();
+        RenderSystem.pushMatrix();
         float var2 = param0 == HumanoidArm.RIGHT ? 1.0F : -1.0F;
-        GlStateManager.rotatef(92.0F, 0.0F, 1.0F, 0.0F);
-        GlStateManager.rotatef(45.0F, 1.0F, 0.0F, 0.0F);
-        GlStateManager.rotatef(var2 * -41.0F, 0.0F, 0.0F, 1.0F);
-        GlStateManager.translatef(var2 * 0.3F, -1.1F, 0.45F);
+        RenderSystem.rotatef(92.0F, 0.0F, 1.0F, 0.0F);
+        RenderSystem.rotatef(45.0F, 1.0F, 0.0F, 0.0F);
+        RenderSystem.rotatef(var2 * -41.0F, 0.0F, 0.0F, 1.0F);
+        RenderSystem.translatef(var2 * 0.3F, -1.1F, 0.45F);
         if (param0 == HumanoidArm.RIGHT) {
             var1.renderRightHand(this.minecraft.player);
         } else {
             var1.renderLeftHand(this.minecraft.player);
         }
 
-        GlStateManager.popMatrix();
+        RenderSystem.popMatrix();
     }
 
     private void renderOneHandedMap(float param0, HumanoidArm param1, float param2, ItemStack param3) {
         float var0 = param1 == HumanoidArm.RIGHT ? 1.0F : -1.0F;
-        GlStateManager.translatef(var0 * 0.125F, -0.125F, 0.0F);
+        RenderSystem.translatef(var0 * 0.125F, -0.125F, 0.0F);
         if (!this.minecraft.player.isInvisible()) {
-            GlStateManager.pushMatrix();
-            GlStateManager.rotatef(var0 * 10.0F, 0.0F, 0.0F, 1.0F);
+            RenderSystem.pushMatrix();
+            RenderSystem.rotatef(var0 * 10.0F, 0.0F, 0.0F, 1.0F);
             this.renderPlayerArm(param0, param2, param1);
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
         }
 
-        GlStateManager.pushMatrix();
-        GlStateManager.translatef(var0 * 0.51F, -0.08F + param0 * -1.2F, -0.75F);
+        RenderSystem.pushMatrix();
+        RenderSystem.translatef(var0 * 0.51F, -0.08F + param0 * -1.2F, -0.75F);
         float var1 = Mth.sqrt(param2);
         float var2 = Mth.sin(var1 * (float) Math.PI);
         float var3 = -0.5F * var2;
         float var4 = 0.4F * Mth.sin(var1 * (float) (Math.PI * 2));
         float var5 = -0.3F * Mth.sin(param2 * (float) Math.PI);
-        GlStateManager.translatef(var0 * var3, var4 - 0.3F * var2, var5);
-        GlStateManager.rotatef(var2 * -45.0F, 1.0F, 0.0F, 0.0F);
-        GlStateManager.rotatef(var0 * var2 * -30.0F, 0.0F, 1.0F, 0.0F);
+        RenderSystem.translatef(var0 * var3, var4 - 0.3F * var2, var5);
+        RenderSystem.rotatef(var2 * -45.0F, 1.0F, 0.0F, 0.0F);
+        RenderSystem.rotatef(var0 * var2 * -30.0F, 0.0F, 1.0F, 0.0F);
         this.renderMap(param3);
-        GlStateManager.popMatrix();
+        RenderSystem.popMatrix();
     }
 
     private void renderTwoHandedMap(float param0, float param1, float param2) {
         float var0 = Mth.sqrt(param2);
         float var1 = -0.2F * Mth.sin(param2 * (float) Math.PI);
         float var2 = -0.4F * Mth.sin(var0 * (float) Math.PI);
-        GlStateManager.translatef(0.0F, -var1 / 2.0F, var2);
+        RenderSystem.translatef(0.0F, -var1 / 2.0F, var2);
         float var3 = this.calculateMapTilt(param0);
-        GlStateManager.translatef(0.0F, 0.04F + param1 * -1.2F + var3 * -0.5F, -0.72F);
-        GlStateManager.rotatef(var3 * -85.0F, 1.0F, 0.0F, 0.0F);
+        RenderSystem.translatef(0.0F, 0.04F + param1 * -1.2F + var3 * -0.5F, -0.72F);
+        RenderSystem.rotatef(var3 * -85.0F, 1.0F, 0.0F, 0.0F);
         this.renderMapHands();
         float var4 = Mth.sin(var0 * (float) Math.PI);
-        GlStateManager.rotatef(var4 * 20.0F, 1.0F, 0.0F, 0.0F);
-        GlStateManager.scalef(2.0F, 2.0F, 2.0F);
+        RenderSystem.rotatef(var4 * 20.0F, 1.0F, 0.0F, 0.0F);
+        RenderSystem.scalef(2.0F, 2.0F, 2.0F);
         this.renderMap(this.mainHandItem);
     }
 
     private void renderMap(ItemStack param0) {
-        GlStateManager.rotatef(180.0F, 0.0F, 1.0F, 0.0F);
-        GlStateManager.rotatef(180.0F, 0.0F, 0.0F, 1.0F);
-        GlStateManager.scalef(0.38F, 0.38F, 0.38F);
-        GlStateManager.disableLighting();
+        RenderSystem.rotatef(180.0F, 0.0F, 1.0F, 0.0F);
+        RenderSystem.rotatef(180.0F, 0.0F, 0.0F, 1.0F);
+        RenderSystem.scalef(0.38F, 0.38F, 0.38F);
+        RenderSystem.disableLighting();
         this.minecraft.getTextureManager().bind(MAP_BACKGROUND_LOCATION);
         Tesselator var0 = Tesselator.getInstance();
         BufferBuilder var1 = var0.getBuilder();
-        GlStateManager.translatef(-0.5F, -0.5F, 0.0F);
-        GlStateManager.scalef(0.0078125F, 0.0078125F, 0.0078125F);
+        RenderSystem.translatef(-0.5F, -0.5F, 0.0F);
+        RenderSystem.scalef(0.0078125F, 0.0078125F, 0.0078125F);
         var1.begin(7, DefaultVertexFormat.POSITION_TEX);
         var1.vertex(-7.0, 135.0, 0.0).uv(0.0, 1.0).endVertex();
         var1.vertex(135.0, 135.0, 0.0).uv(1.0, 1.0).endVertex();
@@ -204,7 +204,7 @@ public class ItemInHandRenderer {
             this.minecraft.gameRenderer.getMapRenderer().render(var2, false);
         }
 
-        GlStateManager.enableLighting();
+        RenderSystem.enableLighting();
     }
 
     private void renderPlayerArm(float param0, float param1, HumanoidArm param2) {
@@ -214,28 +214,28 @@ public class ItemInHandRenderer {
         float var3 = -0.3F * Mth.sin(var2 * (float) Math.PI);
         float var4 = 0.4F * Mth.sin(var2 * (float) (Math.PI * 2));
         float var5 = -0.4F * Mth.sin(param1 * (float) Math.PI);
-        GlStateManager.translatef(var1 * (var3 + 0.64000005F), var4 + -0.6F + param0 * -0.6F, var5 + -0.71999997F);
-        GlStateManager.rotatef(var1 * 45.0F, 0.0F, 1.0F, 0.0F);
+        RenderSystem.translatef(var1 * (var3 + 0.64000005F), var4 + -0.6F + param0 * -0.6F, var5 + -0.71999997F);
+        RenderSystem.rotatef(var1 * 45.0F, 0.0F, 1.0F, 0.0F);
         float var6 = Mth.sin(param1 * param1 * (float) Math.PI);
         float var7 = Mth.sin(var2 * (float) Math.PI);
-        GlStateManager.rotatef(var1 * var7 * 70.0F, 0.0F, 1.0F, 0.0F);
-        GlStateManager.rotatef(var1 * var6 * -20.0F, 0.0F, 0.0F, 1.0F);
+        RenderSystem.rotatef(var1 * var7 * 70.0F, 0.0F, 1.0F, 0.0F);
+        RenderSystem.rotatef(var1 * var6 * -20.0F, 0.0F, 0.0F, 1.0F);
         AbstractClientPlayer var8 = this.minecraft.player;
         this.minecraft.getTextureManager().bind(var8.getSkinTextureLocation());
-        GlStateManager.translatef(var1 * -1.0F, 3.6F, 3.5F);
-        GlStateManager.rotatef(var1 * 120.0F, 0.0F, 0.0F, 1.0F);
-        GlStateManager.rotatef(200.0F, 1.0F, 0.0F, 0.0F);
-        GlStateManager.rotatef(var1 * -135.0F, 0.0F, 1.0F, 0.0F);
-        GlStateManager.translatef(var1 * 5.6F, 0.0F, 0.0F);
+        RenderSystem.translatef(var1 * -1.0F, 3.6F, 3.5F);
+        RenderSystem.rotatef(var1 * 120.0F, 0.0F, 0.0F, 1.0F);
+        RenderSystem.rotatef(200.0F, 1.0F, 0.0F, 0.0F);
+        RenderSystem.rotatef(var1 * -135.0F, 0.0F, 1.0F, 0.0F);
+        RenderSystem.translatef(var1 * 5.6F, 0.0F, 0.0F);
         PlayerRenderer var9 = this.entityRenderDispatcher.getRenderer(var8);
-        GlStateManager.disableCull();
+        RenderSystem.disableCull();
         if (var0) {
             var9.renderRightHand(var8);
         } else {
             var9.renderLeftHand(var8);
         }
 
-        GlStateManager.enableCull();
+        RenderSystem.enableCull();
     }
 
     private void applyEatTransform(float param0, HumanoidArm param1, ItemStack param2) {
@@ -243,30 +243,30 @@ public class ItemInHandRenderer {
         float var1 = var0 / (float)param2.getUseDuration();
         if (var1 < 0.8F) {
             float var2 = Mth.abs(Mth.cos(var0 / 4.0F * (float) Math.PI) * 0.1F);
-            GlStateManager.translatef(0.0F, var2, 0.0F);
+            RenderSystem.translatef(0.0F, var2, 0.0F);
         }
 
         float var3 = 1.0F - (float)Math.pow((double)var1, 27.0);
         int var4 = param1 == HumanoidArm.RIGHT ? 1 : -1;
-        GlStateManager.translatef(var3 * 0.6F * (float)var4, var3 * -0.5F, var3 * 0.0F);
-        GlStateManager.rotatef((float)var4 * var3 * 90.0F, 0.0F, 1.0F, 0.0F);
-        GlStateManager.rotatef(var3 * 10.0F, 1.0F, 0.0F, 0.0F);
-        GlStateManager.rotatef((float)var4 * var3 * 30.0F, 0.0F, 0.0F, 1.0F);
+        RenderSystem.translatef(var3 * 0.6F * (float)var4, var3 * -0.5F, var3 * 0.0F);
+        RenderSystem.rotatef((float)var4 * var3 * 90.0F, 0.0F, 1.0F, 0.0F);
+        RenderSystem.rotatef(var3 * 10.0F, 1.0F, 0.0F, 0.0F);
+        RenderSystem.rotatef((float)var4 * var3 * 30.0F, 0.0F, 0.0F, 1.0F);
     }
 
     private void applyItemArmAttackTransform(HumanoidArm param0, float param1) {
         int var0 = param0 == HumanoidArm.RIGHT ? 1 : -1;
         float var1 = Mth.sin(param1 * param1 * (float) Math.PI);
-        GlStateManager.rotatef((float)var0 * (45.0F + var1 * -20.0F), 0.0F, 1.0F, 0.0F);
+        RenderSystem.rotatef((float)var0 * (45.0F + var1 * -20.0F), 0.0F, 1.0F, 0.0F);
         float var2 = Mth.sin(Mth.sqrt(param1) * (float) Math.PI);
-        GlStateManager.rotatef((float)var0 * var2 * -20.0F, 0.0F, 0.0F, 1.0F);
-        GlStateManager.rotatef(var2 * -80.0F, 1.0F, 0.0F, 0.0F);
-        GlStateManager.rotatef((float)var0 * -45.0F, 0.0F, 1.0F, 0.0F);
+        RenderSystem.rotatef((float)var0 * var2 * -20.0F, 0.0F, 0.0F, 1.0F);
+        RenderSystem.rotatef(var2 * -80.0F, 1.0F, 0.0F, 0.0F);
+        RenderSystem.rotatef((float)var0 * -45.0F, 0.0F, 1.0F, 0.0F);
     }
 
     private void applyItemArmTransform(HumanoidArm param0, float param1) {
         int var0 = param0 == HumanoidArm.RIGHT ? 1 : -1;
-        GlStateManager.translatef((float)var0 * 0.56F, -0.52F + param1 * -0.6F, -0.72F);
+        RenderSystem.translatef((float)var0 * 0.56F, -0.52F + param1 * -0.6F, -0.72F);
     }
 
     public void render(float param0) {
@@ -307,7 +307,7 @@ public class ItemInHandRenderer {
         this.enableLight(var3, var4);
         this.setLightValue();
         this.setPlayerBob(param0);
-        GlStateManager.enableRescaleNormal();
+        RenderSystem.enableRescaleNormal();
         if (var5) {
             float var12 = var2 == InteractionHand.MAIN_HAND ? var1 : 0.0F;
             float var13 = 1.0F - Mth.lerp(param0, this.oMainHandHeight, this.mainHandHeight);
@@ -320,14 +320,14 @@ public class ItemInHandRenderer {
             this.renderArmWithItem(var0, param0, var3, InteractionHand.OFF_HAND, var14, this.offHandItem, var15);
         }
 
-        GlStateManager.disableRescaleNormal();
+        RenderSystem.disableRescaleNormal();
         Lighting.turnOff();
     }
 
     public void renderArmWithItem(AbstractClientPlayer param0, float param1, float param2, InteractionHand param3, float param4, ItemStack param5, float param6) {
         boolean var0 = param3 == InteractionHand.MAIN_HAND;
         HumanoidArm var1 = var0 ? param0.getMainArm() : param0.getMainArm().getOpposite();
-        GlStateManager.pushMatrix();
+        RenderSystem.pushMatrix();
         if (param5.isEmpty()) {
             if (var0 && !param0.isInvisible()) {
                 this.renderPlayerArm(param6, param4, var1);
@@ -344,10 +344,10 @@ public class ItemInHandRenderer {
             int var4 = var3 ? 1 : -1;
             if (param0.isUsingItem() && param0.getUseItemRemainingTicks() > 0 && param0.getUsedItemHand() == param3) {
                 this.applyItemArmTransform(var1, param6);
-                GlStateManager.translatef((float)var4 * -0.4785682F, -0.094387F, 0.05731531F);
-                GlStateManager.rotatef(-11.935F, 1.0F, 0.0F, 0.0F);
-                GlStateManager.rotatef((float)var4 * 65.3F, 0.0F, 1.0F, 0.0F);
-                GlStateManager.rotatef((float)var4 * -9.785F, 0.0F, 0.0F, 1.0F);
+                RenderSystem.translatef((float)var4 * -0.4785682F, -0.094387F, 0.05731531F);
+                RenderSystem.rotatef(-11.935F, 1.0F, 0.0F, 0.0F);
+                RenderSystem.rotatef((float)var4 * 65.3F, 0.0F, 1.0F, 0.0F);
+                RenderSystem.rotatef((float)var4 * -9.785F, 0.0F, 0.0F, 1.0F);
                 float var5 = (float)param5.getUseDuration() - ((float)this.minecraft.player.getUseItemRemainingTicks() - param1 + 1.0F);
                 float var6 = var5 / (float)CrossbowItem.getChargeDuration(param5);
                 if (var6 > 1.0F) {
@@ -358,22 +358,22 @@ public class ItemInHandRenderer {
                     float var7 = Mth.sin((var5 - 0.1F) * 1.3F);
                     float var8 = var6 - 0.1F;
                     float var9 = var7 * var8;
-                    GlStateManager.translatef(var9 * 0.0F, var9 * 0.004F, var9 * 0.0F);
+                    RenderSystem.translatef(var9 * 0.0F, var9 * 0.004F, var9 * 0.0F);
                 }
 
-                GlStateManager.translatef(var6 * 0.0F, var6 * 0.0F, var6 * 0.04F);
-                GlStateManager.scalef(1.0F, 1.0F, 1.0F + var6 * 0.2F);
-                GlStateManager.rotatef((float)var4 * 45.0F, 0.0F, -1.0F, 0.0F);
+                RenderSystem.translatef(var6 * 0.0F, var6 * 0.0F, var6 * 0.04F);
+                RenderSystem.scalef(1.0F, 1.0F, 1.0F + var6 * 0.2F);
+                RenderSystem.rotatef((float)var4 * 45.0F, 0.0F, -1.0F, 0.0F);
             } else {
                 float var10 = -0.4F * Mth.sin(Mth.sqrt(param4) * (float) Math.PI);
                 float var11 = 0.2F * Mth.sin(Mth.sqrt(param4) * (float) (Math.PI * 2));
                 float var12 = -0.2F * Mth.sin(param4 * (float) Math.PI);
-                GlStateManager.translatef((float)var4 * var10, var11, var12);
+                RenderSystem.translatef((float)var4 * var10, var11, var12);
                 this.applyItemArmTransform(var1, param6);
                 this.applyItemArmAttackTransform(var1, param4);
                 if (var2 && param4 < 0.001F) {
-                    GlStateManager.translatef((float)var4 * -0.641864F, 0.0F, 0.0F);
-                    GlStateManager.rotatef((float)var4 * 10.0F, 0.0F, 1.0F, 0.0F);
+                    RenderSystem.translatef((float)var4 * -0.641864F, 0.0F, 0.0F);
+                    RenderSystem.rotatef((float)var4 * 10.0F, 0.0F, 1.0F, 0.0F);
                 }
             }
 
@@ -398,10 +398,10 @@ public class ItemInHandRenderer {
                         break;
                     case BOW:
                         this.applyItemArmTransform(var1, param6);
-                        GlStateManager.translatef((float)var14 * -0.2785682F, 0.18344387F, 0.15731531F);
-                        GlStateManager.rotatef(-13.935F, 1.0F, 0.0F, 0.0F);
-                        GlStateManager.rotatef((float)var14 * 35.3F, 0.0F, 1.0F, 0.0F);
-                        GlStateManager.rotatef((float)var14 * -9.785F, 0.0F, 0.0F, 1.0F);
+                        RenderSystem.translatef((float)var14 * -0.2785682F, 0.18344387F, 0.15731531F);
+                        RenderSystem.rotatef(-13.935F, 1.0F, 0.0F, 0.0F);
+                        RenderSystem.rotatef((float)var14 * 35.3F, 0.0F, 1.0F, 0.0F);
+                        RenderSystem.rotatef((float)var14 * -9.785F, 0.0F, 0.0F, 1.0F);
                         float var15 = (float)param5.getUseDuration() - ((float)this.minecraft.player.getUseItemRemainingTicks() - param1 + 1.0F);
                         float var16 = var15 / 20.0F;
                         var16 = (var16 * var16 + var16 * 2.0F) / 3.0F;
@@ -413,19 +413,19 @@ public class ItemInHandRenderer {
                             float var17 = Mth.sin((var15 - 0.1F) * 1.3F);
                             float var18 = var16 - 0.1F;
                             float var19 = var17 * var18;
-                            GlStateManager.translatef(var19 * 0.0F, var19 * 0.004F, var19 * 0.0F);
+                            RenderSystem.translatef(var19 * 0.0F, var19 * 0.004F, var19 * 0.0F);
                         }
 
-                        GlStateManager.translatef(var16 * 0.0F, var16 * 0.0F, var16 * 0.04F);
-                        GlStateManager.scalef(1.0F, 1.0F, 1.0F + var16 * 0.2F);
-                        GlStateManager.rotatef((float)var14 * 45.0F, 0.0F, -1.0F, 0.0F);
+                        RenderSystem.translatef(var16 * 0.0F, var16 * 0.0F, var16 * 0.04F);
+                        RenderSystem.scalef(1.0F, 1.0F, 1.0F + var16 * 0.2F);
+                        RenderSystem.rotatef((float)var14 * 45.0F, 0.0F, -1.0F, 0.0F);
                         break;
                     case SPEAR:
                         this.applyItemArmTransform(var1, param6);
-                        GlStateManager.translatef((float)var14 * -0.5F, 0.7F, 0.1F);
-                        GlStateManager.rotatef(-55.0F, 1.0F, 0.0F, 0.0F);
-                        GlStateManager.rotatef((float)var14 * 35.3F, 0.0F, 1.0F, 0.0F);
-                        GlStateManager.rotatef((float)var14 * -9.785F, 0.0F, 0.0F, 1.0F);
+                        RenderSystem.translatef((float)var14 * -0.5F, 0.7F, 0.1F);
+                        RenderSystem.rotatef(-55.0F, 1.0F, 0.0F, 0.0F);
+                        RenderSystem.rotatef((float)var14 * 35.3F, 0.0F, 1.0F, 0.0F);
+                        RenderSystem.rotatef((float)var14 * -9.785F, 0.0F, 0.0F, 1.0F);
                         float var20 = (float)param5.getUseDuration() - ((float)this.minecraft.player.getUseItemRemainingTicks() - param1 + 1.0F);
                         float var21 = var20 / 10.0F;
                         if (var21 > 1.0F) {
@@ -436,25 +436,25 @@ public class ItemInHandRenderer {
                             float var22 = Mth.sin((var20 - 0.1F) * 1.3F);
                             float var23 = var21 - 0.1F;
                             float var24 = var22 * var23;
-                            GlStateManager.translatef(var24 * 0.0F, var24 * 0.004F, var24 * 0.0F);
+                            RenderSystem.translatef(var24 * 0.0F, var24 * 0.004F, var24 * 0.0F);
                         }
 
-                        GlStateManager.translatef(0.0F, 0.0F, var21 * 0.2F);
-                        GlStateManager.scalef(1.0F, 1.0F, 1.0F + var21 * 0.2F);
-                        GlStateManager.rotatef((float)var14 * 45.0F, 0.0F, -1.0F, 0.0F);
+                        RenderSystem.translatef(0.0F, 0.0F, var21 * 0.2F);
+                        RenderSystem.scalef(1.0F, 1.0F, 1.0F + var21 * 0.2F);
+                        RenderSystem.rotatef((float)var14 * 45.0F, 0.0F, -1.0F, 0.0F);
                 }
             } else if (param0.isAutoSpinAttack()) {
                 this.applyItemArmTransform(var1, param6);
                 int var25 = var13 ? 1 : -1;
-                GlStateManager.translatef((float)var25 * -0.4F, 0.8F, 0.3F);
-                GlStateManager.rotatef((float)var25 * 65.0F, 0.0F, 1.0F, 0.0F);
-                GlStateManager.rotatef((float)var25 * -85.0F, 0.0F, 0.0F, 1.0F);
+                RenderSystem.translatef((float)var25 * -0.4F, 0.8F, 0.3F);
+                RenderSystem.rotatef((float)var25 * 65.0F, 0.0F, 1.0F, 0.0F);
+                RenderSystem.rotatef((float)var25 * -85.0F, 0.0F, 0.0F, 1.0F);
             } else {
                 float var26 = -0.4F * Mth.sin(Mth.sqrt(param4) * (float) Math.PI);
                 float var27 = 0.2F * Mth.sin(Mth.sqrt(param4) * (float) (Math.PI * 2));
                 float var28 = -0.2F * Mth.sin(param4 * (float) Math.PI);
                 int var29 = var13 ? 1 : -1;
-                GlStateManager.translatef((float)var29 * var26, var27, var28);
+                RenderSystem.translatef((float)var29 * var26, var27, var28);
                 this.applyItemArmTransform(var1, param6);
                 this.applyItemArmAttackTransform(var1, param4);
             }
@@ -464,11 +464,11 @@ public class ItemInHandRenderer {
             );
         }
 
-        GlStateManager.popMatrix();
+        RenderSystem.popMatrix();
     }
 
     public void renderScreenEffect(float param0) {
-        GlStateManager.disableAlphaTest();
+        RenderSystem.disableAlphaTest();
         if (this.minecraft.player.isInWall()) {
             BlockState var0 = this.minecraft.level.getBlockState(new BlockPos(this.minecraft.player));
             Player var1 = this.minecraft.player;
@@ -499,7 +499,7 @@ public class ItemInHandRenderer {
             }
         }
 
-        GlStateManager.enableAlphaTest();
+        RenderSystem.enableAlphaTest();
     }
 
     private void renderTex(TextureAtlasSprite param0) {
@@ -507,8 +507,8 @@ public class ItemInHandRenderer {
         Tesselator var0 = Tesselator.getInstance();
         BufferBuilder var1 = var0.getBuilder();
         float var2 = 0.1F;
-        GlStateManager.color4f(0.1F, 0.1F, 0.1F, 0.5F);
-        GlStateManager.pushMatrix();
+        RenderSystem.color4f(0.1F, 0.1F, 0.1F, 0.5F);
+        RenderSystem.pushMatrix();
         float var3 = -1.0F;
         float var4 = 1.0F;
         float var5 = -1.0F;
@@ -524,8 +524,8 @@ public class ItemInHandRenderer {
         var1.vertex(1.0, 1.0, -0.5).uv((double)var8, (double)var10).endVertex();
         var1.vertex(-1.0, 1.0, -0.5).uv((double)var9, (double)var10).endVertex();
         var0.end();
-        GlStateManager.popMatrix();
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.popMatrix();
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
     }
 
     private void renderWater(float param0) {
@@ -533,15 +533,15 @@ public class ItemInHandRenderer {
         Tesselator var0 = Tesselator.getInstance();
         BufferBuilder var1 = var0.getBuilder();
         float var2 = this.minecraft.player.getBrightness();
-        GlStateManager.color4f(var2, var2, var2, 0.1F);
-        GlStateManager.enableBlend();
-        GlStateManager.blendFuncSeparate(
+        RenderSystem.color4f(var2, var2, var2, 0.1F);
+        RenderSystem.enableBlend();
+        RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.SRC_ALPHA,
             GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
             GlStateManager.SourceFactor.ONE,
             GlStateManager.DestFactor.ZERO
         );
-        GlStateManager.pushMatrix();
+        RenderSystem.pushMatrix();
         float var3 = 4.0F;
         float var4 = -1.0F;
         float var5 = 1.0F;
@@ -556,19 +556,19 @@ public class ItemInHandRenderer {
         var1.vertex(1.0, 1.0, -0.5).uv((double)(0.0F + var9), (double)(0.0F + var10)).endVertex();
         var1.vertex(-1.0, 1.0, -0.5).uv((double)(4.0F + var9), (double)(0.0F + var10)).endVertex();
         var0.end();
-        GlStateManager.popMatrix();
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.disableBlend();
+        RenderSystem.popMatrix();
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.disableBlend();
     }
 
     private void renderFire() {
         Tesselator var0 = Tesselator.getInstance();
         BufferBuilder var1 = var0.getBuilder();
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 0.9F);
-        GlStateManager.depthFunc(519);
-        GlStateManager.depthMask(false);
-        GlStateManager.enableBlend();
-        GlStateManager.blendFuncSeparate(
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 0.9F);
+        RenderSystem.depthFunc(519);
+        RenderSystem.depthMask(false);
+        RenderSystem.enableBlend();
+        RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.SRC_ALPHA,
             GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
             GlStateManager.SourceFactor.ONE,
@@ -577,7 +577,7 @@ public class ItemInHandRenderer {
         float var2 = 1.0F;
 
         for(int var3 = 0; var3 < 2; ++var3) {
-            GlStateManager.pushMatrix();
+            RenderSystem.pushMatrix();
             TextureAtlasSprite var4 = this.minecraft.getTextureAtlas().getSprite(ModelBakery.FIRE_1);
             this.minecraft.getTextureManager().bind(TextureAtlas.LOCATION_BLOCKS);
             float var5 = var4.getU0();
@@ -589,21 +589,21 @@ public class ItemInHandRenderer {
             float var11 = -0.5F;
             float var12 = 0.5F;
             float var13 = -0.5F;
-            GlStateManager.translatef((float)(-(var3 * 2 - 1)) * 0.24F, -0.3F, 0.0F);
-            GlStateManager.rotatef((float)(var3 * 2 - 1) * 10.0F, 0.0F, 1.0F, 0.0F);
+            RenderSystem.translatef((float)(-(var3 * 2 - 1)) * 0.24F, -0.3F, 0.0F);
+            RenderSystem.rotatef((float)(var3 * 2 - 1) * 10.0F, 0.0F, 1.0F, 0.0F);
             var1.begin(7, DefaultVertexFormat.POSITION_TEX);
             var1.vertex(-0.5, -0.5, -0.5).uv((double)var6, (double)var8).endVertex();
             var1.vertex(0.5, -0.5, -0.5).uv((double)var5, (double)var8).endVertex();
             var1.vertex(0.5, 0.5, -0.5).uv((double)var5, (double)var7).endVertex();
             var1.vertex(-0.5, 0.5, -0.5).uv((double)var6, (double)var7).endVertex();
             var0.end();
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
         }
 
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.disableBlend();
-        GlStateManager.depthMask(true);
-        GlStateManager.depthFunc(515);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.disableBlend();
+        RenderSystem.depthMask(true);
+        RenderSystem.depthFunc(515);
     }
 
     public void tick() {

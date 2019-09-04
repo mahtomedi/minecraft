@@ -3,8 +3,8 @@ package net.minecraft.world.level.block;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.lighting.LayerLightEngine;
@@ -31,23 +31,21 @@ public abstract class SpreadingSnowyDirtBlock extends SnowyDirtBlock {
     }
 
     @Override
-    public void tick(BlockState param0, Level param1, BlockPos param2, Random param3) {
-        if (!param1.isClientSide) {
-            if (!canBeGrass(param0, param1, param2)) {
-                param1.setBlockAndUpdate(param2, Blocks.DIRT.defaultBlockState());
-            } else {
-                if (param1.getMaxLocalRawBrightness(param2.above()) >= 9) {
-                    BlockState var0 = this.defaultBlockState();
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+        if (!canBeGrass(param0, param1, param2)) {
+            param1.setBlockAndUpdate(param2, Blocks.DIRT.defaultBlockState());
+        } else {
+            if (param1.getMaxLocalRawBrightness(param2.above()) >= 9) {
+                BlockState var0 = this.defaultBlockState();
 
-                    for(int var1 = 0; var1 < 4; ++var1) {
-                        BlockPos var2 = param2.offset(param3.nextInt(3) - 1, param3.nextInt(5) - 3, param3.nextInt(3) - 1);
-                        if (param1.getBlockState(var2).getBlock() == Blocks.DIRT && canPropagate(var0, param1, var2)) {
-                            param1.setBlockAndUpdate(var2, var0.setValue(SNOWY, Boolean.valueOf(param1.getBlockState(var2.above()).getBlock() == Blocks.SNOW)));
-                        }
+                for(int var1 = 0; var1 < 4; ++var1) {
+                    BlockPos var2 = param2.offset(param3.nextInt(3) - 1, param3.nextInt(5) - 3, param3.nextInt(3) - 1);
+                    if (param1.getBlockState(var2).getBlock() == Blocks.DIRT && canPropagate(var0, param1, var2)) {
+                        param1.setBlockAndUpdate(var2, var0.setValue(SNOWY, Boolean.valueOf(param1.getBlockState(var2.above()).getBlock() == Blocks.SNOW)));
                     }
                 }
-
             }
+
         }
     }
 }

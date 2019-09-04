@@ -27,7 +27,7 @@ public class SwampSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConfig
         long param10,
         SurfaceBuilderBaseConfiguration param11
     ) {
-        double var0 = Biome.BIOME_INFO_NOISE.getValue((double)param3 * 0.25, (double)param4 * 0.25);
+        double var0 = Biome.BIOME_INFO_NOISE.getValue((double)param3 * 0.25, (double)param4 * 0.25, false);
         if (var0 > 0.0) {
             int var1 = param3 & 15;
             int var2 = param4 & 15;

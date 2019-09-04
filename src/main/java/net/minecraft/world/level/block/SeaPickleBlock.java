@@ -4,6 +4,7 @@ import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.item.BlockPlaceContext;
@@ -121,7 +122,7 @@ public class SeaPickleBlock extends BushBlock implements BonemealableBlock, Simp
     }
 
     @Override
-    public void performBonemeal(Level param0, Random param1, BlockPos param2, BlockState param3) {
+    public void performBonemeal(ServerLevel param0, Random param1, BlockPos param2, BlockState param3) {
         if (!this.isDead(param3) && param0.getBlockState(param2.below()).is(BlockTags.CORAL_BLOCKS)) {
             int var0 = 5;
             int var1 = 1;

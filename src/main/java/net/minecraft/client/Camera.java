@@ -1,6 +1,6 @@
 package net.minecraft.client;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
@@ -58,8 +58,8 @@ public class Camera {
             this.move(0.0, 0.3, 0.0);
         }
 
-        GlStateManager.rotatef(this.xRot, 1.0F, 0.0F, 0.0F);
-        GlStateManager.rotatef(this.yRot + 180.0F, 0.0F, 1.0F, 0.0F);
+        RenderSystem.rotatef(this.xRot, 1.0F, 0.0F, 0.0F);
+        RenderSystem.rotatef(this.yRot + 180.0F, 0.0F, 1.0F, 0.0F);
     }
 
     public void tick() {

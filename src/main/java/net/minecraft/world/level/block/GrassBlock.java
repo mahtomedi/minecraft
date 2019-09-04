@@ -3,6 +3,7 @@ package net.minecraft.world.level.block;
 import java.util.List;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.BlockLayer;
 import net.minecraft.world.level.Level;
@@ -27,7 +28,7 @@ public class GrassBlock extends SpreadingSnowyDirtBlock implements BonemealableB
     }
 
     @Override
-    public void performBonemeal(Level param0, Random param1, BlockPos param2, BlockState param3) {
+    public void performBonemeal(ServerLevel param0, Random param1, BlockPos param2, BlockState param3) {
         BlockPos var0 = param2.above();
         BlockState var1 = Blocks.GRASS.defaultBlockState();
 

@@ -13,6 +13,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionResult;
@@ -216,87 +217,90 @@ public class MapItem extends ComplexItem {
         return param0[param2 * param1 + param3 * param1 * 128 * param1].getDepth() >= 0.0F;
     }
 
-    public static void renderBiomePreviewMap(Level param0, ItemStack param1) {
+    public static void renderBiomePreviewMap(ServerLevel param0, ItemStack param1) {
         MapItemSavedData var0 = getOrCreateSavedData(param1, param0);
         if (var0 != null) {
             if (param0.dimension.getType() == var0.dimension) {
                 int var1 = 1 << var0.scale;
                 int var2 = var0.x;
                 int var3 = var0.z;
-                Biome[] var4 = param0.getChunkSource()
-                    .getGenerator()
-                    .getBiomeSource()
-                    .getBiomeBlock((var2 / var1 - 64) * var1, (var3 / var1 - 64) * var1, 128 * var1, 128 * var1, false);
+                Biome[] var4 = new Biome[128 * var1 * 128 * var1];
 
-                for(int var5 = 0; var5 < 128; ++var5) {
-                    for(int var6 = 0; var6 < 128; ++var6) {
-                        if (var5 > 0 && var6 > 0 && var5 < 127 && var6 < 127) {
-                            Biome var7 = var4[var5 * var1 + var6 * var1 * 128 * var1];
-                            int var8 = 8;
-                            if (isLand(var4, var1, var5 - 1, var6 - 1)) {
-                                --var8;
+                for(int var5 = 0; var5 < 128 * var1; ++var5) {
+                    for(int var6 = 0; var6 < 128 * var1; ++var6) {
+                        var4[var5 * 128 * var1 + var6] = param0.getBiome(new BlockPos((var2 / var1 - 64) * var1 + var6, 0, (var3 / var1 - 64) * var1 + var5));
+                    }
+                }
+
+                for(int var7 = 0; var7 < 128; ++var7) {
+                    for(int var8 = 0; var8 < 128; ++var8) {
+                        if (var7 > 0 && var8 > 0 && var7 < 127 && var8 < 127) {
+                            Biome var9 = var4[var7 * var1 + var8 * var1 * 128 * var1];
+                            int var10 = 8;
+                            if (isLand(var4, var1, var7 - 1, var8 - 1)) {
+                                --var10;
                             }
 
-                            if (isLand(var4, var1, var5 - 1, var6 + 1)) {
-                                --var8;
+                            if (isLand(var4, var1, var7 - 1, var8 + 1)) {
+                                --var10;
                             }
 
-                            if (isLand(var4, var1, var5 - 1, var6)) {
-                                --var8;
+                            if (isLand(var4, var1, var7 - 1, var8)) {
+                                --var10;
                             }
 
-                            if (isLand(var4, var1, var5 + 1, var6 - 1)) {
-                                --var8;
+                            if (isLand(var4, var1, var7 + 1, var8 - 1)) {
+                                --var10;
                             }
 
-                            if (isLand(var4, var1, var5 + 1, var6 + 1)) {
-                                --var8;
+                            if (isLand(var4, var1, var7 + 1, var8 + 1)) {
+                                --var10;
                             }
 
-                            if (isLand(var4, var1, var5 + 1, var6)) {
-                                --var8;
+                            if (isLand(var4, var1, var7 + 1, var8)) {
+                                --var10;
                             }
 
-                            if (isLand(var4, var1, var5, var6 - 1)) {
-                                --var8;
+                            if (isLand(var4, var1, var7, var8 - 1)) {
+                                --var10;
                             }
 
-                            if (isLand(var4, var1, var5, var6 + 1)) {
-                                --var8;
+                            if (isLand(var4, var1, var7, var8 + 1)) {
+                                --var10;
                             }
 
-                            int var9 = 3;
-                            MaterialColor var10 = MaterialColor.NONE;
-                            if (var7.getDepth() < 0.0F) {
-                                var10 = MaterialColor.COLOR_ORANGE;
-                                if (var8 > 7 && var6 % 2 == 0) {
-                                    var9 = (var5 + (int)(Mth.sin((float)var6 + 0.0F) * 7.0F)) / 8 % 5;
-                                    if (var9 == 3) {
-                                        var9 = 1;
-                                    } else if (var9 == 4) {
-                                        var9 = 0;
+                            int var11 = 3;
+                            MaterialColor var12 = MaterialColor.NONE;
+                            if (var9.getDepth() < 0.0F) {
+                                var12 = MaterialColor.COLOR_ORANGE;
+                                if (var10 > 7 && var8 % 2 == 0) {
+                                    var11 = (var7 + (int)(Mth.sin((float)var8 + 0.0F) * 7.0F)) / 8 % 5;
+                                    if (var11 == 3) {
+                                        var11 = 1;
+                                    } else if (var11 == 4) {
+                                        var11 = 0;
                                     }
-                                } else if (var8 > 7) {
-                                    var10 = MaterialColor.NONE;
-                                } else if (var8 > 5) {
-                                    var9 = 1;
-                                } else if (var8 > 3) {
-                                    var9 = 0;
-                                } else if (var8 > 1) {
-                                    var9 = 0;
+                                } else if (var10 > 7) {
+                                    var12 = MaterialColor.NONE;
+                                } else if (var10 > 5) {
+                                    var11 = 1;
+                                } else if (var10 > 3) {
+                                    var11 = 0;
+                                } else if (var10 > 1) {
+                                    var11 = 0;
                                 }
-                            } else if (var8 > 0) {
-                                var10 = MaterialColor.COLOR_BROWN;
-                                if (var8 > 3) {
-                                    var9 = 1;
+                            } else if (var10 > 0) {
+                                var12 = MaterialColor.COLOR_BROWN;
+                                if (var10 > 3) {
+                                    var11 = 1;
                                 } else {
-                                    var9 = 3;
+                                    var11 = 3;
                                 }
                             }
 
-                            if (var10 != MaterialColor.NONE) {
-                                var0.colors[var5 + var6 * 128] = (byte)(var10.id * 4 + var9);
-                                var0.setDirty(var5, var6);
+                            if (var12 != MaterialColor.NONE) {
+                                var0.colors[var7 + var8 * 128] = (byte)(var12.id * 4 + var11);
+                                var0.setDirty(var7, var8);
                             }
                         }
                     }

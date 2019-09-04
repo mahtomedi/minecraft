@@ -1,12 +1,14 @@
 package net.minecraft.client.renderer.entity.player;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.ArrowLayer;
+import net.minecraft.client.renderer.entity.layers.BeeStingerLayer;
 import net.minecraft.client.renderer.entity.layers.CapeLayer;
 import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
 import net.minecraft.client.renderer.entity.layers.Deadmau5EarsLayer;
@@ -49,12 +51,13 @@ public class PlayerRenderer extends LivingEntityRenderer<AbstractClientPlayer, P
         this.addLayer(new ElytraLayer<>(this));
         this.addLayer(new ParrotOnShoulderLayer<>(this));
         this.addLayer(new SpinAttackEffectLayer<>(this));
+        this.addLayer(new BeeStingerLayer<>(this));
     }
 
     public void render(AbstractClientPlayer param0, double param1, double param2, double param3, float param4, float param5) {
         if (!param0.isLocalPlayer() || this.entityRenderDispatcher.camera.getEntity() == param0) {
             double var0 = param2;
-            if (param0.isVisuallySneaking()) {
+            if (param0.isCrouching()) {
                 var0 = param2 - 0.125;
             }
 
@@ -81,7 +84,7 @@ public class PlayerRenderer extends LivingEntityRenderer<AbstractClientPlayer, P
             var0.rightPants.visible = param0.isModelPartShown(PlayerModelPart.RIGHT_PANTS_LEG);
             var0.leftSleeve.visible = param0.isModelPartShown(PlayerModelPart.LEFT_SLEEVE);
             var0.rightSleeve.visible = param0.isModelPartShown(PlayerModelPart.RIGHT_SLEEVE);
-            var0.sneaking = param0.isVisuallySneaking();
+            var0.crouching = param0.isCrouching();
             HumanoidModel.ArmPose var3 = this.getArmPose(param0, var1, var2, InteractionHand.MAIN_HAND);
             HumanoidModel.ArmPose var4 = this.getArmPose(param0, var1, var2, InteractionHand.OFF_HAND);
             if (param0.getMainArm() == HumanoidArm.RIGHT) {
@@ -135,7 +138,7 @@ public class PlayerRenderer extends LivingEntityRenderer<AbstractClientPlayer, P
 
     protected void scale(AbstractClientPlayer param0, float param1) {
         float var0 = 0.9375F;
-        GlStateManager.scalef(0.9375F, 0.9375F, 0.9375F);
+        RenderSystem.scalef(0.9375F, 0.9375F, 0.9375F);
     }
 
     protected void renderNameTags(AbstractClientPlayer param0, double param1, double param2, double param3, String param4, double param5) {
@@ -154,30 +157,30 @@ public class PlayerRenderer extends LivingEntityRenderer<AbstractClientPlayer, P
 
     public void renderRightHand(AbstractClientPlayer param0) {
         float var0 = 1.0F;
-        GlStateManager.color3f(1.0F, 1.0F, 1.0F);
+        RenderSystem.color3f(1.0F, 1.0F, 1.0F);
         float var1 = 0.0625F;
         PlayerModel<AbstractClientPlayer> var2 = this.getModel();
         this.setModelProperties(param0);
-        GlStateManager.enableBlend();
+        RenderSystem.enableBlend();
         var2.attackTime = 0.0F;
-        var2.sneaking = false;
+        var2.crouching = false;
         var2.swimAmount = 0.0F;
         var2.setupAnim(param0, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F);
         var2.rightArm.xRot = 0.0F;
         var2.rightArm.render(0.0625F);
         var2.rightSleeve.xRot = 0.0F;
         var2.rightSleeve.render(0.0625F);
-        GlStateManager.disableBlend();
+        RenderSystem.disableBlend();
     }
 
     public void renderLeftHand(AbstractClientPlayer param0) {
         float var0 = 1.0F;
-        GlStateManager.color3f(1.0F, 1.0F, 1.0F);
+        RenderSystem.color3f(1.0F, 1.0F, 1.0F);
         float var1 = 0.0625F;
         PlayerModel<AbstractClientPlayer> var2 = this.getModel();
         this.setModelProperties(param0);
-        GlStateManager.enableBlend();
-        var2.sneaking = false;
+        RenderSystem.enableBlend();
+        var2.crouching = false;
         var2.attackTime = 0.0F;
         var2.swimAmount = 0.0F;
         var2.setupAnim(param0, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F);
@@ -185,7 +188,7 @@ public class PlayerRenderer extends LivingEntityRenderer<AbstractClientPlayer, P
         var2.leftArm.render(0.0625F);
         var2.leftSleeve.xRot = 0.0F;
         var2.leftSleeve.render(0.0625F);
-        GlStateManager.disableBlend();
+        RenderSystem.disableBlend();
     }
 
     protected void setupRotations(AbstractClientPlayer param0, float param1, float param2, float param3) {
@@ -195,7 +198,7 @@ public class PlayerRenderer extends LivingEntityRenderer<AbstractClientPlayer, P
             float var1 = (float)param0.getFallFlyingTicks() + param3;
             float var2 = Mth.clamp(var1 * var1 / 100.0F, 0.0F, 1.0F);
             if (!param0.isAutoSpinAttack()) {
-                GlStateManager.rotatef(var2 * (-90.0F - param0.xRot), 1.0F, 0.0F, 0.0F);
+                RenderSystem.rotatef(var2 * (-90.0F - param0.xRot), 1.0F, 0.0F, 0.0F);
             }
 
             Vec3 var3 = param0.getViewVector(param3);
@@ -205,15 +208,15 @@ public class PlayerRenderer extends LivingEntityRenderer<AbstractClientPlayer, P
             if (var5 > 0.0 && var6 > 0.0) {
                 double var7 = (var4.x * var3.x + var4.z * var3.z) / (Math.sqrt(var5) * Math.sqrt(var6));
                 double var8 = var4.x * var3.z - var4.z * var3.x;
-                GlStateManager.rotatef((float)(Math.signum(var8) * Math.acos(var7)) * 180.0F / (float) Math.PI, 0.0F, 1.0F, 0.0F);
+                RenderSystem.rotatef((float)(Math.signum(var8) * Math.acos(var7)) * 180.0F / (float) Math.PI, 0.0F, 1.0F, 0.0F);
             }
         } else if (var0 > 0.0F) {
             super.setupRotations(param0, param1, param2, param3);
             float var9 = param0.isInWater() ? -90.0F - param0.xRot : -90.0F;
             float var10 = Mth.lerp(var0, 0.0F, var9);
-            GlStateManager.rotatef(var10, 1.0F, 0.0F, 0.0F);
+            RenderSystem.rotatef(var10, 1.0F, 0.0F, 0.0F);
             if (param0.isVisuallySwimming()) {
-                GlStateManager.translatef(0.0F, -1.0F, 0.3F);
+                RenderSystem.translatef(0.0F, -1.0F, 0.3F);
             }
         } else {
             super.setupRotations(param0, param1, param2, param3);

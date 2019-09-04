@@ -1,6 +1,7 @@
 package net.minecraft.client.gui.components;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -162,12 +163,12 @@ public abstract class ScrolledSelectionList extends AbstractContainerEventHandle
             int var0 = this.getScrollbarPosition();
             int var1 = var0 + 6;
             this.capYPosition();
-            GlStateManager.disableLighting();
-            GlStateManager.disableFog();
+            RenderSystem.disableLighting();
+            RenderSystem.disableFog();
             Tesselator var2 = Tesselator.getInstance();
             BufferBuilder var3 = var2.getBuilder();
             this.minecraft.getTextureManager().bind(GuiComponent.BACKGROUND_LOCATION);
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             float var4 = 32.0F;
             var3.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
             var3.vertex((double)this.x0, (double)this.y1, 0.0)
@@ -194,19 +195,19 @@ public abstract class ScrolledSelectionList extends AbstractContainerEventHandle
             }
 
             this.renderList(var5, var6, param0, param1, param2);
-            GlStateManager.disableDepthTest();
+            RenderSystem.disableDepthTest();
             this.renderHoleBackground(0, this.y0, 255, 255);
             this.renderHoleBackground(this.y1, this.height, 255, 255);
-            GlStateManager.enableBlend();
-            GlStateManager.blendFuncSeparate(
+            RenderSystem.enableBlend();
+            RenderSystem.blendFuncSeparate(
                 GlStateManager.SourceFactor.SRC_ALPHA,
                 GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
                 GlStateManager.SourceFactor.ZERO,
                 GlStateManager.DestFactor.ONE
             );
-            GlStateManager.disableAlphaTest();
-            GlStateManager.shadeModel(7425);
-            GlStateManager.disableTexture();
+            RenderSystem.disableAlphaTest();
+            RenderSystem.shadeModel(7425);
+            RenderSystem.disableTexture();
             int var7 = 4;
             var3.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
             var3.vertex((double)this.x0, (double)(this.y0 + 4), 0.0).uv(0.0, 1.0).color(0, 0, 0, 0).endVertex();
@@ -250,10 +251,10 @@ public abstract class ScrolledSelectionList extends AbstractContainerEventHandle
             }
 
             this.renderDecorations(param0, param1);
-            GlStateManager.enableTexture();
-            GlStateManager.shadeModel(7424);
-            GlStateManager.enableAlphaTest();
-            GlStateManager.disableBlend();
+            RenderSystem.enableTexture();
+            RenderSystem.shadeModel(7424);
+            RenderSystem.enableAlphaTest();
+            RenderSystem.disableBlend();
         }
     }
 
@@ -386,23 +387,23 @@ public abstract class ScrolledSelectionList extends AbstractContainerEventHandle
             if (this.renderSelection && this.isSelectedItem(var3)) {
                 int var6 = this.x0 + this.width / 2 - this.getRowWidth() / 2;
                 int var7 = this.x0 + this.width / 2 + this.getRowWidth() / 2;
-                GlStateManager.disableTexture();
+                RenderSystem.disableTexture();
                 float var8 = this.isFocused() ? 1.0F : 0.5F;
-                GlStateManager.color4f(var8, var8, var8, 1.0F);
+                RenderSystem.color4f(var8, var8, var8, 1.0F);
                 var2.begin(7, DefaultVertexFormat.POSITION);
                 var2.vertex((double)var6, (double)(var4 + var5 + 2), 0.0).endVertex();
                 var2.vertex((double)var7, (double)(var4 + var5 + 2), 0.0).endVertex();
                 var2.vertex((double)var7, (double)(var4 - 2), 0.0).endVertex();
                 var2.vertex((double)var6, (double)(var4 - 2), 0.0).endVertex();
                 var1.end();
-                GlStateManager.color4f(0.0F, 0.0F, 0.0F, 1.0F);
+                RenderSystem.color4f(0.0F, 0.0F, 0.0F, 1.0F);
                 var2.begin(7, DefaultVertexFormat.POSITION);
                 var2.vertex((double)(var6 + 1), (double)(var4 + var5 + 1), 0.0).endVertex();
                 var2.vertex((double)(var7 - 1), (double)(var4 + var5 + 1), 0.0).endVertex();
                 var2.vertex((double)(var7 - 1), (double)(var4 - 1), 0.0).endVertex();
                 var2.vertex((double)(var6 + 1), (double)(var4 - 1), 0.0).endVertex();
                 var1.end();
-                GlStateManager.enableTexture();
+                RenderSystem.enableTexture();
             }
 
             this.renderItem(var3, param0, var4, var5, param2, param3, param4);
@@ -422,7 +423,7 @@ public abstract class ScrolledSelectionList extends AbstractContainerEventHandle
         Tesselator var0 = Tesselator.getInstance();
         BufferBuilder var1 = var0.getBuilder();
         this.minecraft.getTextureManager().bind(GuiComponent.BACKGROUND_LOCATION);
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         float var2 = 32.0F;
         var1.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
         var1.vertex((double)this.x0, (double)param1, 0.0).uv(0.0, (double)((float)param1 / 32.0F)).color(64, 64, 64, param3).endVertex();

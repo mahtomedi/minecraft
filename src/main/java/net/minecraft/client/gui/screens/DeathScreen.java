@@ -1,6 +1,6 @@
 package net.minecraft.client.gui.screens;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -29,30 +29,29 @@ public class DeathScreen extends Screen {
     @Override
     protected void init() {
         this.delayTicker = 0;
-        String var0;
-        String var1;
-        if (this.hardcore) {
-            var0 = I18n.get("deathScreen.spectate");
-            var1 = I18n.get("deathScreen." + (this.minecraft.isLocalServer() ? "deleteWorld" : "leaveServer"));
-        } else {
-            var0 = I18n.get("deathScreen.respawn");
-            var1 = I18n.get("deathScreen.titleScreen");
-        }
-
-        this.addButton(new Button(this.width / 2 - 100, this.height / 4 + 72, 200, 20, var0, param0 -> {
-            this.minecraft.player.respawn();
-            this.minecraft.setScreen(null);
-        }));
-        Button var4 = this.addButton(
+        this.addButton(
+            new Button(
+                this.width / 2 - 100,
+                this.height / 4 + 72,
+                200,
+                20,
+                this.hardcore ? I18n.get("deathScreen.spectate") : I18n.get("deathScreen.respawn"),
+                param0 -> {
+                    this.minecraft.player.respawn();
+                    this.minecraft.setScreen(null);
+                }
+            )
+        );
+        Button var0 = this.addButton(
             new Button(
                 this.width / 2 - 100,
                 this.height / 4 + 96,
                 200,
                 20,
-                var1,
+                I18n.get("deathScreen.titleScreen"),
                 param0 -> {
                     if (this.hardcore) {
-                        this.minecraft.setScreen(new TitleScreen());
+                        this.exitToTitleScreen();
                     } else {
                         ConfirmScreen var0x = new ConfirmScreen(
                             this::confirmResult,
@@ -68,11 +67,11 @@ public class DeathScreen extends Screen {
             )
         );
         if (!this.hardcore && this.minecraft.getUser() == null) {
-            var4.active = false;
+            var0.active = false;
         }
 
-        for(AbstractWidget var5 : this.buttons) {
-            var5.active = false;
+        for(AbstractWidget var1 : this.buttons) {
+            var1.active = false;
         }
 
     }
@@ -84,12 +83,7 @@ public class DeathScreen extends Screen {
 
     private void confirmResult(boolean param0) {
         if (param0) {
-            if (this.minecraft.level != null) {
-                this.minecraft.level.disconnect();
-            }
-
-            this.minecraft.clearLevel(new GenericDirtMessageScreen(new TranslatableComponent("menu.savingLevel")));
-            this.minecraft.setScreen(new TitleScreen());
+            this.exitToTitleScreen();
         } else {
             this.minecraft.player.respawn();
             this.minecraft.setScreen(null);
@@ -97,13 +91,22 @@ public class DeathScreen extends Screen {
 
     }
 
+    private void exitToTitleScreen() {
+        if (this.minecraft.level != null) {
+            this.minecraft.level.disconnect();
+        }
+
+        this.minecraft.clearLevel(new GenericDirtMessageScreen(new TranslatableComponent("menu.savingLevel")));
+        this.minecraft.setScreen(new TitleScreen());
+    }
+
     @Override
     public void render(int param0, int param1, float param2) {
         this.fillGradient(0, 0, this.width, this.height, 1615855616, -1602211792);
-        GlStateManager.pushMatrix();
-        GlStateManager.scalef(2.0F, 2.0F, 2.0F);
+        RenderSystem.pushMatrix();
+        RenderSystem.scalef(2.0F, 2.0F, 2.0F);
         this.drawCenteredString(this.font, this.title.getColoredString(), this.width / 2 / 2, 30, 16777215);
-        GlStateManager.popMatrix();
+        RenderSystem.popMatrix();
         if (this.causeOfDeath != null) {
             this.drawCenteredString(this.font, this.causeOfDeath.getColoredString(), this.width / 2, 85, 16777215);
         }

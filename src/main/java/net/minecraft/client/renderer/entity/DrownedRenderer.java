@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import javax.annotation.Nullable;
 import net.minecraft.client.model.DrownedModel;
 import net.minecraft.client.renderer.entity.layers.DrownedOuterLayer;
@@ -30,7 +30,7 @@ public class DrownedRenderer extends AbstractZombieRenderer<Drowned, DrownedMode
         float var0 = param0.getSwimAmount(param3);
         super.setupRotations(param0, param1, param2, param3);
         if (var0 > 0.0F) {
-            GlStateManager.rotatef(Mth.lerp(var0, param0.xRot, -10.0F - param0.xRot), 1.0F, 0.0F, 0.0F);
+            RenderSystem.rotatef(Mth.lerp(var0, param0.xRot, -10.0F - param0.xRot), 1.0F, 0.0F, 0.0F);
         }
 
     }

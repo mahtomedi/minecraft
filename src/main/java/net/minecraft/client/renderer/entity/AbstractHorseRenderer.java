@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.HorseModel;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraftforge.api.distmarker.Dist;
@@ -16,7 +16,7 @@ public abstract class AbstractHorseRenderer<T extends AbstractHorse, M extends H
     }
 
     protected void scale(T param0, float param1) {
-        GlStateManager.scalef(this.scale, this.scale, this.scale);
+        RenderSystem.scalef(this.scale, this.scale, this.scale);
         super.scale(param0, param1);
     }
 }

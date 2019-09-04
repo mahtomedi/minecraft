@@ -4,6 +4,7 @@ import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -50,7 +51,7 @@ public class StemBlock extends BushBlock implements BonemealableBlock {
     }
 
     @Override
-    public void tick(BlockState param0, Level param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         super.tick(param0, param1, param2, param3);
         if (param1.getRawBrightness(param2, 0) >= 9) {
             float var0 = CropBlock.getGrowthSpeed(this, param1, param2);
@@ -104,7 +105,7 @@ public class StemBlock extends BushBlock implements BonemealableBlock {
     }
 
     @Override
-    public void performBonemeal(Level param0, Random param1, BlockPos param2, BlockState param3) {
+    public void performBonemeal(ServerLevel param0, Random param1, BlockPos param2, BlockState param3) {
         int var0 = Math.min(7, param3.getValue(AGE) + Mth.nextInt(param0.random, 2, 5));
         BlockState var1 = param3.setValue(AGE, Integer.valueOf(var0));
         param0.setBlock(param2, var1, 2);

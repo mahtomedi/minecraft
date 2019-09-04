@@ -1,7 +1,6 @@
 package net.minecraft.client.renderer.blockentity;
 
-import com.mojang.blaze3d.platform.GLX;
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Camera;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.GameRenderer;
@@ -46,14 +45,14 @@ public abstract class BlockEntityRenderer<T extends BlockEntity> {
     }
 
     protected void setOverlayRenderState(boolean param0) {
-        GlStateManager.activeTexture(GLX.GL_TEXTURE1);
+        RenderSystem.activeTexture(33985);
         if (param0) {
-            GlStateManager.disableTexture();
+            RenderSystem.disableTexture();
         } else {
-            GlStateManager.enableTexture();
+            RenderSystem.enableTexture();
         }
 
-        GlStateManager.activeTexture(GLX.GL_TEXTURE0);
+        RenderSystem.activeTexture(33984);
     }
 
     protected void bindTexture(ResourceLocation param0) {

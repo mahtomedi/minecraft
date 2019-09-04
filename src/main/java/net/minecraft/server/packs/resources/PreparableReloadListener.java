@@ -9,6 +9,10 @@ public interface PreparableReloadListener {
         PreparableReloadListener.PreparationBarrier var1, ResourceManager var2, ProfilerFiller var3, ProfilerFiller var4, Executor var5, Executor var6
     );
 
+    default String getName() {
+        return this.getClass().getSimpleName();
+    }
+
     public interface PreparationBarrier {
         <T> CompletableFuture<T> wait(T var1);
     }

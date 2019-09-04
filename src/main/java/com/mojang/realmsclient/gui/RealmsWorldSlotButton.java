@@ -1,12 +1,11 @@
 package com.mojang.realmsclient.gui;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.realmsclient.dto.RealmsServer;
 import com.mojang.realmsclient.dto.RealmsWorldOptions;
 import com.mojang.realmsclient.util.RealmsTextureManager;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.minecraft.realms.Realms;
 import net.minecraft.realms.RealmsButton;
@@ -172,20 +171,20 @@ public class RealmsWorldSlotButton extends RealmsButton {
 
         if (param4) {
             float var1 = 0.85F + 0.15F * RealmsMth.cos((float)this.animTick * 0.2F);
-            GlStateManager.color4f(var1, var1, var1, 1.0F);
+            RenderSystem.color4f(var1, var1, var1, 1.0F);
         } else {
-            GlStateManager.color4f(0.56F, 0.56F, 0.56F, 1.0F);
+            RenderSystem.color4f(0.56F, 0.56F, 0.56F, 1.0F);
         }
 
         RealmsScreen.blit(param0 + 3, param1 + 3, 0.0F, 0.0F, 74, 74, 74, 74);
         Realms.bind("realms:textures/gui/realms/slot_frame.png");
         boolean var2 = var0 && param11 != RealmsWorldSlotButton.Action.NOTHING;
         if (var2) {
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         } else if (param4) {
-            GlStateManager.color4f(0.8F, 0.8F, 0.8F, 1.0F);
+            RenderSystem.color4f(0.8F, 0.8F, 0.8F, 1.0F);
         } else {
-            GlStateManager.color4f(0.56F, 0.56F, 0.56F, 1.0F);
+            RenderSystem.color4f(0.56F, 0.56F, 0.56F, 1.0F);
         }
 
         RealmsScreen.blit(param0, param1, 0.0F, 0.0F, 80, 80, 80, 80);
@@ -206,7 +205,7 @@ public class RealmsWorldSlotButton extends RealmsButton {
 
     @OnlyIn(Dist.CLIENT)
     public interface Listener {
-        void onSlotClick(int var1, @Nonnull RealmsWorldSlotButton.Action var2, boolean var3, boolean var4);
+        void onSlotClick(int var1, RealmsWorldSlotButton.Action var2, boolean var3, boolean var4);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -227,7 +226,7 @@ public class RealmsWorldSlotButton extends RealmsButton {
             @Nullable String param3,
             boolean param4,
             boolean param5,
-            @Nonnull RealmsWorldSlotButton.Action param6,
+            RealmsWorldSlotButton.Action param6,
             @Nullable String param7
         ) {
             this.isCurrentlyActiveSlot = param0;

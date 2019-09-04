@@ -1,6 +1,6 @@
 package net.minecraft.client.model;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
@@ -108,9 +108,9 @@ public class HorseModel<T extends AbstractHorse> extends EntityModel<T> {
         }
 
         if (var0) {
-            GlStateManager.pushMatrix();
-            GlStateManager.scalef(var1, 0.5F + var1 * 0.5F, var1);
-            GlStateManager.translatef(0.0F, 0.95F * (1.0F - var1), 0.0F);
+            RenderSystem.pushMatrix();
+            RenderSystem.scalef(var1, 0.5F + var1 * 0.5F, var1);
+            RenderSystem.translatef(0.0F, 0.95F * (1.0F - var1), 0.0F);
         }
 
         this.leg1A.render(param6);
@@ -118,24 +118,24 @@ public class HorseModel<T extends AbstractHorse> extends EntityModel<T> {
         this.leg3A.render(param6);
         this.leg4A.render(param6);
         if (var0) {
-            GlStateManager.popMatrix();
-            GlStateManager.pushMatrix();
-            GlStateManager.scalef(var1, var1, var1);
-            GlStateManager.translatef(0.0F, 2.3F * (1.0F - var1), 0.0F);
+            RenderSystem.popMatrix();
+            RenderSystem.pushMatrix();
+            RenderSystem.scalef(var1, var1, var1);
+            RenderSystem.translatef(0.0F, 2.3F * (1.0F - var1), 0.0F);
         }
 
         this.body.render(param6);
         if (var0) {
-            GlStateManager.popMatrix();
-            GlStateManager.pushMatrix();
+            RenderSystem.popMatrix();
+            RenderSystem.pushMatrix();
             float var6 = var1 + 0.1F * var1;
-            GlStateManager.scalef(var6, var6, var6);
-            GlStateManager.translatef(0.0F, 2.25F * (1.0F - var6), 0.1F * (1.4F - var6));
+            RenderSystem.scalef(var6, var6, var6);
+            RenderSystem.translatef(0.0F, 2.25F * (1.0F - var6), 0.1F * (1.4F - var6));
         }
 
         this.headParts.render(param6);
         if (var0) {
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
         }
 
     }
@@ -174,7 +174,7 @@ public class HorseModel<T extends AbstractHorse> extends EntityModel<T> {
         float var12 = Mth.cos(var11 * param1 * 0.6662F + (float) Math.PI);
         float var13 = var12 * 0.8F * param2;
         float var14 = (1.0F - Math.max(var6, var5)) * ((float) (Math.PI / 6) + var4 + var8 * Mth.sin(var10) * 0.05F);
-        this.headParts.xRot = var6 * (((float) (Math.PI / 12)) + var4) + var5 * (2.1816616F + Mth.sin(var10) * 0.05F) + var14;
+        this.headParts.xRot = var6 * ((float) (Math.PI / 12) + var4) + var5 * (2.1816616F + Mth.sin(var10) * 0.05F) + var14;
         this.headParts.yRot = var6 * var3 * (float) (Math.PI / 180.0) + (1.0F - Math.max(var6, var5)) * this.headParts.yRot;
         this.headParts.y = var6 * -4.0F + var5 * 11.0F + (1.0F - Math.max(var6, var5)) * this.headParts.y;
         this.headParts.z = var6 * -4.0F + var5 * -12.0F + (1.0F - Math.max(var6, var5)) * this.headParts.z;
@@ -185,7 +185,7 @@ public class HorseModel<T extends AbstractHorse> extends EntityModel<T> {
         this.leg3A.z = -6.0F * var6 - 10.0F * var7;
         this.leg4A.y = this.leg3A.y;
         this.leg4A.z = this.leg3A.z;
-        float var17 = (((float) (-Math.PI / 3)) + var16) * var6 + var13 * var7;
+        float var17 = ((float) (-Math.PI / 3) + var16) * var6 + var13 * var7;
         float var18 = ((float) (-Math.PI / 3) - var16) * var6 - var13 * var7;
         this.leg1A.xRot = var15 - var12 * 0.5F * param2 * var7;
         this.leg2A.xRot = var15 + var12 * 0.5F * param2 * var7;

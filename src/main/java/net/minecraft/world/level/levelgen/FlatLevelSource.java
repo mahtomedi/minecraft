@@ -12,6 +12,7 @@ import net.minecraft.world.entity.npc.CatSpawner;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.state.BlockState;
@@ -101,7 +102,7 @@ public class FlatLevelSource extends ChunkGenerator<FlatLevelGeneratorSettings> 
     }
 
     @Override
-    public void buildSurfaceAndBedrock(ChunkAccess param0) {
+    public void buildSurfaceAndBedrock(WorldGenRegion param0, ChunkAccess param1) {
     }
 
     @Override
@@ -111,12 +112,7 @@ public class FlatLevelSource extends ChunkGenerator<FlatLevelGeneratorSettings> 
     }
 
     @Override
-    protected Biome getCarvingBiome(ChunkAccess param0) {
-        return this.biomeWrapper;
-    }
-
-    @Override
-    protected Biome getDecorationBiome(WorldGenRegion param0, BlockPos param1) {
+    protected Biome getCarvingOrDecorationBiome(BiomeManager param0, BlockPos param1) {
         return this.biomeWrapper;
     }
 

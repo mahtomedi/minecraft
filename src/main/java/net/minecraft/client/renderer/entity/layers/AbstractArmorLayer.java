@@ -2,6 +2,7 @@ package net.minecraft.client.renderer.entity.layers;
 
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.Map;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
@@ -68,12 +69,12 @@ public abstract class AbstractArmorLayer<T extends LivingEntity, M extends Human
                     float var5 = (float)(var4 >> 16 & 0xFF) / 255.0F;
                     float var6 = (float)(var4 >> 8 & 0xFF) / 255.0F;
                     float var7 = (float)(var4 & 0xFF) / 255.0F;
-                    GlStateManager.color4f(this.red * var5, this.green * var6, this.blue * var7, this.alpha);
+                    RenderSystem.color4f(this.red * var5, this.green * var6, this.blue * var7, this.alpha);
                     var2.render(param0, param1, param2, param4, param5, param6, param7);
                     this.bindTexture(this.getArmorLocation(var1, var3, "overlay"));
                 }
 
-                GlStateManager.color4f(this.red, this.green, this.blue, this.alpha);
+                RenderSystem.color4f(this.red, this.green, this.blue, this.alpha);
                 var2.render(param0, param1, param2, param4, param5, param6, param7);
                 if (!this.colorized && var0.isEnchanted()) {
                     renderFoil(this::bindTexture, param0, var2, param1, param2, param3, param4, param5, param6, param7);
@@ -107,35 +108,35 @@ public abstract class AbstractArmorLayer<T extends LivingEntity, M extends Human
         param0.accept(ENCHANT_GLINT_LOCATION);
         GameRenderer var1 = Minecraft.getInstance().gameRenderer;
         var1.resetFogColor(true);
-        GlStateManager.enableBlend();
-        GlStateManager.depthFunc(514);
-        GlStateManager.depthMask(false);
+        RenderSystem.enableBlend();
+        RenderSystem.depthFunc(514);
+        RenderSystem.depthMask(false);
         float var2 = 0.5F;
-        GlStateManager.color4f(0.5F, 0.5F, 0.5F, 1.0F);
+        RenderSystem.color4f(0.5F, 0.5F, 0.5F, 1.0F);
 
         for(int var3 = 0; var3 < 2; ++var3) {
-            GlStateManager.disableLighting();
-            GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_COLOR, GlStateManager.DestFactor.ONE);
+            RenderSystem.disableLighting();
+            RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_COLOR, GlStateManager.DestFactor.ONE);
             float var4 = 0.76F;
-            GlStateManager.color4f(0.38F, 0.19F, 0.608F, 1.0F);
-            GlStateManager.matrixMode(5890);
-            GlStateManager.loadIdentity();
+            RenderSystem.color4f(0.38F, 0.19F, 0.608F, 1.0F);
+            RenderSystem.matrixMode(5890);
+            RenderSystem.loadIdentity();
             float var5 = 0.33333334F;
-            GlStateManager.scalef(0.33333334F, 0.33333334F, 0.33333334F);
-            GlStateManager.rotatef(30.0F - (float)var3 * 60.0F, 0.0F, 0.0F, 1.0F);
-            GlStateManager.translatef(0.0F, var0 * (0.001F + (float)var3 * 0.003F) * 20.0F, 0.0F);
-            GlStateManager.matrixMode(5888);
+            RenderSystem.scalef(0.33333334F, 0.33333334F, 0.33333334F);
+            RenderSystem.rotatef(30.0F - (float)var3 * 60.0F, 0.0F, 0.0F, 1.0F);
+            RenderSystem.translatef(0.0F, var0 * (0.001F + (float)var3 * 0.003F) * 20.0F, 0.0F);
+            RenderSystem.matrixMode(5888);
             param2.render(param1, param3, param4, param6, param7, param8, param9);
-            GlStateManager.blendFunc(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+            RenderSystem.blendFunc(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         }
 
-        GlStateManager.matrixMode(5890);
-        GlStateManager.loadIdentity();
-        GlStateManager.matrixMode(5888);
-        GlStateManager.enableLighting();
-        GlStateManager.depthMask(true);
-        GlStateManager.depthFunc(515);
-        GlStateManager.disableBlend();
+        RenderSystem.matrixMode(5890);
+        RenderSystem.loadIdentity();
+        RenderSystem.matrixMode(5888);
+        RenderSystem.enableLighting();
+        RenderSystem.depthMask(true);
+        RenderSystem.depthFunc(515);
+        RenderSystem.disableBlend();
         var1.resetFogColor(false);
     }
 

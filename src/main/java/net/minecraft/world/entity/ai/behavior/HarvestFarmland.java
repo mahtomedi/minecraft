@@ -124,7 +124,7 @@ public class HarvestFarmland extends Behavior<Villager> {
             Block var1 = var0.getBlock();
             Block var2 = param0.getBlockState(this.aboveFarmlandPos.below()).getBlock();
             if (var1 instanceof CropBlock && ((CropBlock)var1).isMaxAge(var0) && this.wantsToReapStuff) {
-                param0.destroyBlock(this.aboveFarmlandPos, true);
+                param0.destroyBlock(this.aboveFarmlandPos, true, param1);
             }
 
             if (var0.isAir() && var2 instanceof FarmBlock && this.canPlantStuff) {

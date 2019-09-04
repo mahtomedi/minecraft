@@ -77,21 +77,26 @@ public class LeverBlock extends FaceAttachedHorizontalDirectionalBlock {
 
     @Override
     public boolean use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
-        param0 = param0.cycle(POWERED);
-        boolean var0 = param0.getValue(POWERED);
         if (param1.isClientSide) {
-            if (var0) {
-                makeParticle(param0, param1, param2, 1.0F);
+            BlockState var0 = param0.cycle(POWERED);
+            if (var0.getValue(POWERED)) {
+                makeParticle(var0, param1, param2, 1.0F);
             }
 
             return true;
         } else {
-            param1.setBlock(param2, param0, 3);
-            float var1 = var0 ? 0.6F : 0.5F;
-            param1.playSound(null, param2, SoundEvents.LEVER_CLICK, SoundSource.BLOCKS, 0.3F, var1);
-            this.updateNeighbours(param0, param1, param2);
+            BlockState var1 = this.pull(param0, param1, param2);
+            float var2 = var1.getValue(POWERED) ? 0.6F : 0.5F;
+            param1.playSound(null, param2, SoundEvents.LEVER_CLICK, SoundSource.BLOCKS, 0.3F, var2);
             return true;
         }
+    }
+
+    public BlockState pull(BlockState param0, Level param1, BlockPos param2) {
+        param0 = param0.cycle(POWERED);
+        param1.setBlock(param2, param0, 3);
+        this.updateNeighbours(param0, param1, param2);
+        return param0;
     }
 
     private static void makeParticle(BlockState param0, LevelAccessor param1, BlockPos param2, float param3) {

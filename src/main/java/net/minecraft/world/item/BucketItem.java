@@ -115,17 +115,15 @@ public class BucketItem extends Item {
         } else {
             BlockState var0 = param1.getBlockState(param2);
             Material var1 = var0.getMaterial();
-            boolean var2 = !var1.isSolid();
-            boolean var3 = var1.isReplaceable();
-            if (param1.isEmptyBlock(param2)
+            boolean var2 = var0.canBeReplaced(this.content);
+            if (var0.isAir()
                 || var2
-                || var3
                 || var0.getBlock() instanceof LiquidBlockContainer
                     && ((LiquidBlockContainer)var0.getBlock()).canPlaceLiquid(param1, param2, var0, this.content)) {
                 if (param1.dimension.isUltraWarm() && this.content.is(FluidTags.WATER)) {
-                    int var4 = param2.getX();
-                    int var5 = param2.getY();
-                    int var6 = param2.getZ();
+                    int var3 = param2.getX();
+                    int var4 = param2.getY();
+                    int var5 = param2.getZ();
                     param1.playSound(
                         param0,
                         param2,
@@ -135,9 +133,9 @@ public class BucketItem extends Item {
                         2.6F + (param1.random.nextFloat() - param1.random.nextFloat()) * 0.8F
                     );
 
-                    for(int var7 = 0; var7 < 8; ++var7) {
+                    for(int var6 = 0; var6 < 8; ++var6) {
                         param1.addParticle(
-                            ParticleTypes.LARGE_SMOKE, (double)var4 + Math.random(), (double)var5 + Math.random(), (double)var6 + Math.random(), 0.0, 0.0, 0.0
+                            ParticleTypes.LARGE_SMOKE, (double)var3 + Math.random(), (double)var4 + Math.random(), (double)var5 + Math.random(), 0.0, 0.0, 0.0
                         );
                     }
                 } else if (var0.getBlock() instanceof LiquidBlockContainer && this.content == Fluids.WATER) {
@@ -145,7 +143,7 @@ public class BucketItem extends Item {
                         this.playEmptySound(param0, param1, param2);
                     }
                 } else {
-                    if (!param1.isClientSide && (var2 || var3) && !var1.isLiquid()) {
+                    if (!param1.isClientSide && var2 && !var1.isLiquid()) {
                         param1.destroyBlock(param2, true);
                     }
 

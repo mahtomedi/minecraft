@@ -1,5 +1,6 @@
 package com.mojang.blaze3d.platform;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,7 +8,6 @@ import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.channels.WritableByteChannel;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -122,22 +122,22 @@ public final class NativeImage implements AutoCloseable {
 
     private static void setClamp(boolean param0) {
         if (param0) {
-            GlStateManager.texParameter(3553, 10242, 10496);
-            GlStateManager.texParameter(3553, 10243, 10496);
+            RenderSystem.texParameter(3553, 10242, 10496);
+            RenderSystem.texParameter(3553, 10243, 10496);
         } else {
-            GlStateManager.texParameter(3553, 10242, 10497);
-            GlStateManager.texParameter(3553, 10243, 10497);
+            RenderSystem.texParameter(3553, 10242, 10497);
+            RenderSystem.texParameter(3553, 10243, 10497);
         }
 
     }
 
     private static void setFilter(boolean param0, boolean param1) {
         if (param0) {
-            GlStateManager.texParameter(3553, 10241, param1 ? 9987 : 9729);
-            GlStateManager.texParameter(3553, 10240, 9729);
+            RenderSystem.texParameter(3553, 10241, param1 ? 9987 : 9729);
+            RenderSystem.texParameter(3553, 10240, 9729);
         } else {
-            GlStateManager.texParameter(3553, 10241, param1 ? 9986 : 9728);
-            GlStateManager.texParameter(3553, 10240, 9728);
+            RenderSystem.texParameter(3553, 10241, param1 ? 9986 : 9728);
+            RenderSystem.texParameter(3553, 10240, 9728);
         }
 
     }
@@ -285,21 +285,21 @@ public final class NativeImage implements AutoCloseable {
         setFilter(param7, param9);
         setClamp(param8);
         if (param5 == this.getWidth()) {
-            GlStateManager.pixelStore(3314, 0);
+            RenderSystem.pixelStore(3314, 0);
         } else {
-            GlStateManager.pixelStore(3314, this.getWidth());
+            RenderSystem.pixelStore(3314, this.getWidth());
         }
 
-        GlStateManager.pixelStore(3316, param3);
-        GlStateManager.pixelStore(3315, param4);
+        RenderSystem.pixelStore(3316, param3);
+        RenderSystem.pixelStore(3315, param4);
         this.format.setUnpackPixelStoreState();
-        GlStateManager.texSubImage2D(3553, param0, param1, param2, param5, param6, this.format.glFormat(), 5121, this.pixels);
+        RenderSystem.texSubImage2D(3553, param0, param1, param2, param5, param6, this.format.glFormat(), 5121, this.pixels);
     }
 
     public void downloadTexture(int param0, boolean param1) {
         this.checkAllocated();
         this.format.setPackPixelStoreState();
-        GlStateManager.getTexImage(3553, param0, this.format.glFormat(), 5121, this.pixels);
+        RenderSystem.getTexImage(3553, param0, this.format.glFormat(), 5121, this.pixels);
         if (param1 && this.format.hasAlpha()) {
             for(int var0 = 0; var0 < this.getHeight(); ++var0) {
                 for(int var1 = 0; var1 < this.getWidth(); ++var1) {
@@ -308,24 +308,6 @@ public final class NativeImage implements AutoCloseable {
             }
         }
 
-    }
-
-    public void downloadFrameBuffer(boolean param0) {
-        this.checkAllocated();
-        this.format.setPackPixelStoreState();
-        if (param0) {
-            GlStateManager.pixelTransfer(3357, Float.MAX_VALUE);
-        }
-
-        GlStateManager.readPixels(0, 0, this.width, this.height, this.format.glFormat(), 5121, this.pixels);
-        if (param0) {
-            GlStateManager.pixelTransfer(3357, 0.0F);
-        }
-
-    }
-
-    public void writeToFile(String param0) throws IOException {
-        this.writeToFile(FileSystems.getDefault().getPath(param0));
     }
 
     public void writeToFile(File param0) throws IOException {
@@ -539,11 +521,11 @@ public final class NativeImage implements AutoCloseable {
         }
 
         public void setPackPixelStoreState() {
-            GlStateManager.pixelStore(3333, this.components());
+            RenderSystem.pixelStore(3333, this.components());
         }
 
         public void setUnpackPixelStoreState() {
-            GlStateManager.pixelStore(3317, this.components());
+            RenderSystem.pixelStore(3317, this.components());
         }
 
         public int glFormat() {
@@ -599,7 +581,7 @@ public final class NativeImage implements AutoCloseable {
             this.glFormat = param0;
         }
 
-        public int glFormat() {
+        int glFormat() {
             return this.glFormat;
         }
     }

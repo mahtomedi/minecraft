@@ -1,6 +1,6 @@
 package net.minecraft.client.model;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.animal.Fox;
@@ -125,31 +125,31 @@ public class FoxModel<T extends Fox> extends EntityModel<T> {
         super.render(param0, param1, param2, param3, param4, param5, param6);
         this.setupAnim(param0, param1, param2, param3, param4, param5, param6);
         if (this.young) {
-            GlStateManager.pushMatrix();
+            RenderSystem.pushMatrix();
             float var0 = 0.75F;
-            GlStateManager.scalef(0.75F, 0.75F, 0.75F);
-            GlStateManager.translatef(0.0F, 8.0F * param6, 3.35F * param6);
+            RenderSystem.scalef(0.75F, 0.75F, 0.75F);
+            RenderSystem.translatef(0.0F, 8.0F * param6, 3.35F * param6);
             this.head.render(param6);
-            GlStateManager.popMatrix();
-            GlStateManager.pushMatrix();
+            RenderSystem.popMatrix();
+            RenderSystem.pushMatrix();
             float var1 = 0.5F;
-            GlStateManager.scalef(0.5F, 0.5F, 0.5F);
-            GlStateManager.translatef(0.0F, 24.0F * param6, 0.0F);
+            RenderSystem.scalef(0.5F, 0.5F, 0.5F);
+            RenderSystem.translatef(0.0F, 24.0F * param6, 0.0F);
             this.body.render(param6);
             this.leg0.render(param6);
             this.leg1.render(param6);
             this.leg2.render(param6);
             this.leg3.render(param6);
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
         } else {
-            GlStateManager.pushMatrix();
+            RenderSystem.pushMatrix();
             this.head.render(param6);
             this.body.render(param6);
             this.leg0.render(param6);
             this.leg1.render(param6);
             this.leg2.render(param6);
             this.leg3.render(param6);
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
         }
 
     }

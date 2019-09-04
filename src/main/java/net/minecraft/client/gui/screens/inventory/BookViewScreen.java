@@ -2,7 +2,7 @@ package net.minecraft.client.gui.screens.inventory;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -150,7 +150,7 @@ public class BookViewScreen extends Screen {
     @Override
     public void render(int param0, int param1, float param2) {
         this.renderBackground();
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.minecraft.getTextureManager().bind(BOOK_LOCATION);
         int var0 = (this.width - 192) / 2;
         int var1 = 2;

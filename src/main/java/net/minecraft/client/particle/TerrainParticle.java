@@ -89,7 +89,7 @@ public class TerrainParticle extends TextureSheetParticle {
         int var0 = super.getLightColor(param0);
         int var1 = 0;
         if (this.level.hasChunkAt(this.pos)) {
-            var1 = this.level.getLightColor(this.pos, 0);
+            var1 = this.level.getLightColor(this.pos);
         }
 
         return var0 == 0 ? var1 : var0;

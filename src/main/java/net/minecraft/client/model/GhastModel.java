@@ -1,6 +1,6 @@
 package net.minecraft.client.model;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.Random;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
@@ -44,14 +44,14 @@ public class GhastModel<T extends Entity> extends EntityModel<T> {
     @Override
     public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
         this.setupAnim(param0, param1, param2, param3, param4, param5, param6);
-        GlStateManager.pushMatrix();
-        GlStateManager.translatef(0.0F, 0.6F, 0.0F);
+        RenderSystem.pushMatrix();
+        RenderSystem.translatef(0.0F, 0.6F, 0.0F);
         this.body.render(param6);
 
         for(ModelPart var0 : this.tentacles) {
             var0.render(param6);
         }
 
-        GlStateManager.popMatrix();
+        RenderSystem.popMatrix();
     }
 }

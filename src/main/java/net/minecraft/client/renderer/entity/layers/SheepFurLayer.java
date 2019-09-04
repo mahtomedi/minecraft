@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity.layers;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.SheepFurModel;
 import net.minecraft.client.model.SheepModel;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
@@ -31,12 +31,12 @@ public class SheepFurLayer extends RenderLayer<Sheep, SheepModel<Sheep>> {
                 float var5 = ((float)(param0.tickCount % 25) + param3) / 25.0F;
                 float[] var6 = Sheep.getColorArray(DyeColor.byId(var3));
                 float[] var7 = Sheep.getColorArray(DyeColor.byId(var4));
-                GlStateManager.color3f(
+                RenderSystem.color3f(
                     var6[0] * (1.0F - var5) + var7[0] * var5, var6[1] * (1.0F - var5) + var7[1] * var5, var6[2] * (1.0F - var5) + var7[2] * var5
                 );
             } else {
                 float[] var8 = Sheep.getColorArray(param0.getColor());
-                GlStateManager.color3f(var8[0], var8[1], var8[2]);
+                RenderSystem.color3f(var8[0], var8[1], var8[2]);
             }
 
             this.getParentModel().copyPropertiesTo(this.model);

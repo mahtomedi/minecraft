@@ -1,7 +1,7 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -102,23 +102,23 @@ public abstract class EntityRenderer<T extends Entity> {
     }
 
     private void renderFlame(Entity param0, double param1, double param2, double param3, float param4) {
-        GlStateManager.disableLighting();
+        RenderSystem.disableLighting();
         TextureAtlas var0 = Minecraft.getInstance().getTextureAtlas();
         TextureAtlasSprite var1 = var0.getSprite(ModelBakery.FIRE_0);
         TextureAtlasSprite var2 = var0.getSprite(ModelBakery.FIRE_1);
-        GlStateManager.pushMatrix();
-        GlStateManager.translatef((float)param1, (float)param2, (float)param3);
+        RenderSystem.pushMatrix();
+        RenderSystem.translatef((float)param1, (float)param2, (float)param3);
         float var3 = param0.getBbWidth() * 1.4F;
-        GlStateManager.scalef(var3, var3, var3);
+        RenderSystem.scalef(var3, var3, var3);
         Tesselator var4 = Tesselator.getInstance();
         BufferBuilder var5 = var4.getBuilder();
         float var6 = 0.5F;
         float var7 = 0.0F;
         float var8 = param0.getBbHeight() / var3;
         float var9 = (float)(param0.y - param0.getBoundingBox().minY);
-        GlStateManager.rotatef(-this.entityRenderDispatcher.playerRotY, 0.0F, 1.0F, 0.0F);
-        GlStateManager.translatef(0.0F, 0.0F, -0.3F + (float)((int)var8) * 0.02F);
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.rotatef(-this.entityRenderDispatcher.playerRotY, 0.0F, 1.0F, 0.0F);
+        RenderSystem.translatef(0.0F, 0.0F, -0.3F + (float)((int)var8) * 0.02F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         float var10 = 0.0F;
         int var11 = 0;
         var5.begin(7, DefaultVertexFormat.POSITION_TEX);
@@ -148,16 +148,16 @@ public abstract class EntityRenderer<T extends Entity> {
         }
 
         var4.end();
-        GlStateManager.popMatrix();
-        GlStateManager.enableLighting();
+        RenderSystem.popMatrix();
+        RenderSystem.enableLighting();
     }
 
     private void renderShadow(Entity param0, double param1, double param2, double param3, float param4, float param5) {
-        GlStateManager.enableBlend();
-        GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+        RenderSystem.enableBlend();
+        RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
         this.entityRenderDispatcher.textureManager.bind(SHADOW_LOCATION);
         LevelReader var0 = this.getLevel();
-        GlStateManager.depthMask(false);
+        RenderSystem.depthMask(false);
         float var1 = this.shadowRadius;
         if (param0 instanceof Mob) {
             Mob var2 = (Mob)param0;
@@ -191,9 +191,9 @@ public abstract class EntityRenderer<T extends Entity> {
         }
 
         var15.end();
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.disableBlend();
-        GlStateManager.depthMask(true);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.disableBlend();
+        RenderSystem.depthMask(true);
     }
 
     private LevelReader getLevel() {
@@ -245,10 +245,10 @@ public abstract class EntityRenderer<T extends Entity> {
     }
 
     public static void render(AABB param0, double param1, double param2, double param3) {
-        GlStateManager.disableTexture();
+        RenderSystem.disableTexture();
         Tesselator var0 = Tesselator.getInstance();
         BufferBuilder var1 = var0.getBuilder();
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         var1.offset(param1, param2, param3);
         var1.begin(7, DefaultVertexFormat.POSITION_NORMAL);
         var1.vertex(param0.minX, param0.maxY, param0.minZ).normal(0.0F, 0.0F, -1.0F).endVertex();
@@ -277,7 +277,7 @@ public abstract class EntityRenderer<T extends Entity> {
         var1.vertex(param0.maxX, param0.minY, param0.maxZ).normal(1.0F, 0.0F, 0.0F).endVertex();
         var0.end();
         var1.offset(0.0, 0.0, 0.0);
-        GlStateManager.enableTexture();
+        RenderSystem.enableTexture();
     }
 
     public void postRender(Entity param0, double param1, double param2, double param3, float param4, float param5) {
@@ -307,12 +307,11 @@ public abstract class EntityRenderer<T extends Entity> {
     protected void renderNameTag(T param0, String param1, double param2, double param3, double param4, int param5) {
         double var0 = param0.distanceToSqr(this.entityRenderDispatcher.camera.getPosition());
         if (!(var0 > (double)(param5 * param5))) {
-            boolean var1 = param0.isVisuallySneaking();
-            float var2 = this.entityRenderDispatcher.playerRotY;
-            float var3 = this.entityRenderDispatcher.playerRotX;
-            float var4 = param0.getBbHeight() + 0.5F - (var1 ? 0.25F : 0.0F);
-            int var5 = "deadmau5".equals(param1) ? -10 : 0;
-            GameRenderer.renderNameTagInWorld(this.getFont(), param1, (float)param2, (float)param3 + var4, (float)param4, var5, var2, var3, var1);
+            float var1 = this.entityRenderDispatcher.playerRotY;
+            float var2 = this.entityRenderDispatcher.playerRotX;
+            float var3 = param0.getBbHeight() + 0.5F - (param0.isCrouching() ? 0.25F : 0.0F);
+            int var4 = "deadmau5".equals(param1) ? -10 : 0;
+            GameRenderer.renderNameTagInWorld(this.getFont(), param1, (float)param2, (float)param3 + var3, (float)param4, var4, var1, var2, param0.isDiscrete());
         }
     }
 
@@ -331,6 +330,6 @@ public abstract class EntityRenderer<T extends Entity> {
         int var0 = param0.getLightColor();
         int var1 = var0 % 65536;
         int var2 = var0 / 65536;
-        GLX.glMultiTexCoord2f(GLX.GL_TEXTURE1, (float)var1, (float)var2);
+        RenderSystem.glMultiTexCoord2f(33985, (float)var1, (float)var2);
     }
 }

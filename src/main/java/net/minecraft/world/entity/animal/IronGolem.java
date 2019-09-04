@@ -76,6 +76,7 @@ public class IronGolem extends AbstractGolem {
         this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(100.0);
         this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.25);
         this.getAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(1.0);
+        this.getAttributes().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(15.0);
     }
 
     @Override
@@ -145,11 +146,15 @@ public class IronGolem extends AbstractGolem {
         this.setPlayerCreated(param0.getBoolean("PlayerCreated"));
     }
 
+    private float getAttackDamage() {
+        return (float)this.getAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getValue();
+    }
+
     @Override
     public boolean doHurtTarget(Entity param0) {
         this.attackAnimationTick = 10;
         this.level.broadcastEntityEvent(this, (byte)4);
-        boolean var0 = param0.hurt(DamageSource.mobAttack(this), (float)(7 + this.random.nextInt(15)));
+        boolean var0 = param0.hurt(DamageSource.mobAttack(this), this.getAttackDamage() / 2.0F + (float)this.random.nextInt((int)this.getAttackDamage()));
         if (var0) {
             param0.setDeltaMovement(param0.getDeltaMovement().add(0.0, 0.4F, 0.0));
             this.doEnchantDamageEffects(this, param0);

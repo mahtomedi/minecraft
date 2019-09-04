@@ -113,8 +113,8 @@ public class MagmaCube extends Slime {
     }
 
     @Override
-    protected int getAttackDamage() {
-        return super.getAttackDamage() + 2;
+    protected float getAttackDamage() {
+        return super.getAttackDamage() + 2.0F;
     }
 
     @Override

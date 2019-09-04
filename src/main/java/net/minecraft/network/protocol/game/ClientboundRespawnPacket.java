@@ -11,16 +11,18 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener> {
     private DimensionType dimension;
+    private long seed;
     private GameType playerGameType;
     private LevelType levelType;
 
     public ClientboundRespawnPacket() {
     }
 
-    public ClientboundRespawnPacket(DimensionType param0, LevelType param1, GameType param2) {
+    public ClientboundRespawnPacket(DimensionType param0, long param1, LevelType param2, GameType param3) {
         this.dimension = param0;
-        this.playerGameType = param2;
-        this.levelType = param1;
+        this.seed = param1;
+        this.playerGameType = param3;
+        this.levelType = param2;
     }
 
     public void handle(ClientGamePacketListener param0) {
@@ -30,6 +32,7 @@ public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener
     @Override
     public void read(FriendlyByteBuf param0) throws IOException {
         this.dimension = DimensionType.getById(param0.readInt());
+        this.seed = param0.readLong();
         this.playerGameType = GameType.byId(param0.readUnsignedByte());
         this.levelType = LevelType.getLevelType(param0.readUtf(16));
         if (this.levelType == null) {
@@ -41,6 +44,7 @@ public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener
     @Override
     public void write(FriendlyByteBuf param0) throws IOException {
         param0.writeInt(this.dimension.getId());
+        param0.writeLong(this.seed);
         param0.writeByte(this.playerGameType.getId());
         param0.writeUtf(this.levelType.getName());
     }
@@ -48,6 +52,11 @@ public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener
     @OnlyIn(Dist.CLIENT)
     public DimensionType getDimension() {
         return this.dimension;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public long getSeed() {
+        return this.seed;
     }
 
     @OnlyIn(Dist.CLIENT)

@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity.layers;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.DrownedModel;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.resources.ResourceLocation;
@@ -21,7 +21,7 @@ public class DrownedOuterLayer<T extends Zombie> extends RenderLayer<T, DrownedM
         if (!param0.isInvisible()) {
             this.getParentModel().copyPropertiesTo(this.model);
             this.model.prepareMobModel(param0, param1, param2, param3);
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             this.bindTexture(DROWNED_OUTER_LAYER_LOCATION);
             this.model.render(param0, param1, param2, param4, param5, param6, param7);
         }

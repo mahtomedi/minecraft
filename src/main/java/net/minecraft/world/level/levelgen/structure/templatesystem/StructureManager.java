@@ -99,13 +99,17 @@ public class StructureManager implements ResourceManagerReloadListener {
 
     private StructureTemplate readStructure(InputStream param0) throws IOException {
         CompoundTag var0 = NbtIo.readCompressed(param0);
-        if (!var0.contains("DataVersion", 99)) {
-            var0.putInt("DataVersion", 500);
+        return this.readStructure(var0);
+    }
+
+    public StructureTemplate readStructure(CompoundTag param0) {
+        if (!param0.contains("DataVersion", 99)) {
+            param0.putInt("DataVersion", 500);
         }
 
-        StructureTemplate var1 = new StructureTemplate();
-        var1.load(NbtUtils.update(this.fixerUpper, DataFixTypes.STRUCTURE, var0, var0.getInt("DataVersion")));
-        return var1;
+        StructureTemplate var0 = new StructureTemplate();
+        var0.load(NbtUtils.update(this.fixerUpper, DataFixTypes.STRUCTURE, param0, param0.getInt("DataVersion")));
+        return var0;
     }
 
     public boolean save(ResourceLocation param0) {
@@ -137,7 +141,7 @@ public class StructureManager implements ResourceManagerReloadListener {
         }
     }
 
-    private Path createPathToStructure(ResourceLocation param0, String param1) {
+    public Path createPathToStructure(ResourceLocation param0, String param1) {
         try {
             Path var0 = this.generatedDir.resolve(param0.getNamespace());
             Path var1 = var0.resolve("structures");

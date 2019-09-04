@@ -1,7 +1,6 @@
 package com.mojang.blaze3d.vertex;
 
-import com.mojang.blaze3d.platform.GLX;
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -25,26 +24,26 @@ public class BufferUploader {
                 ((Buffer)var2).position(var0.getOffset(var4));
                 switch(var6) {
                     case POSITION:
-                        GlStateManager.vertexPointer(var5.getCount(), var7, var1, var2);
-                        GlStateManager.enableClientState(32884);
+                        RenderSystem.vertexPointer(var5.getCount(), var7, var1, var2);
+                        RenderSystem.enableClientState(32884);
                         break;
                     case UV:
-                        GLX.glClientActiveTexture(GLX.GL_TEXTURE0 + var8);
-                        GlStateManager.texCoordPointer(var5.getCount(), var7, var1, var2);
-                        GlStateManager.enableClientState(32888);
-                        GLX.glClientActiveTexture(GLX.GL_TEXTURE0);
+                        RenderSystem.glClientActiveTexture(33984 + var8);
+                        RenderSystem.texCoordPointer(var5.getCount(), var7, var1, var2);
+                        RenderSystem.enableClientState(32888);
+                        RenderSystem.glClientActiveTexture(33984);
                         break;
                     case COLOR:
-                        GlStateManager.colorPointer(var5.getCount(), var7, var1, var2);
-                        GlStateManager.enableClientState(32886);
+                        RenderSystem.colorPointer(var5.getCount(), var7, var1, var2);
+                        RenderSystem.enableClientState(32886);
                         break;
                     case NORMAL:
-                        GlStateManager.normalPointer(var7, var1, var2);
-                        GlStateManager.enableClientState(32885);
+                        RenderSystem.normalPointer(var7, var1, var2);
+                        RenderSystem.enableClientState(32885);
                 }
             }
 
-            GlStateManager.drawArrays(param0.getDrawMode(), 0, param0.getVertexCount());
+            RenderSystem.drawArrays(param0.getDrawMode(), 0, param0.getVertexCount());
             int var9 = 0;
 
             for(int var10 = var3.size(); var9 < var10; ++var9) {
@@ -53,19 +52,19 @@ public class BufferUploader {
                 int var13 = var11.getIndex();
                 switch(var12) {
                     case POSITION:
-                        GlStateManager.disableClientState(32884);
+                        RenderSystem.disableClientState(32884);
                         break;
                     case UV:
-                        GLX.glClientActiveTexture(GLX.GL_TEXTURE0 + var13);
-                        GlStateManager.disableClientState(32888);
-                        GLX.glClientActiveTexture(GLX.GL_TEXTURE0);
+                        RenderSystem.glClientActiveTexture(33984 + var13);
+                        RenderSystem.disableClientState(32888);
+                        RenderSystem.glClientActiveTexture(33984);
                         break;
                     case COLOR:
-                        GlStateManager.disableClientState(32886);
-                        GlStateManager.clearCurrentColor();
+                        RenderSystem.disableClientState(32886);
+                        RenderSystem.clearCurrentColor();
                         break;
                     case NORMAL:
-                        GlStateManager.disableClientState(32885);
+                        RenderSystem.disableClientState(32885);
                 }
             }
         }

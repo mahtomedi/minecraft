@@ -1,6 +1,6 @@
 package net.minecraft.client.model;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -51,21 +51,21 @@ public class ChickenModel<T extends Entity> extends EntityModel<T> {
         this.setupAnim(param0, param1, param2, param3, param4, param5, param6);
         if (this.young) {
             float var0 = 2.0F;
-            GlStateManager.pushMatrix();
-            GlStateManager.translatef(0.0F, 5.0F * param6, 2.0F * param6);
+            RenderSystem.pushMatrix();
+            RenderSystem.translatef(0.0F, 5.0F * param6, 2.0F * param6);
             this.head.render(param6);
             this.beak.render(param6);
             this.redThing.render(param6);
-            GlStateManager.popMatrix();
-            GlStateManager.pushMatrix();
-            GlStateManager.scalef(0.5F, 0.5F, 0.5F);
-            GlStateManager.translatef(0.0F, 24.0F * param6, 0.0F);
+            RenderSystem.popMatrix();
+            RenderSystem.pushMatrix();
+            RenderSystem.scalef(0.5F, 0.5F, 0.5F);
+            RenderSystem.translatef(0.0F, 24.0F * param6, 0.0F);
             this.body.render(param6);
             this.leg0.render(param6);
             this.leg1.render(param6);
             this.wing0.render(param6);
             this.wing1.render(param6);
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
         } else {
             this.head.render(param6);
             this.beak.render(param6);

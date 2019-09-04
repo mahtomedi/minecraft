@@ -98,7 +98,7 @@ public class Fox extends Animal {
         }
     };
     private static final Predicate<Entity> STALKABLE_PREY = param0 -> param0 instanceof Chicken || param0 instanceof Rabbit;
-    private static final Predicate<Entity> AVOID_PLAYERS = param0 -> !param0.isSneaking() && EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(param0);
+    private static final Predicate<Entity> AVOID_PLAYERS = param0 -> !param0.isDiscrete() && EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(param0);
     private Goal landTargetGoal;
     private Goal turtleEggTargetGoal;
     private Goal fishTargetGoal;
@@ -136,28 +136,28 @@ public class Fox extends Animal {
         this.goalSelector.addGoal(0, new Fox.FoxFloatGoal());
         this.goalSelector.addGoal(1, new Fox.FaceplantGoal());
         this.goalSelector.addGoal(2, new Fox.FoxPanicGoal(2.2));
+        this.goalSelector.addGoal(3, new Fox.FoxBreedGoal(1.0));
         this.goalSelector
             .addGoal(
-                3,
+                4,
                 new AvoidEntityGoal<>(
                     this, Player.class, 16.0F, 1.6, 1.4, param0 -> AVOID_PLAYERS.test(param0) && !this.trusts(param0.getUUID()) && !this.isDefending()
                 )
             );
-        this.goalSelector.addGoal(3, new AvoidEntityGoal<>(this, Wolf.class, 8.0F, 1.6, 1.4, param0 -> !((Wolf)param0).isTame() && !this.isDefending()));
-        this.goalSelector.addGoal(4, new Fox.StalkPreyGoal());
-        this.goalSelector.addGoal(5, new Fox.FoxPounceGoal());
-        this.goalSelector.addGoal(5, new Fox.FoxBreedGoal(1.0));
-        this.goalSelector.addGoal(5, new Fox.SeekShelterGoal(1.25));
-        this.goalSelector.addGoal(6, new Fox.FoxMeleeAttackGoal(1.2F, true));
-        this.goalSelector.addGoal(6, new Fox.SleepGoal());
-        this.goalSelector.addGoal(7, new Fox.FoxFollowParentGoal(this, 1.25));
-        this.goalSelector.addGoal(8, new Fox.FoxStrollThroughVillageGoal(32, 200));
-        this.goalSelector.addGoal(9, new Fox.FoxEatBerriesGoal(1.2F, 12, 2));
-        this.goalSelector.addGoal(9, new LeapAtTargetGoal(this, 0.4F));
-        this.goalSelector.addGoal(10, new WaterAvoidingRandomStrollGoal(this, 1.0));
-        this.goalSelector.addGoal(10, new Fox.FoxSearchForItemsGoal());
-        this.goalSelector.addGoal(11, new Fox.FoxLookAtPlayerGoal(this, Player.class, 24.0F));
-        this.goalSelector.addGoal(12, new Fox.PerchAndSearchGoal());
+        this.goalSelector.addGoal(4, new AvoidEntityGoal<>(this, Wolf.class, 8.0F, 1.6, 1.4, param0 -> !((Wolf)param0).isTame() && !this.isDefending()));
+        this.goalSelector.addGoal(5, new Fox.StalkPreyGoal());
+        this.goalSelector.addGoal(6, new Fox.FoxPounceGoal());
+        this.goalSelector.addGoal(6, new Fox.SeekShelterGoal(1.25));
+        this.goalSelector.addGoal(7, new Fox.FoxMeleeAttackGoal(1.2F, true));
+        this.goalSelector.addGoal(7, new Fox.SleepGoal());
+        this.goalSelector.addGoal(8, new Fox.FoxFollowParentGoal(this, 1.25));
+        this.goalSelector.addGoal(9, new Fox.FoxStrollThroughVillageGoal(32, 200));
+        this.goalSelector.addGoal(10, new Fox.FoxEatBerriesGoal(1.2F, 12, 2));
+        this.goalSelector.addGoal(10, new LeapAtTargetGoal(this, 0.4F));
+        this.goalSelector.addGoal(11, new WaterAvoidingRandomStrollGoal(this, 1.0));
+        this.goalSelector.addGoal(11, new Fox.FoxSearchForItemsGoal());
+        this.goalSelector.addGoal(12, new Fox.FoxLookAtPlayerGoal(this, Player.class, 24.0F));
+        this.goalSelector.addGoal(13, new Fox.PerchAndSearchGoal());
         this.targetSelector
             .addGoal(
                 3,
@@ -566,6 +566,7 @@ public class Fox extends Animal {
         this.setFlag(4, param0);
     }
 
+    @Override
     public boolean isCrouching() {
         return this.getFlag(4);
     }
@@ -802,7 +803,7 @@ public class Fox extends Animal {
                 if (Fox.this.trusts(param0.getUUID())) {
                     return false;
                 } else {
-                    return !param0.isSleeping() && !param0.isSneaking();
+                    return !param0.isSleeping() && !param0.isDiscrete();
                 }
             } else {
                 return false;

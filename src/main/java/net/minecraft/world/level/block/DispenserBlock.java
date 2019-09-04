@@ -12,6 +12,7 @@ import net.minecraft.core.Position;
 import net.minecraft.core.PositionImpl;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
@@ -109,11 +110,8 @@ public class DispenserBlock extends BaseEntityBlock {
     }
 
     @Override
-    public void tick(BlockState param0, Level param1, BlockPos param2, Random param3) {
-        if (!param1.isClientSide) {
-            this.dispenseFrom(param1, param2);
-        }
-
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+        this.dispenseFrom(param1, param2);
     }
 
     @Override

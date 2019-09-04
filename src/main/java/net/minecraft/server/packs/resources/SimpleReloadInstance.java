@@ -1,7 +1,7 @@
 package net.minecraft.server.packs.resources;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -51,7 +51,7 @@ public class SimpleReloadInstance<S> implements ReloadInstance {
         this.listenerCount = param3.size();
         this.startedTaskCounter.incrementAndGet();
         param5.thenRun(this.doneTaskCounter::incrementAndGet);
-        List<CompletableFuture<S>> var0 = new ArrayList<>();
+        List<CompletableFuture<S>> var0 = Lists.newArrayList();
         CompletableFuture<?> var1 = param5;
         this.preparingListeners = Sets.newHashSet(param3);
 

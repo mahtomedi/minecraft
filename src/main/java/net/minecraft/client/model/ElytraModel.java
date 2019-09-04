@@ -1,6 +1,6 @@
 package net.minecraft.client.model;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.LivingEntity;
@@ -21,15 +21,15 @@ public class ElytraModel<T extends LivingEntity> extends EntityModel<T> {
     }
 
     public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        GlStateManager.disableRescaleNormal();
-        GlStateManager.disableCull();
+        RenderSystem.disableRescaleNormal();
+        RenderSystem.disableCull();
         if (param0.isBaby()) {
-            GlStateManager.pushMatrix();
-            GlStateManager.scalef(0.5F, 0.5F, 0.5F);
-            GlStateManager.translatef(0.0F, 1.5F, -0.1F);
+            RenderSystem.pushMatrix();
+            RenderSystem.scalef(0.5F, 0.5F, 0.5F);
+            RenderSystem.translatef(0.0F, 1.5F, -0.1F);
             this.leftWing.render(param6);
             this.rightWing.render(param6);
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
         } else {
             this.leftWing.render(param6);
             this.rightWing.render(param6);
@@ -53,7 +53,7 @@ public class ElytraModel<T extends LivingEntity> extends EntityModel<T> {
 
             var0 = var4 * (float) (Math.PI / 9) + (1.0F - var4) * var0;
             var1 = var4 * (float) (-Math.PI / 2) + (1.0F - var4) * var1;
-        } else if (param0.isVisuallySneaking()) {
+        } else if (param0.isCrouching()) {
             var0 = (float) (Math.PI * 2.0 / 9.0);
             var1 = (float) (-Math.PI / 4);
             var2 = 3.0F;

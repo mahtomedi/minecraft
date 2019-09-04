@@ -2,8 +2,8 @@ package net.minecraft.client.gui.components;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.platform.GLX;
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.platform.GlUtil;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.DataFixUtils;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.longs.LongSets;
@@ -83,13 +83,13 @@ public class DebugScreenOverlay extends GuiComponent {
 
     public void render() {
         this.minecraft.getProfiler().push("debug");
-        GlStateManager.pushMatrix();
+        RenderSystem.pushMatrix();
         Entity var0 = this.minecraft.getCameraEntity();
         this.block = var0.pick(20.0, 0.0F, false);
         this.liquid = var0.pick(20.0, 0.0F, true);
         this.drawGameInformation();
         this.drawSystemInformation();
-        GlStateManager.popMatrix();
+        RenderSystem.popMatrix();
         if (this.minecraft.options.renderFpsChart) {
             int var1 = this.minecraft.window.getGuiScaledWidth();
             this.drawChart(this.minecraft.getFrameTimer(), 0, var1 / 2, true);
@@ -253,65 +253,60 @@ public class DebugScreenOverlay extends GuiComponent {
                     if (var19.isEmpty()) {
                         var17.add("Waiting for chunk...");
                     } else {
-                        var17.add(
-                            "Client Light: "
-                                + var19.getRawBrightness(var6, 0)
-                                + " ("
-                                + this.minecraft.level.getBrightness(LightLayer.SKY, var6)
-                                + " sky, "
-                                + this.minecraft.level.getBrightness(LightLayer.BLOCK, var6)
-                                + " block)"
-                        );
-                        LevelChunk var20 = this.getServerChunk();
-                        if (var20 != null) {
-                            LevelLightEngine var21 = var15.getChunkSource().getLightEngine();
+                        int var20 = this.minecraft.level.getChunkSource().getLightEngine().getRawBrightness(var6, 0);
+                        int var21 = this.minecraft.level.getBrightness(LightLayer.SKY, var6);
+                        int var22 = this.minecraft.level.getBrightness(LightLayer.BLOCK, var6);
+                        var17.add("Client Light: " + var20 + " (" + var21 + " sky, " + var22 + " block)");
+                        LevelChunk var23 = this.getServerChunk();
+                        if (var23 != null) {
+                            LevelLightEngine var24 = var15.getChunkSource().getLightEngine();
                             var17.add(
                                 "Server Light: ("
-                                    + var21.getLayerListener(LightLayer.SKY).getLightValue(var6)
+                                    + var24.getLayerListener(LightLayer.SKY).getLightValue(var6)
                                     + " sky, "
-                                    + var21.getLayerListener(LightLayer.BLOCK).getLightValue(var6)
+                                    + var24.getLayerListener(LightLayer.BLOCK).getLightValue(var6)
                                     + " block)"
                             );
                         }
 
-                        StringBuilder var22 = new StringBuilder("CH");
+                        StringBuilder var25 = new StringBuilder("CH");
 
-                        for(Heightmap.Types var23 : Heightmap.Types.values()) {
-                            if (var23.sendToClient()) {
-                                var22.append(" ").append(HEIGHTMAP_NAMES.get(var23)).append(": ").append(var19.getHeight(var23, var6.getX(), var6.getZ()));
+                        for(Heightmap.Types var26 : Heightmap.Types.values()) {
+                            if (var26.sendToClient()) {
+                                var25.append(" ").append(HEIGHTMAP_NAMES.get(var26)).append(": ").append(var19.getHeight(var26, var6.getX(), var6.getZ()));
                             }
                         }
 
-                        var17.add(var22.toString());
-                        if (var20 != null) {
-                            var22.setLength(0);
-                            var22.append("SH");
+                        var17.add(var25.toString());
+                        if (var23 != null) {
+                            var25.setLength(0);
+                            var25.append("SH");
 
-                            for(Heightmap.Types var24 : Heightmap.Types.values()) {
-                                if (var24.keepAfterWorldgen()) {
-                                    var22.append(" ").append(HEIGHTMAP_NAMES.get(var24)).append(": ").append(var20.getHeight(var24, var6.getX(), var6.getZ()));
+                            for(Heightmap.Types var27 : Heightmap.Types.values()) {
+                                if (var27.keepAfterWorldgen()) {
+                                    var25.append(" ").append(HEIGHTMAP_NAMES.get(var27)).append(": ").append(var23.getHeight(var27, var6.getX(), var6.getZ()));
                                 }
                             }
 
-                            var17.add(var22.toString());
+                            var17.add(var25.toString());
                         }
 
                         if (var6.getY() >= 0 && var6.getY() < 256) {
-                            var17.add("Biome: " + Registry.BIOME.getKey(var19.getBiome(var6)));
-                            long var25 = 0L;
-                            float var26 = 0.0F;
-                            if (var20 != null) {
-                                var26 = var15.getMoonBrightness();
-                                var25 = var20.getInhabitedTime();
+                            var17.add("Biome: " + Registry.BIOME.getKey(this.minecraft.level.getBiome(var6)));
+                            long var28 = 0L;
+                            float var29 = 0.0F;
+                            if (var23 != null) {
+                                var29 = var15.getMoonBrightness();
+                                var28 = var23.getInhabitedTime();
                             }
 
-                            DifficultyInstance var27 = new DifficultyInstance(var15.getDifficulty(), var15.getDayTime(), var25, var26);
+                            DifficultyInstance var30 = new DifficultyInstance(var15.getDifficulty(), var15.getDayTime(), var28, var29);
                             var17.add(
                                 String.format(
                                     Locale.ROOT,
                                     "Local Difficulty: %.2f // %.2f (Day %d)",
-                                    var27.getEffectiveDifficulty(),
-                                    var27.getSpecialMultiplier(),
+                                    var30.getEffectiveDifficulty(),
+                                    var30.getSpecialMultiplier(),
                                     this.minecraft.level.getDayTime() / 24000L
                                 )
                             );
@@ -329,13 +324,13 @@ public class DebugScreenOverlay extends GuiComponent {
             }
 
             if (this.block.getType() == HitResult.Type.BLOCK) {
-                BlockPos var28 = ((BlockHitResult)this.block).getBlockPos();
-                var17.add(String.format("Looking at block: %d %d %d", var28.getX(), var28.getY(), var28.getZ()));
+                BlockPos var31 = ((BlockHitResult)this.block).getBlockPos();
+                var17.add(String.format("Looking at block: %d %d %d", var31.getX(), var31.getY(), var31.getZ()));
             }
 
             if (this.liquid.getType() == HitResult.Type.BLOCK) {
-                BlockPos var29 = ((BlockHitResult)this.liquid).getBlockPos();
-                var17.add(String.format("Looking at liquid: %d %d %d", var29.getX(), var29.getY(), var29.getZ()));
+                BlockPos var32 = ((BlockHitResult)this.liquid).getBlockPos();
+                var17.add(String.format("Looking at liquid: %d %d %d", var32.getX(), var32.getY(), var32.getZ()));
             }
 
             var17.add(this.minecraft.getSoundManager().getDebugString());
@@ -402,11 +397,11 @@ public class DebugScreenOverlay extends GuiComponent {
             String.format("Mem: % 2d%% %03d/%03dMB", var3 * 100L / var0, bytesToMegabytes(var3), bytesToMegabytes(var0)),
             String.format("Allocated: % 2d%% %03dMB", var1 * 100L / var0, bytesToMegabytes(var1)),
             "",
-            String.format("CPU: %s", GLX.getCpuInfo()),
+            String.format("CPU: %s", GlUtil.getCpuInfo()),
             "",
-            String.format("Display: %dx%d (%s)", Minecraft.getInstance().window.getWidth(), Minecraft.getInstance().window.getHeight(), GLX.getVendor()),
-            GLX.getRenderer(),
-            GLX.getOpenGLVersion()
+            String.format("Display: %dx%d (%s)", Minecraft.getInstance().window.getWidth(), Minecraft.getInstance().window.getHeight(), GlUtil.getVendor()),
+            GlUtil.getRenderer(),
+            GlUtil.getOpenGLVersion()
         );
         if (this.minecraft.showOnlyReducedInfo()) {
             return var4;
@@ -468,7 +463,7 @@ public class DebugScreenOverlay extends GuiComponent {
     }
 
     private void drawChart(FrameTimer param0, int param1, int param2, boolean param3) {
-        GlStateManager.disableDepthTest();
+        RenderSystem.disableDepthTest();
         int var0 = param0.getLogStart();
         int var1 = param0.getLogEnd();
         long[] var2 = param0.getLog();
@@ -525,7 +520,7 @@ public class DebugScreenOverlay extends GuiComponent {
         this.font.drawShadow(var16, (float)(param1 + 2), (float)(var12 - 60 - 9), 14737632);
         this.font.drawShadow(var17, (float)(param1 + var6 / 2 - this.font.width(var17) / 2), (float)(var12 - 60 - 9), 14737632);
         this.font.drawShadow(var18, (float)(param1 + var6 - this.font.width(var18)), (float)(var12 - 60 - 9), 14737632);
-        GlStateManager.enableDepthTest();
+        RenderSystem.enableDepthTest();
     }
 
     private int getSampleColor(int param0, int param1, int param2, int param3) {

@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.blockentity;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.BellModel;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -15,10 +15,10 @@ public class BellRenderer extends BlockEntityRenderer<BellBlockEntity> {
     private final BellModel bellModel = new BellModel();
 
     public void render(BellBlockEntity param0, double param1, double param2, double param3, float param4, int param5) {
-        GlStateManager.pushMatrix();
-        GlStateManager.enableRescaleNormal();
+        RenderSystem.pushMatrix();
+        RenderSystem.enableRescaleNormal();
         this.bindTexture(BELL_RESOURCE_LOCATION);
-        GlStateManager.translatef((float)param1, (float)param2, (float)param3);
+        RenderSystem.translatef((float)param1, (float)param2, (float)param3);
         float var0 = (float)param0.ticks + param4;
         float var1 = 0.0F;
         float var2 = 0.0F;
@@ -36,7 +36,7 @@ public class BellRenderer extends BlockEntityRenderer<BellBlockEntity> {
         }
 
         this.bellModel.render(var1, var2, 0.0625F);
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.popMatrix();
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.popMatrix();
     }
 }

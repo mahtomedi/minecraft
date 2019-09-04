@@ -92,7 +92,7 @@ public class Scoreboard {
             }
         }
 
-        Collections.sort(var0, Score.SCORE_COMPARATOR);
+        var0.sort(Score.SCORE_COMPARATOR);
         return var0;
     }
 

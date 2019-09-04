@@ -2,6 +2,7 @@ package net.minecraft.client.gui.screens.inventory;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -471,7 +472,7 @@ public class BookEditScreen extends Screen {
     public void render(int param0, int param1, float param2) {
         this.renderBackground();
         this.setFocused(null);
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.minecraft.getTextureManager().bind(BookViewScreen.BOOK_LOCATION);
         int var0 = (this.width - 192) / 2;
         int var1 = 2;
@@ -584,18 +585,18 @@ public class BookEditScreen extends Screen {
         this.convertLocalToScreen(var1);
         Tesselator var3 = Tesselator.getInstance();
         BufferBuilder var4 = var3.getBuilder();
-        GlStateManager.color4f(0.0F, 0.0F, 255.0F, 255.0F);
-        GlStateManager.disableTexture();
-        GlStateManager.enableColorLogicOp();
-        GlStateManager.logicOp(GlStateManager.LogicOp.OR_REVERSE);
+        RenderSystem.color4f(0.0F, 0.0F, 255.0F, 255.0F);
+        RenderSystem.disableTexture();
+        RenderSystem.enableColorLogicOp();
+        RenderSystem.logicOp(GlStateManager.LogicOp.OR_REVERSE);
         var4.begin(7, DefaultVertexFormat.POSITION);
         var4.vertex((double)var0.x, (double)var1.y, 0.0).endVertex();
         var4.vertex((double)var1.x, (double)var1.y, 0.0).endVertex();
         var4.vertex((double)var1.x, (double)var0.y, 0.0).endVertex();
         var4.vertex((double)var0.x, (double)var0.y, 0.0).endVertex();
         var3.end();
-        GlStateManager.disableColorLogicOp();
-        GlStateManager.enableTexture();
+        RenderSystem.disableColorLogicOp();
+        RenderSystem.enableTexture();
     }
 
     private BookEditScreen.Pos2i getPositionAtIndex(String param0, int param1) {

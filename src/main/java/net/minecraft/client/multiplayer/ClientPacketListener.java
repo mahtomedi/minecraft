@@ -55,6 +55,9 @@ import net.minecraft.client.renderer.debug.NeighborsUpdateRenderer;
 import net.minecraft.client.renderer.debug.VillageDebugRenderer;
 import net.minecraft.client.renderer.debug.WorldGenAttemptRenderer;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.client.resources.sounds.BeeAggressiveSoundInstance;
+import net.minecraft.client.resources.sounds.BeeFlyingSoundInstance;
+import net.minecraft.client.resources.sounds.BeeSoundInstance;
 import net.minecraft.client.resources.sounds.GuardianAttackSoundInstance;
 import net.minecraft.client.resources.sounds.MinecartSoundInstance;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -174,7 +177,6 @@ import net.minecraft.network.protocol.game.ServerboundKeepAlivePacket;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.network.protocol.game.ServerboundMoveVehiclePacket;
 import net.minecraft.network.protocol.game.ServerboundResourcePackPacket;
-import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.realms.DisconnectedRealmsScreen;
 import net.minecraft.realms.RealmsScreenProxy;
 import net.minecraft.resources.ResourceLocation;
@@ -202,6 +204,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.BaseAttributeMap;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
+import net.minecraft.world.entity.animal.Bee;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.boss.EnderDragonPart;
 import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
@@ -263,6 +266,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BannerBlockEntity;
 import net.minecraft.world.level.block.entity.BeaconBlockEntity;
 import net.minecraft.world.level.block.entity.BedBlockEntity;
+import net.minecraft.world.level.block.entity.BeehiveBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.CampfireBlockEntity;
 import net.minecraft.world.level.block.entity.CommandBlockEntity;
@@ -340,7 +344,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         this.serverChunkRadius = param0.getChunkRadius();
         this.level = new MultiPlayerLevel(
             this,
-            new LevelSettings(0L, param0.getGameType(), false, param0.isHardcore(), param0.getLevelType()),
+            new LevelSettings(param0.getSeed(), param0.getGameType(), false, param0.isHardcore(), param0.getLevelType()),
             param0.getDimension(),
             this.serverChunkRadius,
             this.minecraft.getProfiler(),
@@ -366,6 +370,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         this.minecraft.setScreen(new ReceivingLevelScreen());
         this.minecraft.player.setId(var0);
         this.minecraft.player.setReducedDebugInfo(param0.isReducedDebugInfo());
+        this.minecraft.player.setShowDeathScreen(param0.shouldShowDeathScreen());
         this.minecraft.gameMode.setLocalMode(param0.getGameType());
         this.minecraft.options.broadcastOptions();
         this.connection
@@ -568,11 +573,6 @@ public class ClientPacketListener implements ClientGamePacketListener {
         var6.setPacketCoordinates(var0, var1, var2);
         var6.absMoveTo(var0, var1, var2, var3, var4);
         this.level.addPlayer(var5, var6);
-        List<SynchedEntityData.DataItem<?>> var7 = param0.getUnpackedData();
-        if (var7 != null) {
-            var6.getEntityData().assignValues(var7);
-        }
-
     }
 
     @Override
@@ -724,7 +724,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         int var1 = param0.getZ();
         LevelChunk var2 = this.level
             .getChunkSource()
-            .replaceWithPacketData(this.level, var0, var1, param0.getReadBuffer(), param0.getHeightmaps(), param0.getAvailableSections(), param0.isFullChunk());
+            .replaceWithPacketData(this.level, var0, var1, param0.getBiomes(), param0.getReadBuffer(), param0.getHeightmaps(), param0.getAvailableSections());
         if (var2 != null && param0.isFullChunk()) {
             this.level.reAddEntitiesToChunk(var2);
         }
@@ -858,7 +858,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
                 var0.animateHurt();
             } else if (param0.getAction() == 2) {
                 Player var3 = (Player)var0;
-                var3.stopSleepInBed(false, false, false);
+                var3.stopSleepInBed(false, false);
             } else if (param0.getAction() == 4) {
                 this.minecraft.particleEngine.createTrackingEmitter(var0, ParticleTypes.CRIT);
             } else if (param0.getAction() == 5) {
@@ -896,9 +896,16 @@ public class ClientPacketListener implements ClientGamePacketListener {
                 (double)((float)param0.getXd() / 8000.0F), (double)((float)param0.getYd() / 8000.0F), (double)((float)param0.getZd() / 8000.0F)
             );
             this.level.putNonPlayerEntity(param0.getId(), var5);
-            List<SynchedEntityData.DataItem<?>> var8 = param0.getUnpackedData();
-            if (var8 != null) {
-                var5.getEntityData().assignValues(var8);
+            if (var5 instanceof Bee) {
+                boolean var8 = ((Bee)var5).isAngry();
+                BeeSoundInstance var9;
+                if (var8) {
+                    var9 = new BeeAggressiveSoundInstance((Bee)var5);
+                } else {
+                    var9 = new BeeFlyingSoundInstance((Bee)var5);
+                }
+
+                this.minecraft.getSoundManager().play(var9);
             }
         } else {
             LOGGER.warn("Skipping Entity with id {}", param0.getType());
@@ -935,7 +942,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
                 if (var3 != null) {
                     var3.startRiding(var0, true);
                     if (var3 == this.minecraft.player && !var1) {
-                        this.minecraft.gui.setOverlayMessage(I18n.get("mount.onboard", this.minecraft.options.keySneak.getTranslatedKeyMessage()), false);
+                        this.minecraft.gui.setOverlayMessage(I18n.get("mount.onboard", this.minecraft.options.keyShift.getTranslatedKeyMessage()), false);
                     }
                 }
             }
@@ -1010,7 +1017,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
             Scoreboard var3 = this.level.getScoreboard();
             this.level = new MultiPlayerLevel(
                 this,
-                new LevelSettings(0L, param0.getPlayerGameType(), false, this.minecraft.level.getLevelData().isHardcore(), param0.getLevelType()),
+                new LevelSettings(param0.getSeed(), param0.getPlayerGameType(), false, this.minecraft.level.getLevelData().isHardcore(), param0.getLevelType()),
                 param0.getDimension(),
                 this.serverChunkRadius,
                 this.minecraft.getProfiler(),
@@ -1031,6 +1038,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         this.minecraft.player = var5;
         this.minecraft.cameraEntity = var5;
         var5.getEntityData().assignValues(var1.getEntityData().getAll());
+        var5.getAttributes().assignValues(var1.getAttributes());
         var5.resetPos();
         var5.setServerBrand(var4);
         this.level.addPlayer(var2, var5);
@@ -1038,6 +1046,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         var5.input = new KeyboardInput(this.minecraft.options);
         this.minecraft.gameMode.adjustPlayer(var5);
         var5.setReducedDebugInfo(var1.isReducedDebugInfo());
+        var5.setShowDeathScreen(var1.shouldShowDeathScreen());
         if (this.minecraft.screen instanceof DeathScreen) {
             this.minecraft.setScreen(null);
         }
@@ -1174,7 +1183,8 @@ public class ClientPacketListener implements ClientGamePacketListener {
                 || var1 == 11 && var0 instanceof BedBlockEntity
                 || var1 == 5 && var0 instanceof ConduitBlockEntity
                 || var1 == 12 && var0 instanceof JigsawBlockEntity
-                || var1 == 13 && var0 instanceof CampfireBlockEntity) {
+                || var1 == 13 && var0 instanceof CampfireBlockEntity
+                || var1 == 14 && var0 instanceof BeehiveBlockEntity) {
                 var0.load(param0.getTag());
             }
 
@@ -1293,6 +1303,8 @@ public class ClientPacketListener implements ClientGamePacketListener {
         } else if (var1 == 10) {
             this.level.addParticle(ParticleTypes.ELDER_GUARDIAN, var0.x, var0.y, var0.z, 0.0, 0.0, 0.0);
             this.level.playSound(var0, var0.x, var0.y, var0.z, SoundEvents.ELDER_GUARDIAN_CURSE, SoundSource.HOSTILE, 1.0F, 1.0F);
+        } else if (var1 == 11) {
+            this.minecraft.player.setShowDeathScreen(var2 == 0.0F);
         }
 
     }
@@ -1496,7 +1508,11 @@ public class ClientPacketListener implements ClientGamePacketListener {
         if (param0.event == ClientboundPlayerCombatPacket.Event.ENTITY_DIED) {
             Entity var0 = this.level.getEntity(param0.playerId);
             if (var0 == this.minecraft.player) {
-                this.minecraft.setScreen(new DeathScreen(param0.message, this.level.getLevelData().isHardcore()));
+                if (this.minecraft.player.shouldShowDeathScreen()) {
+                    this.minecraft.setScreen(new DeathScreen(param0.message, this.level.getLevelData().isHardcore()));
+                } else {
+                    this.minecraft.player.respawn();
+                }
             }
         }
 
@@ -1942,6 +1958,14 @@ public class ClientPacketListener implements ClientGamePacketListener {
                 }
 
                 this.minecraft.debugRenderer.villageDebugRenderer.addOrUpdateBrainDump(var54);
+            } else if (ClientboundCustomPayloadPacket.DEBUG_GAME_TEST_CLEAR.equals(var0)) {
+                this.minecraft.debugRenderer.gameTestDebugRenderer.clear();
+            } else if (ClientboundCustomPayloadPacket.DEBUG_GAME_TEST_ADD_MARKER.equals(var0)) {
+                BlockPos var70 = var1.readBlockPos();
+                int var71 = var1.readInt();
+                String var72 = var1.readUtf();
+                int var73 = var1.readInt();
+                this.minecraft.debugRenderer.gameTestDebugRenderer.addMarker(var70, var71, var72, var73);
             } else {
                 LOGGER.warn("Unknown custom packed identifier: {}", var0);
             }

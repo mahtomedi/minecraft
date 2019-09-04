@@ -1,6 +1,7 @@
 package net.minecraft.client.renderer.debug;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.client.Camera;
@@ -25,15 +26,15 @@ public class LightDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
     public void render(long param0) {
         Camera var0 = this.minecraft.gameRenderer.getMainCamera();
         Level var1 = this.minecraft.level;
-        GlStateManager.pushMatrix();
-        GlStateManager.enableBlend();
-        GlStateManager.blendFuncSeparate(
+        RenderSystem.pushMatrix();
+        RenderSystem.enableBlend();
+        RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.SRC_ALPHA,
             GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
             GlStateManager.SourceFactor.ONE,
             GlStateManager.DestFactor.ZERO
         );
-        GlStateManager.disableTexture();
+        RenderSystem.disableTexture();
         BlockPos var2 = new BlockPos(var0.getPosition());
         LongSet var3 = new LongOpenHashSet();
 
@@ -58,7 +59,7 @@ public class LightDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
             }
         }
 
-        GlStateManager.enableTexture();
-        GlStateManager.popMatrix();
+        RenderSystem.enableTexture();
+        RenderSystem.popMatrix();
     }
 }

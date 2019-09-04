@@ -15,6 +15,7 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffects;
@@ -37,7 +38,6 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.saveddata.maps.MapDecoration;
@@ -1006,18 +1006,22 @@ public class VillagerTrades {
         @Nullable
         @Override
         public MerchantOffer getOffer(Entity param0, Random param1) {
-            Level var0 = param0.level;
-            BlockPos var1 = var0.findNearestMapFeature(this.destination, new BlockPos(param0), 100, true);
-            if (var1 != null) {
-                ItemStack var2 = MapItem.create(var0, var1.getX(), var1.getZ(), (byte)2, true, true);
-                MapItem.renderBiomePreviewMap(var0, var2);
-                MapItemSavedData.addTargetDecoration(var2, var1, "+", this.destinationType);
-                var2.setHoverName(new TranslatableComponent("filled_map." + this.destination.toLowerCase(Locale.ROOT)));
-                return new MerchantOffer(
-                    new ItemStack(Items.EMERALD, this.emeraldCost), new ItemStack(Items.COMPASS), var2, this.maxUses, this.villagerXp, 0.2F
-                );
-            } else {
+            if (!(param0.level instanceof ServerLevel)) {
                 return null;
+            } else {
+                ServerLevel var0 = (ServerLevel)param0.level;
+                BlockPos var1 = var0.findNearestMapFeature(this.destination, new BlockPos(param0), 100, true);
+                if (var1 != null) {
+                    ItemStack var2 = MapItem.create(var0, var1.getX(), var1.getZ(), (byte)2, true, true);
+                    MapItem.renderBiomePreviewMap(var0, var2);
+                    MapItemSavedData.addTargetDecoration(var2, var1, "+", this.destinationType);
+                    var2.setHoverName(new TranslatableComponent("filled_map." + this.destination.toLowerCase(Locale.ROOT)));
+                    return new MerchantOffer(
+                        new ItemStack(Items.EMERALD, this.emeraldCost), new ItemStack(Items.COMPASS), var2, this.maxUses, this.villagerXp, 0.2F
+                    );
+                } else {
+                    return null;
+                }
             }
         }
     }

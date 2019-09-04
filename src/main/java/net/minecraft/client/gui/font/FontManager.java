@@ -146,6 +146,11 @@ public class FontManager implements AutoCloseable {
             param2.pop();
             param2.endTick();
         }
+
+        @Override
+        public String getName() {
+            return "FontManager";
+        }
     };
 
     public FontManager(TextureManager param0, boolean param1) {

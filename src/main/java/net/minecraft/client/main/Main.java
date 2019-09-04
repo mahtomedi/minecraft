@@ -4,7 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.authlib.properties.PropertyMap.Serializer;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.platform.DisplayData;
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.io.File;
 import java.net.Authenticator;
 import java.net.InetSocketAddress;
@@ -18,6 +20,7 @@ import joptsimple.ArgumentAcceptingOptionSpec;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import net.minecraft.CrashReport;
 import net.minecraft.DefaultUncaughtExceptionHandler;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -74,7 +77,7 @@ public class Main {
         if (var26 != null) {
             try {
                 var27 = new Proxy(Type.SOCKS, new InetSocketAddress(var26, parseArgument(var24, var7)));
-            } catch (Exception var52) {
+            } catch (Exception var66) {
             }
         }
 
@@ -130,8 +133,59 @@ public class Main {
         };
         var50.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
         Runtime.getRuntime().addShutdownHook(var50);
-        Thread.currentThread().setName("Client thread");
-        new Minecraft(var49).run();
+        new RenderPipeline();
+        final Minecraft var52 = new Minecraft(var49);
+        Thread.currentThread().setName("Render thread");
+        RenderSystem.initRenderThread();
+
+        try {
+            var52.init();
+        } catch (Throwable var65) {
+            CrashReport var54 = CrashReport.forThrowable(var65, "Initializing game");
+            var54.addCategory("Initialization");
+            var52.crash(var52.fillReport(var54));
+            return;
+        }
+
+        Thread var55;
+        if (var52.renderOnThread()) {
+            var55 = new Thread("Client thread") {
+                @Override
+                public void run() {
+                    try {
+                        RenderSystem.initClientThread();
+                        var52.run();
+                    } catch (Throwable var2) {
+                        Main.LOGGER.error("Exception in client thread", var2);
+                    }
+
+                }
+            };
+            var55.start();
+
+            while(var52.isRunning()) {
+            }
+        } else {
+            var55 = null;
+
+            try {
+                var52.run();
+            } catch (Throwable var64) {
+                LOGGER.error("Unhandled game exception", var64);
+            }
+        }
+
+        try {
+            var52.stop();
+            if (var55 != null) {
+                var55.join();
+            }
+        } catch (InterruptedException var62) {
+            LOGGER.error("Exception during client thread shutdown", (Throwable)var62);
+        } finally {
+            var52.destroy();
+        }
+
     }
 
     private static OptionalInt ofNullable(@Nullable Integer param0) {

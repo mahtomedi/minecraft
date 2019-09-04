@@ -16,6 +16,7 @@ import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.material.Fluids;
@@ -119,40 +120,40 @@ public class NetherBridgePieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
-            this.generateBox(param0, param2, 7, 3, 0, 11, 4, 18, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 3, 7, 18, 4, 11, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 8, 5, 0, 10, 7, 18, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 5, 8, 18, 7, 10, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
-            this.generateBox(param0, param2, 7, 5, 0, 7, 5, 7, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 7, 5, 11, 7, 5, 18, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 11, 5, 0, 11, 5, 7, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 11, 5, 11, 11, 5, 18, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 5, 7, 7, 5, 7, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 11, 5, 7, 18, 5, 7, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 5, 11, 7, 5, 11, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 11, 5, 11, 18, 5, 11, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 7, 2, 0, 11, 2, 5, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 7, 2, 13, 11, 2, 18, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 7, 0, 0, 11, 1, 3, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 7, 0, 15, 11, 1, 18, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+            this.generateBox(param0, param3, 7, 3, 0, 11, 4, 18, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 3, 7, 18, 4, 11, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 8, 5, 0, 10, 7, 18, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 5, 8, 18, 7, 10, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
+            this.generateBox(param0, param3, 7, 5, 0, 7, 5, 7, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 7, 5, 11, 7, 5, 18, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 11, 5, 0, 11, 5, 7, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 11, 5, 11, 11, 5, 18, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 5, 7, 7, 5, 7, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 11, 5, 7, 18, 5, 7, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 5, 11, 7, 5, 11, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 11, 5, 11, 18, 5, 11, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 7, 2, 0, 11, 2, 5, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 7, 2, 13, 11, 2, 18, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 7, 0, 0, 11, 1, 3, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 7, 0, 15, 11, 1, 18, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
 
             for(int var0 = 7; var0 <= 11; ++var0) {
                 for(int var1 = 0; var1 <= 2; ++var1) {
-                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var0, -1, var1, param2);
-                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var0, -1, 18 - var1, param2);
+                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var0, -1, var1, param3);
+                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var0, -1, 18 - var1, param3);
                 }
             }
 
-            this.generateBox(param0, param2, 0, 2, 7, 5, 2, 11, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 13, 2, 7, 18, 2, 11, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 0, 7, 3, 1, 11, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 15, 0, 7, 18, 1, 11, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 2, 7, 5, 2, 11, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 13, 2, 7, 18, 2, 11, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 0, 7, 3, 1, 11, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 15, 0, 7, 18, 1, 11, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
 
             for(int var2 = 0; var2 <= 2; ++var2) {
                 for(int var3 = 7; var3 <= 11; ++var3) {
-                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var2, -1, var3, param2);
-                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), 18 - var2, -1, var3, param2);
+                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var2, -1, var3, param3);
+                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), 18 - var2, -1, var3, param3);
                 }
             }
 
@@ -191,7 +192,7 @@ public class NetherBridgePieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
             Random var0 = new Random((long)this.selfSeed);
 
             for(int var1 = 0; var1 <= 4; ++var1) {
@@ -199,7 +200,7 @@ public class NetherBridgePieces {
                     int var3 = var0.nextInt(8);
                     this.generateBox(
                         param0,
-                        param2,
+                        param3,
                         var1,
                         var2,
                         0,
@@ -214,14 +215,14 @@ public class NetherBridgePieces {
             }
 
             int var4 = var0.nextInt(8);
-            this.generateBox(param0, param2, 0, 5, 0, 0, 5, var4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 5, 0, 0, 5, var4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
             var4 = var0.nextInt(8);
-            this.generateBox(param0, param2, 4, 5, 0, 4, 5, var4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 4, 5, 0, 4, 5, var4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
 
             for(int var6 = 0; var6 <= 4; ++var6) {
                 int var7 = var0.nextInt(5);
                 this.generateBox(
-                    param0, param2, var6, 2, 0, var6, 2, var7, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false
+                    param0, param3, var6, 2, 0, var6, 2, var7, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false
                 );
             }
 
@@ -230,7 +231,7 @@ public class NetherBridgePieces {
                     int var10 = var0.nextInt(3);
                     this.generateBox(
                         param0,
-                        param2,
+                        param3,
                         var8,
                         var9,
                         0,
@@ -274,20 +275,20 @@ public class NetherBridgePieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
-            this.generateBox(param0, param2, 0, 3, 0, 4, 4, 18, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 1, 5, 0, 3, 7, 18, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 5, 0, 0, 5, 18, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 4, 5, 0, 4, 5, 18, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 2, 0, 4, 2, 5, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 2, 13, 4, 2, 18, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 0, 0, 4, 1, 3, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 0, 15, 4, 1, 18, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+            this.generateBox(param0, param3, 0, 3, 0, 4, 4, 18, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 1, 5, 0, 3, 7, 18, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 5, 0, 0, 5, 18, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 4, 5, 0, 4, 5, 18, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 2, 0, 4, 2, 5, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 2, 13, 4, 2, 18, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 0, 0, 4, 1, 3, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 0, 15, 4, 1, 18, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
 
             for(int var0 = 0; var0 <= 4; ++var0) {
                 for(int var1 = 0; var1 <= 2; ++var1) {
-                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var0, -1, var1, param2);
-                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var0, -1, 18 - var1, param2);
+                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var0, -1, var1, param3);
+                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var0, -1, 18 - var1, param3);
                 }
             }
 
@@ -297,14 +298,14 @@ public class NetherBridgePieces {
                 .setValue(FenceBlock.SOUTH, Boolean.valueOf(true));
             BlockState var3 = var2.setValue(FenceBlock.EAST, Boolean.valueOf(true));
             BlockState var4 = var2.setValue(FenceBlock.WEST, Boolean.valueOf(true));
-            this.generateBox(param0, param2, 0, 1, 1, 0, 4, 1, var3, var3, false);
-            this.generateBox(param0, param2, 0, 3, 4, 0, 4, 4, var3, var3, false);
-            this.generateBox(param0, param2, 0, 3, 14, 0, 4, 14, var3, var3, false);
-            this.generateBox(param0, param2, 0, 1, 17, 0, 4, 17, var3, var3, false);
-            this.generateBox(param0, param2, 4, 1, 1, 4, 4, 1, var4, var4, false);
-            this.generateBox(param0, param2, 4, 3, 4, 4, 4, 4, var4, var4, false);
-            this.generateBox(param0, param2, 4, 3, 14, 4, 4, 14, var4, var4, false);
-            this.generateBox(param0, param2, 4, 1, 17, 4, 4, 17, var4, var4, false);
+            this.generateBox(param0, param3, 0, 1, 1, 0, 4, 1, var3, var3, false);
+            this.generateBox(param0, param3, 0, 3, 4, 0, 4, 4, var3, var3, false);
+            this.generateBox(param0, param3, 0, 3, 14, 0, 4, 14, var3, var3, false);
+            this.generateBox(param0, param3, 0, 1, 17, 0, 4, 17, var3, var3, false);
+            this.generateBox(param0, param3, 4, 1, 1, 4, 4, 1, var4, var4, false);
+            this.generateBox(param0, param3, 4, 3, 4, 4, 4, 4, var4, var4, false);
+            this.generateBox(param0, param3, 4, 3, 14, 4, 4, 14, var4, var4, false);
+            this.generateBox(param0, param3, 4, 1, 17, 4, 4, 17, var4, var4, false);
             return true;
         }
     }
@@ -335,7 +336,7 @@ public class NetherBridgePieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
             BlockState var0 = Blocks.NETHER_BRICK_STAIRS.defaultBlockState().setValue(StairBlock.FACING, Direction.SOUTH);
             BlockState var1 = Blocks.NETHER_BRICK_FENCE
                 .defaultBlockState()
@@ -347,21 +348,21 @@ public class NetherBridgePieces {
                 int var4 = Math.min(Math.max(var3 + 5, 14 - var2), 13);
                 int var5 = var2;
                 this.generateBox(
-                    param0, param2, 0, 0, var2, 4, var3, var2, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false
+                    param0, param3, 0, 0, var2, 4, var3, var2, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false
                 );
-                this.generateBox(param0, param2, 1, var3 + 1, var2, 3, var4 - 1, var2, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
+                this.generateBox(param0, param3, 1, var3 + 1, var2, 3, var4 - 1, var2, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
                 if (var2 <= 6) {
-                    this.placeBlock(param0, var0, 1, var3 + 1, var2, param2);
-                    this.placeBlock(param0, var0, 2, var3 + 1, var2, param2);
-                    this.placeBlock(param0, var0, 3, var3 + 1, var2, param2);
+                    this.placeBlock(param0, var0, 1, var3 + 1, var2, param3);
+                    this.placeBlock(param0, var0, 2, var3 + 1, var2, param3);
+                    this.placeBlock(param0, var0, 3, var3 + 1, var2, param3);
                 }
 
                 this.generateBox(
-                    param0, param2, 0, var4, var2, 4, var4, var2, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false
+                    param0, param3, 0, var4, var2, 4, var4, var2, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false
                 );
                 this.generateBox(
                     param0,
-                    param2,
+                    param3,
                     0,
                     var3 + 1,
                     var2,
@@ -374,7 +375,7 @@ public class NetherBridgePieces {
                 );
                 this.generateBox(
                     param0,
-                    param2,
+                    param3,
                     4,
                     var3 + 1,
                     var2,
@@ -386,12 +387,12 @@ public class NetherBridgePieces {
                     false
                 );
                 if ((var2 & 1) == 0) {
-                    this.generateBox(param0, param2, 0, var3 + 2, var2, 0, var3 + 3, var2, var1, var1, false);
-                    this.generateBox(param0, param2, 4, var3 + 2, var2, 4, var3 + 3, var2, var1, var1, false);
+                    this.generateBox(param0, param3, 0, var3 + 2, var2, 0, var3 + 3, var2, var1, var1, false);
+                    this.generateBox(param0, param3, 4, var3 + 2, var2, 4, var3 + 3, var2, var1, var1, false);
                 }
 
                 for(int var6 = 0; var6 <= 4; ++var6) {
-                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var6, -1, var5, param2);
+                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var6, -1, var5, param3);
                 }
             }
 
@@ -432,7 +433,7 @@ public class NetherBridgePieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
             BlockState var0 = Blocks.NETHER_BRICK_FENCE
                 .defaultBlockState()
                 .setValue(FenceBlock.NORTH, Boolean.valueOf(true))
@@ -441,17 +442,17 @@ public class NetherBridgePieces {
                 .defaultBlockState()
                 .setValue(FenceBlock.WEST, Boolean.valueOf(true))
                 .setValue(FenceBlock.EAST, Boolean.valueOf(true));
-            this.generateBox(param0, param2, 0, 0, 0, 8, 1, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 2, 0, 8, 5, 8, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 6, 0, 8, 6, 5, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 2, 0, 2, 5, 0, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 6, 2, 0, 8, 5, 0, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 1, 3, 0, 1, 4, 0, var1, var1, false);
-            this.generateBox(param0, param2, 7, 3, 0, 7, 4, 0, var1, var1, false);
-            this.generateBox(param0, param2, 0, 2, 4, 8, 2, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 1, 1, 4, 2, 2, 4, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
-            this.generateBox(param0, param2, 6, 1, 4, 7, 2, 4, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
-            this.generateBox(param0, param2, 1, 3, 8, 7, 3, 8, var1, var1, false);
+            this.generateBox(param0, param3, 0, 0, 0, 8, 1, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 2, 0, 8, 5, 8, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 6, 0, 8, 6, 5, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 2, 0, 2, 5, 0, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 6, 2, 0, 8, 5, 0, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 1, 3, 0, 1, 4, 0, var1, var1, false);
+            this.generateBox(param0, param3, 7, 3, 0, 7, 4, 0, var1, var1, false);
+            this.generateBox(param0, param3, 0, 2, 4, 8, 2, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 1, 1, 4, 2, 2, 4, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
+            this.generateBox(param0, param3, 6, 1, 4, 7, 2, 4, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
+            this.generateBox(param0, param3, 1, 3, 8, 7, 3, 8, var1, var1, false);
             this.placeBlock(
                 param0,
                 Blocks.NETHER_BRICK_FENCE
@@ -461,7 +462,7 @@ public class NetherBridgePieces {
                 0,
                 3,
                 8,
-                param2
+                param3
             );
             this.placeBlock(
                 param0,
@@ -472,20 +473,20 @@ public class NetherBridgePieces {
                 8,
                 3,
                 8,
-                param2
+                param3
             );
-            this.generateBox(param0, param2, 0, 3, 6, 0, 3, 7, var0, var0, false);
-            this.generateBox(param0, param2, 8, 3, 6, 8, 3, 7, var0, var0, false);
-            this.generateBox(param0, param2, 0, 3, 4, 0, 5, 5, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 8, 3, 4, 8, 5, 5, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 1, 3, 5, 2, 5, 5, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 6, 3, 5, 7, 5, 5, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 1, 4, 5, 1, 5, 5, var1, var1, false);
-            this.generateBox(param0, param2, 7, 4, 5, 7, 5, 5, var1, var1, false);
+            this.generateBox(param0, param3, 0, 3, 6, 0, 3, 7, var0, var0, false);
+            this.generateBox(param0, param3, 8, 3, 6, 8, 3, 7, var0, var0, false);
+            this.generateBox(param0, param3, 0, 3, 4, 0, 5, 5, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 8, 3, 4, 8, 5, 5, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 1, 3, 5, 2, 5, 5, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 6, 3, 5, 7, 5, 5, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 1, 4, 5, 1, 5, 5, var1, var1, false);
+            this.generateBox(param0, param3, 7, 4, 5, 7, 5, 5, var1, var1, false);
 
             for(int var2 = 0; var2 <= 5; ++var2) {
                 for(int var3 = 0; var3 <= 8; ++var3) {
-                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var3, -1, var2, param2);
+                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var3, -1, var2, param3);
                 }
             }
 
@@ -519,20 +520,20 @@ public class NetherBridgePieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
-            this.generateBox(param0, param2, 0, 3, 0, 12, 4, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 5, 0, 12, 13, 12, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 5, 0, 1, 12, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 11, 5, 0, 12, 12, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 2, 5, 11, 4, 12, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 8, 5, 11, 10, 12, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 5, 9, 11, 7, 12, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 2, 5, 0, 4, 12, 1, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 8, 5, 0, 10, 12, 1, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 5, 9, 0, 7, 12, 1, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 2, 11, 2, 10, 12, 10, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+            this.generateBox(param0, param3, 0, 3, 0, 12, 4, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 5, 0, 12, 13, 12, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 5, 0, 1, 12, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 11, 5, 0, 12, 12, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 2, 5, 11, 4, 12, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 8, 5, 11, 10, 12, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 5, 9, 11, 7, 12, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 2, 5, 0, 4, 12, 1, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 8, 5, 0, 10, 12, 1, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 5, 9, 0, 7, 12, 1, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 2, 11, 2, 10, 12, 10, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
             this.generateBox(
-                param0, param2, 5, 8, 0, 7, 8, 0, Blocks.NETHER_BRICK_FENCE.defaultBlockState(), Blocks.NETHER_BRICK_FENCE.defaultBlockState(), false
+                param0, param3, 5, 8, 0, 7, 8, 0, Blocks.NETHER_BRICK_FENCE.defaultBlockState(), Blocks.NETHER_BRICK_FENCE.defaultBlockState(), false
             );
             BlockState var0 = Blocks.NETHER_BRICK_FENCE
                 .defaultBlockState()
@@ -544,19 +545,19 @@ public class NetherBridgePieces {
                 .setValue(FenceBlock.SOUTH, Boolean.valueOf(true));
 
             for(int var2 = 1; var2 <= 11; var2 += 2) {
-                this.generateBox(param0, param2, var2, 10, 0, var2, 11, 0, var0, var0, false);
-                this.generateBox(param0, param2, var2, 10, 12, var2, 11, 12, var0, var0, false);
-                this.generateBox(param0, param2, 0, 10, var2, 0, 11, var2, var1, var1, false);
-                this.generateBox(param0, param2, 12, 10, var2, 12, 11, var2, var1, var1, false);
-                this.placeBlock(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var2, 13, 0, param2);
-                this.placeBlock(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var2, 13, 12, param2);
-                this.placeBlock(param0, Blocks.NETHER_BRICKS.defaultBlockState(), 0, 13, var2, param2);
-                this.placeBlock(param0, Blocks.NETHER_BRICKS.defaultBlockState(), 12, 13, var2, param2);
+                this.generateBox(param0, param3, var2, 10, 0, var2, 11, 0, var0, var0, false);
+                this.generateBox(param0, param3, var2, 10, 12, var2, 11, 12, var0, var0, false);
+                this.generateBox(param0, param3, 0, 10, var2, 0, 11, var2, var1, var1, false);
+                this.generateBox(param0, param3, 12, 10, var2, 12, 11, var2, var1, var1, false);
+                this.placeBlock(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var2, 13, 0, param3);
+                this.placeBlock(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var2, 13, 12, param3);
+                this.placeBlock(param0, Blocks.NETHER_BRICKS.defaultBlockState(), 0, 13, var2, param3);
+                this.placeBlock(param0, Blocks.NETHER_BRICKS.defaultBlockState(), 12, 13, var2, param3);
                 if (var2 != 11) {
-                    this.placeBlock(param0, var0, var2 + 1, 13, 0, param2);
-                    this.placeBlock(param0, var0, var2 + 1, 13, 12, param2);
-                    this.placeBlock(param0, var1, 0, 13, var2 + 1, param2);
-                    this.placeBlock(param0, var1, 12, 13, var2 + 1, param2);
+                    this.placeBlock(param0, var0, var2 + 1, 13, 0, param3);
+                    this.placeBlock(param0, var0, var2 + 1, 13, 12, param3);
+                    this.placeBlock(param0, var1, 0, 13, var2 + 1, param3);
+                    this.placeBlock(param0, var1, 12, 13, var2 + 1, param3);
                 }
             }
 
@@ -569,7 +570,7 @@ public class NetherBridgePieces {
                 0,
                 13,
                 0,
-                param2
+                param3
             );
             this.placeBlock(
                 param0,
@@ -580,7 +581,7 @@ public class NetherBridgePieces {
                 0,
                 13,
                 12,
-                param2
+                param3
             );
             this.placeBlock(
                 param0,
@@ -591,7 +592,7 @@ public class NetherBridgePieces {
                 12,
                 13,
                 12,
-                param2
+                param3
             );
             this.placeBlock(
                 param0,
@@ -602,13 +603,13 @@ public class NetherBridgePieces {
                 12,
                 13,
                 0,
-                param2
+                param3
             );
 
             for(int var3 = 3; var3 <= 9; var3 += 2) {
                 this.generateBox(
                     param0,
-                    param2,
+                    param3,
                     1,
                     7,
                     var3,
@@ -621,7 +622,7 @@ public class NetherBridgePieces {
                 );
                 this.generateBox(
                     param0,
-                    param2,
+                    param3,
                     11,
                     7,
                     var3,
@@ -634,33 +635,33 @@ public class NetherBridgePieces {
                 );
             }
 
-            this.generateBox(param0, param2, 4, 2, 0, 8, 2, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 2, 4, 12, 2, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 4, 0, 0, 8, 1, 3, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 4, 0, 9, 8, 1, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 0, 4, 3, 1, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 9, 0, 4, 12, 1, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 4, 2, 0, 8, 2, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 2, 4, 12, 2, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 4, 0, 0, 8, 1, 3, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 4, 0, 9, 8, 1, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 0, 4, 3, 1, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 9, 0, 4, 12, 1, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
 
             for(int var4 = 4; var4 <= 8; ++var4) {
                 for(int var5 = 0; var5 <= 2; ++var5) {
-                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var4, -1, var5, param2);
-                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var4, -1, 12 - var5, param2);
+                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var4, -1, var5, param3);
+                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var4, -1, 12 - var5, param3);
                 }
             }
 
             for(int var6 = 0; var6 <= 2; ++var6) {
                 for(int var7 = 4; var7 <= 8; ++var7) {
-                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var6, -1, var7, param2);
-                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), 12 - var6, -1, var7, param2);
+                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var6, -1, var7, param3);
+                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), 12 - var6, -1, var7, param3);
                 }
             }
 
-            this.generateBox(param0, param2, 5, 5, 5, 7, 5, 7, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 6, 1, 6, 6, 4, 6, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
-            this.placeBlock(param0, Blocks.NETHER_BRICKS.defaultBlockState(), 6, 0, 6, param2);
-            this.placeBlock(param0, Blocks.LAVA.defaultBlockState(), 6, 5, 6, param2);
+            this.generateBox(param0, param3, 5, 5, 5, 7, 5, 7, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 6, 1, 6, 6, 4, 6, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
+            this.placeBlock(param0, Blocks.NETHER_BRICKS.defaultBlockState(), 6, 0, 6, param3);
+            this.placeBlock(param0, Blocks.LAVA.defaultBlockState(), 6, 5, 6, param3);
             BlockPos var8 = new BlockPos(this.getWorldX(6, 6), this.getWorldY(5), this.getWorldZ(6, 6));
-            if (param2.isInside(var8)) {
+            if (param3.isInside(var8)) {
                 param0.getLiquidTicks().scheduleTick(var8, Fluids.LAVA, 0);
             }
 
@@ -696,18 +697,18 @@ public class NetherBridgePieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
-            this.generateBox(param0, param2, 0, 0, 0, 4, 1, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 2, 0, 4, 5, 4, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 2, 0, 0, 5, 0, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 4, 2, 0, 4, 5, 0, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 2, 4, 0, 5, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 4, 2, 4, 4, 5, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 6, 0, 4, 6, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+            this.generateBox(param0, param3, 0, 0, 0, 4, 1, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 2, 0, 4, 5, 4, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 2, 0, 0, 5, 0, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 4, 2, 0, 4, 5, 0, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 2, 4, 0, 5, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 4, 2, 4, 4, 5, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 6, 0, 4, 6, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
 
             for(int var0 = 0; var0 <= 4; ++var0) {
                 for(int var1 = 0; var1 <= 4; ++var1) {
-                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var0, -1, var1, param2);
+                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var0, -1, var1, param3);
                 }
             }
 
@@ -751,9 +752,9 @@ public class NetherBridgePieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
-            this.generateBox(param0, param2, 0, 0, 0, 4, 1, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 2, 0, 4, 5, 4, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+            this.generateBox(param0, param3, 0, 0, 0, 4, 1, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 2, 0, 4, 5, 4, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
             BlockState var0 = Blocks.NETHER_BRICK_FENCE
                 .defaultBlockState()
                 .setValue(FenceBlock.WEST, Boolean.valueOf(true))
@@ -762,23 +763,23 @@ public class NetherBridgePieces {
                 .defaultBlockState()
                 .setValue(FenceBlock.NORTH, Boolean.valueOf(true))
                 .setValue(FenceBlock.SOUTH, Boolean.valueOf(true));
-            this.generateBox(param0, param2, 4, 2, 0, 4, 5, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 4, 3, 1, 4, 4, 1, var1, var1, false);
-            this.generateBox(param0, param2, 4, 3, 3, 4, 4, 3, var1, var1, false);
-            this.generateBox(param0, param2, 0, 2, 0, 0, 5, 0, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 2, 4, 3, 5, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 1, 3, 4, 1, 4, 4, var0, var0, false);
-            this.generateBox(param0, param2, 3, 3, 4, 3, 4, 4, var0, var0, false);
-            if (this.isNeedingChest && param2.isInside(new BlockPos(this.getWorldX(3, 3), this.getWorldY(2), this.getWorldZ(3, 3)))) {
+            this.generateBox(param0, param3, 4, 2, 0, 4, 5, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 4, 3, 1, 4, 4, 1, var1, var1, false);
+            this.generateBox(param0, param3, 4, 3, 3, 4, 4, 3, var1, var1, false);
+            this.generateBox(param0, param3, 0, 2, 0, 0, 5, 0, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 2, 4, 3, 5, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 1, 3, 4, 1, 4, 4, var0, var0, false);
+            this.generateBox(param0, param3, 3, 3, 4, 3, 4, 4, var0, var0, false);
+            if (this.isNeedingChest && param3.isInside(new BlockPos(this.getWorldX(3, 3), this.getWorldY(2), this.getWorldZ(3, 3)))) {
                 this.isNeedingChest = false;
-                this.createChest(param0, param2, param1, 3, 2, 3, BuiltInLootTables.NETHER_BRIDGE);
+                this.createChest(param0, param3, param2, 3, 2, 3, BuiltInLootTables.NETHER_BRIDGE);
             }
 
-            this.generateBox(param0, param2, 0, 6, 0, 4, 6, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 6, 0, 4, 6, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
 
             for(int var2 = 0; var2 <= 4; ++var2) {
                 for(int var3 = 0; var3 <= 4; ++var3) {
-                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var2, -1, var3, param2);
+                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var2, -1, var3, param3);
                 }
             }
 
@@ -812,24 +813,24 @@ public class NetherBridgePieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
-            this.generateBox(param0, param2, 0, 0, 0, 4, 1, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 2, 0, 4, 5, 4, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+            this.generateBox(param0, param3, 0, 0, 0, 4, 1, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 2, 0, 4, 5, 4, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
             BlockState var0 = Blocks.NETHER_BRICK_FENCE
                 .defaultBlockState()
                 .setValue(FenceBlock.NORTH, Boolean.valueOf(true))
                 .setValue(FenceBlock.SOUTH, Boolean.valueOf(true));
-            this.generateBox(param0, param2, 0, 2, 0, 0, 5, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 4, 2, 0, 4, 5, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 3, 1, 0, 4, 1, var0, var0, false);
-            this.generateBox(param0, param2, 0, 3, 3, 0, 4, 3, var0, var0, false);
-            this.generateBox(param0, param2, 4, 3, 1, 4, 4, 1, var0, var0, false);
-            this.generateBox(param0, param2, 4, 3, 3, 4, 4, 3, var0, var0, false);
-            this.generateBox(param0, param2, 0, 6, 0, 4, 6, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 2, 0, 0, 5, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 4, 2, 0, 4, 5, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 3, 1, 0, 4, 1, var0, var0, false);
+            this.generateBox(param0, param3, 0, 3, 3, 0, 4, 3, var0, var0, false);
+            this.generateBox(param0, param3, 4, 3, 1, 4, 4, 1, var0, var0, false);
+            this.generateBox(param0, param3, 4, 3, 3, 4, 4, 3, var0, var0, false);
+            this.generateBox(param0, param3, 0, 6, 0, 4, 6, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
 
             for(int var1 = 0; var1 <= 4; ++var1) {
                 for(int var2 = 0; var2 <= 4; ++var2) {
-                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var1, -1, var2, param2);
+                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var1, -1, var2, param3);
                 }
             }
 
@@ -873,9 +874,9 @@ public class NetherBridgePieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
-            this.generateBox(param0, param2, 0, 0, 0, 4, 1, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 2, 0, 4, 5, 4, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+            this.generateBox(param0, param3, 0, 0, 0, 4, 1, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 2, 0, 4, 5, 4, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
             BlockState var0 = Blocks.NETHER_BRICK_FENCE
                 .defaultBlockState()
                 .setValue(FenceBlock.WEST, Boolean.valueOf(true))
@@ -884,23 +885,23 @@ public class NetherBridgePieces {
                 .defaultBlockState()
                 .setValue(FenceBlock.NORTH, Boolean.valueOf(true))
                 .setValue(FenceBlock.SOUTH, Boolean.valueOf(true));
-            this.generateBox(param0, param2, 0, 2, 0, 0, 5, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 3, 1, 0, 4, 1, var1, var1, false);
-            this.generateBox(param0, param2, 0, 3, 3, 0, 4, 3, var1, var1, false);
-            this.generateBox(param0, param2, 4, 2, 0, 4, 5, 0, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 1, 2, 4, 4, 5, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 1, 3, 4, 1, 4, 4, var0, var0, false);
-            this.generateBox(param0, param2, 3, 3, 4, 3, 4, 4, var0, var0, false);
-            if (this.isNeedingChest && param2.isInside(new BlockPos(this.getWorldX(1, 3), this.getWorldY(2), this.getWorldZ(1, 3)))) {
+            this.generateBox(param0, param3, 0, 2, 0, 0, 5, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 3, 1, 0, 4, 1, var1, var1, false);
+            this.generateBox(param0, param3, 0, 3, 3, 0, 4, 3, var1, var1, false);
+            this.generateBox(param0, param3, 4, 2, 0, 4, 5, 0, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 1, 2, 4, 4, 5, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 1, 3, 4, 1, 4, 4, var0, var0, false);
+            this.generateBox(param0, param3, 3, 3, 4, 3, 4, 4, var0, var0, false);
+            if (this.isNeedingChest && param3.isInside(new BlockPos(this.getWorldX(1, 3), this.getWorldY(2), this.getWorldZ(1, 3)))) {
                 this.isNeedingChest = false;
-                this.createChest(param0, param2, param1, 1, 2, 3, BuiltInLootTables.NETHER_BRIDGE);
+                this.createChest(param0, param3, param2, 1, 2, 3, BuiltInLootTables.NETHER_BRIDGE);
             }
 
-            this.generateBox(param0, param2, 0, 6, 0, 4, 6, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 6, 0, 4, 6, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
 
             for(int var2 = 0; var2 <= 4; ++var2) {
                 for(int var3 = 0; var3 <= 4; ++var3) {
-                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var2, -1, var3, param2);
+                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var2, -1, var3, param3);
                 }
             }
 
@@ -935,18 +936,18 @@ public class NetherBridgePieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
-            this.generateBox(param0, param2, 0, 3, 0, 12, 4, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 5, 0, 12, 13, 12, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 5, 0, 1, 12, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 11, 5, 0, 12, 12, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 2, 5, 11, 4, 12, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 8, 5, 11, 10, 12, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 5, 9, 11, 7, 12, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 2, 5, 0, 4, 12, 1, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 8, 5, 0, 10, 12, 1, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 5, 9, 0, 7, 12, 1, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 2, 11, 2, 10, 12, 10, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+            this.generateBox(param0, param3, 0, 3, 0, 12, 4, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 5, 0, 12, 13, 12, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 5, 0, 1, 12, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 11, 5, 0, 12, 12, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 2, 5, 11, 4, 12, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 8, 5, 11, 10, 12, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 5, 9, 11, 7, 12, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 2, 5, 0, 4, 12, 1, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 8, 5, 0, 10, 12, 1, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 5, 9, 0, 7, 12, 1, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 2, 11, 2, 10, 12, 10, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
             BlockState var0 = Blocks.NETHER_BRICK_FENCE
                 .defaultBlockState()
                 .setValue(FenceBlock.WEST, Boolean.valueOf(true))
@@ -959,19 +960,19 @@ public class NetherBridgePieces {
             BlockState var3 = var1.setValue(FenceBlock.EAST, Boolean.valueOf(true));
 
             for(int var4 = 1; var4 <= 11; var4 += 2) {
-                this.generateBox(param0, param2, var4, 10, 0, var4, 11, 0, var0, var0, false);
-                this.generateBox(param0, param2, var4, 10, 12, var4, 11, 12, var0, var0, false);
-                this.generateBox(param0, param2, 0, 10, var4, 0, 11, var4, var1, var1, false);
-                this.generateBox(param0, param2, 12, 10, var4, 12, 11, var4, var1, var1, false);
-                this.placeBlock(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var4, 13, 0, param2);
-                this.placeBlock(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var4, 13, 12, param2);
-                this.placeBlock(param0, Blocks.NETHER_BRICKS.defaultBlockState(), 0, 13, var4, param2);
-                this.placeBlock(param0, Blocks.NETHER_BRICKS.defaultBlockState(), 12, 13, var4, param2);
+                this.generateBox(param0, param3, var4, 10, 0, var4, 11, 0, var0, var0, false);
+                this.generateBox(param0, param3, var4, 10, 12, var4, 11, 12, var0, var0, false);
+                this.generateBox(param0, param3, 0, 10, var4, 0, 11, var4, var1, var1, false);
+                this.generateBox(param0, param3, 12, 10, var4, 12, 11, var4, var1, var1, false);
+                this.placeBlock(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var4, 13, 0, param3);
+                this.placeBlock(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var4, 13, 12, param3);
+                this.placeBlock(param0, Blocks.NETHER_BRICKS.defaultBlockState(), 0, 13, var4, param3);
+                this.placeBlock(param0, Blocks.NETHER_BRICKS.defaultBlockState(), 12, 13, var4, param3);
                 if (var4 != 11) {
-                    this.placeBlock(param0, var0, var4 + 1, 13, 0, param2);
-                    this.placeBlock(param0, var0, var4 + 1, 13, 12, param2);
-                    this.placeBlock(param0, var1, 0, 13, var4 + 1, param2);
-                    this.placeBlock(param0, var1, 12, 13, var4 + 1, param2);
+                    this.placeBlock(param0, var0, var4 + 1, 13, 0, param3);
+                    this.placeBlock(param0, var0, var4 + 1, 13, 12, param3);
+                    this.placeBlock(param0, var1, 0, 13, var4 + 1, param3);
+                    this.placeBlock(param0, var1, 12, 13, var4 + 1, param3);
                 }
             }
 
@@ -984,7 +985,7 @@ public class NetherBridgePieces {
                 0,
                 13,
                 0,
-                param2
+                param3
             );
             this.placeBlock(
                 param0,
@@ -995,7 +996,7 @@ public class NetherBridgePieces {
                 0,
                 13,
                 12,
-                param2
+                param3
             );
             this.placeBlock(
                 param0,
@@ -1006,7 +1007,7 @@ public class NetherBridgePieces {
                 12,
                 13,
                 12,
-                param2
+                param3
             );
             this.placeBlock(
                 param0,
@@ -1017,12 +1018,12 @@ public class NetherBridgePieces {
                 12,
                 13,
                 0,
-                param2
+                param3
             );
 
             for(int var5 = 3; var5 <= 9; var5 += 2) {
-                this.generateBox(param0, param2, 1, 7, var5, 1, 8, var5, var2, var2, false);
-                this.generateBox(param0, param2, 11, 7, var5, 11, 8, var5, var3, var3, false);
+                this.generateBox(param0, param3, 1, 7, var5, 1, 8, var5, var2, var2, false);
+                this.generateBox(param0, param3, 11, 7, var5, 11, 8, var5, var3, var3, false);
             }
 
             BlockState var6 = Blocks.NETHER_BRICK_STAIRS.defaultBlockState().setValue(StairBlock.FACING, Direction.NORTH);
@@ -1031,13 +1032,13 @@ public class NetherBridgePieces {
                 int var8 = var7 + 4;
 
                 for(int var9 = 5; var9 <= 7; ++var9) {
-                    this.placeBlock(param0, var6, var9, 5 + var7, var8, param2);
+                    this.placeBlock(param0, var6, var9, 5 + var7, var8, param3);
                 }
 
                 if (var8 >= 5 && var8 <= 8) {
                     this.generateBox(
                         param0,
-                        param2,
+                        param3,
                         5,
                         5,
                         var8,
@@ -1051,7 +1052,7 @@ public class NetherBridgePieces {
                 } else if (var8 >= 9 && var8 <= 10) {
                     this.generateBox(
                         param0,
-                        param2,
+                        param3,
                         5,
                         8,
                         var8,
@@ -1066,56 +1067,56 @@ public class NetherBridgePieces {
 
                 if (var7 >= 1) {
                     this.generateBox(
-                        param0, param2, 5, 6 + var7, var8, 7, 9 + var7, var8, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false
+                        param0, param3, 5, 6 + var7, var8, 7, 9 + var7, var8, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false
                     );
                 }
             }
 
             for(int var10 = 5; var10 <= 7; ++var10) {
-                this.placeBlock(param0, var6, var10, 12, 11, param2);
+                this.placeBlock(param0, var6, var10, 12, 11, param3);
             }
 
-            this.generateBox(param0, param2, 5, 6, 7, 5, 7, 7, var3, var3, false);
-            this.generateBox(param0, param2, 7, 6, 7, 7, 7, 7, var2, var2, false);
-            this.generateBox(param0, param2, 5, 13, 12, 7, 13, 12, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
-            this.generateBox(param0, param2, 2, 5, 2, 3, 5, 3, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 2, 5, 9, 3, 5, 10, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 2, 5, 4, 2, 5, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 9, 5, 2, 10, 5, 3, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 9, 5, 9, 10, 5, 10, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 10, 5, 4, 10, 5, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 5, 6, 7, 5, 7, 7, var3, var3, false);
+            this.generateBox(param0, param3, 7, 6, 7, 7, 7, 7, var2, var2, false);
+            this.generateBox(param0, param3, 5, 13, 12, 7, 13, 12, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
+            this.generateBox(param0, param3, 2, 5, 2, 3, 5, 3, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 2, 5, 9, 3, 5, 10, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 2, 5, 4, 2, 5, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 9, 5, 2, 10, 5, 3, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 9, 5, 9, 10, 5, 10, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 10, 5, 4, 10, 5, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
             BlockState var11 = var6.setValue(StairBlock.FACING, Direction.EAST);
             BlockState var12 = var6.setValue(StairBlock.FACING, Direction.WEST);
-            this.placeBlock(param0, var12, 4, 5, 2, param2);
-            this.placeBlock(param0, var12, 4, 5, 3, param2);
-            this.placeBlock(param0, var12, 4, 5, 9, param2);
-            this.placeBlock(param0, var12, 4, 5, 10, param2);
-            this.placeBlock(param0, var11, 8, 5, 2, param2);
-            this.placeBlock(param0, var11, 8, 5, 3, param2);
-            this.placeBlock(param0, var11, 8, 5, 9, param2);
-            this.placeBlock(param0, var11, 8, 5, 10, param2);
-            this.generateBox(param0, param2, 3, 4, 4, 4, 4, 8, Blocks.SOUL_SAND.defaultBlockState(), Blocks.SOUL_SAND.defaultBlockState(), false);
-            this.generateBox(param0, param2, 8, 4, 4, 9, 4, 8, Blocks.SOUL_SAND.defaultBlockState(), Blocks.SOUL_SAND.defaultBlockState(), false);
-            this.generateBox(param0, param2, 3, 5, 4, 4, 5, 8, Blocks.NETHER_WART.defaultBlockState(), Blocks.NETHER_WART.defaultBlockState(), false);
-            this.generateBox(param0, param2, 8, 5, 4, 9, 5, 8, Blocks.NETHER_WART.defaultBlockState(), Blocks.NETHER_WART.defaultBlockState(), false);
-            this.generateBox(param0, param2, 4, 2, 0, 8, 2, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 2, 4, 12, 2, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 4, 0, 0, 8, 1, 3, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 4, 0, 9, 8, 1, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 0, 4, 3, 1, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 9, 0, 4, 12, 1, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.placeBlock(param0, var12, 4, 5, 2, param3);
+            this.placeBlock(param0, var12, 4, 5, 3, param3);
+            this.placeBlock(param0, var12, 4, 5, 9, param3);
+            this.placeBlock(param0, var12, 4, 5, 10, param3);
+            this.placeBlock(param0, var11, 8, 5, 2, param3);
+            this.placeBlock(param0, var11, 8, 5, 3, param3);
+            this.placeBlock(param0, var11, 8, 5, 9, param3);
+            this.placeBlock(param0, var11, 8, 5, 10, param3);
+            this.generateBox(param0, param3, 3, 4, 4, 4, 4, 8, Blocks.SOUL_SAND.defaultBlockState(), Blocks.SOUL_SAND.defaultBlockState(), false);
+            this.generateBox(param0, param3, 8, 4, 4, 9, 4, 8, Blocks.SOUL_SAND.defaultBlockState(), Blocks.SOUL_SAND.defaultBlockState(), false);
+            this.generateBox(param0, param3, 3, 5, 4, 4, 5, 8, Blocks.NETHER_WART.defaultBlockState(), Blocks.NETHER_WART.defaultBlockState(), false);
+            this.generateBox(param0, param3, 8, 5, 4, 9, 5, 8, Blocks.NETHER_WART.defaultBlockState(), Blocks.NETHER_WART.defaultBlockState(), false);
+            this.generateBox(param0, param3, 4, 2, 0, 8, 2, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 2, 4, 12, 2, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 4, 0, 0, 8, 1, 3, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 4, 0, 9, 8, 1, 12, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 0, 4, 3, 1, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 9, 0, 4, 12, 1, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
 
             for(int var13 = 4; var13 <= 8; ++var13) {
                 for(int var14 = 0; var14 <= 2; ++var14) {
-                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var13, -1, var14, param2);
-                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var13, -1, 12 - var14, param2);
+                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var13, -1, var14, param3);
+                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var13, -1, 12 - var14, param3);
                 }
             }
 
             for(int var15 = 0; var15 <= 2; ++var15) {
                 for(int var16 = 4; var16 <= 8; ++var16) {
-                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var15, -1, var16, param2);
-                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), 12 - var15, -1, var16, param2);
+                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var15, -1, var16, param3);
+                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), 12 - var15, -1, var16, param3);
                 }
             }
 
@@ -1151,19 +1152,19 @@ public class NetherBridgePieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
-            this.generateBox(param0, param2, 0, 2, 0, 6, 7, 7, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
-            this.generateBox(param0, param2, 1, 0, 0, 5, 1, 7, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 1, 2, 1, 5, 2, 7, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 1, 3, 2, 5, 3, 7, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 1, 4, 3, 5, 4, 7, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 1, 2, 0, 1, 4, 2, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 5, 2, 0, 5, 4, 2, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 1, 5, 2, 1, 5, 3, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 5, 5, 2, 5, 5, 3, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 5, 3, 0, 5, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 6, 5, 3, 6, 5, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 1, 5, 8, 5, 5, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+            this.generateBox(param0, param3, 0, 2, 0, 6, 7, 7, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
+            this.generateBox(param0, param3, 1, 0, 0, 5, 1, 7, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 1, 2, 1, 5, 2, 7, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 1, 3, 2, 5, 3, 7, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 1, 4, 3, 5, 4, 7, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 1, 2, 0, 1, 4, 2, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 5, 2, 0, 5, 4, 2, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 1, 5, 2, 1, 5, 3, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 5, 5, 2, 5, 5, 3, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 5, 3, 0, 5, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 6, 5, 3, 6, 5, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 1, 5, 8, 5, 5, 8, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
             BlockState var0 = Blocks.NETHER_BRICK_FENCE
                 .defaultBlockState()
                 .setValue(FenceBlock.WEST, Boolean.valueOf(true))
@@ -1172,8 +1173,8 @@ public class NetherBridgePieces {
                 .defaultBlockState()
                 .setValue(FenceBlock.NORTH, Boolean.valueOf(true))
                 .setValue(FenceBlock.SOUTH, Boolean.valueOf(true));
-            this.placeBlock(param0, Blocks.NETHER_BRICK_FENCE.defaultBlockState().setValue(FenceBlock.WEST, Boolean.valueOf(true)), 1, 6, 3, param2);
-            this.placeBlock(param0, Blocks.NETHER_BRICK_FENCE.defaultBlockState().setValue(FenceBlock.EAST, Boolean.valueOf(true)), 5, 6, 3, param2);
+            this.placeBlock(param0, Blocks.NETHER_BRICK_FENCE.defaultBlockState().setValue(FenceBlock.WEST, Boolean.valueOf(true)), 1, 6, 3, param3);
+            this.placeBlock(param0, Blocks.NETHER_BRICK_FENCE.defaultBlockState().setValue(FenceBlock.EAST, Boolean.valueOf(true)), 5, 6, 3, param3);
             this.placeBlock(
                 param0,
                 Blocks.NETHER_BRICK_FENCE
@@ -1183,7 +1184,7 @@ public class NetherBridgePieces {
                 0,
                 6,
                 3,
-                param2
+                param3
             );
             this.placeBlock(
                 param0,
@@ -1194,10 +1195,10 @@ public class NetherBridgePieces {
                 6,
                 6,
                 3,
-                param2
+                param3
             );
-            this.generateBox(param0, param2, 0, 6, 4, 0, 6, 7, var1, var1, false);
-            this.generateBox(param0, param2, 6, 6, 4, 6, 6, 7, var1, var1, false);
+            this.generateBox(param0, param3, 0, 6, 4, 0, 6, 7, var1, var1, false);
+            this.generateBox(param0, param3, 6, 6, 4, 6, 6, 7, var1, var1, false);
             this.placeBlock(
                 param0,
                 Blocks.NETHER_BRICK_FENCE
@@ -1207,7 +1208,7 @@ public class NetherBridgePieces {
                 0,
                 6,
                 8,
-                param2
+                param3
             );
             this.placeBlock(
                 param0,
@@ -1218,18 +1219,18 @@ public class NetherBridgePieces {
                 6,
                 6,
                 8,
-                param2
+                param3
             );
-            this.generateBox(param0, param2, 1, 6, 8, 5, 6, 8, var0, var0, false);
-            this.placeBlock(param0, Blocks.NETHER_BRICK_FENCE.defaultBlockState().setValue(FenceBlock.EAST, Boolean.valueOf(true)), 1, 7, 8, param2);
-            this.generateBox(param0, param2, 2, 7, 8, 4, 7, 8, var0, var0, false);
-            this.placeBlock(param0, Blocks.NETHER_BRICK_FENCE.defaultBlockState().setValue(FenceBlock.WEST, Boolean.valueOf(true)), 5, 7, 8, param2);
-            this.placeBlock(param0, Blocks.NETHER_BRICK_FENCE.defaultBlockState().setValue(FenceBlock.EAST, Boolean.valueOf(true)), 2, 8, 8, param2);
-            this.placeBlock(param0, var0, 3, 8, 8, param2);
-            this.placeBlock(param0, Blocks.NETHER_BRICK_FENCE.defaultBlockState().setValue(FenceBlock.WEST, Boolean.valueOf(true)), 4, 8, 8, param2);
+            this.generateBox(param0, param3, 1, 6, 8, 5, 6, 8, var0, var0, false);
+            this.placeBlock(param0, Blocks.NETHER_BRICK_FENCE.defaultBlockState().setValue(FenceBlock.EAST, Boolean.valueOf(true)), 1, 7, 8, param3);
+            this.generateBox(param0, param3, 2, 7, 8, 4, 7, 8, var0, var0, false);
+            this.placeBlock(param0, Blocks.NETHER_BRICK_FENCE.defaultBlockState().setValue(FenceBlock.WEST, Boolean.valueOf(true)), 5, 7, 8, param3);
+            this.placeBlock(param0, Blocks.NETHER_BRICK_FENCE.defaultBlockState().setValue(FenceBlock.EAST, Boolean.valueOf(true)), 2, 8, 8, param3);
+            this.placeBlock(param0, var0, 3, 8, 8, param3);
+            this.placeBlock(param0, Blocks.NETHER_BRICK_FENCE.defaultBlockState().setValue(FenceBlock.WEST, Boolean.valueOf(true)), 4, 8, 8, param3);
             if (!this.hasPlacedSpawner) {
                 BlockPos var2 = new BlockPos(this.getWorldX(3, 5), this.getWorldY(5), this.getWorldZ(3, 5));
-                if (param2.isInside(var2)) {
+                if (param3.isInside(var2)) {
                     this.hasPlacedSpawner = true;
                     param0.setBlock(var2, Blocks.SPAWNER.defaultBlockState(), 2);
                     BlockEntity var3 = param0.getBlockEntity(var2);
@@ -1241,7 +1242,7 @@ public class NetherBridgePieces {
 
             for(int var4 = 0; var4 <= 6; ++var4) {
                 for(int var5 = 0; var5 <= 6; ++var5) {
-                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var4, -1, var5, param2);
+                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var4, -1, var5, param3);
                 }
             }
 
@@ -1590,17 +1591,17 @@ public class NetherBridgePieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
-            this.generateBox(param0, param2, 0, 0, 0, 6, 1, 6, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 2, 0, 6, 7, 6, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 2, 0, 1, 6, 0, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 2, 6, 1, 6, 6, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 5, 2, 0, 6, 6, 0, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 5, 2, 6, 6, 6, 6, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 2, 0, 0, 6, 1, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 2, 5, 0, 6, 6, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 6, 2, 0, 6, 6, 1, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 6, 2, 5, 6, 6, 6, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+            this.generateBox(param0, param3, 0, 0, 0, 6, 1, 6, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 2, 0, 6, 7, 6, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 2, 0, 1, 6, 0, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 2, 6, 1, 6, 6, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 5, 2, 0, 6, 6, 0, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 5, 2, 6, 6, 6, 6, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 2, 0, 0, 6, 1, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 2, 5, 0, 6, 6, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 6, 2, 0, 6, 6, 1, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 6, 2, 5, 6, 6, 6, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
             BlockState var0 = Blocks.NETHER_BRICK_FENCE
                 .defaultBlockState()
                 .setValue(FenceBlock.WEST, Boolean.valueOf(true))
@@ -1609,18 +1610,18 @@ public class NetherBridgePieces {
                 .defaultBlockState()
                 .setValue(FenceBlock.NORTH, Boolean.valueOf(true))
                 .setValue(FenceBlock.SOUTH, Boolean.valueOf(true));
-            this.generateBox(param0, param2, 2, 6, 0, 4, 6, 0, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 2, 5, 0, 4, 5, 0, var0, var0, false);
-            this.generateBox(param0, param2, 2, 6, 6, 4, 6, 6, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 2, 5, 6, 4, 5, 6, var0, var0, false);
-            this.generateBox(param0, param2, 0, 6, 2, 0, 6, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 5, 2, 0, 5, 4, var1, var1, false);
-            this.generateBox(param0, param2, 6, 6, 2, 6, 6, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 6, 5, 2, 6, 5, 4, var1, var1, false);
+            this.generateBox(param0, param3, 2, 6, 0, 4, 6, 0, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 2, 5, 0, 4, 5, 0, var0, var0, false);
+            this.generateBox(param0, param3, 2, 6, 6, 4, 6, 6, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 2, 5, 6, 4, 5, 6, var0, var0, false);
+            this.generateBox(param0, param3, 0, 6, 2, 0, 6, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 5, 2, 0, 5, 4, var1, var1, false);
+            this.generateBox(param0, param3, 6, 6, 2, 6, 6, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 6, 5, 2, 6, 5, 4, var1, var1, false);
 
             for(int var2 = 0; var2 <= 6; ++var2) {
                 for(int var3 = 0; var3 <= 6; ++var3) {
-                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var2, -1, var3, param2);
+                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var2, -1, var3, param3);
                 }
             }
 
@@ -1650,14 +1651,14 @@ public class NetherBridgePieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
-            this.generateBox(param0, param2, 0, 0, 0, 6, 1, 6, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 2, 0, 6, 10, 6, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 2, 0, 1, 8, 0, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 5, 2, 0, 6, 8, 0, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 0, 2, 1, 0, 8, 6, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 6, 2, 1, 6, 8, 6, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 1, 2, 6, 5, 8, 6, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+            this.generateBox(param0, param3, 0, 0, 0, 6, 1, 6, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 2, 0, 6, 10, 6, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 2, 0, 1, 8, 0, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 5, 2, 0, 6, 8, 0, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 0, 2, 1, 0, 8, 6, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 6, 2, 1, 6, 8, 6, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 1, 2, 6, 5, 8, 6, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
             BlockState var0 = Blocks.NETHER_BRICK_FENCE
                 .defaultBlockState()
                 .setValue(FenceBlock.WEST, Boolean.valueOf(true))
@@ -1666,22 +1667,22 @@ public class NetherBridgePieces {
                 .defaultBlockState()
                 .setValue(FenceBlock.NORTH, Boolean.valueOf(true))
                 .setValue(FenceBlock.SOUTH, Boolean.valueOf(true));
-            this.generateBox(param0, param2, 0, 3, 2, 0, 5, 4, var1, var1, false);
-            this.generateBox(param0, param2, 6, 3, 2, 6, 5, 2, var1, var1, false);
-            this.generateBox(param0, param2, 6, 3, 4, 6, 5, 4, var1, var1, false);
-            this.placeBlock(param0, Blocks.NETHER_BRICKS.defaultBlockState(), 5, 2, 5, param2);
-            this.generateBox(param0, param2, 4, 2, 5, 4, 3, 5, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 3, 2, 5, 3, 4, 5, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 2, 2, 5, 2, 5, 5, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 1, 2, 5, 1, 6, 5, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 1, 7, 1, 5, 7, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 6, 8, 2, 6, 8, 4, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
-            this.generateBox(param0, param2, 2, 6, 0, 4, 8, 0, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
-            this.generateBox(param0, param2, 2, 5, 0, 4, 5, 0, var0, var0, false);
+            this.generateBox(param0, param3, 0, 3, 2, 0, 5, 4, var1, var1, false);
+            this.generateBox(param0, param3, 6, 3, 2, 6, 5, 2, var1, var1, false);
+            this.generateBox(param0, param3, 6, 3, 4, 6, 5, 4, var1, var1, false);
+            this.placeBlock(param0, Blocks.NETHER_BRICKS.defaultBlockState(), 5, 2, 5, param3);
+            this.generateBox(param0, param3, 4, 2, 5, 4, 3, 5, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 3, 2, 5, 3, 4, 5, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 2, 2, 5, 2, 5, 5, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 1, 2, 5, 1, 6, 5, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 1, 7, 1, 5, 7, 4, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 6, 8, 2, 6, 8, 4, Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), false);
+            this.generateBox(param0, param3, 2, 6, 0, 4, 8, 0, Blocks.NETHER_BRICKS.defaultBlockState(), Blocks.NETHER_BRICKS.defaultBlockState(), false);
+            this.generateBox(param0, param3, 2, 5, 0, 4, 5, 0, var0, var0, false);
 
             for(int var2 = 0; var2 <= 6; ++var2) {
                 for(int var3 = 0; var3 <= 6; ++var3) {
-                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var2, -1, var3, param2);
+                    this.fillColumnDown(param0, Blocks.NETHER_BRICKS.defaultBlockState(), var2, -1, var3, param3);
                 }
             }
 

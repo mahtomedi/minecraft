@@ -1,6 +1,6 @@
 package net.minecraft.client.gui.screens.inventory;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.animal.horse.AbstractChestedHorse;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
@@ -31,7 +31,7 @@ public class HorseInventoryScreen extends AbstractContainerScreen<HorseInventory
 
     @Override
     protected void renderBg(float param0, int param1, int param2) {
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.minecraft.getTextureManager().bind(HORSE_INVENTORY_LOCATION);
         int var0 = (this.width - this.imageWidth) / 2;
         int var1 = (this.height - this.imageHeight) / 2;

@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity.layers;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.DolphinModel;
@@ -38,27 +38,27 @@ public class DolphinCarryingItemLayer extends RenderLayer<Dolphin, DolphinModel<
         if (!param1.isEmpty()) {
             Item var0 = param1.getItem();
             Block var1 = Block.byItem(var0);
-            GlStateManager.pushMatrix();
+            RenderSystem.pushMatrix();
             boolean var2 = this.itemRenderer.isGui3d(param1) && var1.getRenderLayer() == BlockLayer.TRANSLUCENT;
             if (var2) {
-                GlStateManager.depthMask(false);
+                RenderSystem.depthMask(false);
             }
 
             float var3 = 1.0F;
             float var4 = -1.0F;
             float var5 = Mth.abs(param0.xRot) / 60.0F;
             if (param0.xRot < 0.0F) {
-                GlStateManager.translatef(0.0F, 1.0F - var5 * 0.5F, -1.0F + var5 * 0.5F);
+                RenderSystem.translatef(0.0F, 1.0F - var5 * 0.5F, -1.0F + var5 * 0.5F);
             } else {
-                GlStateManager.translatef(0.0F, 1.0F + var5 * 0.8F, -1.0F + var5 * 0.2F);
+                RenderSystem.translatef(0.0F, 1.0F + var5 * 0.8F, -1.0F + var5 * 0.2F);
             }
 
             this.itemRenderer.renderWithMobState(param1, param0, ItemTransforms.TransformType.GROUND, false);
             if (var2) {
-                GlStateManager.depthMask(true);
+                RenderSystem.depthMask(true);
             }
 
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
         }
     }
 

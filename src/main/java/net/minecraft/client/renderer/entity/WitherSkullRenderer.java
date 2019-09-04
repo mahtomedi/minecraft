@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.SkullModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -33,28 +33,28 @@ public class WitherSkullRenderer extends EntityRenderer<WitherSkull> {
     }
 
     public void render(WitherSkull param0, double param1, double param2, double param3, float param4, float param5) {
-        GlStateManager.pushMatrix();
-        GlStateManager.disableCull();
+        RenderSystem.pushMatrix();
+        RenderSystem.disableCull();
         float var0 = this.rotlerp(param0.yRotO, param0.yRot, param5);
         float var1 = Mth.lerp(param5, param0.xRotO, param0.xRot);
-        GlStateManager.translatef((float)param1, (float)param2, (float)param3);
+        RenderSystem.translatef((float)param1, (float)param2, (float)param3);
         float var2 = 0.0625F;
-        GlStateManager.enableRescaleNormal();
-        GlStateManager.scalef(-1.0F, -1.0F, 1.0F);
-        GlStateManager.enableAlphaTest();
+        RenderSystem.enableRescaleNormal();
+        RenderSystem.scalef(-1.0F, -1.0F, 1.0F);
+        RenderSystem.enableAlphaTest();
         this.bindTexture(param0);
         if (this.solidRender) {
-            GlStateManager.enableColorMaterial();
-            GlStateManager.setupSolidRenderingTextureCombine(this.getTeamColor(param0));
+            RenderSystem.enableColorMaterial();
+            RenderSystem.setupSolidRenderingTextureCombine(this.getTeamColor(param0));
         }
 
         this.model.render(0.0F, 0.0F, 0.0F, var0, var1, 0.0625F);
         if (this.solidRender) {
-            GlStateManager.tearDownSolidRenderingTextureCombine();
-            GlStateManager.disableColorMaterial();
+            RenderSystem.tearDownSolidRenderingTextureCombine();
+            RenderSystem.disableColorMaterial();
         }
 
-        GlStateManager.popMatrix();
+        RenderSystem.popMatrix();
         super.render(param0, param1, param2, param3, param4, param5);
     }
 

@@ -14,8 +14,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.chunk.ChunkBiomeContainer;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.EmptyLevelChunk;
@@ -85,7 +84,9 @@ public class ClientChunkCache extends ChunkSource {
     }
 
     @Nullable
-    public LevelChunk replaceWithPacketData(Level param0, int param1, int param2, FriendlyByteBuf param3, CompoundTag param4, int param5, boolean param6) {
+    public LevelChunk replaceWithPacketData(
+        Level param0, int param1, int param2, @Nullable ChunkBiomeContainer param3, FriendlyByteBuf param4, CompoundTag param5, int param6
+    ) {
         if (!this.storage.inRange(param1, param2)) {
             LOGGER.warn("Ignoring chunk since it's not in the view range: {}, {}", param1, param2);
             return null;
@@ -93,12 +94,12 @@ public class ClientChunkCache extends ChunkSource {
             int var0 = this.storage.getIndex(param1, param2);
             LevelChunk var1 = this.storage.chunks.get(var0);
             if (!isValidChunk(var1, param1, param2)) {
-                if (!param6) {
+                if (param3 == null) {
                     LOGGER.warn("Ignoring chunk since we don't have complete data: {}, {}", param1, param2);
                     return null;
                 }
 
-                var1 = new LevelChunk(param0, new ChunkPos(param1, param2), new Biome[256]);
+                var1 = new LevelChunk(param0, new ChunkPos(param1, param2), param3);
                 var1.replaceWithPacketData(param3, param4, param5, param6);
                 this.storage.replace(var0, var1);
             } else {
@@ -157,11 +158,6 @@ public class ClientChunkCache extends ChunkSource {
     @Override
     public String gatherStats() {
         return "Client Chunk Cache: " + this.storage.chunks.length() + ", " + this.getLoadedChunksCount();
-    }
-
-    @Override
-    public ChunkGenerator<?> getGenerator() {
-        return null;
     }
 
     public int getLoadedChunksCount() {

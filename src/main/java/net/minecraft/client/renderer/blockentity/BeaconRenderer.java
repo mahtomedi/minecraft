@@ -1,6 +1,7 @@
 package net.minecraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -20,9 +21,9 @@ public class BeaconRenderer extends BlockEntityRenderer<BeaconBlockEntity> {
     }
 
     private void renderBeaconBeam(double param0, double param1, double param2, double param3, List<BeaconBlockEntity.BeaconBeamSection> param4, long param5) {
-        GlStateManager.alphaFunc(516, 0.1F);
+        RenderSystem.alphaFunc(516, 0.1F);
         this.bindTexture(BEAM_LOCATION);
-        GlStateManager.disableFog();
+        RenderSystem.disableFog();
         int var0 = 0;
 
         for(int var1 = 0; var1 < param4.size(); ++var1) {
@@ -31,7 +32,7 @@ public class BeaconRenderer extends BlockEntityRenderer<BeaconBlockEntity> {
             var0 += var2.getHeight();
         }
 
-        GlStateManager.enableFog();
+        RenderSystem.enableFog();
     }
 
     private static void renderBeaconBeam(double param0, double param1, double param2, double param3, long param4, int param5, int param6, float[] param7) {
@@ -52,17 +53,17 @@ public class BeaconRenderer extends BlockEntityRenderer<BeaconBlockEntity> {
         double param10
     ) {
         int var0 = param6 + param7;
-        GlStateManager.texParameter(3553, 10242, 10497);
-        GlStateManager.texParameter(3553, 10243, 10497);
-        GlStateManager.disableLighting();
-        GlStateManager.disableCull();
-        GlStateManager.disableBlend();
-        GlStateManager.depthMask(true);
-        GlStateManager.blendFuncSeparate(
+        RenderSystem.texParameter(3553, 10242, 10497);
+        RenderSystem.texParameter(3553, 10243, 10497);
+        RenderSystem.disableLighting();
+        RenderSystem.disableCull();
+        RenderSystem.disableBlend();
+        RenderSystem.depthMask(true);
+        RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO
         );
-        GlStateManager.pushMatrix();
-        GlStateManager.translated(param0 + 0.5, param1, param2 + 0.5);
+        RenderSystem.pushMatrix();
+        RenderSystem.translated(param0 + 0.5, param1, param2 + 0.5);
         Tesselator var1 = Tesselator.getInstance();
         BufferBuilder var2 = var1.getBuilder();
         double var3 = (double)Math.floorMod(param5, 40L) + param3;
@@ -71,8 +72,8 @@ public class BeaconRenderer extends BlockEntityRenderer<BeaconBlockEntity> {
         float var6 = param8[0];
         float var7 = param8[1];
         float var8 = param8[2];
-        GlStateManager.pushMatrix();
-        GlStateManager.rotated(var3 * 2.25 - 45.0, 0.0, 1.0, 0.0);
+        RenderSystem.pushMatrix();
+        RenderSystem.rotated(var3 * 2.25 - 45.0, 0.0, 1.0, 0.0);
         double var9 = 0.0;
         double var12 = 0.0;
         double var13 = -param9;
@@ -101,15 +102,15 @@ public class BeaconRenderer extends BlockEntityRenderer<BeaconBlockEntity> {
         var2.vertex(0.0, (double)param6, param9).uv(0.0, var19).color(var6, var7, var8, 1.0F).endVertex();
         var2.vertex(0.0, (double)var0, param9).uv(0.0, var20).color(var6, var7, var8, 1.0F).endVertex();
         var1.end();
-        GlStateManager.popMatrix();
-        GlStateManager.enableBlend();
-        GlStateManager.blendFuncSeparate(
+        RenderSystem.popMatrix();
+        RenderSystem.enableBlend();
+        RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.SRC_ALPHA,
             GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
             GlStateManager.SourceFactor.ONE,
             GlStateManager.DestFactor.ZERO
         );
-        GlStateManager.depthMask(false);
+        RenderSystem.depthMask(false);
         var9 = -param10;
         double var22 = -param10;
         var12 = -param10;
@@ -136,10 +137,10 @@ public class BeaconRenderer extends BlockEntityRenderer<BeaconBlockEntity> {
         var2.vertex(var9, (double)param6, var22).uv(0.0, var19).color(var6, var7, var8, 0.125F).endVertex();
         var2.vertex(var9, (double)var0, var22).uv(0.0, var20).color(var6, var7, var8, 0.125F).endVertex();
         var1.end();
-        GlStateManager.popMatrix();
-        GlStateManager.enableLighting();
-        GlStateManager.enableTexture();
-        GlStateManager.depthMask(true);
+        RenderSystem.popMatrix();
+        RenderSystem.enableLighting();
+        RenderSystem.enableTexture();
+        RenderSystem.depthMask(true);
     }
 
     public boolean shouldRenderOffScreen(BeaconBlockEntity param0) {

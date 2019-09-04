@@ -249,7 +249,7 @@ public class TeleportCommand {
             param2.getChunkSource().addRegionTicket(TicketType.POST_TELEPORT, var0, 1, param1.getId());
             param1.stopRiding();
             if (((ServerPlayer)param1).isSleeping()) {
-                ((ServerPlayer)param1).stopSleepInBed(true, true, false);
+                ((ServerPlayer)param1).stopSleepInBed(true, true);
             }
 
             if (param2 == param1.level) {

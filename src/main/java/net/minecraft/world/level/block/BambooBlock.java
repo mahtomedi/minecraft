@@ -4,6 +4,7 @@ import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockPlaceContext;
@@ -98,7 +99,7 @@ public class BambooBlock extends Block implements BonemealableBlock {
     }
 
     @Override
-    public void tick(BlockState param0, Level param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         if (!param0.canSurvive(param1, param2)) {
             param1.destroyBlock(param2, true);
         } else if (param0.getValue(STAGE) == 0) {
@@ -143,7 +144,7 @@ public class BambooBlock extends Block implements BonemealableBlock {
     }
 
     @Override
-    public void performBonemeal(Level param0, Random param1, BlockPos param2, BlockState param3) {
+    public void performBonemeal(ServerLevel param0, Random param1, BlockPos param2, BlockState param3) {
         int var0 = this.getHeightAboveUpToMax(param0, param2);
         int var1 = this.getHeightBelowUpToMax(param0, param2);
         int var2 = var0 + var1 + 1;

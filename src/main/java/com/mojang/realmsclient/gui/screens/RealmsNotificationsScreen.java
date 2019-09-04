@@ -1,6 +1,6 @@
 package com.mojang.realmsclient.gui.screens;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.exception.RealmsServiceException;
 import com.mojang.realmsclient.gui.RealmsDataFetcher;
@@ -109,34 +109,34 @@ public class RealmsNotificationsScreen extends RealmsScreen {
         int var5 = 0;
         if (hasUnreadNews) {
             RealmsScreen.bind("realms:textures/gui/realms/news_notification_mainscreen.png");
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            GlStateManager.pushMatrix();
-            GlStateManager.scalef(0.4F, 0.4F, 0.4F);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.pushMatrix();
+            RenderSystem.scalef(0.4F, 0.4F, 0.4F);
             RealmsScreen.blit((int)((double)(var3 + 2 - var5) * 2.5), (int)((double)var4 * 2.5), 0.0F, 0.0F, 40, 40, 40, 40);
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
             var5 += 14;
         }
 
         if (var0 != 0) {
             RealmsScreen.bind("realms:textures/gui/realms/invite_icon.png");
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            GlStateManager.pushMatrix();
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.pushMatrix();
             RealmsScreen.blit(var3 - var5, var4 - 6, 0.0F, 0.0F, 15, 25, 31, 25);
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
             var5 += 16;
         }
 
         if (trialAvailable) {
             RealmsScreen.bind("realms:textures/gui/realms/trial_icon.png");
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            GlStateManager.pushMatrix();
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.pushMatrix();
             int var6 = 0;
             if ((System.currentTimeMillis() / 800L & 1L) == 1L) {
                 var6 = 8;
             }
 
             RealmsScreen.blit(var3 + 4 - var5, var4 + 4, 0.0F, (float)var6, 8, 8, 8, 16);
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
         }
 
     }

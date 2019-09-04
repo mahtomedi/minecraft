@@ -22,6 +22,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.RailShape;
+import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.MineshaftFeature;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
@@ -317,8 +318,8 @@ public class MineShaftPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
-            if (this.edgesLiquid(param0, param2)) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+            if (this.edgesLiquid(param0, param3)) {
                 return false;
             } else {
                 int var0 = 0;
@@ -327,38 +328,38 @@ public class MineShaftPieces {
                 int var3 = 2;
                 int var4 = this.numSections * 5 - 1;
                 BlockState var5 = this.getPlanksBlock();
-                this.generateBox(param0, param2, 0, 0, 0, 2, 1, var4, CAVE_AIR, CAVE_AIR, false);
-                this.generateMaybeBox(param0, param2, param1, 0.8F, 0, 2, 0, 2, 2, var4, CAVE_AIR, CAVE_AIR, false, false);
+                this.generateBox(param0, param3, 0, 0, 0, 2, 1, var4, CAVE_AIR, CAVE_AIR, false);
+                this.generateMaybeBox(param0, param3, param2, 0.8F, 0, 2, 0, 2, 2, var4, CAVE_AIR, CAVE_AIR, false, false);
                 if (this.spiderCorridor) {
-                    this.generateMaybeBox(param0, param2, param1, 0.6F, 0, 0, 0, 2, 1, var4, Blocks.COBWEB.defaultBlockState(), CAVE_AIR, false, true);
+                    this.generateMaybeBox(param0, param3, param2, 0.6F, 0, 0, 0, 2, 1, var4, Blocks.COBWEB.defaultBlockState(), CAVE_AIR, false, true);
                 }
 
                 for(int var6 = 0; var6 < this.numSections; ++var6) {
                     int var7 = 2 + var6 * 5;
-                    this.placeSupport(param0, param2, 0, 0, var7, 2, 2, param1);
-                    this.placeCobWeb(param0, param2, param1, 0.1F, 0, 2, var7 - 1);
-                    this.placeCobWeb(param0, param2, param1, 0.1F, 2, 2, var7 - 1);
-                    this.placeCobWeb(param0, param2, param1, 0.1F, 0, 2, var7 + 1);
-                    this.placeCobWeb(param0, param2, param1, 0.1F, 2, 2, var7 + 1);
-                    this.placeCobWeb(param0, param2, param1, 0.05F, 0, 2, var7 - 2);
-                    this.placeCobWeb(param0, param2, param1, 0.05F, 2, 2, var7 - 2);
-                    this.placeCobWeb(param0, param2, param1, 0.05F, 0, 2, var7 + 2);
-                    this.placeCobWeb(param0, param2, param1, 0.05F, 2, 2, var7 + 2);
-                    if (param1.nextInt(100) == 0) {
-                        this.createChest(param0, param2, param1, 2, 0, var7 - 1, BuiltInLootTables.ABANDONED_MINESHAFT);
+                    this.placeSupport(param0, param3, 0, 0, var7, 2, 2, param2);
+                    this.placeCobWeb(param0, param3, param2, 0.1F, 0, 2, var7 - 1);
+                    this.placeCobWeb(param0, param3, param2, 0.1F, 2, 2, var7 - 1);
+                    this.placeCobWeb(param0, param3, param2, 0.1F, 0, 2, var7 + 1);
+                    this.placeCobWeb(param0, param3, param2, 0.1F, 2, 2, var7 + 1);
+                    this.placeCobWeb(param0, param3, param2, 0.05F, 0, 2, var7 - 2);
+                    this.placeCobWeb(param0, param3, param2, 0.05F, 2, 2, var7 - 2);
+                    this.placeCobWeb(param0, param3, param2, 0.05F, 0, 2, var7 + 2);
+                    this.placeCobWeb(param0, param3, param2, 0.05F, 2, 2, var7 + 2);
+                    if (param2.nextInt(100) == 0) {
+                        this.createChest(param0, param3, param2, 2, 0, var7 - 1, BuiltInLootTables.ABANDONED_MINESHAFT);
                     }
 
-                    if (param1.nextInt(100) == 0) {
-                        this.createChest(param0, param2, param1, 0, 0, var7 + 1, BuiltInLootTables.ABANDONED_MINESHAFT);
+                    if (param2.nextInt(100) == 0) {
+                        this.createChest(param0, param3, param2, 0, 0, var7 + 1, BuiltInLootTables.ABANDONED_MINESHAFT);
                     }
 
                     if (this.spiderCorridor && !this.hasPlacedSpider) {
                         int var8 = this.getWorldY(0);
-                        int var9 = var7 - 1 + param1.nextInt(3);
+                        int var9 = var7 - 1 + param2.nextInt(3);
                         int var10 = this.getWorldX(1, var9);
                         int var11 = this.getWorldZ(1, var9);
                         BlockPos var12 = new BlockPos(var10, var8, var11);
-                        if (param2.isInside(var12) && this.isInterior(param0, 1, 0, var9, param2)) {
+                        if (param3.isInside(var12) && this.isInterior(param0, 1, 0, var9, param3)) {
                             this.hasPlacedSpider = true;
                             param0.setBlock(var12, Blocks.SPAWNER.defaultBlockState(), 2);
                             BlockEntity var13 = param0.getBlockEntity(var12);
@@ -372,10 +373,10 @@ public class MineShaftPieces {
                 for(int var14 = 0; var14 <= 2; ++var14) {
                     for(int var15 = 0; var15 <= var4; ++var15) {
                         int var16 = -1;
-                        BlockState var17 = this.getBlock(param0, var14, -1, var15, param2);
-                        if (var17.isAir() && this.isInterior(param0, var14, -1, var15, param2)) {
+                        BlockState var17 = this.getBlock(param0, var14, -1, var15, param3);
+                        if (var17.isAir() && this.isInterior(param0, var14, -1, var15, param3)) {
                             int var18 = -1;
-                            this.placeBlock(param0, var5, var14, -1, var15, param2);
+                            this.placeBlock(param0, var5, var14, -1, var15, param3);
                         }
                     }
                 }
@@ -384,12 +385,12 @@ public class MineShaftPieces {
                     BlockState var19 = Blocks.RAIL.defaultBlockState().setValue(RailBlock.SHAPE, RailShape.NORTH_SOUTH);
 
                     for(int var20 = 0; var20 <= var4; ++var20) {
-                        BlockState var21 = this.getBlock(param0, 1, -1, var20, param2);
+                        BlockState var21 = this.getBlock(param0, 1, -1, var20, param3);
                         if (!var21.isAir() && var21.isSolidRender(param0, new BlockPos(this.getWorldX(1, var20), this.getWorldY(-1), this.getWorldZ(1, var20)))
                             )
                          {
-                            float var22 = this.isInterior(param0, 1, 0, var20, param2) ? 0.7F : 0.9F;
-                            this.maybeGenerateBlock(param0, param2, param1, var22, 1, 0, var20, var19);
+                            float var22 = this.isInterior(param0, 1, 0, var20, param3) ? 0.7F : 0.9F;
+                            this.maybeGenerateBlock(param0, param3, param2, var22, 1, 0, var20, var19);
                         }
                     }
                 }
@@ -581,15 +582,15 @@ public class MineShaftPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
-            if (this.edgesLiquid(param0, param2)) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+            if (this.edgesLiquid(param0, param3)) {
                 return false;
             } else {
                 BlockState var0 = this.getPlanksBlock();
                 if (this.isTwoFloored) {
                     this.generateBox(
                         param0,
-                        param2,
+                        param3,
                         this.boundingBox.x0 + 1,
                         this.boundingBox.y0,
                         this.boundingBox.z0,
@@ -602,7 +603,7 @@ public class MineShaftPieces {
                     );
                     this.generateBox(
                         param0,
-                        param2,
+                        param3,
                         this.boundingBox.x0,
                         this.boundingBox.y0,
                         this.boundingBox.z0 + 1,
@@ -615,7 +616,7 @@ public class MineShaftPieces {
                     );
                     this.generateBox(
                         param0,
-                        param2,
+                        param3,
                         this.boundingBox.x0 + 1,
                         this.boundingBox.y1 - 2,
                         this.boundingBox.z0,
@@ -628,7 +629,7 @@ public class MineShaftPieces {
                     );
                     this.generateBox(
                         param0,
-                        param2,
+                        param3,
                         this.boundingBox.x0,
                         this.boundingBox.y1 - 2,
                         this.boundingBox.z0 + 1,
@@ -641,7 +642,7 @@ public class MineShaftPieces {
                     );
                     this.generateBox(
                         param0,
-                        param2,
+                        param3,
                         this.boundingBox.x0 + 1,
                         this.boundingBox.y0 + 3,
                         this.boundingBox.z0 + 1,
@@ -655,7 +656,7 @@ public class MineShaftPieces {
                 } else {
                     this.generateBox(
                         param0,
-                        param2,
+                        param3,
                         this.boundingBox.x0 + 1,
                         this.boundingBox.y0,
                         this.boundingBox.z0,
@@ -668,7 +669,7 @@ public class MineShaftPieces {
                     );
                     this.generateBox(
                         param0,
-                        param2,
+                        param3,
                         this.boundingBox.x0,
                         this.boundingBox.y0,
                         this.boundingBox.z0 + 1,
@@ -681,16 +682,16 @@ public class MineShaftPieces {
                     );
                 }
 
-                this.placeSupportPillar(param0, param2, this.boundingBox.x0 + 1, this.boundingBox.y0, this.boundingBox.z0 + 1, this.boundingBox.y1);
-                this.placeSupportPillar(param0, param2, this.boundingBox.x0 + 1, this.boundingBox.y0, this.boundingBox.z1 - 1, this.boundingBox.y1);
-                this.placeSupportPillar(param0, param2, this.boundingBox.x1 - 1, this.boundingBox.y0, this.boundingBox.z0 + 1, this.boundingBox.y1);
-                this.placeSupportPillar(param0, param2, this.boundingBox.x1 - 1, this.boundingBox.y0, this.boundingBox.z1 - 1, this.boundingBox.y1);
+                this.placeSupportPillar(param0, param3, this.boundingBox.x0 + 1, this.boundingBox.y0, this.boundingBox.z0 + 1, this.boundingBox.y1);
+                this.placeSupportPillar(param0, param3, this.boundingBox.x0 + 1, this.boundingBox.y0, this.boundingBox.z1 - 1, this.boundingBox.y1);
+                this.placeSupportPillar(param0, param3, this.boundingBox.x1 - 1, this.boundingBox.y0, this.boundingBox.z0 + 1, this.boundingBox.y1);
+                this.placeSupportPillar(param0, param3, this.boundingBox.x1 - 1, this.boundingBox.y0, this.boundingBox.z1 - 1, this.boundingBox.y1);
 
                 for(int var1 = this.boundingBox.x0; var1 <= this.boundingBox.x1; ++var1) {
                     for(int var2 = this.boundingBox.z0; var2 <= this.boundingBox.z1; ++var2) {
-                        if (this.getBlock(param0, var1, this.boundingBox.y0 - 1, var2, param2).isAir()
-                            && this.isInterior(param0, var1, this.boundingBox.y0 - 1, var2, param2)) {
-                            this.placeBlock(param0, var0, var1, this.boundingBox.y0 - 1, var2, param2);
+                        if (this.getBlock(param0, var1, this.boundingBox.y0 - 1, var2, param3).isAir()
+                            && this.isInterior(param0, var1, this.boundingBox.y0 - 1, var2, param3)) {
+                            this.placeBlock(param0, var0, var1, this.boundingBox.y0 - 1, var2, param3);
                         }
                     }
                 }
@@ -875,13 +876,13 @@ public class MineShaftPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
-            if (this.edgesLiquid(param0, param2)) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+            if (this.edgesLiquid(param0, param3)) {
                 return false;
             } else {
                 this.generateBox(
                     param0,
-                    param2,
+                    param3,
                     this.boundingBox.x0,
                     this.boundingBox.y0,
                     this.boundingBox.z0,
@@ -894,7 +895,7 @@ public class MineShaftPieces {
                 );
                 this.generateBox(
                     param0,
-                    param2,
+                    param3,
                     this.boundingBox.x0,
                     this.boundingBox.y0 + 1,
                     this.boundingBox.z0,
@@ -907,12 +908,12 @@ public class MineShaftPieces {
                 );
 
                 for(BoundingBox var0 : this.childEntranceBoxes) {
-                    this.generateBox(param0, param2, var0.x0, var0.y1 - 2, var0.z0, var0.x1, var0.y1, var0.z1, CAVE_AIR, CAVE_AIR, false);
+                    this.generateBox(param0, param3, var0.x0, var0.y1 - 2, var0.z0, var0.x1, var0.y1, var0.z1, CAVE_AIR, CAVE_AIR, false);
                 }
 
                 this.generateUpperHalfSphere(
                     param0,
-                    param2,
+                    param3,
                     this.boundingBox.x0,
                     this.boundingBox.y0 + 4,
                     this.boundingBox.z0,
@@ -1016,15 +1017,15 @@ public class MineShaftPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
-            if (this.edgesLiquid(param0, param2)) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+            if (this.edgesLiquid(param0, param3)) {
                 return false;
             } else {
-                this.generateBox(param0, param2, 0, 5, 0, 2, 7, 1, CAVE_AIR, CAVE_AIR, false);
-                this.generateBox(param0, param2, 0, 0, 7, 2, 2, 8, CAVE_AIR, CAVE_AIR, false);
+                this.generateBox(param0, param3, 0, 5, 0, 2, 7, 1, CAVE_AIR, CAVE_AIR, false);
+                this.generateBox(param0, param3, 0, 0, 7, 2, 2, 8, CAVE_AIR, CAVE_AIR, false);
 
                 for(int var0 = 0; var0 < 5; ++var0) {
-                    this.generateBox(param0, param2, 0, 5 - var0 - (var0 < 4 ? 1 : 0), 2 + var0, 2, 7 - var0, 2 + var0, CAVE_AIR, CAVE_AIR, false);
+                    this.generateBox(param0, param3, 0, 5 - var0 - (var0 < 4 ? 1 : 0), 2 + var0, 2, 7 - var0, 2 + var0, CAVE_AIR, CAVE_AIR, false);
                 }
 
                 return true;

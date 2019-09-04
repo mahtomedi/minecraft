@@ -2,6 +2,7 @@ package net.minecraft.world.level.block;
 
 import java.util.Random;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -31,7 +32,7 @@ public class TallGrassBlock extends BushBlock implements BonemealableBlock {
     }
 
     @Override
-    public void performBonemeal(Level param0, Random param1, BlockPos param2, BlockState param3) {
+    public void performBonemeal(ServerLevel param0, Random param1, BlockPos param2, BlockState param3) {
         DoublePlantBlock var0 = (DoublePlantBlock)(this == Blocks.FERN ? Blocks.LARGE_FERN : Blocks.TALL_GRASS);
         if (var0.defaultBlockState().canSurvive(param0, param2) && param0.isEmptyBlock(param2.above())) {
             var0.placeAt(param0, param2, 2);

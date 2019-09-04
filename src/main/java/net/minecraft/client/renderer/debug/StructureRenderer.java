@@ -2,6 +2,7 @@ package net.minecraft.client.renderer.debug;
 
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -37,21 +38,21 @@ public class StructureRenderer implements DebugRenderer.SimpleDebugRenderer {
         double var3 = var0.getPosition().x;
         double var4 = var0.getPosition().y;
         double var5 = var0.getPosition().z;
-        GlStateManager.pushMatrix();
-        GlStateManager.enableBlend();
-        GlStateManager.blendFuncSeparate(
+        RenderSystem.pushMatrix();
+        RenderSystem.enableBlend();
+        RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.SRC_ALPHA,
             GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
             GlStateManager.SourceFactor.ONE,
             GlStateManager.DestFactor.ZERO
         );
-        GlStateManager.disableTexture();
-        GlStateManager.disableDepthTest();
+        RenderSystem.disableTexture();
+        RenderSystem.disableDepthTest();
         BlockPos var6 = new BlockPos(var0.getPosition().x, 0.0, var0.getPosition().z);
         Tesselator var7 = Tesselator.getInstance();
         BufferBuilder var8 = var7.getBuilder();
         var8.begin(3, DefaultVertexFormat.POSITION_COLOR);
-        GlStateManager.lineWidth(1.0F);
+        RenderSystem.lineWidth(1.0F);
         if (this.postMainBoxes.containsKey(var2)) {
             for(BoundingBox var9 : this.postMainBoxes.get(var2).values()) {
                 if (var6.closerThan(var9.getCenter(), 500.0)) {
@@ -112,9 +113,9 @@ public class StructureRenderer implements DebugRenderer.SimpleDebugRenderer {
         }
 
         var7.end();
-        GlStateManager.enableDepthTest();
-        GlStateManager.enableTexture();
-        GlStateManager.popMatrix();
+        RenderSystem.enableDepthTest();
+        RenderSystem.enableTexture();
+        RenderSystem.popMatrix();
     }
 
     public void addBoundingBox(BoundingBox param0, List<BoundingBox> param1, List<Boolean> param2, DimensionType param3) {

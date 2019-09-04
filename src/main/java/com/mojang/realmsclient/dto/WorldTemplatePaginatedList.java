@@ -1,10 +1,10 @@
 package com.mojang.realmsclient.dto;
 
+import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.realmsclient.util.JsonUtils;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -37,7 +37,7 @@ public class WorldTemplatePaginatedList extends ValueObject {
 
     public static WorldTemplatePaginatedList parse(String param0) {
         WorldTemplatePaginatedList var0 = new WorldTemplatePaginatedList();
-        var0.templates = new ArrayList<>();
+        var0.templates = Lists.newArrayList();
 
         try {
             JsonParser var1 = new JsonParser();

@@ -19,7 +19,7 @@ public class TopSolidHeightMapNoiseBasedDecorator extends FeatureDecorator<Decor
     public Stream<BlockPos> getPositions(
         LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, DecoratorNoiseCountFactor param3, BlockPos param4
     ) {
-        double var0 = Biome.BIOME_INFO_NOISE.getValue((double)param4.getX() / param3.noiseFactor, (double)param4.getZ() / param3.noiseFactor);
+        double var0 = Biome.BIOME_INFO_NOISE.getValue((double)param4.getX() / param3.noiseFactor, (double)param4.getZ() / param3.noiseFactor, false);
         int var1 = (int)Math.ceil((var0 + param3.noiseOffset) * (double)param3.noiseToCountRatio);
         return IntStream.range(0, var1).mapToObj(param4x -> {
             int var0x = param2.nextInt(16);

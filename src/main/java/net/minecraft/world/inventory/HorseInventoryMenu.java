@@ -82,8 +82,9 @@ public class HorseInventoryMenu extends AbstractContainerMenu {
         if (var1 != null && var1.hasItem()) {
             ItemStack var2 = var1.getItem();
             var0 = var2.copy();
-            if (param1 < this.horseContainer.getContainerSize()) {
-                if (!this.moveItemStackTo(var2, this.horseContainer.getContainerSize(), this.slots.size(), true)) {
+            int var3 = this.horseContainer.getContainerSize();
+            if (param1 < var3) {
+                if (!this.moveItemStackTo(var2, var3, this.slots.size(), true)) {
                     return ItemStack.EMPTY;
                 }
             } else if (this.getSlot(1).mayPlace(var2) && !this.getSlot(1).hasItem()) {
@@ -94,7 +95,21 @@ public class HorseInventoryMenu extends AbstractContainerMenu {
                 if (!this.moveItemStackTo(var2, 0, 1, false)) {
                     return ItemStack.EMPTY;
                 }
-            } else if (this.horseContainer.getContainerSize() <= 2 || !this.moveItemStackTo(var2, 2, this.horseContainer.getContainerSize(), false)) {
+            } else if (var3 <= 2 || !this.moveItemStackTo(var2, 2, var3, false)) {
+                int var5 = var3 + 27;
+                int var7 = var5 + 9;
+                if (param1 >= var5 && param1 < var7) {
+                    if (!this.moveItemStackTo(var2, var3, var5, false)) {
+                        return ItemStack.EMPTY;
+                    }
+                } else if (param1 >= var3 && param1 < var5) {
+                    if (!this.moveItemStackTo(var2, var5, var7, false)) {
+                        return ItemStack.EMPTY;
+                    }
+                } else if (!this.moveItemStackTo(var2, var5, var5, false)) {
+                    return ItemStack.EMPTY;
+                }
+
                 return ItemStack.EMPTY;
             }
 

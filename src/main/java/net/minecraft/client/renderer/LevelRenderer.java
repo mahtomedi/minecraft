@@ -6,11 +6,10 @@ import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.platform.MemoryTracker;
-import com.mojang.blaze3d.shaders.ProgramManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -42,7 +41,6 @@ import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import net.minecraft.client.renderer.chunk.CompiledChunk;
-import net.minecraft.client.renderer.chunk.ListedRenderChunk;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.client.renderer.chunk.RenderChunkFactory;
 import net.minecraft.client.renderer.chunk.VisGraph;
@@ -159,7 +157,7 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
     private Vec3 prevCloudColor = Vec3.ZERO;
     private CloudStatus prevCloudsType;
     private ChunkRenderDispatcher chunkRenderDispatcher;
-    private ChunkRenderList renderList;
+    private final ChunkRenderList renderList;
     private int lastViewDistance = -1;
     private int noEntityRenderFrames = 2;
     private int renderedEntities;
@@ -168,8 +166,7 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
     private FrustumData capturedFrustum;
     private final Vector4f[] frustumPoints = new Vector4f[8];
     private final Vector3d frustumPos = new Vector3d(0.0, 0.0, 0.0);
-    private boolean usingVbo;
-    private RenderChunkFactory renderChunkFactory;
+    private final RenderChunkFactory renderChunkFactory;
     private double xTransparentOld;
     private double yTransparentOld;
     private double zTransparentOld;
@@ -180,15 +177,8 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
         this.minecraft = param0;
         this.entityRenderDispatcher = param0.getEntityRenderDispatcher();
         this.textureManager = param0.getTextureManager();
-        this.usingVbo = GLX.useVbo();
-        if (this.usingVbo) {
-            this.renderList = new VboRenderList();
-            this.renderChunkFactory = RenderChunk::new;
-        } else {
-            this.renderList = new OffsettedRenderList();
-            this.renderChunkFactory = ListedRenderChunk::new;
-        }
-
+        this.renderList = new ChunkRenderList();
+        this.renderChunkFactory = RenderChunk::new;
         this.skyFormat = new VertexFormat();
         this.skyFormat.addElement(new VertexFormatElement(0, VertexFormatElement.Type.FLOAT, VertexFormatElement.Usage.POSITION, 3));
         this.createStars();
@@ -207,9 +197,9 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
     @Override
     public void onResourceManagerReload(ResourceManager param0) {
         this.textureManager.bind(FORCEFIELD_LOCATION);
-        GlStateManager.texParameter(3553, 10242, 10497);
-        GlStateManager.texParameter(3553, 10243, 10497);
-        GlStateManager.bindTexture(0);
+        RenderSystem.texParameter(3553, 10242, 10497);
+        RenderSystem.texParameter(3553, 10243, 10497);
+        RenderSystem.bindTexture(0);
         this.setupBreakingTextureSprites();
         this.initOutline();
     }
@@ -229,33 +219,24 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
     }
 
     public void initOutline() {
-        if (GLX.usePostProcess) {
-            if (ProgramManager.getInstance() == null) {
-                ProgramManager.createInstance();
-            }
+        if (this.entityEffect != null) {
+            this.entityEffect.close();
+        }
 
-            if (this.entityEffect != null) {
-                this.entityEffect.close();
-            }
+        ResourceLocation var0 = new ResourceLocation("shaders/post/entity_outline.json");
 
-            ResourceLocation var0 = new ResourceLocation("shaders/post/entity_outline.json");
-
-            try {
-                this.entityEffect = new PostChain(
-                    this.minecraft.getTextureManager(), this.minecraft.getResourceManager(), this.minecraft.getMainRenderTarget(), var0
-                );
-                this.entityEffect.resize(this.minecraft.window.getWidth(), this.minecraft.window.getHeight());
-                this.entityTarget = this.entityEffect.getTempTarget("final");
-            } catch (IOException var3) {
-                LOGGER.warn("Failed to load shader: {}", var0, var3);
-                this.entityEffect = null;
-                this.entityTarget = null;
-            } catch (JsonSyntaxException var4) {
-                LOGGER.warn("Failed to load shader: {}", var0, var4);
-                this.entityEffect = null;
-                this.entityTarget = null;
-            }
-        } else {
+        try {
+            this.entityEffect = new PostChain(
+                this.minecraft.getTextureManager(), this.minecraft.getResourceManager(), this.minecraft.getMainRenderTarget(), var0
+            );
+            this.entityEffect.resize(this.minecraft.window.getWidth(), this.minecraft.window.getHeight());
+            this.entityTarget = this.entityEffect.getTempTarget("final");
+        } catch (IOException var3) {
+            LOGGER.warn("Failed to load shader: {}", var0, var3);
+            this.entityEffect = null;
+            this.entityTarget = null;
+        } catch (JsonSyntaxException var4) {
+            LOGGER.warn("Failed to load shader: {}", var0, var4);
             this.entityEffect = null;
             this.entityTarget = null;
         }
@@ -264,15 +245,15 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
 
     public void doEntityOutline() {
         if (this.shouldShowEntityOutlines()) {
-            GlStateManager.enableBlend();
-            GlStateManager.blendFuncSeparate(
+            RenderSystem.enableBlend();
+            RenderSystem.blendFuncSeparate(
                 GlStateManager.SourceFactor.SRC_ALPHA,
                 GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
                 GlStateManager.SourceFactor.ZERO,
                 GlStateManager.DestFactor.ONE
             );
             this.entityTarget.blitToScreen(this.minecraft.window.getWidth(), this.minecraft.window.getHeight(), false);
-            GlStateManager.disableBlend();
+            RenderSystem.disableBlend();
         }
 
     }
@@ -293,20 +274,11 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
             this.darkList = -1;
         }
 
-        if (this.usingVbo) {
-            this.darkBuffer = new VertexBuffer(this.skyFormat);
-            this.drawSkyHemisphere(var1, -16.0F, true);
-            var1.end();
-            var1.clear();
-            this.darkBuffer.upload(var1.getBuffer());
-        } else {
-            this.darkList = MemoryTracker.genLists(1);
-            GlStateManager.newList(this.darkList, 4864);
-            this.drawSkyHemisphere(var1, -16.0F, true);
-            var0.end();
-            GlStateManager.endList();
-        }
-
+        this.darkBuffer = new VertexBuffer(this.skyFormat);
+        this.drawSkyHemisphere(var1, -16.0F, true);
+        var1.end();
+        var1.clear();
+        this.darkBuffer.upload(var1.getBuffer());
     }
 
     private void createLightSky() {
@@ -321,20 +293,11 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
             this.skyList = -1;
         }
 
-        if (this.usingVbo) {
-            this.skyBuffer = new VertexBuffer(this.skyFormat);
-            this.drawSkyHemisphere(var1, 16.0F, false);
-            var1.end();
-            var1.clear();
-            this.skyBuffer.upload(var1.getBuffer());
-        } else {
-            this.skyList = MemoryTracker.genLists(1);
-            GlStateManager.newList(this.skyList, 4864);
-            this.drawSkyHemisphere(var1, 16.0F, false);
-            var0.end();
-            GlStateManager.endList();
-        }
-
+        this.skyBuffer = new VertexBuffer(this.skyFormat);
+        this.drawSkyHemisphere(var1, 16.0F, false);
+        var1.end();
+        var1.clear();
+        this.skyBuffer.upload(var1.getBuffer());
     }
 
     private void drawSkyHemisphere(BufferBuilder param0, float param1, boolean param2) {
@@ -372,22 +335,11 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
             this.starList = -1;
         }
 
-        if (this.usingVbo) {
-            this.starBuffer = new VertexBuffer(this.skyFormat);
-            this.drawStars(var1);
-            var1.end();
-            var1.clear();
-            this.starBuffer.upload(var1.getBuffer());
-        } else {
-            this.starList = MemoryTracker.genLists(1);
-            GlStateManager.pushMatrix();
-            GlStateManager.newList(this.starList, 4864);
-            this.drawStars(var1);
-            var0.end();
-            GlStateManager.endList();
-            GlStateManager.popMatrix();
-        }
-
+        this.starBuffer = new VertexBuffer(this.skyFormat);
+        this.drawStars(var1);
+        var1.end();
+        var1.clear();
+        this.starBuffer.upload(var1.getBuffer());
     }
 
     private void drawStars(BufferBuilder param0) {
@@ -475,22 +427,6 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
             this.generateClouds = true;
             LeavesBlock.setFancy(this.minecraft.options.fancyGraphics);
             this.lastViewDistance = this.minecraft.options.renderDistance;
-            boolean var0 = this.usingVbo;
-            this.usingVbo = GLX.useVbo();
-            if (var0 && !this.usingVbo) {
-                this.renderList = new OffsettedRenderList();
-                this.renderChunkFactory = ListedRenderChunk::new;
-            } else if (!var0 && this.usingVbo) {
-                this.renderList = new VboRenderList();
-                this.renderChunkFactory = RenderChunk::new;
-            }
-
-            if (var0 != this.usingVbo) {
-                this.createStars();
-                this.createLightSky();
-                this.createDarkSky();
-            }
-
             if (this.viewArea != null) {
                 this.viewArea.releaseAllBuffers();
             }
@@ -502,9 +438,9 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
 
             this.viewArea = new ViewArea(this.level, this.minecraft.options.renderDistance, this, this.renderChunkFactory);
             if (this.level != null) {
-                Entity var1 = this.minecraft.getCameraEntity();
-                if (var1 != null) {
-                    this.viewArea.repositionCamera(var1.x, var1.z);
+                Entity var0 = this.minecraft.getCameraEntity();
+                if (var0 != null) {
+                    this.viewArea.repositionCamera(var0.x, var0.z);
                 }
             }
 
@@ -519,12 +455,10 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
 
     public void resize(int param0, int param1) {
         this.needsUpdate();
-        if (GLX.usePostProcess) {
-            if (this.entityEffect != null) {
-                this.entityEffect.resize(param0, param1);
-            }
-
+        if (this.entityEffect != null) {
+            this.entityEffect.resize(param0, param1);
         }
+
     }
 
     public void prepare(Camera param0) {
@@ -585,8 +519,8 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
                 this.entityTarget.clear(Minecraft.ON_OSX);
                 this.hadRenderedEntityOutlines = !var6.isEmpty();
                 if (!var6.isEmpty()) {
-                    GlStateManager.depthFunc(519);
-                    GlStateManager.disableFog();
+                    RenderSystem.depthFunc(519);
+                    RenderSystem.disableFog();
                     this.entityTarget.bindWrite(false);
                     Lighting.turnOff();
                     this.entityRenderDispatcher.setSolidRendering(true);
@@ -597,16 +531,16 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
 
                     this.entityRenderDispatcher.setSolidRendering(false);
                     Lighting.turnOn();
-                    GlStateManager.depthMask(false);
+                    RenderSystem.depthMask(false);
                     this.entityEffect.process(param2);
-                    GlStateManager.enableLighting();
-                    GlStateManager.depthMask(true);
-                    GlStateManager.enableFog();
-                    GlStateManager.enableBlend();
-                    GlStateManager.enableColorMaterial();
-                    GlStateManager.depthFunc(515);
-                    GlStateManager.enableDepthTest();
-                    GlStateManager.enableAlphaTest();
+                    RenderSystem.enableLighting();
+                    RenderSystem.depthMask(true);
+                    RenderSystem.enableFog();
+                    RenderSystem.enableBlend();
+                    RenderSystem.enableColorMaterial();
+                    RenderSystem.depthFunc(515);
+                    RenderSystem.enableDepthTest();
+                    RenderSystem.enableAlphaTest();
                 }
 
                 this.minecraft.getMainRenderTarget().bindWrite(false);
@@ -914,34 +848,30 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
 
     private void renderSameAsLast(BlockLayer param0) {
         this.minecraft.gameRenderer.turnOnLightLayer();
-        if (GLX.useVbo()) {
-            GlStateManager.enableClientState(32884);
-            GLX.glClientActiveTexture(GLX.GL_TEXTURE0);
-            GlStateManager.enableClientState(32888);
-            GLX.glClientActiveTexture(GLX.GL_TEXTURE1);
-            GlStateManager.enableClientState(32888);
-            GLX.glClientActiveTexture(GLX.GL_TEXTURE0);
-            GlStateManager.enableClientState(32886);
-        }
-
+        RenderSystem.enableClientState(32884);
+        RenderSystem.glClientActiveTexture(33984);
+        RenderSystem.enableClientState(32888);
+        RenderSystem.glClientActiveTexture(33985);
+        RenderSystem.enableClientState(32888);
+        RenderSystem.glClientActiveTexture(33984);
+        RenderSystem.enableClientState(32886);
         this.renderList.render(param0);
-        if (GLX.useVbo()) {
-            for(VertexFormatElement var1 : DefaultVertexFormat.BLOCK.getElements()) {
-                VertexFormatElement.Usage var2 = var1.getUsage();
-                int var3 = var1.getIndex();
-                switch(var2) {
-                    case POSITION:
-                        GlStateManager.disableClientState(32884);
-                        break;
-                    case UV:
-                        GLX.glClientActiveTexture(GLX.GL_TEXTURE0 + var3);
-                        GlStateManager.disableClientState(32888);
-                        GLX.glClientActiveTexture(GLX.GL_TEXTURE0);
-                        break;
-                    case COLOR:
-                        GlStateManager.disableClientState(32886);
-                        GlStateManager.clearCurrentColor();
-                }
+
+        for(VertexFormatElement var1 : DefaultVertexFormat.BLOCK.getElements()) {
+            VertexFormatElement.Usage var2 = var1.getUsage();
+            int var3 = var1.getIndex();
+            switch(var2) {
+                case POSITION:
+                    RenderSystem.disableClientState(32884);
+                    break;
+                case UV:
+                    RenderSystem.glClientActiveTexture(33984 + var3);
+                    RenderSystem.disableClientState(32888);
+                    RenderSystem.glClientActiveTexture(33984);
+                    break;
+                case COLOR:
+                    RenderSystem.disableClientState(32886);
+                    RenderSystem.clearCurrentColor();
             }
         }
 
@@ -968,41 +898,41 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
     }
 
     private void renderEndSky() {
-        GlStateManager.disableFog();
-        GlStateManager.disableAlphaTest();
-        GlStateManager.enableBlend();
-        GlStateManager.blendFuncSeparate(
+        RenderSystem.disableFog();
+        RenderSystem.disableAlphaTest();
+        RenderSystem.enableBlend();
+        RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.SRC_ALPHA,
             GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
             GlStateManager.SourceFactor.ONE,
             GlStateManager.DestFactor.ZERO
         );
         Lighting.turnOff();
-        GlStateManager.depthMask(false);
+        RenderSystem.depthMask(false);
         this.textureManager.bind(END_SKY_LOCATION);
         Tesselator var0 = Tesselator.getInstance();
         BufferBuilder var1 = var0.getBuilder();
 
         for(int var2 = 0; var2 < 6; ++var2) {
-            GlStateManager.pushMatrix();
+            RenderSystem.pushMatrix();
             if (var2 == 1) {
-                GlStateManager.rotatef(90.0F, 1.0F, 0.0F, 0.0F);
+                RenderSystem.rotatef(90.0F, 1.0F, 0.0F, 0.0F);
             }
 
             if (var2 == 2) {
-                GlStateManager.rotatef(-90.0F, 1.0F, 0.0F, 0.0F);
+                RenderSystem.rotatef(-90.0F, 1.0F, 0.0F, 0.0F);
             }
 
             if (var2 == 3) {
-                GlStateManager.rotatef(180.0F, 1.0F, 0.0F, 0.0F);
+                RenderSystem.rotatef(180.0F, 1.0F, 0.0F, 0.0F);
             }
 
             if (var2 == 4) {
-                GlStateManager.rotatef(90.0F, 0.0F, 0.0F, 1.0F);
+                RenderSystem.rotatef(90.0F, 0.0F, 0.0F, 1.0F);
             }
 
             if (var2 == 5) {
-                GlStateManager.rotatef(-90.0F, 0.0F, 0.0F, 1.0F);
+                RenderSystem.rotatef(-90.0F, 0.0F, 0.0F, 1.0F);
             }
 
             var1.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
@@ -1011,45 +941,40 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
             var1.vertex(100.0, -100.0, 100.0).uv(16.0, 16.0).color(40, 40, 40, 255).endVertex();
             var1.vertex(100.0, -100.0, -100.0).uv(16.0, 0.0).color(40, 40, 40, 255).endVertex();
             var0.end();
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
         }
 
-        GlStateManager.depthMask(true);
-        GlStateManager.enableTexture();
-        GlStateManager.disableBlend();
-        GlStateManager.enableAlphaTest();
+        RenderSystem.depthMask(true);
+        RenderSystem.enableTexture();
+        RenderSystem.disableBlend();
+        RenderSystem.enableAlphaTest();
     }
 
     public void renderSky(float param0) {
         if (this.minecraft.level.dimension.getType() == DimensionType.THE_END) {
             this.renderEndSky();
         } else if (this.minecraft.level.dimension.isNaturalDimension()) {
-            GlStateManager.disableTexture();
+            RenderSystem.disableTexture();
             Vec3 var0 = this.level.getSkyColor(this.minecraft.gameRenderer.getMainCamera().getBlockPosition(), param0);
             float var1 = (float)var0.x;
             float var2 = (float)var0.y;
             float var3 = (float)var0.z;
-            GlStateManager.color3f(var1, var2, var3);
+            RenderSystem.color3f(var1, var2, var3);
             Tesselator var4 = Tesselator.getInstance();
             BufferBuilder var5 = var4.getBuilder();
-            GlStateManager.depthMask(false);
-            GlStateManager.enableFog();
-            GlStateManager.color3f(var1, var2, var3);
-            if (this.usingVbo) {
-                this.skyBuffer.bind();
-                GlStateManager.enableClientState(32884);
-                GlStateManager.vertexPointer(3, 5126, 12, 0);
-                this.skyBuffer.draw(7);
-                VertexBuffer.unbind();
-                GlStateManager.disableClientState(32884);
-            } else {
-                GlStateManager.callList(this.skyList);
-            }
-
-            GlStateManager.disableFog();
-            GlStateManager.disableAlphaTest();
-            GlStateManager.enableBlend();
-            GlStateManager.blendFuncSeparate(
+            RenderSystem.depthMask(false);
+            RenderSystem.enableFog();
+            RenderSystem.color3f(var1, var2, var3);
+            this.skyBuffer.bind();
+            RenderSystem.enableClientState(32884);
+            RenderSystem.vertexPointer(3, 5126, 12, 0);
+            this.skyBuffer.draw(7);
+            VertexBuffer.unbind();
+            RenderSystem.disableClientState(32884);
+            RenderSystem.disableFog();
+            RenderSystem.disableAlphaTest();
+            RenderSystem.enableBlend();
+            RenderSystem.blendFuncSeparate(
                 GlStateManager.SourceFactor.SRC_ALPHA,
                 GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
                 GlStateManager.SourceFactor.ONE,
@@ -1058,12 +983,12 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
             Lighting.turnOff();
             float[] var6 = this.level.dimension.getSunriseColor(this.level.getTimeOfDay(param0), param0);
             if (var6 != null) {
-                GlStateManager.disableTexture();
-                GlStateManager.shadeModel(7425);
-                GlStateManager.pushMatrix();
-                GlStateManager.rotatef(90.0F, 1.0F, 0.0F, 0.0F);
-                GlStateManager.rotatef(Mth.sin(this.level.getSunAngle(param0)) < 0.0F ? 180.0F : 0.0F, 0.0F, 0.0F, 1.0F);
-                GlStateManager.rotatef(90.0F, 0.0F, 0.0F, 1.0F);
+                RenderSystem.disableTexture();
+                RenderSystem.shadeModel(7425);
+                RenderSystem.pushMatrix();
+                RenderSystem.rotatef(90.0F, 1.0F, 0.0F, 0.0F);
+                RenderSystem.rotatef(Mth.sin(this.level.getSunAngle(param0)) < 0.0F ? 180.0F : 0.0F, 0.0F, 0.0F, 1.0F);
+                RenderSystem.rotatef(90.0F, 0.0F, 0.0F, 1.0F);
                 float var7 = var6[0];
                 float var8 = var6[1];
                 float var9 = var6[2];
@@ -1081,19 +1006,19 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
                 }
 
                 var4.end();
-                GlStateManager.popMatrix();
-                GlStateManager.shadeModel(7424);
+                RenderSystem.popMatrix();
+                RenderSystem.shadeModel(7424);
             }
 
-            GlStateManager.enableTexture();
-            GlStateManager.blendFuncSeparate(
+            RenderSystem.enableTexture();
+            RenderSystem.blendFuncSeparate(
                 GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO
             );
-            GlStateManager.pushMatrix();
+            RenderSystem.pushMatrix();
             float var15 = 1.0F - this.level.getRainLevel(param0);
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, var15);
-            GlStateManager.rotatef(-90.0F, 0.0F, 1.0F, 0.0F);
-            GlStateManager.rotatef(this.level.getTimeOfDay(param0) * 360.0F, 1.0F, 0.0F, 0.0F);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, var15);
+            RenderSystem.rotatef(-90.0F, 0.0F, 1.0F, 0.0F);
+            RenderSystem.rotatef(this.level.getTimeOfDay(param0) * 360.0F, 1.0F, 0.0F, 0.0F);
             float var16 = 30.0F;
             this.textureManager.bind(SUN_LOCATION);
             var5.begin(7, DefaultVertexFormat.POSITION_TEX);
@@ -1117,59 +1042,50 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
             var5.vertex((double)var16, -100.0, (double)(-var16)).uv((double)var20, (double)var21).endVertex();
             var5.vertex((double)(-var16), -100.0, (double)(-var16)).uv((double)var22, (double)var21).endVertex();
             var4.end();
-            GlStateManager.disableTexture();
+            RenderSystem.disableTexture();
             float var24 = this.level.getStarBrightness(param0) * var15;
             if (var24 > 0.0F) {
-                GlStateManager.color4f(var24, var24, var24, var24);
-                if (this.usingVbo) {
-                    this.starBuffer.bind();
-                    GlStateManager.enableClientState(32884);
-                    GlStateManager.vertexPointer(3, 5126, 12, 0);
-                    this.starBuffer.draw(7);
-                    VertexBuffer.unbind();
-                    GlStateManager.disableClientState(32884);
-                } else {
-                    GlStateManager.callList(this.starList);
-                }
+                RenderSystem.color4f(var24, var24, var24, var24);
+                this.starBuffer.bind();
+                RenderSystem.enableClientState(32884);
+                RenderSystem.vertexPointer(3, 5126, 12, 0);
+                this.starBuffer.draw(7);
+                VertexBuffer.unbind();
+                RenderSystem.disableClientState(32884);
             }
 
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            GlStateManager.disableBlend();
-            GlStateManager.enableAlphaTest();
-            GlStateManager.enableFog();
-            GlStateManager.popMatrix();
-            GlStateManager.disableTexture();
-            GlStateManager.color3f(0.0F, 0.0F, 0.0F);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.disableBlend();
+            RenderSystem.enableAlphaTest();
+            RenderSystem.enableFog();
+            RenderSystem.popMatrix();
+            RenderSystem.disableTexture();
+            RenderSystem.color3f(0.0F, 0.0F, 0.0F);
             double var25 = this.minecraft.player.getEyePosition(param0).y - this.level.getHorizonHeight();
             if (var25 < 0.0) {
-                GlStateManager.pushMatrix();
-                GlStateManager.translatef(0.0F, 12.0F, 0.0F);
-                if (this.usingVbo) {
-                    this.darkBuffer.bind();
-                    GlStateManager.enableClientState(32884);
-                    GlStateManager.vertexPointer(3, 5126, 12, 0);
-                    this.darkBuffer.draw(7);
-                    VertexBuffer.unbind();
-                    GlStateManager.disableClientState(32884);
-                } else {
-                    GlStateManager.callList(this.darkList);
-                }
-
-                GlStateManager.popMatrix();
+                RenderSystem.pushMatrix();
+                RenderSystem.translatef(0.0F, 12.0F, 0.0F);
+                this.darkBuffer.bind();
+                RenderSystem.enableClientState(32884);
+                RenderSystem.vertexPointer(3, 5126, 12, 0);
+                this.darkBuffer.draw(7);
+                VertexBuffer.unbind();
+                RenderSystem.disableClientState(32884);
+                RenderSystem.popMatrix();
             }
 
             if (this.level.dimension.hasGround()) {
-                GlStateManager.color3f(var1 * 0.2F + 0.04F, var2 * 0.2F + 0.04F, var3 * 0.6F + 0.1F);
+                RenderSystem.color3f(var1 * 0.2F + 0.04F, var2 * 0.2F + 0.04F, var3 * 0.6F + 0.1F);
             } else {
-                GlStateManager.color3f(var1, var2, var3);
+                RenderSystem.color3f(var1, var2, var3);
             }
 
-            GlStateManager.pushMatrix();
-            GlStateManager.translatef(0.0F, -((float)(var25 - 16.0)), 0.0F);
-            GlStateManager.callList(this.darkList);
-            GlStateManager.popMatrix();
-            GlStateManager.enableTexture();
-            GlStateManager.depthMask(true);
+            RenderSystem.pushMatrix();
+            RenderSystem.translatef(0.0F, -((float)(var25 - 16.0)), 0.0F);
+            RenderSystem.callList(this.darkList);
+            RenderSystem.popMatrix();
+            RenderSystem.enableTexture();
+            RenderSystem.depthMask(true);
         }
     }
 
@@ -1217,80 +1133,72 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
                     this.cloudList = -1;
                 }
 
-                if (this.usingVbo) {
-                    this.cloudBuffer = new VertexBuffer(DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
-                    this.buildClouds(var15, var4, var5, var6, var10);
-                    var15.end();
-                    var15.clear();
-                    this.cloudBuffer.upload(var15.getBuffer());
-                } else {
-                    this.cloudList = MemoryTracker.genLists(1);
-                    GlStateManager.newList(this.cloudList, 4864);
-                    this.buildClouds(var15, var4, var5, var6, var10);
-                    var14.end();
-                    GlStateManager.endList();
-                }
+                this.cloudBuffer = new VertexBuffer(DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
+                this.buildClouds(var15, var4, var5, var6, var10);
+                var15.end();
+                var15.clear();
+                this.cloudBuffer.upload(var15.getBuffer());
             }
 
-            GlStateManager.disableCull();
+            RenderSystem.disableCull();
             this.textureManager.bind(CLOUDS_LOCATION);
-            GlStateManager.enableBlend();
-            GlStateManager.blendFuncSeparate(
+            RenderSystem.enableBlend();
+            RenderSystem.blendFuncSeparate(
                 GlStateManager.SourceFactor.SRC_ALPHA,
                 GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
                 GlStateManager.SourceFactor.ONE,
                 GlStateManager.DestFactor.ZERO
             );
-            GlStateManager.pushMatrix();
-            GlStateManager.scalef(12.0F, 1.0F, 12.0F);
-            GlStateManager.translatef(-var7, var8, -var9);
-            if (this.usingVbo && this.cloudBuffer != null) {
+            RenderSystem.pushMatrix();
+            RenderSystem.scalef(12.0F, 1.0F, 12.0F);
+            RenderSystem.translatef(-var7, var8, -var9);
+            if (this.cloudBuffer != null) {
                 this.cloudBuffer.bind();
-                GlStateManager.enableClientState(32884);
-                GlStateManager.enableClientState(32888);
-                GLX.glClientActiveTexture(GLX.GL_TEXTURE0);
-                GlStateManager.enableClientState(32886);
-                GlStateManager.enableClientState(32885);
-                GlStateManager.vertexPointer(3, 5126, 28, 0);
-                GlStateManager.texCoordPointer(2, 5126, 28, 12);
-                GlStateManager.colorPointer(4, 5121, 28, 20);
-                GlStateManager.normalPointer(5120, 28, 24);
+                RenderSystem.enableClientState(32884);
+                RenderSystem.enableClientState(32888);
+                RenderSystem.glClientActiveTexture(33984);
+                RenderSystem.enableClientState(32886);
+                RenderSystem.enableClientState(32885);
+                RenderSystem.vertexPointer(3, 5126, 28, 0);
+                RenderSystem.texCoordPointer(2, 5126, 28, 12);
+                RenderSystem.colorPointer(4, 5121, 28, 20);
+                RenderSystem.normalPointer(5120, 28, 24);
                 int var16 = this.prevCloudsType == CloudStatus.FANCY ? 0 : 1;
 
                 for(int var17 = var16; var17 < 2; ++var17) {
                     if (var17 == 0) {
-                        GlStateManager.colorMask(false, false, false, false);
+                        RenderSystem.colorMask(false, false, false, false);
                     } else {
-                        GlStateManager.colorMask(true, true, true, true);
+                        RenderSystem.colorMask(true, true, true, true);
                     }
 
                     this.cloudBuffer.draw(7);
                 }
 
                 VertexBuffer.unbind();
-                GlStateManager.disableClientState(32884);
-                GlStateManager.disableClientState(32888);
-                GlStateManager.disableClientState(32886);
-                GlStateManager.disableClientState(32885);
+                RenderSystem.disableClientState(32884);
+                RenderSystem.disableClientState(32888);
+                RenderSystem.disableClientState(32886);
+                RenderSystem.disableClientState(32885);
             } else if (this.cloudList >= 0) {
                 int var18 = this.prevCloudsType == CloudStatus.FANCY ? 0 : 1;
 
                 for(int var19 = var18; var19 < 2; ++var19) {
                     if (var19 == 0) {
-                        GlStateManager.colorMask(false, false, false, false);
+                        RenderSystem.colorMask(false, false, false, false);
                     } else {
-                        GlStateManager.colorMask(true, true, true, true);
+                        RenderSystem.colorMask(true, true, true, true);
                     }
 
-                    GlStateManager.callList(this.cloudList);
+                    RenderSystem.callList(this.cloudList);
                 }
             }
 
-            GlStateManager.popMatrix();
-            GlStateManager.clearCurrentColor();
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            GlStateManager.disableBlend();
-            GlStateManager.enableCull();
+            RenderSystem.popMatrix();
+            RenderSystem.clearCurrentColor();
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.disableBlend();
+            RenderSystem.enableCull();
         }
     }
 
@@ -1543,23 +1451,23 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
             double var5 = param0.getPosition().x;
             double var6 = param0.getPosition().y;
             double var7 = param0.getPosition().z;
-            GlStateManager.enableBlend();
-            GlStateManager.blendFuncSeparate(
+            RenderSystem.enableBlend();
+            RenderSystem.blendFuncSeparate(
                 GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO
             );
             this.textureManager.bind(FORCEFIELD_LOCATION);
-            GlStateManager.depthMask(false);
-            GlStateManager.pushMatrix();
+            RenderSystem.depthMask(false);
+            RenderSystem.pushMatrix();
             int var8 = var2.getStatus().getColor();
             float var9 = (float)(var8 >> 16 & 0xFF) / 255.0F;
             float var10 = (float)(var8 >> 8 & 0xFF) / 255.0F;
             float var11 = (float)(var8 & 0xFF) / 255.0F;
-            GlStateManager.color4f(var9, var10, var11, (float)var4);
-            GlStateManager.polygonOffset(-3.0F, -3.0F);
-            GlStateManager.enablePolygonOffset();
-            GlStateManager.alphaFunc(516, 0.1F);
-            GlStateManager.enableAlphaTest();
-            GlStateManager.disableCull();
+            RenderSystem.color4f(var9, var10, var11, (float)var4);
+            RenderSystem.polygonOffset(-3.0F, -3.0F);
+            RenderSystem.enablePolygonOffset();
+            RenderSystem.alphaFunc(516, 0.1F);
+            RenderSystem.enableAlphaTest();
+            RenderSystem.disableCull();
             float var12 = (float)(Util.getMillis() % 3000L) / 3000.0F;
             float var13 = 0.0F;
             float var14 = 0.0F;
@@ -1628,37 +1536,37 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
 
             var0.end();
             var1.offset(0.0, 0.0, 0.0);
-            GlStateManager.enableCull();
-            GlStateManager.disableAlphaTest();
-            GlStateManager.polygonOffset(0.0F, 0.0F);
-            GlStateManager.disablePolygonOffset();
-            GlStateManager.enableAlphaTest();
-            GlStateManager.disableBlend();
-            GlStateManager.popMatrix();
-            GlStateManager.depthMask(true);
+            RenderSystem.enableCull();
+            RenderSystem.disableAlphaTest();
+            RenderSystem.polygonOffset(0.0F, 0.0F);
+            RenderSystem.disablePolygonOffset();
+            RenderSystem.enableAlphaTest();
+            RenderSystem.disableBlend();
+            RenderSystem.popMatrix();
+            RenderSystem.depthMask(true);
         }
     }
 
     private void setupDestroyState() {
-        GlStateManager.blendFuncSeparate(
+        RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.DST_COLOR, GlStateManager.DestFactor.SRC_COLOR, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO
         );
-        GlStateManager.enableBlend();
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 0.5F);
-        GlStateManager.polygonOffset(-1.0F, -10.0F);
-        GlStateManager.enablePolygonOffset();
-        GlStateManager.alphaFunc(516, 0.1F);
-        GlStateManager.enableAlphaTest();
-        GlStateManager.pushMatrix();
+        RenderSystem.enableBlend();
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 0.5F);
+        RenderSystem.polygonOffset(-1.0F, -10.0F);
+        RenderSystem.enablePolygonOffset();
+        RenderSystem.alphaFunc(516, 0.1F);
+        RenderSystem.enableAlphaTest();
+        RenderSystem.pushMatrix();
     }
 
     private void restoreDestroyState() {
-        GlStateManager.disableAlphaTest();
-        GlStateManager.polygonOffset(0.0F, 0.0F);
-        GlStateManager.disablePolygonOffset();
-        GlStateManager.enableAlphaTest();
-        GlStateManager.depthMask(true);
-        GlStateManager.popMatrix();
+        RenderSystem.disableAlphaTest();
+        RenderSystem.polygonOffset(0.0F, 0.0F);
+        RenderSystem.disablePolygonOffset();
+        RenderSystem.enableAlphaTest();
+        RenderSystem.depthMask(true);
+        RenderSystem.popMatrix();
     }
 
     public void renderDestroyAnimation(Tesselator param0, BufferBuilder param1, Camera param2) {
@@ -1710,19 +1618,19 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
             BlockPos var0 = ((BlockHitResult)param1).getBlockPos();
             BlockState var1 = this.level.getBlockState(var0);
             if (!var1.isAir() && this.level.getWorldBorder().isWithinBounds(var0)) {
-                GlStateManager.enableBlend();
-                GlStateManager.blendFuncSeparate(
+                RenderSystem.enableBlend();
+                RenderSystem.blendFuncSeparate(
                     GlStateManager.SourceFactor.SRC_ALPHA,
                     GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
                     GlStateManager.SourceFactor.ONE,
                     GlStateManager.DestFactor.ZERO
                 );
-                GlStateManager.lineWidth(Math.max(2.5F, (float)this.minecraft.window.getWidth() / 1920.0F * 2.5F));
-                GlStateManager.disableTexture();
-                GlStateManager.depthMask(false);
-                GlStateManager.matrixMode(5889);
-                GlStateManager.pushMatrix();
-                GlStateManager.scalef(1.0F, 1.0F, 0.999F);
+                RenderSystem.lineWidth(Math.max(2.5F, (float)this.minecraft.window.getWidth() / 1920.0F * 2.5F));
+                RenderSystem.disableTexture();
+                RenderSystem.depthMask(false);
+                RenderSystem.matrixMode(5889);
+                RenderSystem.pushMatrix();
+                RenderSystem.scalef(1.0F, 1.0F, 0.999F);
                 double var2 = param0.getPosition().x;
                 double var3 = param0.getPosition().y;
                 double var4 = param0.getPosition().z;
@@ -1736,11 +1644,11 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
                     0.0F,
                     0.4F
                 );
-                GlStateManager.popMatrix();
-                GlStateManager.matrixMode(5888);
-                GlStateManager.depthMask(true);
-                GlStateManager.enableTexture();
-                GlStateManager.disableBlend();
+                RenderSystem.popMatrix();
+                RenderSystem.matrixMode(5888);
+                RenderSystem.depthMask(true);
+                RenderSystem.enableTexture();
+                RenderSystem.disableBlend();
             }
         }
 
@@ -2415,6 +2323,20 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
             case 2008:
                 this.level
                     .addParticle(ParticleTypes.EXPLOSION, (double)param2.getX() + 0.5, (double)param2.getY() + 0.5, (double)param2.getZ() + 0.5, 0.0, 0.0, 0.0);
+                break;
+            case 2009:
+                for(int var62 = 0; var62 < 8; ++var62) {
+                    this.level
+                        .addParticle(
+                            ParticleTypes.CLOUD,
+                            (double)param2.getX() + Math.random(),
+                            (double)param2.getY() + 1.2,
+                            (double)param2.getZ() + Math.random(),
+                            0.0,
+                            0.0,
+                            0.0
+                        );
+                }
                 break;
             case 3000:
                 this.level

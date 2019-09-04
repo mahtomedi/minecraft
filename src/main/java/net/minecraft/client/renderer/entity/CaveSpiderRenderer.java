@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.monster.CaveSpider;
 import net.minecraftforge.api.distmarker.Dist;
@@ -16,7 +16,7 @@ public class CaveSpiderRenderer extends SpiderRenderer<CaveSpider> {
     }
 
     protected void scale(CaveSpider param0, float param1) {
-        GlStateManager.scalef(0.7F, 0.7F, 0.7F);
+        RenderSystem.scalef(0.7F, 0.7F, 0.7F);
     }
 
     protected ResourceLocation getTextureLocation(CaveSpider param0) {

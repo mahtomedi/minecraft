@@ -1,7 +1,7 @@
 package net.minecraft.client.renderer.texture;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.TextureUtil;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -26,8 +26,8 @@ public abstract class AbstractTexture implements TextureObject {
             var1 = 9728;
         }
 
-        GlStateManager.texParameter(3553, 10241, var0);
-        GlStateManager.texParameter(3553, 10240, var1);
+        RenderSystem.texParameter(3553, 10241, var0);
+        RenderSystem.texParameter(3553, 10240, var1);
     }
 
     @Override

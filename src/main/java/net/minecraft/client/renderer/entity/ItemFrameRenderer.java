@@ -1,7 +1,7 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.systems.RenderSystem;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
@@ -33,47 +33,47 @@ public class ItemFrameRenderer extends EntityRenderer<ItemFrame> {
     }
 
     public void render(ItemFrame param0, double param1, double param2, double param3, float param4, float param5) {
-        GlStateManager.pushMatrix();
+        RenderSystem.pushMatrix();
         BlockPos var0 = param0.getPos();
         double var1 = (double)var0.getX() - param0.x + param1;
         double var2 = (double)var0.getY() - param0.y + param2;
         double var3 = (double)var0.getZ() - param0.z + param3;
-        GlStateManager.translated(var1 + 0.5, var2 + 0.5, var3 + 0.5);
-        GlStateManager.rotatef(param0.xRot, 1.0F, 0.0F, 0.0F);
-        GlStateManager.rotatef(180.0F - param0.yRot, 0.0F, 1.0F, 0.0F);
+        RenderSystem.translated(var1 + 0.5, var2 + 0.5, var3 + 0.5);
+        RenderSystem.rotatef(param0.xRot, 1.0F, 0.0F, 0.0F);
+        RenderSystem.rotatef(180.0F - param0.yRot, 0.0F, 1.0F, 0.0F);
         this.entityRenderDispatcher.textureManager.bind(TextureAtlas.LOCATION_BLOCKS);
         BlockRenderDispatcher var4 = this.minecraft.getBlockRenderer();
         ModelManager var5 = var4.getBlockModelShaper().getModelManager();
         ModelResourceLocation var6 = param0.getItem().getItem() == Items.FILLED_MAP ? MAP_FRAME_LOCATION : FRAME_LOCATION;
-        GlStateManager.pushMatrix();
-        GlStateManager.translatef(-0.5F, -0.5F, -0.5F);
+        RenderSystem.pushMatrix();
+        RenderSystem.translatef(-0.5F, -0.5F, -0.5F);
         if (this.solidRender) {
-            GlStateManager.enableColorMaterial();
-            GlStateManager.setupSolidRenderingTextureCombine(this.getTeamColor(param0));
+            RenderSystem.enableColorMaterial();
+            RenderSystem.setupSolidRenderingTextureCombine(this.getTeamColor(param0));
         }
 
         var4.getModelRenderer().renderModel(var5.getModel(var6), 1.0F, 1.0F, 1.0F, 1.0F);
         if (this.solidRender) {
-            GlStateManager.tearDownSolidRenderingTextureCombine();
-            GlStateManager.disableColorMaterial();
+            RenderSystem.tearDownSolidRenderingTextureCombine();
+            RenderSystem.disableColorMaterial();
         }
 
-        GlStateManager.popMatrix();
-        GlStateManager.enableLighting();
+        RenderSystem.popMatrix();
+        RenderSystem.enableLighting();
         if (param0.getItem().getItem() == Items.FILLED_MAP) {
-            GlStateManager.pushLightingAttributes();
+            RenderSystem.pushLightingAttributes();
             Lighting.turnOn();
         }
 
-        GlStateManager.translatef(0.0F, 0.0F, 0.4375F);
+        RenderSystem.translatef(0.0F, 0.0F, 0.4375F);
         this.drawItem(param0);
         if (param0.getItem().getItem() == Items.FILLED_MAP) {
             Lighting.turnOff();
-            GlStateManager.popAttributes();
+            RenderSystem.popAttributes();
         }
 
-        GlStateManager.enableLighting();
-        GlStateManager.popMatrix();
+        RenderSystem.enableLighting();
+        RenderSystem.popMatrix();
         this.renderName(
             param0,
             param1 + (double)((float)param0.getDirection().getStepX() * 0.3F),
@@ -90,28 +90,28 @@ public class ItemFrameRenderer extends EntityRenderer<ItemFrame> {
     private void drawItem(ItemFrame param0) {
         ItemStack var0 = param0.getItem();
         if (!var0.isEmpty()) {
-            GlStateManager.pushMatrix();
+            RenderSystem.pushMatrix();
             boolean var1 = var0.getItem() == Items.FILLED_MAP;
             int var2 = var1 ? param0.getRotation() % 4 * 2 : param0.getRotation();
-            GlStateManager.rotatef((float)var2 * 360.0F / 8.0F, 0.0F, 0.0F, 1.0F);
+            RenderSystem.rotatef((float)var2 * 360.0F / 8.0F, 0.0F, 0.0F, 1.0F);
             if (var1) {
-                GlStateManager.disableLighting();
+                RenderSystem.disableLighting();
                 this.entityRenderDispatcher.textureManager.bind(MAP_BACKGROUND_LOCATION);
-                GlStateManager.rotatef(180.0F, 0.0F, 0.0F, 1.0F);
+                RenderSystem.rotatef(180.0F, 0.0F, 0.0F, 1.0F);
                 float var3 = 0.0078125F;
-                GlStateManager.scalef(0.0078125F, 0.0078125F, 0.0078125F);
-                GlStateManager.translatef(-64.0F, -64.0F, 0.0F);
+                RenderSystem.scalef(0.0078125F, 0.0078125F, 0.0078125F);
+                RenderSystem.translatef(-64.0F, -64.0F, 0.0F);
                 MapItemSavedData var4 = MapItem.getOrCreateSavedData(var0, param0.level);
-                GlStateManager.translatef(0.0F, 0.0F, -1.0F);
+                RenderSystem.translatef(0.0F, 0.0F, -1.0F);
                 if (var4 != null) {
                     this.minecraft.gameRenderer.getMapRenderer().render(var4, true);
                 }
             } else {
-                GlStateManager.scalef(0.5F, 0.5F, 0.5F);
+                RenderSystem.scalef(0.5F, 0.5F, 0.5F);
                 this.itemRenderer.renderStatic(var0, ItemTransforms.TransformType.FIXED);
             }
 
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
         }
     }
 
@@ -121,7 +121,7 @@ public class ItemFrameRenderer extends EntityRenderer<ItemFrame> {
             && param0.getItem().hasCustomHoverName()
             && this.entityRenderDispatcher.crosshairPickEntity == param0) {
             double var0 = param0.distanceToSqr(this.entityRenderDispatcher.camera.getPosition());
-            float var1 = param0.isVisuallySneaking() ? 32.0F : 64.0F;
+            float var1 = param0.isDiscrete() ? 32.0F : 64.0F;
             if (!(var0 >= (double)(var1 * var1))) {
                 String var2 = param0.getItem().getHoverName().getColoredString();
                 this.renderNameTag(param0, var2, param1, param2, param3, 64);

@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.VillagerModel;
 import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
 import net.minecraft.client.renderer.entity.layers.VillagerTradeItemLayer;
@@ -25,6 +25,6 @@ public class WanderingTraderRenderer extends MobRenderer<WanderingTrader, Villag
 
     protected void scale(WanderingTrader param0, float param1) {
         float var0 = 0.9375F;
-        GlStateManager.scalef(0.9375F, 0.9375F, 0.9375F);
+        RenderSystem.scalef(0.9375F, 0.9375F, 0.9375F);
     }
 }

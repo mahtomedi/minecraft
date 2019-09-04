@@ -2,6 +2,7 @@ package net.minecraft.client.gui.components;
 
 import com.google.common.base.Predicates;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -461,18 +462,18 @@ public class EditBox extends AbstractWidget implements Widget, GuiEventListener 
 
         Tesselator var2 = Tesselator.getInstance();
         BufferBuilder var3 = var2.getBuilder();
-        GlStateManager.color4f(0.0F, 0.0F, 255.0F, 255.0F);
-        GlStateManager.disableTexture();
-        GlStateManager.enableColorLogicOp();
-        GlStateManager.logicOp(GlStateManager.LogicOp.OR_REVERSE);
+        RenderSystem.color4f(0.0F, 0.0F, 255.0F, 255.0F);
+        RenderSystem.disableTexture();
+        RenderSystem.enableColorLogicOp();
+        RenderSystem.logicOp(GlStateManager.LogicOp.OR_REVERSE);
         var3.begin(7, DefaultVertexFormat.POSITION);
         var3.vertex((double)param0, (double)param3, 0.0).endVertex();
         var3.vertex((double)param2, (double)param3, 0.0).endVertex();
         var3.vertex((double)param2, (double)param1, 0.0).endVertex();
         var3.vertex((double)param0, (double)param1, 0.0).endVertex();
         var2.end();
-        GlStateManager.disableColorLogicOp();
-        GlStateManager.enableTexture();
+        RenderSystem.disableColorLogicOp();
+        RenderSystem.enableTexture();
     }
 
     public void setMaxLength(int param0) {

@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.ArmorStandArmorModel;
 import net.minecraft.client.model.ArmorStandModel;
 import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
@@ -30,10 +30,10 @@ public class ArmorStandRenderer extends LivingEntityRenderer<ArmorStand, ArmorSt
     }
 
     protected void setupRotations(ArmorStand param0, float param1, float param2, float param3) {
-        GlStateManager.rotatef(180.0F - param2, 0.0F, 1.0F, 0.0F);
+        RenderSystem.rotatef(180.0F - param2, 0.0F, 1.0F, 0.0F);
         float var0 = (float)(param0.level.getGameTime() - param0.lastHit) + param3;
         if (var0 < 5.0F) {
-            GlStateManager.rotatef(Mth.sin(var0 / 1.5F * (float) Math.PI) * 3.0F, 0.0F, 1.0F, 0.0F);
+            RenderSystem.rotatef(Mth.sin(var0 / 1.5F * (float) Math.PI) * 3.0F, 0.0F, 1.0F, 0.0F);
         }
 
     }

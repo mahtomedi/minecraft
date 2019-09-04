@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.blockentity;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.Arrays;
 import java.util.Comparator;
 import net.minecraft.client.model.BedModel;
@@ -25,11 +25,11 @@ public class BedRenderer extends BlockEntityRenderer<BedBlockEntity> {
     public void render(BedBlockEntity param0, double param1, double param2, double param3, float param4, int param5) {
         if (param5 >= 0) {
             this.bindTexture(BREAKING_LOCATIONS[param5]);
-            GlStateManager.matrixMode(5890);
-            GlStateManager.pushMatrix();
-            GlStateManager.scalef(4.0F, 4.0F, 1.0F);
-            GlStateManager.translatef(0.0625F, 0.0625F, 0.0625F);
-            GlStateManager.matrixMode(5888);
+            RenderSystem.matrixMode(5890);
+            RenderSystem.pushMatrix();
+            RenderSystem.scalef(4.0F, 4.0F, 1.0F);
+            RenderSystem.translatef(0.0625F, 0.0625F, 0.0625F);
+            RenderSystem.matrixMode(5888);
         } else {
             ResourceLocation var0 = TEXTURES[param0.getColor().getId()];
             if (var0 != null) {
@@ -46,24 +46,24 @@ public class BedRenderer extends BlockEntityRenderer<BedBlockEntity> {
         }
 
         if (param5 >= 0) {
-            GlStateManager.matrixMode(5890);
-            GlStateManager.popMatrix();
-            GlStateManager.matrixMode(5888);
+            RenderSystem.matrixMode(5890);
+            RenderSystem.popMatrix();
+            RenderSystem.matrixMode(5888);
         }
 
     }
 
     private void renderPiece(boolean param0, double param1, double param2, double param3, Direction param4) {
         this.bedModel.preparePiece(param0);
-        GlStateManager.pushMatrix();
-        GlStateManager.translatef((float)param1, (float)param2 + 0.5625F, (float)param3);
-        GlStateManager.rotatef(90.0F, 1.0F, 0.0F, 0.0F);
-        GlStateManager.translatef(0.5F, 0.5F, 0.5F);
-        GlStateManager.rotatef(180.0F + param4.toYRot(), 0.0F, 0.0F, 1.0F);
-        GlStateManager.translatef(-0.5F, -0.5F, -0.5F);
-        GlStateManager.enableRescaleNormal();
+        RenderSystem.pushMatrix();
+        RenderSystem.translatef((float)param1, (float)param2 + 0.5625F, (float)param3);
+        RenderSystem.rotatef(90.0F, 1.0F, 0.0F, 0.0F);
+        RenderSystem.translatef(0.5F, 0.5F, 0.5F);
+        RenderSystem.rotatef(180.0F + param4.toYRot(), 0.0F, 0.0F, 1.0F);
+        RenderSystem.translatef(-0.5F, -0.5F, -0.5F);
+        RenderSystem.enableRescaleNormal();
         this.bedModel.render();
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.popMatrix();
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.popMatrix();
     }
 }

@@ -44,10 +44,10 @@ public class FrozenOceanSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBase
         double var1 = 0.0;
         BlockPos.MutableBlockPos var2 = new BlockPos.MutableBlockPos();
         float var3 = param2.getTemperature(var2.set(param3, 63, param4));
-        double var4 = Math.min(Math.abs(param6), this.icebergNoise.getValue((double)param3 * 0.1, (double)param4 * 0.1));
+        double var4 = Math.min(Math.abs(param6), this.icebergNoise.getValue((double)param3 * 0.1, (double)param4 * 0.1, false) * 15.0);
         if (var4 > 1.8) {
             double var5 = 0.09765625;
-            double var6 = Math.abs(this.icebergRoofNoise.getValue((double)param3 * 0.09765625, (double)param4 * 0.09765625));
+            double var6 = Math.abs(this.icebergRoofNoise.getValue((double)param3 * 0.09765625, (double)param4 * 0.09765625, false));
             var0 = var4 * var4 * 1.2;
             double var7 = Math.ceil(var6 * 40.0) + 14.0;
             if (var0 > var7) {
@@ -138,9 +138,9 @@ public class FrozenOceanSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBase
     @Override
     public void initNoise(long param0) {
         if (this.seed != param0 || this.icebergNoise == null || this.icebergRoofNoise == null) {
-            Random var0 = new WorldgenRandom(param0);
-            this.icebergNoise = new PerlinSimplexNoise(var0, 4);
-            this.icebergRoofNoise = new PerlinSimplexNoise(var0, 1);
+            WorldgenRandom var0 = new WorldgenRandom(param0);
+            this.icebergNoise = new PerlinSimplexNoise(var0, 3, 0);
+            this.icebergRoofNoise = new PerlinSimplexNoise(var0, 0, 0);
         }
 
         this.seed = param0;

@@ -41,8 +41,8 @@ public class NetherSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConfi
         int var1 = param3 & 15;
         int var2 = param4 & 15;
         double var3 = 0.03125;
-        boolean var4 = this.decorationNoise.getValue((double)param3 * 0.03125, (double)param4 * 0.03125, 0.0) + param0.nextDouble() * 0.2 > 0.0;
-        boolean var5 = this.decorationNoise.getValue((double)param3 * 0.03125, 109.0, (double)param4 * 0.03125) + param0.nextDouble() * 0.2 > 0.0;
+        boolean var4 = this.decorationNoise.getValue((double)param3 * 0.03125, (double)param4 * 0.03125, 0.0) * 75.0 + param0.nextDouble() > 0.0;
+        boolean var5 = this.decorationNoise.getValue((double)param3 * 0.03125, 109.0, (double)param4 * 0.03125) * 75.0 + param0.nextDouble() > 0.0;
         int var6 = (int)(param6 / 3.0 + 3.0 + param0.nextDouble() * 0.25);
         BlockPos.MutableBlockPos var7 = new BlockPos.MutableBlockPos();
         int var8 = -1;
@@ -97,7 +97,7 @@ public class NetherSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConfi
     @Override
     public void initNoise(long param0) {
         if (this.seed != param0 || this.decorationNoise == null) {
-            this.decorationNoise = new PerlinNoise(new WorldgenRandom(param0), 4);
+            this.decorationNoise = new PerlinNoise(new WorldgenRandom(param0), 3, 0);
         }
 
         this.seed = param0;

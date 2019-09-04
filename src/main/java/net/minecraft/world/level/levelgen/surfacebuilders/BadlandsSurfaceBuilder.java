@@ -139,9 +139,9 @@ public class BadlandsSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseCon
         }
 
         if (this.seed != param0 || this.pillarNoise == null || this.pillarRoofNoise == null) {
-            Random var0 = new WorldgenRandom(param0);
-            this.pillarNoise = new PerlinSimplexNoise(var0, 4);
-            this.pillarRoofNoise = new PerlinSimplexNoise(var0, 1);
+            WorldgenRandom var0 = new WorldgenRandom(param0);
+            this.pillarNoise = new PerlinSimplexNoise(var0, 3, 0);
+            this.pillarRoofNoise = new PerlinSimplexNoise(var0, 0, 0);
         }
 
         this.seed = param0;
@@ -150,8 +150,8 @@ public class BadlandsSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseCon
     protected void generateBands(long param0) {
         this.clayBands = new BlockState[64];
         Arrays.fill(this.clayBands, TERRACOTTA);
-        Random var0 = new WorldgenRandom(param0);
-        this.clayBandsOffsetNoise = new PerlinSimplexNoise(var0, 1);
+        WorldgenRandom var0 = new WorldgenRandom(param0);
+        this.clayBandsOffsetNoise = new PerlinSimplexNoise(var0, 0, 0);
 
         for(int var1 = 0; var1 < 64; ++var1) {
             var1 += var0.nextInt(5) + 1;
@@ -215,7 +215,7 @@ public class BadlandsSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseCon
     }
 
     protected BlockState getBand(int param0, int param1, int param2) {
-        int var0 = (int)Math.round(this.clayBandsOffsetNoise.getValue((double)param0 / 512.0, (double)param2 / 512.0) * 2.0);
+        int var0 = (int)Math.round(this.clayBandsOffsetNoise.getValue((double)param0 / 512.0, (double)param2 / 512.0, false) * 2.0);
         return this.clayBands[(param1 + var0 + 64) % 64];
     }
 }

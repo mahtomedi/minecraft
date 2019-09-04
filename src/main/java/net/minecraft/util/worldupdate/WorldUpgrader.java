@@ -123,29 +123,34 @@ public class WorldUpgrader {
                             if (var18 != null) {
                                 int var19 = ChunkStorage.getVersion(var18);
                                 CompoundTag var20 = var15.upgradeChunkTag(var13, () -> this.overworldDataStorage, var18);
-                                boolean var21 = var19 < SharedConstants.getCurrentVersion().getWorldVersion();
-                                if (this.eraseCache) {
-                                    CompoundTag var22 = var20.getCompound("Level");
-                                    var21 = var21 || var22.contains("Heightmaps");
-                                    var22.remove("Heightmaps");
-                                    var21 = var21 || var22.contains("isLightOn");
-                                    var22.remove("isLightOn");
+                                CompoundTag var21 = var20.getCompound("Level");
+                                ChunkPos var22 = new ChunkPos(var21.getInt("xPos"), var21.getInt("zPos"));
+                                if (!var22.equals(var16)) {
+                                    LOGGER.warn("Chunk {} has invalid position {}", var16, var22);
                                 }
 
-                                if (var21) {
+                                boolean var23 = var19 < SharedConstants.getCurrentVersion().getWorldVersion();
+                                if (this.eraseCache) {
+                                    var23 = var23 || var21.contains("Heightmaps");
+                                    var21.remove("Heightmaps");
+                                    var23 = var23 || var21.contains("isLightOn");
+                                    var21.remove("isLightOn");
+                                }
+
+                                if (var23) {
                                     var15.write(var16, var20);
                                     var17 = true;
                                 }
                             }
-                        } catch (ReportedException var23) {
-                            Throwable var24 = var23.getCause();
-                            if (!(var24 instanceof IOException)) {
-                                throw var23;
+                        } catch (ReportedException var24) {
+                            Throwable var25 = var24.getCause();
+                            if (!(var25 instanceof IOException)) {
+                                throw var24;
                             }
 
-                            LOGGER.error("Error upgrading chunk {}", var16, var24);
-                        } catch (IOException var241) {
-                            LOGGER.error("Error upgrading chunk {}", var16, var241);
+                            LOGGER.error("Error upgrading chunk {}", var16, var25);
+                        } catch (IOException var251) {
+                            LOGGER.error("Error upgrading chunk {}", var16, var251);
                         }
 
                         if (var17) {
@@ -157,9 +162,9 @@ public class WorldUpgrader {
                         var11 = true;
                     }
 
-                    float var26 = (float)var14.nextIndex() / var4;
-                    this.progressMap.put(var13, var26);
-                    var12 += var26;
+                    float var27 = (float)var14.nextIndex() / var4;
+                    this.progressMap.put(var13, var27);
+                    var12 += var27;
                 }
 
                 this.progress = var12;
@@ -170,11 +175,11 @@ public class WorldUpgrader {
 
             this.status = new TranslatableComponent("optimizeWorld.stage.finished");
 
-            for(ChunkStorage var27 : var9.values()) {
+            for(ChunkStorage var28 : var9.values()) {
                 try {
-                    var27.close();
-                } catch (IOException var221) {
-                    LOGGER.error("Error upgrading chunk", (Throwable)var221);
+                    var28.close();
+                } catch (IOException var231) {
+                    LOGGER.error("Error upgrading chunk", (Throwable)var231);
                 }
             }
 
@@ -200,7 +205,7 @@ public class WorldUpgrader {
                     int var6 = Integer.parseInt(var5.group(1)) << 5;
                     int var7 = Integer.parseInt(var5.group(2)) << 5;
 
-                    try (RegionFile var8 = new RegionFile(var4)) {
+                    try (RegionFile var8 = new RegionFile(var4, var1)) {
                         for(int var9 = 0; var9 < 32; ++var9) {
                             for(int var10 = 0; var10 < 32; ++var10) {
                                 ChunkPos var11 = new ChunkPos(var9 + var6, var10 + var7);

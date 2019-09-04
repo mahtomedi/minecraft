@@ -14,19 +14,23 @@ public class EntityCollisionContext implements CollisionContext {
             return param2;
         }
     };
-    private final boolean sneaking;
+    private final boolean descending;
     private final double entityBottom;
     private final Item heldItem;
 
     protected EntityCollisionContext(boolean param0, double param1, Item param2) {
-        this.sneaking = param0;
+        this.descending = param0;
         this.entityBottom = param1;
         this.heldItem = param2;
     }
 
     @Deprecated
     protected EntityCollisionContext(Entity param0) {
-        this(param0.isSneaking(), param0.getBoundingBox().minY, param0 instanceof LivingEntity ? ((LivingEntity)param0).getMainHandItem().getItem() : Items.AIR);
+        this(
+            param0.isDescending(),
+            param0.getBoundingBox().minY,
+            param0 instanceof LivingEntity ? ((LivingEntity)param0).getMainHandItem().getItem() : Items.AIR
+        );
     }
 
     @Override
@@ -35,8 +39,8 @@ public class EntityCollisionContext implements CollisionContext {
     }
 
     @Override
-    public boolean isSneaking() {
-        return this.sneaking;
+    public boolean isDescending() {
+        return this.descending;
     }
 
     @Override

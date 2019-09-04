@@ -1,6 +1,6 @@
 package net.minecraft.client.gui.screens;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.Util;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.Button;
@@ -34,7 +34,7 @@ public class DemoIntroScreen extends Screen {
     @Override
     public void renderBackground() {
         super.renderBackground();
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.minecraft.getTextureManager().bind(DEMO_BACKGROUND_LOCATION);
         int var0 = (this.width - 248) / 2;
         int var1 = (this.height - 166) / 2;

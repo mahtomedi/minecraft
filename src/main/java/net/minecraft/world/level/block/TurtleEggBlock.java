@@ -3,6 +3,7 @@ package net.minecraft.world.level.block;
 import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
@@ -75,7 +76,7 @@ public class TurtleEggBlock extends Block {
     }
 
     @Override
-    public void tick(BlockState param0, Level param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         if (this.shouldUpdateHatchLevel(param1) && this.onSand(param1, param2)) {
             int var0 = param0.getValue(HATCH);
             if (var0 < 2) {
@@ -84,15 +85,14 @@ public class TurtleEggBlock extends Block {
             } else {
                 param1.playSound(null, param2, SoundEvents.TURTLE_EGG_HATCH, SoundSource.BLOCKS, 0.7F, 0.9F + param3.nextFloat() * 0.2F);
                 param1.removeBlock(param2, false);
-                if (!param1.isClientSide) {
-                    for(int var1 = 0; var1 < param0.getValue(EGGS); ++var1) {
-                        param1.levelEvent(2001, param2, Block.getId(param0));
-                        Turtle var2 = EntityType.TURTLE.create(param1);
-                        var2.setAge(-24000);
-                        var2.setHomePos(param2);
-                        var2.moveTo((double)param2.getX() + 0.3 + (double)var1 * 0.2, (double)param2.getY(), (double)param2.getZ() + 0.3, 0.0F, 0.0F);
-                        param1.addFreshEntity(var2);
-                    }
+
+                for(int var1 = 0; var1 < param0.getValue(EGGS); ++var1) {
+                    param1.levelEvent(2001, param2, Block.getId(param0));
+                    Turtle var2 = EntityType.TURTLE.create(param1);
+                    var2.setAge(-24000);
+                    var2.setHomePos(param2);
+                    var2.moveTo((double)param2.getX() + 0.3 + (double)var1 * 0.2, (double)param2.getY(), (double)param2.getZ() + 0.3, 0.0F, 0.0F);
+                    param1.addFreshEntity(var2);
                 }
             }
         }

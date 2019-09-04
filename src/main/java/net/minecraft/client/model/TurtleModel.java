@@ -1,6 +1,6 @@
 package net.minecraft.client.model;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.animal.Turtle;
@@ -44,35 +44,35 @@ public class TurtleModel<T extends Turtle> extends QuadrupedModel<T> {
         this.setupAnim(param0, param1, param2, param3, param4, param5, param6);
         if (this.young) {
             float var0 = 6.0F;
-            GlStateManager.pushMatrix();
-            GlStateManager.scalef(0.16666667F, 0.16666667F, 0.16666667F);
-            GlStateManager.translatef(0.0F, 120.0F * param6, 0.0F);
+            RenderSystem.pushMatrix();
+            RenderSystem.scalef(0.16666667F, 0.16666667F, 0.16666667F);
+            RenderSystem.translatef(0.0F, 120.0F * param6, 0.0F);
             this.head.render(param6);
             this.body.render(param6);
             this.leg0.render(param6);
             this.leg1.render(param6);
             this.leg2.render(param6);
             this.leg3.render(param6);
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
         } else {
-            GlStateManager.pushMatrix();
+            RenderSystem.pushMatrix();
             if (param0.hasEgg()) {
-                GlStateManager.translatef(0.0F, -0.08F, 0.0F);
+                RenderSystem.translatef(0.0F, -0.08F, 0.0F);
             }
 
             this.head.render(param6);
             this.body.render(param6);
-            GlStateManager.pushMatrix();
+            RenderSystem.pushMatrix();
             this.leg0.render(param6);
             this.leg1.render(param6);
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
             this.leg2.render(param6);
             this.leg3.render(param6);
             if (param0.hasEgg()) {
                 this.eggBelly.render(param6);
             }
 
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
         }
 
     }

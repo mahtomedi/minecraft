@@ -30,7 +30,7 @@ public class ScaffoldingBlockItem extends BlockItem {
             return ScaffoldingBlock.getDistance(var1, var0) == 7 ? null : param0;
         } else {
             Direction var4;
-            if (param0.isSneaking()) {
+            if (param0.isSecondaryUseActive()) {
                 var4 = param0.isInside() ? param0.getClickedFace().getOpposite() : param0.getClickedFace();
             } else {
                 var4 = param0.getClickedFace() == Direction.UP ? param0.getHorizontalDirection() : Direction.UP;

@@ -18,6 +18,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundEntityEventPacket;
+import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import org.apache.logging.log4j.LogManager;
@@ -65,6 +66,18 @@ public class GameRules {
     );
     public static final GameRules.Key<GameRules.BooleanValue> RULE_ANNOUNCE_ADVANCEMENTS = register("announceAdvancements", GameRules.BooleanValue.create(true));
     public static final GameRules.Key<GameRules.BooleanValue> RULE_DISABLE_RAIDS = register("disableRaids", GameRules.BooleanValue.create(false));
+    public static final GameRules.Key<GameRules.BooleanValue> RULE_DOINSOMNIA = register("doInsomnia", GameRules.BooleanValue.create(true));
+    public static final GameRules.Key<GameRules.BooleanValue> RULE_DO_IMMEDIATE_RESPAWN = register(
+        "doImmediateRespawn", GameRules.BooleanValue.create(false, (param0, param1) -> {
+            for(ServerPlayer var0 : param0.getPlayerList().getPlayers()) {
+                var0.connection.send(new ClientboundGameEventPacket(11, param1.get() ? 1.0F : 0.0F));
+            }
+    
+        })
+    );
+    public static final GameRules.Key<GameRules.BooleanValue> RULE_DROWNING_DAMAGE = register("drowningDamage", GameRules.BooleanValue.create(true));
+    public static final GameRules.Key<GameRules.BooleanValue> RULE_FALL_DAMAGE = register("fallDamage", GameRules.BooleanValue.create(true));
+    public static final GameRules.Key<GameRules.BooleanValue> RULE_FIRE_DAMAGE = register("fireDamage", GameRules.BooleanValue.create(true));
     private final Map<GameRules.Key<?>, GameRules.Value<?>> rules = GAME_RULE_TYPES.entrySet()
         .stream()
         .collect(ImmutableMap.toImmutableMap(Entry::getKey, param0 -> param0.getValue().createRule()));

@@ -1,7 +1,6 @@
 package net.minecraft.client.particle;
 
-import com.mojang.blaze3d.platform.GLX;
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -55,12 +54,12 @@ public class ItemPickupParticle extends Particle {
         int var10 = this.getLightColor(param2);
         int var11 = var10 % 65536;
         int var12 = var10 / 65536;
-        GLX.glMultiTexCoord2f(GLX.GL_TEXTURE1, (float)var11, (float)var12);
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.glMultiTexCoord2f(33985, (float)var11, (float)var12);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         var7 -= xOff;
         var8 -= yOff;
         var9 -= zOff;
-        GlStateManager.enableLighting();
+        RenderSystem.enableLighting();
         this.entityRenderDispatcher.render(this.itemEntity, var7, var8, var9, this.itemEntity.yRot, param2, false);
     }
 

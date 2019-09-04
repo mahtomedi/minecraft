@@ -141,7 +141,7 @@ public class ChunkTaskPriorityQueueSorter implements AutoCloseable, ChunkHolder.
     private <T> ChunkTaskPriorityQueue<Function<ProcessorHandle<Unit>, T>> getQueue(ProcessorHandle<T> param0) {
         ChunkTaskPriorityQueue<? extends Function<ProcessorHandle<Unit>, ?>> var0 = this.queues.get(param0);
         if (var0 == null) {
-            throw new IllegalArgumentException("No queue for: " + param0);
+            throw (IllegalArgumentException)Util.pauseInIde(new IllegalArgumentException("No queue for: " + param0));
         } else {
             return var0;
         }

@@ -2,6 +2,7 @@ package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -29,9 +30,9 @@ public class EnderDragonRenderer extends MobRenderer<EnderDragon, DragonModel> {
     protected void setupRotations(EnderDragon param0, float param1, float param2, float param3) {
         float var0 = (float)param0.getLatencyPos(7, param3)[0];
         float var1 = (float)(param0.getLatencyPos(5, param3)[1] - param0.getLatencyPos(10, param3)[1]);
-        GlStateManager.rotatef(-var0, 0.0F, 1.0F, 0.0F);
-        GlStateManager.rotatef(var1 * 10.0F, 1.0F, 0.0F, 0.0F);
-        GlStateManager.translatef(0.0F, 0.0F, 1.0F);
+        RenderSystem.rotatef(-var0, 0.0F, 1.0F, 0.0F);
+        RenderSystem.rotatef(var1 * 10.0F, 1.0F, 0.0F, 0.0F);
+        RenderSystem.translatef(0.0F, 0.0F, 1.0F);
         if (param0.deathTime > 0) {
             float var2 = ((float)param0.deathTime + param3 - 1.0F) / 20.0F * 1.6F;
             var2 = Mth.sqrt(var2);
@@ -39,7 +40,7 @@ public class EnderDragonRenderer extends MobRenderer<EnderDragon, DragonModel> {
                 var2 = 1.0F;
             }
 
-            GlStateManager.rotatef(var2 * this.getFlipDegrees(param0), 0.0F, 0.0F, 1.0F);
+            RenderSystem.rotatef(var2 * this.getFlipDegrees(param0), 0.0F, 0.0F, 1.0F);
         }
 
     }
@@ -47,27 +48,27 @@ public class EnderDragonRenderer extends MobRenderer<EnderDragon, DragonModel> {
     protected void renderModel(EnderDragon param0, float param1, float param2, float param3, float param4, float param5, float param6) {
         if (param0.dragonDeathTime > 0) {
             float var0 = (float)param0.dragonDeathTime / 200.0F;
-            GlStateManager.depthFunc(515);
-            GlStateManager.enableAlphaTest();
-            GlStateManager.alphaFunc(516, var0);
+            RenderSystem.depthFunc(515);
+            RenderSystem.enableAlphaTest();
+            RenderSystem.alphaFunc(516, var0);
             this.bindTexture(DRAGON_EXPLODING_LOCATION);
             this.model.render(param0, param1, param2, param3, param4, param5, param6);
-            GlStateManager.alphaFunc(516, 0.1F);
-            GlStateManager.depthFunc(514);
+            RenderSystem.alphaFunc(516, 0.1F);
+            RenderSystem.depthFunc(514);
         }
 
         this.bindTexture(param0);
         this.model.render(param0, param1, param2, param3, param4, param5, param6);
         if (param0.hurtTime > 0) {
-            GlStateManager.depthFunc(514);
-            GlStateManager.disableTexture();
-            GlStateManager.enableBlend();
-            GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-            GlStateManager.color4f(1.0F, 0.0F, 0.0F, 0.5F);
+            RenderSystem.depthFunc(514);
+            RenderSystem.disableTexture();
+            RenderSystem.enableBlend();
+            RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+            RenderSystem.color4f(1.0F, 0.0F, 0.0F, 0.5F);
             this.model.render(param0, param1, param2, param3, param4, param5, param6);
-            GlStateManager.enableTexture();
-            GlStateManager.disableBlend();
-            GlStateManager.depthFunc(515);
+            RenderSystem.enableTexture();
+            RenderSystem.disableBlend();
+            RenderSystem.depthFunc(515);
         }
 
     }
@@ -113,15 +114,15 @@ public class EnderDragonRenderer extends MobRenderer<EnderDragon, DragonModel> {
         float var2 = (float)(param10 - param6);
         float var3 = Mth.sqrt(var0 * var0 + var2 * var2);
         float var4 = Mth.sqrt(var0 * var0 + var1 * var1 + var2 * var2);
-        GlStateManager.pushMatrix();
-        GlStateManager.translatef((float)param0, (float)param1 + 2.0F, (float)param2);
-        GlStateManager.rotatef((float)(-Math.atan2((double)var2, (double)var0)) * (180.0F / (float)Math.PI) - 90.0F, 0.0F, 1.0F, 0.0F);
-        GlStateManager.rotatef((float)(-Math.atan2((double)var3, (double)var1)) * (180.0F / (float)Math.PI) - 90.0F, 1.0F, 0.0F, 0.0F);
+        RenderSystem.pushMatrix();
+        RenderSystem.translatef((float)param0, (float)param1 + 2.0F, (float)param2);
+        RenderSystem.rotatef((float)(-Math.atan2((double)var2, (double)var0)) * (180.0F / (float)Math.PI) - 90.0F, 0.0F, 1.0F, 0.0F);
+        RenderSystem.rotatef((float)(-Math.atan2((double)var3, (double)var1)) * (180.0F / (float)Math.PI) - 90.0F, 1.0F, 0.0F, 0.0F);
         Tesselator var5 = Tesselator.getInstance();
         BufferBuilder var6 = var5.getBuilder();
         Lighting.turnOff();
-        GlStateManager.disableCull();
-        GlStateManager.shadeModel(7425);
+        RenderSystem.disableCull();
+        RenderSystem.shadeModel(7425);
         float var7 = 0.0F - ((float)param7 + param3) * 0.01F;
         float var8 = Mth.sqrt(var0 * var0 + var1 * var1 + var2 * var2) / 32.0F - ((float)param7 + param3) * 0.01F;
         var6.begin(5, DefaultVertexFormat.POSITION_TEX_COLOR);
@@ -136,10 +137,10 @@ public class EnderDragonRenderer extends MobRenderer<EnderDragon, DragonModel> {
         }
 
         var5.end();
-        GlStateManager.enableCull();
-        GlStateManager.shadeModel(7424);
+        RenderSystem.enableCull();
+        RenderSystem.shadeModel(7424);
         Lighting.turnOn();
-        GlStateManager.popMatrix();
+        RenderSystem.popMatrix();
     }
 
     protected ResourceLocation getTextureLocation(EnderDragon param0) {

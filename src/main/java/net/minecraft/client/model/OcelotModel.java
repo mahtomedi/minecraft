@@ -1,6 +1,6 @@
 package net.minecraft.client.model;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -55,14 +55,14 @@ public class OcelotModel<T extends Entity> extends EntityModel<T> {
         this.setupAnim(param0, param1, param2, param3, param4, param5, param6);
         if (this.young) {
             float var0 = 2.0F;
-            GlStateManager.pushMatrix();
-            GlStateManager.scalef(0.75F, 0.75F, 0.75F);
-            GlStateManager.translatef(0.0F, 10.0F * param6, 4.0F * param6);
+            RenderSystem.pushMatrix();
+            RenderSystem.scalef(0.75F, 0.75F, 0.75F);
+            RenderSystem.translatef(0.0F, 10.0F * param6, 4.0F * param6);
             this.head.render(param6);
-            GlStateManager.popMatrix();
-            GlStateManager.pushMatrix();
-            GlStateManager.scalef(0.5F, 0.5F, 0.5F);
-            GlStateManager.translatef(0.0F, 24.0F * param6, 0.0F);
+            RenderSystem.popMatrix();
+            RenderSystem.pushMatrix();
+            RenderSystem.scalef(0.5F, 0.5F, 0.5F);
+            RenderSystem.translatef(0.0F, 24.0F * param6, 0.0F);
             this.body.render(param6);
             this.backLegL.render(param6);
             this.backLegR.render(param6);
@@ -70,7 +70,7 @@ public class OcelotModel<T extends Entity> extends EntityModel<T> {
             this.frontLegR.render(param6);
             this.tail1.render(param6);
             this.tail2.render(param6);
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
         } else {
             this.head.render(param6);
             this.body.render(param6);
@@ -130,7 +130,7 @@ public class OcelotModel<T extends Entity> extends EntityModel<T> {
         this.backLegR.y = 18.0F;
         this.backLegR.z = 5.0F;
         this.tail1.xRot = 0.9F;
-        if (param0.isSneaking()) {
+        if (param0.isCrouching()) {
             ++this.body.y;
             this.head.y += 2.0F;
             ++this.tail1.y;

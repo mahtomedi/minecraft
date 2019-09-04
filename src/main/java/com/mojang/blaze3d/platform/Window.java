@@ -1,5 +1,6 @@
 package com.mojang.blaze3d.platform;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,8 +55,8 @@ public final class Window implements AutoCloseable {
 
     public Window(WindowEventHandler param0, ScreenManager param1, DisplayData param2, String param3, String param4) {
         this.screenManager = param1;
-        this.setBootGlErrorCallback();
-        this.setGlErrorSection("Pre startup");
+        this.setBootErrorCallback();
+        this.setErrorSection("Pre startup");
         this.minecraft = param0;
         Optional<VideoMode> var0 = VideoMode.read(param3);
         if (var0.isPresent()) {
@@ -71,6 +72,11 @@ public final class Window implements AutoCloseable {
         this.windowedWidth = this.width = param2.width > 0 ? param2.width : 1;
         this.windowedHeight = this.height = param2.height > 0 ? param2.height : 1;
         GLFW.glfwDefaultWindowHints();
+        GLFW.glfwWindowHint(139265, 196609);
+        GLFW.glfwWindowHint(139275, 221185);
+        GLFW.glfwWindowHint(139266, 2);
+        GLFW.glfwWindowHint(139267, 0);
+        GLFW.glfwWindowHint(139272, 0);
         this.window = GLFW.glfwCreateWindow(this.width, this.height, param4, this.fullscreen && var1 != null ? var1.getMonitor() : 0L, 0L);
         if (var1 != null) {
             VideoMode var2 = var1.getPreferredVidMode(this.fullscreen ? this.preferredFullscreenVideoMode : Optional.empty());
@@ -94,6 +100,14 @@ public final class Window implements AutoCloseable {
         GLFW.glfwSetWindowFocusCallback(this.window, this::onFocus);
     }
 
+    public int getRefreshRate() {
+        return GLX._getRefreshRate(this);
+    }
+
+    public boolean shouldClose() {
+        return GLX._shouldClose(this);
+    }
+
     public static void checkGlfwError(BiConsumer<Integer, String> param0) {
         try (MemoryStack var0 = MemoryStack.stackPush()) {
             PointerBuffer var1 = var0.mallocPointer(1);
@@ -108,13 +122,13 @@ public final class Window implements AutoCloseable {
     }
 
     public void setupGuiState(boolean param0) {
-        GlStateManager.clear(256, param0);
-        GlStateManager.matrixMode(5889);
-        GlStateManager.loadIdentity();
-        GlStateManager.ortho(0.0, (double)this.getWidth() / this.getGuiScale(), (double)this.getHeight() / this.getGuiScale(), 0.0, 1000.0, 3000.0);
-        GlStateManager.matrixMode(5888);
-        GlStateManager.loadIdentity();
-        GlStateManager.translatef(0.0F, 0.0F, -2000.0F);
+        RenderSystem.clear(256, param0);
+        RenderSystem.matrixMode(5889);
+        RenderSystem.loadIdentity();
+        RenderSystem.ortho(0.0, (double)this.getWidth() / this.getGuiScale(), (double)this.getHeight() / this.getGuiScale(), 0.0, 1000.0, 3000.0);
+        RenderSystem.matrixMode(5888);
+        RenderSystem.loadIdentity();
+        RenderSystem.translatef(0.0F, 0.0F, -2000.0F);
     }
 
     public void setIcon(InputStream param0, InputStream param1) {
@@ -178,11 +192,11 @@ public final class Window implements AutoCloseable {
         return var6;
     }
 
-    public void setGlErrorSection(String param0) {
+    public void setErrorSection(String param0) {
         this.errorSection = param0;
     }
 
-    private void setBootGlErrorCallback() {
+    private void setBootErrorCallback() {
         GLFW.glfwSetErrorCallback(Window::bootCrash);
     }
 
@@ -197,8 +211,12 @@ public final class Window implements AutoCloseable {
         LOGGER.error("{}: {}", param0x, var0x);
     }
 
-    public void setDefaultGlErrorCallback() {
-        GLFW.glfwSetErrorCallback(this.defaultErrorCallback).free();
+    public void setDefaultErrorCallback() {
+        GLFWErrorCallback var0 = GLFW.glfwSetErrorCallback(this.defaultErrorCallback);
+        if (var0 != null) {
+            var0.free();
+        }
+
     }
 
     public void updateVsync(boolean param0) {

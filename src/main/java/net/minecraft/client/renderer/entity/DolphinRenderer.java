@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.renderer.entity.layers.DolphinCarryingItemLayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.animal.Dolphin;
@@ -22,7 +22,7 @@ public class DolphinRenderer extends MobRenderer<Dolphin, DolphinModel<Dolphin>>
 
     protected void scale(Dolphin param0, float param1) {
         float var0 = 1.0F;
-        GlStateManager.scalef(1.0F, 1.0F, 1.0F);
+        RenderSystem.scalef(1.0F, 1.0F, 1.0F);
     }
 
     protected void setupRotations(Dolphin param0, float param1, float param2, float param3) {

@@ -9,6 +9,7 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.BlockPlaceContext;
@@ -109,7 +110,7 @@ public class FireBlock extends Block {
     }
 
     @Override
-    public void tick(BlockState param0, Level param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         if (param1.getGameRules().getBoolean(GameRules.RULE_DOFIRETICK)) {
             if (!param0.canSurvive(param1, param2)) {
                 param1.removeBlock(param2, false);
@@ -483,5 +484,7 @@ public class FireBlock extends Block {
         var0.setFlammable(Blocks.LECTERN, 30, 20);
         var0.setFlammable(Blocks.COMPOSTER, 5, 20);
         var0.setFlammable(Blocks.SWEET_BERRY_BUSH, 60, 100);
+        var0.setFlammable(Blocks.BEE_HIVE, 5, 20);
+        var0.setFlammable(Blocks.BEE_NEST, 30, 20);
     }
 }

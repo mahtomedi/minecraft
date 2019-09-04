@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CompoundTag;
@@ -14,11 +15,12 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.TickList;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
@@ -31,11 +33,11 @@ import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.dimension.Dimension;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
@@ -56,11 +58,12 @@ public class WorldGenRegion implements LevelAccessor {
     private final ChunkGeneratorSettings settings;
     private final TickList<Block> blockTicks = new WorldGenTickList<>(param0x -> this.getChunk(param0x).getBlockTicks());
     private final TickList<Fluid> liquidTicks = new WorldGenTickList<>(param0x -> this.getChunk(param0x).getLiquidTicks());
+    private final BiomeManager biomeManager;
 
     public WorldGenRegion(ServerLevel param0, List<ChunkAccess> param1) {
         int var0 = Mth.floor(Math.sqrt((double)param1.size()));
         if (var0 * var0 != param1.size()) {
-            throw new IllegalStateException("Cache size is not a square.");
+            throw (IllegalStateException)Util.pauseInIde(new IllegalStateException("Cache size is not a square."));
         } else {
             ChunkPos var1 = param1.get(param1.size() / 2).getPos();
             this.cache = param1;
@@ -74,6 +77,7 @@ public class WorldGenRegion implements LevelAccessor {
             this.levelData = param0.getLevelData();
             this.random = param0.getRandom();
             this.dimension = param0.getDimension();
+            this.biomeManager = new BiomeManager(this, LevelData.obfuscateSeed(this.seed), this.dimension.getType().getBiomeZoomer());
         }
     }
 
@@ -114,11 +118,15 @@ public class WorldGenRegion implements LevelAccessor {
             LOGGER.error("Requested chunk : {} {}", param0, param1);
             LOGGER.error("Region bounds : {} {} | {} {}", var5.getPos().x, var5.getPos().z, var6.getPos().x, var6.getPos().z);
             if (var3 != null) {
-                throw new RuntimeException(
-                    String.format("Chunk is not of correct status. Expecting %s, got %s | %s %s", param2, var3.getStatus(), param0, param1)
+                throw (RuntimeException)Util.pauseInIde(
+                    new RuntimeException(
+                        String.format("Chunk is not of correct status. Expecting %s, got %s | %s %s", param2, var3.getStatus(), param0, param1)
+                    )
                 );
             } else {
-                throw new RuntimeException(String.format("We are asking a region for a chunk out of bound | %s %s", param0, param1));
+                throw (RuntimeException)Util.pauseInIde(
+                    new RuntimeException(String.format("We are asking a region for a chunk out of bound | %s %s", param0, param1))
+                );
             }
         }
     }
@@ -152,34 +160,29 @@ public class WorldGenRegion implements LevelAccessor {
     }
 
     @Override
-    public Biome getBiome(BlockPos param0) {
-        Biome var0 = this.getChunk(param0).getBiomes()[param0.getX() & 15 | (param0.getZ() & 15) << 4];
-        if (var0 == null) {
-            throw new RuntimeException(String.format("Biome is null @ %s", param0));
-        } else {
-            return var0;
-        }
+    public BiomeManager getBiomeManager() {
+        return this.biomeManager;
     }
 
     @Override
-    public int getBrightness(LightLayer param0, BlockPos param1) {
-        return this.getChunkSource().getLightEngine().getLayerListener(param0).getLightValue(param1);
+    public Biome getUncachedNoiseBiome(int param0, int param1, int param2) {
+        return this.level.getUncachedNoiseBiome(param0, param1, param2);
     }
 
     @Override
-    public int getRawBrightness(BlockPos param0, int param1) {
-        return this.getChunk(param0).getRawBrightness(param0, param1, this.getDimension().isHasSkyLight());
+    public LevelLightEngine getLightEngine() {
+        return this.level.getLightEngine();
     }
 
     @Override
-    public boolean destroyBlock(BlockPos param0, boolean param1) {
+    public boolean destroyBlock(BlockPos param0, boolean param1, @Nullable Entity param2) {
         BlockState var0 = this.getBlockState(param0);
         if (var0.isAir()) {
             return false;
         } else {
             if (param1) {
                 BlockEntity var1 = var0.getBlock().isEntityBlock() ? this.getBlockEntity(param0) : null;
-                Block.dropResources(var0, this.level, param0, var1);
+                Block.dropResources(var0, this.level, param0, var1, param2, ItemStack.EMPTY);
             }
 
             return this.setBlock(param0, Blocks.AIR.defaultBlockState(), 3);
@@ -272,11 +275,6 @@ public class WorldGenRegion implements LevelAccessor {
     @Override
     public WorldBorder getWorldBorder() {
         return this.level.getWorldBorder();
-    }
-
-    @Override
-    public boolean isUnobstructed(@Nullable Entity param0, VoxelShape param1) {
-        return true;
     }
 
     @Override
@@ -383,10 +381,5 @@ public class WorldGenRegion implements LevelAccessor {
     @Override
     public List<Player> players() {
         return Collections.emptyList();
-    }
-
-    @Override
-    public BlockPos getHeightmapPos(Heightmap.Types param0, BlockPos param1) {
-        return new BlockPos(param1.getX(), this.getHeight(param0, param1.getX(), param1.getZ()), param1.getZ());
     }
 }

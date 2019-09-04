@@ -1,7 +1,7 @@
 package net.minecraft.client.gui.screens;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.Dynamic;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -229,18 +229,18 @@ public class CreateFlatWorldScreen extends Screen {
 
             private void blitSlot(int param0, int param1, ItemStack param2) {
                 this.blitSlotBg(param0 + 1, param1 + 1);
-                GlStateManager.enableRescaleNormal();
+                RenderSystem.enableRescaleNormal();
                 if (!param2.isEmpty()) {
                     Lighting.turnOnGui();
                     CreateFlatWorldScreen.this.itemRenderer.renderGuiItem(param2, param0 + 2, param1 + 2);
                     Lighting.turnOff();
                 }
 
-                GlStateManager.disableRescaleNormal();
+                RenderSystem.disableRescaleNormal();
             }
 
             private void blitSlotBg(int param0, int param1) {
-                GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
                 DetailsList.this.minecraft.getTextureManager().bind(GuiComponent.STATS_ICON_LOCATION);
                 GuiComponent.blit(param0, param1, CreateFlatWorldScreen.this.blitOffset, 0.0F, 0.0F, 18, 18, 128, 128);
             }

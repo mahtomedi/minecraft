@@ -106,37 +106,37 @@
     ]
   },
   "assetIndex": {
-    "id": "1.14",
-    "sha1": "d6c94fad4f7a03a8e46083c023926515fc0e551e",
-    "size": 226753,
-    "totalSize": 209234283,
-    "url": "https://launchermeta.mojang.com/v1/packages/d6c94fad4f7a03a8e46083c023926515fc0e551e/1.14.json"
+    "id": "1.15",
+    "sha1": "3b41ad81220d2f21ff5b343629de725047dac13d",
+    "size": 234333,
+    "totalSize": 225464758,
+    "url": "https://launchermeta.mojang.com/v1/packages/3b41ad81220d2f21ff5b343629de725047dac13d/1.15.json"
   },
-  "assets": "1.14",
+  "assets": "1.15",
   "complianceLevel": 0,
   "downloads": {
     "client": {
-      "sha1": "8c325a0c5bd674dd747d6ebaa4c791fd363ad8a9",
-      "size": 25191691,
-      "url": "https://launcher.mojang.com/v1/objects/8c325a0c5bd674dd747d6ebaa4c791fd363ad8a9/client.jar"
+      "sha1": "54a359d0b47818d85c61db79ec742f7fdab5b914",
+      "size": 25321456,
+      "url": "https://launcher.mojang.com/v1/objects/54a359d0b47818d85c61db79ec742f7fdab5b914/client.jar"
     },
     "client_mappings": {
-      "sha1": "6073e4ba6949217eb708c4512be2ccc1850a603f",
-      "size": 4709268,
-      "url": "https://launcher.mojang.com/v1/objects/6073e4ba6949217eb708c4512be2ccc1850a603f/client.txt"
+      "sha1": "be3d6f09c644d0a10dbd4e2b2b3866c33815110f",
+      "size": 4785570,
+      "url": "https://launcher.mojang.com/v1/objects/be3d6f09c644d0a10dbd4e2b2b3866c33815110f/client.txt"
     },
     "server": {
-      "sha1": "3dc3d84a581f14691199cf6831b71ed1296a9fdf",
-      "size": 35958734,
-      "url": "https://launcher.mojang.com/v1/objects/3dc3d84a581f14691199cf6831b71ed1296a9fdf/server.jar"
+      "sha1": "c042fd138ae280b01ce191937ca917666a15be38",
+      "size": 36068701,
+      "url": "https://launcher.mojang.com/v1/objects/c042fd138ae280b01ce191937ca917666a15be38/server.jar"
     },
     "server_mappings": {
-      "sha1": "c604a623b416a88a844979a6c55862c8a97510a9",
-      "size": 3559633,
-      "url": "https://launcher.mojang.com/v1/objects/c604a623b416a88a844979a6c55862c8a97510a9/server.txt"
+      "sha1": "8d9625aac73ce4eafc6378f1db8ca80d8553bd9f",
+      "size": 3630856,
+      "url": "https://launcher.mojang.com/v1/objects/8d9625aac73ce4eafc6378f1db8ca80d8553bd9f/server.txt"
     }
   },
-  "id": "1.14.4",
+  "id": "19w36a",
   "javaVersion": {
     "component": "jre-legacy",
     "majorVersion": 8
@@ -1395,7 +1395,7 @@
   },
   "mainClass": "net.minecraft.client.main.Main",
   "minimumLauncherVersion": 21,
-  "releaseTime": "2019-07-19T09:25:47+00:00",
-  "time": "2019-07-19T09:25:47+00:00",
-  "type": "release"
+  "releaseTime": "2019-09-04T11:19:34+00:00",
+  "time": "2019-09-04T11:19:34+00:00",
+  "type": "snapshot"
 }

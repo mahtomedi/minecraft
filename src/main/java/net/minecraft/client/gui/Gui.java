@@ -4,9 +4,9 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
-import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -139,12 +139,12 @@ public class Gui extends GuiComponent {
         this.screenWidth = this.minecraft.window.getGuiScaledWidth();
         this.screenHeight = this.minecraft.window.getGuiScaledHeight();
         Font var0 = this.getFont();
-        GlStateManager.enableBlend();
+        RenderSystem.enableBlend();
         if (Minecraft.useFancyGraphics()) {
             this.renderVignette(this.minecraft.getCameraEntity());
         } else {
-            GlStateManager.enableDepthTest();
-            GlStateManager.blendFuncSeparate(
+            RenderSystem.enableDepthTest();
+            RenderSystem.blendFuncSeparate(
                 GlStateManager.SourceFactor.SRC_ALPHA,
                 GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
                 GlStateManager.SourceFactor.ONE,
@@ -171,12 +171,12 @@ public class Gui extends GuiComponent {
         }
 
         if (!this.minecraft.options.hideGui) {
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             this.minecraft.getTextureManager().bind(GUI_ICONS_LOCATION);
-            GlStateManager.enableBlend();
-            GlStateManager.enableAlphaTest();
+            RenderSystem.enableBlend();
+            RenderSystem.enableAlphaTest();
             this.renderCrosshair();
-            GlStateManager.blendFuncSeparate(
+            RenderSystem.blendFuncSeparate(
                 GlStateManager.SourceFactor.SRC_ALPHA,
                 GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
                 GlStateManager.SourceFactor.ONE,
@@ -185,14 +185,14 @@ public class Gui extends GuiComponent {
             this.minecraft.getProfiler().push("bossHealth");
             this.bossOverlay.render();
             this.minecraft.getProfiler().pop();
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             this.minecraft.getTextureManager().bind(GUI_ICONS_LOCATION);
             if (this.minecraft.gameMode.canHurtPlayer()) {
                 this.renderPlayerHealth();
             }
 
             this.renderVehicleHealth();
-            GlStateManager.disableBlend();
+            RenderSystem.disableBlend();
             int var3 = this.screenWidth / 2 - 91;
             if (this.minecraft.player.isRidingJumpable()) {
                 this.renderJumpMeter(var3);
@@ -209,8 +209,8 @@ public class Gui extends GuiComponent {
 
         if (this.minecraft.player.getSleepTimer() > 0) {
             this.minecraft.getProfiler().push("sleep");
-            GlStateManager.disableDepthTest();
-            GlStateManager.disableAlphaTest();
+            RenderSystem.disableDepthTest();
+            RenderSystem.disableAlphaTest();
             float var4 = (float)this.minecraft.player.getSleepTimer();
             float var5 = var4 / 100.0F;
             if (var5 > 1.0F) {
@@ -219,10 +219,10 @@ public class Gui extends GuiComponent {
 
             int var6 = (int)(220.0F * var5) << 24 | 1052704;
             fill(0, 0, this.screenWidth, this.screenHeight, var6);
-            GlStateManager.enableAlphaTest();
-            GlStateManager.enableDepthTest();
+            RenderSystem.enableAlphaTest();
+            RenderSystem.enableDepthTest();
             this.minecraft.getProfiler().pop();
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         }
 
         if (this.minecraft.isDemo()) {
@@ -244,10 +244,10 @@ public class Gui extends GuiComponent {
                 }
 
                 if (var8 > 8) {
-                    GlStateManager.pushMatrix();
-                    GlStateManager.translatef((float)(this.screenWidth / 2), (float)(this.screenHeight - 68), 0.0F);
-                    GlStateManager.enableBlend();
-                    GlStateManager.blendFuncSeparate(
+                    RenderSystem.pushMatrix();
+                    RenderSystem.translatef((float)(this.screenWidth / 2), (float)(this.screenHeight - 68), 0.0F);
+                    RenderSystem.enableBlend();
+                    RenderSystem.blendFuncSeparate(
                         GlStateManager.SourceFactor.SRC_ALPHA,
                         GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
                         GlStateManager.SourceFactor.ONE,
@@ -261,8 +261,8 @@ public class Gui extends GuiComponent {
                     int var10 = var8 << 24 & 0xFF000000;
                     this.drawBackdrop(var0, -4, var0.width(this.overlayMessageString));
                     var0.draw(this.overlayMessageString, (float)(-var0.width(this.overlayMessageString) / 2), -4.0F, var9 | var10);
-                    GlStateManager.disableBlend();
-                    GlStateManager.popMatrix();
+                    RenderSystem.disableBlend();
+                    RenderSystem.popMatrix();
                 }
 
                 this.minecraft.getProfiler().pop();
@@ -283,33 +283,33 @@ public class Gui extends GuiComponent {
 
                 var12 = Mth.clamp(var12, 0, 255);
                 if (var12 > 8) {
-                    GlStateManager.pushMatrix();
-                    GlStateManager.translatef((float)(this.screenWidth / 2), (float)(this.screenHeight / 2), 0.0F);
-                    GlStateManager.enableBlend();
-                    GlStateManager.blendFuncSeparate(
+                    RenderSystem.pushMatrix();
+                    RenderSystem.translatef((float)(this.screenWidth / 2), (float)(this.screenHeight / 2), 0.0F);
+                    RenderSystem.enableBlend();
+                    RenderSystem.blendFuncSeparate(
                         GlStateManager.SourceFactor.SRC_ALPHA,
                         GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
                         GlStateManager.SourceFactor.ONE,
                         GlStateManager.DestFactor.ZERO
                     );
-                    GlStateManager.pushMatrix();
-                    GlStateManager.scalef(4.0F, 4.0F, 4.0F);
+                    RenderSystem.pushMatrix();
+                    RenderSystem.scalef(4.0F, 4.0F, 4.0F);
                     int var14 = var12 << 24 & 0xFF000000;
                     int var15 = var0.width(this.title);
                     this.drawBackdrop(var0, -10, var15);
                     var0.drawShadow(this.title, (float)(-var15 / 2), -10.0F, 16777215 | var14);
-                    GlStateManager.popMatrix();
+                    RenderSystem.popMatrix();
                     if (!this.subtitle.isEmpty()) {
-                        GlStateManager.pushMatrix();
-                        GlStateManager.scalef(2.0F, 2.0F, 2.0F);
+                        RenderSystem.pushMatrix();
+                        RenderSystem.scalef(2.0F, 2.0F, 2.0F);
                         int var16 = var0.width(this.subtitle);
                         this.drawBackdrop(var0, 5, var16);
                         var0.drawShadow(this.subtitle, (float)(-var16 / 2), 5.0F, 16777215 | var14);
-                        GlStateManager.popMatrix();
+                        RenderSystem.popMatrix();
                     }
 
-                    GlStateManager.disableBlend();
-                    GlStateManager.popMatrix();
+                    RenderSystem.disableBlend();
+                    RenderSystem.popMatrix();
                 }
 
                 this.minecraft.getProfiler().pop();
@@ -331,20 +331,20 @@ public class Gui extends GuiComponent {
                 this.displayScoreboardSidebar(var21);
             }
 
-            GlStateManager.enableBlend();
-            GlStateManager.blendFuncSeparate(
+            RenderSystem.enableBlend();
+            RenderSystem.blendFuncSeparate(
                 GlStateManager.SourceFactor.SRC_ALPHA,
                 GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
                 GlStateManager.SourceFactor.ONE,
                 GlStateManager.DestFactor.ZERO
             );
-            GlStateManager.disableAlphaTest();
-            GlStateManager.pushMatrix();
-            GlStateManager.translatef(0.0F, (float)(this.screenHeight - 48), 0.0F);
+            RenderSystem.disableAlphaTest();
+            RenderSystem.pushMatrix();
+            RenderSystem.translatef(0.0F, (float)(this.screenHeight - 48), 0.0F);
             this.minecraft.getProfiler().push("chat");
             this.chat.render(this.tickCount);
             this.minecraft.getProfiler().pop();
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
             var21 = var17.getDisplayObjective(0);
             if (!this.minecraft.options.keyPlayerList.isDown()
                 || this.minecraft.isLocalServer() && this.minecraft.player.connection.getOnlinePlayers().size() <= 1 && var21 == null) {
@@ -355,9 +355,9 @@ public class Gui extends GuiComponent {
             }
         }
 
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.disableLighting();
-        GlStateManager.enableAlphaTest();
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.disableLighting();
+        RenderSystem.enableAlphaTest();
     }
 
     private void drawBackdrop(Font param0, int param1, int param2) {
@@ -374,16 +374,16 @@ public class Gui extends GuiComponent {
         if (var0.thirdPersonView == 0) {
             if (this.minecraft.gameMode.getPlayerMode() != GameType.SPECTATOR || this.canRenderCrosshairForSpectator(this.minecraft.hitResult)) {
                 if (var0.renderDebug && !var0.hideGui && !this.minecraft.player.isReducedDebugInfo() && !var0.reducedDebugInfo) {
-                    GlStateManager.pushMatrix();
-                    GlStateManager.translatef((float)(this.screenWidth / 2), (float)(this.screenHeight / 2), (float)this.blitOffset);
+                    RenderSystem.pushMatrix();
+                    RenderSystem.translatef((float)(this.screenWidth / 2), (float)(this.screenHeight / 2), (float)this.blitOffset);
                     Camera var1 = this.minecraft.gameRenderer.getMainCamera();
-                    GlStateManager.rotatef(var1.getXRot(), -1.0F, 0.0F, 0.0F);
-                    GlStateManager.rotatef(var1.getYRot(), 0.0F, 1.0F, 0.0F);
-                    GlStateManager.scalef(-1.0F, -1.0F, -1.0F);
-                    GLX.renderCrosshair(10);
-                    GlStateManager.popMatrix();
+                    RenderSystem.rotatef(var1.getXRot(), -1.0F, 0.0F, 0.0F);
+                    RenderSystem.rotatef(var1.getYRot(), 0.0F, 1.0F, 0.0F);
+                    RenderSystem.scalef(-1.0F, -1.0F, -1.0F);
+                    RenderSystem.renderCrosshair(10);
+                    RenderSystem.popMatrix();
                 } else {
-                    GlStateManager.blendFuncSeparate(
+                    RenderSystem.blendFuncSeparate(
                         GlStateManager.SourceFactor.ONE_MINUS_DST_COLOR,
                         GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR,
                         GlStateManager.SourceFactor.ONE,
@@ -432,7 +432,7 @@ public class Gui extends GuiComponent {
     protected void renderEffects() {
         Collection<MobEffectInstance> var0 = this.minecraft.player.getActiveEffects();
         if (!var0.isEmpty()) {
-            GlStateManager.enableBlend();
+            RenderSystem.enableBlend();
             int var1 = 0;
             int var2 = 0;
             MobEffectTextureManager var3 = this.minecraft.getMobEffectTextures();
@@ -457,7 +457,7 @@ public class Gui extends GuiComponent {
                         var8 += 26;
                     }
 
-                    GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                    RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
                     float var9 = 1.0F;
                     if (var5.isAmbient()) {
                         this.blit(var7, var8, 165, 166, 24, 24);
@@ -475,7 +475,7 @@ public class Gui extends GuiComponent {
                     int var13 = var8;
                     float var14 = var9;
                     var4.add(() -> {
-                        GlStateManager.color4f(1.0F, 1.0F, 1.0F, var14);
+                        RenderSystem.color4f(1.0F, 1.0F, 1.0F, var14);
                         blit(var12 + 3, var13 + 3, this.blitOffset, 18, 18, var11);
                     });
                 }
@@ -489,7 +489,7 @@ public class Gui extends GuiComponent {
     protected void renderHotbar(float param0) {
         Player var0 = this.getCameraPlayer();
         if (var0 != null) {
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             this.minecraft.getTextureManager().bind(WIDGETS_LOCATION);
             ItemStack var1 = var0.getOffhandItem();
             HumanoidArm var2 = var0.getMainArm().getOpposite();
@@ -509,9 +509,9 @@ public class Gui extends GuiComponent {
             }
 
             this.blitOffset = var4;
-            GlStateManager.enableRescaleNormal();
-            GlStateManager.enableBlend();
-            GlStateManager.blendFuncSeparate(
+            RenderSystem.enableRescaleNormal();
+            RenderSystem.enableBlend();
+            RenderSystem.blendFuncSeparate(
                 GlStateManager.SourceFactor.SRC_ALPHA,
                 GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
                 GlStateManager.SourceFactor.ONE,
@@ -545,15 +545,15 @@ public class Gui extends GuiComponent {
 
                     this.minecraft.getTextureManager().bind(GuiComponent.GUI_ICONS_LOCATION);
                     int var14 = (int)(var11 * 19.0F);
-                    GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                    RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
                     this.blit(var13, var12, 0, 94, 18, 18);
                     this.blit(var13, var12 + 18 - var14, 18, 112 - var14, 18, var14);
                 }
             }
 
             Lighting.turnOff();
-            GlStateManager.disableRescaleNormal();
-            GlStateManager.disableBlend();
+            RenderSystem.disableRescaleNormal();
+            RenderSystem.disableBlend();
         }
     }
 
@@ -623,9 +623,9 @@ public class Gui extends GuiComponent {
             }
 
             if (var4 > 0) {
-                GlStateManager.pushMatrix();
-                GlStateManager.enableBlend();
-                GlStateManager.blendFuncSeparate(
+                RenderSystem.pushMatrix();
+                RenderSystem.enableBlend();
+                RenderSystem.blendFuncSeparate(
                     GlStateManager.SourceFactor.SRC_ALPHA,
                     GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
                     GlStateManager.SourceFactor.ONE,
@@ -633,8 +633,8 @@ public class Gui extends GuiComponent {
                 );
                 fill(var2 - 2, var3 - 2, var2 + this.getFont().width(var1) + 2, var3 + 9 + 2, this.minecraft.options.getBackgroundColor(0));
                 this.getFont().drawShadow(var1, (float)var2, (float)var3, 16777215 + (var4 << 24));
-                GlStateManager.disableBlend();
-                GlStateManager.popMatrix();
+                RenderSystem.disableBlend();
+                RenderSystem.popMatrix();
             }
         }
 
@@ -957,16 +957,16 @@ public class Gui extends GuiComponent {
     }
 
     private void renderPumpkin() {
-        GlStateManager.disableDepthTest();
-        GlStateManager.depthMask(false);
-        GlStateManager.blendFuncSeparate(
+        RenderSystem.disableDepthTest();
+        RenderSystem.depthMask(false);
+        RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.SRC_ALPHA,
             GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
             GlStateManager.SourceFactor.ONE,
             GlStateManager.DestFactor.ZERO
         );
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.disableAlphaTest();
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.disableAlphaTest();
         this.minecraft.getTextureManager().bind(PUMPKIN_BLUR_LOCATION);
         Tesselator var0 = Tesselator.getInstance();
         BufferBuilder var1 = var0.getBuilder();
@@ -976,10 +976,10 @@ public class Gui extends GuiComponent {
         var1.vertex((double)this.screenWidth, 0.0, -90.0).uv(1.0, 0.0).endVertex();
         var1.vertex(0.0, 0.0, -90.0).uv(0.0, 0.0).endVertex();
         var0.end();
-        GlStateManager.depthMask(true);
-        GlStateManager.enableDepthTest();
-        GlStateManager.enableAlphaTest();
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.depthMask(true);
+        RenderSystem.enableDepthTest();
+        RenderSystem.enableAlphaTest();
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
     }
 
     private void updateVignetteBrightness(Entity param0) {
@@ -1000,15 +1000,15 @@ public class Gui extends GuiComponent {
             var1 = 0.0F;
         }
 
-        GlStateManager.disableDepthTest();
-        GlStateManager.depthMask(false);
-        GlStateManager.blendFuncSeparate(
+        RenderSystem.disableDepthTest();
+        RenderSystem.depthMask(false);
+        RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO
         );
         if (var1 > 0.0F) {
-            GlStateManager.color4f(0.0F, var1, var1, 1.0F);
+            RenderSystem.color4f(0.0F, var1, var1, 1.0F);
         } else {
-            GlStateManager.color4f(this.vignetteBrightness, this.vignetteBrightness, this.vignetteBrightness, 1.0F);
+            RenderSystem.color4f(this.vignetteBrightness, this.vignetteBrightness, this.vignetteBrightness, 1.0F);
         }
 
         this.minecraft.getTextureManager().bind(VIGNETTE_LOCATION);
@@ -1020,10 +1020,10 @@ public class Gui extends GuiComponent {
         var5.vertex((double)this.screenWidth, 0.0, -90.0).uv(1.0, 0.0).endVertex();
         var5.vertex(0.0, 0.0, -90.0).uv(0.0, 0.0).endVertex();
         var4.end();
-        GlStateManager.depthMask(true);
-        GlStateManager.enableDepthTest();
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.blendFuncSeparate(
+        RenderSystem.depthMask(true);
+        RenderSystem.enableDepthTest();
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.SRC_ALPHA,
             GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
             GlStateManager.SourceFactor.ONE,
@@ -1038,16 +1038,16 @@ public class Gui extends GuiComponent {
             param0 = param0 * 0.8F + 0.2F;
         }
 
-        GlStateManager.disableAlphaTest();
-        GlStateManager.disableDepthTest();
-        GlStateManager.depthMask(false);
-        GlStateManager.blendFuncSeparate(
+        RenderSystem.disableAlphaTest();
+        RenderSystem.disableDepthTest();
+        RenderSystem.depthMask(false);
+        RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.SRC_ALPHA,
             GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
             GlStateManager.SourceFactor.ONE,
             GlStateManager.DestFactor.ZERO
         );
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, param0);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, param0);
         this.minecraft.getTextureManager().bind(TextureAtlas.LOCATION_BLOCKS);
         TextureAtlasSprite var0 = this.minecraft.getBlockRenderer().getBlockModelShaper().getParticleIcon(Blocks.NETHER_PORTAL.defaultBlockState());
         float var1 = var0.getU0();
@@ -1062,26 +1062,26 @@ public class Gui extends GuiComponent {
         var6.vertex((double)this.screenWidth, 0.0, -90.0).uv((double)var3, (double)var2).endVertex();
         var6.vertex(0.0, 0.0, -90.0).uv((double)var1, (double)var2).endVertex();
         var5.end();
-        GlStateManager.depthMask(true);
-        GlStateManager.enableDepthTest();
-        GlStateManager.enableAlphaTest();
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.depthMask(true);
+        RenderSystem.enableDepthTest();
+        RenderSystem.enableAlphaTest();
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
     }
 
     private void renderSlot(int param0, int param1, float param2, Player param3, ItemStack param4) {
         if (!param4.isEmpty()) {
             float var0 = (float)param4.getPopTime() - param2;
             if (var0 > 0.0F) {
-                GlStateManager.pushMatrix();
+                RenderSystem.pushMatrix();
                 float var1 = 1.0F + var0 / 5.0F;
-                GlStateManager.translatef((float)(param0 + 8), (float)(param1 + 12), 0.0F);
-                GlStateManager.scalef(1.0F / var1, (var1 + 1.0F) / 2.0F, 1.0F);
-                GlStateManager.translatef((float)(-(param0 + 8)), (float)(-(param1 + 12)), 0.0F);
+                RenderSystem.translatef((float)(param0 + 8), (float)(param1 + 12), 0.0F);
+                RenderSystem.scalef(1.0F / var1, (var1 + 1.0F) / 2.0F, 1.0F);
+                RenderSystem.translatef((float)(-(param0 + 8)), (float)(-(param1 + 12)), 0.0F);
             }
 
             this.itemRenderer.renderAndDecorateItem(param3, param4, param0, param1);
             if (var0 > 0.0F) {
-                GlStateManager.popMatrix();
+                RenderSystem.popMatrix();
             }
 
             this.itemRenderer.renderGuiItemDecorations(this.minecraft.font, param4, param0, param1);

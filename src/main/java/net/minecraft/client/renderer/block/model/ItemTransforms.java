@@ -5,7 +5,7 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Quaternion;
 import java.lang.reflect.Type;
@@ -84,7 +84,7 @@ public class ItemTransforms {
     public static void apply(ItemTransform param0, boolean param1) {
         if (param0 != ItemTransform.NO_TRANSFORM) {
             int var0 = param1 ? -1 : 1;
-            GlStateManager.translatef((float)var0 * (transX + param0.translation.x()), transY + param0.translation.y(), transZ + param0.translation.z());
+            RenderSystem.translatef((float)var0 * (transX + param0.translation.x()), transY + param0.translation.y(), transZ + param0.translation.z());
             float var1 = rotX + param0.rotation.x();
             float var2 = rotY + param0.rotation.y();
             float var3 = rotZ + param0.rotation.z();
@@ -93,8 +93,8 @@ public class ItemTransforms {
                 var3 = -var3;
             }
 
-            GlStateManager.multMatrix(new Matrix4f(new Quaternion(var1, var2, var3, true)));
-            GlStateManager.scalef(scaleX + param0.scale.x(), scaleY + param0.scale.y(), scaleZ + param0.scale.z());
+            RenderSystem.multMatrix(new Matrix4f(new Quaternion(var1, var2, var3, true)));
+            RenderSystem.scalef(scaleX + param0.scale.x(), scaleY + param0.scale.y(), scaleZ + param0.scale.z());
         }
     }
 

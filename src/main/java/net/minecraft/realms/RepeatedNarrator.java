@@ -10,7 +10,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-class RepeatedNarrator {
+public class RepeatedNarrator {
     final Duration repeatDelay;
     private final float permitsPerSecond;
     final AtomicReference<RepeatedNarrator.Params> params;

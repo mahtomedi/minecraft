@@ -144,7 +144,7 @@ public abstract class AbstractChestedHorse extends AbstractHorse {
             return super.mobInteract(param0, param1);
         } else {
             if (!this.isBaby()) {
-                if (this.isTamed() && param0.isSneaking()) {
+                if (this.isTamed() && param0.isSecondaryUseActive()) {
                     this.openInventory(param0);
                     return true;
                 }

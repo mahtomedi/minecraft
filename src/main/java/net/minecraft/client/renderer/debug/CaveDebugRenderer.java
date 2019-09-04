@@ -3,6 +3,7 @@ package net.minecraft.client.renderer.debug;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -42,15 +43,15 @@ public class CaveDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
         double var1 = var0.getPosition().x;
         double var2 = var0.getPosition().y;
         double var3 = var0.getPosition().z;
-        GlStateManager.pushMatrix();
-        GlStateManager.enableBlend();
-        GlStateManager.blendFuncSeparate(
+        RenderSystem.pushMatrix();
+        RenderSystem.enableBlend();
+        RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.SRC_ALPHA,
             GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
             GlStateManager.SourceFactor.ONE,
             GlStateManager.DestFactor.ZERO
         );
-        GlStateManager.disableTexture();
+        RenderSystem.disableTexture();
         BlockPos var4 = new BlockPos(var0.getPosition().x, 0.0, var0.getPosition().z);
         Tesselator var5 = Tesselator.getInstance();
         BufferBuilder var6 = var5.getBuilder();
@@ -99,8 +100,8 @@ public class CaveDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
         }
 
         var5.end();
-        GlStateManager.enableDepthTest();
-        GlStateManager.enableTexture();
-        GlStateManager.popMatrix();
+        RenderSystem.enableDepthTest();
+        RenderSystem.enableTexture();
+        RenderSystem.popMatrix();
     }
 }

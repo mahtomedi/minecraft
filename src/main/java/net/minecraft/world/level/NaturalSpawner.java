@@ -6,6 +6,7 @@ import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
@@ -32,7 +33,7 @@ import org.apache.logging.log4j.Logger;
 public final class NaturalSpawner {
     private static final Logger LOGGER = LogManager.getLogger();
 
-    public static void spawnCategoryForChunk(MobCategory param0, Level param1, LevelChunk param2, BlockPos param3) {
+    public static void spawnCategoryForChunk(MobCategory param0, ServerLevel param1, LevelChunk param2, BlockPos param3) {
         ChunkGenerator<?> var0 = param1.getChunkSource().getGenerator();
         int var1 = 0;
         BlockPos var2 = getRandomPosWithin(param1, param2);

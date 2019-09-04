@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity.layers;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.WolfModel;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.resources.ResourceLocation;
@@ -20,7 +20,7 @@ public class WolfCollarLayer extends RenderLayer<Wolf, WolfModel<Wolf>> {
         if (param0.isTame() && !param0.isInvisible()) {
             this.bindTexture(WOLF_COLLAR_LOCATION);
             float[] var0 = param0.getCollarColor().getTextureDiffuseColors();
-            GlStateManager.color3f(var0[0], var0[1], var0[2]);
+            RenderSystem.color3f(var0[0], var0[1], var0[2]);
             this.getParentModel().render(param0, param1, param2, param4, param5, param6, param7);
         }
     }

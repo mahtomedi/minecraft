@@ -1,8 +1,7 @@
 package net.minecraft.client.renderer.entity;
 
 import com.google.common.collect.Maps;
-import com.mojang.blaze3d.platform.GLX;
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -28,6 +27,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ambient.Bat;
+import net.minecraft.world.entity.animal.Bee;
 import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.animal.Chicken;
 import net.minecraft.world.entity.animal.Cod;
@@ -210,6 +210,7 @@ public class EntityRenderDispatcher {
         this.register(Panda.class, new PandaRenderer(this));
         this.register(Cat.class, new CatRenderer(this));
         this.register(Fox.class, new FoxRenderer(this));
+        this.register(Bee.class, new BeeRenderer(this));
         this.register(EnderDragon.class, new EnderDragonRenderer(this));
         this.register(EndCrystal.class, new EndCrystalRenderer(this));
         this.register(WitherBoss.class, new WitherBossRenderer(this));
@@ -351,8 +352,8 @@ public class EntityRenderDispatcher {
 
         int var5 = var4 % 65536;
         int var6 = var4 / 65536;
-        GLX.glMultiTexCoord2f(GLX.GL_TEXTURE1, (float)var5, (float)var6);
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.glMultiTexCoord2f(33985, (float)var5, (float)var6);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.render(param0, var0 - this.xOff, var1 - this.yOff, var2 - this.zOff, var3, param1, param2);
     }
 
@@ -417,8 +418,8 @@ public class EntityRenderDispatcher {
 
         int var5 = var4 % 65536;
         int var6 = var4 / 65536;
-        GLX.glMultiTexCoord2f(GLX.GL_TEXTURE1, (float)var5, (float)var6);
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.glMultiTexCoord2f(33985, (float)var5, (float)var6);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         EntityRenderer<Entity> var7 = this.getRenderer(param0);
         if (var7 != null && this.textureManager != null) {
             var7.renderSecondPass(param0, var0 - this.xOff, var1 - this.yOff, var2 - this.zOff, var3, param1);
@@ -427,11 +428,11 @@ public class EntityRenderDispatcher {
     }
 
     private void renderHitbox(Entity param0, double param1, double param2, double param3, float param4, float param5) {
-        GlStateManager.depthMask(false);
-        GlStateManager.disableTexture();
-        GlStateManager.disableLighting();
-        GlStateManager.disableCull();
-        GlStateManager.disableBlend();
+        RenderSystem.depthMask(false);
+        RenderSystem.disableTexture();
+        RenderSystem.disableLighting();
+        RenderSystem.disableCull();
+        RenderSystem.disableBlend();
         float var0 = param0.getBbWidth() / 2.0F;
         AABB var1 = param0.getBoundingBox();
         LevelRenderer.renderLineBox(
@@ -490,11 +491,11 @@ public class EntityRenderDispatcher {
         var9.vertex(param1, param2 + (double)param0.getEyeHeight(), param3).color(0, 0, 255, 255).endVertex();
         var9.vertex(param1 + var10.x * 2.0, param2 + (double)param0.getEyeHeight() + var10.y * 2.0, param3 + var10.z * 2.0).color(0, 0, 255, 255).endVertex();
         var8.end();
-        GlStateManager.enableTexture();
-        GlStateManager.enableLighting();
-        GlStateManager.enableCull();
-        GlStateManager.disableBlend();
-        GlStateManager.depthMask(true);
+        RenderSystem.enableTexture();
+        RenderSystem.enableLighting();
+        RenderSystem.enableCull();
+        RenderSystem.disableBlend();
+        RenderSystem.depthMask(true);
     }
 
     public void setLevel(@Nullable Level param0) {

@@ -27,6 +27,7 @@ import net.minecraft.util.datafix.fixes.BlockNameFlatteningFix;
 import net.minecraft.util.datafix.fixes.BlockRenameFix;
 import net.minecraft.util.datafix.fixes.BlockStateStructureTemplateFix;
 import net.minecraft.util.datafix.fixes.CatTypeFix;
+import net.minecraft.util.datafix.fixes.ChunkBiomeFix;
 import net.minecraft.util.datafix.fixes.ChunkLightRemoveFix;
 import net.minecraft.util.datafix.fixes.ChunkPalettedStorageFix;
 import net.minecraft.util.datafix.fixes.ChunkStatusFix;
@@ -62,6 +63,7 @@ import net.minecraft.util.datafix.fixes.EntityTippedArrowFix;
 import net.minecraft.util.datafix.fixes.EntityWolfColorFix;
 import net.minecraft.util.datafix.fixes.EntityZombieSplitFix;
 import net.minecraft.util.datafix.fixes.EntityZombieVillagerTypeFix;
+import net.minecraft.util.datafix.fixes.ForcePoiRebuild;
 import net.minecraft.util.datafix.fixes.HeightmapRenamingFix;
 import net.minecraft.util.datafix.fixes.IglooMetadataRemovalFix;
 import net.minecraft.util.datafix.fixes.ItemBannerColorFix;
@@ -141,6 +143,7 @@ import net.minecraft.util.datafix.schemas.V1920;
 import net.minecraft.util.datafix.schemas.V1928;
 import net.minecraft.util.datafix.schemas.V1929;
 import net.minecraft.util.datafix.schemas.V1931;
+import net.minecraft.util.datafix.schemas.V2100;
 import net.minecraft.util.datafix.schemas.V501;
 import net.minecraft.util.datafix.schemas.V700;
 import net.minecraft.util.datafix.schemas.V701;
@@ -517,5 +520,11 @@ public class DataFixers {
         param0.addFixer(new ZombieVillagerRebuildXpFix(var93, false));
         Schema var94 = param0.addSchema(1961, SAME_NAMESPACED);
         param0.addFixer(new ChunkLightRemoveFix(var94, false));
+        Schema var95 = param0.addSchema(2100, V2100::new);
+        param0.addFixer(new AddNewChoices(var95, "Added Bee and Bee Stinger", References.ENTITY));
+        param0.addFixer(new AddNewChoices(var95, "Add beehive", References.BLOCK_ENTITY));
+        Schema var96 = param0.addSchema(2202, SAME_NAMESPACED);
+        param0.addFixer(new ChunkBiomeFix(var96, false));
+        param0.addFixer(new ForcePoiRebuild(var96, false));
     }
 }

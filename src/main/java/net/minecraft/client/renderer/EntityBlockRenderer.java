@@ -1,7 +1,7 @@
 package net.minecraft.client.renderer;
 
 import com.mojang.authlib.GameProfile;
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.Arrays;
 import java.util.Comparator;
 import net.minecraft.client.Minecraft;
@@ -73,14 +73,14 @@ public class EntityBlockRenderer {
                 Minecraft.getInstance().getTextureManager().bind(BannerTextures.NO_PATTERN_SHIELD);
             }
 
-            GlStateManager.pushMatrix();
-            GlStateManager.scalef(1.0F, -1.0F, -1.0F);
+            RenderSystem.pushMatrix();
+            RenderSystem.scalef(1.0F, -1.0F, -1.0F);
             this.shieldModel.render();
             if (param0.hasFoil()) {
                 this.renderFoil(this.shieldModel::render);
             }
 
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
         } else if (var0 instanceof BlockItem && ((BlockItem)var0).getBlock() instanceof AbstractSkullBlock) {
             GameProfile var1 = null;
             if (param0.hasTag()) {
@@ -96,23 +96,23 @@ public class EntityBlockRenderer {
             }
 
             if (SkullBlockRenderer.instance != null) {
-                GlStateManager.pushMatrix();
-                GlStateManager.disableCull();
+                RenderSystem.pushMatrix();
+                RenderSystem.disableCull();
                 SkullBlockRenderer.instance
                     .renderSkull(0.0F, 0.0F, 0.0F, null, 180.0F, ((AbstractSkullBlock)((BlockItem)var0).getBlock()).getType(), var1, -1, 0.0F);
-                GlStateManager.enableCull();
-                GlStateManager.popMatrix();
+                RenderSystem.enableCull();
+                RenderSystem.popMatrix();
             }
         } else if (var0 == Items.TRIDENT) {
             Minecraft.getInstance().getTextureManager().bind(TridentModel.TEXTURE);
-            GlStateManager.pushMatrix();
-            GlStateManager.scalef(1.0F, -1.0F, -1.0F);
+            RenderSystem.pushMatrix();
+            RenderSystem.scalef(1.0F, -1.0F, -1.0F);
             this.tridentModel.render();
             if (param0.hasFoil()) {
                 this.renderFoil(this.tridentModel::render);
             }
 
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
         } else if (var0 instanceof BlockItem && ((BlockItem)var0).getBlock() == Blocks.CONDUIT) {
             BlockEntityRenderDispatcher.instance.renderItem(this.conduit);
         } else if (var0 == Blocks.ENDER_CHEST.asItem()) {
@@ -133,7 +133,7 @@ public class EntityBlockRenderer {
     }
 
     private void renderFoil(Runnable param0) {
-        GlStateManager.color3f(0.5019608F, 0.2509804F, 0.8F);
+        RenderSystem.color3f(0.5019608F, 0.2509804F, 0.8F);
         Minecraft.getInstance().getTextureManager().bind(ItemRenderer.ENCHANT_GLINT_LOCATION);
         ItemRenderer.renderFoilLayer(Minecraft.getInstance().getTextureManager(), param0, 1);
     }

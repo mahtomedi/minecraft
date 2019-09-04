@@ -5,6 +5,7 @@ import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -95,12 +96,16 @@ public abstract class ButtonBlock extends FaceAttachedHorizontalDirectionalBlock
         if (param0.getValue(POWERED)) {
             return true;
         } else {
-            param1.setBlock(param2, param0.setValue(POWERED, Boolean.valueOf(true)), 3);
+            this.press(param0, param1, param2);
             this.playSound(param3, param1, param2, true);
-            this.updateNeighbours(param0, param1, param2);
-            param1.getBlockTicks().scheduleTick(param2, this, this.getTickDelay(param1));
             return true;
         }
+    }
+
+    public void press(BlockState param0, Level param1, BlockPos param2) {
+        param1.setBlock(param2, param0.setValue(POWERED, Boolean.valueOf(true)), 3);
+        this.updateNeighbours(param0, param1, param2);
+        param1.getBlockTicks().scheduleTick(param2, this, this.getTickDelay(param1));
     }
 
     protected void playSound(@Nullable Player param0, LevelAccessor param1, BlockPos param2, boolean param3) {
@@ -136,8 +141,8 @@ public abstract class ButtonBlock extends FaceAttachedHorizontalDirectionalBlock
     }
 
     @Override
-    public void tick(BlockState param0, Level param1, BlockPos param2, Random param3) {
-        if (!param1.isClientSide && param0.getValue(POWERED)) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+        if (param0.getValue(POWERED)) {
             if (this.sensitive) {
                 this.checkPressed(param0, param1, param2);
             } else {

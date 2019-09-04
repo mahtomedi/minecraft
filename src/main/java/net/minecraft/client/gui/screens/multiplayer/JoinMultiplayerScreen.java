@@ -189,11 +189,15 @@ public class JoinMultiplayerScreen extends Screen {
         } else if (param0 == 294) {
             this.refreshServerList();
             return true;
-        } else if (this.serverSelectionList.getSelected() == null || param0 != 257 && param0 != 335) {
-            return false;
+        } else if (this.serverSelectionList.getSelected() != null) {
+            if (param0 != 257 && param0 != 335) {
+                return this.serverSelectionList.keyPressed(param0, param1, param2);
+            } else {
+                this.joinSelectedServer();
+                return true;
+            }
         } else {
-            this.joinSelectedServer();
-            return true;
+            return false;
         }
     }
 

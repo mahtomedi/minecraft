@@ -1,8 +1,8 @@
 package net.minecraft.client.gui.components.toasts;
 
 import com.google.common.collect.Queues;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.Arrays;
 import java.util.Deque;
 import javax.annotation.Nullable;
@@ -103,10 +103,10 @@ public class ToastComponent extends GuiComponent {
                 this.visibleTime = var0;
             }
 
-            GlStateManager.pushMatrix();
-            GlStateManager.translatef((float)param0 - 160.0F * this.getVisibility(var0), (float)(param1 * 32), (float)(500 + param1));
+            RenderSystem.pushMatrix();
+            RenderSystem.translatef((float)param0 - 160.0F * this.getVisibility(var0), (float)(param1 * 32), (float)(500 + param1));
             Toast.Visibility var1 = this.toast.render(ToastComponent.this, var0 - this.visibleTime);
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
             if (var1 != this.visibility) {
                 this.animationTime = var0 - (long)((int)((1.0F - this.getVisibility(var0)) * 600.0F));
                 this.visibility = var1;

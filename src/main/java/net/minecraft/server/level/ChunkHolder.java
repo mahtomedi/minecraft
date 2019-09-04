@@ -9,6 +9,7 @@ import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -345,7 +346,7 @@ public class ChunkHolder {
         boolean var15 = var5.isOrAfter(ChunkHolder.FullChunkStatus.ENTITY_TICKING);
         if (!var14 && var15) {
             if (this.entityTickingChunkFuture != UNLOADED_LEVEL_CHUNK_FUTURE) {
-                throw new IllegalStateException();
+                throw (IllegalStateException)Util.pauseInIde(new IllegalStateException());
             }
 
             this.entityTickingChunkFuture = param0.getEntityTickingRangeFuture(this.pos);

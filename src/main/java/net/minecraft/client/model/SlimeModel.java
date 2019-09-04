@@ -1,6 +1,6 @@
 package net.minecraft.client.model;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.api.distmarker.Dist;
@@ -36,7 +36,7 @@ public class SlimeModel<T extends Entity> extends EntityModel<T> {
     @Override
     public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
         this.setupAnim(param0, param1, param2, param3, param4, param5, param6);
-        GlStateManager.translatef(0.0F, 0.001F, 0.0F);
+        RenderSystem.translatef(0.0F, 0.001F, 0.0F);
         this.cube.render(param6);
         if (this.eye0 != null) {
             this.eye0.render(param6);

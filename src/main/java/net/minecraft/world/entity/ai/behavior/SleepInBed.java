@@ -6,9 +6,11 @@ import java.util.Objects;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.core.SerializableLong;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.schedule.Activity;
@@ -19,7 +21,7 @@ public class SleepInBed extends Behavior<LivingEntity> {
     private long nextOkStartTime;
 
     public SleepInBed() {
-        super(ImmutableMap.of(MemoryModuleType.HOME, MemoryStatus.VALUE_PRESENT));
+        super(ImmutableMap.of(MemoryModuleType.HOME, MemoryStatus.VALUE_PRESENT, MemoryModuleType.LAST_WOKEN, MemoryStatus.REGISTERED));
     }
 
     @Override
@@ -27,12 +29,18 @@ public class SleepInBed extends Behavior<LivingEntity> {
         if (param1.isPassenger()) {
             return false;
         } else {
-            GlobalPos var0 = param1.getBrain().getMemory(MemoryModuleType.HOME).get();
-            if (!Objects.equals(param0.getDimension().getType(), var0.dimension())) {
+            Brain<?> var0 = param1.getBrain();
+            GlobalPos var1 = var0.getMemory(MemoryModuleType.HOME).get();
+            if (!Objects.equals(param0.getDimension().getType(), var1.dimension())) {
                 return false;
             } else {
-                BlockState var1 = param0.getBlockState(var0.pos());
-                return var0.pos().closerThan(param1.position(), 2.0) && var1.getBlock().is(BlockTags.BEDS) && !var1.getValue(BedBlock.OCCUPIED);
+                Optional<SerializableLong> var2 = var0.getMemory(MemoryModuleType.LAST_WOKEN);
+                if (var2.isPresent() && param0.getGameTime() - var2.get().value() < 100L) {
+                    return false;
+                } else {
+                    BlockState var3 = param0.getBlockState(var1.pos());
+                    return var1.pos().closerThan(param1.position(), 2.0) && var3.getBlock().is(BlockTags.BEDS) && !var3.getValue(BedBlock.OCCUPIED);
+                }
             }
         }
     }

@@ -88,10 +88,21 @@ public class Util {
         } else {
             var1 = new ForkJoinPool(var0, param0 -> {
                 ForkJoinWorkerThread var0x = new ForkJoinWorkerThread(param0) {
+                    @Override
+                    protected void onTermination(Throwable param0) {
+                        if (param0 != null) {
+                            Util.LOGGER.warn("{} died", this.getName(), param0);
+                        } else {
+                            Util.LOGGER.debug("{} shutdown", this.getName());
+                        }
+
+                        super.onTermination(param0);
+                    }
                 };
                 var0x.setName("Server-Worker-" + WORKER_COUNT.getAndIncrement());
                 return var0x;
             }, (param0, param1) -> {
+                pauseInIde(param1);
                 if (param1 instanceof CompletionException) {
                     param1 = param1.getCause();
                 }
@@ -258,6 +269,31 @@ public class Util {
     public static <T> Dynamic<T> writeUUID(String param0, UUID param1, Dynamic<T> param2) {
         return param2.set(param0 + "Most", param2.createLong(param1.getMostSignificantBits()))
             .set(param0 + "Least", param2.createLong(param1.getLeastSignificantBits()));
+    }
+
+    public static <T extends Throwable> T pauseInIde(T param0) {
+        if (SharedConstants.IS_RUNNING_IN_IDE) {
+            LOGGER.error("Trying to throw a fatal exception, pausing in IDE", param0);
+
+            while(true) {
+                try {
+                    Thread.sleep(1000L);
+                    LOGGER.error("paused");
+                } catch (InterruptedException var2) {
+                    return param0;
+                }
+            }
+        } else {
+            return param0;
+        }
+    }
+
+    public static String describeError(Throwable param0) {
+        if (param0.getCause() != null) {
+            return describeError(param0.getCause());
+        } else {
+            return param0.getMessage() != null ? param0.getMessage() : param0.toString();
+        }
     }
 
     static enum IdentityStrategy implements Strategy<Object> {

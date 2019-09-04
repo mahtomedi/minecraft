@@ -65,7 +65,7 @@ public class Silverfish extends Monster {
     }
 
     @Override
-    protected boolean makeStepSound() {
+    protected boolean isMovementNoisy() {
         return false;
     }
 
@@ -224,7 +224,7 @@ public class Silverfish extends Monster {
                             Block var8 = var7.getBlock();
                             if (var8 instanceof InfestedBlock) {
                                 if (var0.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
-                                    var0.destroyBlock(var6, true);
+                                    var0.destroyBlock(var6, true, this.silverfish);
                                 } else {
                                     var0.setBlock(var6, ((InfestedBlock)var8).getHostBlock().defaultBlockState(), 3);
                                 }

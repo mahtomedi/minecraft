@@ -3,6 +3,7 @@ package net.minecraft.world.level.block;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -40,7 +41,7 @@ public class BambooSaplingBlock extends Block implements BonemealableBlock {
     }
 
     @Override
-    public void tick(BlockState param0, Level param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         if (param3.nextInt(3) == 0 && param1.isEmptyBlock(param2.above()) && param1.getRawBrightness(param2.above(), 0) >= 9) {
             this.growBamboo(param1, param2);
         }
@@ -82,7 +83,7 @@ public class BambooSaplingBlock extends Block implements BonemealableBlock {
     }
 
     @Override
-    public void performBonemeal(Level param0, Random param1, BlockPos param2, BlockState param3) {
+    public void performBonemeal(ServerLevel param0, Random param1, BlockPos param2, BlockState param3) {
         this.growBamboo(param0, param2);
     }
 

@@ -1,6 +1,6 @@
 package net.minecraft.client.model;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.animal.Panda;
@@ -67,16 +67,16 @@ public class PandaModel<T extends Panda> extends QuadrupedModel<T> {
 
         if (var1) {
             if (var2 < 15) {
-                this.head.xRot = ((float) (-Math.PI / 4)) * (float)var2 / 14.0F;
+                this.head.xRot = (float) (-Math.PI / 4) * (float)var2 / 14.0F;
             } else if (var2 < 20) {
                 float var5 = (float)((var2 - 15) / 5);
-                this.head.xRot = (float) (-Math.PI / 4) + ((float) (Math.PI / 4)) * var5;
+                this.head.xRot = (float) (-Math.PI / 4) + (float) (Math.PI / 4) * var5;
             }
         }
 
         if (this.sitAmount > 0.0F) {
-            this.body.xRot = this.rotlerpRad(this.body.xRot, 1.7407963F, this.sitAmount);
-            this.head.xRot = this.rotlerpRad(this.head.xRot, (float) (Math.PI / 2), this.sitAmount);
+            this.body.xRot = ModelUtils.rotlerpRad(this.body.xRot, 1.7407963F, this.sitAmount);
+            this.head.xRot = ModelUtils.rotlerpRad(this.head.xRot, (float) (Math.PI / 2), this.sitAmount);
             this.leg2.zRot = -0.27079642F;
             this.leg3.zRot = 0.27079642F;
             this.leg0.zRot = 0.5707964F;
@@ -104,11 +104,11 @@ public class PandaModel<T extends Panda> extends QuadrupedModel<T> {
             this.leg1.xRot = 0.6F * Mth.sin(param3 * 0.15F);
             this.leg2.xRot = 0.3F * Mth.sin(param3 * 0.25F);
             this.leg3.xRot = -0.3F * Mth.sin(param3 * 0.25F);
-            this.head.xRot = this.rotlerpRad(this.head.xRot, (float) (Math.PI / 2), this.lieOnBackAmount);
+            this.head.xRot = ModelUtils.rotlerpRad(this.head.xRot, (float) (Math.PI / 2), this.lieOnBackAmount);
         }
 
         if (this.rollAmount > 0.0F) {
-            this.head.xRot = this.rotlerpRad(this.head.xRot, 2.0561945F, this.rollAmount);
+            this.head.xRot = ModelUtils.rotlerpRad(this.head.xRot, 2.0561945F, this.rollAmount);
             this.leg0.xRot = -0.5F * Mth.sin(param3 * 0.5F);
             this.leg1.xRot = 0.5F * Mth.sin(param3 * 0.5F);
             this.leg2.xRot = 0.5F * Mth.sin(param3 * 0.5F);
@@ -117,42 +117,28 @@ public class PandaModel<T extends Panda> extends QuadrupedModel<T> {
 
     }
 
-    protected float rotlerpRad(float param0, float param1, float param2) {
-        float var0 = param1 - param0;
-
-        while(var0 < (float) -Math.PI) {
-            var0 += (float) (Math.PI * 2);
-        }
-
-        while(var0 >= (float) Math.PI) {
-            var0 -= (float) (Math.PI * 2);
-        }
-
-        return param0 + param2 * var0;
-    }
-
     public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
         this.setupAnim(param0, param1, param2, param3, param4, param5, param6);
         if (this.young) {
             float var0 = 3.0F;
-            GlStateManager.pushMatrix();
-            GlStateManager.translatef(0.0F, this.yHeadOffs * param6, this.zHeadOffs * param6);
-            GlStateManager.popMatrix();
-            GlStateManager.pushMatrix();
+            RenderSystem.pushMatrix();
+            RenderSystem.translatef(0.0F, this.yHeadOffs * param6, this.zHeadOffs * param6);
+            RenderSystem.popMatrix();
+            RenderSystem.pushMatrix();
             float var1 = 0.6F;
-            GlStateManager.scalef(0.5555555F, 0.5555555F, 0.5555555F);
-            GlStateManager.translatef(0.0F, 23.0F * param6, 0.3F);
+            RenderSystem.scalef(0.5555555F, 0.5555555F, 0.5555555F);
+            RenderSystem.translatef(0.0F, 23.0F * param6, 0.3F);
             this.head.render(param6);
-            GlStateManager.popMatrix();
-            GlStateManager.pushMatrix();
-            GlStateManager.scalef(0.33333334F, 0.33333334F, 0.33333334F);
-            GlStateManager.translatef(0.0F, 49.0F * param6, 0.0F);
+            RenderSystem.popMatrix();
+            RenderSystem.pushMatrix();
+            RenderSystem.scalef(0.33333334F, 0.33333334F, 0.33333334F);
+            RenderSystem.translatef(0.0F, 49.0F * param6, 0.0F);
             this.body.render(param6);
             this.leg0.render(param6);
             this.leg1.render(param6);
             this.leg2.render(param6);
             this.leg3.render(param6);
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
         } else {
             this.head.render(param6);
             this.body.render(param6);

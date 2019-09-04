@@ -20,6 +20,7 @@ import net.minecraft.client.resources.sounds.Sound;
 import net.minecraft.client.resources.sounds.SoundEventRegistration;
 import net.minecraft.client.resources.sounds.SoundEventRegistrationSerializer;
 import net.minecraft.client.resources.sounds.SoundInstance;
+import net.minecraft.client.resources.sounds.TickableSoundInstance;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -157,6 +158,10 @@ public class SoundManager extends SimplePreparableReloadListener<SoundManager.Pr
 
     public Collection<ResourceLocation> getAvailableSounds() {
         return this.registry.keySet();
+    }
+
+    public void queueTickingSound(TickableSoundInstance param0) {
+        this.soundEngine.queueTickingSound(param0);
     }
 
     public void play(SoundInstance param0) {

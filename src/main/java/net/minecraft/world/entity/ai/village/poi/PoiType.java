@@ -9,11 +9,9 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
+import net.minecraft.Util;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.Block;
@@ -51,28 +49,29 @@ public class PoiType {
         .filter(param0 -> param0.getValue(BedBlock.PART) == BedPart.HEAD)
         .collect(ImmutableSet.toImmutableSet());
     private static final Map<BlockState, PoiType> TYPE_BY_STATE = Maps.newHashMap();
-    public static final PoiType UNEMPLOYED = register("unemployed", ImmutableSet.of(), 1, null, ALL_JOBS, 1);
-    public static final PoiType ARMORER = register("armorer", getBlockStates(Blocks.BLAST_FURNACE), 1, SoundEvents.VILLAGER_WORK_ARMORER, 1);
-    public static final PoiType BUTCHER = register("butcher", getBlockStates(Blocks.SMOKER), 1, SoundEvents.VILLAGER_WORK_BUTCHER, 1);
-    public static final PoiType CARTOGRAPHER = register("cartographer", getBlockStates(Blocks.CARTOGRAPHY_TABLE), 1, SoundEvents.VILLAGER_WORK_CARTOGRAPHER, 1);
-    public static final PoiType CLERIC = register("cleric", getBlockStates(Blocks.BREWING_STAND), 1, SoundEvents.VILLAGER_WORK_CLERIC, 1);
-    public static final PoiType FARMER = register("farmer", getBlockStates(Blocks.COMPOSTER), 1, SoundEvents.VILLAGER_WORK_FARMER, 1);
-    public static final PoiType FISHERMAN = register("fisherman", getBlockStates(Blocks.BARREL), 1, SoundEvents.VILLAGER_WORK_FISHERMAN, 1);
-    public static final PoiType FLETCHER = register("fletcher", getBlockStates(Blocks.FLETCHING_TABLE), 1, SoundEvents.VILLAGER_WORK_FLETCHER, 1);
-    public static final PoiType LEATHERWORKER = register("leatherworker", getBlockStates(Blocks.CAULDRON), 1, SoundEvents.VILLAGER_WORK_LEATHERWORKER, 1);
-    public static final PoiType LIBRARIAN = register("librarian", getBlockStates(Blocks.LECTERN), 1, SoundEvents.VILLAGER_WORK_LIBRARIAN, 1);
-    public static final PoiType MASON = register("mason", getBlockStates(Blocks.STONECUTTER), 1, SoundEvents.VILLAGER_WORK_MASON, 1);
-    public static final PoiType NITWIT = register("nitwit", ImmutableSet.of(), 1, null, 1);
-    public static final PoiType SHEPHERD = register("shepherd", getBlockStates(Blocks.LOOM), 1, SoundEvents.VILLAGER_WORK_SHEPHERD, 1);
-    public static final PoiType TOOLSMITH = register("toolsmith", getBlockStates(Blocks.SMITHING_TABLE), 1, SoundEvents.VILLAGER_WORK_TOOLSMITH, 1);
-    public static final PoiType WEAPONSMITH = register("weaponsmith", getBlockStates(Blocks.GRINDSTONE), 1, SoundEvents.VILLAGER_WORK_WEAPONSMITH, 1);
-    public static final PoiType HOME = register("home", BEDS, 1, null, 1);
-    public static final PoiType MEETING = register("meeting", getBlockStates(Blocks.BELL), 32, null, 6);
+    public static final PoiType UNEMPLOYED = register("unemployed", ImmutableSet.of(), 1, ALL_JOBS, 1);
+    public static final PoiType ARMORER = register("armorer", getBlockStates(Blocks.BLAST_FURNACE), 1, 1);
+    public static final PoiType BUTCHER = register("butcher", getBlockStates(Blocks.SMOKER), 1, 1);
+    public static final PoiType CARTOGRAPHER = register("cartographer", getBlockStates(Blocks.CARTOGRAPHY_TABLE), 1, 1);
+    public static final PoiType CLERIC = register("cleric", getBlockStates(Blocks.BREWING_STAND), 1, 1);
+    public static final PoiType FARMER = register("farmer", getBlockStates(Blocks.COMPOSTER), 1, 1);
+    public static final PoiType FISHERMAN = register("fisherman", getBlockStates(Blocks.BARREL), 1, 1);
+    public static final PoiType FLETCHER = register("fletcher", getBlockStates(Blocks.FLETCHING_TABLE), 1, 1);
+    public static final PoiType LEATHERWORKER = register("leatherworker", getBlockStates(Blocks.CAULDRON), 1, 1);
+    public static final PoiType LIBRARIAN = register("librarian", getBlockStates(Blocks.LECTERN), 1, 1);
+    public static final PoiType MASON = register("mason", getBlockStates(Blocks.STONECUTTER), 1, 1);
+    public static final PoiType NITWIT = register("nitwit", ImmutableSet.of(), 1, 1);
+    public static final PoiType SHEPHERD = register("shepherd", getBlockStates(Blocks.LOOM), 1, 1);
+    public static final PoiType TOOLSMITH = register("toolsmith", getBlockStates(Blocks.SMITHING_TABLE), 1, 1);
+    public static final PoiType WEAPONSMITH = register("weaponsmith", getBlockStates(Blocks.GRINDSTONE), 1, 1);
+    public static final PoiType HOME = register("home", BEDS, 1, 1);
+    public static final PoiType MEETING = register("meeting", getBlockStates(Blocks.BELL), 32, 6);
+    public static final PoiType BEE_HIVE = register("bee_hive", getBlockStates(Blocks.BEE_HIVE), 0, 1);
+    public static final PoiType BEE_NEST = register("bee_nest", getBlockStates(Blocks.BEE_NEST), 0, 1);
+    public static final PoiType NETHER_PORTAL = register("nether_portal", getBlockStates(Blocks.NETHER_PORTAL), 0, 1);
     private final String name;
     private final Set<BlockState> matchingStates;
     private final int maxTickets;
-    @Nullable
-    private final SoundEvent soundEvent;
     private final Predicate<PoiType> predicate;
     private final int validRange;
 
@@ -80,22 +79,20 @@ public class PoiType {
         return ImmutableSet.copyOf(param0.getStateDefinition().getPossibleStates());
     }
 
-    private PoiType(String param0, Set<BlockState> param1, int param2, @Nullable SoundEvent param3, Predicate<PoiType> param4, int param5) {
+    private PoiType(String param0, Set<BlockState> param1, int param2, Predicate<PoiType> param3, int param4) {
         this.name = param0;
         this.matchingStates = ImmutableSet.copyOf(param1);
         this.maxTickets = param2;
-        this.soundEvent = param3;
-        this.predicate = param4;
-        this.validRange = param5;
+        this.predicate = param3;
+        this.validRange = param4;
     }
 
-    private PoiType(String param0, Set<BlockState> param1, int param2, @Nullable SoundEvent param3, int param4) {
+    private PoiType(String param0, Set<BlockState> param1, int param2, int param3) {
         this.name = param0;
         this.matchingStates = ImmutableSet.copyOf(param1);
         this.maxTickets = param2;
-        this.soundEvent = param3;
         this.predicate = param0x -> param0x == this;
-        this.validRange = param4;
+        this.validRange = param3;
     }
 
     public int getMaxTickets() {
@@ -115,26 +112,19 @@ public class PoiType {
         return this.name;
     }
 
-    @Nullable
-    public SoundEvent getUseSound() {
-        return this.soundEvent;
+    private static PoiType register(String param0, Set<BlockState> param1, int param2, int param3) {
+        return registerBlockStates(Registry.POINT_OF_INTEREST_TYPE.register(new ResourceLocation(param0), new PoiType(param0, param1, param2, param3)));
     }
 
-    private static PoiType register(String param0, Set<BlockState> param1, int param2, @Nullable SoundEvent param3, int param4) {
+    private static PoiType register(String param0, Set<BlockState> param1, int param2, Predicate<PoiType> param3, int param4) {
         return registerBlockStates(Registry.POINT_OF_INTEREST_TYPE.register(new ResourceLocation(param0), new PoiType(param0, param1, param2, param3, param4)));
-    }
-
-    private static PoiType register(String param0, Set<BlockState> param1, int param2, @Nullable SoundEvent param3, Predicate<PoiType> param4, int param5) {
-        return registerBlockStates(
-            Registry.POINT_OF_INTEREST_TYPE.register(new ResourceLocation(param0), new PoiType(param0, param1, param2, param3, param4, param5))
-        );
     }
 
     private static PoiType registerBlockStates(PoiType param0) {
         param0.matchingStates.forEach(param1 -> {
             PoiType var0x = TYPE_BY_STATE.put(param1, param0);
             if (var0x != null) {
-                throw new IllegalStateException(String.format("%s is defined in too many tags", param1));
+                throw (IllegalStateException)Util.pauseInIde(new IllegalStateException(String.format("%s is defined in too many tags", param1)));
             }
         });
         return param0;

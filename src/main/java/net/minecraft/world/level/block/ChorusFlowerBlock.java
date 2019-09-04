@@ -4,8 +4,8 @@ import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockLayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -27,7 +27,7 @@ public class ChorusFlowerBlock extends Block {
     }
 
     @Override
-    public void tick(BlockState param0, Level param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         if (!param0.canSurvive(param1, param2)) {
             param1.destroyBlock(param2, true);
         } else {
@@ -220,7 +220,6 @@ public class ChorusFlowerBlock extends Block {
     @Override
     public void onProjectileHit(Level param0, BlockState param1, BlockHitResult param2, Entity param3) {
         BlockPos var0 = param2.getBlockPos();
-        popResource(param0, var0, new ItemStack(this));
-        param0.destroyBlock(var0, true);
+        param0.destroyBlock(var0, true, param3);
     }
 }

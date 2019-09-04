@@ -42,7 +42,7 @@ public class ChunkStatus {
         "structure_starts", EMPTY, 0, PRE_FEATURES, ChunkStatus.ChunkType.PROTOCHUNK, (param0, param1, param2, param3, param4, param5, param6, param7) -> {
             if (!param7.getStatus().isOrAfter(param0)) {
                 if (param1.getLevelData().isGenerateMapFeatures()) {
-                    param2.createStructures(param7, param2, param3);
+                    param2.createStructures(param1.getBiomeManager().withDifferentSource(param2.getBiomeSource()), param7, param2, param3);
                 }
     
                 if (param7 instanceof ProtoChunk) {
@@ -73,7 +73,12 @@ public class ChunkStatus {
         (param0, param1, param2, param3) -> param1.fillFromNoise(new WorldGenRegion(param0, param2), param3)
     );
     public static final ChunkStatus SURFACE = registerSimple(
-        "surface", NOISE, 0, PRE_FEATURES, ChunkStatus.ChunkType.PROTOCHUNK, (param0, param1, param2, param3) -> param1.buildSurfaceAndBedrock(param3)
+        "surface",
+        NOISE,
+        0,
+        PRE_FEATURES,
+        ChunkStatus.ChunkType.PROTOCHUNK,
+        (param0, param1, param2, param3) -> param1.buildSurfaceAndBedrock(new WorldGenRegion(param0, param2), param3)
     );
     public static final ChunkStatus CARVERS = registerSimple(
         "carvers",
@@ -81,7 +86,9 @@ public class ChunkStatus {
         0,
         PRE_FEATURES,
         ChunkStatus.ChunkType.PROTOCHUNK,
-        (param0, param1, param2, param3) -> param1.applyCarvers(param3, GenerationStep.Carving.AIR)
+        (param0, param1, param2, param3) -> param1.applyCarvers(
+                param0.getBiomeManager().withDifferentSource(param1.getBiomeSource()), param3, GenerationStep.Carving.AIR
+            )
     );
     public static final ChunkStatus LIQUID_CARVERS = registerSimple(
         "liquid_carvers",
@@ -89,7 +96,9 @@ public class ChunkStatus {
         0,
         POST_FEATURES,
         ChunkStatus.ChunkType.PROTOCHUNK,
-        (param0, param1, param2, param3) -> param1.applyCarvers(param3, GenerationStep.Carving.LIQUID)
+        (param0, param1, param2, param3) -> param1.applyCarvers(
+                param0.getBiomeManager().withDifferentSource(param1.getBiomeSource()), param3, GenerationStep.Carving.LIQUID
+            )
     );
     public static final ChunkStatus FEATURES = register(
         "features",
@@ -98,7 +107,8 @@ public class ChunkStatus {
         POST_FEATURES,
         ChunkStatus.ChunkType.PROTOCHUNK,
         (param0, param1, param2, param3, param4, param5, param6, param7) -> {
-            param7.setLightEngine(param4);
+            ProtoChunk var0 = (ProtoChunk)param7;
+            var0.setLightEngine(param4);
             if (!param7.getStatus().isOrAfter(param0)) {
                 Heightmap.primeHeightmaps(
                     param7,
@@ -107,9 +117,7 @@ public class ChunkStatus {
                     )
                 );
                 param2.applyBiomeDecoration(new WorldGenRegion(param1, param6));
-                if (param7 instanceof ProtoChunk) {
-                    ((ProtoChunk)param7).setStatus(param0);
-                }
+                var0.setStatus(param0);
             }
     
             return CompletableFuture.completedFuture(Either.left(param7));

@@ -1,6 +1,6 @@
 package net.minecraft.client.model;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
@@ -68,19 +68,19 @@ public class PlayerModel<T extends LivingEntity> extends HumanoidModel<T> {
     @Override
     public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
         super.render(param0, param1, param2, param3, param4, param5, param6);
-        GlStateManager.pushMatrix();
+        RenderSystem.pushMatrix();
         if (this.young) {
             float var0 = 2.0F;
-            GlStateManager.scalef(0.5F, 0.5F, 0.5F);
-            GlStateManager.translatef(0.0F, 24.0F * param6, 0.0F);
+            RenderSystem.scalef(0.5F, 0.5F, 0.5F);
+            RenderSystem.translatef(0.0F, 24.0F * param6, 0.0F);
             this.leftPants.render(param6);
             this.rightPants.render(param6);
             this.leftSleeve.render(param6);
             this.rightSleeve.render(param6);
             this.jacket.render(param6);
         } else {
-            if (param0.isVisuallySneaking()) {
-                GlStateManager.translatef(0.0F, 0.2F, 0.0F);
+            if (param0.isCrouching()) {
+                RenderSystem.translatef(0.0F, 0.2F, 0.0F);
             }
 
             this.leftPants.render(param6);
@@ -90,7 +90,7 @@ public class PlayerModel<T extends LivingEntity> extends HumanoidModel<T> {
             this.jacket.render(param6);
         }
 
-        GlStateManager.popMatrix();
+        RenderSystem.popMatrix();
     }
 
     public void renderEars(float param0) {
@@ -112,7 +112,7 @@ public class PlayerModel<T extends LivingEntity> extends HumanoidModel<T> {
         this.leftSleeve.copyFrom(this.leftArm);
         this.rightSleeve.copyFrom(this.rightArm);
         this.jacket.copyFrom(this.body);
-        if (param0.isVisuallySneaking()) {
+        if (param0.isCrouching()) {
             this.cloak.y = 2.0F;
         } else {
             this.cloak.y = 0.0F;

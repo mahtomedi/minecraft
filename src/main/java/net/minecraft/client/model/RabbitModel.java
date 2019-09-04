@@ -1,6 +1,6 @@
 package net.minecraft.client.model;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.animal.Rabbit;
@@ -95,17 +95,17 @@ public class RabbitModel<T extends Rabbit> extends EntityModel<T> {
         this.setupAnim(param0, param1, param2, param3, param4, param5, param6);
         if (this.young) {
             float var0 = 1.5F;
-            GlStateManager.pushMatrix();
-            GlStateManager.scalef(0.56666666F, 0.56666666F, 0.56666666F);
-            GlStateManager.translatef(0.0F, 22.0F * param6, 2.0F * param6);
+            RenderSystem.pushMatrix();
+            RenderSystem.scalef(0.56666666F, 0.56666666F, 0.56666666F);
+            RenderSystem.translatef(0.0F, 22.0F * param6, 2.0F * param6);
             this.head.render(param6);
             this.earLeft.render(param6);
             this.earRight.render(param6);
             this.nose.render(param6);
-            GlStateManager.popMatrix();
-            GlStateManager.pushMatrix();
-            GlStateManager.scalef(0.4F, 0.4F, 0.4F);
-            GlStateManager.translatef(0.0F, 36.0F * param6, 0.0F);
+            RenderSystem.popMatrix();
+            RenderSystem.pushMatrix();
+            RenderSystem.scalef(0.4F, 0.4F, 0.4F);
+            RenderSystem.translatef(0.0F, 36.0F * param6, 0.0F);
             this.rearFootLeft.render(param6);
             this.rearFootRight.render(param6);
             this.haunchLeft.render(param6);
@@ -114,11 +114,11 @@ public class RabbitModel<T extends Rabbit> extends EntityModel<T> {
             this.frontLegLeft.render(param6);
             this.frontLegRight.render(param6);
             this.tail.render(param6);
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
         } else {
-            GlStateManager.pushMatrix();
-            GlStateManager.scalef(0.6F, 0.6F, 0.6F);
-            GlStateManager.translatef(0.0F, 16.0F * param6, 0.0F);
+            RenderSystem.pushMatrix();
+            RenderSystem.scalef(0.6F, 0.6F, 0.6F);
+            RenderSystem.translatef(0.0F, 16.0F * param6, 0.0F);
             this.rearFootLeft.render(param6);
             this.rearFootRight.render(param6);
             this.haunchLeft.render(param6);
@@ -131,7 +131,7 @@ public class RabbitModel<T extends Rabbit> extends EntityModel<T> {
             this.earLeft.render(param6);
             this.tail.render(param6);
             this.nose.render(param6);
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
         }
 
     }

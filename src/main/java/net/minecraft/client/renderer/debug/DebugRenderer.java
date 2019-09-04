@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.debug;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -38,6 +38,7 @@ public class DebugRenderer {
     public final VillageDebugRenderer villageDebugRenderer;
     public final RaidDebugRenderer raidDebugRenderer;
     public final GoalSelectorDebugRenderer goalSelectorRenderer;
+    public final GameTestDebugRenderer gameTestDebugRenderer;
     private boolean renderChunkborder;
 
     public DebugRenderer(Minecraft param0) {
@@ -56,6 +57,7 @@ public class DebugRenderer {
         this.villageDebugRenderer = new VillageDebugRenderer(param0);
         this.raidDebugRenderer = new RaidDebugRenderer(param0);
         this.goalSelectorRenderer = new GoalSelectorDebugRenderer(param0);
+        this.gameTestDebugRenderer = new GameTestDebugRenderer();
     }
 
     public void clear() {
@@ -74,10 +76,7 @@ public class DebugRenderer {
         this.villageDebugRenderer.clear();
         this.raidDebugRenderer.clear();
         this.goalSelectorRenderer.clear();
-    }
-
-    public boolean shouldRender() {
-        return this.renderChunkborder;
+        this.gameTestDebugRenderer.clear();
     }
 
     public boolean switchRenderChunkborder() {
@@ -90,6 +89,7 @@ public class DebugRenderer {
             this.chunkBorderRenderer.render(param0);
         }
 
+        this.gameTestDebugRenderer.render(param0);
     }
 
     public static Optional<Entity> getTargetedEntity(@Nullable Entity param0, int param1) {
@@ -165,28 +165,28 @@ public class DebugRenderer {
             double var3 = var1.getPosition().x;
             double var4 = var1.getPosition().y;
             double var5 = var1.getPosition().z;
-            GlStateManager.pushMatrix();
-            GlStateManager.translatef((float)(param1 - var3), (float)(param2 - var4) + 0.07F, (float)(param3 - var5));
-            GlStateManager.normal3f(0.0F, 1.0F, 0.0F);
-            GlStateManager.scalef(param5, -param5, param5);
+            RenderSystem.pushMatrix();
+            RenderSystem.translatef((float)(param1 - var3), (float)(param2 - var4) + 0.07F, (float)(param3 - var5));
+            RenderSystem.normal3f(0.0F, 1.0F, 0.0F);
+            RenderSystem.scalef(param5, -param5, param5);
             EntityRenderDispatcher var6 = var0.getEntityRenderDispatcher();
-            GlStateManager.rotatef(-var6.playerRotY, 0.0F, 1.0F, 0.0F);
-            GlStateManager.rotatef(-var6.playerRotX, 1.0F, 0.0F, 0.0F);
-            GlStateManager.enableTexture();
+            RenderSystem.rotatef(-var6.playerRotY, 0.0F, 1.0F, 0.0F);
+            RenderSystem.rotatef(-var6.playerRotX, 1.0F, 0.0F, 0.0F);
+            RenderSystem.enableTexture();
             if (param8) {
-                GlStateManager.disableDepthTest();
+                RenderSystem.disableDepthTest();
             } else {
-                GlStateManager.enableDepthTest();
+                RenderSystem.enableDepthTest();
             }
 
-            GlStateManager.depthMask(true);
-            GlStateManager.scalef(-1.0F, 1.0F, 1.0F);
+            RenderSystem.depthMask(true);
+            RenderSystem.scalef(-1.0F, 1.0F, 1.0F);
             float var7 = param6 ? (float)(-var2.width(param0)) / 2.0F : 0.0F;
             var7 -= param7 / param5;
             var2.draw(param0, var7, 0.0F, param4);
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            GlStateManager.enableDepthTest();
-            GlStateManager.popMatrix();
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.enableDepthTest();
+            RenderSystem.popMatrix();
         }
     }
 

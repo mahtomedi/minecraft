@@ -1,6 +1,7 @@
 package com.mojang.realmsclient.gui.screens;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.google.common.collect.Lists;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Either;
 import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.dto.RealmsServer;
@@ -11,7 +12,6 @@ import com.mojang.realmsclient.gui.RealmsConstants;
 import com.mojang.realmsclient.util.RealmsTextureManager;
 import com.mojang.realmsclient.util.RealmsUtil;
 import com.mojang.realmsclient.util.TextRenderingUtils;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -62,7 +62,7 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
             this.worldTemplateObjectSelectionList = new RealmsSelectWorldTemplateScreen.WorldTemplateObjectSelectionList();
             this.fetchTemplatesAsync(new WorldTemplatePaginatedList(10));
         } else {
-            this.worldTemplateObjectSelectionList = new RealmsSelectWorldTemplateScreen.WorldTemplateObjectSelectionList(new ArrayList<>(param2.templates));
+            this.worldTemplateObjectSelectionList = new RealmsSelectWorldTemplateScreen.WorldTemplateObjectSelectionList(Lists.newArrayList(param2.templates));
             this.fetchTemplatesAsync(param2);
         }
 
@@ -497,10 +497,10 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
 
         private void drawImage(int param0, int param1, int param2, int param3, WorldTemplate param4) {
             RealmsTextureManager.bindWorldTemplate(param4.id, param4.image);
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             RealmsScreen.blit(param0 + 1, param1 + 1, 0.0F, 0.0F, 38, 38, 38, 38);
             RealmsScreen.bind("realms:textures/gui/realms/slot_frame.png");
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             RealmsScreen.blit(param0, param1, 0.0F, 0.0F, 40, 40, 40, 40);
         }
 
@@ -531,20 +531,20 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
 
             if (!"".equals(param4)) {
                 RealmsScreen.bind("realms:textures/gui/realms/link_icons.png");
-                GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-                GlStateManager.pushMatrix();
-                GlStateManager.scalef(1.0F, 1.0F, 1.0F);
+                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                RenderSystem.pushMatrix();
+                RenderSystem.scalef(1.0F, 1.0F, 1.0F);
                 RealmsScreen.blit(param0 + var0, param1, var1 ? 15.0F : 0.0F, 0.0F, 15, 15, 30, 15);
-                GlStateManager.popMatrix();
+                RenderSystem.popMatrix();
             }
 
             if (!"".equals(param5)) {
                 RealmsScreen.bind("realms:textures/gui/realms/trailer_icons.png");
-                GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-                GlStateManager.pushMatrix();
-                GlStateManager.scalef(1.0F, 1.0F, 1.0F);
+                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                RenderSystem.pushMatrix();
+                RenderSystem.scalef(1.0F, 1.0F, 1.0F);
                 RealmsScreen.blit(param0 + var0 + ("".equals(param4) ? 0 : 17), param1, var2 ? 15.0F : 0.0F, 0.0F, 15, 15, 30, 15);
-                GlStateManager.popMatrix();
+                RenderSystem.popMatrix();
             }
 
             if (var1 && !"".equals(param4)) {

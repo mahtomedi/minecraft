@@ -1,11 +1,12 @@
 package net.minecraft.world.level.biome;
 
-public class TheEndBiomeSourceSettings implements BiomeSourceSettings {
-    private long seed;
+import net.minecraft.world.level.storage.LevelData;
 
-    public TheEndBiomeSourceSettings setSeed(long param0) {
-        this.seed = param0;
-        return this;
+public class TheEndBiomeSourceSettings implements BiomeSourceSettings {
+    private final long seed;
+
+    public TheEndBiomeSourceSettings(LevelData param0) {
+        this.seed = param0.getSeed();
     }
 
     public long getSeed() {

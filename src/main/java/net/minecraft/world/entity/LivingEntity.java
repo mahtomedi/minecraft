@@ -67,6 +67,7 @@ import net.minecraft.world.entity.monster.SharedMonsterAttributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ElytraItem;
 import net.minecraft.world.item.Item;
@@ -111,6 +112,7 @@ public abstract class LivingEntity extends Entity {
     private static final EntityDataAccessor<Integer> DATA_EFFECT_COLOR_ID = SynchedEntityData.defineId(LivingEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> DATA_EFFECT_AMBIENCE_ID = SynchedEntityData.defineId(LivingEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> DATA_ARROW_COUNT_ID = SynchedEntityData.defineId(LivingEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DATA_STINGER_COUNT_ID = SynchedEntityData.defineId(LivingEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Optional<BlockPos>> SLEEPING_POS_ID = SynchedEntityData.defineId(
         LivingEntity.class, EntityDataSerializers.OPTIONAL_BLOCK_POS
     );
@@ -124,6 +126,7 @@ public abstract class LivingEntity extends Entity {
     public InteractionHand swingingArm;
     public int swingTime;
     public int removeArrowTime;
+    public int removeStingerTime;
     public int hurtTime;
     public int hurtDuration;
     public float hurtDir;
@@ -223,6 +226,7 @@ public abstract class LivingEntity extends Entity {
         this.entityData.define(DATA_EFFECT_COLOR_ID, 0);
         this.entityData.define(DATA_EFFECT_AMBIENCE_ID, false);
         this.entityData.define(DATA_ARROW_COUNT_ID, 0);
+        this.entityData.define(DATA_STINGER_COUNT_ID, 0);
         this.entityData.define(DATA_HEALTH_ID, 1.0F);
         this.entityData.define(SLEEPING_POS_ID, Optional.empty());
     }
@@ -518,31 +522,15 @@ public abstract class LivingEntity extends Entity {
         param0.putInt("HurtByTimestamp", this.lastHurtByMobTimestamp);
         param0.putShort("DeathTime", (short)this.deathTime);
         param0.putFloat("AbsorptionAmount", this.getAbsorptionAmount());
-
-        for(EquipmentSlot var0 : EquipmentSlot.values()) {
-            ItemStack var1 = this.getItemBySlot(var0);
-            if (!var1.isEmpty()) {
-                this.getAttributes().removeAttributeModifiers(var1.getAttributeModifiers(var0));
-            }
-        }
-
         param0.put("Attributes", SharedMonsterAttributes.saveAttributes(this.getAttributes()));
-
-        for(EquipmentSlot var2 : EquipmentSlot.values()) {
-            ItemStack var3 = this.getItemBySlot(var2);
-            if (!var3.isEmpty()) {
-                this.getAttributes().addAttributeModifiers(var3.getAttributeModifiers(var2));
-            }
-        }
-
         if (!this.activeEffects.isEmpty()) {
-            ListTag var4 = new ListTag();
+            ListTag var0 = new ListTag();
 
-            for(MobEffectInstance var5 : this.activeEffects.values()) {
-                var4.add(var5.save(new CompoundTag()));
+            for(MobEffectInstance var1 : this.activeEffects.values()) {
+                var0.add(var1.save(new CompoundTag()));
             }
 
-            param0.put("ActiveEffects", var4);
+            param0.put("ActiveEffects", var0);
         }
 
         param0.putBoolean("FallFlying", this.isFallFlying());
@@ -683,7 +671,7 @@ public abstract class LivingEntity extends Entity {
 
     public double getVisibilityPercent(@Nullable Entity param0) {
         double var0 = 1.0;
-        if (this.isSneaking()) {
+        if (this.isDiscrete()) {
             var0 *= 0.8;
         }
 
@@ -1227,11 +1215,11 @@ public abstract class LivingEntity extends Entity {
     }
 
     protected SoundEvent getDrinkingSound(ItemStack param0) {
-        return SoundEvents.GENERIC_DRINK;
+        return param0.getDrinkingSound();
     }
 
     public SoundEvent getEatingSound(ItemStack param0) {
-        return SoundEvents.GENERIC_EAT;
+        return param0.getEatingSound();
     }
 
     public boolean onLadder() {
@@ -1397,6 +1385,14 @@ public abstract class LivingEntity extends Entity {
 
     public final void setArrowCount(int param0) {
         this.entityData.set(DATA_ARROW_COUNT_ID, param0);
+    }
+
+    public final int getStingerCount() {
+        return this.entityData.get(DATA_STINGER_COUNT_ID);
+    }
+
+    public final void setStingerCount(int param0) {
+        this.entityData.set(DATA_STINGER_COUNT_ID, param0);
     }
 
     private int getCurrentSwingDuration() {
@@ -1963,7 +1959,7 @@ public abstract class LivingEntity extends Entity {
             double var1 = Mth.clamp(param0.x, -0.15F, 0.15F);
             double var2 = Mth.clamp(param0.z, -0.15F, 0.15F);
             double var3 = Math.max(param0.y, -0.15F);
-            if (var3 < 0.0 && this.getFeetBlockState().getBlock() != Blocks.SCAFFOLDING && this.isSneaking() && this instanceof Player) {
+            if (var3 < 0.0 && this.getFeetBlockState().getBlock() != Blocks.SCAFFOLDING && this.isSuppressingSlidingDownLadder() && this instanceof Player) {
                 var3 = 0.0;
             }
 
@@ -2008,36 +2004,48 @@ public abstract class LivingEntity extends Entity {
                 }
             }
 
-            for(EquipmentSlot var1 : EquipmentSlot.values()) {
-                ItemStack var2;
-                switch(var1.getType()) {
+            int var1 = this.getStingerCount();
+            if (var1 > 0) {
+                if (this.removeStingerTime <= 0) {
+                    this.removeStingerTime = 20 * (30 - var1);
+                }
+
+                --this.removeStingerTime;
+                if (this.removeStingerTime <= 0) {
+                    this.setStingerCount(var1 - 1);
+                }
+            }
+
+            for(EquipmentSlot var2 : EquipmentSlot.values()) {
+                ItemStack var3;
+                switch(var2.getType()) {
                     case HAND:
-                        var2 = this.lastHandItemStacks.get(var1.getIndex());
+                        var3 = this.lastHandItemStacks.get(var2.getIndex());
                         break;
                     case ARMOR:
-                        var2 = this.lastArmorItemStacks.get(var1.getIndex());
+                        var3 = this.lastArmorItemStacks.get(var2.getIndex());
                         break;
                     default:
                         continue;
                 }
 
-                ItemStack var5 = this.getItemBySlot(var1);
-                if (!ItemStack.matches(var5, var2)) {
-                    ((ServerLevel)this.level).getChunkSource().broadcast(this, new ClientboundSetEquippedItemPacket(this.getId(), var1, var5));
-                    if (!var2.isEmpty()) {
-                        this.getAttributes().removeAttributeModifiers(var2.getAttributeModifiers(var1));
+                ItemStack var6 = this.getItemBySlot(var2);
+                if (!ItemStack.matches(var6, var3)) {
+                    ((ServerLevel)this.level).getChunkSource().broadcast(this, new ClientboundSetEquippedItemPacket(this.getId(), var2, var6));
+                    if (!var3.isEmpty()) {
+                        this.getAttributes().removeAttributeModifiers(var3.getAttributeModifiers(var2));
                     }
 
-                    if (!var5.isEmpty()) {
-                        this.getAttributes().addAttributeModifiers(var5.getAttributeModifiers(var1));
+                    if (!var6.isEmpty()) {
+                        this.getAttributes().addAttributeModifiers(var6.getAttributeModifiers(var2));
                     }
 
-                    switch(var1.getType()) {
+                    switch(var2.getType()) {
                         case HAND:
-                            this.lastHandItemStacks.set(var1.getIndex(), var5.isEmpty() ? ItemStack.EMPTY : var5.copy());
+                            this.lastHandItemStacks.set(var2.getIndex(), var6.isEmpty() ? ItemStack.EMPTY : var6.copy());
                             break;
                         case ARMOR:
-                            this.lastArmorItemStacks.set(var1.getIndex(), var5.isEmpty() ? ItemStack.EMPTY : var5.copy());
+                            this.lastArmorItemStacks.set(var2.getIndex(), var6.isEmpty() ? ItemStack.EMPTY : var6.copy());
                     }
                 }
             }
@@ -2047,9 +2055,9 @@ public abstract class LivingEntity extends Entity {
             }
 
             if (!this.glowing) {
-                boolean var6 = this.hasEffect(MobEffects.GLOWING);
-                if (this.getSharedFlag(6) != var6) {
-                    this.setSharedFlag(6, var6);
+                boolean var7 = this.hasEffect(MobEffects.GLOWING);
+                if (this.getSharedFlag(6) != var7) {
+                    this.setSharedFlag(6, var7);
                 }
             }
 
@@ -2059,36 +2067,36 @@ public abstract class LivingEntity extends Entity {
         }
 
         this.aiStep();
-        double var7 = this.x - this.xo;
-        double var8 = this.z - this.zo;
-        float var9 = (float)(var7 * var7 + var8 * var8);
-        float var10 = this.yBodyRot;
-        float var11 = 0.0F;
-        this.oRun = this.run;
+        double var8 = this.x - this.xo;
+        double var9 = this.z - this.zo;
+        float var10 = (float)(var8 * var8 + var9 * var9);
+        float var11 = this.yBodyRot;
         float var12 = 0.0F;
-        if (var9 > 0.0025000002F) {
-            var12 = 1.0F;
-            var11 = (float)Math.sqrt((double)var9) * 3.0F;
-            float var13 = (float)Mth.atan2(var8, var7) * (180.0F / (float)Math.PI) - 90.0F;
-            float var14 = Mth.abs(Mth.wrapDegrees(this.yRot) - var13);
-            if (95.0F < var14 && var14 < 265.0F) {
-                var10 = var13 - 180.0F;
+        this.oRun = this.run;
+        float var13 = 0.0F;
+        if (var10 > 0.0025000002F) {
+            var13 = 1.0F;
+            var12 = (float)Math.sqrt((double)var10) * 3.0F;
+            float var14 = (float)Mth.atan2(var9, var8) * (180.0F / (float)Math.PI) - 90.0F;
+            float var15 = Mth.abs(Mth.wrapDegrees(this.yRot) - var14);
+            if (95.0F < var15 && var15 < 265.0F) {
+                var11 = var14 - 180.0F;
             } else {
-                var10 = var13;
+                var11 = var14;
             }
         }
 
         if (this.attackAnim > 0.0F) {
-            var10 = this.yRot;
+            var11 = this.yRot;
         }
 
         if (!this.onGround) {
-            var12 = 0.0F;
+            var13 = 0.0F;
         }
 
-        this.run += (var12 - this.run) * 0.3F;
+        this.run += (var13 - this.run) * 0.3F;
         this.level.getProfiler().push("headTurn");
-        var11 = this.tickHeadTurn(var10, var11);
+        var12 = this.tickHeadTurn(var11, var12);
         this.level.getProfiler().pop();
         this.level.getProfiler().push("rangeChecks");
 
@@ -2125,7 +2133,7 @@ public abstract class LivingEntity extends Entity {
         }
 
         this.level.getProfiler().pop();
-        this.animStep += var11;
+        this.animStep += var12;
         if (this.isFallFlying()) {
             ++this.fallFlyTicks;
         } else {
@@ -2485,8 +2493,8 @@ public abstract class LivingEntity extends Entity {
         if (this.isUsingItem()) {
             if (ItemStack.isSameIgnoreDurability(this.getItemInHand(this.getUsedItemHand()), this.useItem)) {
                 this.useItem.onUseTick(this.level, this, this.getUseItemRemainingTicks());
-                if (this.getUseItemRemainingTicks() <= 25 && this.getUseItemRemainingTicks() % 4 == 0) {
-                    this.spawnItemUseParticles(this.useItem, 5);
+                if (this.shouldTriggerItemUseEffects()) {
+                    this.triggerItemUseEffects(this.useItem, 5);
                 }
 
                 if (--this.useItemRemaining == 0 && !this.level.isClientSide && !this.useItem.useOnRelease()) {
@@ -2497,6 +2505,14 @@ public abstract class LivingEntity extends Entity {
             }
         }
 
+    }
+
+    private boolean shouldTriggerItemUseEffects() {
+        int var0 = this.getUseItemRemainingTicks();
+        FoodProperties var1 = this.useItem.getItem().getFoodProperties();
+        boolean var2 = var1 != null && var1.isFastFood();
+        var2 |= var0 <= this.useItem.getUseDuration() - 7;
+        return var2 && var0 % 4 == 0;
     }
 
     private void updateSwimAmount() {
@@ -2562,7 +2578,7 @@ public abstract class LivingEntity extends Entity {
         this.yBodyRotO = this.yBodyRot;
     }
 
-    protected void spawnItemUseParticles(ItemStack param0, int param1) {
+    protected void triggerItemUseEffects(ItemStack param0, int param1) {
         if (!param0.isEmpty() && this.isUsingItem()) {
             if (param0.getUseAnimation() == UseAnim.DRINK) {
                 this.playSound(this.getDrinkingSound(param0), 0.5F, this.level.random.nextFloat() * 0.1F + 0.9F);
@@ -2594,12 +2610,16 @@ public abstract class LivingEntity extends Entity {
     }
 
     protected void completeUsingItem() {
-        if (!this.useItem.isEmpty() && this.isUsingItem()) {
-            this.spawnItemUseParticles(this.useItem, 16);
-            this.setItemInHand(this.getUsedItemHand(), this.useItem.finishUsingItem(this.level, this));
-            this.stopUsingItem();
-        }
+        if (!this.useItem.equals(this.getItemInHand(this.getUsedItemHand()))) {
+            this.releaseUsingItem();
+        } else {
+            if (!this.useItem.isEmpty() && this.isUsingItem()) {
+                this.triggerItemUseEffects(this.useItem, 16);
+                this.setItemInHand(this.getUsedItemHand(), this.useItem.finishUsingItem(this.level, this));
+                this.stopUsingItem();
+            }
 
+        }
     }
 
     public ItemStack getUseItem() {
@@ -2645,6 +2665,10 @@ public abstract class LivingEntity extends Entity {
         } else {
             return false;
         }
+    }
+
+    public boolean isSuppressingSlidingDownLadder() {
+        return this.isShiftKeyDown();
     }
 
     public boolean isFallFlying() {
@@ -2831,7 +2855,9 @@ public abstract class LivingEntity extends Entity {
                 1.0F + (param0.random.nextFloat() - param0.random.nextFloat()) * 0.4F
             );
             this.addEatEffect(param1, param0, this);
-            param1.shrink(1);
+            if (this instanceof Player && !((Player)this).abilities.instabuild) {
+                param1.shrink(1);
+            }
         }
 
         return param1;

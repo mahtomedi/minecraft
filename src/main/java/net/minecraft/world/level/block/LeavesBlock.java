@@ -4,6 +4,7 @@ import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.BlockPlaceContext;
@@ -35,7 +36,7 @@ public class LeavesBlock extends Block {
     }
 
     @Override
-    public void randomTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
+    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         if (!param0.getValue(PERSISTENT) && param0.getValue(DISTANCE) == 7) {
             dropResources(param0, param1, param2);
             param1.removeBlock(param2, false);
@@ -44,7 +45,7 @@ public class LeavesBlock extends Block {
     }
 
     @Override
-    public void tick(BlockState param0, Level param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         param1.setBlock(param2, updateDistance(param0, param1, param2), 3);
     }
 

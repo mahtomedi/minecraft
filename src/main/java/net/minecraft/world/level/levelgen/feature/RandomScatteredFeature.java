@@ -3,9 +3,9 @@ package net.minecraft.world.level.levelgen.feature;
 import com.mojang.datafixers.Dynamic;
 import java.util.Random;
 import java.util.function.Function;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 
@@ -33,16 +33,9 @@ public abstract class RandomScatteredFeature<C extends FeatureConfiguration> ext
     }
 
     @Override
-    public boolean isFeatureChunk(ChunkGenerator<?> param0, Random param1, int param2, int param3) {
-        ChunkPos var0 = this.getPotentialFeatureChunkFromLocationWithOffset(param0, param1, param2, param3, 0, 0);
-        if (param2 == var0.x && param3 == var0.z) {
-            Biome var1 = param0.getBiomeSource().getBiome(new BlockPos(param2 * 16 + 9, 0, param3 * 16 + 9));
-            if (param0.isBiomeValidStartForStructure(var1, this)) {
-                return true;
-            }
-        }
-
-        return false;
+    public boolean isFeatureChunk(BiomeManager param0, ChunkGenerator<?> param1, Random param2, int param3, int param4, Biome param5) {
+        ChunkPos var0 = this.getPotentialFeatureChunkFromLocationWithOffset(param1, param2, param3, param4, 0, 0);
+        return param3 == var0.x && param4 == var0.z && param1.isBiomeValidStartForStructure(param5, this);
     }
 
     protected int getSpacing(ChunkGenerator<?> param0) {

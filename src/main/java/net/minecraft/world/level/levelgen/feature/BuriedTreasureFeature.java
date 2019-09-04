@@ -5,6 +5,7 @@ import java.util.Random;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -18,12 +19,11 @@ public class BuriedTreasureFeature extends StructureFeature<BuriedTreasureConfig
     }
 
     @Override
-    public boolean isFeatureChunk(ChunkGenerator<?> param0, Random param1, int param2, int param3) {
-        Biome var0 = param0.getBiomeSource().getBiome(new BlockPos((param2 << 4) + 9, 0, (param3 << 4) + 9));
-        if (param0.isBiomeValidStartForStructure(var0, Feature.BURIED_TREASURE)) {
-            ((WorldgenRandom)param1).setLargeFeatureWithSalt(param0.getSeed(), param2, param3, 10387320);
-            BuriedTreasureConfiguration var1 = param0.getStructureConfiguration(var0, Feature.BURIED_TREASURE);
-            return param1.nextFloat() < var1.probability;
+    public boolean isFeatureChunk(BiomeManager param0, ChunkGenerator<?> param1, Random param2, int param3, int param4, Biome param5) {
+        if (param1.isBiomeValidStartForStructure(param5, Feature.BURIED_TREASURE)) {
+            ((WorldgenRandom)param2).setLargeFeatureWithSalt(param1.getSeed(), param3, param4, 10387320);
+            BuriedTreasureConfiguration var0 = param1.getStructureConfiguration(param5, Feature.BURIED_TREASURE);
+            return param2.nextFloat() < var0.probability;
         } else {
             return false;
         }
@@ -45,8 +45,8 @@ public class BuriedTreasureFeature extends StructureFeature<BuriedTreasureConfig
     }
 
     public static class BuriedTreasureStart extends StructureStart {
-        public BuriedTreasureStart(StructureFeature<?> param0, int param1, int param2, Biome param3, BoundingBox param4, int param5, long param6) {
-            super(param0, param1, param2, param3, param4, param5, param6);
+        public BuriedTreasureStart(StructureFeature<?> param0, int param1, int param2, BoundingBox param3, int param4, long param5) {
+            super(param0, param1, param2, param3, param4, param5);
         }
 
         @Override

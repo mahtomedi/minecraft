@@ -1,11 +1,10 @@
 package net.minecraft.world.level.levelgen.structure;
 
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 
 public abstract class BeardedStructureStart extends StructureStart {
-    public BeardedStructureStart(StructureFeature<?> param0, int param1, int param2, Biome param3, BoundingBox param4, int param5, long param6) {
-        super(param0, param1, param2, param3, param4, param5, param6);
+    public BeardedStructureStart(StructureFeature<?> param0, int param1, int param2, BoundingBox param3, int param4, long param5) {
+        super(param0, param1, param2, param3, param4, param5);
     }
 
     @Override

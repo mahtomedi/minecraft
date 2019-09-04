@@ -1,6 +1,6 @@
 package net.minecraft.client.gui.components.toasts;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import javax.annotation.Nullable;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
@@ -28,7 +28,7 @@ public class SystemToast implements Toast {
         }
 
         param0.getMinecraft().getTextureManager().bind(TEXTURE);
-        GlStateManager.color3f(1.0F, 1.0F, 1.0F);
+        RenderSystem.color3f(1.0F, 1.0F, 1.0F);
         param0.blit(0, 0, 0, 64, 160, 32);
         if (this.message == null) {
             param0.getMinecraft().font.draw(this.title, 18.0F, 12.0F, -256);

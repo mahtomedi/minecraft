@@ -161,6 +161,10 @@ public class StructureBlockEntity extends BlockEntity {
         return this.structureName == null ? "" : this.structureName.toString();
     }
 
+    public String getStructurePath() {
+        return this.structureName == null ? "" : this.structureName.getPath();
+    }
+
     public boolean hasStructureName() {
         return this.structureName != null;
     }
@@ -177,7 +181,6 @@ public class StructureBlockEntity extends BlockEntity {
         this.author = param0.getName().getString();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public BlockPos getStructurePos() {
         return this.structurePos;
     }
@@ -186,7 +189,6 @@ public class StructureBlockEntity extends BlockEntity {
         this.structurePos = param0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public BlockPos getStructureSize() {
         return this.structureSize;
     }
@@ -405,52 +407,52 @@ public class StructureBlockEntity extends BlockEntity {
 
     public boolean loadStructure(boolean param0) {
         if (this.mode == StructureMode.LOAD && !this.level.isClientSide && this.structureName != null) {
-            BlockPos var0 = this.getBlockPos();
-            BlockPos var1 = var0.offset(this.structurePos);
-            ServerLevel var2 = (ServerLevel)this.level;
-            StructureManager var3 = var2.getStructureManager();
+            ServerLevel var0 = (ServerLevel)this.level;
+            StructureManager var1 = var0.getStructureManager();
 
-            StructureTemplate var4;
+            StructureTemplate var2;
             try {
-                var4 = var3.get(this.structureName);
-            } catch (ResourceLocationException var101) {
+                var2 = var1.get(this.structureName);
+            } catch (ResourceLocationException var6) {
                 return false;
             }
 
-            if (var4 == null) {
-                return false;
-            } else {
-                if (!StringUtil.isNullOrEmpty(var4.getAuthor())) {
-                    this.author = var4.getAuthor();
-                }
-
-                BlockPos var7 = var4.getSize();
-                boolean var8 = this.structureSize.equals(var7);
-                if (!var8) {
-                    this.structureSize = var7;
-                    this.setChanged();
-                    BlockState var9 = this.level.getBlockState(var0);
-                    this.level.sendBlockUpdated(var0, var9, var9, 3);
-                }
-
-                if (param0 && !var8) {
-                    return false;
-                } else {
-                    StructurePlaceSettings var10 = new StructurePlaceSettings()
-                        .setMirror(this.mirror)
-                        .setRotation(this.rotation)
-                        .setIgnoreEntities(this.ignoreEntities)
-                        .setChunkPos(null);
-                    if (this.integrity < 1.0F) {
-                        var10.clearProcessors().addProcessor(new BlockRotProcessor(Mth.clamp(this.integrity, 0.0F, 1.0F))).setRandom(createRandom(this.seed));
-                    }
-
-                    var4.placeInWorldChunk(this.level, var1, var10);
-                    return true;
-                }
-            }
+            return var2 == null ? false : this.loadStructure(param0, var2);
         } else {
             return false;
+        }
+    }
+
+    public boolean loadStructure(boolean param0, StructureTemplate param1) {
+        BlockPos var0 = this.getBlockPos();
+        if (!StringUtil.isNullOrEmpty(param1.getAuthor())) {
+            this.author = param1.getAuthor();
+        }
+
+        BlockPos var1 = param1.getSize();
+        boolean var2 = this.structureSize.equals(var1);
+        if (!var2) {
+            this.structureSize = var1;
+            this.setChanged();
+            BlockState var3 = this.level.getBlockState(var0);
+            this.level.sendBlockUpdated(var0, var3, var3, 3);
+        }
+
+        if (param0 && !var2) {
+            return false;
+        } else {
+            StructurePlaceSettings var4 = new StructurePlaceSettings()
+                .setMirror(this.mirror)
+                .setRotation(this.rotation)
+                .setIgnoreEntities(this.ignoreEntities)
+                .setChunkPos(null);
+            if (this.integrity < 1.0F) {
+                var4.clearProcessors().addProcessor(new BlockRotProcessor(Mth.clamp(this.integrity, 0.0F, 1.0F))).setRandom(createRandom(this.seed));
+            }
+
+            BlockPos var5 = var0.offset(this.structurePos);
+            param1.placeInWorldChunk(this.level, var5, var4);
+            return true;
         }
     }
 

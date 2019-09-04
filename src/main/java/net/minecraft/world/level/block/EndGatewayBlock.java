@@ -9,6 +9,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.TheEndGatewayBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -55,5 +56,10 @@ public class EndGatewayBlock extends BaseEntityBlock {
     @Override
     public ItemStack getCloneItemStack(BlockGetter param0, BlockPos param1, BlockState param2) {
         return ItemStack.EMPTY;
+    }
+
+    @Override
+    public boolean canBeReplaced(BlockState param0, Fluid param1) {
+        return false;
     }
 }

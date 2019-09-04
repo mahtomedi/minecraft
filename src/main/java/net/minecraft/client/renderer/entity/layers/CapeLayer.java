@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity.layers;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
@@ -22,10 +22,10 @@ public class CapeLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<Abs
         if (param0.isCapeLoaded() && !param0.isInvisible() && param0.isModelPartShown(PlayerModelPart.CAPE) && param0.getCloakTextureLocation() != null) {
             ItemStack var0 = param0.getItemBySlot(EquipmentSlot.CHEST);
             if (var0.getItem() != Items.ELYTRA) {
-                GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
                 this.bindTexture(param0.getCloakTextureLocation());
-                GlStateManager.pushMatrix();
-                GlStateManager.translatef(0.0F, 0.0F, 0.125F);
+                RenderSystem.pushMatrix();
+                RenderSystem.translatef(0.0F, 0.0F, 0.125F);
                 double var1 = Mth.lerp((double)param3, param0.xCloakO, param0.xCloak) - Mth.lerp((double)param3, param0.xo, param0.x);
                 double var2 = Mth.lerp((double)param3, param0.yCloakO, param0.yCloak) - Mth.lerp((double)param3, param0.yo, param0.y);
                 double var3 = Mth.lerp((double)param3, param0.zCloakO, param0.zCloak) - Mth.lerp((double)param3, param0.zo, param0.z);
@@ -44,16 +44,16 @@ public class CapeLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<Abs
 
                 float var10 = Mth.lerp(param3, param0.oBob, param0.bob);
                 var7 += Mth.sin(Mth.lerp(param3, param0.walkDistO, param0.walkDist) * 6.0F) * 32.0F * var10;
-                if (param0.isVisuallySneaking()) {
+                if (param0.isCrouching()) {
                     var7 += 25.0F;
                 }
 
-                GlStateManager.rotatef(6.0F + var8 / 2.0F + var7, 1.0F, 0.0F, 0.0F);
-                GlStateManager.rotatef(var9 / 2.0F, 0.0F, 0.0F, 1.0F);
-                GlStateManager.rotatef(-var9 / 2.0F, 0.0F, 1.0F, 0.0F);
-                GlStateManager.rotatef(180.0F, 0.0F, 1.0F, 0.0F);
+                RenderSystem.rotatef(6.0F + var8 / 2.0F + var7, 1.0F, 0.0F, 0.0F);
+                RenderSystem.rotatef(var9 / 2.0F, 0.0F, 0.0F, 1.0F);
+                RenderSystem.rotatef(-var9 / 2.0F, 0.0F, 1.0F, 0.0F);
+                RenderSystem.rotatef(180.0F, 0.0F, 1.0F, 0.0F);
                 this.getParentModel().renderCloak(0.0625F);
-                GlStateManager.popMatrix();
+                RenderSystem.popMatrix();
             }
         }
     }

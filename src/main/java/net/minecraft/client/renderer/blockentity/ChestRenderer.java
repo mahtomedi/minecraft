@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.blockentity;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.Calendar;
 import net.minecraft.client.model.ChestModel;
 import net.minecraft.client.model.LargeChestModel;
@@ -40,44 +40,44 @@ public class ChestRenderer<T extends BlockEntity & LidBlockEntity> extends Block
 
     @Override
     public void render(T param0, double param1, double param2, double param3, float param4, int param5) {
-        GlStateManager.enableDepthTest();
-        GlStateManager.depthFunc(515);
-        GlStateManager.depthMask(true);
+        RenderSystem.enableDepthTest();
+        RenderSystem.depthFunc(515);
+        RenderSystem.depthMask(true);
         BlockState var0 = param0.hasLevel() ? param0.getBlockState() : Blocks.CHEST.defaultBlockState().setValue(ChestBlock.FACING, Direction.SOUTH);
         ChestType var1 = var0.hasProperty(ChestBlock.TYPE) ? var0.getValue(ChestBlock.TYPE) : ChestType.SINGLE;
         if (var1 != ChestType.LEFT) {
             boolean var2 = var1 != ChestType.SINGLE;
             ChestModel var3 = this.getChestModelAndBindTexture(param0, param5, var2);
             if (param5 >= 0) {
-                GlStateManager.matrixMode(5890);
-                GlStateManager.pushMatrix();
-                GlStateManager.scalef(var2 ? 8.0F : 4.0F, 4.0F, 1.0F);
-                GlStateManager.translatef(0.0625F, 0.0625F, 0.0625F);
-                GlStateManager.matrixMode(5888);
+                RenderSystem.matrixMode(5890);
+                RenderSystem.pushMatrix();
+                RenderSystem.scalef(var2 ? 8.0F : 4.0F, 4.0F, 1.0F);
+                RenderSystem.translatef(0.0625F, 0.0625F, 0.0625F);
+                RenderSystem.matrixMode(5888);
             } else {
-                GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             }
 
-            GlStateManager.pushMatrix();
-            GlStateManager.enableRescaleNormal();
-            GlStateManager.translatef((float)param1, (float)param2 + 1.0F, (float)param3 + 1.0F);
-            GlStateManager.scalef(1.0F, -1.0F, -1.0F);
+            RenderSystem.pushMatrix();
+            RenderSystem.enableRescaleNormal();
+            RenderSystem.translatef((float)param1, (float)param2 + 1.0F, (float)param3 + 1.0F);
+            RenderSystem.scalef(1.0F, -1.0F, -1.0F);
             float var4 = var0.getValue(ChestBlock.FACING).toYRot();
             if ((double)Math.abs(var4) > 1.0E-5) {
-                GlStateManager.translatef(0.5F, 0.5F, 0.5F);
-                GlStateManager.rotatef(var4, 0.0F, 1.0F, 0.0F);
-                GlStateManager.translatef(-0.5F, -0.5F, -0.5F);
+                RenderSystem.translatef(0.5F, 0.5F, 0.5F);
+                RenderSystem.rotatef(var4, 0.0F, 1.0F, 0.0F);
+                RenderSystem.translatef(-0.5F, -0.5F, -0.5F);
             }
 
             this.rotateLid(param0, param4, var3);
             var3.render();
-            GlStateManager.disableRescaleNormal();
-            GlStateManager.popMatrix();
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.disableRescaleNormal();
+            RenderSystem.popMatrix();
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             if (param5 >= 0) {
-                GlStateManager.matrixMode(5890);
-                GlStateManager.popMatrix();
-                GlStateManager.matrixMode(5888);
+                RenderSystem.matrixMode(5890);
+                RenderSystem.popMatrix();
+                RenderSystem.matrixMode(5888);
             }
 
         }

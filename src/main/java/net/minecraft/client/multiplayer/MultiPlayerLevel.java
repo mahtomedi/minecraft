@@ -48,6 +48,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.TickList;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -598,5 +600,10 @@ public class MultiPlayerLevel extends Level {
     @Override
     public List<AbstractClientPlayer> players() {
         return this.players;
+    }
+
+    @Override
+    public Biome getUncachedNoiseBiome(int param0, int param1, int param2) {
+        return Biomes.PLAINS;
     }
 }

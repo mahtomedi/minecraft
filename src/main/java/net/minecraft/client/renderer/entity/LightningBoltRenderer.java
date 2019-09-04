@@ -1,6 +1,7 @@
 package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -20,10 +21,10 @@ public class LightningBoltRenderer extends EntityRenderer<LightningBolt> {
     public void render(LightningBolt param0, double param1, double param2, double param3, float param4, float param5) {
         Tesselator var0 = Tesselator.getInstance();
         BufferBuilder var1 = var0.getBuilder();
-        GlStateManager.disableTexture();
-        GlStateManager.disableLighting();
-        GlStateManager.enableBlend();
-        GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE);
+        RenderSystem.disableTexture();
+        RenderSystem.disableLighting();
+        RenderSystem.enableBlend();
+        RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE);
         double[] var2 = new double[8];
         double[] var3 = new double[8];
         double var4 = 0.0;
@@ -110,9 +111,9 @@ public class LightningBoltRenderer extends EntityRenderer<LightningBolt> {
             }
         }
 
-        GlStateManager.disableBlend();
-        GlStateManager.enableLighting();
-        GlStateManager.enableTexture();
+        RenderSystem.disableBlend();
+        RenderSystem.enableLighting();
+        RenderSystem.enableTexture();
     }
 
     @Nullable

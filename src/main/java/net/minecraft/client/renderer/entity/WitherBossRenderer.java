@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.WitherBossModel;
 import net.minecraft.client.renderer.entity.layers.WitherArmorLayer;
 import net.minecraft.resources.ResourceLocation;
@@ -30,6 +30,6 @@ public class WitherBossRenderer extends MobRenderer<WitherBoss, WitherBossModel<
             var0 -= ((float)var1 - param1) / 220.0F * 0.5F;
         }
 
-        GlStateManager.scalef(var0, var0, var0);
+        RenderSystem.scalef(var0, var0, var0);
     }
 }

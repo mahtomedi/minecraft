@@ -1,6 +1,6 @@
 package com.mojang.realmsclient.util;
 
-import java.util.ArrayList;
+import com.google.common.collect.Lists;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -24,10 +24,10 @@ public class TextRenderingUtils {
 
     private static List<TextRenderingUtils.Line> insertLinks(List<String> param0, List<TextRenderingUtils.LineSegment> param1) {
         int var0 = 0;
-        ArrayList<TextRenderingUtils.Line> var1 = new ArrayList<>();
+        List<TextRenderingUtils.Line> var1 = Lists.newArrayList();
 
         for(String var2 : param0) {
-            List<TextRenderingUtils.LineSegment> var3 = new ArrayList<>();
+            List<TextRenderingUtils.LineSegment> var3 = Lists.newArrayList();
 
             for(String var5 : split(var2, "%link")) {
                 if (var5.equals("%link")) {
@@ -47,7 +47,7 @@ public class TextRenderingUtils {
         if (param1.isEmpty()) {
             throw new IllegalArgumentException("Delimiter cannot be the empty string");
         } else {
-            List<String> var0 = new ArrayList<>();
+            List<String> var0 = Lists.newArrayList();
 
             int var1;
             int var2;

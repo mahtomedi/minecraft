@@ -40,7 +40,6 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.BlockAndBiomeGetter;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.BlockLayer;
 import net.minecraft.world.level.Explosion;
@@ -52,6 +51,7 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.Material;
@@ -306,6 +306,11 @@ public class Block implements ItemLike {
     }
 
     @Deprecated
+    public boolean canBeReplaced(BlockState param0, Fluid param1) {
+        return this.material.isReplaceable() || !this.material.isSolid();
+    }
+
+    @Deprecated
     public float getDestroySpeed(BlockState param0, BlockGetter param1, BlockPos param2) {
         return this.destroySpeed;
     }
@@ -325,8 +330,8 @@ public class Block implements ItemLike {
 
     @Deprecated
     @OnlyIn(Dist.CLIENT)
-    public int getLightColor(BlockState param0, BlockAndBiomeGetter param1, BlockPos param2) {
-        return param1.getLightColor(param2, param0.getLightEmission());
+    public boolean emissiveRendering(BlockState param0) {
+        return false;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -437,12 +442,12 @@ public class Block implements ItemLike {
     }
 
     @Deprecated
-    public void randomTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
+    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         this.tick(param0, param1, param2, param3);
     }
 
     @Deprecated
-    public void tick(BlockState param0, Level param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -526,13 +531,13 @@ public class Block implements ItemLike {
     }
 
     public static List<ItemStack> getDrops(
-        BlockState param0, ServerLevel param1, BlockPos param2, @Nullable BlockEntity param3, Entity param4, ItemStack param5
+        BlockState param0, ServerLevel param1, BlockPos param2, @Nullable BlockEntity param3, @Nullable Entity param4, ItemStack param5
     ) {
         LootContext.Builder var0 = new LootContext.Builder(param1)
             .withRandom(param1.random)
             .withParameter(LootContextParams.BLOCK_POS, param2)
             .withParameter(LootContextParams.TOOL, param5)
-            .withParameter(LootContextParams.THIS_ENTITY, param4)
+            .withOptionalParameter(LootContextParams.THIS_ENTITY, param4)
             .withOptionalParameter(LootContextParams.BLOCK_ENTITY, param3);
         return param0.getDrops(var0);
     }

@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import javax.annotation.Nullable;
 import net.minecraft.client.model.SalmonModel;
 import net.minecraft.resources.ResourceLocation;
@@ -32,11 +32,11 @@ public class SalmonRenderer extends MobRenderer<Salmon, SalmonModel<Salmon>> {
         }
 
         float var2 = var0 * 4.3F * Mth.sin(var1 * 0.6F * param1);
-        GlStateManager.rotatef(var2, 0.0F, 1.0F, 0.0F);
-        GlStateManager.translatef(0.0F, 0.0F, -0.4F);
+        RenderSystem.rotatef(var2, 0.0F, 1.0F, 0.0F);
+        RenderSystem.translatef(0.0F, 0.0F, -0.4F);
         if (!param0.isInWater()) {
-            GlStateManager.translatef(0.2F, 0.1F, 0.0F);
-            GlStateManager.rotatef(90.0F, 0.0F, 0.0F, 1.0F);
+            RenderSystem.translatef(0.2F, 0.1F, 0.0F);
+            RenderSystem.rotatef(90.0F, 0.0F, 0.0F, 1.0F);
         }
 
     }

@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.LavaSlimeModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -24,6 +24,6 @@ public class LavaSlimeRenderer extends MobRenderer<MagmaCube, LavaSlimeModel<Mag
         int var0 = param0.getSize();
         float var1 = Mth.lerp(param1, param0.oSquish, param0.squish) / ((float)var0 * 0.5F + 1.0F);
         float var2 = 1.0F / (var1 + 1.0F);
-        GlStateManager.scalef(var2 * (float)var0, 1.0F / var2 * (float)var0, var2 * (float)var0);
+        RenderSystem.scalef(var2 * (float)var0, 1.0F / var2 * (float)var0, var2 * (float)var0);
     }
 }

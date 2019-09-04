@@ -15,6 +15,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.Tag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.MenuProvider;
@@ -23,7 +24,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.BlockAndBiomeGetter;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.Level;
@@ -35,6 +35,7 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
@@ -132,8 +133,8 @@ public class BlockState extends AbstractStateHolder<Block, BlockState> implement
     }
 
     @OnlyIn(Dist.CLIENT)
-    public int getLightColor(BlockAndBiomeGetter param0, BlockPos param1) {
-        return this.getBlock().getLightColor(this, param0, param1);
+    public boolean emissiveRendering() {
+        return this.getBlock().emissiveRendering(this);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -246,11 +247,11 @@ public class BlockState extends AbstractStateHolder<Block, BlockState> implement
         this.getBlock().onRemove(this, param0, param1, param2, param3);
     }
 
-    public void tick(Level param0, BlockPos param1, Random param2) {
+    public void tick(ServerLevel param0, BlockPos param1, Random param2) {
         this.getBlock().tick(this, param0, param1, param2);
     }
 
-    public void randomTick(Level param0, BlockPos param1, Random param2) {
+    public void randomTick(ServerLevel param0, BlockPos param1, Random param2) {
         this.getBlock().randomTick(this, param0, param1, param2);
     }
 
@@ -287,6 +288,10 @@ public class BlockState extends AbstractStateHolder<Block, BlockState> implement
     }
 
     public boolean canBeReplaced(BlockPlaceContext param0) {
+        return this.getBlock().canBeReplaced(this, param0);
+    }
+
+    public boolean canBeReplaced(Fluid param0) {
         return this.getBlock().canBeReplaced(this, param0);
     }
 

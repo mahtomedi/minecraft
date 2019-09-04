@@ -1,7 +1,7 @@
 package net.minecraft.client.gui.screens.inventory;
 
 import com.google.common.collect.Ordering;
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.Collection;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.resources.MobEffectTextureManager;
@@ -53,8 +53,8 @@ public abstract class EffectRenderingInventoryScreen<T extends AbstractContainer
         int var0 = this.leftPos - 124;
         Collection<MobEffectInstance> var1 = this.minecraft.player.getActiveEffects();
         if (!var1.isEmpty()) {
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            GlStateManager.disableLighting();
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.disableLighting();
             int var2 = 33;
             if (var1.size() > 5) {
                 var2 = 132 / (var1.size() - 1);
@@ -72,7 +72,7 @@ public abstract class EffectRenderingInventoryScreen<T extends AbstractContainer
         int var0 = this.topPos;
 
         for(MobEffectInstance var1 : param2) {
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             this.blit(param0, var0, 0, 166, 140, 32);
             var0 += param1;
         }

@@ -166,17 +166,6 @@ public class SynchedEntityData {
         return var0;
     }
 
-    public void packAll(FriendlyByteBuf param0) throws IOException {
-        this.lock.readLock().lock();
-
-        for(SynchedEntityData.DataItem<?> var0 : this.itemsById.values()) {
-            writeDataItem(param0, var0);
-        }
-
-        this.lock.readLock().unlock();
-        param0.writeByte(255);
-    }
-
     @Nullable
     public List<SynchedEntityData.DataItem<?>> getAll() {
         List<SynchedEntityData.DataItem<?>> var0 = null;

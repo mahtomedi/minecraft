@@ -1,6 +1,7 @@
 package net.minecraft.world.level.chunk;
 
 import javax.annotation.Nullable;
+import net.minecraft.Util;
 
 public class DataLayer {
     @Nullable
@@ -12,7 +13,7 @@ public class DataLayer {
     public DataLayer(byte[] param0) {
         this.data = param0;
         if (param0.length != 2048) {
-            throw new IllegalArgumentException("ChunkNibbleArrays should be 2048 bytes not: " + param0.length);
+            throw (IllegalArgumentException)Util.pauseInIde(new IllegalArgumentException("ChunkNibbleArrays should be 2048 bytes not: " + param0.length));
         }
     }
 

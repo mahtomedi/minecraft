@@ -8,6 +8,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
@@ -29,7 +30,7 @@ public class BuriedTreasurePieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
             int var0 = param0.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, this.boundingBox.x0, this.boundingBox.z0);
             BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos(this.boundingBox.x0, var0, this.boundingBox.z0);
 
@@ -58,7 +59,7 @@ public class BuriedTreasurePieces {
                     }
 
                     this.boundingBox = new BoundingBox(var1.getX(), var1.getY(), var1.getZ(), var1.getX(), var1.getY(), var1.getZ());
-                    return this.createChest(param0, param2, param1, var1, BuiltInLootTables.BURIED_TREASURE, null);
+                    return this.createChest(param0, param3, param2, var1, BuiltInLootTables.BURIED_TREASURE, null);
                 }
 
                 var1.move(0, -1, 0);

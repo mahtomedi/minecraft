@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import javax.annotation.Nullable;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.HashCache;
@@ -28,7 +29,7 @@ public class NbtToSnbt implements DataProvider {
         for(Path var1 : this.generator.getInputFolders()) {
             Files.walk(var1)
                 .filter(param0x -> param0x.toString().endsWith(".nbt"))
-                .forEach(param2 -> this.convertStructure(param2, this.getName(var1, param2), var0));
+                .forEach(param2 -> convertStructure(param2, this.getName(var1, param2), var0));
         }
 
     }
@@ -43,7 +44,8 @@ public class NbtToSnbt implements DataProvider {
         return var0.substring(0, var0.length() - ".nbt".length());
     }
 
-    private void convertStructure(Path param0, String param1, Path param2) {
+    @Nullable
+    public static Path convertStructure(Path param0, String param1, Path param2) {
         try {
             CompoundTag var0 = NbtIo.readCompressed(Files.newInputStream(param0));
             Component var1 = var0.getPrettyDisplay("    ", 0);
@@ -56,9 +58,10 @@ public class NbtToSnbt implements DataProvider {
             }
 
             LOGGER.info("Converted {} from NBT to SNBT", param1);
-        } catch (IOException var21) {
-            LOGGER.error("Couldn't convert {} from NBT to SNBT at {}", param1, param0, var21);
+            return var3;
+        } catch (IOException var20) {
+            LOGGER.error("Couldn't convert {} from NBT to SNBT at {}", param1, param0, var20);
+            return null;
         }
-
     }
 }

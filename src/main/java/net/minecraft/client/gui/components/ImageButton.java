@@ -1,6 +1,6 @@
 package net.minecraft.client.gui.components;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -67,13 +67,13 @@ public class ImageButton extends Button {
     public void renderButton(int param0, int param1, float param2) {
         Minecraft var0 = Minecraft.getInstance();
         var0.getTextureManager().bind(this.resourceLocation);
-        GlStateManager.disableDepthTest();
+        RenderSystem.disableDepthTest();
         int var1 = this.yTexStart;
         if (this.isHovered()) {
             var1 += this.yDiffTex;
         }
 
         blit(this.x, this.y, (float)this.xTexStart, (float)var1, this.width, this.height, this.textureWidth, this.textureHeight);
-        GlStateManager.enableDepthTest();
+        RenderSystem.enableDepthTest();
     }
 }

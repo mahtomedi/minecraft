@@ -2,6 +2,7 @@ package net.minecraft.client.renderer.debug;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -42,15 +43,15 @@ public class WorldGenAttemptRenderer implements DebugRenderer.SimpleDebugRendere
         double var1 = var0.getPosition().x;
         double var2 = var0.getPosition().y;
         double var3 = var0.getPosition().z;
-        GlStateManager.pushMatrix();
-        GlStateManager.enableBlend();
-        GlStateManager.blendFuncSeparate(
+        RenderSystem.pushMatrix();
+        RenderSystem.enableBlend();
+        RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.SRC_ALPHA,
             GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
             GlStateManager.SourceFactor.ONE,
             GlStateManager.DestFactor.ZERO
         );
-        GlStateManager.disableTexture();
+        RenderSystem.disableTexture();
         Tesselator var4 = Tesselator.getInstance();
         BufferBuilder var5 = var4.getBuilder();
         var5.begin(5, DefaultVertexFormat.POSITION_COLOR);
@@ -75,7 +76,7 @@ public class WorldGenAttemptRenderer implements DebugRenderer.SimpleDebugRendere
         }
 
         var4.end();
-        GlStateManager.enableTexture();
-        GlStateManager.popMatrix();
+        RenderSystem.enableTexture();
+        RenderSystem.popMatrix();
     }
 }

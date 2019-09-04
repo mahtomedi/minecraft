@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -30,18 +30,18 @@ public class FallingBlockRenderer extends EntityRenderer<FallingBlockEntity> {
             Level var1 = param0.getLevel();
             if (var0 != var1.getBlockState(new BlockPos(param0)) && var0.getRenderShape() != RenderShape.INVISIBLE) {
                 this.bindTexture(TextureAtlas.LOCATION_BLOCKS);
-                GlStateManager.pushMatrix();
-                GlStateManager.disableLighting();
+                RenderSystem.pushMatrix();
+                RenderSystem.disableLighting();
                 Tesselator var2 = Tesselator.getInstance();
                 BufferBuilder var3 = var2.getBuilder();
                 if (this.solidRender) {
-                    GlStateManager.enableColorMaterial();
-                    GlStateManager.setupSolidRenderingTextureCombine(this.getTeamColor(param0));
+                    RenderSystem.enableColorMaterial();
+                    RenderSystem.setupSolidRenderingTextureCombine(this.getTeamColor(param0));
                 }
 
                 var3.begin(7, DefaultVertexFormat.BLOCK);
                 BlockPos var4 = new BlockPos(param0.x, param0.getBoundingBox().maxY, param0.z);
-                GlStateManager.translatef(
+                RenderSystem.translatef(
                     (float)(param1 - (double)var4.getX() - 0.5), (float)(param2 - (double)var4.getY()), (float)(param3 - (double)var4.getZ() - 0.5)
                 );
                 BlockRenderDispatcher var5 = Minecraft.getInstance().getBlockRenderer();
@@ -49,12 +49,12 @@ public class FallingBlockRenderer extends EntityRenderer<FallingBlockEntity> {
                     .tesselateBlock(var1, var5.getBlockModel(var0), var0, var4, var3, false, new Random(), var0.getSeed(param0.getStartPos()));
                 var2.end();
                 if (this.solidRender) {
-                    GlStateManager.tearDownSolidRenderingTextureCombine();
-                    GlStateManager.disableColorMaterial();
+                    RenderSystem.tearDownSolidRenderingTextureCombine();
+                    RenderSystem.disableColorMaterial();
                 }
 
-                GlStateManager.enableLighting();
-                GlStateManager.popMatrix();
+                RenderSystem.enableLighting();
+                RenderSystem.popMatrix();
                 super.render(param0, param1, param2, param3, param4, param5);
             }
         }

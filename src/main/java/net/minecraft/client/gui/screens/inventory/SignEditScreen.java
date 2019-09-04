@@ -1,6 +1,6 @@
 package net.minecraft.client.gui.screens.inventory;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.font.TextFieldHelper;
 import net.minecraft.client.gui.screens.Screen;
@@ -98,12 +98,12 @@ public class SignEditScreen extends Screen {
     public void render(int param0, int param1, float param2) {
         this.renderBackground();
         this.drawCenteredString(this.font, this.title.getColoredString(), this.width / 2, 40, 16777215);
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.pushMatrix();
-        GlStateManager.translatef((float)(this.width / 2), 0.0F, 50.0F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.pushMatrix();
+        RenderSystem.translatef((float)(this.width / 2), 0.0F, 50.0F);
         float var0 = 93.75F;
-        GlStateManager.scalef(-93.75F, -93.75F, -93.75F);
-        GlStateManager.rotatef(180.0F, 0.0F, 1.0F, 0.0F);
+        RenderSystem.scalef(-93.75F, -93.75F, -93.75F);
+        RenderSystem.rotatef(180.0F, 0.0F, 1.0F, 0.0F);
         BlockState var1 = this.sign.getBlockState();
         float var2;
         if (var1.getBlock() instanceof StandingSignBlock) {
@@ -112,12 +112,12 @@ public class SignEditScreen extends Screen {
             var2 = var1.getValue(WallSignBlock.FACING).toYRot();
         }
 
-        GlStateManager.rotatef(var2, 0.0F, 1.0F, 0.0F);
-        GlStateManager.translatef(0.0F, -1.0625F, 0.0F);
+        RenderSystem.rotatef(var2, 0.0F, 1.0F, 0.0F);
+        RenderSystem.translatef(0.0F, -1.0625F, 0.0F);
         this.sign.setCursorInfo(this.line, this.signField.getCursorPos(), this.signField.getSelectionPos(), this.frame / 6 % 2 == 0);
         BlockEntityRenderDispatcher.instance.render(this.sign, -0.5, -0.75, -0.5, 0.0F);
         this.sign.resetCursorInfo();
-        GlStateManager.popMatrix();
+        RenderSystem.popMatrix();
         super.render(param0, param1, param2);
     }
 }

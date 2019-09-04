@@ -1,6 +1,5 @@
 package net.minecraft.world.level.newbiome.layer;
 
-import com.google.common.collect.ImmutableList;
 import java.util.function.LongFunction;
 import net.minecraft.core.Registry;
 import net.minecraft.world.level.LevelType;
@@ -38,7 +37,7 @@ public class Layers {
         return var0;
     }
 
-    public static <T extends Area, C extends BigContext<T>> ImmutableList<AreaFactory<T>> getDefaultLayers(
+    public static <T extends Area, C extends BigContext<T>> AreaFactory<T> getDefaultLayer(
         LevelType param0, OverworldGeneratorSettings param1, LongFunction<C> param2
     ) {
         AreaFactory<T> var0 = IslandLayer.INSTANCE.run(param2.apply(1L));
@@ -62,20 +61,11 @@ public class Layers {
         var0 = AddMushroomIslandLayer.INSTANCE.run(param2.apply(5L), var0);
         var0 = AddDeepOceanLayer.INSTANCE.run(param2.apply(4L), var0);
         var0 = zoom(1000L, ZoomLayer.NORMAL, var0, 0, param2);
-        int var2 = 4;
-        int var3 = var2;
-        if (param1 != null) {
-            var2 = param1.getBiomeSize();
-            var3 = param1.getRiverSize();
-        }
-
-        if (param0 == LevelType.LARGE_BIOMES) {
-            var2 = 6;
-        }
-
+        int var2 = param0 == LevelType.LARGE_BIOMES ? 6 : param1.getBiomeSize();
+        int var3 = param1.getRiverSize();
         AreaFactory<T> var4 = zoom(1000L, ZoomLayer.NORMAL, var0, 0, param2);
         var4 = RiverInitLayer.INSTANCE.run(param2.apply(100L), var4);
-        AreaFactory<T> var5 = new BiomeInitLayer(param0, param1).run(param2.apply(200L), var0);
+        AreaFactory<T> var5 = new BiomeInitLayer(param0, param1.getFixedBiome()).run(param2.apply(200L), var0);
         var5 = RareBiomeLargeLayer.INSTANCE.run(param2.apply(1001L), var5);
         var5 = zoom(1000L, ZoomLayer.NORMAL, var5, 2, param2);
         var5 = BiomeEdgeLayer.INSTANCE.run(param2.apply(1000L), var5);
@@ -100,18 +90,13 @@ public class Layers {
 
         var5 = SmoothLayer.INSTANCE.run(param2.apply(1000L), var5);
         var5 = RiverMixerLayer.INSTANCE.run(param2.apply(100L), var5, var4);
-        var5 = OceanMixerLayer.INSTANCE.run(param2.apply(100L), var5, var1);
-        AreaFactory<T> var9x = VoronoiZoom.INSTANCE.run(param2.apply(10L), var5);
-        return ImmutableList.of(var5, var9x, var5);
+        return OceanMixerLayer.INSTANCE.run(param2.apply(100L), var5, var1);
     }
 
-    public static Layer[] getDefaultLayers(long param0, LevelType param1, OverworldGeneratorSettings param2) {
+    public static Layer getDefaultLayer(long param0, LevelType param1, OverworldGeneratorSettings param2) {
         int var0 = 25;
-        ImmutableList<AreaFactory<LazyArea>> var1 = getDefaultLayers(param1, param2, param1x -> new LazyAreaContext(25, param0, param1x));
-        Layer var2 = new Layer(var1.get(0));
-        Layer var3 = new Layer(var1.get(1));
-        Layer var4 = new Layer(var1.get(2));
-        return new Layer[]{var2, var3, var4};
+        AreaFactory<LazyArea> var1 = getDefaultLayer(param1, param2, param1x -> new LazyAreaContext(25, param0, param1x));
+        return new Layer(var1);
     }
 
     public static boolean isSame(int param0, int param1) {

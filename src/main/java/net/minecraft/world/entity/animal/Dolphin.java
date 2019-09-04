@@ -12,6 +12,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.FluidTags;
@@ -491,25 +492,27 @@ public class Dolphin extends WaterAnimal {
 
         @Override
         public void start() {
-            this.stuck = false;
-            this.dolphin.getNavigation().stop();
-            Level var0 = this.dolphin.level;
-            BlockPos var1 = new BlockPos(this.dolphin);
-            String var2 = (double)var0.random.nextFloat() >= 0.5 ? "Ocean_Ruin" : "Shipwreck";
-            BlockPos var3 = var0.findNearestMapFeature(var2, var1, 50, false);
-            if (var3 == null) {
-                BlockPos var4 = var0.findNearestMapFeature(var2.equals("Ocean_Ruin") ? "Shipwreck" : "Ocean_Ruin", var1, 50, false);
-                if (var4 == null) {
-                    this.stuck = true;
-                    return;
+            if (this.dolphin.level instanceof ServerLevel) {
+                ServerLevel var0 = (ServerLevel)this.dolphin.level;
+                this.stuck = false;
+                this.dolphin.getNavigation().stop();
+                BlockPos var1 = new BlockPos(this.dolphin);
+                String var2 = (double)var0.random.nextFloat() >= 0.5 ? "Ocean_Ruin" : "Shipwreck";
+                BlockPos var3 = var0.findNearestMapFeature(var2, var1, 50, false);
+                if (var3 == null) {
+                    BlockPos var4 = var0.findNearestMapFeature(var2.equals("Ocean_Ruin") ? "Shipwreck" : "Ocean_Ruin", var1, 50, false);
+                    if (var4 == null) {
+                        this.stuck = true;
+                        return;
+                    }
+
+                    this.dolphin.setTreasurePos(var4);
+                } else {
+                    this.dolphin.setTreasurePos(var3);
                 }
 
-                this.dolphin.setTreasurePos(var4);
-            } else {
-                this.dolphin.setTreasurePos(var3);
+                var0.broadcastEntityEvent(this.dolphin, (byte)38);
             }
-
-            var0.broadcastEntityEvent(this.dolphin, (byte)38);
         }
 
         @Override

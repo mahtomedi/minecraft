@@ -5,7 +5,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -119,9 +118,9 @@ public class SimpleReloadableResourceManager implements ReloadableResourceManage
     protected ReloadInstance createReload(Executor param0, Executor param1, List<PreparableReloadListener> param2, CompletableFuture<Unit> param3) {
         ReloadInstance var0;
         if (LOGGER.isDebugEnabled()) {
-            var0 = new ProfiledReloadInstance(this, new ArrayList<>(param2), param0, param1, param3);
+            var0 = new ProfiledReloadInstance(this, Lists.newArrayList(param2), param0, param1, param3);
         } else {
-            var0 = SimpleReloadInstance.of(this, new ArrayList<>(param2), param0, param1, param3);
+            var0 = SimpleReloadInstance.of(this, Lists.newArrayList(param2), param0, param1, param3);
         }
 
         this.recentlyRegistered.clear();

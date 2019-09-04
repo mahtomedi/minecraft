@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import javax.annotation.Nullable;
 import net.minecraft.client.model.FoxModel;
 import net.minecraft.client.renderer.entity.layers.FoxHeldItemLayer;
@@ -25,7 +25,7 @@ public class FoxRenderer extends MobRenderer<Fox, FoxModel<Fox>> {
     protected void setupRotations(Fox param0, float param1, float param2, float param3) {
         super.setupRotations(param0, param1, param2, param3);
         if (param0.isPouncing() || param0.isFaceplanted()) {
-            GlStateManager.rotatef(-Mth.lerp(param3, param0.xRotO, param0.xRot), 1.0F, 0.0F, 0.0F);
+            RenderSystem.rotatef(-Mth.lerp(param3, param0.xRotO, param0.xRot), 1.0F, 0.0F, 0.0F);
         }
 
     }

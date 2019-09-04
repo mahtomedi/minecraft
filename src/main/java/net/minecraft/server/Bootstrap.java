@@ -74,8 +74,11 @@ public class Bootstrap {
     public static void validate() {
         if (!isBootstrapped) {
             throw new IllegalArgumentException("Not bootstrapped");
-        } else if (!SharedConstants.IS_RUNNING_IN_IDE) {
-            getMissingTranslations().forEach(param0 -> LOGGER.error("Missing translations: " + param0));
+        } else {
+            if (SharedConstants.IS_RUNNING_IN_IDE) {
+                getMissingTranslations().forEach(param0 -> LOGGER.error("Missing translations: " + param0));
+            }
+
         }
     }
 

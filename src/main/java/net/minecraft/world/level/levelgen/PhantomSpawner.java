@@ -13,6 +13,7 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.monster.Phantom;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
@@ -22,6 +23,8 @@ public class PhantomSpawner {
 
     public int tick(ServerLevel param0, boolean param1, boolean param2) {
         if (!param1) {
+            return 0;
+        } else if (!param0.getGameRules().getBoolean(GameRules.RULE_DOINSOMNIA)) {
             return 0;
         } else {
             Random var0 = param0.random;

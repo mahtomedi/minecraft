@@ -1,6 +1,7 @@
 package net.minecraft.client.gui.components;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.resources.ResourceLocation;
@@ -31,17 +32,17 @@ public class Checkbox extends AbstractButton {
     public void renderButton(int param0, int param1, float param2) {
         Minecraft var0 = Minecraft.getInstance();
         var0.getTextureManager().bind(TEXTURE);
-        GlStateManager.enableDepthTest();
+        RenderSystem.enableDepthTest();
         Font var1 = var0.font;
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, this.alpha);
-        GlStateManager.enableBlend();
-        GlStateManager.blendFuncSeparate(
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, this.alpha);
+        RenderSystem.enableBlend();
+        RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.SRC_ALPHA,
             GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
             GlStateManager.SourceFactor.ONE,
             GlStateManager.DestFactor.ZERO
         );
-        GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+        RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
         blit(this.x, this.y, 0.0F, this.selected ? 20.0F : 0.0F, 20, this.height, 32, 64);
         this.renderBg(var0, param0, param1);
         int var2 = 14737632;

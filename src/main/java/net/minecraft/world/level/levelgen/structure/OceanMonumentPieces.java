@@ -17,6 +17,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 
@@ -347,17 +348,17 @@ public class OceanMonumentPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
             int var0 = Math.max(param0.getSeaLevel(), 64) - this.boundingBox.y0;
-            this.generateWaterBox(param0, param2, 0, 0, 0, 58, var0, 58);
-            this.generateWing(false, 0, param0, param1, param2);
-            this.generateWing(true, 33, param0, param1, param2);
-            this.generateEntranceArchs(param0, param1, param2);
-            this.generateEntranceWall(param0, param1, param2);
-            this.generateRoofPiece(param0, param1, param2);
-            this.generateLowerWall(param0, param1, param2);
-            this.generateMiddleWall(param0, param1, param2);
-            this.generateUpperWall(param0, param1, param2);
+            this.generateWaterBox(param0, param3, 0, 0, 0, 58, var0, 58);
+            this.generateWing(false, 0, param0, param2, param3);
+            this.generateWing(true, 33, param0, param2, param3);
+            this.generateEntranceArchs(param0, param2, param3);
+            this.generateEntranceWall(param0, param2, param3);
+            this.generateRoofPiece(param0, param2, param3);
+            this.generateLowerWall(param0, param2, param3);
+            this.generateMiddleWall(param0, param2, param3);
+            this.generateUpperWall(param0, param2, param3);
 
             for(int var1 = 0; var1 < 7; ++var1) {
                 int var2 = 0;
@@ -372,8 +373,8 @@ public class OceanMonumentPieces {
 
                     for(int var5 = 0; var5 < 4; ++var5) {
                         for(int var6 = 0; var6 < 4; ++var6) {
-                            this.placeBlock(param0, BASE_LIGHT, var3 + var5, 0, var4 + var6, param2);
-                            this.fillColumnDown(param0, BASE_LIGHT, var3 + var5, -1, var4 + var6, param2);
+                            this.placeBlock(param0, BASE_LIGHT, var3 + var5, 0, var4 + var6, param3);
+                            this.fillColumnDown(param0, BASE_LIGHT, var3 + var5, -1, var4 + var6, param3);
                         }
                     }
 
@@ -386,15 +387,15 @@ public class OceanMonumentPieces {
             }
 
             for(int var7 = 0; var7 < 5; ++var7) {
-                this.generateWaterBox(param0, param2, -1 - var7, 0 + var7 * 2, -1 - var7, -1 - var7, 23, 58 + var7);
-                this.generateWaterBox(param0, param2, 58 + var7, 0 + var7 * 2, -1 - var7, 58 + var7, 23, 58 + var7);
-                this.generateWaterBox(param0, param2, 0 - var7, 0 + var7 * 2, -1 - var7, 57 + var7, 23, -1 - var7);
-                this.generateWaterBox(param0, param2, 0 - var7, 0 + var7 * 2, 58 + var7, 57 + var7, 23, 58 + var7);
+                this.generateWaterBox(param0, param3, -1 - var7, 0 + var7 * 2, -1 - var7, -1 - var7, 23, 58 + var7);
+                this.generateWaterBox(param0, param3, 58 + var7, 0 + var7 * 2, -1 - var7, 58 + var7, 23, 58 + var7);
+                this.generateWaterBox(param0, param3, 0 - var7, 0 + var7 * 2, -1 - var7, 57 + var7, 23, -1 - var7);
+                this.generateWaterBox(param0, param3, 0 - var7, 0 + var7 * 2, 58 + var7, 57 + var7, 23, 58 + var7);
             }
 
             for(OceanMonumentPieces.OceanMonumentPiece var8 : this.childPieces) {
-                if (var8.getBoundingBox().intersects(param2)) {
-                    var8.postProcess(param0, param1, param2, param3);
+                if (var8.getBoundingBox().intersects(param3)) {
+                    var8.postProcess(param0, param1, param2, param3, param4);
                 }
             }
 
@@ -743,14 +744,14 @@ public class OceanMonumentPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
-            this.generateBoxOnFillOnly(param0, param2, 1, 8, 0, 14, 8, 14, BASE_GRAY);
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+            this.generateBoxOnFillOnly(param0, param3, 1, 8, 0, 14, 8, 14, BASE_GRAY);
             int var0 = 7;
             BlockState var1 = BASE_LIGHT;
-            this.generateBox(param0, param2, 0, 7, 0, 0, 7, 15, var1, var1, false);
-            this.generateBox(param0, param2, 15, 7, 0, 15, 7, 15, var1, var1, false);
-            this.generateBox(param0, param2, 1, 7, 0, 15, 7, 0, var1, var1, false);
-            this.generateBox(param0, param2, 1, 7, 15, 14, 7, 15, var1, var1, false);
+            this.generateBox(param0, param3, 0, 7, 0, 0, 7, 15, var1, var1, false);
+            this.generateBox(param0, param3, 15, 7, 0, 15, 7, 15, var1, var1, false);
+            this.generateBox(param0, param3, 1, 7, 0, 15, 7, 0, var1, var1, false);
+            this.generateBox(param0, param3, 1, 7, 15, 14, 7, 15, var1, var1, false);
 
             for(int var2 = 1; var2 <= 6; ++var2) {
                 var1 = BASE_LIGHT;
@@ -759,55 +760,55 @@ public class OceanMonumentPieces {
                 }
 
                 for(int var4 = 0; var4 <= 15; var4 += 15) {
-                    this.generateBox(param0, param2, var4, var2, 0, var4, var2, 1, var1, var1, false);
-                    this.generateBox(param0, param2, var4, var2, 6, var4, var2, 9, var1, var1, false);
-                    this.generateBox(param0, param2, var4, var2, 14, var4, var2, 15, var1, var1, false);
+                    this.generateBox(param0, param3, var4, var2, 0, var4, var2, 1, var1, var1, false);
+                    this.generateBox(param0, param3, var4, var2, 6, var4, var2, 9, var1, var1, false);
+                    this.generateBox(param0, param3, var4, var2, 14, var4, var2, 15, var1, var1, false);
                 }
 
-                this.generateBox(param0, param2, 1, var2, 0, 1, var2, 0, var1, var1, false);
-                this.generateBox(param0, param2, 6, var2, 0, 9, var2, 0, var1, var1, false);
-                this.generateBox(param0, param2, 14, var2, 0, 14, var2, 0, var1, var1, false);
-                this.generateBox(param0, param2, 1, var2, 15, 14, var2, 15, var1, var1, false);
+                this.generateBox(param0, param3, 1, var2, 0, 1, var2, 0, var1, var1, false);
+                this.generateBox(param0, param3, 6, var2, 0, 9, var2, 0, var1, var1, false);
+                this.generateBox(param0, param3, 14, var2, 0, 14, var2, 0, var1, var1, false);
+                this.generateBox(param0, param3, 1, var2, 15, 14, var2, 15, var1, var1, false);
             }
 
-            this.generateBox(param0, param2, 6, 3, 6, 9, 6, 9, BASE_BLACK, BASE_BLACK, false);
-            this.generateBox(param0, param2, 7, 4, 7, 8, 5, 8, Blocks.GOLD_BLOCK.defaultBlockState(), Blocks.GOLD_BLOCK.defaultBlockState(), false);
+            this.generateBox(param0, param3, 6, 3, 6, 9, 6, 9, BASE_BLACK, BASE_BLACK, false);
+            this.generateBox(param0, param3, 7, 4, 7, 8, 5, 8, Blocks.GOLD_BLOCK.defaultBlockState(), Blocks.GOLD_BLOCK.defaultBlockState(), false);
 
             for(int var5 = 3; var5 <= 6; var5 += 3) {
                 for(int var6 = 6; var6 <= 9; var6 += 3) {
-                    this.placeBlock(param0, LAMP_BLOCK, var6, var5, 6, param2);
-                    this.placeBlock(param0, LAMP_BLOCK, var6, var5, 9, param2);
+                    this.placeBlock(param0, LAMP_BLOCK, var6, var5, 6, param3);
+                    this.placeBlock(param0, LAMP_BLOCK, var6, var5, 9, param3);
                 }
             }
 
-            this.generateBox(param0, param2, 5, 1, 6, 5, 2, 6, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 5, 1, 9, 5, 2, 9, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 10, 1, 6, 10, 2, 6, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 10, 1, 9, 10, 2, 9, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 6, 1, 5, 6, 2, 5, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 9, 1, 5, 9, 2, 5, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 6, 1, 10, 6, 2, 10, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 9, 1, 10, 9, 2, 10, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 5, 2, 5, 5, 6, 5, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 5, 2, 10, 5, 6, 10, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 10, 2, 5, 10, 6, 5, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 10, 2, 10, 10, 6, 10, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 5, 7, 1, 5, 7, 6, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 10, 7, 1, 10, 7, 6, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 5, 7, 9, 5, 7, 14, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 10, 7, 9, 10, 7, 14, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 1, 7, 5, 6, 7, 5, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 1, 7, 10, 6, 7, 10, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 9, 7, 5, 14, 7, 5, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 9, 7, 10, 14, 7, 10, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 2, 1, 2, 2, 1, 3, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 3, 1, 2, 3, 1, 2, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 13, 1, 2, 13, 1, 3, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 12, 1, 2, 12, 1, 2, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 2, 1, 12, 2, 1, 13, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 3, 1, 13, 3, 1, 13, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 13, 1, 12, 13, 1, 13, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 12, 1, 13, 12, 1, 13, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 5, 1, 6, 5, 2, 6, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 5, 1, 9, 5, 2, 9, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 10, 1, 6, 10, 2, 6, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 10, 1, 9, 10, 2, 9, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 6, 1, 5, 6, 2, 5, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 9, 1, 5, 9, 2, 5, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 6, 1, 10, 6, 2, 10, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 9, 1, 10, 9, 2, 10, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 5, 2, 5, 5, 6, 5, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 5, 2, 10, 5, 6, 10, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 10, 2, 5, 10, 6, 5, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 10, 2, 10, 10, 6, 10, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 5, 7, 1, 5, 7, 6, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 10, 7, 1, 10, 7, 6, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 5, 7, 9, 5, 7, 14, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 10, 7, 9, 10, 7, 14, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 1, 7, 5, 6, 7, 5, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 1, 7, 10, 6, 7, 10, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 9, 7, 5, 14, 7, 5, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 9, 7, 10, 14, 7, 10, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 2, 1, 2, 2, 1, 3, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 3, 1, 2, 3, 1, 2, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 13, 1, 2, 13, 1, 3, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 12, 1, 2, 12, 1, 2, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 2, 1, 12, 2, 1, 13, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 3, 1, 13, 3, 1, 13, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 13, 1, 12, 13, 1, 13, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 12, 1, 13, 12, 1, 13, BASE_LIGHT, BASE_LIGHT, false);
             return true;
         }
     }
@@ -822,61 +823,61 @@ public class OceanMonumentPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
             OceanMonumentPieces.RoomDefinition var0 = this.roomDefinition.connections[Direction.EAST.get3DDataValue()];
             OceanMonumentPieces.RoomDefinition var1 = this.roomDefinition;
             if (this.roomDefinition.index / 25 > 0) {
-                this.generateDefaultFloor(param0, param2, 8, 0, var0.hasOpening[Direction.DOWN.get3DDataValue()]);
-                this.generateDefaultFloor(param0, param2, 0, 0, var1.hasOpening[Direction.DOWN.get3DDataValue()]);
+                this.generateDefaultFloor(param0, param3, 8, 0, var0.hasOpening[Direction.DOWN.get3DDataValue()]);
+                this.generateDefaultFloor(param0, param3, 0, 0, var1.hasOpening[Direction.DOWN.get3DDataValue()]);
             }
 
             if (var1.connections[Direction.UP.get3DDataValue()] == null) {
-                this.generateBoxOnFillOnly(param0, param2, 1, 4, 1, 7, 4, 6, BASE_GRAY);
+                this.generateBoxOnFillOnly(param0, param3, 1, 4, 1, 7, 4, 6, BASE_GRAY);
             }
 
             if (var0.connections[Direction.UP.get3DDataValue()] == null) {
-                this.generateBoxOnFillOnly(param0, param2, 8, 4, 1, 14, 4, 6, BASE_GRAY);
+                this.generateBoxOnFillOnly(param0, param3, 8, 4, 1, 14, 4, 6, BASE_GRAY);
             }
 
-            this.generateBox(param0, param2, 0, 3, 0, 0, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 15, 3, 0, 15, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 1, 3, 0, 15, 3, 0, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 1, 3, 7, 14, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 0, 2, 0, 0, 2, 7, BASE_GRAY, BASE_GRAY, false);
-            this.generateBox(param0, param2, 15, 2, 0, 15, 2, 7, BASE_GRAY, BASE_GRAY, false);
-            this.generateBox(param0, param2, 1, 2, 0, 15, 2, 0, BASE_GRAY, BASE_GRAY, false);
-            this.generateBox(param0, param2, 1, 2, 7, 14, 2, 7, BASE_GRAY, BASE_GRAY, false);
-            this.generateBox(param0, param2, 0, 1, 0, 0, 1, 7, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 15, 1, 0, 15, 1, 7, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 1, 1, 0, 15, 1, 0, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 1, 1, 7, 14, 1, 7, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 5, 1, 0, 10, 1, 4, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 6, 2, 0, 9, 2, 3, BASE_GRAY, BASE_GRAY, false);
-            this.generateBox(param0, param2, 5, 3, 0, 10, 3, 4, BASE_LIGHT, BASE_LIGHT, false);
-            this.placeBlock(param0, LAMP_BLOCK, 6, 2, 3, param2);
-            this.placeBlock(param0, LAMP_BLOCK, 9, 2, 3, param2);
+            this.generateBox(param0, param3, 0, 3, 0, 0, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 15, 3, 0, 15, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 1, 3, 0, 15, 3, 0, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 1, 3, 7, 14, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 0, 2, 0, 0, 2, 7, BASE_GRAY, BASE_GRAY, false);
+            this.generateBox(param0, param3, 15, 2, 0, 15, 2, 7, BASE_GRAY, BASE_GRAY, false);
+            this.generateBox(param0, param3, 1, 2, 0, 15, 2, 0, BASE_GRAY, BASE_GRAY, false);
+            this.generateBox(param0, param3, 1, 2, 7, 14, 2, 7, BASE_GRAY, BASE_GRAY, false);
+            this.generateBox(param0, param3, 0, 1, 0, 0, 1, 7, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 15, 1, 0, 15, 1, 7, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 1, 1, 0, 15, 1, 0, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 1, 1, 7, 14, 1, 7, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 5, 1, 0, 10, 1, 4, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 6, 2, 0, 9, 2, 3, BASE_GRAY, BASE_GRAY, false);
+            this.generateBox(param0, param3, 5, 3, 0, 10, 3, 4, BASE_LIGHT, BASE_LIGHT, false);
+            this.placeBlock(param0, LAMP_BLOCK, 6, 2, 3, param3);
+            this.placeBlock(param0, LAMP_BLOCK, 9, 2, 3, param3);
             if (var1.hasOpening[Direction.SOUTH.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 3, 1, 0, 4, 2, 0);
+                this.generateWaterBox(param0, param3, 3, 1, 0, 4, 2, 0);
             }
 
             if (var1.hasOpening[Direction.NORTH.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 3, 1, 7, 4, 2, 7);
+                this.generateWaterBox(param0, param3, 3, 1, 7, 4, 2, 7);
             }
 
             if (var1.hasOpening[Direction.WEST.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 0, 1, 3, 0, 2, 4);
+                this.generateWaterBox(param0, param3, 0, 1, 3, 0, 2, 4);
             }
 
             if (var0.hasOpening[Direction.SOUTH.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 11, 1, 0, 12, 2, 0);
+                this.generateWaterBox(param0, param3, 11, 1, 0, 12, 2, 0);
             }
 
             if (var0.hasOpening[Direction.NORTH.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 11, 1, 7, 12, 2, 7);
+                this.generateWaterBox(param0, param3, 11, 1, 7, 12, 2, 7);
             }
 
             if (var0.hasOpening[Direction.EAST.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 15, 1, 3, 15, 2, 4);
+                this.generateWaterBox(param0, param3, 15, 1, 3, 15, 2, 4);
             }
 
             return true;
@@ -893,22 +894,22 @@ public class OceanMonumentPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
             OceanMonumentPieces.RoomDefinition var0 = this.roomDefinition.connections[Direction.EAST.get3DDataValue()];
             OceanMonumentPieces.RoomDefinition var1 = this.roomDefinition;
             OceanMonumentPieces.RoomDefinition var2 = var1.connections[Direction.UP.get3DDataValue()];
             OceanMonumentPieces.RoomDefinition var3 = var0.connections[Direction.UP.get3DDataValue()];
             if (this.roomDefinition.index / 25 > 0) {
-                this.generateDefaultFloor(param0, param2, 8, 0, var0.hasOpening[Direction.DOWN.get3DDataValue()]);
-                this.generateDefaultFloor(param0, param2, 0, 0, var1.hasOpening[Direction.DOWN.get3DDataValue()]);
+                this.generateDefaultFloor(param0, param3, 8, 0, var0.hasOpening[Direction.DOWN.get3DDataValue()]);
+                this.generateDefaultFloor(param0, param3, 0, 0, var1.hasOpening[Direction.DOWN.get3DDataValue()]);
             }
 
             if (var2.connections[Direction.UP.get3DDataValue()] == null) {
-                this.generateBoxOnFillOnly(param0, param2, 1, 8, 1, 7, 8, 6, BASE_GRAY);
+                this.generateBoxOnFillOnly(param0, param3, 1, 8, 1, 7, 8, 6, BASE_GRAY);
             }
 
             if (var3.connections[Direction.UP.get3DDataValue()] == null) {
-                this.generateBoxOnFillOnly(param0, param2, 8, 8, 1, 14, 8, 6, BASE_GRAY);
+                this.generateBoxOnFillOnly(param0, param3, 8, 8, 1, 14, 8, 6, BASE_GRAY);
             }
 
             for(int var4 = 1; var4 <= 7; ++var4) {
@@ -917,81 +918,81 @@ public class OceanMonumentPieces {
                     var5 = BASE_GRAY;
                 }
 
-                this.generateBox(param0, param2, 0, var4, 0, 0, var4, 7, var5, var5, false);
-                this.generateBox(param0, param2, 15, var4, 0, 15, var4, 7, var5, var5, false);
-                this.generateBox(param0, param2, 1, var4, 0, 15, var4, 0, var5, var5, false);
-                this.generateBox(param0, param2, 1, var4, 7, 14, var4, 7, var5, var5, false);
+                this.generateBox(param0, param3, 0, var4, 0, 0, var4, 7, var5, var5, false);
+                this.generateBox(param0, param3, 15, var4, 0, 15, var4, 7, var5, var5, false);
+                this.generateBox(param0, param3, 1, var4, 0, 15, var4, 0, var5, var5, false);
+                this.generateBox(param0, param3, 1, var4, 7, 14, var4, 7, var5, var5, false);
             }
 
-            this.generateBox(param0, param2, 2, 1, 3, 2, 7, 4, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 3, 1, 2, 4, 7, 2, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 3, 1, 5, 4, 7, 5, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 13, 1, 3, 13, 7, 4, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 11, 1, 2, 12, 7, 2, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 11, 1, 5, 12, 7, 5, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 5, 1, 3, 5, 3, 4, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 10, 1, 3, 10, 3, 4, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 5, 7, 2, 10, 7, 5, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 5, 5, 2, 5, 7, 2, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 10, 5, 2, 10, 7, 2, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 5, 5, 5, 5, 7, 5, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 10, 5, 5, 10, 7, 5, BASE_LIGHT, BASE_LIGHT, false);
-            this.placeBlock(param0, BASE_LIGHT, 6, 6, 2, param2);
-            this.placeBlock(param0, BASE_LIGHT, 9, 6, 2, param2);
-            this.placeBlock(param0, BASE_LIGHT, 6, 6, 5, param2);
-            this.placeBlock(param0, BASE_LIGHT, 9, 6, 5, param2);
-            this.generateBox(param0, param2, 5, 4, 3, 6, 4, 4, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 9, 4, 3, 10, 4, 4, BASE_LIGHT, BASE_LIGHT, false);
-            this.placeBlock(param0, LAMP_BLOCK, 5, 4, 2, param2);
-            this.placeBlock(param0, LAMP_BLOCK, 5, 4, 5, param2);
-            this.placeBlock(param0, LAMP_BLOCK, 10, 4, 2, param2);
-            this.placeBlock(param0, LAMP_BLOCK, 10, 4, 5, param2);
+            this.generateBox(param0, param3, 2, 1, 3, 2, 7, 4, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 3, 1, 2, 4, 7, 2, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 3, 1, 5, 4, 7, 5, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 13, 1, 3, 13, 7, 4, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 11, 1, 2, 12, 7, 2, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 11, 1, 5, 12, 7, 5, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 5, 1, 3, 5, 3, 4, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 10, 1, 3, 10, 3, 4, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 5, 7, 2, 10, 7, 5, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 5, 5, 2, 5, 7, 2, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 10, 5, 2, 10, 7, 2, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 5, 5, 5, 5, 7, 5, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 10, 5, 5, 10, 7, 5, BASE_LIGHT, BASE_LIGHT, false);
+            this.placeBlock(param0, BASE_LIGHT, 6, 6, 2, param3);
+            this.placeBlock(param0, BASE_LIGHT, 9, 6, 2, param3);
+            this.placeBlock(param0, BASE_LIGHT, 6, 6, 5, param3);
+            this.placeBlock(param0, BASE_LIGHT, 9, 6, 5, param3);
+            this.generateBox(param0, param3, 5, 4, 3, 6, 4, 4, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 9, 4, 3, 10, 4, 4, BASE_LIGHT, BASE_LIGHT, false);
+            this.placeBlock(param0, LAMP_BLOCK, 5, 4, 2, param3);
+            this.placeBlock(param0, LAMP_BLOCK, 5, 4, 5, param3);
+            this.placeBlock(param0, LAMP_BLOCK, 10, 4, 2, param3);
+            this.placeBlock(param0, LAMP_BLOCK, 10, 4, 5, param3);
             if (var1.hasOpening[Direction.SOUTH.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 3, 1, 0, 4, 2, 0);
+                this.generateWaterBox(param0, param3, 3, 1, 0, 4, 2, 0);
             }
 
             if (var1.hasOpening[Direction.NORTH.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 3, 1, 7, 4, 2, 7);
+                this.generateWaterBox(param0, param3, 3, 1, 7, 4, 2, 7);
             }
 
             if (var1.hasOpening[Direction.WEST.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 0, 1, 3, 0, 2, 4);
+                this.generateWaterBox(param0, param3, 0, 1, 3, 0, 2, 4);
             }
 
             if (var0.hasOpening[Direction.SOUTH.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 11, 1, 0, 12, 2, 0);
+                this.generateWaterBox(param0, param3, 11, 1, 0, 12, 2, 0);
             }
 
             if (var0.hasOpening[Direction.NORTH.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 11, 1, 7, 12, 2, 7);
+                this.generateWaterBox(param0, param3, 11, 1, 7, 12, 2, 7);
             }
 
             if (var0.hasOpening[Direction.EAST.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 15, 1, 3, 15, 2, 4);
+                this.generateWaterBox(param0, param3, 15, 1, 3, 15, 2, 4);
             }
 
             if (var2.hasOpening[Direction.SOUTH.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 3, 5, 0, 4, 6, 0);
+                this.generateWaterBox(param0, param3, 3, 5, 0, 4, 6, 0);
             }
 
             if (var2.hasOpening[Direction.NORTH.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 3, 5, 7, 4, 6, 7);
+                this.generateWaterBox(param0, param3, 3, 5, 7, 4, 6, 7);
             }
 
             if (var2.hasOpening[Direction.WEST.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 0, 5, 3, 0, 6, 4);
+                this.generateWaterBox(param0, param3, 0, 5, 3, 0, 6, 4);
             }
 
             if (var3.hasOpening[Direction.SOUTH.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 11, 5, 0, 12, 6, 0);
+                this.generateWaterBox(param0, param3, 11, 5, 0, 12, 6, 0);
             }
 
             if (var3.hasOpening[Direction.NORTH.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 11, 5, 7, 12, 6, 7);
+                this.generateWaterBox(param0, param3, 11, 5, 7, 12, 6, 7);
             }
 
             if (var3.hasOpening[Direction.EAST.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 15, 5, 3, 15, 6, 4);
+                this.generateWaterBox(param0, param3, 15, 5, 3, 15, 6, 4);
             }
 
             return true;
@@ -1008,69 +1009,69 @@ public class OceanMonumentPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
             if (this.roomDefinition.index / 25 > 0) {
-                this.generateDefaultFloor(param0, param2, 0, 0, this.roomDefinition.hasOpening[Direction.DOWN.get3DDataValue()]);
+                this.generateDefaultFloor(param0, param3, 0, 0, this.roomDefinition.hasOpening[Direction.DOWN.get3DDataValue()]);
             }
 
             OceanMonumentPieces.RoomDefinition var0 = this.roomDefinition.connections[Direction.UP.get3DDataValue()];
             if (var0.connections[Direction.UP.get3DDataValue()] == null) {
-                this.generateBoxOnFillOnly(param0, param2, 1, 8, 1, 6, 8, 6, BASE_GRAY);
+                this.generateBoxOnFillOnly(param0, param3, 1, 8, 1, 6, 8, 6, BASE_GRAY);
             }
 
-            this.generateBox(param0, param2, 0, 4, 0, 0, 4, 7, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 7, 4, 0, 7, 4, 7, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 1, 4, 0, 6, 4, 0, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 1, 4, 7, 6, 4, 7, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 2, 4, 1, 2, 4, 2, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 1, 4, 2, 1, 4, 2, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 5, 4, 1, 5, 4, 2, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 6, 4, 2, 6, 4, 2, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 2, 4, 5, 2, 4, 6, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 1, 4, 5, 1, 4, 5, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 5, 4, 5, 5, 4, 6, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 6, 4, 5, 6, 4, 5, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 0, 4, 0, 0, 4, 7, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 7, 4, 0, 7, 4, 7, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 1, 4, 0, 6, 4, 0, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 1, 4, 7, 6, 4, 7, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 2, 4, 1, 2, 4, 2, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 1, 4, 2, 1, 4, 2, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 5, 4, 1, 5, 4, 2, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 6, 4, 2, 6, 4, 2, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 2, 4, 5, 2, 4, 6, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 1, 4, 5, 1, 4, 5, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 5, 4, 5, 5, 4, 6, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 6, 4, 5, 6, 4, 5, BASE_LIGHT, BASE_LIGHT, false);
             OceanMonumentPieces.RoomDefinition var1 = this.roomDefinition;
 
             for(int var2 = 1; var2 <= 5; var2 += 4) {
                 int var3 = 0;
                 if (var1.hasOpening[Direction.SOUTH.get3DDataValue()]) {
-                    this.generateBox(param0, param2, 2, var2, var3, 2, var2 + 2, var3, BASE_LIGHT, BASE_LIGHT, false);
-                    this.generateBox(param0, param2, 5, var2, var3, 5, var2 + 2, var3, BASE_LIGHT, BASE_LIGHT, false);
-                    this.generateBox(param0, param2, 3, var2 + 2, var3, 4, var2 + 2, var3, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, 2, var2, var3, 2, var2 + 2, var3, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, 5, var2, var3, 5, var2 + 2, var3, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, 3, var2 + 2, var3, 4, var2 + 2, var3, BASE_LIGHT, BASE_LIGHT, false);
                 } else {
-                    this.generateBox(param0, param2, 0, var2, var3, 7, var2 + 2, var3, BASE_LIGHT, BASE_LIGHT, false);
-                    this.generateBox(param0, param2, 0, var2 + 1, var3, 7, var2 + 1, var3, BASE_GRAY, BASE_GRAY, false);
+                    this.generateBox(param0, param3, 0, var2, var3, 7, var2 + 2, var3, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, 0, var2 + 1, var3, 7, var2 + 1, var3, BASE_GRAY, BASE_GRAY, false);
                 }
 
-                int var10 = 7;
+                int var11 = 7;
                 if (var1.hasOpening[Direction.NORTH.get3DDataValue()]) {
-                    this.generateBox(param0, param2, 2, var2, var10, 2, var2 + 2, var10, BASE_LIGHT, BASE_LIGHT, false);
-                    this.generateBox(param0, param2, 5, var2, var10, 5, var2 + 2, var10, BASE_LIGHT, BASE_LIGHT, false);
-                    this.generateBox(param0, param2, 3, var2 + 2, var10, 4, var2 + 2, var10, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, 2, var2, var11, 2, var2 + 2, var11, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, 5, var2, var11, 5, var2 + 2, var11, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, 3, var2 + 2, var11, 4, var2 + 2, var11, BASE_LIGHT, BASE_LIGHT, false);
                 } else {
-                    this.generateBox(param0, param2, 0, var2, var10, 7, var2 + 2, var10, BASE_LIGHT, BASE_LIGHT, false);
-                    this.generateBox(param0, param2, 0, var2 + 1, var10, 7, var2 + 1, var10, BASE_GRAY, BASE_GRAY, false);
+                    this.generateBox(param0, param3, 0, var2, var11, 7, var2 + 2, var11, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, 0, var2 + 1, var11, 7, var2 + 1, var11, BASE_GRAY, BASE_GRAY, false);
                 }
 
                 int var4 = 0;
                 if (var1.hasOpening[Direction.WEST.get3DDataValue()]) {
-                    this.generateBox(param0, param2, var4, var2, 2, var4, var2 + 2, 2, BASE_LIGHT, BASE_LIGHT, false);
-                    this.generateBox(param0, param2, var4, var2, 5, var4, var2 + 2, 5, BASE_LIGHT, BASE_LIGHT, false);
-                    this.generateBox(param0, param2, var4, var2 + 2, 3, var4, var2 + 2, 4, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, var4, var2, 2, var4, var2 + 2, 2, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, var4, var2, 5, var4, var2 + 2, 5, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, var4, var2 + 2, 3, var4, var2 + 2, 4, BASE_LIGHT, BASE_LIGHT, false);
                 } else {
-                    this.generateBox(param0, param2, var4, var2, 0, var4, var2 + 2, 7, BASE_LIGHT, BASE_LIGHT, false);
-                    this.generateBox(param0, param2, var4, var2 + 1, 0, var4, var2 + 1, 7, BASE_GRAY, BASE_GRAY, false);
+                    this.generateBox(param0, param3, var4, var2, 0, var4, var2 + 2, 7, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, var4, var2 + 1, 0, var4, var2 + 1, 7, BASE_GRAY, BASE_GRAY, false);
                 }
 
-                int var11 = 7;
+                int var12 = 7;
                 if (var1.hasOpening[Direction.EAST.get3DDataValue()]) {
-                    this.generateBox(param0, param2, var11, var2, 2, var11, var2 + 2, 2, BASE_LIGHT, BASE_LIGHT, false);
-                    this.generateBox(param0, param2, var11, var2, 5, var11, var2 + 2, 5, BASE_LIGHT, BASE_LIGHT, false);
-                    this.generateBox(param0, param2, var11, var2 + 2, 3, var11, var2 + 2, 4, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, var12, var2, 2, var12, var2 + 2, 2, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, var12, var2, 5, var12, var2 + 2, 5, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, var12, var2 + 2, 3, var12, var2 + 2, 4, BASE_LIGHT, BASE_LIGHT, false);
                 } else {
-                    this.generateBox(param0, param2, var11, var2, 0, var11, var2 + 2, 7, BASE_LIGHT, BASE_LIGHT, false);
-                    this.generateBox(param0, param2, var11, var2 + 1, 0, var11, var2 + 1, 7, BASE_GRAY, BASE_GRAY, false);
+                    this.generateBox(param0, param3, var12, var2, 0, var12, var2 + 2, 7, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, var12, var2 + 1, 0, var12, var2 + 1, 7, BASE_GRAY, BASE_GRAY, false);
                 }
 
                 var1 = var0;
@@ -1090,22 +1091,22 @@ public class OceanMonumentPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
             OceanMonumentPieces.RoomDefinition var0 = this.roomDefinition.connections[Direction.NORTH.get3DDataValue()];
             OceanMonumentPieces.RoomDefinition var1 = this.roomDefinition;
             OceanMonumentPieces.RoomDefinition var2 = var0.connections[Direction.UP.get3DDataValue()];
             OceanMonumentPieces.RoomDefinition var3 = var1.connections[Direction.UP.get3DDataValue()];
             if (this.roomDefinition.index / 25 > 0) {
-                this.generateDefaultFloor(param0, param2, 0, 8, var0.hasOpening[Direction.DOWN.get3DDataValue()]);
-                this.generateDefaultFloor(param0, param2, 0, 0, var1.hasOpening[Direction.DOWN.get3DDataValue()]);
+                this.generateDefaultFloor(param0, param3, 0, 8, var0.hasOpening[Direction.DOWN.get3DDataValue()]);
+                this.generateDefaultFloor(param0, param3, 0, 0, var1.hasOpening[Direction.DOWN.get3DDataValue()]);
             }
 
             if (var3.connections[Direction.UP.get3DDataValue()] == null) {
-                this.generateBoxOnFillOnly(param0, param2, 1, 8, 1, 6, 8, 7, BASE_GRAY);
+                this.generateBoxOnFillOnly(param0, param3, 1, 8, 1, 6, 8, 7, BASE_GRAY);
             }
 
             if (var2.connections[Direction.UP.get3DDataValue()] == null) {
-                this.generateBoxOnFillOnly(param0, param2, 1, 8, 8, 6, 8, 14, BASE_GRAY);
+                this.generateBoxOnFillOnly(param0, param3, 1, 8, 8, 6, 8, 14, BASE_GRAY);
             }
 
             for(int var4 = 1; var4 <= 7; ++var4) {
@@ -1114,10 +1115,10 @@ public class OceanMonumentPieces {
                     var5 = BASE_GRAY;
                 }
 
-                this.generateBox(param0, param2, 0, var4, 0, 0, var4, 15, var5, var5, false);
-                this.generateBox(param0, param2, 7, var4, 0, 7, var4, 15, var5, var5, false);
-                this.generateBox(param0, param2, 1, var4, 0, 6, var4, 0, var5, var5, false);
-                this.generateBox(param0, param2, 1, var4, 15, 6, var4, 15, var5, var5, false);
+                this.generateBox(param0, param3, 0, var4, 0, 0, var4, 15, var5, var5, false);
+                this.generateBox(param0, param3, 7, var4, 0, 7, var4, 15, var5, var5, false);
+                this.generateBox(param0, param3, 1, var4, 0, 6, var4, 0, var5, var5, false);
+                this.generateBox(param0, param3, 1, var4, 15, 6, var4, 15, var5, var5, false);
             }
 
             for(int var6 = 1; var6 <= 7; ++var6) {
@@ -1126,67 +1127,67 @@ public class OceanMonumentPieces {
                     var7 = LAMP_BLOCK;
                 }
 
-                this.generateBox(param0, param2, 3, var6, 7, 4, var6, 8, var7, var7, false);
+                this.generateBox(param0, param3, 3, var6, 7, 4, var6, 8, var7, var7, false);
             }
 
             if (var1.hasOpening[Direction.SOUTH.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 3, 1, 0, 4, 2, 0);
+                this.generateWaterBox(param0, param3, 3, 1, 0, 4, 2, 0);
             }
 
             if (var1.hasOpening[Direction.EAST.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 7, 1, 3, 7, 2, 4);
+                this.generateWaterBox(param0, param3, 7, 1, 3, 7, 2, 4);
             }
 
             if (var1.hasOpening[Direction.WEST.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 0, 1, 3, 0, 2, 4);
+                this.generateWaterBox(param0, param3, 0, 1, 3, 0, 2, 4);
             }
 
             if (var0.hasOpening[Direction.NORTH.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 3, 1, 15, 4, 2, 15);
+                this.generateWaterBox(param0, param3, 3, 1, 15, 4, 2, 15);
             }
 
             if (var0.hasOpening[Direction.WEST.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 0, 1, 11, 0, 2, 12);
+                this.generateWaterBox(param0, param3, 0, 1, 11, 0, 2, 12);
             }
 
             if (var0.hasOpening[Direction.EAST.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 7, 1, 11, 7, 2, 12);
+                this.generateWaterBox(param0, param3, 7, 1, 11, 7, 2, 12);
             }
 
             if (var3.hasOpening[Direction.SOUTH.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 3, 5, 0, 4, 6, 0);
+                this.generateWaterBox(param0, param3, 3, 5, 0, 4, 6, 0);
             }
 
             if (var3.hasOpening[Direction.EAST.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 7, 5, 3, 7, 6, 4);
-                this.generateBox(param0, param2, 5, 4, 2, 6, 4, 5, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 6, 1, 2, 6, 3, 2, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 6, 1, 5, 6, 3, 5, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateWaterBox(param0, param3, 7, 5, 3, 7, 6, 4);
+                this.generateBox(param0, param3, 5, 4, 2, 6, 4, 5, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 6, 1, 2, 6, 3, 2, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 6, 1, 5, 6, 3, 5, BASE_LIGHT, BASE_LIGHT, false);
             }
 
             if (var3.hasOpening[Direction.WEST.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 0, 5, 3, 0, 6, 4);
-                this.generateBox(param0, param2, 1, 4, 2, 2, 4, 5, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 1, 1, 2, 1, 3, 2, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 1, 1, 5, 1, 3, 5, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateWaterBox(param0, param3, 0, 5, 3, 0, 6, 4);
+                this.generateBox(param0, param3, 1, 4, 2, 2, 4, 5, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 1, 1, 2, 1, 3, 2, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 1, 1, 5, 1, 3, 5, BASE_LIGHT, BASE_LIGHT, false);
             }
 
             if (var2.hasOpening[Direction.NORTH.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 3, 5, 15, 4, 6, 15);
+                this.generateWaterBox(param0, param3, 3, 5, 15, 4, 6, 15);
             }
 
             if (var2.hasOpening[Direction.WEST.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 0, 5, 11, 0, 6, 12);
-                this.generateBox(param0, param2, 1, 4, 10, 2, 4, 13, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 1, 1, 10, 1, 3, 10, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 1, 1, 13, 1, 3, 13, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateWaterBox(param0, param3, 0, 5, 11, 0, 6, 12);
+                this.generateBox(param0, param3, 1, 4, 10, 2, 4, 13, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 1, 1, 10, 1, 3, 10, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 1, 1, 13, 1, 3, 13, BASE_LIGHT, BASE_LIGHT, false);
             }
 
             if (var2.hasOpening[Direction.EAST.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 7, 5, 11, 7, 6, 12);
-                this.generateBox(param0, param2, 5, 4, 10, 6, 4, 13, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 6, 1, 10, 6, 3, 10, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 6, 1, 13, 6, 3, 13, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateWaterBox(param0, param3, 7, 5, 11, 7, 6, 12);
+                this.generateBox(param0, param3, 5, 4, 10, 6, 4, 13, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 6, 1, 10, 6, 3, 10, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 6, 1, 13, 6, 3, 13, BASE_LIGHT, BASE_LIGHT, false);
             }
 
             return true;
@@ -1203,80 +1204,80 @@ public class OceanMonumentPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
             OceanMonumentPieces.RoomDefinition var0 = this.roomDefinition.connections[Direction.NORTH.get3DDataValue()];
             OceanMonumentPieces.RoomDefinition var1 = this.roomDefinition;
             if (this.roomDefinition.index / 25 > 0) {
-                this.generateDefaultFloor(param0, param2, 0, 8, var0.hasOpening[Direction.DOWN.get3DDataValue()]);
-                this.generateDefaultFloor(param0, param2, 0, 0, var1.hasOpening[Direction.DOWN.get3DDataValue()]);
+                this.generateDefaultFloor(param0, param3, 0, 8, var0.hasOpening[Direction.DOWN.get3DDataValue()]);
+                this.generateDefaultFloor(param0, param3, 0, 0, var1.hasOpening[Direction.DOWN.get3DDataValue()]);
             }
 
             if (var1.connections[Direction.UP.get3DDataValue()] == null) {
-                this.generateBoxOnFillOnly(param0, param2, 1, 4, 1, 6, 4, 7, BASE_GRAY);
+                this.generateBoxOnFillOnly(param0, param3, 1, 4, 1, 6, 4, 7, BASE_GRAY);
             }
 
             if (var0.connections[Direction.UP.get3DDataValue()] == null) {
-                this.generateBoxOnFillOnly(param0, param2, 1, 4, 8, 6, 4, 14, BASE_GRAY);
+                this.generateBoxOnFillOnly(param0, param3, 1, 4, 8, 6, 4, 14, BASE_GRAY);
             }
 
-            this.generateBox(param0, param2, 0, 3, 0, 0, 3, 15, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 7, 3, 0, 7, 3, 15, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 1, 3, 0, 7, 3, 0, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 1, 3, 15, 6, 3, 15, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 0, 2, 0, 0, 2, 15, BASE_GRAY, BASE_GRAY, false);
-            this.generateBox(param0, param2, 7, 2, 0, 7, 2, 15, BASE_GRAY, BASE_GRAY, false);
-            this.generateBox(param0, param2, 1, 2, 0, 7, 2, 0, BASE_GRAY, BASE_GRAY, false);
-            this.generateBox(param0, param2, 1, 2, 15, 6, 2, 15, BASE_GRAY, BASE_GRAY, false);
-            this.generateBox(param0, param2, 0, 1, 0, 0, 1, 15, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 7, 1, 0, 7, 1, 15, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 1, 1, 0, 7, 1, 0, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 1, 1, 15, 6, 1, 15, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 1, 1, 1, 1, 1, 2, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 6, 1, 1, 6, 1, 2, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 1, 3, 1, 1, 3, 2, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 6, 3, 1, 6, 3, 2, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 1, 1, 13, 1, 1, 14, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 6, 1, 13, 6, 1, 14, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 1, 3, 13, 1, 3, 14, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 6, 3, 13, 6, 3, 14, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 2, 1, 6, 2, 3, 6, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 5, 1, 6, 5, 3, 6, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 2, 1, 9, 2, 3, 9, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 5, 1, 9, 5, 3, 9, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 3, 2, 6, 4, 2, 6, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 3, 2, 9, 4, 2, 9, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 2, 2, 7, 2, 2, 8, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 5, 2, 7, 5, 2, 8, BASE_LIGHT, BASE_LIGHT, false);
-            this.placeBlock(param0, LAMP_BLOCK, 2, 2, 5, param2);
-            this.placeBlock(param0, LAMP_BLOCK, 5, 2, 5, param2);
-            this.placeBlock(param0, LAMP_BLOCK, 2, 2, 10, param2);
-            this.placeBlock(param0, LAMP_BLOCK, 5, 2, 10, param2);
-            this.placeBlock(param0, BASE_LIGHT, 2, 3, 5, param2);
-            this.placeBlock(param0, BASE_LIGHT, 5, 3, 5, param2);
-            this.placeBlock(param0, BASE_LIGHT, 2, 3, 10, param2);
-            this.placeBlock(param0, BASE_LIGHT, 5, 3, 10, param2);
+            this.generateBox(param0, param3, 0, 3, 0, 0, 3, 15, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 7, 3, 0, 7, 3, 15, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 1, 3, 0, 7, 3, 0, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 1, 3, 15, 6, 3, 15, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 0, 2, 0, 0, 2, 15, BASE_GRAY, BASE_GRAY, false);
+            this.generateBox(param0, param3, 7, 2, 0, 7, 2, 15, BASE_GRAY, BASE_GRAY, false);
+            this.generateBox(param0, param3, 1, 2, 0, 7, 2, 0, BASE_GRAY, BASE_GRAY, false);
+            this.generateBox(param0, param3, 1, 2, 15, 6, 2, 15, BASE_GRAY, BASE_GRAY, false);
+            this.generateBox(param0, param3, 0, 1, 0, 0, 1, 15, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 7, 1, 0, 7, 1, 15, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 1, 1, 0, 7, 1, 0, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 1, 1, 15, 6, 1, 15, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 1, 1, 1, 1, 1, 2, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 6, 1, 1, 6, 1, 2, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 1, 3, 1, 1, 3, 2, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 6, 3, 1, 6, 3, 2, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 1, 1, 13, 1, 1, 14, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 6, 1, 13, 6, 1, 14, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 1, 3, 13, 1, 3, 14, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 6, 3, 13, 6, 3, 14, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 2, 1, 6, 2, 3, 6, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 5, 1, 6, 5, 3, 6, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 2, 1, 9, 2, 3, 9, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 5, 1, 9, 5, 3, 9, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 3, 2, 6, 4, 2, 6, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 3, 2, 9, 4, 2, 9, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 2, 2, 7, 2, 2, 8, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 5, 2, 7, 5, 2, 8, BASE_LIGHT, BASE_LIGHT, false);
+            this.placeBlock(param0, LAMP_BLOCK, 2, 2, 5, param3);
+            this.placeBlock(param0, LAMP_BLOCK, 5, 2, 5, param3);
+            this.placeBlock(param0, LAMP_BLOCK, 2, 2, 10, param3);
+            this.placeBlock(param0, LAMP_BLOCK, 5, 2, 10, param3);
+            this.placeBlock(param0, BASE_LIGHT, 2, 3, 5, param3);
+            this.placeBlock(param0, BASE_LIGHT, 5, 3, 5, param3);
+            this.placeBlock(param0, BASE_LIGHT, 2, 3, 10, param3);
+            this.placeBlock(param0, BASE_LIGHT, 5, 3, 10, param3);
             if (var1.hasOpening[Direction.SOUTH.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 3, 1, 0, 4, 2, 0);
+                this.generateWaterBox(param0, param3, 3, 1, 0, 4, 2, 0);
             }
 
             if (var1.hasOpening[Direction.EAST.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 7, 1, 3, 7, 2, 4);
+                this.generateWaterBox(param0, param3, 7, 1, 3, 7, 2, 4);
             }
 
             if (var1.hasOpening[Direction.WEST.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 0, 1, 3, 0, 2, 4);
+                this.generateWaterBox(param0, param3, 0, 1, 3, 0, 2, 4);
             }
 
             if (var0.hasOpening[Direction.NORTH.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 3, 1, 15, 4, 2, 15);
+                this.generateWaterBox(param0, param3, 3, 1, 15, 4, 2, 15);
             }
 
             if (var0.hasOpening[Direction.WEST.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 0, 1, 11, 0, 2, 12);
+                this.generateWaterBox(param0, param3, 0, 1, 11, 0, 2, 12);
             }
 
             if (var0.hasOpening[Direction.EAST.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 7, 1, 11, 7, 2, 12);
+                this.generateWaterBox(param0, param3, 7, 1, 11, 7, 2, 12);
             }
 
             return true;
@@ -1293,26 +1294,26 @@ public class OceanMonumentPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
-            this.generateBox(param0, param2, 0, 3, 0, 2, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 5, 3, 0, 7, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 0, 2, 0, 1, 2, 7, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 6, 2, 0, 7, 2, 7, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 0, 1, 0, 0, 1, 7, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 7, 1, 0, 7, 1, 7, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 0, 1, 7, 7, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 1, 1, 0, 2, 3, 0, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 5, 1, 0, 6, 3, 0, BASE_LIGHT, BASE_LIGHT, false);
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+            this.generateBox(param0, param3, 0, 3, 0, 2, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 5, 3, 0, 7, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 0, 2, 0, 1, 2, 7, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 6, 2, 0, 7, 2, 7, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 0, 1, 0, 0, 1, 7, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 7, 1, 0, 7, 1, 7, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 0, 1, 7, 7, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 1, 1, 0, 2, 3, 0, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 5, 1, 0, 6, 3, 0, BASE_LIGHT, BASE_LIGHT, false);
             if (this.roomDefinition.hasOpening[Direction.NORTH.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 3, 1, 7, 4, 2, 7);
+                this.generateWaterBox(param0, param3, 3, 1, 7, 4, 2, 7);
             }
 
             if (this.roomDefinition.hasOpening[Direction.WEST.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 0, 1, 3, 1, 2, 4);
+                this.generateWaterBox(param0, param3, 0, 1, 3, 1, 2, 4);
             }
 
             if (this.roomDefinition.hasOpening[Direction.EAST.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 6, 1, 3, 7, 2, 4);
+                this.generateWaterBox(param0, param3, 6, 1, 3, 7, 2, 4);
             }
 
             return true;
@@ -1329,48 +1330,48 @@ public class OceanMonumentPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
-            this.generateBox(param0, param2, 2, -1, 2, 11, -1, 11, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 0, -1, 0, 1, -1, 11, BASE_GRAY, BASE_GRAY, false);
-            this.generateBox(param0, param2, 12, -1, 0, 13, -1, 11, BASE_GRAY, BASE_GRAY, false);
-            this.generateBox(param0, param2, 2, -1, 0, 11, -1, 1, BASE_GRAY, BASE_GRAY, false);
-            this.generateBox(param0, param2, 2, -1, 12, 11, -1, 13, BASE_GRAY, BASE_GRAY, false);
-            this.generateBox(param0, param2, 0, 0, 0, 0, 0, 13, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 13, 0, 0, 13, 0, 13, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 1, 0, 0, 12, 0, 0, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 1, 0, 13, 12, 0, 13, BASE_LIGHT, BASE_LIGHT, false);
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+            this.generateBox(param0, param3, 2, -1, 2, 11, -1, 11, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 0, -1, 0, 1, -1, 11, BASE_GRAY, BASE_GRAY, false);
+            this.generateBox(param0, param3, 12, -1, 0, 13, -1, 11, BASE_GRAY, BASE_GRAY, false);
+            this.generateBox(param0, param3, 2, -1, 0, 11, -1, 1, BASE_GRAY, BASE_GRAY, false);
+            this.generateBox(param0, param3, 2, -1, 12, 11, -1, 13, BASE_GRAY, BASE_GRAY, false);
+            this.generateBox(param0, param3, 0, 0, 0, 0, 0, 13, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 13, 0, 0, 13, 0, 13, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 1, 0, 0, 12, 0, 0, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 1, 0, 13, 12, 0, 13, BASE_LIGHT, BASE_LIGHT, false);
 
             for(int var0 = 2; var0 <= 11; var0 += 3) {
-                this.placeBlock(param0, LAMP_BLOCK, 0, 0, var0, param2);
-                this.placeBlock(param0, LAMP_BLOCK, 13, 0, var0, param2);
-                this.placeBlock(param0, LAMP_BLOCK, var0, 0, 0, param2);
+                this.placeBlock(param0, LAMP_BLOCK, 0, 0, var0, param3);
+                this.placeBlock(param0, LAMP_BLOCK, 13, 0, var0, param3);
+                this.placeBlock(param0, LAMP_BLOCK, var0, 0, 0, param3);
             }
 
-            this.generateBox(param0, param2, 2, 0, 3, 4, 0, 9, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 9, 0, 3, 11, 0, 9, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 4, 0, 9, 9, 0, 11, BASE_LIGHT, BASE_LIGHT, false);
-            this.placeBlock(param0, BASE_LIGHT, 5, 0, 8, param2);
-            this.placeBlock(param0, BASE_LIGHT, 8, 0, 8, param2);
-            this.placeBlock(param0, BASE_LIGHT, 10, 0, 10, param2);
-            this.placeBlock(param0, BASE_LIGHT, 3, 0, 10, param2);
-            this.generateBox(param0, param2, 3, 0, 3, 3, 0, 7, BASE_BLACK, BASE_BLACK, false);
-            this.generateBox(param0, param2, 10, 0, 3, 10, 0, 7, BASE_BLACK, BASE_BLACK, false);
-            this.generateBox(param0, param2, 6, 0, 10, 7, 0, 10, BASE_BLACK, BASE_BLACK, false);
+            this.generateBox(param0, param3, 2, 0, 3, 4, 0, 9, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 9, 0, 3, 11, 0, 9, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 4, 0, 9, 9, 0, 11, BASE_LIGHT, BASE_LIGHT, false);
+            this.placeBlock(param0, BASE_LIGHT, 5, 0, 8, param3);
+            this.placeBlock(param0, BASE_LIGHT, 8, 0, 8, param3);
+            this.placeBlock(param0, BASE_LIGHT, 10, 0, 10, param3);
+            this.placeBlock(param0, BASE_LIGHT, 3, 0, 10, param3);
+            this.generateBox(param0, param3, 3, 0, 3, 3, 0, 7, BASE_BLACK, BASE_BLACK, false);
+            this.generateBox(param0, param3, 10, 0, 3, 10, 0, 7, BASE_BLACK, BASE_BLACK, false);
+            this.generateBox(param0, param3, 6, 0, 10, 7, 0, 10, BASE_BLACK, BASE_BLACK, false);
             int var1 = 3;
 
             for(int var2 = 0; var2 < 2; ++var2) {
                 for(int var3 = 2; var3 <= 8; var3 += 3) {
-                    this.generateBox(param0, param2, var1, 0, var3, var1, 2, var3, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, var1, 0, var3, var1, 2, var3, BASE_LIGHT, BASE_LIGHT, false);
                 }
 
                 var1 = 10;
             }
 
-            this.generateBox(param0, param2, 5, 0, 10, 5, 2, 10, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 8, 0, 10, 8, 2, 10, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 6, -1, 7, 7, -1, 8, BASE_BLACK, BASE_BLACK, false);
-            this.generateWaterBox(param0, param2, 6, -1, 3, 7, -1, 4);
-            this.spawnElder(param0, param2, 6, 1, 6);
+            this.generateBox(param0, param3, 5, 0, 10, 5, 2, 10, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 8, 0, 10, 8, 2, 10, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 6, -1, 7, 7, -1, 8, BASE_BLACK, BASE_BLACK, false);
+            this.generateWaterBox(param0, param3, 6, -1, 3, 7, -1, 4);
+            this.spawnElder(param0, param3, 6, 1, 6);
             return true;
         }
     }
@@ -1535,158 +1536,158 @@ public class OceanMonumentPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
             if (this.roomDefinition.index / 25 > 0) {
-                this.generateDefaultFloor(param0, param2, 0, 0, this.roomDefinition.hasOpening[Direction.DOWN.get3DDataValue()]);
+                this.generateDefaultFloor(param0, param3, 0, 0, this.roomDefinition.hasOpening[Direction.DOWN.get3DDataValue()]);
             }
 
             if (this.roomDefinition.connections[Direction.UP.get3DDataValue()] == null) {
-                this.generateBoxOnFillOnly(param0, param2, 1, 4, 1, 6, 4, 6, BASE_GRAY);
+                this.generateBoxOnFillOnly(param0, param3, 1, 4, 1, 6, 4, 6, BASE_GRAY);
             }
 
             boolean var0 = this.mainDesign != 0
-                && param1.nextBoolean()
+                && param2.nextBoolean()
                 && !this.roomDefinition.hasOpening[Direction.DOWN.get3DDataValue()]
                 && !this.roomDefinition.hasOpening[Direction.UP.get3DDataValue()]
                 && this.roomDefinition.countOpenings() > 1;
             if (this.mainDesign == 0) {
-                this.generateBox(param0, param2, 0, 1, 0, 2, 1, 2, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 0, 3, 0, 2, 3, 2, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 0, 2, 0, 0, 2, 2, BASE_GRAY, BASE_GRAY, false);
-                this.generateBox(param0, param2, 1, 2, 0, 2, 2, 0, BASE_GRAY, BASE_GRAY, false);
-                this.placeBlock(param0, LAMP_BLOCK, 1, 2, 1, param2);
-                this.generateBox(param0, param2, 5, 1, 0, 7, 1, 2, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 5, 3, 0, 7, 3, 2, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 7, 2, 0, 7, 2, 2, BASE_GRAY, BASE_GRAY, false);
-                this.generateBox(param0, param2, 5, 2, 0, 6, 2, 0, BASE_GRAY, BASE_GRAY, false);
-                this.placeBlock(param0, LAMP_BLOCK, 6, 2, 1, param2);
-                this.generateBox(param0, param2, 0, 1, 5, 2, 1, 7, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 0, 3, 5, 2, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 0, 2, 5, 0, 2, 7, BASE_GRAY, BASE_GRAY, false);
-                this.generateBox(param0, param2, 1, 2, 7, 2, 2, 7, BASE_GRAY, BASE_GRAY, false);
-                this.placeBlock(param0, LAMP_BLOCK, 1, 2, 6, param2);
-                this.generateBox(param0, param2, 5, 1, 5, 7, 1, 7, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 5, 3, 5, 7, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 7, 2, 5, 7, 2, 7, BASE_GRAY, BASE_GRAY, false);
-                this.generateBox(param0, param2, 5, 2, 7, 6, 2, 7, BASE_GRAY, BASE_GRAY, false);
-                this.placeBlock(param0, LAMP_BLOCK, 6, 2, 6, param2);
+                this.generateBox(param0, param3, 0, 1, 0, 2, 1, 2, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 0, 3, 0, 2, 3, 2, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 0, 2, 0, 0, 2, 2, BASE_GRAY, BASE_GRAY, false);
+                this.generateBox(param0, param3, 1, 2, 0, 2, 2, 0, BASE_GRAY, BASE_GRAY, false);
+                this.placeBlock(param0, LAMP_BLOCK, 1, 2, 1, param3);
+                this.generateBox(param0, param3, 5, 1, 0, 7, 1, 2, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 5, 3, 0, 7, 3, 2, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 7, 2, 0, 7, 2, 2, BASE_GRAY, BASE_GRAY, false);
+                this.generateBox(param0, param3, 5, 2, 0, 6, 2, 0, BASE_GRAY, BASE_GRAY, false);
+                this.placeBlock(param0, LAMP_BLOCK, 6, 2, 1, param3);
+                this.generateBox(param0, param3, 0, 1, 5, 2, 1, 7, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 0, 3, 5, 2, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 0, 2, 5, 0, 2, 7, BASE_GRAY, BASE_GRAY, false);
+                this.generateBox(param0, param3, 1, 2, 7, 2, 2, 7, BASE_GRAY, BASE_GRAY, false);
+                this.placeBlock(param0, LAMP_BLOCK, 1, 2, 6, param3);
+                this.generateBox(param0, param3, 5, 1, 5, 7, 1, 7, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 5, 3, 5, 7, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 7, 2, 5, 7, 2, 7, BASE_GRAY, BASE_GRAY, false);
+                this.generateBox(param0, param3, 5, 2, 7, 6, 2, 7, BASE_GRAY, BASE_GRAY, false);
+                this.placeBlock(param0, LAMP_BLOCK, 6, 2, 6, param3);
                 if (this.roomDefinition.hasOpening[Direction.SOUTH.get3DDataValue()]) {
-                    this.generateBox(param0, param2, 3, 3, 0, 4, 3, 0, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, 3, 3, 0, 4, 3, 0, BASE_LIGHT, BASE_LIGHT, false);
                 } else {
-                    this.generateBox(param0, param2, 3, 3, 0, 4, 3, 1, BASE_LIGHT, BASE_LIGHT, false);
-                    this.generateBox(param0, param2, 3, 2, 0, 4, 2, 0, BASE_GRAY, BASE_GRAY, false);
-                    this.generateBox(param0, param2, 3, 1, 0, 4, 1, 1, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, 3, 3, 0, 4, 3, 1, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, 3, 2, 0, 4, 2, 0, BASE_GRAY, BASE_GRAY, false);
+                    this.generateBox(param0, param3, 3, 1, 0, 4, 1, 1, BASE_LIGHT, BASE_LIGHT, false);
                 }
 
                 if (this.roomDefinition.hasOpening[Direction.NORTH.get3DDataValue()]) {
-                    this.generateBox(param0, param2, 3, 3, 7, 4, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, 3, 3, 7, 4, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
                 } else {
-                    this.generateBox(param0, param2, 3, 3, 6, 4, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
-                    this.generateBox(param0, param2, 3, 2, 7, 4, 2, 7, BASE_GRAY, BASE_GRAY, false);
-                    this.generateBox(param0, param2, 3, 1, 6, 4, 1, 7, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, 3, 3, 6, 4, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, 3, 2, 7, 4, 2, 7, BASE_GRAY, BASE_GRAY, false);
+                    this.generateBox(param0, param3, 3, 1, 6, 4, 1, 7, BASE_LIGHT, BASE_LIGHT, false);
                 }
 
                 if (this.roomDefinition.hasOpening[Direction.WEST.get3DDataValue()]) {
-                    this.generateBox(param0, param2, 0, 3, 3, 0, 3, 4, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, 0, 3, 3, 0, 3, 4, BASE_LIGHT, BASE_LIGHT, false);
                 } else {
-                    this.generateBox(param0, param2, 0, 3, 3, 1, 3, 4, BASE_LIGHT, BASE_LIGHT, false);
-                    this.generateBox(param0, param2, 0, 2, 3, 0, 2, 4, BASE_GRAY, BASE_GRAY, false);
-                    this.generateBox(param0, param2, 0, 1, 3, 1, 1, 4, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, 0, 3, 3, 1, 3, 4, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, 0, 2, 3, 0, 2, 4, BASE_GRAY, BASE_GRAY, false);
+                    this.generateBox(param0, param3, 0, 1, 3, 1, 1, 4, BASE_LIGHT, BASE_LIGHT, false);
                 }
 
                 if (this.roomDefinition.hasOpening[Direction.EAST.get3DDataValue()]) {
-                    this.generateBox(param0, param2, 7, 3, 3, 7, 3, 4, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, 7, 3, 3, 7, 3, 4, BASE_LIGHT, BASE_LIGHT, false);
                 } else {
-                    this.generateBox(param0, param2, 6, 3, 3, 7, 3, 4, BASE_LIGHT, BASE_LIGHT, false);
-                    this.generateBox(param0, param2, 7, 2, 3, 7, 2, 4, BASE_GRAY, BASE_GRAY, false);
-                    this.generateBox(param0, param2, 6, 1, 3, 7, 1, 4, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, 6, 3, 3, 7, 3, 4, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, 7, 2, 3, 7, 2, 4, BASE_GRAY, BASE_GRAY, false);
+                    this.generateBox(param0, param3, 6, 1, 3, 7, 1, 4, BASE_LIGHT, BASE_LIGHT, false);
                 }
             } else if (this.mainDesign == 1) {
-                this.generateBox(param0, param2, 2, 1, 2, 2, 3, 2, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 2, 1, 5, 2, 3, 5, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 5, 1, 5, 5, 3, 5, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 5, 1, 2, 5, 3, 2, BASE_LIGHT, BASE_LIGHT, false);
-                this.placeBlock(param0, LAMP_BLOCK, 2, 2, 2, param2);
-                this.placeBlock(param0, LAMP_BLOCK, 2, 2, 5, param2);
-                this.placeBlock(param0, LAMP_BLOCK, 5, 2, 5, param2);
-                this.placeBlock(param0, LAMP_BLOCK, 5, 2, 2, param2);
-                this.generateBox(param0, param2, 0, 1, 0, 1, 3, 0, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 0, 1, 1, 0, 3, 1, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 0, 1, 7, 1, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 0, 1, 6, 0, 3, 6, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 6, 1, 7, 7, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 7, 1, 6, 7, 3, 6, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 6, 1, 0, 7, 3, 0, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 7, 1, 1, 7, 3, 1, BASE_LIGHT, BASE_LIGHT, false);
-                this.placeBlock(param0, BASE_GRAY, 1, 2, 0, param2);
-                this.placeBlock(param0, BASE_GRAY, 0, 2, 1, param2);
-                this.placeBlock(param0, BASE_GRAY, 1, 2, 7, param2);
-                this.placeBlock(param0, BASE_GRAY, 0, 2, 6, param2);
-                this.placeBlock(param0, BASE_GRAY, 6, 2, 7, param2);
-                this.placeBlock(param0, BASE_GRAY, 7, 2, 6, param2);
-                this.placeBlock(param0, BASE_GRAY, 6, 2, 0, param2);
-                this.placeBlock(param0, BASE_GRAY, 7, 2, 1, param2);
+                this.generateBox(param0, param3, 2, 1, 2, 2, 3, 2, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 2, 1, 5, 2, 3, 5, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 5, 1, 5, 5, 3, 5, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 5, 1, 2, 5, 3, 2, BASE_LIGHT, BASE_LIGHT, false);
+                this.placeBlock(param0, LAMP_BLOCK, 2, 2, 2, param3);
+                this.placeBlock(param0, LAMP_BLOCK, 2, 2, 5, param3);
+                this.placeBlock(param0, LAMP_BLOCK, 5, 2, 5, param3);
+                this.placeBlock(param0, LAMP_BLOCK, 5, 2, 2, param3);
+                this.generateBox(param0, param3, 0, 1, 0, 1, 3, 0, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 0, 1, 1, 0, 3, 1, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 0, 1, 7, 1, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 0, 1, 6, 0, 3, 6, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 6, 1, 7, 7, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 7, 1, 6, 7, 3, 6, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 6, 1, 0, 7, 3, 0, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 7, 1, 1, 7, 3, 1, BASE_LIGHT, BASE_LIGHT, false);
+                this.placeBlock(param0, BASE_GRAY, 1, 2, 0, param3);
+                this.placeBlock(param0, BASE_GRAY, 0, 2, 1, param3);
+                this.placeBlock(param0, BASE_GRAY, 1, 2, 7, param3);
+                this.placeBlock(param0, BASE_GRAY, 0, 2, 6, param3);
+                this.placeBlock(param0, BASE_GRAY, 6, 2, 7, param3);
+                this.placeBlock(param0, BASE_GRAY, 7, 2, 6, param3);
+                this.placeBlock(param0, BASE_GRAY, 6, 2, 0, param3);
+                this.placeBlock(param0, BASE_GRAY, 7, 2, 1, param3);
                 if (!this.roomDefinition.hasOpening[Direction.SOUTH.get3DDataValue()]) {
-                    this.generateBox(param0, param2, 1, 3, 0, 6, 3, 0, BASE_LIGHT, BASE_LIGHT, false);
-                    this.generateBox(param0, param2, 1, 2, 0, 6, 2, 0, BASE_GRAY, BASE_GRAY, false);
-                    this.generateBox(param0, param2, 1, 1, 0, 6, 1, 0, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, 1, 3, 0, 6, 3, 0, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, 1, 2, 0, 6, 2, 0, BASE_GRAY, BASE_GRAY, false);
+                    this.generateBox(param0, param3, 1, 1, 0, 6, 1, 0, BASE_LIGHT, BASE_LIGHT, false);
                 }
 
                 if (!this.roomDefinition.hasOpening[Direction.NORTH.get3DDataValue()]) {
-                    this.generateBox(param0, param2, 1, 3, 7, 6, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
-                    this.generateBox(param0, param2, 1, 2, 7, 6, 2, 7, BASE_GRAY, BASE_GRAY, false);
-                    this.generateBox(param0, param2, 1, 1, 7, 6, 1, 7, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, 1, 3, 7, 6, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, 1, 2, 7, 6, 2, 7, BASE_GRAY, BASE_GRAY, false);
+                    this.generateBox(param0, param3, 1, 1, 7, 6, 1, 7, BASE_LIGHT, BASE_LIGHT, false);
                 }
 
                 if (!this.roomDefinition.hasOpening[Direction.WEST.get3DDataValue()]) {
-                    this.generateBox(param0, param2, 0, 3, 1, 0, 3, 6, BASE_LIGHT, BASE_LIGHT, false);
-                    this.generateBox(param0, param2, 0, 2, 1, 0, 2, 6, BASE_GRAY, BASE_GRAY, false);
-                    this.generateBox(param0, param2, 0, 1, 1, 0, 1, 6, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, 0, 3, 1, 0, 3, 6, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, 0, 2, 1, 0, 2, 6, BASE_GRAY, BASE_GRAY, false);
+                    this.generateBox(param0, param3, 0, 1, 1, 0, 1, 6, BASE_LIGHT, BASE_LIGHT, false);
                 }
 
                 if (!this.roomDefinition.hasOpening[Direction.EAST.get3DDataValue()]) {
-                    this.generateBox(param0, param2, 7, 3, 1, 7, 3, 6, BASE_LIGHT, BASE_LIGHT, false);
-                    this.generateBox(param0, param2, 7, 2, 1, 7, 2, 6, BASE_GRAY, BASE_GRAY, false);
-                    this.generateBox(param0, param2, 7, 1, 1, 7, 1, 6, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, 7, 3, 1, 7, 3, 6, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, 7, 2, 1, 7, 2, 6, BASE_GRAY, BASE_GRAY, false);
+                    this.generateBox(param0, param3, 7, 1, 1, 7, 1, 6, BASE_LIGHT, BASE_LIGHT, false);
                 }
             } else if (this.mainDesign == 2) {
-                this.generateBox(param0, param2, 0, 1, 0, 0, 1, 7, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 7, 1, 0, 7, 1, 7, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 1, 1, 0, 6, 1, 0, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 1, 1, 7, 6, 1, 7, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 0, 2, 0, 0, 2, 7, BASE_BLACK, BASE_BLACK, false);
-                this.generateBox(param0, param2, 7, 2, 0, 7, 2, 7, BASE_BLACK, BASE_BLACK, false);
-                this.generateBox(param0, param2, 1, 2, 0, 6, 2, 0, BASE_BLACK, BASE_BLACK, false);
-                this.generateBox(param0, param2, 1, 2, 7, 6, 2, 7, BASE_BLACK, BASE_BLACK, false);
-                this.generateBox(param0, param2, 0, 3, 0, 0, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 7, 3, 0, 7, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 1, 3, 0, 6, 3, 0, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 1, 3, 7, 6, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 0, 1, 3, 0, 2, 4, BASE_BLACK, BASE_BLACK, false);
-                this.generateBox(param0, param2, 7, 1, 3, 7, 2, 4, BASE_BLACK, BASE_BLACK, false);
-                this.generateBox(param0, param2, 3, 1, 0, 4, 2, 0, BASE_BLACK, BASE_BLACK, false);
-                this.generateBox(param0, param2, 3, 1, 7, 4, 2, 7, BASE_BLACK, BASE_BLACK, false);
+                this.generateBox(param0, param3, 0, 1, 0, 0, 1, 7, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 7, 1, 0, 7, 1, 7, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 1, 1, 0, 6, 1, 0, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 1, 1, 7, 6, 1, 7, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 0, 2, 0, 0, 2, 7, BASE_BLACK, BASE_BLACK, false);
+                this.generateBox(param0, param3, 7, 2, 0, 7, 2, 7, BASE_BLACK, BASE_BLACK, false);
+                this.generateBox(param0, param3, 1, 2, 0, 6, 2, 0, BASE_BLACK, BASE_BLACK, false);
+                this.generateBox(param0, param3, 1, 2, 7, 6, 2, 7, BASE_BLACK, BASE_BLACK, false);
+                this.generateBox(param0, param3, 0, 3, 0, 0, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 7, 3, 0, 7, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 1, 3, 0, 6, 3, 0, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 1, 3, 7, 6, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 0, 1, 3, 0, 2, 4, BASE_BLACK, BASE_BLACK, false);
+                this.generateBox(param0, param3, 7, 1, 3, 7, 2, 4, BASE_BLACK, BASE_BLACK, false);
+                this.generateBox(param0, param3, 3, 1, 0, 4, 2, 0, BASE_BLACK, BASE_BLACK, false);
+                this.generateBox(param0, param3, 3, 1, 7, 4, 2, 7, BASE_BLACK, BASE_BLACK, false);
                 if (this.roomDefinition.hasOpening[Direction.SOUTH.get3DDataValue()]) {
-                    this.generateWaterBox(param0, param2, 3, 1, 0, 4, 2, 0);
+                    this.generateWaterBox(param0, param3, 3, 1, 0, 4, 2, 0);
                 }
 
                 if (this.roomDefinition.hasOpening[Direction.NORTH.get3DDataValue()]) {
-                    this.generateWaterBox(param0, param2, 3, 1, 7, 4, 2, 7);
+                    this.generateWaterBox(param0, param3, 3, 1, 7, 4, 2, 7);
                 }
 
                 if (this.roomDefinition.hasOpening[Direction.WEST.get3DDataValue()]) {
-                    this.generateWaterBox(param0, param2, 0, 1, 3, 0, 2, 4);
+                    this.generateWaterBox(param0, param3, 0, 1, 3, 0, 2, 4);
                 }
 
                 if (this.roomDefinition.hasOpening[Direction.EAST.get3DDataValue()]) {
-                    this.generateWaterBox(param0, param2, 7, 1, 3, 7, 2, 4);
+                    this.generateWaterBox(param0, param3, 7, 1, 3, 7, 2, 4);
                 }
             }
 
             if (var0) {
-                this.generateBox(param0, param2, 3, 1, 3, 4, 1, 4, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 3, 2, 3, 4, 2, 4, BASE_GRAY, BASE_GRAY, false);
-                this.generateBox(param0, param2, 3, 3, 3, 4, 3, 4, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 3, 1, 3, 4, 1, 4, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 3, 2, 3, 4, 2, 4, BASE_GRAY, BASE_GRAY, false);
+                this.generateBox(param0, param3, 3, 3, 3, 4, 3, 4, BASE_LIGHT, BASE_LIGHT, false);
             }
 
             return true;
@@ -1703,43 +1704,43 @@ public class OceanMonumentPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
             if (this.roomDefinition.index / 25 > 0) {
-                this.generateDefaultFloor(param0, param2, 0, 0, this.roomDefinition.hasOpening[Direction.DOWN.get3DDataValue()]);
+                this.generateDefaultFloor(param0, param3, 0, 0, this.roomDefinition.hasOpening[Direction.DOWN.get3DDataValue()]);
             }
 
             if (this.roomDefinition.connections[Direction.UP.get3DDataValue()] == null) {
-                this.generateBoxOnFillOnly(param0, param2, 1, 4, 1, 6, 4, 6, BASE_GRAY);
+                this.generateBoxOnFillOnly(param0, param3, 1, 4, 1, 6, 4, 6, BASE_GRAY);
             }
 
             for(int var0 = 1; var0 <= 6; ++var0) {
                 for(int var1 = 1; var1 <= 6; ++var1) {
-                    if (param1.nextInt(3) != 0) {
-                        int var2 = 2 + (param1.nextInt(4) == 0 ? 0 : 1);
+                    if (param2.nextInt(3) != 0) {
+                        int var2 = 2 + (param2.nextInt(4) == 0 ? 0 : 1);
                         BlockState var3 = Blocks.WET_SPONGE.defaultBlockState();
-                        this.generateBox(param0, param2, var0, var2, var1, var0, 3, var1, var3, var3, false);
+                        this.generateBox(param0, param3, var0, var2, var1, var0, 3, var1, var3, var3, false);
                     }
                 }
             }
 
-            this.generateBox(param0, param2, 0, 1, 0, 0, 1, 7, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 7, 1, 0, 7, 1, 7, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 1, 1, 0, 6, 1, 0, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 1, 1, 7, 6, 1, 7, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 0, 2, 0, 0, 2, 7, BASE_BLACK, BASE_BLACK, false);
-            this.generateBox(param0, param2, 7, 2, 0, 7, 2, 7, BASE_BLACK, BASE_BLACK, false);
-            this.generateBox(param0, param2, 1, 2, 0, 6, 2, 0, BASE_BLACK, BASE_BLACK, false);
-            this.generateBox(param0, param2, 1, 2, 7, 6, 2, 7, BASE_BLACK, BASE_BLACK, false);
-            this.generateBox(param0, param2, 0, 3, 0, 0, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 7, 3, 0, 7, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 1, 3, 0, 6, 3, 0, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 1, 3, 7, 6, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
-            this.generateBox(param0, param2, 0, 1, 3, 0, 2, 4, BASE_BLACK, BASE_BLACK, false);
-            this.generateBox(param0, param2, 7, 1, 3, 7, 2, 4, BASE_BLACK, BASE_BLACK, false);
-            this.generateBox(param0, param2, 3, 1, 0, 4, 2, 0, BASE_BLACK, BASE_BLACK, false);
-            this.generateBox(param0, param2, 3, 1, 7, 4, 2, 7, BASE_BLACK, BASE_BLACK, false);
+            this.generateBox(param0, param3, 0, 1, 0, 0, 1, 7, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 7, 1, 0, 7, 1, 7, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 1, 1, 0, 6, 1, 0, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 1, 1, 7, 6, 1, 7, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 0, 2, 0, 0, 2, 7, BASE_BLACK, BASE_BLACK, false);
+            this.generateBox(param0, param3, 7, 2, 0, 7, 2, 7, BASE_BLACK, BASE_BLACK, false);
+            this.generateBox(param0, param3, 1, 2, 0, 6, 2, 0, BASE_BLACK, BASE_BLACK, false);
+            this.generateBox(param0, param3, 1, 2, 7, 6, 2, 7, BASE_BLACK, BASE_BLACK, false);
+            this.generateBox(param0, param3, 0, 3, 0, 0, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 7, 3, 0, 7, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 1, 3, 0, 6, 3, 0, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 1, 3, 7, 6, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
+            this.generateBox(param0, param3, 0, 1, 3, 0, 2, 4, BASE_BLACK, BASE_BLACK, false);
+            this.generateBox(param0, param3, 7, 1, 3, 7, 2, 4, BASE_BLACK, BASE_BLACK, false);
+            this.generateBox(param0, param3, 3, 1, 0, 4, 2, 0, BASE_BLACK, BASE_BLACK, false);
+            this.generateBox(param0, param3, 3, 1, 7, 4, 2, 7, BASE_BLACK, BASE_BLACK, false);
             if (this.roomDefinition.hasOpening[Direction.SOUTH.get3DDataValue()]) {
-                this.generateWaterBox(param0, param2, 3, 1, 0, 4, 2, 0);
+                this.generateWaterBox(param0, param3, 3, 1, 0, 4, 2, 0);
             }
 
             return true;
@@ -1759,93 +1760,93 @@ public class OceanMonumentPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
             if (this.mainDesign == 0) {
                 for(int var0 = 0; var0 < 4; ++var0) {
-                    this.generateBox(param0, param2, 10 - var0, 3 - var0, 20 - var0, 12 + var0, 3 - var0, 20, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, 10 - var0, 3 - var0, 20 - var0, 12 + var0, 3 - var0, 20, BASE_LIGHT, BASE_LIGHT, false);
                 }
 
-                this.generateBox(param0, param2, 7, 0, 6, 15, 0, 16, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 6, 0, 6, 6, 3, 20, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 16, 0, 6, 16, 3, 20, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 7, 1, 7, 7, 1, 20, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 15, 1, 7, 15, 1, 20, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 7, 1, 6, 9, 3, 6, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 13, 1, 6, 15, 3, 6, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 8, 1, 7, 9, 1, 7, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 13, 1, 7, 14, 1, 7, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 9, 0, 5, 13, 0, 5, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 10, 0, 7, 12, 0, 7, BASE_BLACK, BASE_BLACK, false);
-                this.generateBox(param0, param2, 8, 0, 10, 8, 0, 12, BASE_BLACK, BASE_BLACK, false);
-                this.generateBox(param0, param2, 14, 0, 10, 14, 0, 12, BASE_BLACK, BASE_BLACK, false);
+                this.generateBox(param0, param3, 7, 0, 6, 15, 0, 16, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 6, 0, 6, 6, 3, 20, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 16, 0, 6, 16, 3, 20, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 7, 1, 7, 7, 1, 20, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 15, 1, 7, 15, 1, 20, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 7, 1, 6, 9, 3, 6, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 13, 1, 6, 15, 3, 6, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 8, 1, 7, 9, 1, 7, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 13, 1, 7, 14, 1, 7, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 9, 0, 5, 13, 0, 5, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 10, 0, 7, 12, 0, 7, BASE_BLACK, BASE_BLACK, false);
+                this.generateBox(param0, param3, 8, 0, 10, 8, 0, 12, BASE_BLACK, BASE_BLACK, false);
+                this.generateBox(param0, param3, 14, 0, 10, 14, 0, 12, BASE_BLACK, BASE_BLACK, false);
 
                 for(int var1 = 18; var1 >= 7; var1 -= 3) {
-                    this.placeBlock(param0, LAMP_BLOCK, 6, 3, var1, param2);
-                    this.placeBlock(param0, LAMP_BLOCK, 16, 3, var1, param2);
+                    this.placeBlock(param0, LAMP_BLOCK, 6, 3, var1, param3);
+                    this.placeBlock(param0, LAMP_BLOCK, 16, 3, var1, param3);
                 }
 
-                this.placeBlock(param0, LAMP_BLOCK, 10, 0, 10, param2);
-                this.placeBlock(param0, LAMP_BLOCK, 12, 0, 10, param2);
-                this.placeBlock(param0, LAMP_BLOCK, 10, 0, 12, param2);
-                this.placeBlock(param0, LAMP_BLOCK, 12, 0, 12, param2);
-                this.placeBlock(param0, LAMP_BLOCK, 8, 3, 6, param2);
-                this.placeBlock(param0, LAMP_BLOCK, 14, 3, 6, param2);
-                this.placeBlock(param0, BASE_LIGHT, 4, 2, 4, param2);
-                this.placeBlock(param0, LAMP_BLOCK, 4, 1, 4, param2);
-                this.placeBlock(param0, BASE_LIGHT, 4, 0, 4, param2);
-                this.placeBlock(param0, BASE_LIGHT, 18, 2, 4, param2);
-                this.placeBlock(param0, LAMP_BLOCK, 18, 1, 4, param2);
-                this.placeBlock(param0, BASE_LIGHT, 18, 0, 4, param2);
-                this.placeBlock(param0, BASE_LIGHT, 4, 2, 18, param2);
-                this.placeBlock(param0, LAMP_BLOCK, 4, 1, 18, param2);
-                this.placeBlock(param0, BASE_LIGHT, 4, 0, 18, param2);
-                this.placeBlock(param0, BASE_LIGHT, 18, 2, 18, param2);
-                this.placeBlock(param0, LAMP_BLOCK, 18, 1, 18, param2);
-                this.placeBlock(param0, BASE_LIGHT, 18, 0, 18, param2);
-                this.placeBlock(param0, BASE_LIGHT, 9, 7, 20, param2);
-                this.placeBlock(param0, BASE_LIGHT, 13, 7, 20, param2);
-                this.generateBox(param0, param2, 6, 0, 21, 7, 4, 21, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 15, 0, 21, 16, 4, 21, BASE_LIGHT, BASE_LIGHT, false);
-                this.spawnElder(param0, param2, 11, 2, 16);
+                this.placeBlock(param0, LAMP_BLOCK, 10, 0, 10, param3);
+                this.placeBlock(param0, LAMP_BLOCK, 12, 0, 10, param3);
+                this.placeBlock(param0, LAMP_BLOCK, 10, 0, 12, param3);
+                this.placeBlock(param0, LAMP_BLOCK, 12, 0, 12, param3);
+                this.placeBlock(param0, LAMP_BLOCK, 8, 3, 6, param3);
+                this.placeBlock(param0, LAMP_BLOCK, 14, 3, 6, param3);
+                this.placeBlock(param0, BASE_LIGHT, 4, 2, 4, param3);
+                this.placeBlock(param0, LAMP_BLOCK, 4, 1, 4, param3);
+                this.placeBlock(param0, BASE_LIGHT, 4, 0, 4, param3);
+                this.placeBlock(param0, BASE_LIGHT, 18, 2, 4, param3);
+                this.placeBlock(param0, LAMP_BLOCK, 18, 1, 4, param3);
+                this.placeBlock(param0, BASE_LIGHT, 18, 0, 4, param3);
+                this.placeBlock(param0, BASE_LIGHT, 4, 2, 18, param3);
+                this.placeBlock(param0, LAMP_BLOCK, 4, 1, 18, param3);
+                this.placeBlock(param0, BASE_LIGHT, 4, 0, 18, param3);
+                this.placeBlock(param0, BASE_LIGHT, 18, 2, 18, param3);
+                this.placeBlock(param0, LAMP_BLOCK, 18, 1, 18, param3);
+                this.placeBlock(param0, BASE_LIGHT, 18, 0, 18, param3);
+                this.placeBlock(param0, BASE_LIGHT, 9, 7, 20, param3);
+                this.placeBlock(param0, BASE_LIGHT, 13, 7, 20, param3);
+                this.generateBox(param0, param3, 6, 0, 21, 7, 4, 21, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 15, 0, 21, 16, 4, 21, BASE_LIGHT, BASE_LIGHT, false);
+                this.spawnElder(param0, param3, 11, 2, 16);
             } else if (this.mainDesign == 1) {
-                this.generateBox(param0, param2, 9, 3, 18, 13, 3, 20, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 9, 0, 18, 9, 2, 18, BASE_LIGHT, BASE_LIGHT, false);
-                this.generateBox(param0, param2, 13, 0, 18, 13, 2, 18, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 9, 3, 18, 13, 3, 20, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 9, 0, 18, 9, 2, 18, BASE_LIGHT, BASE_LIGHT, false);
+                this.generateBox(param0, param3, 13, 0, 18, 13, 2, 18, BASE_LIGHT, BASE_LIGHT, false);
                 int var2 = 9;
                 int var3 = 20;
                 int var4 = 5;
 
                 for(int var5 = 0; var5 < 2; ++var5) {
-                    this.placeBlock(param0, BASE_LIGHT, var2, 6, 20, param2);
-                    this.placeBlock(param0, LAMP_BLOCK, var2, 5, 20, param2);
-                    this.placeBlock(param0, BASE_LIGHT, var2, 4, 20, param2);
+                    this.placeBlock(param0, BASE_LIGHT, var2, 6, 20, param3);
+                    this.placeBlock(param0, LAMP_BLOCK, var2, 5, 20, param3);
+                    this.placeBlock(param0, BASE_LIGHT, var2, 4, 20, param3);
                     var2 = 13;
                 }
 
-                this.generateBox(param0, param2, 7, 3, 7, 15, 3, 14, BASE_LIGHT, BASE_LIGHT, false);
-                int var11 = 10;
+                this.generateBox(param0, param3, 7, 3, 7, 15, 3, 14, BASE_LIGHT, BASE_LIGHT, false);
+                int var12 = 10;
 
                 for(int var6 = 0; var6 < 2; ++var6) {
-                    this.generateBox(param0, param2, var11, 0, 10, var11, 6, 10, BASE_LIGHT, BASE_LIGHT, false);
-                    this.generateBox(param0, param2, var11, 0, 12, var11, 6, 12, BASE_LIGHT, BASE_LIGHT, false);
-                    this.placeBlock(param0, LAMP_BLOCK, var11, 0, 10, param2);
-                    this.placeBlock(param0, LAMP_BLOCK, var11, 0, 12, param2);
-                    this.placeBlock(param0, LAMP_BLOCK, var11, 4, 10, param2);
-                    this.placeBlock(param0, LAMP_BLOCK, var11, 4, 12, param2);
-                    var11 = 12;
+                    this.generateBox(param0, param3, var12, 0, 10, var12, 6, 10, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, var12, 0, 12, var12, 6, 12, BASE_LIGHT, BASE_LIGHT, false);
+                    this.placeBlock(param0, LAMP_BLOCK, var12, 0, 10, param3);
+                    this.placeBlock(param0, LAMP_BLOCK, var12, 0, 12, param3);
+                    this.placeBlock(param0, LAMP_BLOCK, var12, 4, 10, param3);
+                    this.placeBlock(param0, LAMP_BLOCK, var12, 4, 12, param3);
+                    var12 = 12;
                 }
 
-                var11 = 8;
+                var12 = 8;
 
                 for(int var7 = 0; var7 < 2; ++var7) {
-                    this.generateBox(param0, param2, var11, 0, 7, var11, 2, 7, BASE_LIGHT, BASE_LIGHT, false);
-                    this.generateBox(param0, param2, var11, 0, 14, var11, 2, 14, BASE_LIGHT, BASE_LIGHT, false);
-                    var11 = 14;
+                    this.generateBox(param0, param3, var12, 0, 7, var12, 2, 7, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, var12, 0, 14, var12, 2, 14, BASE_LIGHT, BASE_LIGHT, false);
+                    var12 = 14;
                 }
 
-                this.generateBox(param0, param2, 8, 3, 8, 8, 3, 13, BASE_BLACK, BASE_BLACK, false);
-                this.generateBox(param0, param2, 14, 3, 8, 14, 3, 13, BASE_BLACK, BASE_BLACK, false);
-                this.spawnElder(param0, param2, 11, 5, 13);
+                this.generateBox(param0, param3, 8, 3, 8, 8, 3, 13, BASE_BLACK, BASE_BLACK, false);
+                this.generateBox(param0, param3, 14, 3, 8, 14, 3, 13, BASE_BLACK, BASE_BLACK, false);
+                this.spawnElder(param0, param3, 11, 5, 13);
             }
 
             return true;

@@ -13,6 +13,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.StructureMode;
+import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
@@ -50,15 +51,15 @@ public abstract class TemplateStructurePiece extends StructurePiece {
     }
 
     @Override
-    public boolean postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
-        this.placeSettings.setBoundingBox(param2);
+    public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+        this.placeSettings.setBoundingBox(param3);
         this.boundingBox = this.template.getBoundingBox(this.placeSettings, this.templatePosition);
         if (this.template.placeInWorld(param0, this.templatePosition, this.placeSettings, 2)) {
             for(StructureTemplate.StructureBlockInfo var1 : this.template.filterBlocks(this.templatePosition, this.placeSettings, Blocks.STRUCTURE_BLOCK)) {
                 if (var1.nbt != null) {
                     StructureMode var2 = StructureMode.valueOf(var1.nbt.getString("mode"));
                     if (var2 == StructureMode.DATA) {
-                        this.handleDataMarker(var1.nbt.getString("metadata"), var1.pos, param0, param1, param2);
+                        this.handleDataMarker(var1.nbt.getString("metadata"), var1.pos, param0, param2, param3);
                     }
                 }
             }
@@ -77,7 +78,7 @@ public abstract class TemplateStructurePiece extends StructurePiece {
                         } else {
                             LOGGER.error("Error while parsing blockstate {} in jigsaw block @ {}", var5, var4.pos);
                         }
-                    } catch (CommandSyntaxException var13) {
+                    } catch (CommandSyntaxException var14) {
                         LOGGER.error("Error while parsing blockstate {} in jigsaw block @ {}", var5, var4.pos);
                     }
 

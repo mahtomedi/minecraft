@@ -1,6 +1,6 @@
 package net.minecraft.client.gui.components;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraftforge.api.distmarker.Dist;
@@ -32,7 +32,7 @@ public class LockIconButton extends Button {
     @Override
     public void renderButton(int param0, int param1, float param2) {
         Minecraft.getInstance().getTextureManager().bind(Button.WIDGETS_LOCATION);
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         LockIconButton.Icon var0;
         if (!this.active) {
             var0 = this.locked ? LockIconButton.Icon.LOCKED_DISABLED : LockIconButton.Icon.UNLOCKED_DISABLED;

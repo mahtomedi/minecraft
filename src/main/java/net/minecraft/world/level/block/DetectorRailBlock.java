@@ -6,6 +6,7 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
@@ -53,8 +54,8 @@ public class DetectorRailBlock extends BaseRailBlock {
     }
 
     @Override
-    public void tick(BlockState param0, Level param1, BlockPos param2, Random param3) {
-        if (!param1.isClientSide && param0.getValue(POWERED)) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+        if (param0.getValue(POWERED)) {
             this.checkPressed(param1, param2, param0);
         }
     }

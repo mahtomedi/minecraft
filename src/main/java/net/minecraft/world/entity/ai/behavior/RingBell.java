@@ -34,7 +34,7 @@ public class RingBell extends Behavior<LivingEntity> {
                 BellBlock var3 = (BellBlock)var2.getBlock();
 
                 for(Direction var4 : Direction.Plane.HORIZONTAL) {
-                    if (var3.onHit(param0, var2, param0.getBlockEntity(var1), new BlockHitResult(new Vec3(0.5, 0.5, 0.5), var4, var1, false), null, false)) {
+                    if (var3.onHit(param0, var2, new BlockHitResult(new Vec3(0.5, 0.5, 0.5), var4, var1, false), null, false)) {
                         break;
                     }
                 }

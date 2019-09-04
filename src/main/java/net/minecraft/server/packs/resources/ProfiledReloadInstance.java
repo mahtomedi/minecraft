@@ -28,8 +28,8 @@ public class ProfiledReloadInstance extends SimpleReloadInstance<ProfiledReloadI
             (param1x, param2x, param3x, param4x, param5) -> {
                 AtomicLong var0 = new AtomicLong();
                 AtomicLong var1x = new AtomicLong();
-                ActiveProfiler var2x = new ActiveProfiler(Util.getNanos(), () -> 0);
-                ActiveProfiler var3x = new ActiveProfiler(Util.getNanos(), () -> 0);
+                ActiveProfiler var2x = new ActiveProfiler(Util.getNanos(), () -> 0, false);
+                ActiveProfiler var3x = new ActiveProfiler(Util.getNanos(), () -> 0, false);
                 CompletableFuture<Void> var4x = param3x.reload(param1x, param2x, var2x, var3x, param2xx -> param4x.execute(() -> {
                         long var0x = Util.getNanos();
                         param2xx.run();
@@ -40,8 +40,7 @@ public class ProfiledReloadInstance extends SimpleReloadInstance<ProfiledReloadI
                         var1x.addAndGet(Util.getNanos() - var0x);
                     }));
                 return var4x.thenApplyAsync(
-                    param5x -> new ProfiledReloadInstance.State(param3x.getClass().getSimpleName(), var2x.getResults(), var3x.getResults(), var0, var1x),
-                    param3
+                    param5x -> new ProfiledReloadInstance.State(param3x.getName(), var2x.getResults(), var3x.getResults(), var0, var1x), param3
                 );
             },
             param4
@@ -63,17 +62,6 @@ public class ProfiledReloadInstance extends SimpleReloadInstance<ProfiledReloadI
             int var6 = var4 + var5;
             String var7 = var1.name;
             LOGGER.info(var7 + " took approximately " + var6 + " ms (" + var4 + " ms preparing, " + var5 + " ms applying)");
-            String var8 = var2.getProfilerResults();
-            if (var8.length() > 0) {
-                LOGGER.debug(var7 + " preparations:\n" + var8);
-            }
-
-            String var9 = var3.getProfilerResults();
-            if (var9.length() > 0) {
-                LOGGER.debug(var7 + " reload:\n" + var9);
-            }
-
-            LOGGER.info("----------");
             var0 += var5;
         }
 

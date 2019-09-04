@@ -13,7 +13,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.level.BlockAndBiomeGetter;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -38,12 +37,12 @@ public class MagmaBlock extends Block {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public int getLightColor(BlockState param0, BlockAndBiomeGetter param1, BlockPos param2) {
-        return 15728880;
+    public boolean emissiveRendering(BlockState param0) {
+        return true;
     }
 
     @Override
-    public void tick(BlockState param0, Level param1, BlockPos param2, Random param3) {
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         BubbleColumnBlock.growColumn(param1, param2.above(), true);
     }
 
@@ -57,18 +56,15 @@ public class MagmaBlock extends Block {
     }
 
     @Override
-    public void randomTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
+    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         BlockPos var0 = param2.above();
         if (param1.getFluidState(param2).is(FluidTags.WATER)) {
             param1.playSound(
                 null, param2, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F, 2.6F + (param1.random.nextFloat() - param1.random.nextFloat()) * 0.8F
             );
-            if (param1 instanceof ServerLevel) {
-                ((ServerLevel)param1)
-                    .sendParticles(
-                        ParticleTypes.LARGE_SMOKE, (double)var0.getX() + 0.5, (double)var0.getY() + 0.25, (double)var0.getZ() + 0.5, 8, 0.5, 0.25, 0.5, 0.0
-                    );
-            }
+            param1.sendParticles(
+                ParticleTypes.LARGE_SMOKE, (double)var0.getX() + 0.5, (double)var0.getY() + 0.25, (double)var0.getZ() + 0.5, 8, 0.5, 0.25, 0.5, 0.0
+            );
         }
 
     }

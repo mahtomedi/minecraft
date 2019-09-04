@@ -1,7 +1,7 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -63,22 +63,22 @@ public class GuardianRenderer extends MobRenderer<Guardian, GuardianModel> {
             Tesselator var2 = Tesselator.getInstance();
             BufferBuilder var3 = var2.getBuilder();
             this.bindTexture(GUARDIAN_BEAM_LOCATION);
-            GlStateManager.texParameter(3553, 10242, 10497);
-            GlStateManager.texParameter(3553, 10243, 10497);
-            GlStateManager.disableLighting();
-            GlStateManager.disableCull();
-            GlStateManager.disableBlend();
-            GlStateManager.depthMask(true);
+            RenderSystem.texParameter(3553, 10242, 10497);
+            RenderSystem.texParameter(3553, 10243, 10497);
+            RenderSystem.disableLighting();
+            RenderSystem.disableCull();
+            RenderSystem.disableBlend();
+            RenderSystem.depthMask(true);
             float var4 = 240.0F;
-            GLX.glMultiTexCoord2f(GLX.GL_TEXTURE1, 240.0F, 240.0F);
-            GlStateManager.blendFuncSeparate(
+            RenderSystem.glMultiTexCoord2f(33985, 240.0F, 240.0F);
+            RenderSystem.blendFuncSeparate(
                 GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO
             );
             float var5 = (float)param0.level.getGameTime() + param5;
             float var6 = var5 * 0.5F % 1.0F;
             float var7 = param0.getEyeHeight();
-            GlStateManager.pushMatrix();
-            GlStateManager.translatef((float)param1, (float)param2 + var7, (float)param3);
+            RenderSystem.pushMatrix();
+            RenderSystem.translatef((float)param1, (float)param2 + var7, (float)param3);
             Vec3 var8 = this.getPosition(var0, (double)var0.getBbHeight() * 0.5, param5);
             Vec3 var9 = this.getPosition(param0, (double)var7, param5);
             Vec3 var10 = var8.subtract(var9);
@@ -86,8 +86,8 @@ public class GuardianRenderer extends MobRenderer<Guardian, GuardianModel> {
             var10 = var10.normalize();
             float var12 = (float)Math.acos(var10.y);
             float var13 = (float)Math.atan2(var10.z, var10.x);
-            GlStateManager.rotatef(((float) (Math.PI / 2) - var13) * (180.0F / (float)Math.PI), 0.0F, 1.0F, 0.0F);
-            GlStateManager.rotatef(var12 * (180.0F / (float)Math.PI), 1.0F, 0.0F, 0.0F);
+            RenderSystem.rotatef(((float) (Math.PI / 2) - var13) * (180.0F / (float)Math.PI), 0.0F, 1.0F, 0.0F);
+            RenderSystem.rotatef(var12 * (180.0F / (float)Math.PI), 1.0F, 0.0F, 0.0F);
             int var14 = 1;
             double var15 = (double)var5 * 0.05 * -1.5;
             var3.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
@@ -135,7 +135,7 @@ public class GuardianRenderer extends MobRenderer<Guardian, GuardianModel> {
             var3.vertex(var28, var11, var29).uv(1.0, var43).color(var17, var18, var19, 255).endVertex();
             var3.vertex(var26, var11, var27).uv(0.5, var43).color(var17, var18, var19, 255).endVertex();
             var2.end();
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
         }
 
     }

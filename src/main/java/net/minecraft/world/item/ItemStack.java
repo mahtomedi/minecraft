@@ -34,6 +34,7 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.Tag;
@@ -786,6 +787,7 @@ public final class ItemStack {
             var0 = this.getItem().getDefaultAttributeModifiers(param0);
         }
 
+        var0.values().forEach(param0x -> param0x.setSerialize(false));
         return var0;
     }
 
@@ -918,5 +920,13 @@ public final class ItemStack {
 
     public boolean isEdible() {
         return this.getItem().isEdible();
+    }
+
+    public SoundEvent getDrinkingSound() {
+        return this.getItem().getDrinkingSound();
+    }
+
+    public SoundEvent getEatingSound() {
+        return this.getItem().getEatingSound();
     }
 }

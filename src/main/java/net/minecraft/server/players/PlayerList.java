@@ -123,16 +123,21 @@ public abstract class PlayerList {
         LevelData var7 = var5.getLevelData();
         this.updatePlayerGameMode(param1, null, var5);
         ServerGamePacketListenerImpl var8 = new ServerGamePacketListenerImpl(this.server, param0, param1);
+        GameRules var9 = var5.getGameRules();
+        boolean var10 = var9.getBoolean(GameRules.RULE_DO_IMMEDIATE_RESPAWN);
+        boolean var11 = var9.getBoolean(GameRules.RULE_REDUCEDDEBUGINFO);
         var8.send(
             new ClientboundLoginPacket(
                 param1.getId(),
                 param1.gameMode.getGameModeForPlayer(),
+                LevelData.obfuscateSeed(var7.getSeed()),
                 var7.isHardcore(),
                 var5.dimension.getType(),
                 this.getMaxPlayers(),
                 var7.getGeneratorType(),
                 this.viewDistance,
-                var5.getGameRules().getBoolean(GameRules.RULE_REDUCEDDEBUGINFO)
+                var11,
+                !var10
             )
         );
         var8.send(
@@ -150,21 +155,21 @@ public abstract class PlayerList {
         param1.getRecipeBook().sendInitialRecipeBook(param1);
         this.updateEntireScoreboard(var5.getScoreboard(), param1);
         this.server.invalidateStatus();
-        Component var9;
+        Component var12;
         if (param1.getGameProfile().getName().equalsIgnoreCase(var3)) {
-            var9 = new TranslatableComponent("multiplayer.player.joined", param1.getDisplayName());
+            var12 = new TranslatableComponent("multiplayer.player.joined", param1.getDisplayName());
         } else {
-            var9 = new TranslatableComponent("multiplayer.player.joined.renamed", param1.getDisplayName(), var3);
+            var12 = new TranslatableComponent("multiplayer.player.joined.renamed", param1.getDisplayName(), var3);
         }
 
-        this.broadcastMessage(var9.withStyle(ChatFormatting.YELLOW));
+        this.broadcastMessage(var12.withStyle(ChatFormatting.YELLOW));
         var8.teleport(param1.x, param1.y, param1.z, param1.yRot, param1.xRot);
         this.players.add(param1);
         this.playersByUUID.put(param1.getUUID(), param1);
         this.broadcastAll(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.ADD_PLAYER, param1));
 
-        for(int var11 = 0; var11 < this.players.size(); ++var11) {
-            param1.connection.send(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.ADD_PLAYER, this.players.get(var11)));
+        for(int var14 = 0; var14 < this.players.size(); ++var14) {
+            param1.connection.send(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.ADD_PLAYER, this.players.get(var14)));
         }
 
         var5.addNewPlayer(param1);
@@ -174,21 +179,21 @@ public abstract class PlayerList {
             param1.sendTexturePack(this.server.getResourcePack(), this.server.getResourcePackHash());
         }
 
-        for(MobEffectInstance var12 : param1.getActiveEffects()) {
-            var8.send(new ClientboundUpdateMobEffectPacket(param1.getId(), var12));
+        for(MobEffectInstance var15 : param1.getActiveEffects()) {
+            var8.send(new ClientboundUpdateMobEffectPacket(param1.getId(), var15));
         }
 
         if (var4 != null && var4.contains("RootVehicle", 10)) {
-            CompoundTag var13 = var4.getCompound("RootVehicle");
-            Entity var14 = EntityType.loadEntityRecursive(var13.getCompound("Entity"), var5, param1x -> !var5.addWithUUID(param1x) ? null : param1x);
-            if (var14 != null) {
-                UUID var15 = var13.getUUID("Attach");
-                if (var14.getUUID().equals(var15)) {
-                    param1.startRiding(var14, true);
+            CompoundTag var16 = var4.getCompound("RootVehicle");
+            Entity var17 = EntityType.loadEntityRecursive(var16.getCompound("Entity"), var5, param1x -> !var5.addWithUUID(param1x) ? null : param1x);
+            if (var17 != null) {
+                UUID var18 = var16.getUUID("Attach");
+                if (var17.getUUID().equals(var18)) {
+                    param1.startRiding(var17, true);
                 } else {
-                    for(Entity var16 : var14.getIndirectPassengers()) {
-                        if (var16.getUUID().equals(var15)) {
-                            param1.startRiding(var16, true);
+                    for(Entity var19 : var17.getIndirectPassengers()) {
+                        if (var19.getUUID().equals(var18)) {
+                            param1.startRiding(var19, true);
                             break;
                         }
                     }
@@ -196,10 +201,10 @@ public abstract class PlayerList {
 
                 if (!param1.isPassenger()) {
                     LOGGER.warn("Couldn't reattach entity to player");
-                    var5.despawn(var14);
+                    var5.despawn(var17);
 
-                    for(Entity var17 : var14.getIndirectPassengers()) {
-                        var5.despawn(var17);
+                    for(Entity var20 : var17.getIndirectPassengers()) {
+                        var5.despawn(var20);
                     }
                 }
             }
@@ -428,7 +433,12 @@ public abstract class PlayerList {
         }
 
         LevelData var9 = var4.level.getLevelData();
-        var4.connection.send(new ClientboundRespawnPacket(var4.dimension, var9.getGeneratorType(), var4.gameMode.getGameModeForPlayer()));
+        var4.connection
+            .send(
+                new ClientboundRespawnPacket(
+                    var4.dimension, LevelData.obfuscateSeed(var9.getSeed()), var9.getGeneratorType(), var4.gameMode.getGameModeForPlayer()
+                )
+            );
         BlockPos var10 = var6.getSharedSpawnPos();
         var4.connection.teleport(var4.x, var4.y, var4.z, var4.yRot, var4.xRot);
         var4.connection.send(new ClientboundSetSpawnPositionPacket(var10));

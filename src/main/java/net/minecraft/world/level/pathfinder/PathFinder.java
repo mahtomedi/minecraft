@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.PathNavigationRegion;
 
 public class PathFinder {
     private final BinaryHeap openSet = new BinaryHeap();
@@ -28,7 +28,7 @@ public class PathFinder {
     }
 
     @Nullable
-    public Path findPath(LevelReader param0, Mob param1, Set<BlockPos> param2, float param3, int param4) {
+    public Path findPath(PathNavigationRegion param0, Mob param1, Set<BlockPos> param2, float param3, int param4) {
         this.openSet.clear();
         this.nodeEvaluator.prepare(param0, param1);
         Node var0 = this.nodeEvaluator.getStart();

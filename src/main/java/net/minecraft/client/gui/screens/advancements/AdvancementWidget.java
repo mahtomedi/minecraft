@@ -1,8 +1,8 @@
 package net.minecraft.client.gui.screens.advancements;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -135,8 +135,8 @@ public class AdvancementWidget extends GuiComponent {
             }
 
             this.minecraft.getTextureManager().bind(WIDGETS_LOCATION);
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            GlStateManager.enableBlend();
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.enableBlend();
             this.blit(param0 + this.x + 3, param1 + this.y, this.display.getFrame().getTexture(), 128 + var1.getIndex() * 26, 26, 26);
             Lighting.turnOnGui();
             this.minecraft.getItemRenderer().renderAndDecorateItem(null, this.display.getIcon(), param0 + this.x + 8, param1 + this.y + 5);
@@ -189,8 +189,8 @@ public class AdvancementWidget extends GuiComponent {
 
         int var18 = this.width - var5;
         this.minecraft.getTextureManager().bind(WIDGETS_LOCATION);
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.enableBlend();
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.enableBlend();
         int var19 = param1 + this.y;
         int var20;
         if (var0) {

@@ -1,9 +1,8 @@
 package net.minecraft.client.renderer.blockentity;
 
 import com.google.common.collect.Maps;
-import com.mojang.blaze3d.platform.GLX;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.Map;
 import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
@@ -106,11 +105,11 @@ public class BlockEntityRenderDispatcher {
     public void render(BlockEntity param0, float param1, int param2) {
         if (param0.distanceToSqr(this.camera.getPosition().x, this.camera.getPosition().y, this.camera.getPosition().z) < param0.getViewDistance()) {
             Lighting.turnOn();
-            int var0 = this.level.getLightColor(param0.getBlockPos(), 0);
+            int var0 = this.level.getLightColor(param0.getBlockPos());
             int var1 = var0 % 65536;
             int var2 = var0 / 65536;
-            GLX.glMultiTexCoord2f(GLX.GL_TEXTURE1, (float)var1, (float)var2);
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.glMultiTexCoord2f(33985, (float)var1, (float)var2);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             BlockPos var3 = param0.getBlockPos();
             this.render(param0, (double)var3.getX() - xOff, (double)var3.getY() - yOff, (double)var3.getZ() - zOff, param1, param2, false);
         }

@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.VillagerModel;
 import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
 import net.minecraft.client.renderer.entity.layers.VillagerTradeItemLayer;
@@ -34,6 +34,6 @@ public class VillagerRenderer extends MobRenderer<Villager, VillagerModel<Villag
             this.shadowRadius = 0.5F;
         }
 
-        GlStateManager.scalef(var0, var0, var0);
+        RenderSystem.scalef(var0, var0, var0);
     }
 }

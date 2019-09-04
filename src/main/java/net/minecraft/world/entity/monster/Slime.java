@@ -75,6 +75,7 @@ public class Slime extends Mob implements Enemy {
         this.refreshDimensions();
         this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue((double)(param0 * param0));
         this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue((double)(0.2F + 0.1F * (float)param0));
+        this.getAttributes().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue((double)param0);
         if (param1) {
             this.setHealth(this.getMaxHealth());
         }
@@ -156,6 +157,15 @@ public class Slime extends Mob implements Enemy {
     }
 
     @Override
+    public void refreshDimensions() {
+        double var0 = this.x;
+        double var1 = this.y;
+        double var2 = this.z;
+        super.refreshDimensions();
+        this.setPos(var0, var1, var2);
+    }
+
+    @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> param0) {
         if (ID_SIZE.equals(param0)) {
             this.refreshDimensions();
@@ -223,7 +233,7 @@ public class Slime extends Mob implements Enemy {
             int var0 = this.getSize();
             if (this.distanceToSqr(param0) < 0.6 * (double)var0 * 0.6 * (double)var0
                 && this.canSee(param0)
-                && param0.hurt(DamageSource.mobAttack(this), (float)this.getAttackDamage())) {
+                && param0.hurt(DamageSource.mobAttack(this), this.getAttackDamage())) {
                 this.playSound(SoundEvents.SLIME_ATTACK, 1.0F, (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
                 this.doEnchantDamageEffects(this, param0);
             }
@@ -240,8 +250,8 @@ public class Slime extends Mob implements Enemy {
         return !this.isTiny() && this.isEffectiveAi();
     }
 
-    protected int getAttackDamage() {
-        return this.getSize();
+    protected float getAttackDamage() {
+        return (float)this.getAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getValue();
     }
 
     @Override

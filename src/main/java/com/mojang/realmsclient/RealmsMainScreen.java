@@ -3,6 +3,7 @@ package com.mojang.realmsclient;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.RateLimiter;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.realmsclient.client.Ping;
 import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.dto.PingResult;
@@ -27,7 +28,6 @@ import com.mojang.realmsclient.util.RealmsTasks;
 import com.mojang.realmsclient.util.RealmsTextureManager;
 import com.mojang.realmsclient.util.RealmsUtil;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
@@ -410,27 +410,24 @@ public class RealmsMainScreen extends RealmsScreen {
     }
 
     private void pingRegions() {
-        (new Thread() {
-            @Override
-            public void run() {
-                List<RegionPingResult> var0 = Ping.pingAllRegions();
-                RealmsClient var1 = RealmsClient.createRealmsClient();
-                PingResult var2 = new PingResult();
-                var2.pingResults = var0;
-                var2.worldIds = RealmsMainScreen.this.getOwnedNonExpiredWorldIds();
+        new Thread(() -> {
+            List<RegionPingResult> var0 = Ping.pingAllRegions();
+            RealmsClient var1 = RealmsClient.createRealmsClient();
+            PingResult var2 = new PingResult();
+            var2.pingResults = var0;
+            var2.worldIds = this.getOwnedNonExpiredWorldIds();
 
-                try {
-                    var1.sendPingResults(var2);
-                } catch (Throwable var5) {
-                    RealmsMainScreen.LOGGER.warn("Could not send ping result to Realms: ", var5);
-                }
-
+            try {
+                var1.sendPingResults(var2);
+            } catch (Throwable var5) {
+                LOGGER.warn("Could not send ping result to Realms: ", var5);
             }
+
         }).start();
     }
 
     private List<Long> getOwnedNonExpiredWorldIds() {
-        List<Long> var0 = new ArrayList<>();
+        List<Long> var0 = Lists.newArrayList();
 
         for(RealmsServer var1 : this.realmsServers) {
             if (this.isSelfOwnedNonExpiredServer(var1)) {
@@ -748,8 +745,8 @@ public class RealmsMainScreen extends RealmsScreen {
 
         if (this.trialsAvailable && !this.createdTrial && this.shouldShowPopup()) {
             RealmsScreen.bind("realms:textures/gui/realms/trial_icon.png");
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            GlStateManager.pushMatrix();
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.pushMatrix();
             int var1 = 8;
             int var2 = 8;
             int var3 = 0;
@@ -767,18 +764,18 @@ public class RealmsMainScreen extends RealmsScreen {
                 8,
                 16
             );
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
         }
 
     }
 
     private void drawRealmsLogo(int param0, int param1) {
         RealmsScreen.bind("realms:textures/gui/title/realms.png");
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.pushMatrix();
-        GlStateManager.scalef(0.5F, 0.5F, 0.5F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.pushMatrix();
+        RenderSystem.scalef(0.5F, 0.5F, 0.5F);
         RealmsScreen.blit(param0 * 2, param1 * 2 - 5, 0.0F, 0.0F, 200, 50, 200, 50);
-        GlStateManager.popMatrix();
+        RenderSystem.popMatrix();
     }
 
     @Override
@@ -819,25 +816,25 @@ public class RealmsMainScreen extends RealmsScreen {
             this.showingPopup = true;
         }
 
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 0.7F);
-        GlStateManager.enableBlend();
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 0.7F);
+        RenderSystem.enableBlend();
         RealmsScreen.bind("realms:textures/gui/realms/darken.png");
-        GlStateManager.pushMatrix();
+        RenderSystem.pushMatrix();
         int var4 = 0;
         int var5 = 32;
         RealmsScreen.blit(0, 32, 0.0F, 0.0F, this.width(), this.height() - 40 - 32, 310, 166);
-        GlStateManager.popMatrix();
-        GlStateManager.disableBlend();
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.popMatrix();
+        RenderSystem.disableBlend();
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         RealmsScreen.bind("realms:textures/gui/realms/popup.png");
-        GlStateManager.pushMatrix();
+        RenderSystem.pushMatrix();
         RealmsScreen.blit(var0, var1, 0.0F, 0.0F, 310, 166, 310, 166);
-        GlStateManager.popMatrix();
+        RenderSystem.popMatrix();
         RealmsScreen.bind(IMAGES_LOCATION[this.carouselIndex]);
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.pushMatrix();
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.pushMatrix();
         RealmsScreen.blit(var0 + 7, var1 + 7, 0.0F, 0.0F, 195, 152, 195, 152);
-        GlStateManager.popMatrix();
+        RenderSystem.popMatrix();
         if (this.carouselTick % 95 < 5) {
             if (!this.hasSwitchedCarouselImage) {
                 if (this.carouselIndex == IMAGES_LOCATION.length - 1) {
@@ -886,20 +883,20 @@ public class RealmsMainScreen extends RealmsScreen {
         }
 
         RealmsScreen.bind("realms:textures/gui/realms/invite_icon.png");
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.pushMatrix();
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.pushMatrix();
         boolean var5 = param5 && param4;
         RealmsScreen.blit(param2, param3 - 6, var5 ? 16.0F : 0.0F, 0.0F, 15, 25, 31, 25);
-        GlStateManager.popMatrix();
+        RenderSystem.popMatrix();
         boolean var6 = param5 && var0 != 0;
         if (var6) {
             int var7 = (Math.min(var0, 6) - 1) * 8;
             int var8 = (int)(Math.max(0.0F, Math.max(RealmsMth.sin((float)(10 + this.animTick) * 0.57F), RealmsMth.cos((float)this.animTick * 0.35F))) * -6.0F);
             RealmsScreen.bind("realms:textures/gui/realms/invitation_icons.png");
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            GlStateManager.pushMatrix();
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.pushMatrix();
             RealmsScreen.blit(param2 + 4, param3 + 4 + var8, (float)var7, var1 ? 8.0F : 0.0F, 8, 8, 48, 16);
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
         }
 
         int var9 = param0 + 12;
@@ -966,10 +963,10 @@ public class RealmsMainScreen extends RealmsScreen {
 
     private void drawExpired(int param0, int param1, int param2, int param3) {
         RealmsScreen.bind("realms:textures/gui/realms/expired_icon.png");
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.pushMatrix();
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.pushMatrix();
         RealmsScreen.blit(param0, param1, 0.0F, 0.0F, 10, 28, 10, 28);
-        GlStateManager.popMatrix();
+        RenderSystem.popMatrix();
         if (param2 >= param0
             && param2 <= param0 + 9
             && param3 >= param1
@@ -984,15 +981,15 @@ public class RealmsMainScreen extends RealmsScreen {
 
     private void drawExpiring(int param0, int param1, int param2, int param3, int param4) {
         RealmsScreen.bind("realms:textures/gui/realms/expires_soon_icon.png");
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.pushMatrix();
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.pushMatrix();
         if (this.animTick % 20 < 10) {
             RealmsScreen.blit(param0, param1, 0.0F, 0.0F, 10, 28, 20, 28);
         } else {
             RealmsScreen.blit(param0, param1, 10.0F, 0.0F, 10, 28, 20, 28);
         }
 
-        GlStateManager.popMatrix();
+        RenderSystem.popMatrix();
         if (param2 >= param0
             && param2 <= param0 + 9
             && param3 >= param1
@@ -1013,10 +1010,10 @@ public class RealmsMainScreen extends RealmsScreen {
 
     private void drawOpen(int param0, int param1, int param2, int param3) {
         RealmsScreen.bind("realms:textures/gui/realms/on_icon.png");
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.pushMatrix();
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.pushMatrix();
         RealmsScreen.blit(param0, param1, 0.0F, 0.0F, 10, 28, 10, 28);
-        GlStateManager.popMatrix();
+        RenderSystem.popMatrix();
         if (param2 >= param0
             && param2 <= param0 + 9
             && param3 >= param1
@@ -1031,10 +1028,10 @@ public class RealmsMainScreen extends RealmsScreen {
 
     private void drawClose(int param0, int param1, int param2, int param3) {
         RealmsScreen.bind("realms:textures/gui/realms/off_icon.png");
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.pushMatrix();
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.pushMatrix();
         RealmsScreen.blit(param0, param1, 0.0F, 0.0F, 10, 28, 10, 28);
-        GlStateManager.popMatrix();
+        RenderSystem.popMatrix();
         if (param2 >= param0
             && param2 <= param0 + 9
             && param3 >= param1
@@ -1060,10 +1057,10 @@ public class RealmsMainScreen extends RealmsScreen {
         }
 
         RealmsScreen.bind("realms:textures/gui/realms/leave_icon.png");
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.pushMatrix();
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.pushMatrix();
         RealmsScreen.blit(param0, param1, var0 ? 28.0F : 0.0F, 0.0F, 28, 28, 56, 28);
-        GlStateManager.popMatrix();
+        RenderSystem.popMatrix();
         if (var0) {
             this.toolTip = getLocalizedString("mco.selectServer.leave");
         }
@@ -1083,10 +1080,10 @@ public class RealmsMainScreen extends RealmsScreen {
         }
 
         RealmsScreen.bind("realms:textures/gui/realms/configure_icon.png");
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.pushMatrix();
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.pushMatrix();
         RealmsScreen.blit(param0, param1, var0 ? 28.0F : 0.0F, 0.0F, 28, 28, 56, 28);
-        GlStateManager.popMatrix();
+        RenderSystem.popMatrix();
         if (var0) {
             this.toolTip = getLocalizedString("mco.selectServer.configure");
         }
@@ -1127,10 +1124,10 @@ public class RealmsMainScreen extends RealmsScreen {
         }
 
         RealmsScreen.bind("realms:textures/gui/realms/questionmark.png");
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.pushMatrix();
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.pushMatrix();
         RealmsScreen.blit(param2, param3, param4 ? 20.0F : 0.0F, 0.0F, 20, 20, 40, 20);
-        GlStateManager.popMatrix();
+        RenderSystem.popMatrix();
         if (var0) {
             this.toolTip = getLocalizedString("mco.selectServer.info");
         }
@@ -1145,15 +1142,15 @@ public class RealmsMainScreen extends RealmsScreen {
 
         RealmsScreen.bind("realms:textures/gui/realms/news_icon.png");
         if (param6) {
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         } else {
-            GlStateManager.color4f(0.5F, 0.5F, 0.5F, 1.0F);
+            RenderSystem.color4f(0.5F, 0.5F, 0.5F, 1.0F);
         }
 
-        GlStateManager.pushMatrix();
+        RenderSystem.pushMatrix();
         boolean var1 = param6 && param5;
         RealmsScreen.blit(param3, param4, var1 ? 20.0F : 0.0F, 0.0F, 20, 20, 40, 20);
-        GlStateManager.popMatrix();
+        RenderSystem.popMatrix();
         if (var0 && param6) {
             this.toolTip = getLocalizedString("mco.news");
         }
@@ -1163,34 +1160,34 @@ public class RealmsMainScreen extends RealmsScreen {
                 ? 0
                 : (int)(Math.max(0.0F, Math.max(RealmsMth.sin((float)(10 + this.animTick) * 0.57F), RealmsMth.cos((float)this.animTick * 0.35F))) * -6.0F);
             RealmsScreen.bind("realms:textures/gui/realms/invitation_icons.png");
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            GlStateManager.pushMatrix();
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.pushMatrix();
             RealmsScreen.blit(param3 + 10, param4 + 2 + var2, 40.0F, 0.0F, 8, 8, 48, 16);
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
         }
 
     }
 
     private void renderLocal() {
         String var0 = "LOCAL!";
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.pushMatrix();
-        GlStateManager.translatef((float)(this.width() / 2 - 25), 20.0F, 0.0F);
-        GlStateManager.rotatef(-20.0F, 0.0F, 0.0F, 1.0F);
-        GlStateManager.scalef(1.5F, 1.5F, 1.5F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.pushMatrix();
+        RenderSystem.translatef((float)(this.width() / 2 - 25), 20.0F, 0.0F);
+        RenderSystem.rotatef(-20.0F, 0.0F, 0.0F, 1.0F);
+        RenderSystem.scalef(1.5F, 1.5F, 1.5F);
         this.drawString("LOCAL!", 0, 0, 8388479);
-        GlStateManager.popMatrix();
+        RenderSystem.popMatrix();
     }
 
     private void renderStage() {
         String var0 = "STAGE!";
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.pushMatrix();
-        GlStateManager.translatef((float)(this.width() / 2 - 25), 20.0F, 0.0F);
-        GlStateManager.rotatef(-20.0F, 0.0F, 0.0F, 1.0F);
-        GlStateManager.scalef(1.5F, 1.5F, 1.5F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.pushMatrix();
+        RenderSystem.translatef((float)(this.width() / 2 - 25), 20.0F, 0.0F);
+        RenderSystem.rotatef(-20.0F, 0.0F, 0.0F, 1.0F);
+        RenderSystem.scalef(1.5F, 1.5F, 1.5F);
         this.drawString("STAGE!", 0, 0, -256);
-        GlStateManager.popMatrix();
+        RenderSystem.popMatrix();
     }
 
     public RealmsMainScreen newScreen() {
@@ -1225,10 +1222,10 @@ public class RealmsMainScreen extends RealmsScreen {
         @Override
         public void renderButton(int param0, int param1, float param2) {
             RealmsScreen.bind("realms:textures/gui/realms/cross_icon.png");
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            GlStateManager.pushMatrix();
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.pushMatrix();
             RealmsScreen.blit(this.x(), this.y(), 0.0F, this.getProxy().isHovered() ? 12.0F : 0.0F, 12, 12, 12, 24);
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
             if (this.getProxy().isMouseOver((double)param0, (double)param1)) {
                 RealmsMainScreen.this.toolTip = this.getProxy().getMessage();
             }
@@ -1462,11 +1459,11 @@ public class RealmsMainScreen extends RealmsScreen {
         private void renderLegacy(RealmsServer param0, int param1, int param2, int param3, int param4) {
             if (param0.state == RealmsServer.State.UNINITIALIZED) {
                 RealmsScreen.bind("realms:textures/gui/realms/world_icon.png");
-                GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-                GlStateManager.enableAlphaTest();
-                GlStateManager.pushMatrix();
+                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                RenderSystem.enableAlphaTest();
+                RenderSystem.pushMatrix();
                 RealmsScreen.blit(param1 + 10, param2 + 6, 0.0F, 0.0F, 40, 20, 40, 20);
-                GlStateManager.popMatrix();
+                RenderSystem.popMatrix();
                 float var0 = 0.5F + (1.0F + RealmsMth.sin((float)RealmsMainScreen.this.animTick * 0.25F)) * 0.25F;
                 int var1 = 0xFF000000 | (int)(127.0F * var0) << 16 | (int)(255.0F * var0) << 8 | (int)(127.0F * var0);
                 RealmsMainScreen.this.drawCenteredString(
@@ -1507,11 +1504,11 @@ public class RealmsMainScreen extends RealmsScreen {
 
                 if (RealmsMainScreen.this.isSelfOwnedServer(param0) && param0.expired) {
                     boolean var5 = false;
-                    GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-                    GlStateManager.enableBlend();
+                    RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                    RenderSystem.enableBlend();
                     RealmsScreen.bind("minecraft:textures/gui/widgets.png");
-                    GlStateManager.pushMatrix();
-                    GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+                    RenderSystem.pushMatrix();
+                    RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
                     String var6 = RealmsScreen.getLocalizedString("mco.selectServer.expiredList");
                     String var7 = RealmsScreen.getLocalizedString("mco.selectServer.expiredRenew");
                     if (param0.expiredTrial) {
@@ -1538,8 +1535,8 @@ public class RealmsMainScreen extends RealmsScreen {
                     RealmsScreen.blit(var10 + var8 / 2, var11, (float)(200 - var8 / 2), (float)(46 + var12 * 20), var8 / 2, 8, 256, 256);
                     RealmsScreen.blit(var10, var11 + 8, 0.0F, (float)(46 + var12 * 20 + 12), var8 / 2, 8, 256, 256);
                     RealmsScreen.blit(var10 + var8 / 2, var11 + 8, (float)(200 - var8 / 2), (float)(46 + var12 * 20 + 12), var8 / 2, 8, 256, 256);
-                    GlStateManager.popMatrix();
-                    GlStateManager.disableBlend();
+                    RenderSystem.popMatrix();
+                    RenderSystem.disableBlend();
                     int var13 = param2 + 11 + 5;
                     int var14 = var5 ? 16777120 : 16777215;
                     RealmsMainScreen.this.drawString(var6, param1 + 2, var13 + 1, 15553363);
@@ -1562,7 +1559,7 @@ public class RealmsMainScreen extends RealmsScreen {
 
                 RealmsMainScreen.this.drawString(param0.getName(), param1 + 2, param2 + 1, 16777215);
                 RealmsTextureManager.withBoundFace(param0.ownerUUID, () -> {
-                    GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                    RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
                     RealmsScreen.blit(param1 - 36, param2, 8.0F, 8.0F, 8, 8, 32, 32, 64, 64);
                     RealmsScreen.blit(param1 - 36, param2, 40.0F, 8.0F, 8, 8, 32, 32, 64, 64);
                 });

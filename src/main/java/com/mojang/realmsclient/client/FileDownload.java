@@ -109,94 +109,82 @@ public class FileDownload {
         return var5;
     }
 
-    public void download(
-        final WorldDownload param0,
-        final String param1,
-        final RealmsDownloadLatestWorldScreen.DownloadStatus param2,
-        final RealmsAnvilLevelStorageSource param3
-    ) {
+    public void download(WorldDownload param0, String param1, RealmsDownloadLatestWorldScreen.DownloadStatus param2, RealmsAnvilLevelStorageSource param3) {
         if (this.currentThread == null) {
-            this.currentThread = new Thread() {
-                @Override
-                public void run() {
-                    CloseableHttpClient var0 = null;
+            this.currentThread = new Thread(() -> {
+                CloseableHttpClient var0 = null;
 
-                    try {
-                        FileDownload.this.tempFile = File.createTempFile("backup", ".tar.gz");
-                        FileDownload.this.request = new HttpGet(param0.downloadLink);
-                        var0 = HttpClientBuilder.create().setDefaultRequestConfig(FileDownload.this.requestConfig).build();
-                        HttpResponse var1 = var0.execute(FileDownload.this.request);
-                        param2.totalBytes = Long.parseLong(var1.getFirstHeader("Content-Length").getValue());
-                        if (var1.getStatusLine().getStatusCode() == 200) {
-                            OutputStream var8 = new FileOutputStream(FileDownload.this.tempFile);
-                            FileDownload.ProgressListener var9 = FileDownload.this.new ProgressListener(
-                                param1.trim(), FileDownload.this.tempFile, param3, param2, param0
-                            );
-                            FileDownload.DownloadCountingOutputStream var10 = FileDownload.this.new DownloadCountingOutputStream(var8);
-                            var10.setListener(var9);
-                            IOUtils.copy(var1.getEntity().getContent(), var10);
-                            return;
-                        }
-
-                        FileDownload.this.error = true;
-                        FileDownload.this.request.abort();
-                    } catch (Exception var89) {
-                        FileDownload.LOGGER.error("Caught exception while downloading: " + var89.getMessage());
-                        FileDownload.this.error = true;
+                try {
+                    this.tempFile = File.createTempFile("backup", ".tar.gz");
+                    this.request = new HttpGet(param0.downloadLink);
+                    var0 = HttpClientBuilder.create().setDefaultRequestConfig(this.requestConfig).build();
+                    HttpResponse var1 = var0.execute(this.request);
+                    param2.totalBytes = Long.parseLong(var1.getFirstHeader("Content-Length").getValue());
+                    if (var1.getStatusLine().getStatusCode() == 200) {
+                        OutputStream var8 = new FileOutputStream(this.tempFile);
+                        FileDownload.ProgressListener var9 = new FileDownload.ProgressListener(param1.trim(), this.tempFile, param3, param2, param0);
+                        FileDownload.DownloadCountingOutputStream var10 = new FileDownload.DownloadCountingOutputStream(var8);
+                        var10.setListener(var9);
+                        IOUtils.copy(var1.getEntity().getContent(), var10);
                         return;
-                    } finally {
-                        FileDownload.this.request.releaseConnection();
-                        if (FileDownload.this.tempFile != null) {
-                            FileDownload.this.tempFile.delete();
-                        }
+                    }
 
-                        if (!FileDownload.this.error) {
-                            if (!param0.resourcePackUrl.isEmpty() && !param0.resourcePackHash.isEmpty()) {
-                                try {
-                                    FileDownload.this.tempFile = File.createTempFile("resources", ".tar.gz");
-                                    FileDownload.this.request = new HttpGet(param0.resourcePackUrl);
-                                    HttpResponse var24 = var0.execute(FileDownload.this.request);
-                                    param2.totalBytes = Long.parseLong(var24.getFirstHeader("Content-Length").getValue());
-                                    if (var24.getStatusLine().getStatusCode() != 200) {
-                                        FileDownload.this.error = true;
-                                        FileDownload.this.request.abort();
-                                        return;
-                                    }
+                    this.error = true;
+                    this.request.abort();
+                } catch (Exception var93) {
+                    LOGGER.error("Caught exception while downloading: " + var93.getMessage());
+                    this.error = true;
+                    return;
+                } finally {
+                    this.request.releaseConnection();
+                    if (this.tempFile != null) {
+                        this.tempFile.delete();
+                    }
 
-                                    OutputStream var25 = new FileOutputStream(FileDownload.this.tempFile);
-                                    FileDownload.ResourcePackProgressListener var26 = FileDownload.this.new ResourcePackProgressListener(
-                                        FileDownload.this.tempFile, param2, param0
-                                    );
-                                    FileDownload.DownloadCountingOutputStream var27 = FileDownload.this.new DownloadCountingOutputStream(var25);
-                                    var27.setListener(var26);
-                                    IOUtils.copy(var24.getEntity().getContent(), var27);
-                                } catch (Exception var87) {
-                                    FileDownload.LOGGER.error("Caught exception while downloading: " + var87.getMessage());
-                                    FileDownload.this.error = true;
-                                } finally {
-                                    FileDownload.this.request.releaseConnection();
-                                    if (FileDownload.this.tempFile != null) {
-                                        FileDownload.this.tempFile.delete();
-                                    }
-
-                                }
-                            } else {
-                                FileDownload.this.finished = true;
-                            }
-                        }
-
-                        if (var0 != null) {
+                    if (!this.error) {
+                        if (!param0.resourcePackUrl.isEmpty() && !param0.resourcePackHash.isEmpty()) {
                             try {
-                                var0.close();
-                            } catch (IOException var86) {
-                                FileDownload.LOGGER.error("Failed to close Realms download client");
-                            }
-                        }
+                                this.tempFile = File.createTempFile("resources", ".tar.gz");
+                                this.request = new HttpGet(param0.resourcePackUrl);
+                                HttpResponse var24 = var0.execute(this.request);
+                                param2.totalBytes = Long.parseLong(var24.getFirstHeader("Content-Length").getValue());
+                                if (var24.getStatusLine().getStatusCode() != 200) {
+                                    this.error = true;
+                                    this.request.abort();
+                                    return;
+                                }
 
+                                OutputStream var25 = new FileOutputStream(this.tempFile);
+                                FileDownload.ResourcePackProgressListener var26 = new FileDownload.ResourcePackProgressListener(this.tempFile, param2, param0);
+                                FileDownload.DownloadCountingOutputStream var27 = new FileDownload.DownloadCountingOutputStream(var25);
+                                var27.setListener(var26);
+                                IOUtils.copy(var24.getEntity().getContent(), var27);
+                            } catch (Exception var91) {
+                                LOGGER.error("Caught exception while downloading: " + var91.getMessage());
+                                this.error = true;
+                            } finally {
+                                this.request.releaseConnection();
+                                if (this.tempFile != null) {
+                                    this.tempFile.delete();
+                                }
+
+                            }
+                        } else {
+                            this.finished = true;
+                        }
+                    }
+
+                    if (var0 != null) {
+                        try {
+                            var0.close();
+                        } catch (IOException var90) {
+                            LOGGER.error("Failed to close Realms download client");
+                        }
                     }
 
                 }
-            };
+
+            });
             this.currentThread.setUncaughtExceptionHandler(new RealmsDefaultUncaughtExceptionHandler(LOGGER));
             this.currentThread.start();
         }

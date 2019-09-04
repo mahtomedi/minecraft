@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity.layers;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -21,17 +21,17 @@ public class SpinAttackEffectLayer<T extends LivingEntity> extends RenderLayer<T
 
     public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6, float param7) {
         if (param0.isAutoSpinAttack()) {
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             this.bindTexture(TEXTURE);
 
             for(int var0 = 0; var0 < 3; ++var0) {
-                GlStateManager.pushMatrix();
-                GlStateManager.rotatef(param4 * (float)(-(45 + var0 * 5)), 0.0F, 1.0F, 0.0F);
+                RenderSystem.pushMatrix();
+                RenderSystem.rotatef(param4 * (float)(-(45 + var0 * 5)), 0.0F, 1.0F, 0.0F);
                 float var1 = 0.75F * (float)var0;
-                GlStateManager.scalef(var1, var1, var1);
-                GlStateManager.translatef(0.0F, -0.2F + 0.6F * (float)var0, 0.0F);
+                RenderSystem.scalef(var1, var1, var1);
+                RenderSystem.translatef(0.0F, -0.2F + 0.6F * (float)var0, 0.0F);
                 this.model.render(param1, param2, param4, param5, param6, param7);
-                GlStateManager.popMatrix();
+                RenderSystem.popMatrix();
             }
 
         }

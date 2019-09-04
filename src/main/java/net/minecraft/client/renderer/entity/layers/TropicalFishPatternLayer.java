@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity.layers;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.TropicalFishModelA;
 import net.minecraft.client.model.TropicalFishModelB;
@@ -23,7 +23,7 @@ public class TropicalFishPatternLayer extends RenderLayer<TropicalFish, EntityMo
             EntityModel<TropicalFish> var0 = (EntityModel<TropicalFish>)(param0.getBaseVariant() == 0 ? this.modelA : this.modelB);
             this.bindTexture(param0.getPatternTextureLocation());
             float[] var1 = param0.getPatternColor();
-            GlStateManager.color3f(var1[0], var1[1], var1[2]);
+            RenderSystem.color3f(var1[0], var1[1], var1[2]);
             this.getParentModel().copyPropertiesTo(var0);
             var0.prepareMobModel(param0, param1, param2, param3);
             var0.render(param0, param1, param2, param4, param5, param6, param7);

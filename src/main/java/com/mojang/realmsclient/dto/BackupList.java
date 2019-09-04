@@ -1,8 +1,8 @@
 package com.mojang.realmsclient.dto;
 
+import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import net.minecraftforge.api.distmarker.Dist;
@@ -18,7 +18,7 @@ public class BackupList extends ValueObject {
     public static BackupList parse(String param0) {
         JsonParser var0 = new JsonParser();
         BackupList var1 = new BackupList();
-        var1.backups = new ArrayList<>();
+        var1.backups = Lists.newArrayList();
 
         try {
             JsonElement var2 = var0.parse(param0).getAsJsonObject().get("backups");

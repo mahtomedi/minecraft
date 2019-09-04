@@ -66,8 +66,8 @@ public class CatModel<T extends Cat> extends OcelotModel<T> {
     public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
         super.setupAnim(param0, param1, param2, param3, param4, param5, param6);
         if (this.lieDownAmount > 0.0F) {
-            this.head.zRot = this.rotlerpRad(this.head.zRot, -1.2707963F, this.lieDownAmount);
-            this.head.yRot = this.rotlerpRad(this.head.yRot, 1.2707963F, this.lieDownAmount);
+            this.head.zRot = ModelUtils.rotlerpRad(this.head.zRot, -1.2707963F, this.lieDownAmount);
+            this.head.yRot = ModelUtils.rotlerpRad(this.head.yRot, 1.2707963F, this.lieDownAmount);
             this.frontLegL.xRot = -1.2707963F;
             this.frontLegR.xRot = -0.47079635F;
             this.frontLegR.zRot = -0.2F;
@@ -77,27 +77,13 @@ public class CatModel<T extends Cat> extends OcelotModel<T> {
             this.backLegR.zRot = -0.5F;
             this.backLegR.x = -0.3F;
             this.backLegR.y = 20.0F;
-            this.tail1.xRot = this.rotlerpRad(this.tail1.xRot, 0.8F, this.lieDownAmountTail);
-            this.tail2.xRot = this.rotlerpRad(this.tail2.xRot, -0.4F, this.lieDownAmountTail);
+            this.tail1.xRot = ModelUtils.rotlerpRad(this.tail1.xRot, 0.8F, this.lieDownAmountTail);
+            this.tail2.xRot = ModelUtils.rotlerpRad(this.tail2.xRot, -0.4F, this.lieDownAmountTail);
         }
 
         if (this.relaxStateOneAmount > 0.0F) {
-            this.head.xRot = this.rotlerpRad(this.head.xRot, -0.58177644F, this.relaxStateOneAmount);
+            this.head.xRot = ModelUtils.rotlerpRad(this.head.xRot, -0.58177644F, this.relaxStateOneAmount);
         }
 
-    }
-
-    protected float rotlerpRad(float param0, float param1, float param2) {
-        float var0 = param1 - param0;
-
-        while(var0 < (float) -Math.PI) {
-            var0 += (float) (Math.PI * 2);
-        }
-
-        while(var0 >= (float) Math.PI) {
-            var0 -= (float) (Math.PI * 2);
-        }
-
-        return param0 + param2 * var0;
     }
 }

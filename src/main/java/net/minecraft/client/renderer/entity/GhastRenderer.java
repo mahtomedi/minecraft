@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.GhastModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.monster.Ghast;
@@ -24,7 +24,7 @@ public class GhastRenderer extends MobRenderer<Ghast, GhastModel<Ghast>> {
         float var0 = 1.0F;
         float var1 = 4.5F;
         float var2 = 4.5F;
-        GlStateManager.scalef(4.5F, 4.5F, 4.5F);
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.scalef(4.5F, 4.5F, 4.5F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
     }
 }

@@ -53,6 +53,7 @@ public class SoundEngine {
     private final Map<SoundInstance, Integer> queuedSounds = Maps.newHashMap();
     private final Map<SoundInstance, Integer> soundDeleteTime = Maps.newHashMap();
     private final List<SoundEventListener> listeners = Lists.newArrayList();
+    private final List<TickableSoundInstance> queuedTickableSounds = Lists.newArrayList();
     private final List<Sound> preloadQueue = Lists.newArrayList();
 
     public SoundEngine(SoundManager param0, Options param1, ResourceManager param2) {
@@ -146,6 +147,7 @@ public class SoundEngine {
             this.tickingSounds.clear();
             this.instanceBySource.clear();
             this.soundDeleteTime.clear();
+            this.queuedTickableSounds.clear();
         }
 
     }
@@ -168,6 +170,8 @@ public class SoundEngine {
 
     private void tickNonPaused() {
         ++this.tickCount;
+        this.queuedTickableSounds.forEach(this::play);
+        this.queuedTickableSounds.clear();
 
         for(TickableSoundInstance var0 : this.tickingSounds) {
             var0.tick();
@@ -251,68 +255,68 @@ public class SoundEngine {
 
     public void play(SoundInstance param0) {
         if (this.loaded) {
-            WeighedSoundEvents var0 = param0.resolve(this.soundManager);
-            ResourceLocation var1 = param0.getLocation();
-            if (var0 == null) {
-                if (ONLY_WARN_ONCE.add(var1)) {
-                    LOGGER.warn(MARKER, "Unable to play unknown soundEvent: {}", var1);
+            WeighedSoundEvents var0x = param0.resolve(this.soundManager);
+            ResourceLocation var1x = param0.getLocation();
+            if (var0x == null) {
+                if (ONLY_WARN_ONCE.add(var1x)) {
+                    LOGGER.warn(MARKER, "Unable to play unknown soundEvent: {}", var1x);
                 }
 
             } else {
                 if (!this.listeners.isEmpty()) {
-                    for(SoundEventListener var2 : this.listeners) {
-                        var2.onPlaySound(param0, var0);
+                    for(SoundEventListener var2x : this.listeners) {
+                        var2x.onPlaySound(param0, var0x);
                     }
                 }
 
                 if (this.listener.getGain() <= 0.0F) {
-                    LOGGER.debug(MARKER, "Skipped playing soundEvent: {}, master volume was zero", var1);
+                    LOGGER.debug(MARKER, "Skipped playing soundEvent: {}, master volume was zero", var1x);
                 } else {
-                    Sound var3 = param0.getSound();
-                    if (var3 == SoundManager.EMPTY_SOUND) {
-                        if (ONLY_WARN_ONCE.add(var1)) {
-                            LOGGER.warn(MARKER, "Unable to play empty soundEvent: {}", var1);
+                    Sound var3x = param0.getSound();
+                    if (var3x == SoundManager.EMPTY_SOUND) {
+                        if (ONLY_WARN_ONCE.add(var1x)) {
+                            LOGGER.warn(MARKER, "Unable to play empty soundEvent: {}", var1x);
                         }
 
                     } else {
-                        float var4 = param0.getVolume();
-                        float var5 = Math.max(var4, 1.0F) * (float)var3.getAttenuationDistance();
-                        SoundSource var6 = param0.getSource();
-                        float var7 = this.calculateVolume(param0);
-                        float var8 = this.calculatePitch(param0);
-                        SoundInstance.Attenuation var9 = param0.getAttenuation();
-                        boolean var10 = param0.isRelative();
-                        if (var7 == 0.0F && !param0.canStartSilent()) {
-                            LOGGER.debug(MARKER, "Skipped playing sound {}, volume was zero.", var3.getLocation());
+                        float var4x = param0.getVolume();
+                        float var5x = Math.max(var4x, 1.0F) * (float)var3x.getAttenuationDistance();
+                        SoundSource var6x = param0.getSource();
+                        float var7x = this.calculateVolume(param0);
+                        float var8x = this.calculatePitch(param0);
+                        SoundInstance.Attenuation var9x = param0.getAttenuation();
+                        boolean var10x = param0.isRelative();
+                        if (var7x == 0.0F && !param0.canStartSilent()) {
+                            LOGGER.debug(MARKER, "Skipped playing sound {}, volume was zero.", var3x.getLocation());
                         } else {
-                            boolean var11 = param0.isLooping() && param0.getDelay() == 0;
-                            Vec3 var12 = new Vec3((double)param0.getX(), (double)param0.getY(), (double)param0.getZ());
-                            ChannelAccess.ChannelHandle var13 = this.channelAccess
-                                .createHandle(var3.shouldStream() ? Library.Pool.STREAMING : Library.Pool.STATIC);
-                            LOGGER.debug(MARKER, "Playing sound {} for event {}", var3.getLocation(), var1);
+                            boolean var11x = param0.isLooping() && param0.getDelay() == 0;
+                            Vec3 var12x = new Vec3((double)param0.getX(), (double)param0.getY(), (double)param0.getZ());
+                            ChannelAccess.ChannelHandle var13x = this.channelAccess
+                                .createHandle(var3x.shouldStream() ? Library.Pool.STREAMING : Library.Pool.STATIC);
+                            LOGGER.debug(MARKER, "Playing sound {} for event {}", var3x.getLocation(), var1x);
                             this.soundDeleteTime.put(param0, this.tickCount + 20);
-                            this.instanceToChannel.put(param0, var13);
-                            this.instanceBySource.put(var6, param0);
-                            var13.execute(param7 -> {
-                                param7.setPitch(var8);
-                                param7.setVolume(var7);
-                                if (var9 == SoundInstance.Attenuation.LINEAR) {
-                                    param7.linearAttenuation(var5);
+                            this.instanceToChannel.put(param0, var13x);
+                            this.instanceBySource.put(var6x, param0);
+                            var13x.execute(param7 -> {
+                                param7.setPitch(var8x);
+                                param7.setVolume(var7x);
+                                if (var9x == SoundInstance.Attenuation.LINEAR) {
+                                    param7.linearAttenuation(var5x);
                                 } else {
                                     param7.disableAttenuation();
                                 }
 
-                                param7.setLooping(var11);
-                                param7.setSelfPosition(var12);
-                                param7.setRelative(var10);
+                                param7.setLooping(var11x);
+                                param7.setSelfPosition(var12x);
+                                param7.setRelative(var10x);
                             });
-                            if (!var3.shouldStream()) {
-                                this.soundBuffers.getCompleteBuffer(var3.getPath()).thenAccept(param1 -> var13.execute(param1x -> {
+                            if (!var3x.shouldStream()) {
+                                this.soundBuffers.getCompleteBuffer(var3x.getPath()).thenAccept(param1 -> var13x.execute(param1x -> {
                                         param1x.attachStaticBuffer(param1);
                                         param1x.play();
                                     }));
                             } else {
-                                this.soundBuffers.getStream(var3.getPath()).thenAccept(param1 -> var13.execute(param1x -> {
+                                this.soundBuffers.getStream(var3x.getPath()).thenAccept(param1 -> var13x.execute(param1x -> {
                                         param1x.attachBufferStream(param1);
                                         param1x.play();
                                     }));
@@ -327,6 +331,10 @@ public class SoundEngine {
                 }
             }
         }
+    }
+
+    public void queueTickingSound(TickableSoundInstance param0) {
+        this.queuedTickableSounds.add(param0);
     }
 
     public void requestPreload(Sound param0) {

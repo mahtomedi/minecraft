@@ -1,8 +1,8 @@
 package net.minecraft.client.model.geom;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.MemoryTracker;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.Tesselator;
 import java.util.List;
@@ -117,52 +117,52 @@ public class ModelPart {
                     this.compile(param0);
                 }
 
-                GlStateManager.pushMatrix();
-                GlStateManager.translatef(this.translateX, this.translateY, this.translateZ);
+                RenderSystem.pushMatrix();
+                RenderSystem.translatef(this.translateX, this.translateY, this.translateZ);
                 if (this.xRot != 0.0F || this.yRot != 0.0F || this.zRot != 0.0F) {
-                    GlStateManager.pushMatrix();
-                    GlStateManager.translatef(this.x * param0, this.y * param0, this.z * param0);
+                    RenderSystem.pushMatrix();
+                    RenderSystem.translatef(this.x * param0, this.y * param0, this.z * param0);
                     if (this.zRot != 0.0F) {
-                        GlStateManager.rotatef(this.zRot * (180.0F / (float)Math.PI), 0.0F, 0.0F, 1.0F);
+                        RenderSystem.rotatef(this.zRot * (180.0F / (float)Math.PI), 0.0F, 0.0F, 1.0F);
                     }
 
                     if (this.yRot != 0.0F) {
-                        GlStateManager.rotatef(this.yRot * (180.0F / (float)Math.PI), 0.0F, 1.0F, 0.0F);
+                        RenderSystem.rotatef(this.yRot * (180.0F / (float)Math.PI), 0.0F, 1.0F, 0.0F);
                     }
 
                     if (this.xRot != 0.0F) {
-                        GlStateManager.rotatef(this.xRot * (180.0F / (float)Math.PI), 1.0F, 0.0F, 0.0F);
+                        RenderSystem.rotatef(this.xRot * (180.0F / (float)Math.PI), 1.0F, 0.0F, 0.0F);
                     }
 
-                    GlStateManager.callList(this.list);
+                    RenderSystem.callList(this.list);
                     if (this.children != null) {
                         for(int var0 = 0; var0 < this.children.size(); ++var0) {
                             this.children.get(var0).render(param0);
                         }
                     }
 
-                    GlStateManager.popMatrix();
+                    RenderSystem.popMatrix();
                 } else if (this.x == 0.0F && this.y == 0.0F && this.z == 0.0F) {
-                    GlStateManager.callList(this.list);
+                    RenderSystem.callList(this.list);
                     if (this.children != null) {
                         for(int var2 = 0; var2 < this.children.size(); ++var2) {
                             this.children.get(var2).render(param0);
                         }
                     }
                 } else {
-                    GlStateManager.pushMatrix();
-                    GlStateManager.translatef(this.x * param0, this.y * param0, this.z * param0);
-                    GlStateManager.callList(this.list);
+                    RenderSystem.pushMatrix();
+                    RenderSystem.translatef(this.x * param0, this.y * param0, this.z * param0);
+                    RenderSystem.callList(this.list);
                     if (this.children != null) {
                         for(int var1 = 0; var1 < this.children.size(); ++var1) {
                             this.children.get(var1).render(param0);
                         }
                     }
 
-                    GlStateManager.popMatrix();
+                    RenderSystem.popMatrix();
                 }
 
-                GlStateManager.popMatrix();
+                RenderSystem.popMatrix();
             }
         }
     }
@@ -174,22 +174,22 @@ public class ModelPart {
                     this.compile(param0);
                 }
 
-                GlStateManager.pushMatrix();
-                GlStateManager.translatef(this.x * param0, this.y * param0, this.z * param0);
+                RenderSystem.pushMatrix();
+                RenderSystem.translatef(this.x * param0, this.y * param0, this.z * param0);
                 if (this.yRot != 0.0F) {
-                    GlStateManager.rotatef(this.yRot * (180.0F / (float)Math.PI), 0.0F, 1.0F, 0.0F);
+                    RenderSystem.rotatef(this.yRot * (180.0F / (float)Math.PI), 0.0F, 1.0F, 0.0F);
                 }
 
                 if (this.xRot != 0.0F) {
-                    GlStateManager.rotatef(this.xRot * (180.0F / (float)Math.PI), 1.0F, 0.0F, 0.0F);
+                    RenderSystem.rotatef(this.xRot * (180.0F / (float)Math.PI), 1.0F, 0.0F, 0.0F);
                 }
 
                 if (this.zRot != 0.0F) {
-                    GlStateManager.rotatef(this.zRot * (180.0F / (float)Math.PI), 0.0F, 0.0F, 1.0F);
+                    RenderSystem.rotatef(this.zRot * (180.0F / (float)Math.PI), 0.0F, 0.0F, 1.0F);
                 }
 
-                GlStateManager.callList(this.list);
-                GlStateManager.popMatrix();
+                RenderSystem.callList(this.list);
+                RenderSystem.popMatrix();
             }
         }
     }
@@ -202,20 +202,20 @@ public class ModelPart {
                 }
 
                 if (this.xRot != 0.0F || this.yRot != 0.0F || this.zRot != 0.0F) {
-                    GlStateManager.translatef(this.x * param0, this.y * param0, this.z * param0);
+                    RenderSystem.translatef(this.x * param0, this.y * param0, this.z * param0);
                     if (this.zRot != 0.0F) {
-                        GlStateManager.rotatef(this.zRot * (180.0F / (float)Math.PI), 0.0F, 0.0F, 1.0F);
+                        RenderSystem.rotatef(this.zRot * (180.0F / (float)Math.PI), 0.0F, 0.0F, 1.0F);
                     }
 
                     if (this.yRot != 0.0F) {
-                        GlStateManager.rotatef(this.yRot * (180.0F / (float)Math.PI), 0.0F, 1.0F, 0.0F);
+                        RenderSystem.rotatef(this.yRot * (180.0F / (float)Math.PI), 0.0F, 1.0F, 0.0F);
                     }
 
                     if (this.xRot != 0.0F) {
-                        GlStateManager.rotatef(this.xRot * (180.0F / (float)Math.PI), 1.0F, 0.0F, 0.0F);
+                        RenderSystem.rotatef(this.xRot * (180.0F / (float)Math.PI), 1.0F, 0.0F, 0.0F);
                     }
                 } else if (this.x != 0.0F || this.y != 0.0F || this.z != 0.0F) {
-                    GlStateManager.translatef(this.x * param0, this.y * param0, this.z * param0);
+                    RenderSystem.translatef(this.x * param0, this.y * param0, this.z * param0);
                 }
 
             }
@@ -224,14 +224,14 @@ public class ModelPart {
 
     private void compile(float param0) {
         this.list = MemoryTracker.genLists(1);
-        GlStateManager.newList(this.list, 4864);
+        RenderSystem.newList(this.list, 4864);
         BufferBuilder var0 = Tesselator.getInstance().getBuilder();
 
         for(int var1 = 0; var1 < this.cubes.size(); ++var1) {
             this.cubes.get(var1).compile(var0, param0);
         }
 
-        GlStateManager.endList();
+        RenderSystem.endList();
         this.compiled = true;
     }
 

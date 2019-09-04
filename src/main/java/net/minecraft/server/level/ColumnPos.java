@@ -16,14 +16,6 @@ public class ColumnPos {
         this.z = param0.getZ();
     }
 
-    public long toLong() {
-        return asLong(this.x, this.z);
-    }
-
-    public static long asLong(int param0, int param1) {
-        return (long)param0 & 4294967295L | ((long)param1 & 4294967295L) << 32;
-    }
-
     @Override
     public String toString() {
         return "[" + this.x + ", " + this.z + "]";

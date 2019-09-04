@@ -51,12 +51,12 @@ public class ThreadedLevelLightEngine extends LevelLightEngine implements AutoCl
 
     @Override
     public int runUpdates(int param0, boolean param1, boolean param2) {
-        throw new UnsupportedOperationException("Ran authomatically on a different thread!");
+        throw (UnsupportedOperationException)Util.pauseInIde(new UnsupportedOperationException("Ran authomatically on a different thread!"));
     }
 
     @Override
     public void onBlockEmissionIncrease(BlockPos param0, int param1) {
-        throw new UnsupportedOperationException("Ran authomatically on a different thread!");
+        throw (UnsupportedOperationException)Util.pauseInIde(new UnsupportedOperationException("Ran authomatically on a different thread!"));
     }
 
     @Override

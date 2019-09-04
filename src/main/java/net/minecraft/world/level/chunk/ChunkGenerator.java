@@ -18,6 +18,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.GenerationStep;
@@ -46,39 +47,35 @@ public abstract class ChunkGenerator<C extends ChunkGeneratorSettings> {
 
     public void createBiomes(ChunkAccess param0) {
         ChunkPos var0 = param0.getPos();
-        int var1 = var0.x;
-        int var2 = var0.z;
-        Biome[] var3 = this.biomeSource.getBiomeBlock(var1 * 16, var2 * 16, 16, 16);
-        param0.setBiomes(var3);
+        ((ProtoChunk)param0).setBiomes(new ChunkBiomeContainer(var0, this.biomeSource));
     }
 
-    protected Biome getCarvingBiome(ChunkAccess param0) {
-        return param0.getBiome(BlockPos.ZERO);
+    protected Biome getCarvingOrDecorationBiome(BiomeManager param0, BlockPos param1) {
+        return param0.getBiome(param1);
     }
 
-    protected Biome getDecorationBiome(WorldGenRegion param0, BlockPos param1) {
-        return this.biomeSource.getBiome(param1);
-    }
-
-    public void applyCarvers(ChunkAccess param0, GenerationStep.Carving param1) {
+    public void applyCarvers(BiomeManager param0, ChunkAccess param1, GenerationStep.Carving param2) {
         WorldgenRandom var0 = new WorldgenRandom();
         int var1 = 8;
-        ChunkPos var2 = param0.getPos();
+        ChunkPos var2 = param1.getPos();
         int var3 = var2.x;
         int var4 = var2.z;
-        BitSet var5 = param0.getCarvingMask(param1);
+        Biome var5 = this.getCarvingOrDecorationBiome(param0, var2.getWorldPosition());
+        BitSet var6 = param1.getCarvingMask(param2);
 
-        for(int var6 = var3 - 8; var6 <= var3 + 8; ++var6) {
-            for(int var7 = var4 - 8; var7 <= var4 + 8; ++var7) {
-                List<ConfiguredWorldCarver<?>> var8 = this.getCarvingBiome(param0).getCarvers(param1);
-                ListIterator<ConfiguredWorldCarver<?>> var9 = var8.listIterator();
+        for(int var7 = var3 - 8; var7 <= var3 + 8; ++var7) {
+            for(int var8 = var4 - 8; var8 <= var4 + 8; ++var8) {
+                List<ConfiguredWorldCarver<?>> var9 = var5.getCarvers(param2);
+                ListIterator<ConfiguredWorldCarver<?>> var10 = var9.listIterator();
 
-                while(var9.hasNext()) {
-                    int var10 = var9.nextIndex();
-                    ConfiguredWorldCarver<?> var11 = var9.next();
-                    var0.setLargeFeatureSeed(this.seed + (long)var10, var6, var7);
-                    if (var11.isStartChunk(var0, var6, var7)) {
-                        var11.carve(param0, var0, this.getSeaLevel(), var6, var7, var3, var4, var5);
+                while(var10.hasNext()) {
+                    int var11 = var10.nextIndex();
+                    ConfiguredWorldCarver<?> var12 = var10.next();
+                    var0.setLargeFeatureSeed(this.seed + (long)var11, var7, var8);
+                    if (var12.isStartChunk(var0, var7, var8)) {
+                        var12.carve(
+                            param1, param1x -> this.getCarvingOrDecorationBiome(param0, param1x), var0, this.getSeaLevel(), var7, var8, var3, var4, var6
+                        );
                     }
                 }
             }
@@ -98,7 +95,7 @@ public abstract class ChunkGenerator<C extends ChunkGeneratorSettings> {
         int var2 = var0 * 16;
         int var3 = var1 * 16;
         BlockPos var4 = new BlockPos(var2, 0, var3);
-        Biome var5 = this.getDecorationBiome(param0, var4.offset(8, 8, 8));
+        Biome var5 = this.getCarvingOrDecorationBiome(param0.getBiomeManager(), var4.offset(8, 8, 8));
         WorldgenRandom var6 = new WorldgenRandom();
         long var7 = var6.setDecorationSeed(param0.getSeed(), var2, var3);
 
@@ -119,7 +116,7 @@ public abstract class ChunkGenerator<C extends ChunkGeneratorSettings> {
 
     }
 
-    public abstract void buildSurfaceAndBedrock(ChunkAccess var1);
+    public abstract void buildSurfaceAndBedrock(WorldGenRegion var1, ChunkAccess var2);
 
     public void spawnOriginalMobs(WorldGenRegion param0) {
     }
@@ -158,20 +155,20 @@ public abstract class ChunkGenerator<C extends ChunkGeneratorSettings> {
         return this.level.getBiome(param1).getMobs(param0);
     }
 
-    public void createStructures(ChunkAccess param0, ChunkGenerator<?> param1, StructureManager param2) {
+    public void createStructures(BiomeManager param0, ChunkAccess param1, ChunkGenerator<?> param2, StructureManager param3) {
         for(StructureFeature<?> var0 : Feature.STRUCTURES_REGISTRY.values()) {
-            if (param1.getBiomeSource().canGenerateStructure(var0)) {
+            if (param2.getBiomeSource().canGenerateStructure(var0)) {
                 WorldgenRandom var1 = new WorldgenRandom();
-                ChunkPos var2 = param0.getPos();
+                ChunkPos var2 = param1.getPos();
                 StructureStart var3 = StructureStart.INVALID_START;
-                if (var0.isFeatureChunk(param1, var1, var2.x, var2.z)) {
-                    Biome var4 = this.getBiomeSource().getBiome(new BlockPos(var2.getMinBlockX() + 9, 0, var2.getMinBlockZ() + 9));
-                    StructureStart var5 = var0.getStartFactory().create(var0, var2.x, var2.z, var4, BoundingBox.getUnknownBox(), 0, param1.getSeed());
-                    var5.generatePieces(this, param2, var2.x, var2.z, var4);
+                Biome var4 = param0.getBiome(new BlockPos(var2.getMinBlockX() + 9, 0, var2.getMinBlockZ() + 9));
+                if (var0.isFeatureChunk(param0, param2, var1, var2.x, var2.z, var4)) {
+                    StructureStart var5 = var0.getStartFactory().create(var0, var2.x, var2.z, BoundingBox.getUnknownBox(), 0, param2.getSeed());
+                    var5.generatePieces(this, param3, var2.x, var2.z, var4);
                     var3 = var5.isValid() ? var5 : StructureStart.INVALID_START;
                 }
 
-                param0.setStartForFeature(var0.getFeatureName(), var3);
+                param1.setStartForFeature(var0.getFeatureName(), var3);
             }
         }
 

@@ -3,9 +3,9 @@ package net.minecraft.client.gui.screens;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonSyntaxException;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -133,10 +133,10 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
 
     public void renderTooltip(List<String> param0, int param1, int param2) {
         if (!param0.isEmpty()) {
-            GlStateManager.disableRescaleNormal();
+            RenderSystem.disableRescaleNormal();
             Lighting.turnOff();
-            GlStateManager.disableLighting();
-            GlStateManager.disableDepthTest();
+            RenderSystem.disableLighting();
+            RenderSystem.disableDepthTest();
             int var0 = 0;
 
             for(String var1 : param0) {
@@ -188,10 +188,10 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
 
             this.blitOffset = 0;
             this.itemRenderer.blitOffset = 0.0F;
-            GlStateManager.enableLighting();
-            GlStateManager.enableDepthTest();
+            RenderSystem.enableLighting();
+            RenderSystem.enableDepthTest();
             Lighting.turnOn();
-            GlStateManager.enableRescaleNormal();
+            RenderSystem.enableRescaleNormal();
         }
     }
 
@@ -239,7 +239,7 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
                 this.renderTooltip(this.minecraft.font.split(var0.getValue().getColoredString(), Math.max(this.width / 2, 200)), param1, param2);
             }
 
-            GlStateManager.disableLighting();
+            RenderSystem.disableLighting();
         }
     }
 
@@ -356,12 +356,12 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
     }
 
     public void renderDirtBackground(int param0) {
-        GlStateManager.disableLighting();
-        GlStateManager.disableFog();
+        RenderSystem.disableLighting();
+        RenderSystem.disableFog();
         Tesselator var0 = Tesselator.getInstance();
         BufferBuilder var1 = var0.getBuilder();
         this.minecraft.getTextureManager().bind(BACKGROUND_LOCATION);
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         float var2 = 32.0F;
         var1.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
         var1.vertex(0.0, (double)this.height, 0.0).uv(0.0, (double)((float)this.height / 32.0F + (float)param0)).color(64, 64, 64, 255).endVertex();

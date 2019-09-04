@@ -13,7 +13,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -540,7 +539,7 @@ public class Raid {
         return this.groupRaiderMap.values().stream().mapToInt(Set::size).sum();
     }
 
-    public void removeFromRaid(@Nonnull Raider param0, boolean param1) {
+    public void removeFromRaid(Raider param0, boolean param1) {
         Set<Raider> var0 = this.groupRaiderMap.get(param0.getWave());
         if (var0 != null) {
             boolean var1 = var0.remove(param0);

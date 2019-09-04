@@ -15,6 +15,7 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
@@ -133,7 +134,7 @@ public class ServerChunkCache extends ChunkSource {
             this.mainThreadProcessor.managedBlock(var3::isDone);
             ChunkAccess var4 = var3.join().map(param0x -> param0x, param1x -> {
                 if (param3) {
-                    throw new IllegalStateException("Chunk not there when requested: " + param1x);
+                    throw (IllegalStateException)Util.pauseInIde(new IllegalStateException("Chunk not there when requested: " + param1x));
                 } else {
                     return null;
                 }
@@ -219,7 +220,7 @@ public class ServerChunkCache extends ChunkSource {
                 var3 = this.getVisibleChunkIfPresent(var1);
                 var4.pop();
                 if (this.chunkAbsent(var3, var2)) {
-                    throw new IllegalStateException("No chunk holder after ticket has been added");
+                    throw (IllegalStateException)Util.pauseInIde(new IllegalStateException("No chunk holder after ticket has been added"));
                 }
             }
         }
@@ -414,7 +415,6 @@ public class ServerChunkCache extends ChunkSource {
         return this.mainThreadProcessor.getPendingTasksCount();
     }
 
-    @Override
     public ChunkGenerator<?> getGenerator() {
         return this.generator;
     }

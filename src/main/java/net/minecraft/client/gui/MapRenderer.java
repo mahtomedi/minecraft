@@ -2,6 +2,7 @@ package net.minecraft.client.gui;
 
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -104,67 +105,67 @@ public class MapRenderer implements AutoCloseable {
             BufferBuilder var3 = var2.getBuilder();
             float var4 = 0.0F;
             MapRenderer.this.textureManager.bind(this.location);
-            GlStateManager.enableBlend();
-            GlStateManager.blendFuncSeparate(
+            RenderSystem.enableBlend();
+            RenderSystem.blendFuncSeparate(
                 GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE
             );
-            GlStateManager.disableAlphaTest();
+            RenderSystem.disableAlphaTest();
             var3.begin(7, DefaultVertexFormat.POSITION_TEX);
             var3.vertex(0.0, 128.0, -0.01F).uv(0.0, 1.0).endVertex();
             var3.vertex(128.0, 128.0, -0.01F).uv(1.0, 1.0).endVertex();
             var3.vertex(128.0, 0.0, -0.01F).uv(1.0, 0.0).endVertex();
             var3.vertex(0.0, 0.0, -0.01F).uv(0.0, 0.0).endVertex();
             var2.end();
-            GlStateManager.enableAlphaTest();
-            GlStateManager.disableBlend();
+            RenderSystem.enableAlphaTest();
+            RenderSystem.disableBlend();
             int var5 = 0;
 
             for(MapDecoration var6 : this.data.decorations.values()) {
                 if (!param0 || var6.renderOnFrame()) {
                     MapRenderer.this.textureManager.bind(MapRenderer.MAP_ICONS_LOCATION);
-                    GlStateManager.pushMatrix();
-                    GlStateManager.translatef(0.0F + (float)var6.getX() / 2.0F + 64.0F, 0.0F + (float)var6.getY() / 2.0F + 64.0F, -0.02F);
-                    GlStateManager.rotatef((float)(var6.getRot() * 360) / 16.0F, 0.0F, 0.0F, 1.0F);
-                    GlStateManager.scalef(4.0F, 4.0F, 3.0F);
-                    GlStateManager.translatef(-0.125F, 0.125F, 0.0F);
+                    RenderSystem.pushMatrix();
+                    RenderSystem.translatef(0.0F + (float)var6.getX() / 2.0F + 64.0F, 0.0F + (float)var6.getY() / 2.0F + 64.0F, -0.02F);
+                    RenderSystem.rotatef((float)(var6.getRot() * 360) / 16.0F, 0.0F, 0.0F, 1.0F);
+                    RenderSystem.scalef(4.0F, 4.0F, 3.0F);
+                    RenderSystem.translatef(-0.125F, 0.125F, 0.0F);
                     byte var7 = var6.getImage();
                     float var8 = (float)(var7 % 16 + 0) / 16.0F;
                     float var9 = (float)(var7 / 16 + 0) / 16.0F;
                     float var10 = (float)(var7 % 16 + 1) / 16.0F;
                     float var11 = (float)(var7 / 16 + 1) / 16.0F;
                     var3.begin(7, DefaultVertexFormat.POSITION_TEX);
-                    GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                    RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
                     float var12 = -0.001F;
                     var3.vertex(-1.0, 1.0, (double)((float)var5 * -0.001F)).uv((double)var8, (double)var9).endVertex();
                     var3.vertex(1.0, 1.0, (double)((float)var5 * -0.001F)).uv((double)var10, (double)var9).endVertex();
                     var3.vertex(1.0, -1.0, (double)((float)var5 * -0.001F)).uv((double)var10, (double)var11).endVertex();
                     var3.vertex(-1.0, -1.0, (double)((float)var5 * -0.001F)).uv((double)var8, (double)var11).endVertex();
                     var2.end();
-                    GlStateManager.popMatrix();
+                    RenderSystem.popMatrix();
                     if (var6.getName() != null) {
                         Font var13 = Minecraft.getInstance().font;
                         String var14 = var6.getName().getColoredString();
                         float var15 = (float)var13.width(var14);
                         float var16 = Mth.clamp(25.0F / var15, 0.0F, 6.0F / 9.0F);
-                        GlStateManager.pushMatrix();
-                        GlStateManager.translatef(
+                        RenderSystem.pushMatrix();
+                        RenderSystem.translatef(
                             0.0F + (float)var6.getX() / 2.0F + 64.0F - var15 * var16 / 2.0F, 0.0F + (float)var6.getY() / 2.0F + 64.0F + 4.0F, -0.025F
                         );
-                        GlStateManager.scalef(var16, var16, 1.0F);
+                        RenderSystem.scalef(var16, var16, 1.0F);
                         GuiComponent.fill(-1, -1, (int)var15, 9 - 1, Integer.MIN_VALUE);
-                        GlStateManager.translatef(0.0F, 0.0F, -0.1F);
+                        RenderSystem.translatef(0.0F, 0.0F, -0.1F);
                         var13.draw(var14, 0.0F, 0.0F, -1);
-                        GlStateManager.popMatrix();
+                        RenderSystem.popMatrix();
                     }
 
                     ++var5;
                 }
             }
 
-            GlStateManager.pushMatrix();
-            GlStateManager.translatef(0.0F, 0.0F, -0.04F);
-            GlStateManager.scalef(1.0F, 1.0F, 1.0F);
-            GlStateManager.popMatrix();
+            RenderSystem.pushMatrix();
+            RenderSystem.translatef(0.0F, 0.0F, -0.04F);
+            RenderSystem.scalef(1.0F, 1.0F, 1.0F);
+            RenderSystem.popMatrix();
         }
 
         @Override

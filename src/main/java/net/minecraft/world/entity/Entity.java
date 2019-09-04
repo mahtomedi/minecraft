@@ -480,7 +480,7 @@ public abstract class Entity implements CommandSource, Nameable {
                 this.setDeltaMovement(Vec3.ZERO);
             }
 
-            param1 = this.applySneaking(param1, param0);
+            param1 = this.maybeBackOffFromEdge(param1, param0);
             Vec3 var0 = this.collide(param1);
             if (var0.lengthSqr() > 1.0E-7) {
                 this.setBoundingBox(this.getBoundingBox().move(var0));
@@ -523,16 +523,16 @@ public abstract class Entity implements CommandSource, Nameable {
                 var10.updateEntityAfterFallOn(this.level, this);
             }
 
-            if (this.makeStepSound() && (!this.onGround || !this.isSneaking() || !(this instanceof Player)) && !this.isPassenger()) {
+            if (this.onGround && !this.isSteppingCarefully()) {
+                var10.stepOn(this.level, var4, this);
+            }
+
+            if (this.isMovementNoisy() && !this.isPassenger()) {
                 double var11 = var0.x;
                 double var12 = var0.y;
                 double var13 = var0.z;
                 if (var10 != Blocks.LADDER && var10 != Blocks.SCAFFOLDING) {
                     var12 = 0.0;
-                }
-
-                if (this.onGround) {
-                    var10.stepOn(this.level, var4, this);
                 }
 
                 this.walkDist = (float)((double)this.walkDist + (double)Mth.sqrt(getHorizontalDistanceSqr(var0)) * 0.6);
@@ -590,53 +590,7 @@ public abstract class Entity implements CommandSource, Nameable {
         }
     }
 
-    protected Vec3 applySneaking(Vec3 param0, MoverType param1) {
-        if (this instanceof Player && (param1 == MoverType.SELF || param1 == MoverType.PLAYER) && this.onGround && this.isSneaking()) {
-            double var0 = param0.x;
-            double var1 = param0.z;
-            double var2 = 0.05;
-
-            while(var0 != 0.0 && this.level.noCollision(this, this.getBoundingBox().move(var0, (double)(-this.maxUpStep), 0.0))) {
-                if (var0 < 0.05 && var0 >= -0.05) {
-                    var0 = 0.0;
-                } else if (var0 > 0.0) {
-                    var0 -= 0.05;
-                } else {
-                    var0 += 0.05;
-                }
-            }
-
-            while(var1 != 0.0 && this.level.noCollision(this, this.getBoundingBox().move(0.0, (double)(-this.maxUpStep), var1))) {
-                if (var1 < 0.05 && var1 >= -0.05) {
-                    var1 = 0.0;
-                } else if (var1 > 0.0) {
-                    var1 -= 0.05;
-                } else {
-                    var1 += 0.05;
-                }
-            }
-
-            while(var0 != 0.0 && var1 != 0.0 && this.level.noCollision(this, this.getBoundingBox().move(var0, (double)(-this.maxUpStep), var1))) {
-                if (var0 < 0.05 && var0 >= -0.05) {
-                    var0 = 0.0;
-                } else if (var0 > 0.0) {
-                    var0 -= 0.05;
-                } else {
-                    var0 += 0.05;
-                }
-
-                if (var1 < 0.05 && var1 >= -0.05) {
-                    var1 = 0.0;
-                } else if (var1 > 0.0) {
-                    var1 -= 0.05;
-                } else {
-                    var1 += 0.05;
-                }
-            }
-
-            param0 = new Vec3(var0, param0.y, var1);
-        }
-
+    protected Vec3 maybeBackOffFromEdge(Vec3 param0, MoverType param1) {
         return param0;
     }
 
@@ -892,7 +846,7 @@ public abstract class Entity implements CommandSource, Nameable {
         this.entityData.set(DATA_NO_GRAVITY, param0);
     }
 
-    protected boolean makeStepSound() {
+    protected boolean isMovementNoisy() {
         return true;
     }
 
@@ -1105,7 +1059,7 @@ public abstract class Entity implements CommandSource, Nameable {
         this.setDeltaMovement(this.getDeltaMovement().add(var0));
     }
 
-    protected static Vec3 getInputVector(Vec3 param0, float param1, float param2) {
+    private static Vec3 getInputVector(Vec3 param0, float param1, float param2) {
         double var0 = param0.lengthSqr();
         if (var0 < 1.0E-7) {
             return Vec3.ZERO;
@@ -1120,7 +1074,7 @@ public abstract class Entity implements CommandSource, Nameable {
     @OnlyIn(Dist.CLIENT)
     public int getLightColor() {
         BlockPos var0 = new BlockPos(this.x, this.y + (double)this.getEyeHeight(), this.z);
-        return this.level.hasChunkAt(var0) ? this.level.getLightColor(var0, 0) : 0;
+        return this.level.hasChunkAt(var0) ? this.level.getLightColor(var0) : 0;
     }
 
     public float getBrightness() {
@@ -1302,7 +1256,6 @@ public abstract class Entity implements CommandSource, Nameable {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public HitResult pick(double param0, float param1, boolean param2) {
         Vec3 var0 = this.getEyePosition(param1);
         Vec3 var1 = this.getViewVector(param1);
@@ -1746,7 +1699,7 @@ public abstract class Entity implements CommandSource, Nameable {
         } else {
             if (!this.level.isClientSide && !param0.equals(this.portalEntranceBlock)) {
                 this.portalEntranceBlock = new BlockPos(param0);
-                BlockPattern.BlockPatternMatch var0 = ((NetherPortalBlock)Blocks.NETHER_PORTAL).getPortalShape(this.level, this.portalEntranceBlock);
+                BlockPattern.BlockPatternMatch var0 = NetherPortalBlock.getPortalShape(this.level, this.portalEntranceBlock);
                 double var1 = var0.getForwards().getAxis() == Direction.Axis.X ? (double)var0.getFrontTopLeft().getZ() : (double)var0.getFrontTopLeft().getX();
                 double var2 = Math.abs(
                     Mth.pct(
@@ -1841,17 +1794,32 @@ public abstract class Entity implements CommandSource, Nameable {
         return true;
     }
 
-    public boolean isSneaking() {
+    public void setShiftKeyDown(boolean param0) {
+        this.setSharedFlag(1, param0);
+    }
+
+    public boolean isShiftKeyDown() {
         return this.getSharedFlag(1);
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public boolean isVisuallySneaking() {
-        return this.getPose() == Pose.SNEAKING;
+    public boolean isSteppingCarefully() {
+        return this.isShiftKeyDown();
     }
 
-    public void setSneaking(boolean param0) {
-        this.setSharedFlag(1, param0);
+    public boolean isSuppressingBounce() {
+        return this.isShiftKeyDown();
+    }
+
+    public boolean isDiscrete() {
+        return this.isShiftKeyDown();
+    }
+
+    public boolean isDescending() {
+        return this.isShiftKeyDown();
+    }
+
+    public boolean isCrouching() {
+        return this.getPose() == Pose.CROUCHING;
     }
 
     public boolean isSprinting() {

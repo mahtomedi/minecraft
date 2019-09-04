@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity.layers;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.HorseModel;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.world.entity.animal.horse.Horse;
@@ -30,12 +30,12 @@ public class HorseArmorLayer extends RenderLayer<Horse, HorseModel<Horse>> {
                 float var3 = (float)(var2 >> 16 & 0xFF) / 255.0F;
                 float var4 = (float)(var2 >> 8 & 0xFF) / 255.0F;
                 float var5 = (float)(var2 & 0xFF) / 255.0F;
-                GlStateManager.color4f(var3, var4, var5, 1.0F);
+                RenderSystem.color4f(var3, var4, var5, 1.0F);
                 this.model.render(param0, param1, param2, param4, param5, param6, param7);
                 return;
             }
 
-            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             this.model.render(param0, param1, param2, param4, param5, param6, param7);
         }
 

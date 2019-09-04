@@ -1,7 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.platform.GLX;
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -25,28 +24,28 @@ public class PaintingRenderer extends EntityRenderer<Painting> {
     }
 
     public void render(Painting param0, double param1, double param2, double param3, float param4, float param5) {
-        GlStateManager.pushMatrix();
-        GlStateManager.translated(param1, param2, param3);
-        GlStateManager.rotatef(180.0F - param4, 0.0F, 1.0F, 0.0F);
-        GlStateManager.enableRescaleNormal();
+        RenderSystem.pushMatrix();
+        RenderSystem.translated(param1, param2, param3);
+        RenderSystem.rotatef(180.0F - param4, 0.0F, 1.0F, 0.0F);
+        RenderSystem.enableRescaleNormal();
         this.bindTexture(param0);
         Motive var0 = param0.motive;
         float var1 = 0.0625F;
-        GlStateManager.scalef(0.0625F, 0.0625F, 0.0625F);
+        RenderSystem.scalef(0.0625F, 0.0625F, 0.0625F);
         if (this.solidRender) {
-            GlStateManager.enableColorMaterial();
-            GlStateManager.setupSolidRenderingTextureCombine(this.getTeamColor(param0));
+            RenderSystem.enableColorMaterial();
+            RenderSystem.setupSolidRenderingTextureCombine(this.getTeamColor(param0));
         }
 
         PaintingTextureManager var2 = Minecraft.getInstance().getPaintingTextures();
         this.renderPainting(param0, var0.getWidth(), var0.getHeight(), var2.get(var0), var2.getBackSprite());
         if (this.solidRender) {
-            GlStateManager.tearDownSolidRenderingTextureCombine();
-            GlStateManager.disableColorMaterial();
+            RenderSystem.tearDownSolidRenderingTextureCombine();
+            RenderSystem.disableColorMaterial();
         }
 
-        GlStateManager.disableRescaleNormal();
-        GlStateManager.popMatrix();
+        RenderSystem.disableRescaleNormal();
+        RenderSystem.popMatrix();
         super.render(param0, param1, param2, param3, param4, param5);
     }
 
@@ -140,10 +139,10 @@ public class PaintingRenderer extends EntityRenderer<Painting> {
             var2 = Mth.floor(param0.z + (double)(param1 / 16.0F));
         }
 
-        int var4 = this.entityRenderDispatcher.level.getLightColor(new BlockPos(var0, var1, var2), 0);
+        int var4 = this.entityRenderDispatcher.level.getLightColor(new BlockPos(var0, var1, var2));
         int var5 = var4 % 65536;
         int var6 = var4 / 65536;
-        GLX.glMultiTexCoord2f(GLX.GL_TEXTURE1, (float)var5, (float)var6);
-        GlStateManager.color3f(1.0F, 1.0F, 1.0F);
+        RenderSystem.glMultiTexCoord2f(33985, (float)var5, (float)var6);
+        RenderSystem.color3f(1.0F, 1.0F, 1.0F);
     }
 }

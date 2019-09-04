@@ -7,7 +7,6 @@ import com.mojang.blaze3d.platform.PngInfo;
 import com.mojang.blaze3d.platform.TextureUtil;
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -153,7 +152,7 @@ public class TextureAtlas extends AbstractTexture implements TickableTextureObje
     }
 
     private Collection<TextureAtlasSprite> getBasicSpriteInfos(ResourceManager param0, Set<ResourceLocation> param1) {
-        List<CompletableFuture<?>> var0 = new ArrayList<>();
+        List<CompletableFuture<?>> var0 = Lists.newArrayList();
         ConcurrentLinkedQueue<TextureAtlasSprite> var1 = new ConcurrentLinkedQueue<>();
 
         for(ResourceLocation var2 : param1) {
@@ -185,7 +184,7 @@ public class TextureAtlas extends AbstractTexture implements TickableTextureObje
 
     private List<TextureAtlasSprite> getLoadedSprites(ResourceManager param0, Stitcher param1) {
         ConcurrentLinkedQueue<TextureAtlasSprite> var0 = new ConcurrentLinkedQueue<>();
-        List<CompletableFuture<?>> var1 = new ArrayList<>();
+        List<CompletableFuture<?>> var1 = Lists.newArrayList();
 
         for(TextureAtlasSprite var2 : param1.gatherSprites()) {
             if (var2 == this.missingTextureSprite) {
@@ -201,7 +200,7 @@ public class TextureAtlas extends AbstractTexture implements TickableTextureObje
         }
 
         CompletableFuture.allOf(var1.toArray(new CompletableFuture[0])).join();
-        return new ArrayList<>(var0);
+        return Lists.newArrayList(var0);
     }
 
     private boolean load(ResourceManager param0, TextureAtlasSprite param1) {

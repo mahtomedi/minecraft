@@ -21,6 +21,7 @@ import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.ai.goal.BreedGoal;
@@ -102,17 +103,17 @@ public class Ocelot extends Animal {
         if (this.getMoveControl().hasWanted()) {
             double var0 = this.getMoveControl().getSpeedModifier();
             if (var0 == 0.6) {
-                this.setSneaking(true);
+                this.setPose(Pose.CROUCHING);
                 this.setSprinting(false);
             } else if (var0 == 1.33) {
-                this.setSneaking(false);
+                this.setPose(Pose.STANDING);
                 this.setSprinting(true);
             } else {
-                this.setSneaking(false);
+                this.setPose(Pose.STANDING);
                 this.setSprinting(false);
             }
         } else {
-            this.setSneaking(false);
+            this.setPose(Pose.STANDING);
             this.setSprinting(false);
         }
 
@@ -128,6 +129,7 @@ public class Ocelot extends Animal {
         super.registerAttributes();
         this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(10.0);
         this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.3F);
+        this.getAttributes().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(3.0);
     }
 
     @Override
@@ -155,9 +157,13 @@ public class Ocelot extends Animal {
         return SoundEvents.OCELOT_DEATH;
     }
 
+    private float getAttackDamage() {
+        return (float)this.getAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getValue();
+    }
+
     @Override
     public boolean doHurtTarget(Entity param0) {
-        return param0.hurt(DamageSource.mobAttack(this), 3.0F);
+        return param0.hurt(DamageSource.mobAttack(this), this.getAttackDamage());
     }
 
     @Override

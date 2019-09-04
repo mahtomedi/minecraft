@@ -12,6 +12,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.ChunkStatus;
@@ -46,7 +47,7 @@ public abstract class StructureFeature<C extends FeatureConfiguration> extends F
                 ChunkPos var6 = new ChunkPos(var5);
                 StructureStart var7 = param0.getChunk(var6.x, var6.z).getStartForFeature(this.getFeatureName());
                 if (var7 != null && var7 != StructureStart.INVALID_START) {
-                    var7.postProcess(param0, param2, new BoundingBox(var2, var3, var2 + 15, var3 + 15), new ChunkPos(var0, var1));
+                    var7.postProcess(param0, param1, param2, new BoundingBox(var2, var3, var2 + 15, var3 + 15), new ChunkPos(var0, var1));
                     var4 = true;
                 }
             }
@@ -149,7 +150,7 @@ public abstract class StructureFeature<C extends FeatureConfiguration> extends F
         return new ChunkPos(param2 + param4, param3 + param5);
     }
 
-    public abstract boolean isFeatureChunk(ChunkGenerator<?> var1, Random var2, int var3, int var4);
+    public abstract boolean isFeatureChunk(BiomeManager var1, ChunkGenerator<?> var2, Random var3, int var4, int var5, Biome var6);
 
     public abstract StructureFeature.StructureStartFactory getStartFactory();
 
@@ -158,6 +159,6 @@ public abstract class StructureFeature<C extends FeatureConfiguration> extends F
     public abstract int getLookupRange();
 
     public interface StructureStartFactory {
-        StructureStart create(StructureFeature<?> var1, int var2, int var3, Biome var4, BoundingBox var5, int var6, long var7);
+        StructureStart create(StructureFeature<?> var1, int var2, int var3, BoundingBox var4, int var5, long var6);
     }
 }

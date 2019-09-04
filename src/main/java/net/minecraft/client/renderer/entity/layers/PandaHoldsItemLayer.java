@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity.layers;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PandaModel;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
@@ -28,10 +28,10 @@ public class PandaHoldsItemLayer extends RenderLayer<Panda, PandaModel<Panda>> {
                 var2 -= 0.09F * Mth.sin(param4 * 0.6F);
             }
 
-            GlStateManager.pushMatrix();
-            GlStateManager.translatef(0.1F, var2, var1);
+            RenderSystem.pushMatrix();
+            RenderSystem.translatef(0.1F, var2, var1);
             Minecraft.getInstance().getItemRenderer().renderWithMobState(var0, param0, ItemTransforms.TransformType.GROUND, false);
-            GlStateManager.popMatrix();
+            RenderSystem.popMatrix();
         }
     }
 

@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.Nullable;
 import net.minecraft.util.InsensitiveStringMap;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class BaseAttributeMap {
     protected final Map<Attribute, AttributeInstance> attributesByObject = Maps.newHashMap();
@@ -68,5 +70,16 @@ public abstract class BaseAttributeMap {
             }
         }
 
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public void assignValues(BaseAttributeMap param0) {
+        this.getAttributes().forEach(param1 -> {
+            AttributeInstance var0 = param0.getInstance(param1.getAttribute());
+            if (var0 != null) {
+                param1.copyFrom(var0);
+            }
+
+        });
     }
 }

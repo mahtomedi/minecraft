@@ -103,4 +103,93 @@ public class SimplexNoise {
         double var23 = this.getCornerNoise3D(var20, var14, var15, 0.0, 0.5);
         return 70.0 * (var21 + var22 + var23);
     }
+
+    public double getValue(double param0, double param1, double param2) {
+        double var0 = 0.3333333333333333;
+        double var1 = (param0 + param1 + param2) * 0.3333333333333333;
+        int var2 = Mth.floor(param0 + var1);
+        int var3 = Mth.floor(param1 + var1);
+        int var4 = Mth.floor(param2 + var1);
+        double var5 = 0.16666666666666666;
+        double var6 = (double)(var2 + var3 + var4) * 0.16666666666666666;
+        double var7 = (double)var2 - var6;
+        double var8 = (double)var3 - var6;
+        double var9 = (double)var4 - var6;
+        double var10 = param0 - var7;
+        double var11 = param1 - var8;
+        double var12 = param2 - var9;
+        int var13;
+        int var14;
+        int var15;
+        int var16;
+        int var17;
+        int var18;
+        if (var10 >= var11) {
+            if (var11 >= var12) {
+                var13 = 1;
+                var14 = 0;
+                var15 = 0;
+                var16 = 1;
+                var17 = 1;
+                var18 = 0;
+            } else if (var10 >= var12) {
+                var13 = 1;
+                var14 = 0;
+                var15 = 0;
+                var16 = 1;
+                var17 = 0;
+                var18 = 1;
+            } else {
+                var13 = 0;
+                var14 = 0;
+                var15 = 1;
+                var16 = 1;
+                var17 = 0;
+                var18 = 1;
+            }
+        } else if (var11 < var12) {
+            var13 = 0;
+            var14 = 0;
+            var15 = 1;
+            var16 = 0;
+            var17 = 1;
+            var18 = 1;
+        } else if (var10 < var12) {
+            var13 = 0;
+            var14 = 1;
+            var15 = 0;
+            var16 = 0;
+            var17 = 1;
+            var18 = 1;
+        } else {
+            var13 = 0;
+            var14 = 1;
+            var15 = 0;
+            var16 = 1;
+            var17 = 1;
+            var18 = 0;
+        }
+
+        double var49 = var10 - (double)var13 + 0.16666666666666666;
+        double var50 = var11 - (double)var14 + 0.16666666666666666;
+        double var51 = var12 - (double)var15 + 0.16666666666666666;
+        double var52 = var10 - (double)var16 + 0.3333333333333333;
+        double var53 = var11 - (double)var17 + 0.3333333333333333;
+        double var54 = var12 - (double)var18 + 0.3333333333333333;
+        double var55 = var10 - 1.0 + 0.5;
+        double var56 = var11 - 1.0 + 0.5;
+        double var57 = var12 - 1.0 + 0.5;
+        int var58 = var2 & 0xFF;
+        int var59 = var3 & 0xFF;
+        int var60 = var4 & 0xFF;
+        int var61 = this.p(var58 + this.p(var59 + this.p(var60))) % 12;
+        int var62 = this.p(var58 + var13 + this.p(var59 + var14 + this.p(var60 + var15))) % 12;
+        int var63 = this.p(var58 + var16 + this.p(var59 + var17 + this.p(var60 + var18))) % 12;
+        int var64 = this.p(var58 + 1 + this.p(var59 + 1 + this.p(var60 + 1))) % 12;
+        double var65 = this.getCornerNoise3D(var61, var10, var11, var12, 0.6);
+        double var66 = this.getCornerNoise3D(var62, var49, var50, var51, 0.6);
+        double var67 = this.getCornerNoise3D(var63, var52, var53, var54, 0.6);
+        double var68 = this.getCornerNoise3D(var64, var55, var56, var57, 0.6);
+        return 32.0 * (var65 + var66 + var67 + var68);
+    }
 }

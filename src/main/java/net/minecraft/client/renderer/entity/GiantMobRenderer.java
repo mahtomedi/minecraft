@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.GiantZombieModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
@@ -23,7 +23,7 @@ public class GiantMobRenderer extends MobRenderer<Giant, HumanoidModel<Giant>> {
     }
 
     protected void scale(Giant param0, float param1) {
-        GlStateManager.scalef(this.scale, this.scale, this.scale);
+        RenderSystem.scalef(this.scale, this.scale, this.scale);
     }
 
     protected ResourceLocation getTextureLocation(Giant param0) {

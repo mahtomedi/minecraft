@@ -8,13 +8,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.PathNavigationRegion;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
 public class FlyNodeEvaluator extends WalkNodeEvaluator {
     @Override
-    public void prepare(LevelReader param0, Mob param1) {
+    public void prepare(PathNavigationRegion param0, Mob param1) {
         super.prepare(param0, param1);
         this.oldWaterCost = param1.getPathfindingMalus(BlockPathTypes.WATER);
     }
@@ -68,123 +68,93 @@ public class FlyNodeEvaluator extends WalkNodeEvaluator {
     public int getNeighbors(Node[] param0, Node param1) {
         int var0 = 0;
         Node var1 = this.getNode(param1.x, param1.y, param1.z + 1);
-        Node var2 = this.getNode(param1.x - 1, param1.y, param1.z);
-        Node var3 = this.getNode(param1.x + 1, param1.y, param1.z);
-        Node var4 = this.getNode(param1.x, param1.y, param1.z - 1);
-        Node var5 = this.getNode(param1.x, param1.y + 1, param1.z);
-        Node var6 = this.getNode(param1.x, param1.y - 1, param1.z);
         if (var1 != null && !var1.closed) {
             param0[var0++] = var1;
         }
 
+        Node var2 = this.getNode(param1.x - 1, param1.y, param1.z);
         if (var2 != null && !var2.closed) {
             param0[var0++] = var2;
         }
 
+        Node var3 = this.getNode(param1.x + 1, param1.y, param1.z);
         if (var3 != null && !var3.closed) {
             param0[var0++] = var3;
         }
 
+        Node var4 = this.getNode(param1.x, param1.y, param1.z - 1);
         if (var4 != null && !var4.closed) {
             param0[var0++] = var4;
         }
 
+        Node var5 = this.getNode(param1.x, param1.y + 1, param1.z);
         if (var5 != null && !var5.closed) {
             param0[var0++] = var5;
         }
 
+        Node var6 = this.getNode(param1.x, param1.y - 1, param1.z);
         if (var6 != null && !var6.closed) {
             param0[var0++] = var6;
         }
 
-        boolean var7 = var4 == null || var4.costMalus != 0.0F;
-        boolean var8 = var1 == null || var1.costMalus != 0.0F;
-        boolean var9 = var3 == null || var3.costMalus != 0.0F;
-        boolean var10 = var2 == null || var2.costMalus != 0.0F;
-        boolean var11 = var5 == null || var5.costMalus != 0.0F;
-        boolean var12 = var6 == null || var6.costMalus != 0.0F;
-        if (var7 && var10) {
-            Node var13 = this.getNode(param1.x - 1, param1.y, param1.z - 1);
-            if (var13 != null && !var13.closed) {
-                param0[var0++] = var13;
-            }
+        Node var7 = this.getNode(param1.x + 1, param1.y, param1.z - 1);
+        if (var7 != null && !var7.closed && var4 != null && var4.costMalus >= 0.0F && var3 != null && var3.costMalus >= 0.0F) {
+            param0[var0++] = var7;
         }
 
-        if (var7 && var9) {
-            Node var14 = this.getNode(param1.x + 1, param1.y, param1.z - 1);
-            if (var14 != null && !var14.closed) {
-                param0[var0++] = var14;
-            }
+        Node var8 = this.getNode(param1.x + 1, param1.y, param1.z + 1);
+        if (var8 != null && !var8.closed && var1 != null && var1.costMalus >= 0.0F && var3 != null && var3.costMalus >= 0.0F) {
+            param0[var0++] = var8;
         }
 
-        if (var8 && var10) {
-            Node var15 = this.getNode(param1.x - 1, param1.y, param1.z + 1);
-            if (var15 != null && !var15.closed) {
-                param0[var0++] = var15;
-            }
+        Node var9 = this.getNode(param1.x - 1, param1.y, param1.z - 1);
+        if (var9 != null && !var9.closed && var4 != null && var4.costMalus >= 0.0F && var2 != null && var2.costMalus >= 0.0F) {
+            param0[var0++] = var9;
         }
 
-        if (var8 && var9) {
-            Node var16 = this.getNode(param1.x + 1, param1.y, param1.z + 1);
-            if (var16 != null && !var16.closed) {
-                param0[var0++] = var16;
-            }
+        Node var10 = this.getNode(param1.x - 1, param1.y, param1.z + 1);
+        if (var10 != null && !var10.closed && var1 != null && var1.costMalus >= 0.0F && var2 != null && var2.costMalus >= 0.0F) {
+            param0[var0++] = var10;
         }
 
-        if (var7 && var11) {
-            Node var17 = this.getNode(param1.x, param1.y + 1, param1.z - 1);
-            if (var17 != null && !var17.closed) {
-                param0[var0++] = var17;
-            }
+        Node var11 = this.getNode(param1.x + 1, param1.y + 1, param1.z - 1);
+        if (var11 != null && !var11.closed && var7 != null && var7.costMalus >= 0.0F && var5 != null && var5.costMalus >= 0.0F) {
+            param0[var0++] = var11;
         }
 
-        if (var8 && var11) {
-            Node var18 = this.getNode(param1.x, param1.y + 1, param1.z + 1);
-            if (var18 != null && !var18.closed) {
-                param0[var0++] = var18;
-            }
+        Node var12 = this.getNode(param1.x + 1, param1.y + 1, param1.z + 1);
+        if (var12 != null && !var12.closed && var8 != null && var8.costMalus >= 0.0F && var5 != null && var5.costMalus >= 0.0F) {
+            param0[var0++] = var12;
         }
 
-        if (var9 && var11) {
-            Node var19 = this.getNode(param1.x + 1, param1.y + 1, param1.z);
-            if (var19 != null && !var19.closed) {
-                param0[var0++] = var19;
-            }
+        Node var13 = this.getNode(param1.x - 1, param1.y + 1, param1.z - 1);
+        if (var13 != null && !var13.closed && var9 != null && var9.costMalus >= 0.0F && var5 != null && var5.costMalus >= 0.0F) {
+            param0[var0++] = var13;
         }
 
-        if (var10 && var11) {
-            Node var20 = this.getNode(param1.x - 1, param1.y + 1, param1.z);
-            if (var20 != null && !var20.closed) {
-                param0[var0++] = var20;
-            }
+        Node var14 = this.getNode(param1.x - 1, param1.y + 1, param1.z + 1);
+        if (var14 != null && !var14.closed && var10 != null && var10.costMalus >= 0.0F && var5 != null && var5.costMalus >= 0.0F) {
+            param0[var0++] = var14;
         }
 
-        if (var7 && var12) {
-            Node var21 = this.getNode(param1.x, param1.y - 1, param1.z - 1);
-            if (var21 != null && !var21.closed) {
-                param0[var0++] = var21;
-            }
+        Node var15 = this.getNode(param1.x + 1, param1.y - 1, param1.z - 1);
+        if (var15 != null && !var15.closed && var7 != null && var7.costMalus >= 0.0F && var6 != null && var6.costMalus >= 0.0F) {
+            param0[var0++] = var15;
         }
 
-        if (var8 && var12) {
-            Node var22 = this.getNode(param1.x, param1.y - 1, param1.z + 1);
-            if (var22 != null && !var22.closed) {
-                param0[var0++] = var22;
-            }
+        Node var16 = this.getNode(param1.x + 1, param1.y - 1, param1.z + 1);
+        if (var16 != null && !var16.closed && var8 != null && var8.costMalus >= 0.0F && var6 != null && var6.costMalus >= 0.0F) {
+            param0[var0++] = var16;
         }
 
-        if (var9 && var12) {
-            Node var23 = this.getNode(param1.x + 1, param1.y - 1, param1.z);
-            if (var23 != null && !var23.closed) {
-                param0[var0++] = var23;
-            }
+        Node var17 = this.getNode(param1.x - 1, param1.y - 1, param1.z - 1);
+        if (var17 != null && !var17.closed && var9 != null && var9.costMalus >= 0.0F && var6 != null && var6.costMalus >= 0.0F) {
+            param0[var0++] = var17;
         }
 
-        if (var10 && var12) {
-            Node var24 = this.getNode(param1.x - 1, param1.y - 1, param1.z);
-            if (var24 != null && !var24.closed) {
-                param0[var0++] = var24;
-            }
+        Node var18 = this.getNode(param1.x - 1, param1.y - 1, param1.z + 1);
+        if (var18 != null && !var18.closed && var10 != null && var10.costMalus >= 0.0F && var6 != null && var6.costMalus >= 0.0F) {
+            param0[var0++] = var18;
         }
 
         return var0;

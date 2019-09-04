@@ -1,5 +1,6 @@
 package net.minecraft.world.level.block;
 
+import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -12,6 +13,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.item.DyeColor;
@@ -107,7 +109,10 @@ public class BedBlock extends HorizontalDirectionalBlock implements EntityBlock 
                 );
                 return true;
             } else if (param0.getValue(OCCUPIED)) {
-                param3.displayClientMessage(new TranslatableComponent("block.minecraft.bed.occupied"), true);
+                if (!this.kickVillagerOutOfBed(param1, param2)) {
+                    param3.displayClientMessage(new TranslatableComponent("block.minecraft.bed.occupied"), true);
+                }
+
                 return true;
             } else {
                 param3.startSleepInBed(param2).ifLeft(param1x -> {
@@ -121,6 +126,16 @@ public class BedBlock extends HorizontalDirectionalBlock implements EntityBlock 
         }
     }
 
+    private boolean kickVillagerOutOfBed(Level param0, BlockPos param1) {
+        List<Villager> var0 = param0.getEntitiesOfClass(Villager.class, new AABB(param1), LivingEntity::isSleeping);
+        if (var0.isEmpty()) {
+            return false;
+        } else {
+            var0.get(0).stopSleeping();
+            return true;
+        }
+    }
+
     @Override
     public void fallOn(Level param0, BlockPos param1, Entity param2, float param3) {
         super.fallOn(param0, param1, param2, param3 * 0.5F);
@@ -128,14 +143,19 @@ public class BedBlock extends HorizontalDirectionalBlock implements EntityBlock 
 
     @Override
     public void updateEntityAfterFallOn(BlockGetter param0, Entity param1) {
-        if (param1.isSneaking()) {
+        if (param1.isSuppressingBounce()) {
             super.updateEntityAfterFallOn(param0, param1);
         } else {
-            Vec3 var0 = param1.getDeltaMovement();
-            if (var0.y < 0.0) {
-                double var1 = param1 instanceof LivingEntity ? 1.0 : 0.8;
-                param1.setDeltaMovement(var0.x, -var0.y * 0.66F * var1, var0.z);
-            }
+            this.bounceUp(param1);
+        }
+
+    }
+
+    private void bounceUp(Entity param0) {
+        Vec3 var0 = param0.getDeltaMovement();
+        if (var0.y < 0.0) {
+            double var1 = param0 instanceof LivingEntity ? 1.0 : 0.8;
+            param0.setDeltaMovement(var0.x, -var0.y * 0.66F * var1, var0.z);
         }
 
     }

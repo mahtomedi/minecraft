@@ -11,6 +11,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> {
     private int playerId;
+    private long seed;
     private boolean hardcore;
     private GameType gameType;
     private DimensionType dimension;
@@ -18,19 +19,33 @@ public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> 
     private LevelType levelType;
     private int chunkRadius;
     private boolean reducedDebugInfo;
+    private boolean showDeathScreen;
 
     public ClientboundLoginPacket() {
     }
 
-    public ClientboundLoginPacket(int param0, GameType param1, boolean param2, DimensionType param3, int param4, LevelType param5, int param6, boolean param7) {
+    public ClientboundLoginPacket(
+        int param0,
+        GameType param1,
+        long param2,
+        boolean param3,
+        DimensionType param4,
+        int param5,
+        LevelType param6,
+        int param7,
+        boolean param8,
+        boolean param9
+    ) {
         this.playerId = param0;
-        this.dimension = param3;
+        this.dimension = param4;
+        this.seed = param2;
         this.gameType = param1;
-        this.maxPlayers = param4;
-        this.hardcore = param2;
-        this.levelType = param5;
-        this.chunkRadius = param6;
-        this.reducedDebugInfo = param7;
+        this.maxPlayers = param5;
+        this.hardcore = param3;
+        this.levelType = param6;
+        this.chunkRadius = param7;
+        this.reducedDebugInfo = param8;
+        this.showDeathScreen = param9;
     }
 
     @Override
@@ -41,6 +56,7 @@ public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> 
         var0 &= -9;
         this.gameType = GameType.byId(var0);
         this.dimension = DimensionType.getById(param0.readInt());
+        this.seed = param0.readLong();
         this.maxPlayers = param0.readUnsignedByte();
         this.levelType = LevelType.getLevelType(param0.readUtf(16));
         if (this.levelType == null) {
@@ -49,6 +65,7 @@ public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> 
 
         this.chunkRadius = param0.readVarInt();
         this.reducedDebugInfo = param0.readBoolean();
+        this.showDeathScreen = param0.readBoolean();
     }
 
     @Override
@@ -61,10 +78,12 @@ public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> 
 
         param0.writeByte(var0);
         param0.writeInt(this.dimension.getId());
+        param0.writeLong(this.seed);
         param0.writeByte(this.maxPlayers);
         param0.writeUtf(this.levelType.getName());
         param0.writeVarInt(this.chunkRadius);
         param0.writeBoolean(this.reducedDebugInfo);
+        param0.writeBoolean(this.showDeathScreen);
     }
 
     public void handle(ClientGamePacketListener param0) {
@@ -74,6 +93,11 @@ public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> 
     @OnlyIn(Dist.CLIENT)
     public int getPlayerId() {
         return this.playerId;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public long getSeed() {
+        return this.seed;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -104,5 +128,10 @@ public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> 
     @OnlyIn(Dist.CLIENT)
     public boolean isReducedDebugInfo() {
         return this.reducedDebugInfo;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public boolean shouldShowDeathScreen() {
+        return this.showDeathScreen;
     }
 }

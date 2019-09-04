@@ -23,7 +23,7 @@ public class WaterlilyBlock extends BushBlock {
     public void entityInside(BlockState param0, Level param1, BlockPos param2, Entity param3) {
         super.entityInside(param0, param1, param2, param3);
         if (param3 instanceof Boat) {
-            param1.destroyBlock(new BlockPos(param2), true);
+            param1.destroyBlock(new BlockPos(param2), true, param3);
         }
 
     }

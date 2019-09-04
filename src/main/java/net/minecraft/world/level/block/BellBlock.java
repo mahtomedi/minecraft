@@ -21,6 +21,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BellAttachType;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.PushReaction;
@@ -33,6 +34,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 public class BellBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     private static final EnumProperty<BellAttachType> ATTACHMENT = BlockStateProperties.BELL_ATTACHMENT;
+    public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     private static final VoxelShape NORTH_SOUTH_FLOOR_SHAPE = Block.box(0.0, 0.0, 4.0, 16.0, 16.0, 12.0);
     private static final VoxelShape EAST_WEST_FLOOR_SHAPE = Block.box(4.0, 0.0, 0.0, 12.0, 16.0, 16.0);
     private static final VoxelShape BELL_TOP_SHAPE = Block.box(5.0, 6.0, 5.0, 11.0, 13.0, 11.0);
@@ -48,7 +50,22 @@ public class BellBlock extends BaseEntityBlock {
 
     public BellBlock(Block.Properties param0) {
         super(param0);
-        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(ATTACHMENT, BellAttachType.FLOOR));
+        this.registerDefaultState(
+            this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(ATTACHMENT, BellAttachType.FLOOR).setValue(POWERED, Boolean.valueOf(false))
+        );
+    }
+
+    @Override
+    public void neighborChanged(BlockState param0, Level param1, BlockPos param2, Block param3, BlockPos param4, boolean param5) {
+        boolean var0 = param1.hasNeighborSignal(param2);
+        if (var0 != param0.getValue(POWERED)) {
+            if (var0) {
+                this.attemptToRing(param1, param2, Direction.NORTH);
+            }
+
+            param1.setBlock(param2, param0.setValue(POWERED, Boolean.valueOf(var0)), 3);
+        }
+
     }
 
     @Override
@@ -56,31 +73,28 @@ public class BellBlock extends BaseEntityBlock {
         if (param3 instanceof AbstractArrow) {
             Entity var0 = ((AbstractArrow)param3).getOwner();
             Player var1 = var0 instanceof Player ? (Player)var0 : null;
-            this.onHit(param0, param1, param0.getBlockEntity(param2.getBlockPos()), param2, var1, true);
+            this.onHit(param0, param1, param2, var1, true);
         }
 
     }
 
     @Override
     public boolean use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
-        return this.onHit(param1, param0, param1.getBlockEntity(param2), param5, param3, true);
+        return this.onHit(param1, param0, param5, param3, true);
     }
 
-    public boolean onHit(Level param0, BlockState param1, @Nullable BlockEntity param2, BlockHitResult param3, @Nullable Player param4, boolean param5) {
-        Direction var0 = param3.getDirection();
-        BlockPos var1 = param3.getBlockPos();
-        boolean var2 = !param5 || this.isProperHit(param1, var0, param3.getLocation().y - (double)var1.getY());
-        if (!param0.isClientSide && param2 instanceof BellBlockEntity && var2) {
-            ((BellBlockEntity)param2).onHit(var0);
-            this.ring(param0, var1);
-            if (param4 != null) {
-                param4.awardStat(Stats.BELL_RING);
+    public boolean onHit(Level param0, BlockState param1, BlockHitResult param2, @Nullable Player param3, boolean param4) {
+        Direction var0 = param2.getDirection();
+        BlockPos var1 = param2.getBlockPos();
+        boolean var2 = !param4 || this.isProperHit(param1, var0, param2.getLocation().y - (double)var1.getY());
+        if (var2) {
+            boolean var3 = this.attemptToRing(param0, var1, var0);
+            if (var3 && param3 != null) {
+                param3.awardStat(Stats.BELL_RING);
             }
-
-            return true;
-        } else {
-            return true;
         }
+
+        return true;
     }
 
     private boolean isProperHit(BlockState param0, Direction param1, double param2) {
@@ -103,8 +117,15 @@ public class BellBlock extends BaseEntityBlock {
         }
     }
 
-    private void ring(Level param0, BlockPos param1) {
-        param0.playSound(null, param1, SoundEvents.BELL_BLOCK, SoundSource.BLOCKS, 2.0F, 1.0F);
+    private boolean attemptToRing(Level param0, BlockPos param1, Direction param2) {
+        BlockEntity var0 = param0.getBlockEntity(param1);
+        if (!param0.isClientSide && var0 instanceof BellBlockEntity) {
+            ((BellBlockEntity)var0).onHit(param2);
+            param0.playSound(null, param1, SoundEvents.BELL_BLOCK, SoundSource.BLOCKS, 2.0F, 1.0F);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private VoxelShape getVoxelShape(BlockState param0) {
@@ -222,7 +243,7 @@ public class BellBlock extends BaseEntityBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> param0) {
-        param0.add(FACING, ATTACHMENT);
+        param0.add(FACING, ATTACHMENT, POWERED);
     }
 
     @Nullable

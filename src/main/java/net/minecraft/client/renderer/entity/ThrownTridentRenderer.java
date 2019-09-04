@@ -1,7 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.platform.GLX;
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -24,17 +23,17 @@ public class ThrownTridentRenderer extends EntityRenderer<ThrownTrident> {
 
     public void render(ThrownTrident param0, double param1, double param2, double param3, float param4, float param5) {
         this.bindTexture(param0);
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.pushMatrix();
-        GlStateManager.disableLighting();
-        GlStateManager.translatef((float)param1, (float)param2, (float)param3);
-        GlStateManager.rotatef(Mth.lerp(param5, param0.yRotO, param0.yRot) - 90.0F, 0.0F, 1.0F, 0.0F);
-        GlStateManager.rotatef(Mth.lerp(param5, param0.xRotO, param0.xRot) + 90.0F, 0.0F, 0.0F, 1.0F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.pushMatrix();
+        RenderSystem.disableLighting();
+        RenderSystem.translatef((float)param1, (float)param2, (float)param3);
+        RenderSystem.rotatef(Mth.lerp(param5, param0.yRotO, param0.yRot) - 90.0F, 0.0F, 1.0F, 0.0F);
+        RenderSystem.rotatef(Mth.lerp(param5, param0.xRotO, param0.xRot) + 90.0F, 0.0F, 0.0F, 1.0F);
         this.model.render();
-        GlStateManager.popMatrix();
+        RenderSystem.popMatrix();
         this.renderLeash(param0, param1, param2, param3, param4, param5);
         super.render(param0, param1, param2, param3, param4, param5);
-        GlStateManager.enableLighting();
+        RenderSystem.enableLighting();
     }
 
     protected ResourceLocation getTextureLocation(ThrownTrident param0) {
@@ -64,10 +63,10 @@ public class ThrownTridentRenderer extends EntityRenderer<ThrownTrident> {
             int var18 = param0.getId() + param0.tickCount;
             double var19 = (double)((float)var18 + param5) * -0.1;
             double var20 = Math.min(0.5, var17 / 30.0);
-            GlStateManager.disableTexture();
-            GlStateManager.disableLighting();
-            GlStateManager.disableCull();
-            GLX.glMultiTexCoord2f(GLX.GL_TEXTURE1, 255.0F, 255.0F);
+            RenderSystem.disableTexture();
+            RenderSystem.disableLighting();
+            RenderSystem.disableCull();
+            RenderSystem.glMultiTexCoord2f(33985, 255.0F, 255.0F);
             var2.begin(5, DefaultVertexFormat.POSITION_COLOR);
             int var21 = 37;
             int var22 = 7 - var18 % 7;
@@ -113,9 +112,9 @@ public class ThrownTridentRenderer extends EntityRenderer<ThrownTrident> {
             }
 
             var1.end();
-            GlStateManager.enableLighting();
-            GlStateManager.enableTexture();
-            GlStateManager.enableCull();
+            RenderSystem.enableLighting();
+            RenderSystem.enableTexture();
+            RenderSystem.enableCull();
         }
     }
 }

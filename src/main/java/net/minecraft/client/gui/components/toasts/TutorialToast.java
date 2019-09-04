@@ -1,6 +1,6 @@
 package net.minecraft.client.gui.components.toasts;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import javax.annotation.Nullable;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.Component;
@@ -29,7 +29,7 @@ public class TutorialToast implements Toast {
     @Override
     public Toast.Visibility render(ToastComponent param0, long param1) {
         param0.getMinecraft().getTextureManager().bind(TEXTURE);
-        GlStateManager.color3f(1.0F, 1.0F, 1.0F);
+        RenderSystem.color3f(1.0F, 1.0F, 1.0F);
         param0.blit(0, 0, 0, 96, 160, 32);
         this.icon.render(param0, 6, 6);
         if (this.message == null) {
@@ -82,9 +82,9 @@ public class TutorialToast implements Toast {
         }
 
         public void render(GuiComponent param0, int param1, int param2) {
-            GlStateManager.enableBlend();
+            RenderSystem.enableBlend();
             param0.blit(param1, param2, 176 + this.x * 20, this.y * 20, 20, 20);
-            GlStateManager.enableBlend();
+            RenderSystem.enableBlend();
         }
     }
 }

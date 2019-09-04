@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.Brain;
@@ -68,6 +69,7 @@ public class MakeLove extends Behavior<Villager> {
                 this.giveBedToChild(param0, var1.get(), var0.get());
             } else {
                 param0.getPoiManager().release(var0.get());
+                DebugPackets.sendPoiTicketCountPacket(param0, var0.get());
             }
         }
 

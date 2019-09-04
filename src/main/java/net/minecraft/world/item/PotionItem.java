@@ -35,10 +35,6 @@ public class PotionItem extends Item {
     @Override
     public ItemStack finishUsingItem(ItemStack param0, Level param1, LivingEntity param2) {
         Player var0 = param2 instanceof Player ? (Player)param2 : null;
-        if (var0 == null || !var0.abilities.instabuild) {
-            param0.shrink(1);
-        }
-
         if (var0 instanceof ServerPlayer) {
             CriteriaTriggers.CONSUME_ITEM.trigger((ServerPlayer)var0, param0);
         }
@@ -55,6 +51,9 @@ public class PotionItem extends Item {
 
         if (var0 != null) {
             var0.awardStat(Stats.ITEM_USED.get(this));
+            if (!var0.abilities.instabuild) {
+                param0.shrink(1);
+            }
         }
 
         if (var0 == null || !var0.abilities.instabuild) {

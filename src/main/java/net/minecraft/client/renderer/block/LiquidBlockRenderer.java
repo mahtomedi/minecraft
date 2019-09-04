@@ -328,8 +328,8 @@ public class LiquidBlockRenderer {
     }
 
     private int getLightColor(BlockAndBiomeGetter param0, BlockPos param1) {
-        int var0 = param0.getLightColor(param1, 0);
-        int var1 = param0.getLightColor(param1.above(), 0);
+        int var0 = param0.getLightColor(param1);
+        int var1 = param0.getLightColor(param1.above());
         int var2 = var0 & 0xFF;
         int var3 = var1 & 0xFF;
         int var4 = var0 >> 16 & 0xFF;

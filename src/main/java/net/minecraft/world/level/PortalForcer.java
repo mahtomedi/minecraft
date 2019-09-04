@@ -1,38 +1,31 @@
 package net.minecraft.world.level;
 
-import com.google.common.collect.Maps;
-import it.unimi.dsi.fastutil.longs.LongIterator;
-import it.unimi.dsi.fastutil.objects.Object2LongMap;
-import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import java.util.Random;
-import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.server.level.ColumnPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.TicketType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.ai.village.poi.PoiManager;
+import net.minecraft.world.entity.ai.village.poi.PoiRecord;
+import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.NetherPortalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.pattern.BlockPattern;
 import net.minecraft.world.phys.Vec3;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class PortalForcer {
-    private static final Logger LOGGER = LogManager.getLogger();
-    private static final NetherPortalBlock PORTAL_BLOCK = (NetherPortalBlock)Blocks.NETHER_PORTAL;
     private final ServerLevel level;
     private final Random random;
-    private final Map<ColumnPos, PortalForcer.PortalPosition> cachedPortals = Maps.newHashMapWithExpectedSize(4096);
-    private final Object2LongMap<ColumnPos> negativeChecks = new Object2LongOpenHashMap<>();
 
     public PortalForcer(ServerLevel param0) {
         this.level = param0;
@@ -63,57 +56,18 @@ public class PortalForcer {
 
     @Nullable
     public BlockPattern.PortalInfo findPortal(BlockPos param0, Vec3 param1, Direction param2, double param3, double param4, boolean param5) {
-        int var0 = 128;
-        boolean var1 = true;
-        BlockPos var2 = null;
-        ColumnPos var3 = new ColumnPos(param0);
-        if (!param5 && this.negativeChecks.containsKey(var3)) {
-            return null;
-        } else {
-            PortalForcer.PortalPosition var4 = this.cachedPortals.get(var3);
-            if (var4 != null) {
-                var2 = var4.pos;
-                var4.lastUsed = this.level.getGameTime();
-                var1 = false;
-            } else {
-                double var5 = Double.MAX_VALUE;
-
-                for(int var6 = -128; var6 <= 128; ++var6) {
-                    BlockPos var9;
-                    for(int var7 = -128; var7 <= 128; ++var7) {
-                        for(BlockPos var8 = param0.offset(var6, this.level.getHeight() - 1 - param0.getY(), var7); var8.getY() >= 0; var8 = var9) {
-                            var9 = var8.below();
-                            if (this.level.getBlockState(var8).getBlock() == PORTAL_BLOCK) {
-                                for(var9 = var8.below(); this.level.getBlockState(var9).getBlock() == PORTAL_BLOCK; var9 = var9.below()) {
-                                    var8 = var9;
-                                }
-
-                                double var10 = var8.distSqr(param0);
-                                if (var5 < 0.0 || var10 < var5) {
-                                    var5 = var10;
-                                    var2 = var8;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (var2 == null) {
-                long var11 = this.level.getGameTime() + 300L;
-                this.negativeChecks.put(var3, var11);
-                return null;
-            } else {
-                if (var1) {
-                    this.cachedPortals.put(var3, new PortalForcer.PortalPosition(var2, this.level.getGameTime()));
-                    LOGGER.debug("Adding nether portal ticket for {}:{}", this.level.getDimension()::getType, () -> var3);
-                    this.level.getChunkSource().addRegionTicket(TicketType.PORTAL, new ChunkPos(var2), 3, var3);
-                }
-
-                BlockPattern.BlockPatternMatch var12 = PORTAL_BLOCK.getPortalShape(this.level, var2);
-                return var12.getPortalOutput(param2, var2, param4, param1, param3);
-            }
-        }
+        List<PoiRecord> var0 = this.level
+            .getPoiManager()
+            .getInSquare(param0x -> param0x == PoiType.NETHER_PORTAL, param0, 128, PoiManager.Occupancy.ANY)
+            .collect(Collectors.toList());
+        Optional<PoiRecord> var1 = var0.stream()
+            .min(Comparator.<PoiRecord>comparingDouble(param1x -> param1x.getPos().distSqr(param0)).thenComparingInt(param0x -> param0x.getPos().getY()));
+        return var1.<BlockPattern.PortalInfo>map(param4x -> {
+            BlockPos var0x = param4x.getPos();
+            this.level.getChunkSource().addRegionTicket(TicketType.PORTAL, new ChunkPos(var0x), 3, var0x);
+            BlockPattern.BlockPatternMatch var1x = NetherPortalBlock.getPortalShape(this.level, var0x);
+            return var1x.getPortalOutput(param2, var0x, param4, param1, param3);
+        }).orElse(null);
     }
 
     public boolean createPortal(Entity param0) {
@@ -264,7 +218,7 @@ public class PortalForcer {
             }
         }
 
-        BlockState var57 = PORTAL_BLOCK.defaultBlockState().setValue(NetherPortalBlock.AXIS, var46 == 0 ? Direction.Axis.Z : Direction.Axis.X);
+        BlockState var57 = Blocks.NETHER_PORTAL.defaultBlockState().setValue(NetherPortalBlock.AXIS, var46 == 0 ? Direction.Axis.Z : Direction.Axis.X);
 
         for(int var58 = 0; var58 < 2; ++var58) {
             for(int var59 = 0; var59 < 3; ++var59) {
@@ -274,52 +228,5 @@ public class PortalForcer {
         }
 
         return true;
-    }
-
-    public void tick(long param0) {
-        if (param0 % 100L == 0L) {
-            this.purgeNegativeChecks(param0);
-            this.clearStaleCacheEntries(param0);
-        }
-
-    }
-
-    private void purgeNegativeChecks(long param0) {
-        LongIterator var0 = this.negativeChecks.values().iterator();
-
-        while(var0.hasNext()) {
-            long var1 = var0.nextLong();
-            if (var1 <= param0) {
-                var0.remove();
-            }
-        }
-
-    }
-
-    private void clearStaleCacheEntries(long param0) {
-        long var0 = param0 - 300L;
-        Iterator<Entry<ColumnPos, PortalForcer.PortalPosition>> var1 = this.cachedPortals.entrySet().iterator();
-
-        while(var1.hasNext()) {
-            Entry<ColumnPos, PortalForcer.PortalPosition> var2 = var1.next();
-            PortalForcer.PortalPosition var3 = var2.getValue();
-            if (var3.lastUsed < var0) {
-                ColumnPos var4 = var2.getKey();
-                LOGGER.debug("Removing nether portal ticket for {}:{}", this.level.getDimension()::getType, () -> var4);
-                this.level.getChunkSource().removeRegionTicket(TicketType.PORTAL, new ChunkPos(var3.pos), 3, var4);
-                var1.remove();
-            }
-        }
-
-    }
-
-    static class PortalPosition {
-        public final BlockPos pos;
-        public long lastUsed;
-
-        public PortalPosition(BlockPos param0, long param1) {
-            this.pos = param0;
-            this.lastUsed = param1;
-        }
     }
 }

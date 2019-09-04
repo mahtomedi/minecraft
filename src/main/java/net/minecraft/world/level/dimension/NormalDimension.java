@@ -19,8 +19,8 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.BiomeSourceType;
 import net.minecraft.world.level.biome.Biomes;
-import net.minecraft.world.level.biome.CheckerboardBiomeSource;
 import net.minecraft.world.level.biome.CheckerboardBiomeSourceSettings;
+import net.minecraft.world.level.biome.CheckerboardColumnBiomeSource;
 import net.minecraft.world.level.biome.FixedBiomeSource;
 import net.minecraft.world.level.biome.FixedBiomeSourceSettings;
 import net.minecraft.world.level.biome.OverworldBiomeSource;
@@ -66,19 +66,19 @@ public class NormalDimension extends Dimension {
         ChunkGeneratorType<OverworldGeneratorSettings, OverworldLevelSource> var5 = ChunkGeneratorType.SURFACE;
         BiomeSourceType<FixedBiomeSourceSettings, FixedBiomeSource> var6 = BiomeSourceType.FIXED;
         BiomeSourceType<OverworldBiomeSourceSettings, OverworldBiomeSource> var7 = BiomeSourceType.VANILLA_LAYERED;
-        BiomeSourceType<CheckerboardBiomeSourceSettings, CheckerboardBiomeSource> var8 = BiomeSourceType.CHECKERBOARD;
+        BiomeSourceType<CheckerboardBiomeSourceSettings, CheckerboardColumnBiomeSource> var8 = BiomeSourceType.CHECKERBOARD;
         if (var0 == LevelType.FLAT) {
             FlatLevelGeneratorSettings var9 = FlatLevelGeneratorSettings.fromObject(
                 new Dynamic<>(NbtOps.INSTANCE, this.level.getLevelData().getGeneratorOptions())
             );
-            FixedBiomeSourceSettings var10 = var6.createSettings().setBiome(var9.getBiome());
+            FixedBiomeSourceSettings var10 = var6.createSettings(this.level.getLevelData()).setBiome(var9.getBiome());
             return var1.create(this.level, var6.create(var10), var9);
         } else if (var0 == LevelType.DEBUG_ALL_BLOCK_STATES) {
-            FixedBiomeSourceSettings var11 = var6.createSettings().setBiome(Biomes.PLAINS);
+            FixedBiomeSourceSettings var11 = var6.createSettings(this.level.getLevelData()).setBiome(Biomes.PLAINS);
             return var2.create(this.level, var6.create(var11), var2.createSettings());
         } else if (var0 != LevelType.BUFFET) {
             OverworldGeneratorSettings var35 = var5.createSettings();
-            OverworldBiomeSourceSettings var36 = var7.createSettings().setLevelData(this.level.getLevelData()).setGeneratorSettings(var35);
+            OverworldBiomeSourceSettings var36 = var7.createSettings(this.level.getLevelData()).setGeneratorSettings(var35);
             return var5.create(this.level, var7.create(var36), var35);
         } else {
             BiomeSource var12 = null;
@@ -99,26 +99,24 @@ public class NormalDimension extends Dimension {
                 }
 
                 if (BiomeSourceType.FIXED == var16) {
-                    FixedBiomeSourceSettings var21 = var6.createSettings().setBiome(var18[0]);
+                    FixedBiomeSourceSettings var21 = var6.createSettings(this.level.getLevelData()).setBiome(var18[0]);
                     var12 = var6.create(var21);
                 }
 
                 if (BiomeSourceType.CHECKERBOARD == var16) {
                     int var22 = var17.has("size") ? var17.getAsJsonPrimitive("size").getAsInt() : 2;
-                    CheckerboardBiomeSourceSettings var23 = var8.createSettings().setAllowedBiomes(var18).setSize(var22);
+                    CheckerboardBiomeSourceSettings var23 = var8.createSettings(this.level.getLevelData()).setAllowedBiomes(var18).setSize(var22);
                     var12 = var8.create(var23);
                 }
 
                 if (BiomeSourceType.VANILLA_LAYERED == var16) {
-                    OverworldBiomeSourceSettings var24 = var7.createSettings()
-                        .setGeneratorSettings(new OverworldGeneratorSettings())
-                        .setLevelData(this.level.getLevelData());
+                    OverworldBiomeSourceSettings var24 = var7.createSettings(this.level.getLevelData());
                     var12 = var7.create(var24);
                 }
             }
 
             if (var12 == null) {
-                var12 = var6.create(var6.createSettings().setBiome(Biomes.OCEAN));
+                var12 = var6.create(var6.createSettings(this.level.getLevelData()).setBiome(Biomes.OCEAN));
             }
 
             BlockState var25 = Blocks.STONE.defaultBlockState();

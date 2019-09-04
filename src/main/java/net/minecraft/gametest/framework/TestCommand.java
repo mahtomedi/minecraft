@@ -1,0 +1,343 @@
+package net.minecraft.gametest.framework;
+
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Optional;
+import javax.annotation.Nullable;
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.blocks.BlockInput;
+import net.minecraft.core.BlockPos;
+import net.minecraft.data.structures.NbtToSnbt;
+import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.TagParser;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.protocol.game.DebugPackets;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.StructureBlockEntity;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.phys.BlockHitResult;
+import org.apache.commons.io.IOUtils;
+
+public class TestCommand {
+    public static void register(CommandDispatcher<CommandSourceStack> param0) {
+        param0.register(
+            Commands.literal("test")
+                .then(Commands.literal("runthis").executes(param0x -> runNearbyTest(param0x.getSource())))
+                .then(Commands.literal("runthese").executes(param0x -> runAllNearbyTests(param0x.getSource())))
+                .then(
+                    Commands.literal("run")
+                        .then(
+                            Commands.argument("testName", TestFunctionArgument.testFunctionArgument())
+                                .executes(param0x -> runTest(param0x.getSource(), TestFunctionArgument.getTestFunction(param0x, "testName")))
+                        )
+                )
+                .then(
+                    Commands.literal("runall")
+                        .executes(param0x -> runAllTests(param0x.getSource()))
+                        .then(
+                            Commands.argument("testClassName", TestClassNameArgument.testClassName())
+                                .executes(param0x -> runAllTestsInClass(param0x.getSource(), TestClassNameArgument.getTestClassName(param0x, "testClassName")))
+                        )
+                )
+                .then(
+                    Commands.literal("export")
+                        .then(
+                            Commands.argument("testName", StringArgumentType.word())
+                                .executes(param0x -> exportTestStructure(param0x.getSource(), StringArgumentType.getString(param0x, "testName")))
+                        )
+                )
+                .then(
+                    Commands.literal("import")
+                        .then(
+                            Commands.argument("testName", StringArgumentType.word())
+                                .executes(param0x -> importTestStructure(param0x.getSource(), StringArgumentType.getString(param0x, "testName")))
+                        )
+                )
+                .then(Commands.literal("pos").executes(param0x -> showPos(param0x.getSource())))
+                .then(
+                    Commands.literal("create")
+                        .then(
+                            Commands.argument("testName", StringArgumentType.word())
+                                .executes(param0x -> createNewStructure(param0x.getSource(), StringArgumentType.getString(param0x, "testName"), 5, 5, 5))
+                                .then(
+                                    Commands.argument("width", IntegerArgumentType.integer())
+                                        .executes(
+                                            param0x -> createNewStructure(
+                                                    param0x.getSource(),
+                                                    StringArgumentType.getString(param0x, "testName"),
+                                                    IntegerArgumentType.getInteger(param0x, "width"),
+                                                    IntegerArgumentType.getInteger(param0x, "width"),
+                                                    IntegerArgumentType.getInteger(param0x, "width")
+                                                )
+                                        )
+                                        .then(
+                                            Commands.argument("height", IntegerArgumentType.integer())
+                                                .then(
+                                                    Commands.argument("depth", IntegerArgumentType.integer())
+                                                        .executes(
+                                                            param0x -> createNewStructure(
+                                                                    param0x.getSource(),
+                                                                    StringArgumentType.getString(param0x, "testName"),
+                                                                    IntegerArgumentType.getInteger(param0x, "width"),
+                                                                    IntegerArgumentType.getInteger(param0x, "height"),
+                                                                    IntegerArgumentType.getInteger(param0x, "depth")
+                                                                )
+                                                        )
+                                                )
+                                        )
+                                )
+                        )
+                )
+                .then(
+                    Commands.literal("clearall")
+                        .executes(param0x -> clearAllTests(param0x.getSource(), 200))
+                        .then(
+                            Commands.argument("radius", IntegerArgumentType.integer())
+                                .executes(param0x -> clearAllTests(param0x.getSource(), IntegerArgumentType.getInteger(param0x, "radius")))
+                        )
+                )
+        );
+    }
+
+    private static int createNewStructure(CommandSourceStack param0, String param1, int param2, int param3, int param4) {
+        if (param2 <= 32 && param3 <= 32 && param4 <= 32) {
+            ServerLevel var0 = param0.getLevel();
+            BlockPos var1 = new BlockPos(param0.getPosition());
+            BlockPos var2 = new BlockPos(var1.getX(), param0.getLevel().getHeightmapPos(Heightmap.Types.WORLD_SURFACE, var1).getY(), var1.getZ() + 3);
+            StructureUtils.createNewEmptyStructureBlock(param1.toLowerCase(), var2, new BlockPos(param2, param3, param4), 2, var0);
+
+            for(int var3 = 0; var3 < param2; ++var3) {
+                for(int var4 = 0; var4 < param4; ++var4) {
+                    BlockPos var5 = new BlockPos(var2.getX() + var3, var2.getY() + 1, var2.getZ() + var4);
+                    Block var6 = Blocks.POLISHED_ANDESITE;
+                    BlockInput var7 = new BlockInput(var6.defaultBlockState(), Collections.EMPTY_SET, null);
+                    var7.place(var0, var5, 2);
+                }
+            }
+
+            StructureUtils.addCommandBlockAndButtonToStartTest(var2.offset(1, 0, -1), var0);
+            return 0;
+        } else {
+            throw new IllegalArgumentException("The structure must be less than 32 blocks big in each axis");
+        }
+    }
+
+    private static int showPos(CommandSourceStack param0) throws CommandSyntaxException {
+        BlockHitResult var0 = (BlockHitResult)param0.getPlayerOrException().pick(10.0, 1.0F, false);
+        BlockPos var1 = var0.getBlockPos();
+        ServerLevel var2 = param0.getLevel();
+        Optional<BlockPos> var3 = StructureUtils.findStructureBlockContainingPos(var1, 15, var2);
+        if (!var3.isPresent()) {
+            var3 = StructureUtils.findStructureBlockContainingPos(var1, 200, var2);
+        }
+
+        if (!var3.isPresent()) {
+            param0.sendFailure(new TextComponent("Can't find a structure block that contains the targeted pos " + var1));
+            return 0;
+        } else {
+            StructureBlockEntity var4 = (StructureBlockEntity)var2.getBlockEntity(var3.get());
+            BlockPos var5 = var1.subtract(var3.get());
+            String var6 = var5.getX() + ", " + var5.getY() + ", " + var5.getZ();
+            String var7 = var4.getStructurePath();
+            say(param0, "Position relative to " + var7 + ":");
+            say(param0, var6);
+            DebugPackets.sendGameTestAddMarker(var2, new BlockPos(var1), var6, -2147418368, 10000);
+            return 1;
+        }
+    }
+
+    private static int runNearbyTest(CommandSourceStack param0) {
+        BlockPos var0 = new BlockPos(param0.getPosition());
+        ServerLevel var1 = param0.getLevel();
+        BlockPos var2 = StructureUtils.findNearestStructureBlock(var0, 15, var1);
+        if (var2 == null) {
+            say(var1, "Couldn't find any structure block within 15 radius", ChatFormatting.RED);
+            return 0;
+        } else {
+            GameTestRunner.clearMarkers(var1);
+            runTest(var1, var2, null);
+            return 1;
+        }
+    }
+
+    private static int runAllNearbyTests(CommandSourceStack param0) {
+        BlockPos var0 = new BlockPos(param0.getPosition());
+        ServerLevel var1 = param0.getLevel();
+        Collection<BlockPos> var2 = StructureUtils.findStructureBlocks(var0, 200, var1);
+        if (var2.isEmpty()) {
+            say(var1, "Couldn't find any structure blocks within 200 block radius", ChatFormatting.RED);
+            return 1;
+        } else {
+            GameTestRunner.clearMarkers(var1);
+            say(param0, "Running " + var2.size() + " tests...");
+            MultipleTestTracker var3 = new MultipleTestTracker();
+            var2.forEach(param2 -> runTest(var1, param2, var3));
+            return 1;
+        }
+    }
+
+    private static void runTest(ServerLevel param0, BlockPos param1, @Nullable MultipleTestTracker param2) {
+        StructureBlockEntity var0 = (StructureBlockEntity)param0.getBlockEntity(param1);
+        String var1 = var0.getStructurePath();
+        TestFunction var2 = GameTestRegistry.getTestFunction(var1);
+        GameTestInfo var3 = new GameTestInfo(var2, param1, param0);
+        if (param2 != null) {
+            param2.add(var3);
+            var3.addListener(new TestCommand.TestSummaryDisplayer(param0, param2));
+        }
+
+        GameTestRunner.runTest(var3, GameTestTicker.singleton);
+    }
+
+    private static void showTestSummaryIfAllDone(ServerLevel param0, MultipleTestTracker param1) {
+        if (param1.isDone()) {
+            say(param0, "GameTest done! " + param1.getTotalCount() + " tests were run", ChatFormatting.WHITE);
+            if (param1.hasFailedRequired()) {
+                say(param0, "" + param1.getFailedRequiredCount() + " required tests failed :(", ChatFormatting.RED);
+            } else {
+                say(param0, "All required tests passed :)", ChatFormatting.GREEN);
+            }
+
+            if (param1.hasFailedOptional()) {
+                say(param0, "" + param1.getFailedOptionalCount() + " optional tests failed", ChatFormatting.GRAY);
+            }
+        }
+
+    }
+
+    private static int clearAllTests(CommandSourceStack param0, int param1) {
+        ServerLevel var0 = param0.getLevel();
+        GameTestRunner.clearMarkers(var0);
+        BlockPos var1 = new BlockPos(
+            param0.getPosition().x,
+            (double)param0.getLevel().getHeightmapPos(Heightmap.Types.WORLD_SURFACE, new BlockPos(param0.getPosition())).getY(),
+            param0.getPosition().z
+        );
+        GameTestRunner.clearAllTests(var0, var1, GameTestTicker.singleton, Mth.clamp(param1, 0, 1024));
+        return 1;
+    }
+
+    private static int runTest(CommandSourceStack param0, TestFunction param1) {
+        ServerLevel var0 = param0.getLevel();
+        BlockPos var1 = new BlockPos(param0.getPosition());
+        BlockPos var2 = new BlockPos(var1.getX(), param0.getLevel().getHeightmapPos(Heightmap.Types.WORLD_SURFACE, var1).getY(), var1.getZ() + 3);
+        GameTestRunner.clearMarkers(var0);
+        GameTestInfo var3 = new GameTestInfo(param1, var2, var0);
+        GameTestRunner.runTest(var3, GameTestTicker.singleton);
+        return 1;
+    }
+
+    private static int runAllTests(CommandSourceStack param0) {
+        GameTestRunner.clearMarkers(param0.getLevel());
+        runTests(param0, GameTestRegistry.getAllTestFunctions());
+        return 1;
+    }
+
+    private static int runAllTestsInClass(CommandSourceStack param0, String param1) {
+        Collection<TestFunction> var0 = GameTestRegistry.getTestFunctionsForClassName(param1);
+        GameTestRunner.clearMarkers(param0.getLevel());
+        runTests(param0, var0);
+        return 1;
+    }
+
+    private static void runTests(CommandSourceStack param0, Collection<TestFunction> param1) {
+        BlockPos var0 = new BlockPos(param0.getPosition());
+        BlockPos var1 = new BlockPos(var0.getX(), param0.getLevel().getHeightmapPos(Heightmap.Types.WORLD_SURFACE, var0).getY(), var0.getZ() + 3);
+        ServerLevel var2 = param0.getLevel();
+        say(param0, "Running " + param1.size() + " tests...");
+        Collection<GameTestInfo> var3 = GameTestRunner.runTests(param1, var1, var2, GameTestTicker.singleton);
+        MultipleTestTracker var4 = new MultipleTestTracker(var3);
+        var4.setListener(new TestCommand.TestSummaryDisplayer(var2, var4));
+    }
+
+    private static void say(CommandSourceStack param0, String param1) {
+        param0.sendSuccess(new TextComponent(param1), false);
+    }
+
+    private static int exportTestStructure(CommandSourceStack param0, String param1) {
+        Path var0 = Paths.get(StructureUtils.testStructuresDir);
+        ResourceLocation var1 = new ResourceLocation("minecraft", param1);
+        Path var2 = param0.getLevel().getStructureManager().createPathToStructure(var1, ".nbt");
+        Path var3 = NbtToSnbt.convertStructure(var2, param1, var0);
+        if (var3 == null) {
+            say(param0, "Failed to export " + var2);
+            return 1;
+        } else {
+            try {
+                Files.createDirectories(var3.getParent());
+            } catch (IOException var7) {
+                say(param0, "Could not create folder " + var3.getParent());
+                var7.printStackTrace();
+                return 1;
+            }
+
+            say(param0, "Exported to " + var3.toAbsolutePath());
+            return 0;
+        }
+    }
+
+    private static int importTestStructure(CommandSourceStack param0, String param1) {
+        Path var0 = Paths.get(StructureUtils.testStructuresDir, param1 + ".snbt");
+        ResourceLocation var1 = new ResourceLocation("minecraft", param1);
+        Path var2 = param0.getLevel().getStructureManager().createPathToStructure(var1, ".nbt");
+
+        try {
+            BufferedReader var3 = Files.newBufferedReader(var0);
+            String var4 = IOUtils.toString((Reader)var3);
+            Files.createDirectories(var2.getParent());
+            OutputStream var5 = Files.newOutputStream(var2);
+            NbtIo.writeCompressed(TagParser.parseTag(var4), var5);
+            say(param0, "Imported to " + var2.toAbsolutePath());
+            return 0;
+        } catch (CommandSyntaxException | IOException var8) {
+            System.err.println("Failed to load structure " + param1);
+            var8.printStackTrace();
+            return 1;
+        }
+    }
+
+    private static void say(ServerLevel param0, String param1, ChatFormatting param2) {
+        param0.getPlayers(param0x -> true).forEach(param2x -> param2x.sendMessage(new TextComponent(param2 + param1)));
+    }
+
+    static class TestSummaryDisplayer implements GameTestListener {
+        private final ServerLevel level;
+        private final MultipleTestTracker tracker;
+
+        public TestSummaryDisplayer(ServerLevel param0, MultipleTestTracker param1) {
+            this.level = param0;
+            this.tracker = param1;
+        }
+
+        @Override
+        public void testStructureLoaded(GameTestInfo param0) {
+        }
+
+        @Override
+        public void testPassed(GameTestInfo param0) {
+            TestCommand.showTestSummaryIfAllDone(this.level, this.tracker);
+        }
+
+        @Override
+        public void testFailed(GameTestInfo param0) {
+            TestCommand.showTestSummaryIfAllDone(this.level, this.tracker);
+        }
+    }
+}

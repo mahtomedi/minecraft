@@ -7,10 +7,10 @@ import it.unimi.dsi.fastutil.objects.ObjectListIterator;
 import java.util.Random;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -26,6 +26,7 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
+import net.minecraft.world.level.levelgen.synth.ImprovedNoise;
 import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 import net.minecraft.world.level.levelgen.synth.PerlinSimplexNoise;
 import net.minecraft.world.level.levelgen.synth.SurfaceNoise;
@@ -65,10 +66,10 @@ public abstract class NoiseBasedChunkGenerator<T extends ChunkGeneratorSettings>
         this.chunkCountY = param4 / this.chunkHeight;
         this.chunkCountZ = 16 / this.chunkWidth;
         this.random = new WorldgenRandom(this.seed);
-        this.minLimitPerlinNoise = new PerlinNoise(this.random, 16);
-        this.maxLimitPerlinNoise = new PerlinNoise(this.random, 16);
-        this.mainPerlinNoise = new PerlinNoise(this.random, 8);
-        this.surfaceNoise = (SurfaceNoise)(param6 ? new PerlinSimplexNoise(this.random, 4) : new PerlinNoise(this.random, 4));
+        this.minLimitPerlinNoise = new PerlinNoise(this.random, 15, 0);
+        this.maxLimitPerlinNoise = new PerlinNoise(this.random, 15, 0);
+        this.mainPerlinNoise = new PerlinNoise(this.random, 7, 0);
+        this.surfaceNoise = (SurfaceNoise)(param6 ? new PerlinSimplexNoise(this.random, 3, 0) : new PerlinNoise(this.random, 3, 0));
     }
 
     private double sampleAndClampNoise(int param0, int param1, int param2, double param3, double param4, double param5, double param6) {
@@ -82,19 +83,28 @@ public abstract class NoiseBasedChunkGenerator<T extends ChunkGeneratorSettings>
             double var6 = PerlinNoise.wrap((double)param1 * param4 * var3);
             double var7 = PerlinNoise.wrap((double)param2 * param3 * var3);
             double var8 = param4 * var3;
-            var0 += this.minLimitPerlinNoise.getOctaveNoise(var4).noise(var5, var6, var7, var8, (double)param1 * var8) / var3;
-            var1 += this.maxLimitPerlinNoise.getOctaveNoise(var4).noise(var5, var6, var7, var8, (double)param1 * var8) / var3;
+            ImprovedNoise var9 = this.minLimitPerlinNoise.getOctaveNoise(var4);
+            if (var9 != null) {
+                var0 += var9.noise(var5, var6, var7, var8, (double)param1 * var8) / var3;
+            }
+
+            ImprovedNoise var10 = this.maxLimitPerlinNoise.getOctaveNoise(var4);
+            if (var10 != null) {
+                var1 += var10.noise(var5, var6, var7, var8, (double)param1 * var8) / var3;
+            }
+
             if (var4 < 8) {
-                var2 += this.mainPerlinNoise
-                        .getOctaveNoise(var4)
-                        .noise(
+                ImprovedNoise var11 = this.mainPerlinNoise.getOctaveNoise(var4);
+                if (var11 != null) {
+                    var2 += var11.noise(
                             PerlinNoise.wrap((double)param0 * param5 * var3),
                             PerlinNoise.wrap((double)param1 * param6 * var3),
                             PerlinNoise.wrap((double)param2 * param5 * var3),
                             param6 * var3,
                             (double)param1 * param6 * var3
                         )
-                    / var3;
+                        / var3;
+                }
             }
 
             var3 /= 2.0;
@@ -197,28 +207,28 @@ public abstract class NoiseBasedChunkGenerator<T extends ChunkGeneratorSettings>
     }
 
     @Override
-    public void buildSurfaceAndBedrock(ChunkAccess param0) {
-        ChunkPos var0 = param0.getPos();
+    public void buildSurfaceAndBedrock(WorldGenRegion param0, ChunkAccess param1) {
+        ChunkPos var0 = param1.getPos();
         int var1 = var0.x;
         int var2 = var0.z;
         WorldgenRandom var3 = new WorldgenRandom();
         var3.setBaseChunkSeed(var1, var2);
-        ChunkPos var4 = param0.getPos();
+        ChunkPos var4 = param1.getPos();
         int var5 = var4.getMinBlockX();
         int var6 = var4.getMinBlockZ();
         double var7 = 0.0625;
-        Biome[] var8 = param0.getBiomes();
+        BlockPos.MutableBlockPos var8 = new BlockPos.MutableBlockPos();
 
         for(int var9 = 0; var9 < 16; ++var9) {
             for(int var10 = 0; var10 < 16; ++var10) {
                 int var11 = var5 + var9;
                 int var12 = var6 + var10;
-                int var13 = param0.getHeight(Heightmap.Types.WORLD_SURFACE_WG, var9, var10) + 1;
-                double var14 = this.surfaceNoise.getSurfaceNoiseValue((double)var11 * 0.0625, (double)var12 * 0.0625, 0.0625, (double)var9 * 0.0625);
-                var8[var10 * 16 + var9]
+                int var13 = param1.getHeight(Heightmap.Types.WORLD_SURFACE_WG, var9, var10) + 1;
+                double var14 = this.surfaceNoise.getSurfaceNoiseValue((double)var11 * 0.0625, (double)var12 * 0.0625, 0.0625, (double)var9 * 0.0625) * 15.0;
+                param0.getBiome(var8.set(var5 + var9, var13, var6 + var10))
                     .buildSurfaceAt(
                         var3,
-                        param0,
+                        param1,
                         var11,
                         var12,
                         var13,
@@ -231,7 +241,7 @@ public abstract class NoiseBasedChunkGenerator<T extends ChunkGeneratorSettings>
             }
         }
 
-        this.setBedrock(param0, var3);
+        this.setBedrock(param1, var3);
     }
 
     protected void setBedrock(ChunkAccess param0, Random param1) {

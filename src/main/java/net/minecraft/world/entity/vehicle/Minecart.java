@@ -16,7 +16,7 @@ public class Minecart extends AbstractMinecart {
 
     @Override
     public boolean interact(Player param0, InteractionHand param1) {
-        if (param0.isSneaking()) {
+        if (param0.isSecondaryUseActive()) {
             return false;
         } else if (this.isVehicle()) {
             return true;

@@ -21,10 +21,10 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 
 public class EmptyLevelChunk extends LevelChunk {
-    private static final Biome[] BIOMES = Util.make(new Biome[256], param0 -> Arrays.fill(param0, Biomes.PLAINS));
+    private static final Biome[] BIOMES = Util.make(new Biome[ChunkBiomeContainer.BIOMES_SIZE], param0 -> Arrays.fill(param0, Biomes.PLAINS));
 
     public EmptyLevelChunk(Level param0, ChunkPos param1) {
-        super(param0, param1, BIOMES);
+        super(param0, param1, new ChunkBiomeContainer(BIOMES));
     }
 
     @Override

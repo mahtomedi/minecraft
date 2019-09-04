@@ -1,10 +1,10 @@
 package net.minecraft.world.level.chunk.storage;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.chunk.ChunkBiomeContainer;
 import net.minecraft.world.level.chunk.DataLayer;
 import net.minecraft.world.level.chunk.OldDataLayer;
 
@@ -92,17 +92,7 @@ public class OldChunkStorage {
         }
 
         param1.put("Sections", var2);
-        byte[] var20 = new byte[256];
-        BlockPos.MutableBlockPos var21 = new BlockPos.MutableBlockPos();
-
-        for(int var22 = 0; var22 < 16; ++var22) {
-            for(int var23 = 0; var23 < 16; ++var23) {
-                var21.set(param0.x << 4 | var22, 0, param0.z << 4 | var23);
-                var20[var23 << 4 | var22] = (byte)(Registry.BIOME.getId(param2.getBiome(var21)) & 0xFF);
-            }
-        }
-
-        param1.putByteArray("Biomes", var20);
+        param1.putIntArray("Biomes", new ChunkBiomeContainer(new ChunkPos(param0.x, param0.z), param2).writeBiomes());
         param1.put("Entities", param0.entities);
         param1.put("TileEntities", param0.blockEntities);
         if (param0.blockTicks != null) {

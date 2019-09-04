@@ -567,7 +567,7 @@ public class Rabbit extends Animal {
                     Integer var4 = var2.getValue(CarrotBlock.AGE);
                     if (var4 == 0) {
                         var0.setBlock(var1, Blocks.AIR.defaultBlockState(), 2);
-                        var0.destroyBlock(var1, true);
+                        var0.destroyBlock(var1, true, this.rabbit);
                     } else {
                         var0.setBlock(var1, var2.setValue(CarrotBlock.AGE, Integer.valueOf(var4 - 1)), 2);
                         var0.levelEvent(2001, var1, Block.getId(var2));

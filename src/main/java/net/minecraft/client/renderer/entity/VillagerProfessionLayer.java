@@ -63,8 +63,10 @@ public class VillagerProfessionLayer<T extends LivingEntity & VillagerDataHolder
             if (var2 != VillagerProfession.NONE && !param0.isBaby()) {
                 this.bindTexture(this.getResourceLocation("profession", Registry.VILLAGER_PROFESSION.getKey(var2)));
                 var5.render(param0, param1, param2, param4, param5, param6, param7);
-                this.bindTexture(this.getResourceLocation("profession_level", LEVEL_LOCATIONS.get(Mth.clamp(var0.getLevel(), 1, LEVEL_LOCATIONS.size()))));
-                var5.render(param0, param1, param2, param4, param5, param6, param7);
+                if (var2 != VillagerProfession.NITWIT) {
+                    this.bindTexture(this.getResourceLocation("profession_level", LEVEL_LOCATIONS.get(Mth.clamp(var0.getLevel(), 1, LEVEL_LOCATIONS.size()))));
+                    var5.render(param0, param1, param2, param4, param5, param6, param7);
+                }
             }
 
         }

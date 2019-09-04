@@ -10,6 +10,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
+import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.ShipwreckConfiguration;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
@@ -119,7 +120,7 @@ public class ShipwreckPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, Random param1, BoundingBox param2, ChunkPos param3) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
             int var0 = 256;
             int var1 = 0;
             BlockPos var2 = this.templatePosition.offset(this.template.getSize().getX() - 1, 0, this.template.getSize().getZ() - 1);
@@ -131,9 +132,9 @@ public class ShipwreckPieces {
             }
 
             var1 /= this.template.getSize().getX() * this.template.getSize().getZ();
-            int var5 = this.isBeached ? var0 - this.template.getSize().getY() / 2 - param1.nextInt(3) : var1;
+            int var5 = this.isBeached ? var0 - this.template.getSize().getY() / 2 - param2.nextInt(3) : var1;
             this.templatePosition = new BlockPos(this.templatePosition.getX(), var5, this.templatePosition.getZ());
-            return super.postProcess(param0, param1, param2, param3);
+            return super.postProcess(param0, param1, param2, param3, param4);
         }
     }
 }

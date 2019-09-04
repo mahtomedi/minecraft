@@ -1,6 +1,7 @@
 package net.minecraft.client.renderer;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -27,20 +28,20 @@ public class CubeMap {
     public void render(Minecraft param0, float param1, float param2, float param3) {
         Tesselator var0 = Tesselator.getInstance();
         BufferBuilder var1 = var0.getBuilder();
-        GlStateManager.matrixMode(5889);
-        GlStateManager.pushMatrix();
-        GlStateManager.loadIdentity();
-        GlStateManager.multMatrix(Matrix4f.perspective(85.0, (float)param0.window.getWidth() / (float)param0.window.getHeight(), 0.05F, 10.0F));
-        GlStateManager.matrixMode(5888);
-        GlStateManager.pushMatrix();
-        GlStateManager.loadIdentity();
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.rotatef(180.0F, 1.0F, 0.0F, 0.0F);
-        GlStateManager.enableBlend();
-        GlStateManager.disableAlphaTest();
-        GlStateManager.disableCull();
-        GlStateManager.depthMask(false);
-        GlStateManager.blendFuncSeparate(
+        RenderSystem.matrixMode(5889);
+        RenderSystem.pushMatrix();
+        RenderSystem.loadIdentity();
+        RenderSystem.multMatrix(Matrix4f.perspective(85.0, (float)param0.window.getWidth() / (float)param0.window.getHeight(), 0.05F, 10.0F));
+        RenderSystem.matrixMode(5888);
+        RenderSystem.pushMatrix();
+        RenderSystem.loadIdentity();
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.rotatef(180.0F, 1.0F, 0.0F, 0.0F);
+        RenderSystem.enableBlend();
+        RenderSystem.disableAlphaTest();
+        RenderSystem.disableCull();
+        RenderSystem.depthMask(false);
+        RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.SRC_ALPHA,
             GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
             GlStateManager.SourceFactor.ONE,
@@ -49,13 +50,13 @@ public class CubeMap {
         int var2 = 2;
 
         for(int var3 = 0; var3 < 4; ++var3) {
-            GlStateManager.pushMatrix();
+            RenderSystem.pushMatrix();
             float var4 = ((float)(var3 % 2) / 2.0F - 0.5F) / 256.0F;
             float var5 = ((float)(var3 / 2) / 2.0F - 0.5F) / 256.0F;
             float var6 = 0.0F;
-            GlStateManager.translatef(var4, var5, 0.0F);
-            GlStateManager.rotatef(param1, 1.0F, 0.0F, 0.0F);
-            GlStateManager.rotatef(param2, 0.0F, 1.0F, 0.0F);
+            RenderSystem.translatef(var4, var5, 0.0F);
+            RenderSystem.rotatef(param1, 1.0F, 0.0F, 0.0F);
+            RenderSystem.rotatef(param2, 0.0F, 1.0F, 0.0F);
 
             for(int var7 = 0; var7 < 6; ++var7) {
                 param0.getTextureManager().bind(this.images[var7]);
@@ -106,19 +107,19 @@ public class CubeMap {
                 var0.end();
             }
 
-            GlStateManager.popMatrix();
-            GlStateManager.colorMask(true, true, true, false);
+            RenderSystem.popMatrix();
+            RenderSystem.colorMask(true, true, true, false);
         }
 
         var1.offset(0.0, 0.0, 0.0);
-        GlStateManager.colorMask(true, true, true, true);
-        GlStateManager.matrixMode(5889);
-        GlStateManager.popMatrix();
-        GlStateManager.matrixMode(5888);
-        GlStateManager.popMatrix();
-        GlStateManager.depthMask(true);
-        GlStateManager.enableCull();
-        GlStateManager.enableDepthTest();
+        RenderSystem.colorMask(true, true, true, true);
+        RenderSystem.matrixMode(5889);
+        RenderSystem.popMatrix();
+        RenderSystem.matrixMode(5888);
+        RenderSystem.popMatrix();
+        RenderSystem.depthMask(true);
+        RenderSystem.enableCull();
+        RenderSystem.enableDepthTest();
     }
 
     public CompletableFuture<Void> preload(TextureManager param0, Executor param1) {

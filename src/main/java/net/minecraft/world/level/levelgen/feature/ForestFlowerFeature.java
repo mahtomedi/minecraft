@@ -32,7 +32,7 @@ public class ForestFlowerFeature extends FlowerFeature {
 
     @Override
     public BlockState getRandomFlower(Random param0, BlockPos param1) {
-        double var0 = Mth.clamp((1.0 + Biome.BIOME_INFO_NOISE.getValue((double)param1.getX() / 48.0, (double)param1.getZ() / 48.0)) / 2.0, 0.0, 0.9999);
+        double var0 = Mth.clamp((1.0 + Biome.BIOME_INFO_NOISE.getValue((double)param1.getX() / 48.0, (double)param1.getZ() / 48.0, false)) / 2.0, 0.0, 0.9999);
         Block var1 = flowers[(int)(var0 * (double)flowers.length)];
         return var1 == Blocks.BLUE_ORCHID ? Blocks.POPPY.defaultBlockState() : var1.defaultBlockState();
     }

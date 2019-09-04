@@ -1,6 +1,7 @@
 package net.minecraft.realms;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -65,8 +66,8 @@ public class RealmsSimpleScrolledSelectionListProxy extends ScrolledSelectionLis
             int var0 = this.getScrollbarPosition();
             int var1 = var0 + 6;
             this.capYPosition();
-            GlStateManager.disableLighting();
-            GlStateManager.disableFog();
+            RenderSystem.disableLighting();
+            RenderSystem.disableFog();
             Tesselator var2 = Tesselator.getInstance();
             BufferBuilder var3 = var2.getBuilder();
             int var4 = this.x0 + this.width / 2 - this.getRowWidth() / 2 + 2;
@@ -76,19 +77,19 @@ public class RealmsSimpleScrolledSelectionListProxy extends ScrolledSelectionLis
             }
 
             this.renderList(var4, var5, param0, param1, param2);
-            GlStateManager.disableDepthTest();
+            RenderSystem.disableDepthTest();
             this.renderHoleBackground(0, this.y0, 255, 255);
             this.renderHoleBackground(this.y1, this.height, 255, 255);
-            GlStateManager.enableBlend();
-            GlStateManager.blendFuncSeparate(
+            RenderSystem.enableBlend();
+            RenderSystem.blendFuncSeparate(
                 GlStateManager.SourceFactor.SRC_ALPHA,
                 GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
                 GlStateManager.SourceFactor.ZERO,
                 GlStateManager.DestFactor.ONE
             );
-            GlStateManager.disableAlphaTest();
-            GlStateManager.shadeModel(7425);
-            GlStateManager.disableTexture();
+            RenderSystem.disableAlphaTest();
+            RenderSystem.shadeModel(7425);
+            RenderSystem.disableTexture();
             int var6 = this.getMaxScroll();
             if (var6 > 0) {
                 int var7 = (this.y1 - this.y0) * (this.y1 - this.y0) / this.getMaxPosition();
@@ -119,10 +120,10 @@ public class RealmsSimpleScrolledSelectionListProxy extends ScrolledSelectionLis
             }
 
             this.renderDecorations(param0, param1);
-            GlStateManager.enableTexture();
-            GlStateManager.shadeModel(7424);
-            GlStateManager.enableAlphaTest();
-            GlStateManager.disableBlend();
+            RenderSystem.enableTexture();
+            RenderSystem.shadeModel(7424);
+            RenderSystem.enableAlphaTest();
+            RenderSystem.disableBlend();
         }
     }
 

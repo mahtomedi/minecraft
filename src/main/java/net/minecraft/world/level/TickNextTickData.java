@@ -39,15 +39,9 @@ public class TickNextTickData<T> {
     }
 
     public static <T> Comparator<TickNextTickData<T>> createTimeComparator() {
-        return (param0, param1) -> {
-            int var0 = Long.compare(param0.delay, param1.delay);
-            if (var0 != 0) {
-                return var0;
-            } else {
-                var0 = param0.priority.compareTo(param1.priority);
-                return var0 != 0 ? var0 : Long.compare(param0.c, param1.c);
-            }
-        };
+        return Comparator.<TickNextTickData<T>>comparingLong(param0 -> param0.delay)
+            .thenComparing(param0 -> param0.priority)
+            .thenComparingLong(param0 -> param0.c);
     }
 
     @Override

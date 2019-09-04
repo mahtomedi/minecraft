@@ -22,7 +22,7 @@ public class NoiseHeightmapDoubleDecorator extends FeatureDecorator<DecoratorNoi
     public Stream<BlockPos> getPositions(
         LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, DecoratorNoiseDependant param3, BlockPos param4
     ) {
-        double var0 = Biome.BIOME_INFO_NOISE.getValue((double)param4.getX() / 200.0, (double)param4.getZ() / 200.0);
+        double var0 = Biome.BIOME_INFO_NOISE.getValue((double)param4.getX() / 200.0, (double)param4.getZ() / 200.0, false);
         int var1 = var0 < param3.noiseLevel ? param3.belowNoise : param3.aboveNoise;
         return IntStream.range(0, var1).mapToObj(param3x -> {
             int var0x = param2.nextInt(16);

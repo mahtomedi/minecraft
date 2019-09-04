@@ -1,6 +1,6 @@
 package net.minecraft.client.gui.screens.inventory;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.resources.language.I18n;
@@ -70,8 +70,8 @@ public class AnvilScreen extends AbstractContainerScreen<AnvilMenu> implements C
 
     @Override
     protected void renderLabels(int param0, int param1) {
-        GlStateManager.disableLighting();
-        GlStateManager.disableBlend();
+        RenderSystem.disableLighting();
+        RenderSystem.disableBlend();
         this.font.draw(this.title.getColoredString(), 60.0F, 6.0F, 4210752);
         int var0 = this.menu.getCost();
         if (var0 > 0) {
@@ -95,7 +95,7 @@ public class AnvilScreen extends AbstractContainerScreen<AnvilMenu> implements C
             }
         }
 
-        GlStateManager.enableLighting();
+        RenderSystem.enableLighting();
     }
 
     private void onNameChanged(String param0) {
@@ -116,14 +116,14 @@ public class AnvilScreen extends AbstractContainerScreen<AnvilMenu> implements C
         this.renderBackground();
         super.render(param0, param1, param2);
         this.renderTooltip(param0, param1);
-        GlStateManager.disableLighting();
-        GlStateManager.disableBlend();
+        RenderSystem.disableLighting();
+        RenderSystem.disableBlend();
         this.name.render(param0, param1, param2);
     }
 
     @Override
     protected void renderBg(float param0, int param1, int param2) {
-        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.minecraft.getTextureManager().bind(ANVIL_LOCATION);
         int var0 = (this.width - this.imageWidth) / 2;
         int var1 = (this.height - this.imageHeight) / 2;

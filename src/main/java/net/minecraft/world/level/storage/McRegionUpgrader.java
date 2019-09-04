@@ -22,7 +22,6 @@ import net.minecraft.world.level.biome.FixedBiomeSource;
 import net.minecraft.world.level.biome.FixedBiomeSourceSettings;
 import net.minecraft.world.level.biome.OverworldBiomeSource;
 import net.minecraft.world.level.biome.OverworldBiomeSourceSettings;
-import net.minecraft.world.level.chunk.ChunkGeneratorType;
 import net.minecraft.world.level.chunk.storage.OldChunkStorage;
 import net.minecraft.world.level.chunk.storage.RegionFile;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -57,14 +56,14 @@ public class McRegionUpgrader {
         BiomeSourceType<OverworldBiomeSourceSettings, OverworldBiomeSource> var9 = BiomeSourceType.VANILLA_LAYERED;
         BiomeSource var10;
         if (var7 != null && var7.getGeneratorType() == LevelType.FLAT) {
-            var10 = var8.create(var8.createSettings().setBiome(Biomes.PLAINS));
+            var10 = var8.create(var8.createSettings(var7).setBiome(Biomes.PLAINS));
         } else {
-            var10 = var9.create(var9.createSettings().setLevelData(var7).setGeneratorSettings(ChunkGeneratorType.SURFACE.createSettings()));
+            var10 = var9.create(var9.createSettings(var7));
         }
 
         convertRegions(new File(var3, "region"), var0, var10, 0, var6, param3);
-        convertRegions(new File(var4, "region"), var1, var8.create(var8.createSettings().setBiome(Biomes.NETHER)), var0.size(), var6, param3);
-        convertRegions(new File(var5, "region"), var2, var8.create(var8.createSettings().setBiome(Biomes.THE_END)), var0.size() + var1.size(), var6, param3);
+        convertRegions(new File(var4, "region"), var1, var8.create(var8.createSettings(var7).setBiome(Biomes.NETHER)), var0.size(), var6, param3);
+        convertRegions(new File(var5, "region"), var2, var8.create(var8.createSettings(var7).setBiome(Biomes.THE_END)), var0.size() + var1.size(), var6, param3);
         var7.setVersion(19133);
         if (var7.getGeneratorType() == LevelType.NORMAL_1_1) {
             var7.setGenerator(LevelType.NORMAL);
@@ -108,8 +107,8 @@ public class McRegionUpgrader {
         String var0 = param1.getName();
 
         try (
-            RegionFile var1 = new RegionFile(param1);
-            RegionFile var2 = new RegionFile(new File(param0, var0.substring(0, var0.length() - ".mcr".length()) + ".mca"));
+            RegionFile var1 = new RegionFile(param1, param0);
+            RegionFile var2 = new RegionFile(new File(param0, var0.substring(0, var0.length() - ".mcr".length()) + ".mca"), param0);
         ) {
             for(int var3 = 0; var3 < 32; ++var3) {
                 for(int var4 = 0; var4 < 32; ++var4) {

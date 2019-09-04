@@ -1,12 +1,9 @@
 package net.minecraft.network.protocol.game;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.UUID;
-import javax.annotation.Nullable;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -19,8 +16,6 @@ public class ClientboundAddPlayerPacket implements Packet<ClientGamePacketListen
     private double z;
     private byte yRot;
     private byte xRot;
-    private SynchedEntityData entityData;
-    private List<SynchedEntityData.DataItem<?>> unpack;
 
     public ClientboundAddPlayerPacket() {
     }
@@ -33,7 +28,6 @@ public class ClientboundAddPlayerPacket implements Packet<ClientGamePacketListen
         this.z = param0.z;
         this.yRot = (byte)((int)(param0.yRot * 256.0F / 360.0F));
         this.xRot = (byte)((int)(param0.xRot * 256.0F / 360.0F));
-        this.entityData = param0.getEntityData();
     }
 
     @Override
@@ -45,7 +39,6 @@ public class ClientboundAddPlayerPacket implements Packet<ClientGamePacketListen
         this.z = param0.readDouble();
         this.yRot = param0.readByte();
         this.xRot = param0.readByte();
-        this.unpack = SynchedEntityData.unpack(param0);
     }
 
     @Override
@@ -57,17 +50,10 @@ public class ClientboundAddPlayerPacket implements Packet<ClientGamePacketListen
         param0.writeDouble(this.z);
         param0.writeByte(this.yRot);
         param0.writeByte(this.xRot);
-        this.entityData.packAll(param0);
     }
 
     public void handle(ClientGamePacketListener param0) {
         param0.handleAddPlayer(this);
-    }
-
-    @Nullable
-    @OnlyIn(Dist.CLIENT)
-    public List<SynchedEntityData.DataItem<?>> getUnpackedData() {
-        return this.unpack;
     }
 
     @OnlyIn(Dist.CLIENT)

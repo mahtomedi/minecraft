@@ -11,7 +11,7 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.PathNavigationRegion;
 import net.minecraft.world.level.block.BaseRailBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -29,7 +29,7 @@ public class WalkNodeEvaluator extends NodeEvaluator {
     protected float oldWaterCost;
 
     @Override
-    public void prepare(LevelReader param0, Mob param1) {
+    public void prepare(PathNavigationRegion param0, Mob param1) {
         super.prepare(param0, param1);
         this.oldWaterCost = param1.getPathfindingMalus(BlockPathTypes.WATER);
     }

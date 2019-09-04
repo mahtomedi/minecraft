@@ -2,13 +2,10 @@ package net.minecraft.world.level.levelgen.structure;
 
 import java.util.Locale;
 import javax.annotation.Nullable;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
@@ -43,8 +40,8 @@ public class StructureFeatureIO {
     }
 
     @Nullable
-    public static StructureStart loadStaticStart(ChunkGenerator<?> param0, StructureManager param1, BiomeSource param2, CompoundTag param3) {
-        String var0 = param3.getString("id");
+    public static StructureStart loadStaticStart(ChunkGenerator<?> param0, StructureManager param1, CompoundTag param2) {
+        String var0 = param2.getString("id");
         if ("INVALID".equals(var0)) {
             return StructureStart.INVALID_START;
         } else {
@@ -53,16 +50,14 @@ public class StructureFeatureIO {
                 LOGGER.error("Unknown feature id: {}", var0);
                 return null;
             } else {
-                int var2 = param3.getInt("ChunkX");
-                int var3 = param3.getInt("ChunkZ");
-                Biome var4 = param3.contains("biome")
-                    ? Registry.BIOME.get(new ResourceLocation(param3.getString("biome")))
-                    : param2.getBiome(new BlockPos((var2 << 4) + 9, 0, (var3 << 4) + 9));
-                BoundingBox var5 = param3.contains("BB") ? new BoundingBox(param3.getIntArray("BB")) : BoundingBox.getUnknownBox();
-                ListTag var6 = param3.getList("Children", 10);
+                int var2 = param2.getInt("ChunkX");
+                int var3 = param2.getInt("ChunkZ");
+                int var4 = param2.getInt("references");
+                BoundingBox var5 = param2.contains("BB") ? new BoundingBox(param2.getIntArray("BB")) : BoundingBox.getUnknownBox();
+                ListTag var6 = param2.getList("Children", 10);
 
                 try {
-                    StructureStart var7 = var1.getStartFactory().create(var1, var2, var3, var4, var5, 0, param0.getSeed());
+                    StructureStart var7 = var1.getStartFactory().create(var1, var2, var3, var5, var4, param0.getSeed());
 
                     for(int var8 = 0; var8 < var6.size(); ++var8) {
                         CompoundTag var9 = var6.getCompound(var8);
@@ -74,15 +69,15 @@ public class StructureFeatureIO {
                             try {
                                 StructurePiece var12 = var11.load(param1, var9);
                                 var7.pieces.add(var12);
-                            } catch (Exception var17) {
-                                LOGGER.error("Exception loading structure piece with id {}", var10, var17);
+                            } catch (Exception var16) {
+                                LOGGER.error("Exception loading structure piece with id {}", var10, var16);
                             }
                         }
                     }
 
                     return var7;
-                } catch (Exception var18) {
-                    LOGGER.error("Failed Start with id {}", var0, var18);
+                } catch (Exception var17) {
+                    LOGGER.error("Failed Start with id {}", var0, var17);
                     return null;
                 }
             }

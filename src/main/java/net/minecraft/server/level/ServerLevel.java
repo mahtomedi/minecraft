@@ -31,6 +31,7 @@ import java.util.function.Predicate;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
@@ -200,6 +201,11 @@ public class ServerLevel extends Level {
         this.wanderingTraderSpawner = this.dimension.getType() == DimensionType.OVERWORLD ? new WanderingTraderSpawner(this) : null;
     }
 
+    @Override
+    public Biome getUncachedNoiseBiome(int param0, int param1, int param2) {
+        return this.getChunkSource().getGenerator().getBiomeSource().getNoiseBiome(param0, param1, param2);
+    }
+
     public void tick(BooleanSupplier param0) {
         ProfilerFiller var0 = this.getProfiler();
         this.handlingTick = true;
@@ -297,7 +303,7 @@ public class ServerLevel extends Level {
                 this.setDayTime(var7 - var7 % 24000L);
             }
 
-            this.players.stream().filter(LivingEntity::isSleeping).forEach(param0x -> param0x.stopSleepInBed(false, false, true));
+            this.players.stream().filter(LivingEntity::isSleeping).forEach(param0x -> param0x.stopSleepInBed(false, false));
             if (this.getGameRules().getBoolean(GameRules.RULE_WEATHER_CYCLE)) {
                 this.stopWeather();
             }
@@ -313,8 +319,6 @@ public class ServerLevel extends Level {
             this.liquidTicks.tick();
         }
 
-        var0.popPush("portalForcer");
-        this.portalForcer.tick(this.getGameTime());
         var0.popPush("raid");
         this.raids.tick();
         if (this.wanderingTraderSpawner != null) {
@@ -647,14 +651,14 @@ public class ServerLevel extends Level {
 
     public void setInitialSpawn(LevelSettings param0) {
         if (!this.dimension.mayRespawn()) {
-            this.levelData.setSpawn(BlockPos.ZERO.above(this.chunkSource.getGenerator().getSpawnHeight()));
+            this.levelData.setSpawn(BlockPos.ZERO.above(this.getChunkSource().getGenerator().getSpawnHeight()));
         } else if (this.levelData.getGeneratorType() == LevelType.DEBUG_ALL_BLOCK_STATES) {
             this.levelData.setSpawn(BlockPos.ZERO.above());
         } else {
-            BiomeSource var0 = this.chunkSource.getGenerator().getBiomeSource();
+            BiomeSource var0 = this.getChunkSource().getGenerator().getBiomeSource();
             List<Biome> var1 = var0.getPlayerSpawnBiomes();
             Random var2 = new Random(this.getSeed());
-            BlockPos var3 = var0.findBiome(0, 0, 256, var1, var2);
+            BlockPos var3 = var0.findBiomeHorizontal(0, this.getSeaLevel(), 0, 256, var1, var2);
             ChunkPos var4 = var3 == null ? new ChunkPos(0, 0) : new ChunkPos(var3);
             if (var3 == null) {
                 LOGGER.warn("Unable to find spawn biome");
@@ -669,7 +673,7 @@ public class ServerLevel extends Level {
                 }
             }
 
-            this.levelData.setSpawn(var4.getWorldPosition().offset(8, this.chunkSource.getGenerator().getSpawnHeight(), 8));
+            this.levelData.setSpawn(var4.getWorldPosition().offset(8, this.getChunkSource().getGenerator().getSpawnHeight(), 8));
             int var7 = 0;
             int var8 = 0;
             int var9 = 0;
@@ -709,7 +713,7 @@ public class ServerLevel extends Level {
             int var2 = this.levelData.getXSpawn() + this.random.nextInt(6) - this.random.nextInt(6);
             int var3 = this.levelData.getZSpawn() + this.random.nextInt(6) - this.random.nextInt(6);
             BlockPos var4 = this.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, new BlockPos(var2, 0, var3)).above();
-            if (var0.place(this, this.chunkSource.getGenerator(), this.random, var4, FeatureConfiguration.NONE)) {
+            if (var0.place(this, this.getChunkSource().getGenerator(), this.random, var4, FeatureConfiguration.NONE)) {
                 break;
             }
         }
@@ -912,7 +916,7 @@ public class ServerLevel extends Level {
             for(Entity var1 : var2[var4]) {
                 if (!(var1 instanceof ServerPlayer)) {
                     if (this.tickingEntities) {
-                        throw new IllegalStateException("Removing entity while ticking!");
+                        throw (IllegalStateException)Util.pauseInIde(new IllegalStateException("Removing entity while ticking!"));
                     }
 
                     this.entitiesById.remove(var1.getId());
@@ -966,7 +970,7 @@ public class ServerLevel extends Level {
 
     public void despawn(Entity param0) {
         if (this.tickingEntities) {
-            throw new IllegalStateException("Removing entity while ticking!");
+            throw (IllegalStateException)Util.pauseInIde(new IllegalStateException("Removing entity while ticking!"));
         } else {
             this.removeFromChunk(param0);
             this.entitiesById.remove(param0.getId());
@@ -1089,7 +1093,7 @@ public class ServerLevel extends Level {
     @Override
     public Explosion explode(
         @Nullable Entity param0,
-        DamageSource param1,
+        @Nullable DamageSource param1,
         double param2,
         double param3,
         double param4,
@@ -1232,7 +1236,6 @@ public class ServerLevel extends Level {
     }
 
     @Nullable
-    @Override
     public BlockPos findNearestMapFeature(String param0, BlockPos param1, int param2, boolean param3) {
         return this.getChunkSource().getGenerator().findNearestMapFeature(this, param0, param1, param2, param3);
     }

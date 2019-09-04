@@ -1,10 +1,10 @@
 package com.mojang.realmsclient.util;
 
+import com.google.common.collect.Maps;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
-import com.mojang.blaze3d.platform.GLX;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.TextureUtil;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.util.UUIDTypeAdapter;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -17,7 +17,6 @@ import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import javax.imageio.ImageIO;
@@ -33,9 +32,9 @@ import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class RealmsTextureManager {
-    private static final Map<String, RealmsTextureManager.RealmsTexture> textures = new HashMap<>();
-    private static final Map<String, Boolean> skinFetchStatus = new HashMap<>();
-    private static final Map<String, String> fetchedSkins = new HashMap<>();
+    private static final Map<String, RealmsTextureManager.RealmsTexture> textures = Maps.newHashMap();
+    private static final Map<String, Boolean> skinFetchStatus = Maps.newHashMap();
+    private static final Map<String, String> fetchedSkins = Maps.newHashMap();
     private static final Logger LOGGER = LogManager.getLogger();
 
     public static void bindWorldTemplate(String param0, String param1) {
@@ -43,15 +42,20 @@ public class RealmsTextureManager {
             RealmsScreen.bind("textures/gui/presets/isles.png");
         } else {
             int var0 = getTextureId(param0, param1);
-            GlStateManager.bindTexture(var0);
+            RenderSystem.bindTexture(var0);
         }
     }
 
     public static void withBoundFace(String param0, Runnable param1) {
-        GLX.withTextureRestore(() -> {
+        RenderSystem.pushTextureAttributes();
+
+        try {
             bindFace(param0);
             param1.run();
-        });
+        } finally {
+            RenderSystem.popAttributes();
+        }
+
     }
 
     private static void bindDefaultFace(UUID param0) {
@@ -61,13 +65,13 @@ public class RealmsTextureManager {
     private static void bindFace(final String param0) {
         UUID var0 = UUIDTypeAdapter.fromString(param0);
         if (textures.containsKey(param0)) {
-            GlStateManager.bindTexture(textures.get(param0).textureId);
+            RenderSystem.bindTexture(textures.get(param0).textureId);
         } else if (skinFetchStatus.containsKey(param0)) {
             if (!skinFetchStatus.get(param0)) {
                 bindDefaultFace(var0);
             } else if (fetchedSkins.containsKey(param0)) {
                 int var1 = getTextureId(param0, fetchedSkins.get(param0));
-                GlStateManager.bindTexture(var1);
+                RenderSystem.bindTexture(var1);
             } else {
                 bindDefaultFace(var0);
             }
@@ -139,10 +143,10 @@ public class RealmsTextureManager {
                 return var0.textureId;
             }
 
-            GlStateManager.deleteTexture(var0.textureId);
+            RenderSystem.deleteTexture(var0.textureId);
             var1 = var0.textureId;
         } else {
-            var1 = GlStateManager.genTexture();
+            var1 = RenderSystem.genTexture();
         }
 
         IntBuffer var3 = null;
@@ -170,8 +174,8 @@ public class RealmsTextureManager {
             var12.printStackTrace();
         }
 
-        GlStateManager.activeTexture(GLX.GL_TEXTURE0);
-        GlStateManager.bindTexture(var1);
+        RenderSystem.activeTexture(33984);
+        RenderSystem.bindTexture(var1);
         TextureUtil.initTexture(var3, var4, var5);
         textures.put(param0, new RealmsTextureManager.RealmsTexture(param1, var1));
         return var1;

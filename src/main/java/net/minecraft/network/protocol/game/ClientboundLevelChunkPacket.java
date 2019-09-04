@@ -6,15 +6,15 @@ import io.netty.buffer.Unpooled;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map.Entry;
+import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.LongArrayTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.chunk.ChunkBiomeContainer;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -26,6 +26,8 @@ public class ClientboundLevelChunkPacket implements Packet<ClientGamePacketListe
     private int z;
     private int availableSections;
     private CompoundTag heightmaps;
+    @Nullable
+    private ChunkBiomeContainer biomes;
     private byte[] buffer;
     private List<CompoundTag> blockEntitiesTags;
     private boolean fullChunk;
@@ -44,6 +46,10 @@ public class ClientboundLevelChunkPacket implements Packet<ClientGamePacketListe
             if (var1.getKey().sendToClient()) {
                 this.heightmaps.put(var1.getKey().getSerializationKey(), new LongArrayTag(var1.getValue().getRawData()));
             }
+        }
+
+        if (this.fullChunk) {
+            this.biomes = param0.getBiomes().copy();
         }
 
         this.buffer = new byte[this.calculateChunkSize(param0, param1)];
@@ -69,6 +75,10 @@ public class ClientboundLevelChunkPacket implements Packet<ClientGamePacketListe
         this.fullChunk = param0.readBoolean();
         this.availableSections = param0.readVarInt();
         this.heightmaps = param0.readNbt();
+        if (this.fullChunk) {
+            this.biomes = new ChunkBiomeContainer(param0);
+        }
+
         int var0 = param0.readVarInt();
         if (var0 > 2097152) {
             throw new RuntimeException("Chunk Packet trying to allocate too much memory on read.");
@@ -92,6 +102,10 @@ public class ClientboundLevelChunkPacket implements Packet<ClientGamePacketListe
         param0.writeBoolean(this.fullChunk);
         param0.writeVarInt(this.availableSections);
         param0.writeNbt(this.heightmaps);
+        if (this.biomes != null) {
+            this.biomes.write(param0);
+        }
+
         param0.writeVarInt(this.buffer.length);
         param0.writeBytes(this.buffer);
         param0.writeVarInt(this.blockEntitiesTags.size());
@@ -130,14 +144,6 @@ public class ClientboundLevelChunkPacket implements Packet<ClientGamePacketListe
             }
         }
 
-        if (this.isFullChunk()) {
-            Biome[] var5 = param1.getBiomes();
-
-            for(int var6 = 0; var6 < var5.length; ++var6) {
-                param0.writeInt(Registry.BIOME.getId(var5[var6]));
-            }
-        }
-
         return var0;
     }
 
@@ -151,10 +157,6 @@ public class ClientboundLevelChunkPacket implements Packet<ClientGamePacketListe
             if (var4 != LevelChunk.EMPTY_SECTION && (!this.isFullChunk() || !var4.isEmpty()) && (param1 & 1 << var2) != 0) {
                 var0 += var4.getSerializedSize();
             }
-        }
-
-        if (this.isFullChunk()) {
-            var0 += param0.getBiomes().length * 4;
         }
 
         return var0;
@@ -187,5 +189,11 @@ public class ClientboundLevelChunkPacket implements Packet<ClientGamePacketListe
     @OnlyIn(Dist.CLIENT)
     public List<CompoundTag> getBlockEntitiesTags() {
         return this.blockEntitiesTags;
+    }
+
+    @Nullable
+    @OnlyIn(Dist.CLIENT)
+    public ChunkBiomeContainer getBiomes() {
+        return this.biomes == null ? null : this.biomes.copy();
     }
 }
