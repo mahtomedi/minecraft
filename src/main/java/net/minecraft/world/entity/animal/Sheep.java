@@ -56,7 +56,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Sheep extends Animal {
-    private static final EntityDataAccessor<Byte> DATA_WOOL_ID = SynchedEntityData.defineId(Sheep.class, EntityDataSerializers.BYTE);
+    public static final EntityDataAccessor<Byte> DATA_WOOL_ID = SynchedEntityData.defineId(Sheep.class, EntityDataSerializers.BYTE);
     private static final Map<DyeColor, ItemLike> ITEM_BY_DYE = Util.make(Maps.newEnumMap(DyeColor.class), param0 -> {
         param0.put(DyeColor.WHITE, Blocks.WHITE_WOOL);
         param0.put(DyeColor.ORANGE, Blocks.ORANGE_WOOL);
@@ -346,9 +346,8 @@ public class Sheep extends Animal {
     public SpawnGroupData finalizeSpawn(
         LevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
-        param3 = super.finalizeSpawn(param0, param1, param2, param3, param4);
         this.setColor(getRandomSheepColor(param0.getRandom()));
-        return param3;
+        return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
 
     private DyeColor getOffspringColor(Animal param0, Animal param1) {

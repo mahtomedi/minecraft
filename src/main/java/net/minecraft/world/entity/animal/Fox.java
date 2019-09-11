@@ -298,14 +298,11 @@ public class Fox extends Animal {
         boolean var2 = false;
         if (param3 instanceof Fox.FoxGroupData) {
             var1 = ((Fox.FoxGroupData)param3).type;
-            if (((Fox.FoxGroupData)param3).numParents >= 2) {
+            if (((Fox.FoxGroupData)param3).getGroupSize() >= 2) {
                 var2 = true;
-            } else {
-                ++((Fox.FoxGroupData)param3).numParents;
             }
         } else {
             param3 = new Fox.FoxGroupData(var1);
-            ++((Fox.FoxGroupData)param3).numParents;
         }
 
         this.setFoxType(var1);
@@ -1000,11 +997,11 @@ public class Fox extends Animal {
         }
     }
 
-    public static class FoxGroupData implements SpawnGroupData {
+    public static class FoxGroupData extends AgableMob.AgableMobGroupData {
         public final Fox.Type type;
-        public int numParents;
 
         public FoxGroupData(Fox.Type param0) {
+            this.setShouldSpawnBaby(false);
             this.type = param0;
         }
     }

@@ -658,13 +658,14 @@ public abstract class Player extends LivingEntity {
         return SoundEvents.PLAYER_DEATH;
     }
 
-    @Nullable
-    public ItemEntity drop(boolean param0) {
+    public boolean drop(boolean param0) {
         return this.drop(
-            this.inventory.removeItem(this.inventory.selected, param0 && !this.inventory.getSelected().isEmpty() ? this.inventory.getSelected().getCount() : 1),
-            false,
-            true
-        );
+                this.inventory
+                    .removeItem(this.inventory.selected, param0 && !this.inventory.getSelected().isEmpty() ? this.inventory.getSelected().getCount() : 1),
+                false,
+                true
+            )
+            != null;
     }
 
     @Nullable
@@ -834,7 +835,7 @@ public abstract class Player extends LivingEntity {
             return !this.level.getGameRules().getBoolean(GameRules.RULE_DROWNING_DAMAGE);
         } else if (param0 == DamageSource.FALL) {
             return !this.level.getGameRules().getBoolean(GameRules.RULE_FALL_DAMAGE);
-        } else if (param0 != DamageSource.ON_FIRE && param0 != DamageSource.IN_FIRE) {
+        } else if (param0 != DamageSource.ON_FIRE && param0 != DamageSource.IN_FIRE && param0 != DamageSource.LAVA) {
             return false;
         } else {
             return !this.level.getGameRules().getBoolean(GameRules.RULE_FIRE_DAMAGE);

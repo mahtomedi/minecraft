@@ -141,4 +141,8 @@ public class PoiSection implements Serializable {
         this.records.clear();
         this.byType.clear();
     }
+
+    boolean isValid() {
+        return this.isValid;
+    }
 }

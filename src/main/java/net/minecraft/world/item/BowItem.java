@@ -6,7 +6,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -125,9 +124,9 @@ public class BowItem extends ProjectileWeaponItem {
         boolean var1 = !param1.getProjectile(var0).isEmpty();
         if (param1.abilities.instabuild || var1) {
             param1.startUsingItem(param2);
-            return new InteractionResultHolder<>(InteractionResult.SUCCESS, var0);
+            return InteractionResultHolder.successNoSwing(var0);
         } else {
-            return var1 ? new InteractionResultHolder<>(InteractionResult.PASS, var0) : new InteractionResultHolder<>(InteractionResult.FAIL, var0);
+            return var1 ? InteractionResultHolder.pass(var0) : InteractionResultHolder.fail(var0);
         }
     }
 

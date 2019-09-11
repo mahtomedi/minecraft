@@ -273,27 +273,17 @@ public class Ocelot extends Animal {
         return false;
     }
 
-    protected void addKittensDuringSpawn() {
-        for(int var0 = 0; var0 < 2; ++var0) {
-            Ocelot var1 = EntityType.OCELOT.create(this.level);
-            var1.moveTo(this.x, this.y, this.z, this.yRot, 0.0F);
-            var1.setAge(-24000);
-            this.level.addFreshEntity(var1);
-        }
-
-    }
-
     @Nullable
     @Override
     public SpawnGroupData finalizeSpawn(
         LevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
-        param3 = super.finalizeSpawn(param0, param1, param2, param3, param4);
-        if (param0.getRandom().nextInt(7) == 0) {
-            this.addKittensDuringSpawn();
+        if (param3 == null) {
+            param3 = new AgableMob.AgableMobGroupData();
+            ((AgableMob.AgableMobGroupData)param3).setBabySpawnChance(0.14285715F);
         }
 
-        return param3;
+        return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
 
     static class OcelotAvoidEntityGoal<T extends LivingEntity> extends AvoidEntityGoal<T> {

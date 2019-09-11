@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.function.Predicate;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
@@ -30,7 +29,7 @@ public class BoatItem extends Item {
         ItemStack var0 = param1.getItemInHand(param2);
         HitResult var1 = getPlayerPOVHitResult(param0, param1, ClipContext.Fluid.ANY);
         if (var1.getType() == HitResult.Type.MISS) {
-            return new InteractionResultHolder<>(InteractionResult.PASS, var0);
+            return InteractionResultHolder.pass(var0);
         } else {
             Vec3 var2 = param1.getViewVector(1.0F);
             double var3 = 5.0;
@@ -41,7 +40,7 @@ public class BoatItem extends Item {
                 for(Entity var6 : var4) {
                     AABB var7 = var6.getBoundingBox().inflate((double)var6.getPickRadius());
                     if (var7.contains(var5)) {
-                        return new InteractionResultHolder<>(InteractionResult.PASS, var0);
+                        return InteractionResultHolder.pass(var0);
                     }
                 }
             }
@@ -51,7 +50,7 @@ public class BoatItem extends Item {
                 var8.setType(this.type);
                 var8.yRot = param1.yRot;
                 if (!param0.noCollision(var8, var8.getBoundingBox().inflate(-0.1))) {
-                    return new InteractionResultHolder<>(InteractionResult.FAIL, var0);
+                    return InteractionResultHolder.fail(var0);
                 } else {
                     if (!param0.isClientSide) {
                         param0.addFreshEntity(var8);
@@ -62,10 +61,10 @@ public class BoatItem extends Item {
                     }
 
                     param1.awardStat(Stats.ITEM_USED.get(this));
-                    return new InteractionResultHolder<>(InteractionResult.SUCCESS, var0);
+                    return InteractionResultHolder.success(var0);
                 }
             } else {
-                return new InteractionResultHolder<>(InteractionResult.PASS, var0);
+                return InteractionResultHolder.pass(var0);
             }
         }
     }

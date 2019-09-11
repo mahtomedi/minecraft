@@ -1681,7 +1681,7 @@ public abstract class LivingEntity extends Entity {
             double var9 = param0.getBoundingBox().minY + (double)param0.getBbHeight();
             double var10 = param0.z;
             Direction var11 = param0.getMotionDirection();
-            if (var11 != null) {
+            if (var11 != null && var11.getAxis() != Direction.Axis.Y) {
                 Direction var12 = var11.getClockWise();
                 int[][] var13 = new int[][]{{0, 1}, {0, -1}, {-1, 1}, {-1, -1}, {1, 1}, {1, -1}, {-1, 0}, {1, 0}, {0, 1}};
                 double var14 = Math.floor(this.x) + 0.5;

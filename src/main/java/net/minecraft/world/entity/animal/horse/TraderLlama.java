@@ -4,6 +4,7 @@ import java.util.EnumSet;
 import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.entity.AgableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -105,12 +106,16 @@ public class TraderLlama extends Llama {
     public SpawnGroupData finalizeSpawn(
         LevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
-        SpawnGroupData var0 = super.finalizeSpawn(param0, param1, param2, param3, param4);
         if (param2 == MobSpawnType.EVENT) {
             this.setAge(0);
         }
 
-        return var0;
+        if (param3 == null) {
+            param3 = new AgableMob.AgableMobGroupData();
+            ((AgableMob.AgableMobGroupData)param3).setShouldSpawnBaby(false);
+        }
+
+        return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
 
     public class TraderLlamaDefendWanderingTraderGoal extends TargetGoal {

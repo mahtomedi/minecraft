@@ -50,12 +50,16 @@ public class EnchantmentHelper {
     }
 
     public static Map<Enchantment, Integer> getEnchantments(ItemStack param0) {
-        Map<Enchantment, Integer> var0 = Maps.newLinkedHashMap();
-        ListTag var1 = param0.getItem() == Items.ENCHANTED_BOOK ? EnchantedBookItem.getEnchantments(param0) : param0.getEnchantmentTags();
+        ListTag var0 = param0.getItem() == Items.ENCHANTED_BOOK ? EnchantedBookItem.getEnchantments(param0) : param0.getEnchantmentTags();
+        return deserializeEnchantments(var0);
+    }
 
-        for(int var2 = 0; var2 < var1.size(); ++var2) {
-            CompoundTag var3 = var1.getCompound(var2);
-            Registry.ENCHANTMENT.getOptional(ResourceLocation.tryParse(var3.getString("id"))).ifPresent(param2 -> {
+    public static Map<Enchantment, Integer> deserializeEnchantments(ListTag param0) {
+        Map<Enchantment, Integer> var0 = Maps.newLinkedHashMap();
+
+        for(int var1 = 0; var1 < param0.size(); ++var1) {
+            CompoundTag var2 = param0.getCompound(var1);
+            Registry.ENCHANTMENT.getOptional(ResourceLocation.tryParse(var2.getString("id"))).ifPresent(param2 -> {
             });
         }
 

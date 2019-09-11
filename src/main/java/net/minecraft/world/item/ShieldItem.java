@@ -6,7 +6,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -49,7 +48,7 @@ public class ShieldItem extends Item {
     public InteractionResultHolder<ItemStack> use(Level param0, Player param1, InteractionHand param2) {
         ItemStack var0 = param1.getItemInHand(param2);
         param1.startUsingItem(param2);
-        return new InteractionResultHolder<>(InteractionResult.SUCCESS, var0);
+        return InteractionResultHolder.successNoSwing(var0);
     }
 
     @Override

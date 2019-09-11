@@ -37,14 +37,14 @@ public class WaterLilyBlockItem extends BlockItem {
         ItemStack var0 = param1.getItemInHand(param2);
         HitResult var1 = getPlayerPOVHitResult(param0, param1, ClipContext.Fluid.SOURCE_ONLY);
         if (var1.getType() == HitResult.Type.MISS) {
-            return new InteractionResultHolder<>(InteractionResult.PASS, var0);
+            return InteractionResultHolder.pass(var0);
         } else {
             if (var1.getType() == HitResult.Type.BLOCK) {
                 BlockHitResult var2 = (BlockHitResult)var1;
                 BlockPos var3 = var2.getBlockPos();
                 Direction var4 = var2.getDirection();
                 if (!param0.mayInteract(param1, var3) || !param1.mayUseItemAt(var3.relative(var4), var4, var0)) {
-                    return new InteractionResultHolder<>(InteractionResult.FAIL, var0);
+                    return InteractionResultHolder.fail(var0);
                 }
 
                 BlockPos var5 = var3.above();
@@ -63,11 +63,11 @@ public class WaterLilyBlockItem extends BlockItem {
 
                     param1.awardStat(Stats.ITEM_USED.get(this));
                     param0.playSound(param1, var3, SoundEvents.LILY_PAD_PLACE, SoundSource.BLOCKS, 1.0F, 1.0F);
-                    return new InteractionResultHolder<>(InteractionResult.SUCCESS, var0);
+                    return InteractionResultHolder.success(var0);
                 }
             }
 
-            return new InteractionResultHolder<>(InteractionResult.FAIL, var0);
+            return InteractionResultHolder.fail(var0);
         }
     }
 }

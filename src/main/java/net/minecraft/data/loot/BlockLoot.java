@@ -1114,7 +1114,15 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
         this.add(Blocks.SEAGRASS, BlockLoot::createShearsOnlyDrop);
         this.add(Blocks.VINE, BlockLoot::createShearsOnlyDrop);
         this.add(Blocks.TALL_SEAGRASS, createShearsOnlyDrop(Blocks.SEAGRASS));
-        this.add(Blocks.LARGE_FERN, createShearsOnlyDrop(Blocks.FERN));
+        this.add(
+            Blocks.LARGE_FERN,
+            param0x -> createShearsDispatchTable(
+                    Blocks.FERN,
+                    applyExplosionCondition(param0x, LootItem.lootTableItem(Items.WHEAT_SEEDS))
+                        .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x).withProperty(DoublePlantBlock.HALF, DoubleBlockHalf.LOWER))
+                        .when(LootItemRandomChanceCondition.randomChance(0.125F))
+                )
+        );
         this.add(
             Blocks.TALL_GRASS,
             param0x -> createShearsDispatchTable(

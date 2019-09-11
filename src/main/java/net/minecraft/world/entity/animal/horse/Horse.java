@@ -143,6 +143,7 @@ public class Horse extends AbstractHorse {
     protected void updateEquipment() {
         super.updateEquipment();
         this.setArmorEquipment(this.inventory.getItem(1));
+        this.setDropChance(EquipmentSlot.CHEST, 0.0F);
     }
 
     private void setArmorEquipment(ItemStack param0) {
@@ -337,7 +338,6 @@ public class Horse extends AbstractHorse {
     public SpawnGroupData finalizeSpawn(
         LevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
-        param3 = super.finalizeSpawn(param0, param1, param2, param3, param4);
         int var0;
         if (param3 instanceof Horse.HorseGroupData) {
             var0 = ((Horse.HorseGroupData)param3).variant;
@@ -347,10 +347,10 @@ public class Horse extends AbstractHorse {
         }
 
         this.setVariant(var0 | this.random.nextInt(5) << 8);
-        return param3;
+        return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
 
-    public static class HorseGroupData implements SpawnGroupData {
+    public static class HorseGroupData extends AgableMob.AgableMobGroupData {
         public final int variant;
 
         public HorseGroupData(int param0) {

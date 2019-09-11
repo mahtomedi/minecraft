@@ -16,6 +16,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.Tag;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.alchemy.Potion;
@@ -33,6 +34,7 @@ public class ItemPredicate {
     private final MinMaxBounds.Ints count;
     private final MinMaxBounds.Ints durability;
     private final EnchantmentPredicate[] enchantments;
+    private final EnchantmentPredicate[] storedEnchantments;
     @Nullable
     private final Potion potion;
     private final NbtPredicate nbt;
@@ -43,7 +45,8 @@ public class ItemPredicate {
         this.potion = null;
         this.count = MinMaxBounds.Ints.ANY;
         this.durability = MinMaxBounds.Ints.ANY;
-        this.enchantments = new EnchantmentPredicate[0];
+        this.enchantments = EnchantmentPredicate.NONE;
+        this.storedEnchantments = EnchantmentPredicate.NONE;
         this.nbt = NbtPredicate.ANY;
     }
 
@@ -53,16 +56,18 @@ public class ItemPredicate {
         MinMaxBounds.Ints param2,
         MinMaxBounds.Ints param3,
         EnchantmentPredicate[] param4,
-        @Nullable Potion param5,
-        NbtPredicate param6
+        EnchantmentPredicate[] param5,
+        @Nullable Potion param6,
+        NbtPredicate param7
     ) {
         this.tag = param0;
         this.item = param1;
         this.count = param2;
         this.durability = param3;
         this.enchantments = param4;
-        this.potion = param5;
-        this.nbt = param6;
+        this.storedEnchantments = param5;
+        this.potion = param6;
+        this.nbt = param7;
     }
 
     public boolean matches(ItemStack param0) {
@@ -81,16 +86,28 @@ public class ItemPredicate {
         } else if (!this.nbt.matches(param0)) {
             return false;
         } else {
-            Map<Enchantment, Integer> var0 = EnchantmentHelper.getEnchantments(param0);
+            if (this.enchantments.length > 0) {
+                Map<Enchantment, Integer> var0 = EnchantmentHelper.deserializeEnchantments(param0.getEnchantmentTags());
 
-            for(int var1 = 0; var1 < this.enchantments.length; ++var1) {
-                if (!this.enchantments[var1].containedIn(var0)) {
-                    return false;
+                for(EnchantmentPredicate var1 : this.enchantments) {
+                    if (!var1.containedIn(var0)) {
+                        return false;
+                    }
                 }
             }
 
-            Potion var2 = PotionUtils.getPotion(param0);
-            return this.potion == null || this.potion == var2;
+            if (this.storedEnchantments.length > 0) {
+                Map<Enchantment, Integer> var2 = EnchantmentHelper.deserializeEnchantments(EnchantedBookItem.getEnchantments(param0));
+
+                for(EnchantmentPredicate var3 : this.storedEnchantments) {
+                    if (!var3.containedIn(var2)) {
+                        return false;
+                    }
+                }
+            }
+
+            Potion var4 = PotionUtils.getPotion(param0);
+            return this.potion == null || this.potion == var4;
         }
     }
 
@@ -118,14 +135,15 @@ public class ItemPredicate {
                     }
                 }
 
-                EnchantmentPredicate[] var8 = EnchantmentPredicate.fromJsonArray(var0.get("enchantments"));
-                Potion var9 = null;
+                Potion var8 = null;
                 if (var0.has("potion")) {
-                    ResourceLocation var10 = new ResourceLocation(GsonHelper.getAsString(var0, "potion"));
-                    var9 = Registry.POTION.getOptional(var10).orElseThrow(() -> new JsonSyntaxException("Unknown potion '" + var10 + "'"));
+                    ResourceLocation var9 = new ResourceLocation(GsonHelper.getAsString(var0, "potion"));
+                    var8 = Registry.POTION.getOptional(var9).orElseThrow(() -> new JsonSyntaxException("Unknown potion '" + var9 + "'"));
                 }
 
-                return new ItemPredicate(var6, var4, var1, var2, var8, var9, var3);
+                EnchantmentPredicate[] var10 = EnchantmentPredicate.fromJsonArray(var0.get("enchantments"));
+                EnchantmentPredicate[] var11 = EnchantmentPredicate.fromJsonArray(var0.get("stored_enchantments"));
+                return new ItemPredicate(var6, var4, var1, var2, var10, var11, var8, var3);
             }
         } else {
             return ANY;
@@ -158,6 +176,16 @@ public class ItemPredicate {
                 var0.add("enchantments", var1);
             }
 
+            if (this.storedEnchantments.length > 0) {
+                JsonArray var3 = new JsonArray();
+
+                for(EnchantmentPredicate var4 : this.storedEnchantments) {
+                    var3.add(var4.serializeToJson());
+                }
+
+                var0.add("stored_enchantments", var3);
+            }
+
             if (this.potion != null) {
                 var0.addProperty("potion", Registry.POTION.getKey(this.potion).toString());
             }
@@ -183,6 +211,7 @@ public class ItemPredicate {
 
     public static class Builder {
         private final List<EnchantmentPredicate> enchantments = Lists.newArrayList();
+        private final List<EnchantmentPredicate> storedEnchantments = Lists.newArrayList();
         @Nullable
         private Item item;
         @Nullable
@@ -227,7 +256,14 @@ public class ItemPredicate {
 
         public ItemPredicate build() {
             return new ItemPredicate(
-                this.tag, this.item, this.count, this.durability, this.enchantments.toArray(new EnchantmentPredicate[0]), this.potion, this.nbt
+                this.tag,
+                this.item,
+                this.count,
+                this.durability,
+                this.enchantments.toArray(EnchantmentPredicate.NONE),
+                this.storedEnchantments.toArray(EnchantmentPredicate.NONE),
+                this.potion,
+                this.nbt
             );
         }
     }

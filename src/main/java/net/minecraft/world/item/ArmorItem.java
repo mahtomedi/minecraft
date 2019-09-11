@@ -8,7 +8,6 @@ import net.minecraft.core.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -95,9 +94,9 @@ public class ArmorItem extends Item {
         if (var2.isEmpty()) {
             param1.setItemSlot(var1, var0.copy());
             var0.setCount(0);
-            return new InteractionResultHolder<>(InteractionResult.SUCCESS, var0);
+            return InteractionResultHolder.success(var0);
         } else {
-            return new InteractionResultHolder<>(InteractionResult.FAIL, var0);
+            return InteractionResultHolder.fail(var0);
         }
     }
 

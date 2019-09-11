@@ -93,6 +93,10 @@ public final class ItemStack {
     public ItemStack(ItemLike param0, int param1) {
         this.item = param0 == null ? null : param0.asItem();
         this.count = param1;
+        if (this.item != null && this.item.canBeDepleted()) {
+            this.setDamageValue(this.getDamageValue());
+        }
+
         this.updateEmptyCacheFlag();
     }
 
@@ -181,7 +185,7 @@ public final class ItemStack {
         param0.putString("id", var0 == null ? "minecraft:air" : var0.toString());
         param0.putByte("Count", (byte)this.count);
         if (this.tag != null) {
-            param0.put("tag", this.tag);
+            param0.put("tag", this.tag.copy());
         }
 
         return param0;

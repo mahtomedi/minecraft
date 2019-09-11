@@ -116,27 +116,27 @@
   "complianceLevel": 0,
   "downloads": {
     "client": {
-      "sha1": "54a359d0b47818d85c61db79ec742f7fdab5b914",
-      "size": 25321456,
-      "url": "https://launcher.mojang.com/v1/objects/54a359d0b47818d85c61db79ec742f7fdab5b914/client.jar"
+      "sha1": "0fd25a522c2faef517aeb55fb9472d7ac4141efc",
+      "size": 25323030,
+      "url": "https://launcher.mojang.com/v1/objects/0fd25a522c2faef517aeb55fb9472d7ac4141efc/client.jar"
     },
     "client_mappings": {
-      "sha1": "be3d6f09c644d0a10dbd4e2b2b3866c33815110f",
-      "size": 4785570,
-      "url": "https://launcher.mojang.com/v1/objects/be3d6f09c644d0a10dbd4e2b2b3866c33815110f/client.txt"
+      "sha1": "f3c8ca6bc6efd2ae2f990a95f8b44e2a7c414ccd",
+      "size": 4789311,
+      "url": "https://launcher.mojang.com/v1/objects/f3c8ca6bc6efd2ae2f990a95f8b44e2a7c414ccd/client.txt"
     },
     "server": {
-      "sha1": "c042fd138ae280b01ce191937ca917666a15be38",
-      "size": 36068701,
-      "url": "https://launcher.mojang.com/v1/objects/c042fd138ae280b01ce191937ca917666a15be38/server.jar"
+      "sha1": "e2c6923d9e06f6b98460f0f584567848a70bf71b",
+      "size": 36070380,
+      "url": "https://launcher.mojang.com/v1/objects/e2c6923d9e06f6b98460f0f584567848a70bf71b/server.jar"
     },
     "server_mappings": {
-      "sha1": "8d9625aac73ce4eafc6378f1db8ca80d8553bd9f",
-      "size": 3630856,
-      "url": "https://launcher.mojang.com/v1/objects/8d9625aac73ce4eafc6378f1db8ca80d8553bd9f/server.txt"
+      "sha1": "18855680e129e84ccdb07f0c0a14b12d9a425e91",
+      "size": 3634626,
+      "url": "https://launcher.mojang.com/v1/objects/18855680e129e84ccdb07f0c0a14b12d9a425e91/server.txt"
     }
   },
-  "id": "19w36a",
+  "id": "19w37a",
   "javaVersion": {
     "component": "jre-legacy",
     "majorVersion": 8
@@ -1395,7 +1395,7 @@
   },
   "mainClass": "net.minecraft.client.main.Main",
   "minimumLauncherVersion": 21,
-  "releaseTime": "2019-09-04T11:19:34+00:00",
-  "time": "2019-09-04T11:19:34+00:00",
+  "releaseTime": "2019-09-11T11:46:44+00:00",
+  "time": "2019-09-11T11:46:44+00:00",
   "type": "snapshot"
 }

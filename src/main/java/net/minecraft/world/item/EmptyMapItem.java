@@ -3,7 +3,6 @@ package net.minecraft.world.item;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -22,14 +21,14 @@ public class EmptyMapItem extends ComplexItem {
         }
 
         if (var1.isEmpty()) {
-            return new InteractionResultHolder<>(InteractionResult.SUCCESS, var0);
+            return InteractionResultHolder.success(var0);
         } else {
             if (!param1.inventory.add(var0.copy())) {
                 param1.drop(var0, false);
             }
 
             param1.awardStat(Stats.ITEM_USED.get(this));
-            return new InteractionResultHolder<>(InteractionResult.SUCCESS, var1);
+            return InteractionResultHolder.success(var1);
         }
     }
 }

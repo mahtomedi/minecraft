@@ -151,6 +151,12 @@ public class SectionPos extends Vec3i {
         return betweenClosedStream(var0 - param1, var1 - param1, var2 - param1, var0 + param1, var1 + param1, var2 + param1);
     }
 
+    public static Stream<SectionPos> aroundChunk(ChunkPos param0, int param1) {
+        int var0 = param0.x;
+        int var1 = param0.z;
+        return betweenClosedStream(var0 - param1, 0, var1 - param1, var0 + param1, 15, var1 + param1);
+    }
+
     public static Stream<SectionPos> betweenClosedStream(
         final int param0, final int param1, final int param2, final int param3, final int param4, final int param5
     ) {

@@ -5,7 +5,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.fishing.FishingHook;
 import net.minecraft.world.entity.player.Player;
@@ -39,7 +38,6 @@ public class FishingRodItem extends Item {
                 var0.hurtAndBreak(var1, param1, param1x -> param1x.broadcastBreakEvent(param2));
             }
 
-            param1.swing(param2);
             param0.playSound(
                 null, param1.x, param1.y, param1.z, SoundEvents.FISHING_BOBBER_RETRIEVE, SoundSource.NEUTRAL, 1.0F, 0.4F / (random.nextFloat() * 0.4F + 0.8F)
             );
@@ -53,11 +51,10 @@ public class FishingRodItem extends Item {
                 param0.addFreshEntity(new FishingHook(param1, param0, var3, var2));
             }
 
-            param1.swing(param2);
             param1.awardStat(Stats.ITEM_USED.get(this));
         }
 
-        return new InteractionResultHolder<>(InteractionResult.SUCCESS, var0);
+        return InteractionResultHolder.success(var0);
     }
 
     @Override

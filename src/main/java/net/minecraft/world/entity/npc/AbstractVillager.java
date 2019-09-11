@@ -13,19 +13,23 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.trading.Merchant;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -40,6 +44,18 @@ public abstract class AbstractVillager extends AgableMob implements Npc, Merchan
 
     public AbstractVillager(EntityType<? extends AbstractVillager> param0, Level param1) {
         super(param0, param1);
+    }
+
+    @Override
+    public SpawnGroupData finalizeSpawn(
+        LevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
+    ) {
+        if (param3 == null) {
+            param3 = new AgableMob.AgableMobGroupData();
+            ((AgableMob.AgableMobGroupData)param3).setShouldSpawnBaby(false);
+        }
+
+        return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
 
     public int getUnhappyCounter() {

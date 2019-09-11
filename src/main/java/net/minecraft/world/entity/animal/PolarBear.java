@@ -195,13 +195,12 @@ public class PolarBear extends Animal {
     public SpawnGroupData finalizeSpawn(
         LevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
-        if (param3 instanceof PolarBear.PolarBearGroupData) {
-            this.setAge(-24000);
-        } else {
-            param3 = new PolarBear.PolarBearGroupData();
+        if (param3 == null) {
+            param3 = new AgableMob.AgableMobGroupData();
+            ((AgableMob.AgableMobGroupData)param3).setBabySpawnChance(1.0F);
         }
 
-        return param3;
+        return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
 
     class PolarBearAttackPlayersGoal extends NearestAttackableTargetGoal<Player> {
@@ -229,11 +228,6 @@ public class PolarBear extends Animal {
         @Override
         protected double getFollowDistance() {
             return super.getFollowDistance() * 0.5;
-        }
-    }
-
-    static class PolarBearGroupData implements SpawnGroupData {
-        private PolarBearGroupData() {
         }
     }
 

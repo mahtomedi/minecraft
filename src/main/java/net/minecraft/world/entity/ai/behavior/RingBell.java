@@ -2,7 +2,6 @@ package net.minecraft.world.entity.ai.behavior;
 
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.Brain;
@@ -11,8 +10,6 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.level.block.BellBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
 
 public class RingBell extends Behavior<LivingEntity> {
     public RingBell() {
@@ -32,12 +29,7 @@ public class RingBell extends Behavior<LivingEntity> {
             BlockState var2 = param0.getBlockState(var1);
             if (var2.getBlock() == Blocks.BELL) {
                 BellBlock var3 = (BellBlock)var2.getBlock();
-
-                for(Direction var4 : Direction.Plane.HORIZONTAL) {
-                    if (var3.onHit(param0, var2, new BlockHitResult(new Vec3(0.5, 0.5, 0.5), var4, var1, false), null, false)) {
-                        break;
-                    }
-                }
+                var3.attemptToRing(param0, var1, null);
             }
         }
 

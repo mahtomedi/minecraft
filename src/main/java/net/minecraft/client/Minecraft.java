@@ -157,6 +157,7 @@ import net.minecraft.util.thread.ReentrantBlockableEventLoop;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.Snooper;
 import net.minecraft.world.SnooperPopulator;
 import net.minecraft.world.entity.Entity;
@@ -1196,14 +1197,12 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                             case ENTITY:
                                 EntityHitResult var2 = (EntityHitResult)this.hitResult;
                                 Entity var3 = var2.getEntity();
-                                if (this.gameMode.interactAt(this.player, var3, var2, var0) == InteractionResult.SUCCESS) {
-                                    return;
+                                if (this.gameMode.interactAt(this.player, var3, var2, var0) == InteractionResult.SUCCESS
+                                    || this.gameMode.interact(this.player, var3, var0) == InteractionResult.SUCCESS) {
+                                    this.player.swing(var0);
                                 }
 
-                                if (this.gameMode.interact(this.player, var3, var0) == InteractionResult.SUCCESS) {
-                                    return;
-                                }
-                                break;
+                                return;
                             case BLOCK:
                                 BlockHitResult var4 = (BlockHitResult)this.hitResult;
                                 int var5 = var1.getCount();
@@ -1223,9 +1222,16 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                         }
                     }
 
-                    if (!var1.isEmpty() && this.gameMode.useItem(this.player, this.level, var0) == InteractionResult.SUCCESS) {
-                        this.gameRenderer.itemInHandRenderer.itemUsed(var0);
-                        return;
+                    if (!var1.isEmpty()) {
+                        InteractionResultHolder<ItemStack> var7 = this.gameMode.useItem(this.player, this.level, var0);
+                        if (var7.getResult() == InteractionResult.SUCCESS) {
+                            if (var7.shouldSwingOnSuccess()) {
+                                this.player.swing(var0);
+                            }
+
+                            this.gameRenderer.itemInHandRenderer.itemUsed(var0);
+                            return;
+                        }
                     }
                 }
 
@@ -1411,8 +1417,8 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         }
 
         while(this.options.keyDrop.consumeClick()) {
-            if (!this.player.isSpectator()) {
-                this.player.drop(Screen.hasControlDown());
+            if (!this.player.isSpectator() && this.player.drop(Screen.hasControlDown())) {
+                this.player.swing(InteractionHand.MAIN_HAND);
             }
         }
 

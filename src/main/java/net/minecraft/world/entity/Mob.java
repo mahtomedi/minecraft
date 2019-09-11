@@ -504,7 +504,7 @@ public abstract class Mob extends LivingEntity {
         boolean var3 = this.canReplaceCurrentItem(var0, var2, var1);
         if (var3 && this.canHoldItem(var0)) {
             double var4 = (double)this.getEquipmentDropChance(var1);
-            if (!var2.isEmpty() && (double)(this.random.nextFloat() - 0.1F) < var4) {
+            if (!var2.isEmpty() && (double)Math.max(this.random.nextFloat() - 0.1F, 0.0F) < var4) {
                 this.spawnAtLocation(var2);
             }
 
@@ -755,7 +755,10 @@ public abstract class Mob extends LivingEntity {
             ItemStack var1 = this.getItemBySlot(var0);
             float var2 = this.getEquipmentDropChance(var0);
             boolean var3 = var2 > 1.0F;
-            if (!var1.isEmpty() && !EnchantmentHelper.hasVanishingCurse(var1) && (param2 || var3) && this.random.nextFloat() - (float)param1 * 0.01F < var2) {
+            if (!var1.isEmpty()
+                && !EnchantmentHelper.hasVanishingCurse(var1)
+                && (param2 || var3)
+                && Math.max(this.random.nextFloat() - (float)param1 * 0.01F, 0.0F) < var2) {
                 if (!var3 && var1.isDamageableItem()) {
                     var1.setDamageValue(var1.getMaxDamage() - this.random.nextInt(1 + this.random.nextInt(Math.max(var1.getMaxDamage() - 3, 1))));
                 }

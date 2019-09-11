@@ -103,7 +103,12 @@ public class GameRules {
     }
 
     public void loadFromTag(CompoundTag param0) {
-        this.rules.forEach((param1, param2) -> param2.deserialize(param0.getString(param1.id)));
+        this.rules.forEach((param1, param2) -> {
+            if (param0.contains(param1.id)) {
+                param2.deserialize(param0.getString(param1.id));
+            }
+
+        });
     }
 
     public static void visitGameRuleTypes(GameRules.GameRuleTypeVisitor param0) {

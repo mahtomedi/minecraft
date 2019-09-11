@@ -51,9 +51,9 @@ public class FireworkRocketItem extends Item {
                 }
             }
 
-            return new InteractionResultHolder<>(InteractionResult.SUCCESS, param1.getItemInHand(param2));
+            return InteractionResultHolder.success(param1.getItemInHand(param2));
         } else {
-            return new InteractionResultHolder<>(InteractionResult.PASS, param1.getItemInHand(param2));
+            return InteractionResultHolder.pass(param1.getItemInHand(param2));
         }
     }
 

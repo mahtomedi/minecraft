@@ -69,13 +69,19 @@ public class Slime extends Mob implements Enemy {
         this.entityData.define(ID_SIZE, 1);
     }
 
+    @Override
+    protected void registerAttributes() {
+        super.registerAttributes();
+        this.getAttributes().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE);
+    }
+
     protected void setSize(int param0, boolean param1) {
         this.entityData.set(ID_SIZE, param0);
         this.setPos(this.x, this.y, this.z);
         this.refreshDimensions();
         this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue((double)(param0 * param0));
         this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue((double)(0.2F + 0.1F * (float)param0));
-        this.getAttributes().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue((double)param0);
+        this.getAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue((double)param0);
         if (param1) {
             this.setHealth(this.getMaxHealth());
         }

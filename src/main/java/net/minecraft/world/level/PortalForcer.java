@@ -56,13 +56,13 @@ public class PortalForcer {
 
     @Nullable
     public BlockPattern.PortalInfo findPortal(BlockPos param0, Vec3 param1, Direction param2, double param3, double param4, boolean param5) {
-        List<PoiRecord> var0 = this.level
-            .getPoiManager()
-            .getInSquare(param0x -> param0x == PoiType.NETHER_PORTAL, param0, 128, PoiManager.Occupancy.ANY)
+        PoiManager var0 = this.level.getPoiManager();
+        var0.ensureLoadedAndValid(this.level, param0, 128);
+        List<PoiRecord> var1 = var0.getInSquare(param0x -> param0x == PoiType.NETHER_PORTAL, param0, 128, PoiManager.Occupancy.ANY)
             .collect(Collectors.toList());
-        Optional<PoiRecord> var1 = var0.stream()
+        Optional<PoiRecord> var2 = var1.stream()
             .min(Comparator.<PoiRecord>comparingDouble(param1x -> param1x.getPos().distSqr(param0)).thenComparingInt(param0x -> param0x.getPos().getY()));
-        return var1.<BlockPattern.PortalInfo>map(param4x -> {
+        return var2.<BlockPattern.PortalInfo>map(param4x -> {
             BlockPos var0x = param4x.getPos();
             this.level.getChunkSource().addRegionTicket(TicketType.PORTAL, new ChunkPos(var0x), 3, var0x);
             BlockPattern.BlockPatternMatch var1x = NetherPortalBlock.getPortalShape(this.level, var0x);

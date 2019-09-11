@@ -60,7 +60,7 @@ public class BellBlock extends BaseEntityBlock {
         boolean var0 = param1.hasNeighborSignal(param2);
         if (var0 != param0.getValue(POWERED)) {
             if (var0) {
-                this.attemptToRing(param1, param2, Direction.NORTH);
+                this.attemptToRing(param1, param2, null);
             }
 
             param1.setBlock(param2, param0.setValue(POWERED, Boolean.valueOf(var0)), 3);
@@ -117,9 +117,13 @@ public class BellBlock extends BaseEntityBlock {
         }
     }
 
-    private boolean attemptToRing(Level param0, BlockPos param1, Direction param2) {
+    public boolean attemptToRing(Level param0, BlockPos param1, @Nullable Direction param2) {
         BlockEntity var0 = param0.getBlockEntity(param1);
         if (!param0.isClientSide && var0 instanceof BellBlockEntity) {
+            if (param2 == null) {
+                param2 = param0.getBlockState(param1).getValue(FACING);
+            }
+
             ((BellBlockEntity)var0).onHit(param2);
             param0.playSound(null, param1, SoundEvents.BELL_BLOCK, SoundSource.BLOCKS, 2.0F, 1.0F);
             return true;

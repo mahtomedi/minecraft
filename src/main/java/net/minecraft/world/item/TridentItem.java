@@ -9,7 +9,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -121,12 +120,12 @@ public class TridentItem extends Item {
     public InteractionResultHolder<ItemStack> use(Level param0, Player param1, InteractionHand param2) {
         ItemStack var0 = param1.getItemInHand(param2);
         if (var0.getDamageValue() >= var0.getMaxDamage()) {
-            return new InteractionResultHolder<>(InteractionResult.FAIL, var0);
+            return InteractionResultHolder.fail(var0);
         } else if (EnchantmentHelper.getRiptide(var0) > 0 && !param1.isInWaterOrRain()) {
-            return new InteractionResultHolder<>(InteractionResult.FAIL, var0);
+            return InteractionResultHolder.fail(var0);
         } else {
             param1.startUsingItem(param2);
-            return new InteractionResultHolder<>(InteractionResult.SUCCESS, var0);
+            return InteractionResultHolder.successNoSwing(var0);
         }
     }
 

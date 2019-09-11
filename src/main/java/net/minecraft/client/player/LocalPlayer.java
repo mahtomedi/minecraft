@@ -55,7 +55,6 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.PlayerRideableJumping;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.ElytraItem;
@@ -255,15 +254,15 @@ public class LocalPlayer extends AbstractClientPlayer {
 
     }
 
-    @Nullable
     @Override
-    public ItemEntity drop(boolean param0) {
+    public boolean drop(boolean param0) {
         ServerboundPlayerActionPacket.Action var0 = param0
             ? ServerboundPlayerActionPacket.Action.DROP_ALL_ITEMS
             : ServerboundPlayerActionPacket.Action.DROP_ITEM;
         this.connection.send(new ServerboundPlayerActionPacket(var0, BlockPos.ZERO, Direction.DOWN));
-        this.inventory.removeItem(this.inventory.selected, param0 && !this.inventory.getSelected().isEmpty() ? this.inventory.getSelected().getCount() : 1);
-        return null;
+        return this.inventory
+                .removeItem(this.inventory.selected, param0 && !this.inventory.getSelected().isEmpty() ? this.inventory.getSelected().getCount() : 1)
+            != ItemStack.EMPTY;
     }
 
     public void chat(String param0) {

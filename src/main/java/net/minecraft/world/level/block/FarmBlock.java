@@ -14,6 +14,7 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.piston.MovingPistonBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -43,7 +44,7 @@ public class FarmBlock extends Block {
     @Override
     public boolean canSurvive(BlockState param0, LevelReader param1, BlockPos param2) {
         BlockState var0 = param1.getBlockState(param2.above());
-        return !var0.getMaterial().isSolid() || var0.getBlock() instanceof FenceGateBlock;
+        return !var0.getMaterial().isSolid() || var0.getBlock() instanceof FenceGateBlock || var0.getBlock() instanceof MovingPistonBlock;
     }
 
     @Override

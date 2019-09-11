@@ -52,6 +52,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
@@ -517,7 +518,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
         if (this.inventory != null) {
             for(int var0 = 0; var0 < this.inventory.getContainerSize(); ++var0) {
                 ItemStack var1 = this.inventory.getItem(var0);
-                if (!var1.isEmpty()) {
+                if (!var1.isEmpty() && !EnchantmentHelper.hasVanishingCurse(var1)) {
                     this.spawnAtLocation(var1);
                 }
             }
@@ -1026,11 +1027,11 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
     public SpawnGroupData finalizeSpawn(
         LevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
-        param3 = super.finalizeSpawn(param0, param1, param2, param3, param4);
-        if (this.random.nextInt(5) == 0) {
-            this.setAge(-24000);
+        if (param3 == null) {
+            param3 = new AgableMob.AgableMobGroupData();
+            ((AgableMob.AgableMobGroupData)param3).setBabySpawnChance(0.2F);
         }
 
-        return param3;
+        return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
 }

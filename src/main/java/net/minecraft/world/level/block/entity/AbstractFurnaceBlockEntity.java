@@ -137,7 +137,7 @@ public abstract class AbstractFurnaceBlockEntity
         add(var0, Items.WOODEN_AXE, 200);
         add(var0, Items.WOODEN_PICKAXE, 200);
         add(var0, ItemTags.WOODEN_DOORS, 200);
-        add(var0, ItemTags.BOATS, 200);
+        add(var0, ItemTags.BOATS, 1200);
         add(var0, ItemTags.WOOL, 100);
         add(var0, ItemTags.WOODEN_BUTTONS, 100);
         add(var0, Items.STICK, 100);

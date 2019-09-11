@@ -87,30 +87,30 @@ public class SpawnEggItem extends Item {
     public InteractionResultHolder<ItemStack> use(Level param0, Player param1, InteractionHand param2) {
         ItemStack var0 = param1.getItemInHand(param2);
         if (param0.isClientSide) {
-            return new InteractionResultHolder<>(InteractionResult.PASS, var0);
+            return InteractionResultHolder.pass(var0);
         } else {
             HitResult var1 = getPlayerPOVHitResult(param0, param1, ClipContext.Fluid.SOURCE_ONLY);
             if (var1.getType() != HitResult.Type.BLOCK) {
-                return new InteractionResultHolder<>(InteractionResult.PASS, var0);
+                return InteractionResultHolder.pass(var0);
             } else {
                 BlockHitResult var2 = (BlockHitResult)var1;
                 BlockPos var3 = var2.getBlockPos();
                 if (!(param0.getBlockState(var3).getBlock() instanceof LiquidBlock)) {
-                    return new InteractionResultHolder<>(InteractionResult.PASS, var0);
+                    return InteractionResultHolder.pass(var0);
                 } else if (param0.mayInteract(param1, var3) && param1.mayUseItemAt(var3, var2.getDirection(), var0)) {
                     EntityType<?> var4 = this.getType(var0.getTag());
                     if (var4.spawn(param0, var0, param1, var3, MobSpawnType.SPAWN_EGG, false, false) == null) {
-                        return new InteractionResultHolder<>(InteractionResult.PASS, var0);
+                        return InteractionResultHolder.pass(var0);
                     } else {
                         if (!param1.abilities.instabuild) {
                             var0.shrink(1);
                         }
 
                         param1.awardStat(Stats.ITEM_USED.get(this));
-                        return new InteractionResultHolder<>(InteractionResult.SUCCESS, var0);
+                        return InteractionResultHolder.success(var0);
                     }
                 } else {
-                    return new InteractionResultHolder<>(InteractionResult.FAIL, var0);
+                    return InteractionResultHolder.fail(var0);
                 }
             }
         }

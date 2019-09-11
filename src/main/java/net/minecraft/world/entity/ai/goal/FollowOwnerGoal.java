@@ -8,7 +8,6 @@ import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
@@ -42,7 +41,7 @@ public class FollowOwnerGoal extends Goal {
         LivingEntity var0 = this.tamable.getOwner();
         if (var0 == null) {
             return false;
-        } else if (var0 instanceof Player && ((Player)var0).isSpectator()) {
+        } else if (var0.isSpectator()) {
             return false;
         } else if (this.tamable.isSitting()) {
             return false;
@@ -57,8 +56,8 @@ public class FollowOwnerGoal extends Goal {
     @Override
     public boolean canContinueToUse() {
         return !this.navigation.isDone()
-            && this.tamable.distanceToSqr(this.owner) > (double)(this.stopDistance * this.stopDistance)
-            && !this.tamable.isSitting();
+            && !this.tamable.isSitting()
+            && this.tamable.distanceToSqr(this.owner) > (double)(this.stopDistance * this.stopDistance);
     }
 
     @Override
@@ -78,37 +77,35 @@ public class FollowOwnerGoal extends Goal {
     @Override
     public void tick() {
         this.tamable.getLookControl().setLookAt(this.owner, 10.0F, (float)this.tamable.getMaxHeadXRot());
-        if (!this.tamable.isSitting()) {
-            if (--this.timeToRecalcPath <= 0) {
-                this.timeToRecalcPath = 10;
-                if (!this.navigation.moveTo(this.owner, this.speedModifier)) {
-                    if (!this.tamable.isLeashed() && !this.tamable.isPassenger()) {
-                        if (!(this.tamable.distanceToSqr(this.owner) < 144.0)) {
-                            int var0 = Mth.floor(this.owner.x) - 2;
-                            int var1 = Mth.floor(this.owner.z) - 2;
-                            int var2 = Mth.floor(this.owner.getBoundingBox().minY);
+        if (--this.timeToRecalcPath <= 0) {
+            this.timeToRecalcPath = 10;
+            if (!this.tamable.isLeashed() && !this.tamable.isPassenger()) {
+                if (this.tamable.distanceToSqr(this.owner) >= 144.0) {
+                    int var0 = Mth.floor(this.owner.x) - 2;
+                    int var1 = Mth.floor(this.owner.z) - 2;
+                    int var2 = Mth.floor(this.owner.getBoundingBox().minY);
 
-                            for(int var3 = 0; var3 <= 4; ++var3) {
-                                for(int var4 = 0; var4 <= 4; ++var4) {
-                                    if ((var3 < 1 || var4 < 1 || var3 > 3 || var4 > 3)
-                                        && this.isTeleportFriendlyBlock(new BlockPos(var0 + var3, var2 - 1, var1 + var4))) {
-                                        this.tamable
-                                            .moveTo(
-                                                (double)((float)(var0 + var3) + 0.5F),
-                                                (double)var2,
-                                                (double)((float)(var1 + var4) + 0.5F),
-                                                this.tamable.yRot,
-                                                this.tamable.xRot
-                                            );
-                                        this.navigation.stop();
-                                        return;
-                                    }
-                                }
+                    for(int var3 = 0; var3 <= 4; ++var3) {
+                        for(int var4 = 0; var4 <= 4; ++var4) {
+                            if ((var3 < 1 || var4 < 1 || var3 > 3 || var4 > 3)
+                                && this.isTeleportFriendlyBlock(new BlockPos(var0 + var3, var2 - 1, var1 + var4))) {
+                                this.tamable
+                                    .moveTo(
+                                        (double)((float)(var0 + var3) + 0.5F),
+                                        (double)var2,
+                                        (double)((float)(var1 + var4) + 0.5F),
+                                        this.tamable.yRot,
+                                        this.tamable.xRot
+                                    );
+                                this.navigation.stop();
+                                return;
                             }
-
                         }
                     }
+                } else {
+                    this.navigation.moveTo(this.owner, this.speedModifier);
                 }
+
             }
         }
     }

@@ -7,7 +7,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
@@ -36,27 +35,27 @@ public class BottleItem extends Item {
             AreaEffectCloud var2 = var0.get(0);
             var2.setRadius(var2.getRadius() - 0.5F);
             param0.playSound(null, param1.x, param1.y, param1.z, SoundEvents.BOTTLE_FILL_DRAGONBREATH, SoundSource.NEUTRAL, 1.0F, 1.0F);
-            return new InteractionResultHolder<>(InteractionResult.SUCCESS, this.turnBottleIntoItem(var1, param1, new ItemStack(Items.DRAGON_BREATH)));
+            return InteractionResultHolder.success(this.turnBottleIntoItem(var1, param1, new ItemStack(Items.DRAGON_BREATH)));
         } else {
             HitResult var3 = getPlayerPOVHitResult(param0, param1, ClipContext.Fluid.SOURCE_ONLY);
             if (var3.getType() == HitResult.Type.MISS) {
-                return new InteractionResultHolder<>(InteractionResult.PASS, var1);
+                return InteractionResultHolder.pass(var1);
             } else {
                 if (var3.getType() == HitResult.Type.BLOCK) {
                     BlockPos var4 = ((BlockHitResult)var3).getBlockPos();
                     if (!param0.mayInteract(param1, var4)) {
-                        return new InteractionResultHolder<>(InteractionResult.PASS, var1);
+                        return InteractionResultHolder.pass(var1);
                     }
 
                     if (param0.getFluidState(var4).is(FluidTags.WATER)) {
                         param0.playSound(param1, param1.x, param1.y, param1.z, SoundEvents.BOTTLE_FILL, SoundSource.NEUTRAL, 1.0F, 1.0F);
-                        return new InteractionResultHolder<>(
-                            InteractionResult.SUCCESS, this.turnBottleIntoItem(var1, param1, PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.WATER))
+                        return InteractionResultHolder.success(
+                            this.turnBottleIntoItem(var1, param1, PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.WATER))
                         );
                     }
                 }
 
-                return new InteractionResultHolder<>(InteractionResult.PASS, var1);
+                return InteractionResultHolder.pass(var1);
             }
         }
     }

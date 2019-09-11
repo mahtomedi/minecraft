@@ -207,15 +207,15 @@ public class Creeper extends Monster {
         if (var0.getItem() == Items.FLINT_AND_STEEL) {
             this.level
                 .playSound(param0, this.x, this.y, this.z, SoundEvents.FLINTANDSTEEL_USE, this.getSoundSource(), 1.0F, this.random.nextFloat() * 0.4F + 0.8F);
-            param0.swing(param1);
             if (!this.level.isClientSide) {
                 this.ignite();
                 var0.hurtAndBreak(1, param0, param1x -> param1x.broadcastBreakEvent(param1));
-                return true;
             }
-        }
 
-        return super.mobInteract(param0, param1);
+            return true;
+        } else {
+            return super.mobInteract(param0, param1);
+        }
     }
 
     private void explodeCreeper() {

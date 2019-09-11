@@ -65,7 +65,7 @@ public class EnderEyeItem extends Item {
         ItemStack var0 = param1.getItemInHand(param2);
         HitResult var1 = getPlayerPOVHitResult(param0, param1, ClipContext.Fluid.NONE);
         if (var1.getType() == HitResult.Type.BLOCK && param0.getBlockState(((BlockHitResult)var1).getBlockPos()).getBlock() == Blocks.END_PORTAL_FRAME) {
-            return new InteractionResultHolder<>(InteractionResult.PASS, var0);
+            return InteractionResultHolder.pass(var0);
         } else {
             param1.startUsingItem(param2);
             if (param0 instanceof ServerLevel) {
@@ -91,11 +91,11 @@ public class EnderEyeItem extends Item {
                     }
 
                     param1.awardStat(Stats.ITEM_USED.get(this));
-                    return new InteractionResultHolder<>(InteractionResult.SUCCESS, var0);
+                    return InteractionResultHolder.success(var0);
                 }
             }
 
-            return new InteractionResultHolder<>(InteractionResult.SUCCESS, var0);
+            return InteractionResultHolder.success(var0);
         }
     }
 }

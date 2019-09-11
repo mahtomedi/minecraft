@@ -17,7 +17,7 @@ public class WetSpongeBlock extends Block {
     @Override
     public void onPlace(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
         if (param1.getDimension().isUltraWarm()) {
-            param1.setBlock(param2, Blocks.SPONGE.defaultBlockState(), 2);
+            param1.setBlock(param2, Blocks.SPONGE.defaultBlockState(), 3);
             param1.levelEvent(2009, param2, 0);
         }
 

@@ -123,6 +123,11 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
         LevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
         this.setVariant(this.random.nextInt(5));
+        if (param3 == null) {
+            param3 = new AgableMob.AgableMobGroupData();
+            ((AgableMob.AgableMobGroupData)param3).setShouldSpawnBaby(false);
+        }
+
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
 

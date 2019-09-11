@@ -11,18 +11,33 @@ import org.apache.logging.log4j.Logger;
 
 public class BlockStateData {
     private static final Logger LOGGER = LogManager.getLogger();
-    private static final Dynamic<?>[] MAP = new Dynamic[4095];
+    private static final Dynamic<?>[] MAP = new Dynamic[4096];
+    private static final Dynamic<?>[] BLOCK_DEFAULTS = new Dynamic[256];
     private static final Object2IntMap<Dynamic<?>> ID_BY_OLD = DataFixUtils.make(new Object2IntOpenHashMap<>(), param0 -> param0.defaultReturnValue(-1));
     private static final Object2IntMap<String> ID_BY_OLD_NAME = DataFixUtils.make(new Object2IntOpenHashMap<>(), param0 -> param0.defaultReturnValue(-1));
 
-    static void register(int param0, String param1, String... param2) {
-        MAP[param0] = parse(param1);
+    private static void register(int param0, String param1, String... param2) {
+        Dynamic<?> var0 = parse(param1);
+        MAP[param0] = var0;
+        int var1 = param0 >> 4;
+        if (BLOCK_DEFAULTS[var1] == null) {
+            BLOCK_DEFAULTS[var1] = var0;
+        }
 
-        for(String var0 : param2) {
-            Dynamic<?> var1 = parse(var0);
-            String var2 = var1.get("Name").asString("");
-            ID_BY_OLD_NAME.putIfAbsent(var2, param0);
-            ID_BY_OLD.put(var1, param0);
+        for(String var2 : param2) {
+            Dynamic<?> var3 = parse(var2);
+            String var4 = var3.get("Name").asString("");
+            ID_BY_OLD_NAME.putIfAbsent(var4, param0);
+            ID_BY_OLD.put(var3, param0);
+        }
+
+    }
+
+    private static void finalizeMaps() {
+        for(int var0 = 0; var0 < MAP.length; ++var0) {
+            if (MAP[var0] == null) {
+                MAP[var0] = BLOCK_DEFAULTS[var0 >> 4];
+            }
         }
 
     }
@@ -67,7 +82,7 @@ public class BlockStateData {
 
     public static Dynamic<?> getTag(int param0) {
         Dynamic<?> var0 = null;
-        if (param0 > 0 && param0 < MAP.length) {
+        if (param0 >= 0 && param0 < MAP.length) {
             var0 = MAP[param0];
         }
 
@@ -9539,5 +9554,6 @@ public class BlockStateData {
         register(4081, "{Name:'minecraft:structure_block',Properties:{mode:'load'}}", "{Name:'minecraft:structure_block',Properties:{mode:'load'}}");
         register(4082, "{Name:'minecraft:structure_block',Properties:{mode:'corner'}}", "{Name:'minecraft:structure_block',Properties:{mode:'corner'}}");
         register(4083, "{Name:'minecraft:structure_block',Properties:{mode:'data'}}", "{Name:'minecraft:structure_block',Properties:{mode:'data'}}");
+        finalizeMaps();
     }
 }

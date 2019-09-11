@@ -96,7 +96,7 @@ public class WrittenBookItem extends Item {
         ItemStack var0 = param1.getItemInHand(param2);
         param1.openItemGui(var0, param2);
         param1.awardStat(Stats.ITEM_USED.get(this));
-        return new InteractionResultHolder<>(InteractionResult.SUCCESS, var0);
+        return InteractionResultHolder.success(var0);
     }
 
     public static boolean resolveBookComponents(ItemStack param0, @Nullable CommandSourceStack param1, @Nullable Player param2) {

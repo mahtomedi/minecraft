@@ -14,6 +14,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class ShovelItem extends DiggerItem {
@@ -65,22 +66,29 @@ public class ShovelItem extends DiggerItem {
     public InteractionResult useOn(UseOnContext param0) {
         Level var0 = param0.getLevel();
         BlockPos var1 = param0.getClickedPos();
-        if (param0.getClickedFace() != Direction.DOWN && var0.getBlockState(var1.above()).isAir()) {
-            BlockState var2 = FLATTENABLES.get(var0.getBlockState(var1).getBlock());
-            if (var2 != null) {
-                Player var3 = param0.getPlayer();
+        BlockState var2 = var0.getBlockState(var1);
+        if (param0.getClickedFace() == Direction.DOWN) {
+            return InteractionResult.PASS;
+        } else {
+            Player var3 = param0.getPlayer();
+            BlockState var4 = FLATTENABLES.get(var2.getBlock());
+            BlockState var5 = null;
+            if (var4 != null && var0.getBlockState(var1.above()).isAir()) {
                 var0.playSound(var3, var1, SoundEvents.SHOVEL_FLATTEN, SoundSource.BLOCKS, 1.0F, 1.0F);
-                if (!var0.isClientSide) {
-                    var0.setBlock(var1, var2, 11);
-                    if (var3 != null) {
-                        param0.getItemInHand().hurtAndBreak(1, var3, param1 -> param1.broadcastBreakEvent(param0.getHand()));
-                    }
-                }
-
-                return InteractionResult.SUCCESS;
+                var5 = var4;
+            } else if (var2.getBlock() instanceof CampfireBlock && var2.getValue(CampfireBlock.LIT)) {
+                var0.levelEvent(null, 1009, var1, 0);
+                var5 = var2.setValue(CampfireBlock.LIT, Boolean.valueOf(false));
             }
-        }
 
-        return InteractionResult.PASS;
+            if (!var0.isClientSide && var5 != null) {
+                var0.setBlock(var1, var5, 11);
+                if (var3 != null) {
+                    param0.getItemInHand().hurtAndBreak(1, var3, param1 -> param1.broadcastBreakEvent(param0.getHand()));
+                }
+            }
+
+            return InteractionResult.SUCCESS;
+        }
     }
 }

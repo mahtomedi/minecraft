@@ -239,7 +239,7 @@ public abstract class Raider extends PatrollingMonster {
             EquipmentSlot var2 = EquipmentSlot.HEAD;
             ItemStack var3 = this.getItemBySlot(var2);
             double var4 = (double)this.getEquipmentDropChance(var2);
-            if (!var3.isEmpty() && (double)(this.random.nextFloat() - 0.1F) < var4) {
+            if (!var3.isEmpty() && (double)Math.max(this.random.nextFloat() - 0.1F, 0.0F) < var4) {
                 this.spawnAtLocation(var3);
             }
 
