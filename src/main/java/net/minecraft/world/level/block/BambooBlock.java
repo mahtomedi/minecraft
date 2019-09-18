@@ -10,7 +10,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.BlockLayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
@@ -167,11 +166,6 @@ public class BambooBlock extends Block implements BonemealableBlock {
     @Override
     public float getDestroyProgress(BlockState param0, Player param1, BlockGetter param2, BlockPos param3) {
         return param1.getMainHandItem().getItem() instanceof SwordItem ? 1.0F : super.getDestroyProgress(param0, param1, param2, param3);
-    }
-
-    @Override
-    public BlockLayer getRenderLayer() {
-        return BlockLayer.CUTOUT;
     }
 
     protected void growBamboo(BlockState param0, Level param1, BlockPos param2, Random param3, int param4) {

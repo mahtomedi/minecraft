@@ -7,9 +7,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public final class Matrix4f {
-    private final float[] values = new float[16];
+    private final float[] values;
 
     public Matrix4f() {
+        this.values = new float[16];
     }
 
     public Matrix4f(Quaternion param0) {
@@ -37,6 +38,25 @@ public final class Matrix4f {
         this.values[8] = 2.0F * (var9 + var11);
         this.values[6] = 2.0F * (var8 + var10);
         this.values[9] = 2.0F * (var8 - var10);
+    }
+
+    public Matrix4f(float[] param0) {
+        this(param0, false);
+    }
+
+    public Matrix4f(float[] param0, boolean param1) {
+        if (param1) {
+            this.values = new float[16];
+
+            for(int var0 = 0; var0 < 4; ++var0) {
+                for(int var1 = 0; var1 < 4; ++var1) {
+                    this.values[var0 * 4 + var1] = param0[var1 * 4 + var0];
+                }
+            }
+        } else {
+            this.values = Arrays.copyOf(param0, param0.length);
+        }
+
     }
 
     @Override
@@ -109,8 +129,50 @@ public final class Matrix4f {
 
     }
 
+    public void setIdentity() {
+        this.values[0] = 1.0F;
+        this.values[1] = 0.0F;
+        this.values[2] = 0.0F;
+        this.values[3] = 0.0F;
+        this.values[4] = 0.0F;
+        this.values[5] = 1.0F;
+        this.values[6] = 0.0F;
+        this.values[7] = 0.0F;
+        this.values[8] = 0.0F;
+        this.values[9] = 0.0F;
+        this.values[10] = 1.0F;
+        this.values[11] = 0.0F;
+        this.values[12] = 0.0F;
+        this.values[13] = 0.0F;
+        this.values[14] = 0.0F;
+        this.values[15] = 1.0F;
+    }
+
+    public float get(int param0, int param1) {
+        return this.values[param0 + 4 * param1];
+    }
+
     public void set(int param0, int param1, float param2) {
         this.values[param0 + 4 * param1] = param2;
+    }
+
+    public void multiply(Matrix4f param0) {
+        float[] var0 = Arrays.copyOf(this.values, 16);
+
+        for(int var1 = 0; var1 < 4; ++var1) {
+            for(int var2 = 0; var2 < 4; ++var2) {
+                this.values[var1 + var2 * 4] = 0.0F;
+
+                for(int var3 = 0; var3 < 4; ++var3) {
+                    this.values[var1 + var2 * 4] += var0[var1 + var3 * 4] * param0.values[var3 + var2 * 4];
+                }
+            }
+        }
+
+    }
+
+    public void multiply(Quaternion param0) {
+        this.multiply(new Matrix4f(param0));
     }
 
     public static Matrix4f perspective(double param0, float param1, float param2, float param3) {
@@ -135,5 +197,15 @@ public final class Matrix4f {
         var0.set(1, 3, -1.0F);
         var0.set(2, 3, -(param3 + param2) / var1);
         return var0;
+    }
+
+    public void translate(Vector3f param0) {
+        this.set(0, 3, this.get(0, 3) + param0.x());
+        this.set(1, 3, this.get(1, 3) + param0.y());
+        this.set(2, 3, this.get(2, 3) + param0.z());
+    }
+
+    public Matrix4f copy() {
+        return new Matrix4f((float[])this.values.clone());
     }
 }

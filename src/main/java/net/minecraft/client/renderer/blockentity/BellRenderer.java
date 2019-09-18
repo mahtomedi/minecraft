@@ -1,7 +1,8 @@
 package net.minecraft.client.renderer.blockentity;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.model.BellModel;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -10,15 +11,31 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class BellRenderer extends BlockEntityRenderer<BellBlockEntity> {
-    private static final ResourceLocation BELL_RESOURCE_LOCATION = new ResourceLocation("textures/entity/bell/bell_body.png");
-    private final BellModel bellModel = new BellModel();
+public class BellRenderer extends BatchedBlockEntityRenderer<BellBlockEntity> {
+    public static final ResourceLocation BELL_RESOURCE_LOCATION = new ResourceLocation("entity/bell/bell_body");
+    private final ModelPart bellBody = new ModelPart(32, 32, 0, 0);
 
-    public void render(BellBlockEntity param0, double param1, double param2, double param3, float param4, int param5) {
-        RenderSystem.pushMatrix();
-        RenderSystem.enableRescaleNormal();
-        this.bindTexture(BELL_RESOURCE_LOCATION);
-        RenderSystem.translatef((float)param1, (float)param2, (float)param3);
+    public BellRenderer() {
+        this.bellBody.addBox(-3.0F, -6.0F, -3.0F, 6.0F, 7.0F, 6.0F);
+        this.bellBody.setPos(8.0F, 12.0F, 8.0F);
+        ModelPart var0 = new ModelPart(32, 32, 0, 13);
+        var0.addBox(4.0F, 4.0F, 4.0F, 8.0F, 2.0F, 8.0F);
+        var0.setPos(-8.0F, -12.0F, -8.0F);
+        this.bellBody.addChild(var0);
+    }
+
+    protected void renderToBuffer(
+        BellBlockEntity param0,
+        double param1,
+        double param2,
+        double param3,
+        float param4,
+        int param5,
+        RenderType param6,
+        BufferBuilder param7,
+        int param8,
+        int param9
+    ) {
         float var0 = (float)param0.ticks + param4;
         float var1 = 0.0F;
         float var2 = 0.0F;
@@ -35,8 +52,11 @@ public class BellRenderer extends BlockEntityRenderer<BellBlockEntity> {
             }
         }
 
-        this.bellModel.render(var1, var2, 0.0625F);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.popMatrix();
+        this.bellBody.xRot = var1;
+        this.bellBody.zRot = var2;
+        param7.pushPose();
+        param7.getPose().setIdentity();
+        this.bellBody.render(param7, 0.0625F, param8, param9, this.getSprite(BELL_RESOURCE_LOCATION));
+        param7.popPose();
     }
 }

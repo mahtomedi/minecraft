@@ -72,11 +72,6 @@ public class MovingPistonBlock extends BaseEntityBlock {
     }
 
     @Override
-    public boolean canOcclude(BlockState param0) {
-        return false;
-    }
-
-    @Override
     public boolean isRedstoneConductor(BlockState param0, BlockGetter param1, BlockPos param2) {
         return false;
     }

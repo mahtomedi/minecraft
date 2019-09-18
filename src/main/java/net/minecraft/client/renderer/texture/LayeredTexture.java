@@ -1,8 +1,10 @@
 package net.minecraft.client.renderer.texture;
 
 import com.google.common.collect.Lists;
+import com.mojang.blaze3d.platform.AbstractTexture;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.TextureUtil;
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
@@ -31,17 +33,10 @@ public class LayeredTexture extends AbstractTexture {
         Iterator<String> var0 = this.layerPaths.iterator();
         String var1 = var0.next();
 
-        try (
-            Resource var2 = param0.getResource(new ResourceLocation(var1));
+        try (Resource var2 = param0.getResource(new ResourceLocation(var1))) {
             NativeImage var3 = NativeImage.read(var2.getInputStream());
-        ) {
-            while(true) {
-                if (!var0.hasNext()) {
-                    TextureUtil.prepareImage(this.getId(), var3.getWidth(), var3.getHeight());
-                    var3.upload(0, 0, 0, false);
-                    break;
-                }
 
+            while(var0.hasNext()) {
                 String var4 = var0.next();
                 if (var4 != null) {
                     try (
@@ -56,9 +51,20 @@ public class LayeredTexture extends AbstractTexture {
                     }
                 }
             }
-        } catch (IOException var97) {
-            LOGGER.error("Couldn't load layered image", (Throwable)var97);
+
+            if (!RenderSystem.isOnRenderThreadOrInit()) {
+                RenderSystem.recordRenderCall(() -> this.doLoad(var3));
+            } else {
+                this.doLoad(var3);
+            }
+        } catch (IOException var65) {
+            LOGGER.error("Couldn't load layered image", (Throwable)var65);
         }
 
+    }
+
+    private void doLoad(NativeImage param0) {
+        TextureUtil.prepareImage(this.getId(), param0.getWidth(), param0.getHeight());
+        param0.upload(0, 0, 0, true);
     }
 }

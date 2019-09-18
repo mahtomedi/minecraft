@@ -24,7 +24,7 @@ public class BossHealthOverlay extends GuiComponent {
 
     public void render() {
         if (!this.events.isEmpty()) {
-            int var0 = this.minecraft.window.getGuiScaledWidth();
+            int var0 = this.minecraft.getWindow().getGuiScaledWidth();
             int var1 = 12;
 
             for(LerpingBossEvent var2 : this.events.values()) {
@@ -38,7 +38,7 @@ public class BossHealthOverlay extends GuiComponent {
                 int var8 = var1 - 9;
                 this.minecraft.font.drawShadow(var5, (float)var7, (float)var8, 16777215);
                 var1 += 10 + 9;
-                if (var1 >= this.minecraft.window.getGuiScaledHeight() / 3) {
+                if (var1 >= this.minecraft.getWindow().getGuiScaledHeight() / 3) {
                     break;
                 }
             }

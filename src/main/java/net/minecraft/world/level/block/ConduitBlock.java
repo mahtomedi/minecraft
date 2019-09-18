@@ -8,7 +8,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.BlockLayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BeaconBlockEntity;
@@ -83,11 +82,6 @@ public class ConduitBlock extends BaseEntityBlock implements SimpleWaterloggedBl
     public BlockState getStateForPlacement(BlockPlaceContext param0) {
         FluidState var0 = param0.getLevel().getFluidState(param0.getClickedPos());
         return this.defaultBlockState().setValue(WATERLOGGED, Boolean.valueOf(var0.is(FluidTags.WATER) && var0.getAmount() == 8));
-    }
-
-    @Override
-    public BlockLayer getRenderLayer() {
-        return BlockLayer.CUTOUT;
     }
 
     @Override

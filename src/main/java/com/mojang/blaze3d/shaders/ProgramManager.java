@@ -1,6 +1,7 @@
 package com.mojang.blaze3d.shaders;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.io.IOException;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -12,16 +13,19 @@ public class ProgramManager {
     private static final Logger LOGGER = LogManager.getLogger();
 
     public static void glUseProgram(int param0) {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         GlStateManager._glUseProgram(param0);
     }
 
     public static void releaseProgram(Effect param0) {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         param0.getFragmentProgram().close();
         param0.getVertexProgram().close();
         GlStateManager.glDeleteProgram(param0.getId());
     }
 
     public static int createProgram() throws IOException {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         int var0 = GlStateManager.glCreateProgram();
         if (var0 <= 0) {
             throw new IOException("Could not create shader program (returned program ID " + var0 + ")");
@@ -31,6 +35,7 @@ public class ProgramManager {
     }
 
     public static void linkProgram(Effect param0) throws IOException {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         param0.getFragmentProgram().attachToEffect(param0);
         param0.getVertexProgram().attachToEffect(param0);
         GlStateManager.glLinkProgram(param0.getId());

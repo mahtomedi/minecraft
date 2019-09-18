@@ -22,7 +22,7 @@ public class BreakingQuad extends BakedQuad {
 
     private void calculateBreakingUVs() {
         for(int var0 = 0; var0 < 4; ++var0) {
-            int var1 = 7 * var0;
+            int var1 = 8 * var0;
             this.vertices[var1 + 4] = Float.floatToRawIntBits(
                 this.breakingIcon.getU((double)this.sprite.getUOffset(Float.intBitsToFloat(this.vertices[var1 + 4])))
             );

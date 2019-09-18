@@ -358,7 +358,7 @@ public class ParticleEngine implements PreparableReloadListener {
 
         RenderSystem.depthMask(true);
         RenderSystem.disableBlend();
-        RenderSystem.alphaFunc(516, 0.1F);
+        RenderSystem.defaultAlphaFunc();
     }
 
     public void setLevel(@Nullable Level param0) {

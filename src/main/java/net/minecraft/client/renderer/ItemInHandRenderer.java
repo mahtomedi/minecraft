@@ -1,7 +1,6 @@
 package net.minecraft.client.renderer;
 
 import com.google.common.base.MoreObjects;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -32,7 +31,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.MapItem;
-import net.minecraft.world.level.BlockLayer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
@@ -69,7 +67,7 @@ public class ItemInHandRenderer {
             Item var0 = param1.getItem();
             Block var1 = Block.byItem(var0);
             RenderSystem.pushMatrix();
-            boolean var2 = this.itemRenderer.isGui3d(param1) && var1.getRenderLayer() == BlockLayer.TRANSLUCENT;
+            boolean var2 = this.itemRenderer.isGui3d(param1) && RenderType.getRenderLayer(var1.defaultBlockState()) == RenderType.TRANSLUCENT;
             if (var2) {
                 RenderSystem.depthMask(false);
             }
@@ -535,12 +533,7 @@ public class ItemInHandRenderer {
         float var2 = this.minecraft.player.getBrightness();
         RenderSystem.color4f(var2, var2, var2, 0.1F);
         RenderSystem.enableBlend();
-        RenderSystem.blendFuncSeparate(
-            GlStateManager.SourceFactor.SRC_ALPHA,
-            GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-            GlStateManager.SourceFactor.ONE,
-            GlStateManager.DestFactor.ZERO
-        );
+        RenderSystem.defaultBlendFunc();
         RenderSystem.pushMatrix();
         float var3 = 4.0F;
         float var4 = -1.0F;
@@ -568,12 +561,7 @@ public class ItemInHandRenderer {
         RenderSystem.depthFunc(519);
         RenderSystem.depthMask(false);
         RenderSystem.enableBlend();
-        RenderSystem.blendFuncSeparate(
-            GlStateManager.SourceFactor.SRC_ALPHA,
-            GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-            GlStateManager.SourceFactor.ONE,
-            GlStateManager.DestFactor.ZERO
-        );
+        RenderSystem.defaultBlendFunc();
         float var2 = 1.0F;
 
         for(int var3 = 0; var3 < 2; ++var3) {

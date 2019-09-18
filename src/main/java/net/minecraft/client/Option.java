@@ -84,7 +84,7 @@ public abstract class Option {
     public static final ProgressOption FRAMERATE_LIMIT = new ProgressOption(
         "options.framerateLimit", 10.0, 260.0, 10.0F, param0 -> (double)param0.framerateLimit, (param0, param1) -> {
             param0.framerateLimit = (int)param1.doubleValue();
-            Minecraft.getInstance().window.setFramerateLimit(param0.framerateLimit);
+            Minecraft.getInstance().getWindow().setFramerateLimit(param0.framerateLimit);
         }, (param0, param1) -> {
             double var0 = param1.get(param0);
             String var1 = param1.getCaption();
@@ -129,7 +129,7 @@ public abstract class Option {
     );
     public static final BooleanOption RAW_MOUSE_INPUT = new BooleanOption("options.rawMouseInput", param0 -> param0.rawMouseInput, (param0, param1) -> {
         param0.rawMouseInput = param1;
-        Window var0 = Minecraft.getInstance().window;
+        Window var0 = Minecraft.getInstance().getWindow();
         if (var0 != null) {
             var0.updateRawMouseInput(param1);
         }
@@ -188,7 +188,7 @@ public abstract class Option {
     public static final CycleOption GUI_SCALE = new CycleOption(
         "options.guiScale",
         (param0, param1) -> param0.guiScale = Integer.remainderUnsigned(
-                param0.guiScale + param1, Minecraft.getInstance().window.calculateScale(0, Minecraft.getInstance().isEnforceUnicode()) + 1
+                param0.guiScale + param1, Minecraft.getInstance().getWindow().calculateScale(0, Minecraft.getInstance().isEnforceUnicode()) + 1
             ),
         (param0, param1) -> param1.getCaption() + (param0.guiScale == 0 ? I18n.get("options.guiScale.auto") : param0.guiScale)
     );
@@ -244,8 +244,8 @@ public abstract class Option {
     );
     public static final BooleanOption ENABLE_VSYNC = new BooleanOption("options.vsync", param0 -> param0.enableVsync, (param0, param1) -> {
         param0.enableVsync = param1;
-        if (Minecraft.getInstance().window != null) {
-            Minecraft.getInstance().window.updateVsync(param0.enableVsync);
+        if (Minecraft.getInstance().getWindow() != null) {
+            Minecraft.getInstance().getWindow().updateVsync(param0.enableVsync);
         }
 
     });
@@ -286,9 +286,9 @@ public abstract class Option {
     public static final BooleanOption USE_FULLSCREEN = new BooleanOption("options.fullscreen", param0 -> param0.fullscreen, (param0, param1) -> {
         param0.fullscreen = param1;
         Minecraft var0 = Minecraft.getInstance();
-        if (var0.window != null && var0.window.isFullscreen() != param0.fullscreen) {
-            var0.window.toggleFullScreen();
-            param0.fullscreen = var0.window.isFullscreen();
+        if (var0.getWindow() != null && var0.getWindow().isFullscreen() != param0.fullscreen) {
+            var0.getWindow().toggleFullScreen();
+            param0.fullscreen = var0.getWindow().isFullscreen();
         }
 
     });

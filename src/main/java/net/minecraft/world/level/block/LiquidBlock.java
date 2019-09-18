@@ -73,7 +73,7 @@ public class LiquidBlock extends Block implements BucketPickup {
     @OnlyIn(Dist.CLIENT)
     @Override
     public boolean skipRendering(BlockState param0, BlockState param1, Direction param2) {
-        return param1.getFluidState().getType().isSame(this.fluid) ? true : super.canOcclude(param0);
+        return param1.getFluidState().getType().isSame(this.fluid);
     }
 
     @Override

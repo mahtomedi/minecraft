@@ -1,19 +1,13 @@
 package net.minecraft.client.renderer.entity;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.platform.MemoryTracker;
 import com.mojang.blaze3d.systems.RenderSystem;
-import java.nio.Buffer;
-import java.nio.FloatBuffer;
 import java.util.List;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
-import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
@@ -29,19 +23,7 @@ import org.apache.logging.log4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public abstract class LivingEntityRenderer<T extends LivingEntity, M extends EntityModel<T>> extends EntityRenderer<T> implements RenderLayerParent<T, M> {
     private static final Logger LOGGER = LogManager.getLogger();
-    private static final DynamicTexture WHITE_TEXTURE = Util.make(new DynamicTexture(16, 16, false), param0 -> {
-        param0.getPixels().untrack();
-
-        for(int var0 = 0; var0 < 16; ++var0) {
-            for(int var1 = 0; var1 < 16; ++var1) {
-                param0.getPixels().setPixelRGBA(var1, var0, -1);
-            }
-        }
-
-        param0.upload();
-    });
     protected M model;
-    protected final FloatBuffer tintBuffer = MemoryTracker.createFloatBuffer(4);
     protected final List<RenderLayer<T, M>> layers = Lists.newArrayList();
     protected boolean onlySolidLayers;
 
@@ -135,7 +117,7 @@ public abstract class LivingEntityRenderer<T extends LivingEntity, M extends Ent
                 boolean var11 = this.setupOverlayColor(param0, param5);
                 this.renderModel(param0, var9, var8, var6, var2, var5, var7);
                 if (var11) {
-                    this.teardownOverlayColor();
+                    RenderSystem.teardownOverlayColor();
                 }
 
                 RenderSystem.depthMask(true);
@@ -190,12 +172,12 @@ public abstract class LivingEntityRenderer<T extends LivingEntity, M extends Ent
             }
 
             if (var1) {
-                GlStateManager.setProfile(GlStateManager.Profile.TRANSPARENT_MODEL);
+                RenderSystem.setProfile(RenderSystem.Profile.TRANSPARENT_MODEL);
             }
 
             this.model.render(param0, param1, param2, param3, param4, param5, param6);
             if (var1) {
-                GlStateManager.unsetProfile(GlStateManager.Profile.TRANSPARENT_MODEL);
+                RenderSystem.unsetProfile(RenderSystem.Profile.TRANSPARENT_MODEL);
             }
         }
 
@@ -209,114 +191,16 @@ public abstract class LivingEntityRenderer<T extends LivingEntity, M extends Ent
         return this.setupOverlayColor(param0, param1, true);
     }
 
-    protected boolean setupOverlayColor(T param0, float param1, boolean param2) {
-        float var0 = param0.getBrightness();
-        int var1 = this.getOverlayColor(param0, var0, param1);
-        boolean var2 = (var1 >> 24 & 0xFF) > 0;
-        boolean var3 = param0.hurtTime > 0 || param0.deathTime > 0;
-        if (!var2 && !var3) {
-            return false;
-        } else if (!var2 && !param2) {
-            return false;
-        } else {
-            RenderSystem.activeTexture(33984);
-            RenderSystem.enableTexture();
-            RenderSystem.texEnv(8960, 8704, 34160);
-            RenderSystem.texEnv(8960, 34161, 8448);
-            RenderSystem.texEnv(8960, 34176, 33984);
-            RenderSystem.texEnv(8960, 34177, 34167);
-            RenderSystem.texEnv(8960, 34192, 768);
-            RenderSystem.texEnv(8960, 34193, 768);
-            RenderSystem.texEnv(8960, 34162, 7681);
-            RenderSystem.texEnv(8960, 34184, 33984);
-            RenderSystem.texEnv(8960, 34200, 770);
-            RenderSystem.activeTexture(33985);
-            RenderSystem.enableTexture();
-            RenderSystem.texEnv(8960, 8704, 34160);
-            RenderSystem.texEnv(8960, 34161, 34165);
-            RenderSystem.texEnv(8960, 34176, 34166);
-            RenderSystem.texEnv(8960, 34177, 34168);
-            RenderSystem.texEnv(8960, 34178, 34166);
-            RenderSystem.texEnv(8960, 34192, 768);
-            RenderSystem.texEnv(8960, 34193, 768);
-            RenderSystem.texEnv(8960, 34194, 770);
-            RenderSystem.texEnv(8960, 34162, 7681);
-            RenderSystem.texEnv(8960, 34184, 34168);
-            RenderSystem.texEnv(8960, 34200, 770);
-            ((Buffer)this.tintBuffer).position(0);
-            if (var3) {
-                this.tintBuffer.put(1.0F);
-                this.tintBuffer.put(0.0F);
-                this.tintBuffer.put(0.0F);
-                this.tintBuffer.put(0.3F);
-            } else {
-                float var4 = (float)(var1 >> 24 & 0xFF) / 255.0F;
-                float var5 = (float)(var1 >> 16 & 0xFF) / 255.0F;
-                float var6 = (float)(var1 >> 8 & 0xFF) / 255.0F;
-                float var7 = (float)(var1 & 0xFF) / 255.0F;
-                this.tintBuffer.put(var5);
-                this.tintBuffer.put(var6);
-                this.tintBuffer.put(var7);
-                this.tintBuffer.put(1.0F - var4);
-            }
-
-            ((Buffer)this.tintBuffer).flip();
-            RenderSystem.texEnv(8960, 8705, this.tintBuffer);
-            RenderSystem.activeTexture(33986);
-            RenderSystem.enableTexture();
-            RenderSystem.bindTexture(WHITE_TEXTURE.getId());
-            RenderSystem.texEnv(8960, 8704, 34160);
-            RenderSystem.texEnv(8960, 34161, 8448);
-            RenderSystem.texEnv(8960, 34176, 34168);
-            RenderSystem.texEnv(8960, 34177, 33985);
-            RenderSystem.texEnv(8960, 34192, 768);
-            RenderSystem.texEnv(8960, 34193, 768);
-            RenderSystem.texEnv(8960, 34162, 7681);
-            RenderSystem.texEnv(8960, 34184, 34168);
-            RenderSystem.texEnv(8960, 34200, 770);
-            RenderSystem.activeTexture(33984);
+    private boolean setupOverlayColor(T param0, float param1, boolean param2) {
+        int var0 = this.getOverlayColor(param0, param0.getBrightness(), param1);
+        boolean var1 = (var0 >> 24 & 0xFF) > 0;
+        boolean var2 = param0.hurtTime > 0 || param0.deathTime > 0;
+        if (var1 || var2 && param2) {
+            RenderSystem.setupOverlayColor(var0, var2);
             return true;
+        } else {
+            return false;
         }
-    }
-
-    protected void teardownOverlayColor() {
-        RenderSystem.activeTexture(33984);
-        RenderSystem.enableTexture();
-        RenderSystem.texEnv(8960, 8704, 34160);
-        RenderSystem.texEnv(8960, 34161, 8448);
-        RenderSystem.texEnv(8960, 34176, 33984);
-        RenderSystem.texEnv(8960, 34177, 34167);
-        RenderSystem.texEnv(8960, 34192, 768);
-        RenderSystem.texEnv(8960, 34193, 768);
-        RenderSystem.texEnv(8960, 34162, 8448);
-        RenderSystem.texEnv(8960, 34184, 33984);
-        RenderSystem.texEnv(8960, 34185, 34167);
-        RenderSystem.texEnv(8960, 34200, 770);
-        RenderSystem.texEnv(8960, 34201, 770);
-        RenderSystem.activeTexture(33985);
-        RenderSystem.texEnv(8960, 8704, 34160);
-        RenderSystem.texEnv(8960, 34161, 8448);
-        RenderSystem.texEnv(8960, 34192, 768);
-        RenderSystem.texEnv(8960, 34193, 768);
-        RenderSystem.texEnv(8960, 34176, 5890);
-        RenderSystem.texEnv(8960, 34177, 34168);
-        RenderSystem.texEnv(8960, 34162, 8448);
-        RenderSystem.texEnv(8960, 34200, 770);
-        RenderSystem.texEnv(8960, 34184, 5890);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.activeTexture(33986);
-        RenderSystem.disableTexture();
-        RenderSystem.bindTexture(0);
-        RenderSystem.texEnv(8960, 8704, 34160);
-        RenderSystem.texEnv(8960, 34161, 8448);
-        RenderSystem.texEnv(8960, 34192, 768);
-        RenderSystem.texEnv(8960, 34193, 768);
-        RenderSystem.texEnv(8960, 34176, 5890);
-        RenderSystem.texEnv(8960, 34177, 34168);
-        RenderSystem.texEnv(8960, 34162, 8448);
-        RenderSystem.texEnv(8960, 34200, 770);
-        RenderSystem.texEnv(8960, 34184, 5890);
-        RenderSystem.activeTexture(33984);
     }
 
     protected void setupPosition(T param0, double param1, double param2, double param3) {
@@ -394,7 +278,7 @@ public abstract class LivingEntityRenderer<T extends LivingEntity, M extends Ent
             boolean var1 = this.setupOverlayColor(param0, param3, var0.colorsOnDamage());
             var0.render(param0, param1, param2, param3, param4, param5, param6, param7);
             if (var1) {
-                this.teardownOverlayColor();
+                RenderSystem.teardownOverlayColor();
             }
         }
 
@@ -417,7 +301,7 @@ public abstract class LivingEntityRenderer<T extends LivingEntity, M extends Ent
             float var1 = param0.isDiscrete() ? 32.0F : 64.0F;
             if (!(var0 >= (double)(var1 * var1))) {
                 String var2 = param0.getDisplayName().getColoredString();
-                RenderSystem.alphaFunc(516, 0.1F);
+                RenderSystem.defaultAlphaFunc();
                 this.renderNameTags(param0, param1, param2, param3, var2, var0);
             }
         }

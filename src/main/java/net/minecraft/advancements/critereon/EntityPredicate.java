@@ -14,6 +14,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.scores.Team;
 
 public class EntityPredicate {
     public static final EntityPredicate ANY = new EntityPredicate(
@@ -24,6 +25,8 @@ public class EntityPredicate {
         NbtPredicate.ANY,
         EntityFlagsPredicate.ANY,
         EntityEquipmentPredicate.ANY,
+        PlayerPredicate.ANY,
+        null,
         null
     );
     public static final EntityPredicate[] ANY_ARRAY = new EntityPredicate[0];
@@ -34,6 +37,10 @@ public class EntityPredicate {
     private final NbtPredicate nbt;
     private final EntityFlagsPredicate flags;
     private final EntityEquipmentPredicate equipment;
+    private final PlayerPredicate player;
+    @Nullable
+    private final String team;
+    @Nullable
     private final ResourceLocation catType;
 
     private EntityPredicate(
@@ -44,7 +51,9 @@ public class EntityPredicate {
         NbtPredicate param4,
         EntityFlagsPredicate param5,
         EntityEquipmentPredicate param6,
-        @Nullable ResourceLocation param7
+        PlayerPredicate param7,
+        @Nullable String param8,
+        @Nullable ResourceLocation param9
     ) {
         this.entityType = param0;
         this.distanceToPlayer = param1;
@@ -53,34 +62,53 @@ public class EntityPredicate {
         this.nbt = param4;
         this.flags = param5;
         this.equipment = param6;
-        this.catType = param7;
+        this.player = param7;
+        this.team = param8;
+        this.catType = param9;
     }
 
     public boolean matches(ServerPlayer param0, @Nullable Entity param1) {
         return this.matches(param0.getLevel(), new Vec3(param0.x, param0.y, param0.z), param1);
     }
 
-    public boolean matches(ServerLevel param0, Vec3 param1, @Nullable Entity param2) {
+    public boolean matches(ServerLevel param0, @Nullable Vec3 param1, @Nullable Entity param2) {
         if (this == ANY) {
             return true;
         } else if (param2 == null) {
             return false;
         } else if (!this.entityType.matches(param2.getType())) {
             return false;
-        } else if (!this.distanceToPlayer.matches(param1.x, param1.y, param1.z, param2.x, param2.y, param2.z)) {
-            return false;
-        } else if (!this.location.matches(param0, param2.x, param2.y, param2.z)) {
-            return false;
-        } else if (!this.effects.matches(param2)) {
-            return false;
-        } else if (!this.nbt.matches(param2)) {
-            return false;
-        } else if (!this.flags.matches(param2)) {
-            return false;
-        } else if (!this.equipment.matches(param2)) {
-            return false;
         } else {
-            return this.catType == null || param2 instanceof Cat && ((Cat)param2).getResourceLocation().equals(this.catType);
+            if (param1 == null) {
+                if (this.distanceToPlayer != DistancePredicate.ANY) {
+                    return false;
+                }
+            } else if (!this.distanceToPlayer.matches(param1.x, param1.y, param1.z, param2.x, param2.y, param2.z)) {
+                return false;
+            }
+
+            if (!this.location.matches(param0, param2.x, param2.y, param2.z)) {
+                return false;
+            } else if (!this.effects.matches(param2)) {
+                return false;
+            } else if (!this.nbt.matches(param2)) {
+                return false;
+            } else if (!this.flags.matches(param2)) {
+                return false;
+            } else if (!this.equipment.matches(param2)) {
+                return false;
+            } else if (!this.player.matches(param2)) {
+                return false;
+            } else {
+                if (this.team != null) {
+                    Team var0 = param2.getTeam();
+                    if (var0 == null || !this.team.equals(var0.getName())) {
+                        return false;
+                    }
+                }
+
+                return this.catType == null || param2 instanceof Cat && ((Cat)param2).getResourceLocation().equals(this.catType);
+            }
         }
     }
 
@@ -94,7 +122,9 @@ public class EntityPredicate {
             NbtPredicate var5 = NbtPredicate.fromJson(var0.get("nbt"));
             EntityFlagsPredicate var6 = EntityFlagsPredicate.fromJson(var0.get("flags"));
             EntityEquipmentPredicate var7 = EntityEquipmentPredicate.fromJson(var0.get("equipment"));
-            ResourceLocation var8 = var0.has("catType") ? new ResourceLocation(GsonHelper.getAsString(var0, "catType")) : null;
+            PlayerPredicate var8 = PlayerPredicate.fromJson(var0.get("player"));
+            String var9 = GsonHelper.getAsString(var0, "team", null);
+            ResourceLocation var10 = var0.has("catType") ? new ResourceLocation(GsonHelper.getAsString(var0, "catType")) : null;
             return new EntityPredicate.Builder()
                 .entityType(var1)
                 .distance(var2)
@@ -103,7 +133,9 @@ public class EntityPredicate {
                 .nbt(var5)
                 .flags(var6)
                 .equipment(var7)
-                .catType(var8)
+                .player(var8)
+                .team(var9)
+                .catType(var10)
                 .build();
         } else {
             return ANY;
@@ -137,6 +169,8 @@ public class EntityPredicate {
             var0.add("nbt", this.nbt.serializeToJson());
             var0.add("flags", this.flags.serializeToJson());
             var0.add("equipment", this.equipment.serializeToJson());
+            var0.add("player", this.player.serializeToJson());
+            var0.addProperty("team", this.team);
             if (this.catType != null) {
                 var0.addProperty("catType", this.catType.toString());
             }
@@ -170,7 +204,8 @@ public class EntityPredicate {
         private NbtPredicate nbt = NbtPredicate.ANY;
         private EntityFlagsPredicate flags = EntityFlagsPredicate.ANY;
         private EntityEquipmentPredicate equipment = EntityEquipmentPredicate.ANY;
-        @Nullable
+        private PlayerPredicate player = PlayerPredicate.ANY;
+        private String team;
         private ResourceLocation catType;
 
         public static EntityPredicate.Builder entity() {
@@ -227,13 +262,25 @@ public class EntityPredicate {
             return this;
         }
 
+        public EntityPredicate.Builder player(PlayerPredicate param0) {
+            this.player = param0;
+            return this;
+        }
+
+        public EntityPredicate.Builder team(@Nullable String param0) {
+            this.team = param0;
+            return this;
+        }
+
         public EntityPredicate.Builder catType(@Nullable ResourceLocation param0) {
             this.catType = param0;
             return this;
         }
 
         public EntityPredicate build() {
-            return new EntityPredicate(this.entityType, this.distanceToPlayer, this.location, this.effects, this.nbt, this.flags, this.equipment, this.catType);
+            return new EntityPredicate(
+                this.entityType, this.distanceToPlayer, this.location, this.effects, this.nbt, this.flags, this.equipment, this.player, this.team, this.catType
+            );
         }
     }
 }

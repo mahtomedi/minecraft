@@ -1,12 +1,12 @@
 package net.minecraft.client.gui.screens.inventory;
 
-import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
-import java.util.List;
+import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.banner.BannerTextures;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
@@ -17,6 +17,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.BannerItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BannerBlockEntity;
 import net.minecraft.world.level.block.entity.BannerPattern;
 import net.minecraftforge.api.distmarker.Dist;
@@ -26,39 +27,21 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class LoomScreen extends AbstractContainerScreen<LoomMenu> {
     private static final ResourceLocation BG_LOCATION = new ResourceLocation("textures/gui/container/loom.png");
     private static final int TOTAL_PATTERN_ROWS = (BannerPattern.COUNT - 5 - 1 + 4 - 1) / 4;
-    private static final DyeColor PATTERN_BASE_COLOR = DyeColor.GRAY;
-    private static final DyeColor PATTERN_OVERLAY_COLOR = DyeColor.WHITE;
-    private static final List<DyeColor> PATTERN_COLORS = Lists.newArrayList(PATTERN_BASE_COLOR, PATTERN_OVERLAY_COLOR);
-    private ResourceLocation resultBannerTexture;
+    @Nullable
+    private BannerBlockEntity resultBanner;
     private ItemStack bannerStack = ItemStack.EMPTY;
     private ItemStack dyeStack = ItemStack.EMPTY;
     private ItemStack patternStack = ItemStack.EMPTY;
-    private final ResourceLocation[] patternTextures = new ResourceLocation[BannerPattern.COUNT];
     private boolean displayPatterns;
     private boolean displaySpecialPattern;
     private boolean hasMaxPatterns;
     private float scrollOffs;
     private boolean scrolling;
     private int startIndex = 1;
-    private int loadNextTextureIndex = 1;
 
     public LoomScreen(LoomMenu param0, Inventory param1, Component param2) {
         super(param0, param1, param2);
         param0.registerUpdateListener(this::containerChanged);
-    }
-
-    @Override
-    public void tick() {
-        super.tick();
-        if (this.loadNextTextureIndex < BannerPattern.COUNT) {
-            BannerPattern var0 = BannerPattern.values()[this.loadNextTextureIndex];
-            String var1 = "b" + PATTERN_BASE_COLOR.getId();
-            String var2 = var0.getHashname() + PATTERN_OVERLAY_COLOR.getId();
-            this.patternTextures[this.loadNextTextureIndex] = BannerTextures.BANNER_CACHE
-                .getTextureLocation(var1 + var2, Lists.newArrayList(BannerPattern.BASE, var0), PATTERN_COLORS);
-            ++this.loadNextTextureIndex;
-        }
-
     }
 
     @Override
@@ -76,7 +59,6 @@ public class LoomScreen extends AbstractContainerScreen<LoomMenu> {
     @Override
     protected void renderBg(float param0, int param1, int param2) {
         this.renderBackground();
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.minecraft.getTextureManager().bind(BG_LOCATION);
         int var0 = this.leftPos;
         int var1 = this.topPos;
@@ -99,9 +81,14 @@ public class LoomScreen extends AbstractContainerScreen<LoomMenu> {
 
         int var6 = (int)(41.0F * this.scrollOffs);
         this.blit(var0 + 119, var1 + 13 + var6, 232 + (this.displayPatterns ? 0 : 12), 0, 12, 15);
-        if (this.resultBannerTexture != null && !this.hasMaxPatterns) {
-            this.minecraft.getTextureManager().bind(this.resultBannerTexture);
-            blit(var0 + 141, var1 + 8, 20, 40, 1.0F, 1.0F, 20, 40, 64, 64);
+        if (this.resultBanner != null && !this.hasMaxPatterns) {
+            RenderSystem.pushMatrix();
+            RenderSystem.translatef((float)(var0 + 139), (float)(var1 + 52), 0.0F);
+            RenderSystem.scalef(24.0F, -24.0F, 1.0F);
+            this.resultBanner.setOnlyRenderPattern(true);
+            BlockEntityRenderDispatcher.instance.renderItem(this.resultBanner);
+            this.resultBanner.setOnlyRenderPattern(false);
+            RenderSystem.popMatrix();
         } else if (this.hasMaxPatterns) {
             this.blit(var0 + var5.x - 2, var1 + var5.y - 2, this.imageWidth, 17, 17, 16);
         }
@@ -111,7 +98,7 @@ public class LoomScreen extends AbstractContainerScreen<LoomMenu> {
             int var8 = var1 + 13;
             int var9 = this.startIndex + 16;
 
-            for(int var10 = this.startIndex; var10 < var9 && var10 < this.patternTextures.length - 5; ++var10) {
+            for(int var10 = this.startIndex; var10 < var9 && var10 < BannerPattern.COUNT - 5; ++var10) {
                 int var11 = var10 - this.startIndex;
                 int var12 = var7 + var11 % 4 * 14;
                 int var13 = var8 + var11 / 4 * 14;
@@ -124,10 +111,7 @@ public class LoomScreen extends AbstractContainerScreen<LoomMenu> {
                 }
 
                 this.blit(var12, var13, 0, var14, 14, 14);
-                if (this.patternTextures[var10] != null) {
-                    this.minecraft.getTextureManager().bind(this.patternTextures[var10]);
-                    blit(var12 + 4, var13 + 2, 5, 10, 1.0F, 1.0F, 20, 40, 64, 64);
-                }
+                this.renderPattern(var10, var12, var13);
             }
         } else if (this.displaySpecialPattern) {
             int var15 = var0 + 60;
@@ -135,12 +119,31 @@ public class LoomScreen extends AbstractContainerScreen<LoomMenu> {
             this.minecraft.getTextureManager().bind(BG_LOCATION);
             this.blit(var15, var16, 0, this.imageHeight, 14, 14);
             int var17 = this.menu.getSelectedBannerPatternIndex();
-            if (this.patternTextures[var17] != null) {
-                this.minecraft.getTextureManager().bind(this.patternTextures[var17]);
-                blit(var15 + 4, var16 + 2, 5, 10, 1.0F, 1.0F, 20, 40, 64, 64);
-            }
+            this.renderPattern(var17, var15, var16);
         }
 
+    }
+
+    private void renderPattern(int param0, int param1, int param2) {
+        this.minecraft.getTextureAtlas().bind();
+        RenderSystem.texParameter(3553, 10241, 9728);
+        BannerBlockEntity var0 = new BannerBlockEntity();
+        var0.setOnlyRenderPattern(true);
+        ItemStack var1 = new ItemStack(Items.GRAY_BANNER);
+        CompoundTag var2 = var1.getOrCreateTagElement("BlockEntityTag");
+        ListTag var3 = new BannerPattern.Builder()
+            .addPattern(BannerPattern.BASE, DyeColor.GRAY)
+            .addPattern(BannerPattern.values()[param0], DyeColor.WHITE)
+            .toListTag();
+        var2.put("Patterns", var3);
+        var0.fromItem(var1, DyeColor.GRAY);
+        RenderSystem.pushMatrix();
+        RenderSystem.translatef((float)param1 + 0.5F, (float)(param2 + 16), 0.0F);
+        RenderSystem.scalef(6.0F, -6.0F, 1.0F);
+        RenderSystem.translatef(0.5F, 0.5F, 0.0F);
+        BlockEntityRenderDispatcher.instance.renderItem(var0);
+        RenderSystem.popMatrix();
+        this.minecraft.getTextureAtlas().bind();
     }
 
     @Override
@@ -215,29 +218,28 @@ public class LoomScreen extends AbstractContainerScreen<LoomMenu> {
     private void containerChanged() {
         ItemStack var0 = this.menu.getResultSlot().getItem();
         if (var0.isEmpty()) {
-            this.resultBannerTexture = null;
+            this.resultBanner = null;
         } else {
-            BannerBlockEntity var1 = new BannerBlockEntity();
-            var1.fromItem(var0, ((BannerItem)var0.getItem()).getColor());
-            this.resultBannerTexture = BannerTextures.BANNER_CACHE.getTextureLocation(var1.getTextureHashName(), var1.getPatterns(), var1.getColors());
+            this.resultBanner = new BannerBlockEntity();
+            this.resultBanner.fromItem(var0, ((BannerItem)var0.getItem()).getColor());
         }
 
-        ItemStack var2 = this.menu.getBannerSlot().getItem();
-        ItemStack var3 = this.menu.getDyeSlot().getItem();
-        ItemStack var4 = this.menu.getPatternSlot().getItem();
-        CompoundTag var5 = var2.getOrCreateTagElement("BlockEntityTag");
-        this.hasMaxPatterns = var5.contains("Patterns", 9) && !var2.isEmpty() && var5.getList("Patterns", 10).size() >= 6;
+        ItemStack var1 = this.menu.getBannerSlot().getItem();
+        ItemStack var2 = this.menu.getDyeSlot().getItem();
+        ItemStack var3 = this.menu.getPatternSlot().getItem();
+        CompoundTag var4 = var1.getOrCreateTagElement("BlockEntityTag");
+        this.hasMaxPatterns = var4.contains("Patterns", 9) && !var1.isEmpty() && var4.getList("Patterns", 10).size() >= 6;
         if (this.hasMaxPatterns) {
-            this.resultBannerTexture = null;
+            this.resultBanner = null;
         }
 
-        if (!ItemStack.matches(var2, this.bannerStack) || !ItemStack.matches(var3, this.dyeStack) || !ItemStack.matches(var4, this.patternStack)) {
-            this.displayPatterns = !var2.isEmpty() && !var3.isEmpty() && var4.isEmpty() && !this.hasMaxPatterns;
-            this.displaySpecialPattern = !this.hasMaxPatterns && !var4.isEmpty() && !var2.isEmpty() && !var3.isEmpty();
+        if (!ItemStack.matches(var1, this.bannerStack) || !ItemStack.matches(var2, this.dyeStack) || !ItemStack.matches(var3, this.patternStack)) {
+            this.displayPatterns = !var1.isEmpty() && !var2.isEmpty() && var3.isEmpty() && !this.hasMaxPatterns;
+            this.displaySpecialPattern = !this.hasMaxPatterns && !var3.isEmpty() && !var1.isEmpty() && !var2.isEmpty();
         }
 
-        this.bannerStack = var2.copy();
-        this.dyeStack = var3.copy();
-        this.patternStack = var4.copy();
+        this.bannerStack = var1.copy();
+        this.dyeStack = var2.copy();
+        this.patternStack = var3.copy();
     }
 }

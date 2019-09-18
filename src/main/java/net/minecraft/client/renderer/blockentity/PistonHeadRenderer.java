@@ -1,16 +1,11 @@
 package net.minecraft.client.renderer.blockentity;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.platform.Lighting;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.Tesselator;
 import java.util.Random;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.block.ModelBlockRenderer;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -23,57 +18,51 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class PistonHeadRenderer extends BlockEntityRenderer<PistonMovingBlockEntity> {
+public class PistonHeadRenderer extends BatchedBlockEntityRenderer<PistonMovingBlockEntity> {
     private final BlockRenderDispatcher blockRenderer = Minecraft.getInstance().getBlockRenderer();
 
-    public void render(PistonMovingBlockEntity param0, double param1, double param2, double param3, float param4, int param5) {
+    protected void renderToBuffer(
+        PistonMovingBlockEntity param0,
+        double param1,
+        double param2,
+        double param3,
+        float param4,
+        int param5,
+        RenderType param6,
+        BufferBuilder param7,
+        int param8,
+        int param9
+    ) {
         BlockPos var0 = param0.getBlockPos().relative(param0.getMovementDirection().getOpposite());
         BlockState var1 = param0.getMovedState();
         if (!var1.isAir() && !(param0.getProgress(param4) >= 1.0F)) {
-            Tesselator var2 = Tesselator.getInstance();
-            BufferBuilder var3 = var2.getBuilder();
-            this.bindTexture(TextureAtlas.LOCATION_BLOCKS);
-            Lighting.turnOff();
-            RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-            RenderSystem.enableBlend();
-            RenderSystem.disableCull();
-            if (Minecraft.useAmbientOcclusion()) {
-                RenderSystem.shadeModel(7425);
-            } else {
-                RenderSystem.shadeModel(7424);
-            }
-
             ModelBlockRenderer.enableCaching();
-            var3.begin(7, DefaultVertexFormat.BLOCK);
-            var3.offset(
+            param7.offset(
                 param1 - (double)var0.getX() + (double)param0.getXOff(param4),
                 param2 - (double)var0.getY() + (double)param0.getYOff(param4),
                 param3 - (double)var0.getZ() + (double)param0.getZOff(param4)
             );
-            Level var4 = this.getLevel();
+            Level var2 = this.getLevel();
             if (var1.getBlock() == Blocks.PISTON_HEAD && param0.getProgress(param4) <= 4.0F) {
                 var1 = var1.setValue(PistonHeadBlock.SHORT, Boolean.valueOf(true));
-                this.renderBlock(var0, var1, var3, var4, false);
+                this.renderBlock(var0, var1, param7, var2, false);
             } else if (param0.isSourcePiston() && !param0.isExtending()) {
-                PistonType var5 = var1.getBlock() == Blocks.STICKY_PISTON ? PistonType.STICKY : PistonType.DEFAULT;
-                BlockState var6 = Blocks.PISTON_HEAD
+                PistonType var3 = var1.getBlock() == Blocks.STICKY_PISTON ? PistonType.STICKY : PistonType.DEFAULT;
+                BlockState var4 = Blocks.PISTON_HEAD
                     .defaultBlockState()
-                    .setValue(PistonHeadBlock.TYPE, var5)
+                    .setValue(PistonHeadBlock.TYPE, var3)
                     .setValue(PistonHeadBlock.FACING, var1.getValue(PistonBaseBlock.FACING));
-                var6 = var6.setValue(PistonHeadBlock.SHORT, Boolean.valueOf(param0.getProgress(param4) >= 0.5F));
-                this.renderBlock(var0, var6, var3, var4, false);
-                BlockPos var7 = var0.relative(param0.getMovementDirection());
-                var3.offset(param1 - (double)var7.getX(), param2 - (double)var7.getY(), param3 - (double)var7.getZ());
+                var4 = var4.setValue(PistonHeadBlock.SHORT, Boolean.valueOf(param0.getProgress(param4) >= 0.5F));
+                this.renderBlock(var0, var4, param7, var2, false);
+                BlockPos var5 = var0.relative(param0.getMovementDirection());
+                param7.offset(param1 - (double)var5.getX(), param2 - (double)var5.getY(), param3 - (double)var5.getZ());
                 var1 = var1.setValue(PistonBaseBlock.EXTENDED, Boolean.valueOf(true));
-                this.renderBlock(var7, var1, var3, var4, true);
+                this.renderBlock(var5, var1, param7, var2, true);
             } else {
-                this.renderBlock(var0, var1, var3, var4, false);
+                this.renderBlock(var0, var1, param7, var2, false);
             }
 
-            var3.offset(0.0, 0.0, 0.0);
-            var2.end();
             ModelBlockRenderer.clearCache();
-            Lighting.turnOn();
         }
     }
 

@@ -134,26 +134,29 @@ public class Main {
         var50.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
         Runtime.getRuntime().addShutdownHook(var50);
         new RenderPipeline();
-        final Minecraft var52 = new Minecraft(var49);
-        Thread.currentThread().setName("Render thread");
-        RenderSystem.initRenderThread();
 
+        final Minecraft var52;
         try {
-            var52.init();
+            Thread.currentThread().setName("Render thread");
+            RenderSystem.initRenderThread();
+            RenderSystem.beginInitialization();
+            var52 = new Minecraft(var49);
+            RenderSystem.finishInitialization();
         } catch (Throwable var65) {
             CrashReport var54 = CrashReport.forThrowable(var65, "Initializing game");
             var54.addCategory("Initialization");
-            var52.crash(var52.fillReport(var54));
+            Minecraft.fillReport(null, var49.game.launchVersion, null, var54);
+            Minecraft.crash(var54);
             return;
         }
 
-        Thread var55;
+        Thread var56;
         if (var52.renderOnThread()) {
-            var55 = new Thread("Client thread") {
+            var56 = new Thread("Game thread") {
                 @Override
                 public void run() {
                     try {
-                        RenderSystem.initClientThread();
+                        RenderSystem.initGameThread(true);
                         var52.run();
                     } catch (Throwable var2) {
                         Main.LOGGER.error("Exception in client thread", var2);
@@ -161,14 +164,15 @@ public class Main {
 
                 }
             };
-            var55.start();
+            var56.start();
 
             while(var52.isRunning()) {
             }
         } else {
-            var55 = null;
+            var56 = null;
 
             try {
+                RenderSystem.initGameThread(false);
                 var52.run();
             } catch (Throwable var64) {
                 LOGGER.error("Unhandled game exception", var64);
@@ -177,8 +181,8 @@ public class Main {
 
         try {
             var52.stop();
-            if (var55 != null) {
-                var55.join();
+            if (var56 != null) {
+                var56.join();
             }
         } catch (InterruptedException var62) {
             LOGGER.error("Exception during client thread shutdown", (Throwable)var62);
@@ -192,6 +196,7 @@ public class Main {
         return param0 != null ? OptionalInt.of(param0) : OptionalInt.empty();
     }
 
+    @Nullable
     private static <T> T parseArgument(OptionSet param0, OptionSpec<T> param1) {
         try {
             return param0.valueOf(param1);
@@ -208,7 +213,7 @@ public class Main {
         }
     }
 
-    private static boolean stringHasValue(String param0) {
+    private static boolean stringHasValue(@Nullable String param0) {
         return param0 != null && !param0.isEmpty();
     }
 

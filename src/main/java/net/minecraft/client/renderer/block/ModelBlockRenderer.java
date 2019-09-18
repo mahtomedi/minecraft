@@ -162,9 +162,9 @@ public class ModelBlockRenderer {
         float var5 = -32.0F;
 
         for(int var6 = 0; var6 < 4; ++var6) {
-            float var7 = Float.intBitsToFloat(param3[var6 * 7]);
-            float var8 = Float.intBitsToFloat(param3[var6 * 7 + 1]);
-            float var9 = Float.intBitsToFloat(param3[var6 * 7 + 2]);
+            float var7 = Float.intBitsToFloat(param3[var6 * 8]);
+            float var8 = Float.intBitsToFloat(param3[var6 * 8 + 1]);
+            float var9 = Float.intBitsToFloat(param3[var6 * 8 + 2]);
             var0 = Math.min(var0, var7);
             var1 = Math.min(var1, var8);
             var2 = Math.min(var2, var9);
@@ -291,7 +291,7 @@ public class ModelBlockRenderer {
 
         for(int var3 = param4.size(); var2 < var3; ++var2) {
             BakedQuad var4 = param4.get(var2);
-            var1.begin(7, DefaultVertexFormat.BLOCK_NORMALS);
+            var1.begin(7, DefaultVertexFormat.BLOCK);
             var1.putBulkData(var4.getVertices());
             if (var4.isTinted()) {
                 var1.fixupQuadColor(param1 * param0, param2 * param0, param3 * param0);

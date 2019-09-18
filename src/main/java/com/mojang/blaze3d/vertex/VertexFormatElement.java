@@ -1,5 +1,7 @@
 package com.mojang.blaze3d.vertex;
 
+import com.mojang.blaze3d.platform.GlStateManager;
+import java.util.function.IntConsumer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
@@ -26,7 +28,7 @@ public class VertexFormatElement {
         this.count = param3;
     }
 
-    private final boolean supportsUsage(int param0, VertexFormatElement.Usage param1) {
+    private boolean supportsUsage(int param0, VertexFormatElement.Usage param1) {
         return param0 == 0 || param1 == VertexFormatElement.Usage.UV;
     }
 
@@ -87,6 +89,14 @@ public class VertexFormatElement {
         return 31 * var0 + this.count;
     }
 
+    public void setupBufferState(long param0, int param1) {
+        this.usage.setupBufferState(this.count, this.type.getGlType(), param1, param0, this.index);
+    }
+
+    public void clearBufferState() {
+        this.usage.clearBufferState(this.index);
+    }
+
     @OnlyIn(Dist.CLIENT)
     public static enum Type {
         FLOAT(4, "Float", 5126),
@@ -122,22 +132,64 @@ public class VertexFormatElement {
 
     @OnlyIn(Dist.CLIENT)
     public static enum Usage {
-        POSITION("Position"),
-        NORMAL("Normal"),
-        COLOR("Vertex Color"),
-        UV("UV"),
-        MATRIX("Bone Matrix"),
-        BLEND_WEIGHT("Blend Weight"),
-        PADDING("Padding");
+        POSITION("Position", (param0, param1, param2, param3, param4) -> {
+            GlStateManager._vertexPointer(param0, param1, param2, param3);
+            GlStateManager._enableClientState(32884);
+        }, param0 -> GlStateManager._disableClientState(32884)),
+        NORMAL("Normal", (param0, param1, param2, param3, param4) -> {
+            GlStateManager._normalPointer(param1, param2, param3);
+            GlStateManager._enableClientState(32885);
+        }, param0 -> GlStateManager._disableClientState(32885)),
+        COLOR("Vertex Color", (param0, param1, param2, param3, param4) -> {
+            GlStateManager._colorPointer(param0, param1, param2, param3);
+            GlStateManager._enableClientState(32886);
+        }, param0 -> {
+            GlStateManager._disableClientState(32886);
+            GlStateManager._clearCurrentColor();
+        }),
+        UV("UV", (param0, param1, param2, param3, param4) -> {
+            GlStateManager._glClientActiveTexture(33984 + param4);
+            GlStateManager._texCoordPointer(param0, param1, param2, param3);
+            GlStateManager._enableClientState(32888);
+            GlStateManager._glClientActiveTexture(33984);
+        }, param0 -> {
+            GlStateManager._glClientActiveTexture(33984 + param0);
+            GlStateManager._disableClientState(32888);
+            GlStateManager._glClientActiveTexture(33984);
+        }),
+        PADDING("Padding", (param0, param1, param2, param3, param4) -> {
+        }, param0 -> {
+        }),
+        GENERIC("Generic", (param0, param1, param2, param3, param4) -> {
+            GlStateManager._enableVertexAttribArray(param4);
+            GlStateManager._vertexAttribPointer(param4, param0, param1, false, param2, param3);
+        }, GlStateManager::_disableVertexAttribArray);
 
         private final String name;
+        private final VertexFormatElement.Usage.SetupState setupState;
+        private final IntConsumer clearState;
 
-        private Usage(String param0) {
+        private Usage(String param0, VertexFormatElement.Usage.SetupState param1, IntConsumer param2) {
             this.name = param0;
+            this.setupState = param1;
+            this.clearState = param2;
+        }
+
+        private void setupBufferState(int param0, int param1, int param2, long param3, int param4) {
+            this.setupState.setupBufferState(param0, param1, param2, param3, param4);
+        }
+
+        public void clearBufferState(int param0) {
+            this.clearState.accept(param0);
         }
 
         public String getName() {
             return this.name;
+        }
+
+        @OnlyIn(Dist.CLIENT)
+        interface SetupState {
+            void setupBufferState(int var1, int var2, int var3, long var4, int var6);
         }
     }
 }

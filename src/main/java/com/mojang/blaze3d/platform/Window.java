@@ -28,7 +28,7 @@ import org.lwjgl.system.MemoryUtil;
 public final class Window implements AutoCloseable {
     private static final Logger LOGGER = LogManager.getLogger();
     private final GLFWErrorCallback defaultErrorCallback = GLFWErrorCallback.create(this::defaultErrorCallback);
-    private final WindowEventHandler minecraft;
+    private final WindowEventHandler eventHandler;
     private final ScreenManager screenManager;
     private final long window;
     private int windowedX;
@@ -53,11 +53,12 @@ public final class Window implements AutoCloseable {
     private int framerateLimit;
     private boolean vsync;
 
-    public Window(WindowEventHandler param0, ScreenManager param1, DisplayData param2, String param3, String param4) {
+    public Window(WindowEventHandler param0, ScreenManager param1, DisplayData param2, @Nullable String param3, String param4) {
+        RenderSystem.assertThread(RenderSystem::isInInitPhase);
         this.screenManager = param1;
         this.setBootErrorCallback();
         this.setErrorSection("Pre startup");
-        this.minecraft = param0;
+        this.eventHandler = param0;
         Optional<VideoMode> var0 = VideoMode.read(param3);
         if (var0.isPresent()) {
             this.preferredFullscreenVideoMode = var0;
@@ -101,6 +102,7 @@ public final class Window implements AutoCloseable {
     }
 
     public int getRefreshRate() {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         return GLX._getRefreshRate(this);
     }
 
@@ -109,6 +111,8 @@ public final class Window implements AutoCloseable {
     }
 
     public static void checkGlfwError(BiConsumer<Integer, String> param0) {
+        RenderSystem.assertThread(RenderSystem::isInInitPhase);
+
         try (MemoryStack var0 = MemoryStack.stackPush()) {
             PointerBuffer var1 = var0.mallocPointer(1);
             int var2 = GLFW.glfwGetError(var1);
@@ -122,6 +126,7 @@ public final class Window implements AutoCloseable {
     }
 
     public void setupGuiState(boolean param0) {
+        RenderSystem.assertThread(RenderSystem::isOnGameThread);
         RenderSystem.clear(256, param0);
         RenderSystem.matrixMode(5889);
         RenderSystem.loadIdentity();
@@ -132,6 +137,8 @@ public final class Window implements AutoCloseable {
     }
 
     public void setIcon(InputStream param0, InputStream param1) {
+        RenderSystem.assertThread(RenderSystem::isInInitPhase);
+
         try (MemoryStack var0 = MemoryStack.stackPush()) {
             if (param0 == null) {
                 throw new FileNotFoundException("icons/icon_16x16.png");
@@ -175,6 +182,7 @@ public final class Window implements AutoCloseable {
 
     @Nullable
     private ByteBuffer readIconPixels(InputStream param0, IntBuffer param1, IntBuffer param2, IntBuffer param3) throws IOException {
+        RenderSystem.assertThread(RenderSystem::isInInitPhase);
         ByteBuffer var0 = null;
 
         ByteBuffer var6;
@@ -197,14 +205,17 @@ public final class Window implements AutoCloseable {
     }
 
     private void setBootErrorCallback() {
+        RenderSystem.assertThread(RenderSystem::isInInitPhase);
         GLFW.glfwSetErrorCallback(Window::bootCrash);
     }
 
     private static void bootCrash(int param0, long param1) {
+        RenderSystem.assertThread(RenderSystem::isInInitPhase);
         throw new IllegalStateException("GLFW error " + param0 + ": " + MemoryUtil.memUTF8(param1));
     }
 
     public void defaultErrorCallback(int param0x, long param1x) {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         String var0x = MemoryUtil.memUTF8(param1x);
         LOGGER.error("########## GL ERROR ##########");
         LOGGER.error("@ {}", this.errorSection);
@@ -220,12 +231,14 @@ public final class Window implements AutoCloseable {
     }
 
     public void updateVsync(boolean param0) {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
         this.vsync = param0;
         GLFW.glfwSwapInterval(param0 ? 1 : 0);
     }
 
     @Override
     public void close() {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         Callbacks.glfwFreeCallbacks(this.window);
         this.defaultErrorCallback.close();
         GLFW.glfwDestroyWindow(this.window);
@@ -245,7 +258,7 @@ public final class Window implements AutoCloseable {
                 this.framebufferWidth = param1x;
                 this.framebufferHeight = param2x;
                 if (this.getWidth() != var0x || this.getHeight() != var1x) {
-                    this.minecraft.resizeDisplay();
+                    this.eventHandler.resizeDisplay();
                 }
 
             }
@@ -253,6 +266,7 @@ public final class Window implements AutoCloseable {
     }
 
     private void refreshFramebufferSize() {
+        RenderSystem.assertThread(RenderSystem::isInInitPhase);
         int[] var0 = new int[1];
         int[] var1 = new int[1];
         GLFW.glfwGetFramebufferSize(this.window, var0, var1);
@@ -267,7 +281,7 @@ public final class Window implements AutoCloseable {
 
     private void onFocus(long param0x, boolean param1x) {
         if (param0x == this.window) {
-            this.minecraft.setWindowActive(param1x);
+            this.eventHandler.setWindowActive(param1x);
         }
 
     }
@@ -318,12 +332,13 @@ public final class Window implements AutoCloseable {
         if (this.fullscreen && this.dirty) {
             this.dirty = false;
             this.setMode();
-            this.minecraft.resizeDisplay();
+            this.eventHandler.resizeDisplay();
         }
 
     }
 
     private void setMode() {
+        RenderSystem.assertThread(RenderSystem::isInInitPhase);
         boolean var0 = GLFW.glfwGetWindowMonitor(this.window) != 0L;
         if (this.fullscreen) {
             Monitor var1 = this.screenManager.findBestMonitor(this);
@@ -360,11 +375,13 @@ public final class Window implements AutoCloseable {
     }
 
     private void updateFullscreen(boolean param0) {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+
         try {
             this.setMode();
-            this.minecraft.resizeDisplay();
+            this.eventHandler.resizeDisplay();
             this.updateVsync(param0);
-            this.minecraft.updateDisplay(false);
+            this.eventHandler.updateDisplay(false);
         } catch (Exception var3) {
             LOGGER.error("Couldn't toggle fullscreen", (Throwable)var3);
         }

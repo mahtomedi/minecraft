@@ -1,7 +1,9 @@
 package net.minecraft.client.renderer.texture;
 
+import com.mojang.blaze3d.platform.AbstractTexture;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.TextureUtil;
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.io.IOException;
 import javax.annotation.Nullable;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -14,11 +16,20 @@ public class DynamicTexture extends AbstractTexture implements AutoCloseable {
 
     public DynamicTexture(NativeImage param0) {
         this.pixels = param0;
-        TextureUtil.prepareImage(this.getId(), this.pixels.getWidth(), this.pixels.getHeight());
-        this.upload();
+        if (!RenderSystem.isOnRenderThread()) {
+            RenderSystem.recordRenderCall(() -> {
+                TextureUtil.prepareImage(this.getId(), this.pixels.getWidth(), this.pixels.getHeight());
+                this.upload();
+            });
+        } else {
+            TextureUtil.prepareImage(this.getId(), this.pixels.getWidth(), this.pixels.getHeight());
+            this.upload();
+        }
+
     }
 
     public DynamicTexture(int param0, int param1, boolean param2) {
+        RenderSystem.assertThread(RenderSystem::isOnGameThreadOrInit);
         this.pixels = new NativeImage(param0, param1, param2);
         TextureUtil.prepareImage(this.getId(), this.pixels.getWidth(), this.pixels.getHeight());
     }

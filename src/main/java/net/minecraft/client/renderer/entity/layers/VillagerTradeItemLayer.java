@@ -3,6 +3,7 @@ package net.minecraft.client.renderer.entity.layers;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.VillagerModel;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
@@ -10,7 +11,6 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.BlockLayer;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -29,7 +29,7 @@ public class VillagerTradeItemLayer<T extends LivingEntity> extends RenderLayer<
             Item var1 = var0.getItem();
             Block var2 = Block.byItem(var1);
             RenderSystem.pushMatrix();
-            boolean var3 = this.itemRenderer.isGui3d(var0) && var2.getRenderLayer() == BlockLayer.TRANSLUCENT;
+            boolean var3 = this.itemRenderer.isGui3d(var0) && RenderType.getRenderLayer(var2.defaultBlockState()) == RenderType.TRANSLUCENT;
             if (var3) {
                 RenderSystem.depthMask(false);
             }

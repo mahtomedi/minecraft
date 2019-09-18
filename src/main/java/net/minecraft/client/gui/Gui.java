@@ -136,20 +136,15 @@ public class Gui extends GuiComponent {
     }
 
     public void render(float param0) {
-        this.screenWidth = this.minecraft.window.getGuiScaledWidth();
-        this.screenHeight = this.minecraft.window.getGuiScaledHeight();
+        this.screenWidth = this.minecraft.getWindow().getGuiScaledWidth();
+        this.screenHeight = this.minecraft.getWindow().getGuiScaledHeight();
         Font var0 = this.getFont();
         RenderSystem.enableBlend();
         if (Minecraft.useFancyGraphics()) {
             this.renderVignette(this.minecraft.getCameraEntity());
         } else {
             RenderSystem.enableDepthTest();
-            RenderSystem.blendFuncSeparate(
-                GlStateManager.SourceFactor.SRC_ALPHA,
-                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-                GlStateManager.SourceFactor.ONE,
-                GlStateManager.DestFactor.ZERO
-            );
+            RenderSystem.defaultBlendFunc();
         }
 
         ItemStack var1 = this.minecraft.player.inventory.getArmor(3);
@@ -176,12 +171,7 @@ public class Gui extends GuiComponent {
             RenderSystem.enableBlend();
             RenderSystem.enableAlphaTest();
             this.renderCrosshair();
-            RenderSystem.blendFuncSeparate(
-                GlStateManager.SourceFactor.SRC_ALPHA,
-                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-                GlStateManager.SourceFactor.ONE,
-                GlStateManager.DestFactor.ZERO
-            );
+            RenderSystem.defaultBlendFunc();
             this.minecraft.getProfiler().push("bossHealth");
             this.bossOverlay.render();
             this.minecraft.getProfiler().pop();
@@ -247,12 +237,7 @@ public class Gui extends GuiComponent {
                     RenderSystem.pushMatrix();
                     RenderSystem.translatef((float)(this.screenWidth / 2), (float)(this.screenHeight - 68), 0.0F);
                     RenderSystem.enableBlend();
-                    RenderSystem.blendFuncSeparate(
-                        GlStateManager.SourceFactor.SRC_ALPHA,
-                        GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-                        GlStateManager.SourceFactor.ONE,
-                        GlStateManager.DestFactor.ZERO
-                    );
+                    RenderSystem.defaultBlendFunc();
                     int var9 = 16777215;
                     if (this.animateOverlayMessageColor) {
                         var9 = Mth.hsvToRgb(var7 / 50.0F, 0.7F, 0.6F) & 16777215;
@@ -286,12 +271,7 @@ public class Gui extends GuiComponent {
                     RenderSystem.pushMatrix();
                     RenderSystem.translatef((float)(this.screenWidth / 2), (float)(this.screenHeight / 2), 0.0F);
                     RenderSystem.enableBlend();
-                    RenderSystem.blendFuncSeparate(
-                        GlStateManager.SourceFactor.SRC_ALPHA,
-                        GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-                        GlStateManager.SourceFactor.ONE,
-                        GlStateManager.DestFactor.ZERO
-                    );
+                    RenderSystem.defaultBlendFunc();
                     RenderSystem.pushMatrix();
                     RenderSystem.scalef(4.0F, 4.0F, 4.0F);
                     int var14 = var12 << 24 & 0xFF000000;
@@ -332,12 +312,7 @@ public class Gui extends GuiComponent {
             }
 
             RenderSystem.enableBlend();
-            RenderSystem.blendFuncSeparate(
-                GlStateManager.SourceFactor.SRC_ALPHA,
-                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-                GlStateManager.SourceFactor.ONE,
-                GlStateManager.DestFactor.ZERO
-            );
+            RenderSystem.defaultBlendFunc();
             RenderSystem.disableAlphaTest();
             RenderSystem.pushMatrix();
             RenderSystem.translatef(0.0F, (float)(this.screenHeight - 48), 0.0F);
@@ -375,7 +350,7 @@ public class Gui extends GuiComponent {
             if (this.minecraft.gameMode.getPlayerMode() != GameType.SPECTATOR || this.canRenderCrosshairForSpectator(this.minecraft.hitResult)) {
                 if (var0.renderDebug && !var0.hideGui && !this.minecraft.player.isReducedDebugInfo() && !var0.reducedDebugInfo) {
                     RenderSystem.pushMatrix();
-                    RenderSystem.translatef((float)(this.screenWidth / 2), (float)(this.screenHeight / 2), (float)this.blitOffset);
+                    RenderSystem.translatef((float)(this.screenWidth / 2), (float)(this.screenHeight / 2), (float)this.getBlitOffset());
                     Camera var1 = this.minecraft.gameRenderer.getMainCamera();
                     RenderSystem.rotatef(var1.getXRot(), -1.0F, 0.0F, 0.0F);
                     RenderSystem.rotatef(var1.getYRot(), 0.0F, 1.0F, 0.0F);
@@ -476,7 +451,7 @@ public class Gui extends GuiComponent {
                     float var14 = var9;
                     var4.add(() -> {
                         RenderSystem.color4f(1.0F, 1.0F, 1.0F, var14);
-                        blit(var12 + 3, var13 + 3, this.blitOffset, 18, 18, var11);
+                        blit(var12 + 3, var13 + 3, this.getBlitOffset(), 18, 18, var11);
                     });
                 }
             }
@@ -494,10 +469,10 @@ public class Gui extends GuiComponent {
             ItemStack var1 = var0.getOffhandItem();
             HumanoidArm var2 = var0.getMainArm().getOpposite();
             int var3 = this.screenWidth / 2;
-            int var4 = this.blitOffset;
+            int var4 = this.getBlitOffset();
             int var5 = 182;
             int var6 = 91;
-            this.blitOffset = -90;
+            this.setBlitOffset(-90);
             this.blit(var3 - 91, this.screenHeight - 22, 0, 0, 182, 22);
             this.blit(var3 - 91 - 1 + var0.inventory.selected * 20, this.screenHeight - 22 - 1, 0, 22, 24, 22);
             if (!var1.isEmpty()) {
@@ -508,15 +483,10 @@ public class Gui extends GuiComponent {
                 }
             }
 
-            this.blitOffset = var4;
+            this.setBlitOffset(var4);
             RenderSystem.enableRescaleNormal();
             RenderSystem.enableBlend();
-            RenderSystem.blendFuncSeparate(
-                GlStateManager.SourceFactor.SRC_ALPHA,
-                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-                GlStateManager.SourceFactor.ONE,
-                GlStateManager.DestFactor.ZERO
-            );
+            RenderSystem.defaultBlendFunc();
             Lighting.turnOnGui();
 
             for(int var7 = 0; var7 < 9; ++var7) {
@@ -625,12 +595,7 @@ public class Gui extends GuiComponent {
             if (var4 > 0) {
                 RenderSystem.pushMatrix();
                 RenderSystem.enableBlend();
-                RenderSystem.blendFuncSeparate(
-                    GlStateManager.SourceFactor.SRC_ALPHA,
-                    GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-                    GlStateManager.SourceFactor.ONE,
-                    GlStateManager.DestFactor.ZERO
-                );
+                RenderSystem.defaultBlendFunc();
                 fill(var2 - 2, var3 - 2, var2 + this.getFont().width(var1) + 2, var3 + 9 + 2, this.minecraft.options.getBackgroundColor(0));
                 this.getFont().drawShadow(var1, (float)var2, (float)var3, 16777215 + (var4 << 24));
                 RenderSystem.disableBlend();
@@ -959,12 +924,7 @@ public class Gui extends GuiComponent {
     private void renderPumpkin() {
         RenderSystem.disableDepthTest();
         RenderSystem.depthMask(false);
-        RenderSystem.blendFuncSeparate(
-            GlStateManager.SourceFactor.SRC_ALPHA,
-            GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-            GlStateManager.SourceFactor.ONE,
-            GlStateManager.DestFactor.ZERO
-        );
+        RenderSystem.defaultBlendFunc();
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.disableAlphaTest();
         this.minecraft.getTextureManager().bind(PUMPKIN_BLUR_LOCATION);
@@ -1023,12 +983,7 @@ public class Gui extends GuiComponent {
         RenderSystem.depthMask(true);
         RenderSystem.enableDepthTest();
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.blendFuncSeparate(
-            GlStateManager.SourceFactor.SRC_ALPHA,
-            GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-            GlStateManager.SourceFactor.ONE,
-            GlStateManager.DestFactor.ZERO
-        );
+        RenderSystem.defaultBlendFunc();
     }
 
     private void renderPortalOverlay(float param0) {
@@ -1041,12 +996,7 @@ public class Gui extends GuiComponent {
         RenderSystem.disableAlphaTest();
         RenderSystem.disableDepthTest();
         RenderSystem.depthMask(false);
-        RenderSystem.blendFuncSeparate(
-            GlStateManager.SourceFactor.SRC_ALPHA,
-            GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-            GlStateManager.SourceFactor.ONE,
-            GlStateManager.DestFactor.ZERO
-        );
+        RenderSystem.defaultBlendFunc();
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, param0);
         this.minecraft.getTextureManager().bind(TextureAtlas.LOCATION_BLOCKS);
         TextureAtlasSprite var0 = this.minecraft.getBlockRenderer().getBlockModelShaper().getParticleIcon(Blocks.NETHER_PORTAL.defaultBlockState());

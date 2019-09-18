@@ -168,7 +168,7 @@ public class LegacyUnicodeBitmapsProvider implements GlyphProvider {
 
         @Override
         public void upload(int param0, int param1) {
-            this.source.upload(0, param0, param1, this.sourceX, this.sourceY, this.width, this.height, false);
+            this.source.upload(0, param0, param1, this.sourceX, this.sourceY, this.width, this.height, false, false);
         }
 
         @Override

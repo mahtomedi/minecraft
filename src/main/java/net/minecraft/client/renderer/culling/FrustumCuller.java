@@ -1,5 +1,6 @@
 package net.minecraft.client.renderer.culling;
 
+import com.mojang.blaze3d.platform.Frustum;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

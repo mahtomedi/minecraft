@@ -23,17 +23,15 @@ public class PlayerInfo {
     private GameType gameMode;
     private int latency;
     private boolean pendingTextures;
+    @Nullable
     private String skinModel;
+    @Nullable
     private Component tabListDisplayName;
     private int lastHealth;
     private int displayHealth;
     private long lastHealthTime;
     private long healthBlinkTime;
     private long renderVisibilityId;
-
-    public PlayerInfo(GameProfile param0) {
-        this.profile = param0;
-    }
 
     public PlayerInfo(ClientboundPlayerInfoPacket.PlayerUpdate param0) {
         this.profile = param0.getProfile();
@@ -46,6 +44,7 @@ public class PlayerInfo {
         return this.profile;
     }
 
+    @Nullable
     public GameType getGameMode() {
         return this.gameMode;
     }
@@ -97,19 +96,12 @@ public class PlayerInfo {
             if (!this.pendingTextures) {
                 this.pendingTextures = true;
                 Minecraft.getInstance().getSkinManager().registerSkins(this.profile, (param0, param1, param2) -> {
-                    switch(param0) {
-                        case SKIN:
-                            this.textureLocations.put(Type.SKIN, param1);
-                            this.skinModel = param2.getMetadata("model");
-                            if (this.skinModel == null) {
-                                this.skinModel = "default";
-                            }
-                            break;
-                        case CAPE:
-                            this.textureLocations.put(Type.CAPE, param1);
-                            break;
-                        case ELYTRA:
-                            this.textureLocations.put(Type.ELYTRA, param1);
+                    this.textureLocations.put(param0, param1);
+                    if (param0 == Type.SKIN) {
+                        this.skinModel = param2.getMetadata("model");
+                        if (this.skinModel == null) {
+                            this.skinModel = "default";
+                        }
                     }
 
                 }, true);

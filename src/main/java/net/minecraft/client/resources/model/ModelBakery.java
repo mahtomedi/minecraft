@@ -17,6 +17,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -29,6 +30,7 @@ import java.util.Map.Entry;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.client.color.block.BlockColors;
@@ -38,6 +40,11 @@ import net.minecraft.client.renderer.block.model.BlockModelDefinition;
 import net.minecraft.client.renderer.block.model.ItemModelGenerator;
 import net.minecraft.client.renderer.block.model.multipart.MultiPart;
 import net.minecraft.client.renderer.block.model.multipart.Selector;
+import net.minecraft.client.renderer.blockentity.BedRenderer;
+import net.minecraft.client.renderer.blockentity.BellRenderer;
+import net.minecraft.client.renderer.blockentity.ChestRenderer;
+import net.minecraft.client.renderer.blockentity.ConduitRenderer;
+import net.minecraft.client.renderer.blockentity.EnchantTableRenderer;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.core.Registry;
@@ -48,6 +55,7 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.entity.BannerPattern;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
@@ -66,38 +74,66 @@ public class ModelBakery {
     public static final ResourceLocation LAVA_FLOW = new ResourceLocation("block/lava_flow");
     public static final ResourceLocation WATER_FLOW = new ResourceLocation("block/water_flow");
     public static final ResourceLocation WATER_OVERLAY = new ResourceLocation("block/water_overlay");
-    public static final ResourceLocation DESTROY_STAGE_0 = new ResourceLocation("block/destroy_stage_0");
-    public static final ResourceLocation DESTROY_STAGE_1 = new ResourceLocation("block/destroy_stage_1");
-    public static final ResourceLocation DESTROY_STAGE_2 = new ResourceLocation("block/destroy_stage_2");
-    public static final ResourceLocation DESTROY_STAGE_3 = new ResourceLocation("block/destroy_stage_3");
-    public static final ResourceLocation DESTROY_STAGE_4 = new ResourceLocation("block/destroy_stage_4");
-    public static final ResourceLocation DESTROY_STAGE_5 = new ResourceLocation("block/destroy_stage_5");
-    public static final ResourceLocation DESTROY_STAGE_6 = new ResourceLocation("block/destroy_stage_6");
-    public static final ResourceLocation DESTROY_STAGE_7 = new ResourceLocation("block/destroy_stage_7");
-    public static final ResourceLocation DESTROY_STAGE_8 = new ResourceLocation("block/destroy_stage_8");
-    public static final ResourceLocation DESTROY_STAGE_9 = new ResourceLocation("block/destroy_stage_9");
-    private static final Set<ResourceLocation> UNREFERENCED_TEXTURES = Sets.newHashSet(
-        WATER_FLOW,
-        LAVA_FLOW,
-        WATER_OVERLAY,
-        FIRE_0,
-        FIRE_1,
-        DESTROY_STAGE_0,
-        DESTROY_STAGE_1,
-        DESTROY_STAGE_2,
-        DESTROY_STAGE_3,
-        DESTROY_STAGE_4,
-        DESTROY_STAGE_5,
-        DESTROY_STAGE_6,
-        DESTROY_STAGE_7,
-        DESTROY_STAGE_8,
-        DESTROY_STAGE_9,
-        new ResourceLocation("item/empty_armor_slot_helmet"),
-        new ResourceLocation("item/empty_armor_slot_chestplate"),
-        new ResourceLocation("item/empty_armor_slot_leggings"),
-        new ResourceLocation("item/empty_armor_slot_boots"),
-        new ResourceLocation("item/empty_armor_slot_shield")
+    public static final ResourceLocation DEFAULT_SHULKER_TEXTURE_LOCATION = new ResourceLocation("entity/shulker/shulker");
+    public static final List<ResourceLocation> SHULKER_TEXTURE_LOCATION = ImmutableList.of(
+        new ResourceLocation("entity/shulker/shulker_white"),
+        new ResourceLocation("entity/shulker/shulker_orange"),
+        new ResourceLocation("entity/shulker/shulker_magenta"),
+        new ResourceLocation("entity/shulker/shulker_light_blue"),
+        new ResourceLocation("entity/shulker/shulker_yellow"),
+        new ResourceLocation("entity/shulker/shulker_lime"),
+        new ResourceLocation("entity/shulker/shulker_pink"),
+        new ResourceLocation("entity/shulker/shulker_gray"),
+        new ResourceLocation("entity/shulker/shulker_light_gray"),
+        new ResourceLocation("entity/shulker/shulker_cyan"),
+        new ResourceLocation("entity/shulker/shulker_purple"),
+        new ResourceLocation("entity/shulker/shulker_blue"),
+        new ResourceLocation("entity/shulker/shulker_brown"),
+        new ResourceLocation("entity/shulker/shulker_green"),
+        new ResourceLocation("entity/shulker/shulker_red"),
+        new ResourceLocation("entity/shulker/shulker_black")
     );
+    public static final ResourceLocation BANNER_BASE = new ResourceLocation("entity/banner_base");
+    public static final List<ResourceLocation> DESTROY_STAGES = IntStream.range(0, 10)
+        .mapToObj(param0 -> new ResourceLocation("block/destroy_stage_" + param0))
+        .collect(Collectors.toList());
+    private static final Set<ResourceLocation> UNREFERENCED_TEXTURES = Util.make(Sets.newHashSet(), param0 -> {
+        param0.add(WATER_FLOW);
+        param0.add(LAVA_FLOW);
+        param0.add(WATER_OVERLAY);
+        param0.add(FIRE_0);
+        param0.add(FIRE_1);
+        param0.add(BellRenderer.BELL_RESOURCE_LOCATION);
+        param0.addAll(Arrays.asList(BedRenderer.TEXTURES));
+        param0.add(ChestRenderer.CHEST_LARGE_TRAP_LOCATION);
+        param0.add(ChestRenderer.CHEST_LARGE_XMAS_LOCATION);
+        param0.add(ChestRenderer.CHEST_LARGE_LOCATION);
+        param0.add(ChestRenderer.CHEST_TRAP_LOCATION);
+        param0.add(ChestRenderer.CHEST_XMAS_LOCATION);
+        param0.add(ChestRenderer.CHEST_LOCATION);
+        param0.add(ChestRenderer.ENDER_CHEST_LOCATION);
+        param0.add(ConduitRenderer.SHELL_TEXTURE);
+        param0.add(ConduitRenderer.ACTIVE_SHELL_TEXTURE);
+        param0.add(ConduitRenderer.WIND_TEXTURE);
+        param0.add(ConduitRenderer.VERTICAL_WIND_TEXTURE);
+        param0.add(ConduitRenderer.OPEN_EYE_TEXTURE);
+        param0.add(ConduitRenderer.CLOSED_EYE_TEXTURE);
+        param0.add(EnchantTableRenderer.BOOK_LOCATION);
+        param0.add(DEFAULT_SHULKER_TEXTURE_LOCATION);
+        param0.addAll(SHULKER_TEXTURE_LOCATION);
+        param0.add(BANNER_BASE);
+
+        for(BannerPattern var0 : BannerPattern.values()) {
+            param0.add(var0.location());
+        }
+
+        param0.addAll(DESTROY_STAGES);
+        param0.add(new ResourceLocation("item/empty_armor_slot_helmet"));
+        param0.add(new ResourceLocation("item/empty_armor_slot_chestplate"));
+        param0.add(new ResourceLocation("item/empty_armor_slot_leggings"));
+        param0.add(new ResourceLocation("item/empty_armor_slot_boots"));
+        param0.add(new ResourceLocation("item/empty_armor_slot_shield"));
+    });
     private static final Logger LOGGER = LogManager.getLogger();
     public static final ModelResourceLocation MISSING_MODEL_LOCATION = new ModelResourceLocation("builtin/missing", "missing");
     @VisibleForTesting

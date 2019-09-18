@@ -80,7 +80,7 @@ public class EnchantmentScreen extends AbstractContainerScreen<EnchantmentMenu> 
         RenderSystem.matrixMode(5889);
         RenderSystem.pushMatrix();
         RenderSystem.loadIdentity();
-        int var2 = (int)this.minecraft.window.getGuiScale();
+        int var2 = (int)this.minecraft.getWindow().getGuiScale();
         RenderSystem.viewport((this.width - 320) / 2 * var2, (this.height - 240) / 2 * var2, 320 * var2, 240 * var2);
         RenderSystem.translatef(-0.34F, 0.23F, 0.0F);
         RenderSystem.multMatrix(Matrix4f.perspective(90.0, 1.3333334F, 9.0F, 80.0F));
@@ -120,11 +120,12 @@ public class EnchantmentScreen extends AbstractContainerScreen<EnchantmentMenu> 
         }
 
         RenderSystem.enableRescaleNormal();
-        BOOK_MODEL.render(0.0F, var6, var7, var5, 0.0F, 0.0625F);
+        BOOK_MODEL.setupAnim(0.0F, var6, var7, var5);
+        BOOK_MODEL.render(0.0625F);
         RenderSystem.disableRescaleNormal();
         Lighting.turnOff();
         RenderSystem.matrixMode(5889);
-        RenderSystem.viewport(0, 0, this.minecraft.window.getWidth(), this.minecraft.window.getHeight());
+        RenderSystem.viewport(0, 0, this.minecraft.getWindow().getWidth(), this.minecraft.getWindow().getHeight());
         RenderSystem.popMatrix();
         RenderSystem.matrixMode(5888);
         RenderSystem.popMatrix();
@@ -136,7 +137,7 @@ public class EnchantmentScreen extends AbstractContainerScreen<EnchantmentMenu> 
         for(int var9 = 0; var9 < 3; ++var9) {
             int var10 = var0 + 60;
             int var11 = var10 + 20;
-            this.blitOffset = 0;
+            this.setBlitOffset(0);
             this.minecraft.getTextureManager().bind(ENCHANTING_TABLE_LOCATION);
             int var12 = this.menu.costs[var9];
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);

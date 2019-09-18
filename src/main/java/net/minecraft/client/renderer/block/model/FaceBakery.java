@@ -93,7 +93,7 @@ public class FaceBakery {
         @Nullable BlockElementRotation param5,
         boolean param6
     ) {
-        int[] var0 = new int[28];
+        int[] var0 = new int[32];
 
         for(int var1 = 0; var1 < 4; ++var1) {
             this.bakeVertex(var0, var1, param2, param0, param3, param1, param4, param5, param6);
@@ -157,7 +157,7 @@ public class FaceBakery {
     }
 
     private void fillVertex(int[] param0, int param1, int param2, Vector3f param3, int param4, TextureAtlasSprite param5, BlockFaceUV param6) {
-        int var0 = param1 * 7;
+        int var0 = param1 * 8;
         param0[var0] = Float.floatToRawIntBits(param3.x());
         param0[var0 + 1] = Float.floatToRawIntBits(param3.y());
         param0[var0 + 2] = Float.floatToRawIntBits(param3.z());
@@ -222,8 +222,8 @@ public class FaceBakery {
 
     public static Direction calculateFacing(int[] param0) {
         Vector3f var0 = new Vector3f(Float.intBitsToFloat(param0[0]), Float.intBitsToFloat(param0[1]), Float.intBitsToFloat(param0[2]));
-        Vector3f var1 = new Vector3f(Float.intBitsToFloat(param0[7]), Float.intBitsToFloat(param0[8]), Float.intBitsToFloat(param0[9]));
-        Vector3f var2 = new Vector3f(Float.intBitsToFloat(param0[14]), Float.intBitsToFloat(param0[15]), Float.intBitsToFloat(param0[16]));
+        Vector3f var1 = new Vector3f(Float.intBitsToFloat(param0[8]), Float.intBitsToFloat(param0[9]), Float.intBitsToFloat(param0[10]));
+        Vector3f var2 = new Vector3f(Float.intBitsToFloat(param0[16]), Float.intBitsToFloat(param0[17]), Float.intBitsToFloat(param0[18]));
         Vector3f var3 = new Vector3f(var0);
         var3.sub(var1);
         Vector3f var4 = new Vector3f(var2);
@@ -259,7 +259,7 @@ public class FaceBakery {
         var1[FaceInfo.Constants.MAX_Z] = -999.0F;
 
         for(int var2 = 0; var2 < 4; ++var2) {
-            int var3 = 7 * var2;
+            int var3 = 8 * var2;
             float var4 = Float.intBitsToFloat(var0[var3]);
             float var5 = Float.intBitsToFloat(var0[var3 + 1]);
             float var6 = Float.intBitsToFloat(var0[var3 + 2]);
@@ -291,7 +291,7 @@ public class FaceBakery {
         FaceInfo var7 = FaceInfo.fromFacing(param1);
 
         for(int var8 = 0; var8 < 4; ++var8) {
-            int var9 = 7 * var8;
+            int var9 = 8 * var8;
             FaceInfo.VertexInfo var10 = var7.getVertexInfo(var8);
             float var11 = var1[var10.xFace];
             float var12 = var1[var10.yFace];
@@ -301,7 +301,7 @@ public class FaceBakery {
             param0[var9 + 2] = Float.floatToRawIntBits(var13);
 
             for(int var14 = 0; var14 < 4; ++var14) {
-                int var15 = 7 * var14;
+                int var15 = 8 * var14;
                 float var16 = Float.intBitsToFloat(var0[var15]);
                 float var17 = Float.intBitsToFloat(var0[var15 + 1]);
                 float var18 = Float.intBitsToFloat(var0[var15 + 2]);

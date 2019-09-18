@@ -246,10 +246,6 @@ public class Pillager extends AbstractIllager implements CrossbowAttackMob, Rang
         return var5;
     }
 
-    public SimpleContainer getInventory() {
-        return this.inventory;
-    }
-
     @Override
     protected void pickUpItem(ItemEntity param0) {
         ItemStack var0 = param0.getItem();
@@ -309,17 +305,7 @@ public class Pillager extends AbstractIllager implements CrossbowAttackMob, Rang
     }
 
     @Override
-    public boolean requiresCustomPersistence() {
-        return super.requiresCustomPersistence() && this.getInventory().isEmpty();
-    }
-
-    @Override
     public SoundEvent getCelebrateSound() {
         return SoundEvents.PILLAGER_CELEBRATE;
-    }
-
-    @Override
-    public boolean removeWhenFarAway(double param0) {
-        return super.removeWhenFarAway(param0) && this.getInventory().isEmpty();
     }
 }

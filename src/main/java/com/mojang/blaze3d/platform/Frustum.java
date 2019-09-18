@@ -1,10 +1,9 @@
-package net.minecraft.client.renderer.culling;
+package com.mojang.blaze3d.platform;
 
-import com.mojang.blaze3d.platform.MemoryTracker;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.nio.Buffer;
 import java.nio.FloatBuffer;
-import net.minecraft.util.Mth;
+import net.minecraft.client.renderer.culling.FrustumData;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -21,7 +20,7 @@ public class Frustum extends FrustumData {
     }
 
     private void normalizePlane(float[] param0) {
-        float var0 = Mth.sqrt(param0[0] * param0[0] + param0[1] * param0[1] + param0[2] * param0[2]);
+        float var0 = (float)Math.sqrt((double)(param0[0] * param0[0] + param0[1] * param0[1] + param0[2] * param0[2]));
         param0[0] /= var0;
         param0[1] /= var0;
         param0[2] /= var0;
@@ -29,11 +28,20 @@ public class Frustum extends FrustumData {
     }
 
     public void calculateFrustum() {
+        if (!RenderSystem.isOnRenderThread()) {
+            RenderSystem.recordRenderCall(this::_calculateFrustum);
+        } else {
+            this._calculateFrustum();
+        }
+
+    }
+
+    private void _calculateFrustum() {
         ((Buffer)this._proj).clear();
         ((Buffer)this._modl).clear();
         ((Buffer)this._clip).clear();
-        RenderSystem.getMatrix(2983, this._proj);
-        RenderSystem.getMatrix(2982, this._modl);
+        GlStateManager._getMatrix(2983, this._proj);
+        GlStateManager._getMatrix(2982, this._modl);
         float[] var0 = this.projectionMatrix;
         float[] var1 = this.modelViewMatrix;
         ((Buffer)this._proj).flip().limit(16);

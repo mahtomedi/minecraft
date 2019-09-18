@@ -45,12 +45,14 @@ public class GLX {
     });
 
     public static String getOpenGLVersionString() {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         return GLFW.glfwGetCurrentContext() == 0L
             ? "NO CONTEXT"
-            : RenderSystem.getString(7937) + " GL version " + RenderSystem.getString(7938) + ", " + RenderSystem.getString(7936);
+            : GlStateManager._getString(7937) + " GL version " + GlStateManager._getString(7938) + ", " + GlStateManager._getString(7936);
     }
 
     public static int _getRefreshRate(Window param0) {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         long var0 = GLFW.glfwGetWindowMonitor(param0.getWindow());
         if (var0 == 0L) {
             var0 = GLFW.glfwGetPrimaryMonitor();
@@ -61,10 +63,12 @@ public class GLX {
     }
 
     public static String _getLWJGLVersion() {
+        RenderSystem.assertThread(RenderSystem::isInInitPhase);
         return Version.getVersion();
     }
 
     public static LongSupplier _initGlfw() {
+        RenderSystem.assertThread(RenderSystem::isInInitPhase);
         Window.checkGlfwError((param0, param1) -> {
             throw new IllegalStateException(String.format("GLFW error before init: [0x%X]%s", param0, param1));
         });
@@ -85,6 +89,7 @@ public class GLX {
     }
 
     public static void _setGlfwErrorCallback(GLFWErrorCallbackI param0) {
+        RenderSystem.assertThread(RenderSystem::isInInitPhase);
         GLFWErrorCallback var0 = GLFW.glfwSetErrorCallback(param0);
         if (var0 != null) {
             var0.free();
@@ -97,17 +102,20 @@ public class GLX {
     }
 
     public static void _pollEvents() {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         GLFW.glfwPollEvents();
     }
 
     public static void _setupNvFogDistance() {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         if (GL.getCapabilities().GL_NV_fog_distance) {
-            RenderSystem.fogi(34138, 34139);
+            GlStateManager._fogi(34138, 34139);
         }
 
     }
 
     public static void _init(int param0, boolean param1) {
+        RenderSystem.assertThread(RenderSystem::isInInitPhase);
         GLCapabilities var0 = GL.getCapabilities();
         capsString = "Using framebuffer using " + GlStateManager._init_fbo(var0);
 
@@ -129,9 +137,10 @@ public class GLX {
     }
 
     public static void _renderCrosshair(int param0, boolean param1, boolean param2, boolean param3) {
-        RenderSystem.disableTexture();
-        RenderSystem.depthMask(false);
-        Tesselator var0 = Tesselator.getInstance();
+        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        GlStateManager._disableTexture();
+        GlStateManager._depthMask(false);
+        Tesselator var0 = RenderSystem.renderThreadTesselator();
         BufferBuilder var1 = var0.getBuilder();
         GL11.glLineWidth(4.0F);
         var1.begin(1, DefaultVertexFormat.POSITION_COLOR);
@@ -170,8 +179,8 @@ public class GLX {
 
         var0.end();
         GL11.glLineWidth(1.0F);
-        RenderSystem.depthMask(true);
-        RenderSystem.enableTexture();
+        GlStateManager._depthMask(true);
+        GlStateManager._enableTexture();
     }
 
     public static String getErrorString(int param0) {

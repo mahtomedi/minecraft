@@ -1,6 +1,5 @@
 package net.minecraft.client.renderer;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
@@ -31,7 +30,7 @@ public class CubeMap {
         RenderSystem.matrixMode(5889);
         RenderSystem.pushMatrix();
         RenderSystem.loadIdentity();
-        RenderSystem.multMatrix(Matrix4f.perspective(85.0, (float)param0.window.getWidth() / (float)param0.window.getHeight(), 0.05F, 10.0F));
+        RenderSystem.multMatrix(Matrix4f.perspective(85.0, (float)param0.getWindow().getWidth() / (float)param0.getWindow().getHeight(), 0.05F, 10.0F));
         RenderSystem.matrixMode(5888);
         RenderSystem.pushMatrix();
         RenderSystem.loadIdentity();
@@ -41,12 +40,7 @@ public class CubeMap {
         RenderSystem.disableAlphaTest();
         RenderSystem.disableCull();
         RenderSystem.depthMask(false);
-        RenderSystem.blendFuncSeparate(
-            GlStateManager.SourceFactor.SRC_ALPHA,
-            GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-            GlStateManager.SourceFactor.ONE,
-            GlStateManager.DestFactor.ZERO
-        );
+        RenderSystem.defaultBlendFunc();
         int var2 = 2;
 
         for(int var3 = 0; var3 < 4; ++var3) {

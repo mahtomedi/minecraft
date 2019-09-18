@@ -14,7 +14,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.BlockLayer;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -340,11 +339,6 @@ public class FireBlock extends Block {
             }
         }
 
-    }
-
-    @Override
-    public BlockLayer getRenderLayer() {
-        return BlockLayer.CUTOUT;
     }
 
     @Override

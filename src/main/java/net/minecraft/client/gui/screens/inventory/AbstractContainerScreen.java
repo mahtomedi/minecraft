@@ -161,11 +161,11 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
 
     private void renderFloatingItem(ItemStack param0, int param1, int param2, String param3) {
         RenderSystem.translatef(0.0F, 0.0F, 32.0F);
-        this.blitOffset = 200;
+        this.setBlitOffset(200);
         this.itemRenderer.blitOffset = 200.0F;
         this.itemRenderer.renderAndDecorateItem(param0, param1, param2);
         this.itemRenderer.renderGuiItemDecorations(this.font, param0, param1, param2 - (this.draggingItem.isEmpty() ? 0 : 8), param3);
-        this.blitOffset = 0;
+        this.setBlitOffset(0);
         this.itemRenderer.blitOffset = 0.0F;
     }
 
@@ -207,7 +207,7 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
             }
         }
 
-        this.blitOffset = 100;
+        this.setBlitOffset(100);
         this.itemRenderer.blitOffset = 100.0F;
         if (var2.isEmpty() && param0.isActive()) {
             String var8 = param0.getNoItemIcon();
@@ -215,7 +215,7 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
                 TextureAtlasSprite var9 = this.minecraft.getTextureAtlas().getTexture(var8);
                 RenderSystem.disableLighting();
                 this.minecraft.getTextureManager().bind(TextureAtlas.LOCATION_BLOCKS);
-                blit(var0, var1, this.blitOffset, 16, 16, var9);
+                blit(var0, var1, this.getBlitOffset(), 16, 16, var9);
                 RenderSystem.enableLighting();
                 var4 = true;
             }
@@ -232,7 +232,7 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
         }
 
         this.itemRenderer.blitOffset = 0.0F;
-        this.blitOffset = 0;
+        this.setBlitOffset(0);
     }
 
     private void recalculateQuickCraftRemaining() {
@@ -315,8 +315,8 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
                             } else {
                                 boolean var7 = var6 != -999
                                     && (
-                                        InputConstants.isKeyDown(Minecraft.getInstance().window.getWindow(), 340)
-                                            || InputConstants.isKeyDown(Minecraft.getInstance().window.getWindow(), 344)
+                                        InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), 340)
+                                            || InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), 344)
                                     );
                                 ClickType var8 = ClickType.PICKUP;
                                 if (var7) {
@@ -492,8 +492,8 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
                 } else {
                     boolean var8 = var4 != -999
                         && (
-                            InputConstants.isKeyDown(Minecraft.getInstance().window.getWindow(), 340)
-                                || InputConstants.isKeyDown(Minecraft.getInstance().window.getWindow(), 344)
+                            InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), 340)
+                                || InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), 344)
                         );
                     if (var8) {
                         this.lastQuickMoved = var0 != null && var0.hasItem() ? var0.getItem().copy() : ItemStack.EMPTY;

@@ -91,7 +91,7 @@ public class DebugScreenOverlay extends GuiComponent {
         this.drawSystemInformation();
         RenderSystem.popMatrix();
         if (this.minecraft.options.renderFpsChart) {
-            int var1 = this.minecraft.window.getGuiScaledWidth();
+            int var1 = this.minecraft.getWindow().getGuiScaledWidth();
             this.drawChart(this.minecraft.getFrameTimer(), 0, var1 / 2, true);
             IntegratedServer var2 = this.minecraft.getSingleplayerServer();
             if (var2 != null) {
@@ -137,7 +137,7 @@ public class DebugScreenOverlay extends GuiComponent {
             if (!Strings.isNullOrEmpty(var2)) {
                 int var3 = 9;
                 int var4 = this.font.width(var2);
-                int var5 = this.minecraft.window.getGuiScaledWidth() - 2 - var4;
+                int var5 = this.minecraft.getWindow().getGuiScaledWidth() - 2 - var4;
                 int var6 = 2 + var3 * var1;
                 fill(var5 - 1, var6 - 1, var5 + var4 + 1, var6 + var3 - 1, -1873784752);
                 this.font.draw(var2, (float)var5, (float)var6, 14737632);
@@ -399,7 +399,9 @@ public class DebugScreenOverlay extends GuiComponent {
             "",
             String.format("CPU: %s", GlUtil.getCpuInfo()),
             "",
-            String.format("Display: %dx%d (%s)", Minecraft.getInstance().window.getWidth(), Minecraft.getInstance().window.getHeight(), GlUtil.getVendor()),
+            String.format(
+                "Display: %dx%d (%s)", Minecraft.getInstance().getWindow().getWidth(), Minecraft.getInstance().getWindow().getHeight(), GlUtil.getVendor()
+            ),
             GlUtil.getRenderer(),
             GlUtil.getOpenGLVersion()
         );
@@ -482,7 +484,7 @@ public class DebugScreenOverlay extends GuiComponent {
             var7 += (long)var11;
         }
 
-        int var12 = this.minecraft.window.getGuiScaledHeight();
+        int var12 = this.minecraft.getWindow().getGuiScaledHeight();
         fill(param1, var12 - 60, param1 + var6, var12, -1873784752);
 
         while(var3 != var1) {

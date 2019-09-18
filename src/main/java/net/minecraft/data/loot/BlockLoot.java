@@ -12,8 +12,10 @@ import java.util.stream.Stream;
 import net.minecraft.advancements.critereon.EnchantmentPredicate;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.MinMaxBounds;
+import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -189,14 +191,17 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
                             LootItem.lootTableItem(param0)
                                 .apply(
                                     SetItemCountFunction.setCount(ConstantIntValue.exactly(2))
-                                        .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0).withProperty(SlabBlock.TYPE, SlabType.DOUBLE))
+                                        .when(
+                                            LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0)
+                                                .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(SlabBlock.TYPE, SlabType.DOUBLE))
+                                        )
                                 )
                         )
                     )
             );
     }
 
-    private static <T extends Comparable<T>> LootTable.Builder createSinglePropConditionTable(Block param0, Property<T> param1, T param2) {
+    private static <T extends Comparable<T> & StringRepresentable> LootTable.Builder createSinglePropConditionTable(Block param0, Property<T> param1, T param2) {
         return LootTable.lootTable()
             .withPool(
                 applyExplosionCondition(
@@ -205,7 +210,10 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
                         .setRolls(ConstantIntValue.exactly(1))
                         .add(
                             LootItem.lootTableItem(param0)
-                                .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0).withProperty(param1, param2))
+                                .when(
+                                    LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0)
+                                        .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(param1, param2))
+                                )
                         )
                 )
             );
@@ -331,35 +339,59 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
                             LootItem.lootTableItem(param1)
                                 .apply(
                                     SetItemCountFunction.setCount(BinomialDistributionGenerator.binomial(3, 0.06666667F))
-                                        .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0).withProperty(StemBlock.AGE, 0))
+                                        .when(
+                                            LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0)
+                                                .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(StemBlock.AGE, 0))
+                                        )
                                 )
                                 .apply(
                                     SetItemCountFunction.setCount(BinomialDistributionGenerator.binomial(3, 0.13333334F))
-                                        .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0).withProperty(StemBlock.AGE, 1))
+                                        .when(
+                                            LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0)
+                                                .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(StemBlock.AGE, 1))
+                                        )
                                 )
                                 .apply(
                                     SetItemCountFunction.setCount(BinomialDistributionGenerator.binomial(3, 0.2F))
-                                        .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0).withProperty(StemBlock.AGE, 2))
+                                        .when(
+                                            LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0)
+                                                .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(StemBlock.AGE, 2))
+                                        )
                                 )
                                 .apply(
                                     SetItemCountFunction.setCount(BinomialDistributionGenerator.binomial(3, 0.26666668F))
-                                        .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0).withProperty(StemBlock.AGE, 3))
+                                        .when(
+                                            LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0)
+                                                .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(StemBlock.AGE, 3))
+                                        )
                                 )
                                 .apply(
                                     SetItemCountFunction.setCount(BinomialDistributionGenerator.binomial(3, 0.33333334F))
-                                        .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0).withProperty(StemBlock.AGE, 4))
+                                        .when(
+                                            LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0)
+                                                .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(StemBlock.AGE, 4))
+                                        )
                                 )
                                 .apply(
                                     SetItemCountFunction.setCount(BinomialDistributionGenerator.binomial(3, 0.4F))
-                                        .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0).withProperty(StemBlock.AGE, 5))
+                                        .when(
+                                            LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0)
+                                                .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(StemBlock.AGE, 5))
+                                        )
                                 )
                                 .apply(
                                     SetItemCountFunction.setCount(BinomialDistributionGenerator.binomial(3, 0.46666667F))
-                                        .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0).withProperty(StemBlock.AGE, 6))
+                                        .when(
+                                            LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0)
+                                                .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(StemBlock.AGE, 6))
+                                        )
                                 )
                                 .apply(
                                     SetItemCountFunction.setCount(BinomialDistributionGenerator.binomial(3, 0.53333336F))
-                                        .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0).withProperty(StemBlock.AGE, 7))
+                                        .when(
+                                            LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0)
+                                                .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(StemBlock.AGE, 7))
+                                        )
                                 )
                         )
                 )
@@ -871,7 +903,24 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
         this.add(Blocks.SUNFLOWER, param0x -> createSinglePropConditionTable(param0x, DoublePlantBlock.HALF, DoubleBlockHalf.LOWER));
         this.add(Blocks.PEONY, param0x -> createSinglePropConditionTable(param0x, DoublePlantBlock.HALF, DoubleBlockHalf.LOWER));
         this.add(Blocks.ROSE_BUSH, param0x -> createSinglePropConditionTable(param0x, DoublePlantBlock.HALF, DoubleBlockHalf.LOWER));
-        this.add(Blocks.TNT, param0x -> createSinglePropConditionTable(param0x, TntBlock.UNSTABLE, false));
+        this.add(
+            Blocks.TNT,
+            LootTable.lootTable()
+                .withPool(
+                    applyExplosionCondition(
+                        Blocks.TNT,
+                        LootPool.lootPool()
+                            .setRolls(ConstantIntValue.exactly(1))
+                            .add(
+                                LootItem.lootTableItem(Blocks.TNT)
+                                    .when(
+                                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(Blocks.TNT)
+                                            .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(TntBlock.UNSTABLE, false))
+                                    )
+                            )
+                    )
+                )
+        );
         this.add(
             Blocks.COCOA,
             param0x -> LootTable.lootTable()
@@ -884,7 +933,10 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
                                     LootItem.lootTableItem(Items.COCOA_BEANS)
                                         .apply(
                                             SetItemCountFunction.setCount(ConstantIntValue.exactly(3))
-                                                .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x).withProperty(CocoaBlock.AGE, 2))
+                                                .when(
+                                                    LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x)
+                                                        .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(CocoaBlock.AGE, 2))
+                                                )
                                         )
                                 )
                             )
@@ -898,27 +950,27 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
                             .setRolls(ConstantIntValue.exactly(1))
                             .add(
                                 applyExplosionDecay(
-                                    param0x,
+                                    Blocks.SEA_PICKLE,
                                     LootItem.lootTableItem(param0x)
                                         .apply(
                                             SetItemCountFunction.setCount(ConstantIntValue.exactly(2))
                                                 .when(
                                                     LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x)
-                                                        .withProperty(SeaPickleBlock.PICKLES, 2)
+                                                        .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(SeaPickleBlock.PICKLES, 2))
                                                 )
                                         )
                                         .apply(
                                             SetItemCountFunction.setCount(ConstantIntValue.exactly(3))
                                                 .when(
                                                     LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x)
-                                                        .withProperty(SeaPickleBlock.PICKLES, 3)
+                                                        .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(SeaPickleBlock.PICKLES, 3))
                                                 )
                                         )
                                         .apply(
                                             SetItemCountFunction.setCount(ConstantIntValue.exactly(4))
                                                 .when(
                                                     LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x)
-                                                        .withProperty(SeaPickleBlock.PICKLES, 4)
+                                                        .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(SeaPickleBlock.PICKLES, 4))
                                                 )
                                         )
                                 )
@@ -932,7 +984,10 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
                     .withPool(
                         LootPool.lootPool()
                             .add(LootItem.lootTableItem(Items.BONE_MEAL))
-                            .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x).withProperty(ComposterBlock.LEVEL, 8))
+                            .when(
+                                LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x)
+                                    .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(ComposterBlock.LEVEL, 8))
+                            )
                     )
         );
         this.add(Blocks.BEACON, BlockLoot::createNameableBlockEntityTable);
@@ -1011,48 +1066,52 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
         this.add(Blocks.SPRUCE_LEAVES, param0x -> createLeavesDrops(param0x, Blocks.SPRUCE_SAPLING, NORMAL_LEAVES_SAPLING_CHANCES));
         this.add(Blocks.OAK_LEAVES, param0x -> createOakLeavesDrops(param0x, Blocks.OAK_SAPLING, NORMAL_LEAVES_SAPLING_CHANCES));
         this.add(Blocks.DARK_OAK_LEAVES, param0x -> createOakLeavesDrops(param0x, Blocks.DARK_OAK_SAPLING, NORMAL_LEAVES_SAPLING_CHANCES));
-        LootItemCondition.Builder var0 = LootItemBlockStatePropertyCondition.hasBlockStateProperties(Blocks.BEETROOTS).withProperty(BeetrootBlock.AGE, 3);
-        this.add(Blocks.BEETROOTS, param1 -> createCropDrops(param1, Items.BEETROOT, Items.BEETROOT_SEEDS, var0));
-        LootItemCondition.Builder var1 = LootItemBlockStatePropertyCondition.hasBlockStateProperties(Blocks.WHEAT).withProperty(CropBlock.AGE, 7);
-        this.add(Blocks.WHEAT, param1 -> createCropDrops(param1, Items.WHEAT, Items.WHEAT_SEEDS, var1));
-        LootItemCondition.Builder var2 = LootItemBlockStatePropertyCondition.hasBlockStateProperties(Blocks.CARROTS).withProperty(CarrotBlock.AGE, 7);
+        LootItemCondition.Builder var0 = LootItemBlockStatePropertyCondition.hasBlockStateProperties(Blocks.BEETROOTS)
+            .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(BeetrootBlock.AGE, 3));
+        this.add(Blocks.BEETROOTS, createCropDrops(Blocks.BEETROOTS, Items.BEETROOT, Items.BEETROOT_SEEDS, var0));
+        LootItemCondition.Builder var1 = LootItemBlockStatePropertyCondition.hasBlockStateProperties(Blocks.WHEAT)
+            .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(CropBlock.AGE, 7));
+        this.add(Blocks.WHEAT, createCropDrops(Blocks.WHEAT, Items.WHEAT, Items.WHEAT_SEEDS, var1));
+        LootItemCondition.Builder var2 = LootItemBlockStatePropertyCondition.hasBlockStateProperties(Blocks.CARROTS)
+            .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(CarrotBlock.AGE, 7));
         this.add(
             Blocks.CARROTS,
-            param1 -> applyExplosionDecay(
-                    param1,
-                    LootTable.lootTable()
-                        .withPool(LootPool.lootPool().add(LootItem.lootTableItem(Items.CARROT)))
-                        .withPool(
-                            LootPool.lootPool()
-                                .when(var2)
-                                .add(
-                                    LootItem.lootTableItem(Items.CARROT)
-                                        .apply(ApplyBonusCount.addBonusBinomialDistributionCount(Enchantments.BLOCK_FORTUNE, 0.5714286F, 3))
-                                )
-                        )
-                )
+            applyExplosionDecay(
+                Blocks.CARROTS,
+                LootTable.lootTable()
+                    .withPool(LootPool.lootPool().add(LootItem.lootTableItem(Items.CARROT)))
+                    .withPool(
+                        LootPool.lootPool()
+                            .when(var2)
+                            .add(
+                                LootItem.lootTableItem(Items.CARROT)
+                                    .apply(ApplyBonusCount.addBonusBinomialDistributionCount(Enchantments.BLOCK_FORTUNE, 0.5714286F, 3))
+                            )
+                    )
+            )
         );
-        LootItemCondition.Builder var3 = LootItemBlockStatePropertyCondition.hasBlockStateProperties(Blocks.POTATOES).withProperty(PotatoBlock.AGE, 7);
+        LootItemCondition.Builder var3 = LootItemBlockStatePropertyCondition.hasBlockStateProperties(Blocks.POTATOES)
+            .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(PotatoBlock.AGE, 7));
         this.add(
             Blocks.POTATOES,
-            param1 -> applyExplosionDecay(
-                    param1,
-                    LootTable.lootTable()
-                        .withPool(LootPool.lootPool().add(LootItem.lootTableItem(Items.POTATO)))
-                        .withPool(
-                            LootPool.lootPool()
-                                .when(var3)
-                                .add(
-                                    LootItem.lootTableItem(Items.POTATO)
-                                        .apply(ApplyBonusCount.addBonusBinomialDistributionCount(Enchantments.BLOCK_FORTUNE, 0.5714286F, 3))
-                                )
-                        )
-                        .withPool(
-                            LootPool.lootPool()
-                                .when(var3)
-                                .add(LootItem.lootTableItem(Items.POISONOUS_POTATO).when(LootItemRandomChanceCondition.randomChance(0.02F)))
-                        )
-                )
+            applyExplosionDecay(
+                Blocks.POTATOES,
+                LootTable.lootTable()
+                    .withPool(LootPool.lootPool().add(LootItem.lootTableItem(Items.POTATO)))
+                    .withPool(
+                        LootPool.lootPool()
+                            .when(var3)
+                            .add(
+                                LootItem.lootTableItem(Items.POTATO)
+                                    .apply(ApplyBonusCount.addBonusBinomialDistributionCount(Enchantments.BLOCK_FORTUNE, 0.5714286F, 3))
+                            )
+                    )
+                    .withPool(
+                        LootPool.lootPool()
+                            .when(var3)
+                            .add(LootItem.lootTableItem(Items.POISONOUS_POTATO).when(LootItemRandomChanceCondition.randomChance(0.02F)))
+                    )
+            )
         );
         this.add(
             Blocks.SWEET_BERRY_BUSH,
@@ -1063,7 +1122,7 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
                             LootPool.lootPool()
                                 .when(
                                     LootItemBlockStatePropertyCondition.hasBlockStateProperties(Blocks.SWEET_BERRY_BUSH)
-                                        .withProperty(SweetBerryBushBlock.AGE, 3)
+                                        .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(SweetBerryBushBlock.AGE, 3))
                                 )
                                 .add(LootItem.lootTableItem(Items.SWEET_BERRIES))
                                 .apply(SetItemCountFunction.setCount(RandomValueBounds.between(2.0F, 3.0F)))
@@ -1073,7 +1132,7 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
                             LootPool.lootPool()
                                 .when(
                                     LootItemBlockStatePropertyCondition.hasBlockStateProperties(Blocks.SWEET_BERRY_BUSH)
-                                        .withProperty(SweetBerryBushBlock.AGE, 2)
+                                        .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(SweetBerryBushBlock.AGE, 2))
                                 )
                                 .add(LootItem.lootTableItem(Items.SWEET_BERRIES))
                                 .apply(SetItemCountFunction.setCount(RandomValueBounds.between(1.0F, 2.0F)))
@@ -1119,18 +1178,24 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
             param0x -> createShearsDispatchTable(
                     Blocks.FERN,
                     applyExplosionCondition(param0x, LootItem.lootTableItem(Items.WHEAT_SEEDS))
-                        .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x).withProperty(DoublePlantBlock.HALF, DoubleBlockHalf.LOWER))
+                        .when(
+                            LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x)
+                                .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(DoublePlantBlock.HALF, DoubleBlockHalf.LOWER))
+                        )
                         .when(LootItemRandomChanceCondition.randomChance(0.125F))
                 )
         );
         this.add(
             Blocks.TALL_GRASS,
-            param0x -> createShearsDispatchTable(
-                    Blocks.GRASS,
-                    applyExplosionCondition(param0x, LootItem.lootTableItem(Items.WHEAT_SEEDS))
-                        .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x).withProperty(DoublePlantBlock.HALF, DoubleBlockHalf.LOWER))
-                        .when(LootItemRandomChanceCondition.randomChance(0.125F))
-                )
+            createShearsDispatchTable(
+                Blocks.GRASS,
+                applyExplosionCondition(Blocks.TALL_GRASS, LootItem.lootTableItem(Items.WHEAT_SEEDS))
+                    .when(
+                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(Blocks.TALL_GRASS)
+                            .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(DoublePlantBlock.HALF, DoubleBlockHalf.LOWER))
+                    )
+                    .when(LootItemRandomChanceCondition.randomChance(0.125F))
+            )
         );
         this.add(Blocks.MELON_STEM, param0x -> createStemDrops(param0x, Items.MELON_SEEDS));
         this.add(Blocks.PUMPKIN_STEM, param0x -> createStemDrops(param0x, Items.PUMPKIN_SEEDS));
@@ -1211,11 +1276,17 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
                                     LootItem.lootTableItem(Items.NETHER_WART)
                                         .apply(
                                             SetItemCountFunction.setCount(RandomValueBounds.between(2.0F, 4.0F))
-                                                .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x).withProperty(NetherWartBlock.AGE, 3))
+                                                .when(
+                                                    LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x)
+                                                        .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(NetherWartBlock.AGE, 3))
+                                                )
                                         )
                                         .apply(
                                             ApplyBonusCount.addUniformBonusCount(Enchantments.BLOCK_FORTUNE)
-                                                .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x).withProperty(NetherWartBlock.AGE, 3))
+                                                .when(
+                                                    LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x)
+                                                        .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(NetherWartBlock.AGE, 3))
+                                                )
                                         )
                                 )
                         )
@@ -1232,62 +1303,90 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
                                     AlternativesEntry.alternatives(
                                             LootItem.lootTableItem(Items.SNOWBALL)
                                                 .when(
-                                                    LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x).withProperty(SnowLayerBlock.LAYERS, 1)
+                                                    LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x)
+                                                        .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(SnowLayerBlock.LAYERS, 1))
                                                 ),
                                             LootItem.lootTableItem(Items.SNOWBALL)
                                                 .when(
-                                                    LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x).withProperty(SnowLayerBlock.LAYERS, 2)
+                                                    LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x)
+                                                        .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(SnowLayerBlock.LAYERS, 2))
                                                 )
                                                 .apply(SetItemCountFunction.setCount(ConstantIntValue.exactly(2))),
                                             LootItem.lootTableItem(Items.SNOWBALL)
                                                 .when(
-                                                    LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x).withProperty(SnowLayerBlock.LAYERS, 3)
+                                                    LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x)
+                                                        .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(SnowLayerBlock.LAYERS, 3))
                                                 )
                                                 .apply(SetItemCountFunction.setCount(ConstantIntValue.exactly(3))),
                                             LootItem.lootTableItem(Items.SNOWBALL)
                                                 .when(
-                                                    LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x).withProperty(SnowLayerBlock.LAYERS, 4)
+                                                    LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x)
+                                                        .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(SnowLayerBlock.LAYERS, 4))
                                                 )
                                                 .apply(SetItemCountFunction.setCount(ConstantIntValue.exactly(4))),
                                             LootItem.lootTableItem(Items.SNOWBALL)
                                                 .when(
-                                                    LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x).withProperty(SnowLayerBlock.LAYERS, 5)
+                                                    LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x)
+                                                        .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(SnowLayerBlock.LAYERS, 5))
                                                 )
                                                 .apply(SetItemCountFunction.setCount(ConstantIntValue.exactly(5))),
                                             LootItem.lootTableItem(Items.SNOWBALL)
                                                 .when(
-                                                    LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x).withProperty(SnowLayerBlock.LAYERS, 6)
+                                                    LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x)
+                                                        .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(SnowLayerBlock.LAYERS, 6))
                                                 )
                                                 .apply(SetItemCountFunction.setCount(ConstantIntValue.exactly(6))),
                                             LootItem.lootTableItem(Items.SNOWBALL)
                                                 .when(
-                                                    LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x).withProperty(SnowLayerBlock.LAYERS, 7)
+                                                    LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x)
+                                                        .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(SnowLayerBlock.LAYERS, 7))
                                                 )
                                                 .apply(SetItemCountFunction.setCount(ConstantIntValue.exactly(7))),
                                             LootItem.lootTableItem(Items.SNOWBALL).apply(SetItemCountFunction.setCount(ConstantIntValue.exactly(8)))
                                         )
                                         .when(HAS_NO_SILK_TOUCH),
                                     AlternativesEntry.alternatives(
-                                        LootItem.lootTableItem(param0x)
-                                            .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x).withProperty(SnowLayerBlock.LAYERS, 1)),
-                                        LootItem.lootTableItem(param0x)
+                                        LootItem.lootTableItem(Blocks.SNOW)
+                                            .when(
+                                                LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x)
+                                                    .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(SnowLayerBlock.LAYERS, 1))
+                                            ),
+                                        LootItem.lootTableItem(Blocks.SNOW)
                                             .apply(SetItemCountFunction.setCount(ConstantIntValue.exactly(2)))
-                                            .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x).withProperty(SnowLayerBlock.LAYERS, 2)),
-                                        LootItem.lootTableItem(param0x)
+                                            .when(
+                                                LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x)
+                                                    .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(SnowLayerBlock.LAYERS, 2))
+                                            ),
+                                        LootItem.lootTableItem(Blocks.SNOW)
                                             .apply(SetItemCountFunction.setCount(ConstantIntValue.exactly(3)))
-                                            .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x).withProperty(SnowLayerBlock.LAYERS, 3)),
-                                        LootItem.lootTableItem(param0x)
+                                            .when(
+                                                LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x)
+                                                    .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(SnowLayerBlock.LAYERS, 3))
+                                            ),
+                                        LootItem.lootTableItem(Blocks.SNOW)
                                             .apply(SetItemCountFunction.setCount(ConstantIntValue.exactly(4)))
-                                            .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x).withProperty(SnowLayerBlock.LAYERS, 4)),
-                                        LootItem.lootTableItem(param0x)
+                                            .when(
+                                                LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x)
+                                                    .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(SnowLayerBlock.LAYERS, 4))
+                                            ),
+                                        LootItem.lootTableItem(Blocks.SNOW)
                                             .apply(SetItemCountFunction.setCount(ConstantIntValue.exactly(5)))
-                                            .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x).withProperty(SnowLayerBlock.LAYERS, 5)),
-                                        LootItem.lootTableItem(param0x)
+                                            .when(
+                                                LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x)
+                                                    .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(SnowLayerBlock.LAYERS, 5))
+                                            ),
+                                        LootItem.lootTableItem(Blocks.SNOW)
                                             .apply(SetItemCountFunction.setCount(ConstantIntValue.exactly(6)))
-                                            .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x).withProperty(SnowLayerBlock.LAYERS, 6)),
-                                        LootItem.lootTableItem(param0x)
+                                            .when(
+                                                LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x)
+                                                    .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(SnowLayerBlock.LAYERS, 6))
+                                            ),
+                                        LootItem.lootTableItem(Blocks.SNOW)
                                             .apply(SetItemCountFunction.setCount(ConstantIntValue.exactly(7)))
-                                            .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x).withProperty(SnowLayerBlock.LAYERS, 7)),
+                                            .when(
+                                                LootItemBlockStatePropertyCondition.hasBlockStateProperties(param0x)
+                                                    .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(SnowLayerBlock.LAYERS, 7))
+                                            ),
                                         LootItem.lootTableItem(Blocks.SNOW_BLOCK)
                                     )
                                 )

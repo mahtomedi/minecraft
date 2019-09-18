@@ -54,7 +54,7 @@ public class DataCommands {
         param0 -> new TranslatableComponent("commands.data.modify.invalid_index", param0)
     );
     public static final List<Function<String, DataCommands.DataProvider>> ALL_PROVIDERS = ImmutableList.of(
-        EntityDataAccessor.PROVIDER, BlockDataAccessor.PROVIDER
+        EntityDataAccessor.PROVIDER, BlockDataAccessor.PROVIDER, StorageDataAccessor.PROVIDER
     );
     public static final List<DataCommands.DataProvider> TARGET_PROVIDERS = ALL_PROVIDERS.stream()
         .map(param0 -> param0.apply("target"))

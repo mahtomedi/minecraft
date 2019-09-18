@@ -613,14 +613,21 @@ public class ClientPacketListener implements ClientGamePacketListener {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         Entity var0 = param0.getEntity(this.level);
         if (var0 != null) {
-            var0.xp += (long)param0.getXa();
-            var0.yp += (long)param0.getYa();
-            var0.zp += (long)param0.getZa();
-            Vec3 var1 = ClientboundMoveEntityPacket.packetToEntity(var0.xp, var0.yp, var0.zp);
             if (!var0.isControlledByLocalInstance()) {
-                float var2 = param0.hasRotation() ? (float)(param0.getyRot() * 360) / 256.0F : var0.yRot;
-                float var3 = param0.hasRotation() ? (float)(param0.getxRot() * 360) / 256.0F : var0.xRot;
-                var0.lerpTo(var1.x, var1.y, var1.z, var2, var3, 3, false);
+                if (param0.hasPosition()) {
+                    var0.xp += (long)param0.getXa();
+                    var0.yp += (long)param0.getYa();
+                    var0.zp += (long)param0.getZa();
+                    Vec3 var1 = ClientboundMoveEntityPacket.packetToEntity(var0.xp, var0.yp, var0.zp);
+                    float var2 = param0.hasRotation() ? (float)(param0.getyRot() * 360) / 256.0F : var0.yRot;
+                    float var3 = param0.hasRotation() ? (float)(param0.getxRot() * 360) / 256.0F : var0.xRot;
+                    var0.lerpTo(var1.x, var1.y, var1.z, var2, var3, 3, false);
+                } else if (param0.hasRotation()) {
+                    float var4 = (float)param0.getyRot();
+                    float var5 = (float)param0.getxRot();
+                    var0.lerpTo(var0.x, var0.y, var0.z, var4, var5, 3, false);
+                }
+
                 var0.onGround = param0.isOnGround();
             }
 

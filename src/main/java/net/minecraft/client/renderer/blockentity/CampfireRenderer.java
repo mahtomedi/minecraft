@@ -2,6 +2,7 @@ package net.minecraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -13,7 +14,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class CampfireRenderer extends BlockEntityRenderer<CampfireBlockEntity> {
-    public void render(CampfireBlockEntity param0, double param1, double param2, double param3, float param4, int param5) {
+    public void render(CampfireBlockEntity param0, double param1, double param2, double param3, float param4, int param5, RenderType param6) {
         Direction var0 = param0.getBlockState().getValue(CampfireBlock.FACING);
         NonNullList<ItemStack> var1 = param0.getItems();
 

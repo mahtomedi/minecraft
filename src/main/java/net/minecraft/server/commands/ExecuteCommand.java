@@ -12,6 +12,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import java.util.Collection;
@@ -24,6 +25,7 @@ import java.util.function.IntFunction;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.DimensionTypeArgument;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -47,6 +49,7 @@ import net.minecraft.nbt.LongTag;
 import net.minecraft.nbt.ShortTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.bossevents.CustomBossEvent;
 import net.minecraft.server.commands.data.DataAccessor;
 import net.minecraft.server.commands.data.DataCommands;
@@ -57,6 +60,11 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.PredicateManager;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.Score;
 import net.minecraft.world.scores.Scoreboard;
@@ -75,6 +83,10 @@ public class ExecuteCommand {
             param0.onCommandComplete(param2, param3, param4);
             param1.onCommandComplete(param2, param3, param4);
         };
+    private static final SuggestionProvider<CommandSourceStack> SUGGEST_PREDICATE = (param0, param1) -> {
+        PredicateManager var0 = param0.getSource().getServer().getPredicateManager();
+        return SharedSuggestionProvider.suggestResource(var0.getKeys(), param1);
+    };
 
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
         LiteralCommandNode<CommandSourceStack> var0 = param0.register(Commands.literal("execute").requires(param0x -> param0x.hasPermission(2)));
@@ -533,6 +545,17 @@ public class ExecuteCommand {
                             .fork(param0, param1x -> expect(param1x, param2, !EntityArgument.getOptionalEntities(param1x, "entities").isEmpty()))
                             .executes(createNumericConditionalHandler(param2, param0x -> EntityArgument.getOptionalEntities(param0x, "entities").size()))
                     )
+            )
+            .then(
+                Commands.literal("predicate")
+                    .then(
+                        addConditional(
+                            param0,
+                            Commands.argument("predicate", ResourceLocationArgument.id()).suggests(SUGGEST_PREDICATE),
+                            param2,
+                            param0x -> checkCustomPredicate(param0x.getSource(), ResourceLocationArgument.getId(param0x, "predicate"))
+                        )
+                    )
             );
 
         for(DataCommands.DataProvider var0 : DataCommands.SOURCE_PROVIDERS) {
@@ -602,6 +625,16 @@ public class ExecuteCommand {
         Objective var1 = ObjectiveArgument.getObjective(param0, "targetObjective");
         Scoreboard var2 = param0.getSource().getServer().getScoreboard();
         return !var2.hasPlayerScore(var0, var1) ? false : param1.matches(var2.getOrCreatePlayerScore(var0, var1).getScore());
+    }
+
+    private static boolean checkCustomPredicate(CommandSourceStack param0, ResourceLocation param1) {
+        ServerLevel var0 = param0.getLevel();
+        PredicateManager var1 = var0.getServer().getPredicateManager();
+        LootItemCondition var2 = var1.get(param1, LootItemCondition.FALSE);
+        LootContext.Builder var3 = new LootContext.Builder(var0)
+            .withParameter(LootContextParams.BLOCK_POS, new BlockPos(param0.getPosition()))
+            .withOptionalParameter(LootContextParams.THIS_ENTITY, param0.getEntity());
+        return var2.test(var3.create(LootContextParamSets.COMMAND));
     }
 
     private static Collection<CommandSourceStack> expect(CommandContext<CommandSourceStack> param0, boolean param1, boolean param2) {

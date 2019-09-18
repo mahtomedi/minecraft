@@ -29,7 +29,7 @@ public class ToastComponent extends GuiComponent {
 
             for(int var0 = 0; var0 < this.visible.length; ++var0) {
                 ToastComponent.ToastInstance<?> var1 = this.visible[var0];
-                if (var1 != null && var1.render(this.minecraft.window.getGuiScaledWidth(), var0)) {
+                if (var1 != null && var1.render(this.minecraft.getWindow().getGuiScaledWidth(), var0)) {
                     this.visible[var0] = null;
                 }
 

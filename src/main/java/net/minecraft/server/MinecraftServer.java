@@ -116,11 +116,13 @@ import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.LevelType;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.saveddata.SaveDataDirtyRunnable;
+import net.minecraft.world.level.storage.CommandStorage;
 import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.level.storage.LevelStorage;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.loot.LootTables;
+import net.minecraft.world.level.storage.loot.PredicateManager;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.ScoreboardSaveData;
@@ -205,8 +207,11 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     private final RecipeManager recipes = new RecipeManager();
     private final TagManager tags = new TagManager();
     private final ServerScoreboard scoreboard = new ServerScoreboard(this);
+    @Nullable
+    private CommandStorage commandStorage;
     private final CustomBossEvents customBossEvents = new CustomBossEvents(this);
-    private final LootTables lootTables = new LootTables();
+    private final PredicateManager predicateManager = new PredicateManager();
+    private final LootTables lootTables = new LootTables(this.predicateManager);
     private final ServerAdvancementManager advancements = new ServerAdvancementManager();
     private final ServerFunctionManager functions = new ServerFunctionManager(this);
     private final FrameTimer frameTimer = new FrameTimer();
@@ -243,6 +248,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         this.storageSource = new LevelStorageSource(param0.toPath(), param0.toPath().resolve("../backups"), param2);
         this.fixerUpper = param2;
         this.resources.registerReloadListener(this.tags);
+        this.resources.registerReloadListener(this.predicateManager);
         this.resources.registerReloadListener(this.recipes);
         this.resources.registerReloadListener(this.lootTables);
         this.resources.registerReloadListener(this.functions);
@@ -371,39 +377,41 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
         ServerLevel var0 = new ServerLevel(this, this.executor, param0, param1, DimensionType.OVERWORLD, this.profiler, param3);
         this.levels.put(DimensionType.OVERWORLD, var0);
-        this.readScoreboard(var0.getDataStorage());
+        DimensionDataStorage var1 = var0.getDataStorage();
+        this.readScoreboard(var1);
+        this.commandStorage = new CommandStorage(var1);
         var0.getWorldBorder().readBorderData(param1);
-        ServerLevel var1 = this.getLevel(DimensionType.OVERWORLD);
+        ServerLevel var2 = this.getLevel(DimensionType.OVERWORLD);
         if (!param1.isInitialized()) {
             try {
-                var1.setInitialSpawn(param2);
+                var2.setInitialSpawn(param2);
                 if (param1.getGeneratorType() == LevelType.DEBUG_ALL_BLOCK_STATES) {
                     this.setupDebugLevel(param1);
                 }
 
                 param1.setInitialized(true);
-            } catch (Throwable var11) {
-                CrashReport var3 = CrashReport.forThrowable(var11, "Exception initializing level");
+            } catch (Throwable var12) {
+                CrashReport var4 = CrashReport.forThrowable(var12, "Exception initializing level");
 
                 try {
-                    var1.fillReportDetails(var3);
-                } catch (Throwable var10) {
+                    var2.fillReportDetails(var4);
+                } catch (Throwable var11) {
                 }
 
-                throw new ReportedException(var3);
+                throw new ReportedException(var4);
             }
 
             param1.setInitialized(true);
         }
 
-        this.getPlayerList().setLevel(var1);
+        this.getPlayerList().setLevel(var2);
         if (param1.getCustomBossEvents() != null) {
             this.getCustomBossEvents().load(param1.getCustomBossEvents());
         }
 
-        for(DimensionType var4 : DimensionType.getAllTypes()) {
-            if (var4 != DimensionType.OVERWORLD) {
-                this.levels.put(var4, new DerivedServerLevel(var1, this, this.executor, param0, var4, this.profiler, param3));
+        for(DimensionType var5 : DimensionType.getAllTypes()) {
+            if (var5 != DimensionType.OVERWORLD) {
+                this.levels.put(var5, new DerivedServerLevel(var2, this, this.executor, param0, var5, this.profiler, param3));
             }
         }
 
@@ -1507,8 +1515,20 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         return this.scoreboard;
     }
 
+    public CommandStorage getCommandStorage() {
+        if (this.commandStorage == null) {
+            throw new NullPointerException("Called before server init");
+        } else {
+            return this.commandStorage;
+        }
+    }
+
     public LootTables getLootTables() {
         return this.lootTables;
+    }
+
+    public PredicateManager getPredicateManager() {
+        return this.predicateManager;
     }
 
     public GameRules getGameRules() {

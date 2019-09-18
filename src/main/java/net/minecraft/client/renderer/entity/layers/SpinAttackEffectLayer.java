@@ -50,7 +50,7 @@ public class SpinAttackEffectLayer<T extends LivingEntity> extends RenderLayer<T
             this.texWidth = 64;
             this.texHeight = 64;
             this.box = new ModelPart(this, 0, 0);
-            this.box.addBox(-8.0F, -16.0F, -8.0F, 16, 32, 16);
+            this.box.addBox(-8.0F, -16.0F, -8.0F, 16.0F, 32.0F, 16.0F);
         }
 
         public void render(float param0, float param1, float param2, float param3, float param4, float param5) {

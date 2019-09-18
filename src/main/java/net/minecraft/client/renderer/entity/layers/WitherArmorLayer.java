@@ -2,9 +2,8 @@ package net.minecraft.client.renderer.entity.layers;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.WitherBossModel;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -39,10 +38,9 @@ public class WitherArmorLayer extends RenderLayer<WitherBoss, WitherBossModel<Wi
             RenderSystem.blendFunc(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
             this.model.prepareMobModel(param0, param1, param2, param3);
             this.getParentModel().copyPropertiesTo(this.model);
-            GameRenderer var4 = Minecraft.getInstance().gameRenderer;
-            var4.resetFogColor(true);
+            FogRenderer.resetFogColor(true);
             this.model.render(param0, param1, param2, param4, param5, param6, param7);
-            var4.resetFogColor(false);
+            FogRenderer.resetFogColor(false);
             RenderSystem.matrixMode(5890);
             RenderSystem.loadIdentity();
             RenderSystem.matrixMode(5888);

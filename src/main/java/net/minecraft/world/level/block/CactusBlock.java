@@ -8,7 +8,6 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.BlockLayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
@@ -71,11 +70,6 @@ public class CactusBlock extends Block {
     }
 
     @Override
-    public boolean canOcclude(BlockState param0) {
-        return true;
-    }
-
-    @Override
     public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
         if (!param0.canSurvive(param3, param4)) {
             param3.getBlockTicks().scheduleTick(param4, this, 1);
@@ -101,11 +95,6 @@ public class CactusBlock extends Block {
     @Override
     public void entityInside(BlockState param0, Level param1, BlockPos param2, Entity param3) {
         param3.hurt(DamageSource.CACTUS, 1.0F);
-    }
-
-    @Override
-    public BlockLayer getRenderLayer() {
-        return BlockLayer.CUTOUT;
     }
 
     @Override

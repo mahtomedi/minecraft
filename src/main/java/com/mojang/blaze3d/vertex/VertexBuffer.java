@@ -1,8 +1,9 @@
 package com.mojang.blaze3d.vertex;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.datafixers.util.Pair;
 import java.nio.ByteBuffer;
+import java.util.concurrent.CompletableFuture;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -14,18 +15,38 @@ public class VertexBuffer {
 
     public VertexBuffer(VertexFormat param0) {
         this.format = param0;
-        this.id = GlStateManager.glGenBuffers();
+        RenderSystem.glGenBuffers(param0x -> this.id = param0x);
     }
 
     public void bind() {
-        GlStateManager.glBindBuffer(34962, this.id);
+        RenderSystem.glBindBuffer(34962, () -> this.id);
     }
 
-    public void upload(ByteBuffer param0) {
+    public void upload(BufferBuilder param0) {
+        if (!RenderSystem.isOnRenderThread()) {
+            RenderSystem.recordRenderCall(() -> this.upload_(param0));
+        } else {
+            this.upload_(param0);
+        }
+
+    }
+
+    public CompletableFuture<Void> uploadLater(BufferBuilder param0) {
+        if (!RenderSystem.isOnRenderThread()) {
+            return CompletableFuture.runAsync(() -> this.upload_(param0), param0x -> RenderSystem.recordRenderCall(param0x::run));
+        } else {
+            this.upload_(param0);
+            return CompletableFuture.completedFuture(null);
+        }
+    }
+
+    private void upload_(BufferBuilder param0) {
+        Pair<BufferBuilder.DrawState, ByteBuffer> var0 = param0.popNextBuffer();
+        ByteBuffer var1 = var0.getSecond();
+        this.vertexCount = var1.remaining() / this.format.getVertexSize();
         this.bind();
-        GlStateManager.glBufferData(34962, param0, 35044);
+        RenderSystem.glBufferData(34962, var1, 35044);
         unbind();
-        this.vertexCount = param0.limit() / this.format.getVertexSize();
     }
 
     public void draw(int param0) {
@@ -33,12 +54,12 @@ public class VertexBuffer {
     }
 
     public static void unbind() {
-        GlStateManager.glBindBuffer(34962, 0);
+        RenderSystem.glBindBuffer(34962, () -> 0);
     }
 
     public void delete() {
         if (this.id >= 0) {
-            GlStateManager.glDeleteBuffers(this.id);
+            RenderSystem.glDeleteBuffers(this.id);
             this.id = -1;
         }
 

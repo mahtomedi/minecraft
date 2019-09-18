@@ -1,12 +1,12 @@
 package net.minecraft.client.renderer.blockentity;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Blocks;
@@ -18,9 +18,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class StructureBlockRenderer extends BlockEntityRenderer<StructureBlockEntity> {
-    public void render(StructureBlockEntity param0, double param1, double param2, double param3, float param4, int param5) {
+    public void render(StructureBlockEntity param0, double param1, double param2, double param3, float param4, int param5, RenderType param6) {
         if (Minecraft.getInstance().player.canUseGameMasterBlocks() || Minecraft.getInstance().player.isSpectator()) {
-            super.render(param0, param1, param2, param3, param4, param5);
+            this.renderNameTag(param0, param1, param2, param3);
             BlockPos var0 = param0.getStructurePos();
             BlockPos var1 = param0.getStructureSize();
             if (var1.getX() >= 1 && var1.getY() >= 1 && var1.getZ() >= 1) {
@@ -85,12 +85,7 @@ public class StructureBlockRenderer extends BlockEntityRenderer<StructureBlockEn
                     RenderSystem.disableLighting();
                     RenderSystem.disableTexture();
                     RenderSystem.enableBlend();
-                    RenderSystem.blendFuncSeparate(
-                        GlStateManager.SourceFactor.SRC_ALPHA,
-                        GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-                        GlStateManager.SourceFactor.ONE,
-                        GlStateManager.DestFactor.ZERO
-                    );
+                    RenderSystem.defaultBlendFunc();
                     this.setOverlayRenderState(true);
                     if (param0.getMode() == StructureMode.SAVE || param0.getShowBoundingBox()) {
                         this.renderBox(var32, var33, var25, var5, var26, var27, var6, var28, 255, 223, 127);

@@ -106,12 +106,7 @@ public abstract class AbstractWidget extends GuiComponent implements Widget, Gui
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, this.alpha);
         int var2 = this.getYImage(this.isHovered());
         RenderSystem.enableBlend();
-        RenderSystem.blendFuncSeparate(
-            GlStateManager.SourceFactor.SRC_ALPHA,
-            GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-            GlStateManager.SourceFactor.ONE,
-            GlStateManager.DestFactor.ZERO
-        );
+        RenderSystem.defaultBlendFunc();
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
         this.blit(this.x, this.y, 0, 46 + var2 * 20, this.width / 2, this.height);
         this.blit(this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + var2 * 20, this.width / 2, this.height);

@@ -2,6 +2,7 @@ package net.minecraft.world.entity.raid;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -435,15 +436,16 @@ public class Raid {
     private void playSound(BlockPos param0) {
         float var0 = 13.0F;
         int var1 = 64;
+        Collection<ServerPlayer> var2 = this.raidEvent.getPlayers();
 
-        for(Player var2 : this.level.players()) {
-            Vec3 var3 = new Vec3(var2.x, var2.y, var2.z);
-            Vec3 var4 = new Vec3((double)param0.getX(), (double)param0.getY(), (double)param0.getZ());
-            float var5 = Mth.sqrt((var4.x - var3.x) * (var4.x - var3.x) + (var4.z - var3.z) * (var4.z - var3.z));
-            double var6 = var3.x + (double)(13.0F / var5) * (var4.x - var3.x);
-            double var7 = var3.z + (double)(13.0F / var5) * (var4.z - var3.z);
-            if (var5 <= 64.0F || this.level.isVillage(new BlockPos(var2))) {
-                ((ServerPlayer)var2).connection.send(new ClientboundSoundPacket(SoundEvents.RAID_HORN, SoundSource.NEUTRAL, var6, var2.y, var7, 64.0F, 1.0F));
+        for(ServerPlayer var3 : this.level.players()) {
+            Vec3 var4 = new Vec3(var3.x, var3.y, var3.z);
+            Vec3 var5 = new Vec3((double)param0.getX(), (double)param0.getY(), (double)param0.getZ());
+            float var6 = Mth.sqrt((var5.x - var4.x) * (var5.x - var4.x) + (var5.z - var4.z) * (var5.z - var4.z));
+            double var7 = var4.x + (double)(13.0F / var6) * (var5.x - var4.x);
+            double var8 = var4.z + (double)(13.0F / var6) * (var5.z - var4.z);
+            if (var6 <= 64.0F || var2.contains(var3)) {
+                var3.connection.send(new ClientboundSoundPacket(SoundEvents.RAID_HORN, SoundSource.NEUTRAL, var7, var3.y, var8, 64.0F, 1.0F));
             }
         }
 

@@ -1,6 +1,5 @@
 package net.minecraft.client.gui;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
@@ -15,7 +14,7 @@ public abstract class GuiComponent {
     public static final ResourceLocation BACKGROUND_LOCATION = new ResourceLocation("textures/gui/options_background.png");
     public static final ResourceLocation STATS_ICON_LOCATION = new ResourceLocation("textures/gui/container/stats_icons.png");
     public static final ResourceLocation GUI_ICONS_LOCATION = new ResourceLocation("textures/gui/icons.png");
-    protected int blitOffset;
+    private int blitOffset;
 
     protected void hLine(int param0, int param1, int param2, int param3) {
         if (param1 < param0) {
@@ -58,12 +57,7 @@ public abstract class GuiComponent {
         BufferBuilder var7 = var6.getBuilder();
         RenderSystem.enableBlend();
         RenderSystem.disableTexture();
-        RenderSystem.blendFuncSeparate(
-            GlStateManager.SourceFactor.SRC_ALPHA,
-            GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-            GlStateManager.SourceFactor.ONE,
-            GlStateManager.DestFactor.ZERO
-        );
+        RenderSystem.defaultBlendFunc();
         RenderSystem.color4f(var3, var4, var5, var2);
         var7.begin(7, DefaultVertexFormat.POSITION);
         var7.vertex((double)param0, (double)param3, 0.0).endVertex();
@@ -87,12 +81,7 @@ public abstract class GuiComponent {
         RenderSystem.disableTexture();
         RenderSystem.enableBlend();
         RenderSystem.disableAlphaTest();
-        RenderSystem.blendFuncSeparate(
-            GlStateManager.SourceFactor.SRC_ALPHA,
-            GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-            GlStateManager.SourceFactor.ONE,
-            GlStateManager.DestFactor.ZERO
-        );
+        RenderSystem.defaultBlendFunc();
         RenderSystem.shadeModel(7425);
         Tesselator var8 = Tesselator.getInstance();
         BufferBuilder var9 = var8.getBuilder();
@@ -165,5 +154,13 @@ public abstract class GuiComponent {
         var1.vertex((double)param1, (double)param2, (double)param4).uv((double)param6, (double)param7).endVertex();
         var1.vertex((double)param0, (double)param2, (double)param4).uv((double)param5, (double)param7).endVertex();
         var0.end();
+    }
+
+    public int getBlitOffset() {
+        return this.blitOffset;
+    }
+
+    public void setBlitOffset(int param0) {
+        this.blitOffset = param0;
     }
 }

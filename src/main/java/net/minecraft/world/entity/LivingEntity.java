@@ -2,6 +2,7 @@ package net.minecraft.world.entity;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.Dynamic;
 import java.util.Collection;
@@ -1677,79 +1678,95 @@ public abstract class LivingEntity extends Entity {
 
     public void findStandUpPosition(Entity param0) {
         if (!(param0 instanceof Boat) && !(param0 instanceof AbstractHorse)) {
-            double var8 = param0.x;
-            double var9 = param0.getBoundingBox().minY + (double)param0.getBbHeight();
-            double var10 = param0.z;
-            Direction var11 = param0.getMotionDirection();
-            if (var11 != null && var11.getAxis() != Direction.Axis.Y) {
-                Direction var12 = var11.getClockWise();
-                int[][] var13 = new int[][]{{0, 1}, {0, -1}, {-1, 1}, {-1, -1}, {1, 1}, {1, -1}, {-1, 0}, {1, 0}, {0, 1}};
-                double var14 = Math.floor(this.x) + 0.5;
-                double var15 = Math.floor(this.z) + 0.5;
-                double var16 = this.getBoundingBox().maxX - this.getBoundingBox().minX;
-                double var17 = this.getBoundingBox().maxZ - this.getBoundingBox().minZ;
-                AABB var18 = new AABB(
-                    var14 - var16 / 2.0,
+            double var19 = param0.x;
+            double var20 = param0.getBoundingBox().minY + (double)param0.getBbHeight();
+            double var21 = param0.z;
+            Direction var22 = param0.getMotionDirection();
+            if (var22 != null && var22.getAxis() != Direction.Axis.Y) {
+                Direction var23 = var22.getClockWise();
+                int[][] var24 = new int[][]{{0, 1}, {0, -1}, {-1, 1}, {-1, -1}, {1, 1}, {1, -1}, {-1, 0}, {1, 0}, {0, 1}};
+                double var25 = Math.floor(this.x) + 0.5;
+                double var26 = Math.floor(this.z) + 0.5;
+                double var27 = this.getBoundingBox().maxX - this.getBoundingBox().minX;
+                double var28 = this.getBoundingBox().maxZ - this.getBoundingBox().minZ;
+                AABB var29 = new AABB(
+                    var25 - var27 / 2.0,
                     param0.getBoundingBox().minY,
-                    var15 - var17 / 2.0,
-                    var14 + var16 / 2.0,
+                    var26 - var28 / 2.0,
+                    var25 + var27 / 2.0,
                     Math.floor(param0.getBoundingBox().minY) + (double)this.getBbHeight(),
-                    var15 + var17 / 2.0
+                    var26 + var28 / 2.0
                 );
 
-                for(int[] var19 : var13) {
-                    double var20 = (double)(var11.getStepX() * var19[0] + var12.getStepX() * var19[1]);
-                    double var21 = (double)(var11.getStepZ() * var19[0] + var12.getStepZ() * var19[1]);
-                    double var22 = var14 + var20;
-                    double var23 = var15 + var21;
-                    AABB var24 = var18.move(var20, 0.0, var21);
-                    if (this.level.noCollision(this, var24)) {
-                        BlockPos var25 = new BlockPos(var22, this.y, var23);
-                        if (this.level.getBlockState(var25).entityCanStandOn(this.level, var25, this)) {
-                            this.teleportTo(var22, this.y + 1.0, var23);
+                for(int[] var30 : var24) {
+                    double var31 = (double)(var22.getStepX() * var30[0] + var23.getStepX() * var30[1]);
+                    double var32 = (double)(var22.getStepZ() * var30[0] + var23.getStepZ() * var30[1]);
+                    double var33 = var25 + var31;
+                    double var34 = var26 + var32;
+                    AABB var35 = var29.move(var31, 0.0, var32);
+                    if (this.level.noCollision(this, var35)) {
+                        BlockPos var36 = new BlockPos(var33, this.y, var34);
+                        if (this.level.getBlockState(var36).entityCanStandOn(this.level, var36, this)) {
+                            this.teleportTo(var33, this.y + 1.0, var34);
                             return;
                         }
 
-                        BlockPos var26 = new BlockPos(var22, this.y - 1.0, var23);
-                        if (this.level.getBlockState(var26).entityCanStandOn(this.level, var26, this) || this.level.getFluidState(var26).is(FluidTags.WATER)) {
-                            var8 = var22;
-                            var9 = this.y + 1.0;
-                            var10 = var23;
+                        BlockPos var37 = new BlockPos(var33, this.y - 1.0, var34);
+                        if (this.level.getBlockState(var37).entityCanStandOn(this.level, var37, this) || this.level.getFluidState(var37).is(FluidTags.WATER)) {
+                            var19 = var33;
+                            var20 = this.y + 1.0;
+                            var21 = var34;
                         }
                     } else {
-                        BlockPos var27 = new BlockPos(var22, this.y + 1.0, var23);
-                        if (this.level.noCollision(this, var24.move(0.0, 1.0, 0.0))
-                            && this.level.getBlockState(var27).entityCanStandOn(this.level, var27, this)) {
-                            var8 = var22;
-                            var9 = this.y + 2.0;
-                            var10 = var23;
+                        BlockPos var38 = new BlockPos(var33, this.y + 1.0, var34);
+                        if (this.level.noCollision(this, var35.move(0.0, 1.0, 0.0))
+                            && this.level.getBlockState(var38).entityCanStandOn(this.level, var38, this)) {
+                            var19 = var33;
+                            var20 = this.y + 2.0;
+                            var21 = var34;
                         }
                     }
                 }
             }
 
-            this.teleportTo(var8, var9, var10);
+            this.teleportTo(var19, var20, var21);
         } else {
             double var0 = (double)(this.getBbWidth() / 2.0F + param0.getBbWidth() / 2.0F) + 0.4;
-            float var1;
+            AABB var1 = param0.getBoundingBox();
+            float var4;
+            double var2;
+            int var3;
             if (param0 instanceof Boat) {
-                var1 = 0.0F;
+                var2 = var1.maxY;
+                var3 = 2;
+                var4 = 0.0F;
             } else {
-                var1 = (float) (Math.PI / 2) * (float)(this.getMainArm() == HumanoidArm.RIGHT ? -1 : 1);
+                var2 = var1.minY;
+                var3 = 3;
+                var4 = (float) (Math.PI / 2) * (float)(this.getMainArm() == HumanoidArm.RIGHT ? -1 : 1);
             }
 
-            float var3 = -Mth.sin(-this.yRot * (float) (Math.PI / 180.0) - (float) Math.PI + var1);
-            float var4 = -Mth.cos(-this.yRot * (float) (Math.PI / 180.0) - (float) Math.PI + var1);
-            double var5 = Math.abs(var3) > Math.abs(var4) ? var0 / (double)Math.abs(var3) : var0 / (double)Math.abs(var4);
-            double var6 = this.x + (double)var3 * var5;
-            double var7 = this.z + (double)var4 * var5;
-            this.setPos(var6, param0.y + (double)param0.getBbHeight() + 0.001, var7);
-            if (!this.level.noCollision(this, this.getBoundingBox().minmax(param0.getBoundingBox()))) {
-                this.setPos(var6, param0.y + (double)param0.getBbHeight() + 1.001, var7);
-                if (!this.level.noCollision(this, this.getBoundingBox().minmax(param0.getBoundingBox()))) {
-                    this.setPos(param0.x, param0.y + (double)this.getBbHeight() + 0.001, param0.z);
+            float var8 = -this.yRot * (float) (Math.PI / 180.0) - (float) Math.PI + var4;
+            float var9 = -Mth.sin(var8);
+            float var10 = -Mth.cos(var8);
+            double var11 = Math.abs(var9) > Math.abs(var10) ? var0 / (double)Math.abs(var9) : var0 / (double)Math.abs(var10);
+            AABB var12 = this.getBoundingBox().move(-this.x, -this.y, -this.z);
+            ImmutableSet<Entity> var13 = ImmutableSet.of(this, param0);
+            double var14 = this.x + (double)var9 * var11;
+            double var15 = this.z + (double)var10 * var11;
+            double var16 = 0.001;
+
+            for(int var17 = 0; var17 < var3; ++var17) {
+                double var18 = var2 + var16;
+                if (this.level.noCollision(this, var12.move(var14, var18, var15), var13)) {
+                    this.setPos(var14, var18, var15);
+                    return;
                 }
+
+                ++var16;
             }
+
+            this.setPos(param0.x, param0.y + (double)this.getBbHeight() + 0.001, param0.z);
         }
     }
 
@@ -2176,7 +2193,11 @@ public abstract class LivingEntity extends Entity {
             --this.noJumpDelay;
         }
 
-        if (this.lerpSteps > 0 && !this.isControlledByLocalInstance()) {
+        if (this.isControlledByLocalInstance()) {
+            this.lerpSteps = 0;
+        }
+
+        if (this.lerpSteps > 0) {
             double var0 = this.x + (this.lerpX - this.x) / (double)this.lerpSteps;
             double var1 = this.y + (this.lerpY - this.y) / (double)this.lerpSteps;
             double var2 = this.z + (this.lerpZ - this.z) / (double)this.lerpSteps;

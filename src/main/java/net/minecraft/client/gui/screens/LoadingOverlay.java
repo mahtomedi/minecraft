@@ -40,8 +40,8 @@ public class LoadingOverlay extends Overlay {
 
     @Override
     public void render(int param0, int param1, float param2) {
-        int var0 = this.minecraft.window.getGuiScaledWidth();
-        int var1 = this.minecraft.window.getGuiScaledHeight();
+        int var0 = this.minecraft.getWindow().getGuiScaledWidth();
+        int var1 = this.minecraft.getWindow().getGuiScaledHeight();
         long var2 = Util.getMillis();
         if (this.fadeIn && (this.reload.isApplying() || this.minecraft.screen != null) && this.fadeInStart == -1L) {
             this.fadeInStart = var2;
@@ -71,8 +71,8 @@ public class LoadingOverlay extends Overlay {
             var6 = 1.0F;
         }
 
-        int var10 = (this.minecraft.window.getGuiScaledWidth() - 256) / 2;
-        int var11 = (this.minecraft.window.getGuiScaledHeight() - 256) / 2;
+        int var10 = (this.minecraft.getWindow().getGuiScaledWidth() - 256) / 2;
+        int var11 = (this.minecraft.getWindow().getGuiScaledHeight() - 256) / 2;
         this.minecraft.getTextureManager().bind(MOJANG_LOGO_LOCATION);
         RenderSystem.enableBlend();
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, var6);
@@ -92,7 +92,7 @@ public class LoadingOverlay extends Overlay {
             this.fadeOutStart = Util.getMillis();
             this.onFinish.run();
             if (this.minecraft.screen != null) {
-                this.minecraft.screen.init(this.minecraft, this.minecraft.window.getGuiScaledWidth(), this.minecraft.window.getGuiScaledHeight());
+                this.minecraft.screen.init(this.minecraft, this.minecraft.getWindow().getGuiScaledWidth(), this.minecraft.getWindow().getGuiScaledHeight());
             }
         }
 

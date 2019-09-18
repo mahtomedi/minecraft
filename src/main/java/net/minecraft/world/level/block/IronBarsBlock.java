@@ -4,7 +4,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.BlockLayer;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -80,11 +79,6 @@ public class IronBarsBlock extends CrossCollisionBlock {
     public final boolean attachsTo(BlockState param0, boolean param1) {
         Block var0 = param0.getBlock();
         return !isExceptionForConnection(var0) && param1 || var0 instanceof IronBarsBlock;
-    }
-
-    @Override
-    public BlockLayer getRenderLayer() {
-        return BlockLayer.CUTOUT_MIPPED;
     }
 
     @Override

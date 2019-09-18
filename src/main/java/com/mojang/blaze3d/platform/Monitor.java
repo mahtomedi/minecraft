@@ -1,6 +1,7 @@
 package com.mojang.blaze3d.platform;
 
 import com.google.common.collect.Lists;
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.List;
 import java.util.Optional;
 import net.minecraftforge.api.distmarker.Dist;
@@ -23,7 +24,8 @@ public final class Monitor {
         this.refreshVideoModes();
     }
 
-    private void refreshVideoModes() {
+    public void refreshVideoModes() {
+        RenderSystem.assertThread(RenderSystem::isInInitPhase);
         this.videoModes.clear();
         Buffer var0 = GLFW.glfwGetVideoModes(this.monitor);
 
@@ -45,6 +47,7 @@ public final class Monitor {
     }
 
     public VideoMode getPreferredVidMode(Optional<VideoMode> param0) {
+        RenderSystem.assertThread(RenderSystem::isInInitPhase);
         if (param0.isPresent()) {
             VideoMode var0 = param0.get();
 
@@ -59,6 +62,7 @@ public final class Monitor {
     }
 
     public int getVideoModeIndex(VideoMode param0) {
+        RenderSystem.assertThread(RenderSystem::isInInitPhase);
         return this.videoModes.indexOf(param0);
     }
 

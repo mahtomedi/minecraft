@@ -1,11 +1,17 @@
 package net.minecraft.client.renderer.blockentity;
 
+import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import java.util.List;
+import java.util.stream.Collectors;
 import net.minecraft.client.Camera;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.model.ModelBakery;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Nameable;
 import net.minecraft.world.level.Level;
@@ -17,21 +23,27 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class BlockEntityRenderer<T extends BlockEntity> {
-    public static final ResourceLocation[] BREAKING_LOCATIONS = new ResourceLocation[]{
-        new ResourceLocation("textures/" + ModelBakery.DESTROY_STAGE_0.getPath() + ".png"),
-        new ResourceLocation("textures/" + ModelBakery.DESTROY_STAGE_1.getPath() + ".png"),
-        new ResourceLocation("textures/" + ModelBakery.DESTROY_STAGE_2.getPath() + ".png"),
-        new ResourceLocation("textures/" + ModelBakery.DESTROY_STAGE_3.getPath() + ".png"),
-        new ResourceLocation("textures/" + ModelBakery.DESTROY_STAGE_4.getPath() + ".png"),
-        new ResourceLocation("textures/" + ModelBakery.DESTROY_STAGE_5.getPath() + ".png"),
-        new ResourceLocation("textures/" + ModelBakery.DESTROY_STAGE_6.getPath() + ".png"),
-        new ResourceLocation("textures/" + ModelBakery.DESTROY_STAGE_7.getPath() + ".png"),
-        new ResourceLocation("textures/" + ModelBakery.DESTROY_STAGE_8.getPath() + ".png"),
-        new ResourceLocation("textures/" + ModelBakery.DESTROY_STAGE_9.getPath() + ".png")
-    };
+    protected static final List<ResourceLocation> BREAKING_LOCATIONS = ModelBakery.DESTROY_STAGES
+        .stream()
+        .map(param0 -> new ResourceLocation("textures/" + param0.getPath() + ".png"))
+        .collect(Collectors.toList());
     protected BlockEntityRenderDispatcher blockEntityRenderDispatcher;
 
-    public void render(T param0, double param1, double param2, double param3, float param4, int param5) {
+    public void setupAndRender(
+        T param0, double param1, double param2, double param3, float param4, int param5, BufferBuilder param6, RenderType param7, BlockPos param8
+    ) {
+        Lighting.turnOn();
+        int var0 = param0.getLevel().getLightColor(param0.getBlockPos());
+        int var1 = var0 % 65536;
+        int var2 = var0 / 65536;
+        RenderSystem.glMultiTexCoord2f(33985, (float)var1, (float)var2);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        this.render(param0, param1, param2, param3, param4, param5, param7);
+    }
+
+    public abstract void render(T var1, double var2, double var4, double var6, float var8, int var9, RenderType var10);
+
+    protected void renderNameTag(T param0, double param1, double param2, double param3) {
         HitResult var0 = this.blockEntityRenderDispatcher.cameraHitResult;
         if (param0 instanceof Nameable
             && var0 != null

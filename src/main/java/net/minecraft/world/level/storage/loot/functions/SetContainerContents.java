@@ -7,8 +7,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
-import java.util.function.Function;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -17,9 +15,8 @@ import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.LootTableProblemCollector;
+import net.minecraft.world.level.storage.loot.ValidationContext;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 public class SetContainerContents extends LootItemConditionalFunction {
@@ -46,13 +43,11 @@ public class SetContainerContents extends LootItemConditionalFunction {
     }
 
     @Override
-    public void validate(
-        LootTableProblemCollector param0, Function<ResourceLocation, LootTable> param1, Set<ResourceLocation> param2, LootContextParamSet param3
-    ) {
-        super.validate(param0, param1, param2, param3);
+    public void validate(ValidationContext param0) {
+        super.validate(param0);
 
         for(int var0 = 0; var0 < this.entries.size(); ++var0) {
-            this.entries.get(var0).validate(param0.forChild(".entry[" + var0 + "]"), param1, param2, param3);
+            this.entries.get(var0).validate(param0.forChild(".entry[" + var0 + "]"));
         }
 
     }

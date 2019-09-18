@@ -3,6 +3,7 @@ package com.mojang.blaze3d.shaders;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.TextureUtil;
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
@@ -24,11 +25,13 @@ public class Program {
     }
 
     public void attachToEffect(Effect param0) {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         ++this.references;
         GlStateManager.glAttachShader(param0.getId(), this.id);
     }
 
     public void close() {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         --this.references;
         if (this.references <= 0) {
             GlStateManager.glDeleteShader(this.id);
@@ -42,6 +45,7 @@ public class Program {
     }
 
     public static Program compileShader(Program.Type param0, String param1, InputStream param2) throws IOException {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         String var0 = TextureUtil.readResourceAsString(param2);
         if (var0 == null) {
             throw new IOException("Could not load program " + param0.getName());

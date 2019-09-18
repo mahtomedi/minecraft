@@ -32,6 +32,7 @@ public class GameConfig {
         public final File gameDirectory;
         public final File resourcePackDirectory;
         public final File assetDirectory;
+        @Nullable
         public final String assetIndex;
 
         public FolderData(File param0, File param1, File param2, @Nullable String param3) {
@@ -61,10 +62,11 @@ public class GameConfig {
 
     @OnlyIn(Dist.CLIENT)
     public static class ServerData {
+        @Nullable
         public final String hostname;
         public final int port;
 
-        public ServerData(String param0, int param1) {
+        public ServerData(@Nullable String param0, int param1) {
             this.hostname = param0;
             this.port = param1;
         }

@@ -272,14 +272,14 @@ public class KeyboardHandler {
     }
 
     public void keyPress(long param0, int param1, int param2, int param3, int param4) {
-        if (param0 == this.minecraft.window.getWindow()) {
+        if (param0 == this.minecraft.getWindow().getWindow()) {
             if (this.debugCrashKeyTime > 0L) {
-                if (!InputConstants.isKeyDown(Minecraft.getInstance().window.getWindow(), 67)
-                    || !InputConstants.isKeyDown(Minecraft.getInstance().window.getWindow(), 292)) {
+                if (!InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), 67)
+                    || !InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), 292)) {
                     this.debugCrashKeyTime = -1L;
                 }
-            } else if (InputConstants.isKeyDown(Minecraft.getInstance().window.getWindow(), 67)
-                && InputConstants.isKeyDown(Minecraft.getInstance().window.getWindow(), 292)) {
+            } else if (InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), 67)
+                && InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), 292)) {
                 this.handledDebugKey = true;
                 this.debugCrashKeyTime = Util.getMillis();
                 this.debugCrashKeyReportedTime = Util.getMillis();
@@ -289,8 +289,8 @@ public class KeyboardHandler {
             ContainerEventHandler var0 = this.minecraft.screen;
             if (param3 == 1 && (!(this.minecraft.screen instanceof ControlsScreen) || ((ControlsScreen)var0).lastKeySelection <= Util.getMillis() - 20L)) {
                 if (this.minecraft.options.keyFullscreen.matches(param1, param2)) {
-                    this.minecraft.window.toggleFullScreen();
-                    this.minecraft.options.fullscreen = this.minecraft.window.isFullscreen();
+                    this.minecraft.getWindow().toggleFullScreen();
+                    this.minecraft.options.fullscreen = this.minecraft.getWindow().isFullscreen();
                     return;
                 }
 
@@ -300,8 +300,8 @@ public class KeyboardHandler {
 
                     Screenshot.grab(
                         this.minecraft.gameDirectory,
-                        this.minecraft.window.getWidth(),
-                        this.minecraft.window.getHeight(),
+                        this.minecraft.getWindow().getWidth(),
+                        this.minecraft.getWindow().getHeight(),
                         this.minecraft.getMainRenderTarget(),
                         param0x -> this.minecraft.execute(() -> this.minecraft.gui.getChat().addMessage(param0x))
                     );
@@ -359,11 +359,11 @@ public class KeyboardHandler {
                     boolean var4 = false;
                     if (this.minecraft.screen == null) {
                         if (param1 == 256) {
-                            boolean var5 = InputConstants.isKeyDown(Minecraft.getInstance().window.getWindow(), 292);
+                            boolean var5 = InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), 292);
                             this.minecraft.pauseGame(var5);
                         }
 
-                        var4 = InputConstants.isKeyDown(Minecraft.getInstance().window.getWindow(), 292) && this.handleDebugKeys(param1);
+                        var4 = InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), 292) && this.handleDebugKeys(param1);
                         this.handledDebugKey |= var4;
                         if (param1 == 290) {
                             this.minecraft.options.hideGui = !this.minecraft.options.hideGui;
@@ -395,7 +395,7 @@ public class KeyboardHandler {
     }
 
     private void charTyped(long param0, int param1, int param2) {
-        if (param0 == this.minecraft.window.getWindow()) {
+        if (param0 == this.minecraft.getWindow().getWindow()) {
             GuiEventListener var0 = this.minecraft.screen;
             if (var0 != null && this.minecraft.getOverlay() == null) {
                 if (Character.charCount(param1) == 1) {
@@ -415,20 +415,24 @@ public class KeyboardHandler {
     }
 
     public void setup(long param0) {
-        InputConstants.setupKeyboardCallbacks(param0, this::keyPress, this::charTyped);
+        InputConstants.setupKeyboardCallbacks(
+            param0,
+            (param0x, param1, param2, param3, param4) -> this.minecraft.execute(() -> this.keyPress(param0x, param1, param2, param3, param4)),
+            (param0x, param1, param2) -> this.minecraft.execute(() -> this.charTyped(param0x, param1, param2))
+        );
     }
 
     public String getClipboard() {
-        return this.clipboardManager.getClipboard(this.minecraft.window.getWindow(), (param0, param1) -> {
+        return this.clipboardManager.getClipboard(this.minecraft.getWindow().getWindow(), (param0, param1) -> {
             if (param0 != 65545) {
-                this.minecraft.window.defaultErrorCallback(param0, param1);
+                this.minecraft.getWindow().defaultErrorCallback(param0, param1);
             }
 
         });
     }
 
     public void setClipboard(String param0) {
-        this.clipboardManager.setClipboard(this.minecraft.window.getWindow(), param0);
+        this.clipboardManager.setClipboard(this.minecraft.getWindow().getWindow(), param0);
     }
 
     public void tick() {

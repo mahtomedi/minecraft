@@ -25,15 +25,15 @@ public class BoatModel extends EntityModel<Boat> {
         int var2 = 20;
         int var3 = 4;
         int var4 = 28;
-        this.cubes[0].addBox(-14.0F, -9.0F, -3.0F, 28, 16, 3, 0.0F);
+        this.cubes[0].addBox(-14.0F, -9.0F, -3.0F, 28.0F, 16.0F, 3.0F, 0.0F);
         this.cubes[0].setPos(0.0F, 3.0F, 1.0F);
-        this.cubes[1].addBox(-13.0F, -7.0F, -1.0F, 18, 6, 2, 0.0F);
+        this.cubes[1].addBox(-13.0F, -7.0F, -1.0F, 18.0F, 6.0F, 2.0F, 0.0F);
         this.cubes[1].setPos(-15.0F, 4.0F, 4.0F);
-        this.cubes[2].addBox(-8.0F, -7.0F, -1.0F, 16, 6, 2, 0.0F);
+        this.cubes[2].addBox(-8.0F, -7.0F, -1.0F, 16.0F, 6.0F, 2.0F, 0.0F);
         this.cubes[2].setPos(15.0F, 4.0F, 0.0F);
-        this.cubes[3].addBox(-14.0F, -7.0F, -1.0F, 28, 6, 2, 0.0F);
+        this.cubes[3].addBox(-14.0F, -7.0F, -1.0F, 28.0F, 6.0F, 2.0F, 0.0F);
         this.cubes[3].setPos(0.0F, 4.0F, -9.0F);
-        this.cubes[4].addBox(-14.0F, -7.0F, -1.0F, 28, 6, 2, 0.0F);
+        this.cubes[4].addBox(-14.0F, -7.0F, -1.0F, 28.0F, 6.0F, 2.0F, 0.0F);
         this.cubes[4].setPos(0.0F, 4.0F, 9.0F);
         this.cubes[0].xRot = (float) (Math.PI / 2);
         this.cubes[1].yRot = (float) (Math.PI * 3.0 / 2.0);
@@ -47,7 +47,7 @@ public class BoatModel extends EntityModel<Boat> {
         this.paddles[0].zRot = (float) (Math.PI / 16);
         this.paddles[1].zRot = (float) (Math.PI / 16);
         this.waterPatch = new ModelPart(this, 0, 0).setTexSize(128, 64);
-        this.waterPatch.addBox(-14.0F, -9.0F, -3.0F, 28, 16, 3, 0.0F);
+        this.waterPatch.addBox(-14.0F, -9.0F, -3.0F, 28.0F, 16.0F, 3.0F, 0.0F);
         this.waterPatch.setPos(0.0F, -3.0F, 1.0F);
         this.waterPatch.xRot = (float) (Math.PI / 2);
     }
@@ -77,8 +77,8 @@ public class BoatModel extends EntityModel<Boat> {
         int var2 = 7;
         int var3 = 6;
         float var4 = -5.0F;
-        var0.addBox(-1.0F, 0.0F, -5.0F, 2, 2, 18);
-        var0.addBox(param0 ? -1.001F : 0.001F, -3.0F, 8.0F, 1, 6, 7);
+        var0.addBox(-1.0F, 0.0F, -5.0F, 2.0F, 2.0F, 18.0F);
+        var0.addBox(param0 ? -1.001F : 0.001F, -3.0F, 8.0F, 1.0F, 6.0F, 7.0F);
         return var0;
     }
 

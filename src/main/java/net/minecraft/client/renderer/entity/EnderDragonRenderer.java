@@ -53,7 +53,7 @@ public class EnderDragonRenderer extends MobRenderer<EnderDragon, DragonModel> {
             RenderSystem.alphaFunc(516, var0);
             this.bindTexture(DRAGON_EXPLODING_LOCATION);
             this.model.render(param0, param1, param2, param3, param4, param5, param6);
-            RenderSystem.alphaFunc(516, 0.1F);
+            RenderSystem.defaultAlphaFunc();
             RenderSystem.depthFunc(514);
         }
 

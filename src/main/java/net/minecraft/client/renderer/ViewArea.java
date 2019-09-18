@@ -1,8 +1,7 @@
 package net.minecraft.client.renderer;
 
 import javax.annotation.Nullable;
-import net.minecraft.client.renderer.chunk.RenderChunk;
-import net.minecraft.client.renderer.chunk.RenderChunkFactory;
+import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
@@ -16,24 +15,24 @@ public class ViewArea {
     protected int chunkGridSizeY;
     protected int chunkGridSizeX;
     protected int chunkGridSizeZ;
-    public RenderChunk[] chunks;
+    public ChunkRenderDispatcher.RenderChunk[] chunks;
 
-    public ViewArea(Level param0, int param1, LevelRenderer param2, RenderChunkFactory param3) {
-        this.levelRenderer = param2;
-        this.level = param0;
-        this.setViewDistance(param1);
-        this.createChunks(param3);
+    public ViewArea(ChunkRenderDispatcher param0, Level param1, int param2, LevelRenderer param3) {
+        this.levelRenderer = param3;
+        this.level = param1;
+        this.setViewDistance(param2);
+        this.createChunks(param0);
     }
 
-    protected void createChunks(RenderChunkFactory param0) {
+    protected void createChunks(ChunkRenderDispatcher param0) {
         int var0 = this.chunkGridSizeX * this.chunkGridSizeY * this.chunkGridSizeZ;
-        this.chunks = new RenderChunk[var0];
+        this.chunks = new ChunkRenderDispatcher.RenderChunk[var0];
 
         for(int var1 = 0; var1 < this.chunkGridSizeX; ++var1) {
             for(int var2 = 0; var2 < this.chunkGridSizeY; ++var2) {
                 for(int var3 = 0; var3 < this.chunkGridSizeZ; ++var3) {
                     int var4 = this.getChunkIndex(var1, var2, var3);
-                    this.chunks[var4] = param0.create(this.level, this.levelRenderer);
+                    this.chunks[var4] = param0.new RenderChunk();
                     this.chunks[var4].setOrigin(var1 * 16, var2 * 16, var3 * 16);
                 }
             }
@@ -42,7 +41,7 @@ public class ViewArea {
     }
 
     public void releaseAllBuffers() {
-        for(RenderChunk var0 : this.chunks) {
+        for(ChunkRenderDispatcher.RenderChunk var0 : this.chunks) {
             var0.releaseBuffers();
         }
 
@@ -72,7 +71,7 @@ public class ViewArea {
 
                 for(int var7 = 0; var7 < this.chunkGridSizeY; ++var7) {
                     int var8 = var7 * 16;
-                    RenderChunk var9 = this.chunks[this.getChunkIndex(var3, var7, var5)];
+                    ChunkRenderDispatcher.RenderChunk var9 = this.chunks[this.getChunkIndex(var3, var7, var5)];
                     var9.setOrigin(var4, var8, var6);
                 }
             }
@@ -94,12 +93,12 @@ public class ViewArea {
         int var0 = Math.floorMod(param0, this.chunkGridSizeX);
         int var1 = Math.floorMod(param1, this.chunkGridSizeY);
         int var2 = Math.floorMod(param2, this.chunkGridSizeZ);
-        RenderChunk var3 = this.chunks[this.getChunkIndex(var0, var1, var2)];
+        ChunkRenderDispatcher.RenderChunk var3 = this.chunks[this.getChunkIndex(var0, var1, var2)];
         var3.setDirty(param3);
     }
 
     @Nullable
-    protected RenderChunk getRenderChunkAt(BlockPos param0) {
+    protected ChunkRenderDispatcher.RenderChunk getRenderChunkAt(BlockPos param0) {
         int var0 = Mth.intFloorDiv(param0.getX(), 16);
         int var1 = Mth.intFloorDiv(param0.getY(), 16);
         int var2 = Mth.intFloorDiv(param0.getZ(), 16);

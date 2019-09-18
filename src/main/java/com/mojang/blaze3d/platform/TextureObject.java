@@ -1,8 +1,9 @@
-package net.minecraft.client.renderer.texture;
+package com.mojang.blaze3d.platform;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.io.IOException;
 import java.util.concurrent.Executor;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraftforge.api.distmarker.Dist;
@@ -19,7 +20,12 @@ public interface TextureObject {
     int getId();
 
     default void bind() {
-        RenderSystem.bindTexture(this.getId());
+        if (!RenderSystem.isOnRenderThreadOrInit()) {
+            RenderSystem.recordRenderCall(() -> GlStateManager._bindTexture(this.getId()));
+        } else {
+            GlStateManager._bindTexture(this.getId());
+        }
+
     }
 
     default void reset(TextureManager param0, ResourceManager param1, ResourceLocation param2, Executor param3) {

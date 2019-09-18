@@ -11,7 +11,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.BlockLayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
@@ -71,11 +70,6 @@ public class TripWireBlock extends Block {
         return param1.getAxis().isHorizontal()
             ? param0.setValue(PROPERTY_BY_DIRECTION.get(param1), Boolean.valueOf(this.shouldConnectTo(param2, param1)))
             : super.updateShape(param0, param1, param2, param3, param4, param5);
-    }
-
-    @Override
-    public BlockLayer getRenderLayer() {
-        return BlockLayer.TRANSLUCENT;
     }
 
     @Override

@@ -13,10 +13,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
@@ -94,15 +92,13 @@ public class LootTable {
         return this.paramSet;
     }
 
-    public void validate(
-        LootTableProblemCollector param0, Function<ResourceLocation, LootTable> param1, Set<ResourceLocation> param2, LootContextParamSet param3
-    ) {
+    public void validate(ValidationContext param0) {
         for(int var0 = 0; var0 < this.pools.length; ++var0) {
-            this.pools[var0].validate(param0.forChild(".pools[" + var0 + "]"), param1, param2, param3);
+            this.pools[var0].validate(param0.forChild(".pools[" + var0 + "]"));
         }
 
         for(int var1 = 0; var1 < this.functions.length; ++var1) {
-            this.functions[var1].validate(param0.forChild(".functions[" + var1 + "]"), param1, param2, param3);
+            this.functions[var1].validate(param0.forChild(".functions[" + var1 + "]"));
         }
 
     }

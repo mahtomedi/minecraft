@@ -1,5 +1,6 @@
 package net.minecraft.client.renderer.texture;
 
+import com.mojang.blaze3d.platform.AbstractTexture;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.TextureUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -33,8 +34,8 @@ public class LayeredColorMaskTexture extends AbstractTexture {
         try (
             Resource var0 = param0.getResource(this.baseLayerResource);
             NativeImage var1 = NativeImage.read(var0.getInputStream());
-            NativeImage var2 = new NativeImage(var1.getWidth(), var1.getHeight(), false);
         ) {
+            NativeImage var2 = new NativeImage(var1.getWidth(), var1.getHeight(), false);
             var2.copyFrom(var1);
 
             for(int var3 = 0; var3 < 17 && var3 < this.layerMaskPaths.size() && var3 < this.layerColors.size(); ++var3) {
@@ -62,13 +63,21 @@ public class LayeredColorMaskTexture extends AbstractTexture {
                 }
             }
 
-            TextureUtil.prepareImage(this.getId(), var2.getWidth(), var2.getHeight());
-            RenderSystem.pixelTransfer(3357, Float.MAX_VALUE);
-            var2.upload(0, 0, 0, false);
-            RenderSystem.pixelTransfer(3357, 0.0F);
-        } catch (IOException var150) {
-            LOGGER.error("Couldn't load layered color mask image", (Throwable)var150);
+            if (!RenderSystem.isOnRenderThreadOrInit()) {
+                RenderSystem.recordRenderCall(() -> this.doLoad(var2));
+            } else {
+                this.doLoad(var2);
+            }
+        } catch (IOException var109) {
+            LOGGER.error("Couldn't load layered color mask image", (Throwable)var109);
         }
 
+    }
+
+    private void doLoad(NativeImage param0) {
+        TextureUtil.prepareImage(this.getId(), param0.getWidth(), param0.getHeight());
+        RenderSystem.pixelTransfer(3357, Float.MAX_VALUE);
+        param0.upload(0, 0, 0, true);
+        RenderSystem.pixelTransfer(3357, 0.0F);
     }
 }

@@ -1,15 +1,24 @@
 package com.mojang.blaze3d.vertex;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Queues;
 import com.google.common.primitives.Floats;
 import com.mojang.blaze3d.platform.MemoryTracker;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
+import it.unimi.dsi.fastutil.ints.IntArrays;
+import it.unimi.dsi.fastutil.ints.IntComparator;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.nio.ShortBuffer;
-import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Deque;
+import java.util.List;
+import net.minecraft.Util;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
@@ -20,8 +29,11 @@ public class BufferBuilder {
     private static final Logger LOGGER = LogManager.getLogger();
     private ByteBuffer buffer;
     private IntBuffer intBuffer;
-    private ShortBuffer shortBuffer;
     private FloatBuffer floatBuffer;
+    private final List<BufferBuilder.DrawState> vertexCounts = Lists.newArrayList();
+    private int lastRenderedCountIndex = 0;
+    private int totalRenderedBytes = 0;
+    private int totalUploadedBytes = 0;
     private int vertices;
     private VertexFormatElement currentElement;
     private int elementIndex;
@@ -30,32 +42,32 @@ public class BufferBuilder {
     private double xo;
     private double yo;
     private double zo;
+    private final Deque<Matrix4f> poseStack = Util.make(Queues.newArrayDeque(), param0x -> {
+        Matrix4f var0 = new Matrix4f();
+        var0.setIdentity();
+        param0x.add(var0);
+    });
     private VertexFormat format;
     private boolean building;
 
     public BufferBuilder(int param0) {
         this.buffer = MemoryTracker.createByteBuffer(param0 * 4);
         this.intBuffer = this.buffer.asIntBuffer();
-        this.shortBuffer = this.buffer.asShortBuffer();
-        this.floatBuffer = this.buffer.asFloatBuffer();
+        this.floatBuffer = this.buffer.asFloatBuffer().asReadOnlyBuffer();
     }
 
     private void ensureCapacity(int param0) {
-        if (this.vertices * this.format.getVertexSize() + param0 > this.buffer.capacity()) {
+        if (this.totalRenderedBytes + this.vertices * this.format.getVertexSize() + param0 > this.buffer.capacity()) {
             int var0 = this.buffer.capacity();
             int var1 = var0 + roundUp(param0);
             LOGGER.debug("Needed to grow BufferBuilder buffer: Old size {} bytes, new size {} bytes.", var0, var1);
-            int var2 = this.intBuffer.position();
-            ByteBuffer var3 = MemoryTracker.createByteBuffer(var1);
+            ByteBuffer var2 = MemoryTracker.createByteBuffer(var1);
             ((Buffer)this.buffer).position(0);
-            var3.put(this.buffer);
-            ((Buffer)var3).rewind();
-            this.buffer = var3;
+            var2.put(this.buffer);
+            ((Buffer)var2).rewind();
+            this.buffer = var2;
             this.floatBuffer = this.buffer.asFloatBuffer().asReadOnlyBuffer();
             this.intBuffer = this.buffer.asIntBuffer();
-            ((Buffer)this.intBuffer).position(var2);
-            this.shortBuffer = this.buffer.asShortBuffer();
-            ((Buffer)this.shortBuffer).position(var2 << 1);
         }
     }
 
@@ -84,63 +96,63 @@ public class BufferBuilder {
                 (float)((double)param1 + this.yo),
                 (float)((double)param2 + this.zo),
                 this.format.getIntegerSize(),
-                var2 * this.format.getVertexSize()
+                this.totalRenderedBytes / 4 + var2 * this.format.getVertexSize()
             );
         }
 
-        Integer[] var3 = new Integer[var0];
+        int[] var3 = new int[var0];
+        int var4 = 0;
 
-        for(int var4 = 0; var4 < var3.length; ++var4) {
-            var3[var4] = var4;
+        while(var4 < var3.length) {
+            var3[var4] = var4++;
         }
 
-        Arrays.sort(var3, (param1x, param2x) -> Floats.compare(var1[param2x], var1[param1x]));
+        IntArrays.quickSort(var3, (IntComparator)((param1x, param2x) -> Floats.compare(var1[param2x], var1[param1x])));
         BitSet var5 = new BitSet();
-        int var6 = this.format.getVertexSize();
-        int[] var7 = new int[var6];
+        int[] var6 = new int[this.format.getVertexSize()];
 
-        for(int var8 = var5.nextClearBit(0); var8 < var3.length; var8 = var5.nextClearBit(var8 + 1)) {
-            int var9 = var3[var8];
-            if (var9 != var8) {
-                ((Buffer)this.intBuffer).limit(var9 * var6 + var6);
-                ((Buffer)this.intBuffer).position(var9 * var6);
-                this.intBuffer.get(var7);
-                int var10 = var9;
+        for(int var7 = var5.nextClearBit(0); var7 < var3.length; var7 = var5.nextClearBit(var7 + 1)) {
+            int var8 = var3[var7];
+            if (var8 != var7) {
+                this.limitToVertex(var8);
+                this.intBuffer.get(var6);
+                int var9 = var8;
 
-                for(int var11 = var3[var9]; var10 != var8; var11 = var3[var11]) {
-                    ((Buffer)this.intBuffer).limit(var11 * var6 + var6);
-                    ((Buffer)this.intBuffer).position(var11 * var6);
-                    IntBuffer var12 = this.intBuffer.slice();
-                    ((Buffer)this.intBuffer).limit(var10 * var6 + var6);
-                    ((Buffer)this.intBuffer).position(var10 * var6);
-                    this.intBuffer.put(var12);
-                    var5.set(var10);
-                    var10 = var11;
+                for(int var10 = var3[var8]; var9 != var7; var10 = var3[var10]) {
+                    this.limitToVertex(var10);
+                    IntBuffer var11 = this.intBuffer.slice();
+                    this.limitToVertex(var9);
+                    this.intBuffer.put(var11);
+                    var5.set(var9);
+                    var9 = var10;
                 }
 
-                ((Buffer)this.intBuffer).limit(var8 * var6 + var6);
-                ((Buffer)this.intBuffer).position(var8 * var6);
-                this.intBuffer.put(var7);
+                this.limitToVertex(var7);
+                this.intBuffer.put(var6);
             }
 
-            var5.set(var8);
+            var5.set(var7);
         }
 
+    }
+
+    private void limitToVertex(int param0) {
+        int var0 = this.format.getIntegerSize() * 4;
+        ((Buffer)this.intBuffer).limit(this.totalRenderedBytes / 4 + (param0 + 1) * var0);
+        ((Buffer)this.intBuffer).position(this.totalRenderedBytes / 4 + param0 * var0);
     }
 
     public BufferBuilder.State getState() {
-        ((Buffer)this.intBuffer).rewind();
-        int var0 = this.getBufferIndex();
+        ((Buffer)this.intBuffer).position(this.totalRenderedBytes / 4);
+        int var0 = this.nextVertexIntPosition();
         ((Buffer)this.intBuffer).limit(var0);
-        int[] var1 = new int[var0];
+        int[] var1 = new int[this.vertices * this.format.getIntegerSize()];
         this.intBuffer.get(var1);
-        ((Buffer)this.intBuffer).limit(this.intBuffer.capacity());
-        ((Buffer)this.intBuffer).position(var0);
         return new BufferBuilder.State(var1, new VertexFormat(this.format));
     }
 
-    private int getBufferIndex() {
-        return this.vertices * this.format.getIntegerSize();
+    private int nextVertexIntPosition() {
+        return this.totalRenderedBytes / 4 + this.vertices * this.format.getIntegerSize();
     }
 
     private static float getQuadDistanceFromPlayer(FloatBuffer param0, float param1, float param2, float param3, int param4, int param5) {
@@ -163,17 +175,13 @@ public class BufferBuilder {
     }
 
     public void restoreState(BufferBuilder.State param0) {
-        ((Buffer)this.intBuffer).clear();
+        this.vertices = 0;
         this.ensureCapacity(param0.array().length * 4);
+        ((Buffer)this.intBuffer).limit(this.intBuffer.capacity());
+        ((Buffer)this.intBuffer).position(this.totalRenderedBytes / 4);
         this.intBuffer.put(param0.array());
         this.vertices = param0.vertices();
         this.format = new VertexFormat(param0.getFormat());
-    }
-
-    public void clear() {
-        this.vertices = 0;
-        this.currentElement = null;
-        this.elementIndex = 0;
     }
 
     public void begin(int param0, VertexFormat param1) {
@@ -181,7 +189,6 @@ public class BufferBuilder {
             throw new IllegalStateException("Already building!");
         } else {
             this.building = true;
-            this.clear();
             this.mode = param0;
             this.format = param1;
             this.currentElement = param1.getElement(this.elementIndex);
@@ -190,8 +197,21 @@ public class BufferBuilder {
         }
     }
 
+    public void end() {
+        if (!this.building) {
+            throw new IllegalStateException("Not building!");
+        } else {
+            this.building = false;
+            this.vertexCounts.add(new BufferBuilder.DrawState(this.format, this.vertices, this.mode));
+            this.totalRenderedBytes += this.vertices * this.format.getVertexSize();
+            this.vertices = 0;
+            this.currentElement = null;
+            this.elementIndex = 0;
+        }
+    }
+
     public BufferBuilder uv(double param0, double param1) {
-        int var0 = this.vertices * this.format.getVertexSize() + this.format.getOffset(this.elementIndex);
+        int var0 = this.getIndex();
         switch(this.currentElement.getType()) {
             case FLOAT:
                 this.buffer.putFloat(var0, (float)param0);
@@ -218,7 +238,7 @@ public class BufferBuilder {
     }
 
     public BufferBuilder uv2(int param0, int param1) {
-        int var0 = this.vertices * this.format.getVertexSize() + this.format.getOffset(this.elementIndex);
+        int var0 = this.getIndex();
         switch(this.currentElement.getType()) {
             case FLOAT:
                 this.buffer.putFloat(var0, (float)param0);
@@ -245,7 +265,7 @@ public class BufferBuilder {
     }
 
     public void faceTex2(int param0, int param1, int param2, int param3) {
-        int var0 = (this.vertices - 4) * this.format.getIntegerSize() + this.format.getUvOffset(1) / 4;
+        int var0 = this.totalRenderedBytes / 4 + (this.vertices - 4) * this.format.getIntegerSize() + this.format.getUvOffset(1) / 4;
         int var1 = this.format.getVertexSize() >> 2;
         this.intBuffer.put(var0, param0);
         this.intBuffer.put(var0 + var1, param1);
@@ -255,7 +275,7 @@ public class BufferBuilder {
 
     public void postProcessFacePosition(double param0, double param1, double param2) {
         int var0 = this.format.getIntegerSize();
-        int var1 = (this.vertices - 4) * var0;
+        int var1 = this.totalRenderedBytes / 4 + (this.vertices - 4) * var0;
 
         for(int var2 = 0; var2 < 4; ++var2) {
             int var3 = var1 + var2 * var0;
@@ -269,7 +289,7 @@ public class BufferBuilder {
     }
 
     private int getStartingColorIndex(int param0) {
-        return ((this.vertices - param0) * this.format.getVertexSize() + this.format.getColorOffset()) / 4;
+        return (this.totalRenderedBytes + (this.vertices - param0) * this.format.getVertexSize() + this.format.getColorOffset()) / 4;
     }
 
     public void faceTint(float param0, float param1, float param2, int param3) {
@@ -338,9 +358,10 @@ public class BufferBuilder {
 
     public BufferBuilder color(int param0, int param1, int param2, int param3) {
         if (this.noColor) {
+            this.nextElement();
             return this;
         } else {
-            int var0 = this.vertices * this.format.getVertexSize() + this.format.getOffset(this.elementIndex);
+            int var0 = this.getIndex();
             switch(this.currentElement.getType()) {
                 case FLOAT:
                     this.buffer.putFloat(var0, (float)param0 / 255.0F);
@@ -382,9 +403,14 @@ public class BufferBuilder {
         }
     }
 
+    private int getIndex() {
+        return this.totalRenderedBytes + this.vertices * this.format.getVertexSize() + this.format.getOffset(this.elementIndex);
+    }
+
     public void putBulkData(int[] param0) {
         this.ensureCapacity(param0.length * 4 + this.format.getVertexSize());
-        ((Buffer)this.intBuffer).position(this.getBufferIndex());
+        ((Buffer)this.intBuffer).limit(this.intBuffer.capacity());
+        ((Buffer)this.intBuffer).position(this.nextVertexIntPosition());
         this.intBuffer.put(param0);
         this.vertices += param0.length / this.format.getIntegerSize();
     }
@@ -395,7 +421,7 @@ public class BufferBuilder {
     }
 
     public BufferBuilder vertex(double param0, double param1, double param2) {
-        int var0 = this.vertices * this.format.getVertexSize() + this.format.getOffset(this.elementIndex);
+        int var0 = this.getIndex();
         switch(this.currentElement.getType()) {
             case FLOAT:
                 this.buffer.putFloat(var0, (float)(param0 + this.xo));
@@ -431,7 +457,7 @@ public class BufferBuilder {
         int var2 = (byte)((int)(param2 * 127.0F)) & 255;
         int var3 = var0 | var1 << 8 | var2 << 16;
         int var4 = this.format.getVertexSize() >> 2;
-        int var5 = (this.vertices - 4) * var4 + this.format.getNormalOffset() / 4;
+        int var5 = this.totalRenderedBytes / 4 + (this.vertices - 4) * var4 + this.format.getNormalOffset() / 4;
         this.intBuffer.put(var5, var3);
         this.intBuffer.put(var5 + var4, var3);
         this.intBuffer.put(var5 + var4 * 2, var3);
@@ -449,7 +475,7 @@ public class BufferBuilder {
     }
 
     public BufferBuilder normal(float param0, float param1, float param2) {
-        int var0 = this.vertices * this.format.getVertexSize() + this.format.getOffset(this.elementIndex);
+        int var0 = this.getIndex();
         switch(this.currentElement.getType()) {
             case FLOAT:
                 this.buffer.putFloat(var0, param0);
@@ -485,30 +511,46 @@ public class BufferBuilder {
         this.zo = param2;
     }
 
-    public void end() {
-        if (!this.building) {
-            throw new IllegalStateException("Not building!");
-        } else {
-            this.building = false;
-            ((Buffer)this.buffer).position(0);
-            ((Buffer)this.buffer).limit(this.getBufferIndex() * 4);
-        }
+    public void translate(double param0, double param1, double param2) {
+        Matrix4f var0 = new Matrix4f();
+        var0.setIdentity();
+        var0.translate(new Vector3f((float)param0, (float)param1, (float)param2));
+        this.multiplyPose(var0);
     }
 
-    public ByteBuffer getBuffer() {
-        return this.buffer;
+    public void scale(float param0, float param1, float param2) {
+        Matrix4f var0 = new Matrix4f();
+        var0.setIdentity();
+        var0.set(0, 0, param0);
+        var0.set(1, 1, param1);
+        var0.set(2, 2, param2);
+        this.multiplyPose(var0);
+    }
+
+    public void multiplyPose(Matrix4f param0) {
+        Matrix4f var0 = this.poseStack.getLast();
+        var0.multiply(param0);
+    }
+
+    public void multiplyPose(Quaternion param0) {
+        Matrix4f var0 = this.poseStack.getLast();
+        var0.multiply(param0);
+    }
+
+    public void pushPose() {
+        this.poseStack.addLast(this.poseStack.getLast().copy());
+    }
+
+    public void popPose() {
+        this.poseStack.removeLast();
+    }
+
+    public Matrix4f getPose() {
+        return this.poseStack.getLast();
     }
 
     public VertexFormat getVertexFormat() {
         return this.format;
-    }
-
-    public int getVertexCount() {
-        return this.vertices;
-    }
-
-    public int getDrawMode() {
-        return this.mode;
     }
 
     public void fixupQuadColor(int param0) {
@@ -523,6 +565,57 @@ public class BufferBuilder {
             this.fixupVertexColor(param0, param1, param2, var0 + 1);
         }
 
+    }
+
+    public Pair<BufferBuilder.DrawState, ByteBuffer> popNextBuffer() {
+        BufferBuilder.DrawState var0 = this.vertexCounts.get(this.lastRenderedCountIndex++);
+        ((Buffer)this.buffer).position(this.totalUploadedBytes);
+        this.totalUploadedBytes += var0.vertexCount() * var0.format().getVertexSize();
+        ((Buffer)this.buffer).limit(this.totalUploadedBytes);
+        if (this.lastRenderedCountIndex == this.vertexCounts.size() && this.vertices == 0) {
+            this.clear();
+        }
+
+        ByteBuffer var1 = this.buffer.slice();
+        ((Buffer)this.buffer).position(0);
+        ((Buffer)this.buffer).limit(this.buffer.capacity());
+        return Pair.of(var0, var1);
+    }
+
+    public void clear() {
+        if (this.totalRenderedBytes != this.totalUploadedBytes) {
+            LOGGER.warn("Bytes mismatch " + this.totalRenderedBytes + " " + this.totalUploadedBytes);
+        }
+
+        this.totalRenderedBytes = 0;
+        this.totalUploadedBytes = 0;
+        this.vertexCounts.clear();
+        this.lastRenderedCountIndex = 0;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static final class DrawState {
+        private final VertexFormat format;
+        private final int vertexCount;
+        private final int mode;
+
+        private DrawState(VertexFormat param0, int param1, int param2) {
+            this.format = param0;
+            this.vertexCount = param1;
+            this.mode = param2;
+        }
+
+        public VertexFormat format() {
+            return this.format;
+        }
+
+        public int vertexCount() {
+            return this.vertexCount;
+        }
+
+        public int mode() {
+            return this.mode;
+        }
     }
 
     @OnlyIn(Dist.CLIENT)

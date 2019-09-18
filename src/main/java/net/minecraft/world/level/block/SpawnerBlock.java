@@ -3,7 +3,6 @@ package net.minecraft.world.level.block;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.BlockLayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
@@ -31,11 +30,6 @@ public class SpawnerBlock extends BaseEntityBlock {
     @Override
     public RenderShape getRenderShape(BlockState param0) {
         return RenderShape.MODEL;
-    }
-
-    @Override
-    public BlockLayer getRenderLayer() {
-        return BlockLayer.CUTOUT;
     }
 
     @OnlyIn(Dist.CLIENT)

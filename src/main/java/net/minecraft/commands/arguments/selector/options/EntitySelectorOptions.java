@@ -21,6 +21,7 @@ import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.advancements.critereon.WrappedMinMaxBounds;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.selector.EntitySelectorParser;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
@@ -30,6 +31,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.ServerAdvancementManager;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.Tag;
@@ -39,6 +41,10 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.Score;
@@ -478,6 +484,30 @@ public class EntitySelectorOptions {
 
                 param0.setHasAdvancements(true);
             }, param0 -> !param0.hasAdvancements(), new TranslatableComponent("argument.entity.options.advancements.description"));
+            register(
+                "predicate",
+                param0 -> {
+                    boolean var0 = param0.shouldInvertValue();
+                    ResourceLocation var1 = ResourceLocation.read(param0.getReader());
+                    param0.addPredicate(
+                        param2 -> {
+                            if (!(param2.level instanceof ServerLevel)) {
+                                return false;
+                            } else {
+                                ServerLevel var0x = (ServerLevel)param2.level;
+                                LootItemCondition var1x = var0x.getServer().getPredicateManager().get(var1, LootItemCondition.FALSE);
+                                LootContext var2x = new LootContext.Builder(var0x)
+                                    .withParameter(LootContextParams.THIS_ENTITY, param2)
+                                    .withParameter(LootContextParams.BLOCK_POS, new BlockPos(param2))
+                                    .create(LootContextParamSets.SELECTOR);
+                                return var0 ^ var1x.test(var2x);
+                            }
+                        }
+                    );
+                },
+                param0 -> true,
+                new TranslatableComponent("argument.entity.options.predicate.description")
+            );
         }
     }
 

@@ -10,8 +10,6 @@ import net.minecraft.world.level.chunk.DataLayer;
 import net.minecraft.world.level.chunk.LightChunkGetter;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public final class SkyLightEngine extends LayerLightEngine<SkyLightSectionStorage.SkyDataLayerStorageMap, SkyLightSectionStorage> {
     private static final Direction[] DIRECTIONS = Direction.values();
@@ -229,11 +227,5 @@ public final class SkyLightEngine extends LayerLightEngine<SkyLightSectionStorag
             }
         }
 
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public String getDebugData(long param0) {
-        return super.getDebugData(param0) + (this.storage.isAboveData(param0) ? "*" : "");
     }
 }

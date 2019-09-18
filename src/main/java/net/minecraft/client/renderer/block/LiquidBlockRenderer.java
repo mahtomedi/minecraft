@@ -150,42 +150,50 @@ public class LiquidBlockRenderer {
                     .color(var56, var57, var58, 1.0F)
                     .uv((double)var27, (double)var28)
                     .uv2(var54, var55)
+                    .normal(0.0F, 1.0F, 0.0F)
                     .endVertex();
                 param2.vertex(var21 + 0.0, var22 + (double)var18, var23 + 1.0)
                     .color(var56, var57, var58, 1.0F)
                     .uv((double)var29, (double)var30)
                     .uv2(var54, var55)
+                    .normal(0.0F, 1.0F, 0.0F)
                     .endVertex();
                 param2.vertex(var21 + 1.0, var22 + (double)var19, var23 + 1.0)
                     .color(var56, var57, var58, 1.0F)
                     .uv((double)var31, (double)var32)
                     .uv2(var54, var55)
+                    .normal(0.0F, 1.0F, 0.0F)
                     .endVertex();
                 param2.vertex(var21 + 1.0, var22 + (double)var20, var23 + 0.0)
                     .color(var56, var57, var58, 1.0F)
                     .uv((double)var33, (double)var34)
                     .uv2(var54, var55)
+                    .normal(0.0F, 1.0F, 0.0F)
                     .endVertex();
                 if (param3.shouldRenderBackwardUpFace(param0, param1.above())) {
                     param2.vertex(var21 + 0.0, var22 + (double)var17, var23 + 0.0)
                         .color(var56, var57, var58, 1.0F)
                         .uv((double)var27, (double)var28)
                         .uv2(var54, var55)
+                        .normal(0.0F, 1.0F, 0.0F)
                         .endVertex();
                     param2.vertex(var21 + 1.0, var22 + (double)var20, var23 + 0.0)
                         .color(var56, var57, var58, 1.0F)
                         .uv((double)var33, (double)var34)
                         .uv2(var54, var55)
+                        .normal(0.0F, 1.0F, 0.0F)
                         .endVertex();
                     param2.vertex(var21 + 1.0, var22 + (double)var19, var23 + 1.0)
                         .color(var56, var57, var58, 1.0F)
                         .uv((double)var31, (double)var32)
                         .uv2(var54, var55)
+                        .normal(0.0F, 1.0F, 0.0F)
                         .endVertex();
                     param2.vertex(var21 + 0.0, var22 + (double)var18, var23 + 1.0)
                         .color(var56, var57, var58, 1.0F)
                         .uv((double)var29, (double)var30)
                         .uv2(var54, var55)
+                        .normal(0.0F, 1.0F, 0.0F)
                         .endVertex();
                 }
             }
@@ -201,10 +209,30 @@ public class LiquidBlockRenderer {
                 float var66 = 0.5F * var3;
                 float var67 = 0.5F * var4;
                 float var68 = 0.5F * var5;
-                param2.vertex(var21, var22, var23 + 1.0).color(var66, var67, var68, 1.0F).uv((double)var59, (double)var62).uv2(var64, var65).endVertex();
-                param2.vertex(var21, var22, var23).color(var66, var67, var68, 1.0F).uv((double)var59, (double)var61).uv2(var64, var65).endVertex();
-                param2.vertex(var21 + 1.0, var22, var23).color(var66, var67, var68, 1.0F).uv((double)var60, (double)var61).uv2(var64, var65).endVertex();
-                param2.vertex(var21 + 1.0, var22, var23 + 1.0).color(var66, var67, var68, 1.0F).uv((double)var60, (double)var62).uv2(var64, var65).endVertex();
+                param2.vertex(var21, var22, var23 + 1.0)
+                    .color(var66, var67, var68, 1.0F)
+                    .uv((double)var59, (double)var62)
+                    .uv2(var64, var65)
+                    .normal(0.0F, 1.0F, 0.0F)
+                    .endVertex();
+                param2.vertex(var21, var22, var23)
+                    .color(var66, var67, var68, 1.0F)
+                    .uv((double)var59, (double)var61)
+                    .uv2(var64, var65)
+                    .normal(0.0F, 1.0F, 0.0F)
+                    .endVertex();
+                param2.vertex(var21 + 1.0, var22, var23)
+                    .color(var66, var67, var68, 1.0F)
+                    .uv((double)var60, (double)var61)
+                    .uv2(var64, var65)
+                    .normal(0.0F, 1.0F, 0.0F)
+                    .endVertex();
+                param2.vertex(var21 + 1.0, var22, var23 + 1.0)
+                    .color(var66, var67, var68, 1.0F)
+                    .uv((double)var60, (double)var62)
+                    .uv2(var64, var65)
+                    .normal(0.0F, 1.0F, 0.0F)
+                    .endVertex();
                 var12 = true;
             }
 
@@ -282,42 +310,50 @@ public class LiquidBlockRenderer {
                         .color(var114, var115, var116, 1.0F)
                         .uv((double)var105, (double)var107)
                         .uv2(var111, var112)
+                        .normal(0.0F, 1.0F, 0.0F)
                         .endVertex();
                     param2.vertex(var73, var22 + (double)var71, var75)
                         .color(var114, var115, var116, 1.0F)
                         .uv((double)var106, (double)var108)
                         .uv2(var111, var112)
+                        .normal(0.0F, 1.0F, 0.0F)
                         .endVertex();
                     param2.vertex(var73, var22 + 0.0, var75)
                         .color(var114, var115, var116, 1.0F)
                         .uv((double)var106, (double)var109)
                         .uv2(var111, var112)
+                        .normal(0.0F, 1.0F, 0.0F)
                         .endVertex();
                     param2.vertex(var72, var22 + 0.0, var74)
                         .color(var114, var115, var116, 1.0F)
                         .uv((double)var105, (double)var109)
                         .uv2(var111, var112)
+                        .normal(0.0F, 1.0F, 0.0F)
                         .endVertex();
                     if (var103 != this.waterOverlay) {
                         param2.vertex(var72, var22 + 0.0, var74)
                             .color(var114, var115, var116, 1.0F)
                             .uv((double)var105, (double)var109)
                             .uv2(var111, var112)
+                            .normal(0.0F, 1.0F, 0.0F)
                             .endVertex();
                         param2.vertex(var73, var22 + 0.0, var75)
                             .color(var114, var115, var116, 1.0F)
                             .uv((double)var106, (double)var109)
                             .uv2(var111, var112)
+                            .normal(0.0F, 1.0F, 0.0F)
                             .endVertex();
                         param2.vertex(var73, var22 + (double)var71, var75)
                             .color(var114, var115, var116, 1.0F)
                             .uv((double)var106, (double)var108)
                             .uv2(var111, var112)
+                            .normal(0.0F, 1.0F, 0.0F)
                             .endVertex();
                         param2.vertex(var72, var22 + (double)var70, var74)
                             .color(var114, var115, var116, 1.0F)
                             .uv((double)var105, (double)var107)
                             .uv2(var111, var112)
+                            .normal(0.0F, 1.0F, 0.0F)
                             .endVertex();
                     }
                 }

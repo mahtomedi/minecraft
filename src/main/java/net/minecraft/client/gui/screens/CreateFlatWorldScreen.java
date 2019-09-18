@@ -242,7 +242,7 @@ public class CreateFlatWorldScreen extends Screen {
             private void blitSlotBg(int param0, int param1) {
                 RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
                 DetailsList.this.minecraft.getTextureManager().bind(GuiComponent.STATS_ICON_LOCATION);
-                GuiComponent.blit(param0, param1, CreateFlatWorldScreen.this.blitOffset, 0.0F, 0.0F, 18, 18, 128, 128);
+                GuiComponent.blit(param0, param1, CreateFlatWorldScreen.this.getBlitOffset(), 0.0F, 0.0F, 18, 18, 128, 128);
             }
         }
     }

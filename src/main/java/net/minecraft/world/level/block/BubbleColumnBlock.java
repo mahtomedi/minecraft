@@ -9,7 +9,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.BlockLayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
@@ -187,11 +186,6 @@ public class BubbleColumnBlock extends Block implements BucketPickup {
     @Override
     public VoxelShape getShape(BlockState param0, BlockGetter param1, BlockPos param2, CollisionContext param3) {
         return Shapes.empty();
-    }
-
-    @Override
-    public BlockLayer getRenderLayer() {
-        return BlockLayer.TRANSLUCENT;
     }
 
     @Override

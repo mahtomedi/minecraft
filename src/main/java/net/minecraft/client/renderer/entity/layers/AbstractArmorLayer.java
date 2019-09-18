@@ -6,10 +6,9 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.Map;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -106,25 +105,24 @@ public abstract class AbstractArmorLayer<T extends LivingEntity, M extends Human
     ) {
         float var0 = (float)param1.tickCount + param5;
         param0.accept(ENCHANT_GLINT_LOCATION);
-        GameRenderer var1 = Minecraft.getInstance().gameRenderer;
-        var1.resetFogColor(true);
+        FogRenderer.resetFogColor(true);
         RenderSystem.enableBlend();
         RenderSystem.depthFunc(514);
         RenderSystem.depthMask(false);
-        float var2 = 0.5F;
+        float var1 = 0.5F;
         RenderSystem.color4f(0.5F, 0.5F, 0.5F, 1.0F);
 
-        for(int var3 = 0; var3 < 2; ++var3) {
+        for(int var2 = 0; var2 < 2; ++var2) {
             RenderSystem.disableLighting();
             RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_COLOR, GlStateManager.DestFactor.ONE);
-            float var4 = 0.76F;
+            float var3 = 0.76F;
             RenderSystem.color4f(0.38F, 0.19F, 0.608F, 1.0F);
             RenderSystem.matrixMode(5890);
             RenderSystem.loadIdentity();
-            float var5 = 0.33333334F;
+            float var4 = 0.33333334F;
             RenderSystem.scalef(0.33333334F, 0.33333334F, 0.33333334F);
-            RenderSystem.rotatef(30.0F - (float)var3 * 60.0F, 0.0F, 0.0F, 1.0F);
-            RenderSystem.translatef(0.0F, var0 * (0.001F + (float)var3 * 0.003F) * 20.0F, 0.0F);
+            RenderSystem.rotatef(30.0F - (float)var2 * 60.0F, 0.0F, 0.0F, 1.0F);
+            RenderSystem.translatef(0.0F, var0 * (0.001F + (float)var2 * 0.003F) * 20.0F, 0.0F);
             RenderSystem.matrixMode(5888);
             param2.render(param1, param3, param4, param6, param7, param8, param9);
             RenderSystem.blendFunc(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
@@ -137,7 +135,7 @@ public abstract class AbstractArmorLayer<T extends LivingEntity, M extends Human
         RenderSystem.depthMask(true);
         RenderSystem.depthFunc(515);
         RenderSystem.disableBlend();
-        var1.resetFogColor(false);
+        FogRenderer.resetFogColor(false);
     }
 
     private ResourceLocation getArmorLocation(ArmorItem param0, boolean param1) {

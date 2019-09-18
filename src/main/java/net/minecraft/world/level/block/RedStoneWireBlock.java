@@ -16,7 +16,6 @@ import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.BlockLayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
@@ -439,11 +438,6 @@ public class RedStoneWireBlock extends Block {
             float var7 = Math.max(0.0F, var4 * var4 * 0.6F - 0.7F);
             param1.addParticle(new DustParticleOptions(var5, var6, var7, 1.0F), var1, var2, var3, 0.0, 0.0, 0.0);
         }
-    }
-
-    @Override
-    public BlockLayer getRenderLayer() {
-        return BlockLayer.CUTOUT;
     }
 
     @Override

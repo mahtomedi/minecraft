@@ -21,18 +21,18 @@ public class SkeletonModel<T extends Mob & RangedAttackMob> extends HumanoidMode
         super(param0, 0.0F, 64, 32);
         if (!param1) {
             this.rightArm = new ModelPart(this, 40, 16);
-            this.rightArm.addBox(-1.0F, -2.0F, -1.0F, 2, 12, 2, param0);
+            this.rightArm.addBox(-1.0F, -2.0F, -1.0F, 2.0F, 12.0F, 2.0F, param0);
             this.rightArm.setPos(-5.0F, 2.0F, 0.0F);
             this.leftArm = new ModelPart(this, 40, 16);
             this.leftArm.mirror = true;
-            this.leftArm.addBox(-1.0F, -2.0F, -1.0F, 2, 12, 2, param0);
+            this.leftArm.addBox(-1.0F, -2.0F, -1.0F, 2.0F, 12.0F, 2.0F, param0);
             this.leftArm.setPos(5.0F, 2.0F, 0.0F);
             this.rightLeg = new ModelPart(this, 0, 16);
-            this.rightLeg.addBox(-1.0F, 0.0F, -1.0F, 2, 12, 2, param0);
+            this.rightLeg.addBox(-1.0F, 0.0F, -1.0F, 2.0F, 12.0F, 2.0F, param0);
             this.rightLeg.setPos(-2.0F, 12.0F, 0.0F);
             this.leftLeg = new ModelPart(this, 0, 16);
             this.leftLeg.mirror = true;
-            this.leftLeg.addBox(-1.0F, 0.0F, -1.0F, 2, 12, 2, param0);
+            this.leftLeg.addBox(-1.0F, 0.0F, -1.0F, 2.0F, 12.0F, 2.0F, param0);
             this.leftLeg.setPos(2.0F, 12.0F, 0.0F);
         }
 

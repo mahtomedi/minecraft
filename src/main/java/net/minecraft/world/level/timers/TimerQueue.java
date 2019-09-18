@@ -1,11 +1,14 @@
 package net.minecraft.world.level.timers;
 
-import com.google.common.collect.Maps;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import com.google.common.primitives.UnsignedLong;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
-import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.Set;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -17,7 +20,7 @@ public class TimerQueue<T> {
     private final TimerCallbacks<T> callbacksRegistry;
     private final Queue<TimerQueue.Event<T>> queue = new PriorityQueue<>(createComparator());
     private UnsignedLong sequentialId = UnsignedLong.ZERO;
-    private final Map<String, TimerQueue.Event<T>> events = Maps.newHashMap();
+    private final Table<String, Long, TimerQueue.Event<T>> events = HashBasedTable.create();
 
     private static <T> Comparator<TimerQueue.Event<T>> createComparator() {
         return Comparator.<TimerQueue.Event<T>>comparingLong(param0 -> param0.triggerTime).thenComparing(param0 -> param0.sequentialId);
@@ -35,34 +38,30 @@ public class TimerQueue<T> {
             }
 
             this.queue.remove();
-            this.events.remove(var0.id);
+            this.events.remove(var0.id, param1);
             var0.callback.handle(param0, this, param1);
         }
     }
 
-    private void addEvent(String param0, long param1, TimerCallback<T> param2) {
-        this.sequentialId = this.sequentialId.plus(UnsignedLong.ONE);
-        TimerQueue.Event<T> var0 = new TimerQueue.Event<>(param1, this.sequentialId, param0, param2);
-        this.events.put(param0, var0);
-        this.queue.add(var0);
-    }
-
-    public boolean schedule(String param0, long param1, TimerCallback<T> param2) {
-        if (this.events.containsKey(param0)) {
-            return false;
-        } else {
-            this.addEvent(param0, param1, param2);
-            return true;
+    public void schedule(String param0, long param1, TimerCallback<T> param2) {
+        if (!this.events.contains(param0, param1)) {
+            this.sequentialId = this.sequentialId.plus(UnsignedLong.ONE);
+            TimerQueue.Event<T> var0 = new TimerQueue.Event<>(param1, this.sequentialId, param0, param2);
+            this.events.put(param0, param1, var0);
+            this.queue.add(var0);
         }
     }
 
-    public void reschedule(String param0, long param1, TimerCallback<T> param2) {
-        TimerQueue.Event<T> var0 = this.events.remove(param0);
-        if (var0 != null) {
-            this.queue.remove(var0);
-        }
+    public int remove(String param0) {
+        Collection<TimerQueue.Event<T>> var0 = this.events.row(param0).values();
+        var0.forEach(this.queue::remove);
+        int var1 = var0.size();
+        var0.clear();
+        return var1;
+    }
 
-        this.addEvent(param0, param1, param2);
+    public Set<String> getEventsIds() {
+        return Collections.unmodifiableSet(this.events.rowKeySet());
     }
 
     private void loadEvent(CompoundTag param0) {

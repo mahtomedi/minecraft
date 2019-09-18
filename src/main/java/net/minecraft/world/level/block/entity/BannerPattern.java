@@ -5,6 +5,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -77,6 +78,11 @@ public enum BannerPattern {
         this.patterns[0] = param2;
         this.patterns[1] = param3;
         this.patterns[2] = param4;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public ResourceLocation location() {
+        return new ResourceLocation("entity/banner/" + this.getFilename());
     }
 
     @OnlyIn(Dist.CLIENT)

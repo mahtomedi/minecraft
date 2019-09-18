@@ -3,6 +3,7 @@ package net.minecraft.client.renderer.texture;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.PngInfo;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Pair;
 import java.io.IOException;
 import java.util.Arrays;
@@ -225,7 +226,15 @@ public class TextureAtlasSprite {
         for(int var0 = 0; var0 < this.mainImage.length; ++var0) {
             param2[var0]
                 .upload(
-                    var0, this.x >> var0, this.y >> var0, param0 >> var0, param1 >> var0, this.width >> var0, this.height >> var0, this.mainImage.length > 1
+                    var0,
+                    this.x >> var0,
+                    this.y >> var0,
+                    param0 >> var0,
+                    param1 >> var0,
+                    this.width >> var0,
+                    this.height >> var0,
+                    this.mainImage.length > 1,
+                    false
                 );
         }
 
@@ -300,17 +309,21 @@ public class TextureAtlasSprite {
                 this.upload(var2);
             }
         } else if (this.metadata.isInterpolatedFrames()) {
-            this.uploadInterpolatedFrame();
+            if (!RenderSystem.isOnRenderThread()) {
+                RenderSystem.recordRenderCall(this::uploadInterpolatedFrame);
+            } else {
+                this.uploadInterpolatedFrame();
+            }
         }
 
     }
 
     private void uploadInterpolatedFrame() {
-        double var0 = 1.0 - (double)this.subFrame / (double)this.metadata.getFrameTime(this.frame);
-        int var1 = this.metadata.getFrameIndex(this.frame);
-        int var2 = this.metadata.getFrameCount() == 0 ? this.getFrameCount() : this.metadata.getFrameCount();
-        int var3 = this.metadata.getFrameIndex((this.frame + 1) % var2);
-        if (var1 != var3 && var3 >= 0 && var3 < this.getFrameCount()) {
+        double var0x = 1.0 - (double)this.subFrame / (double)this.metadata.getFrameTime(this.frame);
+        int var1x = this.metadata.getFrameIndex(this.frame);
+        int var2x = this.metadata.getFrameCount() == 0 ? this.getFrameCount() : this.metadata.getFrameCount();
+        int var3 = this.metadata.getFrameIndex((this.frame + 1) % var2x);
+        if (var1x != var3 && var3 >= 0 && var3 < this.getFrameCount()) {
             if (this.activeFrame == null || this.activeFrame.length != this.mainImage.length) {
                 if (this.activeFrame != null) {
                     for(NativeImage var4 : this.activeFrame) {
@@ -332,11 +345,11 @@ public class TextureAtlasSprite {
 
                 for(int var8 = 0; var8 < var7; ++var8) {
                     for(int var9 = 0; var9 < var6; ++var9) {
-                        int var10 = this.getPixel(var1, var5, var9, var8);
+                        int var10 = this.getPixel(var1x, var5, var9, var8);
                         int var11 = this.getPixel(var3, var5, var9, var8);
-                        int var12 = this.mix(var0, var10 >> 16 & 0xFF, var11 >> 16 & 0xFF);
-                        int var13 = this.mix(var0, var10 >> 8 & 0xFF, var11 >> 8 & 0xFF);
-                        int var14 = this.mix(var0, var10 & 0xFF, var11 & 0xFF);
+                        int var12 = this.mix(var0x, var10 >> 16 & 0xFF, var11 >> 16 & 0xFF);
+                        int var13 = this.mix(var0x, var10 >> 8 & 0xFF, var11 >> 8 & 0xFF);
+                        int var14 = this.mix(var0x, var10 & 0xFF, var11 & 0xFF);
                         this.activeFrame[var5].setPixelRGBA(var9, var8, var10 & 0xFF000000 | var12 << 16 | var13 << 8 | var14);
                     }
                 }

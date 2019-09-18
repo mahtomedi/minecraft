@@ -77,7 +77,7 @@ public class SinglePoolElement extends StructurePoolElement {
     @Override
     public List<StructureTemplate.StructureBlockInfo> getShuffledJigsawBlocks(StructureManager param0, BlockPos param1, Rotation param2, Random param3) {
         StructureTemplate var0 = param0.getOrCreate(this.location);
-        List<StructureTemplate.StructureBlockInfo> var1 = var0.filterBlocks(param1, new StructurePlaceSettings().setRotation(param2), Blocks.JIGSAW_BLOCK, true);
+        List<StructureTemplate.StructureBlockInfo> var1 = var0.filterBlocks(param1, new StructurePlaceSettings().setRotation(param2), Blocks.JIGSAW, true);
         Collections.shuffle(var1, param3);
         return var1;
     }

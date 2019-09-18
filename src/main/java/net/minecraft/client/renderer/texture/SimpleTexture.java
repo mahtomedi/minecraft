@@ -1,7 +1,9 @@
 package net.minecraft.client.renderer.texture;
 
+import com.mojang.blaze3d.platform.AbstractTexture;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.TextureUtil;
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.io.Closeable;
 import java.io.IOException;
 import javax.annotation.Nullable;
@@ -25,21 +27,31 @@ public class SimpleTexture extends AbstractTexture {
 
     @Override
     public void load(ResourceManager param0) throws IOException {
-        try (SimpleTexture.TextureImage var0 = this.getTextureImage(param0)) {
-            boolean var1 = false;
-            boolean var2 = false;
-            var0.throwIfError();
-            TextureMetadataSection var3 = var0.getTextureMetadata();
-            if (var3 != null) {
-                var1 = var3.isBlur();
-                var2 = var3.isClamp();
-            }
-
-            this.bind();
-            TextureUtil.prepareImage(this.getId(), 0, var0.getImage().getWidth(), var0.getImage().getHeight());
-            var0.getImage().upload(0, 0, 0, 0, 0, var0.getImage().getWidth(), var0.getImage().getHeight(), var1, var2, false);
+        SimpleTexture.TextureImage var0 = this.getTextureImage(param0);
+        var0.throwIfError();
+        TextureMetadataSection var1 = var0.getTextureMetadata();
+        boolean var2;
+        boolean var3;
+        if (var1 != null) {
+            var2 = var1.isBlur();
+            var3 = var1.isClamp();
+        } else {
+            var2 = false;
+            var3 = false;
         }
 
+        NativeImage var6 = var0.getImage();
+        if (!RenderSystem.isOnRenderThreadOrInit()) {
+            RenderSystem.recordRenderCall(() -> this.doLoad(var6, var2, var3));
+        } else {
+            this.doLoad(var6, var2, var3);
+        }
+
+    }
+
+    private void doLoad(NativeImage param0, boolean param1, boolean param2) {
+        TextureUtil.prepareImage(this.getId(), 0, param0.getWidth(), param0.getHeight());
+        param0.upload(0, 0, 0, 0, 0, param0.getWidth(), param0.getHeight(), param1, param2, false, true);
     }
 
     protected SimpleTexture.TextureImage getTextureImage(ResourceManager param0) {

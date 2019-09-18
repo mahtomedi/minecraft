@@ -52,7 +52,7 @@ public class KeyMapping implements Comparable<KeyMapping> {
     public static void setAll() {
         for(KeyMapping var0 : ALL.values()) {
             if (var0.key.getType() == InputConstants.Type.KEYSYM && var0.key.getValue() != InputConstants.UNKNOWN.getValue()) {
-                var0.isDown = InputConstants.isKeyDown(Minecraft.getInstance().window.getWindow(), var0.key.getValue());
+                var0.isDown = InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), var0.key.getValue());
             }
         }
 

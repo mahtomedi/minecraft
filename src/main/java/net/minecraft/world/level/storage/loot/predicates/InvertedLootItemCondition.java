@@ -4,14 +4,11 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import java.util.Set;
-import java.util.function.Function;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.storage.loot.LootContext;
-import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.LootTableProblemCollector;
+import net.minecraft.world.level.storage.loot.ValidationContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 
 public class InvertedLootItemCondition implements LootItemCondition {
     private final LootItemCondition term;
@@ -30,11 +27,9 @@ public class InvertedLootItemCondition implements LootItemCondition {
     }
 
     @Override
-    public void validate(
-        LootTableProblemCollector param0, Function<ResourceLocation, LootTable> param1, Set<ResourceLocation> param2, LootContextParamSet param3
-    ) {
-        LootItemCondition.super.validate(param0, param1, param2, param3);
-        this.term.validate(param0, param1, param2, param3);
+    public void validate(ValidationContext param0) {
+        LootItemCondition.super.validate(param0);
+        this.term.validate(param0);
     }
 
     public static LootItemCondition.Builder invert(LootItemCondition.Builder param0) {

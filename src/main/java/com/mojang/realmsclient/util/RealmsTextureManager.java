@@ -3,6 +3,7 @@ package com.mojang.realmsclient.util;
 import com.google.common.collect.Maps;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.TextureUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.util.UUIDTypeAdapter;
@@ -146,7 +147,7 @@ public class RealmsTextureManager {
             RenderSystem.deleteTexture(var0.textureId);
             var1 = var0.textureId;
         } else {
-            var1 = RenderSystem.genTexture();
+            var1 = GlStateManager._genTexture();
         }
 
         IntBuffer var3 = null;

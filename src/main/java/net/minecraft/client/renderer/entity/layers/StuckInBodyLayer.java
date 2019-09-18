@@ -3,8 +3,7 @@ package net.minecraft.client.renderer.entity.layers;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.Random;
-import net.minecraft.client.model.EntityModel;
-import net.minecraft.client.model.geom.Cube;
+import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.util.Mth;
@@ -14,7 +13,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public abstract class StuckInBodyLayer<T extends LivingEntity, M extends EntityModel<T>> extends RenderLayer<T, M> {
+public abstract class StuckInBodyLayer<T extends LivingEntity, M extends PlayerModel<T>> extends RenderLayer<T, M> {
     public StuckInBodyLayer(LivingEntityRenderer<T, M> param0) {
         super(param0);
     }
@@ -40,7 +39,7 @@ public abstract class StuckInBodyLayer<T extends LivingEntity, M extends EntityM
             for(int var2 = 0; var2 < var0; ++var2) {
                 RenderSystem.pushMatrix();
                 ModelPart var3 = this.getParentModel().getRandomModelPart(var1);
-                Cube var4 = var3.cubes.get(var1.nextInt(var3.cubes.size()));
+                ModelPart.Cube var4 = var3.getRandomCube(var1);
                 var3.translateTo(0.0625F);
                 float var5 = var1.nextFloat();
                 float var6 = var1.nextFloat();

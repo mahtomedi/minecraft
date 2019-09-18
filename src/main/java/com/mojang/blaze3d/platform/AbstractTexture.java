@@ -1,6 +1,5 @@
-package net.minecraft.client.renderer.texture;
+package com.mojang.blaze3d.platform;
 
-import com.mojang.blaze3d.platform.TextureUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -14,6 +13,7 @@ public abstract class AbstractTexture implements TextureObject {
     protected boolean oldMipmap;
 
     public void setFilter(boolean param0, boolean param1) {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
         this.blur = param0;
         this.mipmap = param1;
         int var0;
@@ -26,12 +26,21 @@ public abstract class AbstractTexture implements TextureObject {
             var1 = 9728;
         }
 
-        RenderSystem.texParameter(3553, 10241, var0);
-        RenderSystem.texParameter(3553, 10240, var1);
+        GlStateManager._texParameter(3553, 10241, var0);
+        GlStateManager._texParameter(3553, 10240, var1);
     }
 
     @Override
     public void pushFilter(boolean param0, boolean param1) {
+        if (!RenderSystem.isOnRenderThread()) {
+            RenderSystem.recordRenderCall(() -> this._pushFilter(param0, param1));
+        } else {
+            this._pushFilter(param0, param1);
+        }
+
+    }
+
+    private void _pushFilter(boolean param0, boolean param1) {
         this.oldBlur = this.blur;
         this.oldMipmap = this.mipmap;
         this.setFilter(param0, param1);
@@ -39,11 +48,21 @@ public abstract class AbstractTexture implements TextureObject {
 
     @Override
     public void popFilter() {
+        if (!RenderSystem.isOnRenderThread()) {
+            RenderSystem.recordRenderCall(this::_popFilter);
+        } else {
+            this._popFilter();
+        }
+
+    }
+
+    private void _popFilter() {
         this.setFilter(this.oldBlur, this.oldMipmap);
     }
 
     @Override
     public int getId() {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
         if (this.id == -1) {
             this.id = TextureUtil.generateTextureId();
         }
@@ -52,7 +71,15 @@ public abstract class AbstractTexture implements TextureObject {
     }
 
     public void releaseId() {
-        if (this.id != -1) {
+        if (!RenderSystem.isOnRenderThread()) {
+            RenderSystem.recordRenderCall(() -> {
+                if (this.id != -1) {
+                    TextureUtil.releaseTextureId(this.id);
+                    this.id = -1;
+                }
+
+            });
+        } else if (this.id != -1) {
             TextureUtil.releaseTextureId(this.id);
             this.id = -1;
         }

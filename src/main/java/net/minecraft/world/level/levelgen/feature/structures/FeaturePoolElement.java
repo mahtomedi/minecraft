@@ -58,7 +58,7 @@ public class FeaturePoolElement extends StructurePoolElement {
         List<StructureTemplate.StructureBlockInfo> var0 = Lists.newArrayList();
         var0.add(
             new StructureTemplate.StructureBlockInfo(
-                param1, Blocks.JIGSAW_BLOCK.defaultBlockState().setValue(JigsawBlock.FACING, Direction.DOWN), this.defaultJigsawNBT
+                param1, Blocks.JIGSAW.defaultBlockState().setValue(JigsawBlock.FACING, Direction.DOWN), this.defaultJigsawNBT
             )
         );
         return var0;

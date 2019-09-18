@@ -146,17 +146,20 @@ public abstract class PatrollingMonster extends Monster {
         private final T mob;
         private final double speedModifier;
         private final double leaderSpeedModifier;
+        private long cooldownUntil;
 
         public LongDistancePatrolGoal(T param0, double param1, double param2) {
             this.mob = param0;
             this.speedModifier = param1;
             this.leaderSpeedModifier = param2;
+            this.cooldownUntil = -1L;
             this.setFlags(EnumSet.of(Goal.Flag.MOVE));
         }
 
         @Override
         public boolean canUse() {
-            return this.mob.isPatrolling() && this.mob.getTarget() == null && !this.mob.isVehicle() && this.mob.hasPatrolTarget();
+            boolean var0 = this.mob.level.getGameTime() < this.cooldownUntil;
+            return this.mob.isPatrolling() && this.mob.getTarget() == null && !this.mob.isVehicle() && this.mob.hasPatrolTarget() && !var0;
         }
 
         @Override
@@ -186,7 +189,9 @@ public abstract class PatrollingMonster extends Monster {
                     BlockPos var7 = new BlockPos(var6);
                     var7 = this.mob.level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, var7);
                     if (!var1.moveTo((double)var7.getX(), (double)var7.getY(), (double)var7.getZ(), var0 ? this.leaderSpeedModifier : this.speedModifier)) {
-                        this.moveRandomly();
+                        if (!this.moveRandomly()) {
+                            this.cooldownUntil = this.mob.level.getGameTime() + 200L;
+                        }
                     } else if (var0) {
                         for(PatrollingMonster var8 : var2) {
                             var8.setPatrolTarget(var7);
@@ -203,12 +208,12 @@ public abstract class PatrollingMonster extends Monster {
                 .getEntitiesOfClass(PatrollingMonster.class, this.mob.getBoundingBox().inflate(16.0), param0 -> param0.canJoinPatrol() && !param0.is(this.mob));
         }
 
-        private void moveRandomly() {
+        private boolean moveRandomly() {
             Random var0 = this.mob.getRandom();
             BlockPos var1 = this.mob
                 .level
                 .getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, new BlockPos(this.mob).offset(-8 + var0.nextInt(16), 0, -8 + var0.nextInt(16)));
-            this.mob.getNavigation().moveTo((double)var1.getX(), (double)var1.getY(), (double)var1.getZ(), this.speedModifier);
+            return this.mob.getNavigation().moveTo((double)var1.getX(), (double)var1.getY(), (double)var1.getZ(), this.speedModifier);
         }
     }
 }

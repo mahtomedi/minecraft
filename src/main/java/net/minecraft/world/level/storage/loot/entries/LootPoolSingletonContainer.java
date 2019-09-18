@@ -5,21 +5,17 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import java.util.List;
-import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
-import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.LootTableProblemCollector;
+import net.minecraft.world.level.storage.loot.ValidationContext;
 import net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunctions;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -46,13 +42,11 @@ public abstract class LootPoolSingletonContainer extends LootPoolEntryContainer 
     }
 
     @Override
-    public void validate(
-        LootTableProblemCollector param0, Function<ResourceLocation, LootTable> param1, Set<ResourceLocation> param2, LootContextParamSet param3
-    ) {
-        super.validate(param0, param1, param2, param3);
+    public void validate(ValidationContext param0) {
+        super.validate(param0);
 
         for(int var0 = 0; var0 < this.functions.length; ++var0) {
-            this.functions[var0].validate(param0.forChild(".functions[" + var0 + "]"), param1, param2, param3);
+            this.functions[var0].validate(param0.forChild(".functions[" + var0 + "]"));
         }
 
     }

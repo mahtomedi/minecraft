@@ -5,16 +5,13 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
-import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.LootTableProblemCollector;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
+import net.minecraft.world.level.storage.loot.ValidationContext;
 import net.minecraft.world.level.storage.loot.predicates.ConditionUserBuilder;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditions;
@@ -36,13 +33,11 @@ public abstract class LootItemConditionalFunction implements LootItemFunction {
     protected abstract ItemStack run(ItemStack var1, LootContext var2);
 
     @Override
-    public void validate(
-        LootTableProblemCollector param0, Function<ResourceLocation, LootTable> param1, Set<ResourceLocation> param2, LootContextParamSet param3
-    ) {
-        LootItemFunction.super.validate(param0, param1, param2, param3);
+    public void validate(ValidationContext param0) {
+        LootItemFunction.super.validate(param0);
 
         for(int var0 = 0; var0 < this.predicates.length; ++var0) {
-            this.predicates[var0].validate(param0.forChild(".conditions[" + var0 + "]"), param1, param2, param3);
+            this.predicates[var0].validate(param0.forChild(".conditions[" + var0 + "]"));
         }
 
     }

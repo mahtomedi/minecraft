@@ -125,6 +125,7 @@ public class SpawnEggItem extends Item {
         return param0 == 0 ? this.color1 : this.color2;
     }
 
+    @Nullable
     @OnlyIn(Dist.CLIENT)
     public static SpawnEggItem byId(@Nullable EntityType<?> param0) {
         return BY_ID.get(param0);

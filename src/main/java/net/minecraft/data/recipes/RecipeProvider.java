@@ -18,6 +18,7 @@ import net.minecraft.advancements.critereon.ImpossibleTrigger;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.MinMaxBounds;
+import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.HashCache;
@@ -4770,7 +4771,7 @@ public class RecipeProvider implements DataProvider {
     }
 
     private EnterBlockTrigger.TriggerInstance insideOf(Block param0) {
-        return new EnterBlockTrigger.TriggerInstance(param0, null);
+        return new EnterBlockTrigger.TriggerInstance(param0, StatePropertiesPredicate.ANY);
     }
 
     private InventoryChangeTrigger.TriggerInstance has(MinMaxBounds.Ints param0, ItemLike param1) {

@@ -1,8 +1,7 @@
 package net.minecraft.client.renderer.blockentity;
 
 import com.google.common.collect.Maps;
-import com.mojang.blaze3d.platform.Lighting;
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
 import java.util.Map;
 import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
@@ -11,6 +10,7 @@ import net.minecraft.ReportedException;
 import net.minecraft.client.Camera;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.model.ShulkerModel;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -102,43 +102,55 @@ public class BlockEntityRenderDispatcher {
         this.cameraHitResult = param4;
     }
 
-    public void render(BlockEntity param0, float param1, int param2) {
-        if (param0.distanceToSqr(this.camera.getPosition().x, this.camera.getPosition().y, this.camera.getPosition().z) < param0.getViewDistance()) {
-            Lighting.turnOn();
-            int var0 = this.level.getLightColor(param0.getBlockPos());
-            int var1 = var0 % 65536;
-            int var2 = var0 / 65536;
-            RenderSystem.glMultiTexCoord2f(33985, (float)var1, (float)var2);
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            BlockPos var3 = param0.getBlockPos();
-            this.render(param0, (double)var3.getX() - xOff, (double)var3.getY() - yOff, (double)var3.getZ() - zOff, param1, param2, false);
-        }
-
+    public void render(BlockEntity param0, float param1, RenderType param2, BufferBuilder param3) {
+        this.render(param0, param1, -1, param2, param3);
     }
 
-    public void render(BlockEntity param0, double param1, double param2, double param3, float param4) {
-        this.render(param0, param1, param2, param3, param4, -1, false);
+    public void renderBreaking(BlockEntity param0, float param1, int param2, BufferBuilder param3) {
+        this.render(param0, param1, param2, RenderType.CRUMBLING, param3);
+    }
+
+    private void render(BlockEntity param0, float param1, int param2, RenderType param3, BufferBuilder param4) {
+        if (param0.distanceToSqr(this.camera.getPosition().x, this.camera.getPosition().y, this.camera.getPosition().z) < param0.getViewDistance()) {
+            BlockEntityRenderer<BlockEntity> var0 = this.getRenderer(param0);
+            if (var0 != null) {
+                if (param0.hasLevel() && param0.getType().isValid(param0.getBlockState().getBlock())) {
+                    BlockPos var1 = param0.getBlockPos();
+                    tryRender(
+                        param0,
+                        () -> var0.setupAndRender(
+                                param0,
+                                (double)var1.getX() - xOff,
+                                (double)var1.getY() - yOff,
+                                (double)var1.getZ() - zOff,
+                                param1,
+                                param2,
+                                param4,
+                                param3,
+                                var1
+                            )
+                    );
+                }
+            }
+        }
     }
 
     public void renderItem(BlockEntity param0) {
-        this.render(param0, 0.0, 0.0, 0.0, 0.0F, -1, true);
-    }
-
-    public void render(BlockEntity param0, double param1, double param2, double param3, float param4, int param5, boolean param6) {
         BlockEntityRenderer<BlockEntity> var0 = this.getRenderer(param0);
         if (var0 != null) {
-            try {
-                if (param6 || param0.hasLevel() && param0.getType().isValid(param0.getBlockState().getBlock())) {
-                    var0.render(param0, param1, param2, param3, param4, param5);
-                }
-            } catch (Throwable var15) {
-                CrashReport var2 = CrashReport.forThrowable(var15, "Rendering Block Entity");
-                CrashReportCategory var3 = var2.addCategory("Block Entity Details");
-                param0.fillCrashReportCategory(var3);
-                throw new ReportedException(var2);
-            }
+            tryRender(param0, () -> var0.render(param0, 0.0, 0.0, 0.0, 0.0F, -1, RenderType.ENTITY));
         }
+    }
 
+    private static void tryRender(BlockEntity param0, Runnable param1) {
+        try {
+            param1.run();
+        } catch (Throwable var5) {
+            CrashReport var1 = CrashReport.forThrowable(var5, "Rendering Block Entity");
+            CrashReportCategory var2 = var1.addCategory("Block Entity Details");
+            param0.fillCrashReportCategory(var2);
+            throw new ReportedException(var1);
+        }
     }
 
     public void setLevel(@Nullable Level param0) {

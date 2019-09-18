@@ -2,9 +2,8 @@ package net.minecraft.client.renderer.entity.layers;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.SpiderModel;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -36,10 +35,9 @@ public class SpiderEyesLayer<T extends Entity, M extends SpiderModel<T>> extends
         int var2 = var0 / 65536;
         RenderSystem.glMultiTexCoord2f(33985, (float)var1, (float)var2);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GameRenderer var3 = Minecraft.getInstance().gameRenderer;
-        var3.resetFogColor(true);
+        FogRenderer.resetFogColor(true);
         this.getParentModel().render(param0, param1, param2, param4, param5, param6, param7);
-        var3.resetFogColor(false);
+        FogRenderer.resetFogColor(false);
         var0 = param0.getLightColor();
         var1 = var0 % 65536;
         var2 = var0 / 65536;

@@ -146,22 +146,20 @@ public class TrueTypeGlyphProvider implements GlyphProvider {
 
         @Override
         public void upload(int param0, int param1) {
-            try (NativeImage var0 = new NativeImage(NativeImage.Format.LUMINANCE, this.width, this.height, false)) {
-                var0.copyFromFont(
-                    TrueTypeGlyphProvider.this.font,
-                    this.index,
-                    this.width,
-                    this.height,
-                    TrueTypeGlyphProvider.this.pointScale,
-                    TrueTypeGlyphProvider.this.pointScale,
-                    TrueTypeGlyphProvider.this.shiftX,
-                    TrueTypeGlyphProvider.this.shiftY,
-                    0,
-                    0
-                );
-                var0.upload(0, param0, param1, 0, 0, this.width, this.height, false);
-            }
-
+            NativeImage var0 = new NativeImage(NativeImage.Format.LUMINANCE, this.width, this.height, false);
+            var0.copyFromFont(
+                TrueTypeGlyphProvider.this.font,
+                this.index,
+                this.width,
+                this.height,
+                TrueTypeGlyphProvider.this.pointScale,
+                TrueTypeGlyphProvider.this.pointScale,
+                TrueTypeGlyphProvider.this.shiftX,
+                TrueTypeGlyphProvider.this.shiftY,
+                0,
+                0
+            );
+            var0.upload(0, param0, param1, 0, 0, this.width, this.height, false, true);
         }
 
         @Override

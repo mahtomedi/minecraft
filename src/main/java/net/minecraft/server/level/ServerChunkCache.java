@@ -487,11 +487,6 @@ public class ServerChunkCache extends ChunkSource {
         this.spawnFriendlies = param1;
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public String getChunkDebugData(ChunkPos param0) {
-        return this.chunkMap.getChunkDebugData(param0);
-    }
-
     public DimensionDataStorage getDataStorage() {
         return this.dataStorage;
     }

@@ -11,12 +11,9 @@ import com.google.gson.JsonSerializer;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
@@ -25,7 +22,6 @@ import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunctions;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 import net.minecraft.world.level.storage.loot.predicates.ConditionUserBuilder;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditions;
@@ -101,19 +97,17 @@ public class LootPool {
         }
     }
 
-    public void validate(
-        LootTableProblemCollector param0, Function<ResourceLocation, LootTable> param1, Set<ResourceLocation> param2, LootContextParamSet param3
-    ) {
+    public void validate(ValidationContext param0) {
         for(int var0 = 0; var0 < this.conditions.length; ++var0) {
-            this.conditions[var0].validate(param0.forChild(".condition[" + var0 + "]"), param1, param2, param3);
+            this.conditions[var0].validate(param0.forChild(".condition[" + var0 + "]"));
         }
 
         for(int var1 = 0; var1 < this.functions.length; ++var1) {
-            this.functions[var1].validate(param0.forChild(".functions[" + var1 + "]"), param1, param2, param3);
+            this.functions[var1].validate(param0.forChild(".functions[" + var1 + "]"));
         }
 
         for(int var2 = 0; var2 < this.entries.length; ++var2) {
-            this.entries[var2].validate(param0.forChild(".entries[" + var2 + "]"), param1, param2, param3);
+            this.entries[var2].validate(param0.forChild(".entries[" + var2 + "]"));
         }
 
     }

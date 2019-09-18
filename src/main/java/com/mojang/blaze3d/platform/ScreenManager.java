@@ -1,5 +1,6 @@
 package com.mojang.blaze3d.platform;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import javax.annotation.Nullable;
@@ -15,6 +16,7 @@ public class ScreenManager {
     private final MonitorCreator monitorCreator;
 
     public ScreenManager(MonitorCreator param0) {
+        RenderSystem.assertThread(RenderSystem::isInInitPhase);
         this.monitorCreator = param0;
         GLFW.glfwSetMonitorCallback(this::onMonitorChange);
         PointerBuffer var0 = GLFW.glfwGetMonitors();
@@ -28,6 +30,7 @@ public class ScreenManager {
     }
 
     private void onMonitorChange(long param0x, int param1) {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         if (param1 == 262145) {
             this.monitors.put(param0x, this.monitorCreator.createMonitor(param0x));
         } else if (param1 == 262146) {
@@ -38,6 +41,7 @@ public class ScreenManager {
 
     @Nullable
     public Monitor getMonitor(long param0) {
+        RenderSystem.assertThread(RenderSystem::isInInitPhase);
         return this.monitors.get(param0);
     }
 
@@ -85,6 +89,7 @@ public class ScreenManager {
     }
 
     public void shutdown() {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         GLFWMonitorCallback var0 = GLFW.glfwSetMonitorCallback(null);
         if (var0 != null) {
             var0.free();

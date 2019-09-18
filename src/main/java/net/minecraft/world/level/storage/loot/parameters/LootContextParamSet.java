@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.util.Set;
 import net.minecraft.world.level.storage.loot.LootContextUser;
-import net.minecraft.world.level.storage.loot.LootTableProblemCollector;
+import net.minecraft.world.level.storage.loot.ValidationContext;
 
 public class LootContextParamSet {
     private final Set<LootContextParam<?>> required;
@@ -29,7 +29,7 @@ public class LootContextParamSet {
         return "[" + Joiner.on(", ").join(this.all.stream().map(param0 -> (this.required.contains(param0) ? "!" : "") + param0.getName()).iterator()) + "]";
     }
 
-    public void validateUser(LootTableProblemCollector param0, LootContextUser param1) {
+    public void validateUser(ValidationContext param0, LootContextUser param1) {
         Set<LootContextParam<?>> var0 = param1.getReferencedContextParams();
         Set<LootContextParam<?>> var1 = Sets.difference(var0, this.all);
         if (!var1.isEmpty()) {

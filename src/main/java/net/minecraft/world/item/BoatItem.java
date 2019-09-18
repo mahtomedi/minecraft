@@ -54,10 +54,9 @@ public class BoatItem extends Item {
                 } else {
                     if (!param0.isClientSide) {
                         param0.addFreshEntity(var8);
-                    }
-
-                    if (!param1.abilities.instabuild) {
-                        var0.shrink(1);
+                        if (!param1.abilities.instabuild) {
+                            var0.shrink(1);
+                        }
                     }
 
                     param1.awardStat(Stats.ITEM_USED.get(this));

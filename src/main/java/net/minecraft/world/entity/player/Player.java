@@ -835,10 +835,10 @@ public abstract class Player extends LivingEntity {
             return !this.level.getGameRules().getBoolean(GameRules.RULE_DROWNING_DAMAGE);
         } else if (param0 == DamageSource.FALL) {
             return !this.level.getGameRules().getBoolean(GameRules.RULE_FALL_DAMAGE);
-        } else if (param0 != DamageSource.ON_FIRE && param0 != DamageSource.IN_FIRE && param0 != DamageSource.LAVA) {
-            return false;
-        } else {
+        } else if (param0.isFire()) {
             return !this.level.getGameRules().getBoolean(GameRules.RULE_FIRE_DAMAGE);
+        } else {
+            return false;
         }
     }
 

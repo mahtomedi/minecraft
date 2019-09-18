@@ -372,7 +372,7 @@ public class BlockTagsProvider extends TagsProvider<Block> {
                 Blocks.REPEATING_COMMAND_BLOCK,
                 Blocks.CHAIN_COMMAND_BLOCK,
                 Blocks.STRUCTURE_BLOCK,
-                Blocks.JIGSAW_BLOCK,
+                Blocks.JIGSAW,
                 Blocks.MOVING_PISTON,
                 Blocks.OBSIDIAN,
                 Blocks.END_STONE,
@@ -389,7 +389,7 @@ public class BlockTagsProvider extends TagsProvider<Block> {
                 Blocks.REPEATING_COMMAND_BLOCK,
                 Blocks.CHAIN_COMMAND_BLOCK,
                 Blocks.STRUCTURE_BLOCK,
-                Blocks.JIGSAW_BLOCK,
+                Blocks.JIGSAW,
                 Blocks.MOVING_PISTON
             );
         this.tag(BlockTags.TALL_FLOWERS).add(Blocks.SUNFLOWER, Blocks.LILAC, Blocks.PEONY, Blocks.ROSE_BUSH);

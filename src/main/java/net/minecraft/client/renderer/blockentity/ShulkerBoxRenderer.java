@@ -1,9 +1,14 @@
 package net.minecraft.client.renderer.blockentity;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.model.ShulkerModel;
-import net.minecraft.client.renderer.entity.ShulkerRenderer;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.ShulkerBoxBlock;
 import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity;
@@ -12,14 +17,25 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class ShulkerBoxRenderer extends BlockEntityRenderer<ShulkerBoxBlockEntity> {
+public class ShulkerBoxRenderer extends BatchedBlockEntityRenderer<ShulkerBoxBlockEntity> {
     private final ShulkerModel<?> model;
 
     public ShulkerBoxRenderer(ShulkerModel<?> param0) {
         this.model = param0;
     }
 
-    public void render(ShulkerBoxBlockEntity param0, double param1, double param2, double param3, float param4, int param5) {
+    protected void renderToBuffer(
+        ShulkerBoxBlockEntity param0,
+        double param1,
+        double param2,
+        double param3,
+        float param4,
+        int param5,
+        RenderType param6,
+        BufferBuilder param7,
+        int param8,
+        int param9
+    ) {
         Direction var0 = Direction.UP;
         if (param0.hasLevel()) {
             BlockState var1 = this.getLevel().getBlockState(param0.getBlockPos());
@@ -28,78 +44,57 @@ public class ShulkerBoxRenderer extends BlockEntityRenderer<ShulkerBoxBlockEntit
             }
         }
 
-        RenderSystem.enableDepthTest();
-        RenderSystem.depthFunc(515);
-        RenderSystem.depthMask(true);
-        RenderSystem.disableCull();
+        ResourceLocation var2;
         if (param5 >= 0) {
-            this.bindTexture(BREAKING_LOCATIONS[param5]);
-            RenderSystem.matrixMode(5890);
-            RenderSystem.pushMatrix();
-            RenderSystem.scalef(4.0F, 4.0F, 1.0F);
-            RenderSystem.translatef(0.0625F, 0.0625F, 0.0625F);
-            RenderSystem.matrixMode(5888);
+            var2 = ModelBakery.DESTROY_STAGES.get(param5);
         } else {
-            DyeColor var2 = param0.getColor();
-            if (var2 == null) {
-                this.bindTexture(ShulkerRenderer.DEFAULT_TEXTURE_LOCATION);
+            DyeColor var3 = param0.getColor();
+            if (var3 == null) {
+                var2 = ModelBakery.DEFAULT_SHULKER_TEXTURE_LOCATION;
             } else {
-                this.bindTexture(ShulkerRenderer.TEXTURE_LOCATION[var2.getId()]);
+                var2 = ModelBakery.SHULKER_TEXTURE_LOCATION.get(var3.getId());
             }
         }
 
-        RenderSystem.pushMatrix();
-        RenderSystem.enableRescaleNormal();
-        if (param5 < 0) {
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        }
-
-        RenderSystem.translatef((float)param1 + 0.5F, (float)param2 + 1.5F, (float)param3 + 0.5F);
-        RenderSystem.scalef(1.0F, -1.0F, -1.0F);
-        RenderSystem.translatef(0.0F, 1.0F, 0.0F);
-        float var3 = 0.9995F;
-        RenderSystem.scalef(0.9995F, 0.9995F, 0.9995F);
-        RenderSystem.translatef(0.0F, -1.0F, 0.0F);
+        TextureAtlasSprite var6 = this.getSprite(var2);
+        param7.pushPose();
+        param7.translate(0.5, 1.5, 0.5);
+        param7.scale(1.0F, -1.0F, -1.0F);
+        param7.translate(0.0, 1.0, 0.0);
+        float var7 = 0.9995F;
+        param7.scale(0.9995F, 0.9995F, 0.9995F);
+        param7.translate(0.0, -1.0, 0.0);
         switch(var0) {
             case DOWN:
-                RenderSystem.translatef(0.0F, 2.0F, 0.0F);
-                RenderSystem.rotatef(180.0F, 1.0F, 0.0F, 0.0F);
+                param7.translate(0.0, 2.0, 0.0);
+                param7.multiplyPose(new Quaternion(Vector3f.XP, 180.0F, true));
             case UP:
             default:
                 break;
             case NORTH:
-                RenderSystem.translatef(0.0F, 1.0F, 1.0F);
-                RenderSystem.rotatef(90.0F, 1.0F, 0.0F, 0.0F);
-                RenderSystem.rotatef(180.0F, 0.0F, 0.0F, 1.0F);
+                param7.translate(0.0, 1.0, 1.0);
+                param7.multiplyPose(new Quaternion(Vector3f.XP, 90.0F, true));
+                param7.multiplyPose(new Quaternion(Vector3f.ZP, 180.0F, true));
                 break;
             case SOUTH:
-                RenderSystem.translatef(0.0F, 1.0F, -1.0F);
-                RenderSystem.rotatef(90.0F, 1.0F, 0.0F, 0.0F);
+                param7.translate(0.0, 1.0, -1.0);
+                param7.multiplyPose(new Quaternion(Vector3f.XP, 90.0F, true));
                 break;
             case WEST:
-                RenderSystem.translatef(-1.0F, 1.0F, 0.0F);
-                RenderSystem.rotatef(90.0F, 1.0F, 0.0F, 0.0F);
-                RenderSystem.rotatef(-90.0F, 0.0F, 0.0F, 1.0F);
+                param7.translate(-1.0, 1.0, 0.0);
+                param7.multiplyPose(new Quaternion(Vector3f.XP, 90.0F, true));
+                param7.multiplyPose(new Quaternion(Vector3f.ZP, -90.0F, true));
                 break;
             case EAST:
-                RenderSystem.translatef(1.0F, 1.0F, 0.0F);
-                RenderSystem.rotatef(90.0F, 1.0F, 0.0F, 0.0F);
-                RenderSystem.rotatef(90.0F, 0.0F, 0.0F, 1.0F);
+                param7.translate(1.0, 1.0, 0.0);
+                param7.multiplyPose(new Quaternion(Vector3f.XP, 90.0F, true));
+                param7.multiplyPose(new Quaternion(Vector3f.ZP, 90.0F, true));
         }
 
-        this.model.getBase().render(0.0625F);
-        RenderSystem.translatef(0.0F, -param0.getProgress(param4) * 0.5F, 0.0F);
-        RenderSystem.rotatef(270.0F * param0.getProgress(param4), 0.0F, 1.0F, 0.0F);
-        this.model.getLid().render(0.0625F);
-        RenderSystem.enableCull();
-        RenderSystem.disableRescaleNormal();
-        RenderSystem.popMatrix();
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        if (param5 >= 0) {
-            RenderSystem.matrixMode(5890);
-            RenderSystem.popMatrix();
-            RenderSystem.matrixMode(5888);
-        }
-
+        this.model.getBase().render(param7, 0.0625F, param8, param9, var6);
+        param7.translate(0.0, (double)(-param0.getProgress(param4) * 0.5F), 0.0);
+        param7.multiplyPose(new Quaternion(Vector3f.YP, 270.0F * param0.getProgress(param4), true));
+        this.model.getLid().render(param7, 0.0625F, param8, param9, var6);
+        param7.popPose();
     }
 }

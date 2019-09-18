@@ -15,8 +15,6 @@ import net.minecraft.world.level.chunk.DataLayer;
 import net.minecraft.world.level.chunk.LightChunkGetter;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class LayerLightEngine<M extends DataLayerStorageMap<M>, S extends LayerLightSectionStorage<M>>
     extends DynamicGraphMinFixedPoint
@@ -199,11 +197,6 @@ public abstract class LayerLightEngine<M extends DataLayerStorageMap<M>, S exten
     @Override
     public int getLightValue(BlockPos param0) {
         return this.storage.getLightValue(param0.asLong());
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public String getDebugData(long param0) {
-        return "" + this.storage.getLevel(param0);
     }
 
     public void checkBlock(BlockPos param0) {

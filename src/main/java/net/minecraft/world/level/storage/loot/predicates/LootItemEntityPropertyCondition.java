@@ -32,7 +32,7 @@ public class LootItemEntityPropertyCondition implements LootItemCondition {
     public boolean test(LootContext param0) {
         Entity var0 = param0.getParamOrNull(this.entityTarget.getParam());
         BlockPos var1 = param0.getParamOrNull(LootContextParams.BLOCK_POS);
-        return var1 != null && this.predicate.matches(param0.getLevel(), new Vec3(var1), var0);
+        return this.predicate.matches(param0.getLevel(), var1 != null ? new Vec3(var1) : null, var0);
     }
 
     public static LootItemCondition.Builder entityPresent(LootContext.EntityTarget param0) {

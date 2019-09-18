@@ -12,9 +12,9 @@ public class ChestedHorseModel<T extends AbstractChestedHorse> extends HorseMode
 
     public ChestedHorseModel(float param0) {
         super(param0);
-        this.boxL.addBox(-4.0F, 0.0F, -2.0F, 8, 8, 3);
+        this.boxL.addBox(-4.0F, 0.0F, -2.0F, 8.0F, 8.0F, 3.0F);
         this.boxR = new ModelPart(this, 26, 21);
-        this.boxR.addBox(-4.0F, 0.0F, -2.0F, 8, 8, 3);
+        this.boxR.addBox(-4.0F, 0.0F, -2.0F, 8.0F, 8.0F, 3.0F);
         this.boxL.yRot = (float) (-Math.PI / 2);
         this.boxR.yRot = (float) (Math.PI / 2);
         this.boxL.setPos(6.0F, -8.0F, 0.0F);
@@ -26,10 +26,10 @@ public class ChestedHorseModel<T extends AbstractChestedHorse> extends HorseMode
     @Override
     protected void addEarModels(ModelPart param0) {
         ModelPart var0 = new ModelPart(this, 0, 12);
-        var0.addBox(-1.0F, -7.0F, 0.0F, 2, 7, 1);
+        var0.addBox(-1.0F, -7.0F, 0.0F, 2.0F, 7.0F, 1.0F);
         var0.setPos(1.25F, -10.0F, 4.0F);
         ModelPart var1 = new ModelPart(this, 0, 12);
-        var1.addBox(-1.0F, -7.0F, 0.0F, 2, 7, 1);
+        var1.addBox(-1.0F, -7.0F, 0.0F, 2.0F, 7.0F, 1.0F);
         var1.setPos(-1.25F, -10.0F, 4.0F);
         var0.xRot = (float) (Math.PI / 12);
         var0.zRot = (float) (Math.PI / 12);

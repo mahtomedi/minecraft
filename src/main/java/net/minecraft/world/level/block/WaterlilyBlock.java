@@ -1,6 +1,7 @@
 package net.minecraft.world.level.block;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.level.BlockGetter;
@@ -22,7 +23,7 @@ public class WaterlilyBlock extends BushBlock {
     @Override
     public void entityInside(BlockState param0, Level param1, BlockPos param2, Entity param3) {
         super.entityInside(param0, param1, param2, param3);
-        if (param3 instanceof Boat) {
+        if (param1 instanceof ServerLevel && param3 instanceof Boat) {
             param1.destroyBlock(new BlockPos(param2), true, param3);
         }
 

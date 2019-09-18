@@ -1,42 +1,45 @@
 package net.minecraft.client.model;
 
+import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import java.util.List;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class BookModel extends Model {
-    private final ModelPart leftLid = new ModelPart(this).texOffs(0, 0).addBox(-6.0F, -5.0F, 0.0F, 6, 10, 0);
-    private final ModelPart rightLid = new ModelPart(this).texOffs(16, 0).addBox(0.0F, -5.0F, 0.0F, 6, 10, 0);
+    private final ModelPart leftLid = new ModelPart(64, 32, 0, 0).addBox(-6.0F, -5.0F, -0.005F, 6.0F, 10.0F, 0.005F);
+    private final ModelPart rightLid = new ModelPart(64, 32, 16, 0).addBox(0.0F, -5.0F, -0.005F, 6.0F, 10.0F, 0.005F);
     private final ModelPart leftPages;
     private final ModelPart rightPages;
     private final ModelPart flipPage1;
     private final ModelPart flipPage2;
-    private final ModelPart seam = new ModelPart(this).texOffs(12, 0).addBox(-1.0F, -5.0F, 0.0F, 2, 10, 0);
+    private final ModelPart seam = new ModelPart(64, 32, 12, 0).addBox(-1.0F, -5.0F, 0.0F, 2.0F, 10.0F, 0.005F);
+    private final List<ModelPart> parts;
 
     public BookModel() {
-        this.leftPages = new ModelPart(this).texOffs(0, 10).addBox(0.0F, -4.0F, -0.99F, 5, 8, 1);
-        this.rightPages = new ModelPart(this).texOffs(12, 10).addBox(0.0F, -4.0F, -0.01F, 5, 8, 1);
-        this.flipPage1 = new ModelPart(this).texOffs(24, 10).addBox(0.0F, -4.0F, 0.0F, 5, 8, 0);
-        this.flipPage2 = new ModelPart(this).texOffs(24, 10).addBox(0.0F, -4.0F, 0.0F, 5, 8, 0);
+        this.leftPages = new ModelPart(64, 32, 0, 10).addBox(0.0F, -4.0F, -0.99F, 5.0F, 8.0F, 1.0F);
+        this.rightPages = new ModelPart(64, 32, 12, 10).addBox(0.0F, -4.0F, -0.01F, 5.0F, 8.0F, 1.0F);
+        this.flipPage1 = new ModelPart(64, 32, 24, 10).addBox(0.0F, -4.0F, 0.0F, 5.0F, 8.0F, 0.005F);
+        this.flipPage2 = new ModelPart(64, 32, 24, 10).addBox(0.0F, -4.0F, 0.0F, 5.0F, 8.0F, 0.005F);
+        this.parts = ImmutableList.of(this.leftLid, this.rightLid, this.seam, this.leftPages, this.rightPages, this.flipPage1, this.flipPage2);
         this.leftLid.setPos(0.0F, 0.0F, -1.0F);
         this.rightLid.setPos(0.0F, 0.0F, 1.0F);
         this.seam.yRot = (float) (Math.PI / 2);
     }
 
-    public void render(float param0, float param1, float param2, float param3, float param4, float param5) {
-        this.setupAnim(param0, param1, param2, param3, param4, param5);
-        this.leftLid.render(param5);
-        this.rightLid.render(param5);
-        this.seam.render(param5);
-        this.leftPages.render(param5);
-        this.rightPages.render(param5);
-        this.flipPage1.render(param5);
-        this.flipPage2.render(param5);
+    public void render(float param0) {
+        this.parts.forEach(param1 -> param1.render(param0));
     }
 
-    private void setupAnim(float param0, float param1, float param2, float param3, float param4, float param5) {
+    public void render(BufferBuilder param0, float param1, int param2, int param3, TextureAtlasSprite param4) {
+        this.parts.forEach(param5 -> param5.render(param0, param1, param2, param3, param4));
+    }
+
+    public void setupAnim(float param0, float param1, float param2, float param3) {
         float var0 = (Mth.sin(param0 * 0.02F) * 0.1F + 1.25F) * param3;
         this.leftLid.yRot = (float) Math.PI + var0;
         this.rightLid.yRot = -var0;

@@ -17,7 +17,7 @@ import net.minecraft.world.level.levelgen.feature.StructureFeature;
 
 public class LocationPredicate {
     public static final LocationPredicate ANY = new LocationPredicate(
-        MinMaxBounds.Floats.ANY, MinMaxBounds.Floats.ANY, MinMaxBounds.Floats.ANY, null, null, null
+        MinMaxBounds.Floats.ANY, MinMaxBounds.Floats.ANY, MinMaxBounds.Floats.ANY, null, null, null, LightPredicate.ANY, BlockPredicate.ANY, FluidPredicate.ANY
     );
     private final MinMaxBounds.Floats x;
     private final MinMaxBounds.Floats y;
@@ -28,6 +28,9 @@ public class LocationPredicate {
     private final StructureFeature<?> feature;
     @Nullable
     private final DimensionType dimension;
+    private final LightPredicate light;
+    private final BlockPredicate block;
+    private final FluidPredicate fluid;
 
     public LocationPredicate(
         MinMaxBounds.Floats param0,
@@ -35,7 +38,10 @@ public class LocationPredicate {
         MinMaxBounds.Floats param2,
         @Nullable Biome param3,
         @Nullable StructureFeature<?> param4,
-        @Nullable DimensionType param5
+        @Nullable DimensionType param5,
+        LightPredicate param6,
+        BlockPredicate param7,
+        FluidPredicate param8
     ) {
         this.x = param0;
         this.y = param1;
@@ -43,18 +49,51 @@ public class LocationPredicate {
         this.biome = param3;
         this.feature = param4;
         this.dimension = param5;
+        this.light = param6;
+        this.block = param7;
+        this.fluid = param8;
     }
 
     public static LocationPredicate inBiome(Biome param0) {
-        return new LocationPredicate(MinMaxBounds.Floats.ANY, MinMaxBounds.Floats.ANY, MinMaxBounds.Floats.ANY, param0, null, null);
+        return new LocationPredicate(
+            MinMaxBounds.Floats.ANY,
+            MinMaxBounds.Floats.ANY,
+            MinMaxBounds.Floats.ANY,
+            param0,
+            null,
+            null,
+            LightPredicate.ANY,
+            BlockPredicate.ANY,
+            FluidPredicate.ANY
+        );
     }
 
     public static LocationPredicate inDimension(DimensionType param0) {
-        return new LocationPredicate(MinMaxBounds.Floats.ANY, MinMaxBounds.Floats.ANY, MinMaxBounds.Floats.ANY, null, null, param0);
+        return new LocationPredicate(
+            MinMaxBounds.Floats.ANY,
+            MinMaxBounds.Floats.ANY,
+            MinMaxBounds.Floats.ANY,
+            null,
+            null,
+            param0,
+            LightPredicate.ANY,
+            BlockPredicate.ANY,
+            FluidPredicate.ANY
+        );
     }
 
     public static LocationPredicate inFeature(StructureFeature<?> param0) {
-        return new LocationPredicate(MinMaxBounds.Floats.ANY, MinMaxBounds.Floats.ANY, MinMaxBounds.Floats.ANY, null, param0, null);
+        return new LocationPredicate(
+            MinMaxBounds.Floats.ANY,
+            MinMaxBounds.Floats.ANY,
+            MinMaxBounds.Floats.ANY,
+            null,
+            param0,
+            null,
+            LightPredicate.ANY,
+            BlockPredicate.ANY,
+            FluidPredicate.ANY
+        );
     }
 
     public boolean matches(ServerLevel param0, double param1, double param2, double param3) {
@@ -72,10 +111,18 @@ public class LocationPredicate {
             return false;
         } else {
             BlockPos var0 = new BlockPos((double)param1, (double)param2, (double)param3);
-            if (this.biome != null && this.biome != param0.getBiome(var0)) {
+            if (!param0.isLoaded(var0)) {
+                return false;
+            } else if (this.biome != null && this.biome != param0.getBiome(var0)) {
+                return false;
+            } else if (this.feature != null && !this.feature.isInsideFeature(param0, var0)) {
+                return false;
+            } else if (!this.light.matches(param0, var0)) {
+                return false;
+            } else if (!this.block.matches(param0, var0)) {
                 return false;
             } else {
-                return this.feature == null || this.feature.isInsideFeature(param0, var0);
+                return this.fluid.matches(param0, var0);
             }
         }
     }
@@ -105,6 +152,9 @@ public class LocationPredicate {
                 var0.addProperty("biome", Registry.BIOME.getKey(this.biome).toString());
             }
 
+            var0.add("light", this.light.serializeToJson());
+            var0.add("block", this.block.serializeToJson());
+            var0.add("fluid", this.fluid.serializeToJson());
             return var0;
         }
     }
@@ -124,7 +174,10 @@ public class LocationPredicate {
                 var7 = Registry.BIOME.getOptional(var8).orElseThrow(() -> new JsonSyntaxException("Unknown biome '" + var8 + "'"));
             }
 
-            return new LocationPredicate(var2, var3, var4, var7, var6, var5);
+            LightPredicate var9 = LightPredicate.fromJson(var0.get("light"));
+            BlockPredicate var10 = BlockPredicate.fromJson(var0.get("block"));
+            FluidPredicate var11 = FluidPredicate.fromJson(var0.get("fluid"));
+            return new LocationPredicate(var2, var3, var4, var7, var6, var5, var9, var10, var11);
         } else {
             return ANY;
         }
@@ -140,6 +193,13 @@ public class LocationPredicate {
         private StructureFeature<?> feature;
         @Nullable
         private DimensionType dimension;
+        private LightPredicate light = LightPredicate.ANY;
+        private BlockPredicate block = BlockPredicate.ANY;
+        private FluidPredicate fluid = FluidPredicate.ANY;
+
+        public static LocationPredicate.Builder location() {
+            return new LocationPredicate.Builder();
+        }
 
         public LocationPredicate.Builder setBiome(@Nullable Biome param0) {
             this.biome = param0;
@@ -147,7 +207,7 @@ public class LocationPredicate {
         }
 
         public LocationPredicate build() {
-            return new LocationPredicate(this.x, this.y, this.z, this.biome, this.feature, this.dimension);
+            return new LocationPredicate(this.x, this.y, this.z, this.biome, this.feature, this.dimension, this.light, this.block, this.fluid);
         }
     }
 }

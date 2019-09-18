@@ -46,6 +46,10 @@ public class RecipeBook {
         return param0 == null ? false : this.known.contains(param0.getId());
     }
 
+    public boolean contains(ResourceLocation param0) {
+        return this.known.contains(param0);
+    }
+
     @OnlyIn(Dist.CLIENT)
     public void remove(Recipe<?> param0) {
         this.remove(param0.getId());

@@ -1,5 +1,6 @@
 package net.minecraft.realms;
 
+import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.Tesselator;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -42,8 +43,8 @@ public class Tezzelator {
         t.getBuilder().offset(param0, param1, param2);
     }
 
-    public RealmsBufferBuilder color(int param0, int param1, int param2, int param3) {
-        return new RealmsBufferBuilder(t.getBuilder().color(param0, param1, param2, param3));
+    public BufferBuilder color(int param0, int param1, int param2, int param3) {
+        return t.getBuilder().color(param0, param1, param2, param3);
     }
 
     public Tezzelator tex(double param0, double param1) {

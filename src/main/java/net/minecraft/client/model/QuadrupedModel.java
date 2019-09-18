@@ -20,22 +20,22 @@ public class QuadrupedModel<T extends Entity> extends EntityModel<T> {
 
     public QuadrupedModel(int param0, float param1) {
         this.head = new ModelPart(this, 0, 0);
-        this.head.addBox(-4.0F, -4.0F, -8.0F, 8, 8, 8, param1);
+        this.head.addBox(-4.0F, -4.0F, -8.0F, 8.0F, 8.0F, 8.0F, param1);
         this.head.setPos(0.0F, (float)(18 - param0), -6.0F);
         this.body = new ModelPart(this, 28, 8);
-        this.body.addBox(-5.0F, -10.0F, -7.0F, 10, 16, 8, param1);
+        this.body.addBox(-5.0F, -10.0F, -7.0F, 10.0F, 16.0F, 8.0F, param1);
         this.body.setPos(0.0F, (float)(17 - param0), 2.0F);
         this.leg0 = new ModelPart(this, 0, 16);
-        this.leg0.addBox(-2.0F, 0.0F, -2.0F, 4, param0, 4, param1);
+        this.leg0.addBox(-2.0F, 0.0F, -2.0F, 4.0F, (float)param0, 4.0F, param1);
         this.leg0.setPos(-3.0F, (float)(24 - param0), 7.0F);
         this.leg1 = new ModelPart(this, 0, 16);
-        this.leg1.addBox(-2.0F, 0.0F, -2.0F, 4, param0, 4, param1);
+        this.leg1.addBox(-2.0F, 0.0F, -2.0F, 4.0F, (float)param0, 4.0F, param1);
         this.leg1.setPos(3.0F, (float)(24 - param0), 7.0F);
         this.leg2 = new ModelPart(this, 0, 16);
-        this.leg2.addBox(-2.0F, 0.0F, -2.0F, 4, param0, 4, param1);
+        this.leg2.addBox(-2.0F, 0.0F, -2.0F, 4.0F, (float)param0, 4.0F, param1);
         this.leg2.setPos(-3.0F, (float)(24 - param0), -5.0F);
         this.leg3 = new ModelPart(this, 0, 16);
-        this.leg3.addBox(-2.0F, 0.0F, -2.0F, 4, param0, 4, param1);
+        this.leg3.addBox(-2.0F, 0.0F, -2.0F, 4.0F, (float)param0, 4.0F, param1);
         this.leg3.setPos(3.0F, (float)(24 - param0), -5.0F);
     }
 

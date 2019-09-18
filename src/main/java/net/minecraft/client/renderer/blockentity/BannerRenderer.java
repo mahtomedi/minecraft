@@ -1,68 +1,108 @@
 package net.minecraft.client.renderer.blockentity;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import javax.annotation.Nullable;
-import net.minecraft.client.model.BannerModel;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
+import java.util.List;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.banner.BannerTextures;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.BannerBlock;
 import net.minecraft.world.level.block.WallBannerBlock;
 import net.minecraft.world.level.block.entity.BannerBlockEntity;
+import net.minecraft.world.level.block.entity.BannerPattern;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
-public class BannerRenderer extends BlockEntityRenderer<BannerBlockEntity> {
-    private final BannerModel bannerModel = new BannerModel();
+public class BannerRenderer extends BatchedBlockEntityRenderer<BannerBlockEntity> {
+    private static final Logger LOGGER = LogManager.getLogger();
+    private final ModelPart flag = new ModelPart(64, 64, 0, 0);
+    private final ModelPart pole;
+    private final ModelPart bar;
 
-    public void render(BannerBlockEntity param0, double param1, double param2, double param3, float param4, int param5) {
+    public BannerRenderer() {
+        this.flag.addBox(-10.0F, 0.0F, -2.0F, 20.0F, 40.0F, 1.0F, 0.0F);
+        this.pole = new ModelPart(64, 64, 44, 0);
+        this.pole.addBox(-1.0F, -30.0F, -1.0F, 2.0F, 42.0F, 2.0F, 0.0F);
+        this.bar = new ModelPart(64, 64, 0, 42);
+        this.bar.addBox(-10.0F, -32.0F, -1.0F, 20.0F, 2.0F, 2.0F, 0.0F);
+    }
+
+    protected void renderToBuffer(
+        BannerBlockEntity param0,
+        double param1,
+        double param2,
+        double param3,
+        float param4,
+        int param5,
+        RenderType param6,
+        BufferBuilder param7,
+        int param8,
+        int param9
+    ) {
         float var0 = 0.6666667F;
         boolean var1 = param0.getLevel() == null;
-        RenderSystem.pushMatrix();
-        ModelPart var2 = this.bannerModel.getPole();
-        long var3;
+        param7.pushPose();
+        long var2;
         if (var1) {
-            var3 = 0L;
-            RenderSystem.translatef((float)param1 + 0.5F, (float)param2 + 0.5F, (float)param3 + 0.5F);
-            var2.visible = true;
+            var2 = 0L;
+            param7.translate(0.5, 0.5, param3 + 0.5);
+            this.pole.visible = !param0.onlyRenderPattern();
         } else {
-            var3 = param0.getLevel().getGameTime();
-            BlockState var5 = param0.getBlockState();
-            if (var5.getBlock() instanceof BannerBlock) {
-                RenderSystem.translatef((float)param1 + 0.5F, (float)param2 + 0.5F, (float)param3 + 0.5F);
-                RenderSystem.rotatef((float)(-var5.getValue(BannerBlock.ROTATION) * 360) / 16.0F, 0.0F, 1.0F, 0.0F);
-                var2.visible = true;
+            var2 = param0.getLevel().getGameTime();
+            BlockState var4 = param0.getBlockState();
+            if (var4.getBlock() instanceof BannerBlock) {
+                param7.translate(0.5, 0.5, 0.5);
+                param7.multiplyPose(new Quaternion(Vector3f.YP, (float)(-var4.getValue(BannerBlock.ROTATION) * 360) / 16.0F, true));
+                this.pole.visible = true;
             } else {
-                RenderSystem.translatef((float)param1 + 0.5F, (float)param2 - 0.16666667F, (float)param3 + 0.5F);
-                RenderSystem.rotatef(-var5.getValue(WallBannerBlock.FACING).toYRot(), 0.0F, 1.0F, 0.0F);
-                RenderSystem.translatef(0.0F, -0.3125F, -0.4375F);
-                var2.visible = false;
+                param7.translate(0.5, -0.16666667F, 0.5);
+                param7.multiplyPose(new Quaternion(Vector3f.YP, -var4.getValue(WallBannerBlock.FACING).toYRot(), true));
+                param7.translate(0.0, -0.3125, -0.4375);
+                this.pole.visible = false;
             }
         }
 
-        BlockPos var6 = param0.getBlockPos();
-        float var7 = ((float)Math.floorMod((long)(var6.getX() * 7 + var6.getY() * 9 + var6.getZ() * 13) + var3, 100L) + param4) / 100.0F;
-        this.bannerModel.getFlag().xRot = (-0.0125F + 0.01F * Mth.cos((float) (Math.PI * 2) * var7)) * (float) Math.PI;
-        RenderSystem.enableRescaleNormal();
-        ResourceLocation var8 = this.getTextureLocation(param0);
-        if (var8 != null) {
-            this.bindTexture(var8);
-            RenderSystem.pushMatrix();
-            RenderSystem.scalef(0.6666667F, -0.6666667F, -0.6666667F);
-            this.bannerModel.render();
-            RenderSystem.popMatrix();
+        TextureAtlasSprite var5 = this.getSprite(ModelBakery.BANNER_BASE);
+        param7.pushPose();
+        param7.scale(0.6666667F, -0.6666667F, -0.6666667F);
+        float var6 = 0.0625F;
+        this.pole.render(param7, 0.0625F, param8, param9, var5);
+        this.bar.render(param7, 0.0625F, param8, param9, var5);
+        if (param0.onlyRenderPattern()) {
+            this.flag.xRot = 0.0F;
+        } else {
+            BlockPos var7 = param0.getBlockPos();
+            float var8 = (float)((long)(var7.getX() * 7 + var7.getY() * 9 + var7.getZ() * 13) + var2) + param4;
+            this.flag.xRot = (-0.0125F + 0.01F * Mth.cos(var8 * (float) Math.PI * 0.02F)) * (float) Math.PI;
         }
 
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.popMatrix();
-    }
+        this.flag.y = -32.0F;
+        this.flag.render(param7, 0.0625F, param8, param9, var5);
+        List<BannerPattern> var9 = param0.getPatterns();
+        List<DyeColor> var10 = param0.getColors();
+        if (var9 == null) {
+            LOGGER.error("patterns are null");
+        } else if (var10 == null) {
+            LOGGER.error("colors are null");
+        } else {
+            for(int var11 = 0; var11 < 17 && var11 < var9.size() && var11 < var10.size(); ++var11) {
+                BannerPattern var12 = var9.get(var11);
+                DyeColor var13 = var10.get(var11);
+                float[] var14 = var13.getTextureDiffuseColors();
+                this.flag.render(param7, 0.0625F, param8, param9, this.getSprite(var12.location()), var14[0], var14[1], var14[2]);
+            }
+        }
 
-    @Nullable
-    private ResourceLocation getTextureLocation(BannerBlockEntity param0) {
-        return BannerTextures.BANNER_CACHE.getTextureLocation(param0.getTextureHashName(), param0.getPatterns(), param0.getColors());
+        param7.popPose();
+        param7.popPose();
     }
 }

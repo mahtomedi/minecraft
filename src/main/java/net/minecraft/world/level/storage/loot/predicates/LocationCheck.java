@@ -6,23 +6,33 @@ import com.google.gson.JsonSerializationContext;
 import net.minecraft.advancements.critereon.LocationPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 
 public class LocationCheck implements LootItemCondition {
     private final LocationPredicate predicate;
+    private final BlockPos offset;
 
-    private LocationCheck(LocationPredicate param0) {
+    public LocationCheck(LocationPredicate param0, BlockPos param1) {
         this.predicate = param0;
+        this.offset = param1;
     }
 
     public boolean test(LootContext param0) {
         BlockPos var0 = param0.getParamOrNull(LootContextParams.BLOCK_POS);
-        return var0 != null && this.predicate.matches(param0.getLevel(), (float)var0.getX(), (float)var0.getY(), (float)var0.getZ());
+        return var0 != null
+            && this.predicate
+                .matches(
+                    param0.getLevel(),
+                    (float)(var0.getX() + this.offset.getX()),
+                    (float)(var0.getY() + this.offset.getY()),
+                    (float)(var0.getZ() + this.offset.getZ())
+                );
     }
 
     public static LootItemCondition.Builder checkLocation(LocationPredicate.Builder param0) {
-        return () -> new LocationCheck(param0.build());
+        return () -> new LocationCheck(param0.build(), BlockPos.ZERO);
     }
 
     public static class Serializer extends LootItemCondition.Serializer<LocationCheck> {
@@ -32,11 +42,26 @@ public class LocationCheck implements LootItemCondition {
 
         public void serialize(JsonObject param0, LocationCheck param1, JsonSerializationContext param2) {
             param0.add("predicate", param1.predicate.serializeToJson());
+            if (param1.offset.getX() != 0) {
+                param0.addProperty("offsetX", param1.offset.getX());
+            }
+
+            if (param1.offset.getY() != 0) {
+                param0.addProperty("offsetY", param1.offset.getY());
+            }
+
+            if (param1.offset.getZ() != 0) {
+                param0.addProperty("offsetZ", param1.offset.getZ());
+            }
+
         }
 
         public LocationCheck deserialize(JsonObject param0, JsonDeserializationContext param1) {
             LocationPredicate var0 = LocationPredicate.fromJson(param0.get("predicate"));
-            return new LocationCheck(var0);
+            int var1 = GsonHelper.getAsInt(param0, "offsetX", 0);
+            int var2 = GsonHelper.getAsInt(param0, "offsetY", 0);
+            int var3 = GsonHelper.getAsInt(param0, "offsetZ", 0);
+            return new LocationCheck(var0, new BlockPos(var1, var2, var3));
         }
     }
 }

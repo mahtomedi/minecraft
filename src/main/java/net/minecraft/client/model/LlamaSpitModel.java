@@ -15,13 +15,13 @@ public class LlamaSpitModel<T extends Entity> extends EntityModel<T> {
 
     public LlamaSpitModel(float param0) {
         int var0 = 2;
-        this.main.texOffs(0, 0).addBox(-4.0F, 0.0F, 0.0F, 2, 2, 2, param0);
-        this.main.texOffs(0, 0).addBox(0.0F, -4.0F, 0.0F, 2, 2, 2, param0);
-        this.main.texOffs(0, 0).addBox(0.0F, 0.0F, -4.0F, 2, 2, 2, param0);
-        this.main.texOffs(0, 0).addBox(0.0F, 0.0F, 0.0F, 2, 2, 2, param0);
-        this.main.texOffs(0, 0).addBox(2.0F, 0.0F, 0.0F, 2, 2, 2, param0);
-        this.main.texOffs(0, 0).addBox(0.0F, 2.0F, 0.0F, 2, 2, 2, param0);
-        this.main.texOffs(0, 0).addBox(0.0F, 0.0F, 2.0F, 2, 2, 2, param0);
+        this.main.texOffs(0, 0).addBox(-4.0F, 0.0F, 0.0F, 2.0F, 2.0F, 2.0F, param0);
+        this.main.texOffs(0, 0).addBox(0.0F, -4.0F, 0.0F, 2.0F, 2.0F, 2.0F, param0);
+        this.main.texOffs(0, 0).addBox(0.0F, 0.0F, -4.0F, 2.0F, 2.0F, 2.0F, param0);
+        this.main.texOffs(0, 0).addBox(0.0F, 0.0F, 0.0F, 2.0F, 2.0F, 2.0F, param0);
+        this.main.texOffs(0, 0).addBox(2.0F, 0.0F, 0.0F, 2.0F, 2.0F, 2.0F, param0);
+        this.main.texOffs(0, 0).addBox(0.0F, 2.0F, 0.0F, 2.0F, 2.0F, 2.0F, param0);
+        this.main.texOffs(0, 0).addBox(0.0F, 0.0F, 2.0F, 2.0F, 2.0F, 2.0F, param0);
         this.main.setPos(0.0F, 0.0F, 0.0F);
     }
 

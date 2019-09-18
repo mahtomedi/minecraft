@@ -20,8 +20,8 @@ import net.minecraft.data.HashCache;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.LootTableProblemCollector;
 import net.minecraft.world.level.storage.loot.LootTables;
+import net.minecraft.world.level.storage.loot.ValidationContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import org.apache.logging.log4j.LogManager;
@@ -52,13 +52,13 @@ public class LootTableProvider implements DataProvider {
                     throw new IllegalStateException("Duplicate loot table " + param2);
                 }
             }));
-        LootTableProblemCollector var2 = new LootTableProblemCollector();
+        ValidationContext var2 = new ValidationContext(LootContextParamSets.ALL_PARAMS, param0x -> null, var1::get);
 
         for(ResourceLocation var4 : Sets.difference(BuiltInLootTables.all(), var1.keySet())) {
             var2.reportProblem("Missing built-in table: " + var4);
         }
 
-        var1.forEach((param2, param3) -> LootTables.validate(var2, param2, param3, var1::get));
+        var1.forEach((param1, param2) -> LootTables.validate(var2, param1, param2));
         Multimap<String, String> var5 = var2.getProblems();
         if (!var5.isEmpty()) {
             var5.forEach((param0x, param1) -> LOGGER.warn("Found validation problem in " + param0x + ": " + param1));

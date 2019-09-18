@@ -86,7 +86,7 @@ public abstract class EffectRenderingInventoryScreen<T extends AbstractContainer
 
         for(MobEffectInstance var2 : param2) {
             MobEffect var3 = var2.getEffect();
-            blit(param0 + 6, var1 + 7, this.blitOffset, 18, 18, var0.get(var3));
+            blit(param0 + 6, var1 + 7, this.getBlitOffset(), 18, 18, var0.get(var3));
             var1 += param1;
         }
 

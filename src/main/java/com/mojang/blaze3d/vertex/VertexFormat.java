@@ -1,6 +1,7 @@
 package com.mojang.blaze3d.vertex;
 
 import com.google.common.collect.Lists;
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.List;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -158,5 +159,30 @@ public class VertexFormat {
         int var0 = this.elements.hashCode();
         var0 = 31 * var0 + this.offsets.hashCode();
         return 31 * var0 + this.vertexSize;
+    }
+
+    public void setupBufferState(long param0) {
+        if (!RenderSystem.isOnRenderThread()) {
+            RenderSystem.recordRenderCall(() -> this.setupBufferState(param0));
+        } else {
+            int var0 = this.getVertexSize();
+            List<VertexFormatElement> var1 = this.getElements();
+
+            for(int var2 = 0; var2 < var1.size(); ++var2) {
+                var1.get(var2).setupBufferState(param0 + (long)this.getOffset(var2), var0);
+            }
+
+        }
+    }
+
+    public void clearBufferState() {
+        if (!RenderSystem.isOnRenderThread()) {
+            RenderSystem.recordRenderCall(this::clearBufferState);
+        } else {
+            for(VertexFormatElement var0 : this.getElements()) {
+                var0.clearBufferState();
+            }
+
+        }
     }
 }

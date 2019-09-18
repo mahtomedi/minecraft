@@ -5,14 +5,10 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import java.util.List;
-import java.util.Set;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.storage.loot.LootContext;
-import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.LootTableProblemCollector;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
+import net.minecraft.world.level.storage.loot.ValidationContext;
 import net.minecraft.world.level.storage.loot.predicates.ConditionUserBuilder;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditions;
@@ -26,11 +22,9 @@ public abstract class LootPoolEntryContainer implements ComposableEntryContainer
         this.compositeCondition = LootItemConditions.andConditions(param0);
     }
 
-    public void validate(
-        LootTableProblemCollector param0, Function<ResourceLocation, LootTable> param1, Set<ResourceLocation> param2, LootContextParamSet param3
-    ) {
+    public void validate(ValidationContext param0) {
         for(int var0 = 0; var0 < this.conditions.length; ++var0) {
-            this.conditions[var0].validate(param0.forChild(".condition[" + var0 + "]"), param1, param2, param3);
+            this.conditions[var0].validate(param0.forChild(".condition[" + var0 + "]"));
         }
 
     }

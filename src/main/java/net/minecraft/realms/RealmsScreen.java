@@ -211,7 +211,7 @@ public abstract class RealmsScreen extends RealmsGuiEventListener implements Rea
     }
 
     protected boolean isKeyDown(int param0) {
-        return InputConstants.isKeyDown(Minecraft.getInstance().window.getWindow(), param0);
+        return InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), param0);
     }
 
     protected void narrateLabels() {

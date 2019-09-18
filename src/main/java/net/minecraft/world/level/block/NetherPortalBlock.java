@@ -14,7 +14,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.BlockLayer;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -98,11 +97,6 @@ public class NetherPortalBlock extends Block {
         return !var2 && param2.getBlock() != this && !new NetherPortalBlock.PortalShape(param3, param4, var1).isComplete()
             ? Blocks.AIR.defaultBlockState()
             : super.updateShape(param0, param1, param2, param3, param4, param5);
-    }
-
-    @Override
-    public BlockLayer getRenderLayer() {
-        return BlockLayer.TRANSLUCENT;
     }
 
     @Override

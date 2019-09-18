@@ -2,12 +2,7 @@ package net.minecraft.world.level.storage.loot.entries;
 
 import com.google.common.collect.Lists;
 import java.util.List;
-import java.util.Set;
-import java.util.function.Function;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.LootTableProblemCollector;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
+import net.minecraft.world.level.storage.loot.ValidationContext;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -39,10 +34,8 @@ public class AlternativesEntry extends CompositeEntryBase {
     }
 
     @Override
-    public void validate(
-        LootTableProblemCollector param0, Function<ResourceLocation, LootTable> param1, Set<ResourceLocation> param2, LootContextParamSet param3
-    ) {
-        super.validate(param0, param1, param2, param3);
+    public void validate(ValidationContext param0) {
+        super.validate(param0);
 
         for(int var0 = 0; var0 < this.children.length - 1; ++var0) {
             if (ArrayUtils.isEmpty((Object[])this.children[var0].conditions)) {

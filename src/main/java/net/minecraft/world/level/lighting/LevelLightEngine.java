@@ -7,8 +7,6 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.chunk.DataLayer;
 import net.minecraft.world.level.chunk.LightChunkGetter;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class LevelLightEngine implements LightEventListener {
     @Nullable
@@ -90,19 +88,6 @@ public class LevelLightEngine implements LightEventListener {
         } else {
             return (LayerLightEventListener)(this.skyEngine == null ? LayerLightEventListener.DummyLightLayerEventListener.INSTANCE : this.skyEngine);
         }
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public String getDebugData(LightLayer param0, SectionPos param1) {
-        if (param0 == LightLayer.BLOCK) {
-            if (this.blockEngine != null) {
-                return this.blockEngine.getDebugData(param1.asLong());
-            }
-        } else if (this.skyEngine != null) {
-            return this.skyEngine.getDebugData(param1.asLong());
-        }
-
-        return "n/a";
     }
 
     public void queueSectionData(LightLayer param0, SectionPos param1, @Nullable DataLayer param2) {

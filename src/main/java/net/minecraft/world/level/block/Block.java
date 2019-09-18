@@ -41,7 +41,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.BlockLayer;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.ItemLike;
@@ -102,6 +101,7 @@ public class Block implements ItemLike {
     private BlockState defaultBlockState;
     protected final boolean hasCollision;
     private final boolean dynamicShape;
+    private final boolean canOcclude;
     @Nullable
     private ResourceLocation drops;
     @Nullable
@@ -252,6 +252,7 @@ public class Block implements ItemLike {
         this.friction = param0.friction;
         this.dynamicShape = param0.dynamicShape;
         this.drops = param0.drops;
+        this.canOcclude = param0.canOcclude;
         this.stateDefinition = var0.create(BlockState::new);
         this.registerDefaultState(this.stateDefinition.any());
     }
@@ -363,8 +364,8 @@ public class Block implements ItemLike {
     }
 
     @Deprecated
-    public boolean canOcclude(BlockState param0) {
-        return this.hasCollision && this.getRenderLayer() == BlockLayer.SOLID;
+    public final boolean canOcclude(BlockState param0) {
+        return this.canOcclude;
     }
 
     @Deprecated
@@ -601,10 +602,6 @@ public class Block implements ItemLike {
     }
 
     public void wasExploded(Level param0, BlockPos param1, Explosion param2) {
-    }
-
-    public BlockLayer getRenderLayer() {
-        return BlockLayer.SOLID;
     }
 
     @Deprecated
@@ -862,6 +859,7 @@ public class Block implements ItemLike {
         private boolean isTicking;
         private float friction = 0.6F;
         private ResourceLocation drops;
+        private boolean canOcclude = true;
         private boolean dynamicShape;
 
         private Properties(Material param0, MaterialColor param1) {
@@ -893,11 +891,18 @@ public class Block implements ItemLike {
             var0.soundType = param0.soundType;
             var0.friction = param0.getFriction();
             var0.dynamicShape = param0.dynamicShape;
+            var0.canOcclude = param0.canOcclude;
             return var0;
         }
 
         public Block.Properties noCollission() {
             this.hasCollision = false;
+            this.canOcclude = false;
+            return this;
+        }
+
+        public Block.Properties noOcclusion() {
+            this.canOcclude = false;
             return this;
         }
 

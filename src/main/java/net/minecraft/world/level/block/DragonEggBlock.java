@@ -76,9 +76,4 @@ public class DragonEggBlock extends FallingBlock {
     public boolean isPathfindable(BlockState param0, BlockGetter param1, BlockPos param2, PathComputationType param3) {
         return false;
     }
-
-    @Override
-    public boolean canOcclude(BlockState param0) {
-        return false;
-    }
 }

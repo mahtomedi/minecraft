@@ -147,6 +147,14 @@ public class GsonHelper {
         }
     }
 
+    public static long getAsLong(JsonObject param0, String param1) {
+        if (param0.has(param1)) {
+            return convertToLong(param0.get(param1), param1);
+        } else {
+            throw new JsonSyntaxException("Missing " + param1 + ", expected to find a Long");
+        }
+    }
+
     public static long getAsLong(JsonObject param0, String param1, long param2) {
         return param0.has(param1) ? convertToLong(param0.get(param1), param1) : param2;
     }
@@ -219,6 +227,7 @@ public class GsonHelper {
         }
     }
 
+    @Nullable
     public static JsonArray getAsJsonArray(JsonObject param0, String param1, @Nullable JsonArray param2) {
         return param0.has(param1) ? convertToJsonArray(param0.get(param1), param1) : param2;
     }

@@ -1,11 +1,18 @@
 package com.mojang.math;
 
 import java.util.Arrays;
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public final class Vector3f {
+    public static Vector3f XN = new Vector3f(-1.0F, 0.0F, 0.0F);
+    public static Vector3f XP = new Vector3f(1.0F, 0.0F, 0.0F);
+    public static Vector3f YN = new Vector3f(0.0F, -1.0F, 0.0F);
+    public static Vector3f YP = new Vector3f(0.0F, 1.0F, 0.0F);
+    public static Vector3f ZN = new Vector3f(0.0F, 0.0F, -1.0F);
+    public static Vector3f ZP = new Vector3f(0.0F, 0.0F, 1.0F);
     private final float[] values;
 
     @OnlyIn(Dist.CLIENT)
@@ -17,7 +24,6 @@ public final class Vector3f {
         this.values = new float[3];
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Vector3f(float param0, float param1, float param2) {
         this.values = new float[]{param0, param1, param2};
     }
@@ -119,8 +125,10 @@ public final class Vector3f {
             var0 += this.values[var1] * this.values[var1];
         }
 
-        for(int var2 = 0; var2 < 3; ++var2) {
-            this.values[var2] /= var0;
+        float var2 = (float)Mth.fastInvSqrt((double)var0);
+
+        for(int var3 = 0; var3 < 3; ++var3) {
+            this.values[var3] *= var2;
         }
 
     }

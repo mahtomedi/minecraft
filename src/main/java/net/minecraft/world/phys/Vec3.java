@@ -82,11 +82,6 @@ public class Vec3 implements Position {
         return this.multiply(param0, param0, param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public Vec3 reverse() {
-        return this.scale(-1.0);
-    }
-
     public Vec3 multiply(Vec3 param0) {
         return this.multiply(param0.x, param0.y, param0.z);
     }

@@ -17,7 +17,7 @@ public class LeashKnotModel<T extends Entity> extends EntityModel<T> {
         this.texWidth = param2;
         this.texHeight = param3;
         this.knot = new ModelPart(this, param0, param1);
-        this.knot.addBox(-3.0F, -6.0F, -3.0F, 6, 8, 6, 0.0F);
+        this.knot.addBox(-3.0F, -6.0F, -3.0F, 6.0F, 8.0F, 6.0F, 0.0F);
         this.knot.setPos(0.0F, 0.0F, 0.0F);
     }
 

@@ -2,6 +2,7 @@ package net.minecraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BaseSpawner;
@@ -11,7 +12,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class SpawnerRenderer extends BlockEntityRenderer<SpawnerBlockEntity> {
-    public void render(SpawnerBlockEntity param0, double param1, double param2, double param3, float param4, int param5) {
+    public void render(SpawnerBlockEntity param0, double param1, double param2, double param3, float param4, int param5, RenderType param6) {
         RenderSystem.pushMatrix();
         RenderSystem.translatef((float)param1 + 0.5F, (float)param2, (float)param3 + 0.5F);
         render(param0.getSpawner(), param1, param2, param3, param4);

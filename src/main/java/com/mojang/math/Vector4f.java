@@ -62,6 +62,19 @@ public class Vector4f {
         this.values[3] = param3;
     }
 
+    public void transform(Matrix4f param0) {
+        float[] var0 = Arrays.copyOf(this.values, 4);
+
+        for(int var1 = 0; var1 < 4; ++var1) {
+            this.values[var1] = 0.0F;
+
+            for(int var2 = 0; var2 < 4; ++var2) {
+                this.values[var1] += param0.get(var1, var2) * var0[var2];
+            }
+        }
+
+    }
+
     public void transform(Quaternion param0) {
         Quaternion var0 = new Quaternion(param0);
         var0.mul(new Quaternion(this.x(), this.y(), this.z(), 0.0F));
