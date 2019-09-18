@@ -1,7 +1,6 @@
 package net.minecraft.client.renderer.block;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.Tesselator;
 import java.util.Random;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
@@ -38,12 +37,12 @@ public class BlockRenderDispatcher implements ResourceManagerReloadListener {
         return this.blockModelShaper;
     }
 
-    public void renderBreakingTexture(BlockState param0, BlockPos param1, TextureAtlasSprite param2, BlockAndBiomeGetter param3) {
-        if (param0.getRenderShape() == RenderShape.MODEL) {
-            BakedModel var0 = this.blockModelShaper.getBlockModel(param0);
-            long var1 = param0.getSeed(param1);
-            BakedModel var2 = new SimpleBakedModel.Builder(param0, var0, param2, this.random, var1).build();
-            this.modelRenderer.tesselateBlock(param3, var2, param0, param1, Tesselator.getInstance().getBuilder(), true, this.random, var1);
+    public void renderBreakingTexture(BufferBuilder param0, BlockState param1, BlockPos param2, TextureAtlasSprite param3, BlockAndBiomeGetter param4) {
+        if (param1.getRenderShape() == RenderShape.MODEL) {
+            BakedModel var0 = this.blockModelShaper.getBlockModel(param1);
+            long var1 = param1.getSeed(param2);
+            BakedModel var2 = new SimpleBakedModel.Builder(param1, var0, param3, this.random, var1).build();
+            this.modelRenderer.tesselateBlock(param4, var2, param1, param2, param0, true, this.random, var1);
         }
     }
 

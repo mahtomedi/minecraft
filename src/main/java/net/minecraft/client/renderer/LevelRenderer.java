@@ -1141,7 +1141,7 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
                             int var29 = var22.getProgress();
                             TextureAtlasSprite var30 = this.breakingTextures.get(var29);
                             BlockRenderDispatcher var31 = this.minecraft.getBlockRenderer();
-                            var31.renderBreakingTexture(var28, var23, var30, this.level);
+                            var31.renderBreakingTexture(this.builder, var28, var23, var30, this.level);
                         }
                     }
                 }
