@@ -2,7 +2,7 @@ package net.minecraft.client.particle;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
@@ -42,10 +42,9 @@ public class MobAppearanceParticle extends Particle {
     }
 
     @Override
-    public void render(BufferBuilder param0, Camera param1, float param2, float param3, float param4, float param5, float param6, float param7) {
+    public void render(VertexConsumer param0, Camera param1, float param2, float param3, float param4, float param5, float param6, float param7) {
         if (this.displayEntity != null) {
             EntityRenderDispatcher var0 = Minecraft.getInstance().getEntityRenderDispatcher();
-            var0.setPosition(Particle.xOff, Particle.yOff, Particle.zOff);
             float var1 = 1.0F / ElderGuardian.ELDER_SIZE_SCALE;
             float var2 = ((float)this.age + param2) / (float)this.lifetime;
             RenderSystem.depthMask(true);
@@ -53,7 +52,7 @@ public class MobAppearanceParticle extends Particle {
             RenderSystem.enableDepthTest();
             RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
             float var3 = 240.0F;
-            RenderSystem.glMultiTexCoord2f(33985, 240.0F, 240.0F);
+            RenderSystem.glMultiTexCoord2f(33986, 240.0F, 240.0F);
             RenderSystem.pushMatrix();
             float var4 = 0.05F + 0.5F * Mth.sin(var2 * (float) Math.PI);
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, var4);
@@ -66,7 +65,7 @@ public class MobAppearanceParticle extends Particle {
             this.displayEntity.yHeadRot = 0.0F;
             this.displayEntity.yRotO = 0.0F;
             this.displayEntity.yHeadRotO = 0.0F;
-            var0.render(this.displayEntity, 0.0, 0.0, 0.0, 0.0F, param2, false);
+            var0.render(this.displayEntity, param2);
             RenderSystem.popMatrix();
             RenderSystem.enableDepthTest();
         }

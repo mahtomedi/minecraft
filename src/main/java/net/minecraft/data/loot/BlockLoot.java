@@ -398,6 +398,18 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
             );
     }
 
+    private static LootTable.Builder createAttachedStemDrops(Block param0, Item param1) {
+        return LootTable.lootTable()
+            .withPool(
+                applyExplosionDecay(
+                    param0,
+                    LootPool.lootPool()
+                        .setRolls(ConstantIntValue.exactly(1))
+                        .add(LootItem.lootTableItem(param1).apply(SetItemCountFunction.setCount(BinomialDistributionGenerator.binomial(3, 0.53333336F))))
+                )
+            );
+    }
+
     private static LootTable.Builder createShearsOnlyDrop(ItemLike param0) {
         return LootTable.lootTable().withPool(LootPool.lootPool().setRolls(ConstantIntValue.exactly(1)).when(HAS_SHEARS).add(LootItem.lootTableItem(param0)));
     }
@@ -1198,7 +1210,9 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
             )
         );
         this.add(Blocks.MELON_STEM, param0x -> createStemDrops(param0x, Items.MELON_SEEDS));
+        this.add(Blocks.ATTACHED_MELON_STEM, param0x -> createAttachedStemDrops(param0x, Items.MELON_SEEDS));
         this.add(Blocks.PUMPKIN_STEM, param0x -> createStemDrops(param0x, Items.PUMPKIN_SEEDS));
+        this.add(Blocks.ATTACHED_PUMPKIN_STEM, param0x -> createAttachedStemDrops(param0x, Items.PUMPKIN_SEEDS));
         this.add(
             Blocks.CHORUS_FLOWER,
             param0x -> LootTable.lootTable()
@@ -1478,8 +1492,6 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
         this.otherWhenSilkTouch(Blocks.INFESTED_CRACKED_STONE_BRICKS, Blocks.CRACKED_STONE_BRICKS);
         this.otherWhenSilkTouch(Blocks.INFESTED_CHISELED_STONE_BRICKS, Blocks.CHISELED_STONE_BRICKS);
         this.add(Blocks.CAKE, noDrop());
-        this.add(Blocks.ATTACHED_PUMPKIN_STEM, noDrop());
-        this.add(Blocks.ATTACHED_MELON_STEM, noDrop());
         this.add(Blocks.FROSTED_ICE, noDrop());
         this.add(Blocks.SPAWNER, noDrop());
         Set<ResourceLocation> var4 = Sets.newHashSet();

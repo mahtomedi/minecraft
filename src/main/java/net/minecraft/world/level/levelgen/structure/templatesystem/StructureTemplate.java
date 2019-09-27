@@ -348,9 +348,9 @@ public class StructureTemplate {
                 Vec3 var3 = transform(var0.pos, param2, param3, param4);
                 Vec3 var4 = var3.add((double)param1.getX(), (double)param1.getY(), (double)param1.getZ());
                 ListTag var5 = new ListTag();
-                var5.add(new DoubleTag(var4.x));
-                var5.add(new DoubleTag(var4.y));
-                var5.add(new DoubleTag(var4.z));
+                var5.add(DoubleTag.valueOf(var4.x));
+                var5.add(DoubleTag.valueOf(var4.y));
+                var5.add(DoubleTag.valueOf(var4.z));
                 var2.put("Pos", var5);
                 var2.remove("UUIDMost");
                 var2.remove("UUIDLeast");
@@ -663,7 +663,7 @@ public class StructureTemplate {
         ListTag var0 = new ListTag();
 
         for(int var1 : param0) {
-            var0.add(new IntTag(var1));
+            var0.add(IntTag.valueOf(var1));
         }
 
         return var0;
@@ -673,7 +673,7 @@ public class StructureTemplate {
         ListTag var0 = new ListTag();
 
         for(double var1 : param0) {
-            var0.add(new DoubleTag(var1));
+            var0.add(DoubleTag.valueOf(var1));
         }
 
         return var0;

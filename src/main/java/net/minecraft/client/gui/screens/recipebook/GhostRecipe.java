@@ -1,7 +1,6 @@
 package net.minecraft.client.gui.screens.recipebook;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -54,9 +53,6 @@ public class GhostRecipe {
             this.time += param4;
         }
 
-        Lighting.turnOnGui();
-        RenderSystem.disableLighting();
-
         for(int var0 = 0; var0 < this.ingredients.size(); ++var0) {
             GhostRecipe.GhostIngredient var1 = this.ingredients.get(var0);
             int var2 = var1.getX() + param1;
@@ -76,11 +72,8 @@ public class GhostRecipe {
             if (var0 == 0) {
                 var5.renderGuiItemDecorations(param0.font, var4, var2, var3);
             }
-
-            RenderSystem.enableLighting();
         }
 
-        Lighting.turnOff();
     }
 
     @OnlyIn(Dist.CLIENT)

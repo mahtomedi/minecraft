@@ -11,7 +11,6 @@ import com.mojang.authlib.minecraft.InsecureTextureException;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
-import com.mojang.blaze3d.platform.TextureObject;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.io.File;
 import java.util.Map;
@@ -19,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.HttpTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
@@ -56,7 +56,7 @@ public class SkinManager {
     public ResourceLocation registerTexture(MinecraftProfileTexture param0, Type param1, @Nullable SkinManager.SkinTextureCallback param2) {
         String var0 = Hashing.sha1().hashUnencodedChars(param0.getHash()).toString();
         ResourceLocation var1 = new ResourceLocation("skins/" + var0);
-        TextureObject var2 = this.textureManager.getTexture(var1);
+        AbstractTexture var2 = this.textureManager.getTexture(var1);
         if (var2 != null) {
             if (param2 != null) {
                 param2.onSkinTextureAvailable(param1, var1, param0);

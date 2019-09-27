@@ -7,9 +7,30 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 
 public class EndTag implements Tag {
-    @Override
-    public void load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
-        param2.accountBits(64L);
+    public static final TagType<EndTag> TYPE = new TagType<EndTag>() {
+        public EndTag load(DataInput param0, int param1, NbtAccounter param2) {
+            param2.accountBits(64L);
+            return EndTag.INSTANCE;
+        }
+
+        @Override
+        public String getName() {
+            return "END";
+        }
+
+        @Override
+        public String getPrettyName() {
+            return "TAG_End";
+        }
+
+        @Override
+        public boolean isValue() {
+            return true;
+        }
+    };
+    public static final EndTag INSTANCE = new EndTag();
+
+    private EndTag() {
     }
 
     @Override
@@ -22,26 +43,21 @@ public class EndTag implements Tag {
     }
 
     @Override
+    public TagType<EndTag> getType() {
+        return TYPE;
+    }
+
+    @Override
     public String toString() {
         return "END";
     }
 
     public EndTag copy() {
-        return new EndTag();
+        return this;
     }
 
     @Override
     public Component getPrettyDisplay(String param0, int param1) {
         return new TextComponent("");
-    }
-
-    @Override
-    public boolean equals(Object param0) {
-        return param0 instanceof EndTag;
-    }
-
-    @Override
-    public int hashCode() {
-        return this.getId();
     }
 }

@@ -8,13 +8,36 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.Mth;
 
 public class DoubleTag extends NumericTag {
-    private double data;
+    public static final DoubleTag ZERO = new DoubleTag(0.0);
+    public static final TagType<DoubleTag> TYPE = new TagType<DoubleTag>() {
+        public DoubleTag load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
+            param2.accountBits(128L);
+            return DoubleTag.valueOf(param0.readDouble());
+        }
 
-    DoubleTag() {
+        @Override
+        public String getName() {
+            return "DOUBLE";
+        }
+
+        @Override
+        public String getPrettyName() {
+            return "TAG_Double";
+        }
+
+        @Override
+        public boolean isValue() {
+            return true;
+        }
+    };
+    private final double data;
+
+    private DoubleTag(double param0) {
+        this.data = param0;
     }
 
-    public DoubleTag(double param0) {
-        this.data = param0;
+    public static DoubleTag valueOf(double param0) {
+        return param0 == 0.0 ? ZERO : new DoubleTag(param0);
     }
 
     @Override
@@ -23,14 +46,13 @@ public class DoubleTag extends NumericTag {
     }
 
     @Override
-    public void load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
-        param2.accountBits(128L);
-        this.data = param0.readDouble();
+    public byte getId() {
+        return 6;
     }
 
     @Override
-    public byte getId() {
-        return 6;
+    public TagType<DoubleTag> getType() {
+        return TYPE;
     }
 
     @Override
@@ -39,7 +61,7 @@ public class DoubleTag extends NumericTag {
     }
 
     public DoubleTag copy() {
-        return new DoubleTag(this.data);
+        return this;
     }
 
     @Override

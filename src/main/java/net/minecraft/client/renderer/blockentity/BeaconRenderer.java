@@ -1,12 +1,13 @@
 package net.minecraft.client.renderer.blockentity;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Vector3f;
 import java.util.List;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BeaconBlockEntity;
@@ -15,147 +16,175 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class BeaconRenderer extends BlockEntityRenderer<BeaconBlockEntity> {
-    private static final ResourceLocation BEAM_LOCATION = new ResourceLocation("textures/entity/beacon_beam.png");
+    public static final ResourceLocation BEAM_LOCATION = new ResourceLocation("textures/entity/beacon_beam.png");
 
-    public void render(BeaconBlockEntity param0, double param1, double param2, double param3, float param4, int param5, RenderType param6) {
-        this.renderBeaconBeam(param1, param2, param3, (double)param4, param0.getBeamSections(), param0.getLevel().getGameTime());
+    public BeaconRenderer(BlockEntityRenderDispatcher param0) {
+        super(param0);
     }
 
-    private void renderBeaconBeam(double param0, double param1, double param2, double param3, List<BeaconBlockEntity.BeaconBeamSection> param4, long param5) {
-        RenderSystem.defaultAlphaFunc();
-        this.bindTexture(BEAM_LOCATION);
-        RenderSystem.disableFog();
-        int var0 = 0;
+    public void render(
+        BeaconBlockEntity param0, double param1, double param2, double param3, float param4, PoseStack param5, MultiBufferSource param6, int param7
+    ) {
+        long var0 = param0.getLevel().getGameTime();
+        List<BeaconBlockEntity.BeaconBeamSection> var1 = param0.getBeamSections();
+        int var2 = 0;
 
-        for(int var1 = 0; var1 < param4.size(); ++var1) {
-            BeaconBlockEntity.BeaconBeamSection var2 = param4.get(var1);
-            renderBeaconBeam(param0, param1, param2, param3, param5, var0, var1 == param4.size() - 1 ? 1024 : var2.getHeight(), var2.getColor());
-            var0 += var2.getHeight();
+        for(int var3 = 0; var3 < var1.size(); ++var3) {
+            BeaconBlockEntity.BeaconBeamSection var4 = var1.get(var3);
+            renderBeaconBeam(param5, param6, param4, var0, var2, var3 == var1.size() - 1 ? 1024 : var4.getHeight(), var4.getColor());
+            var2 += var4.getHeight();
         }
 
-        RenderSystem.enableFog();
     }
 
-    private static void renderBeaconBeam(double param0, double param1, double param2, double param3, long param4, int param5, int param6, float[] param7) {
-        renderBeaconBeam(param0, param1, param2, param3, 1.0, param4, param5, param6, param7, 0.2, 0.25);
+    private static void renderBeaconBeam(PoseStack param0, MultiBufferSource param1, float param2, long param3, int param4, int param5, float[] param6) {
+        renderBeaconBeam(param0, param1, BEAM_LOCATION, param2, 1.0F, param3, param4, param5, param6, 0.2F, 0.25F);
     }
 
     public static void renderBeaconBeam(
-        double param0,
-        double param1,
-        double param2,
-        double param3,
-        double param4,
+        PoseStack param0,
+        MultiBufferSource param1,
+        ResourceLocation param2,
+        float param3,
+        float param4,
         long param5,
         int param6,
         int param7,
         float[] param8,
-        double param9,
-        double param10
+        float param9,
+        float param10
     ) {
         int var0 = param6 + param7;
-        RenderSystem.texParameter(3553, 10242, 10497);
-        RenderSystem.texParameter(3553, 10243, 10497);
-        RenderSystem.disableLighting();
-        RenderSystem.disableBlend();
-        RenderSystem.depthMask(true);
-        RenderSystem.blendFuncSeparate(
-            GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO
+        param0.pushPose();
+        param0.translate(0.5, 0.0, 0.5);
+        float var1 = (float)Math.floorMod(param5, 40L) + param3;
+        float var2 = param7 < 0 ? var1 : -var1;
+        float var3 = Mth.frac(var2 * 0.2F - (float)Mth.floor(var2 * 0.1F));
+        float var4 = param8[0];
+        float var5 = param8[1];
+        float var6 = param8[2];
+        param0.pushPose();
+        param0.mulPose(Vector3f.YP.rotation(var1 * 2.25F - 45.0F, true));
+        float var7 = 0.0F;
+        float var10 = 0.0F;
+        float var11 = -param9;
+        float var12 = 0.0F;
+        float var13 = 0.0F;
+        float var14 = -param9;
+        float var15 = 0.0F;
+        float var16 = 1.0F;
+        float var17 = -1.0F + var3;
+        float var18 = (float)param7 * param4 * (0.5F / param9) + var17;
+        VertexConsumer var19 = param1.getBuffer(RenderType.NEW_ENTITY(param2));
+        OverlayTexture.setDefault(var19);
+        renderPart(param0, var19, var4, var5, var6, 1.0F, param6, var0, 0.0F, param9, param9, 0.0F, var11, 0.0F, 0.0F, var14, 0.0F, 1.0F, var18, var17);
+        var19.unsetDefaultOverlayCoords();
+        param0.popPose();
+        var7 = -param10;
+        float var21 = -param10;
+        var10 = -param10;
+        var11 = -param10;
+        var15 = 0.0F;
+        var16 = 1.0F;
+        var17 = -1.0F + var3;
+        var18 = (float)param7 * param4 + var17;
+        renderPart(
+            param0,
+            param1.getBuffer(RenderType.BEACON_BEAM),
+            var4,
+            var5,
+            var6,
+            0.125F,
+            param6,
+            var0,
+            var7,
+            var21,
+            param10,
+            var10,
+            var11,
+            param10,
+            param10,
+            param10,
+            0.0F,
+            1.0F,
+            var18,
+            var17
         );
-        RenderSystem.pushMatrix();
-        RenderSystem.translated(param0 + 0.5, param1, param2 + 0.5);
-        Tesselator var1 = Tesselator.getInstance();
-        BufferBuilder var2 = var1.getBuilder();
-        double var3 = (double)Math.floorMod(param5, 40L) + param3;
-        double var4 = param7 < 0 ? var3 : -var3;
-        double var5 = Mth.frac(var4 * 0.2 - (double)Mth.floor(var4 * 0.1));
-        float var6 = param8[0];
-        float var7 = param8[1];
-        float var8 = param8[2];
-        RenderSystem.pushMatrix();
-        RenderSystem.rotated(var3 * 2.25 - 45.0, 0.0, 1.0, 0.0);
-        double var9 = 0.0;
-        double var12 = 0.0;
-        double var13 = -param9;
-        double var14 = 0.0;
-        double var15 = 0.0;
-        double var16 = -param9;
-        double var17 = 0.0;
-        double var18 = 1.0;
-        double var19 = -1.0 + var5;
-        double var20 = (double)param7 * param4 * (0.5 / param9) + var19;
-        var2.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
-        renderPart(var2, var6, var7, var8, 1.0F, param6, var0, 0.0, param9, param9, 0.0, var13, 0.0, 0.0, var16, 0.0, 1.0, var20, var19);
-        var1.end();
-        RenderSystem.popMatrix();
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.depthMask(false);
-        var9 = -param10;
-        double var22 = -param10;
-        var12 = -param10;
-        var13 = -param10;
-        var17 = 0.0;
-        var18 = 1.0;
-        var19 = -1.0 + var5;
-        var20 = (double)param7 * param4 + var19;
-        var2.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
-        renderPart(var2, var6, var7, var8, 0.125F, param6, var0, var9, var22, param10, var12, var13, param10, param10, param10, 0.0, 1.0, var20, var19);
-        var1.end();
-        RenderSystem.popMatrix();
-        RenderSystem.enableLighting();
-        RenderSystem.enableTexture();
-        RenderSystem.depthMask(true);
+        param0.popPose();
     }
 
     private static void renderPart(
-        BufferBuilder param0,
-        float param1,
+        PoseStack param0,
+        VertexConsumer param1,
         float param2,
         float param3,
         float param4,
-        int param5,
+        float param5,
         int param6,
-        double param7,
-        double param8,
-        double param9,
-        double param10,
-        double param11,
-        double param12,
-        double param13,
-        double param14,
-        double param15,
-        double param16,
-        double param17,
-        double param18
+        int param7,
+        float param8,
+        float param9,
+        float param10,
+        float param11,
+        float param12,
+        float param13,
+        float param14,
+        float param15,
+        float param16,
+        float param17,
+        float param18,
+        float param19
     ) {
-        renderQuad(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param15, param16, param17, param18);
-        renderQuad(param0, param1, param2, param3, param4, param5, param6, param13, param14, param11, param12, param15, param16, param17, param18);
-        renderQuad(param0, param1, param2, param3, param4, param5, param6, param9, param10, param13, param14, param15, param16, param17, param18);
-        renderQuad(param0, param1, param2, param3, param4, param5, param6, param11, param12, param7, param8, param15, param16, param17, param18);
+        Matrix4f var0 = param0.getPose();
+        renderQuad(var0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param16, param17, param18, param19);
+        renderQuad(var0, param1, param2, param3, param4, param5, param6, param7, param14, param15, param12, param13, param16, param17, param18, param19);
+        renderQuad(var0, param1, param2, param3, param4, param5, param6, param7, param10, param11, param14, param15, param16, param17, param18, param19);
+        renderQuad(var0, param1, param2, param3, param4, param5, param6, param7, param12, param13, param8, param9, param16, param17, param18, param19);
     }
 
     private static void renderQuad(
-        BufferBuilder param0,
-        float param1,
+        Matrix4f param0,
+        VertexConsumer param1,
         float param2,
         float param3,
         float param4,
-        int param5,
+        float param5,
         int param6,
-        double param7,
-        double param8,
-        double param9,
-        double param10,
-        double param11,
-        double param12,
-        double param13,
-        double param14
+        int param7,
+        float param8,
+        float param9,
+        float param10,
+        float param11,
+        float param12,
+        float param13,
+        float param14,
+        float param15
     ) {
-        param0.vertex(param7, (double)param6, param8).uv(param12, param13).color(param1, param2, param3, param4).endVertex();
-        param0.vertex(param7, (double)param5, param8).uv(param12, param14).color(param1, param2, param3, param4).endVertex();
-        param0.vertex(param9, (double)param5, param10).uv(param11, param14).color(param1, param2, param3, param4).endVertex();
-        param0.vertex(param9, (double)param6, param10).uv(param11, param13).color(param1, param2, param3, param4).endVertex();
+        addVertex(param0, param1, param2, param3, param4, param5, param7, param8, param9, param13, param14);
+        addVertex(param0, param1, param2, param3, param4, param5, param6, param8, param9, param13, param15);
+        addVertex(param0, param1, param2, param3, param4, param5, param6, param10, param11, param12, param15);
+        addVertex(param0, param1, param2, param3, param4, param5, param7, param10, param11, param12, param14);
+    }
+
+    private static void addVertex(
+        Matrix4f param0,
+        VertexConsumer param1,
+        float param2,
+        float param3,
+        float param4,
+        float param5,
+        int param6,
+        float param7,
+        float param8,
+        float param9,
+        float param10
+    ) {
+        param1.vertex(param0, param7, (float)param6, param8)
+            .color(param2, param3, param4, param5)
+            .uv(param9, param10)
+            .uv2(15728880)
+            .normal(0.0F, 1.0F, 0.0F)
+            .endVertex();
     }
 
     public boolean shouldRenderOffScreen(BeaconBlockEntity param0) {

@@ -1,11 +1,11 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import javax.annotation.Nullable;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.PufferfishBigModel;
 import net.minecraft.client.model.PufferfishMidModel;
 import net.minecraft.client.model.PufferfishSmallModel;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.animal.Pufferfish;
@@ -25,12 +25,11 @@ public class PufferfishRenderer extends MobRenderer<Pufferfish, EntityModel<Puff
         this.puffStateO = 3;
     }
 
-    @Nullable
-    protected ResourceLocation getTextureLocation(Pufferfish param0) {
+    public ResourceLocation getTextureLocation(Pufferfish param0) {
         return PUFFER_LOCATION;
     }
 
-    public void render(Pufferfish param0, double param1, double param2, double param3, float param4, float param5) {
+    public void render(Pufferfish param0, double param1, double param2, double param3, float param4, float param5, PoseStack param6, MultiBufferSource param7) {
         int var0 = param0.getPuffState();
         if (var0 != this.puffStateO) {
             if (var0 == 0) {
@@ -44,11 +43,11 @@ public class PufferfishRenderer extends MobRenderer<Pufferfish, EntityModel<Puff
 
         this.puffStateO = var0;
         this.shadowRadius = 0.1F + 0.1F * (float)var0;
-        super.render(param0, param1, param2, param3, param4, param5);
+        super.render(param0, param1, param2, param3, param4, param5, param6, param7);
     }
 
-    protected void setupRotations(Pufferfish param0, float param1, float param2, float param3) {
-        RenderSystem.translatef(0.0F, Mth.cos(param1 * 0.05F) * 0.08F, 0.0F);
-        super.setupRotations(param0, param1, param2, param3);
+    protected void setupRotations(Pufferfish param0, PoseStack param1, float param2, float param3, float param4) {
+        param1.translate(0.0, (double)(Mth.cos(param2 * 0.05F) * 0.08F), 0.0);
+        super.setupRotations(param0, param1, param2, param3, param4);
     }
 }

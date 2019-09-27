@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.HorseModel;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraftforge.api.distmarker.Dist;
@@ -15,8 +15,8 @@ public abstract class AbstractHorseRenderer<T extends AbstractHorse, M extends H
         this.scale = param2;
     }
 
-    protected void scale(T param0, float param1) {
-        RenderSystem.scalef(this.scale, this.scale, this.scale);
-        super.scale(param0, param1);
+    protected void scale(T param0, PoseStack param1, float param2) {
+        param1.scale(this.scale, this.scale, this.scale);
+        super.scale(param0, param1, param2);
     }
 }

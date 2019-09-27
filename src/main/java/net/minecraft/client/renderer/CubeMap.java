@@ -57,45 +57,45 @@ public class CubeMap {
                 var1.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
                 int var8 = Math.round(255.0F * param3) / (var3 + 1);
                 if (var7 == 0) {
-                    var1.vertex(-1.0, -1.0, 1.0).uv(0.0, 0.0).color(255, 255, 255, var8).endVertex();
-                    var1.vertex(-1.0, 1.0, 1.0).uv(0.0, 1.0).color(255, 255, 255, var8).endVertex();
-                    var1.vertex(1.0, 1.0, 1.0).uv(1.0, 1.0).color(255, 255, 255, var8).endVertex();
-                    var1.vertex(1.0, -1.0, 1.0).uv(1.0, 0.0).color(255, 255, 255, var8).endVertex();
+                    var1.vertex(-1.0, -1.0, 1.0).uv(0.0F, 0.0F).color(255, 255, 255, var8).endVertex();
+                    var1.vertex(-1.0, 1.0, 1.0).uv(0.0F, 1.0F).color(255, 255, 255, var8).endVertex();
+                    var1.vertex(1.0, 1.0, 1.0).uv(1.0F, 1.0F).color(255, 255, 255, var8).endVertex();
+                    var1.vertex(1.0, -1.0, 1.0).uv(1.0F, 0.0F).color(255, 255, 255, var8).endVertex();
                 }
 
                 if (var7 == 1) {
-                    var1.vertex(1.0, -1.0, 1.0).uv(0.0, 0.0).color(255, 255, 255, var8).endVertex();
-                    var1.vertex(1.0, 1.0, 1.0).uv(0.0, 1.0).color(255, 255, 255, var8).endVertex();
-                    var1.vertex(1.0, 1.0, -1.0).uv(1.0, 1.0).color(255, 255, 255, var8).endVertex();
-                    var1.vertex(1.0, -1.0, -1.0).uv(1.0, 0.0).color(255, 255, 255, var8).endVertex();
+                    var1.vertex(1.0, -1.0, 1.0).uv(0.0F, 0.0F).color(255, 255, 255, var8).endVertex();
+                    var1.vertex(1.0, 1.0, 1.0).uv(0.0F, 1.0F).color(255, 255, 255, var8).endVertex();
+                    var1.vertex(1.0, 1.0, -1.0).uv(1.0F, 1.0F).color(255, 255, 255, var8).endVertex();
+                    var1.vertex(1.0, -1.0, -1.0).uv(1.0F, 0.0F).color(255, 255, 255, var8).endVertex();
                 }
 
                 if (var7 == 2) {
-                    var1.vertex(1.0, -1.0, -1.0).uv(0.0, 0.0).color(255, 255, 255, var8).endVertex();
-                    var1.vertex(1.0, 1.0, -1.0).uv(0.0, 1.0).color(255, 255, 255, var8).endVertex();
-                    var1.vertex(-1.0, 1.0, -1.0).uv(1.0, 1.0).color(255, 255, 255, var8).endVertex();
-                    var1.vertex(-1.0, -1.0, -1.0).uv(1.0, 0.0).color(255, 255, 255, var8).endVertex();
+                    var1.vertex(1.0, -1.0, -1.0).uv(0.0F, 0.0F).color(255, 255, 255, var8).endVertex();
+                    var1.vertex(1.0, 1.0, -1.0).uv(0.0F, 1.0F).color(255, 255, 255, var8).endVertex();
+                    var1.vertex(-1.0, 1.0, -1.0).uv(1.0F, 1.0F).color(255, 255, 255, var8).endVertex();
+                    var1.vertex(-1.0, -1.0, -1.0).uv(1.0F, 0.0F).color(255, 255, 255, var8).endVertex();
                 }
 
                 if (var7 == 3) {
-                    var1.vertex(-1.0, -1.0, -1.0).uv(0.0, 0.0).color(255, 255, 255, var8).endVertex();
-                    var1.vertex(-1.0, 1.0, -1.0).uv(0.0, 1.0).color(255, 255, 255, var8).endVertex();
-                    var1.vertex(-1.0, 1.0, 1.0).uv(1.0, 1.0).color(255, 255, 255, var8).endVertex();
-                    var1.vertex(-1.0, -1.0, 1.0).uv(1.0, 0.0).color(255, 255, 255, var8).endVertex();
+                    var1.vertex(-1.0, -1.0, -1.0).uv(0.0F, 0.0F).color(255, 255, 255, var8).endVertex();
+                    var1.vertex(-1.0, 1.0, -1.0).uv(0.0F, 1.0F).color(255, 255, 255, var8).endVertex();
+                    var1.vertex(-1.0, 1.0, 1.0).uv(1.0F, 1.0F).color(255, 255, 255, var8).endVertex();
+                    var1.vertex(-1.0, -1.0, 1.0).uv(1.0F, 0.0F).color(255, 255, 255, var8).endVertex();
                 }
 
                 if (var7 == 4) {
-                    var1.vertex(-1.0, -1.0, -1.0).uv(0.0, 0.0).color(255, 255, 255, var8).endVertex();
-                    var1.vertex(-1.0, -1.0, 1.0).uv(0.0, 1.0).color(255, 255, 255, var8).endVertex();
-                    var1.vertex(1.0, -1.0, 1.0).uv(1.0, 1.0).color(255, 255, 255, var8).endVertex();
-                    var1.vertex(1.0, -1.0, -1.0).uv(1.0, 0.0).color(255, 255, 255, var8).endVertex();
+                    var1.vertex(-1.0, -1.0, -1.0).uv(0.0F, 0.0F).color(255, 255, 255, var8).endVertex();
+                    var1.vertex(-1.0, -1.0, 1.0).uv(0.0F, 1.0F).color(255, 255, 255, var8).endVertex();
+                    var1.vertex(1.0, -1.0, 1.0).uv(1.0F, 1.0F).color(255, 255, 255, var8).endVertex();
+                    var1.vertex(1.0, -1.0, -1.0).uv(1.0F, 0.0F).color(255, 255, 255, var8).endVertex();
                 }
 
                 if (var7 == 5) {
-                    var1.vertex(-1.0, 1.0, 1.0).uv(0.0, 0.0).color(255, 255, 255, var8).endVertex();
-                    var1.vertex(-1.0, 1.0, -1.0).uv(0.0, 1.0).color(255, 255, 255, var8).endVertex();
-                    var1.vertex(1.0, 1.0, -1.0).uv(1.0, 1.0).color(255, 255, 255, var8).endVertex();
-                    var1.vertex(1.0, 1.0, 1.0).uv(1.0, 0.0).color(255, 255, 255, var8).endVertex();
+                    var1.vertex(-1.0, 1.0, 1.0).uv(0.0F, 0.0F).color(255, 255, 255, var8).endVertex();
+                    var1.vertex(-1.0, 1.0, -1.0).uv(0.0F, 1.0F).color(255, 255, 255, var8).endVertex();
+                    var1.vertex(1.0, 1.0, -1.0).uv(1.0F, 1.0F).color(255, 255, 255, var8).endVertex();
+                    var1.vertex(1.0, 1.0, 1.0).uv(1.0F, 0.0F).color(255, 255, 255, var8).endVertex();
                 }
 
                 var0.end();
@@ -105,7 +105,6 @@ public class CubeMap {
             RenderSystem.colorMask(true, true, true, false);
         }
 
-        var1.offset(0.0, 0.0, 0.0);
         RenderSystem.colorMask(true, true, true, true);
         RenderSystem.matrixMode(5889);
         RenderSystem.popMatrix();

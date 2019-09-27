@@ -108,7 +108,7 @@ public class CreateBuffetWorldScreen extends Screen {
         var1.putString("type", Registry.BIOME_SOURCE_TYPE.getKey(BiomeSourceType.FIXED).toString());
         CompoundTag var2 = new CompoundTag();
         ListTag var3 = new ListTag();
-        var3.add(new StringTag(this.list.getSelected().key.toString()));
+        var3.add(StringTag.valueOf(this.list.getSelected().key.toString()));
         var2.put("biomes", var3);
         var1.put("options", var2);
         CompoundTag var4 = new CompoundTag();

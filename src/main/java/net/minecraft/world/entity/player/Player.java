@@ -1874,19 +1874,6 @@ public abstract class Player extends LivingEntity {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public boolean isInvisibleTo(Player param0) {
-        if (!this.isInvisible()) {
-            return false;
-        } else if (param0.isSpectator()) {
-            return false;
-        } else {
-            Team var0 = this.getTeam();
-            return var0 == null || param0 == null || param0.getTeam() != var0 || !var0.canSeeFriendlyInvisibles();
-        }
-    }
-
     @Override
     public abstract boolean isSpectator();
 

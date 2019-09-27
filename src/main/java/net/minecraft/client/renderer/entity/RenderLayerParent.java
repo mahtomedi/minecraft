@@ -10,7 +10,5 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public interface RenderLayerParent<T extends Entity, M extends EntityModel<T>> {
     M getModel();
 
-    void bindTexture(ResourceLocation var1);
-
-    void setLightColor(T var1);
+    ResourceLocation getTextureLocation(T var1);
 }

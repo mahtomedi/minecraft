@@ -23,6 +23,7 @@ import net.minecraft.client.ClientBrandRetriever;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -319,18 +320,19 @@ public class DebugScreenOverlay extends GuiComponent {
                 var17.add("Outside of world...");
             }
 
-            if (this.minecraft.gameRenderer != null && this.minecraft.gameRenderer.postEffectActive()) {
-                var17.add("Shader: " + this.minecraft.gameRenderer.currentEffect().getName());
+            PostChain var31 = this.minecraft.gameRenderer.currentEffect();
+            if (var31 != null) {
+                var17.add("Shader: " + var31.getName());
             }
 
             if (this.block.getType() == HitResult.Type.BLOCK) {
-                BlockPos var31 = ((BlockHitResult)this.block).getBlockPos();
-                var17.add(String.format("Looking at block: %d %d %d", var31.getX(), var31.getY(), var31.getZ()));
+                BlockPos var32 = ((BlockHitResult)this.block).getBlockPos();
+                var17.add(String.format("Looking at block: %d %d %d", var32.getX(), var32.getY(), var32.getZ()));
             }
 
             if (this.liquid.getType() == HitResult.Type.BLOCK) {
-                BlockPos var32 = ((BlockHitResult)this.liquid).getBlockPos();
-                var17.add(String.format("Looking at liquid: %d %d %d", var32.getX(), var32.getY(), var32.getZ()));
+                BlockPos var33 = ((BlockHitResult)this.liquid).getBlockPos();
+                var17.add(String.format("Looking at liquid: %d %d %d", var33.getX(), var33.getY(), var33.getZ()));
             }
 
             var17.add(this.minecraft.getSoundManager().getDebugString());

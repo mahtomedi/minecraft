@@ -20,7 +20,7 @@ public class SpiderRenderer<T extends Spider> extends MobRenderer<T, SpiderModel
         return 180.0F;
     }
 
-    protected ResourceLocation getTextureLocation(T param0) {
+    public ResourceLocation getTextureLocation(T param0) {
         return SPIDER_LOCATION;
     }
 }

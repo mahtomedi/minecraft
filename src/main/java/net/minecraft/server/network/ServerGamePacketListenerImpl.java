@@ -180,6 +180,9 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
 
     public void tick() {
         this.resetPosition();
+        this.player.xo = this.player.x;
+        this.player.yo = this.player.y;
+        this.player.zo = this.player.z;
         this.player.doTick();
         this.player.absMoveTo(this.firstGoodX, this.firstGoodY, this.firstGoodZ, this.player.yRot, this.player.xRot);
         ++this.tickCount;
@@ -659,15 +662,15 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
                             var2.setTag(var3.copy());
                         }
 
-                        var2.addTagElement("author", new StringTag(this.player.getName().getString()));
-                        var2.addTagElement("title", new StringTag(var0.getTag().getString("title")));
+                        var2.addTagElement("author", StringTag.valueOf(this.player.getName().getString()));
+                        var2.addTagElement("title", StringTag.valueOf(var0.getTag().getString("title")));
                         ListTag var4 = var0.getTag().getList("pages", 8);
 
                         for(int var5 = 0; var5 < var4.size(); ++var5) {
                             String var6 = var4.getString(var5);
                             Component var7 = new TextComponent(var6);
                             var6 = Component.Serializer.toJson(var7);
-                            var4.set(var5, (Tag)(new StringTag(var6)));
+                            var4.set(var5, (Tag)StringTag.valueOf(var6));
                         }
 
                         var2.addTagElement("pages", var4);

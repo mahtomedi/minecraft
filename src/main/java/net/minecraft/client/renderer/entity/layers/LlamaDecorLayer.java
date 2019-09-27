@@ -1,6 +1,8 @@
 package net.minecraft.client.renderer.entity.layers;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.LlamaModel;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.animal.horse.Llama;
@@ -35,24 +37,33 @@ public class LlamaDecorLayer extends RenderLayer<Llama, LlamaModel<Llama>> {
         super(param0);
     }
 
-    public void render(Llama param0, float param1, float param2, float param3, float param4, float param5, float param6, float param7) {
-        DyeColor var0 = param0.getSwag();
+    public void render(
+        PoseStack param0,
+        MultiBufferSource param1,
+        int param2,
+        Llama param3,
+        float param4,
+        float param5,
+        float param6,
+        float param7,
+        float param8,
+        float param9,
+        float param10
+    ) {
+        DyeColor var0 = param3.getSwag();
+        ResourceLocation var1;
         if (var0 != null) {
-            this.bindTexture(TEXTURE_LOCATION[var0.getId()]);
+            var1 = TEXTURE_LOCATION[var0.getId()];
         } else {
-            if (!param0.isTraderLlama()) {
+            if (!param3.isTraderLlama()) {
                 return;
             }
 
-            this.bindTexture(TRADER_LLAMA);
+            var1 = TRADER_LLAMA;
         }
 
         this.getParentModel().copyPropertiesTo(this.model);
-        this.model.render(param0, param1, param2, param4, param5, param6, param7);
-    }
-
-    @Override
-    public boolean colorsOnDamage() {
-        return false;
+        this.model.setupAnim(param3, param4, param5, param7, param8, param9, param10);
+        renderModel(this.model, var1, param0, param1, param2, 1.0F, 1.0F, 1.0F);
     }
 }

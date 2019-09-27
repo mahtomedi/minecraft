@@ -1,5 +1,7 @@
 package net.minecraft.client.model;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
@@ -30,10 +32,9 @@ public class VexModel extends HumanoidModel<Vex> {
         this.leftWing.addBox(0.0F, 0.0F, 0.0F, 20.0F, 12.0F, 1.0F);
     }
 
-    public void render(Vex param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        super.render(param0, param1, param2, param3, param4, param5, param6);
-        this.rightWing.render(param6);
-        this.leftWing.render(param6);
+    @Override
+    protected Iterable<ModelPart> bodyParts() {
+        return Iterables.concat(super.bodyParts(), ImmutableList.of(this.rightWing, this.leftWing));
     }
 
     public void setupAnim(Vex param0, float param1, float param2, float param3, float param4, float param5, float param6) {

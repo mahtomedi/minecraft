@@ -161,7 +161,6 @@ public abstract class LivingEntity extends Entity {
     public float xxa;
     public float yya;
     public float zza;
-    public float yRotA;
     protected int lerpSteps;
     protected double lerpX;
     protected double lerpY;
@@ -2195,6 +2194,7 @@ public abstract class LivingEntity extends Entity {
 
         if (this.isControlledByLocalInstance()) {
             this.lerpSteps = 0;
+            this.setPacketCoordinates(this.x, this.y, this.z);
         }
 
         if (this.lerpSteps > 0) {
@@ -2238,7 +2238,6 @@ public abstract class LivingEntity extends Entity {
             this.jumping = false;
             this.xxa = 0.0F;
             this.zza = 0.0F;
-            this.yRotA = 0.0F;
         } else if (this.isEffectiveAi()) {
             this.level.getProfiler().push("newAi");
             this.serverAiStep();
@@ -2266,7 +2265,6 @@ public abstract class LivingEntity extends Entity {
         this.level.getProfiler().push("travel");
         this.xxa *= 0.98F;
         this.zza *= 0.98F;
-        this.yRotA *= 0.9F;
         this.updateFallFlying();
         AABB var8 = this.getBoundingBox();
         this.travel(new Vec3((double)this.xxa, (double)this.yya, (double)this.zza));

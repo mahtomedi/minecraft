@@ -1,6 +1,6 @@
 package net.minecraft.client.model;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.google.common.collect.ImmutableList;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -8,7 +8,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class OcelotModel<T extends Entity> extends EntityModel<T> {
+public class OcelotModel<T extends Entity> extends AgeableListModel<T> {
     protected final ModelPart backLegL;
     protected final ModelPart backLegR;
     protected final ModelPart frontLegL;
@@ -20,6 +20,7 @@ public class OcelotModel<T extends Entity> extends EntityModel<T> {
     protected int state = 1;
 
     public OcelotModel(float param0) {
+        super(true, 10.0F, 4.0F);
         this.head = new ModelPart(this);
         this.head.addBox("main", -2.5F, -2.0F, -3.0F, 5, 4, 5, param0, 0, 0);
         this.head.addBox("nose", -1.5F, 0.0F, -4.0F, 3, 2, 2, param0, 0, 24);
@@ -51,37 +52,13 @@ public class OcelotModel<T extends Entity> extends EntityModel<T> {
     }
 
     @Override
-    public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        this.setupAnim(param0, param1, param2, param3, param4, param5, param6);
-        if (this.young) {
-            float var0 = 2.0F;
-            RenderSystem.pushMatrix();
-            RenderSystem.scalef(0.75F, 0.75F, 0.75F);
-            RenderSystem.translatef(0.0F, 10.0F * param6, 4.0F * param6);
-            this.head.render(param6);
-            RenderSystem.popMatrix();
-            RenderSystem.pushMatrix();
-            RenderSystem.scalef(0.5F, 0.5F, 0.5F);
-            RenderSystem.translatef(0.0F, 24.0F * param6, 0.0F);
-            this.body.render(param6);
-            this.backLegL.render(param6);
-            this.backLegR.render(param6);
-            this.frontLegL.render(param6);
-            this.frontLegR.render(param6);
-            this.tail1.render(param6);
-            this.tail2.render(param6);
-            RenderSystem.popMatrix();
-        } else {
-            this.head.render(param6);
-            this.body.render(param6);
-            this.tail1.render(param6);
-            this.tail2.render(param6);
-            this.backLegL.render(param6);
-            this.backLegR.render(param6);
-            this.frontLegL.render(param6);
-            this.frontLegR.render(param6);
-        }
+    protected Iterable<ModelPart> headParts() {
+        return ImmutableList.of(this.head);
+    }
 
+    @Override
+    protected Iterable<ModelPart> bodyParts() {
+        return ImmutableList.of(this.body, this.backLegL, this.backLegR, this.frontLegL, this.frontLegR, this.tail1, this.tail2);
     }
 
     @Override

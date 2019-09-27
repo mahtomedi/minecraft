@@ -1,5 +1,6 @@
 package net.minecraft.client.model;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -76,11 +77,11 @@ public class SkeletonModel<T extends Mob & RangedAttackMob> extends HumanoidMode
     }
 
     @Override
-    public void translateToHand(float param0, HumanoidArm param1) {
+    public void translateToHand(float param0, HumanoidArm param1, PoseStack param2) {
         float var0 = param1 == HumanoidArm.RIGHT ? 1.0F : -1.0F;
         ModelPart var1 = this.getArm(param1);
         var1.x += var0;
-        var1.translateTo(param0);
+        var1.translateAndRotate(param2, param0);
         var1.x -= var0;
     }
 }

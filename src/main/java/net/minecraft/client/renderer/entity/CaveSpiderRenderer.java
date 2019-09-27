@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.monster.CaveSpider;
 import net.minecraftforge.api.distmarker.Dist;
@@ -15,11 +15,11 @@ public class CaveSpiderRenderer extends SpiderRenderer<CaveSpider> {
         this.shadowRadius *= 0.7F;
     }
 
-    protected void scale(CaveSpider param0, float param1) {
-        RenderSystem.scalef(0.7F, 0.7F, 0.7F);
+    protected void scale(CaveSpider param0, PoseStack param1, float param2) {
+        param1.scale(0.7F, 0.7F, 0.7F);
     }
 
-    protected ResourceLocation getTextureLocation(CaveSpider param0) {
+    public ResourceLocation getTextureLocation(CaveSpider param0) {
         return CAVE_SPIDER_LOCATION;
     }
 }

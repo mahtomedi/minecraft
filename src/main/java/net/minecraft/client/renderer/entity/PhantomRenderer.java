@@ -1,6 +1,7 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.model.PhantomModel;
 import net.minecraft.client.renderer.entity.layers.PhantomEyesLayer;
 import net.minecraft.resources.ResourceLocation;
@@ -17,19 +18,19 @@ public class PhantomRenderer extends MobRenderer<Phantom, PhantomModel<Phantom>>
         this.addLayer(new PhantomEyesLayer<>(this));
     }
 
-    protected ResourceLocation getTextureLocation(Phantom param0) {
+    public ResourceLocation getTextureLocation(Phantom param0) {
         return PHANTOM_LOCATION;
     }
 
-    protected void scale(Phantom param0, float param1) {
+    protected void scale(Phantom param0, PoseStack param1, float param2) {
         int var0 = param0.getPhantomSize();
         float var1 = 1.0F + 0.15F * (float)var0;
-        RenderSystem.scalef(var1, var1, var1);
-        RenderSystem.translatef(0.0F, 1.3125F, 0.1875F);
+        param1.scale(var1, var1, var1);
+        param1.translate(0.0, 1.3125, 0.1875);
     }
 
-    protected void setupRotations(Phantom param0, float param1, float param2, float param3) {
-        super.setupRotations(param0, param1, param2, param3);
-        RenderSystem.rotatef(param0.xRot, 1.0F, 0.0F, 0.0F);
+    protected void setupRotations(Phantom param0, PoseStack param1, float param2, float param3, float param4) {
+        super.setupRotations(param0, param1, param2, param3, param4);
+        param1.mulPose(Vector3f.XP.rotation(param0.xRot, true));
     }
 }

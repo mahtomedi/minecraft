@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.monster.AbstractSkeleton;
 import net.minecraftforge.api.distmarker.Dist;
@@ -15,11 +15,11 @@ public class WitherSkeletonRenderer extends SkeletonRenderer {
     }
 
     @Override
-    protected ResourceLocation getTextureLocation(AbstractSkeleton param0) {
+    public ResourceLocation getTextureLocation(AbstractSkeleton param0) {
         return WITHER_SKELETON_LOCATION;
     }
 
-    protected void scale(AbstractSkeleton param0, float param1) {
-        RenderSystem.scalef(1.2F, 1.2F, 1.2F);
+    protected void scale(AbstractSkeleton param0, PoseStack param1, float param2) {
+        param1.scale(1.2F, 1.2F, 1.2F);
     }
 }

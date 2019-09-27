@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.WitherBossModel;
 import net.minecraft.client.renderer.entity.layers.WitherArmorLayer;
 import net.minecraft.resources.ResourceLocation;
@@ -18,18 +18,18 @@ public class WitherBossRenderer extends MobRenderer<WitherBoss, WitherBossModel<
         this.addLayer(new WitherArmorLayer(this));
     }
 
-    protected ResourceLocation getTextureLocation(WitherBoss param0) {
+    public ResourceLocation getTextureLocation(WitherBoss param0) {
         int var0 = param0.getInvulnerableTicks();
         return var0 > 0 && (var0 > 80 || var0 / 5 % 2 != 1) ? WITHER_INVULNERABLE_LOCATION : WITHER_LOCATION;
     }
 
-    protected void scale(WitherBoss param0, float param1) {
+    protected void scale(WitherBoss param0, PoseStack param1, float param2) {
         float var0 = 2.0F;
         int var1 = param0.getInvulnerableTicks();
         if (var1 > 0) {
-            var0 -= ((float)var1 - param1) / 220.0F * 0.5F;
+            var0 -= ((float)var1 - param2) / 220.0F * 0.5F;
         }
 
-        RenderSystem.scalef(var0, var0, var0);
+        param1.scale(var0, var0, var0);
     }
 }

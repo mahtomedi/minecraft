@@ -1,6 +1,5 @@
 package net.minecraft.client.gui.screens.recipebook;
 
-import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.Iterator;
 import java.util.List;
@@ -116,8 +115,6 @@ public abstract class AbstractFurnaceRecipeBookComponent extends RecipeBookCompo
                 this.time += param3;
             }
 
-            Lighting.turnOnGui();
-            RenderSystem.disableLighting();
             int var0 = this.fuelSlot.x + param0;
             int var1 = this.fuelSlot.y + param1;
             GuiComponent.fill(var0, var1, var0 + 16, var1 + 16, 822018048);
@@ -125,8 +122,6 @@ public abstract class AbstractFurnaceRecipeBookComponent extends RecipeBookCompo
             RenderSystem.depthFunc(516);
             GuiComponent.fill(var0, var1, var0 + 16, var1 + 16, 822083583);
             RenderSystem.depthFunc(515);
-            RenderSystem.enableLighting();
-            Lighting.turnOff();
         }
     }
 

@@ -75,7 +75,8 @@ public class DirectJoinServerScreen extends Screen {
     }
 
     private void updateSelectButtonStatus() {
-        this.selectButton.active = !this.ipEdit.getValue().isEmpty() && this.ipEdit.getValue().split(":").length > 0;
+        String var0 = this.ipEdit.getValue();
+        this.selectButton.active = !var0.isEmpty() && var0.split(":").length > 0 && var0.indexOf(32) == -1;
     }
 
     @Override

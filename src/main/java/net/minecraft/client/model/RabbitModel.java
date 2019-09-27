@@ -1,6 +1,8 @@
 package net.minecraft.client.model;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.animal.Rabbit;
@@ -91,47 +93,44 @@ public class RabbitModel<T extends Rabbit> extends EntityModel<T> {
         param0.zRot = param3;
     }
 
-    public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        this.setupAnim(param0, param1, param2, param3, param4, param5, param6);
+    @Override
+    public void renderToBuffer(PoseStack param0, VertexConsumer param1, int param2, float param3, float param4, float param5) {
         if (this.young) {
             float var0 = 1.5F;
-            RenderSystem.pushMatrix();
-            RenderSystem.scalef(0.56666666F, 0.56666666F, 0.56666666F);
-            RenderSystem.translatef(0.0F, 22.0F * param6, 2.0F * param6);
-            this.head.render(param6);
-            this.earLeft.render(param6);
-            this.earRight.render(param6);
-            this.nose.render(param6);
-            RenderSystem.popMatrix();
-            RenderSystem.pushMatrix();
-            RenderSystem.scalef(0.4F, 0.4F, 0.4F);
-            RenderSystem.translatef(0.0F, 36.0F * param6, 0.0F);
-            this.rearFootLeft.render(param6);
-            this.rearFootRight.render(param6);
-            this.haunchLeft.render(param6);
-            this.haunchRight.render(param6);
-            this.body.render(param6);
-            this.frontLegLeft.render(param6);
-            this.frontLegRight.render(param6);
-            this.tail.render(param6);
-            RenderSystem.popMatrix();
+            param0.pushPose();
+            param0.scale(0.56666666F, 0.56666666F, 0.56666666F);
+            param0.translate(0.0, 1.375, 0.125);
+            ImmutableList.of(this.head, this.earLeft, this.earRight, this.nose)
+                .forEach(param6 -> param6.render(param0, param1, 0.0625F, param2, null, param3, param4, param5));
+            param0.popPose();
+            param0.pushPose();
+            param0.scale(0.4F, 0.4F, 0.4F);
+            param0.translate(0.0, 2.25, 0.0);
+            ImmutableList.of(
+                    this.rearFootLeft, this.rearFootRight, this.haunchLeft, this.haunchRight, this.body, this.frontLegLeft, this.frontLegRight, this.tail
+                )
+                .forEach(param6 -> param6.render(param0, param1, 0.0625F, param2, null, param3, param4, param5));
+            param0.popPose();
         } else {
-            RenderSystem.pushMatrix();
-            RenderSystem.scalef(0.6F, 0.6F, 0.6F);
-            RenderSystem.translatef(0.0F, 16.0F * param6, 0.0F);
-            this.rearFootLeft.render(param6);
-            this.rearFootRight.render(param6);
-            this.haunchLeft.render(param6);
-            this.haunchRight.render(param6);
-            this.body.render(param6);
-            this.frontLegLeft.render(param6);
-            this.frontLegRight.render(param6);
-            this.head.render(param6);
-            this.earRight.render(param6);
-            this.earLeft.render(param6);
-            this.tail.render(param6);
-            this.nose.render(param6);
-            RenderSystem.popMatrix();
+            param0.pushPose();
+            param0.scale(0.6F, 0.6F, 0.6F);
+            param0.translate(0.0, 1.0, 0.0);
+            ImmutableList.of(
+                    this.rearFootLeft,
+                    this.rearFootRight,
+                    this.haunchLeft,
+                    this.haunchRight,
+                    this.body,
+                    this.frontLegLeft,
+                    this.frontLegRight,
+                    this.head,
+                    this.earRight,
+                    this.earLeft,
+                    this.tail,
+                    this.nose
+                )
+                .forEach(param6 -> param6.render(param0, param1, 0.0625F, param2, null, param3, param4, param5));
+            param0.popPose();
         }
 
     }

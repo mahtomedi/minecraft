@@ -1,6 +1,7 @@
 package net.minecraft.client.model;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.animal.Turtle;
@@ -12,7 +13,7 @@ public class TurtleModel<T extends Turtle> extends QuadrupedModel<T> {
     private final ModelPart eggBelly;
 
     public TurtleModel(float param0) {
-        super(12, param0);
+        super(12, param0, true, 120.0F, 0.0F, 6.0F, 6.0F, 120);
         this.texWidth = 128;
         this.texHeight = 64;
         this.head = new ModelPart(this, 3, 0);
@@ -40,41 +41,9 @@ public class TurtleModel<T extends Turtle> extends QuadrupedModel<T> {
         this.leg3.setPos(5.0F, 21.0F, -4.0F);
     }
 
-    public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        this.setupAnim(param0, param1, param2, param3, param4, param5, param6);
-        if (this.young) {
-            float var0 = 6.0F;
-            RenderSystem.pushMatrix();
-            RenderSystem.scalef(0.16666667F, 0.16666667F, 0.16666667F);
-            RenderSystem.translatef(0.0F, 120.0F * param6, 0.0F);
-            this.head.render(param6);
-            this.body.render(param6);
-            this.leg0.render(param6);
-            this.leg1.render(param6);
-            this.leg2.render(param6);
-            this.leg3.render(param6);
-            RenderSystem.popMatrix();
-        } else {
-            RenderSystem.pushMatrix();
-            if (param0.hasEgg()) {
-                RenderSystem.translatef(0.0F, -0.08F, 0.0F);
-            }
-
-            this.head.render(param6);
-            this.body.render(param6);
-            RenderSystem.pushMatrix();
-            this.leg0.render(param6);
-            this.leg1.render(param6);
-            RenderSystem.popMatrix();
-            this.leg2.render(param6);
-            this.leg3.render(param6);
-            if (param0.hasEgg()) {
-                this.eggBelly.render(param6);
-            }
-
-            RenderSystem.popMatrix();
-        }
-
+    @Override
+    protected Iterable<ModelPart> bodyParts() {
+        return Iterables.concat(super.bodyParts(), ImmutableList.of(this.eggBelly));
     }
 
     public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
@@ -104,5 +73,19 @@ public class TurtleModel<T extends Turtle> extends QuadrupedModel<T> {
             this.leg1.xRot = 0.0F;
         }
 
+        float var3;
+        if (param0.hasEgg()) {
+            var3 = -1.28F;
+        } else {
+            var3 = 0.0F;
+        }
+
+        this.head.y = var3;
+        this.body.y = var3;
+        this.leg0.y = var3;
+        this.leg1.y = var3;
+        this.leg2.y = var3;
+        this.leg3.y = var3;
+        this.eggBelly.visible = param0.hasEgg();
     }
 }

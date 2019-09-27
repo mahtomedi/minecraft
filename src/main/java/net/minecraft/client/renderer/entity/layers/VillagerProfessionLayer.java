@@ -1,5 +1,6 @@
-package net.minecraft.client.renderer.entity;
+package net.minecraft.client.renderer.entity.layers;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
@@ -7,7 +8,9 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.io.IOException;
 import net.minecraft.Util;
 import net.minecraft.client.model.EntityModel;
-import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.model.VillagerHeadModel;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.resources.metadata.animation.VillagerMetaDataSection;
 import net.minecraft.core.DefaultedRegistry;
 import net.minecraft.core.Registry;
@@ -48,33 +51,42 @@ public class VillagerProfessionLayer<T extends LivingEntity & VillagerDataHolder
         param1.registerReloadListener(this);
     }
 
-    public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6, float param7) {
-        if (!param0.isInvisible()) {
-            VillagerData var0 = param0.getVillagerData();
+    public void render(
+        PoseStack param0,
+        MultiBufferSource param1,
+        int param2,
+        T param3,
+        float param4,
+        float param5,
+        float param6,
+        float param7,
+        float param8,
+        float param9,
+        float param10
+    ) {
+        if (!param3.isInvisible()) {
+            VillagerData var0 = param3.getVillagerData();
             VillagerType var1 = var0.getType();
             VillagerProfession var2 = var0.getProfession();
             VillagerMetaDataSection.Hat var3 = this.getHatData(this.typeHatCache, "type", Registry.VILLAGER_TYPE, var1);
             VillagerMetaDataSection.Hat var4 = this.getHatData(this.professionHatCache, "profession", Registry.VILLAGER_PROFESSION, var2);
             M var5 = this.getParentModel();
-            this.bindTexture(this.getResourceLocation("type", Registry.VILLAGER_TYPE.getKey(var1)));
             var5.hatVisible(var4 == VillagerMetaDataSection.Hat.NONE || var4 == VillagerMetaDataSection.Hat.PARTIAL && var3 != VillagerMetaDataSection.Hat.FULL);
-            var5.render(param0, param1, param2, param4, param5, param6, param7);
+            ResourceLocation var6 = this.getResourceLocation("type", Registry.VILLAGER_TYPE.getKey(var1));
+            renderColoredModel(var5, var6, param0, param1, param2, param3);
             var5.hatVisible(true);
-            if (var2 != VillagerProfession.NONE && !param0.isBaby()) {
-                this.bindTexture(this.getResourceLocation("profession", Registry.VILLAGER_PROFESSION.getKey(var2)));
-                var5.render(param0, param1, param2, param4, param5, param6, param7);
+            if (var2 != VillagerProfession.NONE && !param3.isBaby()) {
+                ResourceLocation var7 = this.getResourceLocation("profession", Registry.VILLAGER_PROFESSION.getKey(var2));
+                renderColoredModel(var5, var7, param0, param1, param2, param3);
                 if (var2 != VillagerProfession.NITWIT) {
-                    this.bindTexture(this.getResourceLocation("profession_level", LEVEL_LOCATIONS.get(Mth.clamp(var0.getLevel(), 1, LEVEL_LOCATIONS.size()))));
-                    var5.render(param0, param1, param2, param4, param5, param6, param7);
+                    ResourceLocation var8 = this.getResourceLocation(
+                        "profession_level", LEVEL_LOCATIONS.get(Mth.clamp(var0.getLevel(), 1, LEVEL_LOCATIONS.size()))
+                    );
+                    renderColoredModel(var5, var8, param0, param1, param2, param3);
                 }
             }
 
         }
-    }
-
-    @Override
-    public boolean colorsOnDamage() {
-        return true;
     }
 
     private ResourceLocation getResourceLocation(String param0, ResourceLocation param1) {

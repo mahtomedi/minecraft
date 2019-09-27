@@ -7,13 +7,41 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 
 public class ByteTag extends NumericTag {
-    private byte data;
+    public static final TagType<ByteTag> TYPE = new TagType<ByteTag>() {
+        public ByteTag load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
+            param2.accountBits(72L);
+            return ByteTag.valueOf(param0.readByte());
+        }
 
-    ByteTag() {
+        @Override
+        public String getName() {
+            return "BYTE";
+        }
+
+        @Override
+        public String getPrettyName() {
+            return "TAG_Byte";
+        }
+
+        @Override
+        public boolean isValue() {
+            return true;
+        }
+    };
+    public static final ByteTag ZERO = valueOf((byte)0);
+    public static final ByteTag ONE = valueOf((byte)1);
+    private final byte data;
+
+    private ByteTag(byte param0) {
+        this.data = param0;
     }
 
-    public ByteTag(byte param0) {
-        this.data = param0;
+    public static ByteTag valueOf(byte param0) {
+        return ByteTag.Cache.cache[128 + param0];
+    }
+
+    public static ByteTag valueOf(boolean param0) {
+        return param0 ? ONE : ZERO;
     }
 
     @Override
@@ -22,14 +50,13 @@ public class ByteTag extends NumericTag {
     }
 
     @Override
-    public void load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
-        param2.accountBits(72L);
-        this.data = param0.readByte();
+    public byte getId() {
+        return 1;
     }
 
     @Override
-    public byte getId() {
-        return 1;
+    public TagType<ByteTag> getType() {
+        return TYPE;
     }
 
     @Override
@@ -38,7 +65,7 @@ public class ByteTag extends NumericTag {
     }
 
     public ByteTag copy() {
-        return new ByteTag(this.data);
+        return this;
     }
 
     @Override
@@ -94,5 +121,16 @@ public class ByteTag extends NumericTag {
     @Override
     public Number getAsNumber() {
         return this.data;
+    }
+
+    static class Cache {
+        private static final ByteTag[] cache = new ByteTag[256];
+
+        static {
+            for(int var0 = 0; var0 < cache.length; ++var0) {
+                cache[var0] = new ByteTag((byte)(var0 - 128));
+            }
+
+        }
     }
 }

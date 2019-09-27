@@ -3,7 +3,6 @@ package net.minecraft.world.level.block;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -13,12 +12,6 @@ public abstract class AbstractSkullBlock extends BaseEntityBlock {
     public AbstractSkullBlock(SkullBlock.Type param0, Block.Properties param1) {
         super(param1);
         this.type = param0;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public boolean hasCustomBreakingProgress(BlockState param0) {
-        return true;
     }
 
     @Override

@@ -151,16 +151,13 @@ public class WinScreen extends Screen {
         Tesselator var7 = Tesselator.getInstance();
         BufferBuilder var8 = var7.getBuilder();
         var8.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
-        var8.vertex(0.0, (double)this.height, (double)this.getBlitOffset()).uv(0.0, (double)(var1 * 0.015625F)).color(var4, var4, var4, 1.0F).endVertex();
+        var8.vertex(0.0, (double)this.height, (double)this.getBlitOffset()).uv(0.0F, var1 * 0.015625F).color(var4, var4, var4, 1.0F).endVertex();
         var8.vertex((double)var0, (double)this.height, (double)this.getBlitOffset())
-            .uv((double)((float)var0 * 0.015625F), (double)(var1 * 0.015625F))
+            .uv((float)var0 * 0.015625F, var1 * 0.015625F)
             .color(var4, var4, var4, 1.0F)
             .endVertex();
-        var8.vertex((double)var0, 0.0, (double)this.getBlitOffset())
-            .uv((double)((float)var0 * 0.015625F), (double)(var2 * 0.015625F))
-            .color(var4, var4, var4, 1.0F)
-            .endVertex();
-        var8.vertex(0.0, 0.0, (double)this.getBlitOffset()).uv(0.0, (double)(var2 * 0.015625F)).color(var4, var4, var4, 1.0F).endVertex();
+        var8.vertex((double)var0, 0.0, (double)this.getBlitOffset()).uv((float)var0 * 0.015625F, var2 * 0.015625F).color(var4, var4, var4, 1.0F).endVertex();
+        var8.vertex(0.0, 0.0, (double)this.getBlitOffset()).uv(0.0F, var2 * 0.015625F).color(var4, var4, var4, 1.0F).endVertex();
         var7.end();
     }
 
@@ -214,10 +211,10 @@ public class WinScreen extends Screen {
         Tesselator var10 = Tesselator.getInstance();
         BufferBuilder var11 = var10.getBuilder();
         var11.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
-        var11.vertex(0.0, (double)var9, (double)this.getBlitOffset()).uv(0.0, 1.0).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
-        var11.vertex((double)var8, (double)var9, (double)this.getBlitOffset()).uv(1.0, 1.0).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
-        var11.vertex((double)var8, 0.0, (double)this.getBlitOffset()).uv(1.0, 0.0).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
-        var11.vertex(0.0, 0.0, (double)this.getBlitOffset()).uv(0.0, 0.0).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
+        var11.vertex(0.0, (double)var9, (double)this.getBlitOffset()).uv(0.0F, 1.0F).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
+        var11.vertex((double)var8, (double)var9, (double)this.getBlitOffset()).uv(1.0F, 1.0F).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
+        var11.vertex((double)var8, 0.0, (double)this.getBlitOffset()).uv(1.0F, 0.0F).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
+        var11.vertex(0.0, 0.0, (double)this.getBlitOffset()).uv(0.0F, 0.0F).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
         var10.end();
         RenderSystem.disableBlend();
         super.render(param0, param1, param2);

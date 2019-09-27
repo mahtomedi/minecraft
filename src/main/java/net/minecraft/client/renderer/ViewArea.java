@@ -59,34 +59,27 @@ public class ViewArea {
     }
 
     public void repositionCamera(double param0, double param1) {
-        int var0 = Mth.floor(param0) - 8;
-        int var1 = Mth.floor(param1) - 8;
-        int var2 = this.chunkGridSizeX * 16;
+        int var0 = Mth.floor(param0);
+        int var1 = Mth.floor(param1);
 
-        for(int var3 = 0; var3 < this.chunkGridSizeX; ++var3) {
-            int var4 = this.getCoordinate(var0, var2, var3);
+        for(int var2 = 0; var2 < this.chunkGridSizeX; ++var2) {
+            int var3 = this.chunkGridSizeX * 16;
+            int var4 = var0 - 8 - var3 / 2;
+            int var5 = var4 + Math.floorMod(var2 * 16 - var4, var3);
 
-            for(int var5 = 0; var5 < this.chunkGridSizeZ; ++var5) {
-                int var6 = this.getCoordinate(var1, var2, var5);
+            for(int var6 = 0; var6 < this.chunkGridSizeZ; ++var6) {
+                int var7 = this.chunkGridSizeZ * 16;
+                int var8 = var1 - 8 - var7 / 2;
+                int var9 = var8 + Math.floorMod(var6 * 16 - var8, var7);
 
-                for(int var7 = 0; var7 < this.chunkGridSizeY; ++var7) {
-                    int var8 = var7 * 16;
-                    ChunkRenderDispatcher.RenderChunk var9 = this.chunks[this.getChunkIndex(var3, var7, var5)];
-                    var9.setOrigin(var4, var8, var6);
+                for(int var10 = 0; var10 < this.chunkGridSizeY; ++var10) {
+                    int var11 = var10 * 16;
+                    ChunkRenderDispatcher.RenderChunk var12 = this.chunks[this.getChunkIndex(var2, var10, var6)];
+                    var12.setOrigin(var5, var11, var9);
                 }
             }
         }
 
-    }
-
-    private int getCoordinate(int param0, int param1, int param2) {
-        int var0 = param2 * 16;
-        int var1 = var0 - param0 + param1 / 2;
-        if (var1 < 0) {
-            var1 -= param1 - 1;
-        }
-
-        return var0 - var1 / param1 * param1;
     }
 
     public void setDirty(int param0, int param1, int param2, boolean param3) {

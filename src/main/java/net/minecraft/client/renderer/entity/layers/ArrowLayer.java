@@ -1,7 +1,8 @@
 package net.minecraft.client.renderer.entity.layers;
 
-import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.util.Mth;
@@ -22,28 +23,18 @@ public class ArrowLayer<T extends LivingEntity, M extends PlayerModel<T>> extend
     }
 
     @Override
-    protected void preRenderStuckItem(T param0) {
-        Lighting.turnOff();
-        this.arrow = new Arrow(param0.level, param0.x, param0.y, param0.z);
-    }
-
-    @Override
     protected int numStuck(T param0) {
         return param0.getArrowCount();
     }
 
     @Override
-    protected void renderStuckItem(Entity param0, float param1, float param2, float param3, float param4) {
-        float var0 = Mth.sqrt(param1 * param1 + param3 * param3);
-        this.arrow.yRot = (float)(Math.atan2((double)param1, (double)param3) * 180.0F / (float)Math.PI);
-        this.arrow.xRot = (float)(Math.atan2((double)param2, (double)var0) * 180.0F / (float)Math.PI);
+    protected void renderStuckItem(PoseStack param0, MultiBufferSource param1, Entity param2, float param3, float param4, float param5, float param6) {
+        float var0 = Mth.sqrt(param3 * param3 + param5 * param5);
+        this.arrow = new Arrow(param2.level, param2.x, param2.y, param2.z);
+        this.arrow.yRot = (float)(Math.atan2((double)param3, (double)param5) * 180.0F / (float)Math.PI);
+        this.arrow.xRot = (float)(Math.atan2((double)param4, (double)var0) * 180.0F / (float)Math.PI);
         this.arrow.yRotO = this.arrow.yRot;
         this.arrow.xRotO = this.arrow.xRot;
-        this.dispatcher.render(this.arrow, 0.0, 0.0, 0.0, 0.0F, param4, false);
-    }
-
-    @Override
-    public boolean colorsOnDamage() {
-        return false;
+        this.dispatcher.render(this.arrow, 0.0, 0.0, 0.0, 0.0F, param6, param0, param1);
     }
 }

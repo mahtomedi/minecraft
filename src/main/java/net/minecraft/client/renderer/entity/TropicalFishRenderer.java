@@ -1,10 +1,12 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import javax.annotation.Nullable;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
+import net.minecraft.client.model.ColorableListModel;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.TropicalFishModelA;
 import net.minecraft.client.model.TropicalFishModelB;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.layers.TropicalFishPatternLayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -22,25 +24,26 @@ public class TropicalFishRenderer extends MobRenderer<TropicalFish, EntityModel<
         this.addLayer(new TropicalFishPatternLayer(this));
     }
 
-    @Nullable
-    protected ResourceLocation getTextureLocation(TropicalFish param0) {
+    public ResourceLocation getTextureLocation(TropicalFish param0) {
         return param0.getBaseTextureLocation();
     }
 
-    public void render(TropicalFish param0, double param1, double param2, double param3, float param4, float param5) {
-        this.model = (EntityModel<TropicalFish>)(param0.getBaseVariant() == 0 ? this.modelA : this.modelB);
-        float[] var0 = param0.getBaseColor();
-        RenderSystem.color3f(var0[0], var0[1], var0[2]);
-        super.render(param0, param1, param2, param3, param4, param5);
+    public void render(TropicalFish param0, double param1, double param2, double param3, float param4, float param5, PoseStack param6, MultiBufferSource param7) {
+        ColorableListModel<TropicalFish> var0 = (ColorableListModel<TropicalFish>)(param0.getBaseVariant() == 0 ? this.modelA : this.modelB);
+        this.model = var0;
+        float[] var1 = param0.getBaseColor();
+        var0.setColor(var1[0], var1[1], var1[2]);
+        super.render(param0, param1, param2, param3, param4, param5, param6, param7);
+        var0.setColor(1.0F, 1.0F, 1.0F);
     }
 
-    protected void setupRotations(TropicalFish param0, float param1, float param2, float param3) {
-        super.setupRotations(param0, param1, param2, param3);
-        float var0 = 4.3F * Mth.sin(0.6F * param1);
-        RenderSystem.rotatef(var0, 0.0F, 1.0F, 0.0F);
+    protected void setupRotations(TropicalFish param0, PoseStack param1, float param2, float param3, float param4) {
+        super.setupRotations(param0, param1, param2, param3, param4);
+        float var0 = 4.3F * Mth.sin(0.6F * param2);
+        param1.mulPose(Vector3f.YP.rotation(var0, true));
         if (!param0.isInWater()) {
-            RenderSystem.translatef(0.2F, 0.1F, 0.0F);
-            RenderSystem.rotatef(90.0F, 0.0F, 0.0F, 1.0F);
+            param1.translate(0.2F, 0.1F, 0.0);
+            param1.mulPose(Vector3f.ZP.rotation(90.0F, true));
         }
 
     }

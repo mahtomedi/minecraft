@@ -145,9 +145,7 @@ public class MultiPlayerLevel extends Level {
 
     public void tickNonPassenger(Entity param0) {
         if (param0 instanceof Player || this.getChunkSource().isEntityTickingChunk(param0)) {
-            param0.xOld = param0.x;
-            param0.yOld = param0.y;
-            param0.zOld = param0.z;
+            param0.setPosAndOldPos(param0.x, param0.y, param0.z);
             param0.yRotO = param0.yRot;
             param0.xRotO = param0.xRot;
             if (param0.inChunk || param0.isSpectator()) {
@@ -171,9 +169,7 @@ public class MultiPlayerLevel extends Level {
         if (param1.removed || param1.getVehicle() != param0) {
             param1.stopRiding();
         } else if (param1 instanceof Player || this.getChunkSource().isEntityTickingChunk(param1)) {
-            param1.xOld = param1.x;
-            param1.yOld = param1.y;
-            param1.zOld = param1.z;
+            param1.setPosAndOldPos(param1.x, param1.y, param1.z);
             param1.yRotO = param1.yRot;
             param1.xRotO = param1.xRot;
             if (param1.inChunk) {

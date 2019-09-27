@@ -22,8 +22,6 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class TridentItem extends Item {
     public TridentItem(Item.Properties param0) {
@@ -47,12 +45,6 @@ public class TridentItem extends Item {
     @Override
     public int getUseDuration(ItemStack param0) {
         return 72000;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public boolean isFoil(ItemStack param0) {
-        return false;
     }
 
     @Override

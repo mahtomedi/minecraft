@@ -1,9 +1,14 @@
 package net.minecraft.client.renderer.entity.layers;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.PlayerModelPart;
@@ -18,18 +23,28 @@ public class CapeLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<Abs
         super(param0);
     }
 
-    public void render(AbstractClientPlayer param0, float param1, float param2, float param3, float param4, float param5, float param6, float param7) {
-        if (param0.isCapeLoaded() && !param0.isInvisible() && param0.isModelPartShown(PlayerModelPart.CAPE) && param0.getCloakTextureLocation() != null) {
-            ItemStack var0 = param0.getItemBySlot(EquipmentSlot.CHEST);
+    public void render(
+        PoseStack param0,
+        MultiBufferSource param1,
+        int param2,
+        AbstractClientPlayer param3,
+        float param4,
+        float param5,
+        float param6,
+        float param7,
+        float param8,
+        float param9,
+        float param10
+    ) {
+        if (param3.isCapeLoaded() && !param3.isInvisible() && param3.isModelPartShown(PlayerModelPart.CAPE) && param3.getCloakTextureLocation() != null) {
+            ItemStack var0 = param3.getItemBySlot(EquipmentSlot.CHEST);
             if (var0.getItem() != Items.ELYTRA) {
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-                this.bindTexture(param0.getCloakTextureLocation());
-                RenderSystem.pushMatrix();
-                RenderSystem.translatef(0.0F, 0.0F, 0.125F);
-                double var1 = Mth.lerp((double)param3, param0.xCloakO, param0.xCloak) - Mth.lerp((double)param3, param0.xo, param0.x);
-                double var2 = Mth.lerp((double)param3, param0.yCloakO, param0.yCloak) - Mth.lerp((double)param3, param0.yo, param0.y);
-                double var3 = Mth.lerp((double)param3, param0.zCloakO, param0.zCloak) - Mth.lerp((double)param3, param0.zo, param0.z);
-                float var4 = param0.yBodyRotO + (param0.yBodyRot - param0.yBodyRotO);
+                param0.pushPose();
+                param0.translate(0.0, 0.0, 0.125);
+                double var1 = Mth.lerp((double)param6, param3.xCloakO, param3.xCloak) - Mth.lerp((double)param6, param3.xo, param3.x);
+                double var2 = Mth.lerp((double)param6, param3.yCloakO, param3.yCloak) - Mth.lerp((double)param6, param3.yo, param3.y);
+                double var3 = Mth.lerp((double)param6, param3.zCloakO, param3.zCloak) - Mth.lerp((double)param6, param3.zo, param3.z);
+                float var4 = param3.yBodyRotO + (param3.yBodyRot - param3.yBodyRotO);
                 double var5 = (double)Mth.sin(var4 * (float) (Math.PI / 180.0));
                 double var6 = (double)(-Mth.cos(var4 * (float) (Math.PI / 180.0)));
                 float var7 = (float)var2 * 10.0F;
@@ -42,24 +57,21 @@ public class CapeLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<Abs
                     var8 = 0.0F;
                 }
 
-                float var10 = Mth.lerp(param3, param0.oBob, param0.bob);
-                var7 += Mth.sin(Mth.lerp(param3, param0.walkDistO, param0.walkDist) * 6.0F) * 32.0F * var10;
-                if (param0.isCrouching()) {
+                float var10 = Mth.lerp(param6, param3.oBob, param3.bob);
+                var7 += Mth.sin(Mth.lerp(param6, param3.walkDistO, param3.walkDist) * 6.0F) * 32.0F * var10;
+                if (param3.isCrouching()) {
                     var7 += 25.0F;
                 }
 
-                RenderSystem.rotatef(6.0F + var8 / 2.0F + var7, 1.0F, 0.0F, 0.0F);
-                RenderSystem.rotatef(var9 / 2.0F, 0.0F, 0.0F, 1.0F);
-                RenderSystem.rotatef(-var9 / 2.0F, 0.0F, 1.0F, 0.0F);
-                RenderSystem.rotatef(180.0F, 0.0F, 1.0F, 0.0F);
-                this.getParentModel().renderCloak(0.0625F);
-                RenderSystem.popMatrix();
+                param0.mulPose(Vector3f.XP.rotation(6.0F + var8 / 2.0F + var7, true));
+                param0.mulPose(Vector3f.ZP.rotation(var9 / 2.0F, true));
+                param0.mulPose(Vector3f.YP.rotation(180.0F - var9 / 2.0F, true));
+                VertexConsumer var11 = param1.getBuffer(RenderType.NEW_ENTITY(param3.getCloakTextureLocation()));
+                OverlayTexture.setDefault(var11);
+                this.getParentModel().renderCloak(param0, var11, 0.0625F, param2);
+                var11.unsetDefaultOverlayCoords();
+                param0.popPose();
             }
         }
-    }
-
-    @Override
-    public boolean colorsOnDamage() {
-        return false;
     }
 }

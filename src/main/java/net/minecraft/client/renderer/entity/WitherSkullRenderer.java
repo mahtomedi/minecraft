@@ -1,7 +1,11 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.SkullModel;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.projectile.WitherSkull;
@@ -18,47 +22,22 @@ public class WitherSkullRenderer extends EntityRenderer<WitherSkull> {
         super(param0);
     }
 
-    private float rotlerp(float param0, float param1, float param2) {
-        float var0 = param1 - param0;
-
-        while(var0 < -180.0F) {
-            var0 += 360.0F;
-        }
-
-        while(var0 >= 180.0F) {
-            var0 -= 360.0F;
-        }
-
-        return param0 + param2 * var0;
+    public void render(WitherSkull param0, double param1, double param2, double param3, float param4, float param5, PoseStack param6, MultiBufferSource param7) {
+        param6.pushPose();
+        float var0 = 0.0625F;
+        param6.scale(-1.0F, -1.0F, 1.0F);
+        float var1 = Mth.rotlerp(param0.yRotO, param0.yRot, param5);
+        float var2 = Mth.lerp(param5, param0.xRotO, param0.xRot);
+        int var3 = param0.getLightColor();
+        VertexConsumer var4 = param7.getBuffer(RenderType.NEW_ENTITY(this.getTextureLocation(param0)));
+        OverlayTexture.setDefault(var4);
+        this.model.render(param6, var4, 0.0F, var1, var2, 0.0625F, var3);
+        var4.unsetDefaultOverlayCoords();
+        param6.popPose();
+        super.render(param0, param1, param2, param3, param4, param5, param6, param7);
     }
 
-    public void render(WitherSkull param0, double param1, double param2, double param3, float param4, float param5) {
-        RenderSystem.pushMatrix();
-        RenderSystem.disableCull();
-        float var0 = this.rotlerp(param0.yRotO, param0.yRot, param5);
-        float var1 = Mth.lerp(param5, param0.xRotO, param0.xRot);
-        RenderSystem.translatef((float)param1, (float)param2, (float)param3);
-        float var2 = 0.0625F;
-        RenderSystem.enableRescaleNormal();
-        RenderSystem.scalef(-1.0F, -1.0F, 1.0F);
-        RenderSystem.enableAlphaTest();
-        this.bindTexture(param0);
-        if (this.solidRender) {
-            RenderSystem.enableColorMaterial();
-            RenderSystem.setupSolidRenderingTextureCombine(this.getTeamColor(param0));
-        }
-
-        this.model.render(0.0F, 0.0F, 0.0F, var0, var1, 0.0625F);
-        if (this.solidRender) {
-            RenderSystem.tearDownSolidRenderingTextureCombine();
-            RenderSystem.disableColorMaterial();
-        }
-
-        RenderSystem.popMatrix();
-        super.render(param0, param1, param2, param3, param4, param5);
-    }
-
-    protected ResourceLocation getTextureLocation(WitherSkull param0) {
+    public ResourceLocation getTextureLocation(WitherSkull param0) {
         return param0.isDangerous() ? WITHER_INVULNERABLE_LOCATION : WITHER_LOCATION;
     }
 }

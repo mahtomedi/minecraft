@@ -103,9 +103,6 @@ public abstract class ThrowableProjectile extends Entity implements Projectile {
 
     @Override
     public void tick() {
-        this.xOld = this.x;
-        this.yOld = this.y;
-        this.zOld = this.z;
         super.tick();
         if (this.shakeTime > 0) {
             --this.shakeTime;
@@ -208,7 +205,7 @@ public abstract class ThrowableProjectile extends Entity implements Projectile {
         param0.putInt("yTile", this.yBlock);
         param0.putInt("zTile", this.zBlock);
         param0.putByte("shake", (byte)this.shakeTime);
-        param0.putByte("inGround", (byte)(this.inGround ? 1 : 0));
+        param0.putBoolean("inGround", this.inGround);
         if (this.ownerId != null) {
             param0.put("owner", NbtUtils.createUUIDTag(this.ownerId));
         }
@@ -221,7 +218,7 @@ public abstract class ThrowableProjectile extends Entity implements Projectile {
         this.yBlock = param0.getInt("yTile");
         this.zBlock = param0.getInt("zTile");
         this.shakeTime = param0.getByte("shake") & 255;
-        this.inGround = param0.getByte("inGround") == 1;
+        this.inGround = param0.getBoolean("inGround");
         this.owner = null;
         if (param0.contains("owner", 10)) {
             this.ownerId = NbtUtils.loadUUIDTag(param0.getCompound("owner"));

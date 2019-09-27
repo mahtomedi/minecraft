@@ -1,6 +1,5 @@
 package net.minecraft.client.gui.screens.inventory;
 
-import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.resources.language.I18n;
@@ -99,7 +98,6 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
             if (var4.isOutOfStock()) {
                 this.minecraft.getTextureManager().bind(VILLAGER_LOCATION);
                 RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-                RenderSystem.disableLighting();
                 blit(this.leftPos + 83 + 99, this.topPos + 35, this.getBlitOffset(), 311.0F, 0.0F, 28, 21, 256, 512);
             }
         }
@@ -129,7 +127,6 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
     }
 
     private void renderScroller(int param0, int param1, MerchantOffers param2) {
-        Lighting.turnOff();
         int var0 = param2.size() + 1 - 7;
         if (var0 > 1) {
             int var1 = 139 - (27 + (var0 - 1) * 139 / var0);
@@ -145,7 +142,6 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
             blit(param0 + 94, param1 + 18, this.getBlitOffset(), 6.0F, 199.0F, 6, 27, 256, 512);
         }
 
-        Lighting.turnOnGui();
     }
 
     @Override
@@ -159,10 +155,7 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
             int var3 = var2 + 16 + 1;
             int var4 = var1 + 5 + 5;
             RenderSystem.pushMatrix();
-            Lighting.turnOnGui();
             RenderSystem.enableRescaleNormal();
-            RenderSystem.enableColorMaterial();
-            RenderSystem.enableLighting();
             this.minecraft.getTextureManager().bind(VILLAGER_LOCATION);
             this.renderScroller(var1, var2, var0);
             int var5 = 0;
@@ -194,7 +187,6 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
 
             int var12 = this.shopItem;
             MerchantOffer var13 = var0.get(var12);
-            RenderSystem.disableLighting();
             if (this.menu.showProgressBar()) {
                 this.renderProgressBar(var1, var2, var13);
             }
@@ -212,16 +204,13 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
             }
 
             RenderSystem.popMatrix();
-            RenderSystem.enableLighting();
             RenderSystem.enableDepthTest();
-            Lighting.turnOn();
         }
 
         this.renderTooltip(param0, param1);
     }
 
     private void renderButtonArrows(MerchantOffer param0, int param1, int param2) {
-        Lighting.turnOff();
         RenderSystem.enableBlend();
         this.minecraft.getTextureManager().bind(VILLAGER_LOCATION);
         if (param0.isOutOfStock()) {
@@ -230,7 +219,6 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
             blit(param1 + 5 + 35 + 20, param2 + 3, this.getBlitOffset(), 15.0F, 171.0F, 10, 9, 256, 512);
         }
 
-        Lighting.turnOnGui();
     }
 
     private void renderAndDecorateCostA(ItemStack param0, ItemStack param1, int param2, int param3) {
@@ -242,9 +230,7 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
             this.itemRenderer.renderGuiItemDecorations(this.font, param0, param2 + 14, param3, param0.getCount() == 1 ? "1" : null);
             this.minecraft.getTextureManager().bind(VILLAGER_LOCATION);
             this.setBlitOffset(this.getBlitOffset() + 300);
-            Lighting.turnOff();
             blit(param2 + 7, param3 + 12, this.getBlitOffset(), 0.0F, 176.0F, 9, 2, 256, 512);
-            Lighting.turnOnGui();
             this.setBlitOffset(this.getBlitOffset() - 300);
         }
 

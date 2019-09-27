@@ -1,5 +1,8 @@
 package net.minecraft.client.model;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
+import java.util.Arrays;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
@@ -7,9 +10,10 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class WitherBossModel<T extends WitherBoss> extends EntityModel<T> {
+public class WitherBossModel<T extends WitherBoss> extends ListModel<T> {
     private final ModelPart[] upperBodyParts;
     private final ModelPart[] heads;
+    private final ImmutableList<ModelPart> parts;
 
     public WitherBossModel(float param0) {
         this.texWidth = 64;
@@ -36,19 +40,14 @@ public class WitherBossModel<T extends WitherBoss> extends EntityModel<T> {
         this.heads[2].addBox(-4.0F, -4.0F, -4.0F, 6.0F, 6.0F, 6.0F, param0);
         this.heads[2].x = 10.0F;
         this.heads[2].y = 4.0F;
+        Builder<ModelPart> var0 = ImmutableList.builder();
+        var0.addAll(Arrays.asList(this.heads));
+        var0.addAll(Arrays.asList(this.upperBodyParts));
+        this.parts = var0.build();
     }
 
-    public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        this.setupAnim(param0, param1, param2, param3, param4, param5, param6);
-
-        for(ModelPart var0 : this.heads) {
-            var0.render(param6);
-        }
-
-        for(ModelPart var1 : this.upperBodyParts) {
-            var1.render(param6);
-        }
-
+    public ImmutableList<ModelPart> parts() {
+        return this.parts;
     }
 
     public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {

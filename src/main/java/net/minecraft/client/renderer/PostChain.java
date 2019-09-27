@@ -7,7 +7,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.platform.TextureObject;
 import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.math.Matrix4f;
@@ -19,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.ChainedJsonException;
@@ -157,7 +157,7 @@ public class PostChain implements AutoCloseable {
                             }
 
                             param0.bind(var14);
-                            TextureObject var17 = param0.getTexture(var14);
+                            AbstractTexture var17 = param0.getTexture(var14);
                             int var18 = GsonHelper.getAsInt(var10, "width");
                             int var19 = GsonHelper.getAsInt(var10, "height");
                             boolean var20x = GsonHelper.getAsBoolean(var10, "bilinear");

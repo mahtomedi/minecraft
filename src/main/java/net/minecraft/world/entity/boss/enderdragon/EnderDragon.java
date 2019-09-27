@@ -57,20 +57,23 @@ public class EnderDragon extends Mob implements Enemy {
     private static final TargetingConditions CRYSTAL_DESTROY_TARGETING = new TargetingConditions().range(64.0);
     public final double[][] positions = new double[64][3];
     public int posPointer = -1;
-    public final EnderDragonPart[] subEntities;
+    private final EnderDragonPart[] subEntities;
     public final EnderDragonPart head;
-    public final EnderDragonPart neck;
-    public final EnderDragonPart body;
-    public final EnderDragonPart tail1;
-    public final EnderDragonPart tail2;
-    public final EnderDragonPart tail3;
-    public final EnderDragonPart wing1;
-    public final EnderDragonPart wing2;
+    private final EnderDragonPart neck;
+    private final EnderDragonPart body;
+    private final EnderDragonPart tail1;
+    private final EnderDragonPart tail2;
+    private final EnderDragonPart tail3;
+    private final EnderDragonPart wing1;
+    private final EnderDragonPart wing2;
     public float oFlapTime;
     public float flapTime;
     public boolean inWall;
     public int dragonDeathTime;
+    public float yRotA;
+    @Nullable
     public EndCrystal nearestCrystal;
+    @Nullable
     private final EndDragonFight dragonFight;
     private final EnderDragonPhaseManager phaseManager;
     private int growlTime = 100;
@@ -269,12 +272,9 @@ public class EnderDragon extends Mob implements Enemy {
                 float var33 = this.yRot * (float) (Math.PI / 180.0);
                 float var34 = Mth.sin(var33);
                 float var35 = Mth.cos(var33);
-                this.body.tick();
-                this.body.moveTo(this.x + (double)(var34 * 0.5F), this.y, this.z - (double)(var35 * 0.5F), 0.0F, 0.0F);
-                this.wing1.tick();
-                this.wing1.moveTo(this.x + (double)(var35 * 4.5F), this.y + 2.0, this.z + (double)(var34 * 4.5F), 0.0F, 0.0F);
-                this.wing2.tick();
-                this.wing2.moveTo(this.x - (double)(var35 * 4.5F), this.y + 2.0, this.z - (double)(var34 * 4.5F), 0.0F, 0.0F);
+                this.tickPart(this.body, (double)(var34 * 0.5F), 0.0, (double)(-var35 * 0.5F));
+                this.tickPart(this.wing1, (double)(var35 * 4.5F), 2.0, (double)(var34 * 4.5F));
+                this.tickPart(this.wing2, (double)(var35 * -4.5F), 2.0, (double)(var34 * -4.5F));
                 if (!this.level.isClientSide && this.hurtTime == 0) {
                     this.knockBack(
                         this.level
@@ -288,28 +288,12 @@ public class EnderDragon extends Mob implements Enemy {
                     this.hurt(this.level.getEntities(this, this.neck.getBoundingBox().inflate(1.0), EntitySelector.NO_CREATIVE_OR_SPECTATOR));
                 }
 
-                double[] var36 = this.getLatencyPos(5, 1.0F);
-                float var37 = Mth.sin(this.yRot * (float) (Math.PI / 180.0) - this.yRotA * 0.01F);
-                float var38 = Mth.cos(this.yRot * (float) (Math.PI / 180.0) - this.yRotA * 0.01F);
-                this.head.tick();
-                this.neck.tick();
-                float var39 = this.getHeadYOffset(1.0F);
-                this.head
-                    .moveTo(
-                        this.x + (double)(var37 * 6.5F * var31),
-                        this.y + (double)var39 + (double)(var32 * 6.5F),
-                        this.z - (double)(var38 * 6.5F * var31),
-                        0.0F,
-                        0.0F
-                    );
-                this.neck
-                    .moveTo(
-                        this.x + (double)(var37 * 5.5F * var31),
-                        this.y + (double)var39 + (double)(var32 * 5.5F),
-                        this.z - (double)(var38 * 5.5F * var31),
-                        0.0F,
-                        0.0F
-                    );
+                float var36 = Mth.sin(this.yRot * (float) (Math.PI / 180.0) - this.yRotA * 0.01F);
+                float var37 = Mth.cos(this.yRot * (float) (Math.PI / 180.0) - this.yRotA * 0.01F);
+                float var38 = this.getHeadYOffset();
+                this.tickPart(this.head, (double)(var36 * 6.5F * var31), (double)(var38 + var32 * 6.5F), (double)(-var37 * 6.5F * var31));
+                this.tickPart(this.neck, (double)(var36 * 5.5F * var31), (double)(var38 + var32 * 5.5F), (double)(-var37 * 5.5F * var31));
+                double[] var39 = this.getLatencyPos(5, 1.0F);
 
                 for(int var40 = 0; var40 < 3; ++var40) {
                     EnderDragonPart var41 = null;
@@ -326,18 +310,16 @@ public class EnderDragon extends Mob implements Enemy {
                     }
 
                     double[] var42 = this.getLatencyPos(12 + var40 * 2, 1.0F);
-                    float var43 = this.yRot * (float) (Math.PI / 180.0) + this.rotWrap(var42[0] - var36[0]) * (float) (Math.PI / 180.0);
+                    float var43 = this.yRot * (float) (Math.PI / 180.0) + this.rotWrap(var42[0] - var39[0]) * (float) (Math.PI / 180.0);
                     float var44 = Mth.sin(var43);
                     float var45 = Mth.cos(var43);
                     float var46 = 1.5F;
                     float var47 = (float)(var40 + 1) * 2.0F;
-                    var41.tick();
-                    var41.moveTo(
-                        this.x - (double)((var34 * 1.5F + var44 * var47) * var31),
-                        this.y + (var42[1] - var36[1]) - (double)((var47 + 1.5F) * var32) + 1.5,
-                        this.z + (double)((var35 * 1.5F + var45 * var47) * var31),
-                        0.0F,
-                        0.0F
+                    this.tickPart(
+                        var41,
+                        (double)(-(var34 * 1.5F + var44 * var47) * var31),
+                        var42[1] - var39[1] - (double)((var47 + 1.5F) * var32) + 1.5,
+                        (double)((var35 * 1.5F + var45 * var47) * var31)
                     );
                 }
 
@@ -354,23 +336,30 @@ public class EnderDragon extends Mob implements Enemy {
                     this.subEntities[var48].xo = var28[var48].x;
                     this.subEntities[var48].yo = var28[var48].y;
                     this.subEntities[var48].zo = var28[var48].z;
+                    this.subEntities[var48].xOld = var28[var48].x;
+                    this.subEntities[var48].yOld = var28[var48].y;
+                    this.subEntities[var48].zOld = var28[var48].z;
                 }
 
             }
         }
     }
 
-    private float getHeadYOffset(float param0) {
-        double var0;
-        if (this.phaseManager.getCurrentPhase().isSitting()) {
-            var0 = -1.0;
-        } else {
-            double[] var1 = this.getLatencyPos(5, 1.0F);
-            double[] var2 = this.getLatencyPos(0, 1.0F);
-            var0 = var1[1] - var2[1];
-        }
+    private void tickPart(EnderDragonPart param0, double param1, double param2, double param3) {
+        param0.x = this.x + param1;
+        param0.y = this.y + param2;
+        param0.z = this.z + param3;
+        param0.setPos(param0.x, param0.y, param0.z);
+    }
 
-        return (float)var0;
+    private float getHeadYOffset() {
+        if (this.phaseManager.getCurrentPhase().isSitting()) {
+            return -1.0F;
+        } else {
+            double[] var0 = this.getLatencyPos(5, 1.0F);
+            double[] var1 = this.getLatencyPos(0, 1.0F);
+            return (float)(var0[1] - var1[1]);
+        }
     }
 
     private void checkCrystals() {
@@ -420,11 +409,10 @@ public class EnderDragon extends Mob implements Enemy {
     }
 
     private void hurt(List<Entity> param0) {
-        for(int var0 = 0; var0 < param0.size(); ++var0) {
-            Entity var1 = param0.get(var0);
-            if (var1 instanceof LivingEntity) {
-                var1.hurt(DamageSource.mobAttack(this), 10.0F);
-                this.doEnchantDamageEffects(this, var1);
+        for(Entity var0 : param0) {
+            if (var0 instanceof LivingEntity) {
+                var0.hurt(DamageSource.mobAttack(this), 10.0F);
+                this.doEnchantDamageEffects(this, var0);
             }
         }
 

@@ -1,6 +1,5 @@
 package net.minecraft.client.model;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.animal.Panda;
@@ -14,7 +13,7 @@ public class PandaModel<T extends Panda> extends QuadrupedModel<T> {
     private float rollAmount;
 
     public PandaModel(int param0, float param1) {
-        super(param0, param1);
+        super(param0, param1, true, 23.0F, 0.3F, 1.2F, 3.0F, 49);
         this.texWidth = 64;
         this.texHeight = 64;
         this.head = new ModelPart(this, 0, 6);
@@ -113,39 +112,6 @@ public class PandaModel<T extends Panda> extends QuadrupedModel<T> {
             this.leg1.xRot = 0.5F * Mth.sin(param3 * 0.5F);
             this.leg2.xRot = 0.5F * Mth.sin(param3 * 0.5F);
             this.leg3.xRot = -0.5F * Mth.sin(param3 * 0.5F);
-        }
-
-    }
-
-    public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        this.setupAnim(param0, param1, param2, param3, param4, param5, param6);
-        if (this.young) {
-            float var0 = 3.0F;
-            RenderSystem.pushMatrix();
-            RenderSystem.translatef(0.0F, this.yHeadOffs * param6, this.zHeadOffs * param6);
-            RenderSystem.popMatrix();
-            RenderSystem.pushMatrix();
-            float var1 = 0.6F;
-            RenderSystem.scalef(0.5555555F, 0.5555555F, 0.5555555F);
-            RenderSystem.translatef(0.0F, 23.0F * param6, 0.3F);
-            this.head.render(param6);
-            RenderSystem.popMatrix();
-            RenderSystem.pushMatrix();
-            RenderSystem.scalef(0.33333334F, 0.33333334F, 0.33333334F);
-            RenderSystem.translatef(0.0F, 49.0F * param6, 0.0F);
-            this.body.render(param6);
-            this.leg0.render(param6);
-            this.leg1.render(param6);
-            this.leg2.render(param6);
-            this.leg3.render(param6);
-            RenderSystem.popMatrix();
-        } else {
-            this.head.render(param6);
-            this.body.render(param6);
-            this.leg0.render(param6);
-            this.leg1.render(param6);
-            this.leg2.render(param6);
-            this.leg3.render(param6);
         }
 
     }

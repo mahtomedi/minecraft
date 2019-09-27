@@ -118,19 +118,24 @@ public final class Vector3f {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void normalize() {
+    public boolean normalize() {
         float var0 = 0.0F;
 
         for(int var1 = 0; var1 < 3; ++var1) {
             var0 += this.values[var1] * this.values[var1];
         }
 
-        float var2 = (float)Mth.fastInvSqrt((double)var0);
+        if ((double)var0 < 1.0E-5) {
+            return false;
+        } else {
+            float var2 = Mth.fastInvSqrt(var0);
 
-        for(int var3 = 0; var3 < 3; ++var3) {
-            this.values[var3] *= var2;
+            for(int var3 = 0; var3 < 3; ++var3) {
+                this.values[var3] *= var2;
+            }
+
+            return true;
         }
-
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -146,6 +151,20 @@ public final class Vector3f {
         this.values[2] = var0 * var4 - var1 * var3;
     }
 
+    @OnlyIn(Dist.CLIENT)
+    public void transform(Matrix3f param0) {
+        float[] var0 = Arrays.copyOf(this.values, 3);
+
+        for(int var1 = 0; var1 < 3; ++var1) {
+            this.values[var1] = 0.0F;
+
+            for(int var2 = 0; var2 < 3; ++var2) {
+                this.values[var1] += param0.get(var1, var2) * var0[var2];
+            }
+        }
+
+    }
+
     public void transform(Quaternion param0) {
         Quaternion var0 = new Quaternion(param0);
         var0.mul(new Quaternion(this.x(), this.y(), this.z(), 0.0F));
@@ -153,5 +172,10 @@ public final class Vector3f {
         var1.conj();
         var0.mul(var1);
         this.set(var0.i(), var0.j(), var0.k());
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public Quaternion rotation(float param0, boolean param1) {
+        return new Quaternion(this, param0, param1);
     }
 }

@@ -1,7 +1,7 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import javax.annotation.Nullable;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.model.DrownedModel;
 import net.minecraft.client.renderer.entity.layers.DrownedOuterLayer;
 import net.minecraft.resources.ResourceLocation;
@@ -20,17 +20,16 @@ public class DrownedRenderer extends AbstractZombieRenderer<Drowned, DrownedMode
         this.addLayer(new DrownedOuterLayer<>(this));
     }
 
-    @Nullable
     @Override
-    protected ResourceLocation getTextureLocation(Zombie param0) {
+    public ResourceLocation getTextureLocation(Zombie param0) {
         return DROWNED_LOCATION;
     }
 
-    protected void setupRotations(Drowned param0, float param1, float param2, float param3) {
-        float var0 = param0.getSwimAmount(param3);
-        super.setupRotations(param0, param1, param2, param3);
+    protected void setupRotations(Drowned param0, PoseStack param1, float param2, float param3, float param4) {
+        super.setupRotations(param0, param1, param2, param3, param4);
+        float var0 = param0.getSwimAmount(param4);
         if (var0 > 0.0F) {
-            RenderSystem.rotatef(Mth.lerp(var0, param0.xRot, -10.0F - param0.xRot), 1.0F, 0.0F, 0.0F);
+            param1.mulPose(Vector3f.XP.rotation(Mth.lerp(var0, param0.xRot, -10.0F - param0.xRot), true));
         }
 
     }

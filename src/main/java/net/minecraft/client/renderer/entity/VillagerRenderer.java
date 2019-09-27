@@ -1,8 +1,9 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.VillagerModel;
 import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
+import net.minecraft.client.renderer.entity.layers.VillagerProfessionLayer;
 import net.minecraft.client.renderer.entity.layers.VillagerTradeItemLayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
@@ -21,11 +22,11 @@ public class VillagerRenderer extends MobRenderer<Villager, VillagerModel<Villag
         this.addLayer(new VillagerTradeItemLayer<>(this));
     }
 
-    protected ResourceLocation getTextureLocation(Villager param0) {
+    public ResourceLocation getTextureLocation(Villager param0) {
         return VILLAGER_BASE_SKIN;
     }
 
-    protected void scale(Villager param0, float param1) {
+    protected void scale(Villager param0, PoseStack param1, float param2) {
         float var0 = 0.9375F;
         if (param0.isBaby()) {
             var0 = (float)((double)var0 * 0.5);
@@ -34,6 +35,6 @@ public class VillagerRenderer extends MobRenderer<Villager, VillagerModel<Villag
             this.shadowRadius = 0.5F;
         }
 
-        RenderSystem.scalef(var0, var0, var0);
+        param1.scale(var0, var0, var0);
     }
 }

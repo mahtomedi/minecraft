@@ -68,96 +68,144 @@ public class FlyNodeEvaluator extends WalkNodeEvaluator {
     public int getNeighbors(Node[] param0, Node param1) {
         int var0 = 0;
         Node var1 = this.getNode(param1.x, param1.y, param1.z + 1);
-        if (var1 != null && !var1.closed) {
+        if (this.isOpen(var1)) {
             param0[var0++] = var1;
         }
 
         Node var2 = this.getNode(param1.x - 1, param1.y, param1.z);
-        if (var2 != null && !var2.closed) {
+        if (this.isOpen(var2)) {
             param0[var0++] = var2;
         }
 
         Node var3 = this.getNode(param1.x + 1, param1.y, param1.z);
-        if (var3 != null && !var3.closed) {
+        if (this.isOpen(var3)) {
             param0[var0++] = var3;
         }
 
         Node var4 = this.getNode(param1.x, param1.y, param1.z - 1);
-        if (var4 != null && !var4.closed) {
+        if (this.isOpen(var4)) {
             param0[var0++] = var4;
         }
 
         Node var5 = this.getNode(param1.x, param1.y + 1, param1.z);
-        if (var5 != null && !var5.closed) {
+        if (this.isOpen(var5)) {
             param0[var0++] = var5;
         }
 
         Node var6 = this.getNode(param1.x, param1.y - 1, param1.z);
-        if (var6 != null && !var6.closed) {
+        if (this.isOpen(var6)) {
             param0[var0++] = var6;
         }
 
-        Node var7 = this.getNode(param1.x + 1, param1.y, param1.z - 1);
-        if (var7 != null && !var7.closed && var4 != null && var4.costMalus >= 0.0F && var3 != null && var3.costMalus >= 0.0F) {
+        Node var7 = this.getNode(param1.x, param1.y + 1, param1.z + 1);
+        if (this.isOpen(var7) && this.hasMalus(var1) && this.hasMalus(var5)) {
             param0[var0++] = var7;
         }
 
-        Node var8 = this.getNode(param1.x + 1, param1.y, param1.z + 1);
-        if (var8 != null && !var8.closed && var1 != null && var1.costMalus >= 0.0F && var3 != null && var3.costMalus >= 0.0F) {
+        Node var8 = this.getNode(param1.x - 1, param1.y + 1, param1.z);
+        if (this.isOpen(var8) && this.hasMalus(var2) && this.hasMalus(var5)) {
             param0[var0++] = var8;
         }
 
-        Node var9 = this.getNode(param1.x - 1, param1.y, param1.z - 1);
-        if (var9 != null && !var9.closed && var4 != null && var4.costMalus >= 0.0F && var2 != null && var2.costMalus >= 0.0F) {
+        Node var9 = this.getNode(param1.x + 1, param1.y + 1, param1.z);
+        if (this.isOpen(var9) && this.hasMalus(var3) && this.hasMalus(var5)) {
             param0[var0++] = var9;
         }
 
-        Node var10 = this.getNode(param1.x - 1, param1.y, param1.z + 1);
-        if (var10 != null && !var10.closed && var1 != null && var1.costMalus >= 0.0F && var2 != null && var2.costMalus >= 0.0F) {
+        Node var10 = this.getNode(param1.x, param1.y + 1, param1.z - 1);
+        if (this.isOpen(var10) && this.hasMalus(var4) && this.hasMalus(var5)) {
             param0[var0++] = var10;
         }
 
-        Node var11 = this.getNode(param1.x + 1, param1.y + 1, param1.z - 1);
-        if (var11 != null && !var11.closed && var7 != null && var7.costMalus >= 0.0F && var5 != null && var5.costMalus >= 0.0F) {
+        Node var11 = this.getNode(param1.x, param1.y - 1, param1.z + 1);
+        if (this.isOpen(var11) && this.hasMalus(var1) && this.hasMalus(var6)) {
             param0[var0++] = var11;
         }
 
-        Node var12 = this.getNode(param1.x + 1, param1.y + 1, param1.z + 1);
-        if (var12 != null && !var12.closed && var8 != null && var8.costMalus >= 0.0F && var5 != null && var5.costMalus >= 0.0F) {
+        Node var12 = this.getNode(param1.x - 1, param1.y - 1, param1.z);
+        if (this.isOpen(var12) && this.hasMalus(var2) && this.hasMalus(var6)) {
             param0[var0++] = var12;
         }
 
-        Node var13 = this.getNode(param1.x - 1, param1.y + 1, param1.z - 1);
-        if (var13 != null && !var13.closed && var9 != null && var9.costMalus >= 0.0F && var5 != null && var5.costMalus >= 0.0F) {
+        Node var13 = this.getNode(param1.x + 1, param1.y - 1, param1.z);
+        if (this.isOpen(var13) && this.hasMalus(var3) && this.hasMalus(var6)) {
             param0[var0++] = var13;
         }
 
-        Node var14 = this.getNode(param1.x - 1, param1.y + 1, param1.z + 1);
-        if (var14 != null && !var14.closed && var10 != null && var10.costMalus >= 0.0F && var5 != null && var5.costMalus >= 0.0F) {
+        Node var14 = this.getNode(param1.x, param1.y - 1, param1.z - 1);
+        if (this.isOpen(var14) && this.hasMalus(var4) && this.hasMalus(var6)) {
             param0[var0++] = var14;
         }
 
-        Node var15 = this.getNode(param1.x + 1, param1.y - 1, param1.z - 1);
-        if (var15 != null && !var15.closed && var7 != null && var7.costMalus >= 0.0F && var6 != null && var6.costMalus >= 0.0F) {
+        Node var15 = this.getNode(param1.x + 1, param1.y, param1.z - 1);
+        if (this.isOpen(var15) && this.hasMalus(var4) && this.hasMalus(var3)) {
             param0[var0++] = var15;
         }
 
-        Node var16 = this.getNode(param1.x + 1, param1.y - 1, param1.z + 1);
-        if (var16 != null && !var16.closed && var8 != null && var8.costMalus >= 0.0F && var6 != null && var6.costMalus >= 0.0F) {
+        Node var16 = this.getNode(param1.x + 1, param1.y, param1.z + 1);
+        if (this.isOpen(var16) && this.hasMalus(var1) && this.hasMalus(var3)) {
             param0[var0++] = var16;
         }
 
-        Node var17 = this.getNode(param1.x - 1, param1.y - 1, param1.z - 1);
-        if (var17 != null && !var17.closed && var9 != null && var9.costMalus >= 0.0F && var6 != null && var6.costMalus >= 0.0F) {
+        Node var17 = this.getNode(param1.x - 1, param1.y, param1.z - 1);
+        if (this.isOpen(var17) && this.hasMalus(var4) && this.hasMalus(var2)) {
             param0[var0++] = var17;
         }
 
-        Node var18 = this.getNode(param1.x - 1, param1.y - 1, param1.z + 1);
-        if (var18 != null && !var18.closed && var10 != null && var10.costMalus >= 0.0F && var6 != null && var6.costMalus >= 0.0F) {
+        Node var18 = this.getNode(param1.x - 1, param1.y, param1.z + 1);
+        if (this.isOpen(var18) && this.hasMalus(var1) && this.hasMalus(var2)) {
             param0[var0++] = var18;
         }
 
+        Node var19 = this.getNode(param1.x + 1, param1.y + 1, param1.z - 1);
+        if (this.isOpen(var19) && this.hasMalus(var15) && this.hasMalus(var10) && this.hasMalus(var9)) {
+            param0[var0++] = var19;
+        }
+
+        Node var20 = this.getNode(param1.x + 1, param1.y + 1, param1.z + 1);
+        if (this.isOpen(var20) && this.hasMalus(var16) && this.hasMalus(var7) && this.hasMalus(var9)) {
+            param0[var0++] = var20;
+        }
+
+        Node var21 = this.getNode(param1.x - 1, param1.y + 1, param1.z - 1);
+        if (this.isOpen(var21) && this.hasMalus(var17) && this.hasMalus(var10) && this.hasMalus(var8)) {
+            param0[var0++] = var21;
+        }
+
+        Node var22 = this.getNode(param1.x - 1, param1.y + 1, param1.z + 1);
+        if (this.isOpen(var22) && this.hasMalus(var18) && this.hasMalus(var7) && this.hasMalus(var8)) {
+            param0[var0++] = var22;
+        }
+
+        Node var23 = this.getNode(param1.x + 1, param1.y - 1, param1.z - 1);
+        if (this.isOpen(var23) && this.hasMalus(var15) && this.hasMalus(var14) && this.hasMalus(var13)) {
+            param0[var0++] = var23;
+        }
+
+        Node var24 = this.getNode(param1.x + 1, param1.y - 1, param1.z + 1);
+        if (this.isOpen(var24) && this.hasMalus(var16) && this.hasMalus(var11) && this.hasMalus(var13)) {
+            param0[var0++] = var24;
+        }
+
+        Node var25 = this.getNode(param1.x - 1, param1.y - 1, param1.z - 1);
+        if (this.isOpen(var25) && this.hasMalus(var17) && this.hasMalus(var14) && this.hasMalus(var12)) {
+            param0[var0++] = var25;
+        }
+
+        Node var26 = this.getNode(param1.x - 1, param1.y - 1, param1.z + 1);
+        if (this.isOpen(var26) && this.hasMalus(var18) && this.hasMalus(var11) && this.hasMalus(var12)) {
+            param0[var0++] = var26;
+        }
+
         return var0;
+    }
+
+    private boolean hasMalus(@Nullable Node param0) {
+        return param0 != null && param0.costMalus >= 0.0F;
+    }
+
+    private boolean isOpen(@Nullable Node param0) {
+        return param0 != null && !param0.closed;
     }
 
     @Nullable

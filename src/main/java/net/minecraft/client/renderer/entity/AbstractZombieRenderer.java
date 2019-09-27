@@ -1,5 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.ZombieModel;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.resources.ResourceLocation;
@@ -16,15 +17,15 @@ public abstract class AbstractZombieRenderer<T extends Zombie, M extends ZombieM
         this.addLayer(new HumanoidArmorLayer<>(this, param2, param3));
     }
 
-    protected ResourceLocation getTextureLocation(Zombie param0) {
+    public ResourceLocation getTextureLocation(Zombie param0) {
         return ZOMBIE_LOCATION;
     }
 
-    protected void setupRotations(T param0, float param1, float param2, float param3) {
+    protected void setupRotations(T param0, PoseStack param1, float param2, float param3, float param4) {
         if (param0.isUnderWaterConverting()) {
-            param2 += (float)(Math.cos((double)param0.tickCount * 3.25) * Math.PI * 0.25);
+            param3 += (float)(Math.cos((double)param0.tickCount * 3.25) * Math.PI * 0.25);
         }
 
-        super.setupRotations(param0, param1, param2, param3);
+        super.setupRotations(param0, param1, param2, param3, param4);
     }
 }

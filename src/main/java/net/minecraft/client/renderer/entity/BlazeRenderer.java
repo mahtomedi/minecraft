@@ -14,7 +14,7 @@ public class BlazeRenderer extends MobRenderer<Blaze, BlazeModel<Blaze>> {
         super(param0, new BlazeModel<>(), 0.5F);
     }
 
-    protected ResourceLocation getTextureLocation(Blaze param0) {
+    public ResourceLocation getTextureLocation(Blaze param0) {
         return BLAZE_LOCATION;
     }
 }

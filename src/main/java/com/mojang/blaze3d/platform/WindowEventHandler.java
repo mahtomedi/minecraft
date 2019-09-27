@@ -7,7 +7,5 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public interface WindowEventHandler {
     void setWindowActive(boolean var1);
 
-    void updateDisplay(boolean var1);
-
     void resizeDisplay();
 }

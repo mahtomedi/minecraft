@@ -49,7 +49,6 @@ public final class Window implements AutoCloseable {
     private double guiScale;
     private String errorSection = "";
     private boolean dirty;
-    private double lastDrawTime = Double.MIN_VALUE;
     private int framerateLimit;
     private boolean vsync;
 
@@ -123,17 +122,6 @@ public final class Window implements AutoCloseable {
             }
         }
 
-    }
-
-    public void setupGuiState(boolean param0) {
-        RenderSystem.assertThread(RenderSystem::isOnGameThread);
-        RenderSystem.clear(256, param0);
-        RenderSystem.matrixMode(5889);
-        RenderSystem.loadIdentity();
-        RenderSystem.ortho(0.0, (double)this.getWidth() / this.getGuiScale(), (double)this.getHeight() / this.getGuiScale(), 0.0, 1000.0, 3000.0);
-        RenderSystem.matrixMode(5888);
-        RenderSystem.loadIdentity();
-        RenderSystem.translatef(0.0F, 0.0F, -2000.0F);
     }
 
     public void setIcon(InputStream param0, InputStream param1) {
@@ -294,25 +282,13 @@ public final class Window implements AutoCloseable {
         return this.framerateLimit;
     }
 
-    public void updateDisplay(boolean param0) {
-        GLFW.glfwSwapBuffers(this.window);
-        pollEventQueue();
+    public void updateDisplay() {
+        RenderSystem.flipFrame(this.window);
         if (this.fullscreen != this.actuallyFullscreen) {
             this.actuallyFullscreen = this.fullscreen;
             this.updateFullscreen(this.vsync);
         }
 
-    }
-
-    public void limitDisplayFPS() {
-        double var0 = this.lastDrawTime + 1.0 / (double)this.getFramerateLimit();
-
-        double var1;
-        for(var1 = GLFW.glfwGetTime(); var1 < var0; var1 = GLFW.glfwGetTime()) {
-            GLFW.glfwWaitEventsTimeout(var0 - var1);
-        }
-
-        this.lastDrawTime = var1;
     }
 
     public Optional<VideoMode> getPreferredFullscreenVideoMode() {
@@ -381,7 +357,7 @@ public final class Window implements AutoCloseable {
             this.setMode();
             this.eventHandler.resizeDisplay();
             this.updateVsync(param0);
-            this.eventHandler.updateDisplay(false);
+            this.updateDisplay();
         } catch (Exception var3) {
             LOGGER.error("Couldn't toggle fullscreen", (Throwable)var3);
         }
@@ -430,10 +406,6 @@ public final class Window implements AutoCloseable {
 
     public int getHeight() {
         return this.framebufferHeight;
-    }
-
-    public static void pollEventQueue() {
-        GLFW.glfwPollEvents();
     }
 
     public int getScreenWidth() {

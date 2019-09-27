@@ -1,7 +1,8 @@
 package net.minecraft.client.renderer.entity.layers;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.HorseModel;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.world.entity.animal.horse.Horse;
 import net.minecraft.world.item.DyeableHorseArmorItem;
@@ -18,31 +19,40 @@ public class HorseArmorLayer extends RenderLayer<Horse, HorseModel<Horse>> {
         super(param0);
     }
 
-    public void render(Horse param0, float param1, float param2, float param3, float param4, float param5, float param6, float param7) {
-        ItemStack var0 = param0.getArmor();
+    public void render(
+        PoseStack param0,
+        MultiBufferSource param1,
+        int param2,
+        Horse param3,
+        float param4,
+        float param5,
+        float param6,
+        float param7,
+        float param8,
+        float param9,
+        float param10
+    ) {
+        ItemStack var0 = param3.getArmor();
         if (var0.getItem() instanceof HorseArmorItem) {
             HorseArmorItem var1 = (HorseArmorItem)var0.getItem();
             this.getParentModel().copyPropertiesTo(this.model);
-            this.model.prepareMobModel(param0, param1, param2, param3);
-            this.bindTexture(var1.getTexture());
+            this.model.prepareMobModel(param3, param4, param5, param6);
+            this.model.setupAnim(param3, param4, param5, param7, param8, param9, param10);
+            float var3;
+            float var4;
+            float var5;
             if (var1 instanceof DyeableHorseArmorItem) {
                 int var2 = ((DyeableHorseArmorItem)var1).getColor(var0);
-                float var3 = (float)(var2 >> 16 & 0xFF) / 255.0F;
-                float var4 = (float)(var2 >> 8 & 0xFF) / 255.0F;
-                float var5 = (float)(var2 & 0xFF) / 255.0F;
-                RenderSystem.color4f(var3, var4, var5, 1.0F);
-                this.model.render(param0, param1, param2, param4, param5, param6, param7);
-                return;
+                var3 = (float)(var2 >> 16 & 0xFF) / 255.0F;
+                var4 = (float)(var2 >> 8 & 0xFF) / 255.0F;
+                var5 = (float)(var2 & 0xFF) / 255.0F;
+            } else {
+                var3 = 1.0F;
+                var4 = 1.0F;
+                var5 = 1.0F;
             }
 
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            this.model.render(param0, param1, param2, param4, param5, param6, param7);
+            renderModel(this.model, var1.getTexture(), param0, param1, param2, var3, var4, var5);
         }
-
-    }
-
-    @Override
-    public boolean colorsOnDamage() {
-        return false;
     }
 }

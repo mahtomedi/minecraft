@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.GiantZombieModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
@@ -22,11 +22,11 @@ public class GiantMobRenderer extends MobRenderer<Giant, HumanoidModel<Giant>> {
         this.addLayer(new HumanoidArmorLayer<>(this, new GiantZombieModel(0.5F, true), new GiantZombieModel(1.0F, true)));
     }
 
-    protected void scale(Giant param0, float param1) {
-        RenderSystem.scalef(this.scale, this.scale, this.scale);
+    protected void scale(Giant param0, PoseStack param1, float param2) {
+        param1.scale(this.scale, this.scale, this.scale);
     }
 
-    protected ResourceLocation getTextureLocation(Giant param0) {
+    public ResourceLocation getTextureLocation(Giant param0) {
         return ZOMBIE_LOCATION;
     }
 }

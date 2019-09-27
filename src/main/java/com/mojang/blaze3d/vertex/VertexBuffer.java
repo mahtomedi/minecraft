@@ -2,6 +2,7 @@ package com.mojang.blaze3d.vertex;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.math.Matrix4f;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 import net.minecraftforge.api.distmarker.Dist;
@@ -49,8 +50,12 @@ public class VertexBuffer {
         unbind();
     }
 
-    public void draw(int param0) {
-        RenderSystem.drawArrays(param0, 0, this.vertexCount);
+    public void draw(Matrix4f param0, int param1) {
+        RenderSystem.pushMatrix();
+        RenderSystem.loadIdentity();
+        RenderSystem.multMatrix(param0);
+        RenderSystem.drawArrays(param1, 0, this.vertexCount);
+        RenderSystem.popMatrix();
     }
 
     public static void unbind() {

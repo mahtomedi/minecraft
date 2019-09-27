@@ -1,8 +1,8 @@
 package net.minecraft.client.gui.font.glyphs;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Matrix4f;
 import javax.annotation.Nullable;
-import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -15,7 +15,7 @@ public class EmptyGlyph extends BakedGlyph {
 
     @Override
     public void render(
-        TextureManager param0, boolean param1, float param2, float param3, BufferBuilder param4, float param5, float param6, float param7, float param8
+        boolean param0, float param1, float param2, Matrix4f param3, VertexConsumer param4, float param5, float param6, float param7, float param8, int param9
     ) {
     }
 

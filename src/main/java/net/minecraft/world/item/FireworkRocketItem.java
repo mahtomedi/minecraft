@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
@@ -32,8 +33,11 @@ public class FireworkRocketItem extends Item {
         if (!var0.isClientSide) {
             ItemStack var1 = param0.getItemInHand();
             Vec3 var2 = param0.getClickLocation();
-            FireworkRocketEntity var3 = new FireworkRocketEntity(var0, var2.x, var2.y, var2.z, var1);
-            var0.addFreshEntity(var3);
+            Direction var3 = param0.getClickedFace();
+            FireworkRocketEntity var4 = new FireworkRocketEntity(
+                var0, var2.x + (double)var3.getStepX() * 0.15, var2.y + (double)var3.getStepY() * 0.15, var2.z + (double)var3.getStepZ() * 0.15, var1
+            );
+            var0.addFreshEntity(var4);
             var1.shrink(1);
         }
 

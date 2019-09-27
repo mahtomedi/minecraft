@@ -16,7 +16,7 @@ public class PigRenderer extends MobRenderer<Pig, PigModel<Pig>> {
         this.addLayer(new PigSaddleLayer(this));
     }
 
-    protected ResourceLocation getTextureLocation(Pig param0) {
+    public ResourceLocation getTextureLocation(Pig param0) {
         return PIG_LOCATION;
     }
 }

@@ -5,7 +5,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
@@ -331,7 +330,6 @@ public class Gui extends GuiComponent {
         }
 
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.disableLighting();
         RenderSystem.enableAlphaTest();
     }
 
@@ -487,7 +485,6 @@ public class Gui extends GuiComponent {
             RenderSystem.enableRescaleNormal();
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
-            Lighting.turnOnGui();
 
             for(int var7 = 0; var7 < 9; ++var7) {
                 int var8 = var3 - 90 + var7 * 20 + 2;
@@ -521,7 +518,6 @@ public class Gui extends GuiComponent {
                 }
             }
 
-            Lighting.turnOff();
             RenderSystem.disableRescaleNormal();
             RenderSystem.disableBlend();
         }
@@ -931,10 +927,10 @@ public class Gui extends GuiComponent {
         Tesselator var0 = Tesselator.getInstance();
         BufferBuilder var1 = var0.getBuilder();
         var1.begin(7, DefaultVertexFormat.POSITION_TEX);
-        var1.vertex(0.0, (double)this.screenHeight, -90.0).uv(0.0, 1.0).endVertex();
-        var1.vertex((double)this.screenWidth, (double)this.screenHeight, -90.0).uv(1.0, 1.0).endVertex();
-        var1.vertex((double)this.screenWidth, 0.0, -90.0).uv(1.0, 0.0).endVertex();
-        var1.vertex(0.0, 0.0, -90.0).uv(0.0, 0.0).endVertex();
+        var1.vertex(0.0, (double)this.screenHeight, -90.0).uv(0.0F, 1.0F).endVertex();
+        var1.vertex((double)this.screenWidth, (double)this.screenHeight, -90.0).uv(1.0F, 1.0F).endVertex();
+        var1.vertex((double)this.screenWidth, 0.0, -90.0).uv(1.0F, 0.0F).endVertex();
+        var1.vertex(0.0, 0.0, -90.0).uv(0.0F, 0.0F).endVertex();
         var0.end();
         RenderSystem.depthMask(true);
         RenderSystem.enableDepthTest();
@@ -975,10 +971,10 @@ public class Gui extends GuiComponent {
         Tesselator var4 = Tesselator.getInstance();
         BufferBuilder var5 = var4.getBuilder();
         var5.begin(7, DefaultVertexFormat.POSITION_TEX);
-        var5.vertex(0.0, (double)this.screenHeight, -90.0).uv(0.0, 1.0).endVertex();
-        var5.vertex((double)this.screenWidth, (double)this.screenHeight, -90.0).uv(1.0, 1.0).endVertex();
-        var5.vertex((double)this.screenWidth, 0.0, -90.0).uv(1.0, 0.0).endVertex();
-        var5.vertex(0.0, 0.0, -90.0).uv(0.0, 0.0).endVertex();
+        var5.vertex(0.0, (double)this.screenHeight, -90.0).uv(0.0F, 1.0F).endVertex();
+        var5.vertex((double)this.screenWidth, (double)this.screenHeight, -90.0).uv(1.0F, 1.0F).endVertex();
+        var5.vertex((double)this.screenWidth, 0.0, -90.0).uv(1.0F, 0.0F).endVertex();
+        var5.vertex(0.0, 0.0, -90.0).uv(0.0F, 0.0F).endVertex();
         var4.end();
         RenderSystem.depthMask(true);
         RenderSystem.enableDepthTest();
@@ -1007,10 +1003,10 @@ public class Gui extends GuiComponent {
         Tesselator var5 = Tesselator.getInstance();
         BufferBuilder var6 = var5.getBuilder();
         var6.begin(7, DefaultVertexFormat.POSITION_TEX);
-        var6.vertex(0.0, (double)this.screenHeight, -90.0).uv((double)var1, (double)var4).endVertex();
-        var6.vertex((double)this.screenWidth, (double)this.screenHeight, -90.0).uv((double)var3, (double)var4).endVertex();
-        var6.vertex((double)this.screenWidth, 0.0, -90.0).uv((double)var3, (double)var2).endVertex();
-        var6.vertex(0.0, 0.0, -90.0).uv((double)var1, (double)var2).endVertex();
+        var6.vertex(0.0, (double)this.screenHeight, -90.0).uv(var1, var4).endVertex();
+        var6.vertex((double)this.screenWidth, (double)this.screenHeight, -90.0).uv(var3, var4).endVertex();
+        var6.vertex((double)this.screenWidth, 0.0, -90.0).uv(var3, var2).endVertex();
+        var6.vertex(0.0, 0.0, -90.0).uv(var1, var2).endVertex();
         var5.end();
         RenderSystem.depthMask(true);
         RenderSystem.enableDepthTest();

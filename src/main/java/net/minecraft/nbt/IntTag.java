@@ -7,13 +7,35 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 
 public class IntTag extends NumericTag {
-    private int data;
+    public static final TagType<IntTag> TYPE = new TagType<IntTag>() {
+        public IntTag load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
+            param2.accountBits(96L);
+            return IntTag.valueOf(param0.readInt());
+        }
 
-    IntTag() {
+        @Override
+        public String getName() {
+            return "INT";
+        }
+
+        @Override
+        public String getPrettyName() {
+            return "TAG_Int";
+        }
+
+        @Override
+        public boolean isValue() {
+            return true;
+        }
+    };
+    private final int data;
+
+    private IntTag(int param0) {
+        this.data = param0;
     }
 
-    public IntTag(int param0) {
-        this.data = param0;
+    public static IntTag valueOf(int param0) {
+        return param0 >= -128 && param0 <= 1024 ? IntTag.Cache.cache[param0 + 128] : new IntTag(param0);
     }
 
     @Override
@@ -22,14 +44,13 @@ public class IntTag extends NumericTag {
     }
 
     @Override
-    public void load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
-        param2.accountBits(96L);
-        this.data = param0.readInt();
+    public byte getId() {
+        return 3;
     }
 
     @Override
-    public byte getId() {
-        return 3;
+    public TagType<IntTag> getType() {
+        return TYPE;
     }
 
     @Override
@@ -38,7 +59,7 @@ public class IntTag extends NumericTag {
     }
 
     public IntTag copy() {
-        return new IntTag(this.data);
+        return this;
     }
 
     @Override
@@ -93,5 +114,16 @@ public class IntTag extends NumericTag {
     @Override
     public Number getAsNumber() {
         return this.data;
+    }
+
+    static class Cache {
+        static final IntTag[] cache = new IntTag[1153];
+
+        static {
+            for(int var0 = 0; var0 < cache.length; ++var0) {
+                cache[var0] = new IntTag(-128 + var0);
+            }
+
+        }
     }
 }

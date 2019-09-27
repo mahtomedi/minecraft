@@ -1,6 +1,5 @@
 package net.minecraft.client.gui.screens.recipebook;
 
-import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.List;
 import net.minecraft.client.Minecraft;
@@ -61,10 +60,8 @@ public class RecipeButton extends AbstractWidget {
             this.time += param2;
         }
 
-        Lighting.turnOnGui();
         Minecraft var0 = Minecraft.getInstance();
         var0.getTextureManager().bind(RECIPE_BOOK_LOCATION);
-        RenderSystem.disableLighting();
         int var1 = 29;
         if (!this.collection.hasCraftable()) {
             var1 += 25;
@@ -100,8 +97,6 @@ public class RecipeButton extends AbstractWidget {
             RenderSystem.popMatrix();
         }
 
-        RenderSystem.enableLighting();
-        Lighting.turnOff();
     }
 
     private List<Recipe<?>> getOrderedRecipes() {

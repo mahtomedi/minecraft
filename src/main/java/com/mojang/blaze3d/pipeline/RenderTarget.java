@@ -223,10 +223,10 @@ public class RenderTarget {
         Tesselator var4 = RenderSystem.renderThreadTesselator();
         BufferBuilder var5 = var4.getBuilder();
         var5.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
-        var5.vertex(0.0, (double)var1, 0.0).uv(0.0, 0.0).color(255, 255, 255, 255).endVertex();
-        var5.vertex((double)var0, (double)var1, 0.0).uv((double)var2, 0.0).color(255, 255, 255, 255).endVertex();
-        var5.vertex((double)var0, 0.0, 0.0).uv((double)var2, (double)var3).color(255, 255, 255, 255).endVertex();
-        var5.vertex(0.0, 0.0, 0.0).uv(0.0, (double)var3).color(255, 255, 255, 255).endVertex();
+        var5.vertex(0.0, (double)var1, 0.0).uv(0.0F, 0.0F).color(255, 255, 255, 255).endVertex();
+        var5.vertex((double)var0, (double)var1, 0.0).uv(var2, 0.0F).color(255, 255, 255, 255).endVertex();
+        var5.vertex((double)var0, 0.0, 0.0).uv(var2, var3).color(255, 255, 255, 255).endVertex();
+        var5.vertex(0.0, 0.0, 0.0).uv(0.0F, var3).color(255, 255, 255, 255).endVertex();
         var4.end();
         this.unbindRead();
         GlStateManager._depthMask(true);

@@ -1,6 +1,6 @@
 package net.minecraft.client.model;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.google.common.collect.ImmutableList;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.animal.Fox;
@@ -8,7 +8,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class FoxModel<T extends Fox> extends EntityModel<T> {
+public class FoxModel<T extends Fox> extends AgeableListModel<T> {
     public final ModelPart head;
     private final ModelPart earL;
     private final ModelPart earR;
@@ -22,6 +22,7 @@ public class FoxModel<T extends Fox> extends EntityModel<T> {
     private float legMotionPos;
 
     public FoxModel() {
+        super(true, 8.0F, 3.35F);
         this.texWidth = 48;
         this.texHeight = 32;
         this.head = new ModelPart(this, 1, 5);
@@ -121,41 +122,17 @@ public class FoxModel<T extends Fox> extends EntityModel<T> {
 
     }
 
-    public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        super.render(param0, param1, param2, param3, param4, param5, param6);
-        this.setupAnim(param0, param1, param2, param3, param4, param5, param6);
-        if (this.young) {
-            RenderSystem.pushMatrix();
-            float var0 = 0.75F;
-            RenderSystem.scalef(0.75F, 0.75F, 0.75F);
-            RenderSystem.translatef(0.0F, 8.0F * param6, 3.35F * param6);
-            this.head.render(param6);
-            RenderSystem.popMatrix();
-            RenderSystem.pushMatrix();
-            float var1 = 0.5F;
-            RenderSystem.scalef(0.5F, 0.5F, 0.5F);
-            RenderSystem.translatef(0.0F, 24.0F * param6, 0.0F);
-            this.body.render(param6);
-            this.leg0.render(param6);
-            this.leg1.render(param6);
-            this.leg2.render(param6);
-            this.leg3.render(param6);
-            RenderSystem.popMatrix();
-        } else {
-            RenderSystem.pushMatrix();
-            this.head.render(param6);
-            this.body.render(param6);
-            this.leg0.render(param6);
-            this.leg1.render(param6);
-            this.leg2.render(param6);
-            this.leg3.render(param6);
-            RenderSystem.popMatrix();
-        }
+    @Override
+    protected Iterable<ModelPart> headParts() {
+        return ImmutableList.of(this.head);
+    }
 
+    @Override
+    protected Iterable<ModelPart> bodyParts() {
+        return ImmutableList.of(this.body, this.leg0, this.leg1, this.leg2, this.leg3);
     }
 
     public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        super.setupAnim(param0, param1, param2, param3, param4, param5, param6);
         if (!param0.isSleeping() && !param0.isFaceplanted() && !param0.isCrouching()) {
             this.head.xRot = param5 * (float) (Math.PI / 180.0);
             this.head.yRot = param4 * (float) (Math.PI / 180.0);

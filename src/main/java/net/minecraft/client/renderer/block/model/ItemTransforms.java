@@ -5,9 +5,6 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Quaternion;
 import java.lang.reflect.Type;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -15,15 +12,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class ItemTransforms {
     public static final ItemTransforms NO_TRANSFORMS = new ItemTransforms();
-    public static float transX;
-    public static float transY;
-    public static float transZ;
-    public static float rotX;
-    public static float rotY;
-    public static float rotZ;
-    public static float scaleX;
-    public static float scaleY;
-    public static float scaleZ;
     public final ItemTransform thirdPersonLeftHand;
     public final ItemTransform thirdPersonRightHand;
     public final ItemTransform firstPersonLeftHand;
@@ -75,27 +63,6 @@ public class ItemTransforms {
         this.gui = param5;
         this.ground = param6;
         this.fixed = param7;
-    }
-
-    public void apply(ItemTransforms.TransformType param0) {
-        apply(this.getTransform(param0), false);
-    }
-
-    public static void apply(ItemTransform param0, boolean param1) {
-        if (param0 != ItemTransform.NO_TRANSFORM) {
-            int var0 = param1 ? -1 : 1;
-            RenderSystem.translatef((float)var0 * (transX + param0.translation.x()), transY + param0.translation.y(), transZ + param0.translation.z());
-            float var1 = rotX + param0.rotation.x();
-            float var2 = rotY + param0.rotation.y();
-            float var3 = rotZ + param0.rotation.z();
-            if (param1) {
-                var2 = -var2;
-                var3 = -var3;
-            }
-
-            RenderSystem.multMatrix(new Matrix4f(new Quaternion(var1, var2, var3, true)));
-            RenderSystem.scalef(scaleX + param0.scale.x(), scaleY + param0.scale.y(), scaleZ + param0.scale.z());
-        }
     }
 
     public ItemTransform getTransform(ItemTransforms.TransformType param0) {

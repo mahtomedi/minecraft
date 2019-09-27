@@ -1,5 +1,7 @@
 package net.minecraft.client.model;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -10,11 +12,13 @@ public abstract class EntityModel<T extends Entity> extends Model {
     public boolean riding;
     public boolean young = true;
 
-    public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
+    public void renderToBuffer(PoseStack param0, VertexConsumer param1, int param2) {
+        this.renderToBuffer(param0, param1, param2, 1.0F, 1.0F, 1.0F);
     }
 
-    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-    }
+    public abstract void renderToBuffer(PoseStack var1, VertexConsumer var2, int var3, float var4, float var5, float var6);
+
+    public abstract void setupAnim(T var1, float var2, float var3, float var4, float var5, float var6, float var7);
 
     public void prepareMobModel(T param0, float param1, float param2, float param3) {
     }

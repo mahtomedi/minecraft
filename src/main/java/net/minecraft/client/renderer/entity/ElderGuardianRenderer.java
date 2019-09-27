@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.monster.ElderGuardian;
 import net.minecraft.world.entity.monster.Guardian;
@@ -15,12 +15,12 @@ public class ElderGuardianRenderer extends GuardianRenderer {
         super(param0, 1.2F);
     }
 
-    protected void scale(Guardian param0, float param1) {
-        RenderSystem.scalef(ElderGuardian.ELDER_SIZE_SCALE, ElderGuardian.ELDER_SIZE_SCALE, ElderGuardian.ELDER_SIZE_SCALE);
+    protected void scale(Guardian param0, PoseStack param1, float param2) {
+        param1.scale(ElderGuardian.ELDER_SIZE_SCALE, ElderGuardian.ELDER_SIZE_SCALE, ElderGuardian.ELDER_SIZE_SCALE);
     }
 
     @Override
-    protected ResourceLocation getTextureLocation(Guardian param0) {
+    public ResourceLocation getTextureLocation(Guardian param0) {
         return GUARDIAN_ELDER_LOCATION;
     }
 }

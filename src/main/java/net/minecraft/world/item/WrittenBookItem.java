@@ -119,7 +119,7 @@ public class WrittenBookItem extends Item {
                         var6 = new TextComponent(var3);
                     }
 
-                    var1.set(var2, (Tag)(new StringTag(Component.Serializer.toJson(var6))));
+                    var1.set(var2, (Tag)StringTag.valueOf(Component.Serializer.toJson(var6)));
                 }
 
                 var0.put("pages", var1);

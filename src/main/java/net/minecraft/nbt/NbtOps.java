@@ -27,7 +27,7 @@ public class NbtOps implements DynamicOps<Tag> {
     }
 
     public Tag empty() {
-        return new EndTag();
+        return EndTag.INSTANCE;
     }
 
     public Type<?> getType(Tag param0) {
@@ -68,31 +68,35 @@ public class NbtOps implements DynamicOps<Tag> {
     }
 
     public Tag createNumeric(Number param0) {
-        return new DoubleTag(param0.doubleValue());
+        return DoubleTag.valueOf(param0.doubleValue());
     }
 
     public Tag createByte(byte param0) {
-        return new ByteTag(param0);
+        return ByteTag.valueOf(param0);
     }
 
     public Tag createShort(short param0) {
-        return new ShortTag(param0);
+        return ShortTag.valueOf(param0);
     }
 
     public Tag createInt(int param0) {
-        return new IntTag(param0);
+        return IntTag.valueOf(param0);
     }
 
     public Tag createLong(long param0) {
-        return new LongTag(param0);
+        return LongTag.valueOf(param0);
     }
 
     public Tag createFloat(float param0) {
-        return new FloatTag(param0);
+        return FloatTag.valueOf(param0);
     }
 
     public Tag createDouble(double param0) {
-        return new DoubleTag(param0);
+        return DoubleTag.valueOf(param0);
+    }
+
+    public Tag createBoolean(boolean param0) {
+        return ByteTag.valueOf(param0);
     }
 
     public Optional<String> getStringValue(Tag param0) {
@@ -100,7 +104,7 @@ public class NbtOps implements DynamicOps<Tag> {
     }
 
     public Tag createString(String param0) {
-        return new StringTag(param0);
+        return StringTag.valueOf(param0);
     }
 
     public Tag mergeInto(Tag param0, Tag param1) {

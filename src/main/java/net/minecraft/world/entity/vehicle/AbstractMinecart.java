@@ -1,9 +1,14 @@
 package net.minecraft.world.entity.vehicle;
 
+import com.google.common.collect.Maps;
+import com.mojang.datafixers.util.Pair;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.Nullable;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.protocol.Packet;
@@ -43,18 +48,26 @@ public abstract class AbstractMinecart extends Entity {
     private static final EntityDataAccessor<Integer> DATA_ID_DISPLAY_OFFSET = SynchedEntityData.defineId(AbstractMinecart.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> DATA_ID_CUSTOM_DISPLAY = SynchedEntityData.defineId(AbstractMinecart.class, EntityDataSerializers.BOOLEAN);
     private boolean flipped;
-    private static final int[][][] EXITS = new int[][][]{
-        {{0, 0, -1}, {0, 0, 1}},
-        {{-1, 0, 0}, {1, 0, 0}},
-        {{-1, -1, 0}, {1, 0, 0}},
-        {{-1, 0, 0}, {1, -1, 0}},
-        {{0, 0, -1}, {0, -1, 1}},
-        {{0, -1, -1}, {0, 0, 1}},
-        {{0, 0, 1}, {1, 0, 0}},
-        {{0, 0, 1}, {-1, 0, 0}},
-        {{0, 0, -1}, {-1, 0, 0}},
-        {{0, 0, -1}, {1, 0, 0}}
-    };
+    private static final Map<RailShape, Pair<Vec3i, Vec3i>> EXITS = Util.make(Maps.newEnumMap(RailShape.class), param0 -> {
+        Vec3i var0 = Direction.WEST.getNormal();
+        Vec3i var1 = Direction.EAST.getNormal();
+        Vec3i var2 = Direction.NORTH.getNormal();
+        Vec3i var3 = Direction.SOUTH.getNormal();
+        Vec3i var4 = var0.below();
+        Vec3i var5 = var1.below();
+        Vec3i var6 = var2.below();
+        Vec3i var7 = var3.below();
+        param0.put(RailShape.NORTH_SOUTH, Pair.of(var2, var3));
+        param0.put(RailShape.EAST_WEST, Pair.of(var0, var1));
+        param0.put(RailShape.ASCENDING_EAST, Pair.of(var4, var1));
+        param0.put(RailShape.ASCENDING_WEST, Pair.of(var0, var5));
+        param0.put(RailShape.ASCENDING_NORTH, Pair.of(var2, var7));
+        param0.put(RailShape.ASCENDING_SOUTH, Pair.of(var6, var3));
+        param0.put(RailShape.SOUTH_EAST, Pair.of(var3, var1));
+        param0.put(RailShape.SOUTH_WEST, Pair.of(var3, var0));
+        param0.put(RailShape.NORTH_WEST, Pair.of(var2, var0));
+        param0.put(RailShape.NORTH_EAST, Pair.of(var2, var1));
+    });
     private int lSteps;
     private double lx;
     private double ly;
@@ -182,6 +195,10 @@ public abstract class AbstractMinecart extends Entity {
         return !this.removed;
     }
 
+    private static Pair<Vec3i, Vec3i> exits(RailShape param0) {
+        return EXITS.get(param0);
+    }
+
     @Override
     public Direction getMotionDirection() {
         return this.flipped ? this.getDirection().getOpposite().getClockWise() : this.getDirection().getClockWise();
@@ -219,9 +236,6 @@ public abstract class AbstractMinecart extends Entity {
             }
 
         } else {
-            this.xo = this.x;
-            this.yo = this.y;
-            this.zo = this.z;
             if (!this.isNoGravity()) {
                 this.setDeltaMovement(this.getDeltaMovement().add(0.0, -0.04, 0.0));
             }
@@ -346,107 +360,109 @@ public abstract class AbstractMinecart extends Entity {
         }
 
         var5 = this.getDeltaMovement();
-        int[][] var7 = EXITS[var6.getData()];
-        double var8 = (double)(var7[1][0] - var7[0][0]);
-        double var9 = (double)(var7[1][2] - var7[0][2]);
-        double var10 = Math.sqrt(var8 * var8 + var9 * var9);
-        double var11 = var5.x * var8 + var5.z * var9;
-        if (var11 < 0.0) {
-            var8 = -var8;
-            var9 = -var9;
+        Pair<Vec3i, Vec3i> var7 = exits(var6);
+        Vec3i var8 = var7.getFirst();
+        Vec3i var9 = var7.getSecond();
+        double var10 = (double)(var9.getX() - var8.getX());
+        double var11 = (double)(var9.getZ() - var8.getZ());
+        double var12 = Math.sqrt(var10 * var10 + var11 * var11);
+        double var13 = var5.x * var10 + var5.z * var11;
+        if (var13 < 0.0) {
+            var10 = -var10;
+            var11 = -var11;
         }
 
-        double var12 = Math.min(2.0, Math.sqrt(getHorizontalDistanceSqr(var5)));
-        var5 = new Vec3(var12 * var8 / var10, var5.y, var12 * var9 / var10);
+        double var14 = Math.min(2.0, Math.sqrt(getHorizontalDistanceSqr(var5)));
+        var5 = new Vec3(var14 * var10 / var12, var5.y, var14 * var11 / var12);
         this.setDeltaMovement(var5);
-        Entity var13 = this.getPassengers().isEmpty() ? null : this.getPassengers().get(0);
-        if (var13 instanceof Player) {
-            Vec3 var14 = var13.getDeltaMovement();
-            double var15 = getHorizontalDistanceSqr(var14);
-            double var16 = getHorizontalDistanceSqr(this.getDeltaMovement());
-            if (var15 > 1.0E-4 && var16 < 0.01) {
-                this.setDeltaMovement(this.getDeltaMovement().add(var14.x * 0.1, 0.0, var14.z * 0.1));
+        Entity var15 = this.getPassengers().isEmpty() ? null : this.getPassengers().get(0);
+        if (var15 instanceof Player) {
+            Vec3 var16 = var15.getDeltaMovement();
+            double var17 = getHorizontalDistanceSqr(var16);
+            double var18 = getHorizontalDistanceSqr(this.getDeltaMovement());
+            if (var17 > 1.0E-4 && var18 < 0.01) {
+                this.setDeltaMovement(this.getDeltaMovement().add(var16.x * 0.1, 0.0, var16.z * 0.1));
                 var2 = false;
             }
         }
 
         if (var2) {
-            double var17 = Math.sqrt(getHorizontalDistanceSqr(this.getDeltaMovement()));
-            if (var17 < 0.03) {
+            double var19 = Math.sqrt(getHorizontalDistanceSqr(this.getDeltaMovement()));
+            if (var19 < 0.03) {
                 this.setDeltaMovement(Vec3.ZERO);
             } else {
                 this.setDeltaMovement(this.getDeltaMovement().multiply(0.5, 0.0, 0.5));
             }
         }
 
-        double var18 = (double)param0.getX() + 0.5 + (double)var7[0][0] * 0.5;
-        double var19 = (double)param0.getZ() + 0.5 + (double)var7[0][2] * 0.5;
-        double var20 = (double)param0.getX() + 0.5 + (double)var7[1][0] * 0.5;
-        double var21 = (double)param0.getZ() + 0.5 + (double)var7[1][2] * 0.5;
-        var8 = var20 - var18;
-        var9 = var21 - var19;
-        double var22;
-        if (var8 == 0.0) {
+        double var20 = (double)param0.getX() + 0.5 + (double)var8.getX() * 0.5;
+        double var21 = (double)param0.getZ() + 0.5 + (double)var8.getZ() * 0.5;
+        double var22 = (double)param0.getX() + 0.5 + (double)var9.getX() * 0.5;
+        double var23 = (double)param0.getZ() + 0.5 + (double)var9.getZ() * 0.5;
+        var10 = var22 - var20;
+        var11 = var23 - var21;
+        double var24;
+        if (var10 == 0.0) {
             this.x = (double)param0.getX() + 0.5;
-            var22 = this.z - (double)param0.getZ();
-        } else if (var9 == 0.0) {
+            var24 = this.z - (double)param0.getZ();
+        } else if (var11 == 0.0) {
             this.z = (double)param0.getZ() + 0.5;
-            var22 = this.x - (double)param0.getX();
+            var24 = this.x - (double)param0.getX();
         } else {
-            double var24 = this.x - var18;
-            double var25 = this.z - var19;
-            var22 = (var24 * var8 + var25 * var9) * 2.0;
+            double var26 = this.x - var20;
+            double var27 = this.z - var21;
+            var24 = (var26 * var10 + var27 * var11) * 2.0;
         }
 
-        this.x = var18 + var8 * var22;
-        this.z = var19 + var9 * var22;
+        this.x = var20 + var10 * var24;
+        this.z = var21 + var11 * var24;
         this.setPos(this.x, this.y, this.z);
-        double var27 = this.isVehicle() ? 0.75 : 1.0;
-        double var28 = this.getMaxSpeed();
+        double var29 = this.isVehicle() ? 0.75 : 1.0;
+        double var30 = this.getMaxSpeed();
         var5 = this.getDeltaMovement();
-        this.move(MoverType.SELF, new Vec3(Mth.clamp(var27 * var5.x, -var28, var28), 0.0, Mth.clamp(var27 * var5.z, -var28, var28)));
-        if (var7[0][1] != 0 && Mth.floor(this.x) - param0.getX() == var7[0][0] && Mth.floor(this.z) - param0.getZ() == var7[0][2]) {
-            this.setPos(this.x, this.y + (double)var7[0][1], this.z);
-        } else if (var7[1][1] != 0 && Mth.floor(this.x) - param0.getX() == var7[1][0] && Mth.floor(this.z) - param0.getZ() == var7[1][2]) {
-            this.setPos(this.x, this.y + (double)var7[1][1], this.z);
+        this.move(MoverType.SELF, new Vec3(Mth.clamp(var29 * var5.x, -var30, var30), 0.0, Mth.clamp(var29 * var5.z, -var30, var30)));
+        if (var8.getY() != 0 && Mth.floor(this.x) - param0.getX() == var8.getX() && Mth.floor(this.z) - param0.getZ() == var8.getZ()) {
+            this.setPos(this.x, this.y + (double)var8.getY(), this.z);
+        } else if (var9.getY() != 0 && Mth.floor(this.x) - param0.getX() == var9.getX() && Mth.floor(this.z) - param0.getZ() == var9.getZ()) {
+            this.setPos(this.x, this.y + (double)var9.getY(), this.z);
         }
 
         this.applyNaturalSlowdown();
-        Vec3 var29 = this.getPos(this.x, this.y, this.z);
-        if (var29 != null && var0 != null) {
-            double var30 = (var0.y - var29.y) * 0.05;
-            Vec3 var31 = this.getDeltaMovement();
-            double var32 = Math.sqrt(getHorizontalDistanceSqr(var31));
-            if (var32 > 0.0) {
-                this.setDeltaMovement(var31.multiply((var32 + var30) / var32, 1.0, (var32 + var30) / var32));
+        Vec3 var31 = this.getPos(this.x, this.y, this.z);
+        if (var31 != null && var0 != null) {
+            double var32 = (var0.y - var31.y) * 0.05;
+            Vec3 var33 = this.getDeltaMovement();
+            double var34 = Math.sqrt(getHorizontalDistanceSqr(var33));
+            if (var34 > 0.0) {
+                this.setDeltaMovement(var33.multiply((var34 + var32) / var34, 1.0, (var34 + var32) / var34));
             }
 
-            this.setPos(this.x, var29.y, this.z);
+            this.setPos(this.x, var31.y, this.z);
         }
 
-        int var33 = Mth.floor(this.x);
-        int var34 = Mth.floor(this.z);
-        if (var33 != param0.getX() || var34 != param0.getZ()) {
-            Vec3 var35 = this.getDeltaMovement();
-            double var36 = Math.sqrt(getHorizontalDistanceSqr(var35));
-            this.setDeltaMovement(var36 * (double)(var33 - param0.getX()), var35.y, var36 * (double)(var34 - param0.getZ()));
+        int var35 = Mth.floor(this.x);
+        int var36 = Mth.floor(this.z);
+        if (var35 != param0.getX() || var36 != param0.getZ()) {
+            Vec3 var37 = this.getDeltaMovement();
+            double var38 = Math.sqrt(getHorizontalDistanceSqr(var37));
+            this.setDeltaMovement(var38 * (double)(var35 - param0.getX()), var37.y, var38 * (double)(var36 - param0.getZ()));
         }
 
         if (var1) {
-            Vec3 var37 = this.getDeltaMovement();
-            double var38 = Math.sqrt(getHorizontalDistanceSqr(var37));
-            if (var38 > 0.01) {
-                double var39 = 0.06;
-                this.setDeltaMovement(var37.add(var37.x / var38 * 0.06, 0.0, var37.z / var38 * 0.06));
+            Vec3 var39 = this.getDeltaMovement();
+            double var40 = Math.sqrt(getHorizontalDistanceSqr(var39));
+            if (var40 > 0.01) {
+                double var41 = 0.06;
+                this.setDeltaMovement(var39.add(var39.x / var40 * 0.06, 0.0, var39.z / var40 * 0.06));
             } else {
-                Vec3 var40 = this.getDeltaMovement();
-                double var41 = var40.x;
-                double var42 = var40.z;
+                Vec3 var42 = this.getDeltaMovement();
+                double var43 = var42.x;
+                double var44 = var42.z;
                 if (var6 == RailShape.EAST_WEST) {
                     if (this.isRedstoneConductor(param0.west())) {
-                        var41 = 0.02;
+                        var43 = 0.02;
                     } else if (this.isRedstoneConductor(param0.east())) {
-                        var41 = -0.02;
+                        var43 = -0.02;
                     }
                 } else {
                     if (var6 != RailShape.NORTH_SOUTH) {
@@ -454,13 +470,13 @@ public abstract class AbstractMinecart extends Entity {
                     }
 
                     if (this.isRedstoneConductor(param0.north())) {
-                        var42 = 0.02;
+                        var44 = 0.02;
                     } else if (this.isRedstoneConductor(param0.south())) {
-                        var42 = -0.02;
+                        var44 = -0.02;
                     }
                 }
 
-                this.setDeltaMovement(var41, var40.y, var42);
+                this.setDeltaMovement(var43, var42.y, var44);
             }
         }
 
@@ -493,18 +509,20 @@ public abstract class AbstractMinecart extends Entity {
                 param1 = (double)(var1 + 1);
             }
 
-            int[][] var5 = EXITS[var4.getData()];
-            double var6 = (double)(var5[1][0] - var5[0][0]);
-            double var7 = (double)(var5[1][2] - var5[0][2]);
-            double var8 = Math.sqrt(var6 * var6 + var7 * var7);
-            var6 /= var8;
-            var7 /= var8;
-            param0 += var6 * param3;
-            param2 += var7 * param3;
-            if (var5[0][1] != 0 && Mth.floor(param0) - var0 == var5[0][0] && Mth.floor(param2) - var2 == var5[0][2]) {
-                param1 += (double)var5[0][1];
-            } else if (var5[1][1] != 0 && Mth.floor(param0) - var0 == var5[1][0] && Mth.floor(param2) - var2 == var5[1][2]) {
-                param1 += (double)var5[1][1];
+            Pair<Vec3i, Vec3i> var5 = exits(var4);
+            Vec3i var6 = var5.getFirst();
+            Vec3i var7 = var5.getSecond();
+            double var8 = (double)(var7.getX() - var6.getX());
+            double var9 = (double)(var7.getZ() - var6.getZ());
+            double var10 = Math.sqrt(var8 * var8 + var9 * var9);
+            var8 /= var10;
+            var9 /= var10;
+            param0 += var8 * param3;
+            param2 += var9 * param3;
+            if (var6.getY() != 0 && Mth.floor(param0) - var0 == var6.getX() && Mth.floor(param2) - var2 == var6.getZ()) {
+                param1 += (double)var6.getY();
+            } else if (var7.getY() != 0 && Mth.floor(param0) - var0 == var7.getX() && Mth.floor(param2) - var2 == var7.getZ()) {
+                param1 += (double)var7.getY();
             }
 
             return this.getPos(param0, param1, param2);
@@ -525,35 +543,35 @@ public abstract class AbstractMinecart extends Entity {
         BlockState var3 = this.level.getBlockState(new BlockPos(var0, var1, var2));
         if (var3.is(BlockTags.RAILS)) {
             RailShape var4 = var3.getValue(((BaseRailBlock)var3.getBlock()).getShapeProperty());
-            int[][] var5 = EXITS[var4.getData()];
-            double var6 = (double)var0 + 0.5 + (double)var5[0][0] * 0.5;
-            double var7 = (double)var1 + 0.0625 + (double)var5[0][1] * 0.5;
-            double var8 = (double)var2 + 0.5 + (double)var5[0][2] * 0.5;
-            double var9 = (double)var0 + 0.5 + (double)var5[1][0] * 0.5;
-            double var10 = (double)var1 + 0.0625 + (double)var5[1][1] * 0.5;
-            double var11 = (double)var2 + 0.5 + (double)var5[1][2] * 0.5;
-            double var12 = var9 - var6;
-            double var13 = (var10 - var7) * 2.0;
+            Pair<Vec3i, Vec3i> var5 = exits(var4);
+            Vec3i var6 = var5.getFirst();
+            Vec3i var7 = var5.getSecond();
+            double var8 = (double)var0 + 0.5 + (double)var6.getX() * 0.5;
+            double var9 = (double)var1 + 0.0625 + (double)var6.getY() * 0.5;
+            double var10 = (double)var2 + 0.5 + (double)var6.getZ() * 0.5;
+            double var11 = (double)var0 + 0.5 + (double)var7.getX() * 0.5;
+            double var12 = (double)var1 + 0.0625 + (double)var7.getY() * 0.5;
+            double var13 = (double)var2 + 0.5 + (double)var7.getZ() * 0.5;
             double var14 = var11 - var8;
-            double var15;
-            if (var12 == 0.0) {
-                var15 = param2 - (double)var2;
-            } else if (var14 == 0.0) {
-                var15 = param0 - (double)var0;
+            double var15 = (var12 - var9) * 2.0;
+            double var16 = var13 - var10;
+            double var17;
+            if (var14 == 0.0) {
+                var17 = param2 - (double)var2;
+            } else if (var16 == 0.0) {
+                var17 = param0 - (double)var0;
             } else {
-                double var17 = param0 - var6;
-                double var18 = param2 - var8;
-                var15 = (var17 * var12 + var18 * var14) * 2.0;
+                double var19 = param0 - var8;
+                double var20 = param2 - var10;
+                var17 = (var19 * var14 + var20 * var16) * 2.0;
             }
 
-            param0 = var6 + var12 * var15;
-            param1 = var7 + var13 * var15;
-            param2 = var8 + var14 * var15;
-            if (var13 < 0.0) {
+            param0 = var8 + var14 * var17;
+            param1 = var9 + var15 * var17;
+            param2 = var10 + var16 * var17;
+            if (var15 < 0.0) {
                 ++param1;
-            }
-
-            if (var13 > 0.0) {
+            } else if (var15 > 0.0) {
                 param1 += 0.5;
             }
 

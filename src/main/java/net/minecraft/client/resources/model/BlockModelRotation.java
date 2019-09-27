@@ -1,12 +1,11 @@
 package net.minecraft.client.resources.model;
 
 import com.mojang.math.Quaternion;
+import com.mojang.math.Transformation;
 import com.mojang.math.Vector3f;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.Collectors;
-import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -31,7 +30,6 @@ public enum BlockModelRotation implements ModelState {
     X270_Y270(270, 270);
 
     private static final Map<Integer, BlockModelRotation> BY_INDEX = Arrays.stream(values())
-        .sorted(Comparator.comparingInt(param0 -> param0.index))
         .collect(Collectors.toMap(param0 -> param0.index, param0 -> param0));
     private final int index;
     private final Quaternion rotation;
@@ -52,47 +50,8 @@ public enum BlockModelRotation implements ModelState {
     }
 
     @Override
-    public BlockModelRotation getRotation() {
-        return this;
-    }
-
-    public Quaternion getRotationQuaternion() {
-        return this.rotation;
-    }
-
-    public Direction rotate(Direction param0) {
-        Direction var0 = param0;
-
-        for(int var1 = 0; var1 < this.xSteps; ++var1) {
-            var0 = var0.getClockWise(Direction.Axis.X);
-        }
-
-        if (var0.getAxis() != Direction.Axis.Y) {
-            for(int var2 = 0; var2 < this.ySteps; ++var2) {
-                var0 = var0.getClockWise(Direction.Axis.Y);
-            }
-        }
-
-        return var0;
-    }
-
-    public int rotateVertexIndex(Direction param0, int param1) {
-        int var0 = param1;
-        if (param0.getAxis() == Direction.Axis.X) {
-            var0 = (param1 + this.xSteps) % 4;
-        }
-
-        Direction var1 = param0;
-
-        for(int var2 = 0; var2 < this.xSteps; ++var2) {
-            var1 = var1.getClockWise(Direction.Axis.X);
-        }
-
-        if (var1.getAxis() == Direction.Axis.Y) {
-            var0 = (var0 + this.ySteps) % 4;
-        }
-
-        return var0;
+    public Transformation getRotation() {
+        return new Transformation(null, this.rotation, null, null);
     }
 
     public static BlockModelRotation by(int param0, int param1) {

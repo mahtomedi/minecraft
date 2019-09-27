@@ -1,7 +1,6 @@
 package net.minecraft.client.gui.screens.advancements;
 
 import com.google.common.collect.Maps;
-import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -130,7 +129,6 @@ public class AdvancementsScreen extends Screen implements ClientAdvancements.Lis
     public void renderWindow(int param0, int param1) {
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.enableBlend();
-        Lighting.turnOff();
         this.minecraft.getTextureManager().bind(WINDOW_LOCATION);
         this.blit(param0, param1, 0, 0, 252, 140);
         if (this.tabs.size() > 1) {
@@ -142,7 +140,6 @@ public class AdvancementsScreen extends Screen implements ClientAdvancements.Lis
 
             RenderSystem.enableRescaleNormal();
             RenderSystem.defaultBlendFunc();
-            Lighting.turnOnGui();
 
             for(AdvancementTab var1 : this.tabs.values()) {
                 var1.drawIcon(param0, param1, this.itemRenderer);

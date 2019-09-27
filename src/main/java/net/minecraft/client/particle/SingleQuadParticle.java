@@ -1,6 +1,6 @@
 package net.minecraft.client.particle;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Camera;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
@@ -21,7 +21,7 @@ public abstract class SingleQuadParticle extends Particle {
     }
 
     @Override
-    public void render(BufferBuilder param0, Camera param1, float param2, float param3, float param4, float param5, float param6, float param7) {
+    public void render(VertexConsumer param0, Camera param1, float param2, float param3, float param4, float param5, float param6, float param7) {
         float var0 = this.getQuadSize(param2);
         float var1 = this.getU0();
         float var2 = this.getU1();
@@ -31,48 +31,46 @@ public abstract class SingleQuadParticle extends Particle {
         float var6 = (float)(Mth.lerp((double)param2, this.yo, this.y) - yOff);
         float var7 = (float)(Mth.lerp((double)param2, this.zo, this.z) - zOff);
         int var8 = this.getLightColor(param2);
-        int var9 = var8 >> 16 & 65535;
-        int var10 = var8 & 65535;
-        Vec3[] var11 = new Vec3[]{
+        Vec3[] var9 = new Vec3[]{
             new Vec3((double)(-param3 * var0 - param6 * var0), (double)(-param4 * var0), (double)(-param5 * var0 - param7 * var0)),
             new Vec3((double)(-param3 * var0 + param6 * var0), (double)(param4 * var0), (double)(-param5 * var0 + param7 * var0)),
             new Vec3((double)(param3 * var0 + param6 * var0), (double)(param4 * var0), (double)(param5 * var0 + param7 * var0)),
             new Vec3((double)(param3 * var0 - param6 * var0), (double)(-param4 * var0), (double)(param5 * var0 - param7 * var0))
         };
         if (this.roll != 0.0F) {
-            float var12 = Mth.lerp(param2, this.oRoll, this.roll);
-            float var13 = Mth.cos(var12 * 0.5F);
-            float var14 = (float)((double)Mth.sin(var12 * 0.5F) * param1.getLookVector().x);
-            float var15 = (float)((double)Mth.sin(var12 * 0.5F) * param1.getLookVector().y);
-            float var16 = (float)((double)Mth.sin(var12 * 0.5F) * param1.getLookVector().z);
-            Vec3 var17 = new Vec3((double)var14, (double)var15, (double)var16);
+            float var10 = Mth.lerp(param2, this.oRoll, this.roll);
+            float var11 = Mth.cos(var10 * 0.5F);
+            float var12 = (float)((double)Mth.sin(var10 * 0.5F) * param1.getLookVector().x);
+            float var13 = (float)((double)Mth.sin(var10 * 0.5F) * param1.getLookVector().y);
+            float var14 = (float)((double)Mth.sin(var10 * 0.5F) * param1.getLookVector().z);
+            Vec3 var15 = new Vec3((double)var12, (double)var13, (double)var14);
 
-            for(int var18 = 0; var18 < 4; ++var18) {
-                var11[var18] = var17.scale(2.0 * var11[var18].dot(var17))
-                    .add(var11[var18].scale((double)(var13 * var13) - var17.dot(var17)))
-                    .add(var17.cross(var11[var18]).scale((double)(2.0F * var13)));
+            for(int var16 = 0; var16 < 4; ++var16) {
+                var9[var16] = var15.scale(2.0 * var9[var16].dot(var15))
+                    .add(var9[var16].scale((double)(var11 * var11) - var15.dot(var15)))
+                    .add(var15.cross(var9[var16]).scale((double)(2.0F * var11)));
             }
         }
 
-        param0.vertex((double)var5 + var11[0].x, (double)var6 + var11[0].y, (double)var7 + var11[0].z)
-            .uv((double)var2, (double)var4)
+        param0.vertex((double)var5 + var9[0].x, (double)var6 + var9[0].y, (double)var7 + var9[0].z)
+            .uv(var2, var4)
             .color(this.rCol, this.gCol, this.bCol, this.alpha)
-            .uv2(var9, var10)
+            .uv2(var8)
             .endVertex();
-        param0.vertex((double)var5 + var11[1].x, (double)var6 + var11[1].y, (double)var7 + var11[1].z)
-            .uv((double)var2, (double)var3)
+        param0.vertex((double)var5 + var9[1].x, (double)var6 + var9[1].y, (double)var7 + var9[1].z)
+            .uv(var2, var3)
             .color(this.rCol, this.gCol, this.bCol, this.alpha)
-            .uv2(var9, var10)
+            .uv2(var8)
             .endVertex();
-        param0.vertex((double)var5 + var11[2].x, (double)var6 + var11[2].y, (double)var7 + var11[2].z)
-            .uv((double)var1, (double)var3)
+        param0.vertex((double)var5 + var9[2].x, (double)var6 + var9[2].y, (double)var7 + var9[2].z)
+            .uv(var1, var3)
             .color(this.rCol, this.gCol, this.bCol, this.alpha)
-            .uv2(var9, var10)
+            .uv2(var8)
             .endVertex();
-        param0.vertex((double)var5 + var11[3].x, (double)var6 + var11[3].y, (double)var7 + var11[3].z)
-            .uv((double)var1, (double)var4)
+        param0.vertex((double)var5 + var9[3].x, (double)var6 + var9[3].y, (double)var7 + var9[3].z)
+            .uv(var1, var4)
             .color(this.rCol, this.gCol, this.bCol, this.alpha)
-            .uv2(var9, var10)
+            .uv2(var8)
             .endVertex();
     }
 

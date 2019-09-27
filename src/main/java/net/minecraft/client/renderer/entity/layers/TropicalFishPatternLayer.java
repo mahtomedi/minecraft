@@ -1,9 +1,10 @@
 package net.minecraft.client.renderer.entity.layers;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.TropicalFishModelA;
 import net.minecraft.client.model.TropicalFishModelB;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.world.entity.animal.TropicalFish;
 import net.minecraftforge.api.distmarker.Dist;
@@ -18,20 +19,39 @@ public class TropicalFishPatternLayer extends RenderLayer<TropicalFish, EntityMo
         super(param0);
     }
 
-    public void render(TropicalFish param0, float param1, float param2, float param3, float param4, float param5, float param6, float param7) {
-        if (!param0.isInvisible()) {
-            EntityModel<TropicalFish> var0 = (EntityModel<TropicalFish>)(param0.getBaseVariant() == 0 ? this.modelA : this.modelB);
-            this.bindTexture(param0.getPatternTextureLocation());
-            float[] var1 = param0.getPatternColor();
-            RenderSystem.color3f(var1[0], var1[1], var1[2]);
-            this.getParentModel().copyPropertiesTo(var0);
-            var0.prepareMobModel(param0, param1, param2, param3);
-            var0.render(param0, param1, param2, param4, param5, param6, param7);
-        }
-    }
-
-    @Override
-    public boolean colorsOnDamage() {
-        return true;
+    public void render(
+        PoseStack param0,
+        MultiBufferSource param1,
+        int param2,
+        TropicalFish param3,
+        float param4,
+        float param5,
+        float param6,
+        float param7,
+        float param8,
+        float param9,
+        float param10
+    ) {
+        EntityModel<TropicalFish> var0 = (EntityModel<TropicalFish>)(param3.getBaseVariant() == 0 ? this.modelA : this.modelB);
+        float[] var1 = param3.getPatternColor();
+        coloredModelCopyLayerRender(
+            this.getParentModel(),
+            var0,
+            param3.getPatternTextureLocation(),
+            param0,
+            param1,
+            param2,
+            param3,
+            param4,
+            param5,
+            param7,
+            param8,
+            param9,
+            param10,
+            param6,
+            var1[0],
+            var1[1],
+            var1[2]
+        );
     }
 }

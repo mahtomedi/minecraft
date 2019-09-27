@@ -10,10 +10,31 @@ import net.minecraft.network.chat.TextComponent;
 import org.apache.commons.lang3.ArrayUtils;
 
 public class IntArrayTag extends CollectionTag<IntTag> {
-    private int[] data;
+    public static final TagType<IntArrayTag> TYPE = new TagType<IntArrayTag>() {
+        public IntArrayTag load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
+            param2.accountBits(192L);
+            int var0 = param0.readInt();
+            param2.accountBits((long)(32 * var0));
+            int[] var1 = new int[var0];
 
-    IntArrayTag() {
-    }
+            for(int var2 = 0; var2 < var0; ++var2) {
+                var1[var2] = param0.readInt();
+            }
+
+            return new IntArrayTag(var1);
+        }
+
+        @Override
+        public String getName() {
+            return "INT[]";
+        }
+
+        @Override
+        public String getPrettyName() {
+            return "TAG_Int";
+        }
+    };
+    private int[] data;
 
     public IntArrayTag(int[] param0) {
         this.data = param0;
@@ -45,21 +66,13 @@ public class IntArrayTag extends CollectionTag<IntTag> {
     }
 
     @Override
-    public void load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
-        param2.accountBits(192L);
-        int var0 = param0.readInt();
-        param2.accountBits((long)(32 * var0));
-        this.data = new int[var0];
-
-        for(int var1 = 0; var1 < var0; ++var1) {
-            this.data[var1] = param0.readInt();
-        }
-
+    public byte getId() {
+        return 11;
     }
 
     @Override
-    public byte getId() {
-        return 11;
+    public TagType<IntArrayTag> getType() {
+        return TYPE;
     }
 
     @Override
@@ -123,13 +136,13 @@ public class IntArrayTag extends CollectionTag<IntTag> {
     }
 
     public IntTag get(int param0) {
-        return new IntTag(this.data[param0]);
+        return IntTag.valueOf(this.data[param0]);
     }
 
     public IntTag set(int param0, IntTag param1) {
         int var0 = this.data[param0];
         this.data[param0] = param1.getAsInt();
-        return new IntTag(var0);
+        return IntTag.valueOf(var0);
     }
 
     public void add(int param0, IntTag param1) {
@@ -159,7 +172,7 @@ public class IntArrayTag extends CollectionTag<IntTag> {
     public IntTag remove(int param0) {
         int var0 = this.data[param0];
         this.data = ArrayUtils.remove(this.data, param0);
-        return new IntTag(var0);
+        return IntTag.valueOf(var0);
     }
 
     @Override

@@ -1,5 +1,7 @@
 package net.minecraft.client.model;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -18,8 +20,8 @@ public class ShieldModel extends Model {
         this.handle.addBox(-1.0F, -3.0F, -1.0F, 2.0F, 6.0F, 6.0F, 0.0F);
     }
 
-    public void render() {
-        this.plate.render(0.0625F);
-        this.handle.render(0.0625F);
+    public void render(PoseStack param0, VertexConsumer param1, int param2) {
+        this.plate.render(param0, param1, 0.0625F, param2, null);
+        this.handle.render(param0, param1, 0.0625F, param2, null);
     }
 }

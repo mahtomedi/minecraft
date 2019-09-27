@@ -1,5 +1,8 @@
 package net.minecraft.client.model;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
+import java.util.Arrays;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -7,9 +10,10 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class SilverfishModel<T extends Entity> extends EntityModel<T> {
+public class SilverfishModel<T extends Entity> extends ListModel<T> {
     private final ModelPart[] bodyParts;
     private final ModelPart[] bodyLayers;
+    private final ImmutableList<ModelPart> parts;
     private final float[] zPlacement = new float[7];
     private static final int[][] BODY_SIZES = new int[][]{{3, 2, 2}, {4, 3, 2}, {6, 4, 3}, {3, 3, 3}, {2, 2, 3}, {2, 1, 2}, {1, 1, 2}};
     private static final int[][] BODY_TEXS = new int[][]{{0, 0}, {0, 4}, {0, 9}, {0, 16}, {0, 22}, {11, 0}, {13, 4}};
@@ -46,20 +50,14 @@ public class SilverfishModel<T extends Entity> extends EntityModel<T> {
         this.bodyLayers[2] = new ModelPart(this, 20, 18);
         this.bodyLayers[2].addBox(-3.0F, 0.0F, (float)BODY_SIZES[4][2] * -0.5F, 6.0F, 5.0F, (float)BODY_SIZES[1][2]);
         this.bodyLayers[2].setPos(0.0F, 19.0F, this.zPlacement[1]);
+        Builder<ModelPart> var2 = ImmutableList.builder();
+        var2.addAll(Arrays.asList(this.bodyParts));
+        var2.addAll(Arrays.asList(this.bodyLayers));
+        this.parts = var2.build();
     }
 
-    @Override
-    public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        this.setupAnim(param0, param1, param2, param3, param4, param5, param6);
-
-        for(ModelPart var0 : this.bodyParts) {
-            var0.render(param6);
-        }
-
-        for(ModelPart var1 : this.bodyLayers) {
-            var1.render(param6);
-        }
-
+    public ImmutableList<ModelPart> parts() {
+        return this.parts;
     }
 
     @Override

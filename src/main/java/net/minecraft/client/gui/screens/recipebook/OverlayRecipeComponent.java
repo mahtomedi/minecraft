@@ -1,7 +1,6 @@
 package net.minecraft.client.gui.screens.recipebook;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.Collections;
 import java.util.Iterator;
@@ -126,7 +125,6 @@ public class OverlayRecipeComponent extends GuiComponent implements Widget, GuiE
     public void render(int param0, int param1, float param2) {
         if (this.isVisible) {
             this.time += param2;
-            Lighting.turnOnGui();
             RenderSystem.enableBlend();
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             this.minecraft.getTextureManager().bind(RECIPE_BOOK_LOCATION);
@@ -141,7 +139,6 @@ public class OverlayRecipeComponent extends GuiComponent implements Widget, GuiE
             int var6 = 208;
             this.nineInchSprite(var1, var2, 24, 4, 82, 208);
             RenderSystem.disableBlend();
-            Lighting.turnOff();
 
             for(OverlayRecipeComponent.OverlayRecipeButton var7 : this.recipeButtons) {
                 var7.render(param0, param1, param2);
@@ -232,7 +229,6 @@ public class OverlayRecipeComponent extends GuiComponent implements Widget, GuiE
 
         @Override
         public void renderButton(int param0, int param1, float param2) {
-            Lighting.turnOnGui();
             RenderSystem.enableAlphaTest();
             OverlayRecipeComponent.this.minecraft.getTextureManager().bind(OverlayRecipeComponent.RECIPE_BOOK_LOCATION);
             int var0 = 152;
@@ -253,16 +249,13 @@ public class OverlayRecipeComponent extends GuiComponent implements Widget, GuiE
                 int var4 = (int)((float)(this.x + var2.x) / 0.42F - 3.0F);
                 int var5 = (int)((float)(this.y + var2.y) / 0.42F - 3.0F);
                 RenderSystem.scalef(0.42F, 0.42F, 1.0F);
-                RenderSystem.enableLighting();
                 OverlayRecipeComponent.this.minecraft
                     .getItemRenderer()
                     .renderAndDecorateItem(var2.ingredients[Mth.floor(OverlayRecipeComponent.this.time / 30.0F) % var2.ingredients.length], var4, var5);
-                RenderSystem.disableLighting();
                 RenderSystem.popMatrix();
             }
 
             RenderSystem.disableAlphaTest();
-            Lighting.turnOff();
         }
 
         @OnlyIn(Dist.CLIENT)

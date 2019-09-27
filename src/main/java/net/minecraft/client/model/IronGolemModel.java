@@ -1,12 +1,13 @@
 package net.minecraft.client.model;
 
+import com.google.common.collect.ImmutableList;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class IronGolemModel<T extends IronGolem> extends EntityModel<T> {
+public class IronGolemModel<T extends IronGolem> extends ListModel<T> {
     private final ModelPart head;
     private final ModelPart body;
     public final ModelPart arm0;
@@ -48,14 +49,9 @@ public class IronGolemModel<T extends IronGolem> extends EntityModel<T> {
         this.leg1.addBox(-3.5F, -3.0F, -3.0F, 6.0F, 16.0F, 5.0F, param0);
     }
 
-    public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        this.setupAnim(param0, param1, param2, param3, param4, param5, param6);
-        this.head.render(param6);
-        this.body.render(param6);
-        this.leg0.render(param6);
-        this.leg1.render(param6);
-        this.arm0.render(param6);
-        this.arm1.render(param6);
+    @Override
+    public Iterable<ModelPart> parts() {
+        return ImmutableList.of(this.head, this.body, this.leg0, this.leg1, this.arm0, this.arm1);
     }
 
     public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
@@ -90,6 +86,6 @@ public class IronGolemModel<T extends IronGolem> extends EntityModel<T> {
     }
 
     public ModelPart getFlowerHoldingArm() {
-        return this.arm0;
+        return this.arm1;
     }
 }

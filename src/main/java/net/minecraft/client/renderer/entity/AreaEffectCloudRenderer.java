@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import javax.annotation.Nullable;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraftforge.api.distmarker.Dist;
@@ -12,8 +12,7 @@ public class AreaEffectCloudRenderer extends EntityRenderer<AreaEffectCloud> {
         super(param0);
     }
 
-    @Nullable
-    protected ResourceLocation getTextureLocation(AreaEffectCloud param0) {
-        return null;
+    public ResourceLocation getTextureLocation(AreaEffectCloud param0) {
+        return TextureAtlas.LOCATION_BLOCKS;
     }
 }

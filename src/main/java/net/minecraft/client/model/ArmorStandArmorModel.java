@@ -6,10 +6,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ArmorStandArmorModel extends HumanoidModel<ArmorStand> {
-    public ArmorStandArmorModel() {
-        this(0.0F);
-    }
-
     public ArmorStandArmorModel(float param0) {
         this(param0, 64, 32);
     }

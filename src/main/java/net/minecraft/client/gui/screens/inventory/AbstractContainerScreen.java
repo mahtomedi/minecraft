@@ -2,7 +2,6 @@ package net.minecraft.client.gui.screens.inventory;
 
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.Set;
 import net.minecraft.ChatFormatting;
@@ -74,11 +73,8 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
         int var1 = this.topPos;
         this.renderBg(param2, param0, param1);
         RenderSystem.disableRescaleNormal();
-        Lighting.turnOff();
-        RenderSystem.disableLighting();
         RenderSystem.disableDepthTest();
         super.render(param0, param1, param2);
-        Lighting.turnOnGui();
         RenderSystem.pushMatrix();
         RenderSystem.translatef((float)var0, (float)var1, 0.0F);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
@@ -86,7 +82,7 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
         this.hoveredSlot = null;
         int var2 = 240;
         int var3 = 240;
-        RenderSystem.glMultiTexCoord2f(33985, 240.0F, 240.0F);
+        RenderSystem.glMultiTexCoord2f(33986, 240.0F, 240.0F);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 
         for(int var4 = 0; var4 < this.menu.slots.size(); ++var4) {
@@ -97,21 +93,17 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
 
             if (this.isHovering(var5, (double)param0, (double)param1) && var5.isActive()) {
                 this.hoveredSlot = var5;
-                RenderSystem.disableLighting();
                 RenderSystem.disableDepthTest();
                 int var6 = var5.x;
                 int var7 = var5.y;
                 RenderSystem.colorMask(true, true, true, false);
                 this.fillGradient(var6, var7, var6 + 16, var7 + 16, -2130706433, -2130706433);
                 RenderSystem.colorMask(true, true, true, true);
-                RenderSystem.enableLighting();
                 RenderSystem.enableDepthTest();
             }
         }
 
-        Lighting.turnOff();
         this.renderLabels(param0, param1);
-        Lighting.turnOnGui();
         Inventory var8 = this.minecraft.player.inventory;
         ItemStack var9 = this.draggingItem.isEmpty() ? var8.getCarried() : this.draggingItem;
         if (!var9.isEmpty()) {
@@ -147,9 +139,7 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
         }
 
         RenderSystem.popMatrix();
-        RenderSystem.enableLighting();
         RenderSystem.enableDepthTest();
-        Lighting.turnOn();
     }
 
     protected void renderTooltip(int param0, int param1) {
@@ -213,10 +203,8 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
             String var8 = param0.getNoItemIcon();
             if (var8 != null) {
                 TextureAtlasSprite var9 = this.minecraft.getTextureAtlas().getTexture(var8);
-                RenderSystem.disableLighting();
                 this.minecraft.getTextureManager().bind(TextureAtlas.LOCATION_BLOCKS);
                 blit(var0, var1, this.getBlitOffset(), 16, 16, var9);
-                RenderSystem.enableLighting();
                 var4 = true;
             }
         }

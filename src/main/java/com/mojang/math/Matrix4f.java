@@ -10,7 +10,11 @@ public final class Matrix4f {
     private final float[] values;
 
     public Matrix4f() {
-        this.values = new float[16];
+        this(new float[16]);
+    }
+
+    public Matrix4f(float[] param0) {
+        this.values = param0;
     }
 
     public Matrix4f(Quaternion param0) {
@@ -40,23 +44,8 @@ public final class Matrix4f {
         this.values[9] = 2.0F * (var8 - var10);
     }
 
-    public Matrix4f(float[] param0) {
-        this(param0, false);
-    }
-
-    public Matrix4f(float[] param0, boolean param1) {
-        if (param1) {
-            this.values = new float[16];
-
-            for(int var0 = 0; var0 < 4; ++var0) {
-                for(int var1 = 0; var1 < 4; ++var1) {
-                    this.values[var0 * 4 + var1] = param0[var1 * 4 + var0];
-                }
-            }
-        } else {
-            this.values = Arrays.copyOf(param0, param0.length);
-        }
-
+    public Matrix4f(Matrix4f param0) {
+        this(Arrays.copyOf(param0.values, 16));
     }
 
     @Override
@@ -74,23 +63,6 @@ public final class Matrix4f {
     @Override
     public int hashCode() {
         return Arrays.hashCode(this.values);
-    }
-
-    public void load(FloatBuffer param0) {
-        this.load(param0, false);
-    }
-
-    public void load(FloatBuffer param0, boolean param1) {
-        if (param1) {
-            for(int var0 = 0; var0 < 4; ++var0) {
-                for(int var1 = 0; var1 < 4; ++var1) {
-                    this.values[var0 * 4 + var1] = param0.get(var1 * 4 + var0);
-                }
-            }
-        } else {
-            param0.get(this.values);
-        }
-
     }
 
     @Override
@@ -149,11 +121,88 @@ public final class Matrix4f {
     }
 
     public float get(int param0, int param1) {
-        return this.values[param0 + 4 * param1];
+        return this.values[4 * param1 + param0];
     }
 
     public void set(int param0, int param1, float param2) {
-        this.values[param0 + 4 * param1] = param2;
+        this.values[4 * param1 + param0] = param2;
+    }
+
+    public float adjugateAndDet() {
+        float var0 = this.det2(0, 1, 0, 1);
+        float var1 = this.det2(0, 1, 0, 2);
+        float var2 = this.det2(0, 1, 0, 3);
+        float var3 = this.det2(0, 1, 1, 2);
+        float var4 = this.det2(0, 1, 1, 3);
+        float var5 = this.det2(0, 1, 2, 3);
+        float var6 = this.det2(2, 3, 0, 1);
+        float var7 = this.det2(2, 3, 0, 2);
+        float var8 = this.det2(2, 3, 0, 3);
+        float var9 = this.det2(2, 3, 1, 2);
+        float var10 = this.det2(2, 3, 1, 3);
+        float var11 = this.det2(2, 3, 2, 3);
+        float var12 = this.get(1, 1) * var11 - this.get(1, 2) * var10 + this.get(1, 3) * var9;
+        float var13 = -this.get(1, 0) * var11 + this.get(1, 2) * var8 - this.get(1, 3) * var7;
+        float var14 = this.get(1, 0) * var10 - this.get(1, 1) * var8 + this.get(1, 3) * var6;
+        float var15 = -this.get(1, 0) * var9 + this.get(1, 1) * var7 - this.get(1, 2) * var6;
+        float var16 = -this.get(0, 1) * var11 + this.get(0, 2) * var10 - this.get(0, 3) * var9;
+        float var17 = this.get(0, 0) * var11 - this.get(0, 2) * var8 + this.get(0, 3) * var7;
+        float var18 = -this.get(0, 0) * var10 + this.get(0, 1) * var8 - this.get(0, 3) * var6;
+        float var19 = this.get(0, 0) * var9 - this.get(0, 1) * var7 + this.get(0, 2) * var6;
+        float var20 = this.get(3, 1) * var5 - this.get(3, 2) * var4 + this.get(3, 3) * var3;
+        float var21 = -this.get(3, 0) * var5 + this.get(3, 2) * var2 - this.get(3, 3) * var1;
+        float var22 = this.get(3, 0) * var4 - this.get(3, 1) * var2 + this.get(3, 3) * var0;
+        float var23 = -this.get(3, 0) * var3 + this.get(3, 1) * var1 - this.get(3, 2) * var0;
+        float var24 = -this.get(2, 1) * var5 + this.get(2, 2) * var4 - this.get(2, 3) * var3;
+        float var25 = this.get(2, 0) * var5 - this.get(2, 2) * var2 + this.get(2, 3) * var1;
+        float var26 = -this.get(2, 0) * var4 + this.get(2, 1) * var2 - this.get(2, 3) * var0;
+        float var27 = this.get(2, 0) * var3 - this.get(2, 1) * var1 + this.get(2, 2) * var0;
+        this.set(0, 0, var12);
+        this.set(1, 0, var13);
+        this.set(2, 0, var14);
+        this.set(3, 0, var15);
+        this.set(0, 1, var16);
+        this.set(1, 1, var17);
+        this.set(2, 1, var18);
+        this.set(3, 1, var19);
+        this.set(0, 2, var20);
+        this.set(1, 2, var21);
+        this.set(2, 2, var22);
+        this.set(3, 2, var23);
+        this.set(0, 3, var24);
+        this.set(1, 3, var25);
+        this.set(2, 3, var26);
+        this.set(3, 3, var27);
+        return var0 * var11 - var1 * var10 + var2 * var9 + var3 * var8 - var4 * var7 + var5 * var6;
+    }
+
+    public void transpose() {
+        for(int var0 = 0; var0 < 4; ++var0) {
+            for(int var1 = 0; var1 < var0; ++var1) {
+                this.swap(var0, var1);
+            }
+        }
+
+    }
+
+    private void swap(int param0, int param1) {
+        float var0 = this.values[param0 + param1 * 4];
+        this.values[param0 + param1 * 4] = this.values[param1 + param0 * 4];
+        this.values[param1 + param0 * 4] = var0;
+    }
+
+    public boolean invert() {
+        float var0 = this.adjugateAndDet();
+        if (Math.abs(var0) > 1.0E-6F) {
+            this.multiply(var0);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private float det2(int param0, int param1, int param2, int param3) {
+        return this.get(param0, param2) * this.get(param1, param3) - this.get(param0, param3) * this.get(param1, param2);
     }
 
     public void multiply(Matrix4f param0) {
@@ -173,6 +222,13 @@ public final class Matrix4f {
 
     public void multiply(Quaternion param0) {
         this.multiply(new Matrix4f(param0));
+    }
+
+    public void multiply(float param0) {
+        for(int var0 = 0; var0 < 16; ++var0) {
+            this.values[var0] *= param0;
+        }
+
     }
 
     public static Matrix4f perspective(double param0, float param1, float param2, float param3) {

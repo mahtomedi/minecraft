@@ -1,9 +1,8 @@
 package net.minecraft.client.model;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.entity.ArmedModel;
-import net.minecraft.client.renderer.entity.HeadedModel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
@@ -13,7 +12,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class HumanoidModel<T extends LivingEntity> extends EntityModel<T> implements ArmedModel, HeadedModel {
+public class HumanoidModel<T extends LivingEntity> extends AgeableListModel<T> implements ArmedModel, HeadedModel {
     public ModelPart head;
     public ModelPart hat;
     public ModelPart body;
@@ -36,6 +35,7 @@ public class HumanoidModel<T extends LivingEntity> extends EntityModel<T> implem
     }
 
     public HumanoidModel(float param0, float param1, int param2, int param3) {
+        super(true, 16.0F, 0.0F);
         this.texWidth = param2;
         this.texHeight = param3;
         this.head = new ModelPart(this, 0, 0);
@@ -63,39 +63,14 @@ public class HumanoidModel<T extends LivingEntity> extends EntityModel<T> implem
         this.leftLeg.setPos(1.9F, 12.0F + param1, 0.0F);
     }
 
-    public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        this.setupAnim(param0, param1, param2, param3, param4, param5, param6);
-        RenderSystem.pushMatrix();
-        if (this.young) {
-            float var0 = 2.0F;
-            RenderSystem.scalef(0.75F, 0.75F, 0.75F);
-            RenderSystem.translatef(0.0F, 16.0F * param6, 0.0F);
-            this.head.render(param6);
-            RenderSystem.popMatrix();
-            RenderSystem.pushMatrix();
-            RenderSystem.scalef(0.5F, 0.5F, 0.5F);
-            RenderSystem.translatef(0.0F, 24.0F * param6, 0.0F);
-            this.body.render(param6);
-            this.rightArm.render(param6);
-            this.leftArm.render(param6);
-            this.rightLeg.render(param6);
-            this.leftLeg.render(param6);
-            this.hat.render(param6);
-        } else {
-            if (param0.isCrouching()) {
-                RenderSystem.translatef(0.0F, 0.2F, 0.0F);
-            }
+    @Override
+    protected Iterable<ModelPart> headParts() {
+        return ImmutableList.of(this.head);
+    }
 
-            this.head.render(param6);
-            this.body.render(param6);
-            this.rightArm.render(param6);
-            this.leftArm.render(param6);
-            this.rightLeg.render(param6);
-            this.leftLeg.render(param6);
-            this.hat.render(param6);
-        }
-
-        RenderSystem.popMatrix();
+    @Override
+    protected Iterable<ModelPart> bodyParts() {
+        return ImmutableList.of(this.body, this.rightArm, this.leftArm, this.rightLeg, this.leftLeg, this.hat);
     }
 
     public void prepareMobModel(T param0, float param1, float param2, float param3) {
@@ -230,9 +205,12 @@ public class HumanoidModel<T extends LivingEntity> extends EntityModel<T> implem
             this.leftArm.xRot += 0.4F;
             this.rightLeg.z = 4.0F;
             this.leftLeg.z = 4.0F;
-            this.rightLeg.y = 9.0F;
-            this.leftLeg.y = 9.0F;
-            this.head.y = 1.0F;
+            this.rightLeg.y = 12.2F;
+            this.leftLeg.y = 12.2F;
+            this.head.y = 4.2F;
+            this.body.y = 3.2F;
+            this.leftArm.y = 5.2F;
+            this.rightArm.y = 5.2F;
         } else {
             this.body.xRot = 0.0F;
             this.rightLeg.z = 0.1F;
@@ -240,6 +218,9 @@ public class HumanoidModel<T extends LivingEntity> extends EntityModel<T> implem
             this.rightLeg.y = 12.0F;
             this.leftLeg.y = 12.0F;
             this.head.y = 0.0F;
+            this.body.y = 0.0F;
+            this.leftArm.y = 2.0F;
+            this.rightArm.y = 2.0F;
         }
 
         this.rightArm.zRot += Mth.cos(param3 * 0.09F) * 0.05F + 0.05F;
@@ -365,8 +346,8 @@ public class HumanoidModel<T extends LivingEntity> extends EntityModel<T> implem
     }
 
     @Override
-    public void translateToHand(float param0, HumanoidArm param1) {
-        this.getArm(param1).translateTo(param0);
+    public void translateToHand(float param0, HumanoidArm param1, PoseStack param2) {
+        this.getArm(param1).translateAndRotate(param2, param0);
     }
 
     protected ModelPart getArm(HumanoidArm param0) {

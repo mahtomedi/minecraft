@@ -1,6 +1,5 @@
 package net.minecraft.client.gui.screens;
 
-import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.Dynamic;
 import java.util.List;
@@ -231,9 +230,7 @@ public class CreateFlatWorldScreen extends Screen {
                 this.blitSlotBg(param0 + 1, param1 + 1);
                 RenderSystem.enableRescaleNormal();
                 if (!param2.isEmpty()) {
-                    Lighting.turnOnGui();
                     CreateFlatWorldScreen.this.itemRenderer.renderGuiItem(param2, param0 + 2, param1 + 2);
-                    Lighting.turnOff();
                 }
 
                 RenderSystem.disableRescaleNormal();

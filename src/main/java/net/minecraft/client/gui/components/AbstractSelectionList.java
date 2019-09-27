@@ -166,7 +166,6 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
         this.renderBackground();
         int var0 = this.getScrollbarPosition();
         int var1 = var0 + 6;
-        RenderSystem.disableLighting();
         RenderSystem.disableFog();
         Tesselator var2 = Tesselator.getInstance();
         BufferBuilder var3 = var2.getBuilder();
@@ -175,19 +174,19 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
         float var4 = 32.0F;
         var3.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
         var3.vertex((double)this.x0, (double)this.y1, 0.0)
-            .uv((double)((float)this.x0 / 32.0F), (double)((float)(this.y1 + (int)this.getScrollAmount()) / 32.0F))
+            .uv((float)this.x0 / 32.0F, (float)(this.y1 + (int)this.getScrollAmount()) / 32.0F)
             .color(32, 32, 32, 255)
             .endVertex();
         var3.vertex((double)this.x1, (double)this.y1, 0.0)
-            .uv((double)((float)this.x1 / 32.0F), (double)((float)(this.y1 + (int)this.getScrollAmount()) / 32.0F))
+            .uv((float)this.x1 / 32.0F, (float)(this.y1 + (int)this.getScrollAmount()) / 32.0F)
             .color(32, 32, 32, 255)
             .endVertex();
         var3.vertex((double)this.x1, (double)this.y0, 0.0)
-            .uv((double)((float)this.x1 / 32.0F), (double)((float)(this.y0 + (int)this.getScrollAmount()) / 32.0F))
+            .uv((float)this.x1 / 32.0F, (float)(this.y0 + (int)this.getScrollAmount()) / 32.0F)
             .color(32, 32, 32, 255)
             .endVertex();
         var3.vertex((double)this.x0, (double)this.y0, 0.0)
-            .uv((double)((float)this.x0 / 32.0F), (double)((float)(this.y0 + (int)this.getScrollAmount()) / 32.0F))
+            .uv((float)this.x0 / 32.0F, (float)(this.y0 + (int)this.getScrollAmount()) / 32.0F)
             .color(32, 32, 32, 255)
             .endVertex();
         var2.end();
@@ -213,16 +212,16 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
         RenderSystem.disableTexture();
         int var7 = 4;
         var3.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
-        var3.vertex((double)this.x0, (double)(this.y0 + 4), 0.0).uv(0.0, 1.0).color(0, 0, 0, 0).endVertex();
-        var3.vertex((double)this.x1, (double)(this.y0 + 4), 0.0).uv(1.0, 1.0).color(0, 0, 0, 0).endVertex();
-        var3.vertex((double)this.x1, (double)this.y0, 0.0).uv(1.0, 0.0).color(0, 0, 0, 255).endVertex();
-        var3.vertex((double)this.x0, (double)this.y0, 0.0).uv(0.0, 0.0).color(0, 0, 0, 255).endVertex();
+        var3.vertex((double)this.x0, (double)(this.y0 + 4), 0.0).uv(0.0F, 1.0F).color(0, 0, 0, 0).endVertex();
+        var3.vertex((double)this.x1, (double)(this.y0 + 4), 0.0).uv(1.0F, 1.0F).color(0, 0, 0, 0).endVertex();
+        var3.vertex((double)this.x1, (double)this.y0, 0.0).uv(1.0F, 0.0F).color(0, 0, 0, 255).endVertex();
+        var3.vertex((double)this.x0, (double)this.y0, 0.0).uv(0.0F, 0.0F).color(0, 0, 0, 255).endVertex();
         var2.end();
         var3.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
-        var3.vertex((double)this.x0, (double)this.y1, 0.0).uv(0.0, 1.0).color(0, 0, 0, 255).endVertex();
-        var3.vertex((double)this.x1, (double)this.y1, 0.0).uv(1.0, 1.0).color(0, 0, 0, 255).endVertex();
-        var3.vertex((double)this.x1, (double)(this.y1 - 4), 0.0).uv(1.0, 0.0).color(0, 0, 0, 0).endVertex();
-        var3.vertex((double)this.x0, (double)(this.y1 - 4), 0.0).uv(0.0, 0.0).color(0, 0, 0, 0).endVertex();
+        var3.vertex((double)this.x0, (double)this.y1, 0.0).uv(0.0F, 1.0F).color(0, 0, 0, 255).endVertex();
+        var3.vertex((double)this.x1, (double)this.y1, 0.0).uv(1.0F, 1.0F).color(0, 0, 0, 255).endVertex();
+        var3.vertex((double)this.x1, (double)(this.y1 - 4), 0.0).uv(1.0F, 0.0F).color(0, 0, 0, 0).endVertex();
+        var3.vertex((double)this.x0, (double)(this.y1 - 4), 0.0).uv(0.0F, 0.0F).color(0, 0, 0, 0).endVertex();
         var2.end();
         int var8 = this.getMaxScroll();
         if (var8 > 0) {
@@ -234,22 +233,22 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
             }
 
             var3.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
-            var3.vertex((double)var0, (double)this.y1, 0.0).uv(0.0, 1.0).color(0, 0, 0, 255).endVertex();
-            var3.vertex((double)var1, (double)this.y1, 0.0).uv(1.0, 1.0).color(0, 0, 0, 255).endVertex();
-            var3.vertex((double)var1, (double)this.y0, 0.0).uv(1.0, 0.0).color(0, 0, 0, 255).endVertex();
-            var3.vertex((double)var0, (double)this.y0, 0.0).uv(0.0, 0.0).color(0, 0, 0, 255).endVertex();
+            var3.vertex((double)var0, (double)this.y1, 0.0).uv(0.0F, 1.0F).color(0, 0, 0, 255).endVertex();
+            var3.vertex((double)var1, (double)this.y1, 0.0).uv(1.0F, 1.0F).color(0, 0, 0, 255).endVertex();
+            var3.vertex((double)var1, (double)this.y0, 0.0).uv(1.0F, 0.0F).color(0, 0, 0, 255).endVertex();
+            var3.vertex((double)var0, (double)this.y0, 0.0).uv(0.0F, 0.0F).color(0, 0, 0, 255).endVertex();
             var2.end();
             var3.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
-            var3.vertex((double)var0, (double)(var10 + var9), 0.0).uv(0.0, 1.0).color(128, 128, 128, 255).endVertex();
-            var3.vertex((double)var1, (double)(var10 + var9), 0.0).uv(1.0, 1.0).color(128, 128, 128, 255).endVertex();
-            var3.vertex((double)var1, (double)var10, 0.0).uv(1.0, 0.0).color(128, 128, 128, 255).endVertex();
-            var3.vertex((double)var0, (double)var10, 0.0).uv(0.0, 0.0).color(128, 128, 128, 255).endVertex();
+            var3.vertex((double)var0, (double)(var10 + var9), 0.0).uv(0.0F, 1.0F).color(128, 128, 128, 255).endVertex();
+            var3.vertex((double)var1, (double)(var10 + var9), 0.0).uv(1.0F, 1.0F).color(128, 128, 128, 255).endVertex();
+            var3.vertex((double)var1, (double)var10, 0.0).uv(1.0F, 0.0F).color(128, 128, 128, 255).endVertex();
+            var3.vertex((double)var0, (double)var10, 0.0).uv(0.0F, 0.0F).color(128, 128, 128, 255).endVertex();
             var2.end();
             var3.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
-            var3.vertex((double)var0, (double)(var10 + var9 - 1), 0.0).uv(0.0, 1.0).color(192, 192, 192, 255).endVertex();
-            var3.vertex((double)(var1 - 1), (double)(var10 + var9 - 1), 0.0).uv(1.0, 1.0).color(192, 192, 192, 255).endVertex();
-            var3.vertex((double)(var1 - 1), (double)var10, 0.0).uv(1.0, 0.0).color(192, 192, 192, 255).endVertex();
-            var3.vertex((double)var0, (double)var10, 0.0).uv(0.0, 0.0).color(192, 192, 192, 255).endVertex();
+            var3.vertex((double)var0, (double)(var10 + var9 - 1), 0.0).uv(0.0F, 1.0F).color(192, 192, 192, 255).endVertex();
+            var3.vertex((double)(var1 - 1), (double)(var10 + var9 - 1), 0.0).uv(1.0F, 1.0F).color(192, 192, 192, 255).endVertex();
+            var3.vertex((double)(var1 - 1), (double)var10, 0.0).uv(1.0F, 0.0F).color(192, 192, 192, 255).endVertex();
+            var3.vertex((double)var0, (double)var10, 0.0).uv(0.0F, 0.0F).color(192, 192, 192, 255).endVertex();
             var2.end();
         }
 
@@ -476,16 +475,16 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         float var2 = 32.0F;
         var1.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
-        var1.vertex((double)this.x0, (double)param1, 0.0).uv(0.0, (double)((float)param1 / 32.0F)).color(64, 64, 64, param3).endVertex();
+        var1.vertex((double)this.x0, (double)param1, 0.0).uv(0.0F, (float)param1 / 32.0F).color(64, 64, 64, param3).endVertex();
         var1.vertex((double)(this.x0 + this.width), (double)param1, 0.0)
-            .uv((double)((float)this.width / 32.0F), (double)((float)param1 / 32.0F))
+            .uv((float)this.width / 32.0F, (float)param1 / 32.0F)
             .color(64, 64, 64, param3)
             .endVertex();
         var1.vertex((double)(this.x0 + this.width), (double)param0, 0.0)
-            .uv((double)((float)this.width / 32.0F), (double)((float)param0 / 32.0F))
+            .uv((float)this.width / 32.0F, (float)param0 / 32.0F)
             .color(64, 64, 64, param2)
             .endVertex();
-        var1.vertex((double)this.x0, (double)param0, 0.0).uv(0.0, (double)((float)param0 / 32.0F)).color(64, 64, 64, param2).endVertex();
+        var1.vertex((double)this.x0, (double)param0, 0.0).uv(0.0F, (float)param0 / 32.0F).color(64, 64, 64, param2).endVertex();
         var0.end();
     }
 

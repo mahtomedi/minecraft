@@ -1,5 +1,7 @@
 package net.minecraft.client.model;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -20,9 +22,9 @@ public class SkullModel extends Model {
         this.head.setPos(0.0F, 0.0F, 0.0F);
     }
 
-    public void render(float param0, float param1, float param2, float param3, float param4, float param5) {
+    public void render(PoseStack param0, VertexConsumer param1, float param2, float param3, float param4, float param5, int param6) {
         this.head.yRot = param3 * (float) (Math.PI / 180.0);
         this.head.xRot = param4 * (float) (Math.PI / 180.0);
-        this.head.render(param5);
+        this.head.render(param0, param1, param5, param6, null);
     }
 }

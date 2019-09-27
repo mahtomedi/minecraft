@@ -1,5 +1,6 @@
 package net.minecraft.client.model;
 
+import com.google.common.collect.ImmutableList;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -7,7 +8,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class EvokerFangsModel<T extends Entity> extends EntityModel<T> {
+public class EvokerFangsModel<T extends Entity> extends ListModel<T> {
     private final ModelPart base = new ModelPart(this, 0, 0);
     private final ModelPart upperJaw;
     private final ModelPart lowerJaw;
@@ -24,7 +25,7 @@ public class EvokerFangsModel<T extends Entity> extends EntityModel<T> {
     }
 
     @Override
-    public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
+    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
         float var0 = param1 * 2.0F;
         if (var0 > 1.0F) {
             var0 = 1.0F;
@@ -38,8 +39,10 @@ public class EvokerFangsModel<T extends Entity> extends EntityModel<T> {
         this.upperJaw.y = 24.0F - var1;
         this.lowerJaw.y = this.upperJaw.y;
         this.base.y = this.upperJaw.y;
-        this.base.render(param6);
-        this.upperJaw.render(param6);
-        this.lowerJaw.render(param6);
+    }
+
+    @Override
+    public Iterable<ModelPart> parts() {
+        return ImmutableList.of(this.base, this.upperJaw, this.lowerJaw);
     }
 }

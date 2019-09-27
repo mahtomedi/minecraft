@@ -5,19 +5,18 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 import net.minecraft.client.model.HorseModel;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
-import net.minecraft.world.entity.animal.horse.SkeletonHorse;
-import net.minecraft.world.entity.animal.horse.ZombieHorse;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class UndeadHorseRenderer extends AbstractHorseRenderer<AbstractHorse, HorseModel<AbstractHorse>> {
-    private static final Map<Class<?>, ResourceLocation> MAP = Maps.newHashMap(
+    private static final Map<EntityType<?>, ResourceLocation> MAP = Maps.newHashMap(
         ImmutableMap.of(
-            ZombieHorse.class,
+            EntityType.ZOMBIE_HORSE,
             new ResourceLocation("textures/entity/horse/horse_zombie.png"),
-            SkeletonHorse.class,
+            EntityType.SKELETON_HORSE,
             new ResourceLocation("textures/entity/horse/horse_skeleton.png")
         )
     );
@@ -26,7 +25,7 @@ public class UndeadHorseRenderer extends AbstractHorseRenderer<AbstractHorse, Ho
         super(param0, new HorseModel<>(0.0F), 1.0F);
     }
 
-    protected ResourceLocation getTextureLocation(AbstractHorse param0) {
-        return MAP.get(param0.getClass());
+    public ResourceLocation getTextureLocation(AbstractHorse param0) {
+        return MAP.get(param0.getType());
     }
 }

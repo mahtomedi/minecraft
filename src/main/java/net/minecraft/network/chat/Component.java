@@ -25,6 +25,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.LowerCaseEnumTypeAdapterFactory;
 
@@ -203,19 +204,19 @@ public interface Component extends Message, Iterable<Component> {
                 return new TextComponent(param0.getAsString());
             } else if (!param0.isJsonObject()) {
                 if (param0.isJsonArray()) {
-                    JsonArray var22 = param0.getAsJsonArray();
-                    Component var23 = null;
+                    JsonArray var23 = param0.getAsJsonArray();
+                    Component var24 = null;
 
-                    for(JsonElement var24 : var22) {
-                        Component var25 = this.deserialize(var24, var24.getClass(), param2);
-                        if (var23 == null) {
-                            var23 = var25;
+                    for(JsonElement var25 : var23) {
+                        Component var26 = this.deserialize(var25, var25.getClass(), param2);
+                        if (var24 == null) {
+                            var24 = var26;
                         } else {
-                            var23.append(var25);
+                            var24.append(var26);
                         }
                     }
 
-                    return var23;
+                    return var24;
                 } else {
                     throw new JsonParseException("Don't know how to turn " + param0 + " into a Component");
                 }
@@ -267,23 +268,25 @@ public interface Component extends Message, Iterable<Component> {
                     boolean var15 = GsonHelper.getAsBoolean(var0, "interpret", false);
                     if (var0.has("block")) {
                         var1 = new NbtComponent.BlockNbtComponent(var14, var15, GsonHelper.getAsString(var0, "block"));
+                    } else if (var0.has("entity")) {
+                        var1 = new NbtComponent.EntityNbtComponent(var14, var15, GsonHelper.getAsString(var0, "entity"));
                     } else {
-                        if (!var0.has("entity")) {
+                        if (!var0.has("storage")) {
                             throw new JsonParseException("Don't know how to turn " + param0 + " into a Component");
                         }
 
-                        var1 = new NbtComponent.EntityNbtComponent(var14, var15, GsonHelper.getAsString(var0, "entity"));
+                        var1 = new NbtComponent.StorageNbtComponent(var14, var15, new ResourceLocation(GsonHelper.getAsString(var0, "storage")));
                     }
                 }
 
                 if (var0.has("extra")) {
-                    JsonArray var20 = GsonHelper.getAsJsonArray(var0, "extra");
-                    if (var20.size() <= 0) {
+                    JsonArray var21 = GsonHelper.getAsJsonArray(var0, "extra");
+                    if (var21.size() <= 0) {
                         throw new JsonParseException("Unexpected empty array of components");
                     }
 
-                    for(int var21 = 0; var21 < var20.size(); ++var21) {
-                        var1.append(this.deserialize(var20.get(var21), param1, param2));
+                    for(int var22 = 0; var22 < var21.size(); ++var22) {
+                        var1.append(this.deserialize(var21.get(var22), param1, param2));
                     }
                 }
 
@@ -405,7 +408,7 @@ public interface Component extends Message, Iterable<Component> {
                 Component var1 = GSON.getAdapter(Component.class).read(var0);
                 param0.setCursor(param0.getCursor() + getPos(var0));
                 return var1;
-            } catch (IOException var3) {
+            } catch (StackOverflowError | IOException var3) {
                 throw new JsonParseException(var3);
             }
         }

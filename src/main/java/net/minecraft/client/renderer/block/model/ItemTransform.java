@@ -6,6 +6,8 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 import java.lang.reflect.Type;
 import net.minecraft.util.GsonHelper;
@@ -23,6 +25,23 @@ public class ItemTransform {
         this.rotation = new Vector3f(param0);
         this.translation = new Vector3f(param1);
         this.scale = new Vector3f(param2);
+    }
+
+    public void apply(boolean param0, PoseStack param1) {
+        if (this != NO_TRANSFORM) {
+            float var0 = this.rotation.x();
+            float var1 = this.rotation.y();
+            float var2 = this.rotation.z();
+            if (param0) {
+                var1 = -var1;
+                var2 = -var2;
+            }
+
+            int var3 = param0 ? -1 : 1;
+            param1.translate((double)((float)var3 * this.translation.x()), (double)this.translation.y(), (double)this.translation.z());
+            param1.mulPose(new Quaternion(var0, var1, var2, true));
+            param1.scale(this.scale.x(), this.scale.y(), this.scale.z());
+        }
     }
 
     @Override

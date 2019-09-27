@@ -1,8 +1,7 @@
 package net.minecraft.client.model;
 
+import com.google.common.collect.ImmutableList;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.entity.HeadedModel;
-import net.minecraft.client.renderer.entity.VillagerHeadModel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.npc.AbstractVillager;
@@ -10,7 +9,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class VillagerModel<T extends Entity> extends EntityModel<T> implements HeadedModel, VillagerHeadModel {
+public class VillagerModel<T extends Entity> extends ListModel<T> implements HeadedModel, VillagerHeadModel {
     protected ModelPart head;
     protected ModelPart hat;
     protected final ModelPart hatRim;
@@ -65,13 +64,8 @@ public class VillagerModel<T extends Entity> extends EntityModel<T> implements H
     }
 
     @Override
-    public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        this.setupAnim(param0, param1, param2, param3, param4, param5, param6);
-        this.head.render(param6);
-        this.body.render(param6);
-        this.leg0.render(param6);
-        this.leg1.render(param6);
-        this.arms.render(param6);
+    public Iterable<ModelPart> parts() {
+        return ImmutableList.of(this.head, this.body, this.leg0, this.leg1, this.arms);
     }
 
     @Override

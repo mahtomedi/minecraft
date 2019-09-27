@@ -1,6 +1,6 @@
 package net.minecraft.client.model;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.google.common.collect.ImmutableList;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.LivingEntity;
@@ -9,7 +9,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class ElytraModel<T extends LivingEntity> extends EntityModel<T> {
+public class ElytraModel<T extends LivingEntity> extends AgeableListModel<T> {
     private final ModelPart rightWing;
     private final ModelPart leftWing = new ModelPart(this, 22, 0);
 
@@ -20,25 +20,17 @@ public class ElytraModel<T extends LivingEntity> extends EntityModel<T> {
         this.rightWing.addBox(0.0F, 0.0F, 0.0F, 10.0F, 20.0F, 2.0F, 1.0F);
     }
 
-    public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        RenderSystem.disableRescaleNormal();
-        RenderSystem.disableCull();
-        if (param0.isBaby()) {
-            RenderSystem.pushMatrix();
-            RenderSystem.scalef(0.5F, 0.5F, 0.5F);
-            RenderSystem.translatef(0.0F, 1.5F, -0.1F);
-            this.leftWing.render(param6);
-            this.rightWing.render(param6);
-            RenderSystem.popMatrix();
-        } else {
-            this.leftWing.render(param6);
-            this.rightWing.render(param6);
-        }
+    @Override
+    protected Iterable<ModelPart> headParts() {
+        return ImmutableList.of();
+    }
 
+    @Override
+    protected Iterable<ModelPart> bodyParts() {
+        return ImmutableList.of(this.leftWing, this.rightWing);
     }
 
     public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        super.setupAnim(param0, param1, param2, param3, param4, param5, param6);
         float var0 = (float) (Math.PI / 12);
         float var1 = (float) (-Math.PI / 12);
         float var2 = 0.0F;

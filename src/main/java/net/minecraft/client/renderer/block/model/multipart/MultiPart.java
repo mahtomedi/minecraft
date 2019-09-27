@@ -83,11 +83,11 @@ public class MultiPart implements UnbakedModel {
 
     @Nullable
     @Override
-    public BakedModel bake(ModelBakery param0, Function<ResourceLocation, TextureAtlasSprite> param1, ModelState param2) {
+    public BakedModel bake(ModelBakery param0, Function<ResourceLocation, TextureAtlasSprite> param1, ModelState param2, ResourceLocation param3) {
         MultiPartBakedModel.Builder var0 = new MultiPartBakedModel.Builder();
 
         for(Selector var1 : this.getSelectors()) {
-            BakedModel var2 = var1.getVariant().bake(param0, param1, param2);
+            BakedModel var2 = var1.getVariant().bake(param0, param1, param2, param3);
             if (var2 != null) {
                 var0.add(var1.getPredicate(this.definition), var2);
             }

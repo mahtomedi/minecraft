@@ -1,7 +1,8 @@
 package net.minecraft.client.renderer.entity;
 
-import javax.annotation.Nullable;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.TurtleModel;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.animal.Turtle;
 import net.minecraftforge.api.distmarker.Dist;
@@ -15,16 +16,15 @@ public class TurtleRenderer extends MobRenderer<Turtle, TurtleModel<Turtle>> {
         super(param0, new TurtleModel<>(0.0F), 0.7F);
     }
 
-    public void render(Turtle param0, double param1, double param2, double param3, float param4, float param5) {
+    public void render(Turtle param0, double param1, double param2, double param3, float param4, float param5, PoseStack param6, MultiBufferSource param7) {
         if (param0.isBaby()) {
             this.shadowRadius *= 0.5F;
         }
 
-        super.render(param0, param1, param2, param3, param4, param5);
+        super.render(param0, param1, param2, param3, param4, param5, param6, param7);
     }
 
-    @Nullable
-    protected ResourceLocation getTextureLocation(Turtle param0) {
+    public ResourceLocation getTextureLocation(Turtle param0) {
         return TURTLE_LOCATION;
     }
 }

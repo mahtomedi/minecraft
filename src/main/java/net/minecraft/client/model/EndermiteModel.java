@@ -1,5 +1,6 @@
 package net.minecraft.client.model;
 
+import java.util.Arrays;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -7,7 +8,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class EndermiteModel<T extends Entity> extends EntityModel<T> {
+public class EndermiteModel<T extends Entity> extends ListModel<T> {
     private static final int[][] BODY_SIZES = new int[][]{{4, 3, 2}, {6, 4, 5}, {3, 3, 1}, {1, 2, 1}};
     private static final int[][] BODY_TEXS = new int[][]{{0, 0}, {0, 5}, {0, 14}, {0, 18}};
     private static final int BODY_COUNT = BODY_SIZES.length;
@@ -36,13 +37,8 @@ public class EndermiteModel<T extends Entity> extends EntityModel<T> {
     }
 
     @Override
-    public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        this.setupAnim(param0, param1, param2, param3, param4, param5, param6);
-
-        for(ModelPart var0 : this.bodyParts) {
-            var0.render(param6);
-        }
-
+    public Iterable<ModelPart> parts() {
+        return Arrays.asList(this.bodyParts);
     }
 
     @Override

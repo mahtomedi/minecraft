@@ -1,9 +1,16 @@
 package net.minecraft.client.renderer.entity.layers;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -15,19 +22,96 @@ public abstract class RenderLayer<T extends Entity, M extends EntityModel<T>> {
         this.renderer = param0;
     }
 
+    protected static <T extends LivingEntity> void coloredModelCopyLayerRender(
+        EntityModel<T> param0,
+        EntityModel<T> param1,
+        ResourceLocation param2,
+        PoseStack param3,
+        MultiBufferSource param4,
+        int param5,
+        T param6,
+        float param7,
+        float param8,
+        float param9,
+        float param10,
+        float param11,
+        float param12,
+        float param13
+    ) {
+        coloredModelCopyLayerRender(
+            param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12, param13, 1.0F, 1.0F, 1.0F
+        );
+    }
+
+    protected static <T extends LivingEntity> void coloredModelCopyLayerRender(
+        EntityModel<T> param0,
+        EntityModel<T> param1,
+        ResourceLocation param2,
+        PoseStack param3,
+        MultiBufferSource param4,
+        int param5,
+        T param6,
+        float param7,
+        float param8,
+        float param9,
+        float param10,
+        float param11,
+        float param12,
+        float param13,
+        float param14,
+        float param15,
+        float param16
+    ) {
+        if (!param6.isInvisible()) {
+            param0.copyPropertiesTo(param1);
+            param1.prepareMobModel(param6, param7, param8, param13);
+            param1.setupAnim(param6, param7, param8, param9, param10, param11, param12);
+            renderColoredModel(param1, param2, param3, param4, param5, param6, param14, param15, param16);
+        }
+
+    }
+
+    protected static <T extends LivingEntity> void renderColoredModel(
+        EntityModel<T> param0, ResourceLocation param1, PoseStack param2, MultiBufferSource param3, int param4, T param5
+    ) {
+        renderColoredModel(param0, param1, param2, param3, param4, param5, 1.0F, 1.0F, 1.0F);
+    }
+
+    protected static <T extends LivingEntity> void renderColoredModel(
+        EntityModel<T> param0,
+        ResourceLocation param1,
+        PoseStack param2,
+        MultiBufferSource param3,
+        int param4,
+        T param5,
+        float param6,
+        float param7,
+        float param8
+    ) {
+        VertexConsumer var0 = param3.getBuffer(RenderType.NEW_ENTITY(param1));
+        LivingEntityRenderer.setOverlayCoords(param5, var0, 0.0F);
+        param0.renderToBuffer(param2, var0, param4, param6, param7, param8);
+        var0.unsetDefaultOverlayCoords();
+    }
+
+    protected static <T extends LivingEntity> void renderModel(
+        EntityModel<T> param0, ResourceLocation param1, PoseStack param2, MultiBufferSource param3, int param4, float param5, float param6, float param7
+    ) {
+        VertexConsumer var0 = param3.getBuffer(RenderType.NEW_ENTITY(param1));
+        OverlayTexture.setDefault(var0);
+        param0.renderToBuffer(param2, var0, param4, param5, param6, param7);
+        var0.unsetDefaultOverlayCoords();
+    }
+
     public M getParentModel() {
         return this.renderer.getModel();
     }
 
-    public void bindTexture(ResourceLocation param0) {
-        this.renderer.bindTexture(param0);
+    protected ResourceLocation getTextureLocation(T param0) {
+        return this.renderer.getTextureLocation(param0);
     }
 
-    public void setLightColor(T param0) {
-        this.renderer.setLightColor(param0);
-    }
-
-    public abstract void render(T var1, float var2, float var3, float var4, float var5, float var6, float var7, float var8);
-
-    public abstract boolean colorsOnDamage();
+    public abstract void render(
+        PoseStack var1, MultiBufferSource var2, int var3, T var4, float var5, float var6, float var7, float var8, float var9, float var10, float var11
+    );
 }

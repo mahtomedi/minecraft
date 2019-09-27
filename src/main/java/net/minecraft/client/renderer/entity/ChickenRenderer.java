@@ -15,7 +15,7 @@ public class ChickenRenderer extends MobRenderer<Chicken, ChickenModel<Chicken>>
         super(param0, new ChickenModel<>(), 0.3F);
     }
 
-    protected ResourceLocation getTextureLocation(Chicken param0) {
+    public ResourceLocation getTextureLocation(Chicken param0) {
         return CHICKEN_LOCATION;
     }
 

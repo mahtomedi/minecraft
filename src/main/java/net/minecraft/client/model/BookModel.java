@@ -1,7 +1,8 @@
 package net.minecraft.client.model;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import java.util.List;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -31,11 +32,7 @@ public class BookModel extends Model {
         this.seam.yRot = (float) (Math.PI / 2);
     }
 
-    public void render(float param0) {
-        this.parts.forEach(param1 -> param1.render(param0));
-    }
-
-    public void render(BufferBuilder param0, float param1, int param2, int param3, TextureAtlasSprite param4) {
+    public void render(PoseStack param0, VertexConsumer param1, float param2, int param3, TextureAtlasSprite param4) {
         this.parts.forEach(param5 -> param5.render(param0, param1, param2, param3, param4));
     }
 

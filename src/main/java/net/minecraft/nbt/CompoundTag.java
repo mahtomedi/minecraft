@@ -27,7 +27,47 @@ import org.apache.logging.log4j.Logger;
 public class CompoundTag implements Tag {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final Pattern SIMPLE_VALUE = Pattern.compile("[A-Za-z0-9._+-]+");
-    private final Map<String, Tag> tags = Maps.newHashMap();
+    public static final TagType<CompoundTag> TYPE = new TagType<CompoundTag>() {
+        public CompoundTag load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
+            param2.accountBits(384L);
+            if (param1 > 512) {
+                throw new RuntimeException("Tried to read NBT tag with too high complexity, depth > 512");
+            } else {
+                Map<String, Tag> var0 = Maps.newHashMap();
+
+                byte var1;
+                while((var1 = CompoundTag.readNamedTagType(param0, param2)) != 0) {
+                    String var2 = CompoundTag.readNamedTagName(param0, param2);
+                    param2.accountBits((long)(224 + 16 * var2.length()));
+                    Tag var3 = CompoundTag.readNamedTagData(TagTypes.getType(var1), var2, param0, param1 + 1, param2);
+                    if (var0.put(var2, var3) != null) {
+                        param2.accountBits(288L);
+                    }
+                }
+
+                return new CompoundTag(var0);
+            }
+        }
+
+        @Override
+        public String getName() {
+            return "COMPOUND";
+        }
+
+        @Override
+        public String getPrettyName() {
+            return "TAG_Compound";
+        }
+    };
+    private final Map<String, Tag> tags;
+
+    private CompoundTag(Map<String, Tag> param0) {
+        this.tags = param0;
+    }
+
+    public CompoundTag() {
+        this(Maps.newHashMap());
+    }
 
     @Override
     public void write(DataOutput param0) throws IOException {
@@ -39,27 +79,6 @@ public class CompoundTag implements Tag {
         param0.writeByte(0);
     }
 
-    @Override
-    public void load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
-        param2.accountBits(384L);
-        if (param1 > 512) {
-            throw new RuntimeException("Tried to read NBT tag with too high complexity, depth > 512");
-        } else {
-            this.tags.clear();
-
-            byte var0;
-            while((var0 = readNamedTagType(param0, param2)) != 0) {
-                String var1 = readNamedTagName(param0, param2);
-                param2.accountBits((long)(224 + 16 * var1.length()));
-                Tag var2 = readNamedTagData(var0, var1, param0, param1 + 1, param2);
-                if (this.tags.put(var1, var2) != null) {
-                    param2.accountBits(288L);
-                }
-            }
-
-        }
-    }
-
     public Set<String> getAllKeys() {
         return this.tags.keySet();
     }
@@ -67,6 +86,11 @@ public class CompoundTag implements Tag {
     @Override
     public byte getId() {
         return 10;
+    }
+
+    @Override
+    public TagType<CompoundTag> getType() {
+        return TYPE;
     }
 
     public int size() {
@@ -79,19 +103,19 @@ public class CompoundTag implements Tag {
     }
 
     public void putByte(String param0, byte param1) {
-        this.tags.put(param0, new ByteTag(param1));
+        this.tags.put(param0, ByteTag.valueOf(param1));
     }
 
     public void putShort(String param0, short param1) {
-        this.tags.put(param0, new ShortTag(param1));
+        this.tags.put(param0, ShortTag.valueOf(param1));
     }
 
     public void putInt(String param0, int param1) {
-        this.tags.put(param0, new IntTag(param1));
+        this.tags.put(param0, IntTag.valueOf(param1));
     }
 
     public void putLong(String param0, long param1) {
-        this.tags.put(param0, new LongTag(param1));
+        this.tags.put(param0, LongTag.valueOf(param1));
     }
 
     public void putUUID(String param0, UUID param1) {
@@ -113,15 +137,15 @@ public class CompoundTag implements Tag {
     }
 
     public void putFloat(String param0, float param1) {
-        this.tags.put(param0, new FloatTag(param1));
+        this.tags.put(param0, FloatTag.valueOf(param1));
     }
 
     public void putDouble(String param0, double param1) {
-        this.tags.put(param0, new DoubleTag(param1));
+        this.tags.put(param0, DoubleTag.valueOf(param1));
     }
 
     public void putString(String param0, String param1) {
-        this.tags.put(param0, new StringTag(param1));
+        this.tags.put(param0, StringTag.valueOf(param1));
     }
 
     public void putByteArray(String param0, byte[] param1) {
@@ -145,7 +169,7 @@ public class CompoundTag implements Tag {
     }
 
     public void putBoolean(String param0, boolean param1) {
-        this.putByte(param0, (byte)(param1 ? 1 : 0));
+        this.tags.put(param0, ByteTag.valueOf(param1));
     }
 
     @Nullable
@@ -256,7 +280,7 @@ public class CompoundTag implements Tag {
                 return ((ByteArrayTag)this.tags.get(param0)).getAsByteArray();
             }
         } catch (ClassCastException var3) {
-            throw new ReportedException(this.createReport(param0, 7, var3));
+            throw new ReportedException(this.createReport(param0, ByteArrayTag.TYPE, var3));
         }
 
         return new byte[0];
@@ -268,7 +292,7 @@ public class CompoundTag implements Tag {
                 return ((IntArrayTag)this.tags.get(param0)).getAsIntArray();
             }
         } catch (ClassCastException var3) {
-            throw new ReportedException(this.createReport(param0, 11, var3));
+            throw new ReportedException(this.createReport(param0, IntArrayTag.TYPE, var3));
         }
 
         return new int[0];
@@ -280,7 +304,7 @@ public class CompoundTag implements Tag {
                 return ((LongArrayTag)this.tags.get(param0)).getAsLongArray();
             }
         } catch (ClassCastException var3) {
-            throw new ReportedException(this.createReport(param0, 12, var3));
+            throw new ReportedException(this.createReport(param0, LongArrayTag.TYPE, var3));
         }
 
         return new long[0];
@@ -292,7 +316,7 @@ public class CompoundTag implements Tag {
                 return (CompoundTag)this.tags.get(param0);
             }
         } catch (ClassCastException var3) {
-            throw new ReportedException(this.createReport(param0, 10, var3));
+            throw new ReportedException(this.createReport(param0, TYPE, var3));
         }
 
         return new CompoundTag();
@@ -309,7 +333,7 @@ public class CompoundTag implements Tag {
                 return var0;
             }
         } catch (ClassCastException var4) {
-            throw new ReportedException(this.createReport(param0, 9, var4));
+            throw new ReportedException(this.createReport(param0, ListTag.TYPE, var4));
         }
 
         return new ListTag();
@@ -348,23 +372,18 @@ public class CompoundTag implements Tag {
         return this.tags.isEmpty();
     }
 
-    private CrashReport createReport(String param0, int param1, ClassCastException param2) {
+    private CrashReport createReport(String param0, TagType<?> param1, ClassCastException param2) {
         CrashReport var0 = CrashReport.forThrowable(param2, "Reading NBT data");
         CrashReportCategory var1 = var0.addCategory("Corrupt NBT tag", 1);
-        var1.setDetail("Tag type found", () -> TAG_NAMES[this.tags.get(param0).getId()]);
-        var1.setDetail("Tag type expected", () -> TAG_NAMES[param1]);
+        var1.setDetail("Tag type found", () -> this.tags.get(param0).getType().getName());
+        var1.setDetail("Tag type expected", param1::getName);
         var1.setDetail("Tag name", param0);
         return var0;
     }
 
     public CompoundTag copy() {
-        CompoundTag var0 = new CompoundTag();
-
-        for(String var1 : this.tags.keySet()) {
-            var0.put(var1, this.tags.get(var1).copy());
-        }
-
-        return var0;
+        Map<String, Tag> var0 = Maps.newHashMap(Maps.transformValues(this.tags, Tag::copy));
+        return new CompoundTag(var0);
     }
 
     @Override
@@ -397,18 +416,15 @@ public class CompoundTag implements Tag {
         return param0.readUTF();
     }
 
-    static Tag readNamedTagData(byte param0, String param1, DataInput param2, int param3, NbtAccounter param4) throws IOException {
-        Tag var0 = Tag.newTag(param0);
-
+    private static Tag readNamedTagData(TagType<?> param0, String param1, DataInput param2, int param3, NbtAccounter param4) {
         try {
-            var0.load(param2, param3, param4);
-            return var0;
-        } catch (IOException var9) {
-            CrashReport var2 = CrashReport.forThrowable(var9, "Loading NBT data");
-            CrashReportCategory var3 = var2.addCategory("NBT Tag");
-            var3.setDetail("Tag name", param1);
-            var3.setDetail("Tag type", param0);
-            throw new ReportedException(var2);
+            return param0.load(param2, param3, param4);
+        } catch (IOException var8) {
+            CrashReport var1 = CrashReport.forThrowable(var8, "Loading NBT data");
+            CrashReportCategory var2 = var1.addCategory("NBT Tag");
+            var2.setDetail("Tag name", param1);
+            var2.setDetail("Tag type", param0.getName());
+            throw new ReportedException(var1);
         }
     }
 

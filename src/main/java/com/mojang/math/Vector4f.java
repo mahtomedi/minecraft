@@ -1,6 +1,7 @@
 package com.mojang.math;
 
 import java.util.Arrays;
+import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -45,21 +46,40 @@ public class Vector4f {
         return this.values[2];
     }
 
-    public float w() {
-        return this.values[3];
-    }
-
     public void mul(Vector3f param0) {
         this.values[0] *= param0.x();
         this.values[1] *= param0.y();
         this.values[2] *= param0.z();
     }
 
-    public void set(float param0, float param1, float param2, float param3) {
-        this.values[0] = param0;
-        this.values[1] = param1;
-        this.values[2] = param2;
-        this.values[3] = param3;
+    public float dot(Vector4f param0) {
+        float var0 = 0.0F;
+
+        for(int var1 = 0; var1 < 4; ++var1) {
+            var0 += this.values[var1] * param0.values[var1];
+        }
+
+        return var0;
+    }
+
+    public boolean normalize() {
+        float var0 = 0.0F;
+
+        for(int var1 = 0; var1 < 4; ++var1) {
+            var0 += this.values[var1] * this.values[var1];
+        }
+
+        if ((double)var0 < 1.0E-5) {
+            return false;
+        } else {
+            float var2 = Mth.fastInvSqrt(var0);
+
+            for(int var3 = 0; var3 < 4; ++var3) {
+                this.values[var3] *= var2;
+            }
+
+            return true;
+        }
     }
 
     public void transform(Matrix4f param0) {
@@ -75,12 +95,10 @@ public class Vector4f {
 
     }
 
-    public void transform(Quaternion param0) {
-        Quaternion var0 = new Quaternion(param0);
-        var0.mul(new Quaternion(this.x(), this.y(), this.z(), 0.0F));
-        Quaternion var1 = new Quaternion(param0);
-        var1.conj();
-        var0.mul(var1);
-        this.set(var0.i(), var0.j(), var0.k(), this.w());
+    public void perspectiveDivide() {
+        this.values[0] /= this.values[3];
+        this.values[1] /= this.values[3];
+        this.values[2] /= this.values[3];
+        this.values[3] = 1.0F;
     }
 }

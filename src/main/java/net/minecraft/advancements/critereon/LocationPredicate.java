@@ -111,18 +111,21 @@ public class LocationPredicate {
             return false;
         } else {
             BlockPos var0 = new BlockPos((double)param1, (double)param2, (double)param3);
-            if (!param0.isLoaded(var0)) {
-                return false;
-            } else if (this.biome != null && this.biome != param0.getBiome(var0)) {
-                return false;
-            } else if (this.feature != null && !this.feature.isInsideFeature(param0, var0)) {
-                return false;
-            } else if (!this.light.matches(param0, var0)) {
-                return false;
-            } else if (!this.block.matches(param0, var0)) {
-                return false;
+            boolean var1 = param0.isLoaded(var0);
+            if (this.biome == null || var1 && this.biome == param0.getBiome(var0)) {
+                if (this.feature == null || var1 && this.feature.isInsideFeature(param0, var0)) {
+                    if (!this.light.matches(param0, var0)) {
+                        return false;
+                    } else if (!this.block.matches(param0, var0)) {
+                        return false;
+                    } else {
+                        return this.fluid.matches(param0, var0);
+                    }
+                } else {
+                    return false;
+                }
             } else {
-                return this.fluid.matches(param0, var0);
+                return false;
             }
         }
     }

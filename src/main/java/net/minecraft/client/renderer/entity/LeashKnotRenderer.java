@@ -1,7 +1,11 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.LeashKnotModel;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.decoration.LeashFenceKnotEntity;
 import net.minecraftforge.api.distmarker.Dist;
@@ -16,31 +20,23 @@ public class LeashKnotRenderer extends EntityRenderer<LeashFenceKnotEntity> {
         super(param0);
     }
 
-    public void render(LeashFenceKnotEntity param0, double param1, double param2, double param3, float param4, float param5) {
-        RenderSystem.pushMatrix();
-        RenderSystem.disableCull();
-        RenderSystem.translatef((float)param1, (float)param2, (float)param3);
+    public void render(
+        LeashFenceKnotEntity param0, double param1, double param2, double param3, float param4, float param5, PoseStack param6, MultiBufferSource param7
+    ) {
+        param6.pushPose();
         float var0 = 0.0625F;
-        RenderSystem.enableRescaleNormal();
-        RenderSystem.scalef(-1.0F, -1.0F, 1.0F);
-        RenderSystem.enableAlphaTest();
-        this.bindTexture(param0);
-        if (this.solidRender) {
-            RenderSystem.enableColorMaterial();
-            RenderSystem.setupSolidRenderingTextureCombine(this.getTeamColor(param0));
-        }
-
-        this.model.render(param0, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F);
-        if (this.solidRender) {
-            RenderSystem.tearDownSolidRenderingTextureCombine();
-            RenderSystem.disableColorMaterial();
-        }
-
-        RenderSystem.popMatrix();
-        super.render(param0, param1, param2, param3, param4, param5);
+        param6.scale(-1.0F, -1.0F, 1.0F);
+        int var1 = param0.getLightColor();
+        VertexConsumer var2 = param7.getBuffer(RenderType.NEW_ENTITY(KNOT_LOCATION));
+        OverlayTexture.setDefault(var2);
+        this.model.setupAnim(param0, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F);
+        this.model.renderToBuffer(param6, var2, var1);
+        var2.unsetDefaultOverlayCoords();
+        param6.popPose();
+        super.render(param0, param1, param2, param3, param4, param5, param6, param7);
     }
 
-    protected ResourceLocation getTextureLocation(LeashFenceKnotEntity param0) {
+    public ResourceLocation getTextureLocation(LeashFenceKnotEntity param0) {
         return KNOT_LOCATION;
     }
 }

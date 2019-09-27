@@ -16,7 +16,7 @@ public class SheepRenderer extends MobRenderer<Sheep, SheepModel<Sheep>> {
         this.addLayer(new SheepFurLayer(this));
     }
 
-    protected ResourceLocation getTextureLocation(Sheep param0) {
+    public ResourceLocation getTextureLocation(Sheep param0) {
         return SHEEP_LOCATION;
     }
 }

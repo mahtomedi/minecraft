@@ -14,7 +14,7 @@ public class RavagerRenderer extends MobRenderer<Ravager, RavagerModel> {
         super(param0, new RavagerModel(), 1.1F);
     }
 
-    protected ResourceLocation getTextureLocation(Ravager param0) {
+    public ResourceLocation getTextureLocation(Ravager param0) {
         return TEXTURE_LOCATION;
     }
 }

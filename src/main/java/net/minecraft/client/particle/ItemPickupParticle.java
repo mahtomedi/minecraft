@@ -1,9 +1,10 @@
 package net.minecraft.client.particle;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Camera;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderBuffers;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -14,23 +15,22 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ItemPickupParticle extends Particle {
+    private final RenderBuffers renderBuffers;
     private final Entity itemEntity;
     private final Entity target;
     private int life;
-    private final int lifeTime;
-    private final float yOffs;
-    private final EntityRenderDispatcher entityRenderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
+    private final EntityRenderDispatcher entityRenderDispatcher;
 
-    public ItemPickupParticle(Level param0, Entity param1, Entity param2, float param3) {
-        this(param0, param1, param2, param3, param1.getDeltaMovement());
+    public ItemPickupParticle(EntityRenderDispatcher param0, RenderBuffers param1, Level param2, Entity param3, Entity param4) {
+        this(param0, param1, param2, param3, param4, param3.getDeltaMovement());
     }
 
-    private ItemPickupParticle(Level param0, Entity param1, Entity param2, float param3, Vec3 param4) {
-        super(param0, param1.x, param1.y, param1.z, param4.x, param4.y, param4.z);
-        this.itemEntity = param1;
-        this.target = param2;
-        this.lifeTime = 3;
-        this.yOffs = param3;
+    private ItemPickupParticle(EntityRenderDispatcher param0, RenderBuffers param1, Level param2, Entity param3, Entity param4, Vec3 param5) {
+        super(param2, param3.x, param3.y, param3.z, param5.x, param5.y, param5.z);
+        this.renderBuffers = param1;
+        this.itemEntity = param3;
+        this.target = param4;
+        this.entityRenderDispatcher = param0;
     }
 
     @Override
@@ -39,34 +39,24 @@ public class ItemPickupParticle extends Particle {
     }
 
     @Override
-    public void render(BufferBuilder param0, Camera param1, float param2, float param3, float param4, float param5, float param6, float param7) {
-        float var0 = ((float)this.life + param2) / (float)this.lifeTime;
+    public void render(VertexConsumer param0, Camera param1, float param2, float param3, float param4, float param5, float param6, float param7) {
+        float var0 = ((float)this.life + param2) / 3.0F;
         var0 *= var0;
-        double var1 = this.itemEntity.x;
-        double var2 = this.itemEntity.y;
-        double var3 = this.itemEntity.z;
-        double var4 = Mth.lerp((double)param2, this.target.xOld, this.target.x);
-        double var5 = Mth.lerp((double)param2, this.target.yOld, this.target.y) + (double)this.yOffs;
-        double var6 = Mth.lerp((double)param2, this.target.zOld, this.target.z);
-        double var7 = Mth.lerp((double)var0, var1, var4);
-        double var8 = Mth.lerp((double)var0, var2, var5);
-        double var9 = Mth.lerp((double)var0, var3, var6);
-        int var10 = this.getLightColor(param2);
-        int var11 = var10 % 65536;
-        int var12 = var10 / 65536;
-        RenderSystem.glMultiTexCoord2f(33985, (float)var11, (float)var12);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        var7 -= xOff;
-        var8 -= yOff;
-        var9 -= zOff;
-        RenderSystem.enableLighting();
-        this.entityRenderDispatcher.render(this.itemEntity, var7, var8, var9, this.itemEntity.yRot, param2, false);
+        double var1 = Mth.lerp((double)param2, this.target.xOld, this.target.x);
+        double var2 = Mth.lerp((double)param2, this.target.yOld, this.target.y) + 0.5;
+        double var3 = Mth.lerp((double)param2, this.target.zOld, this.target.z);
+        double var4 = Mth.lerp((double)var0, this.itemEntity.x, var1);
+        double var5 = Mth.lerp((double)var0, this.itemEntity.y, var2);
+        double var6 = Mth.lerp((double)var0, this.itemEntity.z, var3);
+        MultiBufferSource.BufferSource var7 = this.renderBuffers.bufferSource();
+        this.entityRenderDispatcher.render(this.itemEntity, var4 - xOff, var5 - yOff, var6 - zOff, this.itemEntity.yRot, param2, new PoseStack(), var7);
+        var7.endBatch();
     }
 
     @Override
     public void tick() {
         ++this.life;
-        if (this.life == this.lifeTime) {
+        if (this.life == 3) {
             this.remove();
         }
 

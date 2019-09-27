@@ -20,9 +20,9 @@ public class Rotations {
 
     public ListTag save() {
         ListTag var0 = new ListTag();
-        var0.add(new FloatTag(this.x));
-        var0.add(new FloatTag(this.y));
-        var0.add(new FloatTag(this.z));
+        var0.add(FloatTag.valueOf(this.x));
+        var0.add(FloatTag.valueOf(this.y));
+        var0.add(FloatTag.valueOf(this.z));
         return var0;
     }
 

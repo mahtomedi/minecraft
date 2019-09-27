@@ -224,12 +224,6 @@ public class BedBlock extends HorizontalDirectionalBlock implements EntityBlock 
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public boolean hasCustomBreakingProgress(BlockState param0) {
-        return true;
-    }
-
     public static Optional<Vec3> findStandUpPosition(EntityType<?> param0, LevelReader param1, BlockPos param2, int param3) {
         Direction var0 = param1.getBlockState(param2).getValue(FACING);
         int var1 = param2.getX();

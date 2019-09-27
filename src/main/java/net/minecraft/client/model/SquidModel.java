@@ -1,14 +1,18 @@
 package net.minecraft.client.model;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
+import java.util.Arrays;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class SquidModel<T extends Entity> extends EntityModel<T> {
+public class SquidModel<T extends Entity> extends ListModel<T> {
     private final ModelPart body;
     private final ModelPart[] tentacles = new ModelPart[8];
+    private final ImmutableList<ModelPart> parts;
 
     public SquidModel() {
         int var0 = -16;
@@ -29,6 +33,10 @@ public class SquidModel<T extends Entity> extends EntityModel<T> {
             this.tentacles[var1].yRot = (float)var2;
         }
 
+        Builder<ModelPart> var5 = ImmutableList.builder();
+        var5.add(this.body);
+        var5.addAll(Arrays.asList(this.tentacles));
+        this.parts = var5.build();
     }
 
     @Override
@@ -40,13 +48,7 @@ public class SquidModel<T extends Entity> extends EntityModel<T> {
     }
 
     @Override
-    public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        this.setupAnim(param0, param1, param2, param3, param4, param5, param6);
-        this.body.render(param6);
-
-        for(ModelPart var0 : this.tentacles) {
-            var0.render(param6);
-        }
-
+    public Iterable<ModelPart> parts() {
+        return this.parts;
     }
 }

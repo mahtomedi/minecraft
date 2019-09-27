@@ -1,11 +1,17 @@
-package com.mojang.blaze3d.platform;
+package net.minecraft.client.renderer.texture;
 
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.platform.TextureUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
+import java.io.IOException;
+import java.util.concurrent.Executor;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public abstract class AbstractTexture implements TextureObject {
+public abstract class AbstractTexture {
     protected int id = -1;
     protected boolean blur;
     protected boolean mipmap;
@@ -30,7 +36,6 @@ public abstract class AbstractTexture implements TextureObject {
         GlStateManager._texParameter(3553, 10240, var1);
     }
 
-    @Override
     public void pushFilter(boolean param0, boolean param1) {
         if (!RenderSystem.isOnRenderThread()) {
             RenderSystem.recordRenderCall(() -> this._pushFilter(param0, param1));
@@ -46,7 +51,6 @@ public abstract class AbstractTexture implements TextureObject {
         this.setFilter(param0, param1);
     }
 
-    @Override
     public void popFilter() {
         if (!RenderSystem.isOnRenderThread()) {
             RenderSystem.recordRenderCall(this::_popFilter);
@@ -60,7 +64,6 @@ public abstract class AbstractTexture implements TextureObject {
         this.setFilter(this.oldBlur, this.oldMipmap);
     }
 
-    @Override
     public int getId() {
         RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
         if (this.id == -1) {
@@ -84,5 +87,20 @@ public abstract class AbstractTexture implements TextureObject {
             this.id = -1;
         }
 
+    }
+
+    public abstract void load(ResourceManager var1) throws IOException;
+
+    public void bind() {
+        if (!RenderSystem.isOnRenderThreadOrInit()) {
+            RenderSystem.recordRenderCall(() -> GlStateManager._bindTexture(this.getId()));
+        } else {
+            GlStateManager._bindTexture(this.getId());
+        }
+
+    }
+
+    public void reset(TextureManager param0, ResourceManager param1, ResourceLocation param2, Executor param3) {
+        param0.register(param2, this);
     }
 }

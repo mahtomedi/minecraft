@@ -1,6 +1,6 @@
-package net.minecraft.client.renderer.entity;
+package net.minecraft.client.model;
 
-import net.minecraft.client.model.EntityModel;
+import com.google.common.collect.ImmutableList;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -8,8 +8,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class DolphinModel<T extends Entity> extends EntityModel<T> {
-    private final ModelPart head;
+public class DolphinModel<T extends Entity> extends ListModel<T> {
     private final ModelPart body;
     private final ModelPart tail;
     private final ModelPart tailFin;
@@ -49,18 +48,18 @@ public class DolphinModel<T extends Entity> extends EntityModel<T> {
         this.tailFin.setPos(0.0F, 0.0F, 9.0F);
         this.tailFin.xRot = 0.0F;
         this.tail.addChild(this.tailFin);
-        this.head = new ModelPart(this, 0, 0);
-        this.head.addBox(-4.0F, -3.0F, -3.0F, 8.0F, 7.0F, 6.0F);
-        this.head.setPos(0.0F, -4.0F, -3.0F);
-        ModelPart var5 = new ModelPart(this, 0, 13);
-        var5.addBox(-1.0F, 2.0F, -7.0F, 2.0F, 2.0F, 4.0F);
-        this.head.addChild(var5);
-        this.body.addChild(this.head);
+        ModelPart var5 = new ModelPart(this, 0, 0);
+        var5.addBox(-4.0F, -3.0F, -3.0F, 8.0F, 7.0F, 6.0F);
+        var5.setPos(0.0F, -4.0F, -3.0F);
+        ModelPart var6 = new ModelPart(this, 0, 13);
+        var6.addBox(-1.0F, 2.0F, -7.0F, 2.0F, 2.0F, 4.0F);
+        var5.addChild(var6);
+        this.body.addChild(var5);
     }
 
     @Override
-    public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        this.body.render(param6);
+    public Iterable<ModelPart> parts() {
+        return ImmutableList.of(this.body);
     }
 
     @Override

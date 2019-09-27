@@ -1,6 +1,6 @@
 package net.minecraft.client.model;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.google.common.collect.ImmutableList;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -8,7 +8,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class ChickenModel<T extends Entity> extends EntityModel<T> {
+public class ChickenModel<T extends Entity> extends AgeableListModel<T> {
     private final ModelPart head;
     private final ModelPart body;
     private final ModelPart leg0;
@@ -47,36 +47,13 @@ public class ChickenModel<T extends Entity> extends EntityModel<T> {
     }
 
     @Override
-    public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        this.setupAnim(param0, param1, param2, param3, param4, param5, param6);
-        if (this.young) {
-            float var0 = 2.0F;
-            RenderSystem.pushMatrix();
-            RenderSystem.translatef(0.0F, 5.0F * param6, 2.0F * param6);
-            this.head.render(param6);
-            this.beak.render(param6);
-            this.redThing.render(param6);
-            RenderSystem.popMatrix();
-            RenderSystem.pushMatrix();
-            RenderSystem.scalef(0.5F, 0.5F, 0.5F);
-            RenderSystem.translatef(0.0F, 24.0F * param6, 0.0F);
-            this.body.render(param6);
-            this.leg0.render(param6);
-            this.leg1.render(param6);
-            this.wing0.render(param6);
-            this.wing1.render(param6);
-            RenderSystem.popMatrix();
-        } else {
-            this.head.render(param6);
-            this.beak.render(param6);
-            this.redThing.render(param6);
-            this.body.render(param6);
-            this.leg0.render(param6);
-            this.leg1.render(param6);
-            this.wing0.render(param6);
-            this.wing1.render(param6);
-        }
+    protected Iterable<ModelPart> headParts() {
+        return ImmutableList.of(this.head, this.beak, this.redThing);
+    }
 
+    @Override
+    protected Iterable<ModelPart> bodyParts() {
+        return ImmutableList.of(this.body, this.leg0, this.leg1, this.wing0, this.wing1);
     }
 
     @Override

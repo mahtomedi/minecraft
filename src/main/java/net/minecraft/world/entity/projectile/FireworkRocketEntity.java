@@ -108,9 +108,6 @@ public class FireworkRocketEntity extends Entity implements ItemSupplier, Projec
 
     @Override
     public void tick() {
-        this.xOld = this.x;
-        this.yOld = this.y;
-        this.zOld = this.z;
         super.tick();
         if (this.isAttachedToEntity()) {
             if (this.attachedToEntity == null) {

@@ -7,7 +7,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.platform.TextureObject;
 import com.mojang.blaze3d.shaders.AbstractUniform;
 import com.mojang.blaze3d.shaders.BlendMode;
 import com.mojang.blaze3d.shaders.Effect;
@@ -22,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.ChainedJsonException;
 import net.minecraft.server.packs.resources.Resource;
@@ -267,8 +267,8 @@ public class EffectInstance implements Effect, AutoCloseable {
                 int var2 = -1;
                 if (var1 instanceof RenderTarget) {
                     var2 = ((RenderTarget)var1).colorTextureId;
-                } else if (var1 instanceof TextureObject) {
-                    var2 = ((TextureObject)var1).getId();
+                } else if (var1 instanceof AbstractTexture) {
+                    var2 = ((AbstractTexture)var1).getId();
                 } else if (var1 instanceof Integer) {
                     var2 = (Integer)var1;
                 }

@@ -19,8 +19,6 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class SignBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
@@ -42,12 +40,6 @@ public abstract class SignBlock extends BaseEntityBlock implements SimpleWaterlo
     @Override
     public VoxelShape getShape(BlockState param0, BlockGetter param1, BlockPos param2, CollisionContext param3) {
         return SHAPE;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public boolean hasCustomBreakingProgress(BlockState param0) {
-        return true;
     }
 
     @Override

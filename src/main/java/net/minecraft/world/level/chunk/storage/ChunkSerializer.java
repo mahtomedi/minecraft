@@ -432,7 +432,7 @@ public class ChunkSerializer {
             ListTag var2 = new ListTag();
             if (var1 != null) {
                 for(Short var3 : var1) {
-                    var2.add(new ShortTag(var3));
+                    var2.add(ShortTag.valueOf(var3));
                 }
             }
 

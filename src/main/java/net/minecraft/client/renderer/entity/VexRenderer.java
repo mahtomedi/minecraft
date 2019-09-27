@@ -1,6 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.VexModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.monster.Vex;
@@ -16,11 +16,11 @@ public class VexRenderer extends HumanoidMobRenderer<Vex, VexModel> {
         super(param0, new VexModel(), 0.3F);
     }
 
-    protected ResourceLocation getTextureLocation(Vex param0) {
+    public ResourceLocation getTextureLocation(Vex param0) {
         return param0.isCharging() ? VEX_CHARGING_LOCATION : VEX_LOCATION;
     }
 
-    protected void scale(Vex param0, float param1) {
-        RenderSystem.scalef(0.4F, 0.4F, 0.4F);
+    protected void scale(Vex param0, PoseStack param1, float param2) {
+        param1.scale(0.4F, 0.4F, 0.4F);
     }
 }

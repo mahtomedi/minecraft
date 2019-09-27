@@ -17,6 +17,7 @@ import java.util.Set;
 import net.minecraft.client.gui.font.glyphs.BakedGlyph;
 import net.minecraft.client.gui.font.glyphs.EmptyGlyph;
 import net.minecraft.client.gui.font.glyphs.MissingGlyph;
+import net.minecraft.client.gui.font.glyphs.WhiteGlyph;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -34,6 +35,7 @@ public class FontSet implements AutoCloseable {
     private final TextureManager textureManager;
     private final ResourceLocation name;
     private BakedGlyph missingGlyph;
+    private BakedGlyph whiteGlyph;
     private final List<GlyphProvider> providers = Lists.newArrayList();
     private final Char2ObjectMap<BakedGlyph> glyphs = new Char2ObjectOpenHashMap<>();
     private final Char2ObjectMap<GlyphInfo> glyphInfos = new Char2ObjectOpenHashMap<>();
@@ -57,6 +59,7 @@ public class FontSet implements AutoCloseable {
         this.glyphInfos.clear();
         this.glyphsByWidth.clear();
         this.missingGlyph = this.stitch(MissingGlyph.INSTANCE);
+        this.whiteGlyph = this.stitch(WhiteGlyph.INSTANCE);
         Set<GlyphProvider> var1 = Sets.newHashSet();
 
         for(char var2 = 0; var2 < '\uffff'; ++var2) {
@@ -124,5 +127,9 @@ public class FontSet implements AutoCloseable {
     public BakedGlyph getRandomGlyph(GlyphInfo param0) {
         CharList var0 = this.glyphsByWidth.get(Mth.ceil(param0.getAdvance(false)));
         return var0 != null && !var0.isEmpty() ? this.getGlyph(var0.get(RANDOM.nextInt(var0.size()))) : this.missingGlyph;
+    }
+
+    public BakedGlyph whiteGlyph() {
+        return this.whiteGlyph;
     }
 }

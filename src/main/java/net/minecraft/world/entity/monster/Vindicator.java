@@ -31,6 +31,7 @@ import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
@@ -75,10 +76,10 @@ public class Vindicator extends AbstractIllager {
     @Override
     protected void customServerAiStep() {
         if (!this.isNoAi()) {
-            if (((ServerLevel)this.level).isRaided(new BlockPos(this))) {
-                ((GroundPathNavigation)this.getNavigation()).setCanOpenDoors(true);
-            } else {
-                ((GroundPathNavigation)this.getNavigation()).setCanOpenDoors(false);
+            PathNavigation var0 = this.getNavigation();
+            if (var0 instanceof GroundPathNavigation) {
+                boolean var1 = ((ServerLevel)this.level).isRaided(new BlockPos(this));
+                ((GroundPathNavigation)var0).setCanOpenDoors(var1);
             }
         }
 

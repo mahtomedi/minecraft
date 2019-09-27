@@ -5,7 +5,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class BlockDestructionProgress {
+public class BlockDestructionProgress implements Comparable<BlockDestructionProgress> {
     private final int id;
     private final BlockPos pos;
     private int progress;
@@ -38,5 +38,26 @@ public class BlockDestructionProgress {
 
     public int getUpdatedRenderTick() {
         return this.updatedRenderTick;
+    }
+
+    @Override
+    public boolean equals(Object param0) {
+        if (this == param0) {
+            return true;
+        } else if (param0 != null && this.getClass() == param0.getClass()) {
+            BlockDestructionProgress var0 = (BlockDestructionProgress)param0;
+            return this.id == var0.id;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(this.id);
+    }
+
+    public int compareTo(BlockDestructionProgress param0) {
+        return this.progress != param0.progress ? Integer.compare(this.progress, param0.progress) : Integer.compare(this.id, param0.id);
     }
 }

@@ -499,7 +499,7 @@ public abstract class AbstractArrow extends Entity implements Projectile {
         }
 
         param0.putByte("shake", (byte)this.shakeTime);
-        param0.putByte("inGround", (byte)(this.inGround ? 1 : 0));
+        param0.putBoolean("inGround", this.inGround);
         param0.putByte("pickup", (byte)this.pickup.ordinal());
         param0.putDouble("damage", this.baseDamage);
         param0.putBoolean("crit", this.isCritArrow());
@@ -520,7 +520,7 @@ public abstract class AbstractArrow extends Entity implements Projectile {
         }
 
         this.shakeTime = param0.getByte("shake") & 255;
-        this.inGround = param0.getByte("inGround") == 1;
+        this.inGround = param0.getBoolean("inGround");
         if (param0.contains("damage", 99)) {
             this.baseDamage = param0.getDouble("damage");
         }

@@ -1,6 +1,6 @@
 package net.minecraft.client.model;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.google.common.collect.ImmutableList;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.animal.Wolf;
@@ -8,7 +8,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class WolfModel<T extends Wolf> extends EntityModel<T> {
+public class WolfModel<T extends Wolf> extends ColorableAgeableListModel<T> {
     private final ModelPart head;
     private final ModelPart realHead;
     private final ModelPart body;
@@ -56,37 +56,14 @@ public class WolfModel<T extends Wolf> extends EntityModel<T> {
         this.realHead.texOffs(0, 10).addBox(-0.5F, 0.0F, -5.0F, 3.0F, 3.0F, 4.0F, 0.0F);
     }
 
-    public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        super.render(param0, param1, param2, param3, param4, param5, param6);
-        this.setupAnim(param0, param1, param2, param3, param4, param5, param6);
-        if (this.young) {
-            float var0 = 2.0F;
-            RenderSystem.pushMatrix();
-            RenderSystem.translatef(0.0F, 5.0F * param6, 2.0F * param6);
-            this.head.render(param6);
-            RenderSystem.popMatrix();
-            RenderSystem.pushMatrix();
-            RenderSystem.scalef(0.5F, 0.5F, 0.5F);
-            RenderSystem.translatef(0.0F, 24.0F * param6, 0.0F);
-            this.body.render(param6);
-            this.leg0.render(param6);
-            this.leg1.render(param6);
-            this.leg2.render(param6);
-            this.leg3.render(param6);
-            this.tail.render(param6);
-            this.upperBody.render(param6);
-            RenderSystem.popMatrix();
-        } else {
-            this.head.render(param6);
-            this.body.render(param6);
-            this.leg0.render(param6);
-            this.leg1.render(param6);
-            this.leg2.render(param6);
-            this.leg3.render(param6);
-            this.tail.render(param6);
-            this.upperBody.render(param6);
-        }
+    @Override
+    protected Iterable<ModelPart> headParts() {
+        return ImmutableList.of(this.head);
+    }
 
+    @Override
+    protected Iterable<ModelPart> bodyParts() {
+        return ImmutableList.of(this.body, this.leg0, this.leg1, this.leg2, this.leg3, this.tail, this.upperBody);
     }
 
     public void prepareMobModel(T param0, float param1, float param2, float param3) {
@@ -134,7 +111,6 @@ public class WolfModel<T extends Wolf> extends EntityModel<T> {
     }
 
     public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        super.setupAnim(param0, param1, param2, param3, param4, param5, param6);
         this.head.xRot = param5 * (float) (Math.PI / 180.0);
         this.head.yRot = param4 * (float) (Math.PI / 180.0);
         this.tail.xRot = param3;

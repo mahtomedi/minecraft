@@ -31,7 +31,7 @@ public class ItemModelShaper {
 
     public TextureAtlasSprite getParticleIcon(ItemStack param0) {
         BakedModel var0 = this.getItemModel(param0);
-        return (var0 == this.modelManager.getMissingModel() || var0.isCustomRenderer()) && param0.getItem() instanceof BlockItem
+        return var0 == this.modelManager.getMissingModel() && param0.getItem() instanceof BlockItem
             ? this.modelManager.getBlockModelShaper().getParticleIcon(((BlockItem)param0.getItem()).getBlock().defaultBlockState())
             : var0.getParticleIcon();
     }

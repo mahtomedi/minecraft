@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.math.Transformation;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.io.Closeable;
@@ -94,8 +95,17 @@ public class ModelBakery {
         new ResourceLocation("entity/shulker/shulker_black")
     );
     public static final ResourceLocation BANNER_BASE = new ResourceLocation("entity/banner_base");
+    public static final ResourceLocation OAK_SIGN_TEXTURE = new ResourceLocation("entity/signs/oak");
+    public static final ResourceLocation SPRUCE_SIGN_TEXTURE = new ResourceLocation("entity/signs/spruce");
+    public static final ResourceLocation BIRCH_SIGN_TEXTURE = new ResourceLocation("entity/signs/birch");
+    public static final ResourceLocation ACACIA_SIGN_TEXTURE = new ResourceLocation("entity/signs/acacia");
+    public static final ResourceLocation JUNGLE_SIGN_TEXTURE = new ResourceLocation("entity/signs/jungle");
+    public static final ResourceLocation DARK_OAK_SIGN_TEXTURE = new ResourceLocation("entity/signs/dark_oak");
     public static final List<ResourceLocation> DESTROY_STAGES = IntStream.range(0, 10)
         .mapToObj(param0 -> new ResourceLocation("block/destroy_stage_" + param0))
+        .collect(Collectors.toList());
+    public static final List<ResourceLocation> BREAKING_LOCATIONS = DESTROY_STAGES.stream()
+        .map(param0 -> new ResourceLocation("textures/" + param0.getPath() + ".png"))
         .collect(Collectors.toList());
     private static final Set<ResourceLocation> UNREFERENCED_TEXTURES = Util.make(Sets.newHashSet(), param0 -> {
         param0.add(WATER_FLOW);
@@ -127,6 +137,12 @@ public class ModelBakery {
             param0.add(var0.location());
         }
 
+        param0.add(OAK_SIGN_TEXTURE);
+        param0.add(SPRUCE_SIGN_TEXTURE);
+        param0.add(BIRCH_SIGN_TEXTURE);
+        param0.add(ACACIA_SIGN_TEXTURE);
+        param0.add(JUNGLE_SIGN_TEXTURE);
+        param0.add(DARK_OAK_SIGN_TEXTURE);
         param0.addAll(DESTROY_STAGES);
         param0.add(new ResourceLocation("item/empty_armor_slot_helmet"));
         param0.add(new ResourceLocation("item/empty_armor_slot_chestplate"));
@@ -161,7 +177,7 @@ public class ModelBakery {
     private final Set<ResourceLocation> loadingStack = Sets.newHashSet();
     private final BlockModelDefinition.Context context = new BlockModelDefinition.Context();
     private final Map<ResourceLocation, UnbakedModel> unbakedCache = Maps.newHashMap();
-    private final Map<Triple<ResourceLocation, BlockModelRotation, Boolean>, BakedModel> bakedCache = Maps.newHashMap();
+    private final Map<Triple<ResourceLocation, Transformation, Boolean>, BakedModel> bakedCache = Maps.newHashMap();
     private final Map<ResourceLocation, UnbakedModel> topLevelModels = Maps.newHashMap();
     private final Map<ResourceLocation, BakedModel> bakedTopLevelModels = Maps.newHashMap();
     private final TextureAtlas.Preparations atlasPreparations;
@@ -480,7 +496,7 @@ public class ModelBakery {
 
     @Nullable
     public BakedModel bake(ResourceLocation param0, ModelState param1) {
-        Triple<ResourceLocation, BlockModelRotation, Boolean> var0 = Triple.of(param0, param1.getRotation(), param1.isUvLocked());
+        Triple<ResourceLocation, Transformation, Boolean> var0 = Triple.of(param0, param1.getRotation(), param1.isUvLocked());
         if (this.bakedCache.containsKey(var0)) {
             return this.bakedCache.get(var0);
         } else {
@@ -488,11 +504,12 @@ public class ModelBakery {
             if (var1 instanceof BlockModel) {
                 BlockModel var2 = (BlockModel)var1;
                 if (var2.getRootModel() == GENERATION_MARKER) {
-                    return ITEM_MODEL_GENERATOR.generateBlockModel(this.blockAtlas::getSprite, var2).bake(this, var2, this.blockAtlas::getSprite, param1);
+                    return ITEM_MODEL_GENERATOR.generateBlockModel(this.blockAtlas::getSprite, var2)
+                        .bake(this, var2, this.blockAtlas::getSprite, param1, param0);
                 }
             }
 
-            BakedModel var3 = var1.bake(this, this.blockAtlas::getSprite, param1);
+            BakedModel var3 = var1.bake(this, this.blockAtlas::getSprite, param1, param0);
             this.bakedCache.put(var0, var3);
             return var3;
         }

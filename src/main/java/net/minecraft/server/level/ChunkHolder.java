@@ -28,6 +28,8 @@ import net.minecraft.world.level.chunk.ImposterProtoChunk;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.ProtoChunk;
 import net.minecraft.world.level.lighting.LevelLightEngine;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ChunkHolder {
     public static final Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure> UNLOADED_CHUNK = Either.right(ChunkHolder.ChunkLoadingFailure.UNLOADED);
@@ -99,6 +101,20 @@ public class ChunkHolder {
         CompletableFuture<Either<LevelChunk, ChunkHolder.ChunkLoadingFailure>> var0 = this.getTickingChunkFuture();
         Either<LevelChunk, ChunkHolder.ChunkLoadingFailure> var1 = var0.getNow(null);
         return var1 == null ? null : var1.left().orElse(null);
+    }
+
+    @Nullable
+    @OnlyIn(Dist.CLIENT)
+    public ChunkStatus getLastAvailableStatus() {
+        for(int var0 = CHUNK_STATUSES.size() - 1; var0 >= 0; --var0) {
+            ChunkStatus var1 = CHUNK_STATUSES.get(var0);
+            CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> var2 = this.getFutureIfPresentUnchecked(var1);
+            if (var2.getNow(UNLOADED_CHUNK).left().isPresent()) {
+                return var1;
+            }
+        }
+
+        return null;
     }
 
     @Nullable
@@ -248,6 +264,11 @@ public class ChunkHolder {
 
     private void updateChunkToSave(CompletableFuture<? extends Either<? extends ChunkAccess, ChunkHolder.ChunkLoadingFailure>> param0) {
         this.chunkToSave = this.chunkToSave.thenCombine(param0, (param0x, param1) -> param1.map(param0xx -> param0xx, param1x -> param0x));
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public ChunkHolder.FullChunkStatus getFullStatus() {
+        return getFullChunkStatus(this.ticketLevel);
     }
 
     public ChunkPos getPos() {

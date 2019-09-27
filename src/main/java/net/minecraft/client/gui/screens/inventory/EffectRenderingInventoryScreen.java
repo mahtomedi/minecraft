@@ -54,7 +54,6 @@ public abstract class EffectRenderingInventoryScreen<T extends AbstractContainer
         Collection<MobEffectInstance> var1 = this.minecraft.player.getActiveEffects();
         if (!var1.isEmpty()) {
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            RenderSystem.disableLighting();
             int var2 = 33;
             if (var1.size() > 5) {
                 var2 = 132 / (var1.size() - 1);

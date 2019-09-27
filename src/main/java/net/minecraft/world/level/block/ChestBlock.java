@@ -41,8 +41,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ChestBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
@@ -99,12 +97,6 @@ public class ChestBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
         this.registerDefaultState(
             this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(TYPE, ChestType.SINGLE).setValue(WATERLOGGED, Boolean.valueOf(false))
         );
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public boolean hasCustomBreakingProgress(BlockState param0) {
-        return true;
     }
 
     @Override

@@ -1,5 +1,8 @@
 package net.minecraft.client.model;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
+import java.util.Arrays;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -7,29 +10,29 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class BlazeModel<T extends Entity> extends EntityModel<T> {
-    private final ModelPart[] upperBodyParts = new ModelPart[12];
-    private final ModelPart head;
+public class BlazeModel<T extends Entity> extends ListModel<T> {
+    private final ModelPart[] upperBodyParts;
+    private final ModelPart head = new ModelPart(this, 0, 0);
+    private final ImmutableList<ModelPart> parts;
 
     public BlazeModel() {
+        this.head.addBox(-4.0F, -4.0F, -4.0F, 8.0F, 8.0F, 8.0F);
+        this.upperBodyParts = new ModelPart[12];
+
         for(int var0 = 0; var0 < this.upperBodyParts.length; ++var0) {
             this.upperBodyParts[var0] = new ModelPart(this, 0, 16);
             this.upperBodyParts[var0].addBox(0.0F, 0.0F, 0.0F, 2.0F, 8.0F, 2.0F);
         }
 
-        this.head = new ModelPart(this, 0, 0);
-        this.head.addBox(-4.0F, -4.0F, -4.0F, 8.0F, 8.0F, 8.0F);
+        Builder<ModelPart> var1 = ImmutableList.builder();
+        var1.add(this.head);
+        var1.addAll(Arrays.asList(this.upperBodyParts));
+        this.parts = var1.build();
     }
 
     @Override
-    public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        this.setupAnim(param0, param1, param2, param3, param4, param5, param6);
-        this.head.render(param6);
-
-        for(ModelPart var0 : this.upperBodyParts) {
-            var0.render(param6);
-        }
-
+    public Iterable<ModelPart> parts() {
+        return this.parts;
     }
 
     @Override

@@ -170,11 +170,8 @@ public abstract class Entity implements CommandSource, Nameable {
     public int xChunk;
     public int yChunk;
     public int zChunk;
-    @OnlyIn(Dist.CLIENT)
     public long xp;
-    @OnlyIn(Dist.CLIENT)
     public long yp;
-    @OnlyIn(Dist.CLIENT)
     public long zp;
     public boolean noCulling;
     public boolean hasImpulse;
@@ -217,6 +214,12 @@ public abstract class Entity implements CommandSource, Nameable {
         this.eyeHeight = this.getEyeHeight(Pose.STANDING, this.dimensions);
     }
 
+    @OnlyIn(Dist.CLIENT)
+    public int getTeamColor() {
+        Team var0 = this.getTeam();
+        return var0 != null && var0.getColor().getColor() != null ? var0.getColor().getColor() : 16777215;
+    }
+
     public boolean isSpectator() {
         return false;
     }
@@ -232,7 +235,6 @@ public abstract class Entity implements CommandSource, Nameable {
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void setPacketCoordinates(double param0, double param1, double param2) {
         this.xp = ClientboundMoveEntityPacket.entityToPacket(param0);
         this.yp = ClientboundMoveEntityPacket.entityToPacket(param1);
@@ -365,9 +367,6 @@ public abstract class Entity implements CommandSource, Nameable {
         }
 
         this.walkDistO = this.walkDist;
-        this.xo = this.x;
-        this.yo = this.y;
-        this.zo = this.z;
         this.xRotO = this.xRot;
         this.yRotO = this.yRot;
         this.handleNetherPortal();
@@ -1098,22 +1097,11 @@ public abstract class Entity implements CommandSource, Nameable {
         this.xo = this.x;
         this.yo = this.y;
         this.zo = this.z;
-        param4 = Mth.clamp(param4, -90.0F, 90.0F);
-        this.yRot = param3;
-        this.xRot = param4;
+        this.setPos(this.x, this.y, this.z);
+        this.yRot = param3 % 360.0F;
+        this.xRot = Mth.clamp(param4, -90.0F, 90.0F) % 360.0F;
         this.yRotO = this.yRot;
         this.xRotO = this.xRot;
-        double var0 = (double)(this.yRotO - param3);
-        if (var0 < -180.0) {
-            this.yRotO += 360.0F;
-        }
-
-        if (var0 >= 180.0) {
-            this.yRotO -= 360.0F;
-        }
-
-        this.setPos(this.x, this.y, this.z);
-        this.setRot(param3, param4);
     }
 
     public void moveTo(BlockPos param0, float param1, float param2) {
@@ -1121,6 +1109,13 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     public void moveTo(double param0, double param1, double param2, float param3, float param4) {
+        this.setPosAndOldPos(param0, param1, param2);
+        this.yRot = param3;
+        this.xRot = param4;
+        this.setPos(this.x, this.y, this.z);
+    }
+
+    public void setPosAndOldPos(double param0, double param1, double param2) {
         this.x = param0;
         this.y = param1;
         this.z = param2;
@@ -1130,9 +1125,6 @@ public abstract class Entity implements CommandSource, Nameable {
         this.xOld = this.x;
         this.yOld = this.y;
         this.zOld = this.z;
-        this.yRot = param3;
-        this.xRot = param4;
-        this.setPos(this.x, this.y, this.z);
     }
 
     public float distanceTo(Entity param0) {
@@ -1352,7 +1344,7 @@ public abstract class Entity implements CommandSource, Nameable {
                 ListTag var2 = new ListTag();
 
                 for(String var3 : this.tags) {
-                    var2.add(new StringTag(var3));
+                    var2.add(StringTag.valueOf(var3));
                 }
 
                 param0.put("Tags", var2);
@@ -1392,15 +1384,7 @@ public abstract class Entity implements CommandSource, Nameable {
             double var4 = var1.getDouble(1);
             double var5 = var1.getDouble(2);
             this.setDeltaMovement(Math.abs(var3) > 10.0 ? 0.0 : var3, Math.abs(var4) > 10.0 ? 0.0 : var4, Math.abs(var5) > 10.0 ? 0.0 : var5);
-            this.x = var0.getDouble(0);
-            this.y = var0.getDouble(1);
-            this.z = var0.getDouble(2);
-            this.xOld = this.x;
-            this.yOld = this.y;
-            this.zOld = this.z;
-            this.xo = this.x;
-            this.yo = this.y;
-            this.zo = this.z;
+            this.setPosAndOldPos(var0.getDouble(0), var0.getDouble(1), var0.getDouble(2));
             this.yRot = var2.getFloat(0);
             this.xRot = var2.getFloat(1);
             this.yRotO = this.yRot;
@@ -1480,7 +1464,7 @@ public abstract class Entity implements CommandSource, Nameable {
         ListTag var0 = new ListTag();
 
         for(double var1 : param0) {
-            var0.add(new DoubleTag(var1));
+            var0.add(DoubleTag.valueOf(var1));
         }
 
         return var0;
@@ -1490,7 +1474,7 @@ public abstract class Entity implements CommandSource, Nameable {
         ListTag var0 = new ListTag();
 
         for(float var1 : param0) {
-            var0.add(new FloatTag(var1));
+            var0.add(FloatTag.valueOf(var1));
         }
 
         return var0;
@@ -2180,7 +2164,7 @@ public abstract class Entity implements CommandSource, Nameable {
 
     @OnlyIn(Dist.CLIENT)
     public boolean displayFireAnimation() {
-        return this.isOnFire();
+        return this.isOnFire() && !this.isSpectator();
     }
 
     public void setUUID(UUID param0) {

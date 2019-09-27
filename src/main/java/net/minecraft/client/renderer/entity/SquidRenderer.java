@@ -1,6 +1,7 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.model.SquidModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -16,18 +17,18 @@ public class SquidRenderer extends MobRenderer<Squid, SquidModel<Squid>> {
         super(param0, new SquidModel<>(), 0.7F);
     }
 
-    protected ResourceLocation getTextureLocation(Squid param0) {
+    public ResourceLocation getTextureLocation(Squid param0) {
         return SQUID_LOCATION;
     }
 
-    protected void setupRotations(Squid param0, float param1, float param2, float param3) {
-        float var0 = Mth.lerp(param3, param0.xBodyRotO, param0.xBodyRot);
-        float var1 = Mth.lerp(param3, param0.zBodyRotO, param0.zBodyRot);
-        RenderSystem.translatef(0.0F, 0.5F, 0.0F);
-        RenderSystem.rotatef(180.0F - param2, 0.0F, 1.0F, 0.0F);
-        RenderSystem.rotatef(var0, 1.0F, 0.0F, 0.0F);
-        RenderSystem.rotatef(var1, 0.0F, 1.0F, 0.0F);
-        RenderSystem.translatef(0.0F, -1.2F, 0.0F);
+    protected void setupRotations(Squid param0, PoseStack param1, float param2, float param3, float param4) {
+        float var0 = Mth.lerp(param4, param0.xBodyRotO, param0.xBodyRot);
+        float var1 = Mth.lerp(param4, param0.zBodyRotO, param0.zBodyRot);
+        param1.translate(0.0, 0.5, 0.0);
+        param1.mulPose(Vector3f.YP.rotation(180.0F - param3, true));
+        param1.mulPose(Vector3f.XP.rotation(var0, true));
+        param1.mulPose(Vector3f.YP.rotation(var1, true));
+        param1.translate(0.0, -1.2F, 0.0);
     }
 
     protected float getBob(Squid param0, float param1) {

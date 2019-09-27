@@ -217,7 +217,7 @@ public class RailState {
         }
     }
 
-    public RailState place(boolean param0, boolean param1) {
+    public RailState place(boolean param0, boolean param1, RailShape param2) {
         BlockPos var0 = this.pos.north();
         BlockPos var1 = this.pos.south();
         BlockPos var2 = this.pos.west();
@@ -227,72 +227,78 @@ public class RailState {
         boolean var6 = this.hasNeighborRail(var2);
         boolean var7 = this.hasNeighborRail(var3);
         RailShape var8 = null;
-        if ((var4 || var5) && !var6 && !var7) {
+        boolean var9 = var4 || var5;
+        boolean var10 = var6 || var7;
+        if (var9 && !var10) {
             var8 = RailShape.NORTH_SOUTH;
         }
 
-        if ((var6 || var7) && !var4 && !var5) {
+        if (var10 && !var9) {
             var8 = RailShape.EAST_WEST;
         }
 
+        boolean var11 = var5 && var7;
+        boolean var12 = var5 && var6;
+        boolean var13 = var4 && var7;
+        boolean var14 = var4 && var6;
         if (!this.isStraight) {
-            if (var5 && var7 && !var4 && !var6) {
+            if (var11 && !var4 && !var6) {
                 var8 = RailShape.SOUTH_EAST;
             }
 
-            if (var5 && var6 && !var4 && !var7) {
+            if (var12 && !var4 && !var7) {
                 var8 = RailShape.SOUTH_WEST;
             }
 
-            if (var4 && var6 && !var5 && !var7) {
+            if (var14 && !var5 && !var7) {
                 var8 = RailShape.NORTH_WEST;
             }
 
-            if (var4 && var7 && !var5 && !var6) {
+            if (var13 && !var5 && !var6) {
                 var8 = RailShape.NORTH_EAST;
             }
         }
 
         if (var8 == null) {
-            if (var4 || var5) {
+            if (var9 && var10) {
+                var8 = param2;
+            } else if (var9) {
                 var8 = RailShape.NORTH_SOUTH;
-            }
-
-            if (var6 || var7) {
+            } else if (var10) {
                 var8 = RailShape.EAST_WEST;
             }
 
             if (!this.isStraight) {
                 if (param0) {
-                    if (var5 && var7) {
+                    if (var11) {
                         var8 = RailShape.SOUTH_EAST;
                     }
 
-                    if (var6 && var5) {
+                    if (var12) {
                         var8 = RailShape.SOUTH_WEST;
                     }
 
-                    if (var7 && var4) {
+                    if (var13) {
                         var8 = RailShape.NORTH_EAST;
                     }
 
-                    if (var4 && var6) {
+                    if (var14) {
                         var8 = RailShape.NORTH_WEST;
                     }
                 } else {
-                    if (var4 && var6) {
+                    if (var14) {
                         var8 = RailShape.NORTH_WEST;
                     }
 
-                    if (var7 && var4) {
+                    if (var13) {
                         var8 = RailShape.NORTH_EAST;
                     }
 
-                    if (var6 && var5) {
+                    if (var12) {
                         var8 = RailShape.SOUTH_WEST;
                     }
 
-                    if (var5 && var7) {
+                    if (var11) {
                         var8 = RailShape.SOUTH_EAST;
                     }
                 }
@@ -320,7 +326,7 @@ public class RailState {
         }
 
         if (var8 == null) {
-            var8 = RailShape.NORTH_SOUTH;
+            var8 = param2;
         }
 
         this.updateConnections(var8);
@@ -328,12 +334,12 @@ public class RailState {
         if (param1 || this.level.getBlockState(this.pos) != this.state) {
             this.level.setBlock(this.pos, this.state, 3);
 
-            for(int var9 = 0; var9 < this.connections.size(); ++var9) {
-                RailState var10 = this.getRail(this.connections.get(var9));
-                if (var10 != null) {
-                    var10.removeSoftConnections();
-                    if (var10.canConnectTo(this)) {
-                        var10.connectTo(this);
+            for(int var15 = 0; var15 < this.connections.size(); ++var15) {
+                RailState var16 = this.getRail(this.connections.get(var15));
+                if (var16 != null) {
+                    var16.removeSoftConnections();
+                    if (var16.canConnectTo(this)) {
+                        var16.connectTo(this);
                     }
                 }
             }

@@ -1,10 +1,14 @@
 package net.minecraft.client.renderer.entity.layers;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.ParrotModel;
 import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.ParrotRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
@@ -19,27 +23,45 @@ public class ParrotOnShoulderLayer<T extends Player> extends RenderLayer<T, Play
         super(param0);
     }
 
-    public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6, float param7) {
-        RenderSystem.enableRescaleNormal();
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        this.render(param0, param1, param2, param3, param5, param6, param7, true);
-        this.render(param0, param1, param2, param3, param5, param6, param7, false);
-        RenderSystem.disableRescaleNormal();
+    public void render(
+        PoseStack param0,
+        MultiBufferSource param1,
+        int param2,
+        T param3,
+        float param4,
+        float param5,
+        float param6,
+        float param7,
+        float param8,
+        float param9,
+        float param10
+    ) {
+        this.render(param0, param1, param2, param3, param4, param5, param6, param8, param9, param10, true);
+        this.render(param0, param1, param2, param3, param4, param5, param6, param8, param9, param10, false);
     }
 
-    private void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6, boolean param7) {
-        CompoundTag var0 = param7 ? param0.getShoulderEntityLeft() : param0.getShoulderEntityRight();
-        EntityType.byString(var0.getString("id")).filter(param0x -> param0x == EntityType.PARROT).ifPresent(param8 -> {
-            RenderSystem.pushMatrix();
-            RenderSystem.translatef(param7 ? 0.4F : -0.4F, param0.isCrouching() ? -1.3F : -1.5F, 0.0F);
-            this.bindTexture(ParrotRenderer.PARROT_LOCATIONS[var0.getInt("Variant")]);
-            this.model.renderOnShoulder(param1, param2, param4, param5, param6, param0.tickCount);
-            RenderSystem.popMatrix();
+    private void render(
+        PoseStack param0,
+        MultiBufferSource param1,
+        int param2,
+        T param3,
+        float param4,
+        float param5,
+        float param6,
+        float param7,
+        float param8,
+        float param9,
+        boolean param10
+    ) {
+        CompoundTag var0 = param10 ? param3.getShoulderEntityLeft() : param3.getShoulderEntityRight();
+        EntityType.byString(var0.getString("id")).filter(param0x -> param0x == EntityType.PARROT).ifPresent(param11 -> {
+            param0.pushPose();
+            param0.translate(param10 ? 0.4F : -0.4F, param3.isCrouching() ? -1.3F : -1.5, 0.0);
+            VertexConsumer var0x = param1.getBuffer(RenderType.NEW_ENTITY(ParrotRenderer.PARROT_LOCATIONS[var0.getInt("Variant")]));
+            OverlayTexture.setDefault(var0x);
+            this.model.renderOnShoulder(param0, var0x, param2, param4, param5, param7, param8, param9, param3.tickCount);
+            var0x.unsetDefaultOverlayCoords();
+            param0.popPose();
         });
-    }
-
-    @Override
-    public boolean colorsOnDamage() {
-        return false;
     }
 }

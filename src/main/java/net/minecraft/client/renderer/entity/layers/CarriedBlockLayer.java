@@ -1,10 +1,11 @@
 package net.minecraft.client.renderer.entity.layers;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EndermanModel;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.world.entity.monster.EnderMan;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
@@ -16,31 +17,30 @@ public class CarriedBlockLayer extends RenderLayer<EnderMan, EndermanModel<Ender
         super(param0);
     }
 
-    public void render(EnderMan param0, float param1, float param2, float param3, float param4, float param5, float param6, float param7) {
-        BlockState var0 = param0.getCarriedBlock();
+    public void render(
+        PoseStack param0,
+        MultiBufferSource param1,
+        int param2,
+        EnderMan param3,
+        float param4,
+        float param5,
+        float param6,
+        float param7,
+        float param8,
+        float param9,
+        float param10
+    ) {
+        BlockState var0 = param3.getCarriedBlock();
         if (var0 != null) {
-            RenderSystem.enableRescaleNormal();
-            RenderSystem.pushMatrix();
-            RenderSystem.translatef(0.0F, 0.6875F, -0.75F);
-            RenderSystem.rotatef(20.0F, 1.0F, 0.0F, 0.0F);
-            RenderSystem.rotatef(45.0F, 0.0F, 1.0F, 0.0F);
-            RenderSystem.translatef(0.25F, 0.1875F, 0.25F);
+            param0.pushPose();
+            param0.translate(0.0, 0.6875, -0.75);
+            param0.mulPose(Vector3f.XP.rotation(20.0F, true));
+            param0.mulPose(Vector3f.YP.rotation(45.0F, true));
+            param0.translate(0.25, 0.1875, 0.25);
             float var1 = 0.5F;
-            RenderSystem.scalef(-0.5F, -0.5F, 0.5F);
-            int var2 = param0.getLightColor();
-            int var3 = var2 % 65536;
-            int var4 = var2 / 65536;
-            RenderSystem.glMultiTexCoord2f(33985, (float)var3, (float)var4);
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            this.bindTexture(TextureAtlas.LOCATION_BLOCKS);
-            Minecraft.getInstance().getBlockRenderer().renderSingleBlock(var0, 1.0F);
-            RenderSystem.popMatrix();
-            RenderSystem.disableRescaleNormal();
+            param0.scale(-0.5F, -0.5F, 0.5F);
+            Minecraft.getInstance().getBlockRenderer().renderSingleBlock(var0, param0, param1, param2, 0, 10);
+            param0.popPose();
         }
-    }
-
-    @Override
-    public boolean colorsOnDamage() {
-        return false;
     }
 }

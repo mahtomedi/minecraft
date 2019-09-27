@@ -101,11 +101,6 @@ public class GLX {
         return GLFW.glfwWindowShouldClose(param0.getWindow());
     }
 
-    public static void _pollEvents() {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
-        GLFW.glfwPollEvents();
-    }
-
     public static void _setupNvFogDistance() {
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         if (GL.getCapabilities().GL_NV_fog_distance) {

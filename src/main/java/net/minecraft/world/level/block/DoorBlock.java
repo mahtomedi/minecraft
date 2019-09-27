@@ -105,7 +105,7 @@ public class DoorBlock extends Block {
             param0.setBlock(var1, Blocks.AIR.defaultBlockState(), 35);
             param0.levelEvent(param3, 2001, var1, Block.getId(var2));
             ItemStack var3 = param3.getMainHandItem();
-            if (!param0.isClientSide && !param3.isCreative()) {
+            if (!param0.isClientSide && !param3.isCreative() && param3.canDestroy(var2)) {
                 Block.dropResources(param2, param0, param1, null, param3, var3);
                 Block.dropResources(var2, param0, var1, null, param3, var3);
             }

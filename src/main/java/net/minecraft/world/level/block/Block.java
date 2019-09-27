@@ -277,12 +277,6 @@ public class Block implements ItemLike {
     }
 
     @Deprecated
-    @OnlyIn(Dist.CLIENT)
-    public boolean hasCustomBreakingProgress(BlockState param0) {
-        return false;
-    }
-
-    @Deprecated
     public boolean isPathfindable(BlockState param0, BlockGetter param1, BlockPos param2, PathComputationType param3) {
         switch(param3) {
             case LAND:

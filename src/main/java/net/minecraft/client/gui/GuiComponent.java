@@ -2,8 +2,11 @@ package net.minecraft.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Transformation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -37,34 +40,37 @@ public abstract class GuiComponent {
     }
 
     public static void fill(int param0, int param1, int param2, int param3, int param4) {
-        if (param0 < param2) {
-            int var0 = param0;
-            param0 = param2;
-            param2 = var0;
-        }
+        fill(Transformation.identity().getMatrix(), param0, param1, param2, param3, param4);
+    }
 
+    public static void fill(Matrix4f param0, int param1, int param2, int param3, int param4, int param5) {
         if (param1 < param3) {
-            int var1 = param1;
+            int var0 = param1;
             param1 = param3;
-            param3 = var1;
+            param3 = var0;
         }
 
-        float var2 = (float)(param4 >> 24 & 0xFF) / 255.0F;
-        float var3 = (float)(param4 >> 16 & 0xFF) / 255.0F;
-        float var4 = (float)(param4 >> 8 & 0xFF) / 255.0F;
-        float var5 = (float)(param4 & 0xFF) / 255.0F;
-        Tesselator var6 = Tesselator.getInstance();
-        BufferBuilder var7 = var6.getBuilder();
+        if (param2 < param4) {
+            int var1 = param2;
+            param2 = param4;
+            param4 = var1;
+        }
+
+        float var2 = (float)(param5 >> 24 & 0xFF) / 255.0F;
+        float var3 = (float)(param5 >> 16 & 0xFF) / 255.0F;
+        float var4 = (float)(param5 >> 8 & 0xFF) / 255.0F;
+        float var5 = (float)(param5 & 0xFF) / 255.0F;
+        BufferBuilder var6 = Tesselator.getInstance().getBuilder();
         RenderSystem.enableBlend();
         RenderSystem.disableTexture();
         RenderSystem.defaultBlendFunc();
-        RenderSystem.color4f(var3, var4, var5, var2);
-        var7.begin(7, DefaultVertexFormat.POSITION);
-        var7.vertex((double)param0, (double)param3, 0.0).endVertex();
-        var7.vertex((double)param2, (double)param3, 0.0).endVertex();
-        var7.vertex((double)param2, (double)param1, 0.0).endVertex();
-        var7.vertex((double)param0, (double)param1, 0.0).endVertex();
+        var6.begin(7, DefaultVertexFormat.POSITION_COLOR);
+        var6.vertex(param0, (float)param1, (float)param4, 0.0F).color(var3, var4, var5, var2).endVertex();
+        var6.vertex(param0, (float)param3, (float)param4, 0.0F).color(var3, var4, var5, var2).endVertex();
+        var6.vertex(param0, (float)param3, (float)param2, 0.0F).color(var3, var4, var5, var2).endVertex();
+        var6.vertex(param0, (float)param1, (float)param2, 0.0F).color(var3, var4, var5, var2).endVertex();
         var6.end();
+        BufferUploader.end(var6);
         RenderSystem.enableTexture();
         RenderSystem.disableBlend();
     }
@@ -149,10 +155,10 @@ public abstract class GuiComponent {
         Tesselator var0 = Tesselator.getInstance();
         BufferBuilder var1 = var0.getBuilder();
         var1.begin(7, DefaultVertexFormat.POSITION_TEX);
-        var1.vertex((double)param0, (double)param3, (double)param4).uv((double)param5, (double)param8).endVertex();
-        var1.vertex((double)param1, (double)param3, (double)param4).uv((double)param6, (double)param8).endVertex();
-        var1.vertex((double)param1, (double)param2, (double)param4).uv((double)param6, (double)param7).endVertex();
-        var1.vertex((double)param0, (double)param2, (double)param4).uv((double)param5, (double)param7).endVertex();
+        var1.vertex((double)param0, (double)param3, (double)param4).uv(param5, param8).endVertex();
+        var1.vertex((double)param1, (double)param3, (double)param4).uv(param6, param8).endVertex();
+        var1.vertex((double)param1, (double)param2, (double)param4).uv(param6, param7).endVertex();
+        var1.vertex((double)param0, (double)param2, (double)param4).uv(param5, param7).endVertex();
         var0.end();
     }
 

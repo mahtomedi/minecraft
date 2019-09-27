@@ -1,5 +1,7 @@
 package net.minecraft.client.model;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -15,10 +17,10 @@ public class HumanoidHeadModel extends SkullModel {
     }
 
     @Override
-    public void render(float param0, float param1, float param2, float param3, float param4, float param5) {
-        super.render(param0, param1, param2, param3, param4, param5);
+    public void render(PoseStack param0, VertexConsumer param1, float param2, float param3, float param4, float param5, int param6) {
+        super.render(param0, param1, param2, param3, param4, param5, param6);
         this.hat.yRot = this.head.yRot;
         this.hat.xRot = this.head.xRot;
-        this.hat.render(param5);
+        this.hat.render(param0, param1, param5, param6, null);
     }
 }

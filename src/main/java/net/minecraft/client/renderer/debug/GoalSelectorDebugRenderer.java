@@ -1,8 +1,10 @@
 package net.minecraft.client.renderer.debug;
 
 import com.google.common.collect.Maps;
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.List;
 import java.util.Map;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraftforge.api.distmarker.Dist;
@@ -24,6 +26,32 @@ public class GoalSelectorDebugRenderer implements DebugRenderer.SimpleDebugRende
 
     public GoalSelectorDebugRenderer(Minecraft param0) {
         this.minecraft = param0;
+    }
+
+    @Override
+    public void render(long param0) {
+        Camera var0 = this.minecraft.gameRenderer.getMainCamera();
+        RenderSystem.pushMatrix();
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.disableTexture();
+        BlockPos var1 = new BlockPos(var0.getPosition().x, 0.0, var0.getPosition().z);
+        this.goalSelectors.forEach((param1, param2) -> {
+            for(int var0x = 0; var0x < param2.size(); ++var0x) {
+                GoalSelectorDebugRenderer.DebugGoal var1x = param2.get(var0x);
+                if (var1.closerThan(var1x.pos, 160.0)) {
+                    double var2 = (double)var1x.pos.getX() + 0.5;
+                    double var3x = (double)var1x.pos.getY() + 2.0 + (double)var0x * 0.25;
+                    double var4x = (double)var1x.pos.getZ() + 0.5;
+                    int var5 = var1x.isRunning ? -16711936 : -3355444;
+                    DebugRenderer.renderFloatingText(var1x.name, var2, var3x, var4x, var5);
+                }
+            }
+
+        });
+        RenderSystem.enableDepthTest();
+        RenderSystem.enableTexture();
+        RenderSystem.popMatrix();
     }
 
     @OnlyIn(Dist.CLIENT)

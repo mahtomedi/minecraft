@@ -578,9 +578,7 @@ public class ServerLevel extends Level {
 
     public void tickNonPassenger(Entity param0x) {
         if (param0x instanceof Player || this.getChunkSource().isEntityTickingChunk(param0x)) {
-            param0x.xOld = param0x.x;
-            param0x.yOld = param0x.y;
-            param0x.zOld = param0x.z;
+            param0x.setPosAndOldPos(param0x.x, param0x.y, param0x.z);
             param0x.yRotO = param0x.yRot;
             param0x.xRotO = param0x.xRot;
             if (param0x.inChunk) {
@@ -604,9 +602,7 @@ public class ServerLevel extends Level {
         if (param1.removed || param1.getVehicle() != param0) {
             param1.stopRiding();
         } else if (param1 instanceof Player || this.getChunkSource().isEntityTickingChunk(param1)) {
-            param1.xOld = param1.x;
-            param1.yOld = param1.y;
-            param1.zOld = param1.z;
+            param1.setPosAndOldPos(param1.x, param1.y, param1.z);
             param1.yRotO = param1.yRot;
             param1.xRotO = param1.xRot;
             if (param1.inChunk) {

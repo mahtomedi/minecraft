@@ -1,12 +1,14 @@
 package net.minecraft.client.renderer.entity.layers;
 
 import com.mojang.authlib.GameProfile;
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.HeadedModel;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.blockentity.SkullBlockRenderer;
-import net.minecraft.client.renderer.entity.HeadedModel;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
@@ -30,31 +32,42 @@ public class CustomHeadLayer<T extends LivingEntity, M extends EntityModel<T> & 
         super(param0);
     }
 
-    public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6, float param7) {
-        ItemStack var0 = param0.getItemBySlot(EquipmentSlot.HEAD);
+    public void render(
+        PoseStack param0,
+        MultiBufferSource param1,
+        int param2,
+        T param3,
+        float param4,
+        float param5,
+        float param6,
+        float param7,
+        float param8,
+        float param9,
+        float param10
+    ) {
+        ItemStack var0 = param3.getItemBySlot(EquipmentSlot.HEAD);
         if (!var0.isEmpty()) {
             Item var1 = var0.getItem();
-            RenderSystem.pushMatrix();
-            if (param0.isCrouching()) {
-                RenderSystem.translatef(0.0F, 0.2F, 0.0F);
+            param0.pushPose();
+            if (param3.isCrouching()) {
+                param0.translate(0.0, 0.2F, 0.0);
             }
 
-            boolean var2 = param0 instanceof Villager || param0 instanceof ZombieVillager;
-            if (param0.isBaby() && !(param0 instanceof Villager)) {
+            boolean var2 = param3 instanceof Villager || param3 instanceof ZombieVillager;
+            if (param3.isBaby() && !(param3 instanceof Villager)) {
                 float var3 = 2.0F;
                 float var4 = 1.4F;
-                RenderSystem.translatef(0.0F, 0.5F * param7, 0.0F);
-                RenderSystem.scalef(0.7F, 0.7F, 0.7F);
-                RenderSystem.translatef(0.0F, 16.0F * param7, 0.0F);
+                param0.translate(0.0, (double)(0.5F * param10), 0.0);
+                param0.scale(0.7F, 0.7F, 0.7F);
+                param0.translate(0.0, (double)(16.0F * param10), 0.0);
             }
 
-            this.getParentModel().translateToHead(0.0625F);
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            this.getParentModel().getHead().translateAndRotate(param0, 0.0625F);
             if (var1 instanceof BlockItem && ((BlockItem)var1).getBlock() instanceof AbstractSkullBlock) {
                 float var5 = 1.1875F;
-                RenderSystem.scalef(1.1875F, -1.1875F, -1.1875F);
+                param0.scale(1.1875F, -1.1875F, -1.1875F);
                 if (var2) {
-                    RenderSystem.translatef(0.0F, 0.0625F, 0.0F);
+                    param0.translate(0.0, 0.0625, 0.0);
                 }
 
                 GameProfile var6 = null;
@@ -71,26 +84,21 @@ public class CustomHeadLayer<T extends LivingEntity, M extends EntityModel<T> & 
                     }
                 }
 
-                SkullBlockRenderer.instance
-                    .renderSkull(-0.5F, 0.0F, -0.5F, null, 180.0F, ((AbstractSkullBlock)((BlockItem)var1).getBlock()).getType(), var6, -1, param1);
+                param0.translate(-0.5, 0.0, -0.5);
+                SkullBlockRenderer.renderSkull(null, 180.0F, ((AbstractSkullBlock)((BlockItem)var1).getBlock()).getType(), var6, param4, param0, param1, param2);
             } else if (!(var1 instanceof ArmorItem) || ((ArmorItem)var1).getSlot() != EquipmentSlot.HEAD) {
                 float var9 = 0.625F;
-                RenderSystem.translatef(0.0F, -0.25F, 0.0F);
-                RenderSystem.rotatef(180.0F, 0.0F, 1.0F, 0.0F);
-                RenderSystem.scalef(0.625F, -0.625F, -0.625F);
+                param0.translate(0.0, -0.25, 0.0);
+                param0.mulPose(Vector3f.YP.rotation(180.0F, true));
+                param0.scale(0.625F, -0.625F, -0.625F);
                 if (var2) {
-                    RenderSystem.translatef(0.0F, 0.1875F, 0.0F);
+                    param0.translate(0.0, 0.1875, 0.0);
                 }
 
-                Minecraft.getInstance().getItemInHandRenderer().renderItem(param0, var0, ItemTransforms.TransformType.HEAD);
+                Minecraft.getInstance().getItemInHandRenderer().renderItem(param3, var0, ItemTransforms.TransformType.HEAD, false, param0, param1);
             }
 
-            RenderSystem.popMatrix();
+            param0.popPose();
         }
-    }
-
-    @Override
-    public boolean colorsOnDamage() {
-        return false;
     }
 }

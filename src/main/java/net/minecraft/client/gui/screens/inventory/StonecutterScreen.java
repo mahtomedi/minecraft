@@ -1,6 +1,5 @@
 package net.minecraft.client.gui.screens.inventory;
 
-import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.List;
 import net.minecraft.client.Minecraft;
@@ -76,7 +75,6 @@ public class StonecutterScreen extends AbstractContainerScreen<StonecutterMenu> 
     }
 
     private void renderRecipes(int param0, int param1, int param2) {
-        Lighting.turnOnGui();
         List<StonecutterRecipe> var0 = this.menu.getRecipes();
 
         for(int var1 = this.startIndex; var1 < param2 && var1 < this.menu.getNumRecipes(); ++var1) {
@@ -87,7 +85,6 @@ public class StonecutterScreen extends AbstractContainerScreen<StonecutterMenu> 
             this.minecraft.getItemRenderer().renderAndDecorateItem(var0.get(var1).getResultItem(), var3, var5);
         }
 
-        Lighting.turnOff();
     }
 
     @Override

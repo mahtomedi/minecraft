@@ -202,7 +202,6 @@ public class Fox extends Animal {
             this.jumping = false;
             this.xxa = 0.0F;
             this.zza = 0.0F;
-            this.yRotA = 0.0F;
         }
 
         super.aiStep();
@@ -1167,7 +1166,7 @@ public class Fox extends Animal {
             if (!Fox.this.isFaceplanted()) {
                 Vec3 var1 = Fox.this.getDeltaMovement();
                 if (var1.y * var1.y < 0.03F && Fox.this.xRot != 0.0F) {
-                    Fox.this.xRot = this.rotlerp(Fox.this.xRot, 0.0F, 0.2F);
+                    Fox.this.xRot = Mth.rotlerp(Fox.this.xRot, 0.0F, 0.2F);
                 } else {
                     double var2 = Math.sqrt(Entity.getHorizontalDistanceSqr(var1));
                     double var3 = Math.signum(-var1.y) * Math.acos(var2 / var1.length()) * 180.0F / (float)Math.PI;

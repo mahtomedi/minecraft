@@ -410,6 +410,15 @@ public class Mth {
         }
     }
 
+    @OnlyIn(Dist.CLIENT)
+    public static float fastInvSqrt(float param0) {
+        float var0 = 0.5F * param0;
+        int var1 = Float.floatToIntBits(param0);
+        var1 = 1597463007 - (var1 >> 1);
+        param0 = Float.intBitsToFloat(var1);
+        return param0 * (1.5F - var0 * param0 * param0);
+    }
+
     public static double fastInvSqrt(double param0) {
         double var0 = 0.5 * param0;
         long var1 = Double.doubleToRawLongBits(param0);
@@ -542,6 +551,35 @@ public class Mth {
     @OnlyIn(Dist.CLIENT)
     public static float diffuseLight(float param0, float param1, float param2) {
         return Math.min(param0 * param0 * 0.6F + param1 * param1 * ((3.0F + param1) / 4.0F) + param2 * param2 * 0.8F, 1.0F);
+    }
+
+    @Deprecated
+    public static float rotlerp(float param0, float param1, float param2) {
+        float var0 = param1 - param0;
+
+        while(var0 < -180.0F) {
+            var0 += 360.0F;
+        }
+
+        while(var0 >= 180.0F) {
+            var0 -= 360.0F;
+        }
+
+        return param0 + param2 * var0;
+    }
+
+    @Deprecated
+    @OnlyIn(Dist.CLIENT)
+    public static float rotWrap(double param0) {
+        while(param0 >= 180.0) {
+            param0 -= 360.0;
+        }
+
+        while(param0 < -180.0) {
+            param0 += 360.0;
+        }
+
+        return (float)param0;
     }
 
     static {

@@ -3,7 +3,6 @@ package net.minecraft.client.resources;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.client.renderer.texture.TickableTextureObject;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
@@ -17,7 +16,7 @@ public abstract class TextureAtlasHolder extends SimplePreparableReloadListener<
 
     public TextureAtlasHolder(TextureManager param0, ResourceLocation param1, String param2) {
         this.textureAtlas = new TextureAtlas(param2);
-        param0.register(param1, (TickableTextureObject)this.textureAtlas);
+        param0.register(param1, this.textureAtlas);
     }
 
     protected abstract Iterable<ResourceLocation> getResourcesToLoad();

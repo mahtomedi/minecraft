@@ -1,5 +1,6 @@
 package net.minecraft.client.model;
 
+import com.google.common.collect.ImmutableList;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -7,7 +8,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class SnowGolemModel<T extends Entity> extends EntityModel<T> {
+public class SnowGolemModel<T extends Entity> extends ListModel<T> {
     private final ModelPart piece1;
     private final ModelPart piece2;
     private final ModelPart head;
@@ -36,7 +37,6 @@ public class SnowGolemModel<T extends Entity> extends EntityModel<T> {
 
     @Override
     public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        super.setupAnim(param0, param1, param2, param3, param4, param5, param6);
         this.head.yRot = param4 * (float) (Math.PI / 180.0);
         this.head.xRot = param5 * (float) (Math.PI / 180.0);
         this.piece1.yRot = param4 * (float) (Math.PI / 180.0) * 0.25F;
@@ -53,13 +53,8 @@ public class SnowGolemModel<T extends Entity> extends EntityModel<T> {
     }
 
     @Override
-    public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        this.setupAnim(param0, param1, param2, param3, param4, param5, param6);
-        this.piece1.render(param6);
-        this.piece2.render(param6);
-        this.head.render(param6);
-        this.arm1.render(param6);
-        this.arm2.render(param6);
+    public Iterable<ModelPart> parts() {
+        return ImmutableList.of(this.piece1, this.piece2, this.head, this.arm1, this.arm2);
     }
 
     public ModelPart getHead() {

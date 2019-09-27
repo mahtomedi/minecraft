@@ -102,9 +102,6 @@ public class FallingBlockEntity extends Entity {
         if (this.blockState.isAir()) {
             this.remove();
         } else {
-            this.xo = this.x;
-            this.yo = this.y;
-            this.zo = this.z;
             Block var0 = this.blockState.getBlock();
             if (this.time++ == 0) {
                 BlockPos var1 = new BlockPos(this);

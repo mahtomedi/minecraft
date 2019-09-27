@@ -69,7 +69,7 @@ public class MultiVariant implements UnbakedModel {
 
     @Nullable
     @Override
-    public BakedModel bake(ModelBakery param0, Function<ResourceLocation, TextureAtlasSprite> param1, ModelState param2) {
+    public BakedModel bake(ModelBakery param0, Function<ResourceLocation, TextureAtlasSprite> param1, ModelState param2, ResourceLocation param3) {
         if (this.getVariants().isEmpty()) {
             return null;
         } else {

@@ -80,6 +80,8 @@ import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -197,6 +199,29 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
                 ? ChunkTaskPriorityQueue.PRIORITY_LEVEL_COUNT - 1
                 : Math.min(var0.getQueueLevel(), ChunkTaskPriorityQueue.PRIORITY_LEVEL_COUNT - 1);
         };
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public String getChunkDebugData(ChunkPos param0) {
+        ChunkHolder var0 = this.getVisibleChunkIfPresent(param0.toLong());
+        if (var0 == null) {
+            return "null";
+        } else {
+            String var1 = var0.getTicketLevel() + "\n";
+            ChunkStatus var2 = var0.getLastAvailableStatus();
+            ChunkAccess var3 = var0.getLastAvailable();
+            if (var2 != null) {
+                var1 = var1 + "St: \u00a7" + var2.getIndex() + var2 + '\u00a7' + "r\n";
+            }
+
+            if (var3 != null) {
+                var1 = var1 + "Ch: \u00a7" + var3.getStatus().getIndex() + var3.getStatus() + '\u00a7' + "r\n";
+            }
+
+            ChunkHolder.FullChunkStatus var4 = var0.getFullStatus();
+            var1 = var1 + "\u00a7" + var4.ordinal() + var4;
+            return var1 + '\u00a7' + "r";
+        }
     }
 
     private CompletableFuture<Either<List<ChunkAccess>, ChunkHolder.ChunkLoadingFailure>> getChunkRangeFuture(

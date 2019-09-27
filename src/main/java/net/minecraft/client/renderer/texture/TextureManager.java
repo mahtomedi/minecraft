@@ -2,7 +2,6 @@ package net.minecraft.client.renderer.texture;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.mojang.blaze3d.platform.TextureObject;
 import com.mojang.blaze3d.platform.TextureUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.io.IOException;
@@ -32,7 +31,7 @@ import org.apache.logging.log4j.Logger;
 public class TextureManager implements Tickable, PreparableReloadListener {
     private static final Logger LOGGER = LogManager.getLogger();
     public static final ResourceLocation INTENTIONAL_MISSING_TEXTURE = new ResourceLocation("");
-    private final Map<ResourceLocation, TextureObject> byPath = Maps.newHashMap();
+    private final Map<ResourceLocation, AbstractTexture> byPath = Maps.newHashMap();
     private final List<Tickable> tickableTextures = Lists.newArrayList();
     private final Map<String, Integer> prefixRegister = Maps.newHashMap();
     private final ResourceManager resourceManager;
@@ -51,7 +50,7 @@ public class TextureManager implements Tickable, PreparableReloadListener {
     }
 
     private void _bind(ResourceLocation param0) {
-        TextureObject var0 = this.byPath.get(param0);
+        AbstractTexture var0 = this.byPath.get(param0);
         if (var0 == null) {
             var0 = new SimpleTexture(param0);
             this.register(param0, var0);
@@ -60,16 +59,7 @@ public class TextureManager implements Tickable, PreparableReloadListener {
         var0.bind();
     }
 
-    public boolean register(ResourceLocation param0, TickableTextureObject param1) {
-        if (this.register(param0, (TextureObject)param1)) {
-            this.tickableTextures.add(param1);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public boolean register(ResourceLocation param0, TextureObject param1) {
+    public boolean register(ResourceLocation param0, AbstractTexture param1) {
         boolean var0 = true;
 
         try {
@@ -91,11 +81,15 @@ public class TextureManager implements Tickable, PreparableReloadListener {
         }
 
         this.byPath.put(param0, param1);
+        if (var0 && param1 instanceof Tickable) {
+            this.tickableTextures.add((Tickable)param1);
+        }
+
         return var0;
     }
 
     @Nullable
-    public TextureObject getTexture(ResourceLocation param0) {
+    public AbstractTexture getTexture(ResourceLocation param0) {
         return this.byPath.get(param0);
     }
 
@@ -136,7 +130,7 @@ public class TextureManager implements Tickable, PreparableReloadListener {
     }
 
     public void release(ResourceLocation param0) {
-        TextureObject var0 = this.getTexture(param0);
+        AbstractTexture var0 = this.getTexture(param0);
         if (var0 != null) {
             TextureUtil.releaseTextureId(var0.getId());
         }
@@ -156,12 +150,12 @@ public class TextureManager implements Tickable, PreparableReloadListener {
             .thenCompose(param0::wait)
             .thenAcceptAsync(param2x -> {
                 MissingTextureAtlasSprite.getTexture();
-                Iterator<Entry<ResourceLocation, TextureObject>> var0 = this.byPath.entrySet().iterator();
+                Iterator<Entry<ResourceLocation, AbstractTexture>> var0 = this.byPath.entrySet().iterator();
     
                 while(var0.hasNext()) {
-                    Entry<ResourceLocation, TextureObject> var1x = var0.next();
+                    Entry<ResourceLocation, AbstractTexture> var1x = var0.next();
                     ResourceLocation var2x = (ResourceLocation)var1x.getKey();
-                    TextureObject var3x = (TextureObject)var1x.getValue();
+                    AbstractTexture var3x = (AbstractTexture)var1x.getValue();
                     if (var3x == MissingTextureAtlasSprite.getTexture() && !var2x.equals(MissingTextureAtlasSprite.getLocation())) {
                         var0.remove();
                     } else {

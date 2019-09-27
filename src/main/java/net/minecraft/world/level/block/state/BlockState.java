@@ -123,11 +123,6 @@ public class BlockState extends AbstractStateHolder<Block, BlockState> implement
         return this.getBlock().mirror(this, param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public boolean hasCustomBreakingProgress() {
-        return this.getBlock().hasCustomBreakingProgress(this);
-    }
-
     public RenderShape getRenderShape() {
         return this.getBlock().getRenderShape(this);
     }

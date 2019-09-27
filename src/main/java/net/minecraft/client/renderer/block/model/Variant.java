@@ -5,7 +5,9 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.mojang.math.Transformation;
 import java.lang.reflect.Type;
+import java.util.Objects;
 import net.minecraft.client.resources.model.BlockModelRotation;
 import net.minecraft.client.resources.model.ModelState;
 import net.minecraft.resources.ResourceLocation;
@@ -16,11 +18,11 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class Variant implements ModelState {
     private final ResourceLocation modelLocation;
-    private final BlockModelRotation rotation;
+    private final Transformation rotation;
     private final boolean uvLock;
     private final int weight;
 
-    public Variant(ResourceLocation param0, BlockModelRotation param1, boolean param2, int param3) {
+    public Variant(ResourceLocation param0, Transformation param1, boolean param2, int param3) {
         this.modelLocation = param0;
         this.rotation = param1;
         this.uvLock = param2;
@@ -32,7 +34,7 @@ public class Variant implements ModelState {
     }
 
     @Override
-    public BlockModelRotation getRotation() {
+    public Transformation getRotation() {
         return this.rotation;
     }
 
@@ -58,7 +60,10 @@ public class Variant implements ModelState {
             return false;
         } else {
             Variant var0 = (Variant)param0;
-            return this.modelLocation.equals(var0.modelLocation) && this.rotation == var0.rotation && this.uvLock == var0.uvLock && this.weight == var0.weight;
+            return this.modelLocation.equals(var0.modelLocation)
+                && Objects.equals(this.rotation, var0.rotation)
+                && this.uvLock == var0.uvLock
+                && this.weight == var0.weight;
         }
     }
 
@@ -78,7 +83,7 @@ public class Variant implements ModelState {
             BlockModelRotation var2 = this.getBlockRotation(var0);
             boolean var3 = this.getUvLock(var0);
             int var4 = this.getWeight(var0);
-            return new Variant(var1, var2, var3, var4);
+            return new Variant(var1, var2.getRotation(), var3, var4);
         }
 
         private boolean getUvLock(JsonObject param0) {

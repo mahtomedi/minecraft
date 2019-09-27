@@ -1,21 +1,23 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.platform.Lighting;
-import com.mojang.blaze3d.systems.RenderSystem;
-import javax.annotation.Nullable;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.MapItem;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -32,100 +34,72 @@ public class ItemFrameRenderer extends EntityRenderer<ItemFrame> {
         this.itemRenderer = param1;
     }
 
-    public void render(ItemFrame param0, double param1, double param2, double param3, float param4, float param5) {
-        RenderSystem.pushMatrix();
-        BlockPos var0 = param0.getPos();
-        double var1 = (double)var0.getX() - param0.x + param1;
-        double var2 = (double)var0.getY() - param0.y + param2;
-        double var3 = (double)var0.getZ() - param0.z + param3;
-        RenderSystem.translated(var1 + 0.5, var2 + 0.5, var3 + 0.5);
-        RenderSystem.rotatef(param0.xRot, 1.0F, 0.0F, 0.0F);
-        RenderSystem.rotatef(180.0F - param0.yRot, 0.0F, 1.0F, 0.0F);
-        this.entityRenderDispatcher.textureManager.bind(TextureAtlas.LOCATION_BLOCKS);
-        BlockRenderDispatcher var4 = this.minecraft.getBlockRenderer();
-        ModelManager var5 = var4.getBlockModelShaper().getModelManager();
-        ModelResourceLocation var6 = param0.getItem().getItem() == Items.FILLED_MAP ? MAP_FRAME_LOCATION : FRAME_LOCATION;
-        RenderSystem.pushMatrix();
-        RenderSystem.translatef(-0.5F, -0.5F, -0.5F);
-        if (this.solidRender) {
-            RenderSystem.enableColorMaterial();
-            RenderSystem.setupSolidRenderingTextureCombine(this.getTeamColor(param0));
-        }
-
-        var4.getModelRenderer().renderModel(var5.getModel(var6), 1.0F, 1.0F, 1.0F, 1.0F);
-        if (this.solidRender) {
-            RenderSystem.tearDownSolidRenderingTextureCombine();
-            RenderSystem.disableColorMaterial();
-        }
-
-        RenderSystem.popMatrix();
-        RenderSystem.enableLighting();
-        if (param0.getItem().getItem() == Items.FILLED_MAP) {
-            RenderSystem.pushLightingAttributes();
-            Lighting.turnOn();
-        }
-
-        RenderSystem.translatef(0.0F, 0.0F, 0.4375F);
-        this.drawItem(param0);
-        if (param0.getItem().getItem() == Items.FILLED_MAP) {
-            Lighting.turnOff();
-            RenderSystem.popAttributes();
-        }
-
-        RenderSystem.enableLighting();
-        RenderSystem.popMatrix();
-        this.renderName(
-            param0,
-            param1 + (double)((float)param0.getDirection().getStepX() * 0.3F),
-            param2 - 0.25,
-            param3 + (double)((float)param0.getDirection().getStepZ() * 0.3F)
-        );
-    }
-
-    @Nullable
-    protected ResourceLocation getTextureLocation(ItemFrame param0) {
-        return null;
-    }
-
-    private void drawItem(ItemFrame param0) {
-        ItemStack var0 = param0.getItem();
-        if (!var0.isEmpty()) {
-            RenderSystem.pushMatrix();
-            boolean var1 = var0.getItem() == Items.FILLED_MAP;
-            int var2 = var1 ? param0.getRotation() % 4 * 2 : param0.getRotation();
-            RenderSystem.rotatef((float)var2 * 360.0F / 8.0F, 0.0F, 0.0F, 1.0F);
-            if (var1) {
-                RenderSystem.disableLighting();
+    public void render(ItemFrame param0, double param1, double param2, double param3, float param4, float param5, PoseStack param6, MultiBufferSource param7) {
+        super.render(param0, param1, param2, param3, param4, param5, param6, param7);
+        param6.pushPose();
+        Direction var0 = param0.getDirection();
+        Vec3 var1 = this.getRenderOffset(param0, param1, param2, param3, param5);
+        param6.translate(-var1.x(), -var1.y(), -var1.z());
+        double var2 = 0.46875;
+        param6.translate((double)var0.getStepX() * 0.46875, (double)var0.getStepY() * 0.46875, (double)var0.getStepZ() * 0.46875);
+        param6.mulPose(Vector3f.XP.rotation(param0.xRot, true));
+        param6.mulPose(Vector3f.YP.rotation(180.0F - param0.yRot, true));
+        BlockRenderDispatcher var3 = this.minecraft.getBlockRenderer();
+        ModelManager var4 = var3.getBlockModelShaper().getModelManager();
+        ModelResourceLocation var5 = param0.getItem().getItem() == Items.FILLED_MAP ? MAP_FRAME_LOCATION : FRAME_LOCATION;
+        param6.pushPose();
+        param6.translate(-0.5, -0.5, -0.5);
+        int var6 = param0.getLightColor();
+        var3.getModelRenderer().renderModel(param6.getPose(), param7.getBuffer(RenderType.SOLID), null, var4.getModel(var5), 1.0F, 1.0F, 1.0F, var6);
+        param6.popPose();
+        ItemStack var7 = param0.getItem();
+        if (!var7.isEmpty()) {
+            boolean var8 = var7.getItem() == Items.FILLED_MAP;
+            param6.translate(0.0, 0.0, 0.4375);
+            int var9 = var8 ? param0.getRotation() % 4 * 2 : param0.getRotation();
+            param6.mulPose(Vector3f.ZP.rotation((float)var9 * 360.0F / 8.0F, true));
+            if (var8) {
                 this.entityRenderDispatcher.textureManager.bind(MAP_BACKGROUND_LOCATION);
-                RenderSystem.rotatef(180.0F, 0.0F, 0.0F, 1.0F);
-                float var3 = 0.0078125F;
-                RenderSystem.scalef(0.0078125F, 0.0078125F, 0.0078125F);
-                RenderSystem.translatef(-64.0F, -64.0F, 0.0F);
-                MapItemSavedData var4 = MapItem.getOrCreateSavedData(var0, param0.level);
-                RenderSystem.translatef(0.0F, 0.0F, -1.0F);
-                if (var4 != null) {
-                    this.minecraft.gameRenderer.getMapRenderer().render(var4, true);
+                param6.mulPose(Vector3f.ZP.rotation(180.0F, true));
+                float var10 = 0.0078125F;
+                param6.scale(0.0078125F, 0.0078125F, 0.0078125F);
+                param6.translate(-64.0, -64.0, 0.0);
+                MapItemSavedData var11 = MapItem.getOrCreateSavedData(var7, param0.level);
+                param6.translate(0.0, 0.0, -1.0);
+                if (var11 != null) {
+                    this.minecraft.gameRenderer.getMapRenderer().render(param6, param7, var11, true);
                 }
             } else {
-                RenderSystem.scalef(0.5F, 0.5F, 0.5F);
-                this.itemRenderer.renderStatic(var0, ItemTransforms.TransformType.FIXED);
+                param6.scale(0.5F, 0.5F, 0.5F);
+                this.itemRenderer.renderStatic(var7, ItemTransforms.TransformType.FIXED, var6, param6, param7);
             }
-
-            RenderSystem.popMatrix();
         }
+
+        param6.popPose();
     }
 
-    protected void renderName(ItemFrame param0, double param1, double param2, double param3) {
+    public Vec3 getRenderOffset(ItemFrame param0, double param1, double param2, double param3, float param4) {
+        return new Vec3((double)((float)param0.getDirection().getStepX() * 0.3F), -0.25, (double)((float)param0.getDirection().getStepZ() * 0.3F));
+    }
+
+    public ResourceLocation getTextureLocation(ItemFrame param0) {
+        return TextureAtlas.LOCATION_BLOCKS;
+    }
+
+    protected boolean shouldShowName(ItemFrame param0) {
         if (Minecraft.renderNames()
             && !param0.getItem().isEmpty()
             && param0.getItem().hasCustomHoverName()
             && this.entityRenderDispatcher.crosshairPickEntity == param0) {
-            double var0 = param0.distanceToSqr(this.entityRenderDispatcher.camera.getPosition());
+            double var0 = this.entityRenderDispatcher.distanceToSqr(param0);
             float var1 = param0.isDiscrete() ? 32.0F : 64.0F;
-            if (!(var0 >= (double)(var1 * var1))) {
-                String var2 = param0.getItem().getHoverName().getColoredString();
-                this.renderNameTag(param0, var2, param1, param2, param3, 64);
-            }
+            return var0 < (double)(var1 * var1);
+        } else {
+            return false;
         }
+    }
+
+    protected void renderNameTag(ItemFrame param0, String param1, PoseStack param2, MultiBufferSource param3) {
+        super.renderNameTag(param0, param0.getItem().getHoverName().getColoredString(), param2, param3);
     }
 }

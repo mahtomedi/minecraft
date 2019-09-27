@@ -1,8 +1,9 @@
 package net.minecraft.client.renderer.blockentity;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -14,22 +15,28 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class CampfireRenderer extends BlockEntityRenderer<CampfireBlockEntity> {
-    public void render(CampfireBlockEntity param0, double param1, double param2, double param3, float param4, int param5, RenderType param6) {
+    public CampfireRenderer(BlockEntityRenderDispatcher param0) {
+        super(param0);
+    }
+
+    public void render(
+        CampfireBlockEntity param0, double param1, double param2, double param3, float param4, PoseStack param5, MultiBufferSource param6, int param7
+    ) {
         Direction var0 = param0.getBlockState().getValue(CampfireBlock.FACING);
         NonNullList<ItemStack> var1 = param0.getItems();
 
         for(int var2 = 0; var2 < var1.size(); ++var2) {
             ItemStack var3 = var1.get(var2);
             if (var3 != ItemStack.EMPTY) {
-                RenderSystem.pushMatrix();
-                RenderSystem.translatef((float)param1 + 0.5F, (float)param2 + 0.44921875F, (float)param3 + 0.5F);
+                param5.pushPose();
+                param5.translate(0.5, 0.44921875, 0.5);
                 Direction var4 = Direction.from2DDataValue((var2 + var0.get2DDataValue()) % 4);
-                RenderSystem.rotatef(-var4.toYRot(), 0.0F, 1.0F, 0.0F);
-                RenderSystem.rotatef(90.0F, 1.0F, 0.0F, 0.0F);
-                RenderSystem.translatef(-0.3125F, -0.3125F, 0.0F);
-                RenderSystem.scalef(0.375F, 0.375F, 0.375F);
-                Minecraft.getInstance().getItemRenderer().renderStatic(var3, ItemTransforms.TransformType.FIXED);
-                RenderSystem.popMatrix();
+                param5.mulPose(Vector3f.YP.rotation(-var4.toYRot(), true));
+                param5.mulPose(Vector3f.XP.rotation(90.0F, true));
+                param5.translate(-0.3125, -0.3125, 0.0);
+                param5.scale(0.375F, 0.375F, 0.375F);
+                Minecraft.getInstance().getItemRenderer().renderStatic(var3, ItemTransforms.TransformType.FIXED, param7, param5, param6);
+                param5.popPose();
             }
         }
 

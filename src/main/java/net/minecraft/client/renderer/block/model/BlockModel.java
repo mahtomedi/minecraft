@@ -187,11 +187,13 @@ public class BlockModel implements UnbakedModel {
     }
 
     @Override
-    public BakedModel bake(ModelBakery param0, Function<ResourceLocation, TextureAtlasSprite> param1, ModelState param2) {
-        return this.bake(param0, this, param1, param2);
+    public BakedModel bake(ModelBakery param0, Function<ResourceLocation, TextureAtlasSprite> param1, ModelState param2, ResourceLocation param3) {
+        return this.bake(param0, this, param1, param2, param3);
     }
 
-    public BakedModel bake(ModelBakery param0, BlockModel param1, Function<ResourceLocation, TextureAtlasSprite> param2, ModelState param3) {
+    public BakedModel bake(
+        ModelBakery param0, BlockModel param1, Function<ResourceLocation, TextureAtlasSprite> param2, ModelState param3, ResourceLocation param4
+    ) {
         TextureAtlasSprite var0 = param2.apply(new ResourceLocation(this.getTexture("particle")));
         if (this.getRootModel() == ModelBakery.BLOCK_ENTITY_MARKER) {
             return new BuiltInModel(this.getTransforms(), this.getItemOverrides(param0, param1), var0);
@@ -203,9 +205,11 @@ public class BlockModel implements UnbakedModel {
                     BlockElementFace var4 = var2.faces.get(var3);
                     TextureAtlasSprite var5 = param2.apply(new ResourceLocation(this.getTexture(var4.texture)));
                     if (var4.cullForDirection == null) {
-                        var1.addUnculledFace(bakeFace(var2, var4, var5, var3, param3));
+                        var1.addUnculledFace(bakeFace(var2, var4, var5, var3, param3, param4));
                     } else {
-                        var1.addCulledFace(param3.getRotation().rotate(var4.cullForDirection), bakeFace(var2, var4, var5, var3, param3));
+                        var1.addCulledFace(
+                            Direction.rotate(param3.getRotation().getMatrix(), var4.cullForDirection), bakeFace(var2, var4, var5, var3, param3, param4)
+                        );
                     }
                 }
             }
@@ -214,8 +218,10 @@ public class BlockModel implements UnbakedModel {
         }
     }
 
-    private static BakedQuad bakeFace(BlockElement param0, BlockElementFace param1, TextureAtlasSprite param2, Direction param3, ModelState param4) {
-        return FACE_BAKERY.bakeQuad(param0.from, param0.to, param1, param2, param3, param4, param0.rotation, param0.shade);
+    private static BakedQuad bakeFace(
+        BlockElement param0, BlockElementFace param1, TextureAtlasSprite param2, Direction param3, ModelState param4, ResourceLocation param5
+    ) {
+        return FACE_BAKERY.bakeQuad(param0.from, param0.to, param1, param2, param3, param4, param0.rotation, param0.shade, param5);
     }
 
     public boolean hasTexture(String param0) {

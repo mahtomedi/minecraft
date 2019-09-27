@@ -137,7 +137,7 @@ public class EndDragonFight {
         ListTag var1 = new ListTag();
 
         for(int var2 : this.gateways) {
-            var1.add(new IntTag(var2));
+            var1.add(IntTag.valueOf(var2));
         }
 
         var0.put("Gateways", var1);

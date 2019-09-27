@@ -1,5 +1,6 @@
 package net.minecraft.client.model;
 
+import com.google.common.collect.ImmutableList;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ambient.Bat;
@@ -7,7 +8,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class BatModel extends EntityModel<Bat> {
+public class BatModel extends ListModel<Bat> {
     private final ModelPart head;
     private final ModelPart body;
     private final ModelPart rightWing;
@@ -48,10 +49,9 @@ public class BatModel extends EntityModel<Bat> {
         this.leftWing.addChild(this.leftWingTip);
     }
 
-    public void render(Bat param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        this.setupAnim(param0, param1, param2, param3, param4, param5, param6);
-        this.head.render(param6);
-        this.body.render(param6);
+    @Override
+    public Iterable<ModelPart> parts() {
+        return ImmutableList.of(this.head, this.body);
     }
 
     public void setupAnim(Bat param0, float param1, float param2, float param3, float param4, float param5, float param6) {

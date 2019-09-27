@@ -17,6 +17,7 @@ import net.minecraft.commands.arguments.selector.EntitySelectorParser;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -236,6 +237,58 @@ public abstract class NbtComponent extends BaseComponent implements ContextAware
         public String toString() {
             return "EntityNbtComponent{selector='"
                 + this.selectorPattern
+                + '\''
+                + "path='"
+                + this.nbtPathPattern
+                + '\''
+                + ", siblings="
+                + this.siblings
+                + ", style="
+                + this.getStyle()
+                + '}';
+        }
+    }
+
+    public static class StorageNbtComponent extends NbtComponent {
+        private final ResourceLocation id;
+
+        public StorageNbtComponent(String param0, boolean param1, ResourceLocation param2) {
+            super(param0, param1);
+            this.id = param2;
+        }
+
+        public StorageNbtComponent(String param0, @Nullable NbtPathArgument.NbtPath param1, boolean param2, ResourceLocation param3) {
+            super(param0, param1, param2);
+            this.id = param3;
+        }
+
+        @Override
+        public Component copy() {
+            return new NbtComponent.StorageNbtComponent(this.nbtPathPattern, this.compiledNbtPath, this.interpreting, this.id);
+        }
+
+        @Override
+        protected Stream<CompoundTag> getData(CommandSourceStack param0) {
+            CompoundTag var0 = param0.getServer().getCommandStorage().get(this.id);
+            return Stream.of(var0);
+        }
+
+        @Override
+        public boolean equals(Object param0) {
+            if (this == param0) {
+                return true;
+            } else if (!(param0 instanceof NbtComponent.StorageNbtComponent)) {
+                return false;
+            } else {
+                NbtComponent.StorageNbtComponent var0 = (NbtComponent.StorageNbtComponent)param0;
+                return Objects.equals(this.id, var0.id) && Objects.equals(this.nbtPathPattern, var0.nbtPathPattern) && super.equals(param0);
+            }
+        }
+
+        @Override
+        public String toString() {
+            return "StorageNbtComponent{id='"
+                + this.id
                 + '\''
                 + "path='"
                 + this.nbtPathPattern

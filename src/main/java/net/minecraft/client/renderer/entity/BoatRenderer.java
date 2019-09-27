@@ -1,7 +1,13 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.model.BoatModel;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.vehicle.Boat;
@@ -25,65 +31,40 @@ public class BoatRenderer extends EntityRenderer<Boat> {
         this.shadowRadius = 0.8F;
     }
 
-    public void render(Boat param0, double param1, double param2, double param3, float param4, float param5) {
-        RenderSystem.pushMatrix();
-        this.setupTranslation(param1, param2, param3);
-        this.setupRotation(param0, param4, param5);
-        this.bindTexture(param0);
-        if (this.solidRender) {
-            RenderSystem.enableColorMaterial();
-            RenderSystem.setupSolidRenderingTextureCombine(this.getTeamColor(param0));
-        }
-
-        this.model.render(param0, param5, 0.0F, -0.1F, 0.0F, 0.0F, 0.0625F);
-        if (this.solidRender) {
-            RenderSystem.tearDownSolidRenderingTextureCombine();
-            RenderSystem.disableColorMaterial();
-        }
-
-        RenderSystem.popMatrix();
-        super.render(param0, param1, param2, param3, param4, param5);
-    }
-
-    public void setupRotation(Boat param0, float param1, float param2) {
-        RenderSystem.rotatef(180.0F - param1, 0.0F, 1.0F, 0.0F);
-        float var0 = (float)param0.getHurtTime() - param2;
-        float var1 = param0.getDamage() - param2;
+    public void render(Boat param0, double param1, double param2, double param3, float param4, float param5, PoseStack param6, MultiBufferSource param7) {
+        param6.pushPose();
+        param6.translate(0.0, 0.375, 0.0);
+        param6.mulPose(Vector3f.YP.rotation(180.0F - param4, true));
+        float var0 = (float)param0.getHurtTime() - param5;
+        float var1 = param0.getDamage() - param5;
         if (var1 < 0.0F) {
             var1 = 0.0F;
         }
 
         if (var0 > 0.0F) {
-            RenderSystem.rotatef(Mth.sin(var0) * var0 * var1 / 10.0F * (float)param0.getHurtDir(), 1.0F, 0.0F, 0.0F);
+            param6.mulPose(Vector3f.XP.rotation(Mth.sin(var0) * var0 * var1 / 10.0F * (float)param0.getHurtDir(), true));
         }
 
-        float var2 = param0.getBubbleAngle(param2);
+        float var2 = param0.getBubbleAngle(param5);
         if (!Mth.equal(var2, 0.0F)) {
-            RenderSystem.rotatef(param0.getBubbleAngle(param2), 1.0F, 0.0F, 1.0F);
+            param6.mulPose(new Quaternion(new Vector3f(1.0F, 0.0F, 1.0F), param0.getBubbleAngle(param5), true));
         }
 
-        RenderSystem.scalef(-1.0F, -1.0F, 1.0F);
+        param6.scale(-1.0F, -1.0F, 1.0F);
+        int var3 = param0.getLightColor();
+        VertexConsumer var4 = param7.getBuffer(RenderType.NEW_ENTITY(this.getTextureLocation(param0)));
+        OverlayTexture.setDefault(var4);
+        param6.mulPose(Vector3f.YP.rotation(90.0F, true));
+        this.model.setupAnim(param0, param5, 0.0F, -0.1F, 0.0F, 0.0F, 0.0625F);
+        this.model.renderToBuffer(param6, var4, var3);
+        VertexConsumer var5 = param7.getBuffer(RenderType.WATER_MASK);
+        this.model.waterPatch().render(param6, var5, 0.0625F, var3, null);
+        param6.popPose();
+        var4.unsetDefaultOverlayCoords();
+        super.render(param0, param1, param2, param3, param4, param5, param6, param7);
     }
 
-    public void setupTranslation(double param0, double param1, double param2) {
-        RenderSystem.translatef((float)param0, (float)param1 + 0.375F, (float)param2);
-    }
-
-    protected ResourceLocation getTextureLocation(Boat param0) {
+    public ResourceLocation getTextureLocation(Boat param0) {
         return BOAT_TEXTURE_LOCATIONS[param0.getBoatType().ordinal()];
-    }
-
-    @Override
-    public boolean hasSecondPass() {
-        return true;
-    }
-
-    public void renderSecondPass(Boat param0, double param1, double param2, double param3, float param4, float param5) {
-        RenderSystem.pushMatrix();
-        this.setupTranslation(param1, param2, param3);
-        this.setupRotation(param0, param4, param5);
-        this.bindTexture(param0);
-        this.model.renderSecondPass(param0, param5, 0.0F, -0.1F, 0.0F, 0.0F, 0.0625F);
-        RenderSystem.popMatrix();
     }
 }

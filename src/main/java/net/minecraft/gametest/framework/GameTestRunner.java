@@ -128,7 +128,7 @@ public class GameTestRunner {
         }
 
         var2.append("-------------------\n");
-        var1.add(new StringTag(var2.toString() + param2));
+        var1.add(StringTag.valueOf(var2.toString() + param2));
         var0.addTagElement("pages", var1);
         return var0;
     }

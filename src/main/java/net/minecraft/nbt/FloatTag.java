@@ -8,13 +8,36 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.Mth;
 
 public class FloatTag extends NumericTag {
-    private float data;
+    public static final FloatTag ZERO = new FloatTag(0.0F);
+    public static final TagType<FloatTag> TYPE = new TagType<FloatTag>() {
+        public FloatTag load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
+            param2.accountBits(96L);
+            return FloatTag.valueOf(param0.readFloat());
+        }
 
-    FloatTag() {
+        @Override
+        public String getName() {
+            return "FLOAT";
+        }
+
+        @Override
+        public String getPrettyName() {
+            return "TAG_Float";
+        }
+
+        @Override
+        public boolean isValue() {
+            return true;
+        }
+    };
+    private final float data;
+
+    private FloatTag(float param0) {
+        this.data = param0;
     }
 
-    public FloatTag(float param0) {
-        this.data = param0;
+    public static FloatTag valueOf(float param0) {
+        return param0 == 0.0F ? ZERO : new FloatTag(param0);
     }
 
     @Override
@@ -23,14 +46,13 @@ public class FloatTag extends NumericTag {
     }
 
     @Override
-    public void load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
-        param2.accountBits(96L);
-        this.data = param0.readFloat();
+    public byte getId() {
+        return 5;
     }
 
     @Override
-    public byte getId() {
-        return 5;
+    public TagType<FloatTag> getType() {
+        return TYPE;
     }
 
     @Override
@@ -39,7 +61,7 @@ public class FloatTag extends NumericTag {
     }
 
     public FloatTag copy() {
-        return new FloatTag(this.data);
+        return this;
     }
 
     @Override

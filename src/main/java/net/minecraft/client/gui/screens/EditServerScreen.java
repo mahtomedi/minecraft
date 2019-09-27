@@ -114,7 +114,9 @@ public class EditServerScreen extends Screen {
 
     @Override
     public void onClose() {
-        this.addButton.active = !this.ipEdit.getValue().isEmpty() && this.ipEdit.getValue().split(":").length > 0 && !this.nameEdit.getValue().isEmpty();
+        String var0 = this.ipEdit.getValue();
+        boolean var1 = !var0.isEmpty() && var0.split(":").length > 0 && var0.indexOf(32) == -1;
+        this.addButton.active = var1 && !this.nameEdit.getValue().isEmpty();
     }
 
     @Override

@@ -7,13 +7,35 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 
 public class LongTag extends NumericTag {
-    private long data;
+    public static final TagType<LongTag> TYPE = new TagType<LongTag>() {
+        public LongTag load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
+            param2.accountBits(128L);
+            return LongTag.valueOf(param0.readLong());
+        }
 
-    LongTag() {
+        @Override
+        public String getName() {
+            return "LONG";
+        }
+
+        @Override
+        public String getPrettyName() {
+            return "TAG_Long";
+        }
+
+        @Override
+        public boolean isValue() {
+            return true;
+        }
+    };
+    private final long data;
+
+    private LongTag(long param0) {
+        this.data = param0;
     }
 
-    public LongTag(long param0) {
-        this.data = param0;
+    public static LongTag valueOf(long param0) {
+        return param0 >= -128L && param0 <= 1024L ? LongTag.Cache.cache[(int)param0 + 128] : new LongTag(param0);
     }
 
     @Override
@@ -22,14 +44,13 @@ public class LongTag extends NumericTag {
     }
 
     @Override
-    public void load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
-        param2.accountBits(128L);
-        this.data = param0.readLong();
+    public byte getId() {
+        return 4;
     }
 
     @Override
-    public byte getId() {
-        return 4;
+    public TagType<LongTag> getType() {
+        return TYPE;
     }
 
     @Override
@@ -38,7 +59,7 @@ public class LongTag extends NumericTag {
     }
 
     public LongTag copy() {
-        return new LongTag(this.data);
+        return this;
     }
 
     @Override
@@ -94,5 +115,16 @@ public class LongTag extends NumericTag {
     @Override
     public Number getAsNumber() {
         return this.data;
+    }
+
+    static class Cache {
+        static final LongTag[] cache = new LongTag[1153];
+
+        static {
+            for(int var0 = 0; var0 < cache.length; ++var0) {
+                cache[var0] = new LongTag((long)(-128 + var0));
+            }
+
+        }
     }
 }

@@ -1,7 +1,10 @@
 package net.minecraft.client.model;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import java.util.List;
 import java.util.Random;
 import net.minecraft.client.model.geom.ModelPart;
@@ -70,42 +73,19 @@ public class PlayerModel<T extends LivingEntity> extends HumanoidModel<T> {
     }
 
     @Override
-    public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        super.render(param0, param1, param2, param3, param4, param5, param6);
-        RenderSystem.pushMatrix();
-        if (this.young) {
-            float var0 = 2.0F;
-            RenderSystem.scalef(0.5F, 0.5F, 0.5F);
-            RenderSystem.translatef(0.0F, 24.0F * param6, 0.0F);
-            this.leftPants.render(param6);
-            this.rightPants.render(param6);
-            this.leftSleeve.render(param6);
-            this.rightSleeve.render(param6);
-            this.jacket.render(param6);
-        } else {
-            if (param0.isCrouching()) {
-                RenderSystem.translatef(0.0F, 0.2F, 0.0F);
-            }
-
-            this.leftPants.render(param6);
-            this.rightPants.render(param6);
-            this.leftSleeve.render(param6);
-            this.rightSleeve.render(param6);
-            this.jacket.render(param6);
-        }
-
-        RenderSystem.popMatrix();
+    protected Iterable<ModelPart> bodyParts() {
+        return Iterables.concat(super.bodyParts(), ImmutableList.of(this.leftPants, this.rightPants, this.leftSleeve, this.rightSleeve, this.jacket));
     }
 
-    public void renderEars(float param0) {
+    public void renderEars(PoseStack param0, VertexConsumer param1, float param2, int param3) {
         this.ear.copyFrom(this.head);
         this.ear.x = 0.0F;
         this.ear.y = 0.0F;
-        this.ear.render(param0);
+        this.ear.render(param0, param1, param2, param3, null);
     }
 
-    public void renderCloak(float param0) {
-        this.cloak.render(param0);
+    public void renderCloak(PoseStack param0, VertexConsumer param1, float param2, int param3) {
+        this.cloak.render(param0, param1, param2, param3, null);
     }
 
     @Override
@@ -137,15 +117,15 @@ public class PlayerModel<T extends LivingEntity> extends HumanoidModel<T> {
     }
 
     @Override
-    public void translateToHand(float param0, HumanoidArm param1) {
+    public void translateToHand(float param0, HumanoidArm param1, PoseStack param2) {
         ModelPart var0 = this.getArm(param1);
         if (this.slim) {
             float var1 = 0.5F * (float)(param1 == HumanoidArm.RIGHT ? 1 : -1);
             var0.x += var1;
-            var0.translateTo(param0);
+            var0.translateAndRotate(param2, param0);
             var0.x -= var1;
         } else {
-            var0.translateTo(param0);
+            var0.translateAndRotate(param2, param0);
         }
 
     }

@@ -1,10 +1,14 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.MinecartModel;
-import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
@@ -24,15 +28,15 @@ public class MinecartRenderer<T extends AbstractMinecart> extends EntityRenderer
         this.shadowRadius = 0.7F;
     }
 
-    public void render(T param0, double param1, double param2, double param3, float param4, float param5) {
-        RenderSystem.pushMatrix();
-        this.bindTexture(param0);
+    public void render(T param0, double param1, double param2, double param3, float param4, float param5, PoseStack param6, MultiBufferSource param7) {
+        super.render(param0, param1, param2, param3, param4, param5, param6, param7);
+        param6.pushPose();
         long var0 = (long)param0.getId() * 493286711L;
         var0 = var0 * var0 * 4392167121L + var0 * 98761L;
         float var1 = (((float)(var0 >> 16 & 7L) + 0.5F) / 8.0F - 0.5F) * 0.004F;
         float var2 = (((float)(var0 >> 20 & 7L) + 0.5F) / 8.0F - 0.5F) * 0.004F;
         float var3 = (((float)(var0 >> 24 & 7L) + 0.5F) / 8.0F - 0.5F) * 0.004F;
-        RenderSystem.translatef(var1, var2, var3);
+        param6.translate((double)var1, (double)var2, (double)var3);
         double var4 = Mth.lerp((double)param5, param0.xOld, param0.x);
         double var5 = Mth.lerp((double)param5, param0.yOld, param0.y);
         double var6 = Mth.lerp((double)param5, param0.zOld, param0.z);
@@ -50,9 +54,7 @@ public class MinecartRenderer<T extends AbstractMinecart> extends EntityRenderer
                 var11 = var8;
             }
 
-            param1 += var8.x - var4;
-            param2 += (var10.y + var11.y) / 2.0 - var5;
-            param3 += var8.z - var6;
+            param6.translate(var8.x - var4, (var10.y + var11.y) / 2.0 - var5, var8.z - var6);
             Vec3 var12 = var11.add(-var10.x, -var10.y, -var10.z);
             if (var12.length() != 0.0) {
                 var12 = var12.normalize();
@@ -61,9 +63,9 @@ public class MinecartRenderer<T extends AbstractMinecart> extends EntityRenderer
             }
         }
 
-        RenderSystem.translatef((float)param1, (float)param2 + 0.375F, (float)param3);
-        RenderSystem.rotatef(180.0F - param4, 0.0F, 1.0F, 0.0F);
-        RenderSystem.rotatef(-var9, 0.0F, 0.0F, 1.0F);
+        param6.translate(0.0, 0.375, 0.0);
+        param6.mulPose(Vector3f.YP.rotation(180.0F - param4, true));
+        param6.mulPose(Vector3f.ZP.rotation(-var9, true));
         float var13 = (float)param0.getHurtTime() - param5;
         float var14 = param0.getDamage() - param5;
         if (var14 < 0.0F) {
@@ -71,46 +73,35 @@ public class MinecartRenderer<T extends AbstractMinecart> extends EntityRenderer
         }
 
         if (var13 > 0.0F) {
-            RenderSystem.rotatef(Mth.sin(var13) * var13 * var14 / 10.0F * (float)param0.getHurtDir(), 1.0F, 0.0F, 0.0F);
+            param6.mulPose(Vector3f.XP.rotation(Mth.sin(var13) * var13 * var14 / 10.0F * (float)param0.getHurtDir(), true));
         }
 
         int var15 = param0.getDisplayOffset();
-        if (this.solidRender) {
-            RenderSystem.enableColorMaterial();
-            RenderSystem.setupSolidRenderingTextureCombine(this.getTeamColor(param0));
+        int var16 = param0.getLightColor();
+        BlockState var17 = param0.getDisplayBlockState();
+        if (var17.getRenderShape() != RenderShape.INVISIBLE) {
+            param6.pushPose();
+            float var18 = 0.75F;
+            param6.scale(0.75F, 0.75F, 0.75F);
+            param6.translate(-0.5, (double)((float)(var15 - 8) / 16.0F), 0.5);
+            this.renderMinecartContents(param0, param5, var17, param6, param7, var16);
+            param6.popPose();
         }
 
-        BlockState var16 = param0.getDisplayBlockState();
-        if (var16.getRenderShape() != RenderShape.INVISIBLE) {
-            RenderSystem.pushMatrix();
-            this.bindTexture(TextureAtlas.LOCATION_BLOCKS);
-            float var17 = 0.75F;
-            RenderSystem.scalef(0.75F, 0.75F, 0.75F);
-            RenderSystem.translatef(-0.5F, (float)(var15 - 8) / 16.0F, 0.5F);
-            this.renderMinecartContents(param0, param5, var16);
-            RenderSystem.popMatrix();
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            this.bindTexture(param0);
-        }
-
-        RenderSystem.scalef(-1.0F, -1.0F, 1.0F);
-        this.model.render(param0, 0.0F, 0.0F, -0.1F, 0.0F, 0.0F, 0.0625F);
-        RenderSystem.popMatrix();
-        if (this.solidRender) {
-            RenderSystem.tearDownSolidRenderingTextureCombine();
-            RenderSystem.disableColorMaterial();
-        }
-
-        super.render(param0, param1, param2, param3, param4, param5);
+        param6.scale(-1.0F, -1.0F, 1.0F);
+        this.model.setupAnim(param0, 0.0F, 0.0F, -0.1F, 0.0F, 0.0F, 0.0625F);
+        VertexConsumer var19 = param7.getBuffer(RenderType.NEW_ENTITY(this.getTextureLocation(param0)));
+        OverlayTexture.setDefault(var19);
+        this.model.renderToBuffer(param6, var19, var16);
+        var19.unsetDefaultOverlayCoords();
+        param6.popPose();
     }
 
-    protected ResourceLocation getTextureLocation(T param0) {
+    public ResourceLocation getTextureLocation(T param0) {
         return MINECART_LOCATION;
     }
 
-    protected void renderMinecartContents(T param0, float param1, BlockState param2) {
-        RenderSystem.pushMatrix();
-        Minecraft.getInstance().getBlockRenderer().renderSingleBlock(param2, param0.getBrightness());
-        RenderSystem.popMatrix();
+    protected void renderMinecartContents(T param0, float param1, BlockState param2, PoseStack param3, MultiBufferSource param4, int param5) {
+        Minecraft.getInstance().getBlockRenderer().renderSingleBlock(param2, param3, param4, param5, 0, 10);
     }
 }

@@ -1,19 +1,12 @@
 package net.minecraft.client.model.geom;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.platform.MemoryTracker;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.datafixers.util.Pair;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
-import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 import com.mojang.math.Vector4f;
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Random;
 import javax.annotation.Nullable;
@@ -26,7 +19,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ModelPart {
-    private static final BufferBuilder COMPILE_BUFFER = new BufferBuilder(256);
     private float xTexSize = 64.0F;
     private float yTexSize = 32.0F;
     private int xTexOffs;
@@ -37,8 +29,6 @@ public class ModelPart {
     public float xRot;
     public float yRot;
     public float zRot;
-    @Nullable
-    private ByteBuffer compiled;
     public boolean mirror;
     public boolean visible = true;
     private final List<ModelPart.Cube> cubes = Lists.newArrayList();
@@ -80,54 +70,55 @@ public class ModelPart {
 
     public ModelPart addBox(String param0, float param1, float param2, float param3, int param4, int param5, int param6, float param7, int param8, int param9) {
         this.texOffs(param8, param9);
-        this.cubes
-            .add(
-                new ModelPart.Cube(
-                    this.xTexOffs,
-                    this.yTexOffs,
-                    param1,
-                    param2,
-                    param3,
-                    (float)param4,
-                    (float)param5,
-                    (float)param6,
-                    param7,
-                    this.mirror,
-                    this.xTexSize,
-                    this.yTexSize
-                )
-            );
+        this.addBox(
+            this.xTexOffs, this.yTexOffs, param1, param2, param3, (float)param4, (float)param5, (float)param6, param7, param7, param7, this.mirror, false
+        );
         return this;
     }
 
     public ModelPart addBox(float param0, float param1, float param2, float param3, float param4, float param5) {
-        this.cubes
-            .add(
-                new ModelPart.Cube(
-                    this.xTexOffs, this.yTexOffs, param0, param1, param2, param3, param4, param5, 0.0F, this.mirror, this.xTexSize, this.yTexSize
-                )
-            );
+        this.addBox(this.xTexOffs, this.yTexOffs, param0, param1, param2, param3, param4, param5, 0.0F, 0.0F, 0.0F, this.mirror, false);
         return this;
     }
 
     public ModelPart addBox(float param0, float param1, float param2, float param3, float param4, float param5, boolean param6) {
-        this.cubes
-            .add(new ModelPart.Cube(this.xTexOffs, this.yTexOffs, param0, param1, param2, param3, param4, param5, 0.0F, param6, this.xTexSize, this.yTexSize));
+        this.addBox(this.xTexOffs, this.yTexOffs, param0, param1, param2, param3, param4, param5, 0.0F, 0.0F, 0.0F, param6, false);
         return this;
     }
 
     public void addBox(float param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        this.cubes
-            .add(
-                new ModelPart.Cube(
-                    this.xTexOffs, this.yTexOffs, param0, param1, param2, param3, param4, param5, param6, this.mirror, this.xTexSize, this.yTexSize
-                )
-            );
+        this.addBox(this.xTexOffs, this.yTexOffs, param0, param1, param2, param3, param4, param5, param6, param6, param6, this.mirror, false);
+    }
+
+    public void addBox(float param0, float param1, float param2, float param3, float param4, float param5, float param6, float param7, float param8) {
+        this.addBox(this.xTexOffs, this.yTexOffs, param0, param1, param2, param3, param4, param5, param6, param7, param8, this.mirror, false);
     }
 
     public void addBox(float param0, float param1, float param2, float param3, float param4, float param5, float param6, boolean param7) {
+        this.addBox(this.xTexOffs, this.yTexOffs, param0, param1, param2, param3, param4, param5, param6, param6, param6, param7, false);
+    }
+
+    private void addBox(
+        int param0,
+        int param1,
+        float param2,
+        float param3,
+        float param4,
+        float param5,
+        float param6,
+        float param7,
+        float param8,
+        float param9,
+        float param10,
+        boolean param11,
+        boolean param12
+    ) {
         this.cubes
-            .add(new ModelPart.Cube(this.xTexOffs, this.yTexOffs, param0, param1, param2, param3, param4, param5, param6, param7, this.xTexSize, this.yTexSize));
+            .add(
+                new ModelPart.Cube(
+                    param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, this.xTexSize, this.yTexSize
+                )
+            );
     }
 
     public void setPos(float param0, float param1, float param2) {
@@ -136,50 +127,21 @@ public class ModelPart {
         this.z = param2;
     }
 
-    public void render(float param0) {
-        if (this.visible) {
-            this.compile(param0);
-            if (this.compiled != null) {
-                RenderSystem.pushMatrix();
-                this.translateAndRotate(param0);
-                ((Buffer)this.compiled).clear();
-                int var0 = this.compiled.remaining() / DefaultVertexFormat.ENTITY.getVertexSize();
-                BufferUploader.end(this.compiled, 7, DefaultVertexFormat.ENTITY, var0);
-
-                for(ModelPart var1 : this.children) {
-                    var1.render(param0);
-                }
-
-                RenderSystem.popMatrix();
-            }
-        }
-    }
-
-    public void render(BufferBuilder param0, float param1, int param2, int param3, TextureAtlasSprite param4) {
+    public void render(PoseStack param0, VertexConsumer param1, float param2, int param3, @Nullable TextureAtlasSprite param4) {
         this.render(param0, param1, param2, param3, param4, 1.0F, 1.0F, 1.0F);
     }
 
-    public void render(BufferBuilder param0, float param1, int param2, int param3, TextureAtlasSprite param4, float param5, float param6, float param7) {
+    public void render(
+        PoseStack param0, VertexConsumer param1, float param2, int param3, @Nullable TextureAtlasSprite param4, float param5, float param6, float param7
+    ) {
         if (this.visible) {
             if (!this.cubes.isEmpty() || !this.children.isEmpty()) {
                 param0.pushPose();
-                param0.translate((double)(this.x * param1), (double)(this.y * param1), (double)(this.z * param1));
-                if (this.zRot != 0.0F) {
-                    param0.multiplyPose(new Quaternion(Vector3f.ZP, this.zRot, false));
-                }
-
-                if (this.yRot != 0.0F) {
-                    param0.multiplyPose(new Quaternion(Vector3f.YP, this.yRot, false));
-                }
-
-                if (this.xRot != 0.0F) {
-                    param0.multiplyPose(new Quaternion(Vector3f.XP, this.xRot, false));
-                }
-
-                this.compile(param0, param1, param2, param3, param4, param5, param6, param7);
+                this.translateAndRotate(param0, param2);
+                this.compile(param0.getPose(), param1, param2, param3, param4, param5, param6, param7);
 
                 for(ModelPart var0 : this.children) {
-                    var0.render(param0, param1, param2, param3, param4);
+                    var0.render(param0, param1, param2, param3, param4, param5, param6, param7);
                 }
 
                 param0.popPose();
@@ -187,85 +149,60 @@ public class ModelPart {
         }
     }
 
-    private void compile(float param0) {
-        if (this.visible) {
-            if (!this.cubes.isEmpty() || !this.children.isEmpty()) {
-                if (this.compiled == null) {
-                    COMPILE_BUFFER.begin(7, DefaultVertexFormat.ENTITY);
-                    this.compile(COMPILE_BUFFER, param0, 240, 240, null);
-                    COMPILE_BUFFER.end();
-                    Pair<BufferBuilder.DrawState, ByteBuffer> var0 = COMPILE_BUFFER.popNextBuffer();
-                    ByteBuffer var1 = var0.getSecond();
-                    this.compiled = MemoryTracker.createByteBuffer(var1.remaining());
-                    this.compiled.put(var1);
-                }
-
-            }
-        }
-    }
-
-    public void translateTo(float param0) {
-        if (this.visible) {
-            this.translateAndRotate(param0);
-        }
-    }
-
-    private void translateAndRotate(float param0) {
-        RenderSystem.translatef(this.x * param0, this.y * param0, this.z * param0);
+    public void translateAndRotate(PoseStack param0, float param1) {
+        param0.translate((double)(this.x * param1), (double)(this.y * param1), (double)(this.z * param1));
         if (this.zRot != 0.0F) {
-            RenderSystem.rotatef(this.zRot * (180.0F / (float)Math.PI), 0.0F, 0.0F, 1.0F);
+            param0.mulPose(Vector3f.ZP.rotation(this.zRot, false));
         }
 
         if (this.yRot != 0.0F) {
-            RenderSystem.rotatef(this.yRot * (180.0F / (float)Math.PI), 0.0F, 1.0F, 0.0F);
+            param0.mulPose(Vector3f.YP.rotation(this.yRot, false));
         }
 
         if (this.xRot != 0.0F) {
-            RenderSystem.rotatef(this.xRot * (180.0F / (float)Math.PI), 1.0F, 0.0F, 0.0F);
+            param0.mulPose(Vector3f.XP.rotation(this.xRot, false));
         }
 
     }
 
-    private void compile(BufferBuilder param0, float param1, int param2, int param3, @Nullable TextureAtlasSprite param4) {
-        this.compile(param0, param1, param2, param3, param4, 1.0F, 1.0F, 1.0F);
-    }
-
     private void compile(
-        BufferBuilder param0, float param1, int param2, int param3, @Nullable TextureAtlasSprite param4, float param5, float param6, float param7
+        Matrix4f param0, VertexConsumer param1, float param2, int param3, @Nullable TextureAtlasSprite param4, float param5, float param6, float param7
     ) {
-        Matrix4f var0 = param0.getPose();
-        VertexFormat var1 = param0.getVertexFormat();
+        Matrix3f var0 = new Matrix3f(param0);
 
-        for(ModelPart.Cube var2 : this.cubes) {
-            for(ModelPart.Polygon var3 : var2.polygons) {
-                Vec3 var4 = var3.vertices[1].pos.vectorTo(var3.vertices[0].pos);
-                Vec3 var5 = var3.vertices[1].pos.vectorTo(var3.vertices[2].pos);
-                Vec3 var6 = var5.cross(var4).normalize();
-                float var7 = (float)var6.x;
-                float var8 = (float)var6.y;
-                float var9 = (float)var6.z;
+        for(ModelPart.Cube var1 : this.cubes) {
+            for(ModelPart.Polygon var2 : var1.polygons) {
+                Vector3f var3 = new Vector3f(var2.vertices[1].pos.vectorTo(var2.vertices[0].pos));
+                Vector3f var4 = new Vector3f(var2.vertices[1].pos.vectorTo(var2.vertices[2].pos));
+                var3.transform(var0);
+                var4.transform(var0);
+                var4.cross(var3);
+                var4.normalize();
+                float var5 = var4.x();
+                float var6 = var4.y();
+                float var7 = var4.z();
 
-                for(int var10 = 0; var10 < 4; ++var10) {
-                    ModelPart.Vertex var11 = var3.vertices[var10];
-                    Vector4f var12 = new Vector4f((float)var11.pos.x * param1, (float)var11.pos.y * param1, (float)var11.pos.z * param1, 1.0F);
-                    var12.transform(var0);
-                    param0.vertex((double)var12.x(), (double)var12.y(), (double)var12.z());
-                    if (var1.hasColor()) {
-                        float var13 = Mth.diffuseLight(var7, var8, var9);
-                        param0.color(var13 * param5, var13 * param6, var13 * param7, 1.0F);
-                    }
-
+                for(int var8 = 0; var8 < 4; ++var8) {
+                    ModelPart.Vertex var9 = var2.vertices[var8];
+                    Vector4f var10 = new Vector4f((float)var9.pos.x * param2, (float)var9.pos.y * param2, (float)var9.pos.z * param2, 1.0F);
+                    var10.transform(param0);
+                    float var11 = Mth.diffuseLight(var5, var6, var7);
+                    float var12;
+                    float var13;
                     if (param4 == null) {
-                        param0.uv((double)var11.u, (double)var11.v);
+                        var12 = var9.u;
+                        var13 = var9.v;
                     } else {
-                        param0.uv((double)param4.getU((double)(var11.u * 16.0F)), (double)param4.getV((double)(var11.v * 16.0F)));
+                        var12 = param4.getU((double)(var9.u * 16.0F));
+                        var13 = param4.getV((double)(var9.v * 16.0F));
                     }
 
-                    if (var1.hasUv(1)) {
-                        param0.uv2(param2, param3);
-                    }
-
-                    param0.normal(var7, var8, var9).endVertex();
+                    param1.vertex((double)var10.x(), (double)var10.y(), (double)var10.z())
+                        .color(var11 * param5, var11 * param6, var11 * param7, 1.0F)
+                        .uv(var12, var13)
+                        .uv2(param3)
+                        .normal(var5, var6, var7)
+                        .endVertex();
                 }
             }
         }
@@ -302,9 +239,11 @@ public class ModelPart {
             float param6,
             float param7,
             float param8,
-            boolean param9,
+            float param9,
             float param10,
-            float param11
+            boolean param11,
+            float param12,
+            float param13
         ) {
             this.minX = param2;
             this.minY = param3;
@@ -317,12 +256,12 @@ public class ModelPart {
             float var1 = param3 + param6;
             float var2 = param4 + param7;
             param2 -= param8;
-            param3 -= param8;
-            param4 -= param8;
+            param3 -= param9;
+            param4 -= param10;
             var0 += param8;
-            var1 += param8;
-            var2 += param8;
-            if (param9) {
+            var1 += param9;
+            var2 += param10;
+            if (param11) {
                 float var3 = var0;
                 var0 = param2;
                 param2 = var3;
@@ -336,63 +275,24 @@ public class ModelPart {
             ModelPart.Vertex var9 = new ModelPart.Vertex(var0, param3, var2, 0.0F, 8.0F);
             ModelPart.Vertex var10 = new ModelPart.Vertex(var0, var1, var2, 8.0F, 8.0F);
             ModelPart.Vertex var11 = new ModelPart.Vertex(param2, var1, var2, 8.0F, 0.0F);
-            this.polygons[0] = new ModelPart.Polygon(
-                new ModelPart.Vertex[]{var9, var5, var6, var10},
-                (float)param0 + param7 + param5,
-                (float)param1 + param7,
-                (float)param0 + param7 + param5 + param7,
-                (float)param1 + param7 + param6,
-                param10,
-                param11
-            );
-            this.polygons[1] = new ModelPart.Polygon(
-                new ModelPart.Vertex[]{var4, var8, var11, var7},
-                (float)param0,
-                (float)param1 + param7,
-                (float)param0 + param7,
-                (float)param1 + param7 + param6,
-                param10,
-                param11
-            );
-            this.polygons[2] = new ModelPart.Polygon(
-                new ModelPart.Vertex[]{var9, var8, var4, var5},
-                (float)param0 + param7,
-                (float)param1,
-                (float)param0 + param7 + param5,
-                (float)param1 + param7,
-                param10,
-                param11
-            );
-            this.polygons[3] = new ModelPart.Polygon(
-                new ModelPart.Vertex[]{var6, var7, var11, var10},
-                (float)param0 + param7 + param5,
-                (float)param1 + param7,
-                (float)param0 + param7 + param5 + param5,
-                (float)param1,
-                param10,
-                param11
-            );
-            this.polygons[4] = new ModelPart.Polygon(
-                new ModelPart.Vertex[]{var5, var4, var7, var6},
-                (float)param0 + param7,
-                (float)param1 + param7,
-                (float)param0 + param7 + param5,
-                (float)param1 + param7 + param6,
-                param10,
-                param11
-            );
-            this.polygons[5] = new ModelPart.Polygon(
-                new ModelPart.Vertex[]{var8, var9, var10, var11},
-                (float)param0 + param7 + param5 + param7,
-                (float)param1 + param7,
-                (float)param0 + param7 + param5 + param7 + param5,
-                (float)param1 + param7 + param6,
-                param10,
-                param11
-            );
-            if (param9) {
-                for(ModelPart.Polygon var12 : this.polygons) {
-                    var12.mirror();
+            float var12 = (float)param0;
+            float var13 = (float)param0 + param7;
+            float var14 = (float)param0 + param7 + param5;
+            float var15 = (float)param0 + param7 + param5 + param5;
+            float var16 = (float)param0 + param7 + param5 + param7;
+            float var17 = (float)param0 + param7 + param5 + param7 + param5;
+            float var18 = (float)param1;
+            float var19 = (float)param1 + param7;
+            float var20 = (float)param1 + param7 + param6;
+            this.polygons[2] = new ModelPart.Polygon(new ModelPart.Vertex[]{var9, var8, var4, var5}, var13, var18, var14, var19, param12, param13);
+            this.polygons[3] = new ModelPart.Polygon(new ModelPart.Vertex[]{var6, var7, var11, var10}, var14, var19, var15, var18, param12, param13);
+            this.polygons[1] = new ModelPart.Polygon(new ModelPart.Vertex[]{var4, var8, var11, var7}, var12, var19, var13, var20, param12, param13);
+            this.polygons[4] = new ModelPart.Polygon(new ModelPart.Vertex[]{var5, var4, var7, var6}, var13, var19, var14, var20, param12, param13);
+            this.polygons[0] = new ModelPart.Polygon(new ModelPart.Vertex[]{var9, var5, var6, var10}, var14, var19, var16, var20, param12, param13);
+            this.polygons[5] = new ModelPart.Polygon(new ModelPart.Vertex[]{var8, var9, var10, var11}, var16, var19, var17, var20, param12, param13);
+            if (param11) {
+                for(ModelPart.Polygon var21 : this.polygons) {
+                    var21.mirror();
                 }
             }
 

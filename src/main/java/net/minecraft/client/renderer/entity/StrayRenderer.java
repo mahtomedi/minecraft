@@ -16,7 +16,7 @@ public class StrayRenderer extends SkeletonRenderer {
     }
 
     @Override
-    protected ResourceLocation getTextureLocation(AbstractSkeleton param0) {
+    public ResourceLocation getTextureLocation(AbstractSkeleton param0) {
         return STRAY_SKELETON_LOCATION;
     }
 }

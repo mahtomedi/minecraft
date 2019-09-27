@@ -114,6 +114,16 @@ public class Path {
     }
 
     @OnlyIn(Dist.CLIENT)
+    public Node[] getOpenSet() {
+        return this.openSet;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public Node[] getClosedSet() {
+        return this.closedSet;
+    }
+
+    @OnlyIn(Dist.CLIENT)
     public static Path createFromStream(FriendlyByteBuf param0) {
         boolean var0 = param0.readBoolean();
         int var1 = param0.readInt();

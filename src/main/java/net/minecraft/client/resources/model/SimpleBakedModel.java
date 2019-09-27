@@ -8,7 +8,6 @@ import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.BlockModel;
-import net.minecraft.client.renderer.block.model.BreakingQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -92,26 +91,6 @@ public class SimpleBakedModel implements BakedModel {
 
         public Builder(BlockModel param0, ItemOverrides param1) {
             this(param0.hasAmbientOcclusion(), param0.isGui3d(), param0.getTransforms(), param1);
-        }
-
-        public Builder(BlockState param0, BakedModel param1, TextureAtlasSprite param2, Random param3, long param4) {
-            this(param1.useAmbientOcclusion(), param1.isGui3d(), param1.getTransforms(), param1.getOverrides());
-            this.particleIcon = param1.getParticleIcon();
-
-            for(Direction var0 : Direction.values()) {
-                param3.setSeed(param4);
-
-                for(BakedQuad var1 : param1.getQuads(param0, var0, param3)) {
-                    this.addCulledFace(var0, new BreakingQuad(var1, param2));
-                }
-            }
-
-            param3.setSeed(param4);
-
-            for(BakedQuad var2 : param1.getQuads(param0, null, param3)) {
-                this.addUnculledFace(new BreakingQuad(var2, param2));
-            }
-
         }
 
         private Builder(boolean param0, boolean param1, ItemTransforms param2, ItemOverrides param3) {

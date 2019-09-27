@@ -2,7 +2,6 @@ package net.minecraft.client.gui.screens;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.Arrays;
 import java.util.Collections;
@@ -297,9 +296,7 @@ public class PresetFlatWorldScreen extends Screen {
             private void blitSlot(int param0, int param1, Item param2) {
                 this.blitSlotBg(param0 + 1, param1 + 1);
                 RenderSystem.enableRescaleNormal();
-                Lighting.turnOnGui();
                 PresetFlatWorldScreen.this.itemRenderer.renderGuiItem(new ItemStack(param2), param0 + 2, param1 + 2);
-                Lighting.turnOff();
                 RenderSystem.disableRescaleNormal();
             }
 

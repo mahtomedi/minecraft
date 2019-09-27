@@ -1,9 +1,12 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Vector3f;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraftforge.api.distmarker.Dist;
@@ -15,75 +18,63 @@ public abstract class ArrowRenderer<T extends AbstractArrow> extends EntityRende
         super(param0);
     }
 
-    public void render(T param0, double param1, double param2, double param3, float param4, float param5) {
-        this.bindTexture(param0);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.pushMatrix();
-        RenderSystem.disableLighting();
-        RenderSystem.translatef((float)param1, (float)param2, (float)param3);
-        RenderSystem.rotatef(Mth.lerp(param5, param0.yRotO, param0.yRot) - 90.0F, 0.0F, 1.0F, 0.0F);
-        RenderSystem.rotatef(Mth.lerp(param5, param0.xRotO, param0.xRot), 0.0F, 0.0F, 1.0F);
-        Tesselator var0 = Tesselator.getInstance();
-        BufferBuilder var1 = var0.getBuilder();
-        int var2 = 0;
+    public void render(T param0, double param1, double param2, double param3, float param4, float param5, PoseStack param6, MultiBufferSource param7) {
+        param6.pushPose();
+        param6.mulPose(Vector3f.YP.rotation(Mth.lerp(param5, param0.yRotO, param0.yRot) - 90.0F, true));
+        param6.mulPose(Vector3f.ZP.rotation(Mth.lerp(param5, param0.xRotO, param0.xRot), true));
+        int var0 = 0;
+        float var1 = 0.0F;
+        float var2 = 0.5F;
         float var3 = 0.0F;
-        float var4 = 0.5F;
+        float var4 = 0.15625F;
         float var5 = 0.0F;
         float var6 = 0.15625F;
-        float var7 = 0.0F;
-        float var8 = 0.15625F;
-        float var9 = 0.15625F;
-        float var10 = 0.3125F;
-        float var11 = 0.05625F;
-        RenderSystem.enableRescaleNormal();
-        float var12 = (float)param0.shakeTime - param5;
-        if (var12 > 0.0F) {
-            float var13 = -Mth.sin(var12 * 3.0F) * var12;
-            RenderSystem.rotatef(var13, 0.0F, 0.0F, 1.0F);
+        float var7 = 0.15625F;
+        float var8 = 0.3125F;
+        float var9 = 0.05625F;
+        float var10 = (float)param0.shakeTime - param5;
+        if (var10 > 0.0F) {
+            float var11 = -Mth.sin(var10 * 3.0F) * var10;
+            param6.mulPose(Vector3f.ZP.rotation(var11, true));
         }
 
-        RenderSystem.rotatef(45.0F, 1.0F, 0.0F, 0.0F);
-        RenderSystem.scalef(0.05625F, 0.05625F, 0.05625F);
-        RenderSystem.translatef(-4.0F, 0.0F, 0.0F);
-        if (this.solidRender) {
-            RenderSystem.enableColorMaterial();
-            RenderSystem.setupSolidRenderingTextureCombine(this.getTeamColor(param0));
+        param6.mulPose(Vector3f.XP.rotation(45.0F, true));
+        param6.scale(0.05625F, 0.05625F, 0.05625F);
+        param6.translate(-4.0, 0.0, 0.0);
+        int var12 = param0.getLightColor();
+        VertexConsumer var13 = param7.getBuffer(RenderType.NEW_ENTITY(this.getTextureLocation(param0)));
+        OverlayTexture.setDefault(var13);
+        Matrix4f var14 = param6.getPose();
+        this.vertex(var14, var13, -7, -2, -2, 0.0F, 0.15625F, 1, 0, 0, var12);
+        this.vertex(var14, var13, -7, -2, 2, 0.15625F, 0.15625F, 1, 0, 0, var12);
+        this.vertex(var14, var13, -7, 2, 2, 0.15625F, 0.3125F, 1, 0, 0, var12);
+        this.vertex(var14, var13, -7, 2, -2, 0.0F, 0.3125F, 1, 0, 0, var12);
+        this.vertex(var14, var13, -7, 2, -2, 0.0F, 0.15625F, -1, 0, 0, var12);
+        this.vertex(var14, var13, -7, 2, 2, 0.15625F, 0.15625F, -1, 0, 0, var12);
+        this.vertex(var14, var13, -7, -2, 2, 0.15625F, 0.3125F, -1, 0, 0, var12);
+        this.vertex(var14, var13, -7, -2, -2, 0.0F, 0.3125F, -1, 0, 0, var12);
+
+        for(int var15 = 0; var15 < 4; ++var15) {
+            param6.mulPose(Vector3f.XP.rotation(90.0F, true));
+            this.vertex(var14, var13, -8, -2, 0, 0.0F, 0.0F, 0, 1, 0, var12);
+            this.vertex(var14, var13, 8, -2, 0, 0.5F, 0.0F, 0, 1, 0, var12);
+            this.vertex(var14, var13, 8, 2, 0, 0.5F, 0.15625F, 0, 1, 0, var12);
+            this.vertex(var14, var13, -8, 2, 0, 0.0F, 0.15625F, 0, 1, 0, var12);
         }
 
-        RenderSystem.normal3f(0.05625F, 0.0F, 0.0F);
-        var1.begin(7, DefaultVertexFormat.POSITION_TEX);
-        var1.vertex(-7.0, -2.0, -2.0).uv(0.0, 0.15625).endVertex();
-        var1.vertex(-7.0, -2.0, 2.0).uv(0.15625, 0.15625).endVertex();
-        var1.vertex(-7.0, 2.0, 2.0).uv(0.15625, 0.3125).endVertex();
-        var1.vertex(-7.0, 2.0, -2.0).uv(0.0, 0.3125).endVertex();
-        var0.end();
-        RenderSystem.normal3f(-0.05625F, 0.0F, 0.0F);
-        var1.begin(7, DefaultVertexFormat.POSITION_TEX);
-        var1.vertex(-7.0, 2.0, -2.0).uv(0.0, 0.15625).endVertex();
-        var1.vertex(-7.0, 2.0, 2.0).uv(0.15625, 0.15625).endVertex();
-        var1.vertex(-7.0, -2.0, 2.0).uv(0.15625, 0.3125).endVertex();
-        var1.vertex(-7.0, -2.0, -2.0).uv(0.0, 0.3125).endVertex();
-        var0.end();
+        var13.unsetDefaultOverlayCoords();
+        param6.popPose();
+        super.render(param0, param1, param2, param3, param4, param5, param6, param7);
+    }
 
-        for(int var14 = 0; var14 < 4; ++var14) {
-            RenderSystem.rotatef(90.0F, 1.0F, 0.0F, 0.0F);
-            RenderSystem.normal3f(0.0F, 0.0F, 0.05625F);
-            var1.begin(7, DefaultVertexFormat.POSITION_TEX);
-            var1.vertex(-8.0, -2.0, 0.0).uv(0.0, 0.0).endVertex();
-            var1.vertex(8.0, -2.0, 0.0).uv(0.5, 0.0).endVertex();
-            var1.vertex(8.0, 2.0, 0.0).uv(0.5, 0.15625).endVertex();
-            var1.vertex(-8.0, 2.0, 0.0).uv(0.0, 0.15625).endVertex();
-            var0.end();
-        }
-
-        if (this.solidRender) {
-            RenderSystem.tearDownSolidRenderingTextureCombine();
-            RenderSystem.disableColorMaterial();
-        }
-
-        RenderSystem.disableRescaleNormal();
-        RenderSystem.enableLighting();
-        RenderSystem.popMatrix();
-        super.render(param0, param1, param2, param3, param4, param5);
+    public void vertex(
+        Matrix4f param0, VertexConsumer param1, int param2, int param3, int param4, float param5, float param6, int param7, int param8, int param9, int param10
+    ) {
+        param1.vertex(param0, (float)param2, (float)param3, (float)param4)
+            .color(255, 255, 255, 255)
+            .uv(param5, param6)
+            .uv2(param10)
+            .normal((float)param7, (float)param9, (float)param8)
+            .endVertex();
     }
 }

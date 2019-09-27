@@ -13,7 +13,7 @@ public class SpectralArrowRenderer extends ArrowRenderer<SpectralArrow> {
         super(param0);
     }
 
-    protected ResourceLocation getTextureLocation(SpectralArrow param0) {
+    public ResourceLocation getTextureLocation(SpectralArrow param0) {
         return SPECTRAL_ARROW_LOCATION;
     }
 }

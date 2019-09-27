@@ -1,12 +1,13 @@
 package net.minecraft.client.renderer.entity.layers;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.CowModel;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
-import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.entity.animal.MushroomCow;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
@@ -18,43 +19,46 @@ public class MushroomCowMushroomLayer<T extends MushroomCow> extends RenderLayer
         super(param0);
     }
 
-    public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6, float param7) {
-        if (!param0.isBaby() && !param0.isInvisible()) {
-            BlockState var0 = param0.getMushroomType().getBlockState();
-            this.bindTexture(TextureAtlas.LOCATION_BLOCKS);
-            RenderSystem.enableCull();
-            RenderSystem.cullFace(GlStateManager.CullFace.FRONT);
-            RenderSystem.pushMatrix();
-            RenderSystem.scalef(1.0F, -1.0F, 1.0F);
-            RenderSystem.translatef(0.2F, 0.35F, 0.5F);
-            RenderSystem.rotatef(42.0F, 0.0F, 1.0F, 0.0F);
-            BlockRenderDispatcher var1 = Minecraft.getInstance().getBlockRenderer();
-            RenderSystem.pushMatrix();
-            RenderSystem.translatef(-0.5F, -0.5F, 0.5F);
-            var1.renderSingleBlock(var0, 1.0F);
-            RenderSystem.popMatrix();
-            RenderSystem.pushMatrix();
-            RenderSystem.translatef(0.1F, 0.0F, -0.6F);
-            RenderSystem.rotatef(42.0F, 0.0F, 1.0F, 0.0F);
-            RenderSystem.translatef(-0.5F, -0.5F, 0.5F);
-            var1.renderSingleBlock(var0, 1.0F);
-            RenderSystem.popMatrix();
-            RenderSystem.popMatrix();
-            RenderSystem.pushMatrix();
-            this.getParentModel().getHead().translateTo(0.0625F);
-            RenderSystem.scalef(1.0F, -1.0F, 1.0F);
-            RenderSystem.translatef(0.0F, 0.7F, -0.2F);
-            RenderSystem.rotatef(12.0F, 0.0F, 1.0F, 0.0F);
-            RenderSystem.translatef(-0.5F, -0.5F, 0.5F);
-            var1.renderSingleBlock(var0, 1.0F);
-            RenderSystem.popMatrix();
-            RenderSystem.cullFace(GlStateManager.CullFace.BACK);
-            RenderSystem.disableCull();
+    public void render(
+        PoseStack param0,
+        MultiBufferSource param1,
+        int param2,
+        T param3,
+        float param4,
+        float param5,
+        float param6,
+        float param7,
+        float param8,
+        float param9,
+        float param10
+    ) {
+        if (!param3.isBaby() && !param3.isInvisible()) {
+            BlockRenderDispatcher var0 = Minecraft.getInstance().getBlockRenderer();
+            BlockState var1 = param3.getMushroomType().getBlockState();
+            param0.pushPose();
+            param0.scale(-1.0F, -1.0F, 1.0F);
+            param0.translate(-0.2F, 0.35F, 0.5);
+            param0.mulPose(Vector3f.YP.rotation(-42.0F, true));
+            int var2 = OverlayTexture.v(param3.hurtTime > 0 || param3.deathTime > 0);
+            param0.pushPose();
+            param0.translate(-0.5, -0.5, 0.5);
+            var0.renderSingleBlock(var1, param0, param1, param2, 0, var2);
+            param0.popPose();
+            param0.pushPose();
+            param0.translate(-0.1F, 0.0, -0.6F);
+            param0.mulPose(Vector3f.YP.rotation(-42.0F, true));
+            param0.translate(-0.5, -0.5, 0.5);
+            var0.renderSingleBlock(var1, param0, param1, param2, 0, var2);
+            param0.popPose();
+            param0.popPose();
+            param0.pushPose();
+            this.getParentModel().getHead().translateAndRotate(param0, 0.0625F);
+            param0.scale(-1.0F, -1.0F, 1.0F);
+            param0.translate(0.0, 0.7F, -0.2F);
+            param0.mulPose(Vector3f.YP.rotation(-12.0F, true));
+            param0.translate(-0.5, -0.5, 0.5);
+            var0.renderSingleBlock(var1, param0, param1, param2, 0, var2);
+            param0.popPose();
         }
-    }
-
-    @Override
-    public boolean colorsOnDamage() {
-        return true;
     }
 }

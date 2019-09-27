@@ -1,5 +1,8 @@
 package net.minecraft.client.model;
 
+import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.animal.Parrot;
@@ -7,7 +10,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class ParrotModel extends EntityModel<Parrot> {
+public class ParrotModel extends ListModel<Parrot> {
     private final ModelPart body;
     private final ModelPart tail;
     private final ModelPart wingLeft;
@@ -62,8 +65,9 @@ public class ParrotModel extends EntityModel<Parrot> {
         this.legRight.setPos(-1.0F, 22.0F, -1.05F);
     }
 
-    public void render(Parrot param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        this.render(param6);
+    @Override
+    public Iterable<ModelPart> parts() {
+        return ImmutableList.of(this.body, this.wingLeft, this.wingRight, this.tail, this.head, this.legLeft, this.legRight);
     }
 
     public void setupAnim(Parrot param0, float param1, float param2, float param3, float param4, float param5, float param6) {
@@ -74,20 +78,12 @@ public class ParrotModel extends EntityModel<Parrot> {
         this.prepare(getState(param0));
     }
 
-    public void renderOnShoulder(float param0, float param1, float param2, float param3, float param4, int param5) {
+    public void renderOnShoulder(
+        PoseStack param0, VertexConsumer param1, int param2, float param3, float param4, float param5, float param6, float param7, int param8
+    ) {
         this.prepare(ParrotModel.State.ON_SHOULDER);
-        this.setupAnim(ParrotModel.State.ON_SHOULDER, param5, param0, param1, 0.0F, param2, param3);
-        this.render(param4);
-    }
-
-    private void render(float param0) {
-        this.body.render(param0);
-        this.wingLeft.render(param0);
-        this.wingRight.render(param0);
-        this.tail.render(param0);
-        this.head.render(param0);
-        this.legLeft.render(param0);
-        this.legRight.render(param0);
+        this.setupAnim(ParrotModel.State.ON_SHOULDER, param8, param3, param4, 0.0F, param5, param6);
+        this.parts().forEach(param4x -> param4x.render(param0, param1, param7, param2, null));
     }
 
     private void setupAnim(ParrotModel.State param0, int param1, float param2, float param3, float param4, float param5, float param6) {

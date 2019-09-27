@@ -4,7 +4,8 @@ import com.google.common.collect.Maps;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import java.util.Map;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
@@ -12,7 +13,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidHeadModel;
 import net.minecraft.client.model.SkullModel;
 import net.minecraft.client.model.dragon.DragonHeadModel;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -27,7 +30,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class SkullBlockRenderer extends BlockEntityRenderer<SkullBlockEntity> {
-    public static SkullBlockRenderer instance;
     private static final Map<SkullBlock.Type, SkullModel> MODEL_BY_TYPE = Util.make(Maps.newHashMap(), param0 -> {
         SkullModel var0 = new SkullModel(0, 0, 64, 32);
         SkullModel var1 = new HumanoidHeadModel();
@@ -48,84 +50,61 @@ public class SkullBlockRenderer extends BlockEntityRenderer<SkullBlockEntity> {
         param0.put(SkullBlock.Types.PLAYER, DefaultPlayerSkin.getDefaultSkin());
     });
 
-    public void render(SkullBlockEntity param0, double param1, double param2, double param3, float param4, int param5, RenderType param6) {
+    public SkullBlockRenderer(BlockEntityRenderDispatcher param0) {
+        super(param0);
+    }
+
+    public void render(
+        SkullBlockEntity param0, double param1, double param2, double param3, float param4, PoseStack param5, MultiBufferSource param6, int param7
+    ) {
         float var0 = param0.getMouthAnimation(param4);
         BlockState var1 = param0.getBlockState();
         boolean var2 = var1.getBlock() instanceof WallSkullBlock;
         Direction var3 = var2 ? var1.getValue(WallSkullBlock.FACING) : null;
         float var4 = 22.5F * (float)(var2 ? (2 + var3.get2DDataValue()) * 4 : var1.getValue(SkullBlock.ROTATION));
-        this.renderSkull(
-            (float)param1, (float)param2, (float)param3, var3, var4, ((AbstractSkullBlock)var1.getBlock()).getType(), param0.getOwnerProfile(), param5, var0
-        );
+        renderSkull(var3, var4, ((AbstractSkullBlock)var1.getBlock()).getType(), param0.getOwnerProfile(), var0, param5, param6, param7);
     }
 
-    @Override
-    public void init(BlockEntityRenderDispatcher param0) {
-        super.init(param0);
-        instance = this;
-    }
-
-    public void renderSkull(
-        float param0,
+    public static void renderSkull(
+        @Nullable Direction param0,
         float param1,
-        float param2,
-        @Nullable Direction param3,
+        SkullBlock.Type param2,
+        @Nullable GameProfile param3,
         float param4,
-        SkullBlock.Type param5,
-        @Nullable GameProfile param6,
-        int param7,
-        float param8
+        PoseStack param5,
+        MultiBufferSource param6,
+        int param7
     ) {
-        SkullModel var0 = MODEL_BY_TYPE.get(param5);
-        if (param7 >= 0) {
-            this.bindTexture(BREAKING_LOCATIONS.get(param7));
-            RenderSystem.matrixMode(5890);
-            RenderSystem.pushMatrix();
-            RenderSystem.scalef(4.0F, 2.0F, 1.0F);
-            RenderSystem.translatef(0.0625F, 0.0625F, 0.0625F);
-            RenderSystem.matrixMode(5888);
+        SkullModel var0 = MODEL_BY_TYPE.get(param2);
+        param5.pushPose();
+        if (param0 == null) {
+            param5.translate(0.5, 0.0, 0.5);
         } else {
-            this.bindTexture(this.getLocation(param5, param6));
-        }
-
-        RenderSystem.pushMatrix();
-        if (param3 == null) {
-            RenderSystem.translatef(param0 + 0.5F, param1, param2 + 0.5F);
-        } else {
-            switch(param3) {
+            switch(param0) {
                 case NORTH:
-                    RenderSystem.translatef(param0 + 0.5F, param1 + 0.25F, param2 + 0.74F);
+                    param5.translate(0.5, 0.25, 0.74F);
                     break;
                 case SOUTH:
-                    RenderSystem.translatef(param0 + 0.5F, param1 + 0.25F, param2 + 0.26F);
+                    param5.translate(0.5, 0.25, 0.26F);
                     break;
                 case WEST:
-                    RenderSystem.translatef(param0 + 0.74F, param1 + 0.25F, param2 + 0.5F);
+                    param5.translate(0.74F, 0.25, 0.5);
                     break;
                 case EAST:
                 default:
-                    RenderSystem.translatef(param0 + 0.26F, param1 + 0.25F, param2 + 0.5F);
+                    param5.translate(0.26F, 0.25, 0.5);
             }
         }
 
-        RenderSystem.enableRescaleNormal();
-        RenderSystem.scalef(-1.0F, -1.0F, 1.0F);
-        RenderSystem.enableAlphaTest();
-        if (param5 == SkullBlock.Types.PLAYER) {
-            RenderSystem.setProfile(RenderSystem.Profile.PLAYER_SKIN);
-        }
-
-        var0.render(param8, 0.0F, 0.0F, param4, 0.0F, 0.0625F);
-        RenderSystem.popMatrix();
-        if (param7 >= 0) {
-            RenderSystem.matrixMode(5890);
-            RenderSystem.popMatrix();
-            RenderSystem.matrixMode(5888);
-        }
-
+        param5.scale(-1.0F, -1.0F, 1.0F);
+        VertexConsumer var1 = param6.getBuffer(RenderType.NEW_ENTITY(getLocation(param2, param3)));
+        OverlayTexture.setDefault(var1);
+        var0.render(param5, var1, param4, param1, 0.0F, 0.0625F, param7);
+        var1.unsetDefaultOverlayCoords();
+        param5.popPose();
     }
 
-    private ResourceLocation getLocation(SkullBlock.Type param0, @Nullable GameProfile param1) {
+    private static ResourceLocation getLocation(SkullBlock.Type param0, @Nullable GameProfile param1) {
         ResourceLocation var0 = SKIN_BY_TYPE.get(param0);
         if (param0 == SkullBlock.Types.PLAYER && param1 != null) {
             Minecraft var1 = Minecraft.getInstance();

@@ -2,11 +2,11 @@ package net.minecraft.client.player;
 
 import com.google.common.hash.Hashing;
 import com.mojang.authlib.GameProfile;
-import com.mojang.blaze3d.platform.TextureObject;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.MultiPlayerLevel;
 import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.HttpTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.DefaultPlayerSkin;
@@ -86,7 +86,7 @@ public abstract class AbstractClientPlayer extends Player {
 
     public static HttpTexture registerSkinTexture(ResourceLocation param0, String param1) {
         TextureManager var0 = Minecraft.getInstance().getTextureManager();
-        TextureObject var1 = var0.getTexture(param0);
+        AbstractTexture var1 = var0.getTexture(param0);
         if (var1 == null) {
             var1 = new HttpTexture(
                 null,

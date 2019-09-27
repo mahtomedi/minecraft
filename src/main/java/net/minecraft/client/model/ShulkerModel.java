@@ -1,5 +1,6 @@
 package net.minecraft.client.model;
 
+import com.google.common.collect.ImmutableList;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.monster.Shulker;
@@ -7,7 +8,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class ShulkerModel<T extends Shulker> extends EntityModel<T> {
+public class ShulkerModel<T extends Shulker> extends ListModel<T> {
     private final ModelPart base;
     private final ModelPart lid = new ModelPart(64, 64, 0, 0);
     private final ModelPart head;
@@ -43,9 +44,9 @@ public class ShulkerModel<T extends Shulker> extends EntityModel<T> {
         this.head.yRot = param4 * (float) (Math.PI / 180.0);
     }
 
-    public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        this.base.render(param6);
-        this.lid.render(param6);
+    @Override
+    public Iterable<ModelPart> parts() {
+        return ImmutableList.of(this.base, this.lid);
     }
 
     public ModelPart getBase() {

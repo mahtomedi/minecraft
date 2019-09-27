@@ -1,5 +1,6 @@
 package net.minecraft.client.model;
 
+import com.google.common.collect.ImmutableList;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -7,7 +8,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class SpiderModel<T extends Entity> extends EntityModel<T> {
+public class SpiderModel<T extends Entity> extends ListModel<T> {
     private final ModelPart head;
     private final ModelPart body0;
     private final ModelPart body1;
@@ -59,19 +60,8 @@ public class SpiderModel<T extends Entity> extends EntityModel<T> {
     }
 
     @Override
-    public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        this.setupAnim(param0, param1, param2, param3, param4, param5, param6);
-        this.head.render(param6);
-        this.body0.render(param6);
-        this.body1.render(param6);
-        this.leg0.render(param6);
-        this.leg1.render(param6);
-        this.leg2.render(param6);
-        this.leg3.render(param6);
-        this.leg4.render(param6);
-        this.leg5.render(param6);
-        this.leg6.render(param6);
-        this.leg7.render(param6);
+    public Iterable<ModelPart> parts() {
+        return ImmutableList.of(this.head, this.body0, this.body1, this.leg0, this.leg1, this.leg2, this.leg3, this.leg4, this.leg5, this.leg6, this.leg7);
     }
 
     @Override

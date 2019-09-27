@@ -1,13 +1,14 @@
 package net.minecraft.client.model;
 
+import java.util.Arrays;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class MinecartModel<T extends Entity> extends EntityModel<T> {
-    private final ModelPart[] cubes = new ModelPart[7];
+public class MinecartModel<T extends Entity> extends ListModel<T> {
+    private final ModelPart[] cubes = new ModelPart[6];
 
     public MinecartModel() {
         this.cubes[0] = new ModelPart(this, 0, 10);
@@ -40,12 +41,12 @@ public class MinecartModel<T extends Entity> extends EntityModel<T> {
     }
 
     @Override
-    public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
+    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
         this.cubes[5].y = 4.0F - param3;
+    }
 
-        for(int var0 = 0; var0 < 6; ++var0) {
-            this.cubes[var0].render(param6);
-        }
-
+    @Override
+    public Iterable<ModelPart> parts() {
+        return Arrays.asList(this.cubes);
     }
 }

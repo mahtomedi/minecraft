@@ -108,5 +108,8 @@ public class EndermanModel<T extends LivingEntity> extends HumanoidModel<T> {
             this.head.y -= 5.0F;
         }
 
+        float var3 = -14.0F;
+        this.rightArm.setPos(-5.0F, -12.0F, 0.0F);
+        this.leftArm.setPos(5.0F, -12.0F, 0.0F);
     }
 }

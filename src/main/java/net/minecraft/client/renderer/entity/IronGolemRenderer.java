@@ -1,6 +1,7 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.model.IronGolemModel;
 import net.minecraft.client.renderer.entity.layers.IronGolemFlowerLayer;
 import net.minecraft.resources.ResourceLocation;
@@ -17,17 +18,17 @@ public class IronGolemRenderer extends MobRenderer<IronGolem, IronGolemModel<Iro
         this.addLayer(new IronGolemFlowerLayer(this));
     }
 
-    protected ResourceLocation getTextureLocation(IronGolem param0) {
+    public ResourceLocation getTextureLocation(IronGolem param0) {
         return GOLEM_LOCATION;
     }
 
-    protected void setupRotations(IronGolem param0, float param1, float param2, float param3) {
-        super.setupRotations(param0, param1, param2, param3);
+    protected void setupRotations(IronGolem param0, PoseStack param1, float param2, float param3, float param4) {
+        super.setupRotations(param0, param1, param2, param3, param4);
         if (!((double)param0.animationSpeed < 0.01)) {
             float var0 = 13.0F;
-            float var1 = param0.animationPosition - param0.animationSpeed * (1.0F - param3) + 6.0F;
+            float var1 = param0.animationPosition - param0.animationSpeed * (1.0F - param4) + 6.0F;
             float var2 = (Math.abs(var1 % 13.0F - 6.5F) - 3.25F) / 3.25F;
-            RenderSystem.rotatef(6.5F * var2, 0.0F, 0.0F, 1.0F);
+            param1.mulPose(Vector3f.ZP.rotation(6.5F * var2, true));
         }
     }
 }

@@ -1,5 +1,8 @@
 package net.minecraft.client.model;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
+import java.util.Arrays;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.monster.Slime;
@@ -7,9 +10,10 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class LavaSlimeModel<T extends Slime> extends EntityModel<T> {
+public class LavaSlimeModel<T extends Slime> extends ListModel<T> {
     private final ModelPart[] bodyCubes = new ModelPart[8];
     private final ModelPart insideCube;
+    private final ImmutableList<ModelPart> parts;
 
     public LavaSlimeModel() {
         for(int var0 = 0; var0 < this.bodyCubes.length; ++var0) {
@@ -29,6 +33,13 @@ public class LavaSlimeModel<T extends Slime> extends EntityModel<T> {
 
         this.insideCube = new ModelPart(this, 0, 16);
         this.insideCube.addBox(-2.0F, 18.0F, -2.0F, 4.0F, 4.0F, 4.0F);
+        Builder<ModelPart> var3 = ImmutableList.builder();
+        var3.add(this.insideCube);
+        var3.addAll(Arrays.asList(this.bodyCubes));
+        this.parts = var3.build();
+    }
+
+    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
     }
 
     public void prepareMobModel(T param0, float param1, float param2, float param3) {
@@ -43,13 +54,7 @@ public class LavaSlimeModel<T extends Slime> extends EntityModel<T> {
 
     }
 
-    public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        this.setupAnim(param0, param1, param2, param3, param4, param5, param6);
-        this.insideCube.render(param6);
-
-        for(ModelPart var0 : this.bodyCubes) {
-            var0.render(param6);
-        }
-
+    public ImmutableList<ModelPart> parts() {
+        return this.parts;
     }
 }

@@ -11,10 +11,31 @@ import net.minecraft.network.chat.TextComponent;
 import org.apache.commons.lang3.ArrayUtils;
 
 public class LongArrayTag extends CollectionTag<LongTag> {
-    private long[] data;
+    public static final TagType<LongArrayTag> TYPE = new TagType<LongArrayTag>() {
+        public LongArrayTag load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
+            param2.accountBits(192L);
+            int var0 = param0.readInt();
+            param2.accountBits((long)(64 * var0));
+            long[] var1 = new long[var0];
 
-    LongArrayTag() {
-    }
+            for(int var2 = 0; var2 < var0; ++var2) {
+                var1[var2] = param0.readLong();
+            }
+
+            return new LongArrayTag(var1);
+        }
+
+        @Override
+        public String getName() {
+            return "LONG[]";
+        }
+
+        @Override
+        public String getPrettyName() {
+            return "TAG_Long_Array";
+        }
+    };
+    private long[] data;
 
     public LongArrayTag(long[] param0) {
         this.data = param0;
@@ -50,21 +71,13 @@ public class LongArrayTag extends CollectionTag<LongTag> {
     }
 
     @Override
-    public void load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
-        param2.accountBits(192L);
-        int var0 = param0.readInt();
-        param2.accountBits((long)(64 * var0));
-        this.data = new long[var0];
-
-        for(int var1 = 0; var1 < var0; ++var1) {
-            this.data[var1] = param0.readLong();
-        }
-
+    public byte getId() {
+        return 12;
     }
 
     @Override
-    public byte getId() {
-        return 12;
+    public TagType<LongArrayTag> getType() {
+        return TYPE;
     }
 
     @Override
@@ -129,13 +142,13 @@ public class LongArrayTag extends CollectionTag<LongTag> {
     }
 
     public LongTag get(int param0) {
-        return new LongTag(this.data[param0]);
+        return LongTag.valueOf(this.data[param0]);
     }
 
     public LongTag set(int param0, LongTag param1) {
         long var0 = this.data[param0];
         this.data[param0] = param1.getAsLong();
-        return new LongTag(var0);
+        return LongTag.valueOf(var0);
     }
 
     public void add(int param0, LongTag param1) {
@@ -165,7 +178,7 @@ public class LongArrayTag extends CollectionTag<LongTag> {
     public LongTag remove(int param0) {
         long var0 = this.data[param0];
         this.data = ArrayUtils.remove(this.data, param0);
-        return new LongTag(var0);
+        return LongTag.valueOf(var0);
     }
 
     @Override

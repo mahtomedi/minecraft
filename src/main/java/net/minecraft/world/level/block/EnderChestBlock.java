@@ -47,12 +47,6 @@ public class EnderChestBlock extends BaseEntityBlock implements SimpleWaterlogge
         return SHAPE;
     }
 
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public boolean hasCustomBreakingProgress(BlockState param0) {
-        return true;
-    }
-
     @Override
     public RenderShape getRenderShape(BlockState param0) {
         return RenderShape.ENTITYBLOCK_ANIMATED;

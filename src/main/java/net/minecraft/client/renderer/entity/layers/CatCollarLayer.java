@@ -1,7 +1,8 @@
 package net.minecraft.client.renderer.entity.layers;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.CatModel;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.animal.Cat;
@@ -17,19 +18,40 @@ public class CatCollarLayer extends RenderLayer<Cat, CatModel<Cat>> {
         super(param0);
     }
 
-    public void render(Cat param0, float param1, float param2, float param3, float param4, float param5, float param6, float param7) {
-        if (param0.isTame() && !param0.isInvisible()) {
-            this.bindTexture(CAT_COLLAR_LOCATION);
-            float[] var0 = param0.getCollarColor().getTextureDiffuseColors();
-            RenderSystem.color3f(var0[0], var0[1], var0[2]);
-            this.getParentModel().copyPropertiesTo(this.catModel);
-            this.catModel.prepareMobModel(param0, param1, param2, param3);
-            this.catModel.render(param0, param1, param2, param4, param5, param6, param7);
+    public void render(
+        PoseStack param0,
+        MultiBufferSource param1,
+        int param2,
+        Cat param3,
+        float param4,
+        float param5,
+        float param6,
+        float param7,
+        float param8,
+        float param9,
+        float param10
+    ) {
+        if (param3.isTame()) {
+            float[] var0 = param3.getCollarColor().getTextureDiffuseColors();
+            coloredModelCopyLayerRender(
+                this.getParentModel(),
+                this.catModel,
+                CAT_COLLAR_LOCATION,
+                param0,
+                param1,
+                param2,
+                param3,
+                param4,
+                param5,
+                param7,
+                param8,
+                param9,
+                param10,
+                param6,
+                var0[0],
+                var0[1],
+                var0[2]
+            );
         }
-    }
-
-    @Override
-    public boolean colorsOnDamage() {
-        return true;
     }
 }

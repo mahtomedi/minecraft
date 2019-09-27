@@ -116,19 +116,17 @@ public class NbtIo {
     private static Tag readUnnamedTag(DataInput param0, int param1, NbtAccounter param2) throws IOException {
         byte var0 = param0.readByte();
         if (var0 == 0) {
-            return new EndTag();
+            return EndTag.INSTANCE;
         } else {
             param0.readUTF();
-            Tag var1 = Tag.newTag(var0);
 
             try {
-                var1.load(param0, param1, param2);
-                return var1;
-            } catch (IOException var8) {
-                CrashReport var3 = CrashReport.forThrowable(var8, "Loading NBT data");
-                CrashReportCategory var4 = var3.addCategory("NBT Tag");
-                var4.setDetail("Tag type", var0);
-                throw new ReportedException(var3);
+                return TagTypes.getType(var0).load(param0, param1, param2);
+            } catch (IOException var7) {
+                CrashReport var2 = CrashReport.forThrowable(var7, "Loading NBT data");
+                CrashReportCategory var3 = var2.addCategory("NBT Tag");
+                var3.setDetail("Tag type", var0);
+                throw new ReportedException(var2);
             }
         }
     }

@@ -14,7 +14,7 @@ public class OcelotRenderer extends MobRenderer<Ocelot, OcelotModel<Ocelot>> {
         super(param0, new OcelotModel<>(0.0F), 0.4F);
     }
 
-    protected ResourceLocation getTextureLocation(Ocelot param0) {
+    public ResourceLocation getTextureLocation(Ocelot param0) {
         return CAT_OCELOT_LOCATION;
     }
 }

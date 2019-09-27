@@ -114,9 +114,6 @@ public class EyeOfEnder extends Entity implements ItemSupplier {
 
     @Override
     public void tick() {
-        this.xOld = this.x;
-        this.yOld = this.y;
-        this.zOld = this.z;
         super.tick();
         Vec3 var0 = this.getDeltaMovement();
         this.x += var0.x;

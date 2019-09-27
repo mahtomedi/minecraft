@@ -81,14 +81,14 @@ public class ServerRecipeBook extends RecipeBook {
         ListTag var1 = new ListTag();
 
         for(ResourceLocation var2 : this.known) {
-            var1.add(new StringTag(var2.toString()));
+            var1.add(StringTag.valueOf(var2.toString()));
         }
 
         var0.put("recipes", var1);
         ListTag var3 = new ListTag();
 
         for(ResourceLocation var4 : this.highlight) {
-            var3.add(new StringTag(var4.toString()));
+            var3.add(StringTag.valueOf(var4.toString()));
         }
 
         var0.put("toBeDisplayed", var3);

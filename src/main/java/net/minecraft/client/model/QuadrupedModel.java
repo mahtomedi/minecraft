@@ -1,6 +1,6 @@
 package net.minecraft.client.model;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.google.common.collect.ImmutableList;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -8,18 +8,16 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class QuadrupedModel<T extends Entity> extends EntityModel<T> {
-    protected ModelPart head;
+public class QuadrupedModel<T extends Entity> extends AgeableListModel<T> {
+    protected ModelPart head = new ModelPart(this, 0, 0);
     protected ModelPart body;
     protected ModelPart leg0;
     protected ModelPart leg1;
     protected ModelPart leg2;
     protected ModelPart leg3;
-    protected float yHeadOffs = 8.0F;
-    protected float zHeadOffs = 4.0F;
 
-    public QuadrupedModel(int param0, float param1) {
-        this.head = new ModelPart(this, 0, 0);
+    public QuadrupedModel(int param0, float param1, boolean param2, float param3, float param4, float param5, float param6, int param7) {
+        super(param2, param3, param4, param5, param6, (float)param7);
         this.head.addBox(-4.0F, -4.0F, -8.0F, 8.0F, 8.0F, 8.0F, param1);
         this.head.setPos(0.0F, (float)(18 - param0), -6.0F);
         this.body = new ModelPart(this, 28, 8);
@@ -40,32 +38,13 @@ public class QuadrupedModel<T extends Entity> extends EntityModel<T> {
     }
 
     @Override
-    public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        this.setupAnim(param0, param1, param2, param3, param4, param5, param6);
-        if (this.young) {
-            float var0 = 2.0F;
-            RenderSystem.pushMatrix();
-            RenderSystem.translatef(0.0F, this.yHeadOffs * param6, this.zHeadOffs * param6);
-            this.head.render(param6);
-            RenderSystem.popMatrix();
-            RenderSystem.pushMatrix();
-            RenderSystem.scalef(0.5F, 0.5F, 0.5F);
-            RenderSystem.translatef(0.0F, 24.0F * param6, 0.0F);
-            this.body.render(param6);
-            this.leg0.render(param6);
-            this.leg1.render(param6);
-            this.leg2.render(param6);
-            this.leg3.render(param6);
-            RenderSystem.popMatrix();
-        } else {
-            this.head.render(param6);
-            this.body.render(param6);
-            this.leg0.render(param6);
-            this.leg1.render(param6);
-            this.leg2.render(param6);
-            this.leg3.render(param6);
-        }
+    protected Iterable<ModelPart> headParts() {
+        return ImmutableList.of(this.head);
+    }
 
+    @Override
+    protected Iterable<ModelPart> bodyParts() {
+        return ImmutableList.of(this.body, this.leg0, this.leg1, this.leg2, this.leg3);
     }
 
     @Override

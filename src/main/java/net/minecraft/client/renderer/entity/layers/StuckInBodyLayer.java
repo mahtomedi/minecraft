@@ -1,10 +1,10 @@
 package net.minecraft.client.renderer.entity.layers;
 
-import com.mojang.blaze3d.platform.Lighting;
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Random;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -20,42 +20,43 @@ public abstract class StuckInBodyLayer<T extends LivingEntity, M extends PlayerM
 
     protected abstract int numStuck(T var1);
 
-    protected abstract void renderStuckItem(Entity var1, float var2, float var3, float var4, float var5);
+    protected abstract void renderStuckItem(PoseStack var1, MultiBufferSource var2, Entity var3, float var4, float var5, float var6, float var7);
 
-    protected void preRenderStuckItem(T param0) {
-        Lighting.turnOff();
-    }
-
-    protected void postRenderStuckItem() {
-        Lighting.turnOn();
-    }
-
-    public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6, float param7) {
-        int var0 = this.numStuck(param0);
-        Random var1 = new Random((long)param0.getId());
+    public void render(
+        PoseStack param0,
+        MultiBufferSource param1,
+        int param2,
+        T param3,
+        float param4,
+        float param5,
+        float param6,
+        float param7,
+        float param8,
+        float param9,
+        float param10
+    ) {
+        int var0 = this.numStuck(param3);
+        Random var1 = new Random((long)param3.getId());
         if (var0 > 0) {
-            this.preRenderStuckItem(param0);
-
             for(int var2 = 0; var2 < var0; ++var2) {
-                RenderSystem.pushMatrix();
+                param0.pushPose();
                 ModelPart var3 = this.getParentModel().getRandomModelPart(var1);
                 ModelPart.Cube var4 = var3.getRandomCube(var1);
-                var3.translateTo(0.0625F);
+                var3.translateAndRotate(param0, 0.0625F);
                 float var5 = var1.nextFloat();
                 float var6 = var1.nextFloat();
                 float var7 = var1.nextFloat();
                 float var8 = Mth.lerp(var5, var4.minX, var4.maxX) / 16.0F;
                 float var9 = Mth.lerp(var6, var4.minY, var4.maxY) / 16.0F;
                 float var10 = Mth.lerp(var7, var4.minZ, var4.maxZ) / 16.0F;
-                RenderSystem.translatef(var8, var9, var10);
+                param0.translate((double)var8, (double)var9, (double)var10);
                 var5 = -1.0F * (var5 * 2.0F - 1.0F);
                 var6 = -1.0F * (var6 * 2.0F - 1.0F);
                 var7 = -1.0F * (var7 * 2.0F - 1.0F);
-                this.renderStuckItem(param0, var5, var6, var7, param3);
-                RenderSystem.popMatrix();
+                this.renderStuckItem(param0, param1, param3, var5, var6, var7, param6);
+                param0.popPose();
             }
 
-            this.postRenderStuckItem();
         }
     }
 }

@@ -94,11 +94,6 @@ public class Evoker extends SpellcasterIllager {
     }
 
     @Override
-    public void tick() {
-        super.tick();
-    }
-
-    @Override
     public boolean isAlliedTo(Entity param0) {
         if (param0 == null) {
             return false;

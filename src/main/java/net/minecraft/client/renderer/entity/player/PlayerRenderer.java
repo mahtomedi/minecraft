@@ -1,9 +1,14 @@
 package net.minecraft.client.renderer.entity.player;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.ArrowLayer;
@@ -16,6 +21,7 @@ import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.client.renderer.entity.layers.ParrotOnShoulderLayer;
 import net.minecraft.client.renderer.entity.layers.SpinAttackEffectLayer;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -53,18 +59,15 @@ public class PlayerRenderer extends LivingEntityRenderer<AbstractClientPlayer, P
         this.addLayer(new BeeStingerLayer<>(this));
     }
 
-    public void render(AbstractClientPlayer param0, double param1, double param2, double param3, float param4, float param5) {
-        if (!param0.isLocalPlayer() || this.entityRenderDispatcher.camera.getEntity() == param0) {
-            double var0 = param2;
-            if (param0.isCrouching()) {
-                var0 = param2 - 0.125;
-            }
+    public void render(
+        AbstractClientPlayer param0, double param1, double param2, double param3, float param4, float param5, PoseStack param6, MultiBufferSource param7
+    ) {
+        this.setModelProperties(param0);
+        super.render(param0, param1, param2, param3, param4, param5, param6, param7);
+    }
 
-            this.setModelProperties(param0);
-            RenderSystem.setProfile(RenderSystem.Profile.PLAYER_SKIN);
-            super.render(param0, param1, var0, param3, param4, param5);
-            RenderSystem.unsetProfile(RenderSystem.Profile.PLAYER_SKIN);
-        }
+    public Vec3 getRenderOffset(AbstractClientPlayer param0, double param1, double param2, double param3, float param4) {
+        return param0.isCrouching() ? new Vec3(0.0, -0.125, 0.0) : super.getRenderOffset(param0, param1, param2, param3, param4);
     }
 
     private void setModelProperties(AbstractClientPlayer param0) {
@@ -135,90 +138,83 @@ public class PlayerRenderer extends LivingEntityRenderer<AbstractClientPlayer, P
         return param0.getSkinTextureLocation();
     }
 
-    protected void scale(AbstractClientPlayer param0, float param1) {
+    protected void scale(AbstractClientPlayer param0, PoseStack param1, float param2) {
         float var0 = 0.9375F;
-        RenderSystem.scalef(0.9375F, 0.9375F, 0.9375F);
+        param1.scale(0.9375F, 0.9375F, 0.9375F);
     }
 
-    protected void renderNameTags(AbstractClientPlayer param0, double param1, double param2, double param3, String param4, double param5) {
-        if (param5 < 100.0) {
-            Scoreboard var0 = param0.getScoreboard();
-            Objective var1 = var0.getDisplayObjective(2);
-            if (var1 != null) {
-                Score var2 = var0.getOrCreatePlayerScore(param0.getScoreboardName(), var1);
-                this.renderNameTag(param0, var2.getScore() + " " + var1.getDisplayName().getColoredString(), param1, param2, param3, 64);
-                param2 += (double)(9.0F * 1.15F * 0.025F);
+    protected void renderNameTag(AbstractClientPlayer param0, String param1, PoseStack param2, MultiBufferSource param3) {
+        double var0 = this.entityRenderDispatcher.distanceToSqr(param0);
+        param2.pushPose();
+        if (var0 < 100.0) {
+            Scoreboard var1 = param0.getScoreboard();
+            Objective var2 = var1.getDisplayObjective(2);
+            if (var2 != null) {
+                Score var3 = var1.getOrCreatePlayerScore(param0.getScoreboardName(), var2);
+                super.renderNameTag(param0, var3.getScore() + " " + var2.getDisplayName().getColoredString(), param2, param3);
+                param2.translate(0.0, (double)(9.0F * 1.15F * 0.025F), 0.0);
             }
         }
 
-        super.renderNameTags(param0, param1, param2, param3, param4, param5);
+        super.renderNameTag(param0, param1, param2, param3);
+        param2.popPose();
     }
 
-    public void renderRightHand(AbstractClientPlayer param0) {
-        float var0 = 1.0F;
-        RenderSystem.color3f(1.0F, 1.0F, 1.0F);
-        float var1 = 0.0625F;
-        PlayerModel<AbstractClientPlayer> var2 = this.getModel();
-        this.setModelProperties(param0);
-        RenderSystem.enableBlend();
-        var2.attackTime = 0.0F;
-        var2.crouching = false;
-        var2.swimAmount = 0.0F;
-        var2.setupAnim(param0, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F);
-        var2.rightArm.xRot = 0.0F;
-        var2.rightArm.render(0.0625F);
-        var2.rightSleeve.xRot = 0.0F;
-        var2.rightSleeve.render(0.0625F);
-        RenderSystem.disableBlend();
+    public void renderRightHand(PoseStack param0, MultiBufferSource param1, AbstractClientPlayer param2) {
+        this.renderHand(param0, param1, param2, this.model.rightArm, this.model.rightSleeve);
     }
 
-    public void renderLeftHand(AbstractClientPlayer param0) {
-        float var0 = 1.0F;
-        RenderSystem.color3f(1.0F, 1.0F, 1.0F);
-        float var1 = 0.0625F;
-        PlayerModel<AbstractClientPlayer> var2 = this.getModel();
-        this.setModelProperties(param0);
-        RenderSystem.enableBlend();
-        var2.crouching = false;
-        var2.attackTime = 0.0F;
-        var2.swimAmount = 0.0F;
-        var2.setupAnim(param0, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F);
-        var2.leftArm.xRot = 0.0F;
-        var2.leftArm.render(0.0625F);
-        var2.leftSleeve.xRot = 0.0F;
-        var2.leftSleeve.render(0.0625F);
-        RenderSystem.disableBlend();
+    public void renderLeftHand(PoseStack param0, MultiBufferSource param1, AbstractClientPlayer param2) {
+        this.renderHand(param0, param1, param2, this.model.leftArm, this.model.leftSleeve);
     }
 
-    protected void setupRotations(AbstractClientPlayer param0, float param1, float param2, float param3) {
-        float var0 = param0.getSwimAmount(param3);
+    private void renderHand(PoseStack param0, MultiBufferSource param1, AbstractClientPlayer param2, ModelPart param3, ModelPart param4) {
+        float var0 = 0.0625F;
+        PlayerModel<AbstractClientPlayer> var1 = this.getModel();
+        this.setModelProperties(param2);
+        int var2 = param2.getLightColor();
+        VertexConsumer var3 = param1.getBuffer(RenderType.NEW_ENTITY(param2.getSkinTextureLocation()));
+        OverlayTexture.setDefault(var3);
+        var1.attackTime = 0.0F;
+        var1.crouching = false;
+        var1.swimAmount = 0.0F;
+        var1.setupAnim(param2, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F);
+        param3.xRot = 0.0F;
+        param3.render(param0, var3, 0.0625F, var2, null);
+        param4.xRot = 0.0F;
+        param4.render(param0, var3, 0.0625F, var2, null);
+        var3.unsetDefaultOverlayCoords();
+    }
+
+    protected void setupRotations(AbstractClientPlayer param0, PoseStack param1, float param2, float param3, float param4) {
+        float var0 = param0.getSwimAmount(param4);
         if (param0.isFallFlying()) {
-            super.setupRotations(param0, param1, param2, param3);
-            float var1 = (float)param0.getFallFlyingTicks() + param3;
+            super.setupRotations(param0, param1, param2, param3, param4);
+            float var1 = (float)param0.getFallFlyingTicks() + param4;
             float var2 = Mth.clamp(var1 * var1 / 100.0F, 0.0F, 1.0F);
             if (!param0.isAutoSpinAttack()) {
-                RenderSystem.rotatef(var2 * (-90.0F - param0.xRot), 1.0F, 0.0F, 0.0F);
+                param1.mulPose(Vector3f.XP.rotation(var2 * (-90.0F - param0.xRot), true));
             }
 
-            Vec3 var3 = param0.getViewVector(param3);
+            Vec3 var3 = param0.getViewVector(param4);
             Vec3 var4 = param0.getDeltaMovement();
             double var5 = Entity.getHorizontalDistanceSqr(var4);
             double var6 = Entity.getHorizontalDistanceSqr(var3);
             if (var5 > 0.0 && var6 > 0.0) {
                 double var7 = (var4.x * var3.x + var4.z * var3.z) / (Math.sqrt(var5) * Math.sqrt(var6));
                 double var8 = var4.x * var3.z - var4.z * var3.x;
-                RenderSystem.rotatef((float)(Math.signum(var8) * Math.acos(var7)) * 180.0F / (float) Math.PI, 0.0F, 1.0F, 0.0F);
+                param1.mulPose(Vector3f.YP.rotation((float)(Math.signum(var8) * Math.acos(var7)), false));
             }
         } else if (var0 > 0.0F) {
-            super.setupRotations(param0, param1, param2, param3);
+            super.setupRotations(param0, param1, param2, param3, param4);
             float var9 = param0.isInWater() ? -90.0F - param0.xRot : -90.0F;
             float var10 = Mth.lerp(var0, 0.0F, var9);
-            RenderSystem.rotatef(var10, 1.0F, 0.0F, 0.0F);
+            param1.mulPose(Vector3f.XP.rotation(var10, true));
             if (param0.isVisuallySwimming()) {
-                RenderSystem.translatef(0.0F, -1.0F, 0.3F);
+                param1.translate(0.0, -1.0, 0.3F);
             }
         } else {
-            super.setupRotations(param0, param1, param2, param3);
+            super.setupRotations(param0, param1, param2, param3, param4);
         }
 
     }

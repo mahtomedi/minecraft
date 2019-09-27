@@ -182,7 +182,7 @@ public class FogRenderer {
 
     }
 
-    public static void setupFog(Camera param0, int param1, float param2, boolean param3) {
+    public static void setupFog(Camera param0, FogRenderer.FogMode param1, float param2, boolean param3) {
         resetFogColor(false);
         RenderSystem.normal3f(0.0F, -1.0F, 0.0F);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
@@ -195,7 +195,7 @@ public class FogRenderer {
             }
 
             RenderSystem.fogMode(GlStateManager.FogMode.LINEAR);
-            if (param1 == -1) {
+            if (param1 == FogRenderer.FogMode.FOG_SKY) {
                 RenderSystem.fogStart(0.0F);
                 RenderSystem.fogEnd(var1 * 0.8F);
             } else {
@@ -227,7 +227,7 @@ public class FogRenderer {
             RenderSystem.fogDensity(2.0F);
         } else {
             RenderSystem.fogMode(GlStateManager.FogMode.LINEAR);
-            if (param1 == -1) {
+            if (param1 == FogRenderer.FogMode.FOG_SKY) {
                 RenderSystem.fogStart(0.0F);
                 RenderSystem.fogEnd(param2);
             } else {
@@ -242,12 +242,17 @@ public class FogRenderer {
             }
         }
 
-        RenderSystem.enableColorMaterial();
         RenderSystem.enableFog();
         RenderSystem.colorMaterial(1028, 4608);
     }
 
     public static void resetFogColor(boolean param0) {
         RenderSystem.fog(2918, param0 ? BLACK_BUFFER : COLOR_BUFFER);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static enum FogMode {
+        FOG_SKY,
+        FOG_TERRAIN;
     }
 }

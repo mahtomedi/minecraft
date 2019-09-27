@@ -2,7 +2,10 @@ package com.mojang.blaze3d.vertex;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import java.util.List;
+import java.util.stream.Collectors;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
@@ -12,11 +15,8 @@ import org.apache.logging.log4j.Logger;
 public class VertexFormat {
     private static final Logger LOGGER = LogManager.getLogger();
     private final List<VertexFormatElement> elements = Lists.newArrayList();
-    private final List<Integer> offsets = Lists.newArrayList();
+    private final IntList offsets = new IntArrayList();
     private int vertexSize;
-    private int colorOffset = -1;
-    private final List<Integer> texOffset = Lists.newArrayList();
-    private int normalOffset = -1;
 
     public VertexFormat(VertexFormat param0) {
         this();
@@ -34,9 +34,6 @@ public class VertexFormat {
     public void clear() {
         this.elements.clear();
         this.offsets.clear();
-        this.colorOffset = -1;
-        this.texOffset.clear();
-        this.normalOffset = -1;
         this.vertexSize = 0;
     }
 
@@ -47,71 +44,18 @@ public class VertexFormat {
         } else {
             this.elements.add(param0);
             this.offsets.add(this.vertexSize);
-            switch(param0.getUsage()) {
-                case NORMAL:
-                    this.normalOffset = this.vertexSize;
-                    break;
-                case COLOR:
-                    this.colorOffset = this.vertexSize;
-                    break;
-                case UV:
-                    this.texOffset.add(param0.getIndex(), this.vertexSize);
-            }
-
             this.vertexSize += param0.getByteSize();
             return this;
         }
     }
 
-    public boolean hasNormal() {
-        return this.normalOffset >= 0;
-    }
-
-    public int getNormalOffset() {
-        return this.normalOffset;
-    }
-
-    public boolean hasColor() {
-        return this.colorOffset >= 0;
-    }
-
-    public int getColorOffset() {
-        return this.colorOffset;
-    }
-
-    public boolean hasUv(int param0) {
-        return this.texOffset.size() - 1 >= param0;
-    }
-
-    public int getUvOffset(int param0) {
-        return this.texOffset.get(param0);
-    }
-
     @Override
     public String toString() {
-        String var0 = "format: " + this.elements.size() + " elements: ";
-
-        for(int var1 = 0; var1 < this.elements.size(); ++var1) {
-            var0 = var0 + this.elements.get(var1).toString();
-            if (var1 != this.elements.size() - 1) {
-                var0 = var0 + " ";
-            }
-        }
-
-        return var0;
+        return "format: " + this.elements.size() + " elements: " + (String)this.elements.stream().map(Object::toString).collect(Collectors.joining(" "));
     }
 
     private boolean hasPositionElement() {
-        int var0 = 0;
-
-        for(int var1 = this.elements.size(); var0 < var1; ++var0) {
-            VertexFormatElement var2 = this.elements.get(var0);
-            if (var2.isPosition()) {
-                return true;
-            }
-        }
-
-        return false;
+        return this.elements.stream().anyMatch(VertexFormatElement::isPosition);
     }
 
     public int getIntegerSize() {
@@ -132,10 +76,6 @@ public class VertexFormat {
 
     public VertexFormatElement getElement(int param0) {
         return this.elements.get(param0);
-    }
-
-    public int getOffset(int param0) {
-        return this.offsets.get(param0);
     }
 
     @Override
@@ -169,7 +109,7 @@ public class VertexFormat {
             List<VertexFormatElement> var1 = this.getElements();
 
             for(int var2 = 0; var2 < var1.size(); ++var2) {
-                var1.get(var2).setupBufferState(param0 + (long)this.getOffset(var2), var0);
+                var1.get(var2).setupBufferState(param0 + (long)this.offsets.getInt(var2), var0);
             }
 
         }

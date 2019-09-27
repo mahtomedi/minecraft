@@ -1,6 +1,8 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.ResourceLocation;
@@ -25,35 +27,21 @@ public class ThrownItemRenderer<T extends Entity & ItemSupplier> extends EntityR
     }
 
     @Override
-    public void render(T param0, double param1, double param2, double param3, float param4, float param5) {
-        RenderSystem.pushMatrix();
-        RenderSystem.translatef((float)param1, (float)param2, (float)param3);
-        RenderSystem.enableRescaleNormal();
-        RenderSystem.scalef(this.scale, this.scale, this.scale);
-        RenderSystem.rotatef(-this.entityRenderDispatcher.playerRotY, 0.0F, 1.0F, 0.0F);
-        RenderSystem.rotatef(
-            (float)(this.entityRenderDispatcher.options.thirdPersonView == 2 ? -1 : 1) * this.entityRenderDispatcher.playerRotX, 1.0F, 0.0F, 0.0F
+    public void render(T param0, double param1, double param2, double param3, float param4, float param5, PoseStack param6, MultiBufferSource param7) {
+        param6.pushPose();
+        param6.scale(this.scale, this.scale, this.scale);
+        param6.mulPose(Vector3f.YP.rotation(-this.entityRenderDispatcher.playerRotY, true));
+        param6.mulPose(
+            Vector3f.XP.rotation((float)(this.entityRenderDispatcher.options.thirdPersonView == 2 ? -1 : 1) * this.entityRenderDispatcher.playerRotX, true)
         );
-        RenderSystem.rotatef(180.0F, 0.0F, 1.0F, 0.0F);
-        this.bindTexture(TextureAtlas.LOCATION_BLOCKS);
-        if (this.solidRender) {
-            RenderSystem.enableColorMaterial();
-            RenderSystem.setupSolidRenderingTextureCombine(this.getTeamColor(param0));
-        }
-
-        this.itemRenderer.renderStatic(param0.getItem(), ItemTransforms.TransformType.GROUND);
-        if (this.solidRender) {
-            RenderSystem.tearDownSolidRenderingTextureCombine();
-            RenderSystem.disableColorMaterial();
-        }
-
-        RenderSystem.disableRescaleNormal();
-        RenderSystem.popMatrix();
-        super.render(param0, param1, param2, param3, param4, param5);
+        param6.mulPose(Vector3f.YP.rotation(180.0F, true));
+        this.itemRenderer.renderStatic(param0.getItem(), ItemTransforms.TransformType.GROUND, param0.getLightColor(), param6, param7);
+        param6.popPose();
+        super.render(param0, param1, param2, param3, param4, param5, param6, param7);
     }
 
     @Override
-    protected ResourceLocation getTextureLocation(Entity param0) {
+    public ResourceLocation getTextureLocation(Entity param0) {
         return TextureAtlas.LOCATION_BLOCKS;
     }
 }

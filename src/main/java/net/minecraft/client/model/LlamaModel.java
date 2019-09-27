@@ -1,18 +1,26 @@
 package net.minecraft.client.model;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.animal.horse.AbstractChestedHorse;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class LlamaModel<T extends AbstractChestedHorse> extends QuadrupedModel<T> {
+public class LlamaModel<T extends AbstractChestedHorse> extends EntityModel<T> {
+    private final ModelPart head;
+    private final ModelPart body;
+    private final ModelPart leg0;
+    private final ModelPart leg1;
+    private final ModelPart leg2;
+    private final ModelPart leg3;
     private final ModelPart chest1;
     private final ModelPart chest2;
 
     public LlamaModel(float param0) {
-        super(15, param0);
         this.texWidth = 128;
         this.texHeight = 64;
         this.head = new ModelPart(this, 0, 0);
@@ -54,49 +62,46 @@ public class LlamaModel<T extends AbstractChestedHorse> extends QuadrupedModel<T
         ++this.leg3.x;
         --this.leg2.z;
         --this.leg3.z;
-        this.zHeadOffs += 2.0F;
     }
 
-    public void render(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
+    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
+        this.head.xRot = param5 * (float) (Math.PI / 180.0);
+        this.head.yRot = param4 * (float) (Math.PI / 180.0);
+        this.body.xRot = (float) (Math.PI / 2);
+        this.leg0.xRot = Mth.cos(param1 * 0.6662F) * 1.4F * param2;
+        this.leg1.xRot = Mth.cos(param1 * 0.6662F + (float) Math.PI) * 1.4F * param2;
+        this.leg2.xRot = Mth.cos(param1 * 0.6662F + (float) Math.PI) * 1.4F * param2;
+        this.leg3.xRot = Mth.cos(param1 * 0.6662F) * 1.4F * param2;
         boolean var0 = !param0.isBaby() && param0.hasChest();
-        this.setupAnim(param0, param1, param2, param3, param4, param5, param6);
-        if (this.young) {
-            float var1 = 2.0F;
-            RenderSystem.pushMatrix();
-            RenderSystem.translatef(0.0F, this.yHeadOffs * param6, this.zHeadOffs * param6);
-            RenderSystem.popMatrix();
-            RenderSystem.pushMatrix();
-            float var2 = 0.7F;
-            RenderSystem.scalef(0.71428573F, 0.64935064F, 0.7936508F);
-            RenderSystem.translatef(0.0F, 21.0F * param6, 0.22F);
-            this.head.render(param6);
-            RenderSystem.popMatrix();
-            RenderSystem.pushMatrix();
-            float var3 = 1.1F;
-            RenderSystem.scalef(0.625F, 0.45454544F, 0.45454544F);
-            RenderSystem.translatef(0.0F, 33.0F * param6, 0.0F);
-            this.body.render(param6);
-            RenderSystem.popMatrix();
-            RenderSystem.pushMatrix();
-            RenderSystem.scalef(0.45454544F, 0.41322312F, 0.45454544F);
-            RenderSystem.translatef(0.0F, 33.0F * param6, 0.0F);
-            this.leg0.render(param6);
-            this.leg1.render(param6);
-            this.leg2.render(param6);
-            this.leg3.render(param6);
-            RenderSystem.popMatrix();
-        } else {
-            this.head.render(param6);
-            this.body.render(param6);
-            this.leg0.render(param6);
-            this.leg1.render(param6);
-            this.leg2.render(param6);
-            this.leg3.render(param6);
-        }
+        this.chest1.visible = var0;
+        this.chest2.visible = var0;
+    }
 
-        if (var0) {
-            this.chest1.render(param6);
-            this.chest2.render(param6);
+    @Override
+    public void renderToBuffer(PoseStack param0, VertexConsumer param1, int param2, float param3, float param4, float param5) {
+        if (this.young) {
+            float var0 = 2.0F;
+            param0.pushPose();
+            float var1 = 0.7F;
+            param0.scale(0.71428573F, 0.64935064F, 0.7936508F);
+            param0.translate(0.0, 1.3125, 0.22F);
+            this.head.render(param0, param1, 0.0625F, param2, null, param3, param4, param5);
+            param0.popPose();
+            param0.pushPose();
+            float var2 = 1.1F;
+            param0.scale(0.625F, 0.45454544F, 0.45454544F);
+            param0.translate(0.0, 2.0625, 0.0);
+            this.body.render(param0, param1, 0.0625F, param2, null, param3, param4, param5);
+            param0.popPose();
+            param0.pushPose();
+            param0.scale(0.45454544F, 0.41322312F, 0.45454544F);
+            param0.translate(0.0, 2.0625, 0.0);
+            ImmutableList.of(this.leg0, this.leg1, this.leg2, this.leg3, this.chest1, this.chest2)
+                .forEach(param6 -> param6.render(param0, param1, 0.0625F, param2, null, param3, param4, param5));
+            param0.popPose();
+        } else {
+            ImmutableList.of(this.head, this.body, this.leg0, this.leg1, this.leg2, this.leg3, this.chest1, this.chest2)
+                .forEach(param6 -> param6.render(param0, param1, 0.0625F, param2, null, param3, param4, param5));
         }
 
     }

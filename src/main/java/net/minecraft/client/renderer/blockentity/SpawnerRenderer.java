@@ -1,8 +1,9 @@
 package net.minecraft.client.renderer.blockentity;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BaseSpawner;
@@ -12,30 +13,33 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class SpawnerRenderer extends BlockEntityRenderer<SpawnerBlockEntity> {
-    public void render(SpawnerBlockEntity param0, double param1, double param2, double param3, float param4, int param5, RenderType param6) {
-        RenderSystem.pushMatrix();
-        RenderSystem.translatef((float)param1 + 0.5F, (float)param2, (float)param3 + 0.5F);
-        render(param0.getSpawner(), param1, param2, param3, param4);
-        RenderSystem.popMatrix();
+    public SpawnerRenderer(BlockEntityRenderDispatcher param0) {
+        super(param0);
     }
 
-    public static void render(BaseSpawner param0, double param1, double param2, double param3, float param4) {
-        Entity var0 = param0.getOrCreateDisplayEntity();
-        if (var0 != null) {
-            float var1 = 0.53125F;
-            float var2 = Math.max(var0.getBbWidth(), var0.getBbHeight());
-            if ((double)var2 > 1.0) {
-                var1 /= var2;
+    public void render(
+        SpawnerBlockEntity param0, double param1, double param2, double param3, float param4, PoseStack param5, MultiBufferSource param6, int param7
+    ) {
+        param5.pushPose();
+        param5.translate(0.5, 0.0, 0.5);
+        BaseSpawner var0 = param0.getSpawner();
+        Entity var1 = var0.getOrCreateDisplayEntity();
+        if (var1 != null) {
+            float var2 = 0.53125F;
+            float var3 = Math.max(var1.getBbWidth(), var1.getBbHeight());
+            if ((double)var3 > 1.0) {
+                var2 /= var3;
             }
 
-            RenderSystem.translatef(0.0F, 0.4F, 0.0F);
-            RenderSystem.rotatef((float)Mth.lerp((double)param4, param0.getoSpin(), param0.getSpin()) * 10.0F, 0.0F, 1.0F, 0.0F);
-            RenderSystem.translatef(0.0F, -0.2F, 0.0F);
-            RenderSystem.rotatef(-30.0F, 1.0F, 0.0F, 0.0F);
-            RenderSystem.scalef(var1, var1, var1);
-            var0.moveTo(param1, param2, param3, 0.0F, 0.0F);
-            Minecraft.getInstance().getEntityRenderDispatcher().render(var0, 0.0, 0.0, 0.0, 0.0F, param4, false);
+            param5.translate(0.0, 0.4F, 0.0);
+            param5.mulPose(Vector3f.YP.rotation((float)Mth.lerp((double)param4, var0.getoSpin(), var0.getSpin()) * 10.0F, true));
+            param5.translate(0.0, -0.2F, 0.0);
+            param5.mulPose(Vector3f.XP.rotation(-30.0F, true));
+            param5.scale(var2, var2, var2);
+            var1.moveTo(param1, param2, param3, 0.0F, 0.0F);
+            Minecraft.getInstance().getEntityRenderDispatcher().render(var1, 0.0, 0.0, 0.0, 0.0F, param4, param5, param6);
         }
 
+        param5.popPose();
     }
 }

@@ -7,15 +7,18 @@ import com.ibm.icu.text.Bidi;
 import com.mojang.blaze3d.font.GlyphInfo;
 import com.mojang.blaze3d.font.GlyphProvider;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Transformation;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.font.FontSet;
 import net.minecraft.client.gui.font.glyphs.BakedGlyph;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -46,12 +49,12 @@ public class Font implements AutoCloseable {
 
     public int drawShadow(String param0, float param1, float param2, int param3) {
         RenderSystem.enableAlphaTest();
-        return this.drawInternal(param0, param1, param2, param3, true);
+        return this.drawInternal(param0, param1, param2, param3, Transformation.identity().getMatrix(), true);
     }
 
     public int draw(String param0, float param1, float param2, int param3) {
         RenderSystem.enableAlphaTest();
-        return this.drawInternal(param0, param1, param2, param3, false);
+        return this.drawInternal(param0, param1, param2, param3, Transformation.identity().getMatrix(), false);
     }
 
     public String bidirectionalShaping(String param0) {
@@ -64,135 +67,177 @@ public class Font implements AutoCloseable {
         }
     }
 
-    private int drawInternal(String param0, float param1, float param2, int param3, boolean param4) {
+    private int drawInternal(String param0, float param1, float param2, int param3, Matrix4f param4, boolean param5) {
         if (param0 == null) {
             return 0;
         } else {
-            if (this.bidirectional) {
-                param0 = this.bidirectionalShaping(param0);
-            }
-
-            if ((param3 & -67108864) == 0) {
-                param3 |= -16777216;
-            }
-
-            if (param4) {
-                this.renderText(param0, param1, param2, param3, true);
-            }
-
-            param1 = this.renderText(param0, param1, param2, param3, false);
-            return (int)param1 + (param4 ? 1 : 0);
+            MultiBufferSource.BufferSource var0 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
+            int var1 = this.drawInBatch(param0, param1, param2, param3, param5, param4, var0, false, 0, 15728880);
+            var0.endBatch();
+            return var1;
         }
     }
 
-    private float renderText(String param0, float param1, float param2, int param3, boolean param4) {
+    public int drawInBatch(
+        String param0,
+        float param1,
+        float param2,
+        int param3,
+        boolean param4,
+        Matrix4f param5,
+        MultiBufferSource param6,
+        boolean param7,
+        int param8,
+        int param9
+    ) {
+        return this.drawInternal(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9);
+    }
+
+    private int drawInternal(
+        String param0,
+        float param1,
+        float param2,
+        int param3,
+        boolean param4,
+        Matrix4f param5,
+        MultiBufferSource param6,
+        boolean param7,
+        int param8,
+        int param9
+    ) {
+        if (this.bidirectional) {
+            param0 = this.bidirectionalShaping(param0);
+        }
+
+        if ((param3 & -67108864) == 0) {
+            param3 |= -16777216;
+        }
+
+        if (param4) {
+            this.renderText(param0, param1, param2, param3, true, param5, param6, param7, param8, param9);
+        }
+
+        param1 = this.renderText(param0, param1, param2, param3, false, param5, param6, param7, param8, param9);
+        return (int)param1 + (param4 ? 1 : 0);
+    }
+
+    private float renderText(
+        String param0,
+        float param1,
+        float param2,
+        int param3,
+        boolean param4,
+        Matrix4f param5,
+        MultiBufferSource param6,
+        boolean param7,
+        int param8,
+        int param9
+    ) {
         float var0 = param4 ? 0.25F : 1.0F;
         float var1 = (float)(param3 >> 16 & 0xFF) / 255.0F * var0;
         float var2 = (float)(param3 >> 8 & 0xFF) / 255.0F * var0;
         float var3 = (float)(param3 & 0xFF) / 255.0F * var0;
-        float var4 = var1;
-        float var5 = var2;
-        float var6 = var3;
-        float var7 = (float)(param3 >> 24 & 0xFF) / 255.0F;
-        Tesselator var8 = Tesselator.getInstance();
-        BufferBuilder var9 = var8.getBuilder();
-        ResourceLocation var10 = null;
-        var9.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
+        float var4 = param1;
+        float var5 = var1;
+        float var6 = var2;
+        float var7 = var3;
+        float var8 = (float)(param3 >> 24 & 0xFF) / 255.0F;
+        boolean var9 = false;
+        boolean var10 = false;
         boolean var11 = false;
         boolean var12 = false;
         boolean var13 = false;
-        boolean var14 = false;
-        boolean var15 = false;
-        List<Font.Effect> var16 = Lists.newArrayList();
+        List<BakedGlyph.Effect> var14 = Lists.newArrayList();
 
-        for(int var17 = 0; var17 < param0.length(); ++var17) {
-            char var18 = param0.charAt(var17);
-            if (var18 == 167 && var17 + 1 < param0.length()) {
-                ChatFormatting var19 = ChatFormatting.getByCode(param0.charAt(var17 + 1));
-                if (var19 != null) {
-                    if (var19.shouldReset()) {
-                        var11 = false;
-                        var12 = false;
-                        var15 = false;
-                        var14 = false;
+        for(int var15 = 0; var15 < param0.length(); ++var15) {
+            char var16 = param0.charAt(var15);
+            if (var16 == 167 && var15 + 1 < param0.length()) {
+                ChatFormatting var17 = ChatFormatting.getByCode(param0.charAt(var15 + 1));
+                if (var17 != null) {
+                    if (var17.shouldReset()) {
+                        var9 = false;
+                        var10 = false;
                         var13 = false;
-                        var4 = var1;
-                        var5 = var2;
-                        var6 = var3;
+                        var12 = false;
+                        var11 = false;
+                        var5 = var1;
+                        var6 = var2;
+                        var7 = var3;
                     }
 
-                    if (var19.getColor() != null) {
-                        int var20 = var19.getColor();
-                        var4 = (float)(var20 >> 16 & 0xFF) / 255.0F * var0;
-                        var5 = (float)(var20 >> 8 & 0xFF) / 255.0F * var0;
-                        var6 = (float)(var20 & 0xFF) / 255.0F * var0;
-                    } else if (var19 == ChatFormatting.OBFUSCATED) {
-                        var11 = true;
-                    } else if (var19 == ChatFormatting.BOLD) {
-                        var12 = true;
-                    } else if (var19 == ChatFormatting.STRIKETHROUGH) {
-                        var15 = true;
-                    } else if (var19 == ChatFormatting.UNDERLINE) {
-                        var14 = true;
-                    } else if (var19 == ChatFormatting.ITALIC) {
+                    if (var17.getColor() != null) {
+                        int var18 = var17.getColor();
+                        var5 = (float)(var18 >> 16 & 0xFF) / 255.0F * var0;
+                        var6 = (float)(var18 >> 8 & 0xFF) / 255.0F * var0;
+                        var7 = (float)(var18 & 0xFF) / 255.0F * var0;
+                    } else if (var17 == ChatFormatting.OBFUSCATED) {
+                        var9 = true;
+                    } else if (var17 == ChatFormatting.BOLD) {
+                        var10 = true;
+                    } else if (var17 == ChatFormatting.STRIKETHROUGH) {
                         var13 = true;
+                    } else if (var17 == ChatFormatting.UNDERLINE) {
+                        var12 = true;
+                    } else if (var17 == ChatFormatting.ITALIC) {
+                        var11 = true;
                     }
                 }
 
-                ++var17;
+                ++var15;
             } else {
-                GlyphInfo var21 = this.fonts.getGlyphInfo(var18);
-                BakedGlyph var22 = var11 && var18 != ' ' ? this.fonts.getRandomGlyph(var21) : this.fonts.getGlyph(var18);
-                ResourceLocation var23 = var22.getTexture();
-                if (var23 != null) {
-                    if (var10 != var23) {
-                        var8.end();
-                        this.textureManager.bind(var23);
-                        var9.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
-                        var10 = var23;
-                    }
-
-                    float var24 = var12 ? var21.getBoldOffset() : 0.0F;
-                    float var25 = param4 ? var21.getShadowOffset() : 0.0F;
-                    this.renderChar(var22, var12, var13, var24, param1 + var25, param2 + var25, var9, var4, var5, var6, var7);
+                GlyphInfo var19 = this.fonts.getGlyphInfo(var16);
+                BakedGlyph var20 = var9 && var16 != ' ' ? this.fonts.getRandomGlyph(var19) : this.fonts.getGlyph(var16);
+                ResourceLocation var21 = var20.getTexture();
+                if (var21 != null) {
+                    float var22 = var10 ? var19.getBoldOffset() : 0.0F;
+                    float var23 = param4 ? var19.getShadowOffset() : 0.0F;
+                    VertexConsumer var24 = param6.getBuffer(param7 ? RenderType.TEXT_SEE_THROUGH(var21) : RenderType.TEXT(var21));
+                    this.renderChar(var20, var10, var11, var22, var4 + var23, param2 + var23, param5, var24, var5, var6, var7, var8, param9);
                 }
 
-                float var26 = var21.getAdvance(var12);
-                float var27 = param4 ? 1.0F : 0.0F;
-                if (var15) {
-                    var16.add(
-                        new Font.Effect(
-                            param1 + var27 - 1.0F, param2 + var27 + 4.5F, param1 + var27 + var26, param2 + var27 + 4.5F - 1.0F, var4, var5, var6, var7
+                float var25 = var19.getAdvance(var10);
+                float var26 = param4 ? 1.0F : 0.0F;
+                if (var13) {
+                    var14.add(
+                        new BakedGlyph.Effect(
+                            var4 + var26 - 1.0F, param2 + var26 + 4.5F, var4 + var26 + var25, param2 + var26 + 4.5F - 1.0F, 0.001F, var5, var6, var7, var8
                         )
                     );
                 }
 
-                if (var14) {
-                    var16.add(
-                        new Font.Effect(
-                            param1 + var27 - 1.0F, param2 + var27 + 9.0F, param1 + var27 + var26, param2 + var27 + 9.0F - 1.0F, var4, var5, var6, var7
+                if (var12) {
+                    var14.add(
+                        new BakedGlyph.Effect(
+                            var4 + var26 - 1.0F, param2 + var26 + 9.0F, var4 + var26 + var25, param2 + var26 + 9.0F - 1.0F, 0.001F, var5, var6, var7, var8
                         )
                     );
                 }
 
-                param1 += var26;
+                var4 += var25;
             }
         }
 
-        var8.end();
-        if (!var16.isEmpty()) {
-            RenderSystem.disableTexture();
-            var9.begin(7, DefaultVertexFormat.POSITION_COLOR);
-
-            for(Font.Effect var28 : var16) {
-                var28.render(var9);
-            }
-
-            var8.end();
-            RenderSystem.enableTexture();
+        if (param8 != 0) {
+            float var27 = (float)(param8 >> 24 & 0xFF) / 255.0F;
+            float var28 = (float)(param8 >> 16 & 0xFF) / 255.0F;
+            float var29 = (float)(param8 >> 8 & 0xFF) / 255.0F;
+            float var30 = (float)(param8 & 0xFF) / 255.0F;
+            var14.add(new BakedGlyph.Effect(param1 - 1.0F, param2 + 9.0F, var4 + 1.0F, param2 - 1.0F, -0.001F, var28, var29, var30, var27));
         }
 
-        return param1;
+        if (!var14.isEmpty()) {
+            BakedGlyph var31 = this.fonts.whiteGlyph();
+            ResourceLocation var32 = var31.getTexture();
+            if (var32 != null) {
+                VertexConsumer var33 = param6.getBuffer(param7 ? RenderType.TEXT_SEE_THROUGH(var32) : RenderType.TEXT(var32));
+
+                for(BakedGlyph.Effect var34 : var14) {
+                    var31.renderEffect(var34, param5, var33, param9);
+                }
+            }
+        }
+
+        return var4;
     }
 
     private void renderChar(
@@ -202,15 +247,17 @@ public class Font implements AutoCloseable {
         float param3,
         float param4,
         float param5,
-        BufferBuilder param6,
-        float param7,
+        Matrix4f param6,
+        VertexConsumer param7,
         float param8,
         float param9,
-        float param10
+        float param10,
+        float param11,
+        int param12
     ) {
-        param0.render(this.textureManager, param2, param4, param5, param6, param7, param8, param9, param10);
+        param0.render(param2, param4, param5, param6, param7, param8, param9, param10, param11, param12);
         if (param1) {
-            param0.render(this.textureManager, param2, param4 + param3, param5, param6, param7, param8, param9, param10);
+            param0.render(param2, param4 + param3, param5, param6, param7, param8, param9, param10, param11, param12);
         }
 
     }
@@ -303,14 +350,17 @@ public class Font implements AutoCloseable {
     }
 
     private void drawWordWrapInternal(String param0, int param1, int param2, int param3, int param4) {
-        for(String var1 : this.split(param0, param3)) {
-            float var2 = (float)param1;
+        List<String> var0 = this.split(param0, param3);
+        Matrix4f var1 = Transformation.identity().getMatrix();
+
+        for(String var2 : var0) {
+            float var3 = (float)param1;
             if (this.bidirectional) {
-                int var3 = this.width(this.bidirectionalShaping(var1));
-                var2 += (float)(param3 - var3);
+                int var4 = this.width(this.bidirectionalShaping(var2));
+                var3 += (float)(param3 - var4);
             }
 
-            this.drawInternal(var1, var2, (float)param2, param4, false);
+            this.drawInternal(var2, var3, (float)param2, param4, var1, false);
             param2 += 9;
         }
 
@@ -442,35 +492,5 @@ public class Font implements AutoCloseable {
 
     public boolean isBidirectional() {
         return this.bidirectional;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    static class Effect {
-        protected final float x0;
-        protected final float y0;
-        protected final float x1;
-        protected final float y1;
-        protected final float r;
-        protected final float g;
-        protected final float b;
-        protected final float a;
-
-        private Effect(float param0, float param1, float param2, float param3, float param4, float param5, float param6, float param7) {
-            this.x0 = param0;
-            this.y0 = param1;
-            this.x1 = param2;
-            this.y1 = param3;
-            this.r = param4;
-            this.g = param5;
-            this.b = param6;
-            this.a = param7;
-        }
-
-        public void render(BufferBuilder param0) {
-            param0.vertex((double)this.x0, (double)this.y0, 0.0).color(this.r, this.g, this.b, this.a).endVertex();
-            param0.vertex((double)this.x1, (double)this.y0, 0.0).color(this.r, this.g, this.b, this.a).endVertex();
-            param0.vertex((double)this.x1, (double)this.y1, 0.0).color(this.r, this.g, this.b, this.a).endVertex();
-            param0.vertex((double)this.x0, (double)this.y1, 0.0).color(this.r, this.g, this.b, this.a).endVertex();
-        }
     }
 }

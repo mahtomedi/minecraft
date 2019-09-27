@@ -7,13 +7,35 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 
 public class ShortTag extends NumericTag {
-    private short data;
+    public static final TagType<ShortTag> TYPE = new TagType<ShortTag>() {
+        public ShortTag load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
+            param2.accountBits(80L);
+            return ShortTag.valueOf(param0.readShort());
+        }
 
-    public ShortTag() {
+        @Override
+        public String getName() {
+            return "SHORT";
+        }
+
+        @Override
+        public String getPrettyName() {
+            return "TAG_Short";
+        }
+
+        @Override
+        public boolean isValue() {
+            return true;
+        }
+    };
+    private final short data;
+
+    private ShortTag(short param0) {
+        this.data = param0;
     }
 
-    public ShortTag(short param0) {
-        this.data = param0;
+    public static ShortTag valueOf(short param0) {
+        return param0 >= -128 && param0 <= 1024 ? ShortTag.Cache.cache[param0 + 128] : new ShortTag(param0);
     }
 
     @Override
@@ -22,14 +44,13 @@ public class ShortTag extends NumericTag {
     }
 
     @Override
-    public void load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
-        param2.accountBits(80L);
-        this.data = param0.readShort();
+    public byte getId() {
+        return 2;
     }
 
     @Override
-    public byte getId() {
-        return 2;
+    public TagType<ShortTag> getType() {
+        return TYPE;
     }
 
     @Override
@@ -38,7 +59,7 @@ public class ShortTag extends NumericTag {
     }
 
     public ShortTag copy() {
-        return new ShortTag(this.data);
+        return this;
     }
 
     @Override
@@ -94,5 +115,16 @@ public class ShortTag extends NumericTag {
     @Override
     public Number getAsNumber() {
         return this.data;
+    }
+
+    static class Cache {
+        static final ShortTag[] cache = new ShortTag[1153];
+
+        static {
+            for(int var0 = 0; var0 < cache.length; ++var0) {
+                cache[var0] = new ShortTag((short)(-128 + var0));
+            }
+
+        }
     }
 }

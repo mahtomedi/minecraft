@@ -1,7 +1,9 @@
 package net.minecraft.world.level.block;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -105,7 +107,12 @@ public abstract class BaseRailBlock extends Block {
     }
 
     protected BlockState updateDir(Level param0, BlockPos param1, BlockState param2, boolean param3) {
-        return param0.isClientSide ? param2 : new RailState(param0, param1, param2).place(param0.hasNeighborSignal(param1), param3).getState();
+        if (param0.isClientSide) {
+            return param2;
+        } else {
+            RailShape var0 = param2.getValue(this.getShapeProperty());
+            return new RailState(param0, param1, param2).place(param0.hasNeighborSignal(param1), param3, var0).getState();
+        }
     }
 
     @Override
@@ -127,6 +134,14 @@ public abstract class BaseRailBlock extends Block {
             }
 
         }
+    }
+
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext param0) {
+        BlockState var0 = super.defaultBlockState();
+        Direction var1 = param0.getHorizontalDirection();
+        boolean var2 = var1 == Direction.EAST || var1 == Direction.WEST;
+        return var0.setValue(this.getShapeProperty(), var2 ? RailShape.EAST_WEST : RailShape.NORTH_SOUTH);
     }
 
     public abstract Property<RailShape> getShapeProperty();

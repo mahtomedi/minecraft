@@ -1,6 +1,7 @@
 package net.minecraft.client.gui.screens.inventory;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.font.TextFieldHelper;
 import net.minecraft.client.gui.screens.Screen;
@@ -116,7 +117,7 @@ public class SignEditScreen extends Screen {
         RenderSystem.translatef(0.0F, -1.0625F, 0.0F);
         this.sign.setCursorInfo(this.line, this.signField.getCursorPos(), this.signField.getSelectionPos(), this.frame / 6 % 2 == 0);
         RenderSystem.translatef(-0.5F, -0.75F, -0.5F);
-        BlockEntityRenderDispatcher.instance.renderItem(this.sign);
+        BlockEntityRenderDispatcher.instance.renderItem(this.sign, new PoseStack(), 15728880);
         this.sign.resetCursorInfo();
         RenderSystem.popMatrix();
         super.render(param0, param1, param2);

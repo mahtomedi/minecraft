@@ -1,6 +1,7 @@
 package net.minecraft.nbt;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -11,8 +12,51 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 
 public class ListTag extends CollectionTag<Tag> {
-    private List<Tag> list = Lists.newArrayList();
-    private byte type = 0;
+    public static final TagType<ListTag> TYPE = new TagType<ListTag>() {
+        public ListTag load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
+            param2.accountBits(296L);
+            if (param1 > 512) {
+                throw new RuntimeException("Tried to read NBT tag with too high complexity, depth > 512");
+            } else {
+                byte var0 = param0.readByte();
+                int var1 = param0.readInt();
+                if (var0 == 0 && var1 > 0) {
+                    throw new RuntimeException("Missing type on ListTag");
+                } else {
+                    param2.accountBits(32L * (long)var1);
+                    TagType<?> var2 = TagTypes.getType(var0);
+                    List<Tag> var3 = Lists.newArrayListWithCapacity(var1);
+
+                    for(int var4 = 0; var4 < var1; ++var4) {
+                        var3.add(var2.load(param0, param1 + 1, param2));
+                    }
+
+                    return new ListTag(var3, var0);
+                }
+            }
+        }
+
+        @Override
+        public String getName() {
+            return "LIST";
+        }
+
+        @Override
+        public String getPrettyName() {
+            return "TAG_List";
+        }
+    };
+    private final List<Tag> list;
+    private byte type;
+
+    private ListTag(List<Tag> param0, byte param1) {
+        this.list = param0;
+        this.type = param1;
+    }
+
+    public ListTag() {
+        this(Lists.newArrayList(), (byte)0);
+    }
 
     @Override
     public void write(DataOutput param0) throws IOException {
@@ -32,32 +76,13 @@ public class ListTag extends CollectionTag<Tag> {
     }
 
     @Override
-    public void load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
-        param2.accountBits(296L);
-        if (param1 > 512) {
-            throw new RuntimeException("Tried to read NBT tag with too high complexity, depth > 512");
-        } else {
-            this.type = param0.readByte();
-            int var0 = param0.readInt();
-            if (this.type == 0 && var0 > 0) {
-                throw new RuntimeException("Missing type on ListTag");
-            } else {
-                param2.accountBits(32L * (long)var0);
-                this.list = Lists.newArrayListWithCapacity(var0);
-
-                for(int var1 = 0; var1 < var0; ++var1) {
-                    Tag var2 = Tag.newTag(this.type);
-                    var2.load(param0, param1 + 1, param2);
-                    this.list.add(var2);
-                }
-
-            }
-        }
+    public byte getId() {
+        return 9;
     }
 
     @Override
-    public byte getId() {
-        return 9;
+    public TagType<ListTag> getType() {
+        return TYPE;
     }
 
     @Override
@@ -238,15 +263,9 @@ public class ListTag extends CollectionTag<Tag> {
     }
 
     public ListTag copy() {
-        ListTag var0 = new ListTag();
-        var0.type = this.type;
-
-        for(Tag var1 : this.list) {
-            Tag var2 = var1.copy();
-            var0.list.add(var2);
-        }
-
-        return var0;
+        Iterable<Tag> var0 = (Iterable<Tag>)(TagTypes.getType(this.type).isValue() ? this.list : Iterables.transform(this.list, Tag::copy));
+        List<Tag> var1 = Lists.newArrayList(var0);
+        return new ListTag(var1, this.type);
     }
 
     @Override

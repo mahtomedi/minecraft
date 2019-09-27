@@ -181,7 +181,7 @@ public class ScoreboardSaveData extends SavedData {
             ListTag var4 = new ListTag();
 
             for(String var5 : var2.getPlayers()) {
-                var4.add(new StringTag(var5));
+                var4.add(StringTag.valueOf(var5));
             }
 
             var3.put("Players", var4);

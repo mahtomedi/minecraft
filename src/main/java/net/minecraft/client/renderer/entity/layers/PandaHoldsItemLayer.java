@@ -1,8 +1,9 @@
 package net.minecraft.client.renderer.entity.layers;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PandaModel;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.util.Mth;
@@ -18,25 +19,32 @@ public class PandaHoldsItemLayer extends RenderLayer<Panda, PandaModel<Panda>> {
         super(param0);
     }
 
-    public void render(Panda param0, float param1, float param2, float param3, float param4, float param5, float param6, float param7) {
-        ItemStack var0 = param0.getItemBySlot(EquipmentSlot.MAINHAND);
-        if (param0.isSitting() && !var0.isEmpty() && !param0.isScared()) {
+    public void render(
+        PoseStack param0,
+        MultiBufferSource param1,
+        int param2,
+        Panda param3,
+        float param4,
+        float param5,
+        float param6,
+        float param7,
+        float param8,
+        float param9,
+        float param10
+    ) {
+        ItemStack var0 = param3.getItemBySlot(EquipmentSlot.MAINHAND);
+        if (param3.isSitting() && !param3.isScared()) {
             float var1 = -0.6F;
             float var2 = 1.4F;
-            if (param0.isEating()) {
-                var1 -= 0.2F * Mth.sin(param4 * 0.6F) + 0.2F;
-                var2 -= 0.09F * Mth.sin(param4 * 0.6F);
+            if (param3.isEating()) {
+                var1 -= 0.2F * Mth.sin(param7 * 0.6F) + 0.2F;
+                var2 -= 0.09F * Mth.sin(param7 * 0.6F);
             }
 
-            RenderSystem.pushMatrix();
-            RenderSystem.translatef(0.1F, var2, var1);
-            Minecraft.getInstance().getItemRenderer().renderWithMobState(var0, param0, ItemTransforms.TransformType.GROUND, false);
-            RenderSystem.popMatrix();
+            param0.pushPose();
+            param0.translate(0.1F, (double)var2, (double)var1);
+            Minecraft.getInstance().getItemInHandRenderer().renderItem(param3, var0, ItemTransforms.TransformType.GROUND, false, param0, param1);
+            param0.popPose();
         }
-    }
-
-    @Override
-    public boolean colorsOnDamage() {
-        return false;
     }
 }

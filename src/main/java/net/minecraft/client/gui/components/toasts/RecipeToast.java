@@ -1,7 +1,6 @@
 package net.minecraft.client.gui.components.toasts;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.List;
 import net.minecraft.client.resources.language.I18n;
@@ -35,7 +34,6 @@ public class RecipeToast implements Toast {
             param0.blit(0, 0, 0, 32, 160, 32);
             param0.getMinecraft().font.draw(I18n.get("recipe.toast.title"), 30.0F, 7.0F, -11534256);
             param0.getMinecraft().font.draw(I18n.get("recipe.toast.description"), 30.0F, 18.0F, -16777216);
-            Lighting.turnOnGui();
             Recipe<?> var0 = this.recipes.get((int)(param1 / (5000L / (long)this.recipes.size()) % (long)this.recipes.size()));
             ItemStack var1 = var0.getToastSymbol();
             RenderSystem.pushMatrix();

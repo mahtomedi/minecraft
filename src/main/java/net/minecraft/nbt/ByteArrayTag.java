@@ -10,10 +10,27 @@ import net.minecraft.network.chat.TextComponent;
 import org.apache.commons.lang3.ArrayUtils;
 
 public class ByteArrayTag extends CollectionTag<ByteTag> {
-    private byte[] data;
+    public static final TagType<ByteArrayTag> TYPE = new TagType<ByteArrayTag>() {
+        public ByteArrayTag load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
+            param2.accountBits(192L);
+            int var0 = param0.readInt();
+            param2.accountBits((long)(8 * var0));
+            byte[] var1 = new byte[var0];
+            param0.readFully(var1);
+            return new ByteArrayTag(var1);
+        }
 
-    ByteArrayTag() {
-    }
+        @Override
+        public String getName() {
+            return "BYTE[]";
+        }
+
+        @Override
+        public String getPrettyName() {
+            return "TAG_Byte_Array";
+        }
+    };
+    private byte[] data;
 
     public ByteArrayTag(byte[] param0) {
         this.data = param0;
@@ -41,17 +58,13 @@ public class ByteArrayTag extends CollectionTag<ByteTag> {
     }
 
     @Override
-    public void load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
-        param2.accountBits(192L);
-        int var0 = param0.readInt();
-        param2.accountBits((long)(8 * var0));
-        this.data = new byte[var0];
-        param0.readFully(this.data);
+    public byte getId() {
+        return 7;
     }
 
     @Override
-    public byte getId() {
-        return 7;
+    public TagType<ByteArrayTag> getType() {
+        return TYPE;
     }
 
     @Override
@@ -117,13 +130,13 @@ public class ByteArrayTag extends CollectionTag<ByteTag> {
     }
 
     public ByteTag get(int param0) {
-        return new ByteTag(this.data[param0]);
+        return ByteTag.valueOf(this.data[param0]);
     }
 
     public ByteTag set(int param0, ByteTag param1) {
         byte var0 = this.data[param0];
         this.data[param0] = param1.getAsByte();
-        return new ByteTag(var0);
+        return ByteTag.valueOf(var0);
     }
 
     public void add(int param0, ByteTag param1) {
@@ -153,7 +166,7 @@ public class ByteArrayTag extends CollectionTag<ByteTag> {
     public ByteTag remove(int param0) {
         byte var0 = this.data[param0];
         this.data = ArrayUtils.remove(this.data, param0);
-        return new ByteTag(var0);
+        return ByteTag.valueOf(var0);
     }
 
     @Override

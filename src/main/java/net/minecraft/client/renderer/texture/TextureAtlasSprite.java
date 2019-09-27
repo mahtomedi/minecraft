@@ -270,11 +270,6 @@ public class TextureAtlasSprite {
         return this.u0 + var0 * (float)param0 / 16.0F;
     }
 
-    public float getUOffset(float param0) {
-        float var0 = this.u1 - this.u0;
-        return (param0 - this.u0) / var0 * 16.0F;
-    }
-
     public float getV0() {
         return this.v0;
     }
@@ -286,11 +281,6 @@ public class TextureAtlasSprite {
     public float getV(double param0) {
         float var0 = this.v1 - this.v0;
         return this.v0 + var0 * (float)param0 / 16.0F;
-    }
-
-    public float getVOffset(float param0) {
-        float var0 = this.v1 - this.v0;
-        return (param0 - this.v0) / var0 * 16.0F;
     }
 
     public ResourceLocation getName() {

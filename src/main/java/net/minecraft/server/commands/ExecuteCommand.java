@@ -276,7 +276,7 @@ public class ExecuteCommand {
                                                         param2x.getSource(),
                                                         var0.access(param2x),
                                                         NbtPathArgument.getPath(param2x, "path"),
-                                                        param1x -> new IntTag((int)((double)param1x * DoubleArgumentType.getDouble(param2x, "scale"))),
+                                                        param1x -> IntTag.valueOf((int)((double)param1x * DoubleArgumentType.getDouble(param2x, "scale"))),
                                                         param2
                                                     )
                                             )
@@ -292,7 +292,7 @@ public class ExecuteCommand {
                                                         param2x.getSource(),
                                                         var0.access(param2x),
                                                         NbtPathArgument.getPath(param2x, "path"),
-                                                        param1x -> new FloatTag((float)((double)param1x * DoubleArgumentType.getDouble(param2x, "scale"))),
+                                                        param1x -> FloatTag.valueOf((float)((double)param1x * DoubleArgumentType.getDouble(param2x, "scale"))),
                                                         param2
                                                     )
                                             )
@@ -308,7 +308,7 @@ public class ExecuteCommand {
                                                         param2x.getSource(),
                                                         var0.access(param2x),
                                                         NbtPathArgument.getPath(param2x, "path"),
-                                                        param1x -> new ShortTag(
+                                                        param1x -> ShortTag.valueOf(
                                                                 (short)((int)((double)param1x * DoubleArgumentType.getDouble(param2x, "scale")))
                                                             ),
                                                         param2
@@ -326,7 +326,7 @@ public class ExecuteCommand {
                                                         param2x.getSource(),
                                                         var0.access(param2x),
                                                         NbtPathArgument.getPath(param2x, "path"),
-                                                        param1x -> new LongTag((long)((double)param1x * DoubleArgumentType.getDouble(param2x, "scale"))),
+                                                        param1x -> LongTag.valueOf((long)((double)param1x * DoubleArgumentType.getDouble(param2x, "scale"))),
                                                         param2
                                                     )
                                             )
@@ -342,7 +342,7 @@ public class ExecuteCommand {
                                                         param2x.getSource(),
                                                         var0.access(param2x),
                                                         NbtPathArgument.getPath(param2x, "path"),
-                                                        param1x -> new DoubleTag((double)param1x * DoubleArgumentType.getDouble(param2x, "scale")),
+                                                        param1x -> DoubleTag.valueOf((double)param1x * DoubleArgumentType.getDouble(param2x, "scale")),
                                                         param2
                                                     )
                                             )
@@ -358,7 +358,9 @@ public class ExecuteCommand {
                                                         param2x.getSource(),
                                                         var0.access(param2x),
                                                         NbtPathArgument.getPath(param2x, "path"),
-                                                        param1x -> new ByteTag((byte)((int)((double)param1x * DoubleArgumentType.getDouble(param2x, "scale")))),
+                                                        param1x -> ByteTag.valueOf(
+                                                                (byte)((int)((double)param1x * DoubleArgumentType.getDouble(param2x, "scale")))
+                                                            ),
                                                         param2
                                                     )
                                             )

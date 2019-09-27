@@ -66,7 +66,6 @@ public class RealmsSimpleScrolledSelectionListProxy extends ScrolledSelectionLis
             int var0 = this.getScrollbarPosition();
             int var1 = var0 + 6;
             this.capYPosition();
-            RenderSystem.disableLighting();
             RenderSystem.disableFog();
             Tesselator var2 = Tesselator.getInstance();
             BufferBuilder var3 = var2.getBuilder();
@@ -100,22 +99,22 @@ public class RealmsSimpleScrolledSelectionListProxy extends ScrolledSelectionLis
                 }
 
                 var3.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
-                var3.vertex((double)var0, (double)this.y1, 0.0).uv(0.0, 1.0).color(0, 0, 0, 255).endVertex();
-                var3.vertex((double)var1, (double)this.y1, 0.0).uv(1.0, 1.0).color(0, 0, 0, 255).endVertex();
-                var3.vertex((double)var1, (double)this.y0, 0.0).uv(1.0, 0.0).color(0, 0, 0, 255).endVertex();
-                var3.vertex((double)var0, (double)this.y0, 0.0).uv(0.0, 0.0).color(0, 0, 0, 255).endVertex();
+                var3.vertex((double)var0, (double)this.y1, 0.0).uv(0.0F, 1.0F).color(0, 0, 0, 255).endVertex();
+                var3.vertex((double)var1, (double)this.y1, 0.0).uv(1.0F, 1.0F).color(0, 0, 0, 255).endVertex();
+                var3.vertex((double)var1, (double)this.y0, 0.0).uv(1.0F, 0.0F).color(0, 0, 0, 255).endVertex();
+                var3.vertex((double)var0, (double)this.y0, 0.0).uv(0.0F, 0.0F).color(0, 0, 0, 255).endVertex();
                 var2.end();
                 var3.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
-                var3.vertex((double)var0, (double)(var8 + var7), 0.0).uv(0.0, 1.0).color(128, 128, 128, 255).endVertex();
-                var3.vertex((double)var1, (double)(var8 + var7), 0.0).uv(1.0, 1.0).color(128, 128, 128, 255).endVertex();
-                var3.vertex((double)var1, (double)var8, 0.0).uv(1.0, 0.0).color(128, 128, 128, 255).endVertex();
-                var3.vertex((double)var0, (double)var8, 0.0).uv(0.0, 0.0).color(128, 128, 128, 255).endVertex();
+                var3.vertex((double)var0, (double)(var8 + var7), 0.0).uv(0.0F, 1.0F).color(128, 128, 128, 255).endVertex();
+                var3.vertex((double)var1, (double)(var8 + var7), 0.0).uv(1.0F, 1.0F).color(128, 128, 128, 255).endVertex();
+                var3.vertex((double)var1, (double)var8, 0.0).uv(1.0F, 0.0F).color(128, 128, 128, 255).endVertex();
+                var3.vertex((double)var0, (double)var8, 0.0).uv(0.0F, 0.0F).color(128, 128, 128, 255).endVertex();
                 var2.end();
                 var3.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
-                var3.vertex((double)var0, (double)(var8 + var7 - 1), 0.0).uv(0.0, 1.0).color(192, 192, 192, 255).endVertex();
-                var3.vertex((double)(var1 - 1), (double)(var8 + var7 - 1), 0.0).uv(1.0, 1.0).color(192, 192, 192, 255).endVertex();
-                var3.vertex((double)(var1 - 1), (double)var8, 0.0).uv(1.0, 0.0).color(192, 192, 192, 255).endVertex();
-                var3.vertex((double)var0, (double)var8, 0.0).uv(0.0, 0.0).color(192, 192, 192, 255).endVertex();
+                var3.vertex((double)var0, (double)(var8 + var7 - 1), 0.0).uv(0.0F, 1.0F).color(192, 192, 192, 255).endVertex();
+                var3.vertex((double)(var1 - 1), (double)(var8 + var7 - 1), 0.0).uv(1.0F, 1.0F).color(192, 192, 192, 255).endVertex();
+                var3.vertex((double)(var1 - 1), (double)var8, 0.0).uv(1.0F, 0.0F).color(192, 192, 192, 255).endVertex();
+                var3.vertex((double)var0, (double)var8, 0.0).uv(0.0F, 0.0F).color(192, 192, 192, 255).endVertex();
                 var2.end();
             }
 

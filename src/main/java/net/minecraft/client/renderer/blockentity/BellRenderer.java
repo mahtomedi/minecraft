@@ -1,7 +1,9 @@
 package net.minecraft.client.renderer.blockentity;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -11,11 +13,12 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class BellRenderer extends BatchedBlockEntityRenderer<BellBlockEntity> {
+public class BellRenderer extends BlockEntityRenderer<BellBlockEntity> {
     public static final ResourceLocation BELL_RESOURCE_LOCATION = new ResourceLocation("entity/bell/bell_body");
     private final ModelPart bellBody = new ModelPart(32, 32, 0, 0);
 
-    public BellRenderer() {
+    public BellRenderer(BlockEntityRenderDispatcher param0) {
+        super(param0);
         this.bellBody.addBox(-3.0F, -6.0F, -3.0F, 6.0F, 7.0F, 6.0F);
         this.bellBody.setPos(8.0F, 12.0F, 8.0F);
         ModelPart var0 = new ModelPart(32, 32, 0, 13);
@@ -24,17 +27,8 @@ public class BellRenderer extends BatchedBlockEntityRenderer<BellBlockEntity> {
         this.bellBody.addChild(var0);
     }
 
-    protected void renderToBuffer(
-        BellBlockEntity param0,
-        double param1,
-        double param2,
-        double param3,
-        float param4,
-        int param5,
-        RenderType param6,
-        BufferBuilder param7,
-        int param8,
-        int param9
+    public void render(
+        BellBlockEntity param0, double param1, double param2, double param3, float param4, PoseStack param5, MultiBufferSource param6, int param7
     ) {
         float var0 = (float)param0.ticks + param4;
         float var1 = 0.0F;
@@ -54,9 +48,7 @@ public class BellRenderer extends BatchedBlockEntityRenderer<BellBlockEntity> {
 
         this.bellBody.xRot = var1;
         this.bellBody.zRot = var2;
-        param7.pushPose();
-        param7.getPose().setIdentity();
-        this.bellBody.render(param7, 0.0625F, param8, param9, this.getSprite(BELL_RESOURCE_LOCATION));
-        param7.popPose();
+        VertexConsumer var4 = param6.getBuffer(RenderType.SOLID);
+        this.bellBody.render(param5, var4, 0.0625F, param7, this.getSprite(BELL_RESOURCE_LOCATION));
     }
 }

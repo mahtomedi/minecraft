@@ -16,5 +16,5 @@ public interface UnbakedModel {
     Collection<ResourceLocation> getTextures(Function<ResourceLocation, UnbakedModel> var1, Set<String> var2);
 
     @Nullable
-    BakedModel bake(ModelBakery var1, Function<ResourceLocation, TextureAtlasSprite> var2, ModelState var3);
+    BakedModel bake(ModelBakery var1, Function<ResourceLocation, TextureAtlasSprite> var2, ModelState var3, ResourceLocation var4);
 }

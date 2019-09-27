@@ -8,15 +8,39 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 
 public class StringTag implements Tag {
-    private String data;
+    public static final TagType<StringTag> TYPE = new TagType<StringTag>() {
+        public StringTag load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
+            param2.accountBits(288L);
+            String var0 = param0.readUTF();
+            param2.accountBits((long)(16 * var0.length()));
+            return StringTag.valueOf(var0);
+        }
 
-    public StringTag() {
-        this("");
-    }
+        @Override
+        public String getName() {
+            return "STRING";
+        }
 
-    public StringTag(String param0) {
+        @Override
+        public String getPrettyName() {
+            return "TAG_String";
+        }
+
+        @Override
+        public boolean isValue() {
+            return true;
+        }
+    };
+    private static final StringTag EMPTY = new StringTag("");
+    private final String data;
+
+    private StringTag(String param0) {
         Objects.requireNonNull(param0, "Null string not allowed");
         this.data = param0;
+    }
+
+    public static StringTag valueOf(String param0) {
+        return param0.isEmpty() ? EMPTY : new StringTag(param0);
     }
 
     @Override
@@ -25,15 +49,13 @@ public class StringTag implements Tag {
     }
 
     @Override
-    public void load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
-        param2.accountBits(288L);
-        this.data = param0.readUTF();
-        param2.accountBits((long)(16 * this.data.length()));
+    public byte getId() {
+        return 8;
     }
 
     @Override
-    public byte getId() {
-        return 8;
+    public TagType<StringTag> getType() {
+        return TYPE;
     }
 
     @Override
@@ -42,7 +64,7 @@ public class StringTag implements Tag {
     }
 
     public StringTag copy() {
-        return new StringTag(this.data);
+        return this;
     }
 
     @Override

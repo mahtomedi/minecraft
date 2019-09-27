@@ -67,7 +67,7 @@ public class TagParser {
         this.reader.skipWhitespace();
         int var0 = this.reader.getCursor();
         if (StringReader.isQuotedStringStart(this.reader.peek())) {
-            return new StringTag(this.reader.readQuotedString());
+            return StringTag.valueOf(this.reader.readQuotedString());
         } else {
             String var1 = this.reader.readUnquotedString();
             if (var1.isEmpty()) {
@@ -82,44 +82,44 @@ public class TagParser {
     private Tag type(String param0) {
         try {
             if (FLOAT_PATTERN.matcher(param0).matches()) {
-                return new FloatTag(Float.parseFloat(param0.substring(0, param0.length() - 1)));
+                return FloatTag.valueOf(Float.parseFloat(param0.substring(0, param0.length() - 1)));
             }
 
             if (BYTE_PATTERN.matcher(param0).matches()) {
-                return new ByteTag(Byte.parseByte(param0.substring(0, param0.length() - 1)));
+                return ByteTag.valueOf(Byte.parseByte(param0.substring(0, param0.length() - 1)));
             }
 
             if (LONG_PATTERN.matcher(param0).matches()) {
-                return new LongTag(Long.parseLong(param0.substring(0, param0.length() - 1)));
+                return LongTag.valueOf(Long.parseLong(param0.substring(0, param0.length() - 1)));
             }
 
             if (SHORT_PATTERN.matcher(param0).matches()) {
-                return new ShortTag(Short.parseShort(param0.substring(0, param0.length() - 1)));
+                return ShortTag.valueOf(Short.parseShort(param0.substring(0, param0.length() - 1)));
             }
 
             if (INT_PATTERN.matcher(param0).matches()) {
-                return new IntTag(Integer.parseInt(param0));
+                return IntTag.valueOf(Integer.parseInt(param0));
             }
 
             if (DOUBLE_PATTERN.matcher(param0).matches()) {
-                return new DoubleTag(Double.parseDouble(param0.substring(0, param0.length() - 1)));
+                return DoubleTag.valueOf(Double.parseDouble(param0.substring(0, param0.length() - 1)));
             }
 
             if (DOUBLE_PATTERN_NOSUFFIX.matcher(param0).matches()) {
-                return new DoubleTag(Double.parseDouble(param0));
+                return DoubleTag.valueOf(Double.parseDouble(param0));
             }
 
             if ("true".equalsIgnoreCase(param0)) {
-                return new ByteTag((byte)1);
+                return ByteTag.ONE;
             }
 
             if ("false".equalsIgnoreCase(param0)) {
-                return new ByteTag((byte)0);
+                return ByteTag.ZERO;
             }
         } catch (NumberFormatException var3) {
         }
 
-        return new StringTag(param0);
+        return StringTag.valueOf(param0);
     }
 
     public Tag readValue() throws CommandSyntaxException {
@@ -177,17 +177,17 @@ public class TagParser {
             throw ERROR_EXPECTED_VALUE.createWithContext(this.reader);
         } else {
             ListTag var0 = new ListTag();
-            int var1 = -1;
+            TagType<?> var1 = null;
 
             while(this.reader.peek() != ']') {
                 int var2 = this.reader.getCursor();
                 Tag var3 = this.readValue();
-                int var4 = var3.getId();
-                if (var1 < 0) {
+                TagType<?> var4 = var3.getType();
+                if (var1 == null) {
                     var1 = var4;
                 } else if (var4 != var1) {
                     this.reader.setCursor(var2);
-                    throw ERROR_INSERT_MIXED_LIST.createWithContext(this.reader, Tag.getTagTypeName(var4), Tag.getTagTypeName(var1));
+                    throw ERROR_INSERT_MIXED_LIST.createWithContext(this.reader, var4.getPrettyName(), var1.getPrettyName());
                 }
 
                 var0.add(var3);
@@ -214,32 +214,32 @@ public class TagParser {
         if (!this.reader.canRead()) {
             throw ERROR_EXPECTED_VALUE.createWithContext(this.reader);
         } else if (var1 == 'B') {
-            return new ByteArrayTag(this.readArray((byte)7, (byte)1));
+            return new ByteArrayTag(this.readArray(ByteArrayTag.TYPE, ByteTag.TYPE));
         } else if (var1 == 'L') {
-            return new LongArrayTag(this.readArray((byte)12, (byte)4));
+            return new LongArrayTag(this.readArray(LongArrayTag.TYPE, LongTag.TYPE));
         } else if (var1 == 'I') {
-            return new IntArrayTag(this.readArray((byte)11, (byte)3));
+            return new IntArrayTag(this.readArray(IntArrayTag.TYPE, IntTag.TYPE));
         } else {
             this.reader.setCursor(var0);
             throw ERROR_INVALID_ARRAY.createWithContext(this.reader, String.valueOf(var1));
         }
     }
 
-    private <T extends Number> List<T> readArray(byte param0, byte param1) throws CommandSyntaxException {
+    private <T extends Number> List<T> readArray(TagType<?> param0, TagType<?> param1) throws CommandSyntaxException {
         List<T> var0 = Lists.newArrayList();
 
         while(this.reader.peek() != ']') {
             int var1 = this.reader.getCursor();
             Tag var2 = this.readValue();
-            int var3 = var2.getId();
+            TagType<?> var3 = var2.getType();
             if (var3 != param1) {
                 this.reader.setCursor(var1);
-                throw ERROR_INSERT_MIXED_ARRAY.createWithContext(this.reader, Tag.getTagTypeName(var3), Tag.getTagTypeName(param0));
+                throw ERROR_INSERT_MIXED_ARRAY.createWithContext(this.reader, var3.getPrettyName(), param0.getPrettyName());
             }
 
-            if (param1 == 1) {
+            if (param1 == ByteTag.TYPE) {
                 var0.add((T)((NumericTag)var2).getAsByte());
-            } else if (param1 == 4) {
+            } else if (param1 == LongTag.TYPE) {
                 var0.add((T)((NumericTag)var2).getAsLong());
             } else {
                 var0.add((T)((NumericTag)var2).getAsInt());

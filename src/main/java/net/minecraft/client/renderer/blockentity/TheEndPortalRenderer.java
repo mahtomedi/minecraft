@@ -1,16 +1,9 @@
 package net.minecraft.client.renderer.blockentity;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.platform.MemoryTracker;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.Tesselator;
-import java.nio.Buffer;
-import java.nio.FloatBuffer;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import java.util.Random;
-import net.minecraft.Util;
-import net.minecraft.client.renderer.FogRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -20,126 +13,92 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class TheEndPortalRenderer<T extends TheEndPortalBlockEntity> extends BlockEntityRenderer<T> {
-    private static final ResourceLocation END_SKY_LOCATION = new ResourceLocation("textures/environment/end_sky.png");
-    private static final ResourceLocation END_PORTAL_LOCATION = new ResourceLocation("textures/entity/end_portal.png");
+    public static final ResourceLocation END_SKY_LOCATION = new ResourceLocation("textures/environment/end_sky.png");
+    public static final ResourceLocation END_PORTAL_LOCATION = new ResourceLocation("textures/entity/end_portal.png");
     private static final Random RANDOM = new Random(31100L);
-    private static final FloatBuffer MODELVIEW = MemoryTracker.createFloatBuffer(16);
-    private static final FloatBuffer PROJECTION = MemoryTracker.createFloatBuffer(16);
-    private final FloatBuffer buffer = MemoryTracker.createFloatBuffer(16);
 
-    public void render(T param0, double param1, double param2, double param3, float param4, int param5, RenderType param6) {
-        RenderSystem.disableLighting();
+    public TheEndPortalRenderer(BlockEntityRenderDispatcher param0) {
+        super(param0);
+    }
+
+    public void render(T param0, double param1, double param2, double param3, float param4, PoseStack param5, MultiBufferSource param6, int param7) {
         RANDOM.setSeed(31100L);
-        RenderSystem.getMatrix(2982, MODELVIEW);
-        RenderSystem.getMatrix(2983, PROJECTION);
         double var0 = param1 * param1 + param2 * param2 + param3 * param3;
         int var1 = this.getPasses(var0);
         float var2 = this.getOffset();
-        boolean var3 = false;
+        this.renderCube(param0, param1, param2, param3, var2, 0.15F, param6.getBuffer(RenderType.PORTAL(1)));
 
-        for(int var4 = 0; var4 < var1; ++var4) {
-            RenderSystem.pushMatrix();
-            float var5 = 2.0F / (float)(18 - var4);
-            if (var4 == 0) {
-                this.bindTexture(END_SKY_LOCATION);
-                var5 = 0.15F;
-                RenderSystem.enableBlend();
-                RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-            }
-
-            if (var4 >= 1) {
-                this.bindTexture(END_PORTAL_LOCATION);
-                var3 = true;
-                FogRenderer.resetFogColor(true);
-            }
-
-            if (var4 == 1) {
-                RenderSystem.enableBlend();
-                RenderSystem.blendFunc(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
-            }
-
-            RenderSystem.texGenMode(GlStateManager.TexGen.S, 9216);
-            RenderSystem.texGenMode(GlStateManager.TexGen.T, 9216);
-            RenderSystem.texGenMode(GlStateManager.TexGen.R, 9216);
-            RenderSystem.texGenParam(GlStateManager.TexGen.S, 9474, this.getBuffer(1.0F, 0.0F, 0.0F, 0.0F));
-            RenderSystem.texGenParam(GlStateManager.TexGen.T, 9474, this.getBuffer(0.0F, 1.0F, 0.0F, 0.0F));
-            RenderSystem.texGenParam(GlStateManager.TexGen.R, 9474, this.getBuffer(0.0F, 0.0F, 1.0F, 0.0F));
-            RenderSystem.enableTexGen(GlStateManager.TexGen.S);
-            RenderSystem.enableTexGen(GlStateManager.TexGen.T);
-            RenderSystem.enableTexGen(GlStateManager.TexGen.R);
-            RenderSystem.popMatrix();
-            RenderSystem.matrixMode(5890);
-            RenderSystem.pushMatrix();
-            RenderSystem.loadIdentity();
-            RenderSystem.translatef(0.5F, 0.5F, 0.0F);
-            RenderSystem.scalef(0.5F, 0.5F, 1.0F);
-            float var6 = (float)(var4 + 1);
-            RenderSystem.translatef(17.0F / var6, (2.0F + var6 / 1.5F) * ((float)(Util.getMillis() % 800000L) / 800000.0F), 0.0F);
-            RenderSystem.rotatef((var6 * var6 * 4321.0F + var6 * 9.0F) * 2.0F, 0.0F, 0.0F, 1.0F);
-            RenderSystem.scalef(4.5F - var6 / 4.0F, 4.5F - var6 / 4.0F, 1.0F);
-            RenderSystem.multMatrix(PROJECTION);
-            RenderSystem.multMatrix(MODELVIEW);
-            Tesselator var7 = Tesselator.getInstance();
-            BufferBuilder var8 = var7.getBuilder();
-            var8.begin(7, DefaultVertexFormat.POSITION_COLOR);
-            float var9 = (RANDOM.nextFloat() * 0.5F + 0.1F) * var5;
-            float var10 = (RANDOM.nextFloat() * 0.5F + 0.4F) * var5;
-            float var11 = (RANDOM.nextFloat() * 0.5F + 0.5F) * var5;
-            if (param0.shouldRenderFace(Direction.SOUTH)) {
-                var8.vertex(param1, param2, param3 + 1.0).color(var9, var10, var11, 1.0F).endVertex();
-                var8.vertex(param1 + 1.0, param2, param3 + 1.0).color(var9, var10, var11, 1.0F).endVertex();
-                var8.vertex(param1 + 1.0, param2 + 1.0, param3 + 1.0).color(var9, var10, var11, 1.0F).endVertex();
-                var8.vertex(param1, param2 + 1.0, param3 + 1.0).color(var9, var10, var11, 1.0F).endVertex();
-            }
-
-            if (param0.shouldRenderFace(Direction.NORTH)) {
-                var8.vertex(param1, param2 + 1.0, param3).color(var9, var10, var11, 1.0F).endVertex();
-                var8.vertex(param1 + 1.0, param2 + 1.0, param3).color(var9, var10, var11, 1.0F).endVertex();
-                var8.vertex(param1 + 1.0, param2, param3).color(var9, var10, var11, 1.0F).endVertex();
-                var8.vertex(param1, param2, param3).color(var9, var10, var11, 1.0F).endVertex();
-            }
-
-            if (param0.shouldRenderFace(Direction.EAST)) {
-                var8.vertex(param1 + 1.0, param2 + 1.0, param3).color(var9, var10, var11, 1.0F).endVertex();
-                var8.vertex(param1 + 1.0, param2 + 1.0, param3 + 1.0).color(var9, var10, var11, 1.0F).endVertex();
-                var8.vertex(param1 + 1.0, param2, param3 + 1.0).color(var9, var10, var11, 1.0F).endVertex();
-                var8.vertex(param1 + 1.0, param2, param3).color(var9, var10, var11, 1.0F).endVertex();
-            }
-
-            if (param0.shouldRenderFace(Direction.WEST)) {
-                var8.vertex(param1, param2, param3).color(var9, var10, var11, 1.0F).endVertex();
-                var8.vertex(param1, param2, param3 + 1.0).color(var9, var10, var11, 1.0F).endVertex();
-                var8.vertex(param1, param2 + 1.0, param3 + 1.0).color(var9, var10, var11, 1.0F).endVertex();
-                var8.vertex(param1, param2 + 1.0, param3).color(var9, var10, var11, 1.0F).endVertex();
-            }
-
-            if (param0.shouldRenderFace(Direction.DOWN)) {
-                var8.vertex(param1, param2, param3).color(var9, var10, var11, 1.0F).endVertex();
-                var8.vertex(param1 + 1.0, param2, param3).color(var9, var10, var11, 1.0F).endVertex();
-                var8.vertex(param1 + 1.0, param2, param3 + 1.0).color(var9, var10, var11, 1.0F).endVertex();
-                var8.vertex(param1, param2, param3 + 1.0).color(var9, var10, var11, 1.0F).endVertex();
-            }
-
-            if (param0.shouldRenderFace(Direction.UP)) {
-                var8.vertex(param1, param2 + (double)var2, param3 + 1.0).color(var9, var10, var11, 1.0F).endVertex();
-                var8.vertex(param1 + 1.0, param2 + (double)var2, param3 + 1.0).color(var9, var10, var11, 1.0F).endVertex();
-                var8.vertex(param1 + 1.0, param2 + (double)var2, param3).color(var9, var10, var11, 1.0F).endVertex();
-                var8.vertex(param1, param2 + (double)var2, param3).color(var9, var10, var11, 1.0F).endVertex();
-            }
-
-            var7.end();
-            RenderSystem.popMatrix();
-            RenderSystem.matrixMode(5888);
-            this.bindTexture(END_SKY_LOCATION);
+        for(int var3 = 1; var3 < var1; ++var3) {
+            this.renderCube(param0, param1, param2, param3, var2, 2.0F / (float)(18 - var3), param6.getBuffer(RenderType.PORTAL(var3 + 1)));
         }
 
-        RenderSystem.disableBlend();
-        RenderSystem.disableTexGen(GlStateManager.TexGen.S);
-        RenderSystem.disableTexGen(GlStateManager.TexGen.T);
-        RenderSystem.disableTexGen(GlStateManager.TexGen.R);
-        RenderSystem.enableLighting();
-        if (var3) {
-            FogRenderer.resetFogColor(false);
+    }
+
+    private void renderCube(T param0, double param1, double param2, double param3, float param4, float param5, VertexConsumer param6) {
+        float var0 = (RANDOM.nextFloat() * 0.5F + 0.1F) * param5;
+        float var1 = (RANDOM.nextFloat() * 0.5F + 0.4F) * param5;
+        float var2 = (RANDOM.nextFloat() * 0.5F + 0.5F) * param5;
+        this.renderFace(
+            param0,
+            param6,
+            Direction.SOUTH,
+            param1,
+            param1 + 1.0,
+            param2,
+            param2 + 1.0,
+            param3 + 1.0,
+            param3 + 1.0,
+            param3 + 1.0,
+            param3 + 1.0,
+            var0,
+            var1,
+            var2
+        );
+        this.renderFace(param0, param6, Direction.NORTH, param1, param1 + 1.0, param2 + 1.0, param2, param3, param3, param3, param3, var0, var1, var2);
+        this.renderFace(
+            param0, param6, Direction.EAST, param1 + 1.0, param1 + 1.0, param2 + 1.0, param2, param3, param3 + 1.0, param3 + 1.0, param3, var0, var1, var2
+        );
+        this.renderFace(param0, param6, Direction.WEST, param1, param1, param2, param2 + 1.0, param3, param3 + 1.0, param3 + 1.0, param3, var0, var1, var2);
+        this.renderFace(param0, param6, Direction.DOWN, param1, param1 + 1.0, param2, param2, param3, param3, param3 + 1.0, param3 + 1.0, var0, var1, var2);
+        this.renderFace(
+            param0,
+            param6,
+            Direction.UP,
+            param1,
+            param1 + 1.0,
+            param2 + (double)param4,
+            param2 + (double)param4,
+            param3 + 1.0,
+            param3 + 1.0,
+            param3,
+            param3,
+            var0,
+            var1,
+            var2
+        );
+    }
+
+    private void renderFace(
+        T param0,
+        VertexConsumer param1,
+        Direction param2,
+        double param3,
+        double param4,
+        double param5,
+        double param6,
+        double param7,
+        double param8,
+        double param9,
+        double param10,
+        float param11,
+        float param12,
+        float param13
+    ) {
+        if (param0.shouldRenderFace(param2)) {
+            param1.vertex(param3, param5, param7).color(param11, param12, param13, 1.0F).endVertex();
+            param1.vertex(param4, param5, param8).color(param11, param12, param13, 1.0F).endVertex();
+            param1.vertex(param4, param6, param9).color(param11, param12, param13, 1.0F).endVertex();
+            param1.vertex(param3, param6, param10).color(param11, param12, param13, 1.0F).endVertex();
         }
 
     }
@@ -171,12 +130,5 @@ public class TheEndPortalRenderer<T extends TheEndPortalBlockEntity> extends Blo
 
     protected float getOffset() {
         return 0.75F;
-    }
-
-    private FloatBuffer getBuffer(float param0, float param1, float param2, float param3) {
-        ((Buffer)this.buffer).clear();
-        this.buffer.put(param0).put(param1).put(param2).put(param3);
-        ((Buffer)this.buffer).flip();
-        return this.buffer;
     }
 }

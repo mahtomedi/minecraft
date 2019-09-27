@@ -347,14 +347,14 @@ public abstract class Mob extends LivingEntity {
         ListTag var6 = new ListTag();
 
         for(float var7 : this.armorDropChances) {
-            var6.add(new FloatTag(var7));
+            var6.add(FloatTag.valueOf(var7));
         }
 
         param0.put("ArmorDropChances", var6);
         ListTag var8 = new ListTag();
 
         for(float var9 : this.handDropChances) {
-            var8.add(new FloatTag(var9));
+            var8.add(FloatTag.valueOf(var9));
         }
 
         param0.put("HandDropChances", var8);
@@ -371,6 +371,8 @@ public abstract class Mob extends LivingEntity {
             }
 
             param0.put("Leash", var10);
+        } else if (this.leashInfoTag != null) {
+            param0.put("Leash", this.leashInfoTag.copy());
         }
 
         param0.putBoolean("LeftHanded", this.isLeftHanded());

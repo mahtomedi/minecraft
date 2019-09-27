@@ -564,12 +564,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         int var5 = param0.getEntityId();
         RemotePlayer var6 = new RemotePlayer(this.minecraft.level, this.getPlayerInfo(param0.getPlayerId()).getProfile());
         var6.setId(var5);
-        var6.xo = var0;
-        var6.xOld = var0;
-        var6.yo = var1;
-        var6.yOld = var1;
-        var6.zo = var2;
-        var6.zOld = var2;
+        var6.setPosAndOldPos(var0, var1, var2);
         var6.setPacketCoordinates(var0, var1, var2);
         var6.absMoveTo(var0, var1, var2, var3, var4);
         this.level.addPlayer(var5, var6);
@@ -659,55 +654,73 @@ public class ClientPacketListener implements ClientGamePacketListener {
     public void handleMovePlayer(ClientboundPlayerPositionPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         Player var0 = this.minecraft.player;
-        double var1 = param0.getX();
-        double var2 = param0.getY();
-        double var3 = param0.getZ();
-        float var4 = param0.getYRot();
-        float var5 = param0.getXRot();
-        Vec3 var6 = var0.getDeltaMovement();
-        double var7 = var6.x;
-        double var8 = var6.y;
-        double var9 = var6.z;
-        if (param0.getRelativeArguments().contains(ClientboundPlayerPositionPacket.RelativeArgument.X)) {
-            var0.xOld += var1;
-            var1 += var0.x;
+        Vec3 var1 = var0.getDeltaMovement();
+        boolean var2 = param0.getRelativeArguments().contains(ClientboundPlayerPositionPacket.RelativeArgument.X);
+        boolean var3 = param0.getRelativeArguments().contains(ClientboundPlayerPositionPacket.RelativeArgument.Y);
+        boolean var4 = param0.getRelativeArguments().contains(ClientboundPlayerPositionPacket.RelativeArgument.Z);
+        double var5;
+        double var6;
+        if (var2) {
+            var5 = var1.x();
+            var6 = var0.x + param0.getX();
+            var0.xOld += param0.getX();
+            var0.x = var6;
+            var0.xo = var6;
         } else {
-            var0.xOld = var1;
-            var7 = 0.0;
+            var5 = 0.0;
+            var6 = param0.getX();
+            var0.xOld = var6;
+            var0.x = var6;
+            var0.xo = var6;
         }
 
-        if (param0.getRelativeArguments().contains(ClientboundPlayerPositionPacket.RelativeArgument.Y)) {
-            var0.yOld += var2;
-            var2 += var0.y;
+        double var9;
+        double var10;
+        if (var3) {
+            var9 = var1.y();
+            var10 = var0.y + param0.getY();
+            var0.yOld += param0.getY();
+            var0.y = var10;
+            var0.yo = var10;
         } else {
-            var0.yOld = var2;
-            var8 = 0.0;
-        }
-
-        if (param0.getRelativeArguments().contains(ClientboundPlayerPositionPacket.RelativeArgument.Z)) {
-            var0.zOld += var3;
-            var3 += var0.z;
-        } else {
-            var0.zOld = var3;
             var9 = 0.0;
+            var10 = param0.getY();
+            var0.yOld = var10;
+            var0.y = var10;
+            var0.yo = var10;
         }
 
-        var0.setDeltaMovement(var7, var8, var9);
+        double var13;
+        double var14;
+        if (var4) {
+            var13 = var1.z();
+            var14 = var0.z + param0.getZ();
+            var0.zOld += param0.getZ();
+            var0.z = var14;
+            var0.zo = var14;
+        } else {
+            var13 = 0.0;
+            var14 = param0.getZ();
+            var0.zOld = var14;
+            var0.z = var14;
+            var0.zo = var14;
+        }
+
+        var0.setDeltaMovement(var5, var9, var13);
+        float var17 = param0.getYRot();
+        float var18 = param0.getXRot();
         if (param0.getRelativeArguments().contains(ClientboundPlayerPositionPacket.RelativeArgument.X_ROT)) {
-            var5 += var0.xRot;
+            var18 += var0.xRot;
         }
 
         if (param0.getRelativeArguments().contains(ClientboundPlayerPositionPacket.RelativeArgument.Y_ROT)) {
-            var4 += var0.yRot;
+            var17 += var0.yRot;
         }
 
-        var0.absMoveTo(var1, var2, var3, var4, var5);
+        var0.absMoveTo(var6, var10, var14, var17, var18);
         this.connection.send(new ServerboundAcceptTeleportationPacket(param0.getId()));
         this.connection.send(new ServerboundMovePlayerPacket.PosRot(var0.x, var0.getBoundingBox().minY, var0.z, var0.yRot, var0.xRot, false));
         if (!this.started) {
-            this.minecraft.player.xo = this.minecraft.player.x;
-            this.minecraft.player.yo = this.minecraft.player.y;
-            this.minecraft.player.zo = this.minecraft.player.z;
             this.started = true;
             this.minecraft.setScreen(null);
         }
@@ -838,7 +851,9 @@ public class ClientPacketListener implements ClientGamePacketListener {
                 ((ItemEntity)var0).getItem().setCount(param0.getAmount());
             }
 
-            this.minecraft.particleEngine.add(new ItemPickupParticle(this.level, var0, var1, 0.5F));
+            this.minecraft
+                .particleEngine
+                .add(new ItemPickupParticle(this.minecraft.getEntityRenderDispatcher(), this.minecraft.renderBuffers(), this.level, var0, var1));
             this.level.removeEntity(param0.getItemId());
         }
 

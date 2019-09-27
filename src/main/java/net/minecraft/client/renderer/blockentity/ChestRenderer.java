@@ -1,13 +1,13 @@
 package net.minecraft.client.renderer.blockentity;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.math.Quaternion;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
 import java.util.Calendar;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Blocks;
@@ -22,7 +22,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class ChestRenderer<T extends BlockEntity & LidBlockEntity> extends BatchedBlockEntityRenderer<T> {
+public class ChestRenderer<T extends BlockEntity & LidBlockEntity> extends BlockEntityRenderer<T> {
     public static final ResourceLocation CHEST_LARGE_TRAP_LOCATION = new ResourceLocation("entity/chest/trapped_double");
     public static final ResourceLocation CHEST_LARGE_XMAS_LOCATION = new ResourceLocation("entity/chest/christmas_double");
     public static final ResourceLocation CHEST_LARGE_LOCATION = new ResourceLocation("entity/chest/normal_double");
@@ -38,7 +38,8 @@ public class ChestRenderer<T extends BlockEntity & LidBlockEntity> extends Batch
     private final ModelPart doubleLock;
     private boolean xmasTextures;
 
-    public ChestRenderer() {
+    public ChestRenderer(BlockEntityRenderDispatcher param0) {
+        super(param0);
         Calendar var0 = Calendar.getInstance();
         if (var0.get(2) + 1 == 12 && var0.get(5) >= 24 && var0.get(5) <= 26) {
             this.xmasTextures = true;
@@ -65,52 +66,51 @@ public class ChestRenderer<T extends BlockEntity & LidBlockEntity> extends Batch
     }
 
     @Override
-    protected void renderToBuffer(
-        T param0, double param1, double param2, double param3, float param4, int param5, RenderType param6, BufferBuilder param7, int param8, int param9
-    ) {
+    public void render(T param0, double param1, double param2, double param3, float param4, PoseStack param5, MultiBufferSource param6, int param7) {
         BlockState var0 = param0.hasLevel() ? param0.getBlockState() : Blocks.CHEST.defaultBlockState().setValue(ChestBlock.FACING, Direction.SOUTH);
         ChestType var1 = var0.hasProperty(ChestBlock.TYPE) ? var0.getValue(ChestBlock.TYPE) : ChestType.SINGLE;
-        if (var1 != ChestType.LEFT) {
-            boolean var2 = var1 != ChestType.SINGLE;
-            ResourceLocation var3;
-            if (param5 >= 0) {
-                var3 = ModelBakery.DESTROY_STAGES.get(param5);
-            } else if (this.xmasTextures) {
-                var3 = var2 ? CHEST_LARGE_XMAS_LOCATION : CHEST_XMAS_LOCATION;
-            } else if (param0 instanceof TrappedChestBlockEntity) {
-                var3 = var2 ? CHEST_LARGE_TRAP_LOCATION : CHEST_TRAP_LOCATION;
-            } else if (param0 instanceof EnderChestBlockEntity) {
-                var3 = ENDER_CHEST_LOCATION;
-            } else {
-                var3 = var2 ? CHEST_LARGE_LOCATION : CHEST_LOCATION;
-            }
-
-            param7.pushPose();
-            float var8 = var0.getValue(ChestBlock.FACING).toYRot();
-            param7.translate(0.5, 0.5, 0.5);
-            param7.multiplyPose(new Quaternion(Vector3f.YP, -var8, true));
-            param7.translate(-0.5, -0.5, -0.5);
-            float var9 = param0.getOpenNess(param4);
-            var9 = 1.0F - var9;
-            var9 = 1.0F - var9 * var9 * var9;
-            TextureAtlasSprite var10 = this.getSprite(var3);
-            if (var2) {
-                this.render(param7, this.doubleLid, this.doubleLock, this.doubleBottom, var9, param8, param9, var10);
-            } else {
-                this.render(param7, this.lid, this.lock, this.bottom, var9, param8, param9, var10);
-            }
-
-            param7.popPose();
+        boolean var2 = var1 != ChestType.SINGLE;
+        ResourceLocation var3;
+        if (this.xmasTextures) {
+            var3 = var2 ? CHEST_LARGE_XMAS_LOCATION : CHEST_XMAS_LOCATION;
+        } else if (param0 instanceof TrappedChestBlockEntity) {
+            var3 = var2 ? CHEST_LARGE_TRAP_LOCATION : CHEST_TRAP_LOCATION;
+        } else if (param0 instanceof EnderChestBlockEntity) {
+            var3 = ENDER_CHEST_LOCATION;
+        } else {
+            var3 = var2 ? CHEST_LARGE_LOCATION : CHEST_LOCATION;
         }
+
+        param5.pushPose();
+        float var7 = var0.getValue(ChestBlock.FACING).toYRot();
+        param5.translate(0.5, 0.5, 0.5);
+        param5.mulPose(Vector3f.YP.rotation(-var7, true));
+        param5.translate(-0.5, -0.5, -0.5);
+        float var8 = param0.getOpenNess(param4);
+        var8 = 1.0F - var8;
+        var8 = 1.0F - var8 * var8 * var8;
+        VertexConsumer var9 = param6.getBuffer(RenderType.SOLID);
+        TextureAtlasSprite var10 = this.getSprite(var3);
+        if (var2) {
+            if (var1 == ChestType.LEFT) {
+                param5.translate(-1.0, 0.0, 0.0);
+            }
+
+            this.render(param5, var9, this.doubleLid, this.doubleLock, this.doubleBottom, var8, param7, var10);
+        } else {
+            this.render(param5, var9, this.lid, this.lock, this.bottom, var8, param7, var10);
+        }
+
+        param5.popPose();
     }
 
     private void render(
-        BufferBuilder param0, ModelPart param1, ModelPart param2, ModelPart param3, float param4, int param5, int param6, TextureAtlasSprite param7
+        PoseStack param0, VertexConsumer param1, ModelPart param2, ModelPart param3, ModelPart param4, float param5, int param6, TextureAtlasSprite param7
     ) {
-        param1.xRot = -(param4 * (float) (Math.PI / 2));
-        param2.xRot = param1.xRot;
-        param1.render(param0, 0.0625F, param5, param6, param7);
-        param2.render(param0, 0.0625F, param5, param6, param7);
-        param3.render(param0, 0.0625F, param5, param6, param7);
+        param2.xRot = -(param5 * (float) (Math.PI / 2));
+        param3.xRot = param2.xRot;
+        param2.render(param0, param1, 0.0625F, param6, param7);
+        param3.render(param0, param1, 0.0625F, param6, param7);
+        param4.render(param0, param1, 0.0625F, param6, param7);
     }
 }

@@ -227,20 +227,19 @@ public class RealmsPlayerScreen extends RealmsScreen {
         }
 
         int var0 = RealmsConstants.row(12) + 20;
-        RenderSystem.disableLighting();
         RenderSystem.disableFog();
         Tezzelator var1 = Tezzelator.instance;
         bind("textures/gui/options_background.png");
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         float var2 = 32.0F;
         var1.begin(7, RealmsDefaultVertexFormat.POSITION_TEX_COLOR);
-        var1.vertex(0.0, (double)this.height(), 0.0).tex(0.0, (double)((float)(this.height() - var0) / 32.0F + 0.0F)).color(64, 64, 64, 255).endVertex();
+        var1.vertex(0.0, (double)this.height(), 0.0).tex(0.0F, (float)(this.height() - var0) / 32.0F + 0.0F).color(64, 64, 64, 255).endVertex();
         var1.vertex((double)this.width(), (double)this.height(), 0.0)
-            .tex((double)((float)this.width() / 32.0F), (double)((float)(this.height() - var0) / 32.0F + 0.0F))
+            .tex((float)this.width() / 32.0F, (float)(this.height() - var0) / 32.0F + 0.0F)
             .color(64, 64, 64, 255)
             .endVertex();
-        var1.vertex((double)this.width(), (double)var0, 0.0).tex((double)((float)this.width() / 32.0F), 0.0).color(64, 64, 64, 255).endVertex();
-        var1.vertex(0.0, (double)var0, 0.0).tex(0.0, 0.0).color(64, 64, 64, 255).endVertex();
+        var1.vertex((double)this.width(), (double)var0, 0.0).tex((float)this.width() / 32.0F, 0.0F).color(64, 64, 64, 255).endVertex();
+        var1.vertex(0.0, (double)var0, 0.0).tex(0.0F, 0.0F).color(64, 64, 64, 255).endVertex();
         var1.end();
         this.titleLabel.render(this);
         if (this.serverData != null && this.serverData.players != null) {

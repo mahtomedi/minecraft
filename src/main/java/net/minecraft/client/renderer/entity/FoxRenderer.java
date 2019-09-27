@@ -1,7 +1,7 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import javax.annotation.Nullable;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.model.FoxModel;
 import net.minecraft.client.renderer.entity.layers.FoxHeldItemLayer;
 import net.minecraft.resources.ResourceLocation;
@@ -22,16 +22,15 @@ public class FoxRenderer extends MobRenderer<Fox, FoxModel<Fox>> {
         this.addLayer(new FoxHeldItemLayer(this));
     }
 
-    protected void setupRotations(Fox param0, float param1, float param2, float param3) {
-        super.setupRotations(param0, param1, param2, param3);
+    protected void setupRotations(Fox param0, PoseStack param1, float param2, float param3, float param4) {
+        super.setupRotations(param0, param1, param2, param3, param4);
         if (param0.isPouncing() || param0.isFaceplanted()) {
-            RenderSystem.rotatef(-Mth.lerp(param3, param0.xRotO, param0.xRot), 1.0F, 0.0F, 0.0F);
+            param1.mulPose(Vector3f.XP.rotation(-Mth.lerp(param4, param0.xRotO, param0.xRot), true));
         }
 
     }
 
-    @Nullable
-    protected ResourceLocation getTextureLocation(Fox param0) {
+    public ResourceLocation getTextureLocation(Fox param0) {
         if (param0.getFoxType() == Fox.Type.RED) {
             return param0.isSleeping() ? RED_FOX_SLEEP_TEXTURE : RED_FOX_TEXTURE;
         } else {

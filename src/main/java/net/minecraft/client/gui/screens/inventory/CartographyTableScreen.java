@@ -1,7 +1,10 @@
 package net.minecraft.client.gui.screens.inventory;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
 import javax.annotation.Nullable;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -106,7 +109,9 @@ public class CartographyTableScreen extends AbstractContainerScreen<CartographyT
             RenderSystem.pushMatrix();
             RenderSystem.translatef((float)param1, (float)param2, 1.0F);
             RenderSystem.scalef(param3, param3, 1.0F);
-            this.minecraft.gameRenderer.getMapRenderer().render(param0, true);
+            MultiBufferSource.BufferSource var0 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
+            this.minecraft.gameRenderer.getMapRenderer().render(new PoseStack(), var0, param0, true);
+            var0.endBatch();
             RenderSystem.popMatrix();
         }
 

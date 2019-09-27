@@ -1,7 +1,8 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.WitchModel;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.layers.WitchItemLayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.monster.Witch;
@@ -17,17 +18,17 @@ public class WitchRenderer extends MobRenderer<Witch, WitchModel<Witch>> {
         this.addLayer(new WitchItemLayer<>(this));
     }
 
-    public void render(Witch param0, double param1, double param2, double param3, float param4, float param5) {
+    public void render(Witch param0, double param1, double param2, double param3, float param4, float param5, PoseStack param6, MultiBufferSource param7) {
         this.model.setHoldingItem(!param0.getMainHandItem().isEmpty());
-        super.render(param0, param1, param2, param3, param4, param5);
+        super.render(param0, param1, param2, param3, param4, param5, param6, param7);
     }
 
-    protected ResourceLocation getTextureLocation(Witch param0) {
+    public ResourceLocation getTextureLocation(Witch param0) {
         return WITCH_LOCATION;
     }
 
-    protected void scale(Witch param0, float param1) {
+    protected void scale(Witch param0, PoseStack param1, float param2) {
         float var0 = 0.9375F;
-        RenderSystem.scalef(0.9375F, 0.9375F, 0.9375F);
+        param1.scale(0.9375F, 0.9375F, 0.9375F);
     }
 }

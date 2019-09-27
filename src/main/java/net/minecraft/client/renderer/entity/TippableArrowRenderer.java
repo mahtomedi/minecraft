@@ -14,7 +14,7 @@ public class TippableArrowRenderer extends ArrowRenderer<Arrow> {
         super(param0);
     }
 
-    protected ResourceLocation getTextureLocation(Arrow param0) {
+    public ResourceLocation getTextureLocation(Arrow param0) {
         return param0.getColor() > 0 ? TIPPED_ARROW_LOCATION : NORMAL_ARROW_LOCATION;
     }
 }

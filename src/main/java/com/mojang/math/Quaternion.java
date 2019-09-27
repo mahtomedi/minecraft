@@ -1,6 +1,7 @@
 package com.mojang.math;
 
 import java.util.Arrays;
+import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -9,7 +10,7 @@ public final class Quaternion {
 
     public Quaternion() {
         this.values = new float[4];
-        this.values[4] = 1.0F;
+        this.values[3] = 1.0F;
     }
 
     public Quaternion(float param0, float param1, float param2, float param3) {
@@ -116,6 +117,14 @@ public final class Quaternion {
         this.values[3] = var3 * var7 - var0 * var4 - var1 * var5 - var2 * var6;
     }
 
+    @OnlyIn(Dist.CLIENT)
+    public void mul(float param0) {
+        this.values[0] *= param0;
+        this.values[1] *= param0;
+        this.values[2] *= param0;
+        this.values[3] *= param0;
+    }
+
     public void conj() {
         this.values[0] = -this.values[0];
         this.values[1] = -this.values[1];
@@ -128,5 +137,23 @@ public final class Quaternion {
 
     private static float sin(float param0) {
         return (float)Math.sin((double)param0);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public void normalize() {
+        float var0 = this.i() * this.i() + this.j() * this.j() + this.k() * this.k() + this.r() * this.r();
+        if (var0 > 1.0E-6F) {
+            float var1 = Mth.fastInvSqrt(var0);
+            this.values[0] *= var1;
+            this.values[1] *= var1;
+            this.values[2] *= var1;
+            this.values[3] *= var1;
+        } else {
+            this.values[0] = 0.0F;
+            this.values[1] = 0.0F;
+            this.values[2] = 0.0F;
+            this.values[3] = 0.0F;
+        }
+
     }
 }

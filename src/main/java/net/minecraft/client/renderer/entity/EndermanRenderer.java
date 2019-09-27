@@ -1,12 +1,15 @@
 package net.minecraft.client.renderer.entity;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Random;
 import net.minecraft.client.model.EndermanModel;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.layers.CarriedBlockLayer;
 import net.minecraft.client.renderer.entity.layers.EnderEyesLayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.monster.EnderMan;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -21,21 +24,24 @@ public class EndermanRenderer extends MobRenderer<EnderMan, EndermanModel<EnderM
         this.addLayer(new CarriedBlockLayer(this));
     }
 
-    public void render(EnderMan param0, double param1, double param2, double param3, float param4, float param5) {
+    public void render(EnderMan param0, double param1, double param2, double param3, float param4, float param5, PoseStack param6, MultiBufferSource param7) {
         BlockState var0 = param0.getCarriedBlock();
         EndermanModel<EnderMan> var1 = this.getModel();
         var1.carrying = var0 != null;
         var1.creepy = param0.isCreepy();
-        if (param0.isCreepy()) {
-            double var2 = 0.02;
-            param1 += this.random.nextGaussian() * 0.02;
-            param3 += this.random.nextGaussian() * 0.02;
-        }
-
-        super.render(param0, param1, param2, param3, param4, param5);
+        super.render(param0, param1, param2, param3, param4, param5, param6, param7);
     }
 
-    protected ResourceLocation getTextureLocation(EnderMan param0) {
+    public Vec3 getRenderOffset(EnderMan param0, double param1, double param2, double param3, float param4) {
+        if (param0.isCreepy()) {
+            double var0 = 0.02;
+            return new Vec3(this.random.nextGaussian() * 0.02, 0.0, this.random.nextGaussian() * 0.02);
+        } else {
+            return super.getRenderOffset(param0, param1, param2, param3, param4);
+        }
+    }
+
+    public ResourceLocation getTextureLocation(EnderMan param0) {
         return ENDERMAN_LOCATION;
     }
 }

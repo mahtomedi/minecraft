@@ -1,6 +1,5 @@
 package net.minecraft.client.gui.screens.inventory;
 
-import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractButton;
@@ -124,7 +123,6 @@ public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
 
     @Override
     protected void renderLabels(int param0, int param1) {
-        Lighting.turnOff();
         this.drawCenteredString(this.font, I18n.get("block.minecraft.beacon.primary"), 62, 10, 14737632);
         this.drawCenteredString(this.font, I18n.get("block.minecraft.beacon.secondary"), 169, 10, 14737632);
 
@@ -135,7 +133,6 @@ public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
             }
         }
 
-        Lighting.turnOnGui();
     }
 
     @Override

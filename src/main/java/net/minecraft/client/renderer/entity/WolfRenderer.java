@@ -1,7 +1,8 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.WolfModel;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.layers.WolfCollarLayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.animal.Wolf;
@@ -23,16 +24,20 @@ public class WolfRenderer extends MobRenderer<Wolf, WolfModel<Wolf>> {
         return param0.getTailAngle();
     }
 
-    public void render(Wolf param0, double param1, double param2, double param3, float param4, float param5) {
+    public void render(Wolf param0, double param1, double param2, double param3, float param4, float param5, PoseStack param6, MultiBufferSource param7) {
         if (param0.isWet()) {
             float var0 = param0.getBrightness() * param0.getWetShade(param5);
-            RenderSystem.color3f(var0, var0, var0);
+            this.model.setColor(var0, var0, var0);
         }
 
-        super.render(param0, param1, param2, param3, param4, param5);
+        super.render(param0, param1, param2, param3, param4, param5, param6, param7);
+        if (param0.isWet()) {
+            this.model.setColor(1.0F, 1.0F, 1.0F);
+        }
+
     }
 
-    protected ResourceLocation getTextureLocation(Wolf param0) {
+    public ResourceLocation getTextureLocation(Wolf param0) {
         if (param0.isTame()) {
             return WOLF_TAME_LOCATION;
         } else {
