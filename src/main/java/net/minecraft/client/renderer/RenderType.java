@@ -12,6 +12,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
@@ -19,7 +20,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.blockentity.BeaconRenderer;
 import net.minecraft.client.renderer.blockentity.TheEndPortalRenderer;
 import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.model.ModelBakery;
@@ -36,24 +36,28 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class RenderType {
-    public static final RenderType SOLID = new RenderType("solid", DefaultVertexFormat.BLOCK, 7, 2097152, false, true, () -> {
+    public static final RenderType SOLID = new RenderType("solid", DefaultVertexFormat.BLOCK, 7, 2097152, true, () -> {
         RenderSystem.enableTexture();
         Minecraft.getInstance().getTextureManager().bind(TextureAtlas.LOCATION_BLOCKS);
+        Minecraft.getInstance().getTextureManager().getTexture(TextureAtlas.LOCATION_BLOCKS).setFilter(false, true);
         RenderSystem.enableCull();
         RenderSystem.shadeModel(7425);
         RenderSystem.depthMask(true);
         RenderSystem.enableDepthTest();
         RenderSystem.disableAlphaTest();
+        RenderSystem.disableBlend();
         RenderSystem.depthFunc(515);
         Minecraft.getInstance().gameRenderer.lightTexture().turnOnLightLayer();
     }, () -> {
         Minecraft.getInstance().gameRenderer.lightTexture().turnOffLightLayer();
         RenderSystem.shadeModel(7424);
     });
-    public static final RenderType CUTOUT_MIPPED = new RenderType("cutout_mipped", DefaultVertexFormat.BLOCK, 7, 131072, false, true, () -> {
+    public static final RenderType CUTOUT_MIPPED = new RenderType("cutout_mipped", DefaultVertexFormat.BLOCK, 7, 131072, true, () -> {
         Minecraft.getInstance().getTextureManager().bind(TextureAtlas.LOCATION_BLOCKS);
+        Minecraft.getInstance().getTextureManager().getTexture(TextureAtlas.LOCATION_BLOCKS).setFilter(false, true);
         RenderSystem.enableAlphaTest();
         RenderSystem.alphaFunc(516, 0.5F);
+        RenderSystem.disableBlend();
         RenderSystem.shadeModel(7425);
         Minecraft.getInstance().gameRenderer.lightTexture().turnOnLightLayer();
     }, () -> {
@@ -62,19 +66,13 @@ public class RenderType {
         Minecraft.getInstance().gameRenderer.lightTexture().turnOffLightLayer();
         RenderSystem.shadeModel(7424);
     });
-    public static final RenderType CUTOUT = new RenderType("cutout", DefaultVertexFormat.BLOCK, 7, 131072, false, true, () -> {
-        AbstractTexture var0 = Minecraft.getInstance().getTextureManager().getTexture(TextureAtlas.LOCATION_BLOCKS);
-        var0.bind();
-        var0.pushFilter(false, false);
+    public static final RenderType CUTOUT = new RenderType("cutout", DefaultVertexFormat.BLOCK, 7, 131072, true, () -> {
         CUTOUT_MIPPED.setupRenderState();
-    }, () -> {
-        AbstractTexture var0 = Minecraft.getInstance().getTextureManager().getTexture(TextureAtlas.LOCATION_BLOCKS);
-        var0.bind();
-        var0.popFilter();
-        CUTOUT_MIPPED.clearRenderState();
-    });
-    public static final RenderType TRANSLUCENT = new RenderType("translucent", DefaultVertexFormat.BLOCK, 7, 262144, false, true, () -> {
+        Minecraft.getInstance().getTextureManager().getTexture(TextureAtlas.LOCATION_BLOCKS).setFilter(false, false);
+    }, () -> CUTOUT_MIPPED.clearRenderState());
+    public static final RenderType TRANSLUCENT = new RenderType("translucent", DefaultVertexFormat.BLOCK, 7, 262144, true, () -> {
         Minecraft.getInstance().getTextureManager().bind(TextureAtlas.LOCATION_BLOCKS);
+        Minecraft.getInstance().getTextureManager().getTexture(TextureAtlas.LOCATION_BLOCKS).setFilter(false, false);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.shadeModel(7425);
@@ -85,39 +83,27 @@ public class RenderType {
         RenderSystem.shadeModel(7424);
     });
     public static final RenderType TRANSLUCENT_NO_CRUMBLING = new RenderType(
-        "translucent_no_crumbling", DefaultVertexFormat.BLOCK, 7, 256, false, false, TRANSLUCENT::setupRenderState, TRANSLUCENT::clearRenderState
+        "translucent_no_crumbling", DefaultVertexFormat.BLOCK, 7, 256, false, TRANSLUCENT::setupRenderState, TRANSLUCENT::clearRenderState
     );
-    public static final RenderType LEASH = new RenderType("leash", DefaultVertexFormat.POSITION_COLOR, 7, 256, false, false, () -> {
+    public static final RenderType LEASH = new RenderType("leash", DefaultVertexFormat.POSITION_COLOR, 7, 256, false, () -> {
         RenderSystem.disableTexture();
         RenderSystem.disableCull();
     }, () -> {
         RenderSystem.enableTexture();
         RenderSystem.enableCull();
     });
-    public static final RenderType WATER_MASK = new RenderType("water_mask", DefaultVertexFormat.BLOCK, 7, 256, false, false, () -> {
+    public static final RenderType WATER_MASK = new RenderType("water_mask", DefaultVertexFormat.BLOCK, 7, 256, false, () -> {
         RenderSystem.disableTexture();
         RenderSystem.colorMask(false, false, false, false);
     }, () -> {
         RenderSystem.colorMask(true, true, true, true);
         RenderSystem.enableTexture();
     });
-    public static final RenderType OUTLINE = new RenderType("outline", DefaultVertexFormat.POSITION_COLOR, 7, 256, false, false, () -> {
-        RenderSystem.depthFunc(519);
-        RenderSystem.disableTexture();
-        RenderSystem.disableFog();
-        Minecraft.getInstance().levelRenderer.entityTarget().bindWrite(false);
-    }, () -> {
-        RenderSystem.depthFunc(515);
-        RenderSystem.enableTexture();
-        RenderSystem.enableFog();
-    });
-    public static final RenderType GLINT = new RenderType(
-        "glint", DefaultVertexFormat.POSITION_TEX, 7, 256, false, false, () -> setupGlint(8.0F), () -> clearGlint()
-    );
+    public static final RenderType GLINT = new RenderType("glint", DefaultVertexFormat.POSITION_TEX, 7, 256, false, () -> setupGlint(8.0F), () -> clearGlint());
     public static final RenderType ENTITY_GLINT = new RenderType(
-        "entity_glint", DefaultVertexFormat.POSITION_TEX, 7, 256, false, false, () -> setupGlint(0.16F), () -> clearGlint()
+        "entity_glint", DefaultVertexFormat.POSITION_TEX, 7, 256, false, () -> setupGlint(0.16F), () -> clearGlint()
     );
-    public static final RenderType BEACON_BEAM = new RenderType("beacon_beam", DefaultVertexFormat.BLOCK, 7, 256, false, false, () -> {
+    public static final RenderType BEACON_BEAM = new RenderType("beacon_beam", DefaultVertexFormat.BLOCK, 7, 256, false, () -> {
         RenderSystem.defaultAlphaFunc();
         Minecraft.getInstance().getTextureManager().bind(BeaconRenderer.BEAM_LOCATION);
         RenderSystem.texParameter(3553, 10242, 10497);
@@ -130,7 +116,7 @@ public class RenderType {
         RenderSystem.enableFog();
         RenderSystem.depthMask(true);
     });
-    public static final RenderType LIGHTNING = new RenderType("lightning", DefaultVertexFormat.POSITION_COLOR, 7, 256, false, false, () -> {
+    public static final RenderType LIGHTNING = new RenderType("lightning", DefaultVertexFormat.POSITION_COLOR, 7, 256, false, () -> {
         RenderSystem.disableTexture();
         RenderSystem.depthMask(false);
         RenderSystem.disableTexture();
@@ -144,11 +130,10 @@ public class RenderType {
         RenderSystem.shadeModel(7424);
         RenderSystem.enableAlphaTest();
     });
-    public static final RenderType LINES = new RenderType("lines", DefaultVertexFormat.POSITION_COLOR, 1, 256, false, false, () -> {
+    public static final RenderType LINES = new RenderType("lines", DefaultVertexFormat.POSITION_COLOR, 1, 256, false, () -> {
         RenderSystem.disableAlphaTest();
         RenderSystem.lineWidth(Math.max(2.5F, (float)Minecraft.getInstance().getWindow().getWidth() / 1920.0F * 2.5F));
         RenderSystem.disableTexture();
-        RenderSystem.depthMask(false);
         RenderSystem.matrixMode(5889);
         RenderSystem.pushMatrix();
         RenderSystem.scalef(1.0F, 1.0F, 0.999F);
@@ -159,7 +144,6 @@ public class RenderType {
         RenderSystem.matrixMode(5889);
         RenderSystem.popMatrix();
         RenderSystem.matrixMode(5888);
-        RenderSystem.depthMask(true);
         RenderSystem.enableTexture();
         RenderSystem.enableAlphaTest();
         RenderSystem.disableBlend();
@@ -391,7 +375,6 @@ public class RenderType {
     private final int bufferSize;
     private final Runnable setupState;
     private final Runnable clearState;
-    private final boolean affectsEntityOutline;
     private final boolean affectsCrumbling;
 
     public static RenderType NEW_ENTITY(ResourceLocation param0) {
@@ -399,16 +382,15 @@ public class RenderType {
     }
 
     public static RenderType NEW_ENTITY(ResourceLocation param0, boolean param1, boolean param2, boolean param3) {
-        return NEW_ENTITY(param0, param1, param2, param3, 0.1F, false);
+        return NEW_ENTITY(param0, param1, param2, param3, 0.1F, false, true);
     }
 
-    public static RenderType NEW_ENTITY(ResourceLocation param0, boolean param1, boolean param2, boolean param3, float param4, boolean param5) {
-        return new RenderType.StatefullRenderType<>(
+    public static RenderType NEW_ENTITY(ResourceLocation param0, boolean param1, boolean param2, boolean param3, float param4, boolean param5, boolean param6) {
+        return new RenderType.StatefullRenderType<RenderType.EntityState>(
             "new_entity",
             DefaultVertexFormat.NEW_ENTITY,
             256,
-            new RenderType.EntityState(param0, param1, param2, param3, param4, param5),
-            true,
+            new RenderType.EntityState(param0, param1, param2, param3, param4, param5, param6),
             false,
             param0x -> {
                 RenderSystem.disableCull();
@@ -468,11 +450,16 @@ public class RenderType {
                 RenderSystem.disableAlphaTest();
                 RenderSystem.defaultAlphaFunc();
             }
-        );
+        ) {
+            @Override
+            public Optional<ResourceLocation> outlineTexture() {
+                return this.state().affectsOutline ? Optional.of(this.state().texture) : Optional.empty();
+            }
+        };
     }
 
     public static RenderType EYES(ResourceLocation param0) {
-        return new RenderType.StatefullRenderType<>("eyes", DefaultVertexFormat.NEW_ENTITY, 256, param0, false, false, param0x -> {
+        return new RenderType.StatefullRenderType<>("eyes", DefaultVertexFormat.NEW_ENTITY, 256, param0, false, param0x -> {
             Minecraft.getInstance().getTextureManager().bind(param0x);
             RenderSystem.enableBlend();
             RenderSystem.disableAlphaTest();
@@ -492,7 +479,7 @@ public class RenderType {
     public static RenderType POWER_SWIRL(ResourceLocation param0, float param1, float param2) {
         RenderType var0 = NEW_ENTITY(param0);
         return new RenderType.StatefullRenderType<>(
-            "power_swirl", DefaultVertexFormat.NEW_ENTITY, 256, new RenderType.SwirlState(param0, param1, param2), false, false, param1x -> {
+            "power_swirl", DefaultVertexFormat.NEW_ENTITY, 256, new RenderType.SwirlState(param0, param1, param2), false, param1x -> {
                 var0.setupRenderState();
                 RenderSystem.matrixMode(5890);
                 RenderSystem.pushMatrix();
@@ -514,13 +501,33 @@ public class RenderType {
         );
     }
 
+    public static RenderType OUTLINE(ResourceLocation param0) {
+        return new RenderType.StatefullRenderType<>("outline", DefaultVertexFormat.POSITION_COLOR_TEX, 256, param0, false, param0x -> {
+            Minecraft.getInstance().getTextureManager().bind(param0x);
+            RenderSystem.disableCull();
+            RenderSystem.depthFunc(519);
+            RenderSystem.disableFog();
+            RenderSystem.enableAlphaTest();
+            RenderSystem.defaultAlphaFunc();
+            RenderSystem.disableBlend();
+            RenderSystem.setupOutline();
+            Minecraft.getInstance().levelRenderer.entityTarget().bindWrite(false);
+        }, param0x -> {
+            RenderSystem.enableCull();
+            RenderSystem.depthFunc(515);
+            RenderSystem.disableAlphaTest();
+            RenderSystem.enableFog();
+            RenderSystem.teardownOutline();
+            Minecraft.getInstance().getMainRenderTarget().bindWrite(false);
+        });
+    }
+
     public static RenderType CRUMBLING(int param0) {
         return new RenderType.StatefullRenderType<>(
             "crumbling",
             DefaultVertexFormat.BLOCK,
             256,
             param0,
-            false,
             false,
             param0x -> {
                 Minecraft.getInstance().getTextureManager().bind(ModelBakery.BREAKING_LOCATIONS.get(param0x));
@@ -545,18 +552,18 @@ public class RenderType {
     }
 
     public static RenderType TEXT(ResourceLocation param0) {
-        return new RenderType.StatefullRenderType<>("text", DefaultVertexFormat.POSITION_TEX_LIGHTMAP_COLOR, 256, param0, false, false, param0x -> {
+        return new RenderType.StatefullRenderType<>("text", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, 256, param0, false, param0x -> {
             Minecraft.getInstance().getTextureManager().bind(param0x);
             RenderSystem.enableAlphaTest();
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
-        }, param0x -> {
-        });
+            Minecraft.getInstance().gameRenderer.lightTexture().turnOnLightLayer();
+        }, param0x -> Minecraft.getInstance().gameRenderer.lightTexture().turnOffLightLayer());
     }
 
     public static RenderType TEXT_SEE_THROUGH(ResourceLocation param0) {
         RenderType var0 = TEXT(param0);
-        return new RenderType.StatefullRenderType<>("text_see_through", DefaultVertexFormat.POSITION_TEX_LIGHTMAP_COLOR, 256, param0, false, false, param1 -> {
+        return new RenderType.StatefullRenderType<>("text_see_through", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, 256, param0, false, param1 -> {
             var0.setupRenderState();
             RenderSystem.disableDepthTest();
             RenderSystem.depthMask(false);
@@ -573,7 +580,6 @@ public class RenderType {
             DefaultVertexFormat.POSITION_COLOR,
             256,
             param0,
-            false,
             false,
             param0x -> {
                 RenderSystem.enableBlend();
@@ -611,15 +617,14 @@ public class RenderType {
         );
     }
 
-    public RenderType(String param0, VertexFormat param1, int param2, int param3, boolean param4, boolean param5, Runnable param6, Runnable param7) {
+    public RenderType(String param0, VertexFormat param1, int param2, int param3, boolean param4, Runnable param5, Runnable param6) {
         this.name = param0;
         this.format = param1;
         this.mode = param2;
         this.bufferSize = param3;
-        this.setupState = param6;
-        this.clearState = param7;
-        this.affectsEntityOutline = param4;
-        this.affectsCrumbling = param5;
+        this.setupState = param5;
+        this.clearState = param6;
+        this.affectsCrumbling = param4;
     }
 
     public static void setFancy(boolean param0) {
@@ -679,8 +684,8 @@ public class RenderType {
         return this.mode;
     }
 
-    public boolean affectsEntityOutline() {
-        return this.affectsEntityOutline;
+    public Optional<ResourceLocation> outlineTexture() {
+        return Optional.empty();
     }
 
     public boolean affectsCrumbling() {
@@ -745,14 +750,16 @@ public class RenderType {
         private final boolean smoothShading;
         private final float alphaCutoff;
         private final boolean equalDepth;
+        private final boolean affectsOutline;
 
-        public EntityState(ResourceLocation param0, boolean param1, boolean param2, boolean param3, float param4, boolean param5) {
+        public EntityState(ResourceLocation param0, boolean param1, boolean param2, boolean param3, float param4, boolean param5, boolean param6) {
             this.texture = param0;
             this.forceTranslucent = param1;
             this.lighting = param2;
             this.smoothShading = param3;
             this.alphaCutoff = param4;
             this.equalDepth = param5;
+            this.affectsOutline = param6;
         }
 
         @Override
@@ -777,10 +784,12 @@ public class RenderType {
     public static class StatefullRenderType<S> extends RenderType {
         private final S state;
 
-        public StatefullRenderType(
-            String param0, VertexFormat param1, int param2, S param3, boolean param4, boolean param5, Consumer<S> param6, Consumer<S> param7
-        ) {
-            super(param0, param1, 7, param2, param4, param5, () -> param6.accept(param3), () -> param7.accept(param3));
+        protected final S state() {
+            return this.state;
+        }
+
+        public StatefullRenderType(String param0, VertexFormat param1, int param2, S param3, boolean param4, Consumer<S> param5, Consumer<S> param6) {
+            super(param0, param1, 7, param2, param4, () -> param5.accept(param3), () -> param6.accept(param3));
             this.state = param3;
         }
 

@@ -1,18 +1,25 @@
 package com.mojang.blaze3d.vertex;
 
+import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
+import com.mojang.math.Vector3f;
 import com.mojang.math.Vector4f;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.core.Vec3i;
+import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.system.MemoryStack;
 
 @OnlyIn(Dist.CLIENT)
 public interface VertexConsumer {
+    Logger LOGGER = LogManager.getLogger();
+
     VertexConsumer vertex(double var1, double var3, double var5);
 
     VertexConsumer color(int var1, int var2, int var3, int var4);
@@ -46,43 +53,55 @@ public interface VertexConsumer {
     default void putBulkData(Matrix4f param0, BakedQuad param1, float[] param2, float param3, float param4, float param5, int[] param6, boolean param7) {
         int[] var0 = param1.getVertices();
         Vec3i var1 = param1.getDirection().getNormal();
-        int var2 = 8;
-        int var3 = var0.length / 8;
+        Vector3f var2 = new Vector3f((float)var1.getX(), (float)var1.getY(), (float)var1.getZ());
+        Matrix3f var3 = new Matrix3f(param0);
+        var3.transpose();
+        float var4 = var3.adjugateAndDet();
+        if (var4 < 1.0E-5F) {
+            LOGGER.warn("Could not invert matrix while baking vertex: " + param0);
+        } else {
+            float var5 = var3.determinant();
+            var3.mul(Mth.fastInvCubeRoot(var5));
+        }
 
-        try (MemoryStack var4 = MemoryStack.stackPush()) {
-            ByteBuffer var5 = var4.malloc(DefaultVertexFormat.BLOCK.getVertexSize());
-            IntBuffer var6 = var5.asIntBuffer();
+        var2.transform(var3);
+        int var6 = 8;
+        int var7 = var0.length / 8;
 
-            for(int var7 = 0; var7 < var3; ++var7) {
-                ((Buffer)var6).clear();
-                var6.put(var0, var7 * 8, 8);
-                float var8 = var5.getFloat(0);
-                float var9 = var5.getFloat(4);
-                float var10 = var5.getFloat(8);
-                byte var14;
-                byte var15;
-                byte var16;
+        try (MemoryStack var8 = MemoryStack.stackPush()) {
+            ByteBuffer var9 = var8.malloc(DefaultVertexFormat.BLOCK.getVertexSize());
+            IntBuffer var10 = var9.asIntBuffer();
+
+            for(int var11 = 0; var11 < var7; ++var11) {
+                ((Buffer)var10).clear();
+                var10.put(var0, var11 * 8, 8);
+                float var12 = var9.getFloat(0);
+                float var13 = var9.getFloat(4);
+                float var14 = var9.getFloat(8);
+                byte var18;
+                byte var19;
+                byte var20;
                 if (param7) {
-                    int var11 = var5.get(12) & 255;
-                    int var12 = var5.get(13) & 255;
-                    int var13 = var5.get(14) & 255;
-                    var14 = (byte)((int)((float)var11 * param2[var7] * param3));
-                    var15 = (byte)((int)((float)var12 * param2[var7] * param4));
-                    var16 = (byte)((int)((float)var13 * param2[var7] * param5));
+                    int var15 = var9.get(12) & 255;
+                    int var16 = var9.get(13) & 255;
+                    int var17 = var9.get(14) & 255;
+                    var18 = (byte)((int)((float)var15 * param2[var11] * param3));
+                    var19 = (byte)((int)((float)var16 * param2[var11] * param4));
+                    var20 = (byte)((int)((float)var17 * param2[var11] * param5));
                 } else {
-                    var14 = (byte)((int)(255.0F * param2[var7] * param3));
-                    var15 = (byte)((int)(255.0F * param2[var7] * param4));
-                    var16 = (byte)((int)(255.0F * param2[var7] * param5));
+                    var18 = (byte)((int)(255.0F * param2[var11] * param3));
+                    var19 = (byte)((int)(255.0F * param2[var11] * param4));
+                    var20 = (byte)((int)(255.0F * param2[var11] * param5));
                 }
 
-                int var20 = param6[var7];
-                float var21 = var5.getFloat(16);
-                float var22 = var5.getFloat(20);
-                this.vertex(param0, var8, var9, var10);
-                this.color(var14, var15, var16, 255);
-                this.uv(var21, var22);
-                this.uv2(var20);
-                this.normal((float)var1.getX(), (float)var1.getY(), (float)var1.getZ());
+                int var24 = param6[var11];
+                float var25 = var9.getFloat(16);
+                float var26 = var9.getFloat(20);
+                this.vertex(param0, var12, var13, var14);
+                this.color(var18, var19, var20, 255);
+                this.uv(var25, var26);
+                this.uv2(var24);
+                this.normal(var2.x(), var2.y(), var2.z());
                 this.endVertex();
             }
         }

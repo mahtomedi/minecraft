@@ -200,7 +200,7 @@ public class Font implements AutoCloseable {
                 if (var13) {
                     var14.add(
                         new BakedGlyph.Effect(
-                            var4 + var26 - 1.0F, param2 + var26 + 4.5F, var4 + var26 + var25, param2 + var26 + 4.5F - 1.0F, 0.001F, var5, var6, var7, var8
+                            var4 + var26 - 1.0F, param2 + var26 + 4.5F, var4 + var26 + var25, param2 + var26 + 4.5F - 1.0F, -0.01F, var5, var6, var7, var8
                         )
                     );
                 }
@@ -208,7 +208,7 @@ public class Font implements AutoCloseable {
                 if (var12) {
                     var14.add(
                         new BakedGlyph.Effect(
-                            var4 + var26 - 1.0F, param2 + var26 + 9.0F, var4 + var26 + var25, param2 + var26 + 9.0F - 1.0F, 0.001F, var5, var6, var7, var8
+                            var4 + var26 - 1.0F, param2 + var26 + 9.0F, var4 + var26 + var25, param2 + var26 + 9.0F - 1.0F, -0.01F, var5, var6, var7, var8
                         )
                     );
                 }
@@ -222,7 +222,7 @@ public class Font implements AutoCloseable {
             float var28 = (float)(param8 >> 16 & 0xFF) / 255.0F;
             float var29 = (float)(param8 >> 8 & 0xFF) / 255.0F;
             float var30 = (float)(param8 & 0xFF) / 255.0F;
-            var14.add(new BakedGlyph.Effect(param1 - 1.0F, param2 + 9.0F, var4 + 1.0F, param2 - 1.0F, -0.001F, var28, var29, var30, var27));
+            var14.add(new BakedGlyph.Effect(param1 - 1.0F, param2 + 9.0F, var4 + 1.0F, param2 - 1.0F, 0.01F, var28, var29, var30, var27));
         }
 
         if (!var14.isEmpty()) {

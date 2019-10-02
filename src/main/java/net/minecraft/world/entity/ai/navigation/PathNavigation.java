@@ -151,15 +151,19 @@ public abstract class PathNavigation {
                 this.path = param0;
             }
 
-            this.trimPath();
-            if (this.path.getSize() <= 0) {
+            if (this.isDone()) {
                 return false;
             } else {
-                this.speedModifier = param1;
-                Vec3 var0 = this.getTempMobPos();
-                this.lastStuckCheck = this.tick;
-                this.lastStuckCheckPos = var0;
-                return true;
+                this.trimPath();
+                if (this.path.getSize() <= 0) {
+                    return false;
+                } else {
+                    this.speedModifier = param1;
+                    Vec3 var0 = this.getTempMobPos();
+                    this.lastStuckCheck = this.tick;
+                    this.lastStuckCheckPos = var0;
+                    return true;
+                }
             }
         }
     }

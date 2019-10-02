@@ -1007,30 +1007,27 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
                         var14.isGlowing()
                             || var14 instanceof Player && this.minecraft.player.isSpectator() && this.minecraft.options.keySpectatorOutlines.isDown()
                     );
-                MultiBufferSource var16;
+                MultiBufferSource var17;
                 if (var15) {
-                    if (!var12) {
-                        this.renderBuffers.outlineBuilder().begin(RenderType.OUTLINE.mode(), RenderType.OUTLINE.format());
-                        var12 = true;
-                    }
-
-                    var16 = this.renderBuffers.outlineBufferSource();
-                    int var17 = var14.getTeamColor();
-                    int var18 = 255;
-                    int var19 = var17 >> 16 & 0xFF;
-                    int var20 = var17 >> 8 & 0xFF;
-                    int var21 = var17 & 0xFF;
-                    this.renderBuffers.outlineBuffer().setColor(var19, var20, var21, 255);
+                    var12 = true;
+                    OutlineBufferSource var16 = this.renderBuffers.outlineBufferSource();
+                    var17 = var16;
+                    int var18 = var14.getTeamColor();
+                    int var19 = 255;
+                    int var20 = var18 >> 16 & 0xFF;
+                    int var21 = var18 >> 8 & 0xFF;
+                    int var22 = var18 & 0xFF;
+                    var16.setColor(var20, var21, var22, 255);
                 } else {
-                    var16 = var13;
+                    var17 = var13;
                 }
 
-                this.renderEntity(var14, var2, var3, var4, param1, param0, var16);
+                this.renderEntity(var14, var2, var3, var4, param1, param0, var17);
             }
         }
 
         this.checkPoseStack(param0);
-        RenderType.OUTLINE.end(this.renderBuffers.outlineBuilder());
+        this.renderBuffers.outlineBufferSource().endOutlineBatch();
         RenderSystem.depthMask(false);
         if (var12) {
             this.entityEffect.process(param1);
@@ -1046,40 +1043,40 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
         this.checkPoseStack(param0);
         var0.popPush("blockentities");
 
-        for(LevelRenderer.RenderChunkInfo var23 : this.renderChunks) {
-            List<BlockEntity> var24 = var23.chunk.getCompiledChunk().getRenderableBlockEntities();
-            if (!var24.isEmpty()) {
-                for(BlockEntity var25 : var24) {
-                    BlockPos var26 = var25.getBlockPos();
-                    MultiBufferSource var27 = var13;
-                    SortedSet<BlockDestructionProgress> var28 = this.destructionProgress.get(var26.asLong());
-                    if (var28 != null && !var28.isEmpty()) {
-                        int var29 = var28.last().getProgress();
-                        if (var29 >= 0) {
-                            VertexConsumer var30 = new BreakingTextureGenerator(
-                                this.renderBuffers.effectBufferSource().getBuffer(RenderType.CRUMBLING(var29)), var2, var3, var4
+        for(LevelRenderer.RenderChunkInfo var24 : this.renderChunks) {
+            List<BlockEntity> var25 = var24.chunk.getCompiledChunk().getRenderableBlockEntities();
+            if (!var25.isEmpty()) {
+                for(BlockEntity var26 : var25) {
+                    BlockPos var27 = var26.getBlockPos();
+                    MultiBufferSource var28 = var13;
+                    param0.pushPose();
+                    param0.translate((double)var27.getX() - var2, (double)var27.getY() - var3, (double)var27.getZ() - var4);
+                    SortedSet<BlockDestructionProgress> var29 = this.destructionProgress.get(var27.asLong());
+                    if (var29 != null && !var29.isEmpty()) {
+                        int var30 = var29.last().getProgress();
+                        if (var30 >= 0) {
+                            VertexConsumer var31 = new BreakingTextureGenerator(
+                                this.renderBuffers.effectBufferSource().getBuffer(RenderType.CRUMBLING(var30)), param0.getPose()
                             );
-                            var27 = param2x -> {
+                            var28 = param2x -> {
                                 VertexConsumer var0x = var13.getBuffer(param2x);
-                                return (VertexConsumer)(param2x.affectsCrumbling() ? new VertexMultiConsumer(ImmutableList.of(var30, var0x)) : var0x);
+                                return (VertexConsumer)(param2x.affectsCrumbling() ? new VertexMultiConsumer(ImmutableList.of(var31, var0x)) : var0x);
                             };
                         }
                     }
 
-                    param0.pushPose();
-                    param0.translate((double)var26.getX() - var2, (double)var26.getY() - var3, (double)var26.getZ() - var4);
-                    BlockEntityRenderDispatcher.instance.render(var25, param1, param0, var27, var2, var3, var4);
+                    BlockEntityRenderDispatcher.instance.render(var26, param1, param0, var28, var2, var3, var4);
                     param0.popPose();
                 }
             }
         }
 
         synchronized(this.globalBlockEntities) {
-            for(BlockEntity var31 : this.globalBlockEntities) {
-                BlockPos var32 = var31.getBlockPos();
+            for(BlockEntity var32 : this.globalBlockEntities) {
+                BlockPos var33 = var32.getBlockPos();
                 param0.pushPose();
-                param0.translate((double)var32.getX() - var2, (double)var32.getY() - var3, (double)var32.getZ() - var4);
-                BlockEntityRenderDispatcher.instance.render(var31, param1, param0, var13, var2, var3, var4);
+                param0.translate((double)var33.getX() - var2, (double)var33.getY() - var3, (double)var33.getZ() - var4);
+                BlockEntityRenderDispatcher.instance.render(var32, param1, param0, var13, var2, var3, var4);
                 param0.popPose();
             }
         }
@@ -1087,21 +1084,21 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
         this.checkPoseStack(param0);
         var0.popPush("destroyProgress");
 
-        for(Entry<SortedSet<BlockDestructionProgress>> var33 : this.destructionProgress.long2ObjectEntrySet()) {
-            BlockPos var34 = BlockPos.of(var33.getLongKey());
-            double var35 = (double)var34.getX() - var2;
-            double var36 = (double)var34.getY() - var3;
-            double var37 = (double)var34.getZ() - var4;
-            if (!(var35 * var35 + var36 * var36 + var37 * var37 > 1024.0)) {
+        for(Entry<SortedSet<BlockDestructionProgress>> var34 : this.destructionProgress.long2ObjectEntrySet()) {
+            BlockPos var35 = BlockPos.of(var34.getLongKey());
+            double var36 = (double)var35.getX() - var2;
+            double var37 = (double)var35.getY() - var3;
+            double var38 = (double)var35.getZ() - var4;
+            if (!(var36 * var36 + var37 * var37 + var38 * var38 > 1024.0)) {
                 param0.pushPose();
-                param0.translate((double)(var34.getX() & -16) - var2, (double)(var34.getY() & -16) - var3, (double)(var34.getZ() & -16) - var4);
-                SortedSet<BlockDestructionProgress> var38 = var33.getValue();
-                if (var38 != null && !var38.isEmpty()) {
-                    int var39 = var38.last().getProgress();
-                    VertexConsumer var40 = new BreakingTextureGenerator(
-                        this.renderBuffers.effectBufferSource().getBuffer(RenderType.CRUMBLING(var39)), var2, var3, var4
+                param0.translate((double)(var35.getX() & -16) - var2, (double)(var35.getY() & -16) - var3, (double)(var35.getZ() & -16) - var4);
+                SortedSet<BlockDestructionProgress> var39 = var34.getValue();
+                if (var39 != null && !var39.isEmpty()) {
+                    int var40 = var39.last().getProgress();
+                    VertexConsumer var41 = new BreakingTextureGenerator(
+                        this.renderBuffers.effectBufferSource().getBuffer(RenderType.CRUMBLING(var40)), param0.getPose()
                     );
-                    this.minecraft.getBlockRenderer().renderBreakingTexture(this.level.getBlockState(var34), var34, this.level, param0, var40);
+                    this.minecraft.getBlockRenderer().renderBreakingTexture(this.level.getBlockState(var35), var35, this.level, param0, var41);
                     param0.popPose();
                 }
             }

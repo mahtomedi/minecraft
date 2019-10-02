@@ -108,7 +108,7 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
     public float flapSpeed;
     public float oFlapSpeed;
     public float oFlap;
-    public float flapping = 1.0F;
+    private float flapping = 1.0F;
     private boolean partyParrot;
     private BlockPos jukebox;
 
@@ -338,7 +338,7 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
         }
     }
 
-    public static SoundEvent getImitatedSound(EntityType<?> param0) {
+    private static SoundEvent getImitatedSound(EntityType<?> param0) {
         return MOB_SOUND_MAP.getOrDefault(param0, SoundEvents.PARROT_AMBIENT);
     }
 
@@ -399,10 +399,7 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
         if (this.isInvulnerableTo(param0)) {
             return false;
         } else {
-            if (this.sitGoal != null) {
-                this.sitGoal.wantToSit(false);
-            }
-
+            this.sitGoal.wantToSit(false);
             return super.hurt(param0, param1);
         }
     }

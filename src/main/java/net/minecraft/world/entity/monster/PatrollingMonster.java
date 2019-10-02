@@ -189,9 +189,8 @@ public abstract class PatrollingMonster extends Monster {
                     BlockPos var7 = new BlockPos(var6);
                     var7 = this.mob.level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, var7);
                     if (!var1.moveTo((double)var7.getX(), (double)var7.getY(), (double)var7.getZ(), var0 ? this.leaderSpeedModifier : this.speedModifier)) {
-                        if (!this.moveRandomly()) {
-                            this.cooldownUntil = this.mob.level.getGameTime() + 200L;
-                        }
+                        this.moveRandomly();
+                        this.cooldownUntil = this.mob.level.getGameTime() + 200L;
                     } else if (var0) {
                         for(PatrollingMonster var8 : var2) {
                             var8.setPatrolTarget(var7);

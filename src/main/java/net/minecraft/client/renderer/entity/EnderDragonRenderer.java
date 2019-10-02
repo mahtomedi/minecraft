@@ -44,11 +44,11 @@ public class EnderDragonRenderer extends EntityRenderer<EnderDragon> {
         int var4 = param0.getLightColor();
         if (param0.dragonDeathTime > 0) {
             float var5 = (float)param0.dragonDeathTime / 200.0F;
-            VertexConsumer var6 = param7.getBuffer(RenderType.NEW_ENTITY(DRAGON_EXPLODING_LOCATION, false, true, true, var5, false));
+            VertexConsumer var6 = param7.getBuffer(RenderType.NEW_ENTITY(DRAGON_EXPLODING_LOCATION, false, true, true, var5, false, true));
             OverlayTexture.setDefault(var6);
             this.model.render(param6, var6, param0, 0.0625F, param5, var4);
             var6.unsetDefaultOverlayCoords();
-            VertexConsumer var7 = param7.getBuffer(RenderType.NEW_ENTITY(DRAGON_LOCATION, false, true, true, 0.1F, true));
+            VertexConsumer var7 = param7.getBuffer(RenderType.NEW_ENTITY(DRAGON_LOCATION, false, true, true, 0.1F, true, true));
             var7.defaultOverlayCoords(OverlayTexture.u(0.0F), OverlayTexture.v(var3));
             this.model.render(param6, var7, param0, 0.0625F, param5, var4);
             var7.unsetDefaultOverlayCoords();

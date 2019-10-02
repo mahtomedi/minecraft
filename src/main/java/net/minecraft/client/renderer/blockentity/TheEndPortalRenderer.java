@@ -2,6 +2,7 @@ package net.minecraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Matrix4f;
 import java.util.Random;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -26,79 +27,49 @@ public class TheEndPortalRenderer<T extends TheEndPortalBlockEntity> extends Blo
         double var0 = param1 * param1 + param2 * param2 + param3 * param3;
         int var1 = this.getPasses(var0);
         float var2 = this.getOffset();
-        this.renderCube(param0, param1, param2, param3, var2, 0.15F, param6.getBuffer(RenderType.PORTAL(1)));
+        Matrix4f var3 = param5.getPose();
+        this.renderCube(param0, var2, 0.15F, var3, param6.getBuffer(RenderType.PORTAL(1)));
 
-        for(int var3 = 1; var3 < var1; ++var3) {
-            this.renderCube(param0, param1, param2, param3, var2, 2.0F / (float)(18 - var3), param6.getBuffer(RenderType.PORTAL(var3 + 1)));
+        for(int var4 = 1; var4 < var1; ++var4) {
+            this.renderCube(param0, var2, 2.0F / (float)(18 - var4), var3, param6.getBuffer(RenderType.PORTAL(var4 + 1)));
         }
 
     }
 
-    private void renderCube(T param0, double param1, double param2, double param3, float param4, float param5, VertexConsumer param6) {
-        float var0 = (RANDOM.nextFloat() * 0.5F + 0.1F) * param5;
-        float var1 = (RANDOM.nextFloat() * 0.5F + 0.4F) * param5;
-        float var2 = (RANDOM.nextFloat() * 0.5F + 0.5F) * param5;
-        this.renderFace(
-            param0,
-            param6,
-            Direction.SOUTH,
-            param1,
-            param1 + 1.0,
-            param2,
-            param2 + 1.0,
-            param3 + 1.0,
-            param3 + 1.0,
-            param3 + 1.0,
-            param3 + 1.0,
-            var0,
-            var1,
-            var2
-        );
-        this.renderFace(param0, param6, Direction.NORTH, param1, param1 + 1.0, param2 + 1.0, param2, param3, param3, param3, param3, var0, var1, var2);
-        this.renderFace(
-            param0, param6, Direction.EAST, param1 + 1.0, param1 + 1.0, param2 + 1.0, param2, param3, param3 + 1.0, param3 + 1.0, param3, var0, var1, var2
-        );
-        this.renderFace(param0, param6, Direction.WEST, param1, param1, param2, param2 + 1.0, param3, param3 + 1.0, param3 + 1.0, param3, var0, var1, var2);
-        this.renderFace(param0, param6, Direction.DOWN, param1, param1 + 1.0, param2, param2, param3, param3, param3 + 1.0, param3 + 1.0, var0, var1, var2);
-        this.renderFace(
-            param0,
-            param6,
-            Direction.UP,
-            param1,
-            param1 + 1.0,
-            param2 + (double)param4,
-            param2 + (double)param4,
-            param3 + 1.0,
-            param3 + 1.0,
-            param3,
-            param3,
-            var0,
-            var1,
-            var2
-        );
+    private void renderCube(T param0, float param1, float param2, Matrix4f param3, VertexConsumer param4) {
+        float var0 = (RANDOM.nextFloat() * 0.5F + 0.1F) * param2;
+        float var1 = (RANDOM.nextFloat() * 0.5F + 0.4F) * param2;
+        float var2 = (RANDOM.nextFloat() * 0.5F + 0.5F) * param2;
+        this.renderFace(param0, param3, param4, 0.0F, 1.0F, 0.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, var0, var1, var2, Direction.SOUTH);
+        this.renderFace(param0, param3, param4, 0.0F, 1.0F, 1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, var0, var1, var2, Direction.NORTH);
+        this.renderFace(param0, param3, param4, 1.0F, 1.0F, 1.0F, 0.0F, 0.0F, 1.0F, 1.0F, 0.0F, var0, var1, var2, Direction.EAST);
+        this.renderFace(param0, param3, param4, 0.0F, 0.0F, 0.0F, 1.0F, 0.0F, 1.0F, 1.0F, 0.0F, var0, var1, var2, Direction.WEST);
+        this.renderFace(param0, param3, param4, 0.0F, 1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F, 1.0F, var0, var1, var2, Direction.DOWN);
+        this.renderFace(param0, param3, param4, 0.0F, 1.0F, param1, param1, 1.0F, 1.0F, 0.0F, 0.0F, var0, var1, var2, Direction.UP);
     }
 
     private void renderFace(
         T param0,
-        VertexConsumer param1,
-        Direction param2,
-        double param3,
-        double param4,
-        double param5,
-        double param6,
-        double param7,
-        double param8,
-        double param9,
-        double param10,
+        Matrix4f param1,
+        VertexConsumer param2,
+        float param3,
+        float param4,
+        float param5,
+        float param6,
+        float param7,
+        float param8,
+        float param9,
+        float param10,
         float param11,
         float param12,
-        float param13
+        float param13,
+        Direction param14
     ) {
-        if (param0.shouldRenderFace(param2)) {
-            param1.vertex(param3, param5, param7).color(param11, param12, param13, 1.0F).endVertex();
-            param1.vertex(param4, param5, param8).color(param11, param12, param13, 1.0F).endVertex();
-            param1.vertex(param4, param6, param9).color(param11, param12, param13, 1.0F).endVertex();
-            param1.vertex(param3, param6, param10).color(param11, param12, param13, 1.0F).endVertex();
+        if (param0.shouldRenderFace(param14)) {
+            param2.vertex(param1, param3, param5, param7).color(param11, param12, param13, 1.0F).endVertex();
+            param2.vertex(param1, param4, param5, param8).color(param11, param12, param13, 1.0F).endVertex();
+            param2.vertex(param1, param4, param6, param9).color(param11, param12, param13, 1.0F).endVertex();
+            param2.vertex(param1, param3, param6, param10).color(param11, param12, param13, 1.0F).endVertex();
         }
 
     }

@@ -591,6 +591,18 @@ public class GlStateManager {
         return GL20.glGetProgramInfoLog(param0, param1);
     }
 
+    public static void setupOutline() {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        _texEnv(8960, 8704, 34160);
+        color1arg(7681, 34168);
+    }
+
+    public static void teardownOutline() {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        _texEnv(8960, 8704, 8448);
+        color3arg(8448, 5890, 34168, 34166);
+    }
+
     public static void setupOverlayColor(int param0, int param1) {
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         _activeTexture(33985);
@@ -618,7 +630,13 @@ public class GlStateManager {
         _activeTexture(33984);
     }
 
-    public static void color3arg(int param0, int param1, int param2, int param3) {
+    private static void color1arg(int param0, int param1) {
+        _texEnv(8960, 34161, param0);
+        _texEnv(8960, 34176, param1);
+        _texEnv(8960, 34192, 768);
+    }
+
+    private static void color3arg(int param0, int param1, int param2, int param3) {
         _texEnv(8960, 34161, param0);
         _texEnv(8960, 34176, param1);
         _texEnv(8960, 34192, 768);
@@ -661,8 +679,8 @@ public class GlStateManager {
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         _pushMatrix();
         _loadIdentity();
-        _rotatef(-30.0F, 0.0F, 1.0F, 0.0F);
-        _rotatef(165.0F, 1.0F, 0.0F, 0.0F);
+        _rotatef(-22.5F, 0.0F, 1.0F, 0.0F);
+        _rotatef(135.0F, 1.0F, 0.0F, 0.0F);
         setupLevelDiffuseLighting();
         _popMatrix();
     }

@@ -45,18 +45,23 @@ public class BeeStingerLayer<T extends LivingEntity, M extends PlayerModel<T>> e
         param0.mulPose(Vector3f.XP.rotation(45.0F, true));
         param0.scale(0.03125F, 0.03125F, 0.03125F);
         param0.translate(2.5, 0.0, 0.0);
-        VertexConsumer var8 = param1.getBuffer(RenderType.NEW_ENTITY(BEE_STINGER_LOCATION));
-        OverlayTexture.setDefault(var8);
+        int var8 = param2.getLightColor();
+        VertexConsumer var9 = param1.getBuffer(RenderType.NEW_ENTITY(BEE_STINGER_LOCATION));
+        OverlayTexture.setDefault(var9);
 
-        for(int var9 = 0; var9 < 4; ++var9) {
+        for(int var10 = 0; var10 < 4; ++var10) {
             param0.mulPose(Vector3f.XP.rotation(90.0F, true));
-            Matrix4f var10 = param0.getPose();
-            var8.vertex(var10, -4.5F, -1.0F, 0.0F).uv(0.0F, 0.0F).endVertex();
-            var8.vertex(var10, 4.5F, -1.0F, 0.0F).uv(0.125F, 0.0F).endVertex();
-            var8.vertex(var10, 4.5F, 1.0F, 0.0F).uv(0.125F, 0.0625F).endVertex();
-            var8.vertex(var10, -4.5F, 1.0F, 0.0F).uv(0.0F, 0.0625F).endVertex();
+            Matrix4f var11 = param0.getPose();
+            vertex(var9, var11, -4.5F, -1, 0.0F, 0.0F, var8);
+            vertex(var9, var11, 4.5F, -1, 0.125F, 0.0F, var8);
+            vertex(var9, var11, 4.5F, 1, 0.125F, 0.0625F, var8);
+            vertex(var9, var11, -4.5F, 1, 0.0F, 0.0625F, var8);
         }
 
-        var8.unsetDefaultOverlayCoords();
+        var9.unsetDefaultOverlayCoords();
+    }
+
+    private static void vertex(VertexConsumer param0, Matrix4f param1, float param2, int param3, float param4, float param5, int param6) {
+        param0.vertex(param1, param2, (float)param3, 0.0F).color(255, 255, 255, 255).uv(param4, param5).uv2(param6).normal(0.0F, 1.0F, 0.0F).endVertex();
     }
 }

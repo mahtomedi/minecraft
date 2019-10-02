@@ -12,9 +12,15 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.Bee;
+import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.item.PrimedTnt;
+import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.WitherSkull;
+import net.minecraft.world.entity.vehicle.MinecartTNT;
 import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -22,6 +28,7 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BeehiveBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -29,6 +36,8 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -60,7 +69,7 @@ public class BeehiveBlock extends BaseEntityBlock {
         super.playerDestroy(param0, param1, param2, param3, param4, param5);
         if (!param0.isClientSide) {
             if (param4 instanceof BeehiveBlockEntity && EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SILK_TOUCH, param5) == 0) {
-                ((BeehiveBlockEntity)param4).emptyAllLivingFromHive(param1, BeehiveBlockEntity.BeeReleaseStatus.BEE_RELEASED);
+                ((BeehiveBlockEntity)param4).emptyAllLivingFromHive(param1, BeehiveBlockEntity.BeeReleaseStatus.EMERGENCY);
                 param0.updateNeighbourForOutputSignal(param2, this);
             }
 
@@ -231,5 +240,32 @@ public class BeehiveBlock extends BaseEntityBlock {
         }
 
         super.playerWillDestroy(param0, param1, param2, param3);
+    }
+
+    @Override
+    public List<ItemStack> getDrops(BlockState param0, LootContext.Builder param1) {
+        Entity var0 = param1.getOptionalParameter(LootContextParams.THIS_ENTITY);
+        if (var0 instanceof PrimedTnt || var0 instanceof Creeper || var0 instanceof WitherSkull || var0 instanceof WitherBoss || var0 instanceof MinecartTNT) {
+            BlockEntity var1 = param1.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
+            if (var1 instanceof BeehiveBlockEntity) {
+                BeehiveBlockEntity var2 = (BeehiveBlockEntity)var1;
+                var2.emptyAllLivingFromHive(null, BeehiveBlockEntity.BeeReleaseStatus.EMERGENCY);
+            }
+        }
+
+        return super.getDrops(param0, param1);
+    }
+
+    @Override
+    public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
+        if (param3.getBlockState(param5).getBlock() instanceof FireBlock) {
+            BlockEntity var0 = param3.getBlockEntity(param4);
+            if (var0 instanceof BeehiveBlockEntity) {
+                BeehiveBlockEntity var1 = (BeehiveBlockEntity)var0;
+                var1.emptyAllLivingFromHive(null, BeehiveBlockEntity.BeeReleaseStatus.EMERGENCY);
+            }
+        }
+
+        return super.updateShape(param0, param1, param2, param3, param4, param5);
     }
 }

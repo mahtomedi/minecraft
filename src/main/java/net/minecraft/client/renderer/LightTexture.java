@@ -5,6 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -28,6 +29,14 @@ public class LightTexture implements AutoCloseable {
         this.lightTexture = new DynamicTexture(16, 16, false);
         this.lightTextureLocation = this.minecraft.getTextureManager().register("light_map", this.lightTexture);
         this.lightPixels = this.lightTexture.getPixels();
+
+        for(int var0 = 0; var0 < 16; ++var0) {
+            for(int var1 = 0; var1 < 16; ++var1) {
+                this.lightPixels.setPixelRGBA(var1, var0, -1);
+            }
+        }
+
+        this.lightTexture.upload();
     }
 
     @Override
@@ -85,10 +94,10 @@ public class LightTexture implements AutoCloseable {
 
                 for(int var7 = 0; var7 < 16; ++var7) {
                     for(int var8 = 0; var8 < 16; ++var8) {
-                        float var9 = var0.dimension.getBrightnessRamp()[var7] * var2;
-                        float var10 = var0.dimension.getBrightnessRamp()[var8] * (this.blockLightRed * 0.1F + 1.5F);
+                        float var9 = this.getBrightness(var0, var7) * var2;
+                        float var10 = this.getBrightness(var0, var8) * (this.blockLightRed * 0.1F + 1.5F);
                         if (var0.getSkyFlashTime() > 0) {
-                            var9 = var0.dimension.getBrightnessRamp()[var7];
+                            var9 = this.getBrightness(var0, var7);
                         }
 
                         float var11 = var9 * (var1 * 0.65F + 0.35F);
@@ -115,32 +124,15 @@ public class LightTexture implements AutoCloseable {
                         }
 
                         if (var4 > 0.0F) {
-                            float var21 = 1.0F / var17;
-                            if (var21 > 1.0F / var18) {
-                                var21 = 1.0F / var18;
-                            }
-
-                            if (var21 > 1.0F / var19) {
-                                var21 = 1.0F / var19;
-                            }
-
+                            float var21 = Math.min(1.0F / var17, Math.min(1.0F / var18, 1.0F / var19));
                             var17 = var17 * (1.0F - var4) + var17 * var21 * var4;
                             var18 = var18 * (1.0F - var4) + var18 * var21 * var4;
                             var19 = var19 * (1.0F - var4) + var19 * var21 * var4;
                         }
 
-                        if (var17 > 1.0F) {
-                            var17 = 1.0F;
-                        }
-
-                        if (var18 > 1.0F) {
-                            var18 = 1.0F;
-                        }
-
-                        if (var19 > 1.0F) {
-                            var19 = 1.0F;
-                        }
-
+                        var17 = Mth.clamp(var17, 0.0F, 1.0F);
+                        var18 = Mth.clamp(var18, 0.0F, 1.0F);
+                        var19 = Mth.clamp(var19, 0.0F, 1.0F);
                         float var22 = (float)this.minecraft.options.gamma;
                         float var23 = 1.0F - var17;
                         float var24 = 1.0F - var18;
@@ -154,30 +146,9 @@ public class LightTexture implements AutoCloseable {
                         var17 = var17 * 0.96F + 0.03F;
                         var18 = var18 * 0.96F + 0.03F;
                         var19 = var19 * 0.96F + 0.03F;
-                        if (var17 > 1.0F) {
-                            var17 = 1.0F;
-                        }
-
-                        if (var18 > 1.0F) {
-                            var18 = 1.0F;
-                        }
-
-                        if (var19 > 1.0F) {
-                            var19 = 1.0F;
-                        }
-
-                        if (var17 < 0.0F) {
-                            var17 = 0.0F;
-                        }
-
-                        if (var18 < 0.0F) {
-                            var18 = 0.0F;
-                        }
-
-                        if (var19 < 0.0F) {
-                            var19 = 0.0F;
-                        }
-
+                        var17 = Mth.clamp(var17, 0.0F, 1.0F);
+                        var18 = Mth.clamp(var18, 0.0F, 1.0F);
+                        var19 = Mth.clamp(var19, 0.0F, 1.0F);
                         int var26 = 255;
                         int var27 = (int)(var17 * 255.0F);
                         int var28 = (int)(var18 * 255.0F);
@@ -191,5 +162,9 @@ public class LightTexture implements AutoCloseable {
                 this.minecraft.getProfiler().pop();
             }
         }
+    }
+
+    private float getBrightness(Level param0, int param1) {
+        return param0.dimension.getBrightnessRamp()[param1];
     }
 }

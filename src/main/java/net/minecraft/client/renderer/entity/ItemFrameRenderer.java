@@ -3,6 +3,7 @@ package net.minecraft.client.renderer.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.MapRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
@@ -23,7 +24,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ItemFrameRenderer extends EntityRenderer<ItemFrame> {
-    private static final ResourceLocation MAP_BACKGROUND_LOCATION = new ResourceLocation("textures/map/map_background.png");
     private static final ModelResourceLocation FRAME_LOCATION = new ModelResourceLocation("item_frame", "map=false");
     private static final ModelResourceLocation MAP_FRAME_LOCATION = new ModelResourceLocation("item_frame", "map=true");
     private final Minecraft minecraft = Minecraft.getInstance();
@@ -59,7 +59,7 @@ public class ItemFrameRenderer extends EntityRenderer<ItemFrame> {
             int var9 = var8 ? param0.getRotation() % 4 * 2 : param0.getRotation();
             param6.mulPose(Vector3f.ZP.rotation((float)var9 * 360.0F / 8.0F, true));
             if (var8) {
-                this.entityRenderDispatcher.textureManager.bind(MAP_BACKGROUND_LOCATION);
+                this.entityRenderDispatcher.textureManager.bind(MapRenderer.MAP_BACKGROUND_LOCATION);
                 param6.mulPose(Vector3f.ZP.rotation(180.0F, true));
                 float var10 = 0.0078125F;
                 param6.scale(0.0078125F, 0.0078125F, 0.0078125F);
@@ -67,7 +67,7 @@ public class ItemFrameRenderer extends EntityRenderer<ItemFrame> {
                 MapItemSavedData var11 = MapItem.getOrCreateSavedData(var7, param0.level);
                 param6.translate(0.0, 0.0, -1.0);
                 if (var11 != null) {
-                    this.minecraft.gameRenderer.getMapRenderer().render(param6, param7, var11, true);
+                    this.minecraft.gameRenderer.getMapRenderer().render(param6, param7, var11, true, var6);
                 }
             } else {
                 param6.scale(0.5F, 0.5F, 0.5F);

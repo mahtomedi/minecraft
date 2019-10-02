@@ -15,8 +15,6 @@ public abstract class AbstractTexture {
     protected int id = -1;
     protected boolean blur;
     protected boolean mipmap;
-    protected boolean oldBlur;
-    protected boolean oldMipmap;
 
     public void setFilter(boolean param0, boolean param1) {
         RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
@@ -34,34 +32,6 @@ public abstract class AbstractTexture {
 
         GlStateManager._texParameter(3553, 10241, var0);
         GlStateManager._texParameter(3553, 10240, var1);
-    }
-
-    public void pushFilter(boolean param0, boolean param1) {
-        if (!RenderSystem.isOnRenderThread()) {
-            RenderSystem.recordRenderCall(() -> this._pushFilter(param0, param1));
-        } else {
-            this._pushFilter(param0, param1);
-        }
-
-    }
-
-    private void _pushFilter(boolean param0, boolean param1) {
-        this.oldBlur = this.blur;
-        this.oldMipmap = this.mipmap;
-        this.setFilter(param0, param1);
-    }
-
-    public void popFilter() {
-        if (!RenderSystem.isOnRenderThread()) {
-            RenderSystem.recordRenderCall(this::_popFilter);
-        } else {
-            this._popFilter();
-        }
-
-    }
-
-    private void _popFilter() {
-        this.setFilter(this.oldBlur, this.oldMipmap);
     }
 
     public int getId() {

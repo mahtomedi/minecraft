@@ -402,7 +402,7 @@ public class EntityRenderDispatcher {
         int var9 = Mth.floor(var4 - (double)var0);
         int var10 = Mth.floor(var4 + (double)var0);
         Matrix4f var11 = param0.getPose();
-        VertexConsumer var12 = param1.getBuffer(RenderType.NEW_ENTITY(SHADOW_LOCATION));
+        VertexConsumer var12 = param1.getBuffer(RenderType.NEW_ENTITY(SHADOW_LOCATION, false, true, false, 0.1F, false, false));
         OverlayTexture.setDefault(var12);
 
         for(BlockPos var13 : BlockPos.betweenClosed(new BlockPos(var5, var7, var9), new BlockPos(var6, var8, var10))) {

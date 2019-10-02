@@ -75,10 +75,10 @@ public class ScreenEffectRenderer {
         float var10 = param1.getV1();
         Matrix4f var11 = param2.getPose();
         var0.begin(7, DefaultVertexFormat.POSITION_COLOR_TEX);
-        var0.vertex(var11, -1.0F, -1.0F, -0.5F).color(0.1F, 0.1F, 0.1F, 0.5F).uv(var8, var10).endVertex();
-        var0.vertex(var11, 1.0F, -1.0F, -0.5F).color(0.1F, 0.1F, 0.1F, 0.5F).uv(var7, var10).endVertex();
-        var0.vertex(var11, 1.0F, 1.0F, -0.5F).color(0.1F, 0.1F, 0.1F, 0.5F).uv(var7, var9).endVertex();
-        var0.vertex(var11, -1.0F, 1.0F, -0.5F).color(0.1F, 0.1F, 0.1F, 0.5F).uv(var8, var9).endVertex();
+        var0.vertex(var11, -1.0F, -1.0F, -0.5F).color(0.1F, 0.1F, 0.1F, 1.0F).uv(var8, var10).endVertex();
+        var0.vertex(var11, 1.0F, -1.0F, -0.5F).color(0.1F, 0.1F, 0.1F, 1.0F).uv(var7, var10).endVertex();
+        var0.vertex(var11, 1.0F, 1.0F, -0.5F).color(0.1F, 0.1F, 0.1F, 1.0F).uv(var7, var9).endVertex();
+        var0.vertex(var11, -1.0F, 1.0F, -0.5F).color(0.1F, 0.1F, 0.1F, 1.0F).uv(var8, var9).endVertex();
         var0.end();
         BufferUploader.end(var0);
     }

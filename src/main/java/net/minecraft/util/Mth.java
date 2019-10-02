@@ -428,6 +428,15 @@ public class Mth {
     }
 
     @OnlyIn(Dist.CLIENT)
+    public static float fastInvCubeRoot(float param0) {
+        int var0 = Float.floatToIntBits(param0);
+        var0 = 1419967116 - var0 / 3;
+        float var1 = Float.intBitsToFloat(var0);
+        var1 = 0.6666667F * var1 + 1.0F / (3.0F * var1 * var1 * param0);
+        return 0.6666667F * var1 + 1.0F / (3.0F * var1 * var1 * param0);
+    }
+
+    @OnlyIn(Dist.CLIENT)
     public static int hsvToRgb(float param0, float param1, float param2) {
         int var0 = (int)(param0 * 6.0F) % 6;
         float var1 = param0 * 6.0F - (float)var0;

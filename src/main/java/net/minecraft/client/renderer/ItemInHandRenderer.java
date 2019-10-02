@@ -1,21 +1,19 @@
 package net.minecraft.client.renderer;
 
 import com.google.common.base.MoreObjects;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import java.util.Objects;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.MapRenderer;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
@@ -30,7 +28,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ItemInHandRenderer {
-    private static final ResourceLocation MAP_BACKGROUND_LOCATION = new ResourceLocation("textures/map/map_background.png");
     private final Minecraft minecraft;
     private ItemStack mainHandItem = ItemStack.EMPTY;
     private ItemStack offHandItem = ItemStack.EMPTY;
@@ -129,21 +126,17 @@ public class ItemInHandRenderer {
         param0.mulPose(Vector3f.YP.rotation(180.0F, true));
         param0.mulPose(Vector3f.ZP.rotation(180.0F, true));
         param0.scale(0.38F, 0.38F, 0.38F);
-        this.minecraft.getTextureManager().bind(MAP_BACKGROUND_LOCATION);
-        Tesselator var0 = Tesselator.getInstance();
-        BufferBuilder var1 = var0.getBuilder();
         param0.translate(-0.5, -0.5, 0.0);
         param0.scale(0.0078125F, 0.0078125F, 0.0078125F);
-        var1.begin(7, DefaultVertexFormat.POSITION_TEX);
-        Matrix4f var2 = param0.getPose();
-        var1.vertex(var2, -7.0F, 135.0F, 0.0F).uv(0.0F, 1.0F).endVertex();
-        var1.vertex(var2, 135.0F, 135.0F, 0.0F).uv(1.0F, 1.0F).endVertex();
-        var1.vertex(var2, 135.0F, -7.0F, 0.0F).uv(1.0F, 0.0F).endVertex();
-        var1.vertex(var2, -7.0F, -7.0F, 0.0F).uv(0.0F, 0.0F).endVertex();
-        var0.end();
-        MapItemSavedData var3 = MapItem.getOrCreateSavedData(param2, this.minecraft.level);
-        if (var3 != null) {
-            this.minecraft.gameRenderer.getMapRenderer().render(param0, param1, var3, false);
+        VertexConsumer var0 = param1.getBuffer(RenderType.TEXT(MapRenderer.MAP_BACKGROUND_LOCATION));
+        Matrix4f var1 = param0.getPose();
+        var0.vertex(var1, -7.0F, 135.0F, 0.0F).color(255, 255, 255, 255).uv(0.0F, 1.0F).uv2(15728880).endVertex();
+        var0.vertex(var1, 135.0F, 135.0F, 0.0F).color(255, 255, 255, 255).uv(1.0F, 1.0F).uv2(15728880).endVertex();
+        var0.vertex(var1, 135.0F, -7.0F, 0.0F).color(255, 255, 255, 255).uv(1.0F, 0.0F).uv2(15728880).endVertex();
+        var0.vertex(var1, -7.0F, -7.0F, 0.0F).color(255, 255, 255, 255).uv(0.0F, 0.0F).uv2(15728880).endVertex();
+        MapItemSavedData var2 = MapItem.getOrCreateSavedData(param2, this.minecraft.level);
+        if (var2 != null) {
+            this.minecraft.gameRenderer.getMapRenderer().render(param0, param1, var2, false, 15728880);
         }
 
     }

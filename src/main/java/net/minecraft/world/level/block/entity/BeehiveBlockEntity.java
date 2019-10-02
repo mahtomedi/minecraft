@@ -21,6 +21,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BeehiveBlock;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.FireBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class BeehiveBlockEntity extends BlockEntity implements TickableBlockEntity {
@@ -29,6 +30,29 @@ public class BeehiveBlockEntity extends BlockEntity implements TickableBlockEnti
 
     public BeehiveBlockEntity() {
         super(BlockEntityType.BEEHIVE);
+    }
+
+    @Override
+    public void setChanged() {
+        if (this.isFireNearby()) {
+            this.emptyAllLivingFromHive(null, BeehiveBlockEntity.BeeReleaseStatus.EMERGENCY);
+        }
+
+        super.setChanged();
+    }
+
+    public boolean isFireNearby() {
+        if (this.level == null) {
+            return false;
+        } else {
+            for(BlockPos var0 : BlockPos.betweenClosed(this.worldPosition.offset(-1, -1, -1), this.worldPosition.offset(1, 1, 1))) {
+                if (this.level.getBlockState(var0).getBlock() instanceof FireBlock) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 
     public boolean isEmpty() {
@@ -104,7 +128,9 @@ public class BeehiveBlockEntity extends BlockEntity implements TickableBlockEnti
 
     private boolean releaseOccupant(CompoundTag param0, @Nullable List<Entity> param1, BeehiveBlockEntity.BeeReleaseStatus param2) {
         BlockPos var0 = this.getBlockPos();
-        if (this.level.isDay() && !this.level.isRainingAt(var0)) {
+        if ((!this.level.isDay() || this.level.isRainingAt(var0)) && param2 != BeehiveBlockEntity.BeeReleaseStatus.EMERGENCY) {
+            return false;
+        } else {
             param0.remove("Passengers");
             param0.remove("Leash");
             param0.removeUUID("UUID");
@@ -193,8 +219,6 @@ public class BeehiveBlockEntity extends BlockEntity implements TickableBlockEnti
                     return false;
                 }
             }
-        } else {
-            return false;
         }
     }
 
@@ -292,6 +316,7 @@ public class BeehiveBlockEntity extends BlockEntity implements TickableBlockEnti
 
     public static enum BeeReleaseStatus {
         HONEY_DELIVERED,
-        BEE_RELEASED;
+        BEE_RELEASED,
+        EMERGENCY;
     }
 }

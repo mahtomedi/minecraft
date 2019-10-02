@@ -43,17 +43,17 @@ public class BakedGlyph {
         float var6 = param2 + var4;
         float var7 = param0 ? 1.0F - 0.25F * var3 : 0.0F;
         float var8 = param0 ? 1.0F - 0.25F * var4 : 0.0F;
-        param4.vertex(param3, var1 + var7, var5, 0.0F).uv(this.u0, this.v0).uv2(param9).color(param5, param6, param7, param8).endVertex();
-        param4.vertex(param3, var1 + var8, var6, 0.0F).uv(this.u0, this.v1).uv2(param9).color(param5, param6, param7, param8).endVertex();
-        param4.vertex(param3, var2 + var8, var6, 0.0F).uv(this.u1, this.v1).uv2(param9).color(param5, param6, param7, param8).endVertex();
-        param4.vertex(param3, var2 + var7, var5, 0.0F).uv(this.u1, this.v0).uv2(param9).color(param5, param6, param7, param8).endVertex();
+        param4.vertex(param3, var1 + var7, var5, 0.0F).color(param5, param6, param7, param8).uv(this.u0, this.v0).uv2(param9).endVertex();
+        param4.vertex(param3, var1 + var8, var6, 0.0F).color(param5, param6, param7, param8).uv(this.u0, this.v1).uv2(param9).endVertex();
+        param4.vertex(param3, var2 + var8, var6, 0.0F).color(param5, param6, param7, param8).uv(this.u1, this.v1).uv2(param9).endVertex();
+        param4.vertex(param3, var2 + var7, var5, 0.0F).color(param5, param6, param7, param8).uv(this.u1, this.v0).uv2(param9).endVertex();
     }
 
     public void renderEffect(BakedGlyph.Effect param0, Matrix4f param1, VertexConsumer param2, int param3) {
-        param2.vertex(param1, param0.x0, param0.y0, param0.depth).uv(this.u0, this.v0).uv2(param3).color(param0.r, param0.g, param0.b, param0.a).endVertex();
-        param2.vertex(param1, param0.x1, param0.y0, param0.depth).uv(this.u0, this.v1).uv2(param3).color(param0.r, param0.g, param0.b, param0.a).endVertex();
-        param2.vertex(param1, param0.x1, param0.y1, param0.depth).uv(this.u1, this.v1).uv2(param3).color(param0.r, param0.g, param0.b, param0.a).endVertex();
-        param2.vertex(param1, param0.x0, param0.y1, param0.depth).uv(this.u1, this.v0).uv2(param3).color(param0.r, param0.g, param0.b, param0.a).endVertex();
+        param2.vertex(param1, param0.x0, param0.y0, param0.depth).color(param0.r, param0.g, param0.b, param0.a).uv(this.u0, this.v0).uv2(param3).endVertex();
+        param2.vertex(param1, param0.x1, param0.y0, param0.depth).color(param0.r, param0.g, param0.b, param0.a).uv(this.u0, this.v1).uv2(param3).endVertex();
+        param2.vertex(param1, param0.x1, param0.y1, param0.depth).color(param0.r, param0.g, param0.b, param0.a).uv(this.u1, this.v1).uv2(param3).endVertex();
+        param2.vertex(param1, param0.x0, param0.y1, param0.depth).color(param0.r, param0.g, param0.b, param0.a).uv(this.u1, this.v0).uv2(param3).endVertex();
     }
 
     @Nullable

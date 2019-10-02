@@ -110,7 +110,7 @@ public class CartographyTableScreen extends AbstractContainerScreen<CartographyT
             RenderSystem.translatef((float)param1, (float)param2, 1.0F);
             RenderSystem.scalef(param3, param3, 1.0F);
             MultiBufferSource.BufferSource var0 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-            this.minecraft.gameRenderer.getMapRenderer().render(new PoseStack(), var0, param0, true);
+            this.minecraft.gameRenderer.getMapRenderer().render(new PoseStack(), var0, param0, true, 15728880);
             var0.endBatch();
             RenderSystem.popMatrix();
         }
