@@ -73,9 +73,9 @@ public class PortalForcer {
     public boolean createPortal(Entity param0) {
         int var0 = 16;
         double var1 = -1.0;
-        int var2 = Mth.floor(param0.x);
-        int var3 = Mth.floor(param0.y);
-        int var4 = Mth.floor(param0.z);
+        int var2 = Mth.floor(param0.getX());
+        int var3 = Mth.floor(param0.getY());
+        int var4 = Mth.floor(param0.getZ());
         int var5 = var2;
         int var6 = var3;
         int var7 = var4;
@@ -84,10 +84,10 @@ public class PortalForcer {
         BlockPos.MutableBlockPos var10 = new BlockPos.MutableBlockPos();
 
         for(int var11 = var2 - 16; var11 <= var2 + 16; ++var11) {
-            double var12 = (double)var11 + 0.5 - param0.x;
+            double var12 = (double)var11 + 0.5 - param0.getX();
 
             for(int var13 = var4 - 16; var13 <= var4 + 16; ++var13) {
-                double var14 = (double)var13 + 0.5 - param0.z;
+                double var14 = (double)var13 + 0.5 - param0.getZ();
 
                 label276:
                 for(int var15 = this.level.getHeight() - 1; var15 >= 0; --var15) {
@@ -119,7 +119,7 @@ public class PortalForcer {
                                 }
                             }
 
-                            double var25 = (double)var15 + 0.5 - param0.y;
+                            double var25 = (double)var15 + 0.5 - param0.getY();
                             double var26 = var12 * var12 + var25 * var25 + var14 * var14;
                             if (var1 < 0.0 || var26 < var1) {
                                 var1 = var26;
@@ -136,10 +136,10 @@ public class PortalForcer {
 
         if (var1 < 0.0) {
             for(int var27 = var2 - 16; var27 <= var2 + 16; ++var27) {
-                double var28 = (double)var27 + 0.5 - param0.x;
+                double var28 = (double)var27 + 0.5 - param0.getX();
 
                 for(int var29 = var4 - 16; var29 <= var4 + 16; ++var29) {
-                    double var30 = (double)var29 + 0.5 - param0.z;
+                    double var30 = (double)var29 + 0.5 - param0.getZ();
 
                     label214:
                     for(int var31 = this.level.getHeight() - 1; var31 >= 0; --var31) {
@@ -165,7 +165,7 @@ public class PortalForcer {
                                     }
                                 }
 
-                                double var40 = (double)var31 + 0.5 - param0.y;
+                                double var40 = (double)var31 + 0.5 - param0.getY();
                                 double var41 = var28 * var28 + var40 * var40 + var30 * var30;
                                 if (var1 < 0.0 || var41 < var1) {
                                     var1 = var41;

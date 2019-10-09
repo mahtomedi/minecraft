@@ -6,7 +6,7 @@ public class EntityHitResult extends HitResult {
     private final Entity entity;
 
     public EntityHitResult(Entity param0) {
-        this(param0, new Vec3(param0.x, param0.y, param0.z));
+        this(param0, param0.position());
     }
 
     public EntityHitResult(Entity param0, Vec3 param1) {

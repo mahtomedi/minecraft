@@ -52,16 +52,7 @@ public abstract class Animal extends AgableMob {
                 double var0 = this.random.nextGaussian() * 0.02;
                 double var1 = this.random.nextGaussian() * 0.02;
                 double var2 = this.random.nextGaussian() * 0.02;
-                this.level
-                    .addParticle(
-                        ParticleTypes.HEART,
-                        this.x + (double)(this.random.nextFloat() * this.getBbWidth() * 2.0F) - (double)this.getBbWidth(),
-                        this.y + 0.5 + (double)(this.random.nextFloat() * this.getBbHeight()),
-                        this.z + (double)(this.random.nextFloat() * this.getBbWidth() * 2.0F) - (double)this.getBbWidth(),
-                        var0,
-                        var1,
-                        var2
-                    );
+                this.level.addParticle(ParticleTypes.HEART, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), var0, var1, var2);
             }
         }
 
@@ -207,16 +198,7 @@ public abstract class Animal extends AgableMob {
                 double var1 = this.random.nextGaussian() * 0.02;
                 double var2 = this.random.nextGaussian() * 0.02;
                 double var3 = this.random.nextGaussian() * 0.02;
-                this.level
-                    .addParticle(
-                        ParticleTypes.HEART,
-                        this.x + (double)(this.random.nextFloat() * this.getBbWidth() * 2.0F) - (double)this.getBbWidth(),
-                        this.y + 0.5 + (double)(this.random.nextFloat() * this.getBbHeight()),
-                        this.z + (double)(this.random.nextFloat() * this.getBbWidth() * 2.0F) - (double)this.getBbWidth(),
-                        var1,
-                        var2,
-                        var3
-                    );
+                this.level.addParticle(ParticleTypes.HEART, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), var1, var2, var3);
             }
         } else {
             super.handleEntityEvent(param0);

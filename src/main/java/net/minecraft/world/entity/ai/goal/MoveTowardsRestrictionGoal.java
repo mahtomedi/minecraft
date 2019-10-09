@@ -1,7 +1,6 @@
 package net.minecraft.world.entity.ai.goal;
 
 import java.util.EnumSet;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.util.RandomPos;
 import net.minecraft.world.phys.Vec3;
@@ -24,14 +23,13 @@ public class MoveTowardsRestrictionGoal extends Goal {
         if (this.mob.isWithinRestriction()) {
             return false;
         } else {
-            BlockPos var0 = this.mob.getRestrictCenter();
-            Vec3 var1 = RandomPos.getPosTowards(this.mob, 16, 7, new Vec3((double)var0.getX(), (double)var0.getY(), (double)var0.getZ()));
-            if (var1 == null) {
+            Vec3 var0 = RandomPos.getPosTowards(this.mob, 16, 7, new Vec3(this.mob.getRestrictCenter()));
+            if (var0 == null) {
                 return false;
             } else {
-                this.wantedX = var1.x;
-                this.wantedY = var1.y;
-                this.wantedZ = var1.z;
+                this.wantedX = var0.x;
+                this.wantedY = var0.y;
+                this.wantedZ = var0.z;
                 return true;
             }
         }

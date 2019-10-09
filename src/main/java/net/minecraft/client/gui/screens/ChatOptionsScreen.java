@@ -11,7 +11,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class ChatOptionsScreen extends Screen {
+public class ChatOptionsScreen extends OptionsSubScreen {
     private static final Option[] CHAT_OPTIONS = new Option[]{
         Option.CHAT_VISIBILITY,
         Option.CHAT_COLOR,
@@ -27,14 +27,10 @@ public class ChatOptionsScreen extends Screen {
         Option.AUTO_SUGGESTIONS,
         Option.NARRATOR
     };
-    private final Screen lastScreen;
-    private final Options options;
     private AbstractWidget narratorButton;
 
     public ChatOptionsScreen(Screen param0, Options param1) {
-        super(new TranslatableComponent("options.chat.title"));
-        this.lastScreen = param0;
-        this.options = param1;
+        super(param0, param1, new TranslatableComponent("options.chat.title"));
     }
 
     @Override
@@ -58,11 +54,6 @@ public class ChatOptionsScreen extends Screen {
                 this.width / 2 - 100, this.height / 6 + 24 * (var0 + 1) / 2, 200, 20, I18n.get("gui.done"), param0 -> this.minecraft.setScreen(this.lastScreen)
             )
         );
-    }
-
-    @Override
-    public void removed() {
-        this.minecraft.options.save();
     }
 
     @Override

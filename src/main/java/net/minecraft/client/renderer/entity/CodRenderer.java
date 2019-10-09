@@ -24,10 +24,10 @@ public class CodRenderer extends MobRenderer<Cod, CodModel<Cod>> {
     protected void setupRotations(Cod param0, PoseStack param1, float param2, float param3, float param4) {
         super.setupRotations(param0, param1, param2, param3, param4);
         float var0 = 4.3F * Mth.sin(0.6F * param2);
-        param1.mulPose(Vector3f.YP.rotation(var0, true));
+        param1.mulPose(Vector3f.YP.rotationDegrees(var0));
         if (!param0.isInWater()) {
             param1.translate(0.1F, 0.1F, -0.1F);
-            param1.mulPose(Vector3f.ZP.rotation(90.0F, true));
+            param1.mulPose(Vector3f.ZP.rotationDegrees(90.0F));
         }
 
     }

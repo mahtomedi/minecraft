@@ -109,8 +109,7 @@ public class ServerEntity {
                 ++this.teleportDelay;
                 int var9 = Mth.floor(this.entity.yRot * 256.0F / 360.0F);
                 int var10 = Mth.floor(this.entity.xRot * 256.0F / 360.0F);
-                Vec3 var11 = new Vec3(this.entity.x, this.entity.y, this.entity.z)
-                    .subtract(ClientboundMoveEntityPacket.packetToEntity(this.xp, this.yp, this.zp));
+                Vec3 var11 = this.entity.position().subtract(ClientboundMoveEntityPacket.packetToEntity(this.xp, this.yp, this.zp));
                 boolean var12 = var11.lengthSqr() >= 7.6293945E-6F;
                 Packet<?> var13 = null;
                 boolean var14 = var12 || this.tickCount % 60 == 0;
@@ -278,9 +277,9 @@ public class ServerEntity {
     }
 
     private void updateSentPos() {
-        this.xp = ClientboundMoveEntityPacket.entityToPacket(this.entity.x);
-        this.yp = ClientboundMoveEntityPacket.entityToPacket(this.entity.y);
-        this.zp = ClientboundMoveEntityPacket.entityToPacket(this.entity.z);
+        this.xp = ClientboundMoveEntityPacket.entityToPacket(this.entity.getX());
+        this.yp = ClientboundMoveEntityPacket.entityToPacket(this.entity.getY());
+        this.zp = ClientboundMoveEntityPacket.entityToPacket(this.entity.getZ());
     }
 
     public Vec3 sentPos() {

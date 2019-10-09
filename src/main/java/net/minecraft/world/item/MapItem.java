@@ -86,8 +86,8 @@ public class MapItem extends ComplexItem {
             int var0 = 1 << param2.scale;
             int var1 = param2.x;
             int var2 = param2.z;
-            int var3 = Mth.floor(param1.x - (double)var1) / var0 + 64;
-            int var4 = Mth.floor(param1.z - (double)var2) / var0 + 64;
+            int var3 = Mth.floor(param1.getX() - (double)var1) / var0 + 64;
+            int var4 = Mth.floor(param1.getZ() - (double)var2) / var0 + 64;
             int var5 = 128 / var0;
             if (param0.dimension.isHasCeiling()) {
                 var5 /= 2;

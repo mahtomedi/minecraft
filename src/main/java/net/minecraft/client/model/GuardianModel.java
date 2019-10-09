@@ -3,6 +3,7 @@ package net.minecraft.client.model;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.monster.Guardian;
@@ -24,6 +25,7 @@ public class GuardianModel extends ListModel<Guardian> {
     private final ModelPart[] tailParts;
 
     public GuardianModel() {
+        super(RenderType::entityCutoutNoCull);
         this.texWidth = 64;
         this.texHeight = 64;
         this.spikeParts = new ModelPart[12];

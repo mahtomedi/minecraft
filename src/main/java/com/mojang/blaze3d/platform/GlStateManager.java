@@ -3,12 +3,14 @@ package com.mojang.blaze3d.platform;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
+import com.mojang.math.Vector4f;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
+import net.minecraft.Util;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.opengl.ARBFramebufferObject;
@@ -43,8 +45,8 @@ public class GlStateManager {
     private static final GlStateManager.ClearState CLEAR = new GlStateManager.ClearState();
     private static final GlStateManager.StencilState STENCIL = new GlStateManager.StencilState();
     private static final FloatBuffer FLOAT_ARG_BUFFER = MemoryTracker.createFloatBuffer(4);
-    private static final Vector3f DIFFUSE_LIGHT_0 = createVector(0.2F, 1.0F, -0.7F);
-    private static final Vector3f DIFFUSE_LIGHT_1 = createVector(-0.2F, 1.0F, 0.7F);
+    private static final Vector3f DIFFUSE_LIGHT_0 = Util.make(new Vector3f(0.2F, 1.0F, -0.7F), Vector3f::normalize);
+    private static final Vector3f DIFFUSE_LIGHT_1 = Util.make(new Vector3f(-0.2F, 1.0F, 0.7F), Vector3f::normalize);
     private static int activeTexture;
     private static final GlStateManager.TextureState[] TEXTURES = IntStream.range(0, 8)
         .mapToObj(param0 -> new GlStateManager.TextureState())
@@ -652,37 +654,39 @@ public class GlStateManager {
         _texEnv(8960, 34200, 770);
     }
 
-    public static void setupLevelDiffuseLighting() {
+    public static void setupLevelDiffuseLighting(Matrix4f param0) {
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         _enableLighting();
         _enableLight(0);
         _enableLight(1);
         _enableColorMaterial();
         _colorMaterial(1032, 5634);
-        _light(16384, 4611, getBuffer(DIFFUSE_LIGHT_0.x(), DIFFUSE_LIGHT_0.y(), DIFFUSE_LIGHT_0.z(), 0.0F));
-        float var0 = 0.6F;
+        Vector4f var0 = new Vector4f(DIFFUSE_LIGHT_0);
+        var0.transform(param0);
+        _light(16384, 4611, getBuffer(var0.x(), var0.y(), var0.z(), 0.0F));
+        float var1 = 0.6F;
         _light(16384, 4609, getBuffer(0.6F, 0.6F, 0.6F, 1.0F));
         _light(16384, 4608, getBuffer(0.0F, 0.0F, 0.0F, 1.0F));
         _light(16384, 4610, getBuffer(0.0F, 0.0F, 0.0F, 1.0F));
-        _light(16385, 4611, getBuffer(DIFFUSE_LIGHT_1.x(), DIFFUSE_LIGHT_1.y(), DIFFUSE_LIGHT_1.z(), 0.0F));
+        Vector4f var2 = new Vector4f(DIFFUSE_LIGHT_1);
+        var2.transform(param0);
+        _light(16385, 4611, getBuffer(var2.x(), var2.y(), var2.z(), 0.0F));
         _light(16385, 4609, getBuffer(0.6F, 0.6F, 0.6F, 1.0F));
         _light(16385, 4608, getBuffer(0.0F, 0.0F, 0.0F, 1.0F));
         _light(16385, 4610, getBuffer(0.0F, 0.0F, 0.0F, 1.0F));
         _shadeModel(7424);
-        float var1 = 0.4F;
+        float var3 = 0.4F;
         _lightModel(2899, getBuffer(0.4F, 0.4F, 0.4F, 1.0F));
         _disableLighting();
         _disableColorMaterial();
     }
 
-    public static void setupGuiDiffuseLighting() {
+    public static void setupGuiDiffuseLighting(Matrix4f param0) {
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
-        _pushMatrix();
-        _loadIdentity();
-        _rotatef(-22.5F, 0.0F, 1.0F, 0.0F);
-        _rotatef(135.0F, 1.0F, 0.0F, 0.0F);
-        setupLevelDiffuseLighting();
-        _popMatrix();
+        Matrix4f var0 = new Matrix4f(param0);
+        var0.multiply(Vector3f.YP.rotationDegrees(-22.5F));
+        var0.multiply(Vector3f.XP.rotationDegrees(135.0F));
+        setupLevelDiffuseLighting(var0);
     }
 
     private static FloatBuffer getBuffer(float param0, float param1, float param2, float param3) {
@@ -690,12 +694,6 @@ public class GlStateManager {
         FLOAT_ARG_BUFFER.put(param0).put(param1).put(param2).put(param3);
         ((Buffer)FLOAT_ARG_BUFFER).flip();
         return FLOAT_ARG_BUFFER;
-    }
-
-    private static Vector3f createVector(float param0, float param1, float param2) {
-        Vector3f var0 = new Vector3f(param0, param1, param2);
-        var0.normalize();
-        return var0;
     }
 
     public static void setupEndPortalTexGen() {
@@ -795,15 +793,6 @@ public class GlStateManager {
     public static void _disableCull() {
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         CULL.enable.disable();
-    }
-
-    public static void _cullFace(int param0) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
-        if (param0 != CULL.mode) {
-            CULL.mode = param0;
-            GL11.glCullFace(param0);
-        }
-
     }
 
     public static void _polygonMode(int param0, int param1) {
@@ -1405,19 +1394,6 @@ public class GlStateManager {
         public int mode = 5634;
 
         private ColorMaterialState() {
-        }
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public static enum CullFace {
-        FRONT(1028),
-        BACK(1029),
-        FRONT_AND_BACK(1032);
-
-        public final int value;
-
-        private CullFace(int param0) {
-            this.value = param0;
         }
     }
 

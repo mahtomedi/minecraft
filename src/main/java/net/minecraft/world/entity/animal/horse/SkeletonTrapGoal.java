@@ -22,7 +22,7 @@ public class SkeletonTrapGoal extends Goal {
 
     @Override
     public boolean canUse() {
-        return this.horse.level.hasNearbyAlivePlayer(this.horse.x, this.horse.y, this.horse.z, 10.0);
+        return this.horse.level.hasNearbyAlivePlayer(this.horse.getX(), this.horse.getY(), this.horse.getZ(), 10.0);
     }
 
     @Override
@@ -31,7 +31,7 @@ public class SkeletonTrapGoal extends Goal {
         this.horse.setTrap(false);
         this.horse.setTamed(true);
         this.horse.setAge(0);
-        ((ServerLevel)this.horse.level).addGlobalEntity(new LightningBolt(this.horse.level, this.horse.x, this.horse.y, this.horse.z, true));
+        ((ServerLevel)this.horse.level).addGlobalEntity(new LightningBolt(this.horse.level, this.horse.getX(), this.horse.getY(), this.horse.getZ(), true));
         Skeleton var1 = this.createSkeleton(var0, this.horse);
         var1.startRiding(this.horse);
 
@@ -47,7 +47,7 @@ public class SkeletonTrapGoal extends Goal {
     private AbstractHorse createHorse(DifficultyInstance param0) {
         SkeletonHorse var0 = EntityType.SKELETON_HORSE.create(this.horse.level);
         var0.finalizeSpawn(this.horse.level, param0, MobSpawnType.TRIGGERED, null, null);
-        var0.setPos(this.horse.x, this.horse.y, this.horse.z);
+        var0.setPos(this.horse.getX(), this.horse.getY(), this.horse.getZ());
         var0.invulnerableTime = 60;
         var0.setPersistenceRequired();
         var0.setTamed(true);
@@ -59,7 +59,7 @@ public class SkeletonTrapGoal extends Goal {
     private Skeleton createSkeleton(DifficultyInstance param0, AbstractHorse param1) {
         Skeleton var0 = EntityType.SKELETON.create(param1.level);
         var0.finalizeSpawn(param1.level, param0, MobSpawnType.TRIGGERED, null, null);
-        var0.setPos(param1.x, param1.y, param1.z);
+        var0.setPos(param1.getX(), param1.getY(), param1.getZ());
         var0.invulnerableTime = 60;
         var0.setPersistenceRequired();
         if (var0.getItemBySlot(EquipmentSlot.HEAD).isEmpty()) {

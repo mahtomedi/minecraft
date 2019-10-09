@@ -289,16 +289,6 @@ public class RenderSystem {
         GlStateManager._disableCull();
     }
 
-    public static void cullFace(GlStateManager.CullFace param0) {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._cullFace(param0.value);
-    }
-
-    public static void cullFace(int param0) {
-        assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._cullFace(param0);
-    }
-
     public static void polygonMode(int param0, int param1) {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._polygonMode(param0, param1);
@@ -585,7 +575,6 @@ public class RenderSystem {
         GlStateManager._depthFunc(515);
         GlStateManager._enableAlphaTest();
         GlStateManager._alphaFunc(516, 0.1F);
-        GlStateManager._cullFace(GlStateManager.CullFace.BACK.value);
         GlStateManager._matrixMode(5889);
         GlStateManager._loadIdentity();
         GlStateManager._matrixMode(5888);
@@ -705,14 +694,14 @@ public class RenderSystem {
         GlStateManager.teardownOverlayColor();
     }
 
-    public static void setupLevelDiffuseLighting() {
+    public static void setupLevelDiffuseLighting(Matrix4f param0) {
         assertThread(RenderSystem::isOnGameThread);
-        GlStateManager.setupLevelDiffuseLighting();
+        GlStateManager.setupLevelDiffuseLighting(param0);
     }
 
-    public static void setupGuiDiffuseLighting() {
+    public static void setupGuiDiffuseLighting(Matrix4f param0) {
         assertThread(RenderSystem::isOnGameThread);
-        GlStateManager.setupGuiDiffuseLighting();
+        GlStateManager.setupGuiDiffuseLighting(param0);
     }
 
     public static void mulTextureByProjModelView() {

@@ -65,9 +65,9 @@ public class GiveCommand {
                     var0.level
                         .playSound(
                             null,
-                            var0.x,
-                            var0.y,
-                            var0.z,
+                            var0.getX(),
+                            var0.getY(),
+                            var0.getZ(),
                             SoundEvents.ITEM_PICKUP,
                             SoundSource.PLAYERS,
                             0.2F,

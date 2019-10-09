@@ -145,7 +145,7 @@ public class MultiPlayerLevel extends Level {
 
     public void tickNonPassenger(Entity param0) {
         if (param0 instanceof Player || this.getChunkSource().isEntityTickingChunk(param0)) {
-            param0.setPosAndOldPos(param0.x, param0.y, param0.z);
+            param0.setPosAndOldPos(param0.getX(), param0.getY(), param0.getZ());
             param0.yRotO = param0.yRot;
             param0.xRotO = param0.xRot;
             if (param0.inChunk || param0.isSpectator()) {
@@ -169,7 +169,7 @@ public class MultiPlayerLevel extends Level {
         if (param1.removed || param1.getVehicle() != param0) {
             param1.stopRiding();
         } else if (param1 instanceof Player || this.getChunkSource().isEntityTickingChunk(param1)) {
-            param1.setPosAndOldPos(param1.x, param1.y, param1.z);
+            param1.setPosAndOldPos(param1.getX(), param1.getY(), param1.getZ());
             param1.yRotO = param1.yRot;
             param1.xRotO = param1.xRot;
             if (param1.inChunk) {
@@ -189,9 +189,9 @@ public class MultiPlayerLevel extends Level {
 
     public void updateChunkPos(Entity param0) {
         this.getProfiler().push("chunkCheck");
-        int var0 = Mth.floor(param0.x / 16.0);
-        int var1 = Mth.floor(param0.y / 16.0);
-        int var2 = Mth.floor(param0.z / 16.0);
+        int var0 = Mth.floor(param0.getX() / 16.0);
+        int var1 = Mth.floor(param0.getY() / 16.0);
+        int var2 = Mth.floor(param0.getZ() / 16.0);
         if (!param0.inChunk || param0.xChunk != var0 || param0.yChunk != var1 || param0.zChunk != var2) {
             if (param0.inChunk && this.hasChunk(param0.xChunk, param0.zChunk)) {
                 this.getChunk(param0.xChunk, param0.zChunk).removeEntity(param0, param0.yChunk);
@@ -266,7 +266,7 @@ public class MultiPlayerLevel extends Level {
     private void addEntity(int param0, Entity param1) {
         this.removeEntity(param0);
         this.entitiesById.put(param0, param1);
-        this.getChunkSource().getChunk(Mth.floor(param1.x / 16.0), Mth.floor(param1.z / 16.0), ChunkStatus.FULL, true).addEntity(param1);
+        this.getChunkSource().getChunk(Mth.floor(param1.getX() / 16.0), Mth.floor(param1.getZ() / 16.0), ChunkStatus.FULL, true).addEntity(param1);
     }
 
     public void removeEntity(int param0) {
@@ -290,8 +290,8 @@ public class MultiPlayerLevel extends Level {
     public void reAddEntitiesToChunk(LevelChunk param0) {
         for(Entry<Entity> var0 : this.entitiesById.int2ObjectEntrySet()) {
             Entity var1 = var0.getValue();
-            int var2 = Mth.floor(var1.x / 16.0);
-            int var3 = Mth.floor(var1.z / 16.0);
+            int var2 = Mth.floor(var1.getX() / 16.0);
+            int var3 = Mth.floor(var1.getZ() / 16.0);
             if (var2 == param0.getPos().x && var3 == param0.getPos().z) {
                 param0.addEntity(var1);
             }

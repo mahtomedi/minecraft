@@ -46,7 +46,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.WoolCarpetBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
@@ -156,7 +155,9 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
             float var0 = Mth.cos(this.yBodyRot * (float) (Math.PI / 180.0));
             float var1 = Mth.sin(this.yBodyRot * (float) (Math.PI / 180.0));
             float var2 = 0.3F;
-            param0.setPos(this.x + (double)(0.3F * var1), this.y + this.getRideHeight() + param0.getRidingHeight(), this.z - (double)(0.3F * var0));
+            param0.setPos(
+                this.getX() + (double)(0.3F * var1), this.getY() + this.getRideHeight() + param0.getRidingHeight(), this.getZ() - (double)(0.3F * var0)
+            );
         }
     }
 
@@ -197,16 +198,7 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
         }
 
         if (this.isBaby() && var0 > 0) {
-            this.level
-                .addParticle(
-                    ParticleTypes.HAPPY_VILLAGER,
-                    this.x + (double)(this.random.nextFloat() * this.getBbWidth() * 2.0F) - (double)this.getBbWidth(),
-                    this.y + 0.5 + (double)(this.random.nextFloat() * this.getBbHeight()),
-                    this.z + (double)(this.random.nextFloat() * this.getBbWidth() * 2.0F) - (double)this.getBbWidth(),
-                    0.0,
-                    0.0,
-                    0.0
-                );
+            this.level.addParticle(ParticleTypes.HAPPY_VILLAGER, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), 0.0, 0.0, 0.0);
             if (!this.level.isClientSide) {
                 this.ageUp(var0);
             }
@@ -225,9 +217,9 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
             this.level
                 .playSound(
                     null,
-                    this.x,
-                    this.y,
-                    this.z,
+                    this.getX(),
+                    this.getY(),
+                    this.getZ(),
                     SoundEvents.LLAMA_EAT,
                     this.getSoundSource(),
                     1.0F,
@@ -386,17 +378,17 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
 
     private void spit(LivingEntity param0) {
         LlamaSpit var0 = new LlamaSpit(this.level, this);
-        double var1 = param0.x - this.x;
-        double var2 = param0.getBoundingBox().minY + (double)(param0.getBbHeight() / 3.0F) - var0.y;
-        double var3 = param0.z - this.z;
+        double var1 = param0.getX() - this.getX();
+        double var2 = param0.getY(0.3333333333333333) - var0.getY();
+        double var3 = param0.getZ() - this.getZ();
         float var4 = Mth.sqrt(var1 * var1 + var3 * var3) * 0.2F;
         var0.shoot(var1, var2 + (double)var4, var3, 1.5F, 10.0F);
         this.level
             .playSound(
                 null,
-                this.x,
-                this.y,
-                this.z,
+                this.getX(),
+                this.getY(),
+                this.getZ(),
                 SoundEvents.LLAMA_SPIT,
                 this.getSoundSource(),
                 1.0F,
@@ -411,9 +403,11 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
     }
 
     @Override
-    public void causeFallDamage(float param0, float param1) {
-        int var0 = Mth.ceil((param0 * 0.5F - 3.0F) * param1);
-        if (var0 > 0) {
+    public boolean causeFallDamage(float param0, float param1) {
+        int var0 = this.calculateFallDamage(param0, param1);
+        if (var0 <= 0) {
+            return false;
+        } else {
             if (param0 >= 6.0F) {
                 this.hurt(DamageSource.FALL, (float)var0);
                 if (this.isVehicle()) {
@@ -423,13 +417,8 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
                 }
             }
 
-            BlockState var2 = this.level.getBlockState(new BlockPos(this.x, this.y - 0.2 - (double)this.yRotO, this.z));
-            if (!var2.isAir() && !this.isSilent()) {
-                SoundType var3 = var2.getSoundType();
-                this.level
-                    .playSound(null, this.x, this.y, this.z, var3.getStepSound(), this.getSoundSource(), var3.getVolume() * 0.5F, var3.getPitch() * 0.75F);
-            }
-
+            this.playBlockFallSound();
+            return true;
         }
     }
 

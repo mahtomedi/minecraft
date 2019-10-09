@@ -17,9 +17,9 @@ public abstract class BeeSoundInstance extends AbstractTickableSoundInstance {
     public BeeSoundInstance(Bee param0, SoundEvent param1, SoundSource param2) {
         super(param1, param2);
         this.bee = param0;
-        this.x = (float)param0.x;
-        this.y = (float)param0.y;
-        this.z = (float)param0.z;
+        this.x = (float)param0.getX();
+        this.y = (float)param0.getY();
+        this.z = (float)param0.getZ();
         this.looping = true;
         this.delay = 0;
         this.volume = 0.0F;
@@ -34,9 +34,9 @@ public abstract class BeeSoundInstance extends AbstractTickableSoundInstance {
         }
 
         if (!this.bee.removed && !this.hasSwitched) {
-            this.x = (float)this.bee.x;
-            this.y = (float)this.bee.y;
-            this.z = (float)this.bee.z;
+            this.x = (float)this.bee.getX();
+            this.y = (float)this.bee.getY();
+            this.z = (float)this.bee.getZ();
             float var1 = Mth.sqrt(Entity.getHorizontalDistanceSqr(this.bee.getDeltaMovement()));
             if ((double)var1 >= 0.01) {
                 this.pitch = Mth.lerp(Mth.clamp(var1, this.getMinPitch(), this.getMaxPitch()), this.getMinPitch(), this.getMaxPitch());

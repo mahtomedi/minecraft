@@ -34,7 +34,6 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.util.Unit;
 import net.minecraft.util.thread.ProcessorMailbox;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -113,7 +112,12 @@ public class ChunkRenderDispatcher {
                 CompletableFuture.runAsync(() -> {
                 }, this.executor).thenCompose(param2x -> var0x.doTask(var1x)).whenComplete((param1x, param2x) -> {
                     this.mailbox.tell(() -> {
-                        var1x.clearAll();
+                        if (param1x == ChunkRenderDispatcher.ChunkTaskResult.SUCCESSFUL) {
+                            var1x.clearAll();
+                        } else {
+                            var1x.discardAll();
+                        }
+
                         this.freeBuffers.add(var1x);
                         this.freeBufferCount = this.freeBuffers.size();
                         this.runTask();
@@ -194,6 +198,12 @@ public class ChunkRenderDispatcher {
         this.clearBatchQueue();
         this.mailbox.close();
         this.freeBuffers.clear();
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    static enum ChunkTaskResult {
+        SUCCESSFUL,
+        CANCELLED;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -414,7 +424,7 @@ public class ChunkRenderDispatcher {
                 this.distAtCreation = param0;
             }
 
-            public abstract CompletableFuture<Unit> doTask(ChunkBufferBuilderPack var1);
+            public abstract CompletableFuture<ChunkRenderDispatcher.ChunkTaskResult> doTask(ChunkBufferBuilderPack var1);
 
             public abstract void cancel();
 
@@ -434,16 +444,16 @@ public class ChunkRenderDispatcher {
             }
 
             @Override
-            public CompletableFuture<Unit> doTask(ChunkBufferBuilderPack param0) {
+            public CompletableFuture<ChunkRenderDispatcher.ChunkTaskResult> doTask(ChunkBufferBuilderPack param0) {
                 if (this.isCancelled.get()) {
-                    return CompletableFuture.completedFuture(Unit.INSTANCE);
+                    return CompletableFuture.completedFuture(ChunkRenderDispatcher.ChunkTaskResult.CANCELLED);
                 } else if (!RenderChunk.this.hasAllNeighbors()) {
                     this.region = null;
                     RenderChunk.this.setDirty(false);
                     this.isCancelled.set(true);
-                    return CompletableFuture.completedFuture(Unit.INSTANCE);
+                    return CompletableFuture.completedFuture(ChunkRenderDispatcher.ChunkTaskResult.CANCELLED);
                 } else if (this.isCancelled.get()) {
-                    return CompletableFuture.completedFuture(Unit.INSTANCE);
+                    return CompletableFuture.completedFuture(ChunkRenderDispatcher.ChunkTaskResult.CANCELLED);
                 } else {
                     Vec3 var0 = ChunkRenderDispatcher.this.getCameraPosition();
                     float var1 = (float)var0.x;
@@ -453,21 +463,23 @@ public class ChunkRenderDispatcher {
                     Set<BlockEntity> var5 = this.compile(var1, var2, var3, var4, param0);
                     RenderChunk.this.updateGlobalBlockEntities(var5);
                     if (this.isCancelled.get()) {
-                        return CompletableFuture.completedFuture(Unit.INSTANCE);
+                        return CompletableFuture.completedFuture(ChunkRenderDispatcher.ChunkTaskResult.CANCELLED);
                     } else {
                         List<CompletableFuture<Void>> var6 = Lists.newArrayList();
                         var4.hasLayer
                             .forEach(
                                 param2 -> var6.add(ChunkRenderDispatcher.this.uploadChunkLayer(param0.builder(param2), RenderChunk.this.getBuffer(param2)))
                             );
-                        CompletableFuture<Unit> var7 = Util.sequence(var6).thenApply(param0x -> Unit.INSTANCE);
-                        return var7.whenComplete((param1, param2) -> {
+                        return Util.sequence(var6).handle((param1, param2) -> {
                             if (param2 != null && !(param2 instanceof CancellationException) && !(param2 instanceof InterruptedException)) {
                                 Minecraft.getInstance().delayCrash(CrashReport.forThrowable(param2, "Rendering chunk"));
                             }
 
-                            if (!this.isCancelled.get()) {
+                            if (this.isCancelled.get()) {
+                                return ChunkRenderDispatcher.ChunkTaskResult.CANCELLED;
+                            } else {
                                 RenderChunk.this.compiled.set(var4);
+                                return ChunkRenderDispatcher.ChunkTaskResult.SUCCESSFUL;
                             }
                         });
                     }
@@ -519,7 +531,7 @@ public class ChunkRenderDispatcher {
                         }
 
                         if (var10.getRenderShape() != RenderShape.INVISIBLE) {
-                            RenderType var16 = RenderType.getRenderLayer(var10);
+                            RenderType var16 = RenderType.getChunkRenderType(var10);
                             BufferBuilder var17 = param4.builder(var16);
                             if (param3.hasLayer.add(var16)) {
                                 RenderChunk.this.beginLayer(var17);
@@ -532,8 +544,8 @@ public class ChunkRenderDispatcher {
                         }
                     }
 
-                    if (param3.hasBlocks.contains(RenderType.TRANSLUCENT)) {
-                        BufferBuilder var18 = param4.builder(RenderType.TRANSLUCENT);
+                    if (param3.hasBlocks.contains(RenderType.translucent())) {
+                        BufferBuilder var18 = param4.builder(RenderType.translucent());
                         var18.sortQuads(param0 - (float)var1.getX(), param1 - (float)var1.getY(), param2 - (float)var1.getZ());
                         param3.transparencyState = var18.getState();
                     }
@@ -577,22 +589,22 @@ public class ChunkRenderDispatcher {
             }
 
             @Override
-            public CompletableFuture<Unit> doTask(ChunkBufferBuilderPack param0) {
+            public CompletableFuture<ChunkRenderDispatcher.ChunkTaskResult> doTask(ChunkBufferBuilderPack param0) {
                 if (this.isCancelled.get()) {
-                    return CompletableFuture.completedFuture(Unit.INSTANCE);
+                    return CompletableFuture.completedFuture(ChunkRenderDispatcher.ChunkTaskResult.CANCELLED);
                 } else if (!RenderChunk.this.hasAllNeighbors()) {
                     this.isCancelled.set(true);
-                    return CompletableFuture.completedFuture(Unit.INSTANCE);
+                    return CompletableFuture.completedFuture(ChunkRenderDispatcher.ChunkTaskResult.CANCELLED);
                 } else if (this.isCancelled.get()) {
-                    return CompletableFuture.completedFuture(Unit.INSTANCE);
+                    return CompletableFuture.completedFuture(ChunkRenderDispatcher.ChunkTaskResult.CANCELLED);
                 } else {
                     Vec3 var0 = ChunkRenderDispatcher.this.getCameraPosition();
                     float var1 = (float)var0.x;
                     float var2 = (float)var0.y;
                     float var3 = (float)var0.z;
                     BufferBuilder.State var4 = this.compiledChunk.transparencyState;
-                    if (var4 != null && this.compiledChunk.hasBlocks.contains(RenderType.TRANSLUCENT)) {
-                        BufferBuilder var5 = param0.builder(RenderType.TRANSLUCENT);
+                    if (var4 != null && this.compiledChunk.hasBlocks.contains(RenderType.translucent())) {
+                        BufferBuilder var5 = param0.builder(RenderType.translucent());
                         RenderChunk.this.beginLayer(var5);
                         var5.restoreState(var4);
                         var5.sortQuads(
@@ -603,21 +615,26 @@ public class ChunkRenderDispatcher {
                         this.compiledChunk.transparencyState = var5.getState();
                         var5.end();
                         if (this.isCancelled.get()) {
-                            return CompletableFuture.completedFuture(Unit.INSTANCE);
+                            return CompletableFuture.completedFuture(ChunkRenderDispatcher.ChunkTaskResult.CANCELLED);
                         } else {
-                            CompletableFuture<Unit> var6 = ChunkRenderDispatcher.this.uploadChunkLayer(
-                                    param0.builder(RenderType.TRANSLUCENT), RenderChunk.this.getBuffer(RenderType.TRANSLUCENT)
+                            CompletableFuture<ChunkRenderDispatcher.ChunkTaskResult> var6 = ChunkRenderDispatcher.this.uploadChunkLayer(
+                                    param0.builder(RenderType.translucent()), RenderChunk.this.getBuffer(RenderType.translucent())
                                 )
-                                .thenApply(param0x -> Unit.INSTANCE);
-                            return var6.whenComplete((param0x, param1) -> {
-                                if (param1 != null && !(param1 instanceof CancellationException) && !(param1 instanceof InterruptedException)) {
-                                    Minecraft.getInstance().delayCrash(CrashReport.forThrowable(param1, "Rendering chunk"));
+                                .thenApply(param0x -> ChunkRenderDispatcher.ChunkTaskResult.CANCELLED);
+                            return var6.handle(
+                                (param0x, param1) -> {
+                                    if (param1 != null && !(param1 instanceof CancellationException) && !(param1 instanceof InterruptedException)) {
+                                        Minecraft.getInstance().delayCrash(CrashReport.forThrowable(param1, "Rendering chunk"));
+                                    }
+    
+                                    return this.isCancelled.get()
+                                        ? ChunkRenderDispatcher.ChunkTaskResult.CANCELLED
+                                        : ChunkRenderDispatcher.ChunkTaskResult.SUCCESSFUL;
                                 }
-
-                            });
+                            );
                         }
                     } else {
-                        return CompletableFuture.completedFuture(Unit.INSTANCE);
+                        return CompletableFuture.completedFuture(ChunkRenderDispatcher.ChunkTaskResult.CANCELLED);
                     }
                 }
             }

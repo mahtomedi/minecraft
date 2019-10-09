@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -31,7 +32,7 @@ public class FallingBlockRenderer extends EntityRenderer<FallingBlockEntity> {
             Level var1 = param0.getLevel();
             if (var0 != var1.getBlockState(new BlockPos(param0)) && var0.getRenderShape() != RenderShape.INVISIBLE) {
                 param6.pushPose();
-                BlockPos var2 = new BlockPos(param0.x, param0.getBoundingBox().maxY, param0.z);
+                BlockPos var2 = new BlockPos(param0.getX(), param0.getBoundingBox().maxY, param0.getZ());
                 param6.translate((double)(-(var2.getX() & 15)) - 0.5, (double)(-(var2.getY() & 15)), (double)(-(var2.getZ() & 15)) - 0.5);
                 BlockRenderDispatcher var3 = Minecraft.getInstance().getBlockRenderer();
                 var3.getModelRenderer()
@@ -41,10 +42,11 @@ public class FallingBlockRenderer extends EntityRenderer<FallingBlockEntity> {
                         var0,
                         var2,
                         param6,
-                        param7.getBuffer(RenderType.getRenderLayer(var0)),
+                        param7.getBuffer(RenderType.getChunkRenderType(var0)),
                         false,
                         new Random(),
-                        var0.getSeed(param0.getStartPos())
+                        var0.getSeed(param0.getStartPos()),
+                        OverlayTexture.NO_OVERLAY
                     );
                 param6.popPose();
                 super.render(param0, param1, param2, param3, param4, param5, param6, param7);

@@ -43,6 +43,14 @@ public class BlockEventData {
     }
 
     @Override
+    public int hashCode() {
+        int var0 = this.pos.hashCode();
+        var0 = 31 * var0 + this.block.hashCode();
+        var0 = 31 * var0 + this.paramA;
+        return 31 * var0 + this.paramB;
+    }
+
+    @Override
     public String toString() {
         return "TE(" + this.pos + ")," + this.paramA + "," + this.paramB + "," + this.block;
     }

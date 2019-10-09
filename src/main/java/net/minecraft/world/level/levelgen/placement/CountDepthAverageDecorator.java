@@ -17,10 +17,10 @@ public class CountDepthAverageDecorator extends SimpleFeatureDecorator<DepthAver
         int var1 = param1.baseline;
         int var2 = param1.spread;
         return IntStream.range(0, var0).mapToObj(param4 -> {
-            int var0x = param0.nextInt(16);
-            int var1x = param0.nextInt(var2) + param0.nextInt(var2) - var2 + var1;
-            int var2x = param0.nextInt(16);
-            return param2.offset(var0x, var1x, var2x);
+            int var0x = param0.nextInt(16) + param2.getX();
+            int var1x = param0.nextInt(16) + param2.getZ();
+            int var2x = param0.nextInt(var2) + param0.nextInt(var2) - var2 + var1;
+            return new BlockPos(var0x, var2x, var1x);
         });
     }
 }

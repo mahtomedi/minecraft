@@ -147,7 +147,7 @@ public class ShulkerBullet extends Entity {
             var1 = new BlockPos(this).below();
         } else {
             var0 = (double)this.finalTarget.getBbHeight() * 0.5;
-            var1 = new BlockPos(this.finalTarget.x, this.finalTarget.y + var0, this.finalTarget.z);
+            var1 = new BlockPos(this.finalTarget.getX(), this.finalTarget.getY() + var0, this.finalTarget.getZ());
         }
 
         double var3 = (double)var1.getX() + 0.5;
@@ -190,15 +190,15 @@ public class ShulkerBullet extends Entity {
                 var6 = var8.get(this.random.nextInt(var8.size()));
             }
 
-            var3 = this.x + (double)var6.getStepX();
-            var4 = this.y + (double)var6.getStepY();
-            var5 = this.z + (double)var6.getStepZ();
+            var3 = this.getX() + (double)var6.getStepX();
+            var4 = this.getY() + (double)var6.getStepY();
+            var5 = this.getZ() + (double)var6.getStepZ();
         }
 
         this.setMoveDirection(var6);
-        double var10 = var3 - this.x;
-        double var11 = var4 - this.y;
-        double var12 = var5 - this.z;
+        double var10 = var3 - this.getX();
+        double var11 = var4 - this.getY();
+        double var12 = var5 - this.getZ();
         double var13 = (double)Mth.sqrt(var10 * var10 + var11 * var11 + var12 * var12);
         if (var13 == 0.0) {
             this.targetDeltaX = 0.0;
@@ -264,10 +264,10 @@ public class ShulkerBullet extends Entity {
             }
 
             Vec3 var6 = this.getDeltaMovement();
-            this.setPos(this.x + var6.x, this.y + var6.y, this.z + var6.z);
+            this.setPos(this.getX() + var6.x, this.getY() + var6.y, this.getZ() + var6.z);
             ProjectileUtil.rotateTowardsMovement(this, 0.5F);
             if (this.level.isClientSide) {
-                this.level.addParticle(ParticleTypes.END_ROD, this.x - var6.x, this.y - var6.y + 0.15, this.z - var6.z, 0.0, 0.0, 0.0);
+                this.level.addParticle(ParticleTypes.END_ROD, this.getX() - var6.x, this.getY() - var6.y + 0.15, this.getZ() - var6.z, 0.0, 0.0, 0.0);
             } else if (this.finalTarget != null && !this.finalTarget.removed) {
                 if (this.flightSteps > 0) {
                     --this.flightSteps;
@@ -328,7 +328,7 @@ public class ShulkerBullet extends Entity {
                 }
             }
         } else {
-            ((ServerLevel)this.level).sendParticles(ParticleTypes.EXPLOSION, this.x, this.y, this.z, 2, 0.2, 0.2, 0.2, 0.0);
+            ((ServerLevel)this.level).sendParticles(ParticleTypes.EXPLOSION, this.getX(), this.getY(), this.getZ(), 2, 0.2, 0.2, 0.2, 0.0);
             this.playSound(SoundEvents.SHULKER_BULLET_HIT, 1.0F, 1.0F);
         }
 
@@ -344,7 +344,7 @@ public class ShulkerBullet extends Entity {
     public boolean hurt(DamageSource param0, float param1) {
         if (!this.level.isClientSide) {
             this.playSound(SoundEvents.SHULKER_BULLET_HURT, 1.0F, 1.0F);
-            ((ServerLevel)this.level).sendParticles(ParticleTypes.CRIT, this.x, this.y, this.z, 15, 0.2, 0.2, 0.2, 0.0);
+            ((ServerLevel)this.level).sendParticles(ParticleTypes.CRIT, this.getX(), this.getY(), this.getZ(), 15, 0.2, 0.2, 0.2, 0.0);
             this.remove();
         }
 

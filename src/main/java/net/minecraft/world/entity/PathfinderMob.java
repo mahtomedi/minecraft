@@ -22,7 +22,7 @@ public abstract class PathfinderMob extends Mob {
 
     @Override
     public boolean checkSpawnRules(LevelAccessor param0, MobSpawnType param1) {
-        return this.getWalkTargetValue(new BlockPos(this.x, this.getBoundingBox().minY, this.z), param0) >= 0.0F;
+        return this.getWalkTargetValue(new BlockPos(this), param0) >= 0.0F;
     }
 
     public boolean isPathFinding() {
@@ -49,9 +49,9 @@ public abstract class PathfinderMob extends Mob {
                 this.dropLeash(true, true);
                 this.goalSelector.disableControlFlag(Goal.Flag.MOVE);
             } else if (var1 > 6.0F) {
-                double var2 = (var0.x - this.x) / (double)var1;
-                double var3 = (var0.y - this.y) / (double)var1;
-                double var4 = (var0.z - this.z) / (double)var1;
+                double var2 = (var0.getX() - this.getX()) / (double)var1;
+                double var3 = (var0.getY() - this.getY()) / (double)var1;
+                double var4 = (var0.getZ() - this.getZ()) / (double)var1;
                 this.setDeltaMovement(
                     this.getDeltaMovement()
                         .add(Math.copySign(var2 * var2 * 0.4, var2), Math.copySign(var3 * var3 * 0.4, var3), Math.copySign(var4 * var4 * 0.4, var4))
@@ -59,8 +59,10 @@ public abstract class PathfinderMob extends Mob {
             } else {
                 this.goalSelector.enableControlFlag(Goal.Flag.MOVE);
                 float var5 = 2.0F;
-                Vec3 var6 = new Vec3(var0.x - this.x, var0.y - this.y, var0.z - this.z).normalize().scale((double)Math.max(var1 - 2.0F, 0.0F));
-                this.getNavigation().moveTo(this.x + var6.x, this.y + var6.y, this.z + var6.z, this.followLeashSpeed());
+                Vec3 var6 = new Vec3(var0.getX() - this.getX(), var0.getY() - this.getY(), var0.getZ() - this.getZ())
+                    .normalize()
+                    .scale((double)Math.max(var1 - 2.0F, 0.0F));
+                this.getNavigation().moveTo(this.getX() + var6.x, this.getY() + var6.y, this.getZ() + var6.z, this.followLeashSpeed());
             }
         }
 

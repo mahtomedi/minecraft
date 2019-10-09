@@ -31,9 +31,9 @@ public class LlamaSpit extends Entity implements Projectile {
         this(EntityType.LLAMA_SPIT, param0);
         this.owner = param1;
         this.setPos(
-            param1.x - (double)(param1.getBbWidth() + 1.0F) * 0.5 * (double)Mth.sin(param1.yBodyRot * (float) (Math.PI / 180.0)),
-            param1.y + (double)param1.getEyeHeight() - 0.1F,
-            param1.z + (double)(param1.getBbWidth() + 1.0F) * 0.5 * (double)Mth.cos(param1.yBodyRot * (float) (Math.PI / 180.0))
+            param1.getX() - (double)(param1.getBbWidth() + 1.0F) * 0.5 * (double)Mth.sin(param1.yBodyRot * (float) (Math.PI / 180.0)),
+            param1.getEyeY() - 0.1F,
+            param1.getZ() + (double)(param1.getBbWidth() + 1.0F) * 0.5 * (double)Mth.cos(param1.yBodyRot * (float) (Math.PI / 180.0))
         );
     }
 
@@ -69,12 +69,12 @@ public class LlamaSpit extends Entity implements Projectile {
             this.onHit(var1);
         }
 
-        this.x += var0.x;
-        this.y += var0.y;
-        this.z += var0.z;
-        float var2 = Mth.sqrt(getHorizontalDistanceSqr(var0));
+        double var2 = this.getX() + var0.x;
+        double var3 = this.getY() + var0.y;
+        double var4 = this.getZ() + var0.z;
+        float var5 = Mth.sqrt(getHorizontalDistanceSqr(var0));
         this.yRot = (float)(Mth.atan2(var0.x, var0.z) * 180.0F / (float)Math.PI);
-        this.xRot = (float)(Mth.atan2(var0.y, (double)var2) * 180.0F / (float)Math.PI);
+        this.xRot = (float)(Mth.atan2(var0.y, (double)var5) * 180.0F / (float)Math.PI);
 
         while(this.xRot - this.xRotO < -180.0F) {
             this.xRotO -= 360.0F;
@@ -94,8 +94,8 @@ public class LlamaSpit extends Entity implements Projectile {
 
         this.xRot = Mth.lerp(0.2F, this.xRotO, this.xRot);
         this.yRot = Mth.lerp(0.2F, this.yRotO, this.yRot);
-        float var3 = 0.99F;
-        float var4 = 0.06F;
+        float var6 = 0.99F;
+        float var7 = 0.06F;
         if (!this.level.containsMaterial(this.getBoundingBox(), Material.AIR)) {
             this.remove();
         } else if (this.isInWaterOrBubble()) {
@@ -106,7 +106,7 @@ public class LlamaSpit extends Entity implements Projectile {
                 this.setDeltaMovement(this.getDeltaMovement().add(0.0, -0.06F, 0.0));
             }
 
-            this.setPos(this.x, this.y, this.z);
+            this.setPos(var2, var3, var4);
         }
     }
 
@@ -120,7 +120,7 @@ public class LlamaSpit extends Entity implements Projectile {
             this.yRot = (float)(Mth.atan2(param0, param2) * 180.0F / (float)Math.PI);
             this.xRotO = this.xRot;
             this.yRotO = this.yRot;
-            this.moveTo(this.x, this.y, this.z, this.yRot, this.xRot);
+            this.moveTo(this.getX(), this.getY(), this.getZ(), this.yRot, this.xRot);
         }
 
     }

@@ -481,7 +481,7 @@ public abstract class AbstractFurnaceBlockEntity
         while(param1 > 0) {
             int var1 = ExperienceOrb.getExperienceValue(param1);
             param1 -= var1;
-            param0.level.addFreshEntity(new ExperienceOrb(param0.level, param0.x, param0.y + 0.5, param0.z + 0.5, var1));
+            param0.level.addFreshEntity(new ExperienceOrb(param0.level, param0.getX(), param0.getY() + 0.5, param0.getZ() + 0.5, var1));
         }
 
     }

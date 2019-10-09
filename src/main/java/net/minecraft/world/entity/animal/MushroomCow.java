@@ -102,25 +102,29 @@ public class MushroomCow extends Cow {
             this.playSound(var4, 1.0F, 1.0F);
             return true;
         } else if (var0.getItem() == Items.SHEARS && this.getAge() >= 0) {
-            this.level.addParticle(ParticleTypes.EXPLOSION, this.x, this.y + (double)(this.getBbHeight() / 2.0F), this.z, 0.0, 0.0, 0.0);
+            this.level.addParticle(ParticleTypes.EXPLOSION, this.getX(), this.getY(0.5), this.getZ(), 0.0, 0.0, 0.0);
             if (!this.level.isClientSide) {
                 this.remove();
                 Cow var6 = EntityType.COW.create(this.level);
-                var6.moveTo(this.x, this.y, this.z, this.yRot, this.xRot);
+                var6.moveTo(this.getX(), this.getY(), this.getZ(), this.yRot, this.xRot);
                 var6.setHealth(this.getHealth());
                 var6.yBodyRot = this.yBodyRot;
                 if (this.hasCustomName()) {
                     var6.setCustomName(this.getCustomName());
+                    var6.setCustomNameVisible(this.isCustomNameVisible());
                 }
 
+                if (this.isPersistenceRequired()) {
+                    var6.setPersistenceRequired();
+                }
+
+                var6.setInvulnerable(this.isInvulnerable());
                 this.level.addFreshEntity(var6);
 
                 for(int var7 = 0; var7 < 5; ++var7) {
                     this.level
                         .addFreshEntity(
-                            new ItemEntity(
-                                this.level, this.x, this.y + (double)this.getBbHeight(), this.z, new ItemStack(this.getMushroomType().blockState.getBlock())
-                            )
+                            new ItemEntity(this.level, this.getX(), this.getY(1.0), this.getZ(), new ItemStack(this.getMushroomType().blockState.getBlock()))
                         );
                 }
 
@@ -136,9 +140,9 @@ public class MushroomCow extends Cow {
                         this.level
                             .addParticle(
                                 ParticleTypes.SMOKE,
-                                this.x + (double)(this.random.nextFloat() / 2.0F),
-                                this.y + (double)(this.getBbHeight() / 2.0F),
-                                this.z + (double)(this.random.nextFloat() / 2.0F),
+                                this.getX() + (double)(this.random.nextFloat() / 2.0F),
+                                this.getY(0.5),
+                                this.getZ() + (double)(this.random.nextFloat() / 2.0F),
                                 0.0,
                                 (double)(this.random.nextFloat() / 5.0F),
                                 0.0
@@ -154,9 +158,9 @@ public class MushroomCow extends Cow {
                         this.level
                             .addParticle(
                                 ParticleTypes.EFFECT,
-                                this.x + (double)(this.random.nextFloat() / 2.0F),
-                                this.y + (double)(this.getBbHeight() / 2.0F),
-                                this.z + (double)(this.random.nextFloat() / 2.0F),
+                                this.getX() + (double)(this.random.nextFloat() / 2.0F),
+                                this.getY(0.5),
+                                this.getZ() + (double)(this.random.nextFloat() / 2.0F),
                                 0.0,
                                 (double)(this.random.nextFloat() / 5.0F),
                                 0.0

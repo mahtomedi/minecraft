@@ -82,7 +82,7 @@ public class FireworkRocketEntity extends Entity implements ItemSupplier, Projec
     }
 
     public FireworkRocketEntity(Level param0, ItemStack param1, LivingEntity param2) {
-        this(param0, param2.x, param2.y, param2.z, param1);
+        this(param0, param2.getX(), param2.getY(), param2.getZ(), param1);
         this.entityData.set(DATA_ATTACHED_TO_TARGET, OptionalInt.of(param2.getId()));
         this.attachedToEntity = param2;
     }
@@ -136,7 +136,7 @@ public class FireworkRocketEntity extends Entity implements ItemSupplier, Projec
                         );
                 }
 
-                this.setPos(this.attachedToEntity.x, this.attachedToEntity.y, this.attachedToEntity.z);
+                this.setPos(this.attachedToEntity.getX(), this.attachedToEntity.getY(), this.attachedToEntity.getZ());
                 this.setDeltaMovement(this.attachedToEntity.getDeltaMovement());
             }
         } else {
@@ -183,7 +183,7 @@ public class FireworkRocketEntity extends Entity implements ItemSupplier, Projec
         this.xRot = Mth.lerp(0.2F, this.xRotO, this.xRot);
         this.yRot = Mth.lerp(0.2F, this.yRotO, this.yRot);
         if (this.life == 0 && !this.isSilent()) {
-            this.level.playSound(null, this.x, this.y, this.z, SoundEvents.FIREWORK_ROCKET_LAUNCH, SoundSource.AMBIENT, 3.0F, 1.0F);
+            this.level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.FIREWORK_ROCKET_LAUNCH, SoundSource.AMBIENT, 3.0F, 1.0F);
         }
 
         ++this.life;
@@ -191,9 +191,9 @@ public class FireworkRocketEntity extends Entity implements ItemSupplier, Projec
             this.level
                 .addParticle(
                     ParticleTypes.FIREWORK,
-                    this.x,
-                    this.y - 0.3,
-                    this.z,
+                    this.getX(),
+                    this.getY() - 0.3,
+                    this.getZ(),
                     this.random.nextGaussian() * 0.05,
                     -this.getDeltaMovement().y * 0.5,
                     this.random.nextGaussian() * 0.05
@@ -253,14 +253,14 @@ public class FireworkRocketEntity extends Entity implements ItemSupplier, Projec
             }
 
             double var4 = 5.0;
-            Vec3 var5 = new Vec3(this.x, this.y, this.z);
+            Vec3 var5 = this.position();
 
             for(LivingEntity var7 : this.level.getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(5.0))) {
                 if (var7 != this.attachedToEntity && !(this.distanceToSqr(var7) > 25.0)) {
                     boolean var8 = false;
 
                     for(int var9 = 0; var9 < 2; ++var9) {
-                        Vec3 var10 = new Vec3(var7.x, var7.y + (double)var7.getBbHeight() * 0.5 * (double)var9, var7.z);
+                        Vec3 var10 = new Vec3(var7.getX(), var7.getY(0.5 * (double)var9), var7.getZ());
                         HitResult var11 = this.level.clip(new ClipContext(var5, var10, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
                         if (var11.getType() == HitResult.Type.MISS) {
                             var8 = true;
@@ -293,13 +293,21 @@ public class FireworkRocketEntity extends Entity implements ItemSupplier, Projec
             if (!this.hasExplosion()) {
                 for(int var0 = 0; var0 < this.random.nextInt(3) + 2; ++var0) {
                     this.level
-                        .addParticle(ParticleTypes.POOF, this.x, this.y, this.z, this.random.nextGaussian() * 0.05, 0.005, this.random.nextGaussian() * 0.05);
+                        .addParticle(
+                            ParticleTypes.POOF,
+                            this.getX(),
+                            this.getY(),
+                            this.getZ(),
+                            this.random.nextGaussian() * 0.05,
+                            0.005,
+                            this.random.nextGaussian() * 0.05
+                        );
                 }
             } else {
                 ItemStack var1 = this.entityData.get(DATA_ID_FIREWORKS_ITEM);
                 CompoundTag var2 = var1.isEmpty() ? null : var1.getTagElement("Fireworks");
                 Vec3 var3 = this.getDeltaMovement();
-                this.level.createFireworks(this.x, this.y, this.z, var3.x, var3.y, var3.z, var2);
+                this.level.createFireworks(this.getX(), this.getY(), this.getZ(), var3.x, var3.y, var3.z, var2);
             }
         }
 

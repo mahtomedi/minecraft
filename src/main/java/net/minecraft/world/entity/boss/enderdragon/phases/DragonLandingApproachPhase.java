@@ -33,7 +33,7 @@ public class DragonLandingApproachPhase extends AbstractDragonPhaseInstance {
 
     @Override
     public void doServerTick() {
-        double var0 = this.targetLocation == null ? 0.0 : this.targetLocation.distanceToSqr(this.dragon.x, this.dragon.y, this.dragon.z);
+        double var0 = this.targetLocation == null ? 0.0 : this.targetLocation.distanceToSqr(this.dragon.getX(), this.dragon.getY(), this.dragon.getZ());
         if (var0 < 100.0 || var0 > 22500.0 || this.dragon.horizontalCollision || this.dragon.verticalCollision) {
             this.findNewTarget();
         }
@@ -53,7 +53,7 @@ public class DragonLandingApproachPhase extends AbstractDragonPhaseInstance {
             Player var2 = this.dragon.level.getNearestPlayer(NEAR_EGG_TARGETING, (double)var1.getX(), (double)var1.getY(), (double)var1.getZ());
             int var4;
             if (var2 != null) {
-                Vec3 var3 = new Vec3(var2.x, 0.0, var2.z).normalize();
+                Vec3 var3 = new Vec3(var2.getX(), 0.0, var2.getZ()).normalize();
                 var4 = this.dragon.findClosestNode(-var3.x * 40.0, 105.0, -var3.z * 40.0);
             } else {
                 var4 = this.dragon.findClosestNode(40.0, (double)var1.getY(), 0.0);

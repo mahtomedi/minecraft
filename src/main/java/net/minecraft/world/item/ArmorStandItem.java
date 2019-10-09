@@ -48,7 +48,7 @@ public class ArmorStandItem extends Item {
                         this.randomizePose(var10, var1.random);
                         EntityType.updateCustomEntityTag(var1, param0.getPlayer(), var10, var9.getTag());
                         var1.addFreshEntity(var10);
-                        var1.playSound(null, var10.x, var10.y, var10.z, SoundEvents.ARMOR_STAND_PLACE, SoundSource.BLOCKS, 0.75F, 0.8F);
+                        var1.playSound(null, var10.getX(), var10.getY(), var10.getZ(), SoundEvents.ARMOR_STAND_PLACE, SoundSource.BLOCKS, 0.75F, 0.8F);
                     }
 
                     var9.shrink(1);

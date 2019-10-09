@@ -25,6 +25,7 @@ import net.minecraft.world.level.block.IronBarsBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
+import net.minecraft.world.level.levelgen.feature.configurations.SpikeConfiguration;
 import net.minecraft.world.phys.AABB;
 
 public class SpikeFeature extends Feature<SpikeConfiguration> {
@@ -163,7 +164,7 @@ public class SpikeFeature extends Feature<SpikeConfiguration> {
             return this.topBoundingBox;
         }
 
-        <T> Dynamic<T> serialize(DynamicOps<T> param0) {
+        public <T> Dynamic<T> serialize(DynamicOps<T> param0) {
             Builder<T, T> var0 = ImmutableMap.builder();
             var0.put(param0.createString("centerX"), param0.createInt(this.centerX));
             var0.put(param0.createString("centerZ"), param0.createInt(this.centerZ));

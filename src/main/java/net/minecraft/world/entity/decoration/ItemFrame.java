@@ -80,28 +80,29 @@ public class ItemFrame extends HangingEntity {
     protected void recalculateBoundingBox() {
         if (this.direction != null) {
             double var0 = 0.46875;
-            this.x = (double)this.pos.getX() + 0.5 - (double)this.direction.getStepX() * 0.46875;
-            this.y = (double)this.pos.getY() + 0.5 - (double)this.direction.getStepY() * 0.46875;
-            this.z = (double)this.pos.getZ() + 0.5 - (double)this.direction.getStepZ() * 0.46875;
-            double var1 = (double)this.getWidth();
-            double var2 = (double)this.getHeight();
-            double var3 = (double)this.getWidth();
-            Direction.Axis var4 = this.direction.getAxis();
-            switch(var4) {
+            double var1 = (double)this.pos.getX() + 0.5 - (double)this.direction.getStepX() * 0.46875;
+            double var2 = (double)this.pos.getY() + 0.5 - (double)this.direction.getStepY() * 0.46875;
+            double var3 = (double)this.pos.getZ() + 0.5 - (double)this.direction.getStepZ() * 0.46875;
+            this.setPosRaw(var1, var2, var3);
+            double var4 = (double)this.getWidth();
+            double var5 = (double)this.getHeight();
+            double var6 = (double)this.getWidth();
+            Direction.Axis var7 = this.direction.getAxis();
+            switch(var7) {
                 case X:
-                    var1 = 1.0;
+                    var4 = 1.0;
                     break;
                 case Y:
-                    var2 = 1.0;
+                    var5 = 1.0;
                     break;
                 case Z:
-                    var3 = 1.0;
+                    var6 = 1.0;
             }
 
-            var1 /= 32.0;
-            var2 /= 32.0;
-            var3 /= 32.0;
-            this.setBoundingBox(new AABB(this.x - var1, this.y - var2, this.z - var3, this.x + var1, this.y + var2, this.z + var3));
+            var4 /= 32.0;
+            var5 /= 32.0;
+            var6 /= 32.0;
+            this.setBoundingBox(new AABB(var1 - var4, var2 - var5, var3 - var6, var1 + var4, var2 + var5, var3 + var6));
         }
     }
 

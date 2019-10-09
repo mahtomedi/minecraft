@@ -3,7 +3,6 @@ package net.minecraft.world.level.block;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -23,11 +22,6 @@ public class SoulsandBlock extends Block {
     @Override
     public VoxelShape getCollisionShape(BlockState param0, BlockGetter param1, BlockPos param2, CollisionContext param3) {
         return SHAPE;
-    }
-
-    @Override
-    public void entityInside(BlockState param0, Level param1, BlockPos param2, Entity param3) {
-        param3.setDeltaMovement(param3.getDeltaMovement().multiply(0.4, 1.0, 0.4));
     }
 
     @Override

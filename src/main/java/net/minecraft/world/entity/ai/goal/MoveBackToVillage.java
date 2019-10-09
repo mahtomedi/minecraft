@@ -28,11 +28,6 @@ public class MoveBackToVillage extends RandomStrollGoal {
         BlockPos var1 = new BlockPos(this.mob);
         SectionPos var2 = SectionPos.of(var1);
         SectionPos var3 = BehaviorUtils.findSectionClosestToVillage(var0, var2, 2);
-        if (var3 != var2) {
-            BlockPos var4 = var3.center();
-            return RandomPos.getPosTowards(this.mob, 10, 7, new Vec3((double)var4.getX(), (double)var4.getY(), (double)var4.getZ()));
-        } else {
-            return null;
-        }
+        return var3 != var2 ? RandomPos.getPosTowards(this.mob, 10, 7, new Vec3(var3.center())) : null;
     }
 }

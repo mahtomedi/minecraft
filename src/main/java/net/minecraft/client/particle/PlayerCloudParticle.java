@@ -4,7 +4,6 @@ import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -58,9 +57,9 @@ public class PlayerCloudParticle extends TextureSheetParticle {
             this.zd *= 0.96F;
             Player var0 = this.level.getNearestPlayer(this.x, this.y, this.z, 2.0, false);
             if (var0 != null) {
-                AABB var1 = var0.getBoundingBox();
-                if (this.y > var1.minY) {
-                    this.y += (var1.minY - this.y) * 0.2;
+                double var1 = var0.getY();
+                if (this.y > var1) {
+                    this.y += (var1 - this.y) * 0.2;
                     this.yd += (var0.getDeltaMovement().y - this.yd) * 0.2;
                     this.setPos(this.x, this.y, this.z);
                 }

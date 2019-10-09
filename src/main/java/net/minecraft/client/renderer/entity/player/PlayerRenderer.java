@@ -1,7 +1,6 @@
 package net.minecraft.client.renderer.entity.player;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
@@ -173,17 +172,14 @@ public class PlayerRenderer extends LivingEntityRenderer<AbstractClientPlayer, P
         PlayerModel<AbstractClientPlayer> var1 = this.getModel();
         this.setModelProperties(param2);
         int var2 = param2.getLightColor();
-        VertexConsumer var3 = param1.getBuffer(RenderType.NEW_ENTITY(param2.getSkinTextureLocation()));
-        OverlayTexture.setDefault(var3);
         var1.attackTime = 0.0F;
         var1.crouching = false;
         var1.swimAmount = 0.0F;
         var1.setupAnim(param2, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F);
         param3.xRot = 0.0F;
-        param3.render(param0, var3, 0.0625F, var2, null);
+        param3.render(param0, param1.getBuffer(RenderType.entitySolid(param2.getSkinTextureLocation())), 0.0625F, var2, OverlayTexture.NO_OVERLAY, null);
         param4.xRot = 0.0F;
-        param4.render(param0, var3, 0.0625F, var2, null);
-        var3.unsetDefaultOverlayCoords();
+        param4.render(param0, param1.getBuffer(RenderType.entityTranslucent(param2.getSkinTextureLocation())), 0.0625F, var2, OverlayTexture.NO_OVERLAY, null);
     }
 
     protected void setupRotations(AbstractClientPlayer param0, PoseStack param1, float param2, float param3, float param4) {
@@ -193,7 +189,7 @@ public class PlayerRenderer extends LivingEntityRenderer<AbstractClientPlayer, P
             float var1 = (float)param0.getFallFlyingTicks() + param4;
             float var2 = Mth.clamp(var1 * var1 / 100.0F, 0.0F, 1.0F);
             if (!param0.isAutoSpinAttack()) {
-                param1.mulPose(Vector3f.XP.rotation(var2 * (-90.0F - param0.xRot), true));
+                param1.mulPose(Vector3f.XP.rotationDegrees(var2 * (-90.0F - param0.xRot)));
             }
 
             Vec3 var3 = param0.getViewVector(param4);
@@ -203,13 +199,13 @@ public class PlayerRenderer extends LivingEntityRenderer<AbstractClientPlayer, P
             if (var5 > 0.0 && var6 > 0.0) {
                 double var7 = (var4.x * var3.x + var4.z * var3.z) / (Math.sqrt(var5) * Math.sqrt(var6));
                 double var8 = var4.x * var3.z - var4.z * var3.x;
-                param1.mulPose(Vector3f.YP.rotation((float)(Math.signum(var8) * Math.acos(var7)), false));
+                param1.mulPose(Vector3f.YP.rotation((float)(Math.signum(var8) * Math.acos(var7))));
             }
         } else if (var0 > 0.0F) {
             super.setupRotations(param0, param1, param2, param3, param4);
             float var9 = param0.isInWater() ? -90.0F - param0.xRot : -90.0F;
             float var10 = Mth.lerp(var0, 0.0F, var9);
-            param1.mulPose(Vector3f.XP.rotation(var10, true));
+            param1.mulPose(Vector3f.XP.rotationDegrees(var10));
             if (param0.isVisuallySwimming()) {
                 param1.translate(0.0, -1.0, 0.3F);
             }

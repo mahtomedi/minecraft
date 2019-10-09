@@ -12,7 +12,8 @@ public abstract class FlyingMob extends Mob {
     }
 
     @Override
-    public void causeFallDamage(float param0, float param1) {
+    public boolean causeFallDamage(float param0, float param1) {
+        return false;
     }
 
     @Override
@@ -32,13 +33,13 @@ public abstract class FlyingMob extends Mob {
         } else {
             float var0 = 0.91F;
             if (this.onGround) {
-                var0 = this.level.getBlockState(new BlockPos(this.x, this.getBoundingBox().minY - 1.0, this.z)).getBlock().getFriction() * 0.91F;
+                var0 = this.level.getBlockState(new BlockPos(this.getX(), this.getY() - 1.0, this.getZ())).getBlock().getFriction() * 0.91F;
             }
 
             float var1 = 0.16277137F / (var0 * var0 * var0);
             var0 = 0.91F;
             if (this.onGround) {
-                var0 = this.level.getBlockState(new BlockPos(this.x, this.getBoundingBox().minY - 1.0, this.z)).getBlock().getFriction() * 0.91F;
+                var0 = this.level.getBlockState(new BlockPos(this.getX(), this.getY() - 1.0, this.getZ())).getBlock().getFriction() * 0.91F;
             }
 
             this.moveRelative(this.onGround ? 0.1F * var1 : 0.02F, param0);
@@ -47,8 +48,8 @@ public abstract class FlyingMob extends Mob {
         }
 
         this.animationSpeedOld = this.animationSpeed;
-        double var2 = this.x - this.xo;
-        double var3 = this.z - this.zo;
+        double var2 = this.getX() - this.xo;
+        double var3 = this.getZ() - this.zo;
         float var4 = Mth.sqrt(var2 * var2 + var3 * var3) * 4.0F;
         if (var4 > 1.0F) {
             var4 = 1.0F;

@@ -1,12 +1,9 @@
 package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.vehicle.MinecartTNT;
 import net.minecraft.world.level.block.state.BlockState;
@@ -30,20 +27,17 @@ public class TntMinecartRenderer extends MinecartRenderer<MinecartTNT> {
             param3.scale(var2, var2, var2);
         }
 
-        if (var0 > -1 && var0 / 5 % 2 == 0) {
-            renderWhiteSolidBlock(param2, param3, param4, param5);
-        } else {
-            Minecraft.getInstance().getBlockRenderer().renderSingleBlock(param2, param3, param4, param5, 0, 10);
-        }
-
+        renderWhiteSolidBlock(param2, param3, param4, param5, var0 > -1 && var0 / 5 % 2 == 0);
     }
 
-    public static void renderWhiteSolidBlock(BlockState param0, PoseStack param1, MultiBufferSource param2, int param3) {
-        VertexConsumer var0 = param2.getBuffer(RenderType.NEW_ENTITY(TextureAtlas.LOCATION_BLOCKS));
-        var0.defaultOverlayCoords(OverlayTexture.u(1.0F), 10);
-        Minecraft.getInstance()
-            .getBlockRenderer()
-            .renderSingleBlock(param0, param1, param2x -> param2x == RenderType.SOLID ? var0 : param2.getBuffer(param2x), param3, 0, 10);
-        var0.unsetDefaultOverlayCoords();
+    public static void renderWhiteSolidBlock(BlockState param0, PoseStack param1, MultiBufferSource param2, int param3, boolean param4) {
+        int var0;
+        if (param4) {
+            var0 = OverlayTexture.pack(OverlayTexture.u(1.0F), 10);
+        } else {
+            var0 = OverlayTexture.NO_OVERLAY;
+        }
+
+        Minecraft.getInstance().getBlockRenderer().renderSingleBlock(param0, param1, param2, param3, var0);
     }
 }

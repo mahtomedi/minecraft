@@ -1,5 +1,6 @@
 package net.minecraft.client.model;
 
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.entity.monster.Giant;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -11,7 +12,7 @@ public class GiantZombieModel extends AbstractZombieModel<Giant> {
     }
 
     public GiantZombieModel(float param0, boolean param1) {
-        super(param0, 0.0F, 64, param1 ? 32 : 64);
+        super(RenderType::entitySolid, param0, 0.0F, 64, param1 ? 32 : 64);
     }
 
     public boolean isAggressive(Giant param0) {

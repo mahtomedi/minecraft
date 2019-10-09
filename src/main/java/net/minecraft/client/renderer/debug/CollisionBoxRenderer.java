@@ -48,7 +48,7 @@ public class CollisionBoxRenderer implements DebugRenderer.SimpleDebugRenderer {
         RenderSystem.disableTexture();
         RenderSystem.depthMask(false);
         MultiBufferSource.BufferSource var5 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-        VertexConsumer var6 = var5.getBuffer(RenderType.LINES);
+        VertexConsumer var6 = var5.getBuffer(RenderType.lines());
         PoseStack var7 = new PoseStack();
 
         for(VoxelShape var8 : this.shapes) {

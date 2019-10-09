@@ -17,7 +17,9 @@ public class SnowballItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level param0, Player param1, InteractionHand param2) {
         ItemStack var0 = param1.getItemInHand(param2);
-        param0.playSound(null, param1.x, param1.y, param1.z, SoundEvents.SNOWBALL_THROW, SoundSource.NEUTRAL, 0.5F, 0.4F / (random.nextFloat() * 0.4F + 0.8F));
+        param0.playSound(
+            null, param1.getX(), param1.getY(), param1.getZ(), SoundEvents.SNOWBALL_THROW, SoundSource.NEUTRAL, 0.5F, 0.4F / (random.nextFloat() * 0.4F + 0.8F)
+        );
         if (!param0.isClientSide) {
             Snowball var1 = new Snowball(param0, param1);
             var1.setItem(var0);

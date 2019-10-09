@@ -22,7 +22,15 @@ public class StructureBlockRenderer extends BlockEntityRenderer<StructureBlockEn
     }
 
     public void render(
-        StructureBlockEntity param0, double param1, double param2, double param3, float param4, PoseStack param5, MultiBufferSource param6, int param7
+        StructureBlockEntity param0,
+        double param1,
+        double param2,
+        double param3,
+        float param4,
+        PoseStack param5,
+        MultiBufferSource param6,
+        int param7,
+        int param8
     ) {
         if (Minecraft.getInstance().player.canUseGameMasterBlocks() || Minecraft.getInstance().player.isSpectator()) {
             BlockPos var0 = param0.getStructurePos();
@@ -82,7 +90,7 @@ public class StructureBlockRenderer extends BlockEntityRenderer<StructureBlockEn
                     float var28 = 1.0F;
                     float var29 = 0.9F;
                     float var30 = 0.5F;
-                    VertexConsumer var31 = param6.getBuffer(RenderType.LINES);
+                    VertexConsumer var31 = param6.getBuffer(RenderType.lines());
                     if (param0.getMode() == StructureMode.SAVE || param0.getShowBoundingBox()) {
                         LevelRenderer.renderLineBox(param5, var31, var24, var4, var25, var26, var5, var27, 0.9F, 0.9F, 0.9F, 1.0F, 0.5F, 0.5F, 0.5F);
                     }

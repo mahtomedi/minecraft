@@ -9,6 +9,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.NetherBridgePieces;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
@@ -39,7 +40,7 @@ public class NetherFortressFeature extends StructureFeature<NoneFeatureConfigura
         } else if (param3 != (var0 << 4) + 4 + param2.nextInt(8)) {
             return false;
         } else {
-            return param4 != (var1 << 4) + 4 + param2.nextInt(8) ? false : param1.isBiomeValidStartForStructure(param5, Feature.NETHER_BRIDGE);
+            return param4 != (var1 << 4) + 4 + param2.nextInt(8) ? false : param1.isBiomeValidStartForStructure(param5, this);
         }
     }
 

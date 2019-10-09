@@ -55,8 +55,7 @@ public abstract class AbstractHurtingProjectile extends Entity {
     ) {
         this(param0, param5);
         this.owner = param1;
-        this.moveTo(param1.x, param1.y, param1.z, param1.yRot, param1.xRot);
-        this.setPos(this.x, this.y, this.z);
+        this.moveTo(param1.getX(), param1.getY(), param1.getZ(), param1.yRot, param1.xRot);
         this.setDeltaMovement(Vec3.ZERO);
         param2 += this.random.nextGaussian() * 0.4;
         param3 += this.random.nextGaussian() * 0.4;
@@ -98,24 +97,23 @@ public abstract class AbstractHurtingProjectile extends Entity {
             }
 
             Vec3 var1 = this.getDeltaMovement();
-            this.x += var1.x;
-            this.y += var1.y;
-            this.z += var1.z;
+            double var2 = this.getX() + var1.x;
+            double var3 = this.getY() + var1.y;
+            double var4 = this.getZ() + var1.z;
             ProjectileUtil.rotateTowardsMovement(this, 0.2F);
-            float var2 = this.getInertia();
+            float var5 = this.getInertia();
             if (this.isInWater()) {
-                for(int var3 = 0; var3 < 4; ++var3) {
-                    float var4 = 0.25F;
-                    this.level
-                        .addParticle(ParticleTypes.BUBBLE, this.x - var1.x * 0.25, this.y - var1.y * 0.25, this.z - var1.z * 0.25, var1.x, var1.y, var1.z);
+                for(int var6 = 0; var6 < 4; ++var6) {
+                    float var7 = 0.25F;
+                    this.level.addParticle(ParticleTypes.BUBBLE, var2 - var1.x * 0.25, var3 - var1.y * 0.25, var4 - var1.z * 0.25, var1.x, var1.y, var1.z);
                 }
 
-                var2 = 0.8F;
+                var5 = 0.8F;
             }
 
-            this.setDeltaMovement(var1.add(this.xPower, this.yPower, this.zPower).scale((double)var2));
-            this.level.addParticle(this.getTrailParticle(), this.x, this.y + 0.5, this.z, 0.0, 0.0, 0.0);
-            this.setPos(this.x, this.y, this.z);
+            this.setDeltaMovement(var1.add(this.xPower, this.yPower, this.zPower).scale((double)var5));
+            this.level.addParticle(this.getTrailParticle(), var2, var3 + 0.5, var4, 0.0, 0.0, 0.0);
+            this.setPos(var2, var3, var4);
         } else {
             this.remove();
         }
@@ -212,7 +210,16 @@ public abstract class AbstractHurtingProjectile extends Entity {
     public Packet<?> getAddEntityPacket() {
         int var0 = this.owner == null ? 0 : this.owner.getId();
         return new ClientboundAddEntityPacket(
-            this.getId(), this.getUUID(), this.x, this.y, this.z, this.xRot, this.yRot, this.getType(), var0, new Vec3(this.xPower, this.yPower, this.zPower)
+            this.getId(),
+            this.getUUID(),
+            this.getX(),
+            this.getY(),
+            this.getZ(),
+            this.xRot,
+            this.yRot,
+            this.getType(),
+            var0,
+            new Vec3(this.xPower, this.yPower, this.zPower)
         );
     }
 }

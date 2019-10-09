@@ -8,13 +8,12 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public final class Quaternion {
     private final float[] values;
 
-    public Quaternion() {
-        this.values = new float[4];
-        this.values[3] = 1.0F;
+    private Quaternion(float[] param0) {
+        this.values = param0;
     }
 
     public Quaternion(float param0, float param1, float param2, float param3) {
-        this.values = new float[4];
+        this(new float[4]);
         this.values[0] = param0;
         this.values[1] = param1;
         this.values[2] = param2;
@@ -155,5 +154,10 @@ public final class Quaternion {
             this.values[3] = 0.0F;
         }
 
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public Quaternion copy() {
+        return new Quaternion((float[])this.values.clone());
     }
 }

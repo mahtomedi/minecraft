@@ -34,7 +34,7 @@ public class WaterBoundPathNavigation extends PathNavigation {
 
     @Override
     protected Vec3 getTempMobPos() {
-        return new Vec3(this.mob.x, this.mob.y + (double)this.mob.getBbHeight() * 0.5, this.mob.z);
+        return new Vec3(this.mob.getX(), this.mob.getY(0.5), this.mob.getZ());
     }
 
     @Override
@@ -49,7 +49,9 @@ public class WaterBoundPathNavigation extends PathNavigation {
                 this.updatePath();
             } else if (this.path != null && this.path.getIndex() < this.path.getSize()) {
                 Vec3 var0 = this.path.getPos(this.mob, this.path.getIndex());
-                if (Mth.floor(this.mob.x) == Mth.floor(var0.x) && Mth.floor(this.mob.y) == Mth.floor(var0.y) && Mth.floor(this.mob.z) == Mth.floor(var0.z)) {
+                if (Mth.floor(this.mob.getX()) == Mth.floor(var0.x)
+                    && Mth.floor(this.mob.getY()) == Mth.floor(var0.y)
+                    && Mth.floor(this.mob.getZ()) == Mth.floor(var0.z)) {
                     this.path.setIndex(this.path.getIndex() + 1);
                 }
             }
@@ -75,9 +77,9 @@ public class WaterBoundPathNavigation extends PathNavigation {
 
             int var4 = 6;
             Vec3 var5 = this.path.currentPos();
-            if (Math.abs(this.mob.x - (var5.x + 0.5)) < (double)var2
-                && Math.abs(this.mob.z - (var5.z + 0.5)) < (double)var2
-                && Math.abs(this.mob.y - var5.y) < (double)(var2 * 2.0F)) {
+            if (Math.abs(this.mob.getX() - (var5.x + 0.5)) < (double)var2
+                && Math.abs(this.mob.getZ() - (var5.z + 0.5)) < (double)var2
+                && Math.abs(this.mob.getY() - var5.y) < (double)(var2 * 2.0F)) {
                 this.path.next();
             }
 

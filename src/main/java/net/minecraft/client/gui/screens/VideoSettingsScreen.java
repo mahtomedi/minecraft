@@ -12,9 +12,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class VideoSettingsScreen extends Screen {
-    private final Screen lastScreen;
-    private final Options options;
+public class VideoSettingsScreen extends OptionsSubScreen {
     private OptionsList list;
     private static final Option[] OPTIONS = new Option[]{
         Option.GRAPHICS,
@@ -36,9 +34,7 @@ public class VideoSettingsScreen extends Screen {
     private int oldMipmaps;
 
     public VideoSettingsScreen(Screen param0, Options param1) {
-        super(new TranslatableComponent("options.videoTitle"));
-        this.lastScreen = param0;
-        this.options = param1;
+        super(param0, param1, new TranslatableComponent("options.videoTitle"));
     }
 
     @Override
@@ -64,7 +60,7 @@ public class VideoSettingsScreen extends Screen {
             this.minecraft.delayTextureReload();
         }
 
-        this.minecraft.options.save();
+        super.removed();
     }
 
     @Override

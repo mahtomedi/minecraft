@@ -5,7 +5,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.model.EvokerFangsModel;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.projectile.EvokerFangs;
@@ -30,16 +29,14 @@ public class EvokerFangsRenderer extends EntityRenderer<EvokerFangs> {
             }
 
             param6.pushPose();
-            param6.mulPose(Vector3f.YP.rotation(90.0F - param0.yRot, true));
+            param6.mulPose(Vector3f.YP.rotationDegrees(90.0F - param0.yRot));
             param6.scale(-var1, -var1, var1);
             float var2 = 0.03125F;
             param6.translate(0.0, -0.626F, 0.0);
             int var3 = param0.getLightColor();
-            VertexConsumer var4 = param7.getBuffer(RenderType.NEW_ENTITY(TEXTURE_LOCATION));
-            OverlayTexture.setDefault(var4);
             this.model.setupAnim(param0, var0, 0.0F, 0.0F, param0.yRot, param0.xRot, 0.03125F);
-            this.model.renderToBuffer(param6, var4, var3);
-            var4.unsetDefaultOverlayCoords();
+            VertexConsumer var4 = param7.getBuffer(this.model.renderType(TEXTURE_LOCATION));
+            this.model.renderToBuffer(param6, var4, var3, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F);
             param6.popPose();
             super.render(param0, param1, param2, param3, param4, param5, param6, param7);
         }

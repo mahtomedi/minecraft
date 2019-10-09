@@ -80,13 +80,14 @@ public class Creeper extends Monster implements PowerableMob {
     }
 
     @Override
-    public void causeFallDamage(float param0, float param1) {
-        super.causeFallDamage(param0, param1);
+    public boolean causeFallDamage(float param0, float param1) {
+        boolean var0 = super.causeFallDamage(param0, param1);
         this.swell = (int)((float)this.swell + param0 * 1.5F);
         if (this.swell > this.maxSwell - 5) {
             this.swell = this.maxSwell - 5;
         }
 
+        return var0;
     }
 
     @Override
@@ -212,7 +213,16 @@ public class Creeper extends Monster implements PowerableMob {
         ItemStack var0 = param0.getItemInHand(param1);
         if (var0.getItem() == Items.FLINT_AND_STEEL) {
             this.level
-                .playSound(param0, this.x, this.y, this.z, SoundEvents.FLINTANDSTEEL_USE, this.getSoundSource(), 1.0F, this.random.nextFloat() * 0.4F + 0.8F);
+                .playSound(
+                    param0,
+                    this.getX(),
+                    this.getY(),
+                    this.getZ(),
+                    SoundEvents.FLINTANDSTEEL_USE,
+                    this.getSoundSource(),
+                    1.0F,
+                    this.random.nextFloat() * 0.4F + 0.8F
+                );
             if (!this.level.isClientSide) {
                 this.ignite();
                 var0.hurtAndBreak(1, param0, param1x -> param1x.broadcastBreakEvent(param1));
@@ -231,7 +241,7 @@ public class Creeper extends Monster implements PowerableMob {
                 : Explosion.BlockInteraction.NONE;
             float var1 = this.isPowered() ? 2.0F : 1.0F;
             this.dead = true;
-            this.level.explode(this, this.x, this.y, this.z, (float)this.explosionRadius * var1, var0);
+            this.level.explode(this, this.getX(), this.getY(), this.getZ(), (float)this.explosionRadius * var1, var0);
             this.remove();
             this.spawnLingeringCloud();
         }
@@ -241,7 +251,7 @@ public class Creeper extends Monster implements PowerableMob {
     private void spawnLingeringCloud() {
         Collection<MobEffectInstance> var0 = this.getActiveEffects();
         if (!var0.isEmpty()) {
-            AreaEffectCloud var1 = new AreaEffectCloud(this.level, this.x, this.y, this.z);
+            AreaEffectCloud var1 = new AreaEffectCloud(this.level, this.getX(), this.getY(), this.getZ());
             var1.setRadius(2.5F);
             var1.setRadiusOnUse(-0.5F);
             var1.setWaitTime(10);

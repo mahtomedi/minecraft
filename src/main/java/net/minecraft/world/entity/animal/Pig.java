@@ -183,7 +183,7 @@ public class Pig extends Animal {
     public void thunderHit(LightningBolt param0) {
         PigZombie var0 = EntityType.ZOMBIE_PIGMAN.create(this.level);
         var0.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.GOLDEN_SWORD));
-        var0.moveTo(this.x, this.y, this.z, this.yRot, this.xRot);
+        var0.moveTo(this.getX(), this.getY(), this.getZ(), this.yRot, this.xRot);
         var0.setNoAi(this.isNoAi());
         if (this.hasCustomName()) {
             var0.setCustomName(this.getCustomName());
@@ -225,8 +225,8 @@ public class Pig extends Animal {
                 }
 
                 this.animationSpeedOld = this.animationSpeed;
-                double var2 = this.x - this.xo;
-                double var3 = this.z - this.zo;
+                double var2 = this.getX() - this.xo;
+                double var3 = this.getZ() - this.zo;
                 float var4 = Mth.sqrt(var2 * var2 + var3 * var3) * 4.0F;
                 if (var4 > 1.0F) {
                     var4 = 1.0F;

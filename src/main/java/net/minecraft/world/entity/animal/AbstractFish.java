@@ -203,9 +203,9 @@ public abstract class AbstractFish extends WaterAnimal {
             }
 
             if (this.operation == MoveControl.Operation.MOVE_TO && !this.fish.getNavigation().isDone()) {
-                double var0 = this.wantedX - this.fish.x;
-                double var1 = this.wantedY - this.fish.y;
-                double var2 = this.wantedZ - this.fish.z;
+                double var0 = this.wantedX - this.fish.getX();
+                double var1 = this.wantedY - this.fish.getY();
+                double var2 = this.wantedZ - this.fish.getZ();
                 double var3 = (double)Mth.sqrt(var0 * var0 + var1 * var1 + var2 * var2);
                 var1 /= var3;
                 float var4 = (float)(Mth.atan2(var2, var0) * 180.0F / (float)Math.PI) - 90.0F;

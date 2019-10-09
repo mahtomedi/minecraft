@@ -56,7 +56,7 @@ public class SheepFurLayer extends RenderLayer<Sheep, SheepModel<Sheep>> {
                 var10 = var11[2];
             }
 
-            coloredModelCopyLayerRender(
+            coloredCutoutModelCopyLayerRender(
                 this.getParentModel(),
                 this.model,
                 SHEEP_FUR_LOCATION,

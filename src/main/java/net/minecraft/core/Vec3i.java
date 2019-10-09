@@ -7,8 +7,11 @@ import net.minecraft.util.Mth;
 @Immutable
 public class Vec3i implements Comparable<Vec3i> {
     public static final Vec3i ZERO = new Vec3i(0, 0, 0);
+    @Deprecated
     private final int x;
+    @Deprecated
     private final int y;
+    @Deprecated
     private final int z;
 
     public Vec3i(int param0, int param1, int param2) {
@@ -87,7 +90,7 @@ public class Vec3i implements Comparable<Vec3i> {
     }
 
     public boolean closerThan(Vec3i param0, double param1) {
-        return this.distSqr((double)param0.x, (double)param0.y, (double)param0.z, false) < param1 * param1;
+        return this.distSqr((double)param0.getX(), (double)param0.getY(), (double)param0.getZ(), false) < param1 * param1;
     }
 
     public boolean closerThan(Position param0, double param1) {
@@ -111,9 +114,9 @@ public class Vec3i implements Comparable<Vec3i> {
     }
 
     public int distManhattan(Vec3i param0) {
-        float var0 = (float)Math.abs(param0.getX() - this.x);
-        float var1 = (float)Math.abs(param0.getY() - this.y);
-        float var2 = (float)Math.abs(param0.getZ() - this.z);
+        float var0 = (float)Math.abs(param0.getX() - this.getX());
+        float var1 = (float)Math.abs(param0.getY() - this.getY());
+        float var2 = (float)Math.abs(param0.getZ() - this.getZ());
         return (int)(var0 + var1 + var2);
     }
 

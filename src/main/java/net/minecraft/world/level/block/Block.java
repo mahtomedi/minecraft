@@ -97,6 +97,8 @@ public class Block implements ItemLike {
     protected final Material material;
     protected final MaterialColor materialColor;
     private final float friction;
+    private final float speedFactor;
+    private final float jumpFactor;
     protected final StateDefinition<Block, BlockState> stateDefinition;
     private BlockState defaultBlockState;
     protected final boolean hasCollision;
@@ -142,7 +144,7 @@ public class Block implements ItemLike {
 
         for(Entity var2 : param2.getEntities(null, var0.bounds())) {
             double var3 = Shapes.collide(Direction.Axis.Y, var2.getBoundingBox().move(0.0, 1.0, 0.0), Stream.of(var0), -1.0);
-            var2.teleportTo(var2.x, var2.y + 1.0 + var3, var2.z);
+            var2.teleportTo(var2.getX(), var2.getY() + 1.0 + var3, var2.getZ());
         }
 
         return param1;
@@ -250,6 +252,8 @@ public class Block implements ItemLike {
         this.destroySpeed = param0.destroyTime;
         this.isTicking = param0.isTicking;
         this.friction = param0.friction;
+        this.speedFactor = param0.speedFactor;
+        this.jumpFactor = param0.jumpFactor;
         this.dynamicShape = param0.dynamicShape;
         this.drops = param0.drops;
         this.canOcclude = param0.canOcclude;
@@ -707,6 +711,14 @@ public class Block implements ItemLike {
         return this.friction;
     }
 
+    public float getSpeedFactor() {
+        return this.speedFactor;
+    }
+
+    public float getJumpFactor() {
+        return this.jumpFactor;
+    }
+
     @Deprecated
     @OnlyIn(Dist.CLIENT)
     public long getSeed(BlockState param0, BlockPos param1) {
@@ -797,14 +809,6 @@ public class Block implements ItemLike {
     public void appendHoverText(ItemStack param0, @Nullable BlockGetter param1, List<Component> param2, TooltipFlag param3) {
     }
 
-    public static boolean equalsStone(Block param0) {
-        return param0 == Blocks.STONE || param0 == Blocks.GRANITE || param0 == Blocks.DIORITE || param0 == Blocks.ANDESITE;
-    }
-
-    public static boolean equalsDirt(Block param0) {
-        return param0 == Blocks.DIRT || param0 == Blocks.COARSE_DIRT || param0 == Blocks.PODZOL;
-    }
-
     public static final class BlockStatePairKey {
         private final BlockState first;
         private final BlockState second;
@@ -852,6 +856,8 @@ public class Block implements ItemLike {
         private float destroyTime;
         private boolean isTicking;
         private float friction = 0.6F;
+        private float speedFactor = 1.0F;
+        private float jumpFactor = 1.0F;
         private ResourceLocation drops;
         private boolean canOcclude = true;
         private boolean dynamicShape;
@@ -884,6 +890,7 @@ public class Block implements ItemLike {
             var0.materialColor = param0.materialColor;
             var0.soundType = param0.soundType;
             var0.friction = param0.getFriction();
+            var0.speedFactor = param0.getSpeedFactor();
             var0.dynamicShape = param0.dynamicShape;
             var0.canOcclude = param0.canOcclude;
             return var0;
@@ -902,6 +909,16 @@ public class Block implements ItemLike {
 
         public Block.Properties friction(float param0) {
             this.friction = param0;
+            return this;
+        }
+
+        public Block.Properties speedFactor(float param0) {
+            this.speedFactor = param0;
+            return this;
+        }
+
+        public Block.Properties jumpFactor(float param0) {
+            this.jumpFactor = param0;
             return this;
         }
 

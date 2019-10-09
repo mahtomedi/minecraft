@@ -29,14 +29,14 @@ public class FlyNodeEvaluator extends WalkNodeEvaluator {
     public Node getStart() {
         int var0;
         if (this.canFloat() && this.mob.isInWater()) {
-            var0 = Mth.floor(this.mob.getBoundingBox().minY);
-            BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos(this.mob.x, (double)var0, this.mob.z);
+            var0 = Mth.floor(this.mob.getY());
+            BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos(this.mob.getX(), (double)var0, this.mob.getZ());
 
             for(Block var2 = this.level.getBlockState(var1).getBlock(); var2 == Blocks.WATER; var2 = this.level.getBlockState(var1).getBlock()) {
-                var1.set(this.mob.x, (double)(++var0), this.mob.z);
+                var1.set(this.mob.getX(), (double)(++var0), this.mob.getZ());
             }
         } else {
-            var0 = Mth.floor(this.mob.getBoundingBox().minY + 0.5);
+            var0 = Mth.floor(this.mob.getY() + 0.5);
         }
 
         BlockPos var4 = new BlockPos(this.mob);
@@ -255,10 +255,10 @@ public class FlyNodeEvaluator extends WalkNodeEvaluator {
 
     @Override
     public BlockPathTypes getBlockPathType(BlockGetter param0, int param1, int param2, int param3) {
-        BlockPathTypes var0 = this.getBlockPathTypeRaw(param0, param1, param2, param3);
+        BlockPathTypes var0 = getBlockPathTypeRaw(param0, param1, param2, param3);
         if (var0 == BlockPathTypes.OPEN && param2 >= 1) {
             Block var1 = param0.getBlockState(new BlockPos(param1, param2 - 1, param3)).getBlock();
-            BlockPathTypes var2 = this.getBlockPathTypeRaw(param0, param1, param2 - 1, param3);
+            BlockPathTypes var2 = getBlockPathTypeRaw(param0, param1, param2 - 1, param3);
             if (var2 == BlockPathTypes.DAMAGE_FIRE || var1 == Blocks.MAGMA_BLOCK || var2 == BlockPathTypes.LAVA || var1 == Blocks.CAMPFIRE) {
                 var0 = BlockPathTypes.DAMAGE_FIRE;
             } else if (var2 == BlockPathTypes.DAMAGE_CACTUS) {
@@ -272,7 +272,7 @@ public class FlyNodeEvaluator extends WalkNodeEvaluator {
             }
         }
 
-        return this.checkNeighbourBlocks(param0, param1, param2, param3, var0);
+        return checkNeighbourBlocks(param0, param1, param2, param3, var0);
     }
 
     private BlockPathTypes getBlockPathType(Mob param0, BlockPos param1) {

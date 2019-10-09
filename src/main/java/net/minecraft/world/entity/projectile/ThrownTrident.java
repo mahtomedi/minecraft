@@ -69,10 +69,10 @@ public class ThrownTrident extends AbstractArrow {
                 this.remove();
             } else if (var1 > 0) {
                 this.setNoPhysics(true);
-                Vec3 var2 = new Vec3(var0.x - this.x, var0.y + (double)var0.getEyeHeight() - this.y, var0.z - this.z);
-                this.y += var2.y * 0.015 * (double)var1;
+                Vec3 var2 = new Vec3(var0.getX() - this.getX(), var0.getEyeY() - this.getY(), var0.getZ() - this.getZ());
+                this.setPosRaw(this.getX(), this.getY() + var2.y * 0.015 * (double)var1, this.getZ());
                 if (this.level.isClientSide) {
-                    this.yOld = this.y;
+                    this.yOld = this.getY();
                 }
 
                 double var3 = 0.05 * (double)var1;

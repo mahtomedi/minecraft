@@ -10,19 +10,19 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.Heightmap;
 
-public class ChanceHeightmapDecorator extends FeatureDecorator<DecoratorChance> {
-    public ChanceHeightmapDecorator(Function<Dynamic<?>, ? extends DecoratorChance> param0) {
+public class ChanceHeightmapDecorator extends FeatureDecorator<ChanceDecoratorConfiguration> {
+    public ChanceHeightmapDecorator(Function<Dynamic<?>, ? extends ChanceDecoratorConfiguration> param0) {
         super(param0);
     }
 
     public Stream<BlockPos> getPositions(
-        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, DecoratorChance param3, BlockPos param4
+        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, ChanceDecoratorConfiguration param3, BlockPos param4
     ) {
         if (param2.nextFloat() < 1.0F / (float)param3.chance) {
-            int var0 = param2.nextInt(16);
-            int var1 = param2.nextInt(16);
-            BlockPos var2 = param0.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, param4.offset(var0, 0, var1));
-            return Stream.of(var2);
+            int var0 = param2.nextInt(16) + param4.getX();
+            int var1 = param2.nextInt(16) + param4.getZ();
+            int var2 = param0.getHeight(Heightmap.Types.MOTION_BLOCKING, var0, var1);
+            return Stream.of(new BlockPos(var0, var2, var1));
         } else {
             return Stream.empty();
         }

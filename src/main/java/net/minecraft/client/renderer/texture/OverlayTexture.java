@@ -2,12 +2,12 @@ package net.minecraft.client.renderer.texture;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class OverlayTexture implements AutoCloseable {
+    public static final int NO_OVERLAY = pack(0, 10);
     private final DynamicTexture texture = new DynamicTexture(16, 16, false);
 
     public OverlayTexture() {
@@ -53,11 +53,15 @@ public class OverlayTexture implements AutoCloseable {
         return param0 ? 3 : 10;
     }
 
-    public void teardownOverlayColor() {
-        RenderSystem.teardownOverlayColor();
+    public static int pack(int param0, int param1) {
+        return param0 | param1 << 16;
     }
 
-    public static void setDefault(VertexConsumer param0) {
-        param0.defaultOverlayCoords(0, 10);
+    public static int pack(float param0, boolean param1) {
+        return pack(u(param0), v(param1));
+    }
+
+    public void teardownOverlayColor() {
+        RenderSystem.teardownOverlayColor();
     }
 }

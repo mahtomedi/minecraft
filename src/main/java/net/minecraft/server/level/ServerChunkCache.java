@@ -285,7 +285,7 @@ public class ServerChunkCache extends ChunkSource {
 
     @Override
     public boolean isEntityTickingChunk(Entity param0) {
-        long var0 = ChunkPos.asLong(Mth.floor(param0.x) >> 4, Mth.floor(param0.z) >> 4);
+        long var0 = ChunkPos.asLong(Mth.floor(param0.getX()) >> 4, Mth.floor(param0.getZ()) >> 4);
         return this.checkChunkFuture(var0, ChunkHolder::getEntityTickingChunkFuture);
     }
 
@@ -301,7 +301,7 @@ public class ServerChunkCache extends ChunkSource {
     }
 
     public boolean isInAccessibleChunk(Entity param0) {
-        long var0 = ChunkPos.asLong(Mth.floor(param0.x) >> 4, Mth.floor(param0.z) >> 4);
+        long var0 = ChunkPos.asLong(Mth.floor(param0.getX()) >> 4, Mth.floor(param0.getZ()) >> 4);
         return this.checkChunkFuture(var0, ChunkHolder::getFullChunkFuture);
     }
 

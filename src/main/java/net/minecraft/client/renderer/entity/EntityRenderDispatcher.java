@@ -258,7 +258,7 @@ public class EntityRenderDispatcher {
             param6.translate(var2, var3, var4);
             var0.render(param0, var2, var3, var4, param4, param5, param6, param7);
             if (this.options.entityShadows && this.shouldRenderShadow && var0.shadowRadius > 0.0F && !param0.isInvisible()) {
-                double var5 = this.distanceToSqr(param0.x, param0.y, param0.z);
+                double var5 = this.distanceToSqr(param0.getX(), param0.getY(), param0.getZ());
                 float var6 = (float)((1.0 - var5 / 256.0) * (double)var0.shadowStrength);
                 if (var6 > 0.0F) {
                     renderShadow(param6, param7, param0, var6, param5, this.level, var0.shadowRadius);
@@ -270,7 +270,7 @@ public class EntityRenderDispatcher {
             }
 
             if (this.renderHitBoxes && !param0.isInvisible() && !Minecraft.getInstance().showOnlyReducedInfo()) {
-                this.renderHitbox(param6, param7.getBuffer(RenderType.LINES), param0, param5);
+                this.renderHitbox(param6, param7.getBuffer(RenderType.lines()), param0, param5);
             }
 
             param6.popPose();
@@ -291,15 +291,15 @@ public class EntityRenderDispatcher {
         float var0 = param2.getBbWidth() / 2.0F;
         this.renderBox(param0, param1, param2, 1.0F, 1.0F, 1.0F);
         if (param2 instanceof EnderDragon) {
-            double var1 = param2.x - Mth.lerp((double)param3, param2.xOld, param2.x);
-            double var2 = param2.y - Mth.lerp((double)param3, param2.yOld, param2.y);
-            double var3 = param2.z - Mth.lerp((double)param3, param2.zOld, param2.z);
+            double var1 = param2.getX() - Mth.lerp((double)param3, param2.xOld, param2.getX());
+            double var2 = param2.getY() - Mth.lerp((double)param3, param2.yOld, param2.getY());
+            double var3 = param2.getZ() - Mth.lerp((double)param3, param2.zOld, param2.getZ());
 
             for(EnderDragonPart var4 : ((EnderDragon)param2).getSubEntities()) {
                 param0.pushPose();
-                double var5 = var1 + Mth.lerp((double)param3, var4.xOld, var4.x);
-                double var6 = var2 + Mth.lerp((double)param3, var4.yOld, var4.y);
-                double var7 = var3 + Mth.lerp((double)param3, var4.zOld, var4.z);
+                double var5 = var1 + Mth.lerp((double)param3, var4.xOld, var4.getX());
+                double var6 = var2 + Mth.lerp((double)param3, var4.yOld, var4.getY());
+                double var7 = var3 + Mth.lerp((double)param3, var4.zOld, var4.getZ());
                 param0.translate(var5, var6, var7);
                 this.renderBox(param0, param1, var4, 0.25F, 1.0F, 0.0F);
                 param0.popPose();
@@ -333,7 +333,7 @@ public class EntityRenderDispatcher {
     }
 
     private void renderBox(PoseStack param0, VertexConsumer param1, Entity param2, float param3, float param4, float param5) {
-        AABB var0 = param2.getBoundingBox().move(-param2.x, -param2.y, -param2.z);
+        AABB var0 = param2.getBoundingBox().move(-param2.getX(), -param2.getY(), -param2.getZ());
         LevelRenderer.renderLineBox(param0, param1, var0, param3, param4, param5, 1.0F);
     }
 
@@ -347,12 +347,12 @@ public class EntityRenderDispatcher {
         float var4 = 0.5F;
         float var5 = 0.0F;
         float var6 = param2.getBbHeight() / var3;
-        float var7 = (float)(param2.y - param2.getBoundingBox().minY);
-        param0.mulPose(Vector3f.YP.rotation(-this.playerRotY, true));
+        float var7 = 0.0F;
+        param0.mulPose(Vector3f.YP.rotationDegrees(-this.playerRotY));
         param0.translate(0.0, 0.0, (double)(-0.3F + (float)((int)var6) * 0.02F));
         float var8 = 0.0F;
         int var9 = 0;
-        VertexConsumer var10 = param1.getBuffer(RenderType.CUTOUT);
+        VertexConsumer var10 = param1.getBuffer(RenderType.entityCutout(TextureAtlas.LOCATION_BLOCKS));
 
         for(Matrix4f var11 = param0.getPose(); var6 > 0.0F; ++var9) {
             TextureAtlasSprite var12 = var9 % 2 == 0 ? var1 : var2;
@@ -380,7 +380,13 @@ public class EntityRenderDispatcher {
     }
 
     private static void fireVertex(Matrix4f param0, VertexConsumer param1, float param2, float param3, float param4, float param5, float param6) {
-        param1.vertex(param0, param2, param3, param4).color(255, 255, 255, 255).uv(param5, param6).uv2(240).normal(0.0F, 1.0F, 0.0F).endVertex();
+        param1.vertex(param0, param2, param3, param4)
+            .color(255, 255, 255, 255)
+            .uv(param5, param6)
+            .overlayCoords(0, 10)
+            .uv2(240)
+            .normal(0.0F, 1.0F, 0.0F)
+            .endVertex();
     }
 
     private static void renderShadow(PoseStack param0, MultiBufferSource param1, Entity param2, float param3, float param4, LevelReader param5, float param6) {
@@ -392,9 +398,9 @@ public class EntityRenderDispatcher {
             }
         }
 
-        double var2 = Mth.lerp((double)param4, param2.xOld, param2.x);
-        double var3 = Mth.lerp((double)param4, param2.yOld, param2.y);
-        double var4 = Mth.lerp((double)param4, param2.zOld, param2.z);
+        double var2 = Mth.lerp((double)param4, param2.xOld, param2.getX());
+        double var3 = Mth.lerp((double)param4, param2.yOld, param2.getY());
+        double var4 = Mth.lerp((double)param4, param2.zOld, param2.getZ());
         int var5 = Mth.floor(var2 - (double)var0);
         int var6 = Mth.floor(var2 + (double)var0);
         int var7 = Mth.floor(var3 - (double)var0);
@@ -402,14 +408,12 @@ public class EntityRenderDispatcher {
         int var9 = Mth.floor(var4 - (double)var0);
         int var10 = Mth.floor(var4 + (double)var0);
         Matrix4f var11 = param0.getPose();
-        VertexConsumer var12 = param1.getBuffer(RenderType.NEW_ENTITY(SHADOW_LOCATION, false, true, false, 0.1F, false, false));
-        OverlayTexture.setDefault(var12);
+        VertexConsumer var12 = param1.getBuffer(RenderType.entityNoOutline(SHADOW_LOCATION));
 
         for(BlockPos var13 : BlockPos.betweenClosed(new BlockPos(var5, var7, var9), new BlockPos(var6, var8, var10))) {
             renderBlockShadow(var11, var12, param5, var13, var2, var3, var4, var0, param3);
         }
 
-        var12.unsetDefaultOverlayCoords();
     }
 
     private static void renderBlockShadow(
@@ -454,7 +458,13 @@ public class EntityRenderDispatcher {
     }
 
     private static void shadowVertex(Matrix4f param0, VertexConsumer param1, float param2, float param3, float param4, float param5, float param6, float param7) {
-        param1.vertex(param0, param3, param4, param5).color(1.0F, 1.0F, 1.0F, param2).uv(param6, param7).uv2(15728880).normal(0.0F, 1.0F, 0.0F).endVertex();
+        param1.vertex(param0, param3, param4, param5)
+            .color(1.0F, 1.0F, 1.0F, param2)
+            .uv(param6, param7)
+            .overlayCoords(OverlayTexture.NO_OVERLAY)
+            .uv2(15728880)
+            .normal(0.0F, 1.0F, 0.0F)
+            .endVertex();
     }
 
     public void setLevel(@Nullable Level param0) {

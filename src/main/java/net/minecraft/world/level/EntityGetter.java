@@ -86,7 +86,7 @@ public interface EntityGetter {
 
     @Nullable
     default Player getNearestPlayer(Entity param0, double param1) {
-        return this.getNearestPlayer(param0.x, param0.y, param0.z, param1, false);
+        return this.getNearestPlayer(param0.getX(), param0.getY(), param0.getZ(), param1, false);
     }
 
     @Nullable
@@ -102,7 +102,7 @@ public interface EntityGetter {
 
         for(Player var2 : this.players()) {
             if (EntitySelector.NO_SPECTATORS.test(var2)) {
-                double var3 = var2.distanceToSqr(param0, var2.y, param1);
+                double var3 = var2.distanceToSqr(param0, var2.getY(), param1);
                 if ((param2 < 0.0 || var3 < param2 * param2) && (var0 == -1.0 || var3 < var0)) {
                     var0 = var3;
                     var1 = var2;
@@ -128,7 +128,7 @@ public interface EntityGetter {
 
     @Nullable
     default Player getNearestPlayer(TargetingConditions param0, LivingEntity param1) {
-        return this.getNearestEntity(this.players(), param0, param1, param1.x, param1.y, param1.z);
+        return this.getNearestEntity(this.players(), param0, param1, param1.getX(), param1.getY(), param1.getZ());
     }
 
     @Nullable
@@ -179,7 +179,7 @@ public interface EntityGetter {
         List<Player> var0 = Lists.newArrayList();
 
         for(Player var1 : this.players()) {
-            if (param2.contains(var1.x, var1.y, var1.z) && param0.test(param1, var1)) {
+            if (param2.contains(var1.getX(), var1.getY(), var1.getZ()) && param0.test(param1, var1)) {
                 var0.add(var1);
             }
         }

@@ -160,24 +160,30 @@ public class Evoker extends SpellcasterIllager {
         @Override
         protected void performSpellCasting() {
             LivingEntity var0 = Evoker.this.getTarget();
-            double var1 = Math.min(var0.y, Evoker.this.y);
-            double var2 = Math.max(var0.y, Evoker.this.y) + 1.0;
-            float var3 = (float)Mth.atan2(var0.z - Evoker.this.z, var0.x - Evoker.this.x);
+            double var1 = Math.min(var0.getY(), Evoker.this.getY());
+            double var2 = Math.max(var0.getY(), Evoker.this.getY()) + 1.0;
+            float var3 = (float)Mth.atan2(var0.getZ() - Evoker.this.getZ(), var0.getX() - Evoker.this.getX());
             if (Evoker.this.distanceToSqr(var0) < 9.0) {
                 for(int var4 = 0; var4 < 5; ++var4) {
                     float var5 = var3 + (float)var4 * (float) Math.PI * 0.4F;
-                    this.createSpellEntity(Evoker.this.x + (double)Mth.cos(var5) * 1.5, Evoker.this.z + (double)Mth.sin(var5) * 1.5, var1, var2, var5, 0);
+                    this.createSpellEntity(
+                        Evoker.this.getX() + (double)Mth.cos(var5) * 1.5, Evoker.this.getZ() + (double)Mth.sin(var5) * 1.5, var1, var2, var5, 0
+                    );
                 }
 
                 for(int var6 = 0; var6 < 8; ++var6) {
                     float var7 = var3 + (float)var6 * (float) Math.PI * 2.0F / 8.0F + (float) (Math.PI * 2.0 / 5.0);
-                    this.createSpellEntity(Evoker.this.x + (double)Mth.cos(var7) * 2.5, Evoker.this.z + (double)Mth.sin(var7) * 2.5, var1, var2, var7, 3);
+                    this.createSpellEntity(
+                        Evoker.this.getX() + (double)Mth.cos(var7) * 2.5, Evoker.this.getZ() + (double)Mth.sin(var7) * 2.5, var1, var2, var7, 3
+                    );
                 }
             } else {
                 for(int var8 = 0; var8 < 16; ++var8) {
                     double var9 = 1.25 * (double)(var8 + 1);
                     int var10 = 1 * var8;
-                    this.createSpellEntity(Evoker.this.x + (double)Mth.cos(var3) * var9, Evoker.this.z + (double)Mth.sin(var3) * var9, var1, var2, var3, var10);
+                    this.createSpellEntity(
+                        Evoker.this.getX() + (double)Mth.cos(var3) * var9, Evoker.this.getZ() + (double)Mth.sin(var3) * var9, var1, var2, var3, var10
+                    );
                 }
             }
 

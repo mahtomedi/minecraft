@@ -16,6 +16,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.Serializable;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -42,7 +43,7 @@ public class BlockPos extends Vec3i implements Serializable {
     }
 
     public BlockPos(Entity param0) {
-        this(param0.x, param0.y, param0.z);
+        this(param0.getX(), param0.getY(), param0.getZ());
     }
 
     public BlockPos(Vec3 param0) {
@@ -235,6 +236,17 @@ public class BlockPos extends Vec3i implements Serializable {
         );
     }
 
+    public static Stream<BlockPos> betweenClosedStream(BoundingBox param0) {
+        return betweenClosedStream(
+            Math.min(param0.x0, param0.x1),
+            Math.min(param0.y0, param0.y1),
+            Math.min(param0.z0, param0.z1),
+            Math.max(param0.x0, param0.x1),
+            Math.max(param0.y0, param0.y1),
+            Math.max(param0.z0, param0.z1)
+        );
+    }
+
     public static Stream<BlockPos> betweenClosedStream(
         final int param0, final int param1, final int param2, final int param3, final int param4, final int param5
     ) {
@@ -291,6 +303,10 @@ public class BlockPos extends Vec3i implements Serializable {
             this(Mth.floor(param0), Mth.floor(param1), Mth.floor(param2));
         }
 
+        public MutableBlockPos(Entity param0) {
+            this(param0.getX(), param0.getY(), param0.getZ());
+        }
+
         @Override
         public BlockPos offset(double param0, double param1, double param2) {
             return super.offset(param0, param1, param2).immutable();
@@ -334,7 +350,7 @@ public class BlockPos extends Vec3i implements Serializable {
         }
 
         public BlockPos.MutableBlockPos set(Entity param0) {
-            return this.set(param0.x, param0.y, param0.z);
+            return this.set(param0.getX(), param0.getY(), param0.getZ());
         }
 
         public BlockPos.MutableBlockPos set(double param0, double param1, double param2) {
@@ -400,7 +416,7 @@ public class BlockPos extends Vec3i implements Serializable {
         }
 
         public static BlockPos.PooledMutableBlockPos acquire(Entity param0) {
-            return acquire(param0.x, param0.y, param0.z);
+            return acquire(param0.getX(), param0.getY(), param0.getZ());
         }
 
         public static BlockPos.PooledMutableBlockPos acquire(double param0, double param1, double param2) {

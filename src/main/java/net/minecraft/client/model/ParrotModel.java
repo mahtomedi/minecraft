@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.animal.Parrot;
 import net.minecraftforge.api.distmarker.Dist;
@@ -24,6 +25,7 @@ public class ParrotModel extends ListModel<Parrot> {
     private final ModelPart legRight;
 
     public ParrotModel() {
+        super(RenderType::entityCutoutNoCull);
         this.texWidth = 32;
         this.texHeight = 32;
         this.body = new ModelPart(this, 2, 8);
@@ -79,11 +81,11 @@ public class ParrotModel extends ListModel<Parrot> {
     }
 
     public void renderOnShoulder(
-        PoseStack param0, VertexConsumer param1, int param2, float param3, float param4, float param5, float param6, float param7, int param8
+        PoseStack param0, VertexConsumer param1, int param2, int param3, float param4, float param5, float param6, float param7, float param8, int param9
     ) {
         this.prepare(ParrotModel.State.ON_SHOULDER);
-        this.setupAnim(ParrotModel.State.ON_SHOULDER, param8, param3, param4, 0.0F, param5, param6);
-        this.parts().forEach(param4x -> param4x.render(param0, param1, param7, param2, null));
+        this.setupAnim(ParrotModel.State.ON_SHOULDER, param9, param4, param5, 0.0F, param6, param7);
+        this.parts().forEach(param5x -> param5x.render(param0, param1, param8, param2, param3, null));
     }
 
     private void setupAnim(ParrotModel.State param0, int param1, float param2, float param3, float param4, float param5, float param6) {

@@ -95,16 +95,7 @@ public abstract class TamableAnimal extends Animal {
             double var2 = this.random.nextGaussian() * 0.02;
             double var3 = this.random.nextGaussian() * 0.02;
             double var4 = this.random.nextGaussian() * 0.02;
-            this.level
-                .addParticle(
-                    var0,
-                    this.x + (double)(this.random.nextFloat() * this.getBbWidth() * 2.0F) - (double)this.getBbWidth(),
-                    this.y + 0.5 + (double)(this.random.nextFloat() * this.getBbHeight()),
-                    this.z + (double)(this.random.nextFloat() * this.getBbWidth() * 2.0F) - (double)this.getBbWidth(),
-                    var2,
-                    var3,
-                    var4
-                );
+            this.level.addParticle(var0, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), var2, var3, var4);
         }
 
     }

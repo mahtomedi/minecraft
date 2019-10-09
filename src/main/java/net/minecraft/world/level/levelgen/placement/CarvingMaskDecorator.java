@@ -13,13 +13,13 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 
-public class CarvingMaskDecorator extends FeatureDecorator<DecoratorCarvingMaskConfig> {
-    public CarvingMaskDecorator(Function<Dynamic<?>, ? extends DecoratorCarvingMaskConfig> param0) {
+public class CarvingMaskDecorator extends FeatureDecorator<CarvingMaskDecoratorConfiguration> {
+    public CarvingMaskDecorator(Function<Dynamic<?>, ? extends CarvingMaskDecoratorConfiguration> param0) {
         super(param0);
     }
 
     public Stream<BlockPos> getPositions(
-        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, DecoratorCarvingMaskConfig param3, BlockPos param4
+        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, CarvingMaskDecoratorConfiguration param3, BlockPos param4
     ) {
         ChunkAccess var0 = param0.getChunk(param4);
         ChunkPos var1 = var0.getPos();

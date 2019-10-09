@@ -16,7 +16,11 @@ public final class Matrix3f {
     private final float[] values;
 
     public Matrix3f() {
-        this.values = new float[9];
+        this(new float[9]);
+    }
+
+    private Matrix3f(float[] param0) {
+        this.values = param0;
     }
 
     public Matrix3f(Quaternion param0) {
@@ -28,21 +32,21 @@ public final class Matrix3f {
         float var4 = 2.0F * var0 * var0;
         float var5 = 2.0F * var1 * var1;
         float var6 = 2.0F * var2 * var2;
-        this.values[0] = 1.0F - var5 - var6;
-        this.values[4] = 1.0F - var6 - var4;
-        this.values[8] = 1.0F - var4 - var5;
+        this.set(0, 0, 1.0F - var5 - var6);
+        this.set(1, 1, 1.0F - var6 - var4);
+        this.set(2, 2, 1.0F - var4 - var5);
         float var7 = var0 * var1;
         float var8 = var1 * var2;
         float var9 = var2 * var0;
         float var10 = var0 * var3;
         float var11 = var1 * var3;
         float var12 = var2 * var3;
-        this.values[1] = 2.0F * (var7 + var12);
-        this.values[3] = 2.0F * (var7 - var12);
-        this.values[2] = 2.0F * (var9 - var11);
-        this.values[6] = 2.0F * (var9 + var11);
-        this.values[5] = 2.0F * (var8 + var10);
-        this.values[7] = 2.0F * (var8 - var10);
+        this.set(1, 0, 2.0F * (var7 + var12));
+        this.set(0, 1, 2.0F * (var7 - var12));
+        this.set(2, 0, 2.0F * (var9 - var11));
+        this.set(0, 2, 2.0F * (var9 + var11));
+        this.set(2, 1, 2.0F * (var8 + var10));
+        this.set(1, 2, 2.0F * (var8 - var10));
     }
 
     public Matrix3f(Matrix3f param0, boolean param1) {
@@ -61,22 +65,19 @@ public final class Matrix3f {
     }
 
     public Matrix3f(float[] param0, boolean param1) {
+        this(param1 ? new float[9] : Arrays.copyOf(param0, param0.length));
         if (param1) {
-            this.values = new float[9];
-
             for(int var0 = 0; var0 < 3; ++var0) {
                 for(int var1 = 0; var1 < 3; ++var1) {
                     this.values[var1 + var0 * 3] = param0[var0 + var1 * 3];
                 }
             }
-        } else {
-            this.values = Arrays.copyOf(param0, param0.length);
         }
 
     }
 
     public Matrix3f(Matrix3f param0) {
-        this.values = Arrays.copyOf(param0.values, 9);
+        this(Arrays.copyOf(param0.values, 9));
     }
 
     private static Pair<Float, Float> approxGivensQuat(float param0, float param1, float param2) {
@@ -309,40 +310,6 @@ public final class Matrix3f {
         this.values[8] = 1.0F;
     }
 
-    public float adjugateAndDet() {
-        float var0 = this.det2(1, 2, 1, 2);
-        float var1 = -this.det2(1, 2, 0, 2);
-        float var2 = this.det2(1, 2, 0, 1);
-        float var3 = -this.det2(0, 2, 1, 2);
-        float var4 = this.det2(0, 2, 0, 2);
-        float var5 = -this.det2(0, 2, 0, 1);
-        float var6 = this.det2(0, 1, 1, 2);
-        float var7 = -this.det2(0, 1, 0, 2);
-        float var8 = this.det2(0, 1, 0, 1);
-        float var9 = this.get(0, 0) * var0 + this.get(0, 1) * var1 + this.get(0, 2) * var2;
-        this.set(0, 0, var0);
-        this.set(1, 0, var1);
-        this.set(2, 0, var2);
-        this.set(0, 1, var3);
-        this.set(1, 1, var4);
-        this.set(2, 1, var5);
-        this.set(0, 2, var6);
-        this.set(1, 2, var7);
-        this.set(2, 2, var8);
-        return var9;
-    }
-
-    public float determinant() {
-        float var0 = this.det2(1, 2, 1, 2);
-        float var1 = -this.det2(1, 2, 0, 2);
-        float var2 = this.det2(1, 2, 0, 1);
-        return this.get(0, 0) * var0 + this.get(0, 1) * var1 + this.get(0, 2) * var2;
-    }
-
-    private float det2(int param0, int param1, int param2, int param3) {
-        return this.get(param0, param2) * this.get(param1, param3) - this.get(param0, param3) * this.get(param1, param2);
-    }
-
     public float get(int param0, int param1) {
         return this.values[3 * param1 + param0];
     }
@@ -366,10 +333,11 @@ public final class Matrix3f {
 
     }
 
-    public void mul(float param0) {
-        for(int var0 = 0; var0 < 9; ++var0) {
-            this.values[var0] *= param0;
-        }
+    public void mul(Quaternion param0) {
+        this.mul(new Matrix3f(param0));
+    }
 
+    public Matrix3f copy() {
+        return new Matrix3f((float[])this.values.clone());
     }
 }

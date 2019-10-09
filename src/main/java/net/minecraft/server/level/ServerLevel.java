@@ -1,5 +1,6 @@
 package net.minecraft.server.level;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
@@ -28,6 +29,7 @@ import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
@@ -112,9 +114,10 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.levelgen.feature.BonusChestFeature;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.FeatureConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
@@ -303,7 +306,7 @@ public class ServerLevel extends Level {
                 this.setDayTime(var7 - var7 % 24000L);
             }
 
-            this.players.stream().filter(LivingEntity::isSleeping).forEach(param0x -> param0x.stopSleepInBed(false, false));
+            this.wakeUpAllPlayers();
             if (this.getGameRules().getBoolean(GameRules.RULE_WEATHER_CYCLE)) {
                 this.stopWeather();
             }
@@ -409,6 +412,10 @@ public class ServerLevel extends Level {
         }
 
         var0.pop();
+    }
+
+    private void wakeUpAllPlayers() {
+        this.players.stream().filter(LivingEntity::isSleeping).collect(Collectors.toList()).forEach(param0 -> param0.stopSleepInBed(false, false));
     }
 
     public void tickChunk(LevelChunk param0, int param1) {
@@ -578,7 +585,7 @@ public class ServerLevel extends Level {
 
     public void tickNonPassenger(Entity param0x) {
         if (param0x instanceof Player || this.getChunkSource().isEntityTickingChunk(param0x)) {
-            param0x.setPosAndOldPos(param0x.x, param0x.y, param0x.z);
+            param0x.setPosAndOldPos(param0x.getX(), param0x.getY(), param0x.getZ());
             param0x.yRotO = param0x.yRot;
             param0x.xRotO = param0x.xRot;
             if (param0x.inChunk) {
@@ -602,7 +609,7 @@ public class ServerLevel extends Level {
         if (param1.removed || param1.getVehicle() != param0) {
             param1.stopRiding();
         } else if (param1 instanceof Player || this.getChunkSource().isEntityTickingChunk(param1)) {
-            param1.setPosAndOldPos(param1.x, param1.y, param1.z);
+            param1.setPosAndOldPos(param1.getX(), param1.getY(), param1.getZ());
             param1.yRotO = param1.yRot;
             param1.xRotO = param1.xRot;
             if (param1.inChunk) {
@@ -622,9 +629,9 @@ public class ServerLevel extends Level {
 
     public void updateChunkPos(Entity param0) {
         this.getProfiler().push("chunkCheck");
-        int var0 = Mth.floor(param0.x / 16.0);
-        int var1 = Mth.floor(param0.y / 16.0);
-        int var2 = Mth.floor(param0.z / 16.0);
+        int var0 = Mth.floor(param0.getX() / 16.0);
+        int var1 = Mth.floor(param0.getY() / 16.0);
+        int var2 = Mth.floor(param0.getZ() / 16.0);
         if (!param0.inChunk || param0.xChunk != var0 || param0.yChunk != var1 || param0.zChunk != var2) {
             if (param0.inChunk && this.hasChunk(param0.xChunk, param0.zChunk)) {
                 this.getChunk(param0.xChunk, param0.zChunk).removeEntity(param0, param0.yChunk);
@@ -703,13 +710,13 @@ public class ServerLevel extends Level {
     }
 
     protected void generateBonusItemsNearSpawn() {
-        BonusChestFeature var0 = Feature.BONUS_CHEST;
+        ConfiguredFeature<?, ?> var0 = Feature.BONUS_CHEST.configured(FeatureConfiguration.NONE);
 
         for(int var1 = 0; var1 < 10; ++var1) {
             int var2 = this.levelData.getXSpawn() + this.random.nextInt(6) - this.random.nextInt(6);
             int var3 = this.levelData.getZSpawn() + this.random.nextInt(6) - this.random.nextInt(6);
             BlockPos var4 = this.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, new BlockPos(var2, 0, var3)).above();
-            if (var0.place(this, this.getChunkSource().getGenerator(), this.random, var4, FeatureConfiguration.NONE)) {
+            if (var0.place(this, this.getChunkSource().getGenerator(), this.random, var4)) {
                 break;
             }
         }
@@ -748,7 +755,7 @@ public class ServerLevel extends Level {
         ServerChunkCache var1 = this.getChunkSource();
 
         for(Entity var2 : this.entitiesById.values()) {
-            if ((param0 == null || var2.getType() == param0) && var1.hasChunk(Mth.floor(var2.x) >> 4, Mth.floor(var2.z) >> 4) && param1.test(var2)) {
+            if ((param0 == null || var2.getType() == param0) && var1.hasChunk(Mth.floor(var2.getX()) >> 4, Mth.floor(var2.getZ()) >> 4) && param1.test(var2)) {
                 var0.add(var2);
             }
         }
@@ -858,7 +865,7 @@ public class ServerLevel extends Level {
 
         this.players.add(param0);
         this.updateSleepingPlayerList();
-        ChunkAccess var1 = this.getChunk(Mth.floor(param0.x / 16.0), Mth.floor(param0.z / 16.0), ChunkStatus.FULL, true);
+        ChunkAccess var1 = this.getChunk(Mth.floor(param0.getX() / 16.0), Mth.floor(param0.getZ() / 16.0), ChunkStatus.FULL, true);
         if (var1 instanceof LevelChunk) {
             var1.addEntity(param0);
         }
@@ -873,7 +880,7 @@ public class ServerLevel extends Level {
         } else if (this.isUUIDUsed(param0)) {
             return false;
         } else {
-            ChunkAccess var0 = this.getChunk(Mth.floor(param0.x / 16.0), Mth.floor(param0.z / 16.0), ChunkStatus.FULL, param0.forcedLoading);
+            ChunkAccess var0 = this.getChunk(Mth.floor(param0.getX() / 16.0), Mth.floor(param0.getZ() / 16.0), ChunkStatus.FULL, param0.forcedLoading);
             if (!(var0 instanceof LevelChunk)) {
                 return false;
             } else {
@@ -992,16 +999,16 @@ public class ServerLevel extends Level {
         this.globalEntities.add(param0);
         this.server
             .getPlayerList()
-            .broadcast(null, param0.x, param0.y, param0.z, 512.0, this.dimension.getType(), new ClientboundAddGlobalEntityPacket(param0));
+            .broadcast(null, param0.getX(), param0.getY(), param0.getZ(), 512.0, this.dimension.getType(), new ClientboundAddGlobalEntityPacket(param0));
     }
 
     @Override
     public void destroyBlockProgress(int param0, BlockPos param1, int param2) {
         for(ServerPlayer var0 : this.server.getPlayerList().getPlayers()) {
             if (var0 != null && var0.level == this && var0.getId() != param0) {
-                double var1 = (double)param1.getX() - var0.x;
-                double var2 = (double)param1.getY() - var0.y;
-                double var3 = (double)param1.getZ() - var0.z;
+                double var1 = (double)param1.getX() - var0.getX();
+                double var2 = (double)param1.getY() - var0.getY();
+                double var3 = (double)param1.getZ() - var0.getZ();
                 if (var1 * var1 + var2 * var2 + var3 * var3 < 1024.0) {
                     var0.connection.send(new ClientboundBlockDestructionPacket(param0, param1, param2));
                 }
@@ -1033,9 +1040,9 @@ public class ServerLevel extends Level {
             .getPlayerList()
             .broadcast(
                 param0,
-                param1.x,
-                param1.y,
-                param1.z,
+                param1.getX(),
+                param1.getY(),
+                param1.getZ(),
                 param4 > 1.0F ? (double)(16.0F * param4) : 16.0,
                 this.dimension.getType(),
                 new ClientboundSoundEntityPacket(param2, param3, param1, param4, param5)
@@ -1450,9 +1457,9 @@ public class ServerLevel extends Level {
             Component var2 = var1.getCustomName();
             Component var3 = var1.getDisplayName();
             var0.writeRow(
-                var1.x,
-                var1.y,
-                var1.z,
+                var1.getX(),
+                var1.getY(),
+                var1.getZ(),
                 var1.getUUID(),
                 Registry.ENTITY_TYPE.getKey(var1.getType()),
                 var1.isAlive(),
@@ -1471,5 +1478,10 @@ public class ServerLevel extends Level {
             var0.writeRow(var2.getX(), var2.getY(), var2.getZ(), Registry.BLOCK_ENTITY_TYPE.getKey(var1.getType()));
         }
 
+    }
+
+    @VisibleForTesting
+    public void clearBlockEvents(BoundingBox param0) {
+        this.blockEvents.removeIf(param1 -> param0.isInside(param1.getPos()));
     }
 }

@@ -32,10 +32,8 @@ public abstract class EyesLayer<T extends Entity, M extends EntityModel<T>> exte
         float param9,
         float param10
     ) {
-        VertexConsumer var0 = param1.getBuffer(RenderType.EYES(this.getTextureLocation()));
-        OverlayTexture.setDefault(var0);
-        this.getParentModel().renderToBuffer(param0, var0, 15728640);
-        var0.unsetDefaultOverlayCoords();
+        VertexConsumer var0 = param1.getBuffer(RenderType.eyes(this.getTextureLocation()));
+        this.getParentModel().renderToBuffer(param0, var0, 15728640, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F);
     }
 
     public abstract ResourceLocation getTextureLocation();

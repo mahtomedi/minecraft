@@ -478,7 +478,7 @@ public class FireBlock extends Block {
         var0.setFlammable(Blocks.LECTERN, 30, 20);
         var0.setFlammable(Blocks.COMPOSTER, 5, 20);
         var0.setFlammable(Blocks.SWEET_BERRY_BUSH, 60, 100);
-        var0.setFlammable(Blocks.BEE_HIVE, 5, 20);
+        var0.setFlammable(Blocks.BEEHIVE, 5, 20);
         var0.setFlammable(Blocks.BEE_NEST, 30, 20);
     }
 }

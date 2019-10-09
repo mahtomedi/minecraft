@@ -23,7 +23,7 @@ public class TrackingEmitter extends NoRenderParticle {
     }
 
     private TrackingEmitter(Level param0, Entity param1, ParticleOptions param2, int param3, Vec3 param4) {
-        super(param0, param1.x, param1.getBoundingBox().minY + (double)(param1.getBbHeight() / 2.0F), param1.z, param4.x, param4.y, param4.z);
+        super(param0, param1.getX(), param1.getY(0.5), param1.getZ(), param4.x, param4.y, param4.z);
         this.entity = param1;
         this.lifeTime = param3;
         this.particleType = param2;
@@ -37,9 +37,9 @@ public class TrackingEmitter extends NoRenderParticle {
             double var2 = (double)(this.random.nextFloat() * 2.0F - 1.0F);
             double var3 = (double)(this.random.nextFloat() * 2.0F - 1.0F);
             if (!(var1 * var1 + var2 * var2 + var3 * var3 > 1.0)) {
-                double var4 = this.entity.x + var1 * (double)this.entity.getBbWidth() / 4.0;
-                double var5 = this.entity.getBoundingBox().minY + (double)(this.entity.getBbHeight() / 2.0F) + var2 * (double)this.entity.getBbHeight() / 4.0;
-                double var6 = this.entity.z + var3 * (double)this.entity.getBbWidth() / 4.0;
+                double var4 = this.entity.getX(var1 / 4.0);
+                double var5 = this.entity.getY(0.5 + var2 / 4.0);
+                double var6 = this.entity.getZ(var3 / 4.0);
                 this.level.addParticle(this.particleType, false, var4, var5, var6, var1, var2 + 0.2, var3);
             }
         }

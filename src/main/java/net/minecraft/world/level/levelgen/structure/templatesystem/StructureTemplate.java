@@ -104,7 +104,7 @@ public class StructureTemplate {
         this.entityInfoList.clear();
 
         for(Entity var1 : var0) {
-            Vec3 var2 = new Vec3(var1.x - (double)param1.getX(), var1.y - (double)param1.getY(), var1.z - (double)param1.getZ());
+            Vec3 var2 = new Vec3(var1.getX() - (double)param1.getX(), var1.getY() - (double)param1.getY(), var1.getZ() - (double)param1.getZ());
             CompoundTag var3 = new CompoundTag();
             var1.save(var3);
             BlockPos var4;

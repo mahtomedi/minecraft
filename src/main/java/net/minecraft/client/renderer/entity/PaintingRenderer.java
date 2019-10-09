@@ -28,15 +28,13 @@ public class PaintingRenderer extends EntityRenderer<Painting> {
 
     public void render(Painting param0, double param1, double param2, double param3, float param4, float param5, PoseStack param6, MultiBufferSource param7) {
         param6.pushPose();
-        param6.mulPose(Vector3f.YP.rotation(180.0F - param4, true));
+        param6.mulPose(Vector3f.YP.rotationDegrees(180.0F - param4));
         Motive var0 = param0.motive;
         float var1 = 0.0625F;
         param6.scale(0.0625F, 0.0625F, 0.0625F);
-        VertexConsumer var2 = param7.getBuffer(RenderType.NEW_ENTITY(this.getTextureLocation(param0)));
-        OverlayTexture.setDefault(var2);
+        VertexConsumer var2 = param7.getBuffer(RenderType.entitySolid(this.getTextureLocation(param0)));
         PaintingTextureManager var3 = Minecraft.getInstance().getPaintingTextures();
         this.renderPainting(param6.getPose(), var2, param0, var0.getWidth(), var0.getHeight(), var3.get(var0), var3.getBackSprite());
-        var2.unsetDefaultOverlayCoords();
         param6.popPose();
         super.render(param0, param1, param2, param3, param4, param5, param6, param7);
     }
@@ -74,24 +72,24 @@ public class PaintingRenderer extends EntityRenderer<Painting> {
                 float var22 = var0 + (float)(var19 * 16);
                 float var23 = var1 + (float)((var20 + 1) * 16);
                 float var24 = var1 + (float)(var20 * 16);
-                int var25 = Mth.floor(param2.x);
-                int var26 = Mth.floor(param2.y + (double)((var23 + var24) / 2.0F / 16.0F));
-                int var27 = Mth.floor(param2.z);
+                int var25 = Mth.floor(param2.getX());
+                int var26 = Mth.floor(param2.getY() + (double)((var23 + var24) / 2.0F / 16.0F));
+                int var27 = Mth.floor(param2.getZ());
                 Direction var28 = param2.getDirection();
                 if (var28 == Direction.NORTH) {
-                    var25 = Mth.floor(param2.x + (double)((var21 + var22) / 2.0F / 16.0F));
+                    var25 = Mth.floor(param2.getX() + (double)((var21 + var22) / 2.0F / 16.0F));
                 }
 
                 if (var28 == Direction.WEST) {
-                    var27 = Mth.floor(param2.z - (double)((var21 + var22) / 2.0F / 16.0F));
+                    var27 = Mth.floor(param2.getZ() - (double)((var21 + var22) / 2.0F / 16.0F));
                 }
 
                 if (var28 == Direction.SOUTH) {
-                    var25 = Mth.floor(param2.x - (double)((var21 + var22) / 2.0F / 16.0F));
+                    var25 = Mth.floor(param2.getX() - (double)((var21 + var22) / 2.0F / 16.0F));
                 }
 
                 if (var28 == Direction.EAST) {
-                    var27 = Mth.floor(param2.z + (double)((var21 + var22) / 2.0F / 16.0F));
+                    var27 = Mth.floor(param2.getZ() + (double)((var21 + var22) / 2.0F / 16.0F));
                 }
 
                 int var29 = param2.level.getLightColor(new BlockPos(var25, var26, var27));
@@ -144,6 +142,7 @@ public class PaintingRenderer extends EntityRenderer<Painting> {
         param1.vertex(param0, param2, param3, param6)
             .color(255, 255, 255, 255)
             .uv(param4, param5)
+            .overlayCoords(OverlayTexture.NO_OVERLAY)
             .uv2(param10)
             .normal((float)param7, (float)param8, (float)param9)
             .endVertex();

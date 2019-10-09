@@ -60,7 +60,7 @@ public abstract class DoorInteractGoal extends Goal {
                 for(int var2 = 0; var2 < Math.min(var1.getIndex() + 2, var1.getSize()); ++var2) {
                     Node var3 = var1.get(var2);
                     this.doorPos = new BlockPos(var3.x, var3.y + 1, var3.z);
-                    if (!(this.mob.distanceToSqr((double)this.doorPos.getX(), this.mob.y, (double)this.doorPos.getZ()) > 2.25)) {
+                    if (!(this.mob.distanceToSqr((double)this.doorPos.getX(), this.mob.getY(), (double)this.doorPos.getZ()) > 2.25)) {
                         this.hasDoor = isDoor(this.mob.level, this.doorPos);
                         if (this.hasDoor) {
                             return true;
@@ -85,14 +85,14 @@ public abstract class DoorInteractGoal extends Goal {
     @Override
     public void start() {
         this.passed = false;
-        this.doorOpenDirX = (float)((double)((float)this.doorPos.getX() + 0.5F) - this.mob.x);
-        this.doorOpenDirZ = (float)((double)((float)this.doorPos.getZ() + 0.5F) - this.mob.z);
+        this.doorOpenDirX = (float)((double)((float)this.doorPos.getX() + 0.5F) - this.mob.getX());
+        this.doorOpenDirZ = (float)((double)((float)this.doorPos.getZ() + 0.5F) - this.mob.getZ());
     }
 
     @Override
     public void tick() {
-        float var0 = (float)((double)((float)this.doorPos.getX() + 0.5F) - this.mob.x);
-        float var1 = (float)((double)((float)this.doorPos.getZ() + 0.5F) - this.mob.z);
+        float var0 = (float)((double)((float)this.doorPos.getX() + 0.5F) - this.mob.getX());
+        float var1 = (float)((double)((float)this.doorPos.getZ() + 0.5F) - this.mob.getZ());
         float var2 = this.doorOpenDirX * var0 + this.doorOpenDirZ * var1;
         if (var2 < 0.0F) {
             this.passed = true;

@@ -258,13 +258,7 @@ public abstract class Mob extends LivingEntity {
                 double var4 = 10.0;
                 this.level
                     .addParticle(
-                        ParticleTypes.POOF,
-                        this.x + (double)(this.random.nextFloat() * this.getBbWidth() * 2.0F) - (double)this.getBbWidth() - var1 * 10.0,
-                        this.y + (double)(this.random.nextFloat() * this.getBbHeight()) - var2 * 10.0,
-                        this.z + (double)(this.random.nextFloat() * this.getBbWidth() * 2.0F) - (double)this.getBbWidth() - var3 * 10.0,
-                        var1,
-                        var2,
-                        var3
+                        ParticleTypes.POOF, this.getX(1.0) - var1 * 10.0, this.getRandomY() - var2 * 10.0, this.getRandomZ(1.0) - var3 * 10.0, var1, var2, var3
                     );
             }
         } else {
@@ -649,14 +643,14 @@ public abstract class Mob extends LivingEntity {
     }
 
     public void lookAt(Entity param0, float param1, float param2) {
-        double var0 = param0.x - this.x;
-        double var1 = param0.z - this.z;
+        double var0 = param0.getX() - this.getX();
+        double var1 = param0.getZ() - this.getZ();
         double var3;
         if (param0 instanceof LivingEntity) {
             LivingEntity var2 = (LivingEntity)param0;
-            var3 = var2.y + (double)var2.getEyeHeight() - (this.y + (double)this.getEyeHeight());
+            var3 = var2.getEyeY() - this.getEyeY();
         } else {
-            var3 = (param0.getBoundingBox().minY + param0.getBoundingBox().maxY) / 2.0 - (this.y + (double)this.getEyeHeight());
+            var3 = (param0.getBoundingBox().minY + param0.getBoundingBox().maxY) / 2.0 - this.getEyeY();
         }
 
         double var5 = (double)Mth.sqrt(var0 * var0 + var1 * var1);
@@ -1252,8 +1246,8 @@ public abstract class Mob extends LivingEntity {
         if (this.level.isDay() && !this.level.isClientSide) {
             float var0 = this.getBrightness();
             BlockPos var1 = this.getVehicle() instanceof Boat
-                ? new BlockPos(this.x, (double)Math.round(this.y), this.z).above()
-                : new BlockPos(this.x, (double)Math.round(this.y), this.z);
+                ? new BlockPos(this.getX(), (double)Math.round(this.getY()), this.getZ()).above()
+                : new BlockPos(this.getX(), (double)Math.round(this.getY()), this.getZ());
             if (var0 > 0.5F && this.random.nextFloat() * 30.0F < (var0 - 0.4F) * 2.0F && this.level.canSeeSky(var1)) {
                 return true;
             }

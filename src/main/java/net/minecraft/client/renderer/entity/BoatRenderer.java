@@ -34,7 +34,7 @@ public class BoatRenderer extends EntityRenderer<Boat> {
     public void render(Boat param0, double param1, double param2, double param3, float param4, float param5, PoseStack param6, MultiBufferSource param7) {
         param6.pushPose();
         param6.translate(0.0, 0.375, 0.0);
-        param6.mulPose(Vector3f.YP.rotation(180.0F - param4, true));
+        param6.mulPose(Vector3f.YP.rotationDegrees(180.0F - param4));
         float var0 = (float)param0.getHurtTime() - param5;
         float var1 = param0.getDamage() - param5;
         if (var1 < 0.0F) {
@@ -42,7 +42,7 @@ public class BoatRenderer extends EntityRenderer<Boat> {
         }
 
         if (var0 > 0.0F) {
-            param6.mulPose(Vector3f.XP.rotation(Mth.sin(var0) * var0 * var1 / 10.0F * (float)param0.getHurtDir(), true));
+            param6.mulPose(Vector3f.XP.rotationDegrees(Mth.sin(var0) * var0 * var1 / 10.0F * (float)param0.getHurtDir()));
         }
 
         float var2 = param0.getBubbleAngle(param5);
@@ -52,15 +52,13 @@ public class BoatRenderer extends EntityRenderer<Boat> {
 
         param6.scale(-1.0F, -1.0F, 1.0F);
         int var3 = param0.getLightColor();
-        VertexConsumer var4 = param7.getBuffer(RenderType.NEW_ENTITY(this.getTextureLocation(param0)));
-        OverlayTexture.setDefault(var4);
-        param6.mulPose(Vector3f.YP.rotation(90.0F, true));
+        param6.mulPose(Vector3f.YP.rotationDegrees(90.0F));
         this.model.setupAnim(param0, param5, 0.0F, -0.1F, 0.0F, 0.0F, 0.0625F);
-        this.model.renderToBuffer(param6, var4, var3);
-        VertexConsumer var5 = param7.getBuffer(RenderType.WATER_MASK);
-        this.model.waterPatch().render(param6, var5, 0.0625F, var3, null);
+        VertexConsumer var4 = param7.getBuffer(this.model.renderType(this.getTextureLocation(param0)));
+        this.model.renderToBuffer(param6, var4, var3, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F);
+        VertexConsumer var5 = param7.getBuffer(RenderType.waterMask());
+        this.model.waterPatch().render(param6, var5, 0.0625F, var3, OverlayTexture.NO_OVERLAY, null);
         param6.popPose();
-        var4.unsetDefaultOverlayCoords();
         super.render(param0, param1, param2, param3, param4, param5, param6, param7);
     }
 

@@ -77,8 +77,6 @@ import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.scores.PlayerTeam;
-import net.minecraft.world.scores.Team;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -547,7 +545,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
         }
 
         if (param0.shouldRewardExp()) {
-            this.level.addFreshEntity(new ExperienceOrb(this.level, this.x, this.y + 0.5, this.z, var0));
+            this.level.addFreshEntity(new ExperienceOrb(this.level, this.getX(), this.getY() + 0.5, this.getZ(), var0));
         }
 
     }
@@ -666,22 +664,10 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
     }
 
     @Override
-    public Component getDisplayName() {
-        Team var0 = this.getTeam();
-        Component var1 = this.getCustomName();
-        if (var1 != null) {
-            return PlayerTeam.formatNameForTeam(var0, var1)
-                .withStyle(param0 -> param0.setHoverEvent(this.createHoverEvent()).setInsertion(this.getStringUUID()));
-        } else {
-            VillagerProfession var2 = this.getVillagerData().getProfession();
-            Component var3 = new TranslatableComponent(this.getType().getDescriptionId() + '.' + Registry.VILLAGER_PROFESSION.getKey(var2).getPath())
-                .withStyle(param0 -> param0.setHoverEvent(this.createHoverEvent()).setInsertion(this.getStringUUID()));
-            if (var0 != null) {
-                var3.withStyle(var0.getColor());
-            }
-
-            return var3;
-        }
+    protected Component getTypeName() {
+        return new TranslatableComponent(
+            this.getType().getDescriptionId() + '.' + Registry.VILLAGER_PROFESSION.getKey(this.getVillagerData().getProfession()).getPath()
+        );
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -736,7 +722,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
     @Override
     public void thunderHit(LightningBolt param0) {
         Witch var0 = EntityType.WITCH.create(this.level);
-        var0.moveTo(this.x, this.y, this.z, this.yRot, this.xRot);
+        var0.moveTo(this.getX(), this.getY(), this.getZ(), this.yRot, this.xRot);
         var0.finalizeSpawn(this.level, this.level.getCurrentDifficultyAt(new BlockPos(var0)), MobSpawnType.CONVERSION, null, null);
         var0.setNoAi(this.isNoAi());
         if (this.hasCustomName()) {

@@ -34,7 +34,7 @@ public class TropicalFishPatternLayer extends RenderLayer<TropicalFish, EntityMo
     ) {
         EntityModel<TropicalFish> var0 = (EntityModel<TropicalFish>)(param3.getBaseVariant() == 0 ? this.modelA : this.modelB);
         float[] var1 = param3.getPatternColor();
-        coloredModelCopyLayerRender(
+        coloredCutoutModelCopyLayerRender(
             this.getParentModel(),
             var0,
             param3.getPatternTextureLocation(),

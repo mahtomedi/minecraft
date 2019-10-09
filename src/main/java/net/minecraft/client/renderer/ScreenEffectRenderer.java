@@ -32,9 +32,9 @@ public class ScreenEffectRenderer {
             Player var1 = param0.player;
 
             for(int var2 = 0; var2 < 8; ++var2) {
-                double var3 = var1.x + (double)(((float)((var2 >> 0) % 2) - 0.5F) * var1.getBbWidth() * 0.8F);
-                double var4 = var1.y + (double)(((float)((var2 >> 1) % 2) - 0.5F) * 0.1F);
-                double var5 = var1.z + (double)(((float)((var2 >> 2) % 2) - 0.5F) * var1.getBbWidth() * 0.8F);
+                double var3 = var1.getX() + (double)(((float)((var2 >> 0) % 2) - 0.5F) * var1.getBbWidth() * 0.8F);
+                double var4 = var1.getY() + (double)(((float)((var2 >> 1) % 2) - 0.5F) * 0.1F);
+                double var5 = var1.getZ() + (double)(((float)((var2 >> 2) % 2) - 0.5F) * var1.getBbWidth() * 0.8F);
                 BlockPos var6 = new BlockPos(var3, var4 + (double)var1.getEyeHeight(), var5);
                 BlockState var7 = param0.level.getBlockState(var6);
                 if (var7.isViewBlocking(param0.level, var6)) {
@@ -130,7 +130,7 @@ public class ScreenEffectRenderer {
             float var11 = 0.5F;
             float var12 = -0.5F;
             param1.translate((double)((float)(-(var2 * 2 - 1)) * 0.24F), -0.3F, 0.0);
-            param1.mulPose(Vector3f.YP.rotation((float)(var2 * 2 - 1) * 10.0F, true));
+            param1.mulPose(Vector3f.YP.rotationDegrees((float)(var2 * 2 - 1) * 10.0F));
             Matrix4f var13 = param1.getPose();
             var0.begin(7, DefaultVertexFormat.POSITION_COLOR_TEX);
             var0.vertex(var13, -0.5F, -0.5F, -0.5F).color(1.0F, 1.0F, 1.0F, 0.9F).uv(var5, var7).endVertex();

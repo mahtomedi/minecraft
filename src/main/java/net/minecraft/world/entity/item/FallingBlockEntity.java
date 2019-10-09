@@ -127,11 +127,7 @@ public class FallingBlockEntity extends Entity {
                     BlockHitResult var6 = this.level
                         .clip(
                             new ClipContext(
-                                new Vec3(this.xo, this.yo, this.zo),
-                                new Vec3(this.x, this.y, this.z),
-                                ClipContext.Block.COLLIDER,
-                                ClipContext.Fluid.SOURCE_ONLY,
-                                this
+                                new Vec3(this.xo, this.yo, this.zo), this.position(), ClipContext.Block.COLLIDER, ClipContext.Fluid.SOURCE_ONLY, this
                             )
                         );
                     if (var6.getType() != HitResult.Type.MISS && this.level.getFluidState(var6.getBlockPos()).is(FluidTags.WATER)) {
@@ -198,7 +194,7 @@ public class FallingBlockEntity extends Entity {
     }
 
     @Override
-    public void causeFallDamage(float param0, float param1) {
+    public boolean causeFallDamage(float param0, float param1) {
         if (this.hurtEntities) {
             int var0 = Mth.ceil(param0 - 1.0F);
             if (var0 > 0) {
@@ -221,6 +217,7 @@ public class FallingBlockEntity extends Entity {
             }
         }
 
+        return false;
     }
 
     @Override

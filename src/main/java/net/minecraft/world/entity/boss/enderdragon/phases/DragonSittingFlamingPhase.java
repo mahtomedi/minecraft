@@ -24,9 +24,9 @@ public class DragonSittingFlamingPhase extends AbstractDragonSittingPhase {
         if (this.flameTicks % 2 == 0 && this.flameTicks < 10) {
             Vec3 var0 = this.dragon.getHeadLookVector(1.0F).normalize();
             var0.yRot((float) (-Math.PI / 4));
-            double var1 = this.dragon.head.x;
-            double var2 = this.dragon.head.y + (double)(this.dragon.head.getBbHeight() / 2.0F);
-            double var3 = this.dragon.head.z;
+            double var1 = this.dragon.head.getX();
+            double var2 = this.dragon.head.getY(0.5);
+            double var3 = this.dragon.head.getZ();
 
             for(int var4 = 0; var4 < 8; ++var4) {
                 double var5 = var1 + this.dragon.getRandom().nextGaussian() / 2.0;
@@ -57,11 +57,11 @@ public class DragonSittingFlamingPhase extends AbstractDragonSittingPhase {
                 this.dragon.getPhaseManager().setPhase(EnderDragonPhase.SITTING_SCANNING);
             }
         } else if (this.flameTicks == 10) {
-            Vec3 var0 = new Vec3(this.dragon.head.x - this.dragon.x, 0.0, this.dragon.head.z - this.dragon.z).normalize();
+            Vec3 var0 = new Vec3(this.dragon.head.getX() - this.dragon.getX(), 0.0, this.dragon.head.getZ() - this.dragon.getZ()).normalize();
             float var1 = 5.0F;
-            double var2 = this.dragon.head.x + var0.x * 5.0 / 2.0;
-            double var3 = this.dragon.head.z + var0.z * 5.0 / 2.0;
-            double var4 = this.dragon.head.y + (double)(this.dragon.head.getBbHeight() / 2.0F);
+            double var2 = this.dragon.head.getX() + var0.x * 5.0 / 2.0;
+            double var3 = this.dragon.head.getZ() + var0.z * 5.0 / 2.0;
+            double var4 = this.dragon.head.getY(0.5);
             double var5 = var4;
             BlockPos.MutableBlockPos var6 = new BlockPos.MutableBlockPos(var2, var4, var3);
 

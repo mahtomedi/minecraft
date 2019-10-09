@@ -41,8 +41,7 @@ public class PatrolSpawner {
                         } else {
                             int var4 = (24 + var0.nextInt(24)) * (var0.nextBoolean() ? -1 : 1);
                             int var5 = (24 + var0.nextInt(24)) * (var0.nextBoolean() ? -1 : 1);
-                            BlockPos.MutableBlockPos var6 = new BlockPos.MutableBlockPos();
-                            var6.set(var3.x, var3.y, var3.z).move(var4, 0, var5);
+                            BlockPos.MutableBlockPos var6 = new BlockPos.MutableBlockPos(var3).move(var4, 0, var5);
                             if (!param0.hasChunksAt(var6.getX() - 10, var6.getY() - 10, var6.getZ() - 10, var6.getX() + 10, var6.getY() + 10, var6.getZ() + 10)
                                 )
                              {

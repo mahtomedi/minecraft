@@ -38,20 +38,19 @@ public class SpinAttackEffectLayer<T extends LivingEntity> extends RenderLayer<T
         float param10
     ) {
         if (param3.isAutoSpinAttack()) {
-            VertexConsumer var0 = param1.getBuffer(RenderType.NEW_ENTITY(TEXTURE));
-            OverlayTexture.setDefault(var0);
+            VertexConsumer var0 = param1.getBuffer(RenderType.entityCutoutNoCull(TEXTURE));
 
             for(int var1 = 0; var1 < 3; ++var1) {
                 param0.pushPose();
-                param0.mulPose(Vector3f.YP.rotation(param7 * (float)(-(45 + var1 * 5)), true));
-                float var2 = 0.75F * (float)var1;
-                param0.scale(var2, var2, var2);
+                float var2 = param7 * (float)(-(45 + var1 * 5));
+                param0.mulPose(Vector3f.YP.rotationDegrees(var2));
+                float var3 = 0.75F * (float)var1;
+                param0.scale(var3, var3, var3);
                 param0.translate(0.0, (double)(-0.2F + 0.6F * (float)var1), 0.0);
-                this.box.render(param0, var0, param10, param2, null);
+                this.box.render(param0, var0, param10, param2, OverlayTexture.NO_OVERLAY, null);
                 param0.popPose();
             }
 
-            var0.unsetDefaultOverlayCoords();
         }
     }
 }

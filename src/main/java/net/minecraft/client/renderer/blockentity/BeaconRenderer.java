@@ -23,7 +23,7 @@ public class BeaconRenderer extends BlockEntityRenderer<BeaconBlockEntity> {
     }
 
     public void render(
-        BeaconBlockEntity param0, double param1, double param2, double param3, float param4, PoseStack param5, MultiBufferSource param6, int param7
+        BeaconBlockEntity param0, double param1, double param2, double param3, float param4, PoseStack param5, MultiBufferSource param6, int param7, int param8
     ) {
         long var0 = param0.getLevel().getGameTime();
         List<BeaconBlockEntity.BeaconBeamSection> var1 = param0.getBeamSections();
@@ -64,7 +64,7 @@ public class BeaconRenderer extends BlockEntityRenderer<BeaconBlockEntity> {
         float var5 = param8[1];
         float var6 = param8[2];
         param0.pushPose();
-        param0.mulPose(Vector3f.YP.rotation(var1 * 2.25F - 45.0F, true));
+        param0.mulPose(Vector3f.YP.rotationDegrees(var1 * 2.25F - 45.0F));
         float var7 = 0.0F;
         float var10 = 0.0F;
         float var11 = -param9;
@@ -75,13 +75,31 @@ public class BeaconRenderer extends BlockEntityRenderer<BeaconBlockEntity> {
         float var16 = 1.0F;
         float var17 = -1.0F + var3;
         float var18 = (float)param7 * param4 * (0.5F / param9) + var17;
-        VertexConsumer var19 = param1.getBuffer(RenderType.NEW_ENTITY(param2));
-        OverlayTexture.setDefault(var19);
-        renderPart(param0, var19, var4, var5, var6, 1.0F, param6, var0, 0.0F, param9, param9, 0.0F, var11, 0.0F, 0.0F, var14, 0.0F, 1.0F, var18, var17);
-        var19.unsetDefaultOverlayCoords();
+        renderPart(
+            param0,
+            param1.getBuffer(RenderType.entitySolid(param2)),
+            var4,
+            var5,
+            var6,
+            1.0F,
+            param6,
+            var0,
+            0.0F,
+            param9,
+            param9,
+            0.0F,
+            var11,
+            0.0F,
+            0.0F,
+            var14,
+            0.0F,
+            1.0F,
+            var18,
+            var17
+        );
         param0.popPose();
         var7 = -param10;
-        float var21 = -param10;
+        float var20 = -param10;
         var10 = -param10;
         var11 = -param10;
         var15 = 0.0F;
@@ -90,7 +108,7 @@ public class BeaconRenderer extends BlockEntityRenderer<BeaconBlockEntity> {
         var18 = (float)param7 * param4 + var17;
         renderPart(
             param0,
-            param1.getBuffer(RenderType.BEACON_BEAM),
+            param1.getBuffer(RenderType.beaconBeam()),
             var4,
             var5,
             var6,
@@ -98,7 +116,7 @@ public class BeaconRenderer extends BlockEntityRenderer<BeaconBlockEntity> {
             param6,
             var0,
             var7,
-            var21,
+            var20,
             param10,
             var10,
             var11,
@@ -182,6 +200,7 @@ public class BeaconRenderer extends BlockEntityRenderer<BeaconBlockEntity> {
         param1.vertex(param0, param7, (float)param6, param8)
             .color(param2, param3, param4, param5)
             .uv(param9, param10)
+            .overlayCoords(OverlayTexture.NO_OVERLAY)
             .uv2(15728880)
             .normal(0.0F, 1.0F, 0.0F)
             .endVertex();

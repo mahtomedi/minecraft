@@ -72,9 +72,9 @@ public class FishingHook extends Entity {
     public FishingHook(Level param0, Player param1, double param2, double param3, double param4) {
         this(param0, param1, 0, 0);
         this.setPos(param2, param3, param4);
-        this.xo = this.x;
-        this.yo = this.y;
-        this.zo = this.z;
+        this.xo = this.getX();
+        this.yo = this.getY();
+        this.zo = this.getZ();
     }
 
     public FishingHook(Player param0, Level param1, int param2, int param3) {
@@ -85,9 +85,9 @@ public class FishingHook extends Entity {
         float var3 = Mth.sin(-var1 * (float) (Math.PI / 180.0) - (float) Math.PI);
         float var4 = -Mth.cos(-var0 * (float) (Math.PI / 180.0));
         float var5 = Mth.sin(-var0 * (float) (Math.PI / 180.0));
-        double var6 = this.owner.x - (double)var3 * 0.3;
-        double var7 = this.owner.y + (double)this.owner.getEyeHeight();
-        double var8 = this.owner.z - (double)var2 * 0.3;
+        double var6 = this.owner.getX() - (double)var3 * 0.3;
+        double var7 = this.owner.getEyeY();
+        double var8 = this.owner.getZ() - (double)var2 * 0.3;
         this.moveTo(var6, var7, var8, var1, var0);
         Vec3 var9 = new Vec3((double)(-var3), (double)Mth.clamp(-(var5 / var4), -5.0F, 5.0F), (double)(-var2));
         double var10 = var9.length();
@@ -181,10 +181,7 @@ public class FishingHook extends Entity {
                             this.hookedIn = null;
                             this.currentState = FishingHook.FishHookState.FLYING;
                         } else {
-                            this.x = this.hookedIn.x;
-                            this.y = this.hookedIn.getBoundingBox().minY + (double)this.hookedIn.getBbHeight() * 0.8;
-                            this.z = this.hookedIn.z;
-                            this.setPos(this.x, this.y, this.z);
+                            this.setPos(this.hookedIn.getX(), this.hookedIn.getY(0.8), this.hookedIn.getZ());
                         }
                     }
 
@@ -193,7 +190,7 @@ public class FishingHook extends Entity {
 
                 if (this.currentState == FishingHook.FishHookState.BOBBING) {
                     Vec3 var3 = this.getDeltaMovement();
-                    double var4 = this.y + var3.y - (double)var1.getY() - (double)var0;
+                    double var4 = this.getY() + var3.y - (double)var1.getY() - (double)var0;
                     if (Math.abs(var4) < 0.01) {
                         var4 += Math.signum(var4) * 0.1;
                     }
@@ -213,7 +210,6 @@ public class FishingHook extends Entity {
             this.updateRotation();
             double var5 = 0.92;
             this.setDeltaMovement(this.getDeltaMovement().scale(0.92));
-            this.setPos(this.x, this.y, this.z);
         }
     }
 
@@ -306,9 +302,9 @@ public class FishingHook extends Entity {
                 float var3 = this.fishAngle * (float) (Math.PI / 180.0);
                 float var4 = Mth.sin(var3);
                 float var5 = Mth.cos(var3);
-                double var6 = this.x + (double)(var4 * (float)this.timeUntilHooked * 0.1F);
-                double var7 = (double)((float)Mth.floor(this.getBoundingBox().minY) + 1.0F);
-                double var8 = this.z + (double)(var5 * (float)this.timeUntilHooked * 0.1F);
+                double var6 = this.getX() + (double)(var4 * (float)this.timeUntilHooked * 0.1F);
+                double var7 = (double)((float)Mth.floor(this.getY()) + 1.0F);
+                double var8 = this.getZ() + (double)(var5 * (float)this.timeUntilHooked * 0.1F);
                 Block var9 = var0.getBlockState(new BlockPos(var6, var7 - 1.0, var8)).getBlock();
                 if (var9 == Blocks.WATER) {
                     if (this.random.nextFloat() < 0.15F) {
@@ -324,12 +320,12 @@ public class FishingHook extends Entity {
                 Vec3 var12 = this.getDeltaMovement();
                 this.setDeltaMovement(var12.x, (double)(-0.4F * Mth.nextFloat(this.random, 0.6F, 1.0F)), var12.z);
                 this.playSound(SoundEvents.FISHING_BOBBER_SPLASH, 0.25F, 1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.4F);
-                double var13 = this.getBoundingBox().minY + 0.5;
+                double var13 = this.getY() + 0.5;
                 var0.sendParticles(
                     ParticleTypes.BUBBLE,
-                    this.x,
+                    this.getX(),
                     var13,
-                    this.z,
+                    this.getZ(),
                     (int)(1.0F + this.getBbWidth() * 20.0F),
                     (double)this.getBbWidth(),
                     0.0,
@@ -338,9 +334,9 @@ public class FishingHook extends Entity {
                 );
                 var0.sendParticles(
                     ParticleTypes.FISHING,
-                    this.x,
+                    this.getX(),
                     var13,
-                    this.z,
+                    this.getZ(),
                     (int)(1.0F + this.getBbWidth() * 20.0F),
                     (double)this.getBbWidth(),
                     0.0,
@@ -363,9 +359,9 @@ public class FishingHook extends Entity {
             if (this.random.nextFloat() < var14) {
                 float var15 = Mth.nextFloat(this.random, 0.0F, 360.0F) * (float) (Math.PI / 180.0);
                 float var16 = Mth.nextFloat(this.random, 25.0F, 60.0F);
-                double var17 = this.x + (double)(Mth.sin(var15) * var16 * 0.1F);
-                double var18 = (double)((float)Mth.floor(this.getBoundingBox().minY) + 1.0F);
-                double var19 = this.z + (double)(Mth.cos(var15) * var16 * 0.1F);
+                double var17 = this.getX() + (double)(Mth.sin(var15) * var16 * 0.1F);
+                double var18 = (double)((float)Mth.floor(this.getY()) + 1.0F);
+                double var19 = this.getZ() + (double)(Mth.cos(var15) * var16 * 0.1F);
                 Block var20 = var0.getBlockState(new BlockPos(var17, var18 - 1.0, var19)).getBlock();
                 if (var20 == Blocks.WATER) {
                     var0.sendParticles(ParticleTypes.SPLASH, var17, var18, var19, 2 + this.random.nextInt(2), 0.1F, 0.0, 0.1F, 0.0);
@@ -410,16 +406,18 @@ public class FishingHook extends Entity {
                 CriteriaTriggers.FISHING_ROD_HOOKED.trigger((ServerPlayer)this.owner, param0, this, var3);
 
                 for(ItemStack var4 : var3) {
-                    ItemEntity var5 = new ItemEntity(this.level, this.x, this.y, this.z, var4);
-                    double var6 = this.owner.x - this.x;
-                    double var7 = this.owner.y - this.y;
-                    double var8 = this.owner.z - this.z;
+                    ItemEntity var5 = new ItemEntity(this.level, this.getX(), this.getY(), this.getZ(), var4);
+                    double var6 = this.owner.getX() - this.getX();
+                    double var7 = this.owner.getY() - this.getY();
+                    double var8 = this.owner.getZ() - this.getZ();
                     double var9 = 0.1;
                     var5.setDeltaMovement(var6 * 0.1, var7 * 0.1 + Math.sqrt(Math.sqrt(var6 * var6 + var7 * var7 + var8 * var8)) * 0.08, var8 * 0.1);
                     this.level.addFreshEntity(var5);
                     this.owner
                         .level
-                        .addFreshEntity(new ExperienceOrb(this.owner.level, this.owner.x, this.owner.y + 0.5, this.owner.z + 0.5, this.random.nextInt(6) + 1));
+                        .addFreshEntity(
+                            new ExperienceOrb(this.owner.level, this.owner.getX(), this.owner.getY() + 0.5, this.owner.getZ() + 0.5, this.random.nextInt(6) + 1)
+                        );
                     if (var4.getItem().is(ItemTags.FISHES)) {
                         this.owner.awardStat(Stats.FISH_CAUGHT, 1);
                     }
@@ -451,7 +449,7 @@ public class FishingHook extends Entity {
 
     protected void bringInHookedEntity() {
         if (this.owner != null) {
-            Vec3 var0 = new Vec3(this.owner.x - this.x, this.owner.y - this.y, this.owner.z - this.z).scale(0.1);
+            Vec3 var0 = new Vec3(this.owner.getX() - this.getX(), this.owner.getY() - this.getY(), this.owner.getZ() - this.getZ()).scale(0.1);
             this.hookedIn.setDeltaMovement(this.hookedIn.getDeltaMovement().add(var0));
         }
     }

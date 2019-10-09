@@ -32,7 +32,7 @@ public class WolfCollarLayer extends RenderLayer<Wolf, WolfModel<Wolf>> {
     ) {
         if (param3.isTame() && !param3.isInvisible()) {
             float[] var0 = param3.getCollarColor().getTextureDiffuseColors();
-            renderColoredModel(this.getParentModel(), WOLF_COLLAR_LOCATION, param0, param1, param2, param3, var0[0], var0[1], var0[2]);
+            renderColoredCutoutModel(this.getParentModel(), WOLF_COLLAR_LOCATION, param0, param1, param2, param3, var0[0], var0[1], var0[2]);
         }
     }
 }

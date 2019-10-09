@@ -2,7 +2,10 @@ package net.minecraft.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import java.util.function.Function;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -21,12 +24,19 @@ public abstract class AgeableListModel<E extends Entity> extends EntityModel<E> 
     }
 
     protected AgeableListModel(boolean param0, float param1, float param2, float param3, float param4, float param5) {
-        this.scaleHead = param0;
-        this.yHeadOffset = param1;
-        this.zHeadOffset = param2;
-        this.babyHeadScale = param3;
-        this.babyBodyScale = param4;
-        this.bodyYOffset = param5;
+        this(RenderType::entitySolid, param0, param1, param2, param3, param4, param5);
+    }
+
+    protected AgeableListModel(
+        Function<ResourceLocation, RenderType> param0, boolean param1, float param2, float param3, float param4, float param5, float param6
+    ) {
+        super(param0);
+        this.scaleHead = param1;
+        this.yHeadOffset = param2;
+        this.zHeadOffset = param3;
+        this.babyHeadScale = param4;
+        this.babyBodyScale = param5;
+        this.bodyYOffset = param6;
     }
 
     protected AgeableListModel() {
@@ -34,7 +44,7 @@ public abstract class AgeableListModel<E extends Entity> extends EntityModel<E> 
     }
 
     @Override
-    public void renderToBuffer(PoseStack param0, VertexConsumer param1, int param2, float param3, float param4, float param5) {
+    public void renderToBuffer(PoseStack param0, VertexConsumer param1, int param2, int param3, float param4, float param5, float param6) {
         if (this.young) {
             param0.pushPose();
             if (this.scaleHead) {
@@ -43,17 +53,17 @@ public abstract class AgeableListModel<E extends Entity> extends EntityModel<E> 
             }
 
             param0.translate(0.0, (double)(this.yHeadOffset / 16.0F), (double)(this.zHeadOffset / 16.0F));
-            this.headParts().forEach(param6 -> param6.render(param0, param1, 0.0625F, param2, null, param3, param4, param5));
+            this.headParts().forEach(param7 -> param7.render(param0, param1, 0.0625F, param2, param3, null, param4, param5, param6));
             param0.popPose();
             param0.pushPose();
             float var1 = 1.0F / this.babyBodyScale;
             param0.scale(var1, var1, var1);
             param0.translate(0.0, (double)(this.bodyYOffset / 16.0F), 0.0);
-            this.bodyParts().forEach(param6 -> param6.render(param0, param1, 0.0625F, param2, null, param3, param4, param5));
+            this.bodyParts().forEach(param7 -> param7.render(param0, param1, 0.0625F, param2, param3, null, param4, param5, param6));
             param0.popPose();
         } else {
-            this.headParts().forEach(param6 -> param6.render(param0, param1, 0.0625F, param2, null, param3, param4, param5));
-            this.bodyParts().forEach(param6 -> param6.render(param0, param1, 0.0625F, param2, null, param3, param4, param5));
+            this.headParts().forEach(param7 -> param7.render(param0, param1, 0.0625F, param2, param3, null, param4, param5, param6));
+            this.bodyParts().forEach(param7 -> param7.render(param0, param1, 0.0625F, param2, param3, null, param4, param5, param6));
         }
 
     }

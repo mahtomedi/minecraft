@@ -182,7 +182,7 @@ public abstract class PatrollingMonster extends Monster {
                     this.mob.findPatrolTarget();
                 } else {
                     Vec3 var3 = new Vec3(this.mob.getPatrolTarget());
-                    Vec3 var4 = new Vec3(this.mob.x, this.mob.y, this.mob.z);
+                    Vec3 var4 = this.mob.position();
                     Vec3 var5 = var4.subtract(var3);
                     var3 = var5.yRot(90.0F).scale(0.4).add(var3);
                     Vec3 var6 = var3.subtract(var4).normalize().scale(10.0).add(var4);

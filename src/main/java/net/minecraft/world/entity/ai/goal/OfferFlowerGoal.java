@@ -29,9 +29,9 @@ public class OfferFlowerGoal extends Goal {
                     Villager.class,
                     OFFER_TARGER_CONTEXT,
                     this.golem,
-                    this.golem.x,
-                    this.golem.y,
-                    this.golem.z,
+                    this.golem.getX(),
+                    this.golem.getY(),
+                    this.golem.getZ(),
                     this.golem.getBoundingBox().inflate(6.0, 2.0, 6.0)
                 );
             return this.villager != null;

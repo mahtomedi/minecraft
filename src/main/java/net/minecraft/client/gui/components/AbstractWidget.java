@@ -66,9 +66,9 @@ public abstract class AbstractWidget extends GuiComponent implements Widget, Gui
             if (this.wasHovered != this.isHovered()) {
                 if (this.isHovered()) {
                     if (this.focused) {
-                        this.nextNarration = Util.getMillis() + 200L;
+                        this.queueNarration(200);
                     } else {
-                        this.nextNarration = Util.getMillis() + 750L;
+                        this.queueNarration(750);
                     }
                 } else {
                     this.nextNarration = Long.MAX_VALUE;
@@ -96,7 +96,7 @@ public abstract class AbstractWidget extends GuiComponent implements Widget, Gui
     }
 
     protected String getNarrationMessage() {
-        return this.message.isEmpty() ? "" : I18n.get("gui.narrate.button", this.getMessage());
+        return this.getMessage().isEmpty() ? "" : I18n.get("gui.narrate.button", this.getMessage());
     }
 
     public void renderButton(int param0, int param1, float param2) {
@@ -118,7 +118,7 @@ public abstract class AbstractWidget extends GuiComponent implements Widget, Gui
             var3 = 16777120;
         }
 
-        this.drawCenteredString(var1, this.message, this.x + this.width / 2, this.y + (this.height - 8) / 2, var3 | Mth.ceil(this.alpha * 255.0F) << 24);
+        this.drawCenteredString(var1, this.getMessage(), this.x + this.width / 2, this.y + (this.height - 8) / 2, var3 | Mth.ceil(this.alpha * 255.0F) << 24);
     }
 
     protected void renderBg(Minecraft param0, int param1, int param2) {
@@ -233,10 +233,14 @@ public abstract class AbstractWidget extends GuiComponent implements Widget, Gui
 
     public void setMessage(String param0) {
         if (!Objects.equals(param0, this.message)) {
-            this.nextNarration = Util.getMillis() + 250L;
+            this.queueNarration(250);
         }
 
         this.message = param0;
+    }
+
+    public void queueNarration(int param0) {
+        this.nextNarration = Util.getMillis() + (long)param0;
     }
 
     public String getMessage() {

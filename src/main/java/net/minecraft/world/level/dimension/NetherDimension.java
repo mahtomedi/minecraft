@@ -16,6 +16,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class NetherDimension extends Dimension {
+    private static final Vec3 NETHER_FOG_COLOR = new Vec3(0.2F, 0.03F, 0.03F);
+
     public NetherDimension(Level param0, DimensionType param1) {
         super(param0, param1);
         this.ultraWarm = true;
@@ -25,7 +27,7 @@ public class NetherDimension extends Dimension {
     @OnlyIn(Dist.CLIENT)
     @Override
     public Vec3 getFogColor(float param0, float param1) {
-        return new Vec3(0.2F, 0.03F, 0.03F);
+        return NETHER_FOG_COLOR;
     }
 
     @Override

@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Vec3i;
 import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
@@ -38,7 +37,7 @@ public class SetClosestHomeAsWalkTarget extends Behavior<LivingEntity> {
             PathfinderMob var0 = (PathfinderMob)param1;
             PoiManager var1 = param0.getPoiManager();
             Optional<BlockPos> var2 = var1.findClosest(PoiType.HOME.getPredicate(), param0x -> true, new BlockPos(param1), 48, PoiManager.Occupancy.ANY);
-            return var2.isPresent() && !(var2.get().distSqr(new Vec3i(var0.x, var0.y, var0.z)) <= 4.0);
+            return var2.isPresent() && !(var2.get().distSqr(new BlockPos(var0)) <= 4.0);
         }
     }
 

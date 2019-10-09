@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -42,25 +43,37 @@ public class ItemFrameRenderer extends EntityRenderer<ItemFrame> {
         param6.translate(-var1.x(), -var1.y(), -var1.z());
         double var2 = 0.46875;
         param6.translate((double)var0.getStepX() * 0.46875, (double)var0.getStepY() * 0.46875, (double)var0.getStepZ() * 0.46875);
-        param6.mulPose(Vector3f.XP.rotation(param0.xRot, true));
-        param6.mulPose(Vector3f.YP.rotation(180.0F - param0.yRot, true));
+        param6.mulPose(Vector3f.XP.rotationDegrees(param0.xRot));
+        param6.mulPose(Vector3f.YP.rotationDegrees(180.0F - param0.yRot));
         BlockRenderDispatcher var3 = this.minecraft.getBlockRenderer();
         ModelManager var4 = var3.getBlockModelShaper().getModelManager();
         ModelResourceLocation var5 = param0.getItem().getItem() == Items.FILLED_MAP ? MAP_FRAME_LOCATION : FRAME_LOCATION;
         param6.pushPose();
         param6.translate(-0.5, -0.5, -0.5);
         int var6 = param0.getLightColor();
-        var3.getModelRenderer().renderModel(param6.getPose(), param7.getBuffer(RenderType.SOLID), null, var4.getModel(var5), 1.0F, 1.0F, 1.0F, var6);
+        var3.getModelRenderer()
+            .renderModel(
+                param6.getPose(),
+                param6.getNormal(),
+                param7.getBuffer(RenderType.solid()),
+                null,
+                var4.getModel(var5),
+                1.0F,
+                1.0F,
+                1.0F,
+                var6,
+                OverlayTexture.NO_OVERLAY
+            );
         param6.popPose();
         ItemStack var7 = param0.getItem();
         if (!var7.isEmpty()) {
             boolean var8 = var7.getItem() == Items.FILLED_MAP;
             param6.translate(0.0, 0.0, 0.4375);
             int var9 = var8 ? param0.getRotation() % 4 * 2 : param0.getRotation();
-            param6.mulPose(Vector3f.ZP.rotation((float)var9 * 360.0F / 8.0F, true));
+            param6.mulPose(Vector3f.ZP.rotationDegrees((float)var9 * 360.0F / 8.0F));
             if (var8) {
                 this.entityRenderDispatcher.textureManager.bind(MapRenderer.MAP_BACKGROUND_LOCATION);
-                param6.mulPose(Vector3f.ZP.rotation(180.0F, true));
+                param6.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
                 float var10 = 0.0078125F;
                 param6.scale(0.0078125F, 0.0078125F, 0.0078125F);
                 param6.translate(-64.0, -64.0, 0.0);
@@ -71,7 +84,7 @@ public class ItemFrameRenderer extends EntityRenderer<ItemFrame> {
                 }
             } else {
                 param6.scale(0.5F, 0.5F, 0.5F);
-                this.itemRenderer.renderStatic(var7, ItemTransforms.TransformType.FIXED, var6, param6, param7);
+                this.itemRenderer.renderStatic(var7, ItemTransforms.TransformType.FIXED, var6, OverlayTexture.NO_OVERLAY, param6, param7);
             }
         }
 

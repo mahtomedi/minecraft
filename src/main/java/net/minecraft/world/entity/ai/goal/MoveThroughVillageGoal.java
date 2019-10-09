@@ -73,9 +73,7 @@ public class MoveThroughVillageGoal extends Goal {
                         this.path = var4.createPath(this.poiPos, 0);
                         var4.setCanOpenDoors(var5);
                         if (this.path == null) {
-                            Vec3 var6 = RandomPos.getPosTowards(
-                                this.mob, 10, 7, new Vec3((double)this.poiPos.getX(), (double)this.poiPos.getY(), (double)this.poiPos.getZ())
-                            );
+                            Vec3 var6 = RandomPos.getPosTowards(this.mob, 10, 7, new Vec3(this.poiPos));
                             if (var6 == null) {
                                 return false;
                             }

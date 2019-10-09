@@ -8,6 +8,7 @@ import java.util.Comparator;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -53,20 +54,24 @@ public class BedRenderer extends BlockEntityRenderer<BedBlockEntity> {
         this.legs[3].zRot = (float) Math.PI;
     }
 
-    public void render(BedBlockEntity param0, double param1, double param2, double param3, float param4, PoseStack param5, MultiBufferSource param6, int param7) {
+    public void render(
+        BedBlockEntity param0, double param1, double param2, double param3, float param4, PoseStack param5, MultiBufferSource param6, int param7, int param8
+    ) {
         ResourceLocation var0 = TEXTURES[param0.getColor().getId()];
-        VertexConsumer var1 = param6.getBuffer(RenderType.SOLID);
+        VertexConsumer var1 = param6.getBuffer(RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS));
         if (param0.hasLevel()) {
             BlockState var2 = param0.getBlockState();
-            this.renderPiece(param5, var1, var2.getValue(BedBlock.PART) == BedPart.HEAD, var2.getValue(BedBlock.FACING), var0, param7, false);
+            this.renderPiece(param5, var1, var2.getValue(BedBlock.PART) == BedPart.HEAD, var2.getValue(BedBlock.FACING), var0, param7, param8, false);
         } else {
-            this.renderPiece(param5, var1, true, Direction.SOUTH, var0, param7, false);
-            this.renderPiece(param5, var1, false, Direction.SOUTH, var0, param7, true);
+            this.renderPiece(param5, var1, true, Direction.SOUTH, var0, param7, param8, false);
+            this.renderPiece(param5, var1, false, Direction.SOUTH, var0, param7, param8, true);
         }
 
     }
 
-    private void renderPiece(PoseStack param0, VertexConsumer param1, boolean param2, Direction param3, ResourceLocation param4, int param5, boolean param6) {
+    private void renderPiece(
+        PoseStack param0, VertexConsumer param1, boolean param2, Direction param3, ResourceLocation param4, int param5, int param6, boolean param7
+    ) {
         this.headPiece.visible = param2;
         this.footPiece.visible = !param2;
         this.legs[0].visible = !param2;
@@ -74,18 +79,18 @@ public class BedRenderer extends BlockEntityRenderer<BedBlockEntity> {
         this.legs[2].visible = !param2;
         this.legs[3].visible = param2;
         param0.pushPose();
-        param0.translate(0.0, 0.5625, param6 ? -1.0 : 0.0);
-        param0.mulPose(Vector3f.XP.rotation(90.0F, true));
+        param0.translate(0.0, 0.5625, param7 ? -1.0 : 0.0);
+        param0.mulPose(Vector3f.XP.rotationDegrees(90.0F));
         param0.translate(0.5, 0.5, 0.5);
-        param0.mulPose(Vector3f.ZP.rotation(180.0F + param3.toYRot(), true));
+        param0.mulPose(Vector3f.ZP.rotationDegrees(180.0F + param3.toYRot()));
         param0.translate(-0.5, -0.5, -0.5);
         TextureAtlasSprite var0 = this.getSprite(param4);
-        this.headPiece.render(param0, param1, 0.0625F, param5, var0);
-        this.footPiece.render(param0, param1, 0.0625F, param5, var0);
-        this.legs[0].render(param0, param1, 0.0625F, param5, var0);
-        this.legs[1].render(param0, param1, 0.0625F, param5, var0);
-        this.legs[2].render(param0, param1, 0.0625F, param5, var0);
-        this.legs[3].render(param0, param1, 0.0625F, param5, var0);
+        this.headPiece.render(param0, param1, 0.0625F, param5, param6, var0);
+        this.footPiece.render(param0, param1, 0.0625F, param5, param6, var0);
+        this.legs[0].render(param0, param1, 0.0625F, param5, param6, var0);
+        this.legs[1].render(param0, param1, 0.0625F, param5, param6, var0);
+        this.legs[2].render(param0, param1, 0.0625F, param5, param6, var0);
+        this.legs[3].render(param0, param1, 0.0625F, param5, param6, var0);
         param0.popPose();
     }
 }

@@ -172,7 +172,7 @@ public class Squid extends WaterAnimal {
 
     private void spawnInk() {
         this.playSound(SoundEvents.SQUID_SQUIRT, this.getSoundVolume(), this.getVoicePitch());
-        Vec3 var0 = this.rotateVector(new Vec3(0.0, -1.0, 0.0)).add(this.x, this.y, this.z);
+        Vec3 var0 = this.rotateVector(new Vec3(0.0, -1.0, 0.0)).add(this.getX(), this.getY(), this.getZ());
 
         for(int var1 = 0; var1 < 30; ++var1) {
             Vec3 var2 = this.rotateVector(new Vec3((double)this.random.nextFloat() * 0.6 - 0.3, -1.0, (double)this.random.nextFloat() * 0.6 - 0.3));
@@ -238,9 +238,11 @@ public class Squid extends WaterAnimal {
             ++this.fleeTicks;
             LivingEntity var0 = Squid.this.getLastHurtByMob();
             if (var0 != null) {
-                Vec3 var1 = new Vec3(Squid.this.x - var0.x, Squid.this.y - var0.y, Squid.this.z - var0.z);
-                BlockState var2 = Squid.this.level.getBlockState(new BlockPos(Squid.this.x + var1.x, Squid.this.y + var1.y, Squid.this.z + var1.z));
-                FluidState var3 = Squid.this.level.getFluidState(new BlockPos(Squid.this.x + var1.x, Squid.this.y + var1.y, Squid.this.z + var1.z));
+                Vec3 var1 = new Vec3(Squid.this.getX() - var0.getX(), Squid.this.getY() - var0.getY(), Squid.this.getZ() - var0.getZ());
+                BlockState var2 = Squid.this.level
+                    .getBlockState(new BlockPos(Squid.this.getX() + var1.x, Squid.this.getY() + var1.y, Squid.this.getZ() + var1.z));
+                FluidState var3 = Squid.this.level
+                    .getFluidState(new BlockPos(Squid.this.getX() + var1.x, Squid.this.getY() + var1.y, Squid.this.getZ() + var1.z));
                 if (var3.is(FluidTags.WATER) || var2.isAir()) {
                     double var4 = var1.length();
                     if (var4 > 0.0) {
@@ -263,7 +265,7 @@ public class Squid extends WaterAnimal {
                 }
 
                 if (this.fleeTicks % 10 == 5) {
-                    Squid.this.level.addParticle(ParticleTypes.BUBBLE, Squid.this.x, Squid.this.y, Squid.this.z, 0.0, 0.0, 0.0);
+                    Squid.this.level.addParticle(ParticleTypes.BUBBLE, Squid.this.getX(), Squid.this.getY(), Squid.this.getZ(), 0.0, 0.0, 0.0);
                 }
 
             }

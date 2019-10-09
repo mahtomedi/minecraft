@@ -26,7 +26,7 @@ public class ItemPickupParticle extends Particle {
     }
 
     private ItemPickupParticle(EntityRenderDispatcher param0, RenderBuffers param1, Level param2, Entity param3, Entity param4, Vec3 param5) {
-        super(param2, param3.x, param3.y, param3.z, param5.x, param5.y, param5.z);
+        super(param2, param3.getX(), param3.getY(), param3.getZ(), param5.x, param5.y, param5.z);
         this.renderBuffers = param1;
         this.itemEntity = param3;
         this.target = param4;
@@ -42,12 +42,12 @@ public class ItemPickupParticle extends Particle {
     public void render(VertexConsumer param0, Camera param1, float param2, float param3, float param4, float param5, float param6, float param7) {
         float var0 = ((float)this.life + param2) / 3.0F;
         var0 *= var0;
-        double var1 = Mth.lerp((double)param2, this.target.xOld, this.target.x);
-        double var2 = Mth.lerp((double)param2, this.target.yOld, this.target.y) + 0.5;
-        double var3 = Mth.lerp((double)param2, this.target.zOld, this.target.z);
-        double var4 = Mth.lerp((double)var0, this.itemEntity.x, var1);
-        double var5 = Mth.lerp((double)var0, this.itemEntity.y, var2);
-        double var6 = Mth.lerp((double)var0, this.itemEntity.z, var3);
+        double var1 = Mth.lerp((double)param2, this.target.xOld, this.target.getX());
+        double var2 = Mth.lerp((double)param2, this.target.yOld, this.target.getY()) + 0.5;
+        double var3 = Mth.lerp((double)param2, this.target.zOld, this.target.getZ());
+        double var4 = Mth.lerp((double)var0, this.itemEntity.getX(), var1);
+        double var5 = Mth.lerp((double)var0, this.itemEntity.getY(), var2);
+        double var6 = Mth.lerp((double)var0, this.itemEntity.getZ(), var3);
         MultiBufferSource.BufferSource var7 = this.renderBuffers.bufferSource();
         this.entityRenderDispatcher.render(this.itemEntity, var4 - xOff, var5 - yOff, var6 - zOff, this.itemEntity.yRot, param2, new PoseStack(), var7);
         var7.endBatch();

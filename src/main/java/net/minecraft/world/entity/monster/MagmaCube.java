@@ -104,7 +104,8 @@ public class MagmaCube extends Slime {
     }
 
     @Override
-    public void causeFallDamage(float param0, float param1) {
+    public boolean causeFallDamage(float param0, float param1) {
+        return false;
     }
 
     @Override

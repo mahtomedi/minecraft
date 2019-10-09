@@ -2,6 +2,7 @@ package net.minecraft.client.model;
 
 import com.google.common.collect.ImmutableList;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.api.distmarker.Dist;
@@ -14,6 +15,7 @@ public class EvokerFangsModel<T extends Entity> extends ListModel<T> {
     private final ModelPart lowerJaw;
 
     public EvokerFangsModel() {
+        super(RenderType::entityCutoutNoCull);
         this.base.setPos(-5.0F, 22.0F, -5.0F);
         this.base.addBox(0.0F, 0.0F, 0.0F, 10.0F, 12.0F, 10.0F);
         this.upperJaw = new ModelPart(this, 40, 0);

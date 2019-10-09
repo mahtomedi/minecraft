@@ -33,7 +33,7 @@ public class CatCollarLayer extends RenderLayer<Cat, CatModel<Cat>> {
     ) {
         if (param3.isTame()) {
             float[] var0 = param3.getCollarColor().getTextureDiffuseColors();
-            coloredModelCopyLayerRender(
+            coloredCutoutModelCopyLayerRender(
                 this.getParentModel(),
                 this.catModel,
                 CAT_COLLAR_LOCATION,

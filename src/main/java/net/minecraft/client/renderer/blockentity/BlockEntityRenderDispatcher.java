@@ -12,6 +12,7 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.model.ShulkerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -102,22 +103,22 @@ public class BlockEntityRenderDispatcher {
             var1 = 15728880;
         }
 
-        param0.render(param1, param2, param3, param4, param5, param6, param7, var1);
+        param0.render(param1, param2, param3, param4, param5, param6, param7, var1, OverlayTexture.NO_OVERLAY);
     }
 
     @Deprecated
-    public <E extends BlockEntity> void renderItem(E param0, PoseStack param1, int param2) {
+    public <E extends BlockEntity> void renderItem(E param0, PoseStack param1) {
         MultiBufferSource.BufferSource var0 = MultiBufferSource.immediate(this.singleRenderBuffer);
-        this.renderItem(param0, param1, var0, param2);
+        this.renderItem(param0, param1, var0, 15728880, OverlayTexture.NO_OVERLAY);
         var0.endBatch();
     }
 
-    public <E extends BlockEntity> boolean renderItem(E param0, PoseStack param1, MultiBufferSource param2, int param3) {
+    public <E extends BlockEntity> boolean renderItem(E param0, PoseStack param1, MultiBufferSource param2, int param3, int param4) {
         BlockEntityRenderer<E> var0 = this.getRenderer(param0);
         if (var0 == null) {
             return true;
         } else {
-            tryRender(param0, () -> var0.render(param0, 0.0, 0.0, 0.0, 0.0F, param1, param2, param3));
+            tryRender(param0, () -> var0.render(param0, 0.0, 0.0, 0.0, 0.0F, param1, param2, param3, param4));
             return false;
         }
     }

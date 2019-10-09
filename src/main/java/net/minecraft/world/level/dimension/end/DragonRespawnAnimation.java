@@ -8,8 +8,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.SpikeConfiguration;
 import net.minecraft.world.level.levelgen.feature.SpikeFeature;
+import net.minecraft.world.level.levelgen.feature.configurations.SpikeConfiguration;
 
 public enum DragonRespawnAnimation {
     START {
@@ -72,7 +72,8 @@ public enum DragonRespawnAnimation {
                         );
                         SpikeConfiguration var9 = new SpikeConfiguration(true, ImmutableList.of(var5), new BlockPos(0, 128, 0));
                         Feature.END_SPIKE
-                            .place(param0, param0.getChunkSource().getGenerator(), new Random(), new BlockPos(var5.getCenterX(), 45, var5.getCenterZ()), var9);
+                            .configured(var9)
+                            .place(param0, param0.getChunkSource().getGenerator(), new Random(), new BlockPos(var5.getCenterX(), 45, var5.getCenterZ()));
                     }
                 } else if (var1) {
                     param1.setRespawnStage(SUMMONING_DRAGON);
@@ -90,7 +91,7 @@ public enum DragonRespawnAnimation {
 
                 for(EndCrystal var0 : param2) {
                     var0.setBeamTarget(null);
-                    param0.explode(var0, var0.x, var0.y, var0.z, 6.0F, Explosion.BlockInteraction.NONE);
+                    param0.explode(var0, var0.getX(), var0.getY(), var0.getZ(), 6.0F, Explosion.BlockInteraction.NONE);
                     var0.remove();
                 }
             } else if (param3 >= 80) {

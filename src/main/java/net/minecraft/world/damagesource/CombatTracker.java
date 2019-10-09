@@ -30,7 +30,7 @@ public class CombatTracker {
     public void prepareForDamage() {
         this.resetPreparedStatus();
         if (this.mob.onLadder()) {
-            Block var0 = this.mob.level.getBlockState(new BlockPos(this.mob.x, this.mob.getBoundingBox().minY, this.mob.z)).getBlock();
+            Block var0 = this.mob.level.getBlockState(new BlockPos(this.mob)).getBlock();
             if (var0 == Blocks.LADDER) {
                 this.nextLocation = "ladder";
             } else if (var0 == Blocks.VINE) {

@@ -7,27 +7,19 @@ import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelSimulatedRW;
 import net.minecraft.world.level.LevelSimulatedReader;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.feature.configurations.MegaTreeConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
-public abstract class MegaTreeFeature<T extends FeatureConfiguration> extends AbstractTreeFeature<T> {
-    protected final int baseHeight;
-    protected final BlockState trunk;
-    protected final BlockState leaf;
-    protected final int heightInterval;
-
-    public MegaTreeFeature(Function<Dynamic<?>, ? extends T> param0, boolean param1, int param2, int param3, BlockState param4, BlockState param5) {
-        super(param0, param1);
-        this.baseHeight = param2;
-        this.heightInterval = param3;
-        this.trunk = param4;
-        this.leaf = param5;
+public abstract class MegaTreeFeature<T extends TreeConfiguration> extends AbstractTreeFeature<T> {
+    public MegaTreeFeature(Function<Dynamic<?>, ? extends T> param0) {
+        super(param0);
     }
 
-    protected int calcTreeHeigth(Random param0) {
-        int var0 = param0.nextInt(3) + this.baseHeight;
-        if (this.heightInterval > 1) {
-            var0 += param0.nextInt(this.heightInterval);
+    protected int calcTreeHeigth(Random param0, MegaTreeConfiguration param1) {
+        int var0 = param0.nextInt(3) + param1.baseHeight;
+        if (param1.heightInterval > 1) {
+            var0 += param0.nextInt(param1.heightInterval);
         }
 
         return var0;
@@ -76,34 +68,63 @@ public abstract class MegaTreeFeature<T extends FeatureConfiguration> extends Ab
         return this.checkIsFree(param0, param1, param2) && this.makeDirtFloor(param0, param1);
     }
 
-    protected void placeDoubleTrunkLeaves(LevelSimulatedRW param0, BlockPos param1, int param2, BoundingBox param3, Set<BlockPos> param4) {
-        int var0 = param2 * param2;
+    protected void placeDoubleTrunkLeaves(
+        LevelSimulatedRW param0, Random param1, BlockPos param2, int param3, Set<BlockPos> param4, BoundingBox param5, TreeConfiguration param6
+    ) {
+        int var0 = param3 * param3;
 
-        for(int var1 = -param2; var1 <= param2 + 1; ++var1) {
-            for(int var2 = -param2; var2 <= param2 + 1; ++var2) {
+        for(int var1 = -param3; var1 <= param3 + 1; ++var1) {
+            for(int var2 = -param3; var2 <= param3 + 1; ++var2) {
                 int var3 = Math.min(Math.abs(var1), Math.abs(var1 - 1));
                 int var4 = Math.min(Math.abs(var2), Math.abs(var2 - 1));
                 if (var3 + var4 < 7 && var3 * var3 + var4 * var4 <= var0) {
-                    BlockPos var5 = param1.offset(var1, 0, var2);
-                    if (isAirOrLeaves(param0, var5)) {
-                        this.setBlock(param4, param0, var5, this.leaf, param3);
-                    }
+                    this.placeLeaf(param0, param1, param2.offset(var1, 0, var2), param4, param5, param6);
                 }
             }
         }
 
     }
 
-    protected void placeSingleTrunkLeaves(LevelSimulatedRW param0, BlockPos param1, int param2, BoundingBox param3, Set<BlockPos> param4) {
-        int var0 = param2 * param2;
+    protected void placeSingleTrunkLeaves(
+        LevelSimulatedRW param0, Random param1, BlockPos param2, int param3, Set<BlockPos> param4, BoundingBox param5, TreeConfiguration param6
+    ) {
+        int var0 = param3 * param3;
 
-        for(int var1 = -param2; var1 <= param2; ++var1) {
-            for(int var2 = -param2; var2 <= param2; ++var2) {
+        for(int var1 = -param3; var1 <= param3; ++var1) {
+            for(int var2 = -param3; var2 <= param3; ++var2) {
                 if (var1 * var1 + var2 * var2 <= var0) {
-                    BlockPos var3 = param1.offset(var1, 0, var2);
-                    if (isAirOrLeaves(param0, var3)) {
-                        this.setBlock(param4, param0, var3, this.leaf, param3);
-                    }
+                    this.placeLeaf(param0, param1, param2.offset(var1, 0, var2), param4, param5, param6);
+                }
+            }
+        }
+
+    }
+
+    protected void placeTrunk(
+        LevelSimulatedRW param0, Random param1, BlockPos param2, int param3, Set<BlockPos> param4, BoundingBox param5, MegaTreeConfiguration param6
+    ) {
+        BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
+
+        for(int var1 = 0; var1 < param3; ++var1) {
+            var0.set(param2).move(0, var1, 0);
+            if (isFree(param0, var0)) {
+                this.placeLog(param0, param1, var0, param4, param5, param6);
+            }
+
+            if (var1 < param3 - 1) {
+                var0.set(param2).move(1, var1, 0);
+                if (isFree(param0, var0)) {
+                    this.placeLog(param0, param1, var0, param4, param5, param6);
+                }
+
+                var0.set(param2).move(1, var1, 1);
+                if (isFree(param0, var0)) {
+                    this.placeLog(param0, param1, var0, param4, param5, param6);
+                }
+
+                var0.set(param2).move(0, var1, 1);
+                if (isFree(param0, var0)) {
+                    this.placeLog(param0, param1, var0, param4, param5, param6);
                 }
             }
         }

@@ -5,6 +5,7 @@ import com.mojang.math.Vector3f;
 import java.util.Random;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
@@ -55,7 +56,7 @@ public class ItemEntityRenderer extends EntityRenderer<ItemEntity> {
         float var7 = var2.getTransforms().getTransform(ItemTransforms.TransformType.GROUND).scale.y();
         param6.translate(0.0, (double)(var6 + 0.25F * var7), 0.0);
         float var8 = ((float)param0.getAge() + param5) / 20.0F + param0.bobOffs;
-        param6.mulPose(Vector3f.YP.rotation(var8, false));
+        param6.mulPose(Vector3f.YP.rotation(var8));
         float var9 = var2.getTransforms().ground.scale.x();
         float var10 = var2.getTransforms().ground.scale.y();
         float var11 = var2.getTransforms().ground.scale.z();
@@ -81,7 +82,7 @@ public class ItemEntityRenderer extends EntityRenderer<ItemEntity> {
                 }
             }
 
-            this.itemRenderer.render(var0, ItemTransforms.TransformType.GROUND, false, param6, param7, param0.getLightColor(), var2);
+            this.itemRenderer.render(var0, ItemTransforms.TransformType.GROUND, false, param6, param7, param0.getLightColor(), OverlayTexture.NO_OVERLAY, var2);
             param6.popPose();
             if (!var3) {
                 param6.translate((double)(0.0F * var9), (double)(0.0F * var10), (double)(0.09375F * var11));

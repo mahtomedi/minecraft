@@ -7,6 +7,7 @@ import java.util.List;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.core.BlockPos;
@@ -39,7 +40,7 @@ public class BannerRenderer extends BlockEntityRenderer<BannerBlockEntity> {
     }
 
     public void render(
-        BannerBlockEntity param0, double param1, double param2, double param3, float param4, PoseStack param5, MultiBufferSource param6, int param7
+        BannerBlockEntity param0, double param1, double param2, double param3, float param4, PoseStack param5, MultiBufferSource param6, int param7, int param8
     ) {
         float var0 = 0.6666667F;
         boolean var1 = param0.getLevel() == null;
@@ -54,46 +55,48 @@ public class BannerRenderer extends BlockEntityRenderer<BannerBlockEntity> {
             BlockState var4 = param0.getBlockState();
             if (var4.getBlock() instanceof BannerBlock) {
                 param5.translate(0.5, 0.5, 0.5);
-                param5.mulPose(Vector3f.YP.rotation((float)(-var4.getValue(BannerBlock.ROTATION) * 360) / 16.0F, true));
+                float var5 = (float)(-var4.getValue(BannerBlock.ROTATION) * 360) / 16.0F;
+                param5.mulPose(Vector3f.YP.rotationDegrees(var5));
                 this.pole.visible = true;
             } else {
                 param5.translate(0.5, -0.16666667F, 0.5);
-                param5.mulPose(Vector3f.YP.rotation(-var4.getValue(WallBannerBlock.FACING).toYRot(), true));
+                float var6 = -var4.getValue(WallBannerBlock.FACING).toYRot();
+                param5.mulPose(Vector3f.YP.rotationDegrees(var6));
                 param5.translate(0.0, -0.3125, -0.4375);
                 this.pole.visible = false;
             }
         }
 
-        TextureAtlasSprite var5 = this.getSprite(ModelBakery.BANNER_BASE);
+        TextureAtlasSprite var7 = this.getSprite(ModelBakery.BANNER_BASE);
         param5.pushPose();
         param5.scale(0.6666667F, -0.6666667F, -0.6666667F);
-        float var6 = 0.0625F;
-        VertexConsumer var7 = param6.getBuffer(RenderType.SOLID);
-        this.pole.render(param5, var7, 0.0625F, param7, var5);
-        this.bar.render(param5, var7, 0.0625F, param7, var5);
+        float var8 = 0.0625F;
+        VertexConsumer var9 = param6.getBuffer(RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS));
+        this.pole.render(param5, var9, 0.0625F, param7, param8, var7);
+        this.bar.render(param5, var9, 0.0625F, param7, param8, var7);
         if (param0.onlyRenderPattern()) {
             this.flag.xRot = 0.0F;
         } else {
-            BlockPos var8 = param0.getBlockPos();
-            float var9 = (float)((long)(var8.getX() * 7 + var8.getY() * 9 + var8.getZ() * 13) + var2) + param4;
-            this.flag.xRot = (-0.0125F + 0.01F * Mth.cos(var9 * (float) Math.PI * 0.02F)) * (float) Math.PI;
+            BlockPos var10 = param0.getBlockPos();
+            float var11 = (float)((long)(var10.getX() * 7 + var10.getY() * 9 + var10.getZ() * 13) + var2) + param4;
+            this.flag.xRot = (-0.0125F + 0.01F * Mth.cos(var11 * (float) Math.PI * 0.02F)) * (float) Math.PI;
         }
 
         this.flag.y = -32.0F;
-        this.flag.render(param5, var7, 0.0625F, param7, var5);
-        List<BannerPattern> var10 = param0.getPatterns();
-        List<DyeColor> var11 = param0.getColors();
-        VertexConsumer var12 = param6.getBuffer(RenderType.TRANSLUCENT_NO_CRUMBLING);
-        if (var10 == null) {
+        this.flag.render(param5, var9, 0.0625F, param7, param8, var7);
+        List<BannerPattern> var12 = param0.getPatterns();
+        List<DyeColor> var13 = param0.getColors();
+        VertexConsumer var14 = param6.getBuffer(RenderType.entityTranslucent(TextureAtlas.LOCATION_BLOCKS));
+        if (var12 == null) {
             LOGGER.error("patterns are null");
-        } else if (var11 == null) {
+        } else if (var13 == null) {
             LOGGER.error("colors are null");
         } else {
-            for(int var13 = 0; var13 < 17 && var13 < var10.size() && var13 < var11.size(); ++var13) {
-                BannerPattern var14 = var10.get(var13);
-                DyeColor var15 = var11.get(var13);
-                float[] var16 = var15.getTextureDiffuseColors();
-                this.flag.render(param5, var12, 0.0625F, param7, this.getSprite(var14.location()), var16[0], var16[1], var16[2]);
+            for(int var15 = 0; var15 < 17 && var15 < var12.size() && var15 < var13.size(); ++var15) {
+                BannerPattern var16 = var12.get(var15);
+                DyeColor var17 = var13.get(var15);
+                float[] var18 = var17.getTextureDiffuseColors();
+                this.flag.render(param5, var14, 0.0625F, param7, param8, this.getSprite(var16.location()), var18[0], var18[1], var18[2]);
             }
         }
 

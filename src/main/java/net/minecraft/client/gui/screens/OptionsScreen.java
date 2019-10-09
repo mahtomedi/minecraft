@@ -107,7 +107,7 @@ public class OptionsScreen extends Screen {
                 150,
                 20,
                 I18n.get("options.skinCustomisation"),
-                param0 -> this.minecraft.setScreen(new SkinCustomizationScreen(this))
+                param0 -> this.minecraft.setScreen(new SkinCustomizationScreen(this, this.options))
             )
         );
         this.addButton(
@@ -167,7 +167,7 @@ public class OptionsScreen extends Screen {
                 150,
                 20,
                 I18n.get("options.resourcepack"),
-                param0 -> this.minecraft.setScreen(new ResourcePackSelectScreen(this))
+                param0 -> this.minecraft.setScreen(new ResourcePackSelectScreen(this, this.options))
             )
         );
         this.addButton(

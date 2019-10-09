@@ -167,7 +167,7 @@ public class ThrownPotion extends ThrowableProjectile implements ItemSupplier {
     }
 
     private void makeAreaOfEffectCloud(ItemStack param0, Potion param1) {
-        AreaEffectCloud var0 = new AreaEffectCloud(this.level, this.x, this.y, this.z);
+        AreaEffectCloud var0 = new AreaEffectCloud(this.level, this.getX(), this.getY(), this.getZ());
         var0.setOwner(this.getOwner());
         var0.setRadius(3.0F);
         var0.setRadiusOnUse(-0.5F);

@@ -133,7 +133,8 @@ public class Ocelot extends Animal {
     }
 
     @Override
-    public void causeFallDamage(float param0, float param1) {
+    public boolean causeFallDamage(float param0, float param1) {
+        return false;
     }
 
     @Nullable
@@ -216,16 +217,7 @@ public class Ocelot extends Animal {
             double var2 = this.random.nextGaussian() * 0.02;
             double var3 = this.random.nextGaussian() * 0.02;
             double var4 = this.random.nextGaussian() * 0.02;
-            this.level
-                .addParticle(
-                    var0,
-                    this.x + (double)(this.random.nextFloat() * this.getBbWidth() * 2.0F) - (double)this.getBbWidth(),
-                    this.y + 0.5 + (double)(this.random.nextFloat() * this.getBbHeight()),
-                    this.z + (double)(this.random.nextFloat() * this.getBbWidth() * 2.0F) - (double)this.getBbWidth(),
-                    var2,
-                    var3,
-                    var4
-                );
+            this.level.addParticle(var0, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), var2, var3, var4);
         }
 
     }
@@ -258,7 +250,7 @@ public class Ocelot extends Animal {
     @Override
     public boolean checkSpawnObstruction(LevelReader param0) {
         if (param0.isUnobstructed(this) && !param0.containsAnyLiquid(this.getBoundingBox())) {
-            BlockPos var0 = new BlockPos(this.x, this.getBoundingBox().minY, this.z);
+            BlockPos var0 = new BlockPos(this);
             if (var0.getY() < param0.getSeaLevel()) {
                 return false;
             }

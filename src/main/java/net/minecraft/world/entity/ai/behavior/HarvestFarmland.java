@@ -69,13 +69,13 @@ public class HarvestFarmland extends Behavior<Villager> {
                 }
             }
 
-            BlockPos.MutableBlockPos var4 = new BlockPos.MutableBlockPos(param1.x, param1.y, param1.z);
+            BlockPos.MutableBlockPos var4 = new BlockPos.MutableBlockPos(param1);
             this.validFarmlandAroundVillager.clear();
 
             for(int var5 = -1; var5 <= 1; ++var5) {
                 for(int var6 = -1; var6 <= 1; ++var6) {
                     for(int var7 = -1; var7 <= 1; ++var7) {
-                        var4.set(param1.x + (double)var5, param1.y + (double)var6, param1.z + (double)var7);
+                        var4.set(param1.getX() + (double)var5, param1.getY() + (double)var6, param1.getZ() + (double)var7);
                         if (this.validPos(var4, param0)) {
                             this.validFarmlandAroundVillager.add(new BlockPos(var4));
                         }

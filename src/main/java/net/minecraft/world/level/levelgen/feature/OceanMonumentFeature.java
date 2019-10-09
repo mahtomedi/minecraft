@@ -13,6 +13,7 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
+import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.OceanMonumentPieces;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
@@ -48,7 +49,7 @@ public class OceanMonumentFeature extends StructureFeature<NoneFeatureConfigurat
         ChunkPos var0 = this.getPotentialFeatureChunkFromLocationWithOffset(param1, param2, param3, param4, 0, 0);
         if (param3 == var0.x && param4 == var0.z) {
             for(Biome var2 : param1.getBiomeSource().getBiomesWithin(param3 * 16 + 9, param1.getSeaLevel(), param4 * 16 + 9, 16)) {
-                if (!param1.isBiomeValidStartForStructure(var2, Feature.OCEAN_MONUMENT)) {
+                if (!param1.isBiomeValidStartForStructure(var2, this)) {
                     return false;
                 }
             }

@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 public class GameTestAssertPosException extends GameTestAssertException {
     private final BlockPos absolutePos;
     private final BlockPos relativePos;
+    private final long tick;
 
     @Override
     public String getMessage() {
@@ -22,7 +23,7 @@ public class GameTestAssertPosException extends GameTestAssertException {
             + ","
             + this.relativePos.getZ()
             + ")";
-        return super.getMessage() + " at " + var0;
+        return super.getMessage() + " at " + var0 + " (t=" + this.tick + ")";
     }
 
     @Nullable

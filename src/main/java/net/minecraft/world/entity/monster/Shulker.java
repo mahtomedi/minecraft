@@ -271,7 +271,7 @@ public class Shulker extends AbstractGolem implements Enemy {
             double var11 = 0.5 - (double)Mth.sin((0.5F + this.currentPeekAmountO) * (float) Math.PI) * 0.5;
             Direction var12 = this.getAttachFace().getOpposite();
             this.setBoundingBox(
-                new AABB(this.x - 0.5, this.y, this.z - 0.5, this.x + 0.5, this.y + 1.0, this.z + 0.5)
+                new AABB(this.getX() - 0.5, this.getY(), this.getZ() - 0.5, this.getX() + 0.5, this.getY() + 1.0, this.getZ() + 0.5)
                     .expandTowards((double)var12.getStepX() * var10, (double)var12.getStepY() * var10, (double)var12.getStepZ() * var10)
             );
             double var13 = var10 - var11;

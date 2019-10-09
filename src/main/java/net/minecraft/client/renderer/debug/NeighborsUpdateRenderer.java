@@ -61,7 +61,7 @@ public class NeighborsUpdateRenderer implements DebugRenderer.SimpleDebugRendere
         Set<BlockPos> var7 = Sets.newHashSet();
         Map<BlockPos, Integer> var8 = Maps.newHashMap();
         MultiBufferSource.BufferSource var9 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-        VertexConsumer var10 = var9.getBuffer(RenderType.LINES);
+        VertexConsumer var10 = var9.getBuffer(RenderType.lines());
         Iterator<Entry<Long, Map<BlockPos, Integer>>> var11 = this.lastUpdate.entrySet().iterator();
 
         while(var11.hasNext()) {

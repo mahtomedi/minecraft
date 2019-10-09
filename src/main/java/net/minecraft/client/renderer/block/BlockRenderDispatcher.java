@@ -11,6 +11,7 @@ import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.client.renderer.EntityBlockRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -46,7 +47,7 @@ public class BlockRenderDispatcher implements ResourceManagerReloadListener {
         if (param0.getRenderShape() == RenderShape.MODEL) {
             BakedModel var0 = this.blockModelShaper.getBlockModel(param0);
             long var1 = param0.getSeed(param1);
-            this.modelRenderer.tesselateBlock(param2, var0, param0, param1, param3, param4, true, this.random, var1);
+            this.modelRenderer.tesselateBlock(param2, var0, param0, param1, param3, param4, true, this.random, var1, OverlayTexture.NO_OVERLAY);
         }
     }
 
@@ -57,7 +58,10 @@ public class BlockRenderDispatcher implements ResourceManagerReloadListener {
             RenderShape var0 = param0.getRenderShape();
             return var0 != RenderShape.MODEL
                 ? false
-                : this.modelRenderer.tesselateBlock(param2, this.getBlockModel(param0), param0, param1, param3, param4, param5, param6, param0.getSeed(param1));
+                : this.modelRenderer
+                    .tesselateBlock(
+                        param2, this.getBlockModel(param0), param0, param1, param3, param4, param5, param6, param0.getSeed(param1), OverlayTexture.NO_OVERLAY
+                    );
         } catch (Throwable var11) {
             CrashReport var2 = CrashReport.forThrowable(var11, "Tesselating block in world");
             CrashReportCategory var3 = var2.addCategory("Block being tesselated");
@@ -85,26 +89,37 @@ public class BlockRenderDispatcher implements ResourceManagerReloadListener {
         return this.blockModelShaper.getBlockModel(param0);
     }
 
-    public void renderSingleBlock(BlockState param0, PoseStack param1, MultiBufferSource param2, int param3, int param4, int param5) {
+    public void renderSingleBlock(BlockState param0, PoseStack param1, MultiBufferSource param2, int param3, int param4) {
         RenderShape var0 = param0.getRenderShape();
         if (var0 != RenderShape.INVISIBLE) {
             switch(var0) {
                 case MODEL:
                     BakedModel var1 = this.getBlockModel(param0);
                     param1.pushPose();
-                    param1.mulPose(Vector3f.YP.rotation(90.0F, true));
+                    param1.mulPose(Vector3f.YP.rotationDegrees(90.0F));
                     int var2 = this.blockColors.getColor(param0, null, null, 0);
                     float var3 = (float)(var2 >> 16 & 0xFF) / 255.0F;
                     float var4 = (float)(var2 >> 8 & 0xFF) / 255.0F;
                     float var5 = (float)(var2 & 0xFF) / 255.0F;
                     this.modelRenderer
-                        .renderModel(param1.getPose(), param2.getBuffer(RenderType.getRenderLayer(param0)), param0, var1, var3, var4, var5, param3);
+                        .renderModel(
+                            param1.getPose(),
+                            param1.getNormal(),
+                            param2.getBuffer(RenderType.getRenderType(param0)),
+                            param0,
+                            var1,
+                            var3,
+                            var4,
+                            var5,
+                            param3,
+                            param4
+                        );
                     param1.popPose();
                     break;
                 case ENTITYBLOCK_ANIMATED:
                     param1.pushPose();
-                    param1.mulPose(Vector3f.YP.rotation(90.0F, true));
-                    EntityBlockRenderer.instance.renderByItem(new ItemStack(param0.getBlock()), param1, param2, param3);
+                    param1.mulPose(Vector3f.YP.rotationDegrees(90.0F));
+                    EntityBlockRenderer.instance.renderByItem(new ItemStack(param0.getBlock()), param1, param2, param3, param4);
                     param1.popPose();
             }
 

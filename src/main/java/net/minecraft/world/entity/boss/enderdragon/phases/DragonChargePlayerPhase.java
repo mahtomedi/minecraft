@@ -23,7 +23,7 @@ public class DragonChargePlayerPhase extends AbstractDragonPhaseInstance {
         } else if (this.timeSinceCharge > 0 && this.timeSinceCharge++ >= 10) {
             this.dragon.getPhaseManager().setPhase(EnderDragonPhase.HOLDING_PATTERN);
         } else {
-            double var0 = this.targetLocation.distanceToSqr(this.dragon.x, this.dragon.y, this.dragon.z);
+            double var0 = this.targetLocation.distanceToSqr(this.dragon.getX(), this.dragon.getY(), this.dragon.getZ());
             if (var0 < 100.0 || var0 > 22500.0 || this.dragon.horizontalCollision || this.dragon.verticalCollision) {
                 ++this.timeSinceCharge;
             }

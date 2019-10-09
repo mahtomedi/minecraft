@@ -97,7 +97,16 @@ public class CrossbowItem extends ProjectileWeaponItem {
         if (var1 >= 1.0F && !isCharged(param0) && tryLoadProjectiles(param2, param0)) {
             setCharged(param0, true);
             SoundSource var2 = param2 instanceof Player ? SoundSource.PLAYERS : SoundSource.HOSTILE;
-            param1.playSound(null, param2.x, param2.y, param2.z, SoundEvents.CROSSBOW_LOADING_END, var2, 1.0F, 1.0F / (random.nextFloat() * 0.5F + 1.0F) + 0.2F);
+            param1.playSound(
+                null,
+                param2.getX(),
+                param2.getY(),
+                param2.getZ(),
+                SoundEvents.CROSSBOW_LOADING_END,
+                var2,
+                1.0F,
+                1.0F / (random.nextFloat() * 0.5F + 1.0F) + 0.2F
+            );
         }
 
     }
@@ -218,7 +227,7 @@ public class CrossbowItem extends ProjectileWeaponItem {
             boolean var0 = param4.getItem() == Items.FIREWORK_ROCKET;
             Projectile var1;
             if (var0) {
-                var1 = new FireworkRocketEntity(param0, param4, param1.x, param1.y + (double)param1.getEyeHeight() - 0.15F, param1.z, true);
+                var1 = new FireworkRocketEntity(param0, param4, param1.getX(), param1.getEyeY() - 0.15F, param1.getZ(), true);
             } else {
                 var1 = getArrow(param0, param1, param3, param4);
                 if (param6 || param9 != 0.0F) {
@@ -240,7 +249,7 @@ public class CrossbowItem extends ProjectileWeaponItem {
 
             param3.hurtAndBreak(var0 ? 3 : 1, param1, param1x -> param1x.broadcastBreakEvent(param2));
             param0.addFreshEntity((Entity)var1);
-            param0.playSound(null, param1.x, param1.y, param1.z, SoundEvents.CROSSBOW_SHOOT, SoundSource.PLAYERS, 1.0F, param5);
+            param0.playSound(null, param1.getX(), param1.getY(), param1.getZ(), SoundEvents.CROSSBOW_SHOOT, SoundSource.PLAYERS, 1.0F, param5);
         }
     }
 
@@ -319,12 +328,12 @@ public class CrossbowItem extends ProjectileWeaponItem {
 
             if (var3 >= 0.2F && !this.startSoundPlayed) {
                 this.startSoundPlayed = true;
-                param0.playSound(null, param1.x, param1.y, param1.z, var1, SoundSource.PLAYERS, 0.5F, 1.0F);
+                param0.playSound(null, param1.getX(), param1.getY(), param1.getZ(), var1, SoundSource.PLAYERS, 0.5F, 1.0F);
             }
 
             if (var3 >= 0.5F && var2 != null && !this.midLoadSoundPlayed) {
                 this.midLoadSoundPlayed = true;
-                param0.playSound(null, param1.x, param1.y, param1.z, var2, SoundSource.PLAYERS, 0.5F, 1.0F);
+                param0.playSound(null, param1.getX(), param1.getY(), param1.getZ(), var2, SoundSource.PLAYERS, 0.5F, 1.0F);
             }
         }
 

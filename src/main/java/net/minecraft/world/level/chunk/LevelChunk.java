@@ -323,14 +323,14 @@ public class LevelChunk implements ChunkAccess {
     @Override
     public void addEntity(Entity param0) {
         this.lastSaveHadEntities = true;
-        int var0 = Mth.floor(param0.x / 16.0);
-        int var1 = Mth.floor(param0.z / 16.0);
+        int var0 = Mth.floor(param0.getX() / 16.0);
+        int var1 = Mth.floor(param0.getZ() / 16.0);
         if (var0 != this.chunkPos.x || var1 != this.chunkPos.z) {
             LOGGER.warn("Wrong location! ({}, {}) should be ({}, {}), {}", var0, var1, this.chunkPos.x, this.chunkPos.z, param0);
             param0.removed = true;
         }
 
-        int var2 = Mth.floor(param0.y / 16.0);
+        int var2 = Mth.floor(param0.getY() / 16.0);
         if (var2 < 0) {
             var2 = 0;
         }
@@ -422,8 +422,7 @@ public class LevelChunk implements ChunkAccess {
     @Override
     public void setBlockEntity(BlockPos param0, BlockEntity param1) {
         if (this.getBlockState(param0).getBlock() instanceof EntityBlock) {
-            param1.setLevel(this.level);
-            param1.setPosition(param0);
+            param1.setLevelAndPosition(this.level, param0);
             param1.clearRemoved();
             BlockEntity var0 = this.blockEntities.put(param0.immutable(), param1);
             if (var0 != null && var0 != param1) {
@@ -508,7 +507,7 @@ public class LevelChunk implements ChunkAccess {
 
     }
 
-    public void getEntities(@Nullable EntityType<?> param0, AABB param1, List<Entity> param2, Predicate<? super Entity> param3) {
+    public <T extends Entity> void getEntities(@Nullable EntityType<?> param0, AABB param1, List<? super T> param2, Predicate<? super T> param3) {
         int var0 = Mth.floor((param1.minY - 2.0) / 16.0);
         int var1 = Mth.floor((param1.maxY + 2.0) / 16.0);
         var0 = Mth.clamp(var0, 0, this.entitySections.length - 1);
@@ -516,8 +515,8 @@ public class LevelChunk implements ChunkAccess {
 
         for(int var2 = var0; var2 <= var1; ++var2) {
             for(Entity var3 : this.entitySections[var2].find(Entity.class)) {
-                if ((param0 == null || var3.getType() == param0) && var3.getBoundingBox().intersects(param1) && param3.test(var3)) {
-                    param2.add(var3);
+                if ((param0 == null || var3.getType() == param0) && var3.getBoundingBox().intersects(param1) && param3.test((T)var3)) {
+                    param2.add((T)var3);
                 }
             }
         }
@@ -755,7 +754,7 @@ public class LevelChunk implements ChunkAccess {
         }
 
         if (var1 != null) {
-            var1.setPosition(param0);
+            var1.setLevelAndPosition(this.level, param0);
             this.addBlockEntity(var1);
         } else {
             LOGGER.warn("Tried to load a block entity for block {} but failed at location {}", this.getBlockState(param0), param0);

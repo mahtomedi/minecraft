@@ -19,12 +19,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
-import net.minecraft.world.level.levelgen.feature.DecoratedFeatureConfiguration;
-import net.minecraft.world.level.levelgen.feature.DecoratorConfiguration;
 import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.FeatureConfiguration;
-import net.minecraft.world.level.levelgen.feature.LayerConfiguration;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
+import net.minecraft.world.level.levelgen.feature.configurations.DecoratedFeatureConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.DecoratorConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.LayerConfiguration;
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
 import net.minecraft.world.level.levelgen.placement.FeatureDecorator;
 import net.minecraft.world.level.levelgen.surfacebuilders.ConfiguredSurfaceBuilder;
@@ -56,44 +56,47 @@ public class FlatLevelSource extends ChunkGenerator<FlatLevelGeneratorSettings> 
         Map<String, Map<String, String>> var2 = this.settings.getStructuresOptions();
 
         for(String var3 : var2.keySet()) {
-            ConfiguredFeature<?>[] var4 = FlatLevelGeneratorSettings.STRUCTURE_FEATURES.get(var3);
+            ConfiguredFeature<?, ?>[] var4 = FlatLevelGeneratorSettings.STRUCTURE_FEATURES.get(var3);
             if (var4 != null) {
-                for(ConfiguredFeature<?> var5 : var4) {
+                for(ConfiguredFeature<?, ?> var5 : var4) {
                     var1.addFeature(FlatLevelGeneratorSettings.STRUCTURE_FEATURES_STEP.get(var5), var5);
-                    ConfiguredFeature<?> var6 = ((DecoratedFeatureConfiguration)var5.config).feature;
+                    ConfiguredFeature<?, ?> var6 = ((DecoratedFeatureConfiguration)var5.config).feature;
                     if (var6.feature instanceof StructureFeature) {
                         StructureFeature<FeatureConfiguration> var7 = (StructureFeature)var6.feature;
                         FeatureConfiguration var8 = var0.getStructureConfiguration(var7);
-                        var1.addStructureStart(var7, var8 != null ? var8 : FlatLevelGeneratorSettings.STRUCTURE_FEATURES_DEFAULT.get(var5));
+                        FeatureConfiguration var9 = var8 != null ? var8 : FlatLevelGeneratorSettings.STRUCTURE_FEATURES_DEFAULT.get(var5);
+                        var1.addStructureStart(var7.configured(var9));
                     }
                 }
             }
         }
 
-        boolean var9 = (!this.settings.isVoidGen() || var0 == Biomes.THE_VOID) && var2.containsKey("decoration");
-        if (var9) {
-            List<GenerationStep.Decoration> var10 = Lists.newArrayList();
-            var10.add(GenerationStep.Decoration.UNDERGROUND_STRUCTURES);
-            var10.add(GenerationStep.Decoration.SURFACE_STRUCTURES);
+        boolean var10 = (!this.settings.isVoidGen() || var0 == Biomes.THE_VOID) && var2.containsKey("decoration");
+        if (var10) {
+            List<GenerationStep.Decoration> var11 = Lists.newArrayList();
+            var11.add(GenerationStep.Decoration.UNDERGROUND_STRUCTURES);
+            var11.add(GenerationStep.Decoration.SURFACE_STRUCTURES);
 
-            for(GenerationStep.Decoration var11 : GenerationStep.Decoration.values()) {
-                if (!var10.contains(var11)) {
-                    for(ConfiguredFeature<?> var12 : var0.getFeaturesForStep(var11)) {
-                        var1.addFeature(var11, var12);
+            for(GenerationStep.Decoration var12 : GenerationStep.Decoration.values()) {
+                if (!var11.contains(var12)) {
+                    for(ConfiguredFeature<?, ?> var13 : var0.getFeaturesForStep(var12)) {
+                        var1.addFeature(var12, var13);
                     }
                 }
             }
         }
 
-        BlockState[] var13 = this.settings.getLayers();
+        BlockState[] var14 = this.settings.getLayers();
 
-        for(int var14 = 0; var14 < var13.length; ++var14) {
-            BlockState var15 = var13[var14];
-            if (var15 != null && !Heightmap.Types.MOTION_BLOCKING.isOpaque().test(var15)) {
-                this.settings.deleteLayer(var14);
+        for(int var15 = 0; var15 < var14.length; ++var15) {
+            BlockState var16 = var14[var15];
+            if (var16 != null && !Heightmap.Types.MOTION_BLOCKING.isOpaque().test(var16)) {
+                this.settings.deleteLayer(var15);
                 var1.addFeature(
                     GenerationStep.Decoration.TOP_LAYER_MODIFICATION,
-                    Biome.makeComposite(Feature.FILL_LAYER, new LayerConfiguration(var14, var15), FeatureDecorator.NOPE, DecoratorConfiguration.NONE)
+                    Feature.FILL_LAYER
+                        .configured(new LayerConfiguration(var15, var16))
+                        .decorated(FeatureDecorator.NOPE.configured(DecoratorConfiguration.NONE))
                 );
             }
         }

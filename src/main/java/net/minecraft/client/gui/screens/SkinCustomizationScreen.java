@@ -1,6 +1,7 @@
 package net.minecraft.client.gui.screens;
 
 import net.minecraft.client.Option;
+import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.OptionButton;
 import net.minecraft.client.resources.language.I18n;
@@ -10,12 +11,9 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class SkinCustomizationScreen extends Screen {
-    private final Screen lastScreen;
-
-    public SkinCustomizationScreen(Screen param0) {
-        super(new TranslatableComponent("options.skinCustomisation.title"));
-        this.lastScreen = param0;
+public class SkinCustomizationScreen extends OptionsSubScreen {
+    public SkinCustomizationScreen(Screen param0, Options param1) {
+        super(param0, param1, new TranslatableComponent("options.skinCustomisation.title"));
     }
 
     @Override
@@ -24,7 +22,7 @@ public class SkinCustomizationScreen extends Screen {
 
         for(PlayerModelPart var1 : PlayerModelPart.values()) {
             this.addButton(new Button(this.width / 2 - 155 + var0 % 2 * 160, this.height / 6 + 24 * (var0 >> 1), 150, 20, this.getMessage(var1), param1 -> {
-                this.minecraft.options.toggleModelPart(var1);
+                this.options.toggleModelPart(var1);
                 param1.setMessage(this.getMessage(var1));
             }));
             ++var0;
@@ -37,12 +35,12 @@ public class SkinCustomizationScreen extends Screen {
                 150,
                 20,
                 Option.MAIN_HAND,
-                Option.MAIN_HAND.getMessage(this.minecraft.options),
+                Option.MAIN_HAND.getMessage(this.options),
                 param0 -> {
-                    Option.MAIN_HAND.toggle(this.minecraft.options, 1);
-                    this.minecraft.options.save();
-                    param0.setMessage(Option.MAIN_HAND.getMessage(this.minecraft.options));
-                    this.minecraft.options.broadcastOptions();
+                    Option.MAIN_HAND.toggle(this.options, 1);
+                    this.options.save();
+                    param0.setMessage(Option.MAIN_HAND.getMessage(this.options));
+                    this.options.broadcastOptions();
                 }
             )
         );
@@ -58,11 +56,6 @@ public class SkinCustomizationScreen extends Screen {
     }
 
     @Override
-    public void removed() {
-        this.minecraft.options.save();
-    }
-
-    @Override
     public void render(int param0, int param1, float param2) {
         this.renderBackground();
         this.drawCenteredString(this.font, this.title.getColoredString(), this.width / 2, 20, 16777215);
@@ -71,7 +64,7 @@ public class SkinCustomizationScreen extends Screen {
 
     private String getMessage(PlayerModelPart param0) {
         String var0;
-        if (this.minecraft.options.getModelParts().contains(param0)) {
+        if (this.options.getModelParts().contains(param0)) {
             var0 = I18n.get("options.on");
         } else {
             var0 = I18n.get("options.off");

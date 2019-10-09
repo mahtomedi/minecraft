@@ -37,8 +37,8 @@ public class RemotePlayer extends AbstractClientPlayer {
     public void tick() {
         super.tick();
         this.animationSpeedOld = this.animationSpeed;
-        double var0 = this.x - this.xo;
-        double var1 = this.z - this.zo;
+        double var0 = this.getX() - this.xo;
+        double var1 = this.getZ() - this.zo;
         float var2 = Mth.sqrt(var0 * var0 + var1 * var1) * 4.0F;
         if (var2 > 1.0F) {
             var2 = 1.0F;
@@ -51,9 +51,9 @@ public class RemotePlayer extends AbstractClientPlayer {
     @Override
     public void aiStep() {
         if (this.lerpSteps > 0) {
-            double var0 = this.x + (this.lerpX - this.x) / (double)this.lerpSteps;
-            double var1 = this.y + (this.lerpY - this.y) / (double)this.lerpSteps;
-            double var2 = this.z + (this.lerpZ - this.z) / (double)this.lerpSteps;
+            double var0 = this.getX() + (this.lerpX - this.getX()) / (double)this.lerpSteps;
+            double var1 = this.getY() + (this.lerpY - this.getY()) / (double)this.lerpSteps;
+            double var2 = this.getZ() + (this.lerpZ - this.getZ()) / (double)this.lerpSteps;
             this.yRot = (float)((double)this.yRot + Mth.wrapDegrees(this.lerpYRot - (double)this.yRot) / (double)this.lerpSteps);
             this.xRot = (float)((double)this.xRot + (this.lerpXRot - (double)this.xRot) / (double)this.lerpSteps);
             --this.lerpSteps;

@@ -81,7 +81,13 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
         for(int var5 = 0; var5 < 32; ++var5) {
             this.level
                 .addParticle(
-                    ParticleTypes.PORTAL, this.x, this.y + this.random.nextDouble() * 2.0, this.z, this.random.nextGaussian(), 0.0, this.random.nextGaussian()
+                    ParticleTypes.PORTAL,
+                    this.getX(),
+                    this.getY() + this.random.nextDouble() * 2.0,
+                    this.getZ(),
+                    this.random.nextGaussian(),
+                    0.0,
+                    this.random.nextGaussian()
                 );
         }
 
@@ -92,7 +98,7 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
                     if (this.random.nextFloat() < 0.05F && this.level.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING)) {
                         Endermite var7 = EntityType.ENDERMITE.create(this.level);
                         var7.setPlayerSpawned(true);
-                        var7.moveTo(var0.x, var0.y, var0.z, var0.yRot, var0.xRot);
+                        var7.moveTo(var0.getX(), var0.getY(), var0.getZ(), var0.yRot, var0.xRot);
                         this.level.addFreshEntity(var7);
                     }
 
@@ -100,12 +106,12 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
                         var0.stopRiding();
                     }
 
-                    var0.teleportTo(this.x, this.y, this.z);
+                    var0.teleportTo(this.getX(), this.getY(), this.getZ());
                     var0.fallDistance = 0.0F;
                     var0.hurt(DamageSource.FALL, 5.0F);
                 }
             } else if (var0 != null) {
-                var0.teleportTo(this.x, this.y, this.z);
+                var0.teleportTo(this.getX(), this.getY(), this.getZ());
                 var0.fallDistance = 0.0F;
             }
 

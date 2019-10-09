@@ -26,22 +26,22 @@ public final class Matrix4f {
         float var4 = 2.0F * var0 * var0;
         float var5 = 2.0F * var1 * var1;
         float var6 = 2.0F * var2 * var2;
-        this.values[0] = 1.0F - var5 - var6;
-        this.values[5] = 1.0F - var6 - var4;
-        this.values[10] = 1.0F - var4 - var5;
-        this.values[15] = 1.0F;
+        this.set(0, 0, 1.0F - var5 - var6);
+        this.set(1, 1, 1.0F - var6 - var4);
+        this.set(2, 2, 1.0F - var4 - var5);
+        this.set(3, 3, 1.0F);
         float var7 = var0 * var1;
         float var8 = var1 * var2;
         float var9 = var2 * var0;
         float var10 = var0 * var3;
         float var11 = var1 * var3;
         float var12 = var2 * var3;
-        this.values[1] = 2.0F * (var7 + var12);
-        this.values[4] = 2.0F * (var7 - var12);
-        this.values[2] = 2.0F * (var9 - var11);
-        this.values[8] = 2.0F * (var9 + var11);
-        this.values[6] = 2.0F * (var8 + var10);
-        this.values[9] = 2.0F * (var8 - var10);
+        this.set(1, 0, 2.0F * (var7 + var12));
+        this.set(0, 1, 2.0F * (var7 - var12));
+        this.set(2, 0, 2.0F * (var9 - var11));
+        this.set(0, 2, 2.0F * (var9 + var11));
+        this.set(2, 1, 2.0F * (var8 + var10));
+        this.set(1, 2, 2.0F * (var8 - var10));
     }
 
     public Matrix4f(Matrix4f param0) {

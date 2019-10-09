@@ -89,7 +89,7 @@ public class CustomHeadLayer<T extends LivingEntity, M extends EntityModel<T> & 
             } else if (!(var1 instanceof ArmorItem) || ((ArmorItem)var1).getSlot() != EquipmentSlot.HEAD) {
                 float var9 = 0.625F;
                 param0.translate(0.0, -0.25, 0.0);
-                param0.mulPose(Vector3f.YP.rotation(180.0F, true));
+                param0.mulPose(Vector3f.YP.rotationDegrees(180.0F));
                 param0.scale(0.625F, -0.625F, -0.625F);
                 if (var2) {
                     param0.translate(0.0, 0.1875, 0.0);

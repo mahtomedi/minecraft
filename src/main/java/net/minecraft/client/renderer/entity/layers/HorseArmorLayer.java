@@ -1,9 +1,12 @@
 package net.minecraft.client.renderer.entity.layers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.HorseModel;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.entity.animal.horse.Horse;
 import net.minecraft.world.item.DyeableHorseArmorItem;
 import net.minecraft.world.item.HorseArmorItem;
@@ -13,7 +16,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class HorseArmorLayer extends RenderLayer<Horse, HorseModel<Horse>> {
-    private final HorseModel<Horse> model = new HorseModel<>(0.1F);
+    private final HorseModel<Horse> model = new HorseModel<>(RenderType::entitySolid, 0.1F);
 
     public HorseArmorLayer(RenderLayerParent<Horse, HorseModel<Horse>> param0) {
         super(param0);
@@ -52,7 +55,8 @@ public class HorseArmorLayer extends RenderLayer<Horse, HorseModel<Horse>> {
                 var5 = 1.0F;
             }
 
-            renderModel(this.model, var1.getTexture(), param0, param1, param2, var3, var4, var5);
+            VertexConsumer var9 = param1.getBuffer(RenderType.entityCutoutNoCull(var1.getTexture()));
+            this.model.renderToBuffer(param0, var9, param2, OverlayTexture.NO_OVERLAY, var3, var4, var5);
         }
     }
 }

@@ -1,10 +1,10 @@
 {
-    "id": "19w40a",
-    "name": "19w40a",
+    "id": "19w41a",
+    "name": "19w41a",
     "release_target": "1.15",
-    "world_version": 2208,
-    "protocol_version": 557,
+    "world_version": 2210,
+    "protocol_version": 558,
     "pack_version": 4,
-    "build_time": "2019-10-02T13:38:47+00:00",
+    "build_time": "2019-10-09T15:19:58+00:00",
     "stable": false
 }

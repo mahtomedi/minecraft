@@ -40,13 +40,9 @@ import net.minecraft.world.level.levelgen.carver.CarverConfiguration;
 import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
 import net.minecraft.world.level.levelgen.carver.WorldCarver;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
-import net.minecraft.world.level.levelgen.feature.DecoratedFeatureConfiguration;
-import net.minecraft.world.level.levelgen.feature.DecoratorConfiguration;
 import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.FeatureConfiguration;
-import net.minecraft.world.level.levelgen.feature.FlowerFeature;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
-import net.minecraft.world.level.levelgen.placement.FeatureDecorator;
+import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import net.minecraft.world.level.levelgen.surfacebuilders.ConfiguredSurfaceBuilder;
 import net.minecraft.world.level.levelgen.surfacebuilders.SurfaceBuilder;
 import net.minecraft.world.level.levelgen.surfacebuilders.SurfaceBuilderConfiguration;
@@ -78,8 +74,8 @@ public abstract class Biome {
     protected final Biome.BiomeCategory biomeCategory;
     protected final Biome.Precipitation precipitation;
     protected final Map<GenerationStep.Carving, List<ConfiguredWorldCarver<?>>> carvers = Maps.newHashMap();
-    protected final Map<GenerationStep.Decoration, List<ConfiguredFeature<?>>> features = Maps.newHashMap();
-    protected final List<ConfiguredFeature<?>> flowerFeatures = Lists.newArrayList();
+    protected final Map<GenerationStep.Decoration, List<ConfiguredFeature<?, ?>>> features = Maps.newHashMap();
+    protected final List<ConfiguredFeature<?, ?>> flowerFeatures = Lists.newArrayList();
     protected final Map<StructureFeature<?>, FeatureConfiguration> validFeatureStarts = Maps.newHashMap();
     private final Map<MobCategory, List<Biome.SpawnerData>> spawners = Maps.newHashMap();
     private final ThreadLocal<Long2FloatLinkedOpenHashMap> temperatureCache = ThreadLocal.withInitial(() -> Util.make(() -> {
@@ -99,13 +95,6 @@ public abstract class Biome {
 
     public static <C extends CarverConfiguration> ConfiguredWorldCarver<C> makeCarver(WorldCarver<C> param0, C param1) {
         return new ConfiguredWorldCarver<>(param0, param1);
-    }
-
-    public static <F extends FeatureConfiguration, D extends DecoratorConfiguration> ConfiguredFeature<?> makeComposite(
-        Feature<F> param0, F param1, FeatureDecorator<D> param2, D param3
-    ) {
-        Feature<DecoratedFeatureConfiguration> var0 = param0 instanceof FlowerFeature ? Feature.DECORATED_FLOWER : Feature.DECORATED;
-        return new ConfiguredFeature<>(var0, new DecoratedFeatureConfiguration(param0, param1, param2, param3));
     }
 
     protected Biome(Biome.BiomeBuilder param0) {
@@ -244,7 +233,7 @@ public abstract class Biome {
         }
     }
 
-    public void addFeature(GenerationStep.Decoration param0, ConfiguredFeature<?> param1) {
+    public void addFeature(GenerationStep.Decoration param0, ConfiguredFeature<?, ?> param1) {
         if (param1.feature == Feature.DECORATED_FLOWER) {
             this.flowerFeatures.add(param1);
         }
@@ -260,8 +249,8 @@ public abstract class Biome {
         return this.carvers.computeIfAbsent(param0, param0x -> Lists.newArrayList());
     }
 
-    public <C extends FeatureConfiguration> void addStructureStart(StructureFeature<C> param0, C param1) {
-        this.validFeatureStarts.put(param0, param1);
+    public <C extends FeatureConfiguration> void addStructureStart(ConfiguredFeature<C, ? extends StructureFeature<C>> param0) {
+        this.validFeatureStarts.put(param0.feature, param0.config);
     }
 
     public <C extends FeatureConfiguration> boolean isValidStart(StructureFeature<C> param0) {
@@ -273,11 +262,11 @@ public abstract class Biome {
         return (C)this.validFeatureStarts.get(param0);
     }
 
-    public List<ConfiguredFeature<?>> getFlowerFeatures() {
+    public List<ConfiguredFeature<?, ?>> getFlowerFeatures() {
         return this.flowerFeatures;
     }
 
-    public List<ConfiguredFeature<?>> getFeaturesForStep(GenerationStep.Decoration param0) {
+    public List<ConfiguredFeature<?, ?>> getFeaturesForStep(GenerationStep.Decoration param0) {
         return this.features.get(param0);
     }
 
@@ -291,14 +280,14 @@ public abstract class Biome {
     ) {
         int var0 = 0;
 
-        for(ConfiguredFeature<?> var1 : this.features.get(param0)) {
+        for(ConfiguredFeature<?, ?> var1 : this.features.get(param0)) {
             param4.setFeatureSeed(param3, var0, param0.ordinal());
 
             try {
                 var1.place(param2, param1, param4, param5);
             } catch (Exception var13) {
                 CrashReport var3 = CrashReport.forThrowable(var13, "Feature placement");
-                var3.addCategory("Feature").setDetail("Id", Registry.FEATURE.getKey(var1.feature)).setDetail("Description", var1.feature::toString);
+                var3.addCategory("Feature").setDetail("Id", Registry.FEATURE.getKey(var1.feature)).setDetail("Description", () -> var1.feature.toString());
                 throw new ReportedException(var3);
             }
 

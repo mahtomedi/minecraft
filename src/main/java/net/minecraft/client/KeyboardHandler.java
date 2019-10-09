@@ -99,9 +99,9 @@ public class KeyboardHandler {
                             Locale.ROOT,
                             "/execute in %s run tp @s %.2f %.2f %.2f %.2f %.2f",
                             DimensionType.getName(this.minecraft.player.level.dimension.getType()),
-                            this.minecraft.player.x,
-                            this.minecraft.player.y,
-                            this.minecraft.player.z,
+                            this.minecraft.player.getX(),
+                            this.minecraft.player.getY(),
+                            this.minecraft.player.getZ(),
                             this.minecraft.player.yRot,
                             this.minecraft.player.xRot
                         )
@@ -217,20 +217,19 @@ public class KeyboardHandler {
                 case ENTITY:
                     Entity var5 = ((EntityHitResult)var0).getEntity();
                     ResourceLocation var6 = Registry.ENTITY_TYPE.getKey(var5.getType());
-                    Vec3 var7 = new Vec3(var5.x, var5.y, var5.z);
                     if (param0) {
                         if (param1) {
                             this.minecraft.player.connection.getDebugQueryHandler().queryEntityTag(var5.getId(), param2 -> {
-                                this.copyCreateEntityCommand(var6, var7, param2);
+                                this.copyCreateEntityCommand(var6, var5.position(), param2);
                                 this.debugFeedbackTranslated("debug.inspect.server.entity");
                             });
                         } else {
-                            CompoundTag var8 = var5.saveWithoutId(new CompoundTag());
-                            this.copyCreateEntityCommand(var6, var7, var8);
+                            CompoundTag var7 = var5.saveWithoutId(new CompoundTag());
+                            this.copyCreateEntityCommand(var6, var5.position(), var7);
                             this.debugFeedbackTranslated("debug.inspect.client.entity");
                         }
                     } else {
-                        this.copyCreateEntityCommand(var6, var7, null);
+                        this.copyCreateEntityCommand(var6, var5.position(), null);
                         this.debugFeedbackTranslated("debug.inspect.client.entity");
                     }
             }

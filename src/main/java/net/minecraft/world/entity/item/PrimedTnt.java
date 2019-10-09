@@ -75,14 +75,14 @@ public class PrimedTnt extends Entity {
             }
         } else {
             this.updateInWaterState();
-            this.level.addParticle(ParticleTypes.SMOKE, this.x, this.y + 0.5, this.z, 0.0, 0.0, 0.0);
+            this.level.addParticle(ParticleTypes.SMOKE, this.getX(), this.getY() + 0.5, this.getZ(), 0.0, 0.0, 0.0);
         }
 
     }
 
     private void explode() {
         float var0 = 4.0F;
-        this.level.explode(this, this.x, this.y + (double)(this.getBbHeight() / 16.0F), this.z, 4.0F, Explosion.BlockInteraction.BREAK);
+        this.level.explode(this, this.getX(), this.getY(0.0625), this.getZ(), 4.0F, Explosion.BlockInteraction.BREAK);
     }
 
     @Override

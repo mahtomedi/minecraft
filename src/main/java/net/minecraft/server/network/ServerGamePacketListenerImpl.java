@@ -180,9 +180,9 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
 
     public void tick() {
         this.resetPosition();
-        this.player.xo = this.player.x;
-        this.player.yo = this.player.y;
-        this.player.zo = this.player.z;
+        this.player.xo = this.player.getX();
+        this.player.yo = this.player.getY();
+        this.player.zo = this.player.getZ();
         this.player.doTick();
         this.player.absMoveTo(this.firstGoodX, this.firstGoodY, this.firstGoodZ, this.player.yRot, this.player.xRot);
         ++this.tickCount;
@@ -200,12 +200,12 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
 
         this.lastVehicle = this.player.getRootVehicle();
         if (this.lastVehicle != this.player && this.lastVehicle.getControllingPassenger() == this.player) {
-            this.vehicleFirstGoodX = this.lastVehicle.x;
-            this.vehicleFirstGoodY = this.lastVehicle.y;
-            this.vehicleFirstGoodZ = this.lastVehicle.z;
-            this.vehicleLastGoodX = this.lastVehicle.x;
-            this.vehicleLastGoodY = this.lastVehicle.y;
-            this.vehicleLastGoodZ = this.lastVehicle.z;
+            this.vehicleFirstGoodX = this.lastVehicle.getX();
+            this.vehicleFirstGoodY = this.lastVehicle.getY();
+            this.vehicleFirstGoodZ = this.lastVehicle.getZ();
+            this.vehicleLastGoodX = this.lastVehicle.getX();
+            this.vehicleLastGoodY = this.lastVehicle.getY();
+            this.vehicleLastGoodZ = this.lastVehicle.getZ();
             if (this.clientVehicleIsFloating && this.player.getRootVehicle().getControllingPassenger() == this.player) {
                 if (++this.aboveGroundVehicleTickCount > 80) {
                     LOGGER.warn("{} was kicked for floating a vehicle too long!", this.player.getName().getString());
@@ -253,12 +253,12 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
     }
 
     public void resetPosition() {
-        this.firstGoodX = this.player.x;
-        this.firstGoodY = this.player.y;
-        this.firstGoodZ = this.player.z;
-        this.lastGoodX = this.player.x;
-        this.lastGoodY = this.player.y;
-        this.lastGoodZ = this.player.z;
+        this.firstGoodX = this.player.getX();
+        this.firstGoodY = this.player.getY();
+        this.firstGoodZ = this.player.getZ();
+        this.lastGoodX = this.player.getX();
+        this.lastGoodY = this.player.getY();
+        this.lastGoodZ = this.player.getZ();
     }
 
     @Override
@@ -311,9 +311,9 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
             Entity var0 = this.player.getRootVehicle();
             if (var0 != this.player && var0.getControllingPassenger() == this.player && var0 == this.lastVehicle) {
                 ServerLevel var1 = this.player.getLevel();
-                double var2 = var0.x;
-                double var3 = var0.y;
-                double var4 = var0.z;
+                double var2 = var0.getX();
+                double var3 = var0.getY();
+                double var4 = var0.getZ();
                 double var5 = param0.getX();
                 double var6 = param0.getY();
                 double var7 = param0.getZ();
@@ -337,13 +337,13 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
                 var11 = var6 - this.vehicleLastGoodY - 1.0E-6;
                 var12 = var7 - this.vehicleLastGoodZ;
                 var0.move(MoverType.PLAYER, new Vec3(var10, var11, var12));
-                var10 = var5 - var0.x;
-                var11 = var6 - var0.y;
+                var10 = var5 - var0.getX();
+                var11 = var6 - var0.getY();
                 if (var11 > -0.5 || var11 < 0.5) {
                     var11 = 0.0;
                 }
 
-                var12 = var7 - var0.z;
+                var12 = var7 - var0.getZ();
                 var14 = var10 * var10 + var11 * var11 + var12 * var12;
                 boolean var17 = false;
                 if (var14 > 0.0625) {
@@ -360,13 +360,13 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
                 }
 
                 this.player.getLevel().getChunkSource().move(this.player);
-                this.player.checkMovementStatistics(this.player.x - var2, this.player.y - var3, this.player.z - var4);
+                this.player.checkMovementStatistics(this.player.getX() - var2, this.player.getY() - var3, this.player.getZ() - var4);
                 this.clientVehicleIsFloating = var11 >= -0.03125
                     && !this.server.isFlightAllowed()
                     && !var1.containsAnyBlocks(var0.getBoundingBox().inflate(0.0625).expandTowards(0.0, -0.55, 0.0));
-                this.vehicleLastGoodX = var0.x;
-                this.vehicleLastGoodY = var0.y;
-                this.vehicleLastGoodZ = var0.z;
+                this.vehicleLastGoodX = var0.getX();
+                this.vehicleLastGoodY = var0.getY();
+                this.vehicleLastGoodZ = var0.getZ();
             }
 
         }
@@ -459,31 +459,32 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
             String var4 = param0.getCommand();
             boolean var5 = param0.isTrackOutput();
             if (var0 != null) {
-                Direction var6 = this.player.level.getBlockState(var2).getValue(CommandBlock.FACING);
+                CommandBlockEntity.Mode var6 = var1.getMode();
+                Direction var7 = this.player.level.getBlockState(var2).getValue(CommandBlock.FACING);
                 switch(param0.getMode()) {
                     case SEQUENCE:
-                        BlockState var7 = Blocks.CHAIN_COMMAND_BLOCK.defaultBlockState();
+                        BlockState var8 = Blocks.CHAIN_COMMAND_BLOCK.defaultBlockState();
                         this.player
                             .level
                             .setBlock(
-                                var2, var7.setValue(CommandBlock.FACING, var6).setValue(CommandBlock.CONDITIONAL, Boolean.valueOf(param0.isConditional())), 2
+                                var2, var8.setValue(CommandBlock.FACING, var7).setValue(CommandBlock.CONDITIONAL, Boolean.valueOf(param0.isConditional())), 2
                             );
                         break;
                     case AUTO:
-                        BlockState var8 = Blocks.REPEATING_COMMAND_BLOCK.defaultBlockState();
+                        BlockState var9 = Blocks.REPEATING_COMMAND_BLOCK.defaultBlockState();
                         this.player
                             .level
                             .setBlock(
-                                var2, var8.setValue(CommandBlock.FACING, var6).setValue(CommandBlock.CONDITIONAL, Boolean.valueOf(param0.isConditional())), 2
+                                var2, var9.setValue(CommandBlock.FACING, var7).setValue(CommandBlock.CONDITIONAL, Boolean.valueOf(param0.isConditional())), 2
                             );
                         break;
                     case REDSTONE:
                     default:
-                        BlockState var9 = Blocks.COMMAND_BLOCK.defaultBlockState();
+                        BlockState var10 = Blocks.COMMAND_BLOCK.defaultBlockState();
                         this.player
                             .level
                             .setBlock(
-                                var2, var9.setValue(CommandBlock.FACING, var6).setValue(CommandBlock.CONDITIONAL, Boolean.valueOf(param0.isConditional())), 2
+                                var2, var10.setValue(CommandBlock.FACING, var7).setValue(CommandBlock.CONDITIONAL, Boolean.valueOf(param0.isConditional())), 2
                             );
                 }
 
@@ -496,6 +497,10 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
                 }
 
                 var1.setAutomatic(param0.isAutomatic());
+                if (var6 != param0.getMode()) {
+                    var1.onModeSwitch();
+                }
+
                 var0.onUpdated();
                 if (!StringUtil.isNullOrEmpty(var4)) {
                     this.player.sendMessage(new TranslatableComponent("advMode.setCommand.success", var4));
@@ -734,16 +739,19 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
                 } else {
                     this.awaitingTeleportTime = this.tickCount;
                     if (this.player.isPassenger()) {
-                        this.player.absMoveTo(this.player.x, this.player.y, this.player.z, param0.getYRot(this.player.yRot), param0.getXRot(this.player.xRot));
+                        this.player
+                            .absMoveTo(
+                                this.player.getX(), this.player.getY(), this.player.getZ(), param0.getYRot(this.player.yRot), param0.getXRot(this.player.xRot)
+                            );
                         this.player.getLevel().getChunkSource().move(this.player);
                     } else {
-                        double var1 = this.player.x;
-                        double var2 = this.player.y;
-                        double var3 = this.player.z;
-                        double var4 = this.player.y;
-                        double var5 = param0.getX(this.player.x);
-                        double var6 = param0.getY(this.player.y);
-                        double var7 = param0.getZ(this.player.z);
+                        double var1 = this.player.getX();
+                        double var2 = this.player.getY();
+                        double var3 = this.player.getZ();
+                        double var4 = this.player.getY();
+                        double var5 = param0.getX(this.player.getX());
+                        double var6 = param0.getY(this.player.getY());
+                        double var7 = param0.getZ(this.player.getZ());
                         float var8 = param0.getYRot(this.player.yRot);
                         float var9 = param0.getXRot(this.player.xRot);
                         double var10 = var5 - this.firstGoodX;
@@ -753,7 +761,13 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
                         double var14 = var10 * var10 + var11 * var11 + var12 * var12;
                         if (this.player.isSleeping()) {
                             if (var14 > 1.0) {
-                                this.teleport(this.player.x, this.player.y, this.player.z, param0.getYRot(this.player.yRot), param0.getXRot(this.player.xRot));
+                                this.teleport(
+                                    this.player.getX(),
+                                    this.player.getY(),
+                                    this.player.getZ(),
+                                    param0.getYRot(this.player.yRot),
+                                    param0.getXRot(this.player.xRot)
+                                );
                             }
 
                         } else {
@@ -772,7 +786,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
                                 float var16 = this.player.isFallFlying() ? 300.0F : 100.0F;
                                 if (var14 - var13 > (double)(var16 * (float)var15) && !this.isSingleplayerOwner()) {
                                     LOGGER.warn("{} moved too quickly! {},{},{}", this.player.getName().getString(), var10, var11, var12);
-                                    this.teleport(this.player.x, this.player.y, this.player.z, this.player.yRot, this.player.xRot);
+                                    this.teleport(this.player.getX(), this.player.getY(), this.player.getZ(), this.player.yRot, this.player.xRot);
                                     return;
                                 }
                             }
@@ -787,13 +801,13 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
 
                             this.player.move(MoverType.PLAYER, new Vec3(var10, var11, var12));
                             this.player.onGround = param0.isOnGround();
-                            var10 = var5 - this.player.x;
-                            var11 = var6 - this.player.y;
+                            var10 = var5 - this.player.getX();
+                            var11 = var6 - this.player.getY();
                             if (var11 > -0.5 || var11 < 0.5) {
                                 var11 = 0.0;
                             }
 
-                            var12 = var7 - this.player.z;
+                            var12 = var7 - this.player.getZ();
                             var14 = var10 * var10 + var11 * var11 + var12 * var12;
                             boolean var19 = false;
                             if (!this.player.isChangingDimension()
@@ -806,7 +820,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
                             }
 
                             this.player.absMoveTo(var5, var6, var7, var8, var9);
-                            this.player.checkMovementStatistics(this.player.x - var1, this.player.y - var2, this.player.z - var3);
+                            this.player.checkMovementStatistics(this.player.getX() - var1, this.player.getY() - var2, this.player.getZ() - var3);
                             if (!this.player.noPhysics && !this.player.isSleeping()) {
                                 boolean var20 = this.isPlayerCollidingWithAnything(var0);
                                 if (var17 && (var19 || !var20)) {
@@ -824,10 +838,10 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
                                 && !var0.containsAnyBlocks(this.player.getBoundingBox().inflate(0.0625).expandTowards(0.0, -0.55, 0.0));
                             this.player.onGround = param0.isOnGround();
                             this.player.getLevel().getChunkSource().move(this.player);
-                            this.player.doCheckFallDamage(this.player.y - var4, param0.isOnGround());
-                            this.lastGoodX = this.player.x;
-                            this.lastGoodY = this.player.y;
-                            this.lastGoodZ = this.player.z;
+                            this.player.doCheckFallDamage(this.player.getY() - var4, param0.isOnGround());
+                            this.lastGoodX = this.player.getX();
+                            this.lastGoodY = this.player.getY();
+                            this.lastGoodZ = this.player.getZ();
                         }
                     }
                 }
@@ -844,9 +858,9 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
     }
 
     public void teleport(double param0, double param1, double param2, float param3, float param4, Set<ClientboundPlayerPositionPacket.RelativeArgument> param5) {
-        double var0 = param5.contains(ClientboundPlayerPositionPacket.RelativeArgument.X) ? this.player.x : 0.0;
-        double var1 = param5.contains(ClientboundPlayerPositionPacket.RelativeArgument.Y) ? this.player.y : 0.0;
-        double var2 = param5.contains(ClientboundPlayerPositionPacket.RelativeArgument.Z) ? this.player.z : 0.0;
+        double var0 = param5.contains(ClientboundPlayerPositionPacket.RelativeArgument.X) ? this.player.getX() : 0.0;
+        double var1 = param5.contains(ClientboundPlayerPositionPacket.RelativeArgument.Y) ? this.player.getY() : 0.0;
+        double var2 = param5.contains(ClientboundPlayerPositionPacket.RelativeArgument.Z) ? this.player.getZ() : 0.0;
         float var3 = param5.contains(ClientboundPlayerPositionPacket.RelativeArgument.Y_ROT) ? this.player.yRot : 0.0F;
         float var4 = param5.contains(ClientboundPlayerPositionPacket.RelativeArgument.X_ROT) ? this.player.xRot : 0.0F;
         this.awaitingPositionFromClient = new Vec3(param0, param1, param2);
@@ -945,7 +959,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
             for(ServerLevel var0 : this.server.getAllLevels()) {
                 Entity var1 = param0.getEntity(var0);
                 if (var1 != null) {
-                    this.player.teleportTo(var0, var1.x, var1.y, var1.z, var1.yRot, var1.xRot);
+                    this.player.teleportTo(var0, var1.getX(), var1.getY(), var1.getZ(), var1.yRot, var1.xRot);
                     return;
                 }
             }
@@ -1084,7 +1098,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
             case STOP_SLEEPING:
                 if (this.player.isSleeping()) {
                     this.player.stopSleepInBed(false, true);
-                    this.awaitingPositionFromClient = new Vec3(this.player.x, this.player.y, this.player.z);
+                    this.awaitingPositionFromClient = this.player.position();
                 }
                 break;
             case START_RIDING_JUMP:

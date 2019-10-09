@@ -273,6 +273,11 @@ public class Zombie extends Monster {
                 var0.setCustomNameVisible(this.isCustomNameVisible());
             }
 
+            if (this.isPersistenceRequired()) {
+                var0.setPersistenceRequired();
+            }
+
+            var0.setInvulnerable(this.isInvulnerable());
             this.level.addFreshEntity(var0);
             this.remove();
         }
@@ -294,9 +299,9 @@ public class Zombie extends Monster {
                 && this.level.getDifficulty() == Difficulty.HARD
                 && (double)this.random.nextFloat() < this.getAttribute(SPAWN_REINFORCEMENTS_CHANCE).getValue()
                 && this.level.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING)) {
-                int var1 = Mth.floor(this.x);
-                int var2 = Mth.floor(this.y);
-                int var3 = Mth.floor(this.z);
+                int var1 = Mth.floor(this.getX());
+                int var2 = Mth.floor(this.getY());
+                int var3 = Mth.floor(this.getZ());
                 Zombie var4 = new Zombie(this.level);
 
                 for(int var5 = 0; var5 < 50; ++var5) {
@@ -439,6 +444,11 @@ public class Zombie extends Monster {
                 var1.setCustomNameVisible(var0.isCustomNameVisible());
             }
 
+            if (this.isPersistenceRequired()) {
+                var1.setPersistenceRequired();
+            }
+
+            var1.setInvulnerable(this.isInvulnerable());
             this.level.addFreshEntity(var1);
             this.level.levelEvent(null, 1026, new BlockPos(this), 0);
         }
@@ -482,7 +492,7 @@ public class Zombie extends Monster {
                     }
                 } else if ((double)param0.getRandom().nextFloat() < 0.05) {
                     Chicken var4 = EntityType.CHICKEN.create(this.level);
-                    var4.moveTo(this.x, this.y, this.z, this.yRot, 0.0F);
+                    var4.moveTo(this.getX(), this.getY(), this.getZ(), this.yRot, 0.0F);
                     var4.finalizeSpawn(param0, param1, MobSpawnType.JOCKEY, null, null);
                     var4.setChickenJockey(true);
                     param0.addFreshEntity(var4);

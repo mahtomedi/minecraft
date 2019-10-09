@@ -128,8 +128,7 @@ public class EnderMan extends Monster {
         if (this.tickCount >= this.lastStareSound + 400) {
             this.lastStareSound = this.tickCount;
             if (!this.isSilent()) {
-                this.level
-                    .playLocalSound(this.x, this.y + (double)this.getEyeHeight(), this.z, SoundEvents.ENDERMAN_STARE, this.getSoundSource(), 2.5F, 1.0F, false);
+                this.level.playLocalSound(this.getX(), this.getEyeY(), this.getZ(), SoundEvents.ENDERMAN_STARE, this.getSoundSource(), 2.5F, 1.0F, false);
             }
         }
 
@@ -174,9 +173,7 @@ public class EnderMan extends Monster {
             return false;
         } else {
             Vec3 var1 = param0.getViewVector(1.0F).normalize();
-            Vec3 var2 = new Vec3(
-                this.x - param0.x, this.getBoundingBox().minY + (double)this.getEyeHeight() - (param0.y + (double)param0.getEyeHeight()), this.z - param0.z
-            );
+            Vec3 var2 = new Vec3(this.getX() - param0.getX(), this.getEyeY() - param0.getEyeY(), this.getZ() - param0.getZ());
             double var3 = var2.length();
             var2 = var2.normalize();
             double var4 = var1.dot(var2);
@@ -196,9 +193,9 @@ public class EnderMan extends Monster {
                 this.level
                     .addParticle(
                         ParticleTypes.PORTAL,
-                        this.x + (this.random.nextDouble() - 0.5) * (double)this.getBbWidth(),
-                        this.y + this.random.nextDouble() * (double)this.getBbHeight() - 0.25,
-                        this.z + (this.random.nextDouble() - 0.5) * (double)this.getBbWidth(),
+                        this.getRandomX(0.5),
+                        this.getRandomY() - 0.25,
+                        this.getRandomZ(0.5),
                         (this.random.nextDouble() - 0.5) * 2.0,
                         -this.random.nextDouble(),
                         (this.random.nextDouble() - 0.5) * 2.0
@@ -229,9 +226,9 @@ public class EnderMan extends Monster {
 
     protected boolean teleport() {
         if (!this.level.isClientSide() && this.isAlive()) {
-            double var0 = this.x + (this.random.nextDouble() - 0.5) * 64.0;
-            double var1 = this.y + (double)(this.random.nextInt(64) - 32);
-            double var2 = this.z + (this.random.nextDouble() - 0.5) * 64.0;
+            double var0 = this.getX() + (this.random.nextDouble() - 0.5) * 64.0;
+            double var1 = this.getY() + (double)(this.random.nextInt(64) - 32);
+            double var2 = this.getZ() + (this.random.nextDouble() - 0.5) * 64.0;
             return this.teleport(var0, var1, var2);
         } else {
             return false;
@@ -239,14 +236,12 @@ public class EnderMan extends Monster {
     }
 
     private boolean teleportTowards(Entity param0) {
-        Vec3 var0 = new Vec3(
-            this.x - param0.x, this.getBoundingBox().minY + (double)(this.getBbHeight() / 2.0F) - param0.y + (double)param0.getEyeHeight(), this.z - param0.z
-        );
+        Vec3 var0 = new Vec3(this.getX() - param0.getX(), this.getY(0.5) - param0.getEyeY(), this.getZ() - param0.getZ());
         var0 = var0.normalize();
         double var1 = 16.0;
-        double var2 = this.x + (this.random.nextDouble() - 0.5) * 8.0 - var0.x * 16.0;
-        double var3 = this.y + (double)(this.random.nextInt(16) - 8) - var0.y * 16.0;
-        double var4 = this.z + (this.random.nextDouble() - 0.5) * 8.0 - var0.z * 16.0;
+        double var2 = this.getX() + (this.random.nextDouble() - 0.5) * 8.0 - var0.x * 16.0;
+        double var3 = this.getY() + (double)(this.random.nextInt(16) - 8) - var0.y * 16.0;
+        double var4 = this.getZ() + (this.random.nextDouble() - 0.5) * 8.0 - var0.z * 16.0;
         return this.teleport(var2, var3, var4);
     }
 
@@ -388,9 +383,9 @@ public class EnderMan extends Monster {
         public void tick() {
             Random var0 = this.enderman.getRandom();
             LevelAccessor var1 = this.enderman.level;
-            int var2 = Mth.floor(this.enderman.x - 1.0 + var0.nextDouble() * 2.0);
-            int var3 = Mth.floor(this.enderman.y + var0.nextDouble() * 2.0);
-            int var4 = Mth.floor(this.enderman.z - 1.0 + var0.nextDouble() * 2.0);
+            int var2 = Mth.floor(this.enderman.getX() - 1.0 + var0.nextDouble() * 2.0);
+            int var3 = Mth.floor(this.enderman.getY() + var0.nextDouble() * 2.0);
+            int var4 = Mth.floor(this.enderman.getZ() - 1.0 + var0.nextDouble() * 2.0);
             BlockPos var5 = new BlockPos(var2, var3, var4);
             BlockState var6 = var1.getBlockState(var5);
             BlockPos var7 = var5.below();
@@ -506,13 +501,13 @@ public class EnderMan extends Monster {
         public void tick() {
             Random var0 = this.enderman.getRandom();
             Level var1 = this.enderman.level;
-            int var2 = Mth.floor(this.enderman.x - 2.0 + var0.nextDouble() * 4.0);
-            int var3 = Mth.floor(this.enderman.y + var0.nextDouble() * 3.0);
-            int var4 = Mth.floor(this.enderman.z - 2.0 + var0.nextDouble() * 4.0);
+            int var2 = Mth.floor(this.enderman.getX() - 2.0 + var0.nextDouble() * 4.0);
+            int var3 = Mth.floor(this.enderman.getY() + var0.nextDouble() * 3.0);
+            int var4 = Mth.floor(this.enderman.getZ() - 2.0 + var0.nextDouble() * 4.0);
             BlockPos var5 = new BlockPos(var2, var3, var4);
             BlockState var6 = var1.getBlockState(var5);
             Block var7 = var6.getBlock();
-            Vec3 var8 = new Vec3((double)Mth.floor(this.enderman.x) + 0.5, (double)var3 + 0.5, (double)Mth.floor(this.enderman.z) + 0.5);
+            Vec3 var8 = new Vec3((double)Mth.floor(this.enderman.getX()) + 0.5, (double)var3 + 0.5, (double)Mth.floor(this.enderman.getZ()) + 0.5);
             Vec3 var9 = new Vec3((double)var2 + 0.5, (double)var3 + 0.5, (double)var4 + 0.5);
             BlockHitResult var10 = var1.clip(new ClipContext(var8, var9, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this.enderman));
             boolean var11 = var10.getType() != HitResult.Type.MISS && var10.getBlockPos().equals(var5);

@@ -75,7 +75,6 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.SweetBerryBushBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
@@ -257,9 +256,9 @@ public class Fox extends Animal {
                     this.level
                         .addParticle(
                             new ItemParticleOption(ParticleTypes.ITEM, var0),
-                            this.x + this.getLookAngle().x / 2.0,
-                            this.y,
-                            this.z + this.getLookAngle().z / 2.0,
+                            this.getX() + this.getLookAngle().x / 2.0,
+                            this.getY(),
+                            this.getZ() + this.getLookAngle().z / 2.0,
                             var2.x,
                             var2.y + 0.05,
                             var2.z
@@ -465,7 +464,7 @@ public class Fox extends Animal {
 
     private void spitOutItem(ItemStack param0) {
         if (!param0.isEmpty() && !this.level.isClientSide) {
-            ItemEntity var0 = new ItemEntity(this.level, this.x + this.getLookAngle().x, this.y + 1.0, this.z + this.getLookAngle().z, param0);
+            ItemEntity var0 = new ItemEntity(this.level, this.getX() + this.getLookAngle().x, this.getY() + 1.0, this.getZ() + this.getLookAngle().z, param0);
             var0.setPickUpDelay(40);
             var0.setThrower(this.getUUID());
             this.playSound(SoundEvents.FOX_SPIT, 1.0F, 1.0F);
@@ -474,7 +473,7 @@ public class Fox extends Animal {
     }
 
     private void dropItemStack(ItemStack param0) {
-        ItemEntity var0 = new ItemEntity(this.level, this.x, this.y, this.z, param0);
+        ItemEntity var0 = new ItemEntity(this.level, this.getX(), this.getY(), this.getZ(), param0);
         this.level.addFreshEntity(var0);
     }
 
@@ -511,7 +510,7 @@ public class Fox extends Animal {
             }
 
             if (this.isFaceplanted() && this.level.random.nextFloat() < 0.2F) {
-                BlockPos var1 = new BlockPos(this.x, this.y, this.z);
+                BlockPos var1 = new BlockPos(this);
                 BlockState var2 = this.level.getBlockState(var1);
                 this.level.levelEvent(2001, var1, Block.getId(var2));
             }
@@ -595,24 +594,8 @@ public class Fox extends Animal {
     }
 
     @Override
-    public void causeFallDamage(float param0, float param1) {
-        int var0 = Mth.ceil((param0 - 5.0F) * param1);
-        if (var0 > 0) {
-            this.hurt(DamageSource.FALL, (float)var0);
-            if (this.isVehicle()) {
-                for(Entity var1 : this.getIndirectPassengers()) {
-                    var1.hurt(DamageSource.FALL, (float)var0);
-                }
-            }
-
-            BlockState var2 = this.level.getBlockState(new BlockPos(this.x, this.y - 0.2 - (double)this.yRotO, this.z));
-            if (!var2.isAir() && !this.isSilent()) {
-                SoundType var3 = var2.getSoundType();
-                this.level
-                    .playSound(null, this.x, this.y, this.z, var3.getStepSound(), this.getSoundSource(), var3.getVolume() * 0.5F, var3.getPitch() * 0.75F);
-            }
-
-        }
+    protected int calculateFallDamage(float param0, float param1) {
+        return Mth.ceil((param0 - 5.0F) * param1);
     }
 
     private void wakeUp() {
@@ -688,8 +671,8 @@ public class Fox extends Animal {
     }
 
     public static boolean isPathClear(Fox param0, LivingEntity param1) {
-        double var0 = param1.z - param0.z;
-        double var1 = param1.x - param0.x;
+        double var0 = param1.getZ() - param0.getZ();
+        double var1 = param1.getX() - param0.getX();
         double var2 = var0 / var1;
         int var3 = 6;
 
@@ -698,7 +681,10 @@ public class Fox extends Animal {
             double var6 = var2 == 0.0 ? var1 * (double)((float)var4 / 6.0F) : var5 / var2;
 
             for(int var7 = 1; var7 < 4; ++var7) {
-                if (!param0.level.getBlockState(new BlockPos(param0.x + var6, param0.y + (double)var7, param0.z + var5)).getMaterial().isReplaceable()) {
+                if (!param0.level
+                    .getBlockState(new BlockPos(param0.getX() + var6, param0.getY() + (double)var7, param0.getZ() + var5))
+                    .getMaterial()
+                    .isReplaceable()) {
                     return false;
                 }
             }
@@ -868,12 +854,14 @@ public class Fox extends Animal {
                 this.animal.resetLove();
                 this.partner.resetLove();
                 var0.setAge(-24000);
-                var0.moveTo(this.animal.x, this.animal.y, this.animal.z, 0.0F, 0.0F);
+                var0.moveTo(this.animal.getX(), this.animal.getY(), this.animal.getZ(), 0.0F, 0.0F);
                 this.level.addFreshEntity(var0);
                 this.level.broadcastEntityEvent(this.animal, (byte)18);
                 if (this.level.getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT)) {
                     this.level
-                        .addFreshEntity(new ExperienceOrb(this.level, this.animal.x, this.animal.y, this.animal.z, this.animal.getRandom().nextInt(7) + 1));
+                        .addFreshEntity(
+                            new ExperienceOrb(this.level, this.animal.getX(), this.animal.getY(), this.animal.getZ(), this.animal.getRandom().nextInt(7) + 1)
+                        );
                 }
 
             }
@@ -1142,7 +1130,7 @@ public class Fox extends Animal {
             Fox.this.setIsInterested(false);
             LivingEntity var0 = Fox.this.getTarget();
             Fox.this.getLookControl().setLookAt(var0, 60.0F, 30.0F);
-            Vec3 var1 = new Vec3(var0.x - Fox.this.x, var0.y - Fox.this.y, var0.z - Fox.this.z).normalize();
+            Vec3 var1 = new Vec3(var0.getX() - Fox.this.getX(), var0.getY() - Fox.this.getY(), var0.getZ() - Fox.this.getZ()).normalize();
             Fox.this.setDeltaMovement(Fox.this.getDeltaMovement().add(var1.x * 0.8, 0.9, var1.z * 0.8));
             Fox.this.getNavigation().stop();
         }
@@ -1306,9 +1294,9 @@ public class Fox extends Animal {
 
             Fox.this.getLookControl()
                 .setLookAt(
-                    Fox.this.x + this.relX,
-                    Fox.this.y + (double)Fox.this.getEyeHeight(),
-                    Fox.this.z + this.relZ,
+                    Fox.this.getX() + this.relX,
+                    Fox.this.getEyeY(),
+                    Fox.this.getZ() + this.relZ,
                     (float)Fox.this.getMaxHeadYRot(),
                     (float)Fox.this.getMaxHeadXRot()
                 );
@@ -1396,7 +1384,7 @@ public class Fox extends Animal {
             Fox.this.setJumping(false);
             Fox.this.setSleeping(true);
             Fox.this.getNavigation().stop();
-            Fox.this.getMoveControl().setWantedPosition(Fox.this.x, Fox.this.y, Fox.this.z, 0.0);
+            Fox.this.getMoveControl().setWantedPosition(Fox.this.getX(), Fox.this.getY(), Fox.this.getZ(), 0.0);
         }
     }
 

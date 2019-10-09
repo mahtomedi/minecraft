@@ -171,9 +171,9 @@ public class ZombieVillager extends Zombie implements VillagerDataHolder {
             if (!this.isSilent()) {
                 this.level
                     .playLocalSound(
-                        this.x + 0.5,
-                        this.y + 0.5,
-                        this.z + 0.5,
+                        this.getX(),
+                        this.getEyeY(),
+                        this.getZ(),
                         SoundEvents.ZOMBIE_VILLAGER_CURE,
                         this.getSoundSource(),
                         1.0F + this.random.nextFloat(),
@@ -212,6 +212,11 @@ public class ZombieVillager extends Zombie implements VillagerDataHolder {
             var0.setCustomNameVisible(this.isCustomNameVisible());
         }
 
+        if (this.isPersistenceRequired()) {
+            var0.setPersistenceRequired();
+        }
+
+        var0.setInvulnerable(this.isInvulnerable());
         param0.addFreshEntity(var0);
         if (this.conversionStarter != null) {
             Player var1 = param0.getPlayerByUUID(this.conversionStarter);
@@ -231,9 +236,9 @@ public class ZombieVillager extends Zombie implements VillagerDataHolder {
             int var1 = 0;
             BlockPos.MutableBlockPos var2 = new BlockPos.MutableBlockPos();
 
-            for(int var3 = (int)this.x - 4; var3 < (int)this.x + 4 && var1 < 14; ++var3) {
-                for(int var4 = (int)this.y - 4; var4 < (int)this.y + 4 && var1 < 14; ++var4) {
-                    for(int var5 = (int)this.z - 4; var5 < (int)this.z + 4 && var1 < 14; ++var5) {
+            for(int var3 = (int)this.getX() - 4; var3 < (int)this.getX() + 4 && var1 < 14; ++var3) {
+                for(int var4 = (int)this.getY() - 4; var4 < (int)this.getY() + 4 && var1 < 14; ++var4) {
+                    for(int var5 = (int)this.getZ() - 4; var5 < (int)this.getZ() + 4 && var1 < 14; ++var5) {
                         Block var6 = this.level.getBlockState(var2.set(var3, var4, var5)).getBlock();
                         if (var6 == Blocks.IRON_BARS || var6 instanceof BedBlock) {
                             if (this.random.nextFloat() < 0.3F) {

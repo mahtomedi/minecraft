@@ -142,7 +142,7 @@ public abstract class BaseSpawner {
                             return;
                         }
 
-                        var14.moveTo(var14.x, var14.y, var14.z, var0.random.nextFloat() * 360.0F, 0.0F);
+                        var14.moveTo(var14.getX(), var14.getY(), var14.getZ(), var0.random.nextFloat() * 360.0F, 0.0F);
                         if (var14 instanceof Mob) {
                             Mob var16 = (Mob)var14;
                             if (!var16.checkSpawnRules(var0, MobSpawnType.SPAWNER) || !var16.checkSpawnObstruction(var0)) {

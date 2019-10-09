@@ -96,7 +96,8 @@ public class Chicken extends Animal {
     }
 
     @Override
-    public void causeFallDamage(float param0, float param1) {
+    public boolean causeFallDamage(float param0, float param1) {
+        return false;
     }
 
     @Override
@@ -162,9 +163,7 @@ public class Chicken extends Animal {
         float var1 = Mth.cos(this.yBodyRot * (float) (Math.PI / 180.0));
         float var2 = 0.1F;
         float var3 = 0.0F;
-        param0.setPos(
-            this.x + (double)(0.1F * var0), this.y + (double)(this.getBbHeight() * 0.5F) + param0.getRidingHeight() + 0.0, this.z - (double)(0.1F * var1)
-        );
+        param0.setPos(this.getX() + (double)(0.1F * var0), this.getY(0.5) + param0.getRidingHeight() + 0.0, this.getZ() - (double)(0.1F * var1));
         if (param0 instanceof LivingEntity) {
             ((LivingEntity)param0).yBodyRot = this.yBodyRot;
         }

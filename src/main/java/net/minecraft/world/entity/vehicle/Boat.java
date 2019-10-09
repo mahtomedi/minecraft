@@ -166,10 +166,20 @@ public class Boat extends Entity {
         }
 
         this.level
-            .addParticle(ParticleTypes.SPLASH, this.x + (double)this.random.nextFloat(), this.y + 0.7, this.z + (double)this.random.nextFloat(), 0.0, 0.0, 0.0);
+            .addParticle(
+                ParticleTypes.SPLASH,
+                this.getX() + (double)this.random.nextFloat(),
+                this.getY() + 0.7,
+                this.getZ() + (double)this.random.nextFloat(),
+                0.0,
+                0.0,
+                0.0
+            );
         if (this.random.nextInt(20) == 0) {
             this.level
-                .playLocalSound(this.x, this.y, this.z, this.getSwimSplashSound(), this.getSoundSource(), 1.0F, 0.8F + 0.4F * this.random.nextFloat(), false);
+                .playLocalSound(
+                    this.getX(), this.getY(), this.getZ(), this.getSwimSplashSound(), this.getSoundSource(), 1.0F, 0.8F + 0.4F * this.random.nextFloat(), false
+                );
         }
 
     }
@@ -286,7 +296,16 @@ public class Boat extends Entity {
                         double var3 = var0 == 1 ? -var2.z : var2.z;
                         double var4 = var0 == 1 ? var2.x : -var2.x;
                         this.level
-                            .playSound(null, this.x + var3, this.y, this.z + var4, var1, this.getSoundSource(), 1.0F, 0.8F + 0.4F * this.random.nextFloat());
+                            .playSound(
+                                null,
+                                this.getX() + var3,
+                                this.getY(),
+                                this.getZ() + var4,
+                                var1,
+                                this.getSoundSource(),
+                                1.0F,
+                                0.8F + 0.4F * this.random.nextFloat()
+                            );
                     }
                 }
 
@@ -377,13 +396,13 @@ public class Boat extends Entity {
     private void tickLerp() {
         if (this.isControlledByLocalInstance()) {
             this.lerpSteps = 0;
-            this.setPacketCoordinates(this.x, this.y, this.z);
+            this.setPacketCoordinates(this.getX(), this.getY(), this.getZ());
         }
 
         if (this.lerpSteps > 0) {
-            double var0 = this.x + (this.lerpX - this.x) / (double)this.lerpSteps;
-            double var1 = this.y + (this.lerpY - this.y) / (double)this.lerpSteps;
-            double var2 = this.z + (this.lerpZ - this.z) / (double)this.lerpSteps;
+            double var0 = this.getX() + (this.lerpX - this.getX()) / (double)this.lerpSteps;
+            double var1 = this.getY() + (this.lerpY - this.getY()) / (double)this.lerpSteps;
+            double var2 = this.getZ() + (this.lerpZ - this.getZ()) / (double)this.lerpSteps;
             double var3 = Mth.wrapDegrees(this.lerpYRot - (double)this.yRot);
             this.yRot = (float)((double)this.yRot + var3 / (double)this.lerpSteps);
             this.xRot = (float)((double)this.xRot + (this.lerpXRot - (double)this.xRot) / (double)this.lerpSteps);
@@ -574,14 +593,14 @@ public class Boat extends Entity {
         double var2 = 0.0;
         this.invFriction = 0.05F;
         if (this.oldStatus == Boat.Status.IN_AIR && this.status != Boat.Status.IN_AIR && this.status != Boat.Status.ON_LAND) {
-            this.waterLevel = this.getBoundingBox().minY + (double)this.getBbHeight();
-            this.setPos(this.x, (double)(this.getWaterLevelAbove() - this.getBbHeight()) + 0.101, this.z);
+            this.waterLevel = this.getY(1.0);
+            this.setPos(this.getX(), (double)(this.getWaterLevelAbove() - this.getBbHeight()) + 0.101, this.getZ());
             this.setDeltaMovement(this.getDeltaMovement().multiply(1.0, 0.0, 1.0));
             this.lastYd = 0.0;
             this.status = Boat.Status.IN_WATER;
         } else {
             if (this.status == Boat.Status.IN_WATER) {
-                var2 = (this.waterLevel - this.getBoundingBox().minY) / (double)this.getBbHeight();
+                var2 = (this.waterLevel - this.getY()) / (double)this.getBbHeight();
                 this.invFriction = 0.9F;
             } else if (this.status == Boat.Status.UNDER_FLOWING_WATER) {
                 var1 = -7.0E-4;
@@ -660,7 +679,7 @@ public class Boat extends Entity {
             }
 
             Vec3 var3 = new Vec3((double)var0, 0.0, 0.0).yRot(-this.yRot * (float) (Math.PI / 180.0) - (float) (Math.PI / 2));
-            param0.setPos(this.x + var3.x, this.y + (double)var1, this.z + var3.z);
+            param0.setPos(this.getX() + var3.x, this.getY() + (double)var1, this.getZ() + var3.z);
             param0.yRot += this.deltaRotation;
             param0.setYHeadRot(param0.getYHeadRot() + this.deltaRotation);
             this.clampRotation(param0);

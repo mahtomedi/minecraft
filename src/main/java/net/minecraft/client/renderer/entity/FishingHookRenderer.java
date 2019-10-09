@@ -36,71 +36,91 @@ public class FishingHookRenderer extends EntityRenderer<FishingHook> {
             float var1 = 1.0F;
             float var2 = 0.5F;
             float var3 = 0.5F;
-            param6.mulPose(Vector3f.YP.rotation(180.0F - this.entityRenderDispatcher.playerRotY, true));
-            param6.mulPose(
-                Vector3f.XP
-                    .rotation((float)(this.entityRenderDispatcher.options.thirdPersonView == 2 ? -1 : 1) * -this.entityRenderDispatcher.playerRotX, true)
-            );
-            Matrix4f var4 = param6.getPose();
-            VertexConsumer var5 = param7.getBuffer(RenderType.NEW_ENTITY(TEXTURE_LOCATION));
-            OverlayTexture.setDefault(var5);
-            int var6 = param0.getLightColor();
-            var5.vertex(var4, -0.5F, -0.5F, 0.0F).color(255, 255, 255, 255).uv(0.0F, 1.0F).uv2(var6).normal(0.0F, 1.0F, 0.0F).endVertex();
-            var5.vertex(var4, 0.5F, -0.5F, 0.0F).color(255, 255, 255, 255).uv(1.0F, 1.0F).uv2(var6).normal(0.0F, 1.0F, 0.0F).endVertex();
-            var5.vertex(var4, 0.5F, 0.5F, 0.0F).color(255, 255, 255, 255).uv(1.0F, 0.0F).uv2(var6).normal(0.0F, 1.0F, 0.0F).endVertex();
-            var5.vertex(var4, -0.5F, 0.5F, 0.0F).color(255, 255, 255, 255).uv(0.0F, 0.0F).uv2(var6).normal(0.0F, 1.0F, 0.0F).endVertex();
+            param6.mulPose(Vector3f.YP.rotationDegrees(180.0F - this.entityRenderDispatcher.playerRotY));
+            float var4 = (float)(this.entityRenderDispatcher.options.thirdPersonView == 2 ? -1 : 1) * -this.entityRenderDispatcher.playerRotX;
+            param6.mulPose(Vector3f.XP.rotationDegrees(var4));
+            Matrix4f var5 = param6.getPose();
+            VertexConsumer var6 = param7.getBuffer(RenderType.entityCutout(TEXTURE_LOCATION));
+            int var7 = param0.getLightColor();
+            var6.vertex(var5, -0.5F, -0.5F, 0.0F)
+                .color(255, 255, 255, 255)
+                .uv(0.0F, 1.0F)
+                .overlayCoords(OverlayTexture.NO_OVERLAY)
+                .uv2(var7)
+                .normal(0.0F, 1.0F, 0.0F)
+                .endVertex();
+            var6.vertex(var5, 0.5F, -0.5F, 0.0F)
+                .color(255, 255, 255, 255)
+                .uv(1.0F, 1.0F)
+                .overlayCoords(OverlayTexture.NO_OVERLAY)
+                .uv2(var7)
+                .normal(0.0F, 1.0F, 0.0F)
+                .endVertex();
+            var6.vertex(var5, 0.5F, 0.5F, 0.0F)
+                .color(255, 255, 255, 255)
+                .uv(1.0F, 0.0F)
+                .overlayCoords(OverlayTexture.NO_OVERLAY)
+                .uv2(var7)
+                .normal(0.0F, 1.0F, 0.0F)
+                .endVertex();
+            var6.vertex(var5, -0.5F, 0.5F, 0.0F)
+                .color(255, 255, 255, 255)
+                .uv(0.0F, 0.0F)
+                .overlayCoords(OverlayTexture.NO_OVERLAY)
+                .uv2(var7)
+                .normal(0.0F, 1.0F, 0.0F)
+                .endVertex();
             param6.popPose();
-            var5.unsetDefaultOverlayCoords();
-            int var7 = var0.getMainArm() == HumanoidArm.RIGHT ? 1 : -1;
-            ItemStack var8 = var0.getMainHandItem();
-            if (var8.getItem() != Items.FISHING_ROD) {
-                var7 = -var7;
+            int var8 = var0.getMainArm() == HumanoidArm.RIGHT ? 1 : -1;
+            ItemStack var9 = var0.getMainHandItem();
+            if (var9.getItem() != Items.FISHING_ROD) {
+                var8 = -var8;
             }
 
-            float var9 = var0.getAttackAnim(param5);
-            float var10 = Mth.sin(Mth.sqrt(var9) * (float) Math.PI);
-            float var11 = Mth.lerp(param5, var0.yBodyRotO, var0.yBodyRot) * (float) (Math.PI / 180.0);
-            double var12 = (double)Mth.sin(var11);
-            double var13 = (double)Mth.cos(var11);
-            double var14 = (double)var7 * 0.35;
-            double var15 = 0.8;
-            double var22;
+            float var10 = var0.getAttackAnim(param5);
+            float var11 = Mth.sin(Mth.sqrt(var10) * (float) Math.PI);
+            float var12 = Mth.lerp(param5, var0.yBodyRotO, var0.yBodyRot) * (float) (Math.PI / 180.0);
+            double var13 = (double)Mth.sin(var12);
+            double var14 = (double)Mth.cos(var12);
+            double var15 = (double)var8 * 0.35;
+            double var16 = 0.8;
             double var23;
             double var24;
-            float var25;
+            double var25;
+            float var26;
             if ((this.entityRenderDispatcher.options == null || this.entityRenderDispatcher.options.thirdPersonView <= 0)
                 && var0 == Minecraft.getInstance().player) {
-                double var20 = this.entityRenderDispatcher.options.fov;
-                var20 /= 100.0;
-                Vec3 var21 = new Vec3((double)var7 * -0.36 * var20, -0.045 * var20, 0.4);
-                var21 = var21.xRot(-Mth.lerp(param5, var0.xRotO, var0.xRot) * (float) (Math.PI / 180.0));
-                var21 = var21.yRot(-Mth.lerp(param5, var0.yRotO, var0.yRot) * (float) (Math.PI / 180.0));
-                var21 = var21.yRot(var10 * 0.5F);
-                var21 = var21.xRot(-var10 * 0.7F);
-                var22 = Mth.lerp((double)param5, var0.xo, var0.x) + var21.x;
-                var23 = Mth.lerp((double)param5, var0.yo, var0.y) + var21.y;
-                var24 = Mth.lerp((double)param5, var0.zo, var0.z) + var21.z;
-                var25 = var0.getEyeHeight();
+                double var21 = this.entityRenderDispatcher.options.fov;
+                var21 /= 100.0;
+                Vec3 var22 = new Vec3((double)var8 * -0.36 * var21, -0.045 * var21, 0.4);
+                var22 = var22.xRot(-Mth.lerp(param5, var0.xRotO, var0.xRot) * (float) (Math.PI / 180.0));
+                var22 = var22.yRot(-Mth.lerp(param5, var0.yRotO, var0.yRot) * (float) (Math.PI / 180.0));
+                var22 = var22.yRot(var11 * 0.5F);
+                var22 = var22.xRot(-var11 * 0.7F);
+                var23 = Mth.lerp((double)param5, var0.xo, var0.getX()) + var22.x;
+                var24 = Mth.lerp((double)param5, var0.yo, var0.getY()) + var22.y;
+                var25 = Mth.lerp((double)param5, var0.zo, var0.getZ()) + var22.z;
+                var26 = var0.getEyeHeight();
             } else {
-                var22 = Mth.lerp((double)param5, var0.xo, var0.x) - var13 * var14 - var12 * 0.8;
-                var23 = var0.yo + (double)var0.getEyeHeight() + (var0.y - var0.yo) * (double)param5 - 0.45;
-                var24 = Mth.lerp((double)param5, var0.zo, var0.z) - var12 * var14 + var13 * 0.8;
-                var25 = var0.isCrouching() ? -0.1875F : 0.0F;
+                var23 = Mth.lerp((double)param5, var0.xo, var0.getX()) - var14 * var15 - var13 * 0.8;
+                var24 = var0.yo + (double)var0.getEyeHeight() + (var0.getY() - var0.yo) * (double)param5 - 0.45;
+                var25 = Mth.lerp((double)param5, var0.zo, var0.getZ()) - var13 * var15 + var14 * 0.8;
+                var26 = var0.isCrouching() ? -0.1875F : 0.0F;
             }
 
-            double var26 = Mth.lerp((double)param5, param0.xo, param0.x);
-            double var27 = Mth.lerp((double)param5, param0.yo, param0.y) + 0.25;
-            double var28 = Mth.lerp((double)param5, param0.zo, param0.z);
-            float var29 = (float)(var22 - var26);
-            float var30 = (float)(var23 - var27) + var25;
-            float var31 = (float)(var24 - var28);
-            VertexConsumer var32 = param7.getBuffer(RenderType.LINES);
-            Matrix4f var33 = param6.getPose();
-            int var34 = 16;
+            double var27 = Mth.lerp((double)param5, param0.xo, param0.getX());
+            double var28 = Mth.lerp((double)param5, param0.yo, param0.getY()) + 0.25;
+            double var29 = Mth.lerp((double)param5, param0.zo, param0.getZ());
+            float var30 = (float)(var23 - var27);
+            float var31 = (float)(var24 - var28) + var26;
+            float var32 = (float)(var25 - var29);
+            VertexConsumer var33 = param7.getBuffer(RenderType.lines());
+            Matrix4f var34 = param6.getPose();
+            int var35 = 16;
 
-            for(int var35 = 0; var35 < 16; ++var35) {
-                stringVertex(var29, var30, var31, var32, var33, (float)(var35 / 16));
-                stringVertex(var29, var30, var31, var32, var33, (float)((var35 + 1) / 16));
+            for(int var36 = 0; var36 < 16; ++var36) {
+                stringVertex(var30, var31, var32, var33, var34, (float)(var36 / 16));
+                stringVertex(var30, var31, var32, var33, var34, (float)((var36 + 1) / 16));
             }
 
             param6.popPose();

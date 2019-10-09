@@ -81,9 +81,9 @@ public class ArmorStand extends LivingEntity {
 
     @Override
     public void refreshDimensions() {
-        double var0 = this.x;
-        double var1 = this.y;
-        double var2 = this.z;
+        double var0 = this.getX();
+        double var1 = this.getY();
+        double var2 = this.getZ();
         super.refreshDimensions();
         this.setPos(var0, var1, var2);
     }
@@ -449,7 +449,7 @@ public class ArmorStand extends LivingEntity {
     public void handleEntityEvent(byte param0) {
         if (param0 == 32) {
             if (this.level.isClientSide) {
-                this.level.playLocalSound(this.x, this.y, this.z, SoundEvents.ARMOR_STAND_HIT, this.getSoundSource(), 0.3F, 1.0F, false);
+                this.level.playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.ARMOR_STAND_HIT, this.getSoundSource(), 0.3F, 1.0F, false);
                 this.lastHit = this.level.getGameTime();
             }
         } else {
@@ -475,9 +475,9 @@ public class ArmorStand extends LivingEntity {
             ((ServerLevel)this.level)
                 .sendParticles(
                     new BlockParticleOption(ParticleTypes.BLOCK, Blocks.OAK_PLANKS.defaultBlockState()),
-                    this.x,
-                    this.y + (double)this.getBbHeight() / 1.5,
-                    this.z,
+                    this.getX(),
+                    this.getY(0.6666666666666666),
+                    this.getZ(),
                     10,
                     (double)(this.getBbWidth() / 4.0F),
                     (double)(this.getBbHeight() / 4.0F),
@@ -528,7 +528,7 @@ public class ArmorStand extends LivingEntity {
     }
 
     private void playBrokenSound() {
-        this.level.playSound(null, this.x, this.y, this.z, SoundEvents.ARMOR_STAND_BREAK, this.getSoundSource(), 1.0F, 1.0F);
+        this.level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.ARMOR_STAND_BREAK, this.getSoundSource(), 1.0F, 1.0F);
     }
 
     @Override

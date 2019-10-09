@@ -582,8 +582,8 @@ public class ClientPacketListener implements ClientGamePacketListener {
             if (!var0.isControlledByLocalInstance()) {
                 float var4 = (float)(param0.getyRot() * 360) / 256.0F;
                 float var5 = (float)(param0.getxRot() * 360) / 256.0F;
-                if (!(Math.abs(var0.x - var1) >= 0.03125) && !(Math.abs(var0.y - var2) >= 0.015625) && !(Math.abs(var0.z - var3) >= 0.03125)) {
-                    var0.lerpTo(var0.x, var0.y, var0.z, var4, var5, 0, true);
+                if (!(Math.abs(var0.getX() - var1) >= 0.03125) && !(Math.abs(var0.getY() - var2) >= 0.015625) && !(Math.abs(var0.getZ() - var3) >= 0.03125)) {
+                    var0.lerpTo(var0.getX(), var0.getY(), var0.getZ(), var4, var5, 0, true);
                 } else {
                     var0.lerpTo(var1, var2, var3, var4, var5, 3, true);
                 }
@@ -620,7 +620,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
                 } else if (param0.hasRotation()) {
                     float var4 = (float)param0.getyRot();
                     float var5 = (float)param0.getxRot();
-                    var0.lerpTo(var0.x, var0.y, var0.z, var4, var5, 3, false);
+                    var0.lerpTo(var0.getX(), var0.getY(), var0.getZ(), var4, var5, 3, false);
                 }
 
                 var0.onGround = param0.isOnGround();
@@ -662,50 +662,42 @@ public class ClientPacketListener implements ClientGamePacketListener {
         double var6;
         if (var2) {
             var5 = var1.x();
-            var6 = var0.x + param0.getX();
+            var6 = var0.getX() + param0.getX();
             var0.xOld += param0.getX();
-            var0.x = var6;
-            var0.xo = var6;
         } else {
             var5 = 0.0;
             var6 = param0.getX();
             var0.xOld = var6;
-            var0.x = var6;
-            var0.xo = var6;
         }
 
         double var9;
         double var10;
         if (var3) {
             var9 = var1.y();
-            var10 = var0.y + param0.getY();
+            var10 = var0.getY() + param0.getY();
             var0.yOld += param0.getY();
-            var0.y = var10;
-            var0.yo = var10;
         } else {
             var9 = 0.0;
             var10 = param0.getY();
             var0.yOld = var10;
-            var0.y = var10;
-            var0.yo = var10;
         }
 
         double var13;
         double var14;
         if (var4) {
             var13 = var1.z();
-            var14 = var0.z + param0.getZ();
+            var14 = var0.getZ() + param0.getZ();
             var0.zOld += param0.getZ();
-            var0.z = var14;
-            var0.zo = var14;
         } else {
             var13 = 0.0;
             var14 = param0.getZ();
             var0.zOld = var14;
-            var0.z = var14;
-            var0.zo = var14;
         }
 
+        var0.setPosRaw(var6, var10, var14);
+        var0.xo = var6;
+        var0.yo = var10;
+        var0.zo = var14;
         var0.setDeltaMovement(var5, var9, var13);
         float var17 = param0.getYRot();
         float var18 = param0.getXRot();
@@ -719,7 +711,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
 
         var0.absMoveTo(var6, var10, var14, var17, var18);
         this.connection.send(new ServerboundAcceptTeleportationPacket(param0.getId()));
-        this.connection.send(new ServerboundMovePlayerPacket.PosRot(var0.x, var0.getBoundingBox().minY, var0.z, var0.yRot, var0.xRot, false));
+        this.connection.send(new ServerboundMovePlayerPacket.PosRot(var0.getX(), var0.getY(), var0.getZ(), var0.yRot, var0.xRot, false));
         if (!this.started) {
             this.started = true;
             this.minecraft.setScreen(null);
@@ -824,9 +816,9 @@ public class ClientPacketListener implements ClientGamePacketListener {
             if (var0 instanceof ExperienceOrb) {
                 this.level
                     .playLocalSound(
-                        var0.x,
-                        var0.y,
-                        var0.z,
+                        var0.getX(),
+                        var0.getY(),
+                        var0.getZ(),
                         SoundEvents.EXPERIENCE_ORB_PICKUP,
                         SoundSource.PLAYERS,
                         0.1F,
@@ -836,9 +828,9 @@ public class ClientPacketListener implements ClientGamePacketListener {
             } else {
                 this.level
                     .playLocalSound(
-                        var0.x,
-                        var0.y,
-                        var0.z,
+                        var0.getX(),
+                        var0.getY(),
+                        var0.getZ(),
                         SoundEvents.ITEM_PICKUP,
                         SoundSource.PLAYERS,
                         0.2F,
@@ -1003,7 +995,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
             } else if (param0.getEventId() == 35) {
                 int var1 = 40;
                 this.minecraft.particleEngine.createTrackingEmitter(var0, ParticleTypes.TOTEM_OF_UNDYING, 30);
-                this.level.playLocalSound(var0.x, var0.y, var0.z, SoundEvents.TOTEM_USE, var0.getSoundSource(), 1.0F, 1.0F, false);
+                this.level.playLocalSound(var0.getX(), var0.getY(), var0.getZ(), SoundEvents.TOTEM_USE, var0.getSoundSource(), 1.0F, 1.0F, false);
                 if (var0 == this.minecraft.player) {
                     this.minecraft.gameRenderer.displayItemActivation(findTotem(this.minecraft.player));
                 }
@@ -1180,8 +1172,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         BlockEntity var0 = this.level.getBlockEntity(param0.getPos());
         if (!(var0 instanceof SignBlockEntity)) {
             var0 = new SignBlockEntity();
-            var0.setLevel(this.level);
-            var0.setPosition(param0.getPos());
+            var0.setLevelAndPosition(this.level, param0.getPos());
         }
 
         this.minecraft.player.openTextEdit((SignBlockEntity)var0);
@@ -1315,16 +1306,16 @@ public class ClientPacketListener implements ClientGamePacketListener {
                 this.minecraft.gui.getChat().addMessage(new TranslatableComponent("demo.day.6", var4.keyScreenshot.getTranslatedKeyMessage()));
             }
         } else if (var1 == 6) {
-            this.level.playSound(var0, var0.x, var0.y + (double)var0.getEyeHeight(), var0.z, SoundEvents.ARROW_HIT_PLAYER, SoundSource.PLAYERS, 0.18F, 0.45F);
+            this.level.playSound(var0, var0.getX(), var0.getEyeY(), var0.getZ(), SoundEvents.ARROW_HIT_PLAYER, SoundSource.PLAYERS, 0.18F, 0.45F);
         } else if (var1 == 7) {
             this.level.setRainLevel(var2);
         } else if (var1 == 8) {
             this.level.setThunderLevel(var2);
         } else if (var1 == 9) {
-            this.level.playSound(var0, var0.x, var0.y, var0.z, SoundEvents.PUFFER_FISH_STING, SoundSource.NEUTRAL, 1.0F, 1.0F);
+            this.level.playSound(var0, var0.getX(), var0.getY(), var0.getZ(), SoundEvents.PUFFER_FISH_STING, SoundSource.NEUTRAL, 1.0F, 1.0F);
         } else if (var1 == 10) {
-            this.level.addParticle(ParticleTypes.ELDER_GUARDIAN, var0.x, var0.y, var0.z, 0.0, 0.0, 0.0);
-            this.level.playSound(var0, var0.x, var0.y, var0.z, SoundEvents.ELDER_GUARDIAN_CURSE, SoundSource.HOSTILE, 1.0F, 1.0F);
+            this.level.addParticle(ParticleTypes.ELDER_GUARDIAN, var0.getX(), var0.getY(), var0.getZ(), 0.0, 0.0, 0.0);
+            this.level.playSound(var0, var0.getX(), var0.getY(), var0.getZ(), SoundEvents.ELDER_GUARDIAN_CURSE, SoundSource.HOSTILE, 1.0F, 1.0F);
         } else if (var1 == 11) {
             this.minecraft.player.setShowDeathScreen(var2 == 0.0F);
         }

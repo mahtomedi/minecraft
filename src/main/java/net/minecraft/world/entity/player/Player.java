@@ -261,10 +261,10 @@ public abstract class Player extends LivingEntity {
         }
 
         int var0 = 29999999;
-        double var1 = Mth.clamp(this.x, -2.9999999E7, 2.9999999E7);
-        double var2 = Mth.clamp(this.z, -2.9999999E7, 2.9999999E7);
-        if (var1 != this.x || var2 != this.z) {
-            this.setPos(var1, this.y, var2);
+        double var1 = Mth.clamp(this.getX(), -2.9999999E7, 2.9999999E7);
+        double var2 = Mth.clamp(this.getZ(), -2.9999999E7, 2.9999999E7);
+        if (var1 != this.getX() || var2 != this.getZ()) {
+            this.setPos(var1, this.getY(), var2);
         }
 
         ++this.attackStrengthTicker;
@@ -315,37 +315,37 @@ public abstract class Player extends LivingEntity {
         this.xCloakO = this.xCloak;
         this.yCloakO = this.yCloak;
         this.zCloakO = this.zCloak;
-        double var0 = this.x - this.xCloak;
-        double var1 = this.y - this.yCloak;
-        double var2 = this.z - this.zCloak;
+        double var0 = this.getX() - this.xCloak;
+        double var1 = this.getY() - this.yCloak;
+        double var2 = this.getZ() - this.zCloak;
         double var3 = 10.0;
         if (var0 > 10.0) {
-            this.xCloak = this.x;
+            this.xCloak = this.getX();
             this.xCloakO = this.xCloak;
         }
 
         if (var2 > 10.0) {
-            this.zCloak = this.z;
+            this.zCloak = this.getZ();
             this.zCloakO = this.zCloak;
         }
 
         if (var1 > 10.0) {
-            this.yCloak = this.y;
+            this.yCloak = this.getY();
             this.yCloakO = this.yCloak;
         }
 
         if (var0 < -10.0) {
-            this.xCloak = this.x;
+            this.xCloak = this.getX();
             this.xCloakO = this.xCloak;
         }
 
         if (var2 < -10.0) {
-            this.zCloak = this.z;
+            this.zCloak = this.getZ();
             this.zCloakO = this.zCloak;
         }
 
         if (var1 < -10.0) {
-            this.yCloak = this.y;
+            this.yCloak = this.getY();
             this.yCloakO = this.yCloak;
         }
 
@@ -411,7 +411,7 @@ public abstract class Player extends LivingEntity {
 
     @Override
     public void playSound(SoundEvent param0, float param1, float param2) {
-        this.level.playSound(this, this.x, this.y, this.z, param0, this.getSoundSource(), param1, param2);
+        this.level.playSound(this, this.getX(), this.getY(), this.getZ(), param0, this.getSoundSource(), param1, param2);
     }
 
     public void playNotifySound(SoundEvent param0, SoundSource param1, float param2, float param3) {
@@ -450,16 +450,7 @@ public abstract class Player extends LivingEntity {
             double var1 = this.random.nextGaussian() * 0.02;
             double var2 = this.random.nextGaussian() * 0.02;
             double var3 = this.random.nextGaussian() * 0.02;
-            this.level
-                .addParticle(
-                    param0,
-                    this.x + (double)(this.random.nextFloat() * this.getBbWidth() * 2.0F) - (double)this.getBbWidth(),
-                    this.y + 1.0 + (double)(this.random.nextFloat() * this.getBbHeight()),
-                    this.z + (double)(this.random.nextFloat() * this.getBbWidth() * 2.0F) - (double)this.getBbWidth(),
-                    var1,
-                    var2,
-                    var3
-                );
+            this.level.addParticle(param0, this.getRandomX(1.0), this.getRandomY() + 1.0, this.getRandomZ(1.0), var1, var2, var3);
         }
 
     }
@@ -474,15 +465,15 @@ public abstract class Player extends LivingEntity {
             this.stopRiding();
             this.setShiftKeyDown(false);
         } else {
-            double var0 = this.x;
-            double var1 = this.y;
-            double var2 = this.z;
+            double var0 = this.getX();
+            double var1 = this.getY();
+            double var2 = this.getZ();
             float var3 = this.yRot;
             float var4 = this.xRot;
             super.rideTick();
             this.oBob = this.bob;
             this.bob = 0.0F;
-            this.checkRidingStatistiscs(this.x - var0, this.y - var1, this.z - var2);
+            this.checkRidingStatistiscs(this.getX() - var0, this.getY() - var1, this.getZ() - var2);
             if (this.getVehicle() instanceof Pig) {
                 this.xRot = var4;
                 this.yRot = var3;
@@ -600,7 +591,7 @@ public abstract class Player extends LivingEntity {
     @Override
     public void die(DamageSource param0) {
         super.die(param0);
-        this.setPos(this.x, this.y, this.z);
+        this.setPos(this.getX(), this.getY(), this.getZ());
         if (!this.isSpectator()) {
             this.dropAllDeathLoot(param0);
         }
@@ -678,8 +669,8 @@ public abstract class Player extends LivingEntity {
         if (param0.isEmpty()) {
             return null;
         } else {
-            double var0 = this.y - 0.3F + (double)this.getEyeHeight();
-            ItemEntity var1 = new ItemEntity(this.level, this.x, var0, this.z, param0);
+            double var0 = this.getEyeY() - 0.3F;
+            ItemEntity var1 = new ItemEntity(this.level, this.getX(), var0, this.getZ(), param0);
             var1.setPickUpDelay(40);
             if (param2) {
                 var1.setThrower(this.getUUID());
@@ -1094,7 +1085,8 @@ public abstract class Player extends LivingEntity {
                     int var6 = 0;
                     var6 += EnchantmentHelper.getKnockbackBonus(this);
                     if (this.isSprinting() && var4) {
-                        this.level.playSound(null, this.x, this.y, this.z, SoundEvents.PLAYER_ATTACK_KNOCKBACK, this.getSoundSource(), 1.0F, 1.0F);
+                        this.level
+                            .playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.PLAYER_ATTACK_KNOCKBACK, this.getSoundSource(), 1.0F, 1.0F);
                         ++var6;
                         var5 = true;
                     }
@@ -1176,7 +1168,8 @@ public abstract class Player extends LivingEntity {
                                 }
                             }
 
-                            this.level.playSound(null, this.x, this.y, this.z, SoundEvents.PLAYER_ATTACK_SWEEP, this.getSoundSource(), 1.0F, 1.0F);
+                            this.level
+                                .playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.PLAYER_ATTACK_SWEEP, this.getSoundSource(), 1.0F, 1.0F);
                             this.sweepAttack();
                         }
 
@@ -1187,15 +1180,18 @@ public abstract class Player extends LivingEntity {
                         }
 
                         if (var7) {
-                            this.level.playSound(null, this.x, this.y, this.z, SoundEvents.PLAYER_ATTACK_CRIT, this.getSoundSource(), 1.0F, 1.0F);
+                            this.level
+                                .playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.PLAYER_ATTACK_CRIT, this.getSoundSource(), 1.0F, 1.0F);
                             this.crit(param0);
                         }
 
                         if (!var7 && !var8) {
                             if (var4) {
-                                this.level.playSound(null, this.x, this.y, this.z, SoundEvents.PLAYER_ATTACK_STRONG, this.getSoundSource(), 1.0F, 1.0F);
+                                this.level
+                                    .playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.PLAYER_ATTACK_STRONG, this.getSoundSource(), 1.0F, 1.0F);
                             } else {
-                                this.level.playSound(null, this.x, this.y, this.z, SoundEvents.PLAYER_ATTACK_WEAK, this.getSoundSource(), 1.0F, 1.0F);
+                                this.level
+                                    .playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.PLAYER_ATTACK_WEAK, this.getSoundSource(), 1.0F, 1.0F);
                             }
                         }
 
@@ -1232,23 +1228,14 @@ public abstract class Player extends LivingEntity {
                             if (this.level instanceof ServerLevel && var21 > 2.0F) {
                                 int var22 = (int)((double)var21 * 0.5);
                                 ((ServerLevel)this.level)
-                                    .sendParticles(
-                                        ParticleTypes.DAMAGE_INDICATOR,
-                                        param0.x,
-                                        param0.y + (double)(param0.getBbHeight() * 0.5F),
-                                        param0.z,
-                                        var22,
-                                        0.1,
-                                        0.0,
-                                        0.1,
-                                        0.2
-                                    );
+                                    .sendParticles(ParticleTypes.DAMAGE_INDICATOR, param0.getX(), param0.getY(0.5), param0.getZ(), var22, 0.1, 0.0, 0.1, 0.2);
                             }
                         }
 
                         this.causeFoodExhaustion(0.1F);
                     } else {
-                        this.level.playSound(null, this.x, this.y, this.z, SoundEvents.PLAYER_ATTACK_NODAMAGE, this.getSoundSource(), 1.0F, 1.0F);
+                        this.level
+                            .playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.PLAYER_ATTACK_NODAMAGE, this.getSoundSource(), 1.0F, 1.0F);
                         if (var12) {
                             param0.clearFire();
                         }
@@ -1289,7 +1276,7 @@ public abstract class Player extends LivingEntity {
         double var1 = (double)Mth.cos(this.yRot * (float) (Math.PI / 180.0));
         if (this.level instanceof ServerLevel) {
             ((ServerLevel)this.level)
-                .sendParticles(ParticleTypes.SWEEP_ATTACK, this.x + var0, this.y + (double)this.getBbHeight() * 0.5, this.z + var1, 0, var0, 0.0, var1, 0.0);
+                .sendParticles(ParticleTypes.SWEEP_ATTACK, this.getX() + var0, this.getY(0.5), this.getZ() + var1, 0, var0, 0.0, var1, 0.0);
         }
 
     }
@@ -1379,15 +1366,15 @@ public abstract class Player extends LivingEntity {
     }
 
     private boolean bedInRange(BlockPos param0, Direction param1) {
-        if (Math.abs(this.x - (double)param0.getX()) <= 3.0
-            && Math.abs(this.y - (double)param0.getY()) <= 2.0
-            && Math.abs(this.z - (double)param0.getZ()) <= 3.0) {
+        if (Math.abs(this.getX() - (double)param0.getX()) <= 3.0
+            && Math.abs(this.getY() - (double)param0.getY()) <= 2.0
+            && Math.abs(this.getZ() - (double)param0.getZ()) <= 3.0) {
             return true;
         } else {
             BlockPos var0 = param0.relative(param1.getOpposite());
-            return Math.abs(this.x - (double)var0.getX()) <= 3.0
-                && Math.abs(this.y - (double)var0.getY()) <= 2.0
-                && Math.abs(this.z - (double)var0.getZ()) <= 3.0;
+            return Math.abs(this.getX() - (double)var0.getX()) <= 3.0
+                && Math.abs(this.getY() - (double)var0.getY()) <= 2.0
+                && Math.abs(this.getZ() - (double)var0.getZ()) <= 3.0;
         }
     }
 
@@ -1500,13 +1487,15 @@ public abstract class Player extends LivingEntity {
 
     @Override
     public void travel(Vec3 param0) {
-        double var0 = this.x;
-        double var1 = this.y;
-        double var2 = this.z;
+        double var0 = this.getX();
+        double var1 = this.getY();
+        double var2 = this.getZ();
         if (this.isSwimming() && !this.isPassenger()) {
             double var3 = this.getLookAngle().y;
             double var4 = var3 < -0.2 ? 0.085 : 0.06;
-            if (var3 <= 0.0 || this.jumping || !this.level.getBlockState(new BlockPos(this.x, this.y + 1.0 - 0.1, this.z)).getFluidState().isEmpty()) {
+            if (var3 <= 0.0
+                || this.jumping
+                || !this.level.getBlockState(new BlockPos(this.getX(), this.getY() + 1.0 - 0.1, this.getZ())).getFluidState().isEmpty()) {
                 Vec3 var5 = this.getDeltaMovement();
                 this.setDeltaMovement(var5.add(0.0, (var3 - var5.y) * var4, 0.0));
             }
@@ -1526,7 +1515,7 @@ public abstract class Player extends LivingEntity {
             super.travel(param0);
         }
 
-        this.checkMovementStatistics(this.x - var0, this.y - var1, this.z - var2);
+        this.checkMovementStatistics(this.getX() - var0, this.getY() - var1, this.getZ() - var2);
     }
 
     @Override
@@ -1618,13 +1607,15 @@ public abstract class Player extends LivingEntity {
     }
 
     @Override
-    public void causeFallDamage(float param0, float param1) {
-        if (!this.abilities.mayfly) {
+    public boolean causeFallDamage(float param0, float param1) {
+        if (this.abilities.mayfly) {
+            return false;
+        } else {
             if (param0 >= 2.0F) {
                 this.awardStat(Stats.FALL_ONE_CM, (int)Math.round((double)param0 * 100.0));
             }
 
-            super.causeFallDamage(param0, param1);
+            return super.causeFallDamage(param0, param1);
         }
     }
 
@@ -1703,7 +1694,7 @@ public abstract class Player extends LivingEntity {
 
         if (param0 > 0 && this.experienceLevel % 5 == 0 && (float)this.lastLevelUpTime < (float)this.tickCount - 100.0F) {
             float var0 = this.experienceLevel > 30 ? 1.0F : (float)this.experienceLevel / 30.0F;
-            this.level.playSound(null, this.x, this.y, this.z, SoundEvents.PLAYER_LEVELUP, this.getSoundSource(), var0 * 0.75F, 1.0F);
+            this.level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.PLAYER_LEVELUP, this.getSoundSource(), var0 * 0.75F, 1.0F);
             this.lastLevelUpTime = this.tickCount;
         }
 
@@ -1867,7 +1858,7 @@ public abstract class Player extends LivingEntity {
                     ((TamableAnimal)param0x).setOwnerUUID(this.uuid);
                 }
 
-                param0x.setPos(this.x, this.y + 0.7F, this.z);
+                param0x.setPos(this.getX(), this.getY() + 0.7F, this.getZ());
                 ((ServerLevel)this.level).addWithUUID(param0x);
             });
         }
@@ -2111,7 +2102,9 @@ public abstract class Player extends LivingEntity {
     public ItemStack eat(Level param0, ItemStack param1) {
         this.getFoodData().eat(param1.getItem(), param1);
         this.awardStat(Stats.ITEM_USED.get(param1.getItem()));
-        param0.playSound(null, this.x, this.y, this.z, SoundEvents.PLAYER_BURP, SoundSource.PLAYERS, 0.5F, param0.random.nextFloat() * 0.1F + 0.9F);
+        param0.playSound(
+            null, this.getX(), this.getY(), this.getZ(), SoundEvents.PLAYER_BURP, SoundSource.PLAYERS, 0.5F, param0.random.nextFloat() * 0.1F + 0.9F
+        );
         if (this instanceof ServerPlayer) {
             CriteriaTriggers.CONSUME_ITEM.trigger((ServerPlayer)this, param1);
         }

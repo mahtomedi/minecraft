@@ -5,14 +5,12 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import java.util.Arrays;
 import java.util.Comparator;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ShieldModel;
 import net.minecraft.client.model.TridentModel;
 import net.minecraft.client.renderer.banner.BannerTextures;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.SkullBlockRenderer;
 import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.resources.ResourceLocation;
@@ -57,16 +55,16 @@ public class EntityBlockRenderer {
     private final ShieldModel shieldModel = new ShieldModel();
     private final TridentModel tridentModel = new TridentModel();
 
-    public void renderByItem(ItemStack param0, PoseStack param1, MultiBufferSource param2, int param3) {
+    public void renderByItem(ItemStack param0, PoseStack param1, MultiBufferSource param2, int param3, int param4) {
         Item var0 = param0.getItem();
         if (var0 instanceof BlockItem) {
             Block var1 = ((BlockItem)var0).getBlock();
             if (var1 instanceof AbstractBannerBlock) {
                 this.banner.fromItem(param0, ((AbstractBannerBlock)var1).getColor());
-                BlockEntityRenderDispatcher.instance.renderItem(this.banner, param1, param2, param3);
+                BlockEntityRenderDispatcher.instance.renderItem(this.banner, param1, param2, param3, param4);
             } else if (var1 instanceof BedBlock) {
                 this.bed.setColor(((BedBlock)var1).getColor());
-                BlockEntityRenderDispatcher.instance.renderItem(this.bed, param1, param2, param3);
+                BlockEntityRenderDispatcher.instance.renderItem(this.bed, param1, param2, param3, param4);
             } else if (var1 instanceof AbstractSkullBlock) {
                 GameProfile var2 = null;
                 if (param0.hasTag()) {
@@ -74,8 +72,8 @@ public class EntityBlockRenderer {
                     if (var3.contains("SkullOwner", 10)) {
                         var2 = NbtUtils.readGameProfile(var3.getCompound("SkullOwner"));
                     } else if (var3.contains("SkullOwner", 8) && !StringUtils.isBlank(var3.getString("SkullOwner"))) {
-                        GameProfile var12 = new GameProfile(null, var3.getString("SkullOwner"));
-                        var2 = SkullBlockEntity.updateGameprofile(var12);
+                        GameProfile var13 = new GameProfile(null, var3.getString("SkullOwner"));
+                        var2 = SkullBlockEntity.updateGameprofile(var13);
                         var3.remove("SkullOwner");
                         var3.put("SkullOwner", NbtUtils.writeGameProfile(new CompoundTag(), var2));
                     }
@@ -83,19 +81,19 @@ public class EntityBlockRenderer {
 
                 SkullBlockRenderer.renderSkull(null, 180.0F, ((AbstractSkullBlock)var1).getType(), var2, 0.0F, param1, param2, param3);
             } else if (var1 == Blocks.CONDUIT) {
-                BlockEntityRenderDispatcher.instance.renderItem(this.conduit, param1, param2, param3);
+                BlockEntityRenderDispatcher.instance.renderItem(this.conduit, param1, param2, param3, param4);
             } else if (var1 == Blocks.CHEST) {
-                BlockEntityRenderDispatcher.instance.renderItem(this.chest, param1, param2, param3);
+                BlockEntityRenderDispatcher.instance.renderItem(this.chest, param1, param2, param3, param4);
             } else if (var1 == Blocks.ENDER_CHEST) {
-                BlockEntityRenderDispatcher.instance.renderItem(this.enderChest, param1, param2, param3);
+                BlockEntityRenderDispatcher.instance.renderItem(this.enderChest, param1, param2, param3, param4);
             } else if (var1 == Blocks.TRAPPED_CHEST) {
-                BlockEntityRenderDispatcher.instance.renderItem(this.trappedChest, param1, param2, param3);
+                BlockEntityRenderDispatcher.instance.renderItem(this.trappedChest, param1, param2, param3, param4);
             } else if (var1 instanceof ShulkerBoxBlock) {
                 DyeColor var4 = ShulkerBoxBlock.getColorFromItem(var0);
                 if (var4 == null) {
-                    BlockEntityRenderDispatcher.instance.renderItem(DEFAULT_SHULKER_BOX, param1, param2, param3);
+                    BlockEntityRenderDispatcher.instance.renderItem(DEFAULT_SHULKER_BOX, param1, param2, param3, param4);
                 } else {
-                    BlockEntityRenderDispatcher.instance.renderItem(SHULKER_BOXES[var4.getId()], param1, param2, param3);
+                    BlockEntityRenderDispatcher.instance.renderItem(SHULKER_BOXES[var4.getId()], param1, param2, param3, param4);
                 }
             }
 
@@ -111,19 +109,14 @@ public class EntityBlockRenderer {
 
                 param1.pushPose();
                 param1.scale(1.0F, -1.0F, -1.0F);
-                VertexConsumer var7 = ItemRenderer.getFoilBuffer(param2, var5, false, param0.hasFoil(), false);
-                OverlayTexture.setDefault(var7);
-                this.shieldModel.render(param1, var7, param3);
-                var7.unsetDefaultOverlayCoords();
+                VertexConsumer var7 = ItemRenderer.getFoilBuffer(param2, this.shieldModel.renderType(var5), false, param0.hasFoil());
+                this.shieldModel.renderToBuffer(param1, var7, param3, param4, 1.0F, 1.0F, 1.0F);
                 param1.popPose();
             } else if (var0 == Items.TRIDENT) {
-                Minecraft.getInstance().getTextureManager().bind(TridentModel.TEXTURE);
                 param1.pushPose();
                 param1.scale(1.0F, -1.0F, -1.0F);
-                VertexConsumer var8 = ItemRenderer.getFoilBuffer(param2, TridentModel.TEXTURE, false, param0.hasFoil(), false);
-                OverlayTexture.setDefault(var8);
-                this.tridentModel.render(param1, var8, param3);
-                var8.unsetDefaultOverlayCoords();
+                VertexConsumer var8 = ItemRenderer.getFoilBuffer(param2, this.tridentModel.renderType(TridentModel.TEXTURE), false, param0.hasFoil());
+                this.tridentModel.renderToBuffer(param1, var8, param3, param4, 1.0F, 1.0F, 1.0F);
                 param1.popPose();
             }
 

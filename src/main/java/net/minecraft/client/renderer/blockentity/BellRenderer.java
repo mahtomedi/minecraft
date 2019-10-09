@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -28,7 +29,7 @@ public class BellRenderer extends BlockEntityRenderer<BellBlockEntity> {
     }
 
     public void render(
-        BellBlockEntity param0, double param1, double param2, double param3, float param4, PoseStack param5, MultiBufferSource param6, int param7
+        BellBlockEntity param0, double param1, double param2, double param3, float param4, PoseStack param5, MultiBufferSource param6, int param7, int param8
     ) {
         float var0 = (float)param0.ticks + param4;
         float var1 = 0.0F;
@@ -48,7 +49,7 @@ public class BellRenderer extends BlockEntityRenderer<BellBlockEntity> {
 
         this.bellBody.xRot = var1;
         this.bellBody.zRot = var2;
-        VertexConsumer var4 = param6.getBuffer(RenderType.SOLID);
-        this.bellBody.render(param5, var4, 0.0625F, param7, this.getSprite(BELL_RESOURCE_LOCATION));
+        VertexConsumer var4 = param6.getBuffer(RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS));
+        this.bellBody.render(param5, var4, 0.0625F, param7, param8, this.getSprite(BELL_RESOURCE_LOCATION));
     }
 }

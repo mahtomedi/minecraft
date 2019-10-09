@@ -411,7 +411,7 @@ public class Panda extends Animal {
                 double var2 = (double)(-this.random.nextFloat()) * 0.6 - 0.3;
                 Vec3 var3 = new Vec3(((double)this.random.nextFloat() - 0.5) * 0.8, var2, 1.0 + ((double)this.random.nextFloat() - 0.5) * 0.4);
                 var3 = var3.yRot(-this.yBodyRot * (float) (Math.PI / 180.0));
-                var3 = var3.add(this.x, this.y + (double)this.getEyeHeight() + 1.0, this.z);
+                var3 = var3.add(this.getX(), this.getEyeY() + 1.0, this.getZ());
                 this.level
                     .addParticle(
                         new ItemParticleOption(ParticleTypes.ITEM, this.getItemBySlot(EquipmentSlot.MAINHAND)),
@@ -499,9 +499,9 @@ public class Panda extends Animal {
         this.level
             .addParticle(
                 ParticleTypes.SNEEZE,
-                this.x - (double)(this.getBbWidth() + 1.0F) * 0.5 * (double)Mth.sin(this.yBodyRot * (float) (Math.PI / 180.0)),
-                this.y + (double)this.getEyeHeight() - 0.1F,
-                this.z + (double)(this.getBbWidth() + 1.0F) * 0.5 * (double)Mth.cos(this.yBodyRot * (float) (Math.PI / 180.0)),
+                this.getX() - (double)(this.getBbWidth() + 1.0F) * 0.5 * (double)Mth.sin(this.yBodyRot * (float) (Math.PI / 180.0)),
+                this.getEyeY() - 0.1F,
+                this.getZ() + (double)(this.getBbWidth() + 1.0F) * 0.5 * (double)Mth.cos(this.yBodyRot * (float) (Math.PI / 180.0)),
                 var0.x,
                 0.0,
                 var0.z

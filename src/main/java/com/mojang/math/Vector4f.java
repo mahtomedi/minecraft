@@ -17,6 +17,10 @@ public class Vector4f {
         this.values = new float[]{param0, param1, param2, param3};
     }
 
+    public Vector4f(Vector3f param0) {
+        this.values = new float[]{param0.x(), param0.y(), param0.z(), 1.0F};
+    }
+
     @Override
     public boolean equals(Object param0) {
         if (this == param0) {
@@ -83,14 +87,18 @@ public class Vector4f {
     }
 
     public void transform(Matrix4f param0) {
-        float[] var0 = Arrays.copyOf(this.values, 4);
+        float var0 = this.values[0];
+        float var1 = this.values[1];
+        float var2 = this.values[2];
+        float var3 = this.values[3];
 
-        for(int var1 = 0; var1 < 4; ++var1) {
-            this.values[var1] = 0.0F;
-
-            for(int var2 = 0; var2 < 4; ++var2) {
-                this.values[var1] += param0.get(var1, var2) * var0[var2];
-            }
+        for(int var4 = 0; var4 < 4; ++var4) {
+            float var5 = 0.0F;
+            var5 += param0.get(var4, 0) * var0;
+            var5 += param0.get(var4, 1) * var1;
+            var5 += param0.get(var4, 2) * var2;
+            var5 += param0.get(var4, 3) * var3;
+            this.values[var4] = var5;
         }
 
     }

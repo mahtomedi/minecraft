@@ -118,16 +118,7 @@ public class Arrow extends AbstractArrow {
             double var3 = (double)(var0 >> 0 & 0xFF) / 255.0;
 
             for(int var4 = 0; var4 < param0; ++var4) {
-                this.level
-                    .addParticle(
-                        ParticleTypes.ENTITY_EFFECT,
-                        this.x + (this.random.nextDouble() - 0.5) * (double)this.getBbWidth(),
-                        this.y + this.random.nextDouble() * (double)this.getBbHeight(),
-                        this.z + (this.random.nextDouble() - 0.5) * (double)this.getBbWidth(),
-                        var1,
-                        var2,
-                        var3
-                    );
+                this.level.addParticle(ParticleTypes.ENTITY_EFFECT, this.getRandomX(0.5), this.getRandomY(), this.getRandomZ(0.5), var1, var2, var3);
             }
 
         }
@@ -229,16 +220,7 @@ public class Arrow extends AbstractArrow {
                 double var3 = (double)(var0 >> 0 & 0xFF) / 255.0;
 
                 for(int var4 = 0; var4 < 20; ++var4) {
-                    this.level
-                        .addParticle(
-                            ParticleTypes.ENTITY_EFFECT,
-                            this.x + (this.random.nextDouble() - 0.5) * (double)this.getBbWidth(),
-                            this.y + this.random.nextDouble() * (double)this.getBbHeight(),
-                            this.z + (this.random.nextDouble() - 0.5) * (double)this.getBbWidth(),
-                            var1,
-                            var2,
-                            var3
-                        );
+                    this.level.addParticle(ParticleTypes.ENTITY_EFFECT, this.getRandomX(0.5), this.getRandomY(), this.getRandomZ(0.5), var1, var2, var3);
                 }
             }
         } else {

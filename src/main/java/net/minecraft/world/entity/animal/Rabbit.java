@@ -88,11 +88,11 @@ public class Rabbit extends Animal {
 
     @Override
     protected float getJumpPower() {
-        if (!this.horizontalCollision && (!this.moveControl.hasWanted() || !(this.moveControl.getWantedY() > this.y + 0.5))) {
+        if (!this.horizontalCollision && (!this.moveControl.hasWanted() || !(this.moveControl.getWantedY() > this.getY() + 0.5))) {
             Path var0 = this.navigation.getPath();
             if (var0 != null && var0.getIndex() < var0.getSize()) {
                 Vec3 var1 = var0.currentPos(this);
-                if (var1.y > this.y + 0.5) {
+                if (var1.y > this.getY() + 0.5) {
                     return 0.5F;
                 }
             }
@@ -173,8 +173,8 @@ public class Rabbit extends Animal {
             if (this.getRabbitType() == 99 && this.jumpDelayTicks == 0) {
                 LivingEntity var0 = this.getTarget();
                 if (var0 != null && this.distanceToSqr(var0) < 16.0) {
-                    this.facePoint(var0.x, var0.z);
-                    this.moveControl.setWantedPosition(var0.x, var0.y, var0.z, this.moveControl.getSpeedModifier());
+                    this.facePoint(var0.getX(), var0.getZ());
+                    this.moveControl.setWantedPosition(var0.getX(), var0.getY(), var0.getZ(), this.moveControl.getSpeedModifier());
                     this.startJumping();
                     this.wasOnGround = true;
                 }
@@ -205,7 +205,7 @@ public class Rabbit extends Animal {
     }
 
     private void facePoint(double param0, double param1) {
-        this.yRot = (float)(Mth.atan2(param1 - this.z, param0 - this.x) * 180.0F / (float)Math.PI) - 90.0F;
+        this.yRot = (float)(Mth.atan2(param1 - this.getZ(), param0 - this.getX()) * 180.0F / (float)Math.PI) - 90.0F;
     }
 
     private void enableJumpControl() {

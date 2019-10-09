@@ -1,10 +1,13 @@
 package net.minecraft.gametest.framework;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Streams;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import net.minecraft.ChatFormatting;
@@ -22,22 +25,18 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LecternBlock;
 import net.minecraft.world.level.block.entity.StructureBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public class GameTestRunner {
     public static TestReporter TEST_REPORTER = new LogTestReporter();
 
     public static void runTest(GameTestInfo param0, GameTestTicker param1) {
+        param0.startExecution();
         param1.add(param0);
         param0.addListener(new GameTestListener() {
             @Override
             public void testStructureLoaded(GameTestInfo param0) {
                 GameTestRunner.spawnBeacon(param0, Blocks.LIGHT_GRAY_STAINED_GLASS);
-            }
-
-            @Override
-            public void testPassed(GameTestInfo param0) {
-                GameTestRunner.spawnBeacon(param0, Blocks.LIME_STAINED_GLASS);
-                GameTestRunner.visualizePassedTest(param0);
             }
 
             @Override
@@ -47,7 +46,7 @@ public class GameTestRunner {
                 GameTestRunner.visualizeFailedTest(param0);
             }
         });
-        param0.spawnStructureAndRunTest(2);
+        param0.spawnStructure(2);
     }
 
     public static Collection<GameTestInfo> runTestBatches(Collection<GameTestBatch> param0, BlockPos param1, ServerLevel param2, GameTestTicker param3) {
@@ -67,10 +66,11 @@ public class GameTestRunner {
             Collection<TestFunction> var1x = var0.computeIfAbsent(var0x, param0x -> Lists.newArrayList());
             var1x.add(param1);
         });
-        return var0.keySet().stream().map(param1 -> {
+        return var0.keySet().stream().flatMap(param1 -> {
             Collection<TestFunction> var0x = var0.get(param1);
             Consumer<ServerLevel> var1x = GameTestRegistry.getBeforeBatchFunction(param1);
-            return new GameTestBatch(param1, var0x, var1x);
+            AtomicInteger var2 = new AtomicInteger();
+            return Streams.stream(Iterables.partition(var0x, 100)).map(param4 -> new GameTestBatch(param1 + ":" + var2.incrementAndGet(), var0x, var1x));
         }).collect(Collectors.toList());
     }
 
@@ -84,11 +84,6 @@ public class GameTestRunner {
         }
 
         TEST_REPORTER.onTestFailed(param0);
-    }
-
-    private static void visualizePassedTest(GameTestInfo param0) {
-        say(param0.getLevel(), ChatFormatting.GREEN, param0.getTestName() + " passed!");
-        TEST_REPORTER.onTestSuccess(param0);
     }
 
     private static void spawnBeacon(GameTestInfo param0, Block param1) {
@@ -151,7 +146,9 @@ public class GameTestRunner {
         BlockPos var1 = param1.offset(param3, 0, param3);
         BlockPos.betweenClosedStream(var0, var1).filter(param1x -> param0.getBlockState(param1x).getBlock() == Blocks.STRUCTURE_BLOCK).forEach(param1x -> {
             StructureBlockEntity var0x = (StructureBlockEntity)param0.getBlockEntity(param1x);
-            StructureUtils.clearSpaceForStructure(var0x.getBlockPos(), var0x.getStructureSize(), 2, param0);
+            BlockPos var1x = var0x.getBlockPos();
+            BoundingBox var2x = StructureUtils.createStructureBoundingBox(var1x, var0x.getStructureSize(), 2);
+            StructureUtils.clearSpaceForStructure(var2x, var1x.getY(), param0);
         });
     }
 }

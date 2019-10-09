@@ -124,6 +124,13 @@ public class RecipeProvider implements DataProvider {
             .group("bark")
             .unlocks("has_log", this.has(Blocks.ACACIA_LOG))
             .save(param0);
+        ShapedRecipeBuilder.shaped(Blocks.STRIPPED_ACACIA_WOOD, 3)
+            .define('#', Blocks.STRIPPED_ACACIA_LOG)
+            .pattern("##")
+            .pattern("##")
+            .group("bark")
+            .unlocks("has_log", this.has(Blocks.STRIPPED_ACACIA_LOG))
+            .save(param0);
         ShapedRecipeBuilder.shaped(Items.ACACIA_BOAT)
             .define('#', Blocks.ACACIA_PLANKS)
             .pattern("# #")
@@ -250,7 +257,7 @@ public class RecipeProvider implements DataProvider {
             .pattern("OOO")
             .unlocks("has_nether_star", this.has(Items.NETHER_STAR))
             .save(param0);
-        ShapedRecipeBuilder.shaped(Blocks.BEE_HIVE)
+        ShapedRecipeBuilder.shaped(Blocks.BEEHIVE)
             .define('P', ItemTags.PLANKS)
             .define('H', Items.HONEYCOMB)
             .pattern("PPP")
@@ -269,6 +276,13 @@ public class RecipeProvider implements DataProvider {
             .pattern("##")
             .group("bark")
             .unlocks("has_log", this.has(Blocks.BIRCH_LOG))
+            .save(param0);
+        ShapedRecipeBuilder.shaped(Blocks.STRIPPED_BIRCH_WOOD, 3)
+            .define('#', Blocks.STRIPPED_BIRCH_LOG)
+            .pattern("##")
+            .pattern("##")
+            .group("bark")
+            .unlocks("has_log", this.has(Blocks.STRIPPED_BIRCH_LOG))
             .save(param0);
         ShapedRecipeBuilder.shaped(Items.BIRCH_BOAT)
             .define('#', Blocks.BIRCH_PLANKS)
@@ -990,6 +1004,13 @@ public class RecipeProvider implements DataProvider {
             .group("bark")
             .unlocks("has_log", this.has(Blocks.DARK_OAK_LOG))
             .save(param0);
+        ShapedRecipeBuilder.shaped(Blocks.STRIPPED_DARK_OAK_WOOD, 3)
+            .define('#', Blocks.STRIPPED_DARK_OAK_LOG)
+            .pattern("##")
+            .pattern("##")
+            .group("bark")
+            .unlocks("has_log", this.has(Blocks.STRIPPED_DARK_OAK_LOG))
+            .save(param0);
         ShapedRecipeBuilder.shaped(Items.DARK_OAK_BOAT)
             .define('#', Blocks.DARK_OAK_PLANKS)
             .pattern("# #")
@@ -1659,6 +1680,18 @@ public class RecipeProvider implements DataProvider {
             .pattern("##")
             .unlocks("has_iron_ingot", this.has(Items.IRON_INGOT))
             .save(param0);
+        ShapedRecipeBuilder.shaped(Blocks.HONEY_BLOCK, 1)
+            .define('S', Items.HONEY_BOTTLE)
+            .pattern("SS")
+            .pattern("SS")
+            .unlocks("has_honey_block", this.has(Blocks.HONEY_BLOCK))
+            .save(param0);
+        ShapedRecipeBuilder.shaped(Blocks.HONEYCOMB_BLOCK)
+            .define('H', Items.HONEYCOMB)
+            .pattern("HH")
+            .pattern("HH")
+            .unlocks("has_honeycomb", this.has(Items.HONEYCOMB))
+            .save(param0);
         ShapedRecipeBuilder.shaped(Blocks.HOPPER)
             .define('C', Blocks.CHEST)
             .define('I', Items.IRON_INGOT)
@@ -1807,6 +1840,13 @@ public class RecipeProvider implements DataProvider {
             .pattern("##")
             .group("bark")
             .unlocks("has_log", this.has(Blocks.JUNGLE_LOG))
+            .save(param0);
+        ShapedRecipeBuilder.shaped(Blocks.STRIPPED_JUNGLE_WOOD, 3)
+            .define('#', Blocks.STRIPPED_JUNGLE_LOG)
+            .pattern("##")
+            .pattern("##")
+            .group("bark")
+            .unlocks("has_log", this.has(Blocks.STRIPPED_JUNGLE_LOG))
             .save(param0);
         ShapedRecipeBuilder.shaped(Items.JUNGLE_BOAT)
             .define('#', Blocks.JUNGLE_PLANKS)
@@ -2507,6 +2547,13 @@ public class RecipeProvider implements DataProvider {
             .pattern("##")
             .group("bark")
             .unlocks("has_log", this.has(Blocks.OAK_LOG))
+            .save(param0);
+        ShapedRecipeBuilder.shaped(Blocks.STRIPPED_OAK_WOOD, 3)
+            .define('#', Blocks.STRIPPED_OAK_LOG)
+            .pattern("##")
+            .pattern("##")
+            .group("bark")
+            .unlocks("has_log", this.has(Blocks.STRIPPED_OAK_LOG))
             .save(param0);
         ShapelessRecipeBuilder.shapeless(Blocks.OAK_BUTTON)
             .requires(Blocks.OAK_PLANKS)
@@ -3343,6 +3390,13 @@ public class RecipeProvider implements DataProvider {
             .pattern("##")
             .group("bark")
             .unlocks("has_log", this.has(Blocks.SPRUCE_LOG))
+            .save(param0);
+        ShapedRecipeBuilder.shaped(Blocks.STRIPPED_SPRUCE_WOOD, 3)
+            .define('#', Blocks.STRIPPED_SPRUCE_LOG)
+            .pattern("##")
+            .pattern("##")
+            .group("bark")
+            .unlocks("has_log", this.has(Blocks.STRIPPED_SPRUCE_LOG))
             .save(param0);
         ShapedRecipeBuilder.shaped(Items.SPRUCE_BOAT)
             .define('#', Blocks.SPRUCE_PLANKS)

@@ -13,7 +13,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class TurtleModel<T extends Turtle> extends QuadrupedModel<T> {
     private final ModelPart eggBelly;
-    private float yOffset;
 
     public TurtleModel(float param0) {
         super(12, param0, true, 120.0F, 0.0F, 9.0F, 6.0F, 120);
@@ -77,19 +76,20 @@ public class TurtleModel<T extends Turtle> extends QuadrupedModel<T> {
         }
 
         this.eggBelly.visible = !this.young && param0.hasEgg();
-        if (this.eggBelly.visible) {
-            this.yOffset = -0.08F;
-        } else {
-            this.yOffset = 0.0F;
-        }
-
     }
 
     @Override
-    public void renderToBuffer(PoseStack param0, VertexConsumer param1, int param2, float param3, float param4, float param5) {
-        param0.pushPose();
-        param0.translate(0.0, (double)this.yOffset, 0.0);
-        super.renderToBuffer(param0, param1, param2, param3, param4, param5);
-        param0.popPose();
+    public void renderToBuffer(PoseStack param0, VertexConsumer param1, int param2, int param3, float param4, float param5, float param6) {
+        boolean var0 = this.eggBelly.visible;
+        if (var0) {
+            param0.pushPose();
+            param0.translate(0.0, -0.08F, 0.0);
+        }
+
+        super.renderToBuffer(param0, param1, param2, param3, param4, param5, param6);
+        if (var0) {
+            param0.popPose();
+        }
+
     }
 }

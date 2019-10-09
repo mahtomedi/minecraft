@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -103,10 +104,8 @@ public abstract class AbstractArmorLayer<T extends LivingEntity, M extends Human
         float param9,
         @Nullable String param10
     ) {
-        VertexConsumer var0 = ItemRenderer.getFoilBuffer(param1, this.getArmorLocation(param3, param6, param10), false, param4, false);
-        OverlayTexture.setDefault(var0);
-        param5.renderToBuffer(param0, var0, param2, param7, param8, param9);
-        var0.unsetDefaultOverlayCoords();
+        VertexConsumer var0 = ItemRenderer.getFoilBuffer(param1, RenderType.entityCutoutNoCull(this.getArmorLocation(param3, param6, param10)), false, param4);
+        param5.renderToBuffer(param0, var0, param2, OverlayTexture.NO_OVERLAY, param7, param8, param9);
     }
 
     public A getArmorModel(EquipmentSlot param0) {

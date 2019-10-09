@@ -2,6 +2,7 @@ package net.minecraft.client.model;
 
 import com.google.common.collect.ImmutableList;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.npc.AbstractVillager;
@@ -25,6 +26,7 @@ public class VillagerModel<T extends Entity> extends ListModel<T> implements Hea
     }
 
     public VillagerModel(float param0, int param1, int param2) {
+        super(RenderType::entityCutoutNoCull);
         float var0 = 0.5F;
         this.head = new ModelPart(this).setTexSize(param1, param2);
         this.head.setPos(0.0F, 0.0F, 0.0F);

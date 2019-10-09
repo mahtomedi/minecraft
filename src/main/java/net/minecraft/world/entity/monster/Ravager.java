@@ -193,11 +193,11 @@ public class Ravager extends Raider {
 
     private void stunEffect() {
         if (this.random.nextInt(6) == 0) {
-            double var0 = this.x
+            double var0 = this.getX()
                 - (double)this.getBbWidth() * Math.sin((double)(this.yBodyRot * (float) (Math.PI / 180.0)))
                 + (this.random.nextDouble() * 0.6 - 0.3);
-            double var1 = this.y + (double)this.getBbHeight() - 0.3;
-            double var2 = this.z
+            double var1 = this.getY() + (double)this.getBbHeight() - 0.3;
+            double var2 = this.getZ()
                 + (double)this.getBbWidth() * Math.cos((double)(this.yBodyRot * (float) (Math.PI / 180.0)))
                 + (this.random.nextDouble() * 0.6 - 0.3);
             this.level.addParticle(ParticleTypes.ENTITY_EFFECT, var0, var1, var2, 0.4980392156862745, 0.5137254901960784, 0.5725490196078431);
@@ -255,8 +255,8 @@ public class Ravager extends Raider {
     }
 
     private void strongKnockback(Entity param0) {
-        double var0 = param0.x - this.x;
-        double var1 = param0.z - this.z;
+        double var0 = param0.getX() - this.getX();
+        double var1 = param0.getZ() - this.getZ();
         double var2 = Math.max(var0 * var0 + var1 * var1, 0.001);
         param0.push(var0 / var2 * 4.0, 0.2, var1 / var2 * 4.0);
     }

@@ -26,7 +26,7 @@ public class BiomeSourceType<C extends BiomeSourceSettings, T extends BiomeSourc
         return Registry.register(Registry.BIOME_SOURCE_TYPE, param0, new BiomeSourceType<>(param1, param2));
     }
 
-    public BiomeSourceType(Function<C, T> param0, Function<LevelData, C> param1) {
+    private BiomeSourceType(Function<C, T> param0, Function<LevelData, C> param1) {
         this.factory = param0;
         this.settingsFactory = param1;
     }

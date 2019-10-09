@@ -157,7 +157,16 @@ public class Witch extends Raider implements RangedAttackMob {
                     this.usingTime = this.getMainHandItem().getUseDuration();
                     this.setUsingItem(true);
                     this.level
-                        .playSound(null, this.x, this.y, this.z, SoundEvents.WITCH_DRINK, this.getSoundSource(), 1.0F, 0.8F + this.random.nextFloat() * 0.4F);
+                        .playSound(
+                            null,
+                            this.getX(),
+                            this.getY(),
+                            this.getZ(),
+                            SoundEvents.WITCH_DRINK,
+                            this.getSoundSource(),
+                            1.0F,
+                            0.8F + this.random.nextFloat() * 0.4F
+                        );
                     AttributeInstance var4 = this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
                     var4.removeModifier(SPEED_MODIFIER_DRINKING);
                     var4.addModifier(SPEED_MODIFIER_DRINKING);
@@ -185,9 +194,9 @@ public class Witch extends Raider implements RangedAttackMob {
                 this.level
                     .addParticle(
                         ParticleTypes.WITCH,
-                        this.x + this.random.nextGaussian() * 0.13F,
+                        this.getX() + this.random.nextGaussian() * 0.13F,
                         this.getBoundingBox().maxY + 0.5 + this.random.nextGaussian() * 0.13F,
-                        this.z + this.random.nextGaussian() * 0.13F,
+                        this.getZ() + this.random.nextGaussian() * 0.13F,
                         0.0,
                         0.0,
                         0.0
@@ -217,9 +226,9 @@ public class Witch extends Raider implements RangedAttackMob {
     public void performRangedAttack(LivingEntity param0, float param1) {
         if (!this.isDrinkingPotion()) {
             Vec3 var0 = param0.getDeltaMovement();
-            double var1 = param0.x + var0.x - this.x;
-            double var2 = param0.y + (double)param0.getEyeHeight() - 1.1F - this.y;
-            double var3 = param0.z + var0.z - this.z;
+            double var1 = param0.getX() + var0.x - this.getX();
+            double var2 = param0.getEyeY() - 1.1F - this.getY();
+            double var3 = param0.getZ() + var0.z - this.getZ();
             float var4 = Mth.sqrt(var1 * var1 + var3 * var3);
             Potion var5 = Potions.HARMING;
             if (param0 instanceof Raider) {
@@ -242,7 +251,10 @@ public class Witch extends Raider implements RangedAttackMob {
             var6.setItem(PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), var5));
             var6.xRot -= -20.0F;
             var6.shoot(var1, var2 + (double)(var4 * 0.2F), var3, 0.75F, 8.0F);
-            this.level.playSound(null, this.x, this.y, this.z, SoundEvents.WITCH_THROW, this.getSoundSource(), 1.0F, 0.8F + this.random.nextFloat() * 0.4F);
+            this.level
+                .playSound(
+                    null, this.getX(), this.getY(), this.getZ(), SoundEvents.WITCH_THROW, this.getSoundSource(), 1.0F, 0.8F + this.random.nextFloat() * 0.4F
+                );
             this.level.addFreshEntity(var6);
         }
     }

@@ -18,7 +18,7 @@ public class SaddleItem extends Item {
             Pig var0 = (Pig)param2;
             if (var0.isAlive() && !var0.hasSaddle() && !var0.isBaby()) {
                 var0.setSaddle(true);
-                var0.level.playSound(param1, var0.x, var0.y, var0.z, SoundEvents.PIG_SADDLE, SoundSource.NEUTRAL, 0.5F, 1.0F);
+                var0.level.playSound(param1, var0.getX(), var0.getY(), var0.getZ(), SoundEvents.PIG_SADDLE, SoundSource.NEUTRAL, 0.5F, 1.0F);
                 param0.shrink(1);
             }
 

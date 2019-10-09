@@ -6,9 +6,9 @@ import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
+import net.minecraft.world.level.levelgen.feature.configurations.BlockBlobConfiguration;
 
 public class BlockBlobFeature extends Feature<BlockBlobConfiguration> {
     public BlockBlobFeature(Function<Dynamic<?>, ? extends BlockBlobConfiguration> param0) {
@@ -21,7 +21,7 @@ public class BlockBlobFeature extends Feature<BlockBlobConfiguration> {
         for(; param3.getY() > 3; param3 = param3.below()) {
             if (!param0.isEmptyBlock(param3.below())) {
                 Block var0 = param0.getBlockState(param3.below()).getBlock();
-                if (var0 == Blocks.GRASS_BLOCK || Block.equalsDirt(var0) || Block.equalsStone(var0)) {
+                if (isDirt(var0) || isStone(var0)) {
                     break;
                 }
             }

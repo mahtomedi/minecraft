@@ -44,19 +44,19 @@ public class WalkNodeEvaluator extends NodeEvaluator {
     public Node getStart() {
         int var0;
         if (this.canFloat() && this.mob.isInWater()) {
-            var0 = Mth.floor(this.mob.getBoundingBox().minY);
-            BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos(this.mob.x, (double)var0, this.mob.z);
+            var0 = Mth.floor(this.mob.getY());
+            BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos(this.mob.getX(), (double)var0, this.mob.getZ());
 
             for(BlockState var2 = this.level.getBlockState(var1);
                 var2.getBlock() == Blocks.WATER || var2.getFluidState() == Fluids.WATER.getSource(false);
                 var2 = this.level.getBlockState(var1)
             ) {
-                var1.set(this.mob.x, (double)(++var0), this.mob.z);
+                var1.set(this.mob.getX(), (double)(++var0), this.mob.getZ());
             }
 
             --var0;
         } else if (this.mob.onGround) {
-            var0 = Mth.floor(this.mob.getBoundingBox().minY + 0.5);
+            var0 = Mth.floor(this.mob.getY() + 0.5);
         } else {
             BlockPos var4 = new BlockPos(this.mob);
 
@@ -101,48 +101,53 @@ public class WalkNodeEvaluator extends NodeEvaluator {
         int var1 = 0;
         BlockPathTypes var2 = this.getBlockPathType(this.mob, param1.x, param1.y + 1, param1.z);
         if (this.mob.getPathfindingMalus(var2) >= 0.0F) {
-            var1 = Mth.floor(Math.max(1.0F, this.mob.maxUpStep));
+            BlockPathTypes var3 = this.getBlockPathType(this.mob, param1.x, param1.y, param1.z);
+            if (var3 == BlockPathTypes.STICKY_HONEY) {
+                var1 = 0;
+            } else {
+                var1 = Mth.floor(Math.max(1.0F, this.mob.maxUpStep));
+            }
         }
 
-        double var3 = getFloorLevel(this.level, new BlockPos(param1.x, param1.y, param1.z));
-        Node var4 = this.getLandNode(param1.x, param1.y, param1.z + 1, var1, var3, Direction.SOUTH);
-        if (var4 != null && !var4.closed && var4.costMalus >= 0.0F) {
-            param0[var0++] = var4;
-        }
-
-        Node var5 = this.getLandNode(param1.x - 1, param1.y, param1.z, var1, var3, Direction.WEST);
+        double var4 = getFloorLevel(this.level, new BlockPos(param1.x, param1.y, param1.z));
+        Node var5 = this.getLandNode(param1.x, param1.y, param1.z + 1, var1, var4, Direction.SOUTH);
         if (var5 != null && !var5.closed && var5.costMalus >= 0.0F) {
             param0[var0++] = var5;
         }
 
-        Node var6 = this.getLandNode(param1.x + 1, param1.y, param1.z, var1, var3, Direction.EAST);
+        Node var6 = this.getLandNode(param1.x - 1, param1.y, param1.z, var1, var4, Direction.WEST);
         if (var6 != null && !var6.closed && var6.costMalus >= 0.0F) {
             param0[var0++] = var6;
         }
 
-        Node var7 = this.getLandNode(param1.x, param1.y, param1.z - 1, var1, var3, Direction.NORTH);
+        Node var7 = this.getLandNode(param1.x + 1, param1.y, param1.z, var1, var4, Direction.EAST);
         if (var7 != null && !var7.closed && var7.costMalus >= 0.0F) {
             param0[var0++] = var7;
         }
 
-        Node var8 = this.getLandNode(param1.x - 1, param1.y, param1.z - 1, var1, var3, Direction.NORTH);
-        if (this.isDiagonalValid(param1, var5, var7, var8)) {
+        Node var8 = this.getLandNode(param1.x, param1.y, param1.z - 1, var1, var4, Direction.NORTH);
+        if (var8 != null && !var8.closed && var8.costMalus >= 0.0F) {
             param0[var0++] = var8;
         }
 
-        Node var9 = this.getLandNode(param1.x + 1, param1.y, param1.z - 1, var1, var3, Direction.NORTH);
-        if (this.isDiagonalValid(param1, var6, var7, var9)) {
+        Node var9 = this.getLandNode(param1.x - 1, param1.y, param1.z - 1, var1, var4, Direction.NORTH);
+        if (this.isDiagonalValid(param1, var6, var8, var9)) {
             param0[var0++] = var9;
         }
 
-        Node var10 = this.getLandNode(param1.x - 1, param1.y, param1.z + 1, var1, var3, Direction.SOUTH);
-        if (this.isDiagonalValid(param1, var5, var4, var10)) {
+        Node var10 = this.getLandNode(param1.x + 1, param1.y, param1.z - 1, var1, var4, Direction.NORTH);
+        if (this.isDiagonalValid(param1, var7, var8, var10)) {
             param0[var0++] = var10;
         }
 
-        Node var11 = this.getLandNode(param1.x + 1, param1.y, param1.z + 1, var1, var3, Direction.SOUTH);
-        if (this.isDiagonalValid(param1, var6, var4, var11)) {
+        Node var11 = this.getLandNode(param1.x - 1, param1.y, param1.z + 1, var1, var4, Direction.SOUTH);
+        if (this.isDiagonalValid(param1, var6, var5, var11)) {
             param0[var0++] = var11;
+        }
+
+        Node var12 = this.getLandNode(param1.x + 1, param1.y, param1.z + 1, var1, var4, Direction.SOUTH);
+        if (this.isDiagonalValid(param1, var7, var5, var12)) {
+            param0[var0++] = var12;
         }
 
         return var0;
@@ -381,10 +386,14 @@ public class WalkNodeEvaluator extends NodeEvaluator {
 
     @Override
     public BlockPathTypes getBlockPathType(BlockGetter param0, int param1, int param2, int param3) {
-        BlockPathTypes var0 = this.getBlockPathTypeRaw(param0, param1, param2, param3);
+        return getBlockPathTypeStatic(param0, param1, param2, param3);
+    }
+
+    public static BlockPathTypes getBlockPathTypeStatic(BlockGetter param0, int param1, int param2, int param3) {
+        BlockPathTypes var0 = getBlockPathTypeRaw(param0, param1, param2, param3);
         if (var0 == BlockPathTypes.OPEN && param2 >= 1) {
             Block var1 = param0.getBlockState(new BlockPos(param1, param2 - 1, param3)).getBlock();
-            BlockPathTypes var2 = this.getBlockPathTypeRaw(param0, param1, param2 - 1, param3);
+            BlockPathTypes var2 = getBlockPathTypeRaw(param0, param1, param2 - 1, param3);
             var0 = var2 != BlockPathTypes.WALKABLE && var2 != BlockPathTypes.OPEN && var2 != BlockPathTypes.WATER && var2 != BlockPathTypes.LAVA
                 ? BlockPathTypes.WALKABLE
                 : BlockPathTypes.OPEN;
@@ -399,24 +408,32 @@ public class WalkNodeEvaluator extends NodeEvaluator {
             if (var2 == BlockPathTypes.DAMAGE_OTHER) {
                 var0 = BlockPathTypes.DAMAGE_OTHER;
             }
+
+            if (var2 == BlockPathTypes.STICKY_HONEY) {
+                var0 = BlockPathTypes.STICKY_HONEY;
+            }
         }
 
-        return this.checkNeighbourBlocks(param0, param1, param2, param3, var0);
+        return checkNeighbourBlocks(param0, param1, param2, param3, var0);
     }
 
-    public BlockPathTypes checkNeighbourBlocks(BlockGetter param0, int param1, int param2, int param3, BlockPathTypes param4) {
+    public static BlockPathTypes checkNeighbourBlocks(BlockGetter param0, int param1, int param2, int param3, BlockPathTypes param4) {
         if (param4 == BlockPathTypes.WALKABLE) {
             try (BlockPos.PooledMutableBlockPos var0 = BlockPos.PooledMutableBlockPos.acquire()) {
                 for(int var1 = -1; var1 <= 1; ++var1) {
                     for(int var2 = -1; var2 <= 1; ++var2) {
-                        if (var1 != 0 || var2 != 0) {
-                            Block var3 = param0.getBlockState(var0.set(var1 + param1, param2, var2 + param3)).getBlock();
-                            if (var3 == Blocks.CACTUS) {
-                                param4 = BlockPathTypes.DANGER_CACTUS;
-                            } else if (var3 == Blocks.FIRE) {
-                                param4 = BlockPathTypes.DANGER_FIRE;
-                            } else if (var3 == Blocks.SWEET_BERRY_BUSH) {
-                                param4 = BlockPathTypes.DANGER_OTHER;
+                        for(int var3 = -1; var3 <= 1; ++var3) {
+                            if (var1 != 0 || var3 != 0) {
+                                Block var4 = param0.getBlockState(var0.set(var1 + param1, var2 + param2, var3 + param3)).getBlock();
+                                if (var4 == Blocks.CACTUS) {
+                                    param4 = BlockPathTypes.DANGER_CACTUS;
+                                } else if (var4 == Blocks.FIRE || var4 == Blocks.LAVA) {
+                                    param4 = BlockPathTypes.DANGER_FIRE;
+                                } else if (var4 == Blocks.SWEET_BERRY_BUSH) {
+                                    param4 = BlockPathTypes.DANGER_OTHER;
+                                } else if (var4 == Blocks.HONEY_BLOCK) {
+                                    param4 = BlockPathTypes.STICKY_HONEY;
+                                }
                             }
                         }
                     }
@@ -427,7 +444,7 @@ public class WalkNodeEvaluator extends NodeEvaluator {
         return param4;
     }
 
-    protected BlockPathTypes getBlockPathTypeRaw(BlockGetter param0, int param1, int param2, int param3) {
+    protected static BlockPathTypes getBlockPathTypeRaw(BlockGetter param0, int param1, int param2, int param3) {
         BlockPos var0 = new BlockPos(param1, param2, param3);
         BlockState var1 = param0.getBlockState(var0);
         Block var2 = var1.getBlock();
@@ -442,6 +459,8 @@ public class WalkNodeEvaluator extends NodeEvaluator {
             return BlockPathTypes.DAMAGE_CACTUS;
         } else if (var2 == Blocks.SWEET_BERRY_BUSH) {
             return BlockPathTypes.DAMAGE_OTHER;
+        } else if (var2 == Blocks.HONEY_BLOCK) {
+            return BlockPathTypes.STICKY_HONEY;
         } else if (var2 instanceof DoorBlock && var3 == Material.WOOD && !var1.getValue(DoorBlock.OPEN)) {
             return BlockPathTypes.DOOR_WOOD_CLOSED;
         } else if (var2 instanceof DoorBlock && var3 == Material.METAL && !var1.getValue(DoorBlock.OPEN)) {

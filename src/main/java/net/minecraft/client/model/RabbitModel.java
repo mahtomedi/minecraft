@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.animal.Rabbit;
 import net.minecraftforge.api.distmarker.Dist;
@@ -26,6 +27,7 @@ public class RabbitModel<T extends Rabbit> extends EntityModel<T> {
     private float jumpRotation;
 
     public RabbitModel() {
+        super(RenderType::entitySolid);
         this.rearFootLeft.addBox(-1.0F, 5.5F, -3.7F, 2.0F, 1.0F, 7.0F);
         this.rearFootLeft.setPos(3.0F, 17.5F, 3.7F);
         this.rearFootLeft.mirror = true;
@@ -94,14 +96,14 @@ public class RabbitModel<T extends Rabbit> extends EntityModel<T> {
     }
 
     @Override
-    public void renderToBuffer(PoseStack param0, VertexConsumer param1, int param2, float param3, float param4, float param5) {
+    public void renderToBuffer(PoseStack param0, VertexConsumer param1, int param2, int param3, float param4, float param5, float param6) {
         if (this.young) {
             float var0 = 1.5F;
             param0.pushPose();
             param0.scale(0.56666666F, 0.56666666F, 0.56666666F);
             param0.translate(0.0, 1.375, 0.125);
             ImmutableList.of(this.head, this.earLeft, this.earRight, this.nose)
-                .forEach(param6 -> param6.render(param0, param1, 0.0625F, param2, null, param3, param4, param5));
+                .forEach(param7 -> param7.render(param0, param1, 0.0625F, param2, param3, null, param4, param5, param6));
             param0.popPose();
             param0.pushPose();
             param0.scale(0.4F, 0.4F, 0.4F);
@@ -109,7 +111,7 @@ public class RabbitModel<T extends Rabbit> extends EntityModel<T> {
             ImmutableList.of(
                     this.rearFootLeft, this.rearFootRight, this.haunchLeft, this.haunchRight, this.body, this.frontLegLeft, this.frontLegRight, this.tail
                 )
-                .forEach(param6 -> param6.render(param0, param1, 0.0625F, param2, null, param3, param4, param5));
+                .forEach(param7 -> param7.render(param0, param1, 0.0625F, param2, param3, null, param4, param5, param6));
             param0.popPose();
         } else {
             param0.pushPose();
@@ -129,7 +131,7 @@ public class RabbitModel<T extends Rabbit> extends EntityModel<T> {
                     this.tail,
                     this.nose
                 )
-                .forEach(param6 -> param6.render(param0, param1, 0.0625F, param2, null, param3, param4, param5));
+                .forEach(param7 -> param7.render(param0, param1, 0.0625F, param2, param3, null, param4, param5, param6));
             param0.popPose();
         }
 

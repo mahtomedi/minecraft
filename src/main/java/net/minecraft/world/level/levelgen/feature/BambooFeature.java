@@ -5,7 +5,6 @@ import java.util.Random;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.BambooBlock;
 import net.minecraft.world.level.block.Blocks;
@@ -14,6 +13,7 @@ import net.minecraft.world.level.block.state.properties.BambooLeaves;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.feature.configurations.ProbabilityFeatureConfiguration;
 
 public class BambooFeature extends Feature<ProbabilityFeatureConfiguration> {
     private static final BlockState BAMBOO_TRUNK = Blocks.BAMBOO
@@ -48,7 +48,7 @@ public class BambooFeature extends Feature<ProbabilityFeatureConfiguration> {
                             int var8 = var6 - param3.getZ();
                             if (var7 * var7 + var8 * var8 <= var4 * var4) {
                                 var2.set(var5, param0.getHeight(Heightmap.Types.WORLD_SURFACE, var5, var6) - 1, var6);
-                                if (param0.getBlockState(var2).getBlock().is(BlockTags.DIRT_LIKE)) {
+                                if (isDirt(param0.getBlockState(var2).getBlock())) {
                                     param0.setBlock(var2, Blocks.PODZOL.defaultBlockState(), 2);
                                 }
                             }

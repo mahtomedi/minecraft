@@ -32,6 +32,7 @@ public abstract class Team {
     @OnlyIn(Dist.CLIENT)
     public abstract Team.Visibility getNameTagVisibility();
 
+    @OnlyIn(Dist.CLIENT)
     public abstract ChatFormatting getColor();
 
     public abstract Collection<String> getPlayers();

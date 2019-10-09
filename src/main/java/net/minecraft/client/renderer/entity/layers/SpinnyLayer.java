@@ -38,11 +38,9 @@ public abstract class SpinnyLayer<T extends Entity & PowerableMob, M extends Ent
             EntityModel<T> var1 = this.model();
             var1.prepareMobModel(param3, param4, param5, param6);
             this.getParentModel().copyPropertiesTo(var1);
-            VertexConsumer var2 = param1.getBuffer(RenderType.POWER_SWIRL(this.getTextureLocation(), this.xOffset(var0), var0 * 0.01F));
-            OverlayTexture.setDefault(var2);
+            VertexConsumer var2 = param1.getBuffer(RenderType.powerSwirl(this.getTextureLocation(), this.xOffset(var0), var0 * 0.01F));
             var1.setupAnim(param3, param4, param5, param7, param8, param9, param10);
-            var1.renderToBuffer(param0, var2, param2, 0.5F, 0.5F, 0.5F);
-            var2.unsetDefaultOverlayCoords();
+            var1.renderToBuffer(param0, var2, param2, OverlayTexture.NO_OVERLAY, 0.5F, 0.5F, 0.5F);
         }
     }
 

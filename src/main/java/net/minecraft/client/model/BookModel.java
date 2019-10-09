@@ -4,7 +4,9 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import java.util.List;
+import javax.annotation.Nullable;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
@@ -22,6 +24,7 @@ public class BookModel extends Model {
     private final List<ModelPart> parts;
 
     public BookModel() {
+        super(RenderType::entitySolid);
         this.leftPages = new ModelPart(64, 32, 0, 10).addBox(0.0F, -4.0F, -0.99F, 5.0F, 8.0F, 1.0F);
         this.rightPages = new ModelPart(64, 32, 12, 10).addBox(0.0F, -4.0F, -0.01F, 5.0F, 8.0F, 1.0F);
         this.flipPage1 = new ModelPart(64, 32, 24, 10).addBox(0.0F, -4.0F, 0.0F, 5.0F, 8.0F, 0.005F);
@@ -32,8 +35,15 @@ public class BookModel extends Model {
         this.seam.yRot = (float) (Math.PI / 2);
     }
 
-    public void render(PoseStack param0, VertexConsumer param1, float param2, int param3, TextureAtlasSprite param4) {
-        this.parts.forEach(param5 -> param5.render(param0, param1, param2, param3, param4));
+    @Override
+    public void renderToBuffer(PoseStack param0, VertexConsumer param1, int param2, int param3, float param4, float param5, float param6) {
+        this.render(param0, param1, param2, param3, param4, param5, param6, null);
+    }
+
+    public void render(
+        PoseStack param0, VertexConsumer param1, int param2, int param3, float param4, float param5, float param6, @Nullable TextureAtlasSprite param7
+    ) {
+        this.parts.forEach(param8 -> param8.render(param0, param1, 0.0625F, param2, param3, param7, param4, param5, param6));
     }
 
     public void setupAnim(float param0, float param1, float param2, float param3) {

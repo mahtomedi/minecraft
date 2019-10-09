@@ -51,8 +51,8 @@ public class Illusioner extends SpellcasterIllager implements RangedAttackMob {
         this.clientSideIllusionOffsets = new Vec3[2][4];
 
         for(int var0 = 0; var0 < 4; ++var0) {
-            this.clientSideIllusionOffsets[0][var0] = new Vec3(0.0, 0.0, 0.0);
-            this.clientSideIllusionOffsets[1][var0] = new Vec3(0.0, 0.0, 0.0);
+            this.clientSideIllusionOffsets[0][var0] = Vec3.ZERO;
+            this.clientSideIllusionOffsets[1][var0] = Vec3.ZERO;
         }
 
     }
@@ -125,19 +125,10 @@ public class Illusioner extends SpellcasterIllager implements RangedAttackMob {
                 }
 
                 for(int var3 = 0; var3 < 16; ++var3) {
-                    this.level
-                        .addParticle(
-                            ParticleTypes.CLOUD,
-                            this.x + (this.random.nextDouble() - 0.5) * (double)this.getBbWidth(),
-                            this.y + this.random.nextDouble() * (double)this.getBbHeight(),
-                            this.z + (this.random.nextDouble() - 0.5) * (double)this.getBbWidth(),
-                            0.0,
-                            0.0,
-                            0.0
-                        );
+                    this.level.addParticle(ParticleTypes.CLOUD, this.getRandomX(0.5), this.getRandomY(), this.getZ(0.5), 0.0, 0.0, 0.0);
                 }
 
-                this.level.playLocalSound(this.x, this.y, this.z, SoundEvents.ILLUSIONER_MIRROR_MOVE, this.getSoundSource(), 1.0F, 1.0F, false);
+                this.level.playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.ILLUSIONER_MIRROR_MOVE, this.getSoundSource(), 1.0F, 1.0F, false);
             } else if (this.hurtTime == this.hurtDuration - 1) {
                 this.clientSideIllusionTicks = 3;
 
@@ -211,9 +202,9 @@ public class Illusioner extends SpellcasterIllager implements RangedAttackMob {
     public void performRangedAttack(LivingEntity param0, float param1) {
         ItemStack var0 = this.getProjectile(this.getItemInHand(ProjectileUtil.getWeaponHoldingHand(this, Items.BOW)));
         AbstractArrow var1 = ProjectileUtil.getMobArrow(this, var0, param1);
-        double var2 = param0.x - this.x;
-        double var3 = param0.getBoundingBox().minY + (double)(param0.getBbHeight() / 3.0F) - var1.y;
-        double var4 = param0.z - this.z;
+        double var2 = param0.getX() - this.getX();
+        double var3 = param0.getY(0.3333333333333333) - var1.getY();
+        double var4 = param0.getZ() - this.getZ();
         double var5 = (double)Mth.sqrt(var2 * var2 + var4 * var4);
         var1.shoot(var2, var3 + var5 * 0.2F, var4, 1.6F, (float)(14 - this.level.getDifficulty().getId() * 4));
         this.playSound(SoundEvents.SKELETON_SHOOT, 1.0F, 1.0F / (this.getRandom().nextFloat() * 0.4F + 0.8F));

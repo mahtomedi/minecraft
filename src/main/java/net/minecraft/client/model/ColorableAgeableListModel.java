@@ -19,7 +19,7 @@ public abstract class ColorableAgeableListModel<E extends Entity> extends Ageabl
     }
 
     @Override
-    public void renderToBuffer(PoseStack param0, VertexConsumer param1, int param2, float param3, float param4, float param5) {
-        super.renderToBuffer(param0, param1, param2, this.r * param3, this.g * param4, this.b * param5);
+    public void renderToBuffer(PoseStack param0, VertexConsumer param1, int param2, int param3, float param4, float param5, float param6) {
+        super.renderToBuffer(param0, param1, param2, param3, this.r * param4, this.g * param5, this.b * param6);
     }
 }

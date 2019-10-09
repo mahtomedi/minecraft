@@ -45,7 +45,7 @@ public class LeapAtTargetGoal extends Goal {
     @Override
     public void start() {
         Vec3 var0 = this.mob.getDeltaMovement();
-        Vec3 var1 = new Vec3(this.target.x - this.mob.x, 0.0, this.target.z - this.mob.z);
+        Vec3 var1 = new Vec3(this.target.getX() - this.mob.getX(), 0.0, this.target.getZ() - this.mob.getZ());
         if (var1.lengthSqr() > 1.0E-7) {
             var1 = var1.normalize().scale(0.4).add(var0.scale(0.2));
         }

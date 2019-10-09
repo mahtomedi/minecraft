@@ -69,7 +69,7 @@ public class BeehiveBlock extends BaseEntityBlock {
         super.playerDestroy(param0, param1, param2, param3, param4, param5);
         if (!param0.isClientSide) {
             if (param4 instanceof BeehiveBlockEntity && EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SILK_TOUCH, param5) == 0) {
-                ((BeehiveBlockEntity)param4).emptyAllLivingFromHive(param1, BeehiveBlockEntity.BeeReleaseStatus.EMERGENCY);
+                ((BeehiveBlockEntity)param4).emptyAllLivingFromHive(param1, param3, BeehiveBlockEntity.BeeReleaseStatus.EMERGENCY);
                 param0.updateNeighbourForOutputSignal(param2, this);
             }
 
@@ -102,13 +102,13 @@ public class BeehiveBlock extends BaseEntityBlock {
         boolean var2 = false;
         if (var1 >= 5) {
             if (var0.getItem() == Items.SHEARS) {
-                param1.playSound(param3, param3.x, param3.y, param3.z, SoundEvents.BEEHIVE_SHEAR, SoundSource.NEUTRAL, 1.0F, 1.0F);
+                param1.playSound(param3, param3.getX(), param3.getY(), param3.getZ(), SoundEvents.BEEHIVE_SHEAR, SoundSource.NEUTRAL, 1.0F, 1.0F);
                 dropHoneycomb(param1, param2);
                 var0.hurtAndBreak(1, param3, param1x -> param1x.broadcastBreakEvent(param4));
                 var2 = true;
             } else if (var0.getItem() == Items.GLASS_BOTTLE) {
                 var0.shrink(1);
-                param1.playSound(param3, param3.x, param3.y, param3.z, SoundEvents.BOTTLE_FILL, SoundSource.NEUTRAL, 1.0F, 1.0F);
+                param1.playSound(param3, param3.getX(), param3.getY(), param3.getZ(), SoundEvents.BOTTLE_FILL, SoundSource.NEUTRAL, 1.0F, 1.0F);
                 if (var0.isEmpty()) {
                     param3.setItemInHand(param4, new ItemStack(Items.HONEY_BOTTLE));
                 } else if (!param3.inventory.add(new ItemStack(Items.HONEY_BOTTLE))) {
@@ -120,19 +120,19 @@ public class BeehiveBlock extends BaseEntityBlock {
         }
 
         if (var2) {
-            this.releaseBeesAndResetState(param1, param0, param2, param3);
+            this.releaseBeesAndResetState(param1, param0, param2, param3, BeehiveBlockEntity.BeeReleaseStatus.EMERGENCY);
             return true;
         } else {
             return super.use(param0, param1, param2, param3, param4, param5);
         }
     }
 
-    public void releaseBeesAndResetState(Level param0, BlockState param1, BlockPos param2, @Nullable Player param3) {
+    public void releaseBeesAndResetState(Level param0, BlockState param1, BlockPos param2, @Nullable Player param3, BeehiveBlockEntity.BeeReleaseStatus param4) {
         param0.setBlock(param2, param1.setValue(HONEY_LEVEL, Integer.valueOf(0)), 3);
         BlockEntity var0 = param0.getBlockEntity(param2);
         if (var0 instanceof BeehiveBlockEntity) {
             BeehiveBlockEntity var1 = (BeehiveBlockEntity)var0;
-            var1.emptyAllLivingFromHive(param3, BeehiveBlockEntity.BeeReleaseStatus.BEE_RELEASED);
+            var1.emptyAllLivingFromHive(param3, param1, param4);
         }
 
     }
@@ -150,7 +150,7 @@ public class BeehiveBlock extends BaseEntityBlock {
 
     @OnlyIn(Dist.CLIENT)
     private void trySpawnDripParticles(Level param0, BlockPos param1, BlockState param2) {
-        if (param2.getFluidState().isEmpty()) {
+        if (param2.getFluidState().isEmpty() && !(param0.random.nextFloat() < 0.3F)) {
             VoxelShape var0 = param2.getCollisionShape(param0, param1);
             double var1 = var0.max(Direction.Axis.Y);
             if (var1 >= 1.0 && !param2.is(BlockTags.IMPERMEABLE)) {
@@ -249,7 +249,7 @@ public class BeehiveBlock extends BaseEntityBlock {
             BlockEntity var1 = param1.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
             if (var1 instanceof BeehiveBlockEntity) {
                 BeehiveBlockEntity var2 = (BeehiveBlockEntity)var1;
-                var2.emptyAllLivingFromHive(null, BeehiveBlockEntity.BeeReleaseStatus.EMERGENCY);
+                var2.emptyAllLivingFromHive(null, param0, BeehiveBlockEntity.BeeReleaseStatus.EMERGENCY);
             }
         }
 
@@ -262,7 +262,7 @@ public class BeehiveBlock extends BaseEntityBlock {
             BlockEntity var0 = param3.getBlockEntity(param4);
             if (var0 instanceof BeehiveBlockEntity) {
                 BeehiveBlockEntity var1 = (BeehiveBlockEntity)var0;
-                var1.emptyAllLivingFromHive(null, BeehiveBlockEntity.BeeReleaseStatus.EMERGENCY);
+                var1.emptyAllLivingFromHive(null, param0, BeehiveBlockEntity.BeeReleaseStatus.EMERGENCY);
             }
         }
 

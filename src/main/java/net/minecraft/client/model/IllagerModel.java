@@ -3,6 +3,7 @@ package net.minecraft.client.model;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.monster.AbstractIllager;
@@ -22,6 +23,7 @@ public class IllagerModel<T extends AbstractIllager> extends ListModel<T> implem
     private float itemUseTicks;
 
     public IllagerModel(float param0, float param1, int param2, int param3) {
+        super(RenderType::entityCutoutNoCull);
         this.head = new ModelPart(this).setTexSize(param2, param3);
         this.head.setPos(0.0F, 0.0F + param1, 0.0F);
         this.head.texOffs(0, 0).addBox(-4.0F, -10.0F, -4.0F, 8.0F, 10.0F, 8.0F, param0);

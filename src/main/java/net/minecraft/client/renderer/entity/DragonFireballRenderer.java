@@ -28,20 +28,41 @@ public class DragonFireballRenderer extends EntityRenderer<DragonFireball> {
         float var0 = 1.0F;
         float var1 = 0.5F;
         float var2 = 0.25F;
-        param6.mulPose(Vector3f.YP.rotation(180.0F - this.entityRenderDispatcher.playerRotY, true));
-        param6.mulPose(
-            Vector3f.XP.rotation((float)(this.entityRenderDispatcher.options.thirdPersonView == 2 ? -1 : 1) * -this.entityRenderDispatcher.playerRotX, true)
-        );
-        Matrix4f var3 = param6.getPose();
-        VertexConsumer var4 = param7.getBuffer(RenderType.NEW_ENTITY(TEXTURE_LOCATION));
-        OverlayTexture.setDefault(var4);
-        int var5 = param0.getLightColor();
-        var4.vertex(var3, -0.5F, -0.25F, 0.0F).color(255, 255, 255, 255).uv(0.0F, 1.0F).uv2(var5).normal(0.0F, 1.0F, 0.0F).endVertex();
-        var4.vertex(var3, 0.5F, -0.25F, 0.0F).color(255, 255, 255, 255).uv(1.0F, 1.0F).uv2(var5).normal(0.0F, 1.0F, 0.0F).endVertex();
-        var4.vertex(var3, 0.5F, 0.75F, 0.0F).color(255, 255, 255, 255).uv(1.0F, 0.0F).uv2(var5).normal(0.0F, 1.0F, 0.0F).endVertex();
-        var4.vertex(var3, -0.5F, 0.75F, 0.0F).color(255, 255, 255, 255).uv(0.0F, 0.0F).uv2(var5).normal(0.0F, 1.0F, 0.0F).endVertex();
+        param6.mulPose(Vector3f.YP.rotationDegrees(180.0F - this.entityRenderDispatcher.playerRotY));
+        float var3 = (float)(this.entityRenderDispatcher.options.thirdPersonView == 2 ? -1 : 1) * -this.entityRenderDispatcher.playerRotX;
+        param6.mulPose(Vector3f.XP.rotationDegrees(var3));
+        Matrix4f var4 = param6.getPose();
+        VertexConsumer var5 = param7.getBuffer(RenderType.entityCutoutNoCull(TEXTURE_LOCATION));
+        int var6 = param0.getLightColor();
+        var5.vertex(var4, -0.5F, -0.25F, 0.0F)
+            .color(255, 255, 255, 255)
+            .uv(0.0F, 1.0F)
+            .overlayCoords(OverlayTexture.NO_OVERLAY)
+            .uv2(var6)
+            .normal(0.0F, 1.0F, 0.0F)
+            .endVertex();
+        var5.vertex(var4, 0.5F, -0.25F, 0.0F)
+            .color(255, 255, 255, 255)
+            .uv(1.0F, 1.0F)
+            .overlayCoords(OverlayTexture.NO_OVERLAY)
+            .uv2(var6)
+            .normal(0.0F, 1.0F, 0.0F)
+            .endVertex();
+        var5.vertex(var4, 0.5F, 0.75F, 0.0F)
+            .color(255, 255, 255, 255)
+            .uv(1.0F, 0.0F)
+            .overlayCoords(OverlayTexture.NO_OVERLAY)
+            .uv2(var6)
+            .normal(0.0F, 1.0F, 0.0F)
+            .endVertex();
+        var5.vertex(var4, -0.5F, 0.75F, 0.0F)
+            .color(255, 255, 255, 255)
+            .uv(0.0F, 0.0F)
+            .overlayCoords(OverlayTexture.NO_OVERLAY)
+            .uv2(var6)
+            .normal(0.0F, 1.0F, 0.0F)
+            .endVertex();
         param6.popPose();
-        var4.unsetDefaultOverlayCoords();
         super.render(param0, param1, param2, param3, param4, param5, param6, param7);
     }
 

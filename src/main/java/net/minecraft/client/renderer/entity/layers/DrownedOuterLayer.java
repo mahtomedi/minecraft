@@ -31,7 +31,7 @@ public class DrownedOuterLayer<T extends Zombie> extends RenderLayer<T, DrownedM
         float param9,
         float param10
     ) {
-        coloredModelCopyLayerRender(
+        coloredCutoutModelCopyLayerRender(
             this.getParentModel(),
             this.model,
             DROWNED_OUTER_LAYER_LOCATION,
@@ -45,7 +45,10 @@ public class DrownedOuterLayer<T extends Zombie> extends RenderLayer<T, DrownedM
             param8,
             param9,
             param10,
-            param6
+            param6,
+            1.0F,
+            1.0F,
+            1.0F
         );
     }
 }

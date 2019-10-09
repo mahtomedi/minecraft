@@ -17,7 +17,7 @@ public class Containers {
     }
 
     public static void dropContents(Level param0, Entity param1, Container param2) {
-        dropContents(param0, param1.x, param1.y, param1.z, param2);
+        dropContents(param0, param1.getX(), param1.getY(), param1.getZ(), param2);
     }
 
     private static void dropContents(Level param0, double param1, double param2, double param3, Container param4) {

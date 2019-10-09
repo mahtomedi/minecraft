@@ -51,30 +51,27 @@ public final class ProjectileUtil {
     private static HitResult forwardsRaycast(
         Entity param0, boolean param1, boolean param2, @Nullable Entity param3, ClipContext.Block param4, boolean param5, Predicate<Entity> param6, AABB param7
     ) {
-        double var0 = param0.x;
-        double var1 = param0.y;
-        double var2 = param0.z;
-        Vec3 var3 = param0.getDeltaMovement();
-        Level var4 = param0.level;
-        Vec3 var5 = new Vec3(var0, var1, var2);
+        Vec3 var0 = param0.getDeltaMovement();
+        Level var1 = param0.level;
+        Vec3 var2 = param0.position();
         if (param5
-            && !var4.noCollision(param0, param0.getBoundingBox(), (Set<Entity>)(!param2 && param3 != null ? getIgnoredEntities(param3) : ImmutableSet.of()))) {
-            return new BlockHitResult(var5, Direction.getNearest(var3.x, var3.y, var3.z), new BlockPos(param0), false);
+            && !var1.noCollision(param0, param0.getBoundingBox(), (Set<Entity>)(!param2 && param3 != null ? getIgnoredEntities(param3) : ImmutableSet.of()))) {
+            return new BlockHitResult(var2, Direction.getNearest(var0.x, var0.y, var0.z), new BlockPos(param0), false);
         } else {
-            Vec3 var6 = var5.add(var3);
-            HitResult var7 = var4.clip(new ClipContext(var5, var6, param4, ClipContext.Fluid.NONE, param0));
+            Vec3 var3 = var2.add(var0);
+            HitResult var4 = var1.clip(new ClipContext(var2, var3, param4, ClipContext.Fluid.NONE, param0));
             if (param1) {
-                if (var7.getType() != HitResult.Type.MISS) {
-                    var6 = var7.getLocation();
+                if (var4.getType() != HitResult.Type.MISS) {
+                    var3 = var4.getLocation();
                 }
 
-                HitResult var8 = getHitResult(var4, param0, var5, var6, param7, param6);
-                if (var8 != null) {
-                    var7 = var8;
+                HitResult var5 = getHitResult(var1, param0, var2, var3, param7, param6);
+                if (var5 != null) {
+                    var4 = var5;
                 }
             }
 
-            return var7;
+            return var4;
         }
     }
 

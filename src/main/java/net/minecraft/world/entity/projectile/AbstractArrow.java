@@ -79,7 +79,7 @@ public abstract class AbstractArrow extends Entity implements Projectile {
     }
 
     protected AbstractArrow(EntityType<? extends AbstractArrow> param0, LivingEntity param1, Level param2) {
-        this(param0, param1.x, param1.y + (double)param1.getEyeHeight() - 0.1F, param1.z, param2);
+        this(param0, param1.getX(), param1.getEyeY() - 0.1F, param1.getZ(), param2);
         this.setOwner(param1);
         if (param1 instanceof Player) {
             this.pickup = AbstractArrow.Pickup.ALLOWED;
@@ -156,7 +156,7 @@ public abstract class AbstractArrow extends Entity implements Projectile {
             this.yRot = (float)(Mth.atan2(param0, param2) * 180.0F / (float)Math.PI);
             this.xRotO = this.xRot;
             this.yRotO = this.yRot;
-            this.moveTo(this.x, this.y, this.z, this.yRot, this.xRot);
+            this.moveTo(this.getX(), this.getY(), this.getZ(), this.yRot, this.xRot);
             this.life = 0;
         }
 
@@ -175,13 +175,15 @@ public abstract class AbstractArrow extends Entity implements Projectile {
             this.xRotO = this.xRot;
         }
 
-        BlockPos var3 = new BlockPos(this.x, this.y, this.z);
+        BlockPos var3 = new BlockPos(this);
         BlockState var4 = this.level.getBlockState(var3);
         if (!var4.isAir() && !var0) {
             VoxelShape var5 = var4.getCollisionShape(this.level, var3);
             if (!var5.isEmpty()) {
-                for(AABB var6 : var5.toAabbs()) {
-                    if (var6.move(var3).contains(new Vec3(this.x, this.y, this.z))) {
+                Vec3 var6 = this.position();
+
+                for(AABB var7 : var5.toAabbs()) {
+                    if (var7.move(var3).contains(var6)) {
                         this.inGround = true;
                         break;
                     }
@@ -213,70 +215,70 @@ public abstract class AbstractArrow extends Entity implements Projectile {
         } else {
             this.inGroundTime = 0;
             ++this.flightTime;
-            Vec3 var7 = new Vec3(this.x, this.y, this.z);
-            Vec3 var8 = var7.add(var1);
-            HitResult var9 = this.level.clip(new ClipContext(var7, var8, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
-            if (var9.getType() != HitResult.Type.MISS) {
-                var8 = var9.getLocation();
+            Vec3 var8 = this.position();
+            Vec3 var9 = var8.add(var1);
+            HitResult var10 = this.level.clip(new ClipContext(var8, var9, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
+            if (var10.getType() != HitResult.Type.MISS) {
+                var9 = var10.getLocation();
             }
 
             while(!this.removed) {
-                EntityHitResult var10 = this.findHitEntity(var7, var8);
-                if (var10 != null) {
-                    var9 = var10;
+                EntityHitResult var11 = this.findHitEntity(var8, var9);
+                if (var11 != null) {
+                    var10 = var11;
                 }
 
-                if (var9 != null && var9.getType() == HitResult.Type.ENTITY) {
-                    Entity var11 = ((EntityHitResult)var9).getEntity();
-                    Entity var12 = this.getOwner();
-                    if (var11 instanceof Player && var12 instanceof Player && !((Player)var12).canHarmPlayer((Player)var11)) {
-                        var9 = null;
+                if (var10 != null && var10.getType() == HitResult.Type.ENTITY) {
+                    Entity var12 = ((EntityHitResult)var10).getEntity();
+                    Entity var13 = this.getOwner();
+                    if (var12 instanceof Player && var13 instanceof Player && !((Player)var13).canHarmPlayer((Player)var12)) {
                         var10 = null;
+                        var11 = null;
                     }
                 }
 
-                if (var9 != null && !var0) {
-                    this.onHit(var9);
+                if (var10 != null && !var0) {
+                    this.onHit(var10);
                     this.hasImpulse = true;
                 }
 
-                if (var10 == null || this.getPierceLevel() <= 0) {
+                if (var11 == null || this.getPierceLevel() <= 0) {
                     break;
                 }
 
-                var9 = null;
+                var10 = null;
             }
 
             var1 = this.getDeltaMovement();
-            double var13 = var1.x;
-            double var14 = var1.y;
-            double var15 = var1.z;
+            double var14 = var1.x;
+            double var15 = var1.y;
+            double var16 = var1.z;
             if (this.isCritArrow()) {
-                for(int var16 = 0; var16 < 4; ++var16) {
+                for(int var17 = 0; var17 < 4; ++var17) {
                     this.level
                         .addParticle(
                             ParticleTypes.CRIT,
-                            this.x + var13 * (double)var16 / 4.0,
-                            this.y + var14 * (double)var16 / 4.0,
-                            this.z + var15 * (double)var16 / 4.0,
-                            -var13,
-                            -var14 + 0.2,
-                            -var15
+                            this.getX() + var14 * (double)var17 / 4.0,
+                            this.getY() + var15 * (double)var17 / 4.0,
+                            this.getZ() + var16 * (double)var17 / 4.0,
+                            -var14,
+                            -var15 + 0.2,
+                            -var16
                         );
                 }
             }
 
-            this.x += var13;
-            this.y += var14;
-            this.z += var15;
-            float var17 = Mth.sqrt(getHorizontalDistanceSqr(var1));
+            double var18 = this.getX() + var14;
+            double var19 = this.getY() + var15;
+            double var20 = this.getZ() + var16;
+            float var21 = Mth.sqrt(getHorizontalDistanceSqr(var1));
             if (var0) {
-                this.yRot = (float)(Mth.atan2(-var13, -var15) * 180.0F / (float)Math.PI);
+                this.yRot = (float)(Mth.atan2(-var14, -var16) * 180.0F / (float)Math.PI);
             } else {
-                this.yRot = (float)(Mth.atan2(var13, var15) * 180.0F / (float)Math.PI);
+                this.yRot = (float)(Mth.atan2(var14, var16) * 180.0F / (float)Math.PI);
             }
 
-            this.xRot = (float)(Mth.atan2(var14, (double)var17) * 180.0F / (float)Math.PI);
+            this.xRot = (float)(Mth.atan2(var15, (double)var21) * 180.0F / (float)Math.PI);
 
             while(this.xRot - this.xRotO < -180.0F) {
                 this.xRotO -= 360.0F;
@@ -296,24 +298,24 @@ public abstract class AbstractArrow extends Entity implements Projectile {
 
             this.xRot = Mth.lerp(0.2F, this.xRotO, this.xRot);
             this.yRot = Mth.lerp(0.2F, this.yRotO, this.yRot);
-            float var18 = 0.99F;
-            float var19 = 0.05F;
+            float var22 = 0.99F;
+            float var23 = 0.05F;
             if (this.isInWater()) {
-                for(int var20 = 0; var20 < 4; ++var20) {
-                    float var21 = 0.25F;
-                    this.level.addParticle(ParticleTypes.BUBBLE, this.x - var13 * 0.25, this.y - var14 * 0.25, this.z - var15 * 0.25, var13, var14, var15);
+                for(int var24 = 0; var24 < 4; ++var24) {
+                    float var25 = 0.25F;
+                    this.level.addParticle(ParticleTypes.BUBBLE, var18 - var14 * 0.25, var19 - var15 * 0.25, var20 - var16 * 0.25, var14, var15, var16);
                 }
 
-                var18 = this.getWaterInertia();
+                var22 = this.getWaterInertia();
             }
 
-            this.setDeltaMovement(var1.scale((double)var18));
+            this.setDeltaMovement(var1.scale((double)var22));
             if (!this.isNoGravity() && !var0) {
-                Vec3 var22 = this.getDeltaMovement();
-                this.setDeltaMovement(var22.x, var22.y - 0.05F, var22.z);
+                Vec3 var26 = this.getDeltaMovement();
+                this.setDeltaMovement(var26.x, var26.y - 0.05F, var26.z);
             }
 
-            this.setPos(this.x, this.y, this.z);
+            this.setPos(var18, var19, var20);
             this.checkInsideBlocks();
         }
     }
@@ -334,12 +336,10 @@ public abstract class AbstractArrow extends Entity implements Projectile {
             BlockHitResult var1 = (BlockHitResult)param0;
             BlockState var2 = this.level.getBlockState(var1.getBlockPos());
             this.lastState = var2;
-            Vec3 var3 = var1.getLocation().subtract(this.x, this.y, this.z);
+            Vec3 var3 = var1.getLocation().subtract(this.getX(), this.getY(), this.getZ());
             this.setDeltaMovement(var3);
             Vec3 var4 = var3.normalize().scale(0.05F);
-            this.x -= var4.x;
-            this.y -= var4.y;
-            this.z -= var4.z;
+            this.setPosRaw(this.getX() - var4.x, this.getY() - var4.y, this.getZ() - var4.z);
             this.playSound(this.getHitGroundSoundEvent(), 1.0F, 1.2F / (this.random.nextFloat() * 0.2F + 0.9F));
             this.inGround = true;
             this.shakeTime = 7;

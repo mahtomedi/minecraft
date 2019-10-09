@@ -153,14 +153,16 @@ public final class Vector3f {
 
     @OnlyIn(Dist.CLIENT)
     public void transform(Matrix3f param0) {
-        float[] var0 = Arrays.copyOf(this.values, 3);
+        float var0 = this.values[0];
+        float var1 = this.values[1];
+        float var2 = this.values[2];
 
-        for(int var1 = 0; var1 < 3; ++var1) {
-            this.values[var1] = 0.0F;
-
-            for(int var2 = 0; var2 < 3; ++var2) {
-                this.values[var1] += param0.get(var1, var2) * var0[var2];
-            }
+        for(int var3 = 0; var3 < 3; ++var3) {
+            float var4 = 0.0F;
+            var4 += param0.get(var3, 0) * var0;
+            var4 += param0.get(var3, 1) * var1;
+            var4 += param0.get(var3, 2) * var2;
+            this.values[var3] = var4;
         }
 
     }
@@ -175,7 +177,12 @@ public final class Vector3f {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public Quaternion rotation(float param0, boolean param1) {
-        return new Quaternion(this, param0, param1);
+    public Quaternion rotation(float param0) {
+        return new Quaternion(this, param0, false);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public Quaternion rotationDegrees(float param0) {
+        return new Quaternion(this, param0, true);
     }
 }

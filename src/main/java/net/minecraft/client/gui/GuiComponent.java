@@ -152,14 +152,15 @@ public abstract class GuiComponent {
     }
 
     protected static void innerBlit(int param0, int param1, int param2, int param3, int param4, float param5, float param6, float param7, float param8) {
-        Tesselator var0 = Tesselator.getInstance();
-        BufferBuilder var1 = var0.getBuilder();
-        var1.begin(7, DefaultVertexFormat.POSITION_TEX);
-        var1.vertex((double)param0, (double)param3, (double)param4).uv(param5, param8).endVertex();
-        var1.vertex((double)param1, (double)param3, (double)param4).uv(param6, param8).endVertex();
-        var1.vertex((double)param1, (double)param2, (double)param4).uv(param6, param7).endVertex();
-        var1.vertex((double)param0, (double)param2, (double)param4).uv(param5, param7).endVertex();
+        BufferBuilder var0 = Tesselator.getInstance().getBuilder();
+        var0.begin(7, DefaultVertexFormat.POSITION_TEX);
+        var0.vertex((double)param0, (double)param3, (double)param4).uv(param5, param8).endVertex();
+        var0.vertex((double)param1, (double)param3, (double)param4).uv(param6, param8).endVertex();
+        var0.vertex((double)param1, (double)param2, (double)param4).uv(param6, param7).endVertex();
+        var0.vertex((double)param0, (double)param2, (double)param4).uv(param5, param7).endVertex();
         var0.end();
+        RenderSystem.enableAlphaTest();
+        BufferUploader.end(var0);
     }
 
     public int getBlitOffset() {

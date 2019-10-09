@@ -81,9 +81,9 @@ public class SnowGolem extends AbstractGolem implements RangedAttackMob {
     public void aiStep() {
         super.aiStep();
         if (!this.level.isClientSide) {
-            int var0 = Mth.floor(this.x);
-            int var1 = Mth.floor(this.y);
-            int var2 = Mth.floor(this.z);
+            int var0 = Mth.floor(this.getX());
+            int var1 = Mth.floor(this.getY());
+            int var2 = Mth.floor(this.getZ());
             if (this.isInWaterRainOrBubble()) {
                 this.hurt(DamageSource.DROWN, 1.0F);
             }
@@ -99,9 +99,9 @@ public class SnowGolem extends AbstractGolem implements RangedAttackMob {
             BlockState var3 = Blocks.SNOW.defaultBlockState();
 
             for(int var4 = 0; var4 < 4; ++var4) {
-                var0 = Mth.floor(this.x + (double)((float)(var4 % 2 * 2 - 1) * 0.25F));
-                var1 = Mth.floor(this.y);
-                var2 = Mth.floor(this.z + (double)((float)(var4 / 2 % 2 * 2 - 1) * 0.25F));
+                var0 = Mth.floor(this.getX() + (double)((float)(var4 % 2 * 2 - 1) * 0.25F));
+                var1 = Mth.floor(this.getY());
+                var2 = Mth.floor(this.getZ() + (double)((float)(var4 / 2 % 2 * 2 - 1) * 0.25F));
                 BlockPos var5 = new BlockPos(var0, var1, var2);
                 if (this.level.getBlockState(var5).isAir() && this.level.getBiome(var5).getTemperature(var5) < 0.8F && var3.canSurvive(this.level, var5)) {
                     this.level.setBlockAndUpdate(var5, var3);
@@ -114,10 +114,10 @@ public class SnowGolem extends AbstractGolem implements RangedAttackMob {
     @Override
     public void performRangedAttack(LivingEntity param0, float param1) {
         Snowball var0 = new Snowball(this.level, this);
-        double var1 = param0.y + (double)param0.getEyeHeight() - 1.1F;
-        double var2 = param0.x - this.x;
-        double var3 = var1 - var0.y;
-        double var4 = param0.z - this.z;
+        double var1 = param0.getEyeY() - 1.1F;
+        double var2 = param0.getX() - this.getX();
+        double var3 = var1 - var0.getY();
+        double var4 = param0.getZ() - this.getZ();
         float var5 = Mth.sqrt(var2 * var2 + var4 * var4) * 0.2F;
         var0.shoot(var2, var3 + (double)var5, var4, 1.6F, 12.0F);
         this.playSound(SoundEvents.SNOW_GOLEM_SHOOT, 1.0F, 1.0F / (this.getRandom().nextFloat() * 0.4F + 0.8F));

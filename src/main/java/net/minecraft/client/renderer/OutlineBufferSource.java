@@ -28,7 +28,7 @@ public class OutlineBufferSource implements MultiBufferSource {
         VertexConsumer var0 = this.bufferSource.getBuffer(param0);
         Optional<ResourceLocation> var1 = param0.outlineTexture();
         if (var1.isPresent()) {
-            VertexConsumer var2 = this.outlineBufferSource.getBuffer(RenderType.OUTLINE(var1.get()));
+            VertexConsumer var2 = this.outlineBufferSource.getBuffer(RenderType.outline(var1.get()));
             OutlineBufferSource.EntityOutlineGenerator var3 = new OutlineBufferSource.EntityOutlineGenerator(
                 var2, this.teamR, this.teamG, this.teamB, this.teamA
             );
@@ -65,14 +65,6 @@ public class OutlineBufferSource implements MultiBufferSource {
 
         @Override
         public void defaultColor(int param0, int param1, int param2, int param3) {
-        }
-
-        @Override
-        public void defaultOverlayCoords(int param0, int param1) {
-        }
-
-        @Override
-        public void unsetDefaultOverlayCoords() {
         }
 
         @Override

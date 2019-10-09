@@ -55,7 +55,7 @@ public class SkullBlockRenderer extends BlockEntityRenderer<SkullBlockEntity> {
     }
 
     public void render(
-        SkullBlockEntity param0, double param1, double param2, double param3, float param4, PoseStack param5, MultiBufferSource param6, int param7
+        SkullBlockEntity param0, double param1, double param2, double param3, float param4, PoseStack param5, MultiBufferSource param6, int param7, int param8
     ) {
         float var0 = param0.getMouthAnimation(param4);
         BlockState var1 = param0.getBlockState();
@@ -97,25 +97,22 @@ public class SkullBlockRenderer extends BlockEntityRenderer<SkullBlockEntity> {
         }
 
         param5.scale(-1.0F, -1.0F, 1.0F);
-        VertexConsumer var1 = param6.getBuffer(RenderType.NEW_ENTITY(getLocation(param2, param3)));
-        OverlayTexture.setDefault(var1);
-        var0.render(param5, var1, param4, param1, 0.0F, 0.0625F, param7);
-        var1.unsetDefaultOverlayCoords();
+        VertexConsumer var1 = param6.getBuffer(getRenderType(param2, param3));
+        var0.setupAnim(param4, param1, 0.0F);
+        var0.renderToBuffer(param5, var1, param7, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F);
         param5.popPose();
     }
 
-    private static ResourceLocation getLocation(SkullBlock.Type param0, @Nullable GameProfile param1) {
+    private static RenderType getRenderType(SkullBlock.Type param0, @Nullable GameProfile param1) {
         ResourceLocation var0 = SKIN_BY_TYPE.get(param0);
         if (param0 == SkullBlock.Types.PLAYER && param1 != null) {
             Minecraft var1 = Minecraft.getInstance();
             Map<Type, MinecraftProfileTexture> var2 = var1.getSkinManager().getInsecureSkinInformation(param1);
-            if (var2.containsKey(Type.SKIN)) {
-                var0 = var1.getSkinManager().registerTexture(var2.get(Type.SKIN), Type.SKIN);
-            } else {
-                var0 = DefaultPlayerSkin.getDefaultSkin(Player.createPlayerUUID(param1));
-            }
+            return var2.containsKey(Type.SKIN)
+                ? RenderType.entityTranslucent(var1.getSkinManager().registerTexture(var2.get(Type.SKIN), Type.SKIN))
+                : RenderType.entitySolid(DefaultPlayerSkin.getDefaultSkin(Player.createPlayerUUID(param1)));
+        } else {
+            return RenderType.entitySolid(var0);
         }
-
-        return var0;
     }
 }

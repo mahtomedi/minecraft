@@ -46,7 +46,8 @@ public class Ghast extends FlyingMob implements Enemy {
         this.goalSelector.addGoal(5, new Ghast.RandomFloatAroundGoal(this));
         this.goalSelector.addGoal(7, new Ghast.GhastLookGoal(this));
         this.goalSelector.addGoal(7, new Ghast.GhastShootFireballGoal(this));
-        this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Player.class, 10, true, false, param0 -> Math.abs(param0.y - this.y) <= 4.0));
+        this.targetSelector
+            .addGoal(1, new NearestAttackableTargetGoal<>(this, Player.class, 10, true, false, param0 -> Math.abs(param0.getY() - this.getY()) <= 4.0));
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -173,8 +174,8 @@ public class Ghast extends FlyingMob implements Enemy {
                 LivingEntity var1 = this.ghast.getTarget();
                 double var2 = 64.0;
                 if (var1.distanceToSqr(this.ghast) < 4096.0) {
-                    double var3 = var1.x - this.ghast.x;
-                    double var4 = var1.z - this.ghast.z;
+                    double var3 = var1.getX() - this.ghast.getX();
+                    double var4 = var1.getZ() - this.ghast.getZ();
                     this.ghast.yRot = -((float)Mth.atan2(var3, var4)) * (180.0F / (float)Math.PI);
                     this.ghast.yBodyRot = this.ghast.yRot;
                 }
@@ -197,7 +198,7 @@ public class Ghast extends FlyingMob implements Enemy {
             if (this.operation == MoveControl.Operation.MOVE_TO) {
                 if (this.floatDuration-- <= 0) {
                     this.floatDuration += this.ghast.getRandom().nextInt(5) + 2;
-                    Vec3 var0 = new Vec3(this.wantedX - this.ghast.x, this.wantedY - this.ghast.y, this.wantedZ - this.ghast.z);
+                    Vec3 var0 = new Vec3(this.wantedX - this.ghast.getX(), this.wantedY - this.ghast.getY(), this.wantedZ - this.ghast.getZ());
                     double var1 = var0.length();
                     var0 = var0.normalize();
                     if (this.canReach(var0, Mth.ceil(var1))) {
@@ -261,17 +262,13 @@ public class Ghast extends FlyingMob implements Enemy {
                 if (this.chargeTime == 20) {
                     double var3 = 4.0;
                     Vec3 var4 = this.ghast.getViewVector(1.0F);
-                    double var5 = var0.x - (this.ghast.x + var4.x * 4.0);
-                    double var6 = var0.getBoundingBox().minY
-                        + (double)(var0.getBbHeight() / 2.0F)
-                        - (0.5 + this.ghast.y + (double)(this.ghast.getBbHeight() / 2.0F));
-                    double var7 = var0.z - (this.ghast.z + var4.z * 4.0);
+                    double var5 = var0.getX() - (this.ghast.getX() + var4.x * 4.0);
+                    double var6 = var0.getY(0.5) - (0.5 + this.ghast.getY(0.5));
+                    double var7 = var0.getZ() - (this.ghast.getZ() + var4.z * 4.0);
                     var2.levelEvent(null, 1016, new BlockPos(this.ghast), 0);
                     LargeFireball var8 = new LargeFireball(var2, this.ghast, var5, var6, var7);
                     var8.explosionPower = this.ghast.getExplosionPower();
-                    var8.x = this.ghast.x + var4.x * 4.0;
-                    var8.y = this.ghast.y + (double)(this.ghast.getBbHeight() / 2.0F) + 0.5;
-                    var8.z = this.ghast.z + var4.z * 4.0;
+                    var8.setPos(this.ghast.getX() + var4.x * 4.0, this.ghast.getY(0.5) + 0.5, var8.getZ() + var4.z * 4.0);
                     var2.addFreshEntity(var8);
                     this.chargeTime = -40;
                 }
@@ -297,9 +294,9 @@ public class Ghast extends FlyingMob implements Enemy {
             if (!var0.hasWanted()) {
                 return true;
             } else {
-                double var1 = var0.getWantedX() - this.ghast.x;
-                double var2 = var0.getWantedY() - this.ghast.y;
-                double var3 = var0.getWantedZ() - this.ghast.z;
+                double var1 = var0.getWantedX() - this.ghast.getX();
+                double var2 = var0.getWantedY() - this.ghast.getY();
+                double var3 = var0.getWantedZ() - this.ghast.getZ();
                 double var4 = var1 * var1 + var2 * var2 + var3 * var3;
                 return var4 < 1.0 || var4 > 3600.0;
             }
@@ -313,9 +310,9 @@ public class Ghast extends FlyingMob implements Enemy {
         @Override
         public void start() {
             Random var0 = this.ghast.getRandom();
-            double var1 = this.ghast.x + (double)((var0.nextFloat() * 2.0F - 1.0F) * 16.0F);
-            double var2 = this.ghast.y + (double)((var0.nextFloat() * 2.0F - 1.0F) * 16.0F);
-            double var3 = this.ghast.z + (double)((var0.nextFloat() * 2.0F - 1.0F) * 16.0F);
+            double var1 = this.ghast.getX() + (double)((var0.nextFloat() * 2.0F - 1.0F) * 16.0F);
+            double var2 = this.ghast.getY() + (double)((var0.nextFloat() * 2.0F - 1.0F) * 16.0F);
+            double var3 = this.ghast.getZ() + (double)((var0.nextFloat() * 2.0F - 1.0F) * 16.0F);
             this.ghast.getMoveControl().setWantedPosition(var1, var2, var3, 1.0);
         }
     }

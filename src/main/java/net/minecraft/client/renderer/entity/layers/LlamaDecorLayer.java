@@ -1,9 +1,12 @@
 package net.minecraft.client.renderer.entity.layers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.LlamaModel;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.animal.horse.Llama;
 import net.minecraft.world.item.DyeColor;
@@ -64,6 +67,7 @@ public class LlamaDecorLayer extends RenderLayer<Llama, LlamaModel<Llama>> {
 
         this.getParentModel().copyPropertiesTo(this.model);
         this.model.setupAnim(param3, param4, param5, param7, param8, param9, param10);
-        renderModel(this.model, var1, param0, param1, param2, 1.0F, 1.0F, 1.0F);
+        VertexConsumer var4 = param1.getBuffer(RenderType.entityCutoutNoCull(var1));
+        this.model.renderToBuffer(param0, var4, param2, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F);
     }
 }

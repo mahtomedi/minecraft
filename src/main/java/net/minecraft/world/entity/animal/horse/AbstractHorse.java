@@ -228,9 +228,9 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
             this.level
                 .playSound(
                     null,
-                    this.x,
-                    this.y,
-                    this.z,
+                    this.getX(),
+                    this.getY(),
+                    this.getZ(),
                     SoundEvents.HORSE_EAT,
                     this.getSoundSource(),
                     1.0F,
@@ -241,13 +241,15 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
     }
 
     @Override
-    public void causeFallDamage(float param0, float param1) {
+    public boolean causeFallDamage(float param0, float param1) {
         if (param0 > 1.0F) {
             this.playSound(SoundEvents.HORSE_LAND, 0.4F, 1.0F);
         }
 
-        int var0 = Mth.ceil((param0 * 0.5F - 3.0F) * param1);
-        if (var0 > 0) {
+        int var0 = this.calculateFallDamage(param0, param1);
+        if (var0 <= 0) {
+            return false;
+        } else {
             this.hurt(DamageSource.FALL, (float)var0);
             if (this.isVehicle()) {
                 for(Entity var1 : this.getIndirectPassengers()) {
@@ -255,14 +257,14 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
                 }
             }
 
-            BlockState var2 = this.level.getBlockState(new BlockPos(this.x, this.y - 0.2 - (double)this.yRotO, this.z));
-            if (!var2.isAir() && !this.isSilent()) {
-                SoundType var3 = var2.getSoundType();
-                this.level
-                    .playSound(null, this.x, this.y, this.z, var3.getStepSound(), this.getSoundSource(), var3.getVolume() * 0.5F, var3.getPitch() * 0.75F);
-            }
-
+            this.playBlockFallSound();
+            return true;
         }
+    }
+
+    @Override
+    protected int calculateFallDamage(float param0, float param1) {
+        return Mth.ceil((param0 * 0.5F - 3.0F) * param1);
     }
 
     protected int getInventorySize() {
@@ -456,16 +458,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
         }
 
         if (this.isBaby() && var2 > 0) {
-            this.level
-                .addParticle(
-                    ParticleTypes.HAPPY_VILLAGER,
-                    this.x + (double)(this.random.nextFloat() * this.getBbWidth() * 2.0F) - (double)this.getBbWidth(),
-                    this.y + 0.5 + (double)(this.random.nextFloat() * this.getBbHeight()),
-                    this.z + (double)(this.random.nextFloat() * this.getBbWidth() * 2.0F) - (double)this.getBbWidth(),
-                    0.0,
-                    0.0,
-                    0.0
-                );
+            this.level.addParticle(ParticleTypes.HAPPY_VILLAGER, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), 0.0, 0.0, 0.0);
             if (!this.level.isClientSide) {
                 this.ageUp(var2);
             }
@@ -559,7 +552,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
     protected void followMommy() {
         if (this.isBred() && this.isBaby() && !this.isEating()) {
             LivingEntity var0 = this.level
-                .getNearestEntity(AbstractHorse.class, MOMMY_TARGETING, this, this.x, this.y, this.z, this.getBoundingBox().inflate(16.0));
+                .getNearestEntity(AbstractHorse.class, MOMMY_TARGETING, this, this.getX(), this.getY(), this.getZ(), this.getBoundingBox().inflate(16.0));
             if (var0 != null && this.distanceToSqr(var0) > 4.0) {
                 this.navigation.createPath(var0, 0);
             }
@@ -750,8 +743,8 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
                 }
 
                 this.animationSpeedOld = this.animationSpeed;
-                double var9 = this.x - this.xo;
-                double var10 = this.z - this.zo;
+                double var9 = this.getX() - this.xo;
+                double var10 = this.getZ() - this.zo;
                 float var11 = Mth.sqrt(var9 * var9 + var10 * var10) * 4.0F;
                 if (var11 > 1.0F) {
                     var11 = 1.0F;
@@ -912,16 +905,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
             double var2 = this.random.nextGaussian() * 0.02;
             double var3 = this.random.nextGaussian() * 0.02;
             double var4 = this.random.nextGaussian() * 0.02;
-            this.level
-                .addParticle(
-                    var0,
-                    this.x + (double)(this.random.nextFloat() * this.getBbWidth() * 2.0F) - (double)this.getBbWidth(),
-                    this.y + 0.5 + (double)(this.random.nextFloat() * this.getBbHeight()),
-                    this.z + (double)(this.random.nextFloat() * this.getBbWidth() * 2.0F) - (double)this.getBbWidth(),
-                    var2,
-                    var3,
-                    var4
-                );
+            this.level.addParticle(var0, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), var2, var3, var4);
         }
 
     }
@@ -953,7 +937,9 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
             float var3 = 0.7F * this.standAnimO;
             float var4 = 0.15F * this.standAnimO;
             param0.setPos(
-                this.x + (double)(var3 * var1), this.y + this.getRideHeight() + param0.getRidingHeight() + (double)var4, this.z - (double)(var3 * var2)
+                this.getX() + (double)(var3 * var1),
+                this.getY() + this.getRideHeight() + param0.getRidingHeight() + (double)var4,
+                this.getZ() - (double)(var3 * var2)
             );
             if (param0 instanceof LivingEntity) {
                 ((LivingEntity)param0).yBodyRot = this.yBodyRot;

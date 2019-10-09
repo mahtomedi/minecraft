@@ -6,41 +6,33 @@ import java.util.Set;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelSimulatedRW;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
-public class GroundBushFeature extends AbstractTreeFeature<NoneFeatureConfiguration> {
-    private final BlockState leaf;
-    private final BlockState trunk;
-
-    public GroundBushFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0, BlockState param1, BlockState param2) {
-        super(param0, false);
-        this.trunk = param1;
-        this.leaf = param2;
+public class GroundBushFeature extends AbstractTreeFeature<TreeConfiguration> {
+    public GroundBushFeature(Function<Dynamic<?>, ? extends TreeConfiguration> param0) {
+        super(param0);
     }
 
     @Override
-    public boolean doPlace(Set<BlockPos> param0, LevelSimulatedRW param1, Random param2, BlockPos param3, BoundingBox param4) {
-        param3 = param1.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, param3).below();
-        if (isGrassOrDirt(param1, param3)) {
-            param3 = param3.above();
-            this.setBlock(param0, param1, param3, this.trunk, param4);
+    public boolean doPlace(
+        LevelSimulatedRW param0, Random param1, BlockPos param2, Set<BlockPos> param3, Set<BlockPos> param4, BoundingBox param5, TreeConfiguration param6
+    ) {
+        param2 = param0.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, param2).below();
+        if (isGrassOrDirt(param0, param2)) {
+            param2 = param2.above();
+            this.placeLog(param0, param1, param2, param3, param5, param6);
 
-            for(int var0 = param3.getY(); var0 <= param3.getY() + 2; ++var0) {
-                int var1 = var0 - param3.getY();
-                int var2 = 2 - var1;
+            for(int var0 = 0; var0 <= 2; ++var0) {
+                int var1 = 2 - var0;
 
-                for(int var3 = param3.getX() - var2; var3 <= param3.getX() + var2; ++var3) {
-                    int var4 = var3 - param3.getX();
-
-                    for(int var5 = param3.getZ() - var2; var5 <= param3.getZ() + var2; ++var5) {
-                        int var6 = var5 - param3.getZ();
-                        if (Math.abs(var4) != var2 || Math.abs(var6) != var2 || param2.nextInt(2) != 0) {
-                            BlockPos var7 = new BlockPos(var3, var0, var5);
-                            if (isAirOrLeaves(param1, var7)) {
-                                this.setBlock(param0, param1, var7, this.leaf, param4);
-                            }
+                for(int var2 = -var1; var2 <= var1; ++var2) {
+                    for(int var3 = -var1; var3 <= var1; ++var3) {
+                        if (Math.abs(var2) != var1 || Math.abs(var3) != var1 || param1.nextInt(2) != 0) {
+                            this.placeLeaf(
+                                param0, param1, new BlockPos(var2 + param2.getX(), var0 + param2.getY(), var3 + param2.getZ()), param4, param5, param6
+                            );
                         }
                     }
                 }

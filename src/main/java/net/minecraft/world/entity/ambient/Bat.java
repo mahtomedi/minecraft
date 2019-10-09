@@ -105,7 +105,7 @@ public class Bat extends AmbientCreature {
         super.tick();
         if (this.isResting()) {
             this.setDeltaMovement(Vec3.ZERO);
-            this.y = (double)Mth.floor(this.y) + 1.0 - (double)this.getBbHeight();
+            this.setPosRaw(this.getX(), (double)Mth.floor(this.getY()) + 1.0 - (double)this.getBbHeight(), this.getZ());
         } else {
             this.setDeltaMovement(this.getDeltaMovement().multiply(1.0, 0.6, 1.0));
         }
@@ -138,15 +138,15 @@ public class Bat extends AmbientCreature {
 
             if (this.targetPosition == null || this.random.nextInt(30) == 0 || this.targetPosition.closerThan(this.position(), 2.0)) {
                 this.targetPosition = new BlockPos(
-                    this.x + (double)this.random.nextInt(7) - (double)this.random.nextInt(7),
-                    this.y + (double)this.random.nextInt(6) - 2.0,
-                    this.z + (double)this.random.nextInt(7) - (double)this.random.nextInt(7)
+                    this.getX() + (double)this.random.nextInt(7) - (double)this.random.nextInt(7),
+                    this.getY() + (double)this.random.nextInt(6) - 2.0,
+                    this.getZ() + (double)this.random.nextInt(7) - (double)this.random.nextInt(7)
                 );
             }
 
-            double var2 = (double)this.targetPosition.getX() + 0.5 - this.x;
-            double var3 = (double)this.targetPosition.getY() + 0.1 - this.y;
-            double var4 = (double)this.targetPosition.getZ() + 0.5 - this.z;
+            double var2 = (double)this.targetPosition.getX() + 0.5 - this.getX();
+            double var3 = (double)this.targetPosition.getY() + 0.1 - this.getY();
+            double var4 = (double)this.targetPosition.getZ() + 0.5 - this.getZ();
             Vec3 var5 = this.getDeltaMovement();
             Vec3 var6 = var5.add(
                 (Math.signum(var2) * 0.5 - var5.x) * 0.1F, (Math.signum(var3) * 0.7F - var5.y) * 0.1F, (Math.signum(var4) * 0.5 - var5.z) * 0.1F
@@ -169,7 +169,8 @@ public class Bat extends AmbientCreature {
     }
 
     @Override
-    public void causeFallDamage(float param0, float param1) {
+    public boolean causeFallDamage(float param0, float param1) {
+        return false;
     }
 
     @Override

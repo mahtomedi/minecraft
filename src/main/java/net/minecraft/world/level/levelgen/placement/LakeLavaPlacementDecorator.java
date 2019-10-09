@@ -9,20 +9,20 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 
-public class LakeLavaPlacementDecorator extends FeatureDecorator<LakeChanceDecoratorConfig> {
-    public LakeLavaPlacementDecorator(Function<Dynamic<?>, ? extends LakeChanceDecoratorConfig> param0) {
+public class LakeLavaPlacementDecorator extends FeatureDecorator<ChanceDecoratorConfiguration> {
+    public LakeLavaPlacementDecorator(Function<Dynamic<?>, ? extends ChanceDecoratorConfiguration> param0) {
         super(param0);
     }
 
     public Stream<BlockPos> getPositions(
-        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, LakeChanceDecoratorConfig param3, BlockPos param4
+        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, ChanceDecoratorConfiguration param3, BlockPos param4
     ) {
         if (param2.nextInt(param3.chance / 10) == 0) {
-            int var0 = param2.nextInt(16);
-            int var1 = param2.nextInt(param2.nextInt(param1.getGenDepth() - 8) + 8);
-            int var2 = param2.nextInt(16);
-            if (var1 < param0.getSeaLevel() || param2.nextInt(param3.chance / 8) == 0) {
-                return Stream.of(param4.offset(var0, var1, var2));
+            int var0 = param2.nextInt(16) + param4.getX();
+            int var1 = param2.nextInt(16) + param4.getZ();
+            int var2 = param2.nextInt(param2.nextInt(param1.getGenDepth() - 8) + 8);
+            if (var2 < param0.getSeaLevel() || param2.nextInt(param3.chance / 8) == 0) {
+                return Stream.of(new BlockPos(var0, var2, var1));
             }
         }
 

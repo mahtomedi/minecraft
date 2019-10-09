@@ -110,7 +110,7 @@ public abstract class PathNavigation {
     protected Path createPath(Set<BlockPos> param0, int param1, boolean param2, int param3) {
         if (param0.isEmpty()) {
             return null;
-        } else if (this.mob.y < 0.0) {
+        } else if (this.mob.getY() < 0.0) {
             return null;
         } else if (!this.canUpdatePath()) {
             return null;
@@ -210,9 +210,9 @@ public abstract class PathNavigation {
         Vec3 var0 = this.getTempMobPos();
         this.maxDistanceToWaypoint = this.mob.getBbWidth() > 0.75F ? this.mob.getBbWidth() / 2.0F : 0.75F - this.mob.getBbWidth() / 2.0F;
         Vec3 var1 = this.path.currentPos();
-        if (Math.abs(this.mob.x - (var1.x + 0.5)) < (double)this.maxDistanceToWaypoint
-            && Math.abs(this.mob.z - (var1.z + 0.5)) < (double)this.maxDistanceToWaypoint
-            && Math.abs(this.mob.y - var1.y) < 1.0) {
+        if (Math.abs(this.mob.getX() - (var1.x + 0.5)) < (double)this.maxDistanceToWaypoint
+            && Math.abs(this.mob.getZ() - (var1.z + 0.5)) < (double)this.maxDistanceToWaypoint
+            && Math.abs(this.mob.getY() - var1.y) < 1.0) {
             this.path.setIndex(this.path.getIndex() + 1);
         }
 
@@ -307,7 +307,7 @@ public abstract class PathNavigation {
     public void recomputePath(BlockPos param0) {
         if (this.path != null && !this.path.isDone() && this.path.getSize() != 0) {
             Node var0 = this.path.last();
-            Vec3 var1 = new Vec3(((double)var0.x + this.mob.x) / 2.0, ((double)var0.y + this.mob.y) / 2.0, ((double)var0.z + this.mob.z) / 2.0);
+            Vec3 var1 = new Vec3(((double)var0.x + this.mob.getX()) / 2.0, ((double)var0.y + this.mob.getY()) / 2.0, ((double)var0.z + this.mob.getZ()) / 2.0);
             if (param0.closerThan(var1, (double)(this.path.getSize() - this.path.getIndex()))) {
                 this.recomputePath();
             }

@@ -52,7 +52,7 @@ public class SleepInBed extends Behavior<LivingEntity> {
             return false;
         } else {
             BlockPos var1 = var0.get().pos();
-            return param1.getBrain().isActive(Activity.REST) && param1.y > (double)var1.getY() + 0.4 && var1.closerThan(param1.position(), 1.14);
+            return param1.getBrain().isActive(Activity.REST) && param1.getY() > (double)var1.getY() + 0.4 && var1.closerThan(param1.position(), 1.14);
         }
     }
 

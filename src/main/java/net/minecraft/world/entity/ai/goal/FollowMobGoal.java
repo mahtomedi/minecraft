@@ -76,9 +76,9 @@ public class FollowMobGoal extends Goal {
             this.mob.getLookControl().setLookAt(this.followingMob, 10.0F, (float)this.mob.getMaxHeadXRot());
             if (--this.timeToRecalcPath <= 0) {
                 this.timeToRecalcPath = 10;
-                double var0 = this.mob.x - this.followingMob.x;
-                double var1 = this.mob.y - this.followingMob.y;
-                double var2 = this.mob.z - this.followingMob.z;
+                double var0 = this.mob.getX() - this.followingMob.getX();
+                double var1 = this.mob.getY() - this.followingMob.getY();
+                double var2 = this.mob.getZ() - this.followingMob.getZ();
                 double var3 = var0 * var0 + var1 * var1 + var2 * var2;
                 if (!(var3 <= (double)(this.stopDistance * this.stopDistance))) {
                     this.navigation.moveTo(this.followingMob, this.speedModifier);
@@ -86,10 +86,10 @@ public class FollowMobGoal extends Goal {
                     this.navigation.stop();
                     LookControl var4 = this.followingMob.getLookControl();
                     if (var3 <= (double)this.stopDistance
-                        || var4.getWantedX() == this.mob.x && var4.getWantedY() == this.mob.y && var4.getWantedZ() == this.mob.z) {
-                        double var5 = this.followingMob.x - this.mob.x;
-                        double var6 = this.followingMob.z - this.mob.z;
-                        this.navigation.moveTo(this.mob.x - var5, this.mob.y, this.mob.z - var6, this.speedModifier);
+                        || var4.getWantedX() == this.mob.getX() && var4.getWantedY() == this.mob.getY() && var4.getWantedZ() == this.mob.getZ()) {
+                        double var5 = this.followingMob.getX() - this.mob.getX();
+                        double var6 = this.followingMob.getZ() - this.mob.getZ();
+                        this.navigation.moveTo(this.mob.getX() - var5, this.mob.getY(), this.mob.getZ() - var6, this.speedModifier);
                     }
 
                 }

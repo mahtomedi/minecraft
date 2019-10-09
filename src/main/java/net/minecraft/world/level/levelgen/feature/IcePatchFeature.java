@@ -9,15 +9,18 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
+import net.minecraft.world.level.levelgen.feature.configurations.FeatureRadiusConfiguration;
 
-public class IcePatchFeature extends Feature<FeatureRadius> {
+public class IcePatchFeature extends Feature<FeatureRadiusConfiguration> {
     private final Block block = Blocks.PACKED_ICE;
 
-    public IcePatchFeature(Function<Dynamic<?>, ? extends FeatureRadius> param0) {
+    public IcePatchFeature(Function<Dynamic<?>, ? extends FeatureRadiusConfiguration> param0) {
         super(param0);
     }
 
-    public boolean place(LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, FeatureRadius param4) {
+    public boolean place(
+        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, FeatureRadiusConfiguration param4
+    ) {
         while(param0.isEmptyBlock(param3) && param3.getY() > 2) {
             param3 = param3.below();
         }
@@ -36,7 +39,7 @@ public class IcePatchFeature extends Feature<FeatureRadius> {
                         for(int var6 = param3.getY() - 1; var6 <= param3.getY() + 1; ++var6) {
                             BlockPos var7 = new BlockPos(var2, var6, var3);
                             Block var8 = param0.getBlockState(var7).getBlock();
-                            if (Block.equalsDirt(var8) || var8 == Blocks.SNOW_BLOCK || var8 == Blocks.ICE) {
+                            if (isDirt(var8) || var8 == Blocks.SNOW_BLOCK || var8 == Blocks.ICE) {
                                 param0.setBlock(var7, this.block.defaultBlockState(), 2);
                             }
                         }

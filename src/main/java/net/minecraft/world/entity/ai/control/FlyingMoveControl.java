@@ -19,9 +19,9 @@ public class FlyingMoveControl extends MoveControl {
         if (this.operation == MoveControl.Operation.MOVE_TO) {
             this.operation = MoveControl.Operation.WAIT;
             this.mob.setNoGravity(true);
-            double var0 = this.wantedX - this.mob.x;
-            double var1 = this.wantedY - this.mob.y;
-            double var2 = this.wantedZ - this.mob.z;
+            double var0 = this.wantedX - this.mob.getX();
+            double var1 = this.wantedY - this.mob.getY();
+            double var2 = this.wantedZ - this.mob.getZ();
             double var3 = var0 * var0 + var1 * var1 + var2 * var2;
             if (var3 < 2.5000003E-7F) {
                 this.mob.setYya(0.0F);

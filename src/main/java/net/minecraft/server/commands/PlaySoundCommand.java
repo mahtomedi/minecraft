@@ -153,9 +153,9 @@ public class PlaySoundCommand {
                 }
 
                 var2 = (ServerPlayer)var11.next();
-                double var3 = param4.x - var2.x;
-                double var4 = param4.y - var2.y;
-                double var5 = param4.z - var2.z;
+                double var3 = param4.x - var2.getX();
+                double var4 = param4.y - var2.getY();
+                double var5 = param4.z - var2.getZ();
                 double var6 = var3 * var3 + var4 * var4 + var5 * var5;
                 var7 = param4;
                 var8 = param5;
@@ -165,7 +165,7 @@ public class PlaySoundCommand {
 
                 if (!(param7 <= 0.0F)) {
                     double var9 = (double)Mth.sqrt(var6);
-                    var7 = new Vec3(var2.x + var3 / var9 * 2.0, var2.y + var4 / var9 * 2.0, var2.z + var5 / var9 * 2.0);
+                    var7 = new Vec3(var2.getX() + var3 / var9 * 2.0, var2.getY() + var4 / var9 * 2.0, var2.getZ() + var5 / var9 * 2.0);
                     var8 = param7;
                     break;
                 }

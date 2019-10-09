@@ -148,13 +148,13 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
             Entity var1 = this.level.getEntity(this.getAlternativeTarget(0));
             if (var1 != null) {
                 double var2 = var0.y;
-                if (this.y < var1.y || !this.isPowered() && this.y < var1.y + 5.0) {
+                if (this.getY() < var1.getY() || !this.isPowered() && this.getY() < var1.getY() + 5.0) {
                     var2 = Math.max(0.0, var2);
                     var2 += 0.3 - var2 * 0.6F;
                 }
 
                 var0 = new Vec3(var0.x, var2, var0.z);
-                Vec3 var3 = new Vec3(var1.x - this.x, 0.0, var1.z - this.z);
+                Vec3 var3 = new Vec3(var1.getX() - this.getX(), 0.0, var1.getZ() - this.getZ());
                 if (getHorizontalDistanceSqr(var3) > 9.0) {
                     Vec3 var4 = var3.normalize();
                     var0 = var0.add(var4.x * 0.3 - var0.x * 0.6, 0.0, var4.z * 0.3 - var0.z * 0.6);
@@ -185,9 +185,9 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
                 double var9 = this.getHeadX(var6 + 1);
                 double var10 = this.getHeadY(var6 + 1);
                 double var11 = this.getHeadZ(var6 + 1);
-                double var12 = var8.x - var9;
-                double var13 = var8.y + (double)var8.getEyeHeight() - var10;
-                double var14 = var8.z - var11;
+                double var12 = var8.getX() - var9;
+                double var13 = var8.getEyeY() - var10;
+                double var14 = var8.getZ() - var11;
                 double var15 = (double)Mth.sqrt(var12 * var12 + var14 * var14);
                 float var16 = (float)(Mth.atan2(var14, var12) * 180.0F / (float)Math.PI) - 90.0F;
                 float var17 = (float)(-(Mth.atan2(var13, var15) * 180.0F / (float)Math.PI));
@@ -233,9 +233,9 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
                 this.level
                     .addParticle(
                         ParticleTypes.ENTITY_EFFECT,
-                        this.x + this.random.nextGaussian(),
-                        this.y + (double)(this.random.nextFloat() * 3.3F),
-                        this.z + this.random.nextGaussian(),
+                        this.getX() + this.random.nextGaussian(),
+                        this.getY() + (double)(this.random.nextFloat() * 3.3F),
+                        this.getZ() + this.random.nextGaussian(),
                         0.7F,
                         0.7F,
                         0.9F
@@ -253,7 +253,7 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
                 Explosion.BlockInteraction var1 = this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)
                     ? Explosion.BlockInteraction.DESTROY
                     : Explosion.BlockInteraction.NONE;
-                this.level.explode(this, this.x, this.y + (double)this.getEyeHeight(), this.z, 7.0F, false, var1);
+                this.level.explode(this, this.getX(), this.getEyeY(), this.getZ(), 7.0F, false, var1);
                 this.level.globalLevelEvent(1023, new BlockPos(this), 0);
             }
 
@@ -272,9 +272,9 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
                         && this.idleHeadUpdates[var2 - 1]++ > 15) {
                         float var3 = 10.0F;
                         float var4 = 5.0F;
-                        double var5 = Mth.nextDouble(this.random, this.x - 10.0, this.x + 10.0);
-                        double var6 = Mth.nextDouble(this.random, this.y - 5.0, this.y + 5.0);
-                        double var7 = Mth.nextDouble(this.random, this.z - 10.0, this.z + 10.0);
+                        double var5 = Mth.nextDouble(this.random, this.getX() - 10.0, this.getX() + 10.0);
+                        double var6 = Mth.nextDouble(this.random, this.getY() - 5.0, this.getY() + 5.0);
+                        double var7 = Mth.nextDouble(this.random, this.getZ() - 10.0, this.getZ() + 10.0);
                         this.performRangedAttack(var2 + 1, var5, var6, var7, true);
                         this.idleHeadUpdates[var2 - 1] = 0;
                     }
@@ -323,9 +323,9 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
             if (this.destroyBlocksTick > 0) {
                 --this.destroyBlocksTick;
                 if (this.destroyBlocksTick == 0 && this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
-                    int var13 = Mth.floor(this.y);
-                    int var14 = Mth.floor(this.x);
-                    int var15 = Mth.floor(this.z);
+                    int var13 = Mth.floor(this.getY());
+                    int var14 = Mth.floor(this.getX());
+                    int var15 = Mth.floor(this.getZ());
                     boolean var16 = false;
 
                     for(int var17 = -1; var17 <= 1; ++var17) {
@@ -384,25 +384,25 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
 
     private double getHeadX(int param0) {
         if (param0 <= 0) {
-            return this.x;
+            return this.getX();
         } else {
             float var0 = (this.yBodyRot + (float)(180 * (param0 - 1))) * (float) (Math.PI / 180.0);
             float var1 = Mth.cos(var0);
-            return this.x + (double)var1 * 1.3;
+            return this.getX() + (double)var1 * 1.3;
         }
     }
 
     private double getHeadY(int param0) {
-        return param0 <= 0 ? this.y + 3.0 : this.y + 2.2;
+        return param0 <= 0 ? this.getY() + 3.0 : this.getY() + 2.2;
     }
 
     private double getHeadZ(int param0) {
         if (param0 <= 0) {
-            return this.z;
+            return this.getZ();
         } else {
             float var0 = (this.yBodyRot + (float)(180 * (param0 - 1))) * (float) (Math.PI / 180.0);
             float var1 = Mth.sin(var0);
-            return this.z + (double)var1 * 1.3;
+            return this.getZ() + (double)var1 * 1.3;
         }
     }
 
@@ -420,7 +420,9 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
     }
 
     private void performRangedAttack(int param0, LivingEntity param1) {
-        this.performRangedAttack(param0, param1.x, param1.y + (double)param1.getEyeHeight() * 0.5, param1.z, param0 == 0 && this.random.nextFloat() < 0.001F);
+        this.performRangedAttack(
+            param0, param1.getX(), param1.getY() + (double)param1.getEyeHeight() * 0.5, param1.getZ(), param0 == 0 && this.random.nextFloat() < 0.001F
+        );
     }
 
     private void performRangedAttack(int param0, double param1, double param2, double param3, boolean param4) {
@@ -436,9 +438,7 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
             var6.setDangerous(true);
         }
 
-        var6.y = var1;
-        var6.x = var0;
-        var6.z = var2;
+        var6.setPosRaw(var0, var1, var2);
         this.level.addFreshEntity(var6);
     }
 
@@ -502,7 +502,8 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
     }
 
     @Override
-    public void causeFallDamage(float param0, float param1) {
+    public boolean causeFallDamage(float param0, float param1) {
+        return false;
     }
 
     @Override

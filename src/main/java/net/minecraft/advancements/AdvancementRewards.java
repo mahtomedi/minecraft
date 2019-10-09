@@ -57,9 +57,9 @@ public class AdvancementRewards {
                     param0.level
                         .playSound(
                             null,
-                            param0.x,
-                            param0.y,
-                            param0.z,
+                            param0.getX(),
+                            param0.getY(),
+                            param0.getZ(),
                             SoundEvents.ITEM_PICKUP,
                             SoundSource.PLAYERS,
                             0.2F,

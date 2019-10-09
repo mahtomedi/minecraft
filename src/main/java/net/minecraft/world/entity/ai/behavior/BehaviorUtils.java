@@ -56,8 +56,8 @@ public class BehaviorUtils {
     }
 
     public static void throwItem(LivingEntity param0, ItemStack param1, LivingEntity param2) {
-        double var0 = param0.y - 0.3F + (double)param0.getEyeHeight();
-        ItemEntity var1 = new ItemEntity(param0.level, param0.x, var0, param0.z, param1);
+        double var0 = param0.getEyeY() - 0.3F;
+        ItemEntity var1 = new ItemEntity(param0.level, param0.getX(), var0, param0.getZ(), param1);
         BlockPos var2 = new BlockPos(param2);
         BlockPos var3 = new BlockPos(param0);
         float var4 = 0.3F;

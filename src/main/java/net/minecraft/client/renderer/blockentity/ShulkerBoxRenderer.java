@@ -6,6 +6,7 @@ import com.mojang.math.Vector3f;
 import net.minecraft.client.model.ShulkerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.core.Direction;
@@ -27,7 +28,15 @@ public class ShulkerBoxRenderer extends BlockEntityRenderer<ShulkerBoxBlockEntit
     }
 
     public void render(
-        ShulkerBoxBlockEntity param0, double param1, double param2, double param3, float param4, PoseStack param5, MultiBufferSource param6, int param7
+        ShulkerBoxBlockEntity param0,
+        double param1,
+        double param2,
+        double param3,
+        float param4,
+        PoseStack param5,
+        MultiBufferSource param6,
+        int param7,
+        int param8
     ) {
         Direction var0 = Direction.UP;
         if (param0.hasLevel()) {
@@ -54,11 +63,11 @@ public class ShulkerBoxRenderer extends BlockEntityRenderer<ShulkerBoxBlockEntit
         param5.scale(0.9995F, 0.9995F, 0.9995F);
         param5.mulPose(var0.getRotation());
         param5.translate(0.0, -1.0, 0.0);
-        VertexConsumer var7 = param6.getBuffer(RenderType.CUTOUT_MIPPED);
-        this.model.getBase().render(param5, var7, 0.0625F, param7, var5);
+        VertexConsumer var7 = param6.getBuffer(RenderType.entityCutoutNoCull(TextureAtlas.LOCATION_BLOCKS));
+        this.model.getBase().render(param5, var7, 0.0625F, param7, param8, var5);
         param5.translate(0.0, (double)(-param0.getProgress(param4) * 0.5F), 0.0);
-        param5.mulPose(Vector3f.YP.rotation(270.0F * param0.getProgress(param4), true));
-        this.model.getLid().render(param5, var7, 0.0625F, param7, var5);
+        param5.mulPose(Vector3f.YP.rotationDegrees(270.0F * param0.getProgress(param4)));
+        this.model.getLid().render(param5, var7, 0.0625F, param7, param8, var5);
         param5.popPose();
     }
 }

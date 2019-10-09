@@ -45,11 +45,8 @@ public class VillageBoundRandomStroll extends Behavior<PathfinderMob> {
     }
 
     private void setTargetedPos(PathfinderMob param0, SectionPos param1) {
-        BlockPos var0 = param1.center();
-        Optional<Vec3> var1 = Optional.ofNullable(
-            RandomPos.getPosTowards(param0, this.maxXyDist, this.maxYDist, new Vec3((double)var0.getX(), (double)var0.getY(), (double)var0.getZ()))
-        );
-        param0.getBrain().setMemory(MemoryModuleType.WALK_TARGET, var1.map(param0x -> new WalkTarget(param0x, this.speed, 0)));
+        Optional<Vec3> var0 = Optional.ofNullable(RandomPos.getPosTowards(param0, this.maxXyDist, this.maxYDist, new Vec3(param1.center())));
+        param0.getBrain().setMemory(MemoryModuleType.WALK_TARGET, var0.map(param0x -> new WalkTarget(param0x, this.speed, 0)));
     }
 
     private void setRandomPos(PathfinderMob param0) {

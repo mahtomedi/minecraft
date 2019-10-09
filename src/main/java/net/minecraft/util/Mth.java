@@ -557,11 +557,6 @@ public class Mth {
         return param1 + param0 * wrapDegrees(param2 - param1);
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public static float diffuseLight(float param0, float param1, float param2) {
-        return Math.min(param0 * param0 * 0.6F + param1 * param1 * ((3.0F + param1) / 4.0F) + param2 * param2 * 0.8F, 1.0F);
-    }
-
     @Deprecated
     public static float rotlerp(float param0, float param1, float param2) {
         float var0 = param1 - param0;

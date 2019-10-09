@@ -152,8 +152,8 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
     private static double euclideanDistanceSquared(ChunkPos param0, Entity param1) {
         double var0 = (double)(param0.x * 16 + 8);
         double var1 = (double)(param0.z * 16 + 8);
-        double var2 = var0 - param1.x;
-        double var3 = var1 - param1.z;
+        double var2 = var0 - param1.getX();
+        double var3 = var1 - param1.getZ();
         return var2 * var2 + var3 * var3;
     }
 
@@ -165,8 +165,8 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
             var1 = var0.x();
             var2 = var0.z();
         } else {
-            var1 = Mth.floor(param1.x / 16.0);
-            var2 = Mth.floor(param1.z / 16.0);
+            var1 = Mth.floor(param1.getX() / 16.0);
+            var2 = Mth.floor(param1.getZ() / 16.0);
         }
 
         return checkerboardDistance(param0, var1, var2);
@@ -801,8 +801,8 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
     void updatePlayerStatus(ServerPlayer param0, boolean param1) {
         boolean var0 = this.skipPlayer(param0);
         boolean var1 = this.playerMap.ignoredOrUnknown(param0);
-        int var2 = Mth.floor(param0.x) >> 4;
-        int var3 = Mth.floor(param0.z) >> 4;
+        int var2 = Mth.floor(param0.getX()) >> 4;
+        int var3 = Mth.floor(param0.getZ()) >> 4;
         if (param1) {
             this.playerMap.addPlayer(ChunkPos.asLong(var2, var3), param0, var0);
             this.updatePlayerPos(param0);
@@ -842,8 +842,8 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
             }
         }
 
-        int var1 = Mth.floor(param0.x) >> 4;
-        int var2 = Mth.floor(param0.z) >> 4;
+        int var1 = Mth.floor(param0.getX()) >> 4;
+        int var2 = Mth.floor(param0.getZ()) >> 4;
         SectionPos var3 = param0.getLastSectionPos();
         SectionPos var4 = SectionPos.of(param0);
         long var5 = var3.chunk().toLong();
@@ -1142,7 +1142,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
 
         public void updatePlayer(ServerPlayer param0) {
             if (param0 != this.entity) {
-                Vec3 var0 = new Vec3(param0.x, param0.y, param0.z).subtract(this.serverEntity.sentPos());
+                Vec3 var0 = param0.position().subtract(this.serverEntity.sentPos());
                 int var1 = Math.min(this.getEffectiveRange(), (ChunkMap.this.viewDistance - 1) * 16);
                 boolean var2 = var0.x >= (double)(-var1)
                     && var0.x <= (double)var1

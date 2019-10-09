@@ -146,14 +146,28 @@ public class EnderDragon extends Mob implements Enemy {
                 if (var1 <= -0.3F && var0 >= -0.3F) {
                     this.level
                         .playLocalSound(
-                            this.x, this.y, this.z, SoundEvents.ENDER_DRAGON_FLAP, this.getSoundSource(), 5.0F, 0.8F + this.random.nextFloat() * 0.3F, false
+                            this.getX(),
+                            this.getY(),
+                            this.getZ(),
+                            SoundEvents.ENDER_DRAGON_FLAP,
+                            this.getSoundSource(),
+                            5.0F,
+                            0.8F + this.random.nextFloat() * 0.3F,
+                            false
                         );
                 }
 
                 if (!this.phaseManager.getCurrentPhase().isSitting() && --this.growlTime < 0) {
                     this.level
                         .playLocalSound(
-                            this.x, this.y, this.z, SoundEvents.ENDER_DRAGON_GROWL, this.getSoundSource(), 2.5F, 0.8F + this.random.nextFloat() * 0.3F, false
+                            this.getX(),
+                            this.getY(),
+                            this.getZ(),
+                            SoundEvents.ENDER_DRAGON_GROWL,
+                            this.getSoundSource(),
+                            2.5F,
+                            0.8F + this.random.nextFloat() * 0.3F,
+                            false
                         );
                     this.growlTime = 200 + this.random.nextInt(200);
                 }
@@ -165,7 +179,8 @@ public class EnderDragon extends Mob implements Enemy {
             float var2 = (this.random.nextFloat() - 0.5F) * 8.0F;
             float var3 = (this.random.nextFloat() - 0.5F) * 4.0F;
             float var4 = (this.random.nextFloat() - 0.5F) * 8.0F;
-            this.level.addParticle(ParticleTypes.EXPLOSION, this.x + (double)var2, this.y + 2.0 + (double)var3, this.z + (double)var4, 0.0, 0.0, 0.0);
+            this.level
+                .addParticle(ParticleTypes.EXPLOSION, this.getX() + (double)var2, this.getY() + 2.0 + (double)var3, this.getZ() + (double)var4, 0.0, 0.0, 0.0);
         } else {
             this.checkCrystals();
             Vec3 var5 = this.getDeltaMovement();
@@ -186,7 +201,7 @@ public class EnderDragon extends Mob implements Enemy {
                 if (this.posPointer < 0) {
                     for(int var7 = 0; var7 < this.positions.length; ++var7) {
                         this.positions[var7][0] = (double)this.yRot;
-                        this.positions[var7][1] = this.y;
+                        this.positions[var7][1] = this.getY();
                     }
                 }
 
@@ -195,12 +210,12 @@ public class EnderDragon extends Mob implements Enemy {
                 }
 
                 this.positions[this.posPointer][0] = (double)this.yRot;
-                this.positions[this.posPointer][1] = this.y;
+                this.positions[this.posPointer][1] = this.getY();
                 if (this.level.isClientSide) {
                     if (this.lerpSteps > 0) {
-                        double var8 = this.x + (this.lerpX - this.x) / (double)this.lerpSteps;
-                        double var9 = this.y + (this.lerpY - this.y) / (double)this.lerpSteps;
-                        double var10 = this.z + (this.lerpZ - this.z) / (double)this.lerpSteps;
+                        double var8 = this.getX() + (this.lerpX - this.getX()) / (double)this.lerpSteps;
+                        double var9 = this.getY() + (this.lerpY - this.getY()) / (double)this.lerpSteps;
+                        double var10 = this.getZ() + (this.lerpZ - this.getZ()) / (double)this.lerpSteps;
                         double var11 = Mth.wrapDegrees(this.lerpYRot - (double)this.yRot);
                         this.yRot = (float)((double)this.yRot + var11 / (double)this.lerpSteps);
                         this.xRot = (float)((double)this.xRot + (this.lerpXRot - (double)this.xRot) / (double)this.lerpSteps);
@@ -220,9 +235,9 @@ public class EnderDragon extends Mob implements Enemy {
 
                     Vec3 var13 = var12.getFlyTargetLocation();
                     if (var13 != null) {
-                        double var14 = var13.x - this.x;
-                        double var15 = var13.y - this.y;
-                        double var16 = var13.z - this.z;
+                        double var14 = var13.x - this.getX();
+                        double var15 = var13.y - this.getY();
+                        double var16 = var13.z - this.getZ();
                         double var17 = var14 * var14 + var15 * var15 + var16 * var16;
                         float var18 = var12.getFlySpeed();
                         double var19 = (double)Mth.sqrt(var14 * var14 + var16 * var16);
@@ -233,7 +248,7 @@ public class EnderDragon extends Mob implements Enemy {
                         this.setDeltaMovement(this.getDeltaMovement().add(0.0, var15 * 0.01, 0.0));
                         this.yRot = Mth.wrapDegrees(this.yRot);
                         double var20 = Mth.clamp(Mth.wrapDegrees(180.0 - Mth.atan2(var14, var16) * 180.0F / (float)Math.PI - (double)this.yRot), -50.0, 50.0);
-                        Vec3 var21 = var13.subtract(this.x, this.y, this.z).normalize();
+                        Vec3 var21 = var13.subtract(this.getX(), this.getY(), this.getZ()).normalize();
                         Vec3 var22 = new Vec3(
                                 (double)Mth.sin(this.yRot * (float) (Math.PI / 180.0)),
                                 this.getDeltaMovement().y,
@@ -263,7 +278,7 @@ public class EnderDragon extends Mob implements Enemy {
                 Vec3[] var28 = new Vec3[this.subEntities.length];
 
                 for(int var29 = 0; var29 < this.subEntities.length; ++var29) {
-                    var28[var29] = new Vec3(this.subEntities[var29].x, this.subEntities[var29].y, this.subEntities[var29].z);
+                    var28[var29] = new Vec3(this.subEntities[var29].getX(), this.subEntities[var29].getY(), this.subEntities[var29].getZ());
                 }
 
                 float var30 = (float)(this.getLatencyPos(5, 1.0F)[1] - this.getLatencyPos(10, 1.0F)[1]) * 10.0F * (float) (Math.PI / 180.0);
@@ -346,10 +361,7 @@ public class EnderDragon extends Mob implements Enemy {
     }
 
     private void tickPart(EnderDragonPart param0, double param1, double param2, double param3) {
-        param0.x = this.x + param1;
-        param0.y = this.y + param2;
-        param0.z = this.z + param3;
-        param0.setPos(param0.x, param0.y, param0.z);
+        param0.setPos(this.getX() + param1, this.getY() + param2, this.getZ() + param3);
     }
 
     private float getHeadYOffset() {
@@ -395,8 +407,8 @@ public class EnderDragon extends Mob implements Enemy {
 
         for(Entity var2 : param0) {
             if (var2 instanceof LivingEntity) {
-                double var3 = var2.x - var0;
-                double var4 = var2.z - var1;
+                double var3 = var2.getX() - var0;
+                double var4 = var2.getZ() - var1;
                 double var5 = var3 * var3 + var4 * var4;
                 var2.push(var3 / var5 * 4.0, 0.2F, var4 / var5 * 4.0);
                 if (!this.phaseManager.getCurrentPhase().isSitting() && ((LivingEntity)var2).getLastHurtByMobTimestamp() < var2.tickCount - 2) {
@@ -523,7 +535,10 @@ public class EnderDragon extends Mob implements Enemy {
             float var0 = (this.random.nextFloat() - 0.5F) * 8.0F;
             float var1 = (this.random.nextFloat() - 0.5F) * 4.0F;
             float var2 = (this.random.nextFloat() - 0.5F) * 8.0F;
-            this.level.addParticle(ParticleTypes.EXPLOSION_EMITTER, this.x + (double)var0, this.y + 2.0 + (double)var1, this.z + (double)var2, 0.0, 0.0, 0.0);
+            this.level
+                .addParticle(
+                    ParticleTypes.EXPLOSION_EMITTER, this.getX() + (double)var0, this.getY() + 2.0 + (double)var1, this.getZ() + (double)var2, 0.0, 0.0, 0.0
+                );
         }
 
         boolean var3 = this.level.getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT);
@@ -563,7 +578,7 @@ public class EnderDragon extends Mob implements Enemy {
         while(param0 > 0) {
             int var0 = ExperienceOrb.getExperienceValue(param0);
             param0 -= var0;
-            this.level.addFreshEntity(new ExperienceOrb(this.level, this.x, this.y, this.z, var0));
+            this.level.addFreshEntity(new ExperienceOrb(this.level, this.getX(), this.getY(), this.getZ(), var0));
         }
 
     }
@@ -621,7 +636,7 @@ public class EnderDragon extends Mob implements Enemy {
             this.nodeAdjacency[23] = 8257536;
         }
 
-        return this.findClosestNode(this.x, this.y, this.z);
+        return this.findClosestNode(this.getX(), this.getY(), this.getZ());
     }
 
     public int findClosestNode(double param0, double param1, double param2) {

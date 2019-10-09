@@ -22,12 +22,12 @@ public class TryFindWaterGoal extends Goal {
         BlockPos var0 = null;
 
         for(BlockPos var2 : BlockPos.betweenClosed(
-            Mth.floor(this.mob.x - 2.0),
-            Mth.floor(this.mob.y - 2.0),
-            Mth.floor(this.mob.z - 2.0),
-            Mth.floor(this.mob.x + 2.0),
-            Mth.floor(this.mob.y),
-            Mth.floor(this.mob.z + 2.0)
+            Mth.floor(this.mob.getX() - 2.0),
+            Mth.floor(this.mob.getY() - 2.0),
+            Mth.floor(this.mob.getZ() - 2.0),
+            Mth.floor(this.mob.getX() + 2.0),
+            Mth.floor(this.mob.getY()),
+            Mth.floor(this.mob.getZ() + 2.0)
         )) {
             if (this.mob.level.getFluidState(var2).is(FluidTags.WATER)) {
                 var0 = var2;

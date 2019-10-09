@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.LeashKnotModel;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.decoration.LeashFenceKnotEntity;
@@ -27,11 +26,9 @@ public class LeashKnotRenderer extends EntityRenderer<LeashFenceKnotEntity> {
         float var0 = 0.0625F;
         param6.scale(-1.0F, -1.0F, 1.0F);
         int var1 = param0.getLightColor();
-        VertexConsumer var2 = param7.getBuffer(RenderType.NEW_ENTITY(KNOT_LOCATION));
-        OverlayTexture.setDefault(var2);
         this.model.setupAnim(param0, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F);
-        this.model.renderToBuffer(param6, var2, var1);
-        var2.unsetDefaultOverlayCoords();
+        VertexConsumer var2 = param7.getBuffer(this.model.renderType(KNOT_LOCATION));
+        this.model.renderToBuffer(param6, var2, var1, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F);
         param6.popPose();
         super.render(param0, param1, param2, param3, param4, param5, param6, param7);
     }

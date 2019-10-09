@@ -3,6 +3,7 @@ package net.minecraft.client.model;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -14,6 +15,7 @@ public class ElytraModel<T extends LivingEntity> extends AgeableListModel<T> {
     private final ModelPart leftWing = new ModelPart(this, 22, 0);
 
     public ElytraModel() {
+        super(RenderType::entityCutoutNoCull, false, 5.0F, 2.0F, 2.0F, 2.0F, 24.0F);
         this.leftWing.addBox(-10.0F, 0.0F, 0.0F, 10.0F, 20.0F, 2.0F, 1.0F);
         this.rightWing = new ModelPart(this, 22, 0);
         this.rightWing.mirror = true;

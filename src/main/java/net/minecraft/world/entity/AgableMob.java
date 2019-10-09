@@ -57,7 +57,7 @@ public abstract class AgableMob extends PathfinderMob {
                 AgableMob var2 = this.getBreedOffspring(this);
                 if (var2 != null) {
                     var2.setAge(-24000);
-                    var2.moveTo(this.x, this.y, this.z, 0.0F, 0.0F);
+                    var2.moveTo(this.getX(), this.getY(), this.getZ(), 0.0F, 0.0F);
                     this.level.addFreshEntity(var2);
                     if (var0.hasCustomHoverName()) {
                         var2.setCustomName(var0.getHoverName());
@@ -155,16 +155,7 @@ public abstract class AgableMob extends PathfinderMob {
         if (this.level.isClientSide) {
             if (this.forcedAgeTimer > 0) {
                 if (this.forcedAgeTimer % 4 == 0) {
-                    this.level
-                        .addParticle(
-                            ParticleTypes.HAPPY_VILLAGER,
-                            this.x + (double)(this.random.nextFloat() * this.getBbWidth() * 2.0F) - (double)this.getBbWidth(),
-                            this.y + 0.5 + (double)(this.random.nextFloat() * this.getBbHeight()),
-                            this.z + (double)(this.random.nextFloat() * this.getBbWidth() * 2.0F) - (double)this.getBbWidth(),
-                            0.0,
-                            0.0,
-                            0.0
-                        );
+                    this.level.addParticle(ParticleTypes.HAPPY_VILLAGER, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), 0.0, 0.0, 0.0);
                 }
 
                 --this.forcedAgeTimer;

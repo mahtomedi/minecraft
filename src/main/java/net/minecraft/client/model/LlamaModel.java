@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.animal.horse.AbstractChestedHorse;
 import net.minecraftforge.api.distmarker.Dist;
@@ -21,6 +22,7 @@ public class LlamaModel<T extends AbstractChestedHorse> extends EntityModel<T> {
     private final ModelPart chest2;
 
     public LlamaModel(float param0) {
+        super(RenderType::entitySolid);
         this.texWidth = 128;
         this.texHeight = 64;
         this.head = new ModelPart(this, 0, 0);
@@ -78,30 +80,30 @@ public class LlamaModel<T extends AbstractChestedHorse> extends EntityModel<T> {
     }
 
     @Override
-    public void renderToBuffer(PoseStack param0, VertexConsumer param1, int param2, float param3, float param4, float param5) {
+    public void renderToBuffer(PoseStack param0, VertexConsumer param1, int param2, int param3, float param4, float param5, float param6) {
         if (this.young) {
             float var0 = 2.0F;
             param0.pushPose();
             float var1 = 0.7F;
             param0.scale(0.71428573F, 0.64935064F, 0.7936508F);
             param0.translate(0.0, 1.3125, 0.22F);
-            this.head.render(param0, param1, 0.0625F, param2, null, param3, param4, param5);
+            this.head.render(param0, param1, 0.0625F, param2, param3, null, param4, param5, param6);
             param0.popPose();
             param0.pushPose();
             float var2 = 1.1F;
             param0.scale(0.625F, 0.45454544F, 0.45454544F);
             param0.translate(0.0, 2.0625, 0.0);
-            this.body.render(param0, param1, 0.0625F, param2, null, param3, param4, param5);
+            this.body.render(param0, param1, 0.0625F, param2, param3, null, param4, param5, param6);
             param0.popPose();
             param0.pushPose();
             param0.scale(0.45454544F, 0.41322312F, 0.45454544F);
             param0.translate(0.0, 2.0625, 0.0);
             ImmutableList.of(this.leg0, this.leg1, this.leg2, this.leg3, this.chest1, this.chest2)
-                .forEach(param6 -> param6.render(param0, param1, 0.0625F, param2, null, param3, param4, param5));
+                .forEach(param7 -> param7.render(param0, param1, 0.0625F, param2, param3, null, param4, param5, param6));
             param0.popPose();
         } else {
             ImmutableList.of(this.head, this.body, this.leg0, this.leg1, this.leg2, this.leg3, this.chest1, this.chest2)
-                .forEach(param6 -> param6.render(param0, param1, 0.0625F, param2, null, param3, param4, param5));
+                .forEach(param7 -> param7.render(param0, param1, 0.0625F, param2, param3, null, param4, param5, param6));
         }
 
     }

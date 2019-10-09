@@ -366,7 +366,7 @@ public class Turtle extends Animal {
             this.partner.resetLove();
             Random var1 = this.animal.getRandom();
             if (this.level.getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT)) {
-                this.level.addFreshEntity(new ExperienceOrb(this.level, this.animal.x, this.animal.y, this.animal.z, var1.nextInt(7) + 1));
+                this.level.addFreshEntity(new ExperienceOrb(this.level, this.animal.getX(), this.animal.getY(), this.animal.getZ(), var1.nextInt(7) + 1));
             }
 
         }
@@ -422,23 +422,22 @@ public class Turtle extends Animal {
             }
 
             if (this.turtle.getNavigation().isDone()) {
-                Vec3 var2 = RandomPos.getPosTowards(
-                    this.turtle, 16, 3, new Vec3((double)var0.getX(), (double)var0.getY(), (double)var0.getZ()), (float) (Math.PI / 10)
-                );
-                if (var2 == null) {
-                    var2 = RandomPos.getPosTowards(this.turtle, 8, 7, new Vec3((double)var0.getX(), (double)var0.getY(), (double)var0.getZ()));
+                Vec3 var2 = new Vec3(var0);
+                Vec3 var3 = RandomPos.getPosTowards(this.turtle, 16, 3, var2, (float) (Math.PI / 10));
+                if (var3 == null) {
+                    var3 = RandomPos.getPosTowards(this.turtle, 8, 7, var2);
                 }
 
-                if (var2 != null && !var1 && this.turtle.level.getBlockState(new BlockPos(var2)).getBlock() != Blocks.WATER) {
-                    var2 = RandomPos.getPosTowards(this.turtle, 16, 5, new Vec3((double)var0.getX(), (double)var0.getY(), (double)var0.getZ()));
+                if (var3 != null && !var1 && this.turtle.level.getBlockState(new BlockPos(var3)).getBlock() != Blocks.WATER) {
+                    var3 = RandomPos.getPosTowards(this.turtle, 16, 5, var2);
                 }
 
-                if (var2 == null) {
+                if (var3 == null) {
                     this.stuck = true;
                     return;
                 }
 
-                this.turtle.getNavigation().moveTo(var2.x, var2.y, var2.z, this.speedModifier);
+                this.turtle.getNavigation().moveTo(var3.x, var3.y, var3.z, this.speedModifier);
             }
 
         }
@@ -563,9 +562,9 @@ public class Turtle extends Animal {
         public void tick() {
             this.updateSpeed();
             if (this.operation == MoveControl.Operation.MOVE_TO && !this.turtle.getNavigation().isDone()) {
-                double var0 = this.wantedX - this.turtle.x;
-                double var1 = this.wantedY - this.turtle.y;
-                double var2 = this.wantedZ - this.turtle.z;
+                double var0 = this.wantedX - this.turtle.getX();
+                double var1 = this.wantedY - this.turtle.getY();
+                double var2 = this.wantedZ - this.turtle.getZ();
                 double var3 = (double)Mth.sqrt(var0 * var0 + var1 * var1 + var2 * var2);
                 var1 /= var3;
                 float var4 = (float)(Mth.atan2(var2, var0) * 180.0F / (float)Math.PI) - 90.0F;
@@ -727,11 +726,11 @@ public class Turtle extends Animal {
             int var3 = var2.nextInt(1025) - 512;
             int var4 = var2.nextInt(9) - 4;
             int var5 = var2.nextInt(1025) - 512;
-            if ((double)var4 + this.turtle.y > (double)(this.turtle.level.getSeaLevel() - 1)) {
+            if ((double)var4 + this.turtle.getY() > (double)(this.turtle.level.getSeaLevel() - 1)) {
                 var4 = 0;
             }
 
-            BlockPos var6 = new BlockPos((double)var3 + this.turtle.x, (double)var4 + this.turtle.y, (double)var5 + this.turtle.z);
+            BlockPos var6 = new BlockPos((double)var3 + this.turtle.getX(), (double)var4 + this.turtle.getY(), (double)var5 + this.turtle.getZ());
             this.turtle.setTravelPos(var6);
             this.turtle.setTravelling(true);
             this.stuck = false;
@@ -740,12 +739,10 @@ public class Turtle extends Animal {
         @Override
         public void tick() {
             if (this.turtle.getNavigation().isDone()) {
-                BlockPos var0 = this.turtle.getTravelPos();
-                Vec3 var1 = RandomPos.getPosTowards(
-                    this.turtle, 16, 3, new Vec3((double)var0.getX(), (double)var0.getY(), (double)var0.getZ()), (float) (Math.PI / 10)
-                );
+                Vec3 var0 = new Vec3(this.turtle.getTravelPos());
+                Vec3 var1 = RandomPos.getPosTowards(this.turtle, 16, 3, var0, (float) (Math.PI / 10));
                 if (var1 == null) {
-                    var1 = RandomPos.getPosTowards(this.turtle, 8, 7, new Vec3((double)var0.getX(), (double)var0.getY(), (double)var0.getZ()));
+                    var1 = RandomPos.getPosTowards(this.turtle, 8, 7, var0);
                 }
 
                 if (var1 != null) {

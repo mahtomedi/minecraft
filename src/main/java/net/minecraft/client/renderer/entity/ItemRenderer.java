@@ -10,6 +10,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
+import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 import java.util.List;
 import java.util.Random;
@@ -74,65 +75,69 @@ public class ItemRenderer implements ResourceManagerReloadListener {
         return this.itemModelShaper;
     }
 
-    private void renderModelLists(BakedModel param0, ItemStack param1, int param2, PoseStack param3, VertexConsumer param4) {
+    private void renderModelLists(BakedModel param0, ItemStack param1, int param2, int param3, PoseStack param4, VertexConsumer param5) {
         Random var0 = new Random();
         long var1 = 42L;
 
         for(Direction var2 : Direction.values()) {
             var0.setSeed(42L);
-            this.renderQuadList(param3, param4, param0.getQuads(null, var2, var0), param1, param2);
+            this.renderQuadList(param4, param5, param0.getQuads(null, var2, var0), param1, param2, param3);
         }
 
         var0.setSeed(42L);
-        this.renderQuadList(param3, param4, param0.getQuads(null, null, var0), param1, param2);
+        this.renderQuadList(param4, param5, param0.getQuads(null, null, var0), param1, param2, param3);
     }
 
     public void render(
-        ItemStack param0, ItemTransforms.TransformType param1, boolean param2, PoseStack param3, MultiBufferSource param4, int param5, BakedModel param6
+        ItemStack param0,
+        ItemTransforms.TransformType param1,
+        boolean param2,
+        PoseStack param3,
+        MultiBufferSource param4,
+        int param5,
+        int param6,
+        BakedModel param7
     ) {
         if (!param0.isEmpty()) {
             param3.pushPose();
             if (param0.getItem() == Items.TRIDENT && param1 == ItemTransforms.TransformType.GUI) {
-                param6 = this.itemModelShaper.getModelManager().getModel(new ModelResourceLocation("minecraft:trident#inventory"));
+                param7 = this.itemModelShaper.getModelManager().getModel(new ModelResourceLocation("minecraft:trident#inventory"));
             }
 
-            param6.getTransforms().getTransform(param1).apply(param2, param3);
+            param7.getTransforms().getTransform(param1).apply(param2, param3);
             param3.translate(-0.5, -0.5, -0.5);
-            if (!param6.isCustomRenderer() && (param0.getItem() != Items.TRIDENT || param1 == ItemTransforms.TransformType.GUI)) {
-                VertexConsumer var0 = getFoilBuffer(param4, TextureAtlas.LOCATION_BLOCKS, true, param0.hasFoil(), param6.isGui3d());
-                OverlayTexture.setDefault(var0);
-                this.renderModelLists(param6, param0, param5, param3, var0);
-                var0.unsetDefaultOverlayCoords();
+            if (!param7.isCustomRenderer() && (param0.getItem() != Items.TRIDENT || param1 == ItemTransforms.TransformType.GUI)) {
+                VertexConsumer var0 = getFoilBuffer(param4, RenderType.getRenderType(param0), true, param0.hasFoil());
+                this.renderModelLists(param7, param0, param5, param6, param3, var0);
             } else {
-                EntityBlockRenderer.instance.renderByItem(param0, param3, param4, param5);
+                EntityBlockRenderer.instance.renderByItem(param0, param3, param4, param5, param6);
             }
 
             param3.popPose();
         }
     }
 
-    public static VertexConsumer getFoilBuffer(MultiBufferSource param0, ResourceLocation param1, boolean param2, boolean param3, boolean param4) {
+    public static VertexConsumer getFoilBuffer(MultiBufferSource param0, RenderType param1, boolean param2, boolean param3) {
         return (VertexConsumer)(param3
-            ? new VertexMultiConsumer(
-                ImmutableList.of(param0.getBuffer(param2 ? RenderType.GLINT : RenderType.ENTITY_GLINT), param0.getBuffer(RenderType.NEW_ENTITY(param1)))
-            )
-            : param0.getBuffer(RenderType.NEW_ENTITY(param1)));
+            ? new VertexMultiConsumer(ImmutableList.of(param0.getBuffer(param2 ? RenderType.glint() : RenderType.entityGlint()), param0.getBuffer(param1)))
+            : param0.getBuffer(param1));
     }
 
-    private void renderQuadList(PoseStack param0, VertexConsumer param1, List<BakedQuad> param2, ItemStack param3, int param4) {
+    private void renderQuadList(PoseStack param0, VertexConsumer param1, List<BakedQuad> param2, ItemStack param3, int param4, int param5) {
         boolean var0 = !param3.isEmpty();
         Matrix4f var1 = param0.getPose();
+        Matrix3f var2 = param0.getNormal();
 
-        for(BakedQuad var2 : param2) {
-            int var3 = -1;
-            if (var0 && var2.isTinted()) {
-                var3 = this.itemColors.getColor(param3, var2.getTintIndex());
+        for(BakedQuad var3 : param2) {
+            int var4 = -1;
+            if (var0 && var3.isTinted()) {
+                var4 = this.itemColors.getColor(param3, var3.getTintIndex());
             }
 
-            float var4 = (float)(var3 >> 16 & 0xFF) / 255.0F;
-            float var5 = (float)(var3 >> 8 & 0xFF) / 255.0F;
-            float var6 = (float)(var3 & 0xFF) / 255.0F;
-            param1.putBulkData(var1, var2, var4, var5, var6, param4);
+            float var5 = (float)(var4 >> 16 & 0xFF) / 255.0F;
+            float var6 = (float)(var4 >> 8 & 0xFF) / 255.0F;
+            float var7 = (float)(var4 & 0xFF) / 255.0F;
+            param1.putBulkData(var1, var2, var3, var5, var6, var7, param4, param5);
         }
 
     }
@@ -154,8 +159,8 @@ public class ItemRenderer implements ResourceManagerReloadListener {
         return var0 == null ? this.itemModelShaper.getModelManager().getMissingModel() : var0;
     }
 
-    public void renderStatic(ItemStack param0, ItemTransforms.TransformType param1, int param2, PoseStack param3, MultiBufferSource param4) {
-        this.renderStatic(null, param0, param1, false, param3, param4, null, param2);
+    public void renderStatic(ItemStack param0, ItemTransforms.TransformType param1, int param2, int param3, PoseStack param4, MultiBufferSource param5) {
+        this.renderStatic(null, param0, param1, false, param4, param5, null, param2, param3);
     }
 
     public void renderStatic(
@@ -166,11 +171,12 @@ public class ItemRenderer implements ResourceManagerReloadListener {
         PoseStack param4,
         MultiBufferSource param5,
         @Nullable Level param6,
-        int param7
+        int param7,
+        int param8
     ) {
         if (!param1.isEmpty()) {
             BakedModel var0 = this.getModel(param1, param6, param0);
-            this.render(param1, param2, param3, param4, param5, param7, var0);
+            this.render(param1, param2, param3, param4, param5, param7, param8, var0);
         }
     }
 
@@ -194,7 +200,7 @@ public class ItemRenderer implements ResourceManagerReloadListener {
         RenderSystem.scalef(16.0F, 16.0F, 16.0F);
         PoseStack var0 = new PoseStack();
         MultiBufferSource.BufferSource var1 = Minecraft.getInstance().renderBuffers().bufferSource();
-        this.render(param0, ItemTransforms.TransformType.GUI, false, var0, var1, 15728880, param3);
+        this.render(param0, ItemTransforms.TransformType.GUI, false, var0, var1, 15728880, OverlayTexture.NO_OVERLAY, param3);
         var1.endBatch();
         RenderSystem.disableAlphaTest();
         RenderSystem.disableRescaleNormal();
@@ -231,13 +237,15 @@ public class ItemRenderer implements ResourceManagerReloadListener {
 
     public void renderGuiItemDecorations(Font param0, ItemStack param1, int param2, int param3, @Nullable String param4) {
         if (!param1.isEmpty()) {
+            PoseStack var0 = new PoseStack();
             if (param1.getCount() != 1 || param4 != null) {
-                String var0 = param4 == null ? String.valueOf(param1.getCount()) : param4;
-                RenderSystem.disableDepthTest();
-                RenderSystem.disableBlend();
-                param0.drawShadow(var0, (float)(param2 + 19 - 2 - param0.width(var0)), (float)(param3 + 6 + 3), 16777215);
-                RenderSystem.enableBlend();
-                RenderSystem.enableDepthTest();
+                String var1 = param4 == null ? String.valueOf(param1.getCount()) : param4;
+                var0.translate(0.0, 0.0, (double)(this.blitOffset + 200.0F));
+                MultiBufferSource.BufferSource var2 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
+                param0.drawInBatch(
+                    var1, (float)(param2 + 19 - 2 - param0.width(var1)), (float)(param3 + 6 + 3), 16777215, true, var0.getPose(), var2, false, 0, 15728880
+                );
+                var2.endBatch();
             }
 
             if (param1.isDamaged()) {
@@ -245,29 +253,29 @@ public class ItemRenderer implements ResourceManagerReloadListener {
                 RenderSystem.disableTexture();
                 RenderSystem.disableAlphaTest();
                 RenderSystem.disableBlend();
-                Tesselator var1 = Tesselator.getInstance();
-                BufferBuilder var2 = var1.getBuilder();
-                float var3 = (float)param1.getDamageValue();
-                float var4 = (float)param1.getMaxDamage();
-                float var5 = Math.max(0.0F, (var4 - var3) / var4);
-                int var6 = Math.round(13.0F - var3 * 13.0F / var4);
-                int var7 = Mth.hsvToRgb(var5 / 3.0F, 1.0F, 1.0F);
-                this.fillRect(var2, param2 + 2, param3 + 13, 13, 2, 0, 0, 0, 255);
-                this.fillRect(var2, param2 + 2, param3 + 13, var6, 1, var7 >> 16 & 0xFF, var7 >> 8 & 0xFF, var7 & 0xFF, 255);
+                Tesselator var3 = Tesselator.getInstance();
+                BufferBuilder var4 = var3.getBuilder();
+                float var5 = (float)param1.getDamageValue();
+                float var6 = (float)param1.getMaxDamage();
+                float var7 = Math.max(0.0F, (var6 - var5) / var6);
+                int var8 = Math.round(13.0F - var5 * 13.0F / var6);
+                int var9 = Mth.hsvToRgb(var7 / 3.0F, 1.0F, 1.0F);
+                this.fillRect(var4, param2 + 2, param3 + 13, 13, 2, 0, 0, 0, 255);
+                this.fillRect(var4, param2 + 2, param3 + 13, var8, 1, var9 >> 16 & 0xFF, var9 >> 8 & 0xFF, var9 & 0xFF, 255);
                 RenderSystem.enableBlend();
                 RenderSystem.enableAlphaTest();
                 RenderSystem.enableTexture();
                 RenderSystem.enableDepthTest();
             }
 
-            LocalPlayer var8 = Minecraft.getInstance().player;
-            float var9 = var8 == null ? 0.0F : var8.getCooldowns().getCooldownPercent(param1.getItem(), Minecraft.getInstance().getFrameTime());
-            if (var9 > 0.0F) {
+            LocalPlayer var10 = Minecraft.getInstance().player;
+            float var11 = var10 == null ? 0.0F : var10.getCooldowns().getCooldownPercent(param1.getItem(), Minecraft.getInstance().getFrameTime());
+            if (var11 > 0.0F) {
                 RenderSystem.disableDepthTest();
                 RenderSystem.disableTexture();
-                Tesselator var10 = Tesselator.getInstance();
-                BufferBuilder var11 = var10.getBuilder();
-                this.fillRect(var11, param2, param3 + Mth.floor(16.0F * (1.0F - var9)), 16, Mth.ceil(16.0F * var9), 255, 255, 255, 127);
+                Tesselator var12 = Tesselator.getInstance();
+                BufferBuilder var13 = var12.getBuilder();
+                this.fillRect(var13, param2, param3 + Mth.floor(16.0F * (1.0F - var11)), 16, Mth.ceil(16.0F * var11), 255, 255, 255, 127);
                 RenderSystem.enableTexture();
                 RenderSystem.enableDepthTest();
             }

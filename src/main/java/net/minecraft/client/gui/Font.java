@@ -191,7 +191,7 @@ public class Font implements AutoCloseable {
                 if (var21 != null) {
                     float var22 = var10 ? var19.getBoldOffset() : 0.0F;
                     float var23 = param4 ? var19.getShadowOffset() : 0.0F;
-                    VertexConsumer var24 = param6.getBuffer(param7 ? RenderType.TEXT_SEE_THROUGH(var21) : RenderType.TEXT(var21));
+                    VertexConsumer var24 = param6.getBuffer(param7 ? RenderType.textSeeThrough(var21) : RenderType.text(var21));
                     this.renderChar(var20, var10, var11, var22, var4 + var23, param2 + var23, param5, var24, var5, var6, var7, var8, param9);
                 }
 
@@ -229,7 +229,7 @@ public class Font implements AutoCloseable {
             BakedGlyph var31 = this.fonts.whiteGlyph();
             ResourceLocation var32 = var31.getTexture();
             if (var32 != null) {
-                VertexConsumer var33 = param6.getBuffer(param7 ? RenderType.TEXT_SEE_THROUGH(var32) : RenderType.TEXT(var32));
+                VertexConsumer var33 = param6.getBuffer(param7 ? RenderType.textSeeThrough(var32) : RenderType.text(var32));
 
                 for(BakedGlyph.Effect var34 : var14) {
                     var31.renderEffect(var34, param5, var33, param9);

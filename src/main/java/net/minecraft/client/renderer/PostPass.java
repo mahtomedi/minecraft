@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.math.Matrix4f;
@@ -43,22 +44,11 @@ public class PostPass implements AutoCloseable {
         this.auxHeights.add(this.auxHeights.size(), param3);
     }
 
-    private void prepareState() {
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.disableBlend();
-        RenderSystem.disableDepthTest();
-        RenderSystem.disableAlphaTest();
-        RenderSystem.disableFog();
-        RenderSystem.enableTexture();
-        RenderSystem.bindTexture(0);
-    }
-
     public void setOrthoMatrix(Matrix4f param0) {
         this.shaderOrthoMatrix = param0;
     }
 
     public void process(float param0) {
-        this.prepareState();
         this.inTarget.unbindWrite();
         float var0 = (float)this.outTarget.width;
         float var1 = (float)this.outTarget.height;
@@ -80,24 +70,22 @@ public class PostPass implements AutoCloseable {
         this.outTarget.clear(Minecraft.ON_OSX);
         this.outTarget.bindWrite(false);
         RenderSystem.depthMask(false);
-        RenderSystem.colorMask(true, true, true, true);
-        Tesselator var4 = Tesselator.getInstance();
-        BufferBuilder var5 = var4.getBuilder();
-        var5.begin(7, DefaultVertexFormat.POSITION_COLOR);
-        var5.vertex(0.0, 0.0, 500.0).color(255, 255, 255, 255).endVertex();
-        var5.vertex((double)var0, 0.0, 500.0).color(255, 255, 255, 255).endVertex();
-        var5.vertex((double)var0, (double)var1, 500.0).color(255, 255, 255, 255).endVertex();
-        var5.vertex(0.0, (double)var1, 500.0).color(255, 255, 255, 255).endVertex();
+        BufferBuilder var4 = Tesselator.getInstance().getBuilder();
+        var4.begin(7, DefaultVertexFormat.POSITION_COLOR);
+        var4.vertex(0.0, 0.0, 500.0).color(255, 255, 255, 255).endVertex();
+        var4.vertex((double)var0, 0.0, 500.0).color(255, 255, 255, 255).endVertex();
+        var4.vertex((double)var0, (double)var1, 500.0).color(255, 255, 255, 255).endVertex();
+        var4.vertex(0.0, (double)var1, 500.0).color(255, 255, 255, 255).endVertex();
         var4.end();
+        BufferUploader.end(var4);
         RenderSystem.depthMask(true);
-        RenderSystem.colorMask(true, true, true, true);
         this.effect.clear();
         this.outTarget.unbindWrite();
         this.inTarget.unbindRead();
 
-        for(Object var6 : this.auxAssets) {
-            if (var6 instanceof RenderTarget) {
-                ((RenderTarget)var6).unbindRead();
+        for(Object var5 : this.auxAssets) {
+            if (var5 instanceof RenderTarget) {
+                ((RenderTarget)var5).unbindRead();
             }
         }
 

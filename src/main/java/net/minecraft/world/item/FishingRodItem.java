@@ -39,11 +39,25 @@ public class FishingRodItem extends Item {
             }
 
             param0.playSound(
-                null, param1.x, param1.y, param1.z, SoundEvents.FISHING_BOBBER_RETRIEVE, SoundSource.NEUTRAL, 1.0F, 0.4F / (random.nextFloat() * 0.4F + 0.8F)
+                null,
+                param1.getX(),
+                param1.getY(),
+                param1.getZ(),
+                SoundEvents.FISHING_BOBBER_RETRIEVE,
+                SoundSource.NEUTRAL,
+                1.0F,
+                0.4F / (random.nextFloat() * 0.4F + 0.8F)
             );
         } else {
             param0.playSound(
-                null, param1.x, param1.y, param1.z, SoundEvents.FISHING_BOBBER_THROW, SoundSource.NEUTRAL, 0.5F, 0.4F / (random.nextFloat() * 0.4F + 0.8F)
+                null,
+                param1.getX(),
+                param1.getY(),
+                param1.getZ(),
+                SoundEvents.FISHING_BOBBER_THROW,
+                SoundSource.NEUTRAL,
+                0.5F,
+                0.4F / (random.nextFloat() * 0.4F + 0.8F)
             );
             if (!param0.isClientSide) {
                 int var2 = EnchantmentHelper.getFishingSpeedBonus(var0);

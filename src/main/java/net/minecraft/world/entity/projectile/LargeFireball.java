@@ -41,7 +41,13 @@ public class LargeFireball extends Fireball {
             boolean var1 = this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING);
             this.level
                 .explode(
-                    null, this.x, this.y, this.z, (float)this.explosionPower, var1, var1 ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.NONE
+                    null,
+                    this.getX(),
+                    this.getY(),
+                    this.getZ(),
+                    (float)this.explosionPower,
+                    var1,
+                    var1 ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.NONE
                 );
             this.remove();
         }

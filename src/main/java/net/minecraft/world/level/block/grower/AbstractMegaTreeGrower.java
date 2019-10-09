@@ -9,9 +9,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.feature.AbstractTreeFeature;
-import net.minecraft.world.level.levelgen.feature.FeatureConfiguration;
-import net.minecraft.world.level.levelgen.feature.NoneFeatureConfiguration;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.configurations.MegaTreeConfiguration;
 
 public abstract class AbstractMegaTreeGrower extends AbstractTreeGrower {
     @Override
@@ -28,10 +27,10 @@ public abstract class AbstractMegaTreeGrower extends AbstractTreeGrower {
     }
 
     @Nullable
-    protected abstract AbstractTreeFeature<NoneFeatureConfiguration> getMegaFeature(Random var1);
+    protected abstract ConfiguredFeature<MegaTreeConfiguration, ?> getConfiguredMegaFeature(Random var1);
 
     public boolean placeMega(LevelAccessor param0, ChunkGenerator<?> param1, BlockPos param2, BlockState param3, Random param4, int param5, int param6) {
-        AbstractTreeFeature<NoneFeatureConfiguration> var0 = this.getMegaFeature(param4);
+        ConfiguredFeature<MegaTreeConfiguration, ?> var0 = this.getConfiguredMegaFeature(param4);
         if (var0 == null) {
             return false;
         } else {
@@ -40,7 +39,7 @@ public abstract class AbstractMegaTreeGrower extends AbstractTreeGrower {
             param0.setBlock(param2.offset(param5 + 1, 0, param6), var1, 4);
             param0.setBlock(param2.offset(param5, 0, param6 + 1), var1, 4);
             param0.setBlock(param2.offset(param5 + 1, 0, param6 + 1), var1, 4);
-            if (var0.place(param0, param1, param4, param2.offset(param5, 0, param6), FeatureConfiguration.NONE, false)) {
+            if (var0.place(param0, param1, param4, param2.offset(param5, 0, param6))) {
                 return true;
             } else {
                 param0.setBlock(param2.offset(param5, 0, param6), param3, 4);

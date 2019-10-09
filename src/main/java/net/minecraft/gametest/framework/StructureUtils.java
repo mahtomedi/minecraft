@@ -30,6 +30,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.StructureMode;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.phys.AABB;
@@ -52,20 +53,25 @@ public class StructureUtils {
     }
 
     public static void createNewEmptyStructureBlock(String param0, BlockPos param1, BlockPos param2, int param3, ServerLevel param4) {
-        clearSpaceForStructure(param1, param2, param3, param4);
+        BoundingBox var0 = createStructureBoundingBox(param1, param2, param3);
+        clearSpaceForStructure(var0, param1.getY(), param4);
         param4.setBlockAndUpdate(param1, Blocks.STRUCTURE_BLOCK.defaultBlockState());
-        StructureBlockEntity var0 = (StructureBlockEntity)param4.getBlockEntity(param1);
-        var0.setIgnoreEntities(false);
-        var0.setStructureName(new ResourceLocation(param0));
-        var0.setStructureSize(param2);
-        var0.setMode(StructureMode.SAVE);
-        var0.setShowBoundingBox(true);
+        StructureBlockEntity var1 = (StructureBlockEntity)param4.getBlockEntity(param1);
+        var1.setIgnoreEntities(false);
+        var1.setStructureName(new ResourceLocation(param0));
+        var1.setStructureSize(param2);
+        var1.setMode(StructureMode.SAVE);
+        var1.setShowBoundingBox(true);
     }
 
     public static StructureBlockEntity spawnStructure(String param0, BlockPos param1, int param2, ServerLevel param3, boolean param4) {
+        BoundingBox var0 = createStructureBoundingBox(param1, getStructureTemplate(param0, param3).getSize(), param2);
         forceLoadChunks(param1, param3);
-        clearSpaceForStructure(param1, getStructureTemplate(param0, param3).getSize(), param2, param3);
-        return createStructureBlock(param0, param1, param3, param4);
+        clearSpaceForStructure(var0, param1.getY(), param3);
+        StructureBlockEntity var1 = createStructureBlock(param0, param1, param3, param4);
+        param3.getBlockTicks().fetchTicksInArea(var0, true, false);
+        param3.clearBlockEvents(var0);
+        return var1;
     }
 
     private static void forceLoadChunks(BlockPos param0, ServerLevel param1) {
@@ -81,13 +87,19 @@ public class StructureUtils {
 
     }
 
-    public static void clearSpaceForStructure(BlockPos param0, BlockPos param1, int param2, ServerLevel param3) {
+    public static void clearSpaceForStructure(BoundingBox param0, int param1, ServerLevel param2) {
+        BlockPos.betweenClosedStream(param0).forEach(param2x -> clearBlock(param1, param2x, param2));
+        param2.getBlockTicks().fetchTicksInArea(param0, true, false);
+        param2.clearBlockEvents(param0);
+        AABB var0 = new AABB((double)param0.x0, (double)param0.y0, (double)param0.z0, (double)param0.x1, (double)param0.y1, (double)param0.z1);
+        List<Entity> var1 = param2.getEntitiesOfClass(Entity.class, var0, param0x -> !(param0x instanceof Player));
+        var1.forEach(Entity::remove);
+    }
+
+    public static BoundingBox createStructureBoundingBox(BlockPos param0, BlockPos param1, int param2) {
         BlockPos var0 = param0.offset(-param2, -3, -param2);
         BlockPos var1 = param0.offset(param1).offset(param2 - 1, 30, param2 - 1);
-        BlockPos.betweenClosedStream(var0, var1).forEach(param2x -> clearBlock(param0.getY(), param2x, param3));
-        AABB var2 = new AABB(var0, var1);
-        List<Entity> var3 = param3.getEntitiesOfClass(Entity.class, var2, param0x -> !(param0x instanceof Player));
-        var3.forEach(Entity::kill);
+        return BoundingBox.createProper(var0.getX(), var0.getY(), var0.getZ(), var1.getX(), var1.getY(), var1.getZ());
     }
 
     public static Optional<BlockPos> findStructureBlockContainingPos(BlockPos param0, int param1, ServerLevel param2) {

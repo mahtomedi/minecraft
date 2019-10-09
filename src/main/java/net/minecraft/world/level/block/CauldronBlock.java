@@ -59,7 +59,7 @@ public class CauldronBlock extends Block {
     public void entityInside(BlockState param0, Level param1, BlockPos param2, Entity param3) {
         int var0 = param0.getValue(LEVEL);
         float var1 = (float)param2.getY() + (6.0F + (float)(3 * var0)) / 16.0F;
-        if (!param1.isClientSide && param3.isOnFire() && var0 > 0 && param3.getBoundingBox().minY <= (double)var1) {
+        if (!param1.isClientSide && param3.isOnFire() && var0 > 0 && param3.getY() <= (double)var1) {
             param3.clearFire();
             this.setWaterLevel(param1, param2, param0, var0 - 1);
         }

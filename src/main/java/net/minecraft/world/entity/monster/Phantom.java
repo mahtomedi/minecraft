@@ -114,9 +114,9 @@ public class Phantom extends FlyingMob implements Enemy {
             if (var0 > 0.0F && var1 <= 0.0F) {
                 this.level
                     .playLocalSound(
-                        this.x,
-                        this.y,
-                        this.z,
+                        this.getX(),
+                        this.getY(),
+                        this.getZ(),
                         SoundEvents.PHANTOM_FLAP,
                         this.getSoundSource(),
                         0.95F + this.random.nextFloat() * 0.05F,
@@ -129,8 +129,8 @@ public class Phantom extends FlyingMob implements Enemy {
             float var3 = Mth.cos(this.yRot * (float) (Math.PI / 180.0)) * (1.3F + 0.21F * (float)var2);
             float var4 = Mth.sin(this.yRot * (float) (Math.PI / 180.0)) * (1.3F + 0.21F * (float)var2);
             float var5 = (0.3F + var0 * 0.45F) * ((float)var2 * 0.2F + 1.0F);
-            this.level.addParticle(ParticleTypes.MYCELIUM, this.x + (double)var3, this.y + (double)var5, this.z + (double)var4, 0.0, 0.0, 0.0);
-            this.level.addParticle(ParticleTypes.MYCELIUM, this.x - (double)var3, this.y + (double)var5, this.z - (double)var4, 0.0, 0.0, 0.0);
+            this.level.addParticle(ParticleTypes.MYCELIUM, this.getX() + (double)var3, this.getY() + (double)var5, this.getZ() + (double)var4, 0.0, 0.0, 0.0);
+            this.level.addParticle(ParticleTypes.MYCELIUM, this.getX() - (double)var3, this.getY() + (double)var5, this.getZ() - (double)var4, 0.0, 0.0, 0.0);
         }
 
         if (!this.level.isClientSide && this.level.getDifficulty() == Difficulty.PEACEFUL) {
@@ -252,7 +252,7 @@ public class Phantom extends FlyingMob implements Enemy {
                 List<Player> var0 = Phantom.this.level
                     .getNearbyPlayers(this.attackTargeting, Phantom.this, Phantom.this.getBoundingBox().inflate(16.0, 64.0, 16.0));
                 if (!var0.isEmpty()) {
-                    var0.sort((param0, param1) -> param0.y > param1.y ? -1 : 1);
+                    var0.sort((param0, param1) -> param0.getY() > param1.getY() ? -1 : 1);
 
                     for(Player var1 : var0) {
                         if (Phantom.this.canAttack(var1, TargetingConditions.DEFAULT)) {
@@ -379,12 +379,12 @@ public class Phantom extends FlyingMob implements Enemy {
                 this.selectNext();
             }
 
-            if (Phantom.this.moveTargetPoint.y < Phantom.this.y && !Phantom.this.level.isEmptyBlock(new BlockPos(Phantom.this).below(1))) {
+            if (Phantom.this.moveTargetPoint.y < Phantom.this.getY() && !Phantom.this.level.isEmptyBlock(new BlockPos(Phantom.this).below(1))) {
                 this.height = Math.max(1.0F, this.height);
                 this.selectNext();
             }
 
-            if (Phantom.this.moveTargetPoint.y > Phantom.this.y && !Phantom.this.level.isEmptyBlock(new BlockPos(Phantom.this).above(1))) {
+            if (Phantom.this.moveTargetPoint.y > Phantom.this.getY() && !Phantom.this.level.isEmptyBlock(new BlockPos(Phantom.this).above(1))) {
                 this.height = Math.min(-1.0F, this.height);
                 this.selectNext();
             }
@@ -426,9 +426,9 @@ public class Phantom extends FlyingMob implements Enemy {
                 this.speed = 0.1F;
             }
 
-            float var0 = (float)(Phantom.this.moveTargetPoint.x - Phantom.this.x);
-            float var1 = (float)(Phantom.this.moveTargetPoint.y - Phantom.this.y);
-            float var2 = (float)(Phantom.this.moveTargetPoint.z - Phantom.this.z);
+            float var0 = (float)(Phantom.this.moveTargetPoint.x - Phantom.this.getX());
+            float var1 = (float)(Phantom.this.moveTargetPoint.y - Phantom.this.getY());
+            float var2 = (float)(Phantom.this.moveTargetPoint.z - Phantom.this.getZ());
             double var3 = (double)Mth.sqrt(var0 * var0 + var2 * var2);
             double var4 = 1.0 - (double)Mth.abs(var1 * 0.7F) / var3;
             var0 = (float)((double)var0 * var4);
@@ -464,7 +464,7 @@ public class Phantom extends FlyingMob implements Enemy {
         }
 
         protected boolean touchingTarget() {
-            return Phantom.this.moveTargetPoint.distanceToSqr(Phantom.this.x, Phantom.this.y, Phantom.this.z) < 4.0;
+            return Phantom.this.moveTargetPoint.distanceToSqr(Phantom.this.getX(), Phantom.this.getY(), Phantom.this.getZ()) < 4.0;
         }
     }
 
@@ -520,7 +520,7 @@ public class Phantom extends FlyingMob implements Enemy {
         @Override
         public void tick() {
             LivingEntity var0 = Phantom.this.getTarget();
-            Phantom.this.moveTargetPoint = new Vec3(var0.x, var0.y + (double)var0.getBbHeight() * 0.5, var0.z);
+            Phantom.this.moveTargetPoint = new Vec3(var0.getX(), var0.getY(0.5), var0.getZ());
             if (Phantom.this.getBoundingBox().inflate(0.2F).intersects(var0.getBoundingBox())) {
                 Phantom.this.doHurtTarget(var0);
                 Phantom.this.attackPhase = Phantom.AttackPhase.CIRCLE;

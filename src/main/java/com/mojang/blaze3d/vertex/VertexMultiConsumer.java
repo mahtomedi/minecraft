@@ -40,7 +40,7 @@ public class VertexMultiConsumer implements VertexConsumer {
 
     @Override
     public VertexConsumer overlayCoords(int param0, int param1) {
-        this.delegates.forEach(param2 -> param2.uv2(param0, param1));
+        this.delegates.forEach(param2 -> param2.overlayCoords(param0, param1));
         return this;
     }
 
@@ -59,15 +59,5 @@ public class VertexMultiConsumer implements VertexConsumer {
     @Override
     public void endVertex() {
         this.delegates.forEach(VertexConsumer::endVertex);
-    }
-
-    @Override
-    public void defaultOverlayCoords(int param0, int param1) {
-        this.delegates.forEach(param2 -> param2.defaultOverlayCoords(param0, param1));
-    }
-
-    @Override
-    public void unsetDefaultOverlayCoords() {
-        this.delegates.forEach(VertexConsumer::unsetDefaultOverlayCoords);
     }
 }

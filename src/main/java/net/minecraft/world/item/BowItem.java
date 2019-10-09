@@ -77,9 +77,9 @@ public class BowItem extends ProjectileWeaponItem {
 
                     param1.playSound(
                         null,
-                        var0.x,
-                        var0.y,
-                        var0.z,
+                        var0.getX(),
+                        var0.getY(),
+                        var0.getZ(),
                         SoundEvents.ARROW_SHOOT,
                         SoundSource.PLAYERS,
                         1.0F,

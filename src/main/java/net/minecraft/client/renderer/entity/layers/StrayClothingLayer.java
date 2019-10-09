@@ -33,7 +33,7 @@ public class StrayClothingLayer<T extends Mob & RangedAttackMob, M extends Entit
         float param9,
         float param10
     ) {
-        RenderLayer.coloredModelCopyLayerRender(
+        coloredCutoutModelCopyLayerRender(
             this.getParentModel(),
             this.layerModel,
             STRAY_CLOTHES_LOCATION,
@@ -47,7 +47,10 @@ public class StrayClothingLayer<T extends Mob & RangedAttackMob, M extends Entit
             param8,
             param9,
             param10,
-            param6
+            param6,
+            1.0F,
+            1.0F,
+            1.0F
         );
     }
 }

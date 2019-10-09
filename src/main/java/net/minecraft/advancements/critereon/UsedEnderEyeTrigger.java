@@ -20,8 +20,8 @@ public class UsedEnderEyeTrigger extends SimpleCriterionTrigger<UsedEnderEyeTrig
     }
 
     public void trigger(ServerPlayer param0, BlockPos param1) {
-        double var0 = param0.x - (double)param1.getX();
-        double var1 = param0.z - (double)param1.getZ();
+        double var0 = param0.getX() - (double)param1.getX();
+        double var1 = param0.getZ() - (double)param1.getZ();
         double var2 = var0 * var0 + var1 * var1;
         this.trigger(param0.getAdvancements(), param1x -> param1x.matches(var2));
     }

@@ -105,7 +105,7 @@ public class MapRenderer implements AutoCloseable {
             int var1 = 0;
             float var2 = 0.0F;
             Matrix4f var3 = param0.getPose();
-            VertexConsumer var4 = param1.getBuffer(RenderType.TEXT(this.location));
+            VertexConsumer var4 = param1.getBuffer(RenderType.text(this.location));
             var4.vertex(var3, 0.0F, 128.0F, -0.01F).color(255, 255, 255, 255).uv(0.0F, 1.0F).uv2(param3).endVertex();
             var4.vertex(var3, 128.0F, 128.0F, -0.01F).color(255, 255, 255, 255).uv(1.0F, 1.0F).uv2(param3).endVertex();
             var4.vertex(var3, 128.0F, 0.0F, -0.01F).color(255, 255, 255, 255).uv(1.0F, 0.0F).uv2(param3).endVertex();
@@ -116,7 +116,7 @@ public class MapRenderer implements AutoCloseable {
                 if (!param2 || var6.renderOnFrame()) {
                     param0.pushPose();
                     param0.translate((double)(0.0F + (float)var6.getX() / 2.0F + 64.0F), (double)(0.0F + (float)var6.getY() / 2.0F + 64.0F), -0.02F);
-                    param0.mulPose(Vector3f.ZP.rotation((float)(var6.getRot() * 360) / 16.0F, true));
+                    param0.mulPose(Vector3f.ZP.rotationDegrees((float)(var6.getRot() * 360) / 16.0F));
                     param0.scale(4.0F, 4.0F, 3.0F);
                     param0.translate(-0.125, 0.125, 0.0);
                     byte var7 = var6.getImage();
@@ -126,7 +126,7 @@ public class MapRenderer implements AutoCloseable {
                     float var11 = (float)(var7 / 16 + 1) / 16.0F;
                     Matrix4f var12 = param0.getPose();
                     float var13 = -0.001F;
-                    VertexConsumer var14 = param1.getBuffer(RenderType.TEXT(MapRenderer.MAP_ICONS_LOCATION));
+                    VertexConsumer var14 = param1.getBuffer(RenderType.text(MapRenderer.MAP_ICONS_LOCATION));
                     var14.vertex(var12, -1.0F, 1.0F, (float)var5 * -0.001F).color(255, 255, 255, 255).uv(var8, var9).uv2(param3).endVertex();
                     var14.vertex(var12, 1.0F, 1.0F, (float)var5 * -0.001F).color(255, 255, 255, 255).uv(var10, var9).uv2(param3).endVertex();
                     var14.vertex(var12, 1.0F, -1.0F, (float)var5 * -0.001F).color(255, 255, 255, 255).uv(var10, var11).uv2(param3).endVertex();

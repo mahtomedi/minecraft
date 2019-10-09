@@ -68,7 +68,6 @@ import net.minecraft.stats.ServerRecipeBook;
 import net.minecraft.stats.ServerStatsCounter;
 import net.minecraft.stats.Stat;
 import net.minecraft.stats.Stats;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Unit;
 import net.minecraft.world.Container;
@@ -103,9 +102,7 @@ import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.FenceGateBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.CommandBlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
@@ -204,8 +201,8 @@ public class ServerPlayer extends Player implements ContainerListener {
         } else {
             this.moveTo(var0, 0.0F, 0.0F);
 
-            while(!param0.noCollision(this) && this.y < 255.0) {
-                this.setPos(this.x, this.y + 1.0, this.z);
+            while(!param0.noCollision(this) && this.getY() < 255.0) {
+                this.setPos(this.getX(), this.getY() + 1.0, this.getZ());
             }
         }
 
@@ -350,7 +347,7 @@ public class ServerPlayer extends Player implements ContainerListener {
         Entity var4 = this.getCamera();
         if (var4 != this) {
             if (var4.isAlive()) {
-                this.absMoveTo(var4.x, var4.y, var4.z, var4.yRot, var4.xRot);
+                this.absMoveTo(var4.getX(), var4.getY(), var4.getZ(), var4.yRot, var4.xRot);
                 this.getLevel().getChunkSource().move(this);
                 if (this.wantsToStopRiding()) {
                     this.setCamera(this);
@@ -492,7 +489,7 @@ public class ServerPlayer extends Player implements ContainerListener {
             if (!this.level.isClientSide && var3 instanceof WitherBoss) {
                 boolean var4 = false;
                 if (this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
-                    BlockPos var5 = new BlockPos(this.x, this.y, this.z);
+                    BlockPos var5 = new BlockPos(this);
                     BlockState var6 = Blocks.WITHER_ROSE.defaultBlockState();
                     if (this.level.getBlockState(var5).isAir() && var6.canSurvive(this.level, var5)) {
                         this.level.setBlock(var5, var6, 3);
@@ -501,7 +498,7 @@ public class ServerPlayer extends Player implements ContainerListener {
                 }
 
                 if (!var4) {
-                    ItemEntity var7 = new ItemEntity(this.level, this.x, this.y, this.z, new ItemStack(Items.WITHER_ROSE));
+                    ItemEntity var7 = new ItemEntity(this.level, this.getX(), this.getY(), this.getZ(), new ItemStack(Items.WITHER_ROSE));
                     this.level.addFreshEntity(var7);
                 }
             }
@@ -614,16 +611,16 @@ public class ServerPlayer extends Player implements ContainerListener {
             var4.sendPlayerPermissionLevel(this);
             var1.removePlayerImmediately(this);
             this.removed = false;
-            double var5 = this.x;
-            double var6 = this.y;
-            double var7 = this.z;
+            double var5 = this.getX();
+            double var6 = this.getY();
+            double var7 = this.getZ();
             float var8 = this.xRot;
             float var9 = this.yRot;
             double var10 = 8.0;
             float var11 = var9;
             var1.getProfiler().push("moving");
             if (var0 == DimensionType.OVERWORLD && param0 == DimensionType.NETHER) {
-                this.enteredNetherPosition = new Vec3(this.x, this.y, this.z);
+                this.enteredNetherPosition = this.position();
                 var5 /= 8.0;
                 var7 /= 8.0;
             } else if (var0 == DimensionType.NETHER && param0 == DimensionType.OVERWORLD) {
@@ -649,9 +646,9 @@ public class ServerPlayer extends Player implements ContainerListener {
             var7 = Mth.clamp(var7, var14, var16);
             this.moveTo(var5, var6, var7, var9, var8);
             if (param0 == DimensionType.THE_END) {
-                int var17 = Mth.floor(this.x);
-                int var18 = Mth.floor(this.y) - 1;
-                int var19 = Mth.floor(this.z);
+                int var17 = Mth.floor(this.getX());
+                int var18 = Mth.floor(this.getY()) - 1;
+                int var19 = Mth.floor(this.getZ());
                 int var20 = 1;
                 int var21 = 0;
 
@@ -680,7 +677,7 @@ public class ServerPlayer extends Player implements ContainerListener {
             this.setLevel(var2);
             var2.addDuringPortalTeleport(this);
             this.triggerDimensionChangeTriggers(var1);
-            this.connection.teleport(this.x, this.y, this.z, var9, var8);
+            this.connection.teleport(this.getX(), this.getY(), this.getZ(), var9, var8);
             this.gameMode.setLevel(var2);
             this.connection.send(new ClientboundPlayerAbilitiesPacket(this.abilities));
             var4.sendLevelInfo(this, var2);
@@ -753,7 +750,7 @@ public class ServerPlayer extends Player implements ContainerListener {
 
         super.stopSleepInBed(param0, param1);
         if (this.connection != null) {
-            this.connection.teleport(this.x, this.y, this.z, this.yRot, this.xRot);
+            this.connection.teleport(this.getX(), this.getY(), this.getZ(), this.yRot, this.xRot);
         }
 
     }
@@ -766,7 +763,7 @@ public class ServerPlayer extends Player implements ContainerListener {
         } else {
             Entity var1 = this.getVehicle();
             if (var1 != var0 && this.connection != null) {
-                this.connection.teleport(this.x, this.y, this.z, this.yRot, this.xRot);
+                this.connection.teleport(this.getX(), this.getY(), this.getZ(), this.yRot, this.xRot);
             }
 
             return true;
@@ -779,7 +776,7 @@ public class ServerPlayer extends Player implements ContainerListener {
         super.stopRiding();
         Entity var1 = this.getVehicle();
         if (var1 != var0 && this.connection != null) {
-            this.connection.teleport(this.x, this.y, this.z, this.yRot, this.xRot);
+            this.connection.teleport(this.getX(), this.getY(), this.getZ(), this.yRot, this.xRot);
         }
 
     }
@@ -802,23 +799,10 @@ public class ServerPlayer extends Player implements ContainerListener {
     }
 
     public void doCheckFallDamage(double param0, boolean param1) {
-        int var0 = Mth.floor(this.x);
-        int var1 = Mth.floor(this.y - 0.2F);
-        int var2 = Mth.floor(this.z);
-        BlockPos var3 = new BlockPos(var0, var1, var2);
-        if (this.level.hasChunkAt(var3)) {
-            BlockState var4 = this.level.getBlockState(var3);
-            if (var4.isAir()) {
-                BlockPos var5 = var3.below();
-                BlockState var6 = this.level.getBlockState(var5);
-                Block var7 = var6.getBlock();
-                if (var7.is(BlockTags.FENCES) || var7.is(BlockTags.WALLS) || var7 instanceof FenceGateBlock) {
-                    var3 = var5;
-                    var4 = var6;
-                }
-            }
-
-            super.checkFallDamage(param0, param1, var4, var3);
+        BlockPos var0 = this.getOnPos();
+        if (this.level.hasChunkAt(var0)) {
+            BlockState var1 = this.level.getBlockState(var0);
+            super.checkFallDamage(param0, param1, var1, var0);
         }
     }
 
@@ -1077,7 +1061,7 @@ public class ServerPlayer extends Player implements ContainerListener {
         this.connection.send(new ClientboundUpdateMobEffectPacket(this.getId(), param0));
         if (param0.getEffect() == MobEffects.LEVITATION) {
             this.levitationStartTime = this.tickCount;
-            this.levitationStartPos = new Vec3(this.x, this.y, this.z);
+            this.levitationStartPos = this.position();
         }
 
         CriteriaTriggers.EFFECTS_CHANGED.trigger(this);
@@ -1251,7 +1235,7 @@ public class ServerPlayer extends Player implements ContainerListener {
         this.camera = (Entity)(param0 == null ? this : param0);
         if (var0 != this.camera) {
             this.connection.send(new ClientboundSetCameraPacket(this.camera));
-            this.teleportTo(this.camera.x, this.camera.y, this.camera.z);
+            this.teleportTo(this.camera.getX(), this.camera.getY(), this.camera.getZ());
         }
 
     }
@@ -1363,7 +1347,7 @@ public class ServerPlayer extends Player implements ContainerListener {
 
     @Override
     public void playNotifySound(SoundEvent param0, SoundSource param1, float param2, float param3) {
-        this.connection.send(new ClientboundSoundPacket(param0, param1, this.x, this.y, this.z, param2, param3));
+        this.connection.send(new ClientboundSoundPacket(param0, param1, this.getX(), this.getY(), this.getZ(), param2, param3));
     }
 
     @Override

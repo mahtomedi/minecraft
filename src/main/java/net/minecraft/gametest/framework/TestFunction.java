@@ -9,6 +9,7 @@ public class TestFunction {
     private final boolean required;
     private final Consumer<GameTestHelper> function;
     private final int maxTicks;
+    private final long setupTicks;
 
     public void run(GameTestHelper param0) {
         this.function.accept(param0);
@@ -37,5 +38,9 @@ public class TestFunction {
 
     public String getBatchName() {
         return this.batchName;
+    }
+
+    public long getSetupTicks() {
+        return this.setupTicks;
     }
 }

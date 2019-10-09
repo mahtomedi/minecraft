@@ -5,7 +5,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.ParrotModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.ParrotRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -57,10 +56,8 @@ public class ParrotOnShoulderLayer<T extends Player> extends RenderLayer<T, Play
         EntityType.byString(var0.getString("id")).filter(param0x -> param0x == EntityType.PARROT).ifPresent(param11 -> {
             param0.pushPose();
             param0.translate(param10 ? 0.4F : -0.4F, param3.isCrouching() ? -1.3F : -1.5, 0.0);
-            VertexConsumer var0x = param1.getBuffer(RenderType.NEW_ENTITY(ParrotRenderer.PARROT_LOCATIONS[var0.getInt("Variant")]));
-            OverlayTexture.setDefault(var0x);
-            this.model.renderOnShoulder(param0, var0x, param2, param4, param5, param7, param8, param9, param3.tickCount);
-            var0x.unsetDefaultOverlayCoords();
+            VertexConsumer var0x = param1.getBuffer(this.model.renderType(ParrotRenderer.PARROT_LOCATIONS[var0.getInt("Variant")]));
+            this.model.renderOnShoulder(param0, var0x, param2, OverlayTexture.NO_OVERLAY, param4, param5, param7, param8, param9, param3.tickCount);
             param0.popPose();
         });
     }

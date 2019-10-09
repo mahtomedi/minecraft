@@ -79,9 +79,9 @@ public class AreaEffectCloud extends Entity {
 
     @Override
     public void refreshDimensions() {
-        double var0 = this.x;
-        double var1 = this.y;
-        double var2 = this.z;
+        double var0 = this.getX();
+        double var1 = this.getY();
+        double var2 = this.getZ();
         super.refreshDimensions();
         this.setPos(var0, var1, var2);
     }
@@ -170,15 +170,15 @@ public class AreaEffectCloud extends Entity {
                             this.level
                                 .addAlwaysVisibleParticle(
                                     var2,
-                                    this.x + (double)var6,
-                                    this.y,
-                                    this.z + (double)var7,
+                                    this.getX() + (double)var6,
+                                    this.getY(),
+                                    this.getZ() + (double)var7,
                                     (double)((float)var9 / 255.0F),
                                     (double)((float)var10 / 255.0F),
                                     (double)((float)var11 / 255.0F)
                                 );
                         } else {
-                            this.level.addAlwaysVisibleParticle(var2, this.x + (double)var6, this.y, this.z + (double)var7, 0.0, 0.0, 0.0);
+                            this.level.addAlwaysVisibleParticle(var2, this.getX() + (double)var6, this.getY(), this.getZ() + (double)var7, 0.0, 0.0, 0.0);
                         }
                     }
                 }
@@ -198,9 +198,9 @@ public class AreaEffectCloud extends Entity {
                         this.level
                             .addAlwaysVisibleParticle(
                                 var2,
-                                this.x + (double)var16,
-                                this.y,
-                                this.z + (double)var17,
+                                this.getX() + (double)var16,
+                                this.getY(),
+                                this.getZ() + (double)var17,
                                 (double)((float)var19 / 255.0F),
                                 (double)((float)var20 / 255.0F),
                                 (double)((float)var21 / 255.0F)
@@ -209,9 +209,9 @@ public class AreaEffectCloud extends Entity {
                         this.level
                             .addAlwaysVisibleParticle(
                                 var2,
-                                this.x + (double)var16,
-                                this.y,
-                                this.z + (double)var17,
+                                this.getX() + (double)var16,
+                                this.getY(),
+                                this.getZ() + (double)var17,
                                 (0.5 - this.random.nextDouble()) * 0.15,
                                 0.01F,
                                 (0.5 - this.random.nextDouble()) * 0.15
@@ -268,8 +268,8 @@ public class AreaEffectCloud extends Entity {
                     if (!var27.isEmpty()) {
                         for(LivingEntity var28 : var27) {
                             if (!this.victims.containsKey(var28) && var28.isAffectedByPotions()) {
-                                double var29 = var28.x - this.x;
-                                double var30 = var28.z - this.z;
+                                double var29 = var28.getX() - this.getX();
+                                double var30 = var28.getZ() - this.getZ();
                                 double var31 = var29 * var29 + var30 * var30;
                                 if (var31 <= (double)(var1 * var1)) {
                                     this.victims.put(var28, this.tickCount + this.reapplicationDelay);

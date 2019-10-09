@@ -181,9 +181,9 @@ public class Explosion {
             if (!var28.ignoreExplosion()) {
                 double var29 = (double)(Mth.sqrt(var28.distanceToSqr(new Vec3(this.x, this.y, this.z))) / var18);
                 if (var29 <= 1.0) {
-                    double var30 = var28.x - this.x;
-                    double var31 = var28.y + (double)var28.getEyeHeight() - this.y;
-                    double var32 = var28.z - this.z;
+                    double var30 = var28.getX() - this.x;
+                    double var31 = var28.getEyeY() - this.y;
+                    double var32 = var28.getZ() - this.z;
                     double var33 = (double)Mth.sqrt(var30 * var30 + var31 * var31 + var32 * var32);
                     if (var33 != 0.0) {
                         var30 /= var33;

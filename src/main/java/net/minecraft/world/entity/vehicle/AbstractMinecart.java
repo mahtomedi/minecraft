@@ -214,16 +214,16 @@ public abstract class AbstractMinecart extends Entity {
             this.setDamage(this.getDamage() - 1.0F);
         }
 
-        if (this.y < -64.0) {
+        if (this.getY() < -64.0) {
             this.outOfWorld();
         }
 
         this.handleNetherPortal();
         if (this.level.isClientSide) {
             if (this.lSteps > 0) {
-                double var0 = this.x + (this.lx - this.x) / (double)this.lSteps;
-                double var1 = this.y + (this.ly - this.y) / (double)this.lSteps;
-                double var2 = this.z + (this.lz - this.z) / (double)this.lSteps;
+                double var0 = this.getX() + (this.lx - this.getX()) / (double)this.lSteps;
+                double var1 = this.getY() + (this.ly - this.getY()) / (double)this.lSteps;
+                double var2 = this.getZ() + (this.lz - this.getZ()) / (double)this.lSteps;
                 double var3 = Mth.wrapDegrees(this.lyr - (double)this.yRot);
                 this.yRot = (float)((double)this.yRot + var3 / (double)this.lSteps);
                 this.xRot = (float)((double)this.xRot + (this.lxr - (double)this.xRot) / (double)this.lSteps);
@@ -231,7 +231,7 @@ public abstract class AbstractMinecart extends Entity {
                 this.setPos(var0, var1, var2);
                 this.setRot(this.yRot, this.xRot);
             } else {
-                this.setPos(this.x, this.y, this.z);
+                this.refreshBoundingBox();
                 this.setRot(this.yRot, this.xRot);
             }
 
@@ -240,9 +240,9 @@ public abstract class AbstractMinecart extends Entity {
                 this.setDeltaMovement(this.getDeltaMovement().add(0.0, -0.04, 0.0));
             }
 
-            int var4 = Mth.floor(this.x);
-            int var5 = Mth.floor(this.y);
-            int var6 = Mth.floor(this.z);
+            int var4 = Mth.floor(this.getX());
+            int var5 = Mth.floor(this.getY());
+            int var6 = Mth.floor(this.getZ());
             if (this.level.getBlockState(new BlockPos(var4, var5 - 1, var6)).is(BlockTags.RAILS)) {
                 --var5;
             }
@@ -260,8 +260,8 @@ public abstract class AbstractMinecart extends Entity {
 
             this.checkInsideBlocks();
             this.xRot = 0.0F;
-            double var9 = this.xo - this.x;
-            double var10 = this.zo - this.z;
+            double var9 = this.xo - this.getX();
+            double var10 = this.zo - this.getZ();
             if (var9 * var9 + var10 * var10 > 0.001) {
                 this.yRot = (float)(Mth.atan2(var10, var9) * 180.0 / Math.PI);
                 if (this.flipped) {
@@ -328,155 +328,156 @@ public abstract class AbstractMinecart extends Entity {
 
     protected void moveAlongTrack(BlockPos param0, BlockState param1) {
         this.fallDistance = 0.0F;
-        Vec3 var0 = this.getPos(this.x, this.y, this.z);
-        this.y = (double)param0.getY();
-        boolean var1 = false;
-        boolean var2 = false;
-        BaseRailBlock var3 = (BaseRailBlock)param1.getBlock();
-        if (var3 == Blocks.POWERED_RAIL) {
-            var1 = param1.getValue(PoweredRailBlock.POWERED);
-            var2 = !var1;
+        double var0 = this.getX();
+        double var1 = this.getY();
+        double var2 = this.getZ();
+        Vec3 var3 = this.getPos(var0, var1, var2);
+        var1 = (double)param0.getY();
+        boolean var4 = false;
+        boolean var5 = false;
+        BaseRailBlock var6 = (BaseRailBlock)param1.getBlock();
+        if (var6 == Blocks.POWERED_RAIL) {
+            var4 = param1.getValue(PoweredRailBlock.POWERED);
+            var5 = !var4;
         }
 
-        double var4 = 0.0078125;
-        Vec3 var5 = this.getDeltaMovement();
-        RailShape var6 = param1.getValue(var3.getShapeProperty());
-        switch(var6) {
+        double var7 = 0.0078125;
+        Vec3 var8 = this.getDeltaMovement();
+        RailShape var9 = param1.getValue(var6.getShapeProperty());
+        switch(var9) {
             case ASCENDING_EAST:
-                this.setDeltaMovement(var5.add(-0.0078125, 0.0, 0.0));
-                ++this.y;
+                this.setDeltaMovement(var8.add(-0.0078125, 0.0, 0.0));
+                ++var1;
                 break;
             case ASCENDING_WEST:
-                this.setDeltaMovement(var5.add(0.0078125, 0.0, 0.0));
-                ++this.y;
+                this.setDeltaMovement(var8.add(0.0078125, 0.0, 0.0));
+                ++var1;
                 break;
             case ASCENDING_NORTH:
-                this.setDeltaMovement(var5.add(0.0, 0.0, 0.0078125));
-                ++this.y;
+                this.setDeltaMovement(var8.add(0.0, 0.0, 0.0078125));
+                ++var1;
                 break;
             case ASCENDING_SOUTH:
-                this.setDeltaMovement(var5.add(0.0, 0.0, -0.0078125));
-                ++this.y;
+                this.setDeltaMovement(var8.add(0.0, 0.0, -0.0078125));
+                ++var1;
         }
 
-        var5 = this.getDeltaMovement();
-        Pair<Vec3i, Vec3i> var7 = exits(var6);
-        Vec3i var8 = var7.getFirst();
-        Vec3i var9 = var7.getSecond();
-        double var10 = (double)(var9.getX() - var8.getX());
-        double var11 = (double)(var9.getZ() - var8.getZ());
-        double var12 = Math.sqrt(var10 * var10 + var11 * var11);
-        double var13 = var5.x * var10 + var5.z * var11;
-        if (var13 < 0.0) {
-            var10 = -var10;
-            var11 = -var11;
+        var8 = this.getDeltaMovement();
+        Pair<Vec3i, Vec3i> var10 = exits(var9);
+        Vec3i var11 = var10.getFirst();
+        Vec3i var12 = var10.getSecond();
+        double var13 = (double)(var12.getX() - var11.getX());
+        double var14 = (double)(var12.getZ() - var11.getZ());
+        double var15 = Math.sqrt(var13 * var13 + var14 * var14);
+        double var16 = var8.x * var13 + var8.z * var14;
+        if (var16 < 0.0) {
+            var13 = -var13;
+            var14 = -var14;
         }
 
-        double var14 = Math.min(2.0, Math.sqrt(getHorizontalDistanceSqr(var5)));
-        var5 = new Vec3(var14 * var10 / var12, var5.y, var14 * var11 / var12);
-        this.setDeltaMovement(var5);
-        Entity var15 = this.getPassengers().isEmpty() ? null : this.getPassengers().get(0);
-        if (var15 instanceof Player) {
-            Vec3 var16 = var15.getDeltaMovement();
-            double var17 = getHorizontalDistanceSqr(var16);
-            double var18 = getHorizontalDistanceSqr(this.getDeltaMovement());
-            if (var17 > 1.0E-4 && var18 < 0.01) {
-                this.setDeltaMovement(this.getDeltaMovement().add(var16.x * 0.1, 0.0, var16.z * 0.1));
-                var2 = false;
+        double var17 = Math.min(2.0, Math.sqrt(getHorizontalDistanceSqr(var8)));
+        var8 = new Vec3(var17 * var13 / var15, var8.y, var17 * var14 / var15);
+        this.setDeltaMovement(var8);
+        Entity var18 = this.getPassengers().isEmpty() ? null : this.getPassengers().get(0);
+        if (var18 instanceof Player) {
+            Vec3 var19 = var18.getDeltaMovement();
+            double var20 = getHorizontalDistanceSqr(var19);
+            double var21 = getHorizontalDistanceSqr(this.getDeltaMovement());
+            if (var20 > 1.0E-4 && var21 < 0.01) {
+                this.setDeltaMovement(this.getDeltaMovement().add(var19.x * 0.1, 0.0, var19.z * 0.1));
+                var5 = false;
             }
         }
 
-        if (var2) {
-            double var19 = Math.sqrt(getHorizontalDistanceSqr(this.getDeltaMovement()));
-            if (var19 < 0.03) {
+        if (var5) {
+            double var22 = Math.sqrt(getHorizontalDistanceSqr(this.getDeltaMovement()));
+            if (var22 < 0.03) {
                 this.setDeltaMovement(Vec3.ZERO);
             } else {
                 this.setDeltaMovement(this.getDeltaMovement().multiply(0.5, 0.0, 0.5));
             }
         }
 
-        double var20 = (double)param0.getX() + 0.5 + (double)var8.getX() * 0.5;
-        double var21 = (double)param0.getZ() + 0.5 + (double)var8.getZ() * 0.5;
-        double var22 = (double)param0.getX() + 0.5 + (double)var9.getX() * 0.5;
-        double var23 = (double)param0.getZ() + 0.5 + (double)var9.getZ() * 0.5;
-        var10 = var22 - var20;
-        var11 = var23 - var21;
-        double var24;
-        if (var10 == 0.0) {
-            this.x = (double)param0.getX() + 0.5;
-            var24 = this.z - (double)param0.getZ();
-        } else if (var11 == 0.0) {
-            this.z = (double)param0.getZ() + 0.5;
-            var24 = this.x - (double)param0.getX();
+        double var23 = (double)param0.getX() + 0.5 + (double)var11.getX() * 0.5;
+        double var24 = (double)param0.getZ() + 0.5 + (double)var11.getZ() * 0.5;
+        double var25 = (double)param0.getX() + 0.5 + (double)var12.getX() * 0.5;
+        double var26 = (double)param0.getZ() + 0.5 + (double)var12.getZ() * 0.5;
+        var13 = var25 - var23;
+        var14 = var26 - var24;
+        double var27;
+        if (var13 == 0.0) {
+            var27 = var2 - (double)param0.getZ();
+        } else if (var14 == 0.0) {
+            var27 = var0 - (double)param0.getX();
         } else {
-            double var26 = this.x - var20;
-            double var27 = this.z - var21;
-            var24 = (var26 * var10 + var27 * var11) * 2.0;
+            double var29 = var0 - var23;
+            double var30 = var2 - var24;
+            var27 = (var29 * var13 + var30 * var14) * 2.0;
         }
 
-        this.x = var20 + var10 * var24;
-        this.z = var21 + var11 * var24;
-        this.setPos(this.x, this.y, this.z);
-        double var29 = this.isVehicle() ? 0.75 : 1.0;
-        double var30 = this.getMaxSpeed();
-        var5 = this.getDeltaMovement();
-        this.move(MoverType.SELF, new Vec3(Mth.clamp(var29 * var5.x, -var30, var30), 0.0, Mth.clamp(var29 * var5.z, -var30, var30)));
-        if (var8.getY() != 0 && Mth.floor(this.x) - param0.getX() == var8.getX() && Mth.floor(this.z) - param0.getZ() == var8.getZ()) {
-            this.setPos(this.x, this.y + (double)var8.getY(), this.z);
-        } else if (var9.getY() != 0 && Mth.floor(this.x) - param0.getX() == var9.getX() && Mth.floor(this.z) - param0.getZ() == var9.getZ()) {
-            this.setPos(this.x, this.y + (double)var9.getY(), this.z);
+        var0 = var23 + var13 * var27;
+        var2 = var24 + var14 * var27;
+        this.setPos(var0, var1, var2);
+        double var32 = this.isVehicle() ? 0.75 : 1.0;
+        double var33 = this.getMaxSpeed();
+        var8 = this.getDeltaMovement();
+        this.move(MoverType.SELF, new Vec3(Mth.clamp(var32 * var8.x, -var33, var33), 0.0, Mth.clamp(var32 * var8.z, -var33, var33)));
+        if (var11.getY() != 0 && Mth.floor(this.getX()) - param0.getX() == var11.getX() && Mth.floor(this.getZ()) - param0.getZ() == var11.getZ()) {
+            this.setPos(this.getX(), this.getY() + (double)var11.getY(), this.getZ());
+        } else if (var12.getY() != 0 && Mth.floor(this.getX()) - param0.getX() == var12.getX() && Mth.floor(this.getZ()) - param0.getZ() == var12.getZ()) {
+            this.setPos(this.getX(), this.getY() + (double)var12.getY(), this.getZ());
         }
 
         this.applyNaturalSlowdown();
-        Vec3 var31 = this.getPos(this.x, this.y, this.z);
-        if (var31 != null && var0 != null) {
-            double var32 = (var0.y - var31.y) * 0.05;
-            Vec3 var33 = this.getDeltaMovement();
-            double var34 = Math.sqrt(getHorizontalDistanceSqr(var33));
-            if (var34 > 0.0) {
-                this.setDeltaMovement(var33.multiply((var34 + var32) / var34, 1.0, (var34 + var32) / var34));
+        Vec3 var34 = this.getPos(this.getX(), this.getY(), this.getZ());
+        if (var34 != null && var3 != null) {
+            double var35 = (var3.y - var34.y) * 0.05;
+            Vec3 var36 = this.getDeltaMovement();
+            double var37 = Math.sqrt(getHorizontalDistanceSqr(var36));
+            if (var37 > 0.0) {
+                this.setDeltaMovement(var36.multiply((var37 + var35) / var37, 1.0, (var37 + var35) / var37));
             }
 
-            this.setPos(this.x, var31.y, this.z);
+            this.setPos(this.getX(), var34.y, this.getZ());
         }
 
-        int var35 = Mth.floor(this.x);
-        int var36 = Mth.floor(this.z);
-        if (var35 != param0.getX() || var36 != param0.getZ()) {
-            Vec3 var37 = this.getDeltaMovement();
-            double var38 = Math.sqrt(getHorizontalDistanceSqr(var37));
-            this.setDeltaMovement(var38 * (double)(var35 - param0.getX()), var37.y, var38 * (double)(var36 - param0.getZ()));
+        int var38 = Mth.floor(this.getX());
+        int var39 = Mth.floor(this.getZ());
+        if (var38 != param0.getX() || var39 != param0.getZ()) {
+            Vec3 var40 = this.getDeltaMovement();
+            double var41 = Math.sqrt(getHorizontalDistanceSqr(var40));
+            this.setDeltaMovement(var41 * (double)(var38 - param0.getX()), var40.y, var41 * (double)(var39 - param0.getZ()));
         }
 
-        if (var1) {
-            Vec3 var39 = this.getDeltaMovement();
-            double var40 = Math.sqrt(getHorizontalDistanceSqr(var39));
-            if (var40 > 0.01) {
-                double var41 = 0.06;
-                this.setDeltaMovement(var39.add(var39.x / var40 * 0.06, 0.0, var39.z / var40 * 0.06));
+        if (var4) {
+            Vec3 var42 = this.getDeltaMovement();
+            double var43 = Math.sqrt(getHorizontalDistanceSqr(var42));
+            if (var43 > 0.01) {
+                double var44 = 0.06;
+                this.setDeltaMovement(var42.add(var42.x / var43 * 0.06, 0.0, var42.z / var43 * 0.06));
             } else {
-                Vec3 var42 = this.getDeltaMovement();
-                double var43 = var42.x;
-                double var44 = var42.z;
-                if (var6 == RailShape.EAST_WEST) {
+                Vec3 var45 = this.getDeltaMovement();
+                double var46 = var45.x;
+                double var47 = var45.z;
+                if (var9 == RailShape.EAST_WEST) {
                     if (this.isRedstoneConductor(param0.west())) {
-                        var43 = 0.02;
+                        var46 = 0.02;
                     } else if (this.isRedstoneConductor(param0.east())) {
-                        var43 = -0.02;
+                        var46 = -0.02;
                     }
                 } else {
-                    if (var6 != RailShape.NORTH_SOUTH) {
+                    if (var9 != RailShape.NORTH_SOUTH) {
                         return;
                     }
 
                     if (this.isRedstoneConductor(param0.north())) {
-                        var44 = 0.02;
+                        var47 = 0.02;
                     } else if (this.isRedstoneConductor(param0.south())) {
-                        var44 = -0.02;
+                        var47 = -0.02;
                     }
                 }
 
-                this.setDeltaMovement(var43, var42.y, var44);
+                this.setDeltaMovement(var46, var45.y, var47);
             }
         }
 
@@ -612,8 +613,8 @@ public abstract class AbstractMinecart extends Entity {
         if (!this.level.isClientSide) {
             if (!param0.noPhysics && !this.noPhysics) {
                 if (!this.hasPassenger(param0)) {
-                    double var0 = param0.x - this.x;
-                    double var1 = param0.z - this.z;
+                    double var0 = param0.getX() - this.getX();
+                    double var1 = param0.getZ() - this.getZ();
                     double var2 = var0 * var0 + var1 * var1;
                     if (var2 >= 1.0E-4F) {
                         var2 = (double)Mth.sqrt(var2);
@@ -633,8 +634,8 @@ public abstract class AbstractMinecart extends Entity {
                         var0 *= 0.5;
                         var1 *= 0.5;
                         if (param0 instanceof AbstractMinecart) {
-                            double var4 = param0.x - this.x;
-                            double var5 = param0.z - this.z;
+                            double var4 = param0.getX() - this.getX();
+                            double var5 = param0.getZ() - this.getZ();
                             Vec3 var6 = new Vec3(var4, 0.0, var5).normalize();
                             Vec3 var7 = new Vec3(
                                     (double)Mth.cos(this.yRot * (float) (Math.PI / 180.0)), 0.0, (double)Mth.sin(this.yRot * (float) (Math.PI / 180.0))

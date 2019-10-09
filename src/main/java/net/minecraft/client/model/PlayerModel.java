@@ -8,6 +8,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import java.util.List;
 import java.util.Random;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.api.distmarker.Dist;
@@ -26,7 +27,7 @@ public class PlayerModel<T extends LivingEntity> extends HumanoidModel<T> {
     private final boolean slim;
 
     public PlayerModel(float param0, boolean param1) {
-        super(param0, 0.0F, 64, 64);
+        super(RenderType::entityTranslucent, param0, 0.0F, 64, 64);
         this.slim = param1;
         this.ear = new ModelPart(this, 24, 0);
         this.ear.addBox(-3.0F, -6.0F, -1.0F, 6.0F, 6.0F, 1.0F, param0);
@@ -77,15 +78,15 @@ public class PlayerModel<T extends LivingEntity> extends HumanoidModel<T> {
         return Iterables.concat(super.bodyParts(), ImmutableList.of(this.leftPants, this.rightPants, this.leftSleeve, this.rightSleeve, this.jacket));
     }
 
-    public void renderEars(PoseStack param0, VertexConsumer param1, float param2, int param3) {
+    public void renderEars(PoseStack param0, VertexConsumer param1, float param2, int param3, int param4) {
         this.ear.copyFrom(this.head);
         this.ear.x = 0.0F;
         this.ear.y = 0.0F;
-        this.ear.render(param0, param1, param2, param3, null);
+        this.ear.render(param0, param1, param2, param3, param4, null);
     }
 
-    public void renderCloak(PoseStack param0, VertexConsumer param1, float param2, int param3) {
-        this.cloak.render(param0, param1, param2, param3, null);
+    public void renderCloak(PoseStack param0, VertexConsumer param1, float param2, int param3, int param4) {
+        this.cloak.render(param0, param1, param2, param3, param4, null);
     }
 
     @Override

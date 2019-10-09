@@ -11,8 +11,9 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
-import net.minecraft.world.level.levelgen.feature.DecoratorConfiguration;
-import net.minecraft.world.level.levelgen.feature.FeatureConfiguration;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.configurations.DecoratorConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 
 public class ConfiguredDecorator<DC extends DecoratorConfiguration> {
     public final FeatureDecorator<DC> decorator;
@@ -27,8 +28,8 @@ public class ConfiguredDecorator<DC extends DecoratorConfiguration> {
         this.config = param1;
     }
 
-    public <FC extends FeatureConfiguration> boolean place(
-        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, ConfiguredFeature<FC> param4
+    public <FC extends FeatureConfiguration, F extends Feature<FC>> boolean place(
+        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, ConfiguredFeature<FC, F> param4
     ) {
         return this.decorator.placeFeature(param0, param1, param2, param3, this.config, param4);
     }

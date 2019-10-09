@@ -55,23 +55,23 @@ public abstract class MobRenderer<T extends Mob, M extends EntityModel<T>> exten
         }
 
         double var5 = Math.cos(var1);
-        double var6 = Mth.lerp((double)param1, param4.xo, param4.x) - var2 * 0.7 - var3 * 0.5 * var5;
-        double var7 = Mth.lerp((double)param1, param4.yo + (double)param4.getEyeHeight() * 0.7, param4.y + (double)param4.getEyeHeight() * 0.7)
+        double var6 = Mth.lerp((double)param1, param4.xo, param4.getX()) - var2 * 0.7 - var3 * 0.5 * var5;
+        double var7 = Mth.lerp((double)param1, param4.yo + (double)param4.getEyeHeight() * 0.7, param4.getY() + (double)param4.getEyeHeight() * 0.7)
             - var4 * 0.5
             - 0.25;
-        double var8 = Mth.lerp((double)param1, param4.zo, param4.z) - var3 * 0.7 + var2 * 0.5 * var5;
+        double var8 = Mth.lerp((double)param1, param4.zo, param4.getZ()) - var3 * 0.7 + var2 * 0.5 * var5;
         double var9 = (double)(Mth.lerp(param1, param0.yBodyRot, param0.yBodyRotO) * (float) (Math.PI / 180.0)) + (Math.PI / 2);
         var2 = Math.cos(var9) * (double)param0.getBbWidth() * 0.4;
         var3 = Math.sin(var9) * (double)param0.getBbWidth() * 0.4;
-        double var10 = Mth.lerp((double)param1, param0.xo, param0.x) + var2;
-        double var11 = Mth.lerp((double)param1, param0.yo, param0.y);
-        double var12 = Mth.lerp((double)param1, param0.zo, param0.z) + var3;
+        double var10 = Mth.lerp((double)param1, param0.xo, param0.getX()) + var2;
+        double var11 = Mth.lerp((double)param1, param0.yo, param0.getY());
+        double var12 = Mth.lerp((double)param1, param0.zo, param0.getZ()) + var3;
         param2.translate(var2, -(1.6 - (double)param0.getBbHeight()) * 0.5, var3);
         float var13 = (float)(var6 - var10);
         float var14 = (float)(var7 - var11);
         float var15 = (float)(var8 - var12);
         float var16 = 0.025F;
-        VertexConsumer var17 = param3.getBuffer(RenderType.LEASH);
+        VertexConsumer var17 = param3.getBuffer(RenderType.leash());
         Matrix4f var18 = param2.getPose();
         float var19 = Mth.fastInvSqrt(var13 * var13 + var15 * var15) * 0.025F / 2.0F;
         float var20 = var15 * var19;

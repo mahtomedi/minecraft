@@ -32,7 +32,7 @@ public abstract class EntityRenderer<T extends Entity> {
         } else {
             AABB var0 = param0.getBoundingBoxForCulling().inflate(0.5);
             if (var0.hasNaN() || var0.getSize() == 0.0) {
-                var0 = new AABB(param0.x - 2.0, param0.y - 2.0, param0.z - 2.0, param0.x + 2.0, param0.y + 2.0, param0.z + 2.0);
+                var0 = new AABB(param0.getX() - 2.0, param0.getY() - 2.0, param0.getZ() - 2.0, param0.getX() + 2.0, param0.getY() + 2.0, param0.getZ() + 2.0);
             }
 
             return param1.isVisible(var0);
@@ -72,8 +72,8 @@ public abstract class EntityRenderer<T extends Entity> {
             int var4 = "deadmau5".equals(param1) ? -10 : 0;
             param2.pushPose();
             param2.translate(0.0, (double)var3, 0.0);
-            param2.mulPose(Vector3f.YP.rotation(-this.entityRenderDispatcher.playerRotY, true));
-            param2.mulPose(Vector3f.XP.rotation(this.entityRenderDispatcher.playerRotX, true));
+            param2.mulPose(Vector3f.YP.rotationDegrees(-this.entityRenderDispatcher.playerRotY));
+            param2.mulPose(Vector3f.XP.rotationDegrees(this.entityRenderDispatcher.playerRotX));
             param2.scale(-0.025F, -0.025F, 0.025F);
             Matrix4f var5 = param2.getPose();
             float var6 = Minecraft.getInstance().options.getBackgroundOpacity(0.25F);

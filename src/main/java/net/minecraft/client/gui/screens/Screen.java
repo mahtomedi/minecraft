@@ -7,8 +7,10 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.math.Matrix4f;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -28,6 +30,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -172,17 +175,25 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
             this.fillGradient(var3 + var0 + 2, var4 - 3 + 1, var3 + var0 + 3, var4 + var6 + 3 - 1, 1347420415, 1344798847);
             this.fillGradient(var3 - 3, var4 - 3, var3 + var0 + 3, var4 - 3 + 1, 1347420415, 1347420415);
             this.fillGradient(var3 - 3, var4 + var6 + 2, var3 + var0 + 3, var4 + var6 + 3, 1344798847, 1344798847);
+            PoseStack var10 = new PoseStack();
+            MultiBufferSource.BufferSource var11 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
+            var10.translate(0.0, 0.0, (double)this.itemRenderer.blitOffset);
+            Matrix4f var12 = var10.getPose();
 
-            for(int var10 = 0; var10 < param0.size(); ++var10) {
-                String var11 = param0.get(var10);
-                this.font.drawShadow(var11, (float)var3, (float)var4, -1);
-                if (var10 == 0) {
+            for(int var13 = 0; var13 < param0.size(); ++var13) {
+                String var14 = param0.get(var13);
+                if (var14 != null) {
+                    this.font.drawInBatch(var14, (float)var3, (float)var4, -1, true, var12, var11, false, 0, 15728880);
+                }
+
+                if (var13 == 0) {
                     var4 += 2;
                 }
 
                 var4 += 10;
             }
 
+            var11.endBatch();
             this.setBlitOffset(0);
             this.itemRenderer.blitOffset = 0.0F;
             RenderSystem.enableDepthTest();
@@ -282,6 +293,8 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
                     this.insertText(var0.getValue(), true);
                 } else if (var0.getAction() == ClickEvent.Action.RUN_COMMAND) {
                     this.sendMessage(var0.getValue(), false);
+                } else if (var0.getAction() == ClickEvent.Action.COPY_TO_CLIPBOARD) {
+                    this.minecraft.keyboardHandler.setClipboard(var0.getValue());
                 } else {
                     LOGGER.error("Don't know how to handle {}", var0);
                 }

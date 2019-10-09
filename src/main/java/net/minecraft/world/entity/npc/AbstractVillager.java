@@ -217,16 +217,7 @@ public abstract class AbstractVillager extends AgableMob implements Npc, Merchan
             double var1 = this.random.nextGaussian() * 0.02;
             double var2 = this.random.nextGaussian() * 0.02;
             double var3 = this.random.nextGaussian() * 0.02;
-            this.level
-                .addParticle(
-                    param0,
-                    this.x + (double)(this.random.nextFloat() * this.getBbWidth() * 2.0F) - (double)this.getBbWidth(),
-                    this.y + 1.0 + (double)(this.random.nextFloat() * this.getBbHeight()),
-                    this.z + (double)(this.random.nextFloat() * this.getBbWidth() * 2.0F) - (double)this.getBbWidth(),
-                    var1,
-                    var2,
-                    var3
-                );
+            this.level.addParticle(param0, this.getRandomX(1.0), this.getRandomY() + 1.0, this.getRandomZ(1.0), var1, var2, var3);
         }
 
     }

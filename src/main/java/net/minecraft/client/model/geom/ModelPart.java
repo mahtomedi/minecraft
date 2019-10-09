@@ -12,7 +12,6 @@ import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -127,21 +126,29 @@ public class ModelPart {
         this.z = param2;
     }
 
-    public void render(PoseStack param0, VertexConsumer param1, float param2, int param3, @Nullable TextureAtlasSprite param4) {
-        this.render(param0, param1, param2, param3, param4, 1.0F, 1.0F, 1.0F);
+    public void render(PoseStack param0, VertexConsumer param1, float param2, int param3, int param4, @Nullable TextureAtlasSprite param5) {
+        this.render(param0, param1, param2, param3, param4, param5, 1.0F, 1.0F, 1.0F);
     }
 
     public void render(
-        PoseStack param0, VertexConsumer param1, float param2, int param3, @Nullable TextureAtlasSprite param4, float param5, float param6, float param7
+        PoseStack param0,
+        VertexConsumer param1,
+        float param2,
+        int param3,
+        int param4,
+        @Nullable TextureAtlasSprite param5,
+        float param6,
+        float param7,
+        float param8
     ) {
         if (this.visible) {
             if (!this.cubes.isEmpty() || !this.children.isEmpty()) {
                 param0.pushPose();
                 this.translateAndRotate(param0, param2);
-                this.compile(param0.getPose(), param1, param2, param3, param4, param5, param6, param7);
+                this.compile(param0.getPose(), param1, param2, param3, param4, param5, param6, param7, param8);
 
                 for(ModelPart var0 : this.children) {
-                    var0.render(param0, param1, param2, param3, param4, param5, param6, param7);
+                    var0.render(param0, param1, param2, param3, param4, param5, param6, param7, param8);
                 }
 
                 param0.popPose();
@@ -152,21 +159,29 @@ public class ModelPart {
     public void translateAndRotate(PoseStack param0, float param1) {
         param0.translate((double)(this.x * param1), (double)(this.y * param1), (double)(this.z * param1));
         if (this.zRot != 0.0F) {
-            param0.mulPose(Vector3f.ZP.rotation(this.zRot, false));
+            param0.mulPose(Vector3f.ZP.rotation(this.zRot));
         }
 
         if (this.yRot != 0.0F) {
-            param0.mulPose(Vector3f.YP.rotation(this.yRot, false));
+            param0.mulPose(Vector3f.YP.rotation(this.yRot));
         }
 
         if (this.xRot != 0.0F) {
-            param0.mulPose(Vector3f.XP.rotation(this.xRot, false));
+            param0.mulPose(Vector3f.XP.rotation(this.xRot));
         }
 
     }
 
     private void compile(
-        Matrix4f param0, VertexConsumer param1, float param2, int param3, @Nullable TextureAtlasSprite param4, float param5, float param6, float param7
+        Matrix4f param0,
+        VertexConsumer param1,
+        float param2,
+        int param3,
+        int param4,
+        @Nullable TextureAtlasSprite param5,
+        float param6,
+        float param7,
+        float param8
     ) {
         Matrix3f var0 = new Matrix3f(param0);
 
@@ -186,20 +201,20 @@ public class ModelPart {
                     ModelPart.Vertex var9 = var2.vertices[var8];
                     Vector4f var10 = new Vector4f((float)var9.pos.x * param2, (float)var9.pos.y * param2, (float)var9.pos.z * param2, 1.0F);
                     var10.transform(param0);
-                    float var11 = Mth.diffuseLight(var5, var6, var7);
+                    float var11;
                     float var12;
-                    float var13;
-                    if (param4 == null) {
-                        var12 = var9.u;
-                        var13 = var9.v;
+                    if (param5 == null) {
+                        var11 = var9.u;
+                        var12 = var9.v;
                     } else {
-                        var12 = param4.getU((double)(var9.u * 16.0F));
-                        var13 = param4.getV((double)(var9.v * 16.0F));
+                        var11 = param5.getU((double)(var9.u * 16.0F));
+                        var12 = param5.getV((double)(var9.v * 16.0F));
                     }
 
                     param1.vertex((double)var10.x(), (double)var10.y(), (double)var10.z())
-                        .color(var11 * param5, var11 * param6, var11 * param7, 1.0F)
-                        .uv(var12, var13)
+                        .color(param6, param7, param8, 1.0F)
+                        .uv(var11, var12)
+                        .overlayCoords(param4)
                         .uv2(param3)
                         .normal(var5, var6, var7)
                         .endVertex();

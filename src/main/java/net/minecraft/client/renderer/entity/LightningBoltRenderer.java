@@ -34,7 +34,7 @@ public class LightningBoltRenderer extends EntityRenderer<LightningBolt> {
             var3 += (float)(var4.nextInt(11) - 5);
         }
 
-        VertexConsumer var6 = param7.getBuffer(RenderType.LIGHTNING);
+        VertexConsumer var6 = param7.getBuffer(RenderType.lightning());
         Matrix4f var7 = param6.getPose();
 
         for(int var8 = 0; var8 < 4; ++var8) {

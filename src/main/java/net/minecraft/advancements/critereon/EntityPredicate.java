@@ -68,7 +68,7 @@ public class EntityPredicate {
     }
 
     public boolean matches(ServerPlayer param0, @Nullable Entity param1) {
-        return this.matches(param0.getLevel(), new Vec3(param0.x, param0.y, param0.z), param1);
+        return this.matches(param0.getLevel(), param0.position(), param1);
     }
 
     public boolean matches(ServerLevel param0, @Nullable Vec3 param1, @Nullable Entity param2) {
@@ -83,11 +83,11 @@ public class EntityPredicate {
                 if (this.distanceToPlayer != DistancePredicate.ANY) {
                     return false;
                 }
-            } else if (!this.distanceToPlayer.matches(param1.x, param1.y, param1.z, param2.x, param2.y, param2.z)) {
+            } else if (!this.distanceToPlayer.matches(param1.x, param1.y, param1.z, param2.getX(), param2.getY(), param2.getZ())) {
                 return false;
             }
 
-            if (!this.location.matches(param0, param2.x, param2.y, param2.z)) {
+            if (!this.location.matches(param0, param2.getX(), param2.getY(), param2.getZ())) {
                 return false;
             } else if (!this.effects.matches(param2)) {
                 return false;

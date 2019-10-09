@@ -81,13 +81,13 @@ public class EyeOfEnder extends Entity implements ItemSupplier {
         double var0 = (double)param0.getX();
         int var1 = param0.getY();
         double var2 = (double)param0.getZ();
-        double var3 = var0 - this.x;
-        double var4 = var2 - this.z;
+        double var3 = var0 - this.getX();
+        double var4 = var2 - this.getZ();
         float var5 = Mth.sqrt(var3 * var3 + var4 * var4);
         if (var5 > 12.0F) {
-            this.tx = this.x + var3 / (double)var5 * 12.0;
-            this.tz = this.z + var4 / (double)var5 * 12.0;
-            this.ty = this.y + 8.0;
+            this.tx = this.getX() + var3 / (double)var5 * 12.0;
+            this.tz = this.getZ() + var4 / (double)var5 * 12.0;
+            this.ty = this.getY() + 8.0;
         } else {
             this.tx = var0;
             this.ty = (double)var1;
@@ -116,12 +116,12 @@ public class EyeOfEnder extends Entity implements ItemSupplier {
     public void tick() {
         super.tick();
         Vec3 var0 = this.getDeltaMovement();
-        this.x += var0.x;
-        this.y += var0.y;
-        this.z += var0.z;
-        float var1 = Mth.sqrt(getHorizontalDistanceSqr(var0));
+        double var1 = this.getX() + var0.x;
+        double var2 = this.getY() + var0.y;
+        double var3 = this.getZ() + var0.z;
+        float var4 = Mth.sqrt(getHorizontalDistanceSqr(var0));
         this.yRot = (float)(Mth.atan2(var0.x, var0.z) * 180.0F / (float)Math.PI);
-        this.xRot = (float)(Mth.atan2(var0.y, (double)var1) * 180.0F / (float)Math.PI);
+        this.xRot = (float)(Mth.atan2(var0.y, (double)var4) * 180.0F / (float)Math.PI);
 
         while(this.xRot - this.xRotO < -180.0F) {
             this.xRotO -= 360.0F;
@@ -142,34 +142,34 @@ public class EyeOfEnder extends Entity implements ItemSupplier {
         this.xRot = Mth.lerp(0.2F, this.xRotO, this.xRot);
         this.yRot = Mth.lerp(0.2F, this.yRotO, this.yRot);
         if (!this.level.isClientSide) {
-            double var2 = this.tx - this.x;
-            double var3 = this.tz - this.z;
-            float var4 = (float)Math.sqrt(var2 * var2 + var3 * var3);
-            float var5 = (float)Mth.atan2(var3, var2);
-            double var6 = Mth.lerp(0.0025, (double)var1, (double)var4);
-            double var7 = var0.y;
-            if (var4 < 1.0F) {
-                var6 *= 0.8;
-                var7 *= 0.8;
+            double var5 = this.tx - var1;
+            double var6 = this.tz - var3;
+            float var7 = (float)Math.sqrt(var5 * var5 + var6 * var6);
+            float var8 = (float)Mth.atan2(var6, var5);
+            double var9 = Mth.lerp(0.0025, (double)var4, (double)var7);
+            double var10 = var0.y;
+            if (var7 < 1.0F) {
+                var9 *= 0.8;
+                var10 *= 0.8;
             }
 
-            int var8 = this.y < this.ty ? 1 : -1;
-            var0 = new Vec3(Math.cos((double)var5) * var6, var7 + ((double)var8 - var7) * 0.015F, Math.sin((double)var5) * var6);
+            int var11 = this.getY() < this.ty ? 1 : -1;
+            var0 = new Vec3(Math.cos((double)var8) * var9, var10 + ((double)var11 - var10) * 0.015F, Math.sin((double)var8) * var9);
             this.setDeltaMovement(var0);
         }
 
-        float var9 = 0.25F;
+        float var12 = 0.25F;
         if (this.isInWater()) {
-            for(int var10 = 0; var10 < 4; ++var10) {
-                this.level.addParticle(ParticleTypes.BUBBLE, this.x - var0.x * 0.25, this.y - var0.y * 0.25, this.z - var0.z * 0.25, var0.x, var0.y, var0.z);
+            for(int var13 = 0; var13 < 4; ++var13) {
+                this.level.addParticle(ParticleTypes.BUBBLE, var1 - var0.x * 0.25, var2 - var0.y * 0.25, var3 - var0.z * 0.25, var0.x, var0.y, var0.z);
             }
         } else {
             this.level
                 .addParticle(
                     ParticleTypes.PORTAL,
-                    this.x - var0.x * 0.25 + this.random.nextDouble() * 0.6 - 0.3,
-                    this.y - var0.y * 0.25 - 0.5,
-                    this.z - var0.z * 0.25 + this.random.nextDouble() * 0.6 - 0.3,
+                    var1 - var0.x * 0.25 + this.random.nextDouble() * 0.6 - 0.3,
+                    var2 - var0.y * 0.25 - 0.5,
+                    var3 - var0.z * 0.25 + this.random.nextDouble() * 0.6 - 0.3,
                     var0.x,
                     var0.y,
                     var0.z
@@ -177,17 +177,19 @@ public class EyeOfEnder extends Entity implements ItemSupplier {
         }
 
         if (!this.level.isClientSide) {
-            this.setPos(this.x, this.y, this.z);
+            this.setPos(var1, var2, var3);
             ++this.life;
             if (this.life > 80 && !this.level.isClientSide) {
                 this.playSound(SoundEvents.ENDER_EYE_DEATH, 1.0F, 1.0F);
                 this.remove();
                 if (this.surviveAfterDeath) {
-                    this.level.addFreshEntity(new ItemEntity(this.level, this.x, this.y, this.z, this.getItem()));
+                    this.level.addFreshEntity(new ItemEntity(this.level, this.getX(), this.getY(), this.getZ(), this.getItem()));
                 } else {
                     this.level.levelEvent(2003, new BlockPos(this), 0);
                 }
             }
+        } else {
+            this.setPosRaw(var1, var2, var3);
         }
 
     }

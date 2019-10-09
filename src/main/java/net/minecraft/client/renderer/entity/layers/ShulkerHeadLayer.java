@@ -41,28 +41,28 @@ public class ShulkerHeadLayer extends RenderLayer<Shulker, ShulkerModel<Shulker>
             default:
                 break;
             case EAST:
-                param0.mulPose(Vector3f.ZP.rotation(90.0F, true));
-                param0.mulPose(Vector3f.XP.rotation(90.0F, true));
+                param0.mulPose(Vector3f.ZP.rotationDegrees(90.0F));
+                param0.mulPose(Vector3f.XP.rotationDegrees(90.0F));
                 param0.translate(1.0, -1.0, 0.0);
-                param0.mulPose(Vector3f.YP.rotation(180.0F, true));
+                param0.mulPose(Vector3f.YP.rotationDegrees(180.0F));
                 break;
             case WEST:
-                param0.mulPose(Vector3f.ZP.rotation(-90.0F, true));
-                param0.mulPose(Vector3f.XP.rotation(90.0F, true));
+                param0.mulPose(Vector3f.ZP.rotationDegrees(-90.0F));
+                param0.mulPose(Vector3f.XP.rotationDegrees(90.0F));
                 param0.translate(-1.0, -1.0, 0.0);
-                param0.mulPose(Vector3f.YP.rotation(180.0F, true));
+                param0.mulPose(Vector3f.YP.rotationDegrees(180.0F));
                 break;
             case NORTH:
-                param0.mulPose(Vector3f.XP.rotation(90.0F, true));
+                param0.mulPose(Vector3f.XP.rotationDegrees(90.0F));
                 param0.translate(0.0, -1.0, -1.0);
                 break;
             case SOUTH:
-                param0.mulPose(Vector3f.ZP.rotation(180.0F, true));
-                param0.mulPose(Vector3f.XP.rotation(90.0F, true));
+                param0.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
+                param0.mulPose(Vector3f.XP.rotationDegrees(90.0F));
                 param0.translate(0.0, -1.0, 1.0);
                 break;
             case UP:
-                param0.mulPose(Vector3f.XP.rotation(180.0F, true));
+                param0.mulPose(Vector3f.XP.rotationDegrees(180.0F));
                 param0.translate(0.0, -2.0, 0.0);
         }
 
@@ -77,10 +77,8 @@ public class ShulkerHeadLayer extends RenderLayer<Shulker, ShulkerModel<Shulker>
             var2 = ShulkerRenderer.TEXTURE_LOCATION[var1.getId()];
         }
 
-        VertexConsumer var4 = param1.getBuffer(RenderType.NEW_ENTITY(var2));
-        LivingEntityRenderer.setOverlayCoords(param3, var4, 0.0F);
-        var0.render(param0, var4, param10, param2, null);
-        var4.unsetDefaultOverlayCoords();
+        VertexConsumer var4 = param1.getBuffer(RenderType.entitySolid(var2));
+        var0.render(param0, var4, param10, param2, LivingEntityRenderer.getOverlayCoords(param3, 0.0F), null);
         param0.popPose();
     }
 }

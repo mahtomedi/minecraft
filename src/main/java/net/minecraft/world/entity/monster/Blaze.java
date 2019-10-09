@@ -102,9 +102,9 @@ public class Blaze extends Monster {
             if (this.random.nextInt(24) == 0 && !this.isSilent()) {
                 this.level
                     .playLocalSound(
-                        this.x + 0.5,
-                        this.y + 0.5,
-                        this.z + 0.5,
+                        this.getX() + 0.5,
+                        this.getY() + 0.5,
+                        this.getZ() + 0.5,
                         SoundEvents.BLAZE_BURN,
                         this.getSoundSource(),
                         1.0F + this.random.nextFloat(),
@@ -114,16 +114,7 @@ public class Blaze extends Monster {
             }
 
             for(int var0 = 0; var0 < 2; ++var0) {
-                this.level
-                    .addParticle(
-                        ParticleTypes.LARGE_SMOKE,
-                        this.x + (this.random.nextDouble() - 0.5) * (double)this.getBbWidth(),
-                        this.y + this.random.nextDouble() * (double)this.getBbHeight(),
-                        this.z + (this.random.nextDouble() - 0.5) * (double)this.getBbWidth(),
-                        0.0,
-                        0.0,
-                        0.0
-                    );
+                this.level.addParticle(ParticleTypes.LARGE_SMOKE, this.getRandomX(0.5), this.getRandomY(), this.getRandomZ(0.5), 0.0, 0.0, 0.0);
             }
         }
 
@@ -143,9 +134,7 @@ public class Blaze extends Monster {
         }
 
         LivingEntity var0 = this.getTarget();
-        if (var0 != null
-            && var0.y + (double)var0.getEyeHeight() > this.y + (double)this.getEyeHeight() + (double)this.allowedHeightOffset
-            && this.canAttack(var0)) {
+        if (var0 != null && var0.getEyeY() > this.getEyeY() + (double)this.allowedHeightOffset && this.canAttack(var0)) {
             Vec3 var1 = this.getDeltaMovement();
             this.setDeltaMovement(this.getDeltaMovement().add(0.0, (0.3F - var1.y) * 0.3F, 0.0));
             this.hasImpulse = true;
@@ -155,7 +144,8 @@ public class Blaze extends Monster {
     }
 
     @Override
-    public void causeFallDamage(float param0, float param1) {
+    public boolean causeFallDamage(float param0, float param1) {
+        return false;
     }
 
     @Override
@@ -229,11 +219,11 @@ public class Blaze extends Monster {
                         this.blaze.doHurtTarget(var0);
                     }
 
-                    this.blaze.getMoveControl().setWantedPosition(var0.x, var0.y, var0.z, 1.0);
+                    this.blaze.getMoveControl().setWantedPosition(var0.getX(), var0.getY(), var0.getZ(), 1.0);
                 } else if (var2 < this.getFollowDistance() * this.getFollowDistance() && var1) {
-                    double var3 = var0.x - this.blaze.x;
-                    double var4 = var0.getBoundingBox().minY + (double)(var0.getBbHeight() / 2.0F) - (this.blaze.y + (double)(this.blaze.getBbHeight() / 2.0F));
-                    double var5 = var0.z - this.blaze.z;
+                    double var3 = var0.getX() - this.blaze.getX();
+                    double var4 = var0.getY(0.5) - this.blaze.getY(0.5);
+                    double var5 = var0.getZ() - this.blaze.getZ();
                     if (this.attackTime <= 0) {
                         ++this.attackStep;
                         if (this.attackStep == 1) {
@@ -259,7 +249,7 @@ public class Blaze extends Monster {
                                     var4,
                                     var5 + this.blaze.getRandom().nextGaussian() * (double)var6
                                 );
-                                var8.y = this.blaze.y + (double)(this.blaze.getBbHeight() / 2.0F) + 0.5;
+                                var8.setPos(var8.getX(), this.blaze.getY(0.5) + 0.5, var8.getZ());
                                 this.blaze.level.addFreshEntity(var8);
                             }
                         }
@@ -267,7 +257,7 @@ public class Blaze extends Monster {
 
                     this.blaze.getLookControl().setLookAt(var0, 10.0F, 10.0F);
                 } else if (this.lastSeen < 5) {
-                    this.blaze.getMoveControl().setWantedPosition(var0.x, var0.y, var0.z, 1.0);
+                    this.blaze.getMoveControl().setWantedPosition(var0.getX(), var0.getY(), var0.getZ(), 1.0);
                 }
 
                 super.tick();

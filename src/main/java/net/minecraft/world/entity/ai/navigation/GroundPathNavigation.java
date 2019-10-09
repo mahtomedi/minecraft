@@ -36,7 +36,7 @@ public class GroundPathNavigation extends PathNavigation {
 
     @Override
     protected Vec3 getTempMobPos() {
-        return new Vec3(this.mob.x, (double)this.getSurfaceY(), this.mob.z);
+        return new Vec3(this.mob.getX(), (double)this.getSurfaceY(), this.mob.getZ());
     }
 
     @Override
@@ -79,20 +79,20 @@ public class GroundPathNavigation extends PathNavigation {
 
     private int getSurfaceY() {
         if (this.mob.isInWater() && this.canFloat()) {
-            int var0 = Mth.floor(this.mob.getBoundingBox().minY);
-            Block var1 = this.level.getBlockState(new BlockPos(this.mob.x, (double)var0, this.mob.z)).getBlock();
+            int var0 = Mth.floor(this.mob.getY());
+            Block var1 = this.level.getBlockState(new BlockPos(this.mob.getX(), (double)var0, this.mob.getZ())).getBlock();
             int var2 = 0;
 
             while(var1 == Blocks.WATER) {
-                var1 = this.level.getBlockState(new BlockPos(this.mob.x, (double)(++var0), this.mob.z)).getBlock();
+                var1 = this.level.getBlockState(new BlockPos(this.mob.getX(), (double)(++var0), this.mob.getZ())).getBlock();
                 if (++var2 > 16) {
-                    return Mth.floor(this.mob.getBoundingBox().minY);
+                    return Mth.floor(this.mob.getY());
                 }
             }
 
             return var0;
         } else {
-            return Mth.floor(this.mob.getBoundingBox().minY + 0.5);
+            return Mth.floor(this.mob.getY() + 0.5);
         }
     }
 
@@ -100,7 +100,7 @@ public class GroundPathNavigation extends PathNavigation {
     protected void trimPath() {
         super.trimPath();
         if (this.avoidSun) {
-            if (this.level.canSeeSky(new BlockPos(this.mob.x, this.mob.getBoundingBox().minY + 0.5, this.mob.z))) {
+            if (this.level.canSeeSky(new BlockPos(this.mob.getX(), this.mob.getY() + 0.5, this.mob.getZ()))) {
                 return;
             }
 

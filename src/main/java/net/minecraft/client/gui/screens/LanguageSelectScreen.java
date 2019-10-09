@@ -16,18 +16,14 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class LanguageSelectScreen extends Screen {
-    protected final Screen lastScreen;
+public class LanguageSelectScreen extends OptionsSubScreen {
     private LanguageSelectScreen.LanguageSelectionList packSelectionList;
-    private final Options options;
     private final LanguageManager languageManager;
     private OptionButton forceUnicodeButton;
     private Button doneButton;
 
     public LanguageSelectScreen(Screen param0, Options param1, LanguageManager param2) {
-        super(new TranslatableComponent("options.language"));
-        this.lastScreen = param0;
-        this.options = param1;
+        super(param0, param1, new TranslatableComponent("options.language"));
         this.languageManager = param2;
     }
 

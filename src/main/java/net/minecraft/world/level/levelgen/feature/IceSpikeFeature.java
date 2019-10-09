@@ -11,6 +11,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
+import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 
 public class IceSpikeFeature extends Feature<NoneFeatureConfiguration> {
     public IceSpikeFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0) {
@@ -47,14 +48,14 @@ public class IceSpikeFeature extends Feature<NoneFeatureConfiguration> {
                             && (var5 != -var4 && var5 != var4 && var7 != -var4 && var7 != var4 || !(param2.nextFloat() > 0.75F))) {
                             BlockState var9 = param0.getBlockState(param3.offset(var5, var2, var7));
                             Block var10 = var9.getBlock();
-                            if (var9.isAir() || Block.equalsDirt(var10) || var10 == Blocks.SNOW_BLOCK || var10 == Blocks.ICE) {
+                            if (var9.isAir() || isDirt(var10) || var10 == Blocks.SNOW_BLOCK || var10 == Blocks.ICE) {
                                 this.setBlock(param0, param3.offset(var5, var2, var7), Blocks.PACKED_ICE.defaultBlockState());
                             }
 
                             if (var2 != 0 && var4 > 1) {
                                 var9 = param0.getBlockState(param3.offset(var5, -var2, var7));
                                 var10 = var9.getBlock();
-                                if (var9.isAir() || Block.equalsDirt(var10) || var10 == Blocks.SNOW_BLOCK || var10 == Blocks.ICE) {
+                                if (var9.isAir() || isDirt(var10) || var10 == Blocks.SNOW_BLOCK || var10 == Blocks.ICE) {
                                     this.setBlock(param0, param3.offset(var5, -var2, var7), Blocks.PACKED_ICE.defaultBlockState());
                                 }
                             }
@@ -81,7 +82,7 @@ public class IceSpikeFeature extends Feature<NoneFeatureConfiguration> {
                     while(var14.getY() > 50) {
                         BlockState var16 = param0.getBlockState(var14);
                         Block var17 = var16.getBlock();
-                        if (!var16.isAir() && !Block.equalsDirt(var17) && var17 != Blocks.SNOW_BLOCK && var17 != Blocks.ICE && var17 != Blocks.PACKED_ICE) {
+                        if (!var16.isAir() && !isDirt(var17) && var17 != Blocks.SNOW_BLOCK && var17 != Blocks.ICE && var17 != Blocks.PACKED_ICE) {
                             break;
                         }
 

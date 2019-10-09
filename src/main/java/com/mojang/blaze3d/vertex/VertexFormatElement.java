@@ -14,6 +14,7 @@ public class VertexFormatElement {
     private final VertexFormatElement.Usage usage;
     private final int index;
     private final int count;
+    private final int byteSize;
 
     public VertexFormatElement(int param0, VertexFormatElement.Type param1, VertexFormatElement.Usage param2, int param3) {
         if (this.supportsUsage(param0, param2)) {
@@ -26,6 +27,7 @@ public class VertexFormatElement {
         this.type = param1;
         this.index = param0;
         this.count = param3;
+        this.byteSize = param1.getSize() * this.count;
     }
 
     private boolean supportsUsage(int param0, VertexFormatElement.Usage param1) {
@@ -54,7 +56,7 @@ public class VertexFormatElement {
     }
 
     public final int getByteSize() {
-        return this.type.getSize() * this.count;
+        return this.byteSize;
     }
 
     public final boolean isPosition() {

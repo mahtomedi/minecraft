@@ -1,6 +1,6 @@
 package com.mojang.blaze3d.vertex;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
@@ -8,54 +8,28 @@ import java.util.List;
 import java.util.stream.Collectors;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class VertexFormat {
-    private static final Logger LOGGER = LogManager.getLogger();
-    private final List<VertexFormatElement> elements = Lists.newArrayList();
+    private final ImmutableList<VertexFormatElement> elements;
     private final IntList offsets = new IntArrayList();
-    private int vertexSize;
+    private final int vertexSize;
 
-    public VertexFormat(VertexFormat param0) {
-        this();
+    public VertexFormat(ImmutableList<VertexFormatElement> param0) {
+        this.elements = param0;
+        int var0 = 0;
 
-        for(int var0 = 0; var0 < param0.getElementCount(); ++var0) {
-            this.addElement(param0.getElement(var0));
+        for(VertexFormatElement var1 : param0) {
+            this.offsets.add(var0);
+            var0 += var1.getByteSize();
         }
 
-        this.vertexSize = param0.getVertexSize();
-    }
-
-    public VertexFormat() {
-    }
-
-    public void clear() {
-        this.elements.clear();
-        this.offsets.clear();
-        this.vertexSize = 0;
-    }
-
-    public VertexFormat addElement(VertexFormatElement param0) {
-        if (param0.isPosition() && this.hasPositionElement()) {
-            LOGGER.warn("VertexFormat error: Trying to add a position VertexFormatElement when one already exists, ignoring.");
-            return this;
-        } else {
-            this.elements.add(param0);
-            this.offsets.add(this.vertexSize);
-            this.vertexSize += param0.getByteSize();
-            return this;
-        }
+        this.vertexSize = var0;
     }
 
     @Override
     public String toString() {
         return "format: " + this.elements.size() + " elements: " + (String)this.elements.stream().map(Object::toString).collect(Collectors.joining(" "));
-    }
-
-    private boolean hasPositionElement() {
-        return this.elements.stream().anyMatch(VertexFormatElement::isPosition);
     }
 
     public int getIntegerSize() {
@@ -66,16 +40,8 @@ public class VertexFormat {
         return this.vertexSize;
     }
 
-    public List<VertexFormatElement> getElements() {
+    public ImmutableList<VertexFormatElement> getElements() {
         return this.elements;
-    }
-
-    public int getElementCount() {
-        return this.elements.size();
-    }
-
-    public VertexFormatElement getElement(int param0) {
-        return this.elements.get(param0);
     }
 
     @Override
@@ -84,11 +50,7 @@ public class VertexFormat {
             return true;
         } else if (param0 != null && this.getClass() == param0.getClass()) {
             VertexFormat var0 = (VertexFormat)param0;
-            if (this.vertexSize != var0.vertexSize) {
-                return false;
-            } else {
-                return !this.elements.equals(var0.elements) ? false : this.offsets.equals(var0.offsets);
-            }
+            return this.vertexSize != var0.vertexSize ? false : this.elements.equals(var0.elements);
         } else {
             return false;
         }
@@ -96,9 +58,7 @@ public class VertexFormat {
 
     @Override
     public int hashCode() {
-        int var0 = this.elements.hashCode();
-        var0 = 31 * var0 + this.offsets.hashCode();
-        return 31 * var0 + this.vertexSize;
+        return this.elements.hashCode();
     }
 
     public void setupBufferState(long param0) {

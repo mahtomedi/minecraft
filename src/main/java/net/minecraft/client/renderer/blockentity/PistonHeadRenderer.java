@@ -28,7 +28,15 @@ public class PistonHeadRenderer extends BlockEntityRenderer<PistonMovingBlockEnt
     }
 
     public void render(
-        PistonMovingBlockEntity param0, double param1, double param2, double param3, float param4, PoseStack param5, MultiBufferSource param6, int param7
+        PistonMovingBlockEntity param0,
+        double param1,
+        double param2,
+        double param3,
+        float param4,
+        PoseStack param5,
+        MultiBufferSource param6,
+        int param7,
+        int param8
     ) {
         Level var0 = param0.getLevel();
         if (var0 != null) {
@@ -44,7 +52,7 @@ public class PistonHeadRenderer extends BlockEntityRenderer<PistonMovingBlockEnt
                 );
                 if (var2.getBlock() == Blocks.PISTON_HEAD && param0.getProgress(param4) <= 4.0F) {
                     var2 = var2.setValue(PistonHeadBlock.SHORT, Boolean.valueOf(true));
-                    this.renderBlock(var1, var2, param5, param6, var0, false);
+                    this.renderBlock(var1, var2, param5, param6, var0, false, param8);
                 } else if (param0.isSourcePiston() && !param0.isExtending()) {
                     PistonType var3 = var2.getBlock() == Blocks.STICKY_PISTON ? PistonType.STICKY : PistonType.DEFAULT;
                     BlockState var4 = Blocks.PISTON_HEAD
@@ -52,15 +60,15 @@ public class PistonHeadRenderer extends BlockEntityRenderer<PistonMovingBlockEnt
                         .setValue(PistonHeadBlock.TYPE, var3)
                         .setValue(PistonHeadBlock.FACING, var2.getValue(PistonBaseBlock.FACING));
                     var4 = var4.setValue(PistonHeadBlock.SHORT, Boolean.valueOf(param0.getProgress(param4) >= 0.5F));
-                    this.renderBlock(var1, var4, param5, param6, var0, false);
+                    this.renderBlock(var1, var4, param5, param6, var0, false, param8);
                     BlockPos var5 = var1.relative(param0.getMovementDirection());
                     param5.popPose();
                     param5.translate((double)(-(var5.getX() & 15)), (double)(-(var5.getY() & 15)), (double)(-(var5.getZ() & 15)));
                     var2 = var2.setValue(PistonBaseBlock.EXTENDED, Boolean.valueOf(true));
-                    this.renderBlock(var5, var2, param5, param6, var0, true);
+                    this.renderBlock(var5, var2, param5, param6, var0, true, param8);
                     param5.pushPose();
                 } else {
-                    this.renderBlock(var1, var2, param5, param6, var0, false);
+                    this.renderBlock(var1, var2, param5, param6, var0, false, param8);
                 }
 
                 param5.popPose();
@@ -69,12 +77,13 @@ public class PistonHeadRenderer extends BlockEntityRenderer<PistonMovingBlockEnt
         }
     }
 
-    private void renderBlock(BlockPos param0, BlockState param1, PoseStack param2, MultiBufferSource param3, Level param4, boolean param5) {
-        RenderType var0 = RenderType.getRenderLayer(param1);
+    private void renderBlock(BlockPos param0, BlockState param1, PoseStack param2, MultiBufferSource param3, Level param4, boolean param5, int param6) {
+        RenderType var0 = RenderType.getChunkRenderType(param1);
         VertexConsumer var1 = param3.getBuffer(var0);
         this.blockRenderer
             .getModelRenderer()
-            .tesselateBlock(param4, this.blockRenderer.getBlockModel(param1), param1, param0, param2, var1, param5, new Random(), param1.getSeed(param0));
-        Minecraft.getInstance().getBlockRenderer().renderBatched(param1, param0, param4, param2, var1, param5, new Random());
+            .tesselateBlock(
+                param4, this.blockRenderer.getBlockModel(param1), param1, param0, param2, var1, param5, new Random(), param1.getSeed(param0), param6
+            );
     }
 }

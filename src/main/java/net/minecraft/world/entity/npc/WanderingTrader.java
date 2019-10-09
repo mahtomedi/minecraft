@@ -176,7 +176,7 @@ public class WanderingTrader extends AbstractVillager {
     protected void rewardTradeXp(MerchantOffer param0) {
         if (param0.shouldRewardExp()) {
             int var0 = 3 + this.random.nextInt(4);
-            this.level.addFreshEntity(new ExperienceOrb(this.level, this.x, this.y + 0.5, this.z, var0));
+            this.level.addFreshEntity(new ExperienceOrb(this.level, this.getX(), this.getY() + 0.5, this.getZ(), var0));
         }
 
     }
@@ -274,9 +274,11 @@ public class WanderingTrader extends AbstractVillager {
             BlockPos var0 = this.trader.getWanderTarget();
             if (var0 != null && WanderingTrader.this.navigation.isDone()) {
                 if (this.isTooFarAway(var0, 10.0)) {
-                    Vec3 var1 = new Vec3((double)var0.getX() - this.trader.x, (double)var0.getY() - this.trader.y, (double)var0.getZ() - this.trader.z)
+                    Vec3 var1 = new Vec3(
+                            (double)var0.getX() - this.trader.getX(), (double)var0.getY() - this.trader.getY(), (double)var0.getZ() - this.trader.getZ()
+                        )
                         .normalize();
-                    Vec3 var2 = var1.scale(10.0).add(this.trader.x, this.trader.y, this.trader.z);
+                    Vec3 var2 = var1.scale(10.0).add(this.trader.getX(), this.trader.getY(), this.trader.getZ());
                     WanderingTrader.this.navigation.moveTo(var2.x, var2.y, var2.z, this.speedModifier);
                 } else {
                     WanderingTrader.this.navigation.moveTo((double)var0.getX(), (double)var0.getY(), (double)var0.getZ(), this.speedModifier);

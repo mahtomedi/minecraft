@@ -21,15 +21,15 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureMana
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
 public class FeaturePoolElement extends StructurePoolElement {
-    private final ConfiguredFeature<?> feature;
+    private final ConfiguredFeature<?, ?> feature;
     private final CompoundTag defaultJigsawNBT;
 
     @Deprecated
-    public FeaturePoolElement(ConfiguredFeature<?> param0) {
+    public FeaturePoolElement(ConfiguredFeature<?, ?> param0) {
         this(param0, StructureTemplatePool.Projection.RIGID);
     }
 
-    public FeaturePoolElement(ConfiguredFeature<?> param0, StructureTemplatePool.Projection param1) {
+    public FeaturePoolElement(ConfiguredFeature<?, ?> param0, StructureTemplatePool.Projection param1) {
         super(param1);
         this.feature = param0;
         this.defaultJigsawNBT = this.fillDefaultJigsawNBT();

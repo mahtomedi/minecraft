@@ -2,7 +2,6 @@ package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.ResourceLocation;
@@ -32,14 +31,9 @@ public class TntRenderer extends EntityRenderer<PrimedTnt> {
         }
 
         int var2 = param0.getLightColor();
-        param6.mulPose(Vector3f.YP.rotation(-90.0F, true));
+        param6.mulPose(Vector3f.YP.rotationDegrees(-90.0F));
         param6.translate(-0.5, -0.5, 0.5);
-        if (param0.getLife() / 5 % 2 == 0) {
-            TntMinecartRenderer.renderWhiteSolidBlock(Blocks.TNT.defaultBlockState(), param6, param7, var2);
-        } else {
-            Minecraft.getInstance().getBlockRenderer().renderSingleBlock(Blocks.TNT.defaultBlockState(), param6, param7, var2, 0, 10);
-        }
-
+        TntMinecartRenderer.renderWhiteSolidBlock(Blocks.TNT.defaultBlockState(), param6, param7, var2, param0.getLife() / 5 % 2 == 0);
         param6.popPose();
         super.render(param0, param1, param2, param3, param4, param5, param6, param7);
     }

@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -23,6 +24,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.data.structures.NbtToSnbt;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.TagParser;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.resources.ResourceLocation;
@@ -70,7 +75,14 @@ public class TestCommand {
                                 .executes(param0x -> importTestStructure(param0x.getSource(), StringArgumentType.getString(param0x, "testName")))
                         )
                 )
-                .then(Commands.literal("pos").executes(param0x -> showPos(param0x.getSource())))
+                .then(
+                    Commands.literal("pos")
+                        .executes(param0x -> showPos(param0x.getSource(), "pos"))
+                        .then(
+                            Commands.argument("var", StringArgumentType.word())
+                                .executes(param0x -> showPos(param0x.getSource(), StringArgumentType.getString(param0x, "var")))
+                        )
+                )
                 .then(
                     Commands.literal("create")
                         .then(
@@ -139,7 +151,7 @@ public class TestCommand {
         }
     }
 
-    private static int showPos(CommandSourceStack param0) throws CommandSyntaxException {
+    private static int showPos(CommandSourceStack param0, String param1) throws CommandSyntaxException {
         BlockHitResult var0 = (BlockHitResult)param0.getPlayerOrException().pick(10.0, 1.0F, false);
         BlockPos var1 = var0.getBlockPos();
         ServerLevel var2 = param0.getLevel();
@@ -156,8 +168,15 @@ public class TestCommand {
             BlockPos var5 = var1.subtract(var3.get());
             String var6 = var5.getX() + ", " + var5.getY() + ", " + var5.getZ();
             String var7 = var4.getStructurePath();
-            say(param0, "Position relative to " + var7 + ":");
-            say(param0, var6);
+            Component var8 = new TextComponent(var6)
+                .setStyle(
+                    new Style()
+                        .setBold(true)
+                        .setColor(ChatFormatting.GREEN)
+                        .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent("Click to copy to clipboard")))
+                        .setClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, "final BlockPos " + param1 + " = new BlockPos(" + var6 + ");"))
+                );
+            param0.sendSuccess(new TextComponent("Position relative to " + var7 + ": ").append(var8), false);
             DebugPackets.sendGameTestAddMarker(var2, new BlockPos(var1), var6, -2147418368, 10000);
             return 1;
         }
@@ -203,6 +222,7 @@ public class TestCommand {
             var3.addListener(new TestCommand.TestSummaryDisplayer(param0, param2));
         }
 
+        runTestPreparation(var2, param0);
         GameTestRunner.runTest(var3, GameTestTicker.singleton);
     }
 
@@ -239,9 +259,18 @@ public class TestCommand {
         BlockPos var1 = new BlockPos(param0.getPosition());
         BlockPos var2 = new BlockPos(var1.getX(), param0.getLevel().getHeightmapPos(Heightmap.Types.WORLD_SURFACE, var1).getY(), var1.getZ() + 3);
         GameTestRunner.clearMarkers(var0);
+        runTestPreparation(param1, var0);
         GameTestInfo var3 = new GameTestInfo(param1, var2, var0);
         GameTestRunner.runTest(var3, GameTestTicker.singleton);
         return 1;
+    }
+
+    private static void runTestPreparation(TestFunction param0, ServerLevel param1) {
+        Consumer<ServerLevel> var0 = GameTestRegistry.getBeforeBatchFunction(param0.getBatchName());
+        if (var0 != null) {
+            var0.accept(param1);
+        }
+
     }
 
     private static int runAllTests(CommandSourceStack param0) {
@@ -328,11 +357,6 @@ public class TestCommand {
 
         @Override
         public void testStructureLoaded(GameTestInfo param0) {
-        }
-
-        @Override
-        public void testPassed(GameTestInfo param0) {
-            TestCommand.showTestSummaryIfAllDone(this.level, this.tracker);
         }
 
         @Override

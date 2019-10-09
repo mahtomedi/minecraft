@@ -83,9 +83,9 @@ public class EvokerFangs extends Entity {
                 --this.lifeTicks;
                 if (this.lifeTicks == 14) {
                     for(int var0 = 0; var0 < 12; ++var0) {
-                        double var1 = this.x + (this.random.nextDouble() * 2.0 - 1.0) * (double)this.getBbWidth() * 0.5;
-                        double var2 = this.y + 0.05 + this.random.nextDouble();
-                        double var3 = this.z + (this.random.nextDouble() * 2.0 - 1.0) * (double)this.getBbWidth() * 0.5;
+                        double var1 = this.getX() + (this.random.nextDouble() * 2.0 - 1.0) * (double)this.getBbWidth() * 0.5;
+                        double var2 = this.getY() + 0.05 + this.random.nextDouble();
+                        double var3 = this.getZ() + (this.random.nextDouble() * 2.0 - 1.0) * (double)this.getBbWidth() * 0.5;
                         double var4 = (this.random.nextDouble() * 2.0 - 1.0) * 0.3;
                         double var5 = 0.3 + this.random.nextDouble() * 0.3;
                         double var6 = (this.random.nextDouble() * 2.0 - 1.0) * 0.3;
@@ -137,7 +137,14 @@ public class EvokerFangs extends Entity {
             if (!this.isSilent()) {
                 this.level
                     .playLocalSound(
-                        this.x, this.y, this.z, SoundEvents.EVOKER_FANGS_ATTACK, this.getSoundSource(), 1.0F, this.random.nextFloat() * 0.2F + 0.85F, false
+                        this.getX(),
+                        this.getY(),
+                        this.getZ(),
+                        SoundEvents.EVOKER_FANGS_ATTACK,
+                        this.getSoundSource(),
+                        1.0F,
+                        this.random.nextFloat() * 0.2F + 0.85F,
+                        false
                     );
             }
         }

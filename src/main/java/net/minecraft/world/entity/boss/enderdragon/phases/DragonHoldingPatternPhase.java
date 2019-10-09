@@ -30,7 +30,7 @@ public class DragonHoldingPatternPhase extends AbstractDragonPhaseInstance {
 
     @Override
     public void doServerTick() {
-        double var0 = this.targetLocation == null ? 0.0 : this.targetLocation.distanceToSqr(this.dragon.x, this.dragon.y, this.dragon.z);
+        double var0 = this.targetLocation == null ? 0.0 : this.targetLocation.distanceToSqr(this.dragon.getX(), this.dragon.getY(), this.dragon.getZ());
         if (var0 < 100.0 || var0 > 22500.0 || this.dragon.horizontalCollision || this.dragon.verticalCollision) {
             this.findNewTarget();
         }

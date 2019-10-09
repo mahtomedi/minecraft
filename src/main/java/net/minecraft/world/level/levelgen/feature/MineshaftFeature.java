@@ -10,6 +10,7 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
+import net.minecraft.world.level.levelgen.feature.configurations.MineshaftConfiguration;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.MineShaftPieces;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
@@ -24,8 +25,8 @@ public class MineshaftFeature extends StructureFeature<MineshaftConfiguration> {
     @Override
     public boolean isFeatureChunk(BiomeManager param0, ChunkGenerator<?> param1, Random param2, int param3, int param4, Biome param5) {
         ((WorldgenRandom)param2).setLargeFeatureSeed(param1.getSeed(), param3, param4);
-        if (param1.isBiomeValidStartForStructure(param5, Feature.MINESHAFT)) {
-            MineshaftConfiguration var0 = param1.getStructureConfiguration(param5, Feature.MINESHAFT);
+        if (param1.isBiomeValidStartForStructure(param5, this)) {
+            MineshaftConfiguration var0 = param1.getStructureConfiguration(param5, this);
             double var1 = var0.probability;
             return param2.nextDouble() < var1;
         } else {

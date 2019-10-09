@@ -41,21 +41,18 @@ public class ExperienceOrbRenderer extends EntityRenderer<ExperienceOrb> {
         int var11 = 255;
         int var12 = (int)((Mth.sin(var9 + (float) (Math.PI * 4.0 / 3.0)) + 1.0F) * 0.1F * 255.0F);
         param6.translate(0.0, 0.1F, 0.0);
-        param6.mulPose(Vector3f.YP.rotation(180.0F - this.entityRenderDispatcher.playerRotY, true));
-        param6.mulPose(
-            Vector3f.XP.rotation((float)(this.entityRenderDispatcher.options.thirdPersonView == 2 ? -1 : 1) * -this.entityRenderDispatcher.playerRotX, true)
-        );
-        float var13 = 0.3F;
+        param6.mulPose(Vector3f.YP.rotationDegrees(180.0F - this.entityRenderDispatcher.playerRotY));
+        float var13 = (float)(this.entityRenderDispatcher.options.thirdPersonView == 2 ? -1 : 1) * -this.entityRenderDispatcher.playerRotX;
+        param6.mulPose(Vector3f.XP.rotationDegrees(var13));
+        float var14 = 0.3F;
         param6.scale(0.3F, 0.3F, 0.3F);
-        int var14 = param0.getLightColor();
-        VertexConsumer var15 = param7.getBuffer(RenderType.NEW_ENTITY(EXPERIENCE_ORB_LOCATION));
-        OverlayTexture.setDefault(var15);
-        Matrix4f var16 = param6.getPose();
-        vertex(var15, var16, -0.5F, -0.25F, var10, 255, var12, var1, var4, var14);
-        vertex(var15, var16, 0.5F, -0.25F, var10, 255, var12, var2, var4, var14);
-        vertex(var15, var16, 0.5F, 0.75F, var10, 255, var12, var2, var3, var14);
-        vertex(var15, var16, -0.5F, 0.75F, var10, 255, var12, var1, var3, var14);
-        var15.unsetDefaultOverlayCoords();
+        int var15 = param0.getLightColor();
+        VertexConsumer var16 = param7.getBuffer(RenderType.entityCutout(EXPERIENCE_ORB_LOCATION));
+        Matrix4f var17 = param6.getPose();
+        vertex(var16, var17, -0.5F, -0.25F, var10, 255, var12, var1, var4, var15);
+        vertex(var16, var17, 0.5F, -0.25F, var10, 255, var12, var2, var4, var15);
+        vertex(var16, var17, 0.5F, 0.75F, var10, 255, var12, var2, var3, var15);
+        vertex(var16, var17, -0.5F, 0.75F, var10, 255, var12, var1, var3, var15);
         param6.popPose();
         super.render(param0, param1, param2, param3, param4, param5, param6, param7);
     }
@@ -63,7 +60,13 @@ public class ExperienceOrbRenderer extends EntityRenderer<ExperienceOrb> {
     private static void vertex(
         VertexConsumer param0, Matrix4f param1, float param2, float param3, int param4, int param5, int param6, float param7, float param8, int param9
     ) {
-        param0.vertex(param1, param2, param3, 0.0F).color(param4, param5, param6, 128).uv(param7, param8).uv2(param9).normal(0.0F, 1.0F, 0.0F).endVertex();
+        param0.vertex(param1, param2, param3, 0.0F)
+            .color(param4, param5, param6, 128)
+            .uv(param7, param8)
+            .overlayCoords(OverlayTexture.NO_OVERLAY)
+            .uv2(param9)
+            .normal(0.0F, 1.0F, 0.0F)
+            .endVertex();
     }
 
     public ResourceLocation getTextureLocation(ExperienceOrb param0) {

@@ -75,7 +75,9 @@ public class MoveControl {
             if (var9 != null) {
                 NodeEvaluator var10 = var9.getNodeEvaluator();
                 if (var10 != null
-                    && var10.getBlockPathType(this.mob.level, Mth.floor(this.mob.x + (double)var7), Mth.floor(this.mob.y), Mth.floor(this.mob.z + (double)var8))
+                    && var10.getBlockPathType(
+                            this.mob.level, Mth.floor(this.mob.getX() + (double)var7), Mth.floor(this.mob.getY()), Mth.floor(this.mob.getZ() + (double)var8)
+                        )
                         != BlockPathTypes.WALKABLE) {
                     this.strafeForwards = 1.0F;
                     this.strafeRight = 0.0F;
@@ -89,9 +91,9 @@ public class MoveControl {
             this.operation = MoveControl.Operation.WAIT;
         } else if (this.operation == MoveControl.Operation.MOVE_TO) {
             this.operation = MoveControl.Operation.WAIT;
-            double var11 = this.wantedX - this.mob.x;
-            double var12 = this.wantedZ - this.mob.z;
-            double var13 = this.wantedY - this.mob.y;
+            double var11 = this.wantedX - this.mob.getX();
+            double var12 = this.wantedZ - this.mob.getZ();
+            double var13 = this.wantedY - this.mob.getY();
             double var14 = var11 * var11 + var13 * var13 + var12 * var12;
             if (var14 < 2.5000003E-7F) {
                 this.mob.setZza(0.0F);
@@ -107,7 +109,7 @@ public class MoveControl {
             VoxelShape var19 = var17.getCollisionShape(this.mob.level, var16);
             if (var13 > (double)this.mob.maxUpStep && var11 * var11 + var12 * var12 < (double)Math.max(1.0F, this.mob.getBbWidth())
                 || !var19.isEmpty()
-                    && this.mob.y < var19.max(Direction.Axis.Y) + (double)var16.getY()
+                    && this.mob.getY() < var19.max(Direction.Axis.Y) + (double)var16.getY()
                     && !var18.is(BlockTags.DOORS)
                     && !var18.is(BlockTags.FENCES)) {
                 this.mob.getJumpControl().jump();

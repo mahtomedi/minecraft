@@ -14,6 +14,7 @@ import net.minecraft.util.datafix.fixes.AddNewChoices;
 import net.minecraft.util.datafix.fixes.AdvancementsFix;
 import net.minecraft.util.datafix.fixes.BedBlockEntityInjecter;
 import net.minecraft.util.datafix.fixes.BedItemColorFix;
+import net.minecraft.util.datafix.fixes.BeehivePoiRenameFix;
 import net.minecraft.util.datafix.fixes.BiomeFix;
 import net.minecraft.util.datafix.fixes.BlockEntityBannerColorFix;
 import net.minecraft.util.datafix.fixes.BlockEntityBlockStateFix;
@@ -63,7 +64,6 @@ import net.minecraft.util.datafix.fixes.EntityTippedArrowFix;
 import net.minecraft.util.datafix.fixes.EntityWolfColorFix;
 import net.minecraft.util.datafix.fixes.EntityZombieSplitFix;
 import net.minecraft.util.datafix.fixes.EntityZombieVillagerTypeFix;
-import net.minecraft.util.datafix.fixes.ForcePoiRebuild;
 import net.minecraft.util.datafix.fixes.HeightmapRenamingFix;
 import net.minecraft.util.datafix.fixes.IglooMetadataRemovalFix;
 import net.minecraft.util.datafix.fixes.ItemBannerColorFix;
@@ -525,6 +525,17 @@ public class DataFixers {
         param0.addFixer(new AddNewChoices(var95, "Add beehive", References.BLOCK_ENTITY));
         Schema var96 = param0.addSchema(2202, SAME_NAMESPACED);
         param0.addFixer(new ChunkBiomeFix(var96, false));
-        param0.addFixer(new ForcePoiRebuild(var96, false));
+        Schema var97 = param0.addSchema(2209, SAME_NAMESPACED);
+        param0.addFixer(
+            ItemRenameFix.create(
+                var97, "Rename bee_hive item to beehive", param0x -> Objects.equals(param0x, "minecraft:bee_hive") ? "minecraft:beehive" : param0x
+            )
+        );
+        param0.addFixer(new BeehivePoiRenameFix(var97));
+        param0.addFixer(
+            BlockRenameFix.create(
+                var97, "Rename bee_hive block to beehive", param0x -> ImmutableMap.of("minecraft:bee_hive", "minecraft:beehive").getOrDefault(param0x, param0x)
+            )
+        );
     }
 }

@@ -128,8 +128,8 @@ public abstract class TargetGoal extends Goal {
             if (var1 == null) {
                 return false;
             } else {
-                int var2 = var1.x - Mth.floor(param0.x);
-                int var3 = var1.z - Mth.floor(param0.z);
+                int var2 = var1.x - Mth.floor(param0.getX());
+                int var3 = var1.z - Mth.floor(param0.getZ());
                 return (double)(var2 * var2 + var3 * var3) <= 2.25;
             }
         }

@@ -32,14 +32,18 @@ public class DragonHeadModel extends SkullModel {
     }
 
     @Override
-    public void render(PoseStack param0, VertexConsumer param1, float param2, float param3, float param4, float param5, int param6) {
-        this.jaw.xRot = (float)(Math.sin((double)(param2 * (float) Math.PI * 0.2F)) + 1.0) * 0.2F;
-        this.head.yRot = param3 * (float) (Math.PI / 180.0);
-        this.head.xRot = param4 * (float) (Math.PI / 180.0);
+    public void setupAnim(float param0, float param1, float param2) {
+        this.jaw.xRot = (float)(Math.sin((double)(param0 * (float) Math.PI * 0.2F)) + 1.0) * 0.2F;
+        this.head.yRot = param1 * (float) (Math.PI / 180.0);
+        this.head.xRot = param2 * (float) (Math.PI / 180.0);
+    }
+
+    @Override
+    public void renderToBuffer(PoseStack param0, VertexConsumer param1, int param2, int param3, float param4, float param5, float param6) {
         param0.pushPose();
         param0.translate(0.0, -0.374375F, 0.0);
         param0.scale(0.75F, 0.75F, 0.75F);
-        this.head.render(param0, param1, param5, param6, null);
+        this.head.render(param0, param1, 0.0625F, param2, param3, null, param4, param5, param6);
         param0.popPose();
     }
 }

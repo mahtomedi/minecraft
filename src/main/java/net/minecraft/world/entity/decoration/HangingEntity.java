@@ -65,9 +65,7 @@ public abstract class HangingEntity extends Entity {
             Direction var6 = this.direction.getCounterClockWise();
             var0 += var4 * (double)var6.getStepX();
             var2 += var4 * (double)var6.getStepZ();
-            this.x = var0;
-            this.y = var1;
-            this.z = var2;
+            this.setPosRaw(var0, var1, var2);
             double var7 = (double)this.getWidth();
             double var8 = (double)this.getHeight();
             double var9 = (double)this.getWidth();
@@ -201,9 +199,9 @@ public abstract class HangingEntity extends Entity {
     public ItemEntity spawnAtLocation(ItemStack param0, float param1) {
         ItemEntity var0 = new ItemEntity(
             this.level,
-            this.x + (double)((float)this.direction.getStepX() * 0.15F),
-            this.y + (double)param1,
-            this.z + (double)((float)this.direction.getStepZ() * 0.15F),
+            this.getX() + (double)((float)this.direction.getStepX() * 0.15F),
+            this.getY() + (double)param1,
+            this.getZ() + (double)((float)this.direction.getStepZ() * 0.15F),
             param0
         );
         var0.setDefaultPickUpDelay();

@@ -24,7 +24,7 @@ public class NetherTravelTrigger extends SimpleCriterionTrigger<NetherTravelTrig
     }
 
     public void trigger(ServerPlayer param0, Vec3 param1) {
-        this.trigger(param0.getAdvancements(), param2 -> param2.matches(param0.getLevel(), param1, param0.x, param0.y, param0.z));
+        this.trigger(param0.getAdvancements(), param2 -> param2.matches(param0.getLevel(), param1, param0.getX(), param0.getY(), param0.getZ()));
     }
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {

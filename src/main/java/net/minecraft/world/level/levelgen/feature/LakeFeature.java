@@ -8,23 +8,23 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
+import net.minecraft.world.level.levelgen.feature.configurations.BlockStateConfiguration;
 import net.minecraft.world.level.material.Material;
 
-public class LakeFeature extends Feature<LakeConfiguration> {
+public class LakeFeature extends Feature<BlockStateConfiguration> {
     private static final BlockState AIR = Blocks.CAVE_AIR.defaultBlockState();
 
-    public LakeFeature(Function<Dynamic<?>, ? extends LakeConfiguration> param0) {
+    public LakeFeature(Function<Dynamic<?>, ? extends BlockStateConfiguration> param0) {
         super(param0);
     }
 
     public boolean place(
-        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, LakeConfiguration param4
+        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, BlockStateConfiguration param4
     ) {
         while(param3.getY() > 5 && param0.isEmptyBlock(param3)) {
             param3 = param3.below();
@@ -105,7 +105,7 @@ public class LakeFeature extends Feature<LakeConfiguration> {
                         for(int var27 = 4; var27 < 8; ++var27) {
                             if (var1[(var25 * 16 + var26) * 8 + var27]) {
                                 BlockPos var28 = param3.offset(var25, var27 - 1, var26);
-                                if (Block.equalsDirt(param0.getBlockState(var28).getBlock())
+                                if (isDirt(param0.getBlockState(var28).getBlock())
                                     && param0.getBrightness(LightLayer.SKY, param3.offset(var25, var27, var26)) > 0) {
                                     Biome var29 = param0.getBiome(var28);
                                     if (var29.getSurfaceBuilderConfig().getTopMaterial().getBlock() == Blocks.MYCELIUM) {

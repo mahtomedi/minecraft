@@ -11,6 +11,7 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
+import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.EndCityPieces;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
@@ -44,7 +45,7 @@ public class EndCityFeature extends StructureFeature<NoneFeatureConfiguration> {
         ChunkPos var0 = this.getPotentialFeatureChunkFromLocationWithOffset(param1, param2, param3, param4, 0, 0);
         if (param3 != var0.x || param4 != var0.z) {
             return false;
-        } else if (!param1.isBiomeValidStartForStructure(param5, Feature.END_CITY)) {
+        } else if (!param1.isBiomeValidStartForStructure(param5, this)) {
             return false;
         } else {
             int var1 = getYPositionForFeature(param3, param4, param1);

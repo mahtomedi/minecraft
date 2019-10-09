@@ -2,6 +2,7 @@ package net.minecraft.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
@@ -19,7 +20,7 @@ public class SkeletonModel<T extends Mob & RangedAttackMob> extends HumanoidMode
     }
 
     public SkeletonModel(float param0, boolean param1) {
-        super(param0, 0.0F, 64, 32);
+        super(RenderType::entityCutoutNoCull, param0, 0.0F, 64, 32);
         if (!param1) {
             this.rightArm = new ModelPart(this, 40, 16);
             this.rightArm.addBox(-1.0F, -2.0F, -1.0F, 2.0F, 12.0F, 2.0F, param0);

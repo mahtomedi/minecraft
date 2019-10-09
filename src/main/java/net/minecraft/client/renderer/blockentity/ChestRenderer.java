@@ -7,6 +7,7 @@ import java.util.Calendar;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -66,7 +67,7 @@ public class ChestRenderer<T extends BlockEntity & LidBlockEntity> extends Block
     }
 
     @Override
-    public void render(T param0, double param1, double param2, double param3, float param4, PoseStack param5, MultiBufferSource param6, int param7) {
+    public void render(T param0, double param1, double param2, double param3, float param4, PoseStack param5, MultiBufferSource param6, int param7, int param8) {
         BlockState var0 = param0.hasLevel() ? param0.getBlockState() : Blocks.CHEST.defaultBlockState().setValue(ChestBlock.FACING, Direction.SOUTH);
         ChestType var1 = var0.hasProperty(ChestBlock.TYPE) ? var0.getValue(ChestBlock.TYPE) : ChestType.SINGLE;
         boolean var2 = var1 != ChestType.SINGLE;
@@ -84,33 +85,41 @@ public class ChestRenderer<T extends BlockEntity & LidBlockEntity> extends Block
         param5.pushPose();
         float var7 = var0.getValue(ChestBlock.FACING).toYRot();
         param5.translate(0.5, 0.5, 0.5);
-        param5.mulPose(Vector3f.YP.rotation(-var7, true));
+        param5.mulPose(Vector3f.YP.rotationDegrees(-var7));
         param5.translate(-0.5, -0.5, -0.5);
         float var8 = param0.getOpenNess(param4);
         var8 = 1.0F - var8;
         var8 = 1.0F - var8 * var8 * var8;
-        VertexConsumer var9 = param6.getBuffer(RenderType.SOLID);
+        VertexConsumer var9 = param6.getBuffer(RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS));
         TextureAtlasSprite var10 = this.getSprite(var3);
         if (var2) {
             if (var1 == ChestType.LEFT) {
                 param5.translate(-1.0, 0.0, 0.0);
             }
 
-            this.render(param5, var9, this.doubleLid, this.doubleLock, this.doubleBottom, var8, param7, var10);
+            this.render(param5, var9, this.doubleLid, this.doubleLock, this.doubleBottom, var8, param7, param8, var10);
         } else {
-            this.render(param5, var9, this.lid, this.lock, this.bottom, var8, param7, var10);
+            this.render(param5, var9, this.lid, this.lock, this.bottom, var8, param7, param8, var10);
         }
 
         param5.popPose();
     }
 
     private void render(
-        PoseStack param0, VertexConsumer param1, ModelPart param2, ModelPart param3, ModelPart param4, float param5, int param6, TextureAtlasSprite param7
+        PoseStack param0,
+        VertexConsumer param1,
+        ModelPart param2,
+        ModelPart param3,
+        ModelPart param4,
+        float param5,
+        int param6,
+        int param7,
+        TextureAtlasSprite param8
     ) {
         param2.xRot = -(param5 * (float) (Math.PI / 2));
         param3.xRot = param2.xRot;
-        param2.render(param0, param1, 0.0625F, param6, param7);
-        param3.render(param0, param1, 0.0625F, param6, param7);
-        param4.render(param0, param1, 0.0625F, param6, param7);
+        param2.render(param0, param1, 0.0625F, param6, param7, param8);
+        param3.render(param0, param1, 0.0625F, param6, param7, param8);
+        param4.render(param0, param1, 0.0625F, param6, param7, param8);
     }
 }

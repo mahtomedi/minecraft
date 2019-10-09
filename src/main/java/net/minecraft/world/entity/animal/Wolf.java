@@ -84,7 +84,7 @@ public class Wolf extends TamableAnimal {
         this.goalSelector.addGoal(3, new Wolf.WolfAvoidEntityGoal<>(this, Llama.class, 24.0F, 1.5, 1.5));
         this.goalSelector.addGoal(4, new LeapAtTargetGoal(this, 0.4F));
         this.goalSelector.addGoal(5, new MeleeAttackGoal(this, 1.0, true));
-        this.goalSelector.addGoal(6, new FollowOwnerGoal(this, 1.0, 10.0F, 2.0F));
+        this.goalSelector.addGoal(6, new FollowOwnerGoal(this, 1.0, 10.0F, 2.0F, false));
         this.goalSelector.addGoal(7, new BreedGoal(this, 1.0));
         this.goalSelector.addGoal(8, new WaterAvoidingRandomStrollGoal(this, 1.0));
         this.goalSelector.addGoal(9, new BegGoal(this, 8.0F));
@@ -230,7 +230,7 @@ public class Wolf extends TamableAnimal {
                 }
 
                 if (this.shakeAnim > 0.4F) {
-                    float var0 = (float)this.getBoundingBox().minY;
+                    float var0 = (float)this.getY();
                     int var1 = (int)(Mth.sin((this.shakeAnim - 0.4F) * (float) Math.PI) * 7.0F);
                     Vec3 var2 = this.getDeltaMovement();
 
@@ -238,7 +238,9 @@ public class Wolf extends TamableAnimal {
                         float var4 = (this.random.nextFloat() * 2.0F - 1.0F) * this.getBbWidth() * 0.5F;
                         float var5 = (this.random.nextFloat() * 2.0F - 1.0F) * this.getBbWidth() * 0.5F;
                         this.level
-                            .addParticle(ParticleTypes.SPLASH, this.x + (double)var4, (double)(var0 + 0.8F), this.z + (double)var5, var2.x, var2.y, var2.z);
+                            .addParticle(
+                                ParticleTypes.SPLASH, this.getX() + (double)var4, (double)(var0 + 0.8F), this.getZ() + (double)var5, var2.x, var2.y, var2.z
+                            );
                     }
                 }
             }

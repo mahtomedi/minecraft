@@ -74,7 +74,7 @@ public class EnderEyeItem extends Item {
                     .getGenerator()
                     .findNearestMapFeature(param0, "Stronghold", new BlockPos(param1), 100, false);
                 if (var2 != null) {
-                    EyeOfEnder var3 = new EyeOfEnder(param0, param1.x, param1.y + (double)(param1.getBbHeight() / 2.0F), param1.z);
+                    EyeOfEnder var3 = new EyeOfEnder(param0, param1.getX(), param1.getY(0.5), param1.getZ());
                     var3.setItem(var0);
                     var3.signalTo(var2);
                     param0.addFreshEntity(var3);
@@ -83,7 +83,14 @@ public class EnderEyeItem extends Item {
                     }
 
                     param0.playSound(
-                        null, param1.x, param1.y, param1.z, SoundEvents.ENDER_EYE_LAUNCH, SoundSource.NEUTRAL, 0.5F, 0.4F / (random.nextFloat() * 0.4F + 0.8F)
+                        null,
+                        param1.getX(),
+                        param1.getY(),
+                        param1.getZ(),
+                        SoundEvents.ENDER_EYE_LAUNCH,
+                        SoundSource.NEUTRAL,
+                        0.5F,
+                        0.4F / (random.nextFloat() * 0.4F + 0.8F)
                     );
                     param0.levelEvent(null, 1003, new BlockPos(param1), 0);
                     if (!param1.abilities.instabuild) {

@@ -2,6 +2,7 @@ package net.minecraft.client.renderer.block;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 import it.unimi.dsi.fastutil.longs.Long2FloatLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2IntLinkedOpenHashMap;
@@ -45,7 +46,8 @@ public class ModelBlockRenderer {
         VertexConsumer param5,
         boolean param6,
         Random param7,
-        long param8
+        long param8,
+        int param9
     ) {
         boolean var0 = Minecraft.useAmbientOcclusion() && param2.getLightEmission() == 0 && param1.useAmbientOcclusion();
         Vec3 var1 = param2.getOffset(param0, param3);
@@ -55,12 +57,12 @@ public class ModelBlockRenderer {
         boolean var2;
         try {
             if (!var0) {
-                return this.tesselateWithoutAO(param0, param1, param2, param3, param4, param5, param6, param7, param8);
+                return this.tesselateWithoutAO(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9);
             }
 
-            var2 = this.tesselateWithAO(param0, param1, param2, param3, param4, param5, param6, param7, param8);
-        } catch (Throwable var19) {
-            CrashReport var3 = CrashReport.forThrowable(var19, "Tesselating block model");
+            var2 = this.tesselateWithAO(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9);
+        } catch (Throwable var20) {
+            CrashReport var3 = CrashReport.forThrowable(var20, "Tesselating block model");
             CrashReportCategory var4 = var3.addCategory("Block model being tesselated");
             CrashReportCategory.populateBlockDetails(var4, param3, param2);
             var4.setDetail("Using AO", var0);
@@ -81,7 +83,8 @@ public class ModelBlockRenderer {
         VertexConsumer param5,
         boolean param6,
         Random param7,
-        long param8
+        long param8,
+        int param9
     ) {
         boolean var0 = false;
         float[] var1 = new float[Direction.values().length * 2];
@@ -92,7 +95,7 @@ public class ModelBlockRenderer {
             param7.setSeed(param8);
             List<BakedQuad> var5 = param1.getQuads(param2, var4, param7);
             if (!var5.isEmpty() && (!param6 || Block.shouldRenderFace(param2, param0, param3, var4))) {
-                this.renderModelFaceAO(param0, param2, param3, param4, param5, var5, var1, var2, var3);
+                this.renderModelFaceAO(param0, param2, param3, param4, param5, var5, var1, var2, var3, param9);
                 var0 = true;
             }
         }
@@ -100,7 +103,7 @@ public class ModelBlockRenderer {
         param7.setSeed(param8);
         List<BakedQuad> var6 = param1.getQuads(param2, null, param7);
         if (!var6.isEmpty()) {
-            this.renderModelFaceAO(param0, param2, param3, param4, param5, var6, var1, var2, var3);
+            this.renderModelFaceAO(param0, param2, param3, param4, param5, var6, var1, var2, var3, param9);
             var0 = true;
         }
 
@@ -116,7 +119,8 @@ public class ModelBlockRenderer {
         VertexConsumer param5,
         boolean param6,
         Random param7,
-        long param8
+        long param8,
+        int param9
     ) {
         boolean var0 = false;
         BitSet var1 = new BitSet(3);
@@ -126,7 +130,7 @@ public class ModelBlockRenderer {
             List<BakedQuad> var3 = param1.getQuads(param2, var2, param7);
             if (!var3.isEmpty() && (!param6 || Block.shouldRenderFace(param2, param0, param3, var2))) {
                 int var4 = param0.getLightColor(param2, param3.relative(var2));
-                this.renderModelFaceFlat(param0, param2, param3, var4, false, param4, param5, var3, var1);
+                this.renderModelFaceFlat(param0, param2, param3, var4, param9, false, param4, param5, var3, var1);
                 var0 = true;
             }
         }
@@ -134,7 +138,7 @@ public class ModelBlockRenderer {
         param7.setSeed(param8);
         List<BakedQuad> var5 = param1.getQuads(param2, null, param7);
         if (!var5.isEmpty()) {
-            this.renderModelFaceFlat(param0, param2, param3, -1, true, param4, param5, var5, var1);
+            this.renderModelFaceFlat(param0, param2, param3, -1, param9, true, param4, param5, var5, var1);
             var0 = true;
         }
 
@@ -150,7 +154,8 @@ public class ModelBlockRenderer {
         List<BakedQuad> param5,
         float[] param6,
         BitSet param7,
-        ModelBlockRenderer.AmbientOcclusionFace param8
+        ModelBlockRenderer.AmbientOcclusionFace param8,
+        int param9
     ) {
         for(BakedQuad var0 : param5) {
             this.calculateShape(param0, param1, param2, var0.getVertices(), var0.getDirection(), param6, param7);
@@ -161,6 +166,7 @@ public class ModelBlockRenderer {
                 param2,
                 param4,
                 param3.getPose(),
+                param3.getNormal(),
                 var0,
                 param8.brightness[0],
                 param8.brightness[1],
@@ -169,7 +175,8 @@ public class ModelBlockRenderer {
                 param8.lightmap[0],
                 param8.lightmap[1],
                 param8.lightmap[2],
-                param8.lightmap[3]
+                param8.lightmap[3],
+                param9
             );
         }
 
@@ -181,21 +188,23 @@ public class ModelBlockRenderer {
         BlockPos param2,
         VertexConsumer param3,
         Matrix4f param4,
-        BakedQuad param5,
-        float param6,
+        Matrix3f param5,
+        BakedQuad param6,
         float param7,
         float param8,
         float param9,
-        int param10,
+        float param10,
         int param11,
         int param12,
-        int param13
+        int param13,
+        int param14,
+        int param15
     ) {
         float var1;
         float var2;
         float var3;
-        if (param5.isTinted()) {
-            int var0 = this.blockColors.getColor(param1, param0, param2, param5.getTintIndex());
+        if (param6.isTinted()) {
+            int var0 = this.blockColors.getColor(param1, param0, param2, param6.getTintIndex());
             var1 = (float)(var0 >> 16 & 0xFF) / 255.0F;
             var2 = (float)(var0 >> 8 & 0xFF) / 255.0F;
             var3 = (float)(var0 & 0xFF) / 255.0F;
@@ -205,7 +214,18 @@ public class ModelBlockRenderer {
             var3 = 1.0F;
         }
 
-        param3.putBulkData(param4, param5, new float[]{param6, param7, param8, param9}, var1, var2, var3, new int[]{param10, param11, param12, param13}, true);
+        param3.putBulkData(
+            param4,
+            param5,
+            param6,
+            new float[]{param7, param8, param9, param10},
+            var1,
+            var2,
+            var3,
+            new int[]{param11, param12, param13, param14},
+            param15,
+            true
+        );
     }
 
     private void calculateShape(
@@ -281,55 +301,69 @@ public class ModelBlockRenderer {
         BlockState param1,
         BlockPos param2,
         int param3,
-        boolean param4,
-        PoseStack param5,
-        VertexConsumer param6,
-        List<BakedQuad> param7,
-        BitSet param8
+        int param4,
+        boolean param5,
+        PoseStack param6,
+        VertexConsumer param7,
+        List<BakedQuad> param8,
+        BitSet param9
     ) {
-        for(BakedQuad var0 : param7) {
-            if (param4) {
-                this.calculateShape(param0, param1, param2, var0.getVertices(), var0.getDirection(), null, param8);
-                BlockPos var1 = param8.get(0) ? param2.relative(var0.getDirection()) : param2;
+        for(BakedQuad var0 : param8) {
+            if (param5) {
+                this.calculateShape(param0, param1, param2, var0.getVertices(), var0.getDirection(), null, param9);
+                BlockPos var1 = param9.get(0) ? param2.relative(var0.getDirection()) : param2;
                 param3 = param0.getLightColor(param1, var1);
             }
 
-            this.putQuadData(param0, param1, param2, param6, param5.getPose(), var0, 1.0F, 1.0F, 1.0F, 1.0F, param3, param3, param3, param3);
+            this.putQuadData(
+                param0, param1, param2, param7, param6.getPose(), param6.getNormal(), var0, 1.0F, 1.0F, 1.0F, 1.0F, param3, param3, param3, param3, param4
+            );
         }
 
     }
 
     public void renderModel(
-        Matrix4f param0, VertexConsumer param1, @Nullable BlockState param2, BakedModel param3, float param4, float param5, float param6, int param7
+        Matrix4f param0,
+        Matrix3f param1,
+        VertexConsumer param2,
+        @Nullable BlockState param3,
+        BakedModel param4,
+        float param5,
+        float param6,
+        float param7,
+        int param8,
+        int param9
     ) {
         Random var0 = new Random();
         long var1 = 42L;
 
         for(Direction var2 : Direction.values()) {
             var0.setSeed(42L);
-            renderQuadList(param0, param1, param4, param5, param6, param3.getQuads(param2, var2, var0), param7);
+            renderQuadList(param0, param1, param2, param5, param6, param7, param4.getQuads(param3, var2, var0), param8, param9);
         }
 
         var0.setSeed(42L);
-        renderQuadList(param0, param1, param4, param5, param6, param3.getQuads(param2, null, var0), param7);
+        renderQuadList(param0, param1, param2, param5, param6, param7, param4.getQuads(param3, null, var0), param8, param9);
     }
 
-    private static void renderQuadList(Matrix4f param0, VertexConsumer param1, float param2, float param3, float param4, List<BakedQuad> param5, int param6) {
-        for(BakedQuad var0 : param5) {
+    private static void renderQuadList(
+        Matrix4f param0, Matrix3f param1, VertexConsumer param2, float param3, float param4, float param5, List<BakedQuad> param6, int param7, int param8
+    ) {
+        for(BakedQuad var0 : param6) {
             float var1;
             float var2;
             float var3;
             if (var0.isTinted()) {
-                var1 = Mth.clamp(param2, 0.0F, 1.0F);
-                var2 = Mth.clamp(param3, 0.0F, 1.0F);
-                var3 = Mth.clamp(param4, 0.0F, 1.0F);
+                var1 = Mth.clamp(param3, 0.0F, 1.0F);
+                var2 = Mth.clamp(param4, 0.0F, 1.0F);
+                var3 = Mth.clamp(param5, 0.0F, 1.0F);
             } else {
                 var1 = 1.0F;
                 var2 = 1.0F;
                 var3 = 1.0F;
             }
 
-            param1.putBulkData(param0, var0, var1, var2, var3, param6);
+            param2.putBulkData(param0, param1, var0, var1, var2, var3, param7, param8);
         }
 
     }

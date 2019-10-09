@@ -1,6 +1,7 @@
 package net.minecraft.client.model;
 
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -11,7 +12,7 @@ public class EndermanModel<T extends LivingEntity> extends HumanoidModel<T> {
     public boolean creepy;
 
     public EndermanModel(float param0) {
-        super(0.0F, -14.0F, 64, 32);
+        super(RenderType::entityCutoutNoCull, 0.0F, -14.0F, 64, 32);
         float var0 = -14.0F;
         this.hat = new ModelPart(this, 0, 16);
         this.hat.addBox(-4.0F, -8.0F, -4.0F, 8.0F, 8.0F, 8.0F, param0 - 0.5F);

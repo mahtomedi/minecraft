@@ -12,15 +12,16 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
+import net.minecraft.world.level.levelgen.feature.configurations.BlockStateConfiguration;
 import net.minecraft.world.level.material.Material;
 
-public class IcebergFeature extends Feature<IcebergConfiguration> {
-    public IcebergFeature(Function<Dynamic<?>, ? extends IcebergConfiguration> param0) {
+public class IcebergFeature extends Feature<BlockStateConfiguration> {
+    public IcebergFeature(Function<Dynamic<?>, ? extends BlockStateConfiguration> param0) {
         super(param0);
     }
 
     public boolean place(
-        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, IcebergConfiguration param4
+        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, BlockStateConfiguration param4
     ) {
         param3 = new BlockPos(param3.getX(), param0.getSeaLevel(), param3.getZ());
         boolean var0 = param2.nextDouble() > 0.7;

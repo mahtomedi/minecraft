@@ -64,7 +64,7 @@ public class MultipleTestTracker {
             if (!param1.hasStarted()) {
                 var0.append(' ');
             } else if (param1.hasSucceeded()) {
-                var0.append('\u221a');
+                var0.append('+');
             } else if (param1.hasFailed()) {
                 var0.append((char)(param1.isRequired() ? 'X' : 'x'));
             } else {

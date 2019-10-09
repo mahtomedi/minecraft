@@ -181,7 +181,7 @@ public class ClientChunkCache extends ChunkSource {
 
     @Override
     public boolean isEntityTickingChunk(Entity param0) {
-        return this.hasChunk(Mth.floor(param0.x) >> 4, Mth.floor(param0.z) >> 4);
+        return this.hasChunk(Mth.floor(param0.getX()) >> 4, Mth.floor(param0.getZ()) >> 4);
     }
 
     @OnlyIn(Dist.CLIENT)

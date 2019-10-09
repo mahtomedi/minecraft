@@ -36,7 +36,7 @@ import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.control.FlyingMoveControl;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.FollowMobGoal;
-import net.minecraft.world.entity.ai.goal.FollowOwnerFlyingGoal;
+import net.minecraft.world.entity.ai.goal.FollowOwnerGoal;
 import net.minecraft.world.entity.ai.goal.LandOnOwnersShoulderGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.PanicGoal;
@@ -84,7 +84,6 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
         param0.put(EntityType.ILLUSIONER, SoundEvents.PARROT_IMITATE_ILLUSIONER);
         param0.put(EntityType.MAGMA_CUBE, SoundEvents.PARROT_IMITATE_MAGMA_CUBE);
         param0.put(EntityType.ZOMBIE_PIGMAN, SoundEvents.PARROT_IMITATE_ZOMBIE_PIGMAN);
-        param0.put(EntityType.PANDA, SoundEvents.PARROT_IMITATE_PANDA);
         param0.put(EntityType.PHANTOM, SoundEvents.PARROT_IMITATE_PHANTOM);
         param0.put(EntityType.PILLAGER, SoundEvents.PARROT_IMITATE_PILLAGER);
         param0.put(EntityType.POLAR_BEAR, SoundEvents.PARROT_IMITATE_POLAR_BEAR);
@@ -138,7 +137,7 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
         this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(1, new LookAtPlayerGoal(this, Player.class, 8.0F));
         this.goalSelector.addGoal(2, this.sitGoal);
-        this.goalSelector.addGoal(2, new FollowOwnerFlyingGoal(this, 1.0, 5.0F, 1.0F));
+        this.goalSelector.addGoal(2, new FollowOwnerGoal(this, 1.0, 5.0F, 1.0F, true));
         this.goalSelector.addGoal(2, new WaterAvoidingRandomFlyingGoal(this, 1.0));
         this.goalSelector.addGoal(3, new LandOnOwnersShoulderGoal(this));
         this.goalSelector.addGoal(3, new FollowMobGoal(this, 1.0, 3.0F, 7.0F));
@@ -216,7 +215,7 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
                 Mob var1 = var0.get(param0.random.nextInt(var0.size()));
                 if (!var1.isSilent()) {
                     SoundEvent var2 = getImitatedSound(var1.getType());
-                    param0.playSound(null, param1.x, param1.y, param1.z, var2, param1.getSoundSource(), 0.7F, getPitch(param0.random));
+                    param0.playSound(null, param1.getX(), param1.getY(), param1.getZ(), var2, param1.getSoundSource(), 0.7F, getPitch(param0.random));
                     return true;
                 }
             }
@@ -239,9 +238,9 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
                 this.level
                     .playSound(
                         null,
-                        this.x,
-                        this.y,
-                        this.z,
+                        this.getX(),
+                        this.getY(),
+                        this.getZ(),
                         SoundEvents.PARROT_EAT,
                         this.getSoundSource(),
                         1.0F,
@@ -293,7 +292,8 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
     }
 
     @Override
-    public void causeFallDamage(float param0, float param1) {
+    public boolean causeFallDamage(float param0, float param1) {
+        return false;
     }
 
     @Override
@@ -313,7 +313,9 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
 
     public static void playAmbientSound(Level param0, Entity param1) {
         if (!param1.isSilent() && !imitateNearbyMobs(param0, param1) && param0.random.nextInt(200) == 0) {
-            param0.playSound(null, param1.x, param1.y, param1.z, getAmbient(param0.random), param1.getSoundSource(), 1.0F, getPitch(param0.random));
+            param0.playSound(
+                null, param1.getX(), param1.getY(), param1.getZ(), getAmbient(param0.random), param1.getSoundSource(), 1.0F, getPitch(param0.random)
+            );
         }
 
     }
@@ -399,7 +401,10 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
         if (this.isInvulnerableTo(param0)) {
             return false;
         } else {
-            this.sitGoal.wantToSit(false);
+            if (this.sitGoal != null) {
+                this.sitGoal.wantToSit(false);
+            }
+
             return super.hurt(param0, param1);
         }
     }

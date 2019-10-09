@@ -18,7 +18,15 @@ public class TheEndGatewayRenderer extends TheEndPortalRenderer<TheEndGatewayBlo
     }
 
     public void render(
-        TheEndGatewayBlockEntity param0, double param1, double param2, double param3, float param4, PoseStack param5, MultiBufferSource param6, int param7
+        TheEndGatewayBlockEntity param0,
+        double param1,
+        double param2,
+        double param3,
+        float param4,
+        PoseStack param5,
+        MultiBufferSource param6,
+        int param7,
+        int param8
     ) {
         if (param0.isSpawning() || param0.isCoolingDown()) {
             float var0 = param0.isSpawning() ? param0.getSpawnPercent(param4) : param0.getCooldownPercent(param4);
@@ -31,7 +39,7 @@ public class TheEndGatewayRenderer extends TheEndPortalRenderer<TheEndGatewayBlo
             BeaconRenderer.renderBeaconBeam(param5, param6, BEAM_LOCATION, param4, var0, var4, 0, -var2, var3, 0.15F, 0.175F);
         }
 
-        super.render(param0, param1, param2, param3, param4, param5, param6, param7);
+        super.render(param0, param1, param2, param3, param4, param5, param6, param7, param8);
     }
 
     @Override

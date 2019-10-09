@@ -43,7 +43,7 @@ public abstract class ThrowableProjectile extends Entity implements Projectile {
     }
 
     protected ThrowableProjectile(EntityType<? extends ThrowableProjectile> param0, LivingEntity param1, Level param2) {
-        this(param0, param1.x, param1.y + (double)param1.getEyeHeight() - 0.1F, param1.z, param2);
+        this(param0, param1.getX(), param1.getEyeY() - 0.1F, param1.getZ(), param2);
         this.owner = param1;
         this.ownerId = param1.getUUID();
     }
@@ -147,12 +147,12 @@ public abstract class ThrowableProjectile extends Entity implements Projectile {
         }
 
         Vec3 var3 = this.getDeltaMovement();
-        this.x += var3.x;
-        this.y += var3.y;
-        this.z += var3.z;
-        float var4 = Mth.sqrt(getHorizontalDistanceSqr(var3));
+        double var4 = this.getX() + var3.x;
+        double var5 = this.getY() + var3.y;
+        double var6 = this.getZ() + var3.z;
+        float var7 = Mth.sqrt(getHorizontalDistanceSqr(var3));
         this.yRot = (float)(Mth.atan2(var3.x, var3.z) * 180.0F / (float)Math.PI);
-        this.xRot = (float)(Mth.atan2(var3.y, (double)var4) * 180.0F / (float)Math.PI);
+        this.xRot = (float)(Mth.atan2(var3.y, (double)var7) * 180.0F / (float)Math.PI);
 
         while(this.xRot - this.xRotO < -180.0F) {
             this.xRotO -= 360.0F;
@@ -172,25 +172,25 @@ public abstract class ThrowableProjectile extends Entity implements Projectile {
 
         this.xRot = Mth.lerp(0.2F, this.xRotO, this.xRot);
         this.yRot = Mth.lerp(0.2F, this.yRotO, this.yRot);
-        float var7;
+        float var10;
         if (this.isInWater()) {
-            for(int var5 = 0; var5 < 4; ++var5) {
-                float var6 = 0.25F;
-                this.level.addParticle(ParticleTypes.BUBBLE, this.x - var3.x * 0.25, this.y - var3.y * 0.25, this.z - var3.z * 0.25, var3.x, var3.y, var3.z);
+            for(int var8 = 0; var8 < 4; ++var8) {
+                float var9 = 0.25F;
+                this.level.addParticle(ParticleTypes.BUBBLE, var4 - var3.x * 0.25, var5 - var3.y * 0.25, var6 - var3.z * 0.25, var3.x, var3.y, var3.z);
             }
 
-            var7 = 0.8F;
+            var10 = 0.8F;
         } else {
-            var7 = 0.99F;
+            var10 = 0.99F;
         }
 
-        this.setDeltaMovement(var3.scale((double)var7));
+        this.setDeltaMovement(var3.scale((double)var10));
         if (!this.isNoGravity()) {
-            Vec3 var9 = this.getDeltaMovement();
-            this.setDeltaMovement(var9.x, var9.y - (double)this.getGravity(), var9.z);
+            Vec3 var12 = this.getDeltaMovement();
+            this.setDeltaMovement(var12.x, var12.y - (double)this.getGravity(), var12.z);
         }
 
-        this.setPos(this.x, this.y, this.z);
+        this.setPos(var4, var5, var6);
     }
 
     protected float getGravity() {

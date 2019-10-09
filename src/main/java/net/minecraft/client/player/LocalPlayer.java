@@ -173,7 +173,7 @@ public class LocalPlayer extends AbstractClientPlayer {
 
     @Override
     public void tick() {
-        if (this.level.hasChunkAt(new BlockPos(this.x, 0.0, this.z))) {
+        if (this.level.hasChunkAt(new BlockPos(this.getX(), 0.0, this.getZ()))) {
             super.tick();
             if (this.isPassenger()) {
                 this.connection.send(new ServerboundMovePlayerPacket.Rot(this.yRot, this.xRot, this.onGround));
@@ -213,37 +213,36 @@ public class LocalPlayer extends AbstractClientPlayer {
         }
 
         if (this.isControlledCamera()) {
-            AABB var4 = this.getBoundingBox();
-            double var5 = this.x - this.xLast;
-            double var6 = var4.minY - this.yLast1;
-            double var7 = this.z - this.zLast;
-            double var8 = (double)(this.yRot - this.yRotLast);
-            double var9 = (double)(this.xRot - this.xRotLast);
+            double var4 = this.getX() - this.xLast;
+            double var5 = this.getY() - this.yLast1;
+            double var6 = this.getZ() - this.zLast;
+            double var7 = (double)(this.yRot - this.yRotLast);
+            double var8 = (double)(this.xRot - this.xRotLast);
             ++this.positionReminder;
-            boolean var10 = var5 * var5 + var6 * var6 + var7 * var7 > 9.0E-4 || this.positionReminder >= 20;
-            boolean var11 = var8 != 0.0 || var9 != 0.0;
+            boolean var9 = var4 * var4 + var5 * var5 + var6 * var6 > 9.0E-4 || this.positionReminder >= 20;
+            boolean var10 = var7 != 0.0 || var8 != 0.0;
             if (this.isPassenger()) {
-                Vec3 var12 = this.getDeltaMovement();
-                this.connection.send(new ServerboundMovePlayerPacket.PosRot(var12.x, -999.0, var12.z, this.yRot, this.xRot, this.onGround));
-                var10 = false;
-            } else if (var10 && var11) {
-                this.connection.send(new ServerboundMovePlayerPacket.PosRot(this.x, var4.minY, this.z, this.yRot, this.xRot, this.onGround));
+                Vec3 var11 = this.getDeltaMovement();
+                this.connection.send(new ServerboundMovePlayerPacket.PosRot(var11.x, -999.0, var11.z, this.yRot, this.xRot, this.onGround));
+                var9 = false;
+            } else if (var9 && var10) {
+                this.connection.send(new ServerboundMovePlayerPacket.PosRot(this.getX(), this.getY(), this.getZ(), this.yRot, this.xRot, this.onGround));
+            } else if (var9) {
+                this.connection.send(new ServerboundMovePlayerPacket.Pos(this.getX(), this.getY(), this.getZ(), this.onGround));
             } else if (var10) {
-                this.connection.send(new ServerboundMovePlayerPacket.Pos(this.x, var4.minY, this.z, this.onGround));
-            } else if (var11) {
                 this.connection.send(new ServerboundMovePlayerPacket.Rot(this.yRot, this.xRot, this.onGround));
             } else if (this.lastOnGround != this.onGround) {
                 this.connection.send(new ServerboundMovePlayerPacket(this.onGround));
             }
 
-            if (var10) {
-                this.xLast = this.x;
-                this.yLast1 = var4.minY;
-                this.zLast = this.z;
+            if (var9) {
+                this.xLast = this.getX();
+                this.yLast1 = this.getY();
+                this.zLast = this.getZ();
                 this.positionReminder = 0;
             }
 
-            if (var11) {
+            if (var10) {
                 this.yRotLast = this.yRot;
                 this.xRotLast = this.xRot;
             }
@@ -485,12 +484,12 @@ public class LocalPlayer extends AbstractClientPlayer {
 
     @Override
     public void playSound(SoundEvent param0, float param1, float param2) {
-        this.level.playLocalSound(this.x, this.y, this.z, param0, this.getSoundSource(), param1, param2, false);
+        this.level.playLocalSound(this.getX(), this.getY(), this.getZ(), param0, this.getSoundSource(), param1, param2, false);
     }
 
     @Override
     public void playNotifySound(SoundEvent param0, SoundSource param1, float param2, float param3) {
-        this.level.playLocalSound(this.x, this.y, this.z, param0, param1, param2, param3, false);
+        this.level.playLocalSound(this.getX(), this.getY(), this.getZ(), param0, param1, param2, param3, false);
     }
 
     @Override
@@ -660,20 +659,19 @@ public class LocalPlayer extends AbstractClientPlayer {
         }
 
         if (!this.noPhysics) {
-            AABB var4 = this.getBoundingBox();
-            this.checkInBlock(this.x - (double)this.getBbWidth() * 0.35, var4.minY + 0.5, this.z + (double)this.getBbWidth() * 0.35);
-            this.checkInBlock(this.x - (double)this.getBbWidth() * 0.35, var4.minY + 0.5, this.z - (double)this.getBbWidth() * 0.35);
-            this.checkInBlock(this.x + (double)this.getBbWidth() * 0.35, var4.minY + 0.5, this.z - (double)this.getBbWidth() * 0.35);
-            this.checkInBlock(this.x + (double)this.getBbWidth() * 0.35, var4.minY + 0.5, this.z + (double)this.getBbWidth() * 0.35);
+            this.checkInBlock(this.getX() - (double)this.getBbWidth() * 0.35, this.getY() + 0.5, this.getZ() + (double)this.getBbWidth() * 0.35);
+            this.checkInBlock(this.getX() - (double)this.getBbWidth() * 0.35, this.getY() + 0.5, this.getZ() - (double)this.getBbWidth() * 0.35);
+            this.checkInBlock(this.getX() + (double)this.getBbWidth() * 0.35, this.getY() + 0.5, this.getZ() - (double)this.getBbWidth() * 0.35);
+            this.checkInBlock(this.getX() + (double)this.getBbWidth() * 0.35, this.getY() + 0.5, this.getZ() + (double)this.getBbWidth() * 0.35);
         }
 
-        boolean var5 = (float)this.getFoodData().getFoodLevel() > 6.0F || this.abilities.mayfly;
+        boolean var4 = (float)this.getFoodData().getFoodLevel() > 6.0F || this.abilities.mayfly;
         if ((this.onGround || this.isUnderWater())
             && !var1
             && !var2
             && this.hasEnoughImpulseToStartSprinting()
             && !this.isSprinting()
-            && var5
+            && var4
             && !this.isUsingItem()
             && !this.hasEffect(MobEffects.BLINDNESS)) {
             if (this.sprintTriggerTime <= 0 && !this.minecraft.options.keySprint.isDown()) {
@@ -686,7 +684,7 @@ public class LocalPlayer extends AbstractClientPlayer {
         if (!this.isSprinting()
             && (!this.isInWater() || this.isUnderWater())
             && this.hasEnoughImpulseToStartSprinting()
-            && var5
+            && var4
             && !this.isUsingItem()
             && !this.hasEffect(MobEffects.BLINDNESS)
             && this.minecraft.options.keySprint.isDown()) {
@@ -694,13 +692,13 @@ public class LocalPlayer extends AbstractClientPlayer {
         }
 
         if (this.isSprinting()) {
-            boolean var6 = !this.input.hasForwardImpulse() || !var5;
-            boolean var7 = var6 || this.horizontalCollision || this.isInWater() && !this.isUnderWater();
+            boolean var5 = !this.input.hasForwardImpulse() || !var4;
+            boolean var6 = var5 || this.horizontalCollision || this.isInWater() && !this.isUnderWater();
             if (this.isSwimming()) {
-                if (!this.onGround && !this.input.shiftKeyDown && var6 || !this.isInWater()) {
+                if (!this.onGround && !this.input.shiftKeyDown && var5 || !this.isInWater()) {
                     this.setSprinting(false);
                 }
-            } else if (var7) {
+            } else if (var6) {
                 this.setSprinting(false);
             }
         }
@@ -723,8 +721,8 @@ public class LocalPlayer extends AbstractClientPlayer {
         }
 
         if (this.input.jumping && !var0 && !this.onGround && this.getDeltaMovement().y < 0.0 && !this.isFallFlying() && !this.abilities.flying) {
-            ItemStack var8 = this.getItemBySlot(EquipmentSlot.CHEST);
-            if (var8.getItem() == Items.ELYTRA && ElytraItem.isFlyEnabled(var8)) {
+            ItemStack var7 = this.getItemBySlot(EquipmentSlot.CHEST);
+            if (var7.getItem() == Items.ELYTRA && ElytraItem.isFlyEnabled(var7)) {
                 this.connection.send(new ServerboundPlayerCommandPacket(this, ServerboundPlayerCommandPacket.Action.START_FALL_FLYING));
             }
         }
@@ -735,30 +733,30 @@ public class LocalPlayer extends AbstractClientPlayer {
         }
 
         if (this.isUnderLiquid(FluidTags.WATER)) {
-            int var9 = this.isSpectator() ? 10 : 1;
-            this.waterVisionTime = Mth.clamp(this.waterVisionTime + var9, 0, 600);
+            int var8 = this.isSpectator() ? 10 : 1;
+            this.waterVisionTime = Mth.clamp(this.waterVisionTime + var8, 0, 600);
         } else if (this.waterVisionTime > 0) {
             this.isUnderLiquid(FluidTags.WATER);
             this.waterVisionTime = Mth.clamp(this.waterVisionTime - 10, 0, 600);
         }
 
         if (this.abilities.flying && this.isControlledCamera()) {
-            int var10 = 0;
+            int var9 = 0;
             if (this.input.shiftKeyDown) {
-                --var10;
+                --var9;
             }
 
             if (this.input.jumping) {
-                ++var10;
+                ++var9;
             }
 
-            if (var10 != 0) {
-                this.setDeltaMovement(this.getDeltaMovement().add(0.0, (double)((float)var10 * this.abilities.getFlyingSpeed() * 3.0F), 0.0));
+            if (var9 != 0) {
+                this.setDeltaMovement(this.getDeltaMovement().add(0.0, (double)((float)var9 * this.abilities.getFlyingSpeed() * 3.0F), 0.0));
             }
         }
 
         if (this.isRidingJumpable()) {
-            PlayerRideableJumping var11 = (PlayerRideableJumping)this.getVehicle();
+            PlayerRideableJumping var10 = (PlayerRideableJumping)this.getVehicle();
             if (this.jumpRidingTicks < 0) {
                 ++this.jumpRidingTicks;
                 if (this.jumpRidingTicks == 0) {
@@ -768,7 +766,7 @@ public class LocalPlayer extends AbstractClientPlayer {
 
             if (var0 && !this.input.jumping) {
                 this.jumpRidingTicks = -10;
-                var11.onPlayerJump(Mth.floor(this.getJumpRidingScale() * 100.0F));
+                var10.onPlayerJump(Mth.floor(this.getJumpRidingScale() * 100.0F));
                 this.sendRidingJump();
             } else if (!var0 && this.input.jumping) {
                 this.jumpRidingTicks = 0;
@@ -861,10 +859,10 @@ public class LocalPlayer extends AbstractClientPlayer {
 
     @Override
     public void move(MoverType param0, Vec3 param1) {
-        double var0 = this.x;
-        double var1 = this.z;
+        double var0 = this.getX();
+        double var1 = this.getZ();
         super.move(param0, param1);
-        this.updateAutoJump((float)(this.x - var0), (float)(this.z - var1));
+        this.updateAutoJump((float)(this.getX() - var0), (float)(this.getZ() - var1));
     }
 
     public boolean isAutoJumpEnabled() {
@@ -873,8 +871,8 @@ public class LocalPlayer extends AbstractClientPlayer {
 
     protected void updateAutoJump(float param0, float param1) {
         if (this.canAutoJump()) {
-            Vec3 var0 = new Vec3(this.x, this.getBoundingBox().minY, this.z);
-            Vec3 var1 = new Vec3(this.x + (double)param0, this.getBoundingBox().minY, this.z + (double)param1);
+            Vec3 var0 = this.position();
+            Vec3 var1 = var0.add((double)param0, 0.0, (double)param1);
             Vec3 var2 = new Vec3((double)param0, 0.0, (double)param1);
             float var3 = this.getSpeed();
             float var4 = (float)var2.lengthSqr();
@@ -897,7 +895,7 @@ public class LocalPlayer extends AbstractClientPlayer {
             float var13 = (float)(var12.x * var11.x + var12.z * var11.z);
             if (!(var13 < -0.15F)) {
                 CollisionContext var14 = CollisionContext.of(this);
-                BlockPos var15 = new BlockPos(this.x, this.getBoundingBox().maxY, this.z);
+                BlockPos var15 = new BlockPos(this.getX(), this.getBoundingBox().maxY, this.getZ());
                 BlockState var16 = this.level.getBlockState(var15);
                 if (var16.getCollisionShape(this.level, var15, var14).isEmpty()) {
                     var15 = var15.above();
@@ -941,7 +939,7 @@ public class LocalPlayer extends AbstractClientPlayer {
                                     VoxelShape var40;
                                     if (!(var40 = var39.getCollisionShape(this.level, var38, var14)).isEmpty()) {
                                         var33 = (float)var40.max(Direction.Axis.Y) + (float)var38.getY();
-                                        if ((double)var33 - this.getBoundingBox().minY > (double)var19) {
+                                        if ((double)var33 - this.getY() > (double)var19) {
                                             return;
                                         }
                                     }
@@ -959,7 +957,7 @@ public class LocalPlayer extends AbstractClientPlayer {
                         }
 
                         if (var33 != Float.MIN_VALUE) {
-                            float var42 = (float)((double)var33 - this.getBoundingBox().minY);
+                            float var42 = (float)((double)var33 - this.getY());
                             if (!(var42 <= 0.5F) && !(var42 > var19)) {
                                 this.autoJumpTime = 1;
                             }
@@ -976,7 +974,8 @@ public class LocalPlayer extends AbstractClientPlayer {
             && this.onGround
             && !this.isStayingOnGroundSurface()
             && !this.isPassenger()
-            && this.isMoving();
+            && this.isMoving()
+            && (double)this.getJumpFactor() >= 1.0;
     }
 
     private boolean isMoving() {
@@ -1018,12 +1017,12 @@ public class LocalPlayer extends AbstractClientPlayer {
             return this.wasUnderwater;
         } else {
             if (!var0 && var1) {
-                this.level.playLocalSound(this.x, this.y, this.z, SoundEvents.AMBIENT_UNDERWATER_ENTER, SoundSource.AMBIENT, 1.0F, 1.0F, false);
+                this.level.playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.AMBIENT_UNDERWATER_ENTER, SoundSource.AMBIENT, 1.0F, 1.0F, false);
                 this.minecraft.getSoundManager().play(new UnderwaterAmbientSoundInstances.UnderwaterAmbientSoundInstance(this));
             }
 
             if (var0 && !var1) {
-                this.level.playLocalSound(this.x, this.y, this.z, SoundEvents.AMBIENT_UNDERWATER_EXIT, SoundSource.AMBIENT, 1.0F, 1.0F, false);
+                this.level.playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.AMBIENT_UNDERWATER_EXIT, SoundSource.AMBIENT, 1.0F, 1.0F, false);
             }
 
             return this.wasUnderwater;

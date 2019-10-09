@@ -439,13 +439,13 @@ public class Raid {
         Collection<ServerPlayer> var2 = this.raidEvent.getPlayers();
 
         for(ServerPlayer var3 : this.level.players()) {
-            Vec3 var4 = new Vec3(var3.x, var3.y, var3.z);
-            Vec3 var5 = new Vec3((double)param0.getX(), (double)param0.getY(), (double)param0.getZ());
+            Vec3 var4 = var3.position();
+            Vec3 var5 = new Vec3(param0);
             float var6 = Mth.sqrt((var5.x - var4.x) * (var5.x - var4.x) + (var5.z - var4.z) * (var5.z - var4.z));
             double var7 = var4.x + (double)(13.0F / var6) * (var5.x - var4.x);
             double var8 = var4.z + (double)(13.0F / var6) * (var5.z - var4.z);
             if (var6 <= 64.0F || var2.contains(var3)) {
-                var3.connection.send(new ClientboundSoundPacket(SoundEvents.RAID_HORN, SoundSource.NEUTRAL, var7, var3.y, var8, 64.0F, 1.0F));
+                var3.connection.send(new ClientboundSoundPacket(SoundEvents.RAID_HORN, SoundSource.NEUTRAL, var7, var3.getY(), var8, 64.0F, 1.0F));
             }
         }
 

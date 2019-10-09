@@ -183,9 +183,9 @@ public abstract class AbstractSkeleton extends Monster implements RangedAttackMo
     public void performRangedAttack(LivingEntity param0, float param1) {
         ItemStack var0 = this.getProjectile(this.getItemInHand(ProjectileUtil.getWeaponHoldingHand(this, Items.BOW)));
         AbstractArrow var1 = this.getArrow(var0, param1);
-        double var2 = param0.x - this.x;
-        double var3 = param0.getBoundingBox().minY + (double)(param0.getBbHeight() / 3.0F) - var1.y;
-        double var4 = param0.z - this.z;
+        double var2 = param0.getX() - this.getX();
+        double var3 = param0.getY(0.3333333333333333) - var1.getY();
+        double var4 = param0.getZ() - this.getZ();
         double var5 = (double)Mth.sqrt(var2 * var2 + var4 * var4);
         var1.shoot(var2, var3 + var5 * 0.2F, var4, 1.6F, (float)(14 - this.level.getDifficulty().getId() * 4));
         this.playSound(SoundEvents.SKELETON_SHOOT, 1.0F, 1.0F / (this.getRandom().nextFloat() * 0.4F + 0.8F));

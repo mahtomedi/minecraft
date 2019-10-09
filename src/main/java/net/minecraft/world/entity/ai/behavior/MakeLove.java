@@ -110,7 +110,7 @@ public class MakeLove extends Behavior<Villager> {
             param0.setAge(6000);
             param1.setAge(6000);
             var0.setAge(-24000);
-            var0.moveTo(param0.x, param0.y, param0.z, 0.0F, 0.0F);
+            var0.moveTo(param0.getX(), param0.getY(), param0.getZ(), 0.0F, 0.0F);
             param0.level.addFreshEntity(var0);
             param0.level.broadcastEntityEvent(var0, (byte)12);
             return Optional.of(var0);

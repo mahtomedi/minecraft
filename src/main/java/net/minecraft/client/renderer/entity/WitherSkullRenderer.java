@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.SkullModel;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -24,15 +23,13 @@ public class WitherSkullRenderer extends EntityRenderer<WitherSkull> {
 
     public void render(WitherSkull param0, double param1, double param2, double param3, float param4, float param5, PoseStack param6, MultiBufferSource param7) {
         param6.pushPose();
-        float var0 = 0.0625F;
         param6.scale(-1.0F, -1.0F, 1.0F);
-        float var1 = Mth.rotlerp(param0.yRotO, param0.yRot, param5);
-        float var2 = Mth.lerp(param5, param0.xRotO, param0.xRot);
-        int var3 = param0.getLightColor();
-        VertexConsumer var4 = param7.getBuffer(RenderType.NEW_ENTITY(this.getTextureLocation(param0)));
-        OverlayTexture.setDefault(var4);
-        this.model.render(param6, var4, 0.0F, var1, var2, 0.0625F, var3);
-        var4.unsetDefaultOverlayCoords();
+        float var0 = Mth.rotlerp(param0.yRotO, param0.yRot, param5);
+        float var1 = Mth.lerp(param5, param0.xRotO, param0.xRot);
+        int var2 = param0.getLightColor();
+        VertexConsumer var3 = param7.getBuffer(this.model.renderType(this.getTextureLocation(param0)));
+        this.model.setupAnim(0.0F, var0, var1);
+        this.model.renderToBuffer(param6, var3, var2, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F);
         param6.popPose();
         super.render(param0, param1, param2, param3, param4, param5, param6, param7);
     }

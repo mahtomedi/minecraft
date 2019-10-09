@@ -11,15 +11,16 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.BeardedStructureStart;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.PillagerOutpostPieces;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 
-public class PillagerOutpostFeature extends RandomScatteredFeature<PillagerOutpostConfiguration> {
+public class PillagerOutpostFeature extends RandomScatteredFeature<NoneFeatureConfiguration> {
     private static final List<Biome.SpawnerData> OUTPOST_ENEMIES = Lists.newArrayList(new Biome.SpawnerData(EntityType.PILLAGER, 1, 1, 1));
 
-    public PillagerOutpostFeature(Function<Dynamic<?>, ? extends PillagerOutpostConfiguration> param0) {
+    public PillagerOutpostFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0) {
         super(param0);
     }
 
@@ -50,7 +51,7 @@ public class PillagerOutpostFeature extends RandomScatteredFeature<PillagerOutpo
                 return false;
             }
 
-            if (param1.isBiomeValidStartForStructure(param5, Feature.PILLAGER_OUTPOST)) {
+            if (param1.isBiomeValidStartForStructure(param5, this)) {
                 for(int var3 = param3 - 10; var3 <= param3 + 10; ++var3) {
                     for(int var4 = param4 - 10; var4 <= param4 + 10; ++var4) {
                         if (Feature.VILLAGE

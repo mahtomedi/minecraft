@@ -119,7 +119,15 @@ public abstract class PlayerList {
             var6 = param0.getRemoteAddress().toString();
         }
 
-        LOGGER.info("{}[{}] logged in with entity id {} at ({}, {}, {})", param1.getName().getString(), var6, param1.getId(), param1.x, param1.y, param1.z);
+        LOGGER.info(
+            "{}[{}] logged in with entity id {} at ({}, {}, {})",
+            param1.getName().getString(),
+            var6,
+            param1.getId(),
+            param1.getX(),
+            param1.getY(),
+            param1.getZ()
+        );
         LevelData var7 = var5.getLevelData();
         this.updatePlayerGameMode(param1, null, var5);
         ServerGamePacketListenerImpl var8 = new ServerGamePacketListenerImpl(this.server, param0, param1);
@@ -163,7 +171,7 @@ public abstract class PlayerList {
         }
 
         this.broadcastMessage(var12.withStyle(ChatFormatting.YELLOW));
-        var8.teleport(param1.x, param1.y, param1.z, param1.yRot, param1.xRot);
+        var8.teleport(param1.getX(), param1.getY(), param1.getZ(), param1.yRot, param1.xRot);
         this.players.add(param1);
         this.playersByUUID.put(param1.getUUID(), param1);
         this.broadcastAll(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.ADD_PLAYER, param1));
@@ -428,8 +436,8 @@ public abstract class PlayerList {
             }
         }
 
-        while(!var6.noCollision(var4) && var4.y < 256.0) {
-            var4.setPos(var4.x, var4.y + 1.0, var4.z);
+        while(!var6.noCollision(var4) && var4.getY() < 256.0) {
+            var4.setPos(var4.getX(), var4.getY() + 1.0, var4.getZ());
         }
 
         LevelData var9 = var4.level.getLevelData();
@@ -440,7 +448,7 @@ public abstract class PlayerList {
                 )
             );
         BlockPos var10 = var6.getSharedSpawnPos();
-        var4.connection.teleport(var4.x, var4.y, var4.z, var4.yRot, var4.xRot);
+        var4.connection.teleport(var4.getX(), var4.getY(), var4.getZ(), var4.yRot, var4.xRot);
         var4.connection.send(new ClientboundSetSpawnPositionPacket(var10));
         var4.connection.send(new ClientboundChangeDifficultyPacket(var9.getDifficulty(), var9.isDifficultyLocked()));
         var4.connection.send(new ClientboundSetExperiencePacket(var4.experienceProgress, var4.totalExperience, var4.experienceLevel));
@@ -591,9 +599,9 @@ public abstract class PlayerList {
         for(int var0 = 0; var0 < this.players.size(); ++var0) {
             ServerPlayer var1 = this.players.get(var0);
             if (var1 != param0 && var1.dimension == param5) {
-                double var2 = param1 - var1.x;
-                double var3 = param2 - var1.y;
-                double var4 = param3 - var1.z;
+                double var2 = param1 - var1.getX();
+                double var3 = param2 - var1.getY();
+                double var4 = param3 - var1.getZ();
                 if (var2 * var2 + var3 * var3 + var4 * var4 < param4 * param4) {
                     var1.connection.send(param6);
                 }

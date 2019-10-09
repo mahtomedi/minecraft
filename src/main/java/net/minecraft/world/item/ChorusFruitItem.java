@@ -16,14 +16,14 @@ public class ChorusFruitItem extends Item {
     public ItemStack finishUsingItem(ItemStack param0, Level param1, LivingEntity param2) {
         ItemStack var0 = super.finishUsingItem(param0, param1, param2);
         if (!param1.isClientSide) {
-            double var1 = param2.x;
-            double var2 = param2.y;
-            double var3 = param2.z;
+            double var1 = param2.getX();
+            double var2 = param2.getY();
+            double var3 = param2.getZ();
 
             for(int var4 = 0; var4 < 16; ++var4) {
-                double var5 = param2.x + (param2.getRandom().nextDouble() - 0.5) * 16.0;
-                double var6 = Mth.clamp(param2.y + (double)(param2.getRandom().nextInt(16) - 8), 0.0, (double)(param1.getHeight() - 1));
-                double var7 = param2.z + (param2.getRandom().nextDouble() - 0.5) * 16.0;
+                double var5 = param2.getX() + (param2.getRandom().nextDouble() - 0.5) * 16.0;
+                double var6 = Mth.clamp(param2.getY() + (double)(param2.getRandom().nextInt(16) - 8), 0.0, (double)(param1.getHeight() - 1));
+                double var7 = param2.getZ() + (param2.getRandom().nextDouble() - 0.5) * 16.0;
                 if (param2.isPassenger()) {
                     param2.stopRiding();
                 }

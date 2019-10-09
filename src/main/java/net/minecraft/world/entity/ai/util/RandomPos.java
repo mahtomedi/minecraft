@@ -48,25 +48,25 @@ public class RandomPos {
 
     @Nullable
     public static Vec3 getPosTowards(PathfinderMob param0, int param1, int param2, Vec3 param3) {
-        Vec3 var0 = param3.subtract(param0.x, param0.y, param0.z);
+        Vec3 var0 = param3.subtract(param0.getX(), param0.getY(), param0.getZ());
         return generateRandomPos(param0, param1, param2, var0);
     }
 
     @Nullable
     public static Vec3 getPosTowards(PathfinderMob param0, int param1, int param2, Vec3 param3, double param4) {
-        Vec3 var0 = param3.subtract(param0.x, param0.y, param0.z);
+        Vec3 var0 = param3.subtract(param0.getX(), param0.getY(), param0.getZ());
         return generateRandomPos(param0, param1, param2, var0, true, param4, param0::getWalkTargetValue);
     }
 
     @Nullable
     public static Vec3 getLandPosAvoid(PathfinderMob param0, int param1, int param2, Vec3 param3) {
-        Vec3 var0 = new Vec3(param0.x, param0.y, param0.z).subtract(param3);
+        Vec3 var0 = param0.position().subtract(param3);
         return generateRandomPos(param0, param1, param2, var0, false, (float) (Math.PI / 2), param0::getWalkTargetValue);
     }
 
     @Nullable
     public static Vec3 getPosAvoid(PathfinderMob param0, int param1, int param2, Vec3 param3) {
-        Vec3 var0 = new Vec3(param0.x, param0.y, param0.z).subtract(param3);
+        Vec3 var0 = param0.position().subtract(param3);
         return generateRandomPos(param0, param1, param2, var0);
     }
 
@@ -138,20 +138,20 @@ public class RandomPos {
                 int var11 = var8.getZ();
                 if (param0.hasRestriction() && param1 > 1) {
                     BlockPos var12 = param0.getRestrictCenter();
-                    if (param0.x > (double)var12.getX()) {
+                    if (param0.getX() > (double)var12.getX()) {
                         var9 -= var1.nextInt(param1 / 2);
                     } else {
                         var9 += var1.nextInt(param1 / 2);
                     }
 
-                    if (param0.z > (double)var12.getZ()) {
+                    if (param0.getZ() > (double)var12.getZ()) {
                         var11 -= var1.nextInt(param1 / 2);
                     } else {
                         var11 += var1.nextInt(param1 / 2);
                     }
                 }
 
-                BlockPos var13 = new BlockPos((double)var9 + param0.x, (double)var10 + param0.y, (double)var11 + param0.z);
+                BlockPos var13 = new BlockPos((double)var9 + param0.getX(), (double)var10 + param0.getY(), (double)var11 + param0.getZ());
                 if ((!var2 || param0.isWithinRestriction(var13)) && (!param12 || var0.isStableDestination(var13))) {
                     if (param8) {
                         var13 = moveAboveSolid(var13, var1.nextInt(param10 + 1) + param11, param0.level.getMaxBuildHeight(), param9);

@@ -7,14 +7,15 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
+import net.minecraft.world.level.levelgen.feature.configurations.RandomFeatureConfiguration;
 
-public class RandomSelectorFeature extends Feature<RandomFeatureConfig> {
-    public RandomSelectorFeature(Function<Dynamic<?>, ? extends RandomFeatureConfig> param0) {
+public class RandomSelectorFeature extends Feature<RandomFeatureConfiguration> {
+    public RandomSelectorFeature(Function<Dynamic<?>, ? extends RandomFeatureConfiguration> param0) {
         super(param0);
     }
 
     public boolean place(
-        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, RandomFeatureConfig param4
+        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, RandomFeatureConfiguration param4
     ) {
         for(WeightedConfiguredFeature<?> var0 : param4.features) {
             if (param2.nextFloat() < var0.chance) {

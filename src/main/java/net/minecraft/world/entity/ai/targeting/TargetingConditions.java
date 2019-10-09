@@ -80,7 +80,7 @@ public class TargetingConditions {
                 if (this.range > 0.0) {
                     double var0 = this.testInvisible ? param1.getVisibilityPercent(param0) : 1.0;
                     double var1 = this.range * var0;
-                    double var2 = param0.distanceToSqr(param1.x, param1.y, param1.z);
+                    double var2 = param0.distanceToSqr(param1.getX(), param1.getY(), param1.getZ());
                     if (var2 > var1 * var1) {
                         return false;
                     }

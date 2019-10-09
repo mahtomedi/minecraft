@@ -46,7 +46,7 @@ public class MinecartTNT extends AbstractMinecart {
         super.tick();
         if (this.fuse > 0) {
             --this.fuse;
-            this.level.addParticle(ParticleTypes.SMOKE, this.x, this.y + 0.5, this.z, 0.0, 0.0, 0.0);
+            this.level.addParticle(ParticleTypes.SMOKE, this.getX(), this.getY() + 0.5, this.getZ(), 0.0, 0.0, 0.0);
         } else if (this.fuse == 0) {
             this.explode(getHorizontalDistanceSqr(this.getDeltaMovement()));
         }
@@ -98,20 +98,21 @@ public class MinecartTNT extends AbstractMinecart {
                 var0 = 5.0;
             }
 
-            this.level.explode(this, this.x, this.y, this.z, (float)(4.0 + this.random.nextDouble() * 1.5 * var0), Explosion.BlockInteraction.BREAK);
+            this.level
+                .explode(this, this.getX(), this.getY(), this.getZ(), (float)(4.0 + this.random.nextDouble() * 1.5 * var0), Explosion.BlockInteraction.BREAK);
             this.remove();
         }
 
     }
 
     @Override
-    public void causeFallDamage(float param0, float param1) {
+    public boolean causeFallDamage(float param0, float param1) {
         if (param0 >= 3.0F) {
             float var0 = param0 / 10.0F;
             this.explode((double)(var0 * var0));
         }
 
-        super.causeFallDamage(param0, param1);
+        return super.causeFallDamage(param0, param1);
     }
 
     @Override
@@ -138,7 +139,7 @@ public class MinecartTNT extends AbstractMinecart {
         if (!this.level.isClientSide) {
             this.level.broadcastEntityEvent(this, (byte)10);
             if (!this.isSilent()) {
-                this.level.playSound(null, this.x, this.y, this.z, SoundEvents.TNT_PRIMED, SoundSource.BLOCKS, 1.0F, 1.0F);
+                this.level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.TNT_PRIMED, SoundSource.BLOCKS, 1.0F, 1.0F);
             }
         }
 

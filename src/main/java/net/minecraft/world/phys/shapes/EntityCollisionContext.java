@@ -26,11 +26,7 @@ public class EntityCollisionContext implements CollisionContext {
 
     @Deprecated
     protected EntityCollisionContext(Entity param0) {
-        this(
-            param0.isDescending(),
-            param0.getBoundingBox().minY,
-            param0 instanceof LivingEntity ? ((LivingEntity)param0).getMainHandItem().getItem() : Items.AIR
-        );
+        this(param0.isDescending(), param0.getY(), param0 instanceof LivingEntity ? ((LivingEntity)param0).getMainHandItem().getItem() : Items.AIR);
     }
 
     @Override

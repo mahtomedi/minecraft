@@ -119,7 +119,7 @@ public class MinecartCommandBlock extends AbstractMinecart {
         @OnlyIn(Dist.CLIENT)
         @Override
         public Vec3 getPosition() {
-            return new Vec3(MinecartCommandBlock.this.x, MinecartCommandBlock.this.y, MinecartCommandBlock.this.z);
+            return MinecartCommandBlock.this.position();
         }
 
         @OnlyIn(Dist.CLIENT)
@@ -131,7 +131,7 @@ public class MinecartCommandBlock extends AbstractMinecart {
         public CommandSourceStack createCommandSourceStack() {
             return new CommandSourceStack(
                 this,
-                new Vec3(MinecartCommandBlock.this.x, MinecartCommandBlock.this.y, MinecartCommandBlock.this.z),
+                MinecartCommandBlock.this.position(),
                 MinecartCommandBlock.this.getRotationVector(),
                 this.getLevel(),
                 2,

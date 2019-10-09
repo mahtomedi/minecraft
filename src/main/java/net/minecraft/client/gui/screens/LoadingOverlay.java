@@ -78,9 +78,9 @@ public class LoadingOverlay extends Overlay {
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, var6);
         this.blit(var10, var11, 0, 0, 256, 256);
         float var12 = this.reload.getActualProgress();
-        this.currentProgress = this.currentProgress * 0.95F + var12 * 0.050000012F;
+        this.currentProgress = Mth.clamp(this.currentProgress * 0.95F + var12 * 0.050000012F, 0.0F, 1.0F);
         if (var3 < 1.0F) {
-            this.drawProgressBar(var0 / 2 - 150, var1 / 4 * 3, var0 / 2 + 150, var1 / 4 * 3 + 10, this.currentProgress, 1.0F - Mth.clamp(var3, 0.0F, 1.0F));
+            this.drawProgressBar(var0 / 2 - 150, var1 / 4 * 3, var0 / 2 + 150, var1 / 4 * 3 + 10, 1.0F - Mth.clamp(var3, 0.0F, 1.0F));
         }
 
         if (var3 >= 2.0F) {
@@ -98,14 +98,14 @@ public class LoadingOverlay extends Overlay {
 
     }
 
-    private void drawProgressBar(int param0, int param1, int param2, int param3, float param4, float param5) {
-        int var0 = Mth.ceil((float)(param2 - param0 - 2) * param4);
+    private void drawProgressBar(int param0, int param1, int param2, int param3, float param4) {
+        int var0 = Mth.ceil((float)(param2 - param0 - 1) * this.currentProgress);
         fill(
             param0 - 1,
             param1 - 1,
             param2 + 1,
             param3 + 1,
-            0xFF000000 | Math.round((1.0F - param5) * 255.0F) << 16 | Math.round((1.0F - param5) * 255.0F) << 8 | Math.round((1.0F - param5) * 255.0F)
+            0xFF000000 | Math.round((1.0F - param4) * 255.0F) << 16 | Math.round((1.0F - param4) * 255.0F) << 8 | Math.round((1.0F - param4) * 255.0F)
         );
         fill(param0, param1, param2, param3, -1);
         fill(
@@ -114,9 +114,9 @@ public class LoadingOverlay extends Overlay {
             param0 + var0,
             param3 - 1,
             0xFF000000
-                | (int)Mth.lerp(1.0F - param5, 226.0F, 255.0F) << 16
-                | (int)Mth.lerp(1.0F - param5, 40.0F, 255.0F) << 8
-                | (int)Mth.lerp(1.0F - param5, 55.0F, 255.0F)
+                | (int)Mth.lerp(1.0F - param4, 226.0F, 255.0F) << 16
+                | (int)Mth.lerp(1.0F - param4, 40.0F, 255.0F) << 8
+                | (int)Mth.lerp(1.0F - param4, 55.0F, 255.0F)
         );
     }
 

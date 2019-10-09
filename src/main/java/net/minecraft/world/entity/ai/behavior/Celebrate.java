@@ -26,8 +26,9 @@ public class Celebrate extends Behavior<Villager> {
     }
 
     protected boolean checkExtraStartConditions(ServerLevel param0, Villager param1) {
-        this.currentRaid = param0.getRaidAt(new BlockPos(param1));
-        return this.currentRaid != null && this.currentRaid.isVictory() && MoveToSkySeeingSpot.hasNoBlocksAbove(param0, param1);
+        BlockPos var0 = new BlockPos(param1);
+        this.currentRaid = param0.getRaidAt(var0);
+        return this.currentRaid != null && this.currentRaid.isVictory() && MoveToSkySeeingSpot.hasNoBlocksAbove(param0, param1, var0);
     }
 
     protected boolean canStillUse(ServerLevel param0, Villager param1, long param2) {
@@ -45,11 +46,11 @@ public class Celebrate extends Behavior<Villager> {
             param1.playCelebrateSound();
         }
 
-        if (var0.nextInt(200) == 0 && MoveToSkySeeingSpot.hasNoBlocksAbove(param0, param1)) {
+        if (var0.nextInt(200) == 0 && MoveToSkySeeingSpot.hasNoBlocksAbove(param0, param1, new BlockPos(param1))) {
             DyeColor var1 = DyeColor.values()[var0.nextInt(DyeColor.values().length)];
             int var2 = var0.nextInt(3);
             ItemStack var3 = this.getFirework(var1, var2);
-            FireworkRocketEntity var4 = new FireworkRocketEntity(param1.level, param1.x, param1.y + (double)param1.getEyeHeight(), param1.z, var3);
+            FireworkRocketEntity var4 = new FireworkRocketEntity(param1.level, param1.getX(), param1.getEyeY(), param1.getZ(), var3);
             param1.level.addFreshEntity(var4);
         }
 

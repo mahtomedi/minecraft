@@ -204,7 +204,7 @@ public class Guardian extends Monster {
                     this.clientSideTailAnimationSpeed = 2.0F;
                     Vec3 var0 = this.getDeltaMovement();
                     if (var0.y > 0.0 && this.clientSideTouchedGround && !this.isSilent()) {
-                        this.level.playLocalSound(this.x, this.y, this.z, this.getFlopSound(), this.getSoundSource(), 1.0F, 1.0F, false);
+                        this.level.playLocalSound(this.getX(), this.getY(), this.getZ(), this.getFlopSound(), this.getSoundSource(), 1.0F, 1.0F, false);
                     }
 
                     this.clientSideTouchedGround = var0.y < 0.0 && this.level.loadedAndEntityCanStandOn(new BlockPos(this).below(), this);
@@ -235,9 +235,9 @@ public class Guardian extends Monster {
                         this.level
                             .addParticle(
                                 ParticleTypes.BUBBLE,
-                                this.x + (this.random.nextDouble() - 0.5) * (double)this.getBbWidth() - var1.x * 1.5,
-                                this.y + this.random.nextDouble() * (double)this.getBbHeight() - var1.y * 1.5,
-                                this.z + (this.random.nextDouble() - 0.5) * (double)this.getBbWidth() - var1.z * 1.5,
+                                this.getRandomX(0.5) - var1.x * 1.5,
+                                this.getRandomY() - var1.y * 1.5,
+                                this.getRandomZ(0.5) - var1.z * 1.5,
                                 0.0,
                                 0.0,
                                 0.0
@@ -255,9 +255,9 @@ public class Guardian extends Monster {
                         this.getLookControl().setLookAt(var3, 90.0F, 90.0F);
                         this.getLookControl().tick();
                         double var4 = (double)this.getAttackAnimationScale(0.0F);
-                        double var5 = var3.x - this.x;
-                        double var6 = var3.y + (double)(var3.getBbHeight() * 0.5F) - (this.y + (double)this.getEyeHeight());
-                        double var7 = var3.z - this.z;
+                        double var5 = var3.getX() - this.getX();
+                        double var6 = var3.getY(0.5) - this.getEyeY();
+                        double var7 = var3.getZ() - this.getZ();
                         double var8 = Math.sqrt(var5 * var5 + var6 * var6 + var7 * var7);
                         var5 /= var8;
                         var6 /= var8;
@@ -268,13 +268,7 @@ public class Guardian extends Monster {
                             var9 += 1.8 - var4 + this.random.nextDouble() * (1.7 - var4);
                             this.level
                                 .addParticle(
-                                    ParticleTypes.BUBBLE,
-                                    this.x + var5 * var9,
-                                    this.y + var6 * var9 + (double)this.getEyeHeight(),
-                                    this.z + var7 * var9,
-                                    0.0,
-                                    0.0,
-                                    0.0
+                                    ParticleTypes.BUBBLE, this.getX() + var5 * var9, this.getEyeY() + var6 * var9, this.getZ() + var7 * var9, 0.0, 0.0, 0.0
                                 );
                         }
                     }
@@ -460,7 +454,7 @@ public class Guardian extends Monster {
         @Override
         public void tick() {
             if (this.operation == MoveControl.Operation.MOVE_TO && !this.guardian.getNavigation().isDone()) {
-                Vec3 var0 = new Vec3(this.wantedX - this.guardian.x, this.wantedY - this.guardian.y, this.wantedZ - this.guardian.z);
+                Vec3 var0 = new Vec3(this.wantedX - this.guardian.getX(), this.wantedY - this.guardian.getY(), this.wantedZ - this.guardian.getZ());
                 double var1 = var0.length();
                 double var2 = var0.x / var1;
                 double var3 = var0.y / var1;
@@ -480,9 +474,9 @@ public class Guardian extends Monster {
                         this.guardian.getDeltaMovement().add(var8 * var9, var11 * (var10 + var9) * 0.25 + (double)var7 * var3 * 0.1, var8 * var10)
                     );
                 LookControl var12 = this.guardian.getLookControl();
-                double var13 = this.guardian.x + var2 * 2.0;
-                double var14 = (double)this.guardian.getEyeHeight() + this.guardian.y + var3 / var1;
-                double var15 = this.guardian.z + var4 * 2.0;
+                double var13 = this.guardian.getX() + var2 * 2.0;
+                double var14 = this.guardian.getEyeY() + var3 / var1;
+                double var15 = this.guardian.getZ() + var4 * 2.0;
                 double var16 = var12.getWantedX();
                 double var17 = var12.getWantedY();
                 double var18 = var12.getWantedZ();

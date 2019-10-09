@@ -796,7 +796,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         if (!isOutsideBuildHeight(param0)) {
             if (param1 != null && !param1.isRemoved()) {
                 if (this.updatingBlockEntities) {
-                    param1.setPosition(param0);
+                    param1.setLevelAndPosition(this, param0);
                     Iterator<BlockEntity> var0 = this.pendingBlockEntities.iterator();
 
                     while(var0.hasNext()) {
@@ -899,12 +899,12 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         return var0;
     }
 
-    public List<Entity> getEntities(@Nullable EntityType<?> param0, AABB param1, Predicate<? super Entity> param2) {
+    public <T extends Entity> List<T> getEntities(@Nullable EntityType<T> param0, AABB param1, Predicate<? super T> param2) {
         int var0 = Mth.floor((param1.minX - 2.0) / 16.0);
         int var1 = Mth.ceil((param1.maxX + 2.0) / 16.0);
         int var2 = Mth.floor((param1.minZ - 2.0) / 16.0);
         int var3 = Mth.ceil((param1.maxZ + 2.0) / 16.0);
-        List<Entity> var4 = Lists.newArrayList();
+        List<T> var4 = Lists.newArrayList();
 
         for(int var5 = var0; var5 < var1; ++var5) {
             for(int var6 = var2; var6 < var3; ++var6) {

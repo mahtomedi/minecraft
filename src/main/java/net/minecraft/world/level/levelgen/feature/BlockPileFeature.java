@@ -10,14 +10,15 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
+import net.minecraft.world.level.levelgen.feature.configurations.BlockPileConfiguration;
 
-public abstract class BlockPileFeature extends Feature<NoneFeatureConfiguration> {
-    public BlockPileFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0) {
+public class BlockPileFeature extends Feature<BlockPileConfiguration> {
+    public BlockPileFeature(Function<Dynamic<?>, ? extends BlockPileConfiguration> param0) {
         super(param0);
     }
 
     public boolean place(
-        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, NoneFeatureConfiguration param4
+        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, BlockPileConfiguration param4
     ) {
         if (param3.getY() < 5) {
             return false;
@@ -29,9 +30,9 @@ public abstract class BlockPileFeature extends Feature<NoneFeatureConfiguration>
                 int var3 = param3.getX() - var2.getX();
                 int var4 = param3.getZ() - var2.getZ();
                 if ((float)(var3 * var3 + var4 * var4) <= param2.nextFloat() * 10.0F - param2.nextFloat() * 6.0F) {
-                    this.tryPlaceBlock(param0, var2, param2);
+                    this.tryPlaceBlock(param0, var2, param2, param4);
                 } else if ((double)param2.nextFloat() < 0.031) {
-                    this.tryPlaceBlock(param0, var2, param2);
+                    this.tryPlaceBlock(param0, var2, param2, param4);
                 }
             }
 
@@ -45,12 +46,10 @@ public abstract class BlockPileFeature extends Feature<NoneFeatureConfiguration>
         return var1.getBlock() == Blocks.GRASS_PATH ? param2.nextBoolean() : var1.isFaceSturdy(param0, var0, Direction.UP);
     }
 
-    private void tryPlaceBlock(LevelAccessor param0, BlockPos param1, Random param2) {
+    private void tryPlaceBlock(LevelAccessor param0, BlockPos param1, Random param2, BlockPileConfiguration param3) {
         if (param0.isEmptyBlock(param1) && this.mayPlaceOn(param0, param1, param2)) {
-            param0.setBlock(param1, this.getBlockState(param0), 4);
+            param0.setBlock(param1, param3.stateProvider.getState(param2, param1), 4);
         }
 
     }
-
-    protected abstract BlockState getBlockState(LevelAccessor var1);
 }

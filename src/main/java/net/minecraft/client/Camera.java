@@ -39,9 +39,9 @@ public class Camera {
         this.mirror = param3;
         this.setRotation(param1.getViewYRot(param4), param1.getViewXRot(param4));
         this.setPosition(
-            Mth.lerp((double)param4, param1.xo, param1.x),
-            Mth.lerp((double)param4, param1.yo, param1.y) + (double)Mth.lerp(param4, this.eyeHeightOld, this.eyeHeight),
-            Mth.lerp((double)param4, param1.zo, param1.z)
+            Mth.lerp((double)param4, param1.xo, param1.getX()),
+            Mth.lerp((double)param4, param1.yo, param1.getY()) + (double)Mth.lerp(param4, this.eyeHeightOld, this.eyeHeight),
+            Mth.lerp((double)param4, param1.zo, param1.getZ())
         );
         if (param2) {
             if (param3) {

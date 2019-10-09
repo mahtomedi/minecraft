@@ -9,7 +9,6 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.core.Vec3i;
-import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
@@ -34,10 +33,6 @@ public interface VertexConsumer {
 
     void endVertex();
 
-    void defaultOverlayCoords(int var1, int var2);
-
-    void unsetDefaultOverlayCoords();
-
     default VertexConsumer color(float param0, float param1, float param2, float param3) {
         return this.color((int)(param0 * 255.0F), (int)(param1 * 255.0F), (int)(param2 * 255.0F), (int)(param3 * 255.0F));
     }
@@ -46,61 +41,60 @@ public interface VertexConsumer {
         return this.uv2(param0 & 65535, param0 >> 16 & 65535);
     }
 
-    default void putBulkData(Matrix4f param0, BakedQuad param1, float param2, float param3, float param4, int param5) {
-        this.putBulkData(param0, param1, new float[]{1.0F, 1.0F, 1.0F, 1.0F}, param2, param3, param4, new int[]{param5, param5, param5, param5}, false);
+    default VertexConsumer overlayCoords(int param0) {
+        return this.overlayCoords(param0 & 65535, param0 >> 16 & 65535);
     }
 
-    default void putBulkData(Matrix4f param0, BakedQuad param1, float[] param2, float param3, float param4, float param5, int[] param6, boolean param7) {
-        int[] var0 = param1.getVertices();
-        Vec3i var1 = param1.getDirection().getNormal();
+    default void putBulkData(Matrix4f param0, Matrix3f param1, BakedQuad param2, float param3, float param4, float param5, int param6, int param7) {
+        this.putBulkData(
+            param0, param1, param2, new float[]{1.0F, 1.0F, 1.0F, 1.0F}, param3, param4, param5, new int[]{param6, param6, param6, param6}, param7, false
+        );
+    }
+
+    default void putBulkData(
+        Matrix4f param0, Matrix3f param1, BakedQuad param2, float[] param3, float param4, float param5, float param6, int[] param7, int param8, boolean param9
+    ) {
+        int[] var0 = param2.getVertices();
+        Vec3i var1 = param2.getDirection().getNormal();
         Vector3f var2 = new Vector3f((float)var1.getX(), (float)var1.getY(), (float)var1.getZ());
-        Matrix3f var3 = new Matrix3f(param0);
-        var3.transpose();
-        float var4 = var3.adjugateAndDet();
-        if (var4 < 1.0E-5F) {
-            LOGGER.warn("Could not invert matrix while baking vertex: " + param0);
-        } else {
-            float var5 = var3.determinant();
-            var3.mul(Mth.fastInvCubeRoot(var5));
-        }
+        var2.transform(param1);
+        int var3 = 8;
+        int var4 = var0.length / 8;
 
-        var2.transform(var3);
-        int var6 = 8;
-        int var7 = var0.length / 8;
+        try (MemoryStack var5 = MemoryStack.stackPush()) {
+            ByteBuffer var6 = var5.malloc(DefaultVertexFormat.BLOCK.getVertexSize());
+            IntBuffer var7 = var6.asIntBuffer();
 
-        try (MemoryStack var8 = MemoryStack.stackPush()) {
-            ByteBuffer var9 = var8.malloc(DefaultVertexFormat.BLOCK.getVertexSize());
-            IntBuffer var10 = var9.asIntBuffer();
-
-            for(int var11 = 0; var11 < var7; ++var11) {
-                ((Buffer)var10).clear();
-                var10.put(var0, var11 * 8, 8);
-                float var12 = var9.getFloat(0);
-                float var13 = var9.getFloat(4);
-                float var14 = var9.getFloat(8);
-                byte var18;
-                byte var19;
-                byte var20;
-                if (param7) {
-                    int var15 = var9.get(12) & 255;
-                    int var16 = var9.get(13) & 255;
-                    int var17 = var9.get(14) & 255;
-                    var18 = (byte)((int)((float)var15 * param2[var11] * param3));
-                    var19 = (byte)((int)((float)var16 * param2[var11] * param4));
-                    var20 = (byte)((int)((float)var17 * param2[var11] * param5));
+            for(int var8 = 0; var8 < var4; ++var8) {
+                ((Buffer)var7).clear();
+                var7.put(var0, var8 * 8, 8);
+                float var9 = var6.getFloat(0);
+                float var10 = var6.getFloat(4);
+                float var11 = var6.getFloat(8);
+                byte var15;
+                byte var16;
+                byte var17;
+                if (param9) {
+                    int var12 = var6.get(12) & 255;
+                    int var13 = var6.get(13) & 255;
+                    int var14 = var6.get(14) & 255;
+                    var15 = (byte)((int)((float)var12 * param3[var8] * param4));
+                    var16 = (byte)((int)((float)var13 * param3[var8] * param5));
+                    var17 = (byte)((int)((float)var14 * param3[var8] * param6));
                 } else {
-                    var18 = (byte)((int)(255.0F * param2[var11] * param3));
-                    var19 = (byte)((int)(255.0F * param2[var11] * param4));
-                    var20 = (byte)((int)(255.0F * param2[var11] * param5));
+                    var15 = (byte)((int)(255.0F * param3[var8] * param4));
+                    var16 = (byte)((int)(255.0F * param3[var8] * param5));
+                    var17 = (byte)((int)(255.0F * param3[var8] * param6));
                 }
 
-                int var24 = param6[var11];
-                float var25 = var9.getFloat(16);
-                float var26 = var9.getFloat(20);
-                this.vertex(param0, var12, var13, var14);
-                this.color(var18, var19, var20, 255);
-                this.uv(var25, var26);
-                this.uv2(var24);
+                int var21 = param7[var8];
+                float var22 = var6.getFloat(16);
+                float var23 = var6.getFloat(20);
+                this.vertex(param0, var9, var10, var11);
+                this.color(var15, var16, var17, 255);
+                this.uv(var22, var23);
+                this.overlayCoords(param8);
+                this.uv2(var21);
                 this.normal(var2.x(), var2.y(), var2.z());
                 this.endVertex();
             }

@@ -77,7 +77,7 @@ public class TntBlock extends Block {
         if (!param0.isClientSide) {
             PrimedTnt var0 = new PrimedTnt(param0, (double)((float)param1.getX() + 0.5F), (double)param1.getY(), (double)((float)param1.getZ() + 0.5F), param2);
             param0.addFreshEntity(var0);
-            param0.playSound(null, var0.x, var0.y, var0.z, SoundEvents.TNT_PRIMED, SoundSource.BLOCKS, 1.0F, 1.0F);
+            param0.playSound(null, var0.getX(), var0.getY(), var0.getZ(), SoundEvents.TNT_PRIMED, SoundSource.BLOCKS, 1.0F, 1.0F);
         }
     }
 

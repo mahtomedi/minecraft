@@ -11,18 +11,21 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class AccessibilityOptionsScreen extends Screen {
+public class AccessibilityOptionsScreen extends OptionsSubScreen {
     private static final Option[] OPTIONS = new Option[]{
-        Option.NARRATOR, Option.SHOW_SUBTITLES, Option.TEXT_BACKGROUND_OPACITY, Option.TEXT_BACKGROUND, Option.CHAT_OPACITY, Option.AUTO_JUMP
+        Option.NARRATOR,
+        Option.SHOW_SUBTITLES,
+        Option.TEXT_BACKGROUND_OPACITY,
+        Option.TEXT_BACKGROUND,
+        Option.CHAT_OPACITY,
+        Option.AUTO_JUMP,
+        Option.TOGGLE_CROUCH,
+        Option.TOGGLE_SPRINT
     };
-    private final Screen lastScreen;
-    private final Options options;
     private AbstractWidget narratorButton;
 
     public AccessibilityOptionsScreen(Screen param0, Options param1) {
-        super(new TranslatableComponent("options.accessibility.title"));
-        this.lastScreen = param0;
-        this.options = param1;
+        super(param0, param1, new TranslatableComponent("options.accessibility.title"));
     }
 
     @Override
@@ -44,11 +47,6 @@ public class AccessibilityOptionsScreen extends Screen {
         this.addButton(
             new Button(this.width / 2 - 100, this.height / 6 + 144, 200, 20, I18n.get("gui.done"), param0 -> this.minecraft.setScreen(this.lastScreen))
         );
-    }
-
-    @Override
-    public void removed() {
-        this.minecraft.options.save();
     }
 
     @Override

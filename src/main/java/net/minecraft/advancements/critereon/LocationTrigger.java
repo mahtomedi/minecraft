@@ -26,7 +26,7 @@ public class LocationTrigger extends SimpleCriterionTrigger<LocationTrigger.Trig
     }
 
     public void trigger(ServerPlayer param0) {
-        this.trigger(param0.getAdvancements(), param1 -> param1.matches(param0.getLevel(), param0.x, param0.y, param0.z));
+        this.trigger(param0.getAdvancements(), param1 -> param1.matches(param0.getLevel(), param0.getX(), param0.getY(), param0.getZ()));
     }
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
