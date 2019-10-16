@@ -77,37 +77,37 @@ public class ItemInHandRenderer {
         param0.popPose();
     }
 
-    private void renderOneHandedMap(PoseStack param0, MultiBufferSource param1, float param2, HumanoidArm param3, float param4, ItemStack param5) {
-        float var0 = param3 == HumanoidArm.RIGHT ? 1.0F : -1.0F;
+    private void renderOneHandedMap(PoseStack param0, MultiBufferSource param1, int param2, float param3, HumanoidArm param4, float param5, ItemStack param6) {
+        float var0 = param4 == HumanoidArm.RIGHT ? 1.0F : -1.0F;
         param0.translate((double)(var0 * 0.125F), -0.125, 0.0);
         if (!this.minecraft.player.isInvisible()) {
             param0.pushPose();
             param0.mulPose(Vector3f.ZP.rotationDegrees(var0 * 10.0F));
-            this.renderPlayerArm(param0, param1, param2, param4, param3);
+            this.renderPlayerArm(param0, param1, param3, param5, param4);
             param0.popPose();
         }
 
         param0.pushPose();
-        param0.translate((double)(var0 * 0.51F), (double)(-0.08F + param2 * -1.2F), -0.75);
-        float var1 = Mth.sqrt(param4);
+        param0.translate((double)(var0 * 0.51F), (double)(-0.08F + param3 * -1.2F), -0.75);
+        float var1 = Mth.sqrt(param5);
         float var2 = Mth.sin(var1 * (float) Math.PI);
         float var3 = -0.5F * var2;
         float var4 = 0.4F * Mth.sin(var1 * (float) (Math.PI * 2));
-        float var5 = -0.3F * Mth.sin(param4 * (float) Math.PI);
+        float var5 = -0.3F * Mth.sin(param5 * (float) Math.PI);
         param0.translate((double)(var0 * var3), (double)(var4 - 0.3F * var2), (double)var5);
         param0.mulPose(Vector3f.XP.rotationDegrees(var2 * -45.0F));
         param0.mulPose(Vector3f.YP.rotationDegrees(var0 * var2 * -30.0F));
-        this.renderMap(param0, param1, param5);
+        this.renderMap(param0, param1, param2, param6);
         param0.popPose();
     }
 
-    private void renderTwoHandedMap(PoseStack param0, MultiBufferSource param1, float param2, float param3, float param4) {
-        float var0 = Mth.sqrt(param4);
-        float var1 = -0.2F * Mth.sin(param4 * (float) Math.PI);
+    private void renderTwoHandedMap(PoseStack param0, MultiBufferSource param1, int param2, float param3, float param4, float param5) {
+        float var0 = Mth.sqrt(param5);
+        float var1 = -0.2F * Mth.sin(param5 * (float) Math.PI);
         float var2 = -0.4F * Mth.sin(var0 * (float) Math.PI);
         param0.translate(0.0, (double)(-var1 / 2.0F), (double)var2);
-        float var3 = this.calculateMapTilt(param2);
-        param0.translate(0.0, (double)(0.04F + param3 * -1.2F + var3 * -0.5F), -0.72F);
+        float var3 = this.calculateMapTilt(param3);
+        param0.translate(0.0, (double)(0.04F + param4 * -1.2F + var3 * -0.5F), -0.72F);
         param0.mulPose(Vector3f.XP.rotationDegrees(var3 * -85.0F));
         if (!this.minecraft.player.isInvisible()) {
             param0.pushPose();
@@ -120,10 +120,10 @@ public class ItemInHandRenderer {
         float var4 = Mth.sin(var0 * (float) Math.PI);
         param0.mulPose(Vector3f.XP.rotationDegrees(var4 * 20.0F));
         param0.scale(2.0F, 2.0F, 2.0F);
-        this.renderMap(param0, param1, this.mainHandItem);
+        this.renderMap(param0, param1, param2, this.mainHandItem);
     }
 
-    private void renderMap(PoseStack param0, MultiBufferSource param1, ItemStack param2) {
+    private void renderMap(PoseStack param0, MultiBufferSource param1, int param2, ItemStack param3) {
         param0.mulPose(Vector3f.YP.rotationDegrees(180.0F));
         param0.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
         param0.scale(0.38F, 0.38F, 0.38F);
@@ -131,13 +131,13 @@ public class ItemInHandRenderer {
         param0.scale(0.0078125F, 0.0078125F, 0.0078125F);
         VertexConsumer var0 = param1.getBuffer(RenderType.text(MapRenderer.MAP_BACKGROUND_LOCATION));
         Matrix4f var1 = param0.getPose();
-        var0.vertex(var1, -7.0F, 135.0F, 0.0F).color(255, 255, 255, 255).uv(0.0F, 1.0F).uv2(15728880).endVertex();
-        var0.vertex(var1, 135.0F, 135.0F, 0.0F).color(255, 255, 255, 255).uv(1.0F, 1.0F).uv2(15728880).endVertex();
-        var0.vertex(var1, 135.0F, -7.0F, 0.0F).color(255, 255, 255, 255).uv(1.0F, 0.0F).uv2(15728880).endVertex();
-        var0.vertex(var1, -7.0F, -7.0F, 0.0F).color(255, 255, 255, 255).uv(0.0F, 0.0F).uv2(15728880).endVertex();
-        MapItemSavedData var2 = MapItem.getOrCreateSavedData(param2, this.minecraft.level);
+        var0.vertex(var1, -7.0F, 135.0F, 0.0F).color(255, 255, 255, 255).uv(0.0F, 1.0F).uv2(param2).endVertex();
+        var0.vertex(var1, 135.0F, 135.0F, 0.0F).color(255, 255, 255, 255).uv(1.0F, 1.0F).uv2(param2).endVertex();
+        var0.vertex(var1, 135.0F, -7.0F, 0.0F).color(255, 255, 255, 255).uv(1.0F, 0.0F).uv2(param2).endVertex();
+        var0.vertex(var1, -7.0F, -7.0F, 0.0F).color(255, 255, 255, 255).uv(0.0F, 0.0F).uv2(param2).endVertex();
+        MapItemSavedData var2 = MapItem.getOrCreateSavedData(param3, this.minecraft.level);
         if (var2 != null) {
-            this.minecraft.gameRenderer.getMapRenderer().render(param0, param1, var2, false, 15728880);
+            this.minecraft.gameRenderer.getMapRenderer().render(param0, param1, var2, false, param2);
         }
 
     }
@@ -274,62 +274,63 @@ public class ItemInHandRenderer {
                 this.renderPlayerArm(param7, param8, param6, param4, var1);
             }
         } else if (param5.getItem() == Items.FILLED_MAP) {
+            int var2 = param0.getLightColor();
             if (var0 && this.offHandItem.isEmpty()) {
-                this.renderTwoHandedMap(param7, param8, param2, param6, param4);
+                this.renderTwoHandedMap(param7, param8, var2, param2, param6, param4);
             } else {
-                this.renderOneHandedMap(param7, param8, param6, var1, param4, param5);
+                this.renderOneHandedMap(param7, param8, var2, param6, var1, param4, param5);
             }
         } else if (param5.getItem() == Items.CROSSBOW) {
-            boolean var2 = CrossbowItem.isCharged(param5);
-            boolean var3 = var1 == HumanoidArm.RIGHT;
-            int var4 = var3 ? 1 : -1;
+            boolean var3 = CrossbowItem.isCharged(param5);
+            boolean var4 = var1 == HumanoidArm.RIGHT;
+            int var5 = var4 ? 1 : -1;
             if (param0.isUsingItem() && param0.getUseItemRemainingTicks() > 0 && param0.getUsedItemHand() == param3) {
                 this.applyItemArmTransform(param7, var1, param6);
-                param7.translate((double)((float)var4 * -0.4785682F), -0.094387F, 0.05731531F);
+                param7.translate((double)((float)var5 * -0.4785682F), -0.094387F, 0.05731531F);
                 param7.mulPose(Vector3f.XP.rotationDegrees(-11.935F));
-                param7.mulPose(Vector3f.YP.rotationDegrees((float)var4 * 65.3F));
-                param7.mulPose(Vector3f.ZP.rotationDegrees((float)var4 * -9.785F));
-                float var5 = (float)param5.getUseDuration() - ((float)this.minecraft.player.getUseItemRemainingTicks() - param1 + 1.0F);
-                float var6 = var5 / (float)CrossbowItem.getChargeDuration(param5);
-                if (var6 > 1.0F) {
-                    var6 = 1.0F;
+                param7.mulPose(Vector3f.YP.rotationDegrees((float)var5 * 65.3F));
+                param7.mulPose(Vector3f.ZP.rotationDegrees((float)var5 * -9.785F));
+                float var6 = (float)param5.getUseDuration() - ((float)this.minecraft.player.getUseItemRemainingTicks() - param1 + 1.0F);
+                float var7 = var6 / (float)CrossbowItem.getChargeDuration(param5);
+                if (var7 > 1.0F) {
+                    var7 = 1.0F;
                 }
 
-                if (var6 > 0.1F) {
-                    float var7 = Mth.sin((var5 - 0.1F) * 1.3F);
-                    float var8 = var6 - 0.1F;
-                    float var9 = var7 * var8;
-                    param7.translate((double)(var9 * 0.0F), (double)(var9 * 0.004F), (double)(var9 * 0.0F));
+                if (var7 > 0.1F) {
+                    float var8 = Mth.sin((var6 - 0.1F) * 1.3F);
+                    float var9 = var7 - 0.1F;
+                    float var10 = var8 * var9;
+                    param7.translate((double)(var10 * 0.0F), (double)(var10 * 0.004F), (double)(var10 * 0.0F));
                 }
 
-                param7.translate((double)(var6 * 0.0F), (double)(var6 * 0.0F), (double)(var6 * 0.04F));
-                param7.scale(1.0F, 1.0F, 1.0F + var6 * 0.2F);
-                param7.mulPose(Vector3f.YN.rotationDegrees((float)var4 * 45.0F));
+                param7.translate((double)(var7 * 0.0F), (double)(var7 * 0.0F), (double)(var7 * 0.04F));
+                param7.scale(1.0F, 1.0F, 1.0F + var7 * 0.2F);
+                param7.mulPose(Vector3f.YN.rotationDegrees((float)var5 * 45.0F));
             } else {
-                float var10 = -0.4F * Mth.sin(Mth.sqrt(param4) * (float) Math.PI);
-                float var11 = 0.2F * Mth.sin(Mth.sqrt(param4) * (float) (Math.PI * 2));
-                float var12 = -0.2F * Mth.sin(param4 * (float) Math.PI);
-                param7.translate((double)((float)var4 * var10), (double)var11, (double)var12);
+                float var11 = -0.4F * Mth.sin(Mth.sqrt(param4) * (float) Math.PI);
+                float var12 = 0.2F * Mth.sin(Mth.sqrt(param4) * (float) (Math.PI * 2));
+                float var13 = -0.2F * Mth.sin(param4 * (float) Math.PI);
+                param7.translate((double)((float)var5 * var11), (double)var12, (double)var13);
                 this.applyItemArmTransform(param7, var1, param6);
                 this.applyItemArmAttackTransform(param7, var1, param4);
-                if (var2 && param4 < 0.001F) {
-                    param7.translate((double)((float)var4 * -0.641864F), 0.0, 0.0);
-                    param7.mulPose(Vector3f.YP.rotationDegrees((float)var4 * 10.0F));
+                if (var3 && param4 < 0.001F) {
+                    param7.translate((double)((float)var5 * -0.641864F), 0.0, 0.0);
+                    param7.mulPose(Vector3f.YP.rotationDegrees((float)var5 * 10.0F));
                 }
             }
 
             this.renderItem(
                 param0,
                 param5,
-                var3 ? ItemTransforms.TransformType.FIRST_PERSON_RIGHT_HAND : ItemTransforms.TransformType.FIRST_PERSON_LEFT_HAND,
-                !var3,
+                var4 ? ItemTransforms.TransformType.FIRST_PERSON_RIGHT_HAND : ItemTransforms.TransformType.FIRST_PERSON_LEFT_HAND,
+                !var4,
                 param7,
                 param8
             );
         } else {
-            boolean var13 = var1 == HumanoidArm.RIGHT;
+            boolean var14 = var1 == HumanoidArm.RIGHT;
             if (param0.isUsingItem() && param0.getUseItemRemainingTicks() > 0 && param0.getUsedItemHand() == param3) {
-                int var14 = var13 ? 1 : -1;
+                int var15 = var14 ? 1 : -1;
                 switch(param5.getUseAnimation()) {
                     case NONE:
                         this.applyItemArmTransform(param7, var1, param6);
@@ -344,63 +345,63 @@ public class ItemInHandRenderer {
                         break;
                     case BOW:
                         this.applyItemArmTransform(param7, var1, param6);
-                        param7.translate((double)((float)var14 * -0.2785682F), 0.18344387F, 0.15731531F);
+                        param7.translate((double)((float)var15 * -0.2785682F), 0.18344387F, 0.15731531F);
                         param7.mulPose(Vector3f.XP.rotationDegrees(-13.935F));
-                        param7.mulPose(Vector3f.YP.rotationDegrees((float)var14 * 35.3F));
-                        param7.mulPose(Vector3f.ZP.rotationDegrees((float)var14 * -9.785F));
-                        float var15 = (float)param5.getUseDuration() - ((float)this.minecraft.player.getUseItemRemainingTicks() - param1 + 1.0F);
-                        float var16 = var15 / 20.0F;
-                        var16 = (var16 * var16 + var16 * 2.0F) / 3.0F;
-                        if (var16 > 1.0F) {
-                            var16 = 1.0F;
+                        param7.mulPose(Vector3f.YP.rotationDegrees((float)var15 * 35.3F));
+                        param7.mulPose(Vector3f.ZP.rotationDegrees((float)var15 * -9.785F));
+                        float var16 = (float)param5.getUseDuration() - ((float)this.minecraft.player.getUseItemRemainingTicks() - param1 + 1.0F);
+                        float var17 = var16 / 20.0F;
+                        var17 = (var17 * var17 + var17 * 2.0F) / 3.0F;
+                        if (var17 > 1.0F) {
+                            var17 = 1.0F;
                         }
 
-                        if (var16 > 0.1F) {
-                            float var17 = Mth.sin((var15 - 0.1F) * 1.3F);
-                            float var18 = var16 - 0.1F;
-                            float var19 = var17 * var18;
-                            param7.translate((double)(var19 * 0.0F), (double)(var19 * 0.004F), (double)(var19 * 0.0F));
+                        if (var17 > 0.1F) {
+                            float var18 = Mth.sin((var16 - 0.1F) * 1.3F);
+                            float var19 = var17 - 0.1F;
+                            float var20 = var18 * var19;
+                            param7.translate((double)(var20 * 0.0F), (double)(var20 * 0.004F), (double)(var20 * 0.0F));
                         }
 
-                        param7.translate((double)(var16 * 0.0F), (double)(var16 * 0.0F), (double)(var16 * 0.04F));
-                        param7.scale(1.0F, 1.0F, 1.0F + var16 * 0.2F);
-                        param7.mulPose(Vector3f.YN.rotationDegrees((float)var14 * 45.0F));
+                        param7.translate((double)(var17 * 0.0F), (double)(var17 * 0.0F), (double)(var17 * 0.04F));
+                        param7.scale(1.0F, 1.0F, 1.0F + var17 * 0.2F);
+                        param7.mulPose(Vector3f.YN.rotationDegrees((float)var15 * 45.0F));
                         break;
                     case SPEAR:
                         this.applyItemArmTransform(param7, var1, param6);
-                        param7.translate((double)((float)var14 * -0.5F), 0.7F, 0.1F);
+                        param7.translate((double)((float)var15 * -0.5F), 0.7F, 0.1F);
                         param7.mulPose(Vector3f.XP.rotationDegrees(-55.0F));
-                        param7.mulPose(Vector3f.YP.rotationDegrees((float)var14 * 35.3F));
-                        param7.mulPose(Vector3f.ZP.rotationDegrees((float)var14 * -9.785F));
-                        float var20 = (float)param5.getUseDuration() - ((float)this.minecraft.player.getUseItemRemainingTicks() - param1 + 1.0F);
-                        float var21 = var20 / 10.0F;
-                        if (var21 > 1.0F) {
-                            var21 = 1.0F;
+                        param7.mulPose(Vector3f.YP.rotationDegrees((float)var15 * 35.3F));
+                        param7.mulPose(Vector3f.ZP.rotationDegrees((float)var15 * -9.785F));
+                        float var21 = (float)param5.getUseDuration() - ((float)this.minecraft.player.getUseItemRemainingTicks() - param1 + 1.0F);
+                        float var22 = var21 / 10.0F;
+                        if (var22 > 1.0F) {
+                            var22 = 1.0F;
                         }
 
-                        if (var21 > 0.1F) {
-                            float var22 = Mth.sin((var20 - 0.1F) * 1.3F);
-                            float var23 = var21 - 0.1F;
-                            float var24 = var22 * var23;
-                            param7.translate((double)(var24 * 0.0F), (double)(var24 * 0.004F), (double)(var24 * 0.0F));
+                        if (var22 > 0.1F) {
+                            float var23 = Mth.sin((var21 - 0.1F) * 1.3F);
+                            float var24 = var22 - 0.1F;
+                            float var25 = var23 * var24;
+                            param7.translate((double)(var25 * 0.0F), (double)(var25 * 0.004F), (double)(var25 * 0.0F));
                         }
 
-                        param7.translate(0.0, 0.0, (double)(var21 * 0.2F));
-                        param7.scale(1.0F, 1.0F, 1.0F + var21 * 0.2F);
-                        param7.mulPose(Vector3f.YN.rotationDegrees((float)var14 * 45.0F));
+                        param7.translate(0.0, 0.0, (double)(var22 * 0.2F));
+                        param7.scale(1.0F, 1.0F, 1.0F + var22 * 0.2F);
+                        param7.mulPose(Vector3f.YN.rotationDegrees((float)var15 * 45.0F));
                 }
             } else if (param0.isAutoSpinAttack()) {
                 this.applyItemArmTransform(param7, var1, param6);
-                int var25 = var13 ? 1 : -1;
-                param7.translate((double)((float)var25 * -0.4F), 0.8F, 0.3F);
-                param7.mulPose(Vector3f.YP.rotationDegrees((float)var25 * 65.0F));
-                param7.mulPose(Vector3f.ZP.rotationDegrees((float)var25 * -85.0F));
+                int var26 = var14 ? 1 : -1;
+                param7.translate((double)((float)var26 * -0.4F), 0.8F, 0.3F);
+                param7.mulPose(Vector3f.YP.rotationDegrees((float)var26 * 65.0F));
+                param7.mulPose(Vector3f.ZP.rotationDegrees((float)var26 * -85.0F));
             } else {
-                float var26 = -0.4F * Mth.sin(Mth.sqrt(param4) * (float) Math.PI);
-                float var27 = 0.2F * Mth.sin(Mth.sqrt(param4) * (float) (Math.PI * 2));
-                float var28 = -0.2F * Mth.sin(param4 * (float) Math.PI);
-                int var29 = var13 ? 1 : -1;
-                param7.translate((double)((float)var29 * var26), (double)var27, (double)var28);
+                float var27 = -0.4F * Mth.sin(Mth.sqrt(param4) * (float) Math.PI);
+                float var28 = 0.2F * Mth.sin(Mth.sqrt(param4) * (float) (Math.PI * 2));
+                float var29 = -0.2F * Mth.sin(param4 * (float) Math.PI);
+                int var30 = var14 ? 1 : -1;
+                param7.translate((double)((float)var30 * var27), (double)var28, (double)var29);
                 this.applyItemArmTransform(param7, var1, param6);
                 this.applyItemArmAttackTransform(param7, var1, param4);
             }
@@ -408,8 +409,8 @@ public class ItemInHandRenderer {
             this.renderItem(
                 param0,
                 param5,
-                var13 ? ItemTransforms.TransformType.FIRST_PERSON_RIGHT_HAND : ItemTransforms.TransformType.FIRST_PERSON_LEFT_HAND,
-                !var13,
+                var14 ? ItemTransforms.TransformType.FIRST_PERSON_RIGHT_HAND : ItemTransforms.TransformType.FIRST_PERSON_LEFT_HAND,
+                !var14,
                 param7,
                 param8
             );

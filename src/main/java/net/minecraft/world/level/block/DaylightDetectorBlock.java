@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -66,15 +67,15 @@ public class DaylightDetectorBlock extends BaseEntityBlock {
     }
 
     @Override
-    public boolean use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
+    public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
         if (param3.mayBuild()) {
             if (param1.isClientSide) {
-                return true;
+                return InteractionResult.SUCCESS;
             } else {
                 BlockState var0 = param0.cycle(INVERTED);
                 param1.setBlock(param2, var0, 4);
                 updateSignalStrength(var0, param1, param2);
-                return true;
+                return InteractionResult.SUCCESS;
             }
         } else {
             return super.use(param0, param1, param2, param3, param4, param5);

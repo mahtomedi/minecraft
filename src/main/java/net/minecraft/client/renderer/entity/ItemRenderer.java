@@ -13,6 +13,7 @@ import com.mojang.blaze3d.vertex.VertexMultiConsumer;
 import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -24,6 +25,7 @@ import net.minecraft.client.color.item.ItemColors;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.EntityBlockRenderer;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.ItemModelShaper;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -100,15 +102,25 @@ public class ItemRenderer implements ResourceManagerReloadListener {
     ) {
         if (!param0.isEmpty()) {
             param3.pushPose();
-            if (param0.getItem() == Items.TRIDENT && param1 == ItemTransforms.TransformType.GUI) {
+            boolean var0 = param1 == ItemTransforms.TransformType.GUI;
+            boolean var1 = var0 || param1 == ItemTransforms.TransformType.GROUND || param1 == ItemTransforms.TransformType.FIXED;
+            if (param0.getItem() == Items.TRIDENT && var1) {
                 param7 = this.itemModelShaper.getModelManager().getModel(new ModelResourceLocation("minecraft:trident#inventory"));
             }
 
             param7.getTransforms().getTransform(param1).apply(param2, param3);
             param3.translate(-0.5, -0.5, -0.5);
-            if (!param7.isCustomRenderer() && (param0.getItem() != Items.TRIDENT || param1 == ItemTransforms.TransformType.GUI)) {
-                VertexConsumer var0 = getFoilBuffer(param4, RenderType.getRenderType(param0), true, param0.hasFoil());
-                this.renderModelLists(param7, param0, param5, param6, param3, var0);
+            if (!param7.isCustomRenderer() && (param0.getItem() != Items.TRIDENT || var1)) {
+                RenderType var2 = ItemBlockRenderTypes.getRenderType(param0);
+                RenderType var3;
+                if (var0 && Objects.equals(var2, RenderType.entityTranslucent(TextureAtlas.LOCATION_BLOCKS))) {
+                    var3 = RenderType.entityTranslucentCull(TextureAtlas.LOCATION_BLOCKS);
+                } else {
+                    var3 = var2;
+                }
+
+                VertexConsumer var5 = getFoilBuffer(param4, var3, true, param0.hasFoil());
+                this.renderModelLists(param7, param0, param5, param6, param3, var5);
             } else {
                 EntityBlockRenderer.instance.renderByItem(param0, param3, param4, param5, param6);
             }
@@ -202,6 +214,7 @@ public class ItemRenderer implements ResourceManagerReloadListener {
         MultiBufferSource.BufferSource var1 = Minecraft.getInstance().renderBuffers().bufferSource();
         this.render(param0, ItemTransforms.TransformType.GUI, false, var0, var1, 15728880, OverlayTexture.NO_OVERLAY, param3);
         var1.endBatch();
+        RenderSystem.enableDepthTest();
         RenderSystem.disableAlphaTest();
         RenderSystem.disableRescaleNormal();
         RenderSystem.popMatrix();

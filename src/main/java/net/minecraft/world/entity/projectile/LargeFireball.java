@@ -31,6 +31,7 @@ public class LargeFireball extends Fireball {
 
     @Override
     protected void onHit(HitResult param0) {
+        super.onHit(param0);
         if (!this.level.isClientSide) {
             if (param0.getType() == HitResult.Type.ENTITY) {
                 Entity var0 = ((EntityHitResult)param0).getEntity();

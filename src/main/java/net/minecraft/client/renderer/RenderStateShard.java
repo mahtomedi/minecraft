@@ -420,6 +420,45 @@ public class RenderStateShard {
     }
 
     @OnlyIn(Dist.CLIENT)
+    public static final class OffsetTexturingStateShard extends RenderStateShard.TexturingStateShard {
+        private final float uOffset;
+        private final float vOffset;
+
+        public OffsetTexturingStateShard(float param0, float param1) {
+            super("offset_texturing", () -> {
+                RenderSystem.matrixMode(5890);
+                RenderSystem.pushMatrix();
+                RenderSystem.loadIdentity();
+                RenderSystem.translatef(param0, param1, 0.0F);
+                RenderSystem.matrixMode(5888);
+            }, () -> {
+                RenderSystem.matrixMode(5890);
+                RenderSystem.popMatrix();
+                RenderSystem.matrixMode(5888);
+            });
+            this.uOffset = param0;
+            this.vOffset = param1;
+        }
+
+        @Override
+        public boolean equals(Object param0) {
+            if (this == param0) {
+                return true;
+            } else if (param0 != null && this.getClass() == param0.getClass()) {
+                RenderStateShard.OffsetTexturingStateShard var0 = (RenderStateShard.OffsetTexturingStateShard)param0;
+                return Float.compare(var0.uOffset, this.uOffset) == 0 && Float.compare(var0.vOffset, this.vOffset) == 0;
+            } else {
+                return false;
+            }
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(this.uOffset, this.vOffset);
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
     public static class OutputStateShard extends RenderStateShard {
         public OutputStateShard(String param0, Runnable param1, Runnable param2) {
             super(param0, param1, param2);
@@ -511,45 +550,6 @@ public class RenderStateShard {
         @Override
         public int hashCode() {
             return Boolean.hashCode(this.smooth);
-        }
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public static final class SwirlTexturingStateShard extends RenderStateShard.TexturingStateShard {
-        private final float uOffset;
-        private final float vOffset;
-
-        public SwirlTexturingStateShard(float param0, float param1) {
-            super("swirl_texturing", () -> {
-                RenderSystem.matrixMode(5890);
-                RenderSystem.pushMatrix();
-                RenderSystem.loadIdentity();
-                RenderSystem.translatef(param0, param1, 0.0F);
-                RenderSystem.matrixMode(5888);
-            }, () -> {
-                RenderSystem.matrixMode(5890);
-                RenderSystem.popMatrix();
-                RenderSystem.matrixMode(5888);
-            });
-            this.uOffset = param0;
-            this.vOffset = param1;
-        }
-
-        @Override
-        public boolean equals(Object param0) {
-            if (this == param0) {
-                return true;
-            } else if (param0 != null && this.getClass() == param0.getClass()) {
-                RenderStateShard.SwirlTexturingStateShard var0 = (RenderStateShard.SwirlTexturingStateShard)param0;
-                return Float.compare(var0.uOffset, this.uOffset) == 0 && Float.compare(var0.vOffset, this.vOffset) == 0;
-            } else {
-                return false;
-            }
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(this.uOffset, this.vOffset);
         }
     }
 

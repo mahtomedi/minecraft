@@ -155,9 +155,4 @@ public final class Quaternion {
         }
 
     }
-
-    @OnlyIn(Dist.CLIENT)
-    public Quaternion copy() {
-        return new Quaternion((float[])this.values.clone());
-    }
 }

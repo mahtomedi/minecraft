@@ -210,6 +210,7 @@ public class FishingHook extends Entity {
             this.updateRotation();
             double var5 = 0.92;
             this.setDeltaMovement(this.getDeltaMovement().scale(0.92));
+            this.reapplyPosition();
         }
     }
 

@@ -102,6 +102,7 @@ import net.minecraft.util.datafix.fixes.RenamedCoralFix;
 import net.minecraft.util.datafix.fixes.ReorganizePoi;
 import net.minecraft.util.datafix.fixes.SavedDataVillageCropFix;
 import net.minecraft.util.datafix.fixes.StatsCounterFix;
+import net.minecraft.util.datafix.fixes.StructureReferenceCountFix;
 import net.minecraft.util.datafix.fixes.SwimStatsRenameFix;
 import net.minecraft.util.datafix.fixes.TeamDisplayNameFix;
 import net.minecraft.util.datafix.fixes.TrappedChestBlockEntityFix;
@@ -537,5 +538,7 @@ public class DataFixers {
                 var97, "Rename bee_hive block to beehive", param0x -> ImmutableMap.of("minecraft:bee_hive", "minecraft:beehive").getOrDefault(param0x, param0x)
             )
         );
+        Schema var98 = param0.addSchema(2211, SAME_NAMESPACED);
+        param0.addFixer(new StructureReferenceCountFix(var98, false));
     }
 }

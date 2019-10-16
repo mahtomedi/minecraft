@@ -6,6 +6,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -45,9 +46,13 @@ public class RedStoneOreBlock extends Block {
     }
 
     @Override
-    public boolean use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
-        interact(param0, param1, param2);
-        return super.use(param0, param1, param2, param3, param4, param5);
+    public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
+        if (param1.isClientSide) {
+            return InteractionResult.SUCCESS;
+        } else {
+            interact(param0, param1, param2);
+            return InteractionResult.PASS;
+        }
     }
 
     private static void interact(BlockState param0, Level param1, BlockPos param2) {

@@ -13,6 +13,7 @@ import net.minecraft.world.CompoundContainer;
 import net.minecraft.world.Container;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Cat;
@@ -211,9 +212,9 @@ public class ChestBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
     }
 
     @Override
-    public boolean use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
+    public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
         if (param1.isClientSide) {
-            return true;
+            return InteractionResult.SUCCESS;
         } else {
             MenuProvider var0 = this.getMenuProvider(param0, param1, param2);
             if (var0 != null) {
@@ -221,7 +222,7 @@ public class ChestBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                 param3.awardStat(this.getOpenChestStat());
             }
 
-            return true;
+            return InteractionResult.SUCCESS;
         }
     }
 

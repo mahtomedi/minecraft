@@ -26,6 +26,7 @@ import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ChunkBufferBuilderPack;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
@@ -518,7 +519,7 @@ public class ChunkRenderDispatcher {
 
                         FluidState var13 = var5.getFluidState(var9);
                         if (!var13.isEmpty()) {
-                            RenderType var14 = RenderType.getRenderLayer(var13);
+                            RenderType var14 = ItemBlockRenderTypes.getRenderLayer(var13);
                             BufferBuilder var15 = param4.builder(var14);
                             if (param3.hasLayer.add(var14)) {
                                 RenderChunk.this.beginLayer(var15);
@@ -531,16 +532,20 @@ public class ChunkRenderDispatcher {
                         }
 
                         if (var10.getRenderShape() != RenderShape.INVISIBLE) {
-                            RenderType var16 = RenderType.getChunkRenderType(var10);
+                            RenderType var16 = ItemBlockRenderTypes.getChunkRenderType(var10);
                             BufferBuilder var17 = param4.builder(var16);
                             if (param3.hasLayer.add(var16)) {
                                 RenderChunk.this.beginLayer(var17);
                             }
 
+                            var6.pushPose();
+                            var6.translate((double)(var9.getX() & 15), (double)(var9.getY() & 15), (double)(var9.getZ() & 15));
                             if (var8.renderBatched(var10, var9, var5, var6, var17, true, var7)) {
                                 param3.isCompletelyEmpty = false;
                                 param3.hasBlocks.add(var16);
                             }
+
+                            var6.popPose();
                         }
                     }
 

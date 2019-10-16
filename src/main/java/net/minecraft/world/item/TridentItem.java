@@ -117,7 +117,7 @@ public class TridentItem extends Item {
             return InteractionResultHolder.fail(var0);
         } else {
             param1.startUsingItem(param2);
-            return InteractionResultHolder.successNoSwing(var0);
+            return InteractionResultHolder.consume(var0);
         }
     }
 

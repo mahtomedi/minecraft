@@ -720,9 +720,9 @@ public class LocalPlayer extends AbstractClientPlayer {
             }
         }
 
-        if (this.input.jumping && !var0 && !this.onGround && this.getDeltaMovement().y < 0.0 && !this.isFallFlying() && !this.abilities.flying) {
+        if (this.input.jumping && !var0 && !this.abilities.flying) {
             ItemStack var7 = this.getItemBySlot(EquipmentSlot.CHEST);
-            if (var7.getItem() == Items.ELYTRA && ElytraItem.isFlyEnabled(var7)) {
+            if (var7.getItem() == Items.ELYTRA && ElytraItem.isFlyEnabled(var7) && this.tryToStartFallFlying()) {
                 this.connection.send(new ServerboundPlayerCommandPacket(this, ServerboundPlayerCommandPacket.Action.START_FALL_FLYING));
             }
         }
@@ -975,7 +975,7 @@ public class LocalPlayer extends AbstractClientPlayer {
             && !this.isStayingOnGroundSurface()
             && !this.isPassenger()
             && this.isMoving()
-            && (double)this.getJumpFactor() >= 1.0;
+            && (double)this.getBlockJumpFactor() >= 1.0;
     }
 
     private boolean isMoving() {

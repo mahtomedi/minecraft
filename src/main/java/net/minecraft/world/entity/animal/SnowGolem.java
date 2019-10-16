@@ -132,12 +132,16 @@ public class SnowGolem extends AbstractGolem implements RangedAttackMob {
     @Override
     protected boolean mobInteract(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
-        if (var0.getItem() == Items.SHEARS && this.hasPumpkin() && !this.level.isClientSide) {
-            this.setPumpkin(false);
-            var0.hurtAndBreak(1, param0, param1x -> param1x.broadcastBreakEvent(param1));
-        }
+        if (var0.getItem() == Items.SHEARS && this.hasPumpkin()) {
+            if (!this.level.isClientSide) {
+                this.setPumpkin(false);
+                var0.hurtAndBreak(1, param0, param1x -> param1x.broadcastBreakEvent(param1));
+            }
 
-        return super.mobInteract(param0, param1);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public boolean hasPumpkin() {

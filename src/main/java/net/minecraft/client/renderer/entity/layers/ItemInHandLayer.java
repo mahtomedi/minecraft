@@ -56,10 +56,6 @@ public class ItemInHandLayer<T extends LivingEntity, M extends EntityModel<T> & 
         if (!param1.isEmpty()) {
             param4.pushPose();
             this.getParentModel().translateToHand(0.0625F, param3, param4);
-            if (param0.isCrouching()) {
-                param4.translate(0.0, 0.2F, 0.0);
-            }
-
             param4.mulPose(Vector3f.XP.rotationDegrees(-90.0F));
             param4.mulPose(Vector3f.YP.rotationDegrees(180.0F));
             boolean var0 = param3 == HumanoidArm.LEFT;

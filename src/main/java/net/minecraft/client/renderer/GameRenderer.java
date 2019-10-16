@@ -653,7 +653,7 @@ public class GameRenderer implements AutoCloseable, ResourceManagerReloadListene
 
             float var4 = 5.0F / (var2 * var2 + 5.0F) - var2 * 0.04F;
             var4 *= var4;
-            Vector3f var5 = new Vector3f(0.0F, 1.0F, 1.0F);
+            Vector3f var5 = new Vector3f(0.0F, Mth.SQRT_OF_TWO / 2.0F, Mth.SQRT_OF_TWO / 2.0F);
             param2.mulPose(var5.rotationDegrees(((float)this.tick + param0) * (float)var3));
             param2.scale(1.0F / var4, 1.0F, 1.0F);
             float var6 = -((float)this.tick + param0) * (float)var3;

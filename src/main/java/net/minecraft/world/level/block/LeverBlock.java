@@ -7,6 +7,7 @@ import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -76,19 +77,19 @@ public class LeverBlock extends FaceAttachedHorizontalDirectionalBlock {
     }
 
     @Override
-    public boolean use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
+    public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
         if (param1.isClientSide) {
             BlockState var0 = param0.cycle(POWERED);
             if (var0.getValue(POWERED)) {
                 makeParticle(var0, param1, param2, 1.0F);
             }
 
-            return true;
+            return InteractionResult.SUCCESS;
         } else {
             BlockState var1 = this.pull(param0, param1, param2);
             float var2 = var1.getValue(POWERED) ? 0.6F : 0.5F;
             param1.playSound(null, param2, SoundEvents.LEVER_CLICK, SoundSource.BLOCKS, 0.3F, var2);
-            return true;
+            return InteractionResult.SUCCESS;
         }
     }
 

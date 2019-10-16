@@ -1684,7 +1684,7 @@ public class RecipeProvider implements DataProvider {
             .define('S', Items.HONEY_BOTTLE)
             .pattern("SS")
             .pattern("SS")
-            .unlocks("has_honey_block", this.has(Blocks.HONEY_BLOCK))
+            .unlocks("has_honey_bottle", this.has(Items.HONEY_BOTTLE))
             .save(param0);
         ShapedRecipeBuilder.shaped(Blocks.HONEYCOMB_BLOCK)
             .define('H', Items.HONEYCOMB)

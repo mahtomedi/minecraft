@@ -3,6 +3,7 @@ package net.minecraft.world.level.block;
 import net.minecraft.core.BlockPos;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
@@ -30,9 +31,9 @@ public class BeaconBlock extends BaseEntityBlock implements BeaconBeamBlock {
     }
 
     @Override
-    public boolean use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
+    public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
         if (param1.isClientSide) {
-            return true;
+            return InteractionResult.SUCCESS;
         } else {
             BlockEntity var0 = param1.getBlockEntity(param2);
             if (var0 instanceof BeaconBlockEntity) {
@@ -40,7 +41,7 @@ public class BeaconBlock extends BaseEntityBlock implements BeaconBeamBlock {
                 param3.awardStat(Stats.INTERACT_WITH_BEACON);
             }
 
-            return true;
+            return InteractionResult.SUCCESS;
         }
     }
 

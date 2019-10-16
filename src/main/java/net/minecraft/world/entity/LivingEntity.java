@@ -34,6 +34,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -195,7 +196,7 @@ public abstract class LivingEntity extends Entity {
         this.setHealth(this.getMaxHealth());
         this.blocksBuilding = true;
         this.rotA = (float)((Math.random() + 1.0) * 0.01F);
-        this.refreshBoundingBox();
+        this.reapplyPosition();
         this.timeOffs = (float)Math.random() * 12398.0F;
         this.yRot = (float)(Math.random() * (float) (Math.PI * 2));
         this.yHeadRot = this.yRot;
@@ -1423,12 +1424,22 @@ public abstract class LivingEntity extends Entity {
     }
 
     public void swing(InteractionHand param0) {
+        this.swing(param0, false);
+    }
+
+    public void swing(InteractionHand param0, boolean param1) {
         if (!this.swinging || this.swingTime >= this.getCurrentSwingDuration() / 2 || this.swingTime < 0) {
             this.swingTime = -1;
             this.swinging = true;
             this.swingingArm = param0;
             if (this.level instanceof ServerLevel) {
-                ((ServerLevel)this.level).getChunkSource().broadcast(this, new ClientboundAnimatePacket(this, param0 == InteractionHand.MAIN_HAND ? 0 : 3));
+                ClientboundAnimatePacket var0 = new ClientboundAnimatePacket(this, param0 == InteractionHand.MAIN_HAND ? 0 : 3);
+                ServerChunkCache var1 = ((ServerLevel)this.level).getChunkSource();
+                if (param1) {
+                    var1.broadcastAndSend(this, var0);
+                } else {
+                    var1.broadcast(this, var0);
+                }
             }
         }
 
@@ -1795,23 +1806,20 @@ public abstract class LivingEntity extends Entity {
     }
 
     protected float getJumpPower() {
-        return 0.42F;
+        return 0.42F * this.getBlockJumpFactor();
     }
 
     protected void jumpFromGround() {
-        float var0;
+        float var0 = this.getJumpPower();
         if (this.hasEffect(MobEffects.JUMP)) {
-            var0 = this.getJumpPower() + 0.1F * (float)(this.getEffect(MobEffects.JUMP).getAmplifier() + 1);
-        } else {
-            var0 = this.getJumpPower();
+            var0 += 0.1F * (float)(this.getEffect(MobEffects.JUMP).getAmplifier() + 1);
         }
 
-        var0 *= this.getJumpFactor();
-        Vec3 var2 = this.getDeltaMovement();
-        this.setDeltaMovement(var2.x, (double)var0, var2.z);
+        Vec3 var1 = this.getDeltaMovement();
+        this.setDeltaMovement(var1.x, (double)var0, var1.z);
         if (this.isSprinting()) {
-            float var3 = this.yRot * (float) (Math.PI / 180.0);
-            this.setDeltaMovement(this.getDeltaMovement().add((double)(-Mth.sin(var3) * 0.2F), 0.0, (double)(Mth.cos(var3) * 0.2F)));
+            float var2 = this.yRot * (float) (Math.PI / 180.0);
+            this.setDeltaMovement(this.getDeltaMovement().add((double)(-Mth.sin(var2) * 0.2F), 0.0, (double)(Mth.cos(var2) * 0.2F)));
         }
 
         this.hasImpulse = true;

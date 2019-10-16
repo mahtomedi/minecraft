@@ -79,7 +79,7 @@ public class BreakingTextureGenerator extends DefaultedVertexConsumer {
         this.delegate
             .vertex((double)this.x, (double)this.y, (double)this.z)
             .color(this.r, this.g, this.b, this.a)
-            .uv(var3, var4)
+            .uv(var3, -var4)
             .overlayCoords(this.overlayU, this.overlayV)
             .uv2(this.lightCoords)
             .normal(this.nx, this.ny, this.nz)

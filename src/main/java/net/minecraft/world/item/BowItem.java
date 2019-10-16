@@ -122,11 +122,11 @@ public class BowItem extends ProjectileWeaponItem {
     public InteractionResultHolder<ItemStack> use(Level param0, Player param1, InteractionHand param2) {
         ItemStack var0 = param1.getItemInHand(param2);
         boolean var1 = !param1.getProjectile(var0).isEmpty();
-        if (param1.abilities.instabuild || var1) {
-            param1.startUsingItem(param2);
-            return InteractionResultHolder.successNoSwing(var0);
+        if (!param1.abilities.instabuild && !var1) {
+            return InteractionResultHolder.fail(var0);
         } else {
-            return var1 ? InteractionResultHolder.pass(var0) : InteractionResultHolder.fail(var0);
+            param1.startUsingItem(param2);
+            return InteractionResultHolder.consume(var0);
         }
     }
 

@@ -24,7 +24,7 @@ public abstract class AgeableListModel<E extends Entity> extends EntityModel<E> 
     }
 
     protected AgeableListModel(boolean param0, float param1, float param2, float param3, float param4, float param5) {
-        this(RenderType::entitySolid, param0, param1, param2, param3, param4, param5);
+        this(RenderType::entityCutoutNoCull, param0, param1, param2, param3, param4, param5);
     }
 
     protected AgeableListModel(

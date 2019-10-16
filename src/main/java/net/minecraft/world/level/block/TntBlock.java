@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.PrimedTnt;
@@ -82,7 +83,7 @@ public class TntBlock extends Block {
     }
 
     @Override
-    public boolean use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
+    public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
         ItemStack var0 = param3.getItemInHand(param4);
         Item var1 = var0.getItem();
         if (var1 != Items.FLINT_AND_STEEL && var1 != Items.FIRE_CHARGE) {
@@ -96,7 +97,7 @@ public class TntBlock extends Block {
                 var0.shrink(1);
             }
 
-            return true;
+            return InteractionResult.SUCCESS;
         }
     }
 

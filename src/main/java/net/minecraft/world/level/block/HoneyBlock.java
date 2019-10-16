@@ -57,7 +57,7 @@ public class HoneyBlock extends HalfTransparentBlock {
             return false;
         } else if (param1.getY() > (double)param0.getY() + 0.9375 - 1.0E-7) {
             return false;
-        } else if (param1.getDeltaMovement().y >= 0.0) {
+        } else if (param1.getDeltaMovement().y >= -0.04) {
             return false;
         } else {
             double var0 = Math.abs((double)param0.getX() + 0.5 - param1.getX());

@@ -257,16 +257,17 @@ public class EntityRenderDispatcher {
             param6.pushPose();
             param6.translate(var2, var3, var4);
             var0.render(param0, var2, var3, var4, param4, param5, param6, param7);
+            if (param0.displayFireAnimation()) {
+                this.renderFlame(param6, param7, param0);
+            }
+
+            param6.translate(-var1.x(), -var1.y(), -var1.z());
             if (this.options.entityShadows && this.shouldRenderShadow && var0.shadowRadius > 0.0F && !param0.isInvisible()) {
                 double var5 = this.distanceToSqr(param0.getX(), param0.getY(), param0.getZ());
                 float var6 = (float)((1.0 - var5 / 256.0) * (double)var0.shadowStrength);
                 if (var6 > 0.0F) {
                     renderShadow(param6, param7, param0, var6, param5, this.level, var0.shadowRadius);
                 }
-            }
-
-            if (param0.displayFireAnimation()) {
-                this.renderFlame(param6, param7, param0);
             }
 
             if (this.renderHitBoxes && !param0.isInvisible() && !Minecraft.getInstance().showOnlyReducedInfo()) {

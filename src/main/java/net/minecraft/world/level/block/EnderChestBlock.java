@@ -7,6 +7,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ChestMenu;
@@ -61,24 +62,24 @@ public class EnderChestBlock extends BaseEntityBlock implements SimpleWaterlogge
     }
 
     @Override
-    public boolean use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
+    public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
         PlayerEnderChestContainer var0 = param3.getEnderChestInventory();
         BlockEntity var1 = param1.getBlockEntity(param2);
         if (var0 != null && var1 instanceof EnderChestBlockEntity) {
             BlockPos var2 = param2.above();
             if (param1.getBlockState(var2).isRedstoneConductor(param1, var2)) {
-                return true;
+                return InteractionResult.SUCCESS;
             } else if (param1.isClientSide) {
-                return true;
+                return InteractionResult.SUCCESS;
             } else {
                 EnderChestBlockEntity var3 = (EnderChestBlockEntity)var1;
                 var0.setActiveChest(var3);
                 param3.openMenu(new SimpleMenuProvider((param1x, param2x, param3x) -> ChestMenu.threeRows(param1x, param2x, var0), CONTAINER_TITLE));
                 param3.awardStat(Stats.OPEN_ENDERCHEST);
-                return true;
+                return InteractionResult.SUCCESS;
             }
         } else {
-            return true;
+            return InteractionResult.SUCCESS;
         }
     }
 

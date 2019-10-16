@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockPlaceContext;
@@ -199,14 +200,14 @@ public class DoorBlock extends Block {
     }
 
     @Override
-    public boolean use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
+    public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
         if (this.material == Material.METAL) {
-            return false;
+            return InteractionResult.PASS;
         } else {
             param0 = param0.cycle(OPEN);
             param1.setBlock(param2, param0, 10);
             param1.levelEvent(param3, param0.getValue(OPEN) ? this.getOpenSound() : this.getCloseSound(), param2, 0);
-            return true;
+            return InteractionResult.SUCCESS;
         }
     }
 

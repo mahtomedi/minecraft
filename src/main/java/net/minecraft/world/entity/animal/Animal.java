@@ -122,9 +122,10 @@ public abstract class Animal extends AgableMob {
     public boolean mobInteract(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
         if (this.isFood(var0)) {
-            if (this.getAge() == 0 && this.canFallInLove()) {
+            if (!this.level.isClientSide && this.getAge() == 0 && this.canFallInLove()) {
                 this.usePlayerItem(param0, var0);
                 this.setInLove(param0);
+                param0.swing(param1, true);
                 return true;
             }
 

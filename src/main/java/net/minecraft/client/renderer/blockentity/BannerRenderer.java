@@ -86,7 +86,7 @@ public class BannerRenderer extends BlockEntityRenderer<BannerBlockEntity> {
         this.flag.render(param5, var9, 0.0625F, param7, param8, var7);
         List<BannerPattern> var12 = param0.getPatterns();
         List<DyeColor> var13 = param0.getColors();
-        VertexConsumer var14 = param6.getBuffer(RenderType.entityTranslucent(TextureAtlas.LOCATION_BLOCKS));
+        VertexConsumer var14 = param6.getBuffer(RenderType.entityNoOutline(TextureAtlas.LOCATION_BLOCKS));
         if (var12 == null) {
             LOGGER.error("patterns are null");
         } else if (var13 == null) {

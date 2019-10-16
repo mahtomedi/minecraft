@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.item.ItemStack;
@@ -55,12 +56,12 @@ public class FenceBlock extends CrossCollisionBlock {
     }
 
     @Override
-    public boolean use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
-        if (!param1.isClientSide) {
-            return LeadItem.bindPlayerMobs(param3, param1, param2);
-        } else {
+    public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
+        if (param1.isClientSide) {
             ItemStack var0 = param3.getItemInHand(param4);
-            return var0.getItem() == Items.LEAD || var0.isEmpty();
+            return var0.getItem() == Items.LEAD ? InteractionResult.SUCCESS : InteractionResult.PASS;
+        } else {
+            return LeadItem.bindPlayerMobs(param3, param1, param2);
         }
     }
 

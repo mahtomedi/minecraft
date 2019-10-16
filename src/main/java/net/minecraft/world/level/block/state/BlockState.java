@@ -18,6 +18,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.Tag;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -262,7 +263,7 @@ public class BlockState extends AbstractStateHolder<Block, BlockState> implement
         return this.getBlock().getDrops(this, param0);
     }
 
-    public boolean use(Level param0, Player param1, InteractionHand param2, BlockHitResult param3) {
+    public InteractionResult use(Level param0, Player param1, InteractionHand param2, BlockHitResult param3) {
         return this.getBlock().use(this, param0, param3.getBlockPos(), param1, param2, param3);
     }
 

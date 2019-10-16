@@ -7,6 +7,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BannerItem;
@@ -67,10 +68,10 @@ public class CauldronBlock extends Block {
     }
 
     @Override
-    public boolean use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
+    public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
         ItemStack var0 = param3.getItemInHand(param4);
         if (var0.isEmpty()) {
-            return true;
+            return InteractionResult.PASS;
         } else {
             int var1 = param0.getValue(LEVEL);
             Item var2 = var0.getItem();
@@ -85,7 +86,7 @@ public class CauldronBlock extends Block {
                     param1.playSound(null, param2, SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
                 }
 
-                return true;
+                return InteractionResult.SUCCESS;
             } else if (var2 == Items.BUCKET) {
                 if (var1 == 3 && !param1.isClientSide) {
                     if (!param3.abilities.instabuild) {
@@ -102,7 +103,7 @@ public class CauldronBlock extends Block {
                     param1.playSound(null, param2, SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
                 }
 
-                return true;
+                return InteractionResult.SUCCESS;
             } else if (var2 == Items.GLASS_BOTTLE) {
                 if (var1 > 0 && !param1.isClientSide) {
                     if (!param3.abilities.instabuild) {
@@ -122,7 +123,7 @@ public class CauldronBlock extends Block {
                     this.setWaterLevel(param1, param2, param0, var1 - 1);
                 }
 
-                return true;
+                return InteractionResult.SUCCESS;
             } else if (var2 == Items.POTION && PotionUtils.getPotion(var0) == Potions.WATER) {
                 if (var1 < 3 && !param1.isClientSide) {
                     if (!param3.abilities.instabuild) {
@@ -138,7 +139,7 @@ public class CauldronBlock extends Block {
                     this.setWaterLevel(param1, param2, param0, var1 + 1);
                 }
 
-                return true;
+                return InteractionResult.SUCCESS;
             } else {
                 if (var1 > 0 && var2 instanceof DyeableLeatherItem) {
                     DyeableLeatherItem var5 = (DyeableLeatherItem)var2;
@@ -146,7 +147,7 @@ public class CauldronBlock extends Block {
                         var5.clearColor(var0);
                         this.setWaterLevel(param1, param2, param0, var1 - 1);
                         param3.awardStat(Stats.CLEAN_ARMOR);
-                        return true;
+                        return InteractionResult.SUCCESS;
                     }
                 }
 
@@ -170,7 +171,7 @@ public class CauldronBlock extends Block {
                         }
                     }
 
-                    return true;
+                    return InteractionResult.SUCCESS;
                 } else if (var1 > 0 && var2 instanceof BlockItem) {
                     Block var7 = ((BlockItem)var2).getBlock();
                     if (var7 instanceof ShulkerBoxBlock && !param1.isClientSide()) {
@@ -182,11 +183,12 @@ public class CauldronBlock extends Block {
                         param3.setItemInHand(param4, var8);
                         this.setWaterLevel(param1, param2, param0, var1 - 1);
                         param3.awardStat(Stats.CLEAN_SHULKER_BOX);
+                        return InteractionResult.SUCCESS;
+                    } else {
+                        return InteractionResult.CONSUME;
                     }
-
-                    return true;
                 } else {
-                    return false;
+                    return InteractionResult.PASS;
                 }
             }
         }

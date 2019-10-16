@@ -2,7 +2,6 @@ package net.minecraft.client.model;
 
 import com.google.common.collect.ImmutableList;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.api.distmarker.Dist;
@@ -25,7 +24,6 @@ public class PufferfishBigModel<T extends Entity> extends ListModel<T> {
     private final ModelPart sideBackFin1;
 
     public PufferfishBigModel() {
-        super(RenderType::entityCutoutNoCull);
         this.texWidth = 32;
         this.texHeight = 32;
         int var0 = 22;

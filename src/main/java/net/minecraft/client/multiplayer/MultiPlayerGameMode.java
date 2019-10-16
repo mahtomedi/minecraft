@@ -257,51 +257,53 @@ public class MultiPlayerGameMode {
     public InteractionResult useItemOn(LocalPlayer param0, MultiPlayerLevel param1, InteractionHand param2, BlockHitResult param3) {
         this.ensureHasSentCarriedItem();
         BlockPos var0 = param3.getBlockPos();
-        Vec3 var1 = param3.getLocation();
         if (!this.minecraft.level.getWorldBorder().isWithinBounds(var0)) {
             return InteractionResult.FAIL;
         } else {
-            ItemStack var2 = param0.getItemInHand(param2);
+            ItemStack var1 = param0.getItemInHand(param2);
             if (this.localPlayerMode == GameType.SPECTATOR) {
                 this.connection.send(new ServerboundUseItemOnPacket(param2, param3));
                 return InteractionResult.SUCCESS;
             } else {
-                boolean var3 = !param0.getMainHandItem().isEmpty() || !param0.getOffhandItem().isEmpty();
-                boolean var4 = param0.isSecondaryUseActive() && var3;
-                if (!var4 && param1.getBlockState(var0).use(param1, param0, param2, param3)) {
-                    this.connection.send(new ServerboundUseItemOnPacket(param2, param3));
-                    return InteractionResult.SUCCESS;
-                } else {
-                    this.connection.send(new ServerboundUseItemOnPacket(param2, param3));
-                    if (!var2.isEmpty() && !param0.getCooldowns().isOnCooldown(var2.getItem())) {
-                        UseOnContext var5 = new UseOnContext(param0, param2, param3);
-                        InteractionResult var7;
-                        if (this.localPlayerMode.isCreative()) {
-                            int var6 = var2.getCount();
-                            var7 = var2.useOn(var5);
-                            var2.setCount(var6);
-                        } else {
-                            var7 = var2.useOn(var5);
-                        }
-
-                        return var7;
-                    } else {
-                        return InteractionResult.PASS;
+                boolean var2 = !param0.getMainHandItem().isEmpty() || !param0.getOffhandItem().isEmpty();
+                boolean var3 = param0.isSecondaryUseActive() && var2;
+                if (!var3) {
+                    InteractionResult var4 = param1.getBlockState(var0).use(param1, param0, param2, param3);
+                    if (var4.consumesAction()) {
+                        this.connection.send(new ServerboundUseItemOnPacket(param2, param3));
+                        return var4;
                     }
+                }
+
+                this.connection.send(new ServerboundUseItemOnPacket(param2, param3));
+                if (!var1.isEmpty() && !param0.getCooldowns().isOnCooldown(var1.getItem())) {
+                    UseOnContext var5 = new UseOnContext(param0, param2, param3);
+                    InteractionResult var7;
+                    if (this.localPlayerMode.isCreative()) {
+                        int var6 = var1.getCount();
+                        var7 = var1.useOn(var5);
+                        var1.setCount(var6);
+                    } else {
+                        var7 = var1.useOn(var5);
+                    }
+
+                    return var7;
+                } else {
+                    return InteractionResult.PASS;
                 }
             }
         }
     }
 
-    public InteractionResultHolder<ItemStack> useItem(Player param0, Level param1, InteractionHand param2) {
+    public InteractionResult useItem(Player param0, Level param1, InteractionHand param2) {
         if (this.localPlayerMode == GameType.SPECTATOR) {
-            return InteractionResultHolder.pass(null);
+            return InteractionResult.PASS;
         } else {
             this.ensureHasSentCarriedItem();
             this.connection.send(new ServerboundUseItemPacket(param2));
             ItemStack var0 = param0.getItemInHand(param2);
             if (param0.getCooldowns().isOnCooldown(var0.getItem())) {
-                return InteractionResultHolder.pass(var0);
+                return InteractionResult.PASS;
             } else {
                 int var1 = var0.getCount();
                 InteractionResultHolder<ItemStack> var2 = var0.use(param1, param0, param2);
@@ -310,7 +312,7 @@ public class MultiPlayerGameMode {
                     param0.setItemInHand(param2, var3);
                 }
 
-                return var2;
+                return var2.getResult();
             }
         }
     }

@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.animal.Parrot;
 import net.minecraftforge.api.distmarker.Dist;
@@ -25,7 +24,6 @@ public class ParrotModel extends ListModel<Parrot> {
     private final ModelPart legRight;
 
     public ParrotModel() {
-        super(RenderType::entityCutoutNoCull);
         this.texWidth = 32;
         this.texHeight = 32;
         this.body = new ModelPart(this, 2, 8);

@@ -696,7 +696,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
             this.setVillagerData(this.getVillagerData().setProfession(VillagerProfession.NONE));
         }
 
-        if (param2 == MobSpawnType.COMMAND || param2 == MobSpawnType.SPAWN_EGG || param2 == MobSpawnType.SPAWNER) {
+        if (param2 == MobSpawnType.COMMAND || param2 == MobSpawnType.SPAWN_EGG || param2 == MobSpawnType.SPAWNER || param2 == MobSpawnType.DISPENSER) {
             this.setVillagerData(this.getVillagerData().setType(VillagerType.byBiome(param0.getBiome(new BlockPos(this)))));
         }
 

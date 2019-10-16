@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.Nameable;
 import net.minecraft.world.SimpleMenuProvider;
@@ -90,12 +91,12 @@ public class EnchantmentTableBlock extends BaseEntityBlock {
     }
 
     @Override
-    public boolean use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
+    public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
         if (param1.isClientSide) {
-            return true;
+            return InteractionResult.SUCCESS;
         } else {
             param3.openMenu(param0.getMenuProvider(param1, param2));
-            return true;
+            return InteractionResult.SUCCESS;
         }
     }
 

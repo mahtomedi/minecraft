@@ -231,7 +231,7 @@ public abstract class AbstractMinecart extends Entity {
                 this.setPos(var0, var1, var2);
                 this.setRot(this.yRot, this.xRot);
             } else {
-                this.refreshBoundingBox();
+                this.reapplyPosition();
                 this.setRot(this.yRot, this.xRot);
             }
 

@@ -30,7 +30,11 @@ public class HumanoidModel<T extends LivingEntity> extends AgeableListModel<T> i
     private float itemUseTicks;
 
     public HumanoidModel(float param0) {
-        this(RenderType::entitySolid, param0, 0.0F, 64, 32);
+        this(RenderType::entityCutoutNoCull, param0, 0.0F, 64, 32);
+    }
+
+    protected HumanoidModel(float param0, float param1, int param2, int param3) {
+        this(RenderType::entityCutoutNoCull, param0, param1, param2, param3);
     }
 
     public HumanoidModel(Function<ResourceLocation, RenderType> param0, float param1, float param2, int param3, int param4) {

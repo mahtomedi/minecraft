@@ -24,19 +24,25 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ChestRenderer<T extends BlockEntity & LidBlockEntity> extends BlockEntityRenderer<T> {
-    public static final ResourceLocation CHEST_LARGE_TRAP_LOCATION = new ResourceLocation("entity/chest/trapped_double");
-    public static final ResourceLocation CHEST_LARGE_XMAS_LOCATION = new ResourceLocation("entity/chest/christmas_double");
-    public static final ResourceLocation CHEST_LARGE_LOCATION = new ResourceLocation("entity/chest/normal_double");
     public static final ResourceLocation CHEST_TRAP_LOCATION = new ResourceLocation("entity/chest/trapped");
+    public static final ResourceLocation CHEST_TRAP_LOCATION_LEFT = new ResourceLocation("entity/chest/trapped_left");
+    public static final ResourceLocation CHEST_TRAP_LOCATION_RIGHT = new ResourceLocation("entity/chest/trapped_right");
     public static final ResourceLocation CHEST_XMAS_LOCATION = new ResourceLocation("entity/chest/christmas");
+    public static final ResourceLocation CHEST_XMAS_LOCATION_LEFT = new ResourceLocation("entity/chest/christmas_left");
+    public static final ResourceLocation CHEST_XMAS_LOCATION_RIGHT = new ResourceLocation("entity/chest/christmas_right");
     public static final ResourceLocation CHEST_LOCATION = new ResourceLocation("entity/chest/normal");
+    public static final ResourceLocation CHEST_LOCATION_LEFT = new ResourceLocation("entity/chest/normal_left");
+    public static final ResourceLocation CHEST_LOCATION_RIGHT = new ResourceLocation("entity/chest/normal_right");
     public static final ResourceLocation ENDER_CHEST_LOCATION = new ResourceLocation("entity/chest/ender");
     private final ModelPart lid;
     private final ModelPart bottom;
     private final ModelPart lock;
-    private final ModelPart doubleLid;
-    private final ModelPart doubleBottom;
-    private final ModelPart doubleLock;
+    private final ModelPart doubleLeftLid;
+    private final ModelPart doubleLeftBottom;
+    private final ModelPart doubleLeftLock;
+    private final ModelPart doubleRightLid;
+    private final ModelPart doubleRightBottom;
+    private final ModelPart doubleRightLock;
     private boolean xmasTextures;
 
     public ChestRenderer(BlockEntityRenderDispatcher param0) {
@@ -53,17 +59,26 @@ public class ChestRenderer<T extends BlockEntity & LidBlockEntity> extends Block
         this.lid.y = 9.0F;
         this.lid.z = 1.0F;
         this.lock = new ModelPart(64, 64, 0, 0);
-        this.lock.addBox(7.0F, -2.0F, 15.0F, 2.0F, 4.0F, 1.0F, 0.0F);
-        this.lock.y = 9.0F;
-        this.doubleBottom = new ModelPart(128, 64, 0, 19);
-        this.doubleBottom.addBox(1.0F, 0.0F, 1.0F, 30.0F, 10.0F, 14.0F, 0.0F);
-        this.doubleLid = new ModelPart(128, 64, 0, 0);
-        this.doubleLid.addBox(1.0F, 0.0F, 0.0F, 30.0F, 5.0F, 14.0F, 0.0F);
-        this.doubleLid.y = 9.0F;
-        this.doubleLid.z = 1.0F;
-        this.doubleLock = new ModelPart(128, 64, 0, 0);
-        this.doubleLock.addBox(15.0F, -2.0F, 15.0F, 2.0F, 4.0F, 1.0F, 0.0F);
-        this.doubleLock.y = 9.0F;
+        this.lock.addBox(7.0F, -1.0F, 15.0F, 2.0F, 4.0F, 1.0F, 0.0F);
+        this.lock.y = 8.0F;
+        this.doubleLeftBottom = new ModelPart(64, 64, 0, 19);
+        this.doubleLeftBottom.addBox(1.0F, 0.0F, 1.0F, 15.0F, 10.0F, 14.0F, 0.0F);
+        this.doubleLeftLid = new ModelPart(64, 64, 0, 0);
+        this.doubleLeftLid.addBox(1.0F, 0.0F, 0.0F, 15.0F, 5.0F, 14.0F, 0.0F);
+        this.doubleLeftLid.y = 9.0F;
+        this.doubleLeftLid.z = 1.0F;
+        this.doubleLeftLock = new ModelPart(64, 64, 0, 0);
+        this.doubleLeftLock.addBox(15.0F, -1.0F, 15.0F, 1.0F, 4.0F, 1.0F, 0.0F);
+        this.doubleLeftLock.y = 8.0F;
+        this.doubleRightBottom = new ModelPart(64, 64, 0, 19);
+        this.doubleRightBottom.addBox(0.0F, 0.0F, 1.0F, 15.0F, 10.0F, 14.0F, 0.0F);
+        this.doubleRightLid = new ModelPart(64, 64, 0, 0);
+        this.doubleRightLid.addBox(0.0F, 0.0F, 0.0F, 15.0F, 5.0F, 14.0F, 0.0F);
+        this.doubleRightLid.y = 9.0F;
+        this.doubleRightLid.z = 1.0F;
+        this.doubleRightLock = new ModelPart(64, 64, 0, 0);
+        this.doubleRightLock.addBox(0.0F, -1.0F, 15.0F, 1.0F, 4.0F, 1.0F, 0.0F);
+        this.doubleRightLock.y = 8.0F;
     }
 
     @Override
@@ -73,13 +88,13 @@ public class ChestRenderer<T extends BlockEntity & LidBlockEntity> extends Block
         boolean var2 = var1 != ChestType.SINGLE;
         ResourceLocation var3;
         if (this.xmasTextures) {
-            var3 = var2 ? CHEST_LARGE_XMAS_LOCATION : CHEST_XMAS_LOCATION;
+            var3 = this.chooseTexture(var1, CHEST_XMAS_LOCATION, CHEST_XMAS_LOCATION_LEFT, CHEST_XMAS_LOCATION_RIGHT);
         } else if (param0 instanceof TrappedChestBlockEntity) {
-            var3 = var2 ? CHEST_LARGE_TRAP_LOCATION : CHEST_TRAP_LOCATION;
+            var3 = this.chooseTexture(var1, CHEST_TRAP_LOCATION, CHEST_TRAP_LOCATION_LEFT, CHEST_TRAP_LOCATION_RIGHT);
         } else if (param0 instanceof EnderChestBlockEntity) {
             var3 = ENDER_CHEST_LOCATION;
         } else {
-            var3 = var2 ? CHEST_LARGE_LOCATION : CHEST_LOCATION;
+            var3 = this.chooseTexture(var1, CHEST_LOCATION, CHEST_LOCATION_LEFT, CHEST_LOCATION_RIGHT);
         }
 
         param5.pushPose();
@@ -90,19 +105,32 @@ public class ChestRenderer<T extends BlockEntity & LidBlockEntity> extends Block
         float var8 = param0.getOpenNess(param4);
         var8 = 1.0F - var8;
         var8 = 1.0F - var8 * var8 * var8;
-        VertexConsumer var9 = param6.getBuffer(RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS));
-        TextureAtlasSprite var10 = this.getSprite(var3);
+        TextureAtlasSprite var9 = this.getSprite(var3);
         if (var2) {
+            VertexConsumer var10 = param6.getBuffer(RenderType.entityCutout(TextureAtlas.LOCATION_BLOCKS));
             if (var1 == ChestType.LEFT) {
-                param5.translate(-1.0, 0.0, 0.0);
+                this.render(param5, var10, this.doubleRightLid, this.doubleRightLock, this.doubleRightBottom, var8, param7, param8, var9);
+            } else {
+                this.render(param5, var10, this.doubleLeftLid, this.doubleLeftLock, this.doubleLeftBottom, var8, param7, param8, var9);
             }
-
-            this.render(param5, var9, this.doubleLid, this.doubleLock, this.doubleBottom, var8, param7, param8, var10);
         } else {
-            this.render(param5, var9, this.lid, this.lock, this.bottom, var8, param7, param8, var10);
+            VertexConsumer var11 = param6.getBuffer(RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS));
+            this.render(param5, var11, this.lid, this.lock, this.bottom, var8, param7, param8, var9);
         }
 
         param5.popPose();
+    }
+
+    private ResourceLocation chooseTexture(ChestType param0, ResourceLocation param1, ResourceLocation param2, ResourceLocation param3) {
+        switch(param0) {
+            case LEFT:
+                return param3;
+            case RIGHT:
+                return param2;
+            case SINGLE:
+            default:
+                return param1;
+        }
     }
 
     private void render(

@@ -15,6 +15,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -70,11 +71,11 @@ public class ShulkerBoxBlock extends BaseEntityBlock {
     }
 
     @Override
-    public boolean use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
+    public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
         if (param1.isClientSide) {
-            return true;
+            return InteractionResult.SUCCESS;
         } else if (param3.isSpectator()) {
-            return true;
+            return InteractionResult.SUCCESS;
         } else {
             BlockEntity var0 = param1.getBlockEntity(param2);
             if (var0 instanceof ShulkerBoxBlockEntity) {
@@ -98,9 +99,9 @@ public class ShulkerBoxBlock extends BaseEntityBlock {
                     param3.awardStat(Stats.OPEN_SHULKER_BOX);
                 }
 
-                return true;
+                return InteractionResult.SUCCESS;
             } else {
-                return false;
+                return InteractionResult.PASS;
             }
         }
     }

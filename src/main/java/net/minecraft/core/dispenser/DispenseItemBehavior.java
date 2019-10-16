@@ -13,6 +13,7 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.animal.Sheep;
+import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.Arrow;
@@ -174,6 +175,19 @@ public interface DispenseItemBehavior {
             DispenserBlock.registerBehavior(var1, var0);
         }
 
+        DispenserBlock.registerBehavior(Items.ARMOR_STAND, new DefaultDispenseItemBehavior() {
+            @Override
+            public ItemStack execute(BlockSource param0, ItemStack param1) {
+                Direction var0 = param0.getBlockState().getValue(DispenserBlock.FACING);
+                BlockPos var1 = param0.getPos().relative(var0);
+                Level var2 = param0.getLevel();
+                ArmorStand var3 = new ArmorStand(var2, (double)var1.getX() + 0.5, (double)var1.getY(), (double)var1.getZ() + 0.5);
+                EntityType.updateCustomEntityTag(var2, null, var3, param1.getTag());
+                var2.addFreshEntity(var3);
+                param1.shrink(1);
+                return param1;
+            }
+        });
         DispenserBlock.registerBehavior(Items.FIREWORK_ROCKET, new DefaultDispenseItemBehavior() {
             @Override
             public ItemStack execute(BlockSource param0, ItemStack param1) {
@@ -367,11 +381,14 @@ public interface DispenseItemBehavior {
                         }
     
                         param1.shrink(1);
-                    } else if (ArmorItem.dispenseArmor(param0, param1).isEmpty()) {
-                        this.success = false;
+                    } else {
+                        ItemStack var4 = ArmorItem.dispenseArmor(param0, param1);
+                        if (param1.getCount() < var4.getCount()) {
+                            this.success = false;
+                        }
                     }
     
-                    return param1;
+                    return super.execute(param0, param1);
                 }
             }
         );
@@ -390,12 +407,12 @@ public interface DispenseItemBehavior {
                     param1.shrink(1);
                 } else {
                     ItemStack var3 = ArmorItem.dispenseArmor(param0, param1);
-                    if (var3.isEmpty()) {
+                    if (param1.getCount() < var3.getCount()) {
                         this.success = false;
                     }
                 }
 
-                return param1;
+                return super.execute(param0, param1);
             }
         });
         DispenserBlock.registerBehavior(Blocks.SHULKER_BOX.asItem(), new ShulkerBoxDispenseBehavior());
@@ -406,7 +423,7 @@ public interface DispenseItemBehavior {
 
         DispenserBlock.registerBehavior(
             Items.GLASS_BOTTLE.asItem(),
-            new DefaultDispenseItemBehavior() {
+            new OptionalDispenseItemBehavior() {
                 private final DefaultDispenseItemBehavior defaultDispenseItemBehavior = new DefaultDispenseItemBehavior();
     
                 private ItemStack takeLiquid(BlockSource param0, ItemStack param1, ItemStack param2) {
@@ -424,6 +441,7 @@ public interface DispenseItemBehavior {
     
                 @Override
                 public ItemStack execute(BlockSource param0, ItemStack param1) {
+                    this.success = false;
                     LevelAccessor var0 = param0.getLevel();
                     BlockPos var1 = param0.getPos().relative(param0.getBlockState().getValue(DispenserBlock.FACING));
                     BlockState var2 = var0.getBlockState(var1);
@@ -431,11 +449,13 @@ public interface DispenseItemBehavior {
                     if (var3.is(BlockTags.BEEHIVES) && var2.getValue(BeehiveBlock.HONEY_LEVEL) >= 5) {
                         ((BeehiveBlock)var2.getBlock())
                             .releaseBeesAndResetState(var0.getLevel(), var2, var1, null, BeehiveBlockEntity.BeeReleaseStatus.BEE_RELEASED);
+                        this.success = true;
                         return this.takeLiquid(param0, param1, new ItemStack(Items.HONEY_BOTTLE));
+                    } else if (var0.getFluidState(var1).is(FluidTags.WATER)) {
+                        this.success = true;
+                        return this.takeLiquid(param0, param1, PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.WATER));
                     } else {
-                        return var0.getFluidState(var1).is(FluidTags.WATER)
-                            ? this.takeLiquid(param0, param1, PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.WATER))
-                            : param1;
+                        return super.execute(param0, param1);
                     }
                 }
             }

@@ -78,7 +78,7 @@ public class Slime extends Mob implements Enemy {
 
     protected void setSize(int param0, boolean param1) {
         this.entityData.set(ID_SIZE, param0);
-        this.refreshBoundingBox();
+        this.reapplyPosition();
         this.refreshDimensions();
         this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue((double)(param0 * param0));
         this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue((double)(0.2F + 0.1F * (float)param0));
@@ -320,7 +320,7 @@ public class Slime extends Mob implements Enemy {
     @Override
     protected void jumpFromGround() {
         Vec3 var0 = this.getDeltaMovement();
-        this.setDeltaMovement(var0.x, 0.42F, var0.z);
+        this.setDeltaMovement(var0.x, (double)this.getJumpPower(), var0.z);
         this.hasImpulse = true;
     }
 

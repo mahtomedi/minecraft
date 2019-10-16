@@ -50,9 +50,7 @@ public class PoseStack {
     public void mulPose(Quaternion param0) {
         PoseStack.Pose var0 = this.poseStack.getLast();
         var0.pose.multiply(param0);
-        Quaternion var1 = param0.copy();
-        var1.conj();
-        var0.normal.mul(var1);
+        var0.normal.mul(param0);
     }
 
     public void pushPose() {

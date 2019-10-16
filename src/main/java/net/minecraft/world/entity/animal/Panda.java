@@ -642,6 +642,7 @@ public class Panda extends Animal {
                 this.usePlayerItem(param0, var0);
             }
 
+            param0.swing(param1, true);
             return true;
         } else {
             return false;

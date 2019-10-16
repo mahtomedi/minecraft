@@ -318,17 +318,22 @@ public class ServerPlayerGameMode {
         } else {
             boolean var3 = !param0.getMainHandItem().isEmpty() || !param0.getOffhandItem().isEmpty();
             boolean var4 = param0.isSecondaryUseActive() && var3;
-            if (!var4 && var1.use(param1, param0, param3, param4)) {
-                return InteractionResult.SUCCESS;
-            } else if (!param2.isEmpty() && !param0.getCooldowns().isOnCooldown(param2.getItem())) {
-                UseOnContext var5 = new UseOnContext(param0, param3, param4);
+            if (!var4) {
+                InteractionResult var5 = var1.use(param1, param0, param3, param4);
+                if (var5.consumesAction()) {
+                    return var5;
+                }
+            }
+
+            if (!param2.isEmpty() && !param0.getCooldowns().isOnCooldown(param2.getItem())) {
+                UseOnContext var6 = new UseOnContext(param0, param3, param4);
                 if (this.isCreative()) {
-                    int var6 = param2.getCount();
-                    InteractionResult var7 = param2.useOn(var5);
-                    param2.setCount(var6);
-                    return var7;
+                    int var7 = param2.getCount();
+                    InteractionResult var8 = param2.useOn(var6);
+                    param2.setCount(var7);
+                    return var8;
                 } else {
-                    return param2.useOn(var5);
+                    return param2.useOn(var6);
                 }
             } else {
                 return InteractionResult.PASS;

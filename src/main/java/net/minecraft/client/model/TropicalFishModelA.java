@@ -2,7 +2,6 @@ package net.minecraft.client.model;
 
 import com.google.common.collect.ImmutableList;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.api.distmarker.Dist;
@@ -17,7 +16,6 @@ public class TropicalFishModelA<T extends Entity> extends ColorableListModel<T> 
     private final ModelPart topFin;
 
     public TropicalFishModelA(float param0) {
-        super(RenderType::entityCutoutNoCull);
         this.texWidth = 32;
         this.texHeight = 32;
         int var0 = 22;

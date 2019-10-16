@@ -663,7 +663,7 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
 
             this.needsUpdate = true;
             this.generateClouds = true;
-            RenderType.setFancy(this.minecraft.options.fancyGraphics);
+            ItemBlockRenderTypes.setFancy(this.minecraft.options.fancyGraphics);
             this.lastViewDistance = this.minecraft.options.renderDistance;
             if (this.viewArea != null) {
                 this.viewArea.releaseAllBuffers();
@@ -1084,11 +1084,11 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
             double var37 = (double)var35.getY() - var3;
             double var38 = (double)var35.getZ() - var4;
             if (!(var36 * var36 + var37 * var37 + var38 * var38 > 1024.0)) {
-                param0.pushPose();
-                param0.translate((double)(var35.getX() & -16) - var2, (double)(var35.getY() & -16) - var3, (double)(var35.getZ() & -16) - var4);
                 SortedSet<BlockDestructionProgress> var39 = var34.getValue();
                 if (var39 != null && !var39.isEmpty()) {
                     int var40 = var39.last().getProgress();
+                    param0.pushPose();
+                    param0.translate((double)var35.getX() - var2, (double)var35.getY() - var3, (double)var35.getZ() - var4);
                     VertexConsumer var41 = new BreakingTextureGenerator(
                         this.renderBuffers.effectBufferSource().getBuffer(RenderType.crumbling(var40)), param0.getPose()
                     );
@@ -1111,6 +1111,8 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
             }
         }
 
+        var13.endBatch(RenderType.entityTranslucent(TextureAtlas.LOCATION_BLOCKS));
+        var13.endBatch(RenderType.entityNoOutline(TextureAtlas.LOCATION_BLOCKS));
         var13.endBatch();
         this.renderBuffers.effectBufferSource().endBatch();
         RenderSystem.pushMatrix();

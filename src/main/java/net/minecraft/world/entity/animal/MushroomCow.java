@@ -72,7 +72,7 @@ public class MushroomCow extends Cow {
     @Override
     public boolean mobInteract(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
-        if (var0.getItem() == Items.BOWL && this.getAge() >= 0 && !param0.abilities.instabuild) {
+        if (var0.getItem() == Items.BOWL && !this.isBaby() && !param0.abilities.instabuild) {
             var0.shrink(1);
             boolean var1 = false;
             ItemStack var2;
@@ -101,7 +101,7 @@ public class MushroomCow extends Cow {
 
             this.playSound(var4, 1.0F, 1.0F);
             return true;
-        } else if (var0.getItem() == Items.SHEARS && this.getAge() >= 0) {
+        } else if (var0.getItem() == Items.SHEARS && !this.isBaby()) {
             this.level.addParticle(ParticleTypes.EXPLOSION, this.getX(), this.getY(0.5), this.getZ(), 0.0, 0.0, 0.0);
             if (!this.level.isClientSide) {
                 this.remove();

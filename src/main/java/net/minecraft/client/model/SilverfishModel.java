@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import java.util.Arrays;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.api.distmarker.Dist;
@@ -20,7 +19,6 @@ public class SilverfishModel<T extends Entity> extends ListModel<T> {
     private static final int[][] BODY_TEXS = new int[][]{{0, 0}, {0, 4}, {0, 9}, {0, 16}, {0, 22}, {11, 0}, {13, 4}};
 
     public SilverfishModel() {
-        super(RenderType::entityCutoutNoCull);
         this.bodyParts = new ModelPart[7];
         float var0 = -3.5F;
 

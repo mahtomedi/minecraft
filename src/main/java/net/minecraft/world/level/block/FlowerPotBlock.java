@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -42,7 +43,7 @@ public class FlowerPotBlock extends Block {
     }
 
     @Override
-    public boolean use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
+    public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
         ItemStack var0 = param3.getItemInHand(param4);
         Item var1 = var0.getItem();
         Block var2 = var1 instanceof BlockItem ? POTTED_BY_CONTENT.getOrDefault(((BlockItem)var1).getBlock(), Blocks.AIR) : Blocks.AIR;
@@ -65,9 +66,11 @@ public class FlowerPotBlock extends Block {
 
                 param1.setBlock(param2, Blocks.FLOWER_POT.defaultBlockState(), 3);
             }
-        }
 
-        return true;
+            return InteractionResult.SUCCESS;
+        } else {
+            return InteractionResult.CONSUME;
+        }
     }
 
     @OnlyIn(Dist.CLIENT)

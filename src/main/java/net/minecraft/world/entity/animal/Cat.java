@@ -52,6 +52,7 @@ import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -386,9 +387,28 @@ public class Cat extends TamableAnimal {
     public boolean mobInteract(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
         Item var1 = var0.getItem();
-        if (this.isTame()) {
-            if (this.isOwnedBy(param0)) {
-                if (var1 instanceof DyeItem) {
+        if (var0.getItem() instanceof SpawnEggItem) {
+            return super.mobInteract(param0, param1);
+        } else if (this.level.isClientSide) {
+            return this.isTame() && this.isOwnedBy(param0) || this.isFood(var0);
+        } else {
+            if (this.isTame()) {
+                if (this.isOwnedBy(param0)) {
+                    if (!(var1 instanceof DyeItem)) {
+                        if (var1.isEdible() && this.isFood(var0) && this.getHealth() < this.getMaxHealth()) {
+                            this.usePlayerItem(param0, var0);
+                            this.heal((float)var1.getFoodProperties().getNutrition());
+                            return true;
+                        }
+
+                        boolean var3 = super.mobInteract(param0, param1);
+                        if (!var3 || this.isBaby()) {
+                            this.sitGoal.wantToSit(!this.isSitting());
+                        }
+
+                        return var3;
+                    }
+
                     DyeColor var2 = ((DyeItem)var1).getDyeColor();
                     if (var2 != this.getCollarColor()) {
                         this.setCollarColor(var2);
@@ -399,40 +419,28 @@ public class Cat extends TamableAnimal {
                         this.setPersistenceRequired();
                         return true;
                     }
-                } else if (this.isFood(var0)) {
-                    if (this.getHealth() < this.getMaxHealth() && var1.isEdible()) {
-                        this.usePlayerItem(param0, var0);
-                        this.heal((float)var1.getFoodProperties().getNutrition());
-                        return true;
-                    }
-                } else if (!this.level.isClientSide) {
-                    this.sitGoal.wantToSit(!this.isSitting());
                 }
-            }
-        } else if (this.isFood(var0)) {
-            this.usePlayerItem(param0, var0);
-            if (!this.level.isClientSide) {
+            } else if (this.isFood(var0)) {
+                this.usePlayerItem(param0, var0);
                 if (this.random.nextInt(3) == 0) {
                     this.tame(param0);
-                    this.spawnTamingParticles(true);
                     this.sitGoal.wantToSit(true);
                     this.level.broadcastEntityEvent(this, (byte)7);
                 } else {
-                    this.spawnTamingParticles(false);
                     this.level.broadcastEntityEvent(this, (byte)6);
                 }
+
+                this.setPersistenceRequired();
+                return true;
             }
 
-            this.setPersistenceRequired();
-            return true;
-        }
+            boolean var4 = super.mobInteract(param0, param1);
+            if (var4) {
+                this.setPersistenceRequired();
+            }
 
-        boolean var3 = super.mobInteract(param0, param1);
-        if (var3) {
-            this.setPersistenceRequired();
+            return var4;
         }
-
-        return var3;
     }
 
     @Override

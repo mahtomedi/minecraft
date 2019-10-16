@@ -3,6 +3,7 @@ package net.minecraft.world.level.block;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
@@ -53,24 +54,25 @@ public abstract class SignBlock extends BaseEntityBlock implements SimpleWaterlo
     }
 
     @Override
-    public boolean use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
+    public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
+        ItemStack var0 = param3.getItemInHand(param4);
+        boolean var1 = var0.getItem() instanceof DyeItem && param3.abilities.mayBuild;
         if (param1.isClientSide) {
-            return true;
+            return var1 ? InteractionResult.SUCCESS : InteractionResult.CONSUME;
         } else {
-            BlockEntity var0 = param1.getBlockEntity(param2);
-            if (var0 instanceof SignBlockEntity) {
-                SignBlockEntity var1 = (SignBlockEntity)var0;
-                ItemStack var2 = param3.getItemInHand(param4);
-                if (var2.getItem() instanceof DyeItem && param3.abilities.mayBuild) {
-                    boolean var3 = var1.setColor(((DyeItem)var2.getItem()).getDyeColor());
-                    if (var3 && !param3.isCreative()) {
-                        var2.shrink(1);
+            BlockEntity var2 = param1.getBlockEntity(param2);
+            if (var2 instanceof SignBlockEntity) {
+                SignBlockEntity var3 = (SignBlockEntity)var2;
+                if (var1) {
+                    boolean var4 = var3.setColor(((DyeItem)var0.getItem()).getDyeColor());
+                    if (var4 && !param3.isCreative()) {
+                        var0.shrink(1);
                     }
                 }
 
-                return var1.executeClickCommands(param3);
+                return var3.executeClickCommands(param3) ? InteractionResult.SUCCESS : InteractionResult.PASS;
             } else {
-                return false;
+                return InteractionResult.PASS;
             }
         }
     }

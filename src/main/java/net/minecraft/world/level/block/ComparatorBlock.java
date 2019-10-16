@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
@@ -105,16 +106,16 @@ public class ComparatorBlock extends DiodeBlock implements EntityBlock {
     }
 
     @Override
-    public boolean use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
+    public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
         if (!param3.abilities.mayBuild) {
-            return false;
+            return InteractionResult.PASS;
         } else {
             param0 = param0.cycle(MODE);
             float var0 = param0.getValue(MODE) == ComparatorMode.SUBTRACT ? 0.55F : 0.5F;
             param1.playSound(param3, param2, SoundEvents.COMPARATOR_CLICK, SoundSource.BLOCKS, 0.3F, var0);
             param1.setBlock(param2, param0, 2);
             this.refreshOutputState(param1, param2, param0);
-            return true;
+            return InteractionResult.SUCCESS;
         }
     }
 

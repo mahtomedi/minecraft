@@ -9,8 +9,8 @@ import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.client.renderer.EntityBlockRenderer;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
@@ -105,7 +105,7 @@ public class BlockRenderDispatcher implements ResourceManagerReloadListener {
                         .renderModel(
                             param1.getPose(),
                             param1.getNormal(),
-                            param2.getBuffer(RenderType.getRenderType(param0)),
+                            param2.getBuffer(ItemBlockRenderTypes.getRenderType(param0)),
                             param0,
                             var1,
                             var3,

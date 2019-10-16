@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix4f;
 import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.culling.Frustum;
@@ -76,19 +77,39 @@ public abstract class MobRenderer<T extends Mob, M extends EntityModel<T>> exten
         float var19 = Mth.fastInvSqrt(var13 * var13 + var15 * var15) * 0.025F / 2.0F;
         float var20 = var15 * var19;
         float var21 = var13 * var19;
-        renderSide(var17, var18, var13, var14, var15, 0.025F, 0.025F, var20, var21);
-        renderSide(var17, var18, var13, var14, var15, 0.025F, 0.0F, var20, var21);
+        int var22 = param0.getLightColor();
+        int var23 = param4.getLightColor();
+        renderSide(var17, var18, var22, var23, var13, var14, var15, 0.025F, 0.025F, var20, var21);
+        renderSide(var17, var18, var22, var23, var13, var14, var15, 0.025F, 0.0F, var20, var21);
         param2.popPose();
     }
 
     public static void renderSide(
-        VertexConsumer param0, Matrix4f param1, float param2, float param3, float param4, float param5, float param6, float param7, float param8
+        VertexConsumer param0,
+        Matrix4f param1,
+        int param2,
+        int param3,
+        float param4,
+        float param5,
+        float param6,
+        float param7,
+        float param8,
+        float param9,
+        float param10
     ) {
         int var0 = 24;
+        int var1 = LightTexture.block(param2);
+        int var2 = LightTexture.block(param3);
+        int var3 = LightTexture.sky(param2);
+        int var4 = LightTexture.sky(param3);
 
-        for(int var1 = 0; var1 < 24; ++var1) {
-            addVertexPair(param0, param1, param2, param3, param4, param5, param6, 24, var1, false, param7, param8);
-            addVertexPair(param0, param1, param2, param3, param4, param5, param6, 24, var1 + 1, true, param7, param8);
+        for(int var5 = 0; var5 < 24; ++var5) {
+            float var6 = (float)var5 / 23.0F;
+            int var7 = (int)Mth.lerp(var6, (float)var1, (float)var2);
+            int var8 = (int)Mth.lerp(var6, (float)var3, (float)var4);
+            int var9 = LightTexture.pack(var7, var8);
+            addVertexPair(param0, param1, var9, param4, param5, param6, param7, param8, 24, var5, false, param9, param10);
+            addVertexPair(param0, param1, var9, param4, param5, param6, param7, param8, 24, var5 + 1, true, param9, param10);
         }
 
     }
@@ -96,37 +117,38 @@ public abstract class MobRenderer<T extends Mob, M extends EntityModel<T>> exten
     public static void addVertexPair(
         VertexConsumer param0,
         Matrix4f param1,
-        float param2,
+        int param2,
         float param3,
         float param4,
         float param5,
         float param6,
-        int param7,
+        float param7,
         int param8,
-        boolean param9,
-        float param10,
-        float param11
+        int param9,
+        boolean param10,
+        float param11,
+        float param12
     ) {
         float var0 = 0.5F;
         float var1 = 0.4F;
         float var2 = 0.3F;
-        if (param8 % 2 == 0) {
+        if (param9 % 2 == 0) {
             var0 *= 0.7F;
             var1 *= 0.7F;
             var2 *= 0.7F;
         }
 
-        float var3 = (float)param8 / (float)param7;
-        float var4 = param2 * var3;
-        float var5 = param3 * (var3 * var3 + var3) * 0.5F + ((float)param7 - (float)param8) / ((float)param7 * 0.75F) + 0.125F;
-        float var6 = param4 * var3;
-        if (!param9) {
-            param0.vertex(param1, var4 + param10, var5 + param5 - param6, var6 - param11).color(var0, var1, var2, 1.0F).endVertex();
+        float var3 = (float)param9 / (float)param8;
+        float var4 = param3 * var3;
+        float var5 = param4 * (var3 * var3 + var3) * 0.5F + ((float)param8 - (float)param9) / ((float)param8 * 0.75F) + 0.125F;
+        float var6 = param5 * var3;
+        if (!param10) {
+            param0.vertex(param1, var4 + param11, var5 + param6 - param7, var6 - param12).color(var0, var1, var2, 1.0F).uv2(param2).endVertex();
         }
 
-        param0.vertex(param1, var4 - param10, var5 + param6, var6 + param11).color(var0, var1, var2, 1.0F).endVertex();
-        if (param9) {
-            param0.vertex(param1, var4 + param10, var5 + param5 - param6, var6 - param11).color(var0, var1, var2, 1.0F).endVertex();
+        param0.vertex(param1, var4 - param11, var5 + param7, var6 + param12).color(var0, var1, var2, 1.0F).uv2(param2).endVertex();
+        if (param10) {
+            param0.vertex(param1, var4 + param11, var5 + param6 - param7, var6 - param12).color(var0, var1, var2, 1.0F).uv2(param2).endVertex();
         }
 
     }

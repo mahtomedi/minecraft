@@ -5,6 +5,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -19,7 +20,7 @@ public class PumpkinBlock extends StemGrownBlock {
     }
 
     @Override
-    public boolean use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
+    public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
         ItemStack var0 = param3.getItemInHand(param4);
         if (var0.getItem() == Items.SHEARS) {
             if (!param1.isClientSide) {
@@ -43,7 +44,7 @@ public class PumpkinBlock extends StemGrownBlock {
                 var0.hurtAndBreak(1, param3, param1x -> param1x.broadcastBreakEvent(param4));
             }
 
-            return true;
+            return InteractionResult.SUCCESS;
         } else {
             return super.use(param0, param1, param2, param3, param4, param5);
         }

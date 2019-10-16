@@ -133,6 +133,7 @@ public class ZombieVillager extends Zombie implements VillagerDataHolder {
 
             if (!this.level.isClientSide) {
                 this.startConverting(param0.getUUID(), this.random.nextInt(2401) + 3600);
+                param0.swing(param1, true);
             }
 
             return true;

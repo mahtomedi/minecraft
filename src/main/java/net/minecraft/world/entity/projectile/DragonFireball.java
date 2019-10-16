@@ -32,6 +32,7 @@ public class DragonFireball extends AbstractHurtingProjectile {
 
     @Override
     protected void onHit(HitResult param0) {
+        super.onHit(param0);
         if (param0.getType() != HitResult.Type.ENTITY || !((EntityHitResult)param0).getEntity().is(this.owner)) {
             if (!this.level.isClientSide) {
                 List<LivingEntity> var0 = this.level.getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(4.0, 2.0, 4.0));

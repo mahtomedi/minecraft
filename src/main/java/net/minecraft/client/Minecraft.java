@@ -154,7 +154,6 @@ import net.minecraft.util.thread.ReentrantBlockableEventLoop;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.Snooper;
 import net.minecraft.world.SnooperPopulator;
 import net.minecraft.world.entity.Entity;
@@ -1166,35 +1165,44 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                             case ENTITY:
                                 EntityHitResult var2 = (EntityHitResult)this.hitResult;
                                 Entity var3 = var2.getEntity();
-                                if (this.gameMode.interactAt(this.player, var3, var2, var0) == InteractionResult.SUCCESS
-                                    || this.gameMode.interact(this.player, var3, var0) == InteractionResult.SUCCESS) {
-                                    this.player.swing(var0);
+                                InteractionResult var4 = this.gameMode.interactAt(this.player, var3, var2, var0);
+                                if (!var4.consumesAction()) {
+                                    var4 = this.gameMode.interact(this.player, var3, var0);
                                 }
 
-                                return;
+                                if (var4.consumesAction()) {
+                                    if (var4.shouldSwing()) {
+                                        this.player.swing(var0);
+                                    }
+
+                                    return;
+                                }
+                                break;
                             case BLOCK:
-                                BlockHitResult var4 = (BlockHitResult)this.hitResult;
-                                int var5 = var1.getCount();
-                                InteractionResult var6 = this.gameMode.useItemOn(this.player, this.level, var0, var4);
-                                if (var6 == InteractionResult.SUCCESS) {
-                                    this.player.swing(var0);
-                                    if (!var1.isEmpty() && (var1.getCount() != var5 || this.gameMode.hasInfiniteItems())) {
-                                        this.gameRenderer.itemInHandRenderer.itemUsed(var0);
+                                BlockHitResult var5 = (BlockHitResult)this.hitResult;
+                                int var6 = var1.getCount();
+                                InteractionResult var7 = this.gameMode.useItemOn(this.player, this.level, var0, var5);
+                                if (var7.consumesAction()) {
+                                    if (var7.shouldSwing()) {
+                                        this.player.swing(var0);
+                                        if (!var1.isEmpty() && (var1.getCount() != var6 || this.gameMode.hasInfiniteItems())) {
+                                            this.gameRenderer.itemInHandRenderer.itemUsed(var0);
+                                        }
                                     }
 
                                     return;
                                 }
 
-                                if (var6 == InteractionResult.FAIL) {
+                                if (var7 == InteractionResult.FAIL) {
                                     return;
                                 }
                         }
                     }
 
                     if (!var1.isEmpty()) {
-                        InteractionResultHolder<ItemStack> var7 = this.gameMode.useItem(this.player, this.level, var0);
-                        if (var7.getResult() == InteractionResult.SUCCESS) {
-                            if (var7.shouldSwingOnSuccess()) {
+                        InteractionResult var8 = this.gameMode.useItem(this.player, this.level, var0);
+                        if (var8.consumesAction()) {
+                            if (var8.shouldSwing()) {
                                 this.player.swing(var0);
                             }
 

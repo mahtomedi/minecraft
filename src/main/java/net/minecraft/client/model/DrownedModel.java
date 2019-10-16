@@ -1,7 +1,6 @@
 package net.minecraft.client.model;
 
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
@@ -14,7 +13,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class DrownedModel<T extends Zombie> extends ZombieModel<T> {
     public DrownedModel(float param0, float param1, int param2, int param3) {
-        super(RenderType::entityCutoutNoCull, param0, param1, param2, param3);
+        super(param0, param1, param2, param3);
         this.rightArm = new ModelPart(this, 32, 48);
         this.rightArm.addBox(-3.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, param0);
         this.rightArm.setPos(-5.0F, 2.0F + param1, 0.0F);
@@ -24,7 +23,7 @@ public class DrownedModel<T extends Zombie> extends ZombieModel<T> {
     }
 
     public DrownedModel(float param0, boolean param1) {
-        super(RenderType::entityCutoutNoCull, param0, 0.0F, 64, param1 ? 32 : 64);
+        super(param0, 0.0F, 64, param1 ? 32 : 64);
     }
 
     public void prepareMobModel(T param0, float param1, float param2, float param3) {

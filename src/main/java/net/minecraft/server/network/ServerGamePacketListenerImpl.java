@@ -95,9 +95,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.PlayerRideableJumping;
@@ -112,7 +112,6 @@ import net.minecraft.world.inventory.AnvilMenu;
 import net.minecraft.world.inventory.BeaconMenu;
 import net.minecraft.world.inventory.MerchantMenu;
 import net.minecraft.world.inventory.RecipeBookMenu;
-import net.minecraft.world.item.ElytraItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.WritableBookItem;
@@ -929,11 +928,14 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
             if (this.awaitingPositionFromClient == null
                 && this.player.distanceToSqr((double)var4.getX() + 0.5, (double)var4.getY() + 0.5, (double)var4.getZ() + 0.5) < 64.0
                 && var0.mayInteract(this.player, var4)) {
-                this.player.gameMode.useItemOn(this.player, var0, var2, var1, var3);
+                InteractionResult var6 = this.player.gameMode.useItemOn(this.player, var0, var2, var1, var3);
+                if (var6.shouldSwing()) {
+                    this.player.swing(var1, true);
+                }
             }
         } else {
-            Component var6 = new TranslatableComponent("build.tooHigh", this.server.getMaxBuildHeight()).withStyle(ChatFormatting.RED);
-            this.player.connection.send(new ClientboundChatPacket(var6, ChatType.GAME_INFO));
+            Component var7 = new TranslatableComponent("build.tooHigh", this.server.getMaxBuildHeight()).withStyle(ChatFormatting.RED);
+            this.player.connection.send(new ClientboundChatPacket(var7, ChatType.GAME_INFO));
         }
 
         this.player.connection.send(new ClientboundBlockUpdatePacket(var0, var4));
@@ -1122,12 +1124,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
                 }
                 break;
             case START_FALL_FLYING:
-                if (!this.player.onGround && this.player.getDeltaMovement().y < 0.0 && !this.player.isFallFlying() && !this.player.isInWater()) {
-                    ItemStack var3 = this.player.getItemBySlot(EquipmentSlot.CHEST);
-                    if (var3.getItem() == Items.ELYTRA && ElytraItem.isFlyEnabled(var3)) {
-                        this.player.startFallFlying();
-                    }
-                } else {
+                if (!this.player.tryToStartFallFlying()) {
                     this.player.stopFallFlying();
                 }
                 break;

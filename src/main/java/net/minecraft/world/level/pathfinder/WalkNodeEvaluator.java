@@ -431,8 +431,6 @@ public class WalkNodeEvaluator extends NodeEvaluator {
                                     param4 = BlockPathTypes.DANGER_FIRE;
                                 } else if (var4 == Blocks.SWEET_BERRY_BUSH) {
                                     param4 = BlockPathTypes.DANGER_OTHER;
-                                } else if (var4 == Blocks.HONEY_BLOCK) {
-                                    param4 = BlockPathTypes.STICKY_HONEY;
                                 }
                             }
                         }

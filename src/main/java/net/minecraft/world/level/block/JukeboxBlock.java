@@ -2,6 +2,7 @@ package net.minecraft.world.level.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -27,14 +28,14 @@ public class JukeboxBlock extends BaseEntityBlock {
     }
 
     @Override
-    public boolean use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
+    public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
         if (param0.getValue(HAS_RECORD)) {
             this.dropRecording(param1, param2);
             param0 = param0.setValue(HAS_RECORD, Boolean.valueOf(false));
             param1.setBlock(param2, param0, 2);
-            return true;
+            return InteractionResult.SUCCESS;
         } else {
-            return false;
+            return InteractionResult.PASS;
         }
     }
 

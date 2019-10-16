@@ -12,11 +12,13 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.Fireball;
 import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CampfireCookingRecipe;
@@ -60,7 +62,7 @@ public class CampfireBlock extends BaseEntityBlock implements SimpleWaterloggedB
     }
 
     @Override
-    public boolean use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
+    public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
         if (param0.getValue(LIT)) {
             BlockEntity var0 = param1.getBlockEntity(param2);
             if (var0 instanceof CampfireBlockEntity) {
@@ -70,14 +72,15 @@ public class CampfireBlock extends BaseEntityBlock implements SimpleWaterloggedB
                 if (var3.isPresent()) {
                     if (!param1.isClientSide && var1.placeFood(param3.abilities.instabuild ? var2.copy() : var2, var3.get().getCookingTime())) {
                         param3.awardStat(Stats.INTERACT_WITH_CAMPFIRE);
+                        return InteractionResult.SUCCESS;
                     }
 
-                    return true;
+                    return InteractionResult.CONSUME;
                 }
             }
         }
 
-        return false;
+        return InteractionResult.PASS;
     }
 
     @Override
@@ -207,9 +210,9 @@ public class CampfireBlock extends BaseEntityBlock implements SimpleWaterloggedB
 
     @Override
     public void onProjectileHit(Level param0, BlockState param1, BlockHitResult param2, Entity param3) {
-        if (!param0.isClientSide && param3 instanceof AbstractArrow) {
-            AbstractArrow var0 = (AbstractArrow)param3;
-            if (var0.isOnFire() && !param1.getValue(LIT) && !param1.getValue(WATERLOGGED)) {
+        if (!param0.isClientSide) {
+            boolean var0 = param3 instanceof Fireball || param3 instanceof AbstractArrow && param3.isOnFire();
+            if (var0 && !param1.getValue(LIT) && !param1.getValue(WATERLOGGED)) {
                 BlockPos var1 = param2.getBlockPos();
                 param0.setBlock(var1, param1.setValue(BlockStateProperties.LIT, Boolean.valueOf(true)), 11);
             }

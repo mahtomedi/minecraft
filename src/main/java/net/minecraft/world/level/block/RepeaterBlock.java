@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.level.Level;
@@ -36,12 +37,12 @@ public class RepeaterBlock extends DiodeBlock {
     }
 
     @Override
-    public boolean use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
+    public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
         if (!param3.abilities.mayBuild) {
-            return false;
+            return InteractionResult.PASS;
         } else {
             param1.setBlock(param2, param0.cycle(DELAY), 3);
-            return true;
+            return InteractionResult.SUCCESS;
         }
     }
 

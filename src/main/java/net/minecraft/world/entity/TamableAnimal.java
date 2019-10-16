@@ -85,6 +85,7 @@ public abstract class TamableAnimal extends Animal {
         return !this.isLeashed();
     }
 
+    @OnlyIn(Dist.CLIENT)
     protected void spawnTamingParticles(boolean param0) {
         ParticleOptions var0 = ParticleTypes.HEART;
         if (!param0) {

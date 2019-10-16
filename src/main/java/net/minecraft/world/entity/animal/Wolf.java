@@ -50,6 +50,7 @@ import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -338,60 +339,67 @@ public class Wolf extends TamableAnimal {
     public boolean mobInteract(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
         Item var1 = var0.getItem();
-        if (this.isTame()) {
-            if (!var0.isEmpty()) {
-                if (var1.isEdible()) {
-                    if (var1.getFoodProperties().isMeat() && this.entityData.get(DATA_HEALTH_ID) < 20.0F) {
-                        if (!param0.abilities.instabuild) {
-                            var0.shrink(1);
-                        }
-
-                        this.heal((float)var1.getFoodProperties().getNutrition());
-                        return true;
+        if (var0.getItem() instanceof SpawnEggItem) {
+            return super.mobInteract(param0, param1);
+        } else if (this.level.isClientSide) {
+            return this.isOwnedBy(param0) || var1 == Items.BONE && !this.isAngry();
+        } else {
+            if (this.isTame()) {
+                if (var1.isEdible() && var1.getFoodProperties().isMeat() && this.getHealth() < 20.0F) {
+                    if (!param0.abilities.instabuild) {
+                        var0.shrink(1);
                     }
-                } else if (var1 instanceof DyeItem) {
-                    DyeColor var2 = ((DyeItem)var1).getDyeColor();
-                    if (var2 != this.getCollarColor()) {
-                        this.setCollarColor(var2);
-                        if (!param0.abilities.instabuild) {
-                            var0.shrink(1);
-                        }
 
-                        return true;
-                    }
+                    this.heal((float)var1.getFoodProperties().getNutrition());
+                    return true;
                 }
-            }
 
-            if (this.isOwnedBy(param0) && !this.level.isClientSide && !this.isFood(var0)) {
-                this.sitGoal.wantToSit(!this.isSitting());
-                this.jumping = false;
-                this.navigation.stop();
-                this.setTarget(null);
-            }
-        } else if (var1 == Items.BONE && !this.isAngry()) {
-            if (!param0.abilities.instabuild) {
-                var0.shrink(1);
-            }
+                if (!(var1 instanceof DyeItem)) {
+                    boolean var3 = super.mobInteract(param0, param1);
+                    if (!var3 || this.isBaby()) {
+                        this.sitGoal.wantToSit(!this.isSitting());
+                    }
 
-            if (!this.level.isClientSide) {
+                    return var3;
+                }
+
+                DyeColor var2 = ((DyeItem)var1).getDyeColor();
+                if (var2 != this.getCollarColor()) {
+                    this.setCollarColor(var2);
+                    if (!param0.abilities.instabuild) {
+                        var0.shrink(1);
+                    }
+
+                    return true;
+                }
+
+                if (this.isOwnedBy(param0) && !this.isFood(var0)) {
+                    this.sitGoal.wantToSit(!this.isSitting());
+                    this.jumping = false;
+                    this.navigation.stop();
+                    this.setTarget(null);
+                }
+            } else if (var1 == Items.BONE && !this.isAngry()) {
+                if (!param0.abilities.instabuild) {
+                    var0.shrink(1);
+                }
+
                 if (this.random.nextInt(3) == 0) {
                     this.tame(param0);
                     this.navigation.stop();
                     this.setTarget(null);
                     this.sitGoal.wantToSit(true);
                     this.setHealth(20.0F);
-                    this.spawnTamingParticles(true);
                     this.level.broadcastEntityEvent(this, (byte)7);
                 } else {
-                    this.spawnTamingParticles(false);
                     this.level.broadcastEntityEvent(this, (byte)6);
                 }
+
+                return true;
             }
 
-            return true;
+            return super.mobInteract(param0, param1);
         }
-
-        return super.mobInteract(param0, param1);
     }
 
     @OnlyIn(Dist.CLIENT)

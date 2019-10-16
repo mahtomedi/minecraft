@@ -323,13 +323,13 @@ public abstract class Entity implements CommandSource, Nameable {
 
     public void setPos(double param0, double param1, double param2) {
         this.setPosRaw(param0, param1, param2);
-        this.refreshBoundingBox();
-    }
-
-    protected void refreshBoundingBox() {
         float var0 = this.dimensions.width / 2.0F;
         float var1 = this.dimensions.height;
-        this.setBoundingBox(new AABB(this.x - (double)var0, this.y, this.z - (double)var0, this.x + (double)var0, this.y + (double)var1, this.z + (double)var0));
+        this.setBoundingBox(new AABB(param0 - (double)var0, param1, param2 - (double)var0, param0 + (double)var0, param1 + (double)var1, param2 + (double)var0));
+    }
+
+    protected void reapplyPosition() {
+        this.setPos(this.x, this.y, this.z);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -552,7 +552,7 @@ public abstract class Entity implements CommandSource, Nameable {
                 throw new ReportedException(var13);
             }
 
-            this.setDeltaMovement(this.getDeltaMovement().multiply((double)this.getSpeedFactor(), 1.0, (double)this.getSpeedFactor()));
+            this.setDeltaMovement(this.getDeltaMovement().multiply((double)this.getBlockSpeedFactor(), 1.0, (double)this.getBlockSpeedFactor()));
             boolean var15 = this.isInWaterRainOrBubble();
             if (this.level.containsFireBlock(this.getBoundingBox().deflate(0.001))) {
                 if (!var15) {
@@ -593,20 +593,20 @@ public abstract class Entity implements CommandSource, Nameable {
         return var3;
     }
 
-    protected float getJumpFactor() {
+    protected float getBlockJumpFactor() {
         float var0 = this.level.getBlockState(new BlockPos(this)).getBlock().getJumpFactor();
         float var1 = this.level.getBlockState(this.getBlockPosBelowThatAffectsMyMovement()).getBlock().getJumpFactor();
         return (double)var0 == 1.0 ? var1 : var0;
     }
 
-    private float getSpeedFactor() {
+    private float getBlockSpeedFactor() {
         float var0 = this.level.getBlockState(new BlockPos(this)).getBlock().getSpeedFactor();
         float var1 = this.level.getBlockState(this.getBlockPosBelowThatAffectsMyMovement()).getBlock().getSpeedFactor();
         return (double)var0 == 1.0 ? var1 : var0;
     }
 
     protected BlockPos getBlockPosBelowThatAffectsMyMovement() {
-        return new BlockPos(this.x, this.getBoundingBox().minY - 0.5 - 1.0E-7, this.z);
+        return new BlockPos(this.x, this.getBoundingBox().minY - 0.5000001, this.z);
     }
 
     protected Vec3 maybeBackOffFromEdge(Vec3 param0, MoverType param1) {
@@ -1131,7 +1131,7 @@ public abstract class Entity implements CommandSource, Nameable {
         this.setPosAndOldPos(param0, param1, param2);
         this.yRot = param3;
         this.xRot = param4;
-        this.refreshBoundingBox();
+        this.reapplyPosition();
     }
 
     public void setPosAndOldPos(double param0, double param1, double param2) {
@@ -1426,7 +1426,7 @@ public abstract class Entity implements CommandSource, Nameable {
             if (!Double.isFinite(this.getX()) || !Double.isFinite(this.getY()) || !Double.isFinite(this.getZ())) {
                 throw new IllegalStateException("Entity has invalid position");
             } else if (Double.isFinite((double)this.yRot) && Double.isFinite((double)this.xRot)) {
-                this.refreshBoundingBox();
+                this.reapplyPosition();
                 this.setRot(this.yRot, this.xRot);
                 if (param0.contains("CustomName", 8)) {
                     this.setCustomName(Component.Serializer.fromJson(param0.getString("CustomName")));
@@ -1448,7 +1448,7 @@ public abstract class Entity implements CommandSource, Nameable {
 
                 this.readAdditionalSaveData(param0);
                 if (this.repositionEntityAfterLoad()) {
-                    this.setPos(this.getX(), this.getY(), this.getZ());
+                    this.reapplyPosition();
                 }
 
             } else {

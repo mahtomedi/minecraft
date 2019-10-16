@@ -16,7 +16,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class HorseArmorLayer extends RenderLayer<Horse, HorseModel<Horse>> {
-    private final HorseModel<Horse> model = new HorseModel<>(RenderType::entitySolid, 0.1F);
+    private final HorseModel<Horse> model = new HorseModel<>(0.1F);
 
     public HorseArmorLayer(RenderLayerParent<Horse, HorseModel<Horse>> param0) {
         super(param0);

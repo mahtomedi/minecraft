@@ -32,7 +32,7 @@ public class LeadItem extends Item {
         }
     }
 
-    public static boolean bindPlayerMobs(Player param0, Level param1, BlockPos param2) {
+    public static InteractionResult bindPlayerMobs(Player param0, Level param1, BlockPos param2) {
         LeashFenceKnotEntity var0 = null;
         boolean var1 = false;
         double var2 = 7.0;
@@ -53,6 +53,6 @@ public class LeadItem extends Item {
             }
         }
 
-        return var1;
+        return var1 ? InteractionResult.SUCCESS : InteractionResult.PASS;
     }
 }

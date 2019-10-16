@@ -48,7 +48,7 @@ public class ShieldItem extends Item {
     public InteractionResultHolder<ItemStack> use(Level param0, Player param1, InteractionHand param2) {
         ItemStack var0 = param1.getItemInHand(param2);
         param1.startUsingItem(param2);
-        return InteractionResultHolder.successNoSwing(var0);
+        return InteractionResultHolder.consume(var0);
     }
 
     @Override

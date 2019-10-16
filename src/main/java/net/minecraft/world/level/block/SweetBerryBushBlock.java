@@ -6,6 +6,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -77,17 +78,17 @@ public class SweetBerryBushBlock extends BushBlock implements BonemealableBlock 
     }
 
     @Override
-    public boolean use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
+    public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
         int var0 = param0.getValue(AGE);
         boolean var1 = var0 == 3;
         if (!var1 && param3.getItemInHand(param4).getItem() == Items.BONE_MEAL) {
-            return false;
+            return InteractionResult.PASS;
         } else if (var0 > 1) {
             int var2 = 1 + param1.random.nextInt(2);
             popResource(param1, param2, new ItemStack(Items.SWEET_BERRIES, var2 + (var1 ? 1 : 0)));
             param1.playSound(null, param2, SoundEvents.SWEET_BERRY_BUSH_PICK_BERRIES, SoundSource.BLOCKS, 1.0F, 0.8F + param1.random.nextFloat() * 0.4F);
             param1.setBlock(param2, param0.setValue(AGE, Integer.valueOf(1)), 2);
-            return true;
+            return InteractionResult.SUCCESS;
         } else {
             return super.use(param0, param1, param2, param3, param4, param5);
         }

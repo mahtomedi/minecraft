@@ -5,6 +5,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -117,9 +118,9 @@ public class HopperBlock extends BaseEntityBlock {
     }
 
     @Override
-    public boolean use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
+    public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
         if (param1.isClientSide) {
-            return true;
+            return InteractionResult.SUCCESS;
         } else {
             BlockEntity var0 = param1.getBlockEntity(param2);
             if (var0 instanceof HopperBlockEntity) {
@@ -127,7 +128,7 @@ public class HopperBlock extends BaseEntityBlock {
                 param3.awardStat(Stats.INSPECT_HOPPER);
             }
 
-            return true;
+            return InteractionResult.SUCCESS;
         }
     }
 

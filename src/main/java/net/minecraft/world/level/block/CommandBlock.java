@@ -6,6 +6,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockPlaceContext;
@@ -112,13 +113,13 @@ public class CommandBlock extends BaseEntityBlock {
     }
 
     @Override
-    public boolean use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
+    public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
         BlockEntity var0 = param1.getBlockEntity(param2);
         if (var0 instanceof CommandBlockEntity && param3.canUseGameMasterBlocks()) {
             param3.openCommandBlock((CommandBlockEntity)var0);
-            return true;
+            return InteractionResult.SUCCESS;
         } else {
-            return false;
+            return InteractionResult.PASS;
         }
     }
 

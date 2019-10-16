@@ -55,7 +55,7 @@ public class ItemFrameRenderer extends EntityRenderer<ItemFrame> {
             .renderModel(
                 param6.getPose(),
                 param6.getNormal(),
-                param7.getBuffer(RenderType.solid()),
+                param7.getBuffer(RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS)),
                 null,
                 var4.getModel(var5),
                 1.0F,

@@ -3,8 +3,8 @@ package net.minecraft.client.renderer.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Random;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
@@ -33,7 +33,7 @@ public class FallingBlockRenderer extends EntityRenderer<FallingBlockEntity> {
             if (var0 != var1.getBlockState(new BlockPos(param0)) && var0.getRenderShape() != RenderShape.INVISIBLE) {
                 param6.pushPose();
                 BlockPos var2 = new BlockPos(param0.getX(), param0.getBoundingBox().maxY, param0.getZ());
-                param6.translate((double)(-(var2.getX() & 15)) - 0.5, (double)(-(var2.getY() & 15)), (double)(-(var2.getZ() & 15)) - 0.5);
+                param6.translate(-0.5, 0.0, -0.5);
                 BlockRenderDispatcher var3 = Minecraft.getInstance().getBlockRenderer();
                 var3.getModelRenderer()
                     .tesselateBlock(
@@ -42,7 +42,7 @@ public class FallingBlockRenderer extends EntityRenderer<FallingBlockEntity> {
                         var0,
                         var2,
                         param6,
-                        param7.getBuffer(RenderType.getChunkRenderType(var0)),
+                        param7.getBuffer(ItemBlockRenderTypes.getChunkRenderType(var0)),
                         false,
                         new Random(),
                         var0.getSeed(param0.getStartPos()),

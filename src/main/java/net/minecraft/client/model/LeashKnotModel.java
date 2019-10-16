@@ -2,7 +2,6 @@ package net.minecraft.client.model;
 
 import com.google.common.collect.ImmutableList;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -12,7 +11,6 @@ public class LeashKnotModel<T extends Entity> extends ListModel<T> {
     private final ModelPart knot;
 
     public LeashKnotModel() {
-        super(RenderType::entityCutoutNoCull);
         this.texWidth = 32;
         this.texHeight = 32;
         this.knot = new ModelPart(this, 0, 0);

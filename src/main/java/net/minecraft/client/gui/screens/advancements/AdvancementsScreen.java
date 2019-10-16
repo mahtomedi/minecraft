@@ -117,8 +117,7 @@ public class AdvancementsScreen extends Screen implements ClientAdvancements.Lis
             this.font.draw(":(", (float)(param2 + 9 + 117 - this.font.width(":(") / 2), (float)(param3 + 18 + 113 - 9), -1);
         } else {
             RenderSystem.pushMatrix();
-            RenderSystem.translatef((float)(param2 + 9), (float)(param3 + 18), -400.0F);
-            RenderSystem.enableDepthTest();
+            RenderSystem.translatef((float)(param2 + 9), (float)(param3 + 18), 0.0F);
             var0.drawContents();
             RenderSystem.popMatrix();
             RenderSystem.depthFunc(515);

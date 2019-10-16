@@ -9,6 +9,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -77,15 +78,15 @@ public class BedBlock extends HorizontalDirectionalBlock implements EntityBlock 
     }
 
     @Override
-    public boolean use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
+    public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
         if (param1.isClientSide) {
-            return true;
+            return InteractionResult.CONSUME;
         } else {
             if (param0.getValue(PART) != BedPart.HEAD) {
                 param2 = param2.relative(param0.getValue(FACING));
                 param0 = param1.getBlockState(param2);
                 if (param0.getBlock() != this) {
-                    return true;
+                    return InteractionResult.CONSUME;
                 }
             }
 
@@ -106,13 +107,13 @@ public class BedBlock extends HorizontalDirectionalBlock implements EntityBlock 
                     true,
                     Explosion.BlockInteraction.DESTROY
                 );
-                return true;
+                return InteractionResult.SUCCESS;
             } else if (param0.getValue(OCCUPIED)) {
                 if (!this.kickVillagerOutOfBed(param1, param2)) {
                     param3.displayClientMessage(new TranslatableComponent("block.minecraft.bed.occupied"), true);
                 }
 
-                return true;
+                return InteractionResult.SUCCESS;
             } else {
                 param3.startSleepInBed(param2).ifLeft(param1x -> {
                     if (param1x != null) {
@@ -120,7 +121,7 @@ public class BedBlock extends HorizontalDirectionalBlock implements EntityBlock 
                     }
 
                 });
-                return true;
+                return InteractionResult.SUCCESS;
             }
         }
     }

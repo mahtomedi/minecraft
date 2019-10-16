@@ -2,7 +2,6 @@ package net.minecraft.client.model;
 
 import com.google.common.collect.ImmutableList;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.monster.Ravager;
 import net.minecraftforge.api.distmarker.Dist;
@@ -20,7 +19,6 @@ public class RavagerModel extends ListModel<Ravager> {
     private final ModelPart neck;
 
     public RavagerModel() {
-        super(RenderType::entityCutoutNoCull);
         this.texWidth = 128;
         this.texHeight = 128;
         int var0 = 16;

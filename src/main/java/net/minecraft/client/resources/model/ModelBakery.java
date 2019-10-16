@@ -115,12 +115,15 @@ public class ModelBakery {
         param0.add(FIRE_1);
         param0.add(BellRenderer.BELL_RESOURCE_LOCATION);
         param0.addAll(Arrays.asList(BedRenderer.TEXTURES));
-        param0.add(ChestRenderer.CHEST_LARGE_TRAP_LOCATION);
-        param0.add(ChestRenderer.CHEST_LARGE_XMAS_LOCATION);
-        param0.add(ChestRenderer.CHEST_LARGE_LOCATION);
         param0.add(ChestRenderer.CHEST_TRAP_LOCATION);
+        param0.add(ChestRenderer.CHEST_TRAP_LOCATION_LEFT);
+        param0.add(ChestRenderer.CHEST_TRAP_LOCATION_RIGHT);
         param0.add(ChestRenderer.CHEST_XMAS_LOCATION);
+        param0.add(ChestRenderer.CHEST_XMAS_LOCATION_LEFT);
+        param0.add(ChestRenderer.CHEST_XMAS_LOCATION_RIGHT);
         param0.add(ChestRenderer.CHEST_LOCATION);
+        param0.add(ChestRenderer.CHEST_LOCATION_LEFT);
+        param0.add(ChestRenderer.CHEST_LOCATION_RIGHT);
         param0.add(ChestRenderer.ENDER_CHEST_LOCATION);
         param0.add(ConduitRenderer.SHELL_TEXTURE);
         param0.add(ConduitRenderer.ACTIVE_SHELL_TEXTURE);

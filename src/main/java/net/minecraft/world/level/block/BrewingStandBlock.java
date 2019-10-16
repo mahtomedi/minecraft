@@ -6,6 +6,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -59,9 +60,9 @@ public class BrewingStandBlock extends BaseEntityBlock {
     }
 
     @Override
-    public boolean use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
+    public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
         if (param1.isClientSide) {
-            return true;
+            return InteractionResult.SUCCESS;
         } else {
             BlockEntity var0 = param1.getBlockEntity(param2);
             if (var0 instanceof BrewingStandBlockEntity) {
@@ -69,7 +70,7 @@ public class BrewingStandBlock extends BaseEntityBlock {
                 param3.awardStat(Stats.INTERACT_WITH_BREWINGSTAND);
             }
 
-            return true;
+            return InteractionResult.SUCCESS;
         }
     }
 

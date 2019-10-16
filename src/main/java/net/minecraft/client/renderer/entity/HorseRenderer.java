@@ -4,7 +4,6 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HorseModel;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.layers.HorseArmorLayer;
 import net.minecraft.client.renderer.texture.LayeredTexture;
 import net.minecraft.resources.ResourceLocation;
@@ -17,7 +16,7 @@ public final class HorseRenderer extends AbstractHorseRenderer<Horse, HorseModel
     private static final Map<String, ResourceLocation> LAYERED_LOCATION_CACHE = Maps.newHashMap();
 
     public HorseRenderer(EntityRenderDispatcher param0) {
-        super(param0, new HorseModel<>(RenderType::entitySolid, 0.0F), 1.1F);
+        super(param0, new HorseModel<>(0.0F), 1.1F);
         this.addLayer(new HorseArmorLayer(this));
     }
 

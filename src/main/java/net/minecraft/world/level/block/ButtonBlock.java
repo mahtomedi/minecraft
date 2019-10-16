@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
@@ -92,13 +93,13 @@ public abstract class ButtonBlock extends FaceAttachedHorizontalDirectionalBlock
     }
 
     @Override
-    public boolean use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
+    public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
         if (param0.getValue(POWERED)) {
-            return true;
+            return InteractionResult.CONSUME;
         } else {
             this.press(param0, param1, param2);
             this.playSound(param3, param1, param2, true);
-            return true;
+            return InteractionResult.SUCCESS;
         }
     }
 

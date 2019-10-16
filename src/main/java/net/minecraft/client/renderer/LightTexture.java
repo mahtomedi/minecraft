@@ -167,4 +167,16 @@ public class LightTexture implements AutoCloseable {
     private float getBrightness(Level param0, int param1) {
         return param0.dimension.getBrightnessRamp()[param1];
     }
+
+    public static int pack(int param0, int param1) {
+        return param0 | param1 << 16;
+    }
+
+    public static int block(int param0) {
+        return param0 & 65535;
+    }
+
+    public static int sky(int param0) {
+        return param0 >> 16 & 65535;
+    }
 }

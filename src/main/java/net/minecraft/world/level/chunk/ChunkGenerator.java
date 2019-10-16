@@ -158,17 +158,19 @@ public abstract class ChunkGenerator<C extends ChunkGeneratorSettings> {
     public void createStructures(BiomeManager param0, ChunkAccess param1, ChunkGenerator<?> param2, StructureManager param3) {
         for(StructureFeature<?> var0 : Feature.STRUCTURES_REGISTRY.values()) {
             if (param2.getBiomeSource().canGenerateStructure(var0)) {
-                WorldgenRandom var1 = new WorldgenRandom();
-                ChunkPos var2 = param1.getPos();
-                StructureStart var3 = StructureStart.INVALID_START;
-                Biome var4 = param0.getBiome(new BlockPos(var2.getMinBlockX() + 9, 0, var2.getMinBlockZ() + 9));
-                if (var0.isFeatureChunk(param0, param2, var1, var2.x, var2.z, var4)) {
-                    StructureStart var5 = var0.getStartFactory().create(var0, var2.x, var2.z, BoundingBox.getUnknownBox(), 0, param2.getSeed());
-                    var5.generatePieces(this, param3, var2.x, var2.z, var4);
-                    var3 = var5.isValid() ? var5 : StructureStart.INVALID_START;
+                StructureStart var1 = param1.getStartForFeature(var0.getFeatureName());
+                int var2 = var1 != null ? var1.getReferences() : 0;
+                WorldgenRandom var3 = new WorldgenRandom();
+                ChunkPos var4 = param1.getPos();
+                StructureStart var5 = StructureStart.INVALID_START;
+                Biome var6 = param0.getBiome(new BlockPos(var4.getMinBlockX() + 9, 0, var4.getMinBlockZ() + 9));
+                if (var0.isFeatureChunk(param0, param2, var3, var4.x, var4.z, var6)) {
+                    StructureStart var7 = var0.getStartFactory().create(var0, var4.x, var4.z, BoundingBox.getUnknownBox(), var2, param2.getSeed());
+                    var7.generatePieces(this, param3, var4.x, var4.z, var6);
+                    var5 = var7.isValid() ? var7 : StructureStart.INVALID_START;
                 }
 
-                param1.setStartForFeature(var0.getFeatureName(), var3);
+                param1.setStartForFeature(var0.getFeatureName(), var5);
             }
         }
 

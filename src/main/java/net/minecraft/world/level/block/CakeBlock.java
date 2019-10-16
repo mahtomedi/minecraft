@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
@@ -42,18 +43,24 @@ public class CakeBlock extends Block {
     }
 
     @Override
-    public boolean use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
-        if (!param1.isClientSide) {
-            return this.eat(param1, param2, param0, param3);
-        } else {
+    public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
+        if (param1.isClientSide) {
             ItemStack var0 = param3.getItemInHand(param4);
-            return this.eat(param1, param2, param0, param3) || var0.isEmpty();
+            if (this.eat(param1, param2, param0, param3) == InteractionResult.SUCCESS) {
+                return InteractionResult.SUCCESS;
+            }
+
+            if (var0.isEmpty()) {
+                return InteractionResult.CONSUME;
+            }
         }
+
+        return this.eat(param1, param2, param0, param3);
     }
 
-    private boolean eat(LevelAccessor param0, BlockPos param1, BlockState param2, Player param3) {
+    private InteractionResult eat(LevelAccessor param0, BlockPos param1, BlockState param2, Player param3) {
         if (!param3.canEat(false)) {
-            return false;
+            return InteractionResult.PASS;
         } else {
             param3.awardStat(Stats.EAT_CAKE_SLICE);
             param3.getFoodData().eat(2, 0.1F);
@@ -64,7 +71,7 @@ public class CakeBlock extends Block {
                 param0.removeBlock(param1, false);
             }
 
-            return true;
+            return InteractionResult.SUCCESS;
         }
     }
 
