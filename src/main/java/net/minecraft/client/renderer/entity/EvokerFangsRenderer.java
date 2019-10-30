@@ -33,6 +33,7 @@ public class EvokerFangsRenderer extends EntityRenderer<EvokerFangs> {
             param6.scale(-var1, -var1, var1);
             float var2 = 0.03125F;
             param6.translate(0.0, -0.626F, 0.0);
+            param6.scale(0.5F, 0.5F, 0.5F);
             int var3 = param0.getLightColor();
             this.model.setupAnim(param0, var0, 0.0F, 0.0F, param0.yRot, param0.xRot, 0.03125F);
             VertexConsumer var4 = param7.getBuffer(this.model.renderType(TEXTURE_LOCATION));

@@ -45,10 +45,6 @@ public class AcaciaFoliagePlacer extends FoliagePlacer {
 
     @Override
     public int getTreeRadiusForHeight(int param0, int param1, int param2, int param3) {
-        if (param3 == 0) {
-            return 0;
-        } else {
-            return param3 >= 1 + param1 - 2 ? param2 : 1;
-        }
+        return param3 == 0 ? 0 : 2;
     }
 }

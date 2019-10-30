@@ -84,10 +84,8 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
         param0.put(EntityType.HUSK, SoundEvents.PARROT_IMITATE_HUSK);
         param0.put(EntityType.ILLUSIONER, SoundEvents.PARROT_IMITATE_ILLUSIONER);
         param0.put(EntityType.MAGMA_CUBE, SoundEvents.PARROT_IMITATE_MAGMA_CUBE);
-        param0.put(EntityType.ZOMBIE_PIGMAN, SoundEvents.PARROT_IMITATE_ZOMBIE_PIGMAN);
         param0.put(EntityType.PHANTOM, SoundEvents.PARROT_IMITATE_PHANTOM);
         param0.put(EntityType.PILLAGER, SoundEvents.PARROT_IMITATE_PILLAGER);
-        param0.put(EntityType.POLAR_BEAR, SoundEvents.PARROT_IMITATE_POLAR_BEAR);
         param0.put(EntityType.RAVAGER, SoundEvents.PARROT_IMITATE_RAVAGER);
         param0.put(EntityType.SHULKER, SoundEvents.PARROT_IMITATE_SHULKER);
         param0.put(EntityType.SILVERFISH, SoundEvents.PARROT_IMITATE_SILVERFISH);
@@ -100,7 +98,6 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
         param0.put(EntityType.WITCH, SoundEvents.PARROT_IMITATE_WITCH);
         param0.put(EntityType.WITHER, SoundEvents.PARROT_IMITATE_WITHER);
         param0.put(EntityType.WITHER_SKELETON, SoundEvents.PARROT_IMITATE_WITHER_SKELETON);
-        param0.put(EntityType.WOLF, SoundEvents.PARROT_IMITATE_WOLF);
         param0.put(EntityType.ZOMBIE, SoundEvents.PARROT_IMITATE_ZOMBIE);
         param0.put(EntityType.ZOMBIE_VILLAGER, SoundEvents.PARROT_IMITATE_ZOMBIE_VILLAGER);
     });

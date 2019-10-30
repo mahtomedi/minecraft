@@ -243,7 +243,6 @@ public class FogRenderer {
         }
 
         RenderSystem.enableFog();
-        RenderSystem.colorMaterial(1028, 4608);
     }
 
     public static void resetFogColor(boolean param0) {

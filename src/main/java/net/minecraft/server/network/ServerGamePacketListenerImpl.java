@@ -654,6 +654,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
 
     @Override
     public void handleEditBook(ServerboundEditBookPacket param0) {
+        PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
         ItemStack var0 = param0.getBook();
         if (!var0.isEmpty()) {
             if (WritableBookItem.makeSureTagIsValid(var0.getTag())) {
@@ -1300,10 +1301,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
                 this.player.inventoryMenu.broadcastChanges();
             } else if (var0 && var7 && this.dropSpamTickCount < 200) {
                 this.dropSpamTickCount += 20;
-                ItemEntity var8 = this.player.drop(var1, true);
-                if (var8 != null) {
-                    var8.setShortLifeTime();
-                }
+                this.player.drop(var1, true);
             }
         }
 

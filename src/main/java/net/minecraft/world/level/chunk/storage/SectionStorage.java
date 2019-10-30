@@ -30,8 +30,9 @@ import net.minecraft.world.level.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class SectionStorage<R extends Serializable> extends RegionFileStorage {
+public class SectionStorage<R extends Serializable> implements AutoCloseable {
     private static final Logger LOGGER = LogManager.getLogger();
+    private final IOWorker worker;
     private final Long2ObjectMap<Optional<R>> storage = new Long2ObjectOpenHashMap<>();
     private final LongLinkedOpenHashSet dirty = new LongLinkedOpenHashSet();
     private final BiFunction<Runnable, Dynamic<?>, R> deserializer;
@@ -40,11 +41,11 @@ public class SectionStorage<R extends Serializable> extends RegionFileStorage {
     private final DataFixTypes type;
 
     public SectionStorage(File param0, BiFunction<Runnable, Dynamic<?>, R> param1, Function<Runnable, R> param2, DataFixer param3, DataFixTypes param4) {
-        super(param0);
         this.deserializer = param1;
         this.factory = param2;
         this.fixerUpper = param3;
         this.type = param4;
+        this.worker = new IOWorker(new RegionFileStorage(param0), param0.getName());
     }
 
     protected void tick(BooleanSupplier param0) {
@@ -102,7 +103,7 @@ public class SectionStorage<R extends Serializable> extends RegionFileStorage {
     @Nullable
     private CompoundTag tryRead(ChunkPos param0) {
         try {
-            return this.read(param0);
+            return this.worker.load(param0);
         } catch (IOException var3) {
             LOGGER.error("Error reading chunk {} data from disk", param0, var3);
             return null;
@@ -142,11 +143,7 @@ public class SectionStorage<R extends Serializable> extends RegionFileStorage {
         Dynamic<Tag> var0 = this.writeColumn(param0, NbtOps.INSTANCE);
         Tag var1 = var0.getValue();
         if (var1 instanceof CompoundTag) {
-            try {
-                this.write(param0, (CompoundTag)var1);
-            } catch (IOException var5) {
-                LOGGER.error("Error writing data to disk", (Throwable)var5);
-            }
+            this.worker.store(param0, (CompoundTag)var1);
         } else {
             LOGGER.error("Expected compound tag, got {}", var1);
         }
@@ -205,5 +202,10 @@ public class SectionStorage<R extends Serializable> extends RegionFileStorage {
             }
         }
 
+    }
+
+    @Override
+    public void close() throws IOException {
+        this.worker.close();
     }
 }

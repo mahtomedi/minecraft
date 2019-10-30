@@ -656,11 +656,8 @@ public class GlStateManager {
 
     public static void setupLevelDiffuseLighting(Matrix4f param0) {
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
-        _enableLighting();
         _enableLight(0);
         _enableLight(1);
-        _enableColorMaterial();
-        _colorMaterial(1032, 5634);
         Vector4f var0 = new Vector4f(DIFFUSE_LIGHT_0);
         var0.transform(param0);
         _light(16384, 4611, getBuffer(var0.x(), var0.y(), var0.z(), 0.0F));
@@ -677,8 +674,6 @@ public class GlStateManager {
         _shadeModel(7424);
         float var3 = 0.4F;
         _lightModel(2899, getBuffer(0.4F, 0.4F, 0.4F, 1.0F));
-        _disableLighting();
-        _disableColorMaterial();
     }
 
     public static void setupGuiDiffuseLighting(Matrix4f param0) {

@@ -495,12 +495,16 @@ public class EntitySelectorOptions {
                                 return false;
                             } else {
                                 ServerLevel var0x = (ServerLevel)param2.level;
-                                LootItemCondition var1x = var0x.getServer().getPredicateManager().get(var1, LootItemCondition.FALSE);
-                                LootContext var2x = new LootContext.Builder(var0x)
-                                    .withParameter(LootContextParams.THIS_ENTITY, param2)
-                                    .withParameter(LootContextParams.BLOCK_POS, new BlockPos(param2))
-                                    .create(LootContextParamSets.SELECTOR);
-                                return var0 ^ var1x.test(var2x);
+                                LootItemCondition var1x = var0x.getServer().getPredicateManager().get(var1);
+                                if (var1x == null) {
+                                    return false;
+                                } else {
+                                    LootContext var2x = new LootContext.Builder(var0x)
+                                        .withParameter(LootContextParams.THIS_ENTITY, param2)
+                                        .withParameter(LootContextParams.BLOCK_POS, new BlockPos(param2))
+                                        .create(LootContextParamSets.SELECTOR);
+                                    return var0 ^ var1x.test(var2x);
+                                }
                             }
                         }
                     );

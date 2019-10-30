@@ -703,10 +703,12 @@ public class LocalPlayer extends AbstractClientPlayer {
             }
         }
 
+        boolean var7 = false;
         if (this.abilities.mayfly) {
             if (this.minecraft.gameMode.isAlwaysFlying()) {
                 if (!this.abilities.flying) {
                     this.abilities.flying = true;
+                    var7 = true;
                     this.onUpdateAbilities();
                 }
             } else if (!var0 && this.input.jumping && !var3) {
@@ -714,15 +716,16 @@ public class LocalPlayer extends AbstractClientPlayer {
                     this.jumpTriggerTime = 7;
                 } else if (!this.isSwimming()) {
                     this.abilities.flying = !this.abilities.flying;
+                    var7 = true;
                     this.onUpdateAbilities();
                     this.jumpTriggerTime = 0;
                 }
             }
         }
 
-        if (this.input.jumping && !var0 && !this.abilities.flying) {
-            ItemStack var7 = this.getItemBySlot(EquipmentSlot.CHEST);
-            if (var7.getItem() == Items.ELYTRA && ElytraItem.isFlyEnabled(var7) && this.tryToStartFallFlying()) {
+        if (this.input.jumping && !var7 && !var0 && !this.abilities.flying) {
+            ItemStack var8 = this.getItemBySlot(EquipmentSlot.CHEST);
+            if (var8.getItem() == Items.ELYTRA && ElytraItem.isFlyEnabled(var8) && this.tryToStartFallFlying()) {
                 this.connection.send(new ServerboundPlayerCommandPacket(this, ServerboundPlayerCommandPacket.Action.START_FALL_FLYING));
             }
         }
@@ -733,30 +736,30 @@ public class LocalPlayer extends AbstractClientPlayer {
         }
 
         if (this.isUnderLiquid(FluidTags.WATER)) {
-            int var8 = this.isSpectator() ? 10 : 1;
-            this.waterVisionTime = Mth.clamp(this.waterVisionTime + var8, 0, 600);
+            int var9 = this.isSpectator() ? 10 : 1;
+            this.waterVisionTime = Mth.clamp(this.waterVisionTime + var9, 0, 600);
         } else if (this.waterVisionTime > 0) {
             this.isUnderLiquid(FluidTags.WATER);
             this.waterVisionTime = Mth.clamp(this.waterVisionTime - 10, 0, 600);
         }
 
         if (this.abilities.flying && this.isControlledCamera()) {
-            int var9 = 0;
+            int var10 = 0;
             if (this.input.shiftKeyDown) {
-                --var9;
+                --var10;
             }
 
             if (this.input.jumping) {
-                ++var9;
+                ++var10;
             }
 
-            if (var9 != 0) {
-                this.setDeltaMovement(this.getDeltaMovement().add(0.0, (double)((float)var9 * this.abilities.getFlyingSpeed() * 3.0F), 0.0));
+            if (var10 != 0) {
+                this.setDeltaMovement(this.getDeltaMovement().add(0.0, (double)((float)var10 * this.abilities.getFlyingSpeed() * 3.0F), 0.0));
             }
         }
 
         if (this.isRidingJumpable()) {
-            PlayerRideableJumping var10 = (PlayerRideableJumping)this.getVehicle();
+            PlayerRideableJumping var11 = (PlayerRideableJumping)this.getVehicle();
             if (this.jumpRidingTicks < 0) {
                 ++this.jumpRidingTicks;
                 if (this.jumpRidingTicks == 0) {
@@ -766,7 +769,7 @@ public class LocalPlayer extends AbstractClientPlayer {
 
             if (var0 && !this.input.jumping) {
                 this.jumpRidingTicks = -10;
-                var10.onPlayerJump(Mth.floor(this.getJumpRidingScale() * 100.0F));
+                var11.onPlayerJump(Mth.floor(this.getJumpRidingScale() * 100.0F));
                 this.sendRidingJump();
             } else if (!var0 && this.input.jumping) {
                 this.jumpRidingTicks = 0;

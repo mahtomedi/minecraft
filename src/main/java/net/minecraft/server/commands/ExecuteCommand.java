@@ -49,7 +49,6 @@ import net.minecraft.nbt.LongTag;
 import net.minecraft.nbt.ShortTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.bossevents.CustomBossEvent;
 import net.minecraft.server.commands.data.DataAccessor;
 import net.minecraft.server.commands.data.DataCommands;
@@ -560,7 +559,7 @@ public class ExecuteCommand {
                             param0,
                             Commands.argument("predicate", ResourceLocationArgument.id()).suggests(SUGGEST_PREDICATE),
                             param2,
-                            param0x -> checkCustomPredicate(param0x.getSource(), ResourceLocationArgument.getId(param0x, "predicate"))
+                            param0x -> checkCustomPredicate(param0x.getSource(), ResourceLocationArgument.getPredicate(param0x, "predicate"))
                         )
                     )
             );
@@ -634,14 +633,12 @@ public class ExecuteCommand {
         return !var2.hasPlayerScore(var0, var1) ? false : param1.matches(var2.getOrCreatePlayerScore(var0, var1).getScore());
     }
 
-    private static boolean checkCustomPredicate(CommandSourceStack param0, ResourceLocation param1) {
+    private static boolean checkCustomPredicate(CommandSourceStack param0, LootItemCondition param1) {
         ServerLevel var0 = param0.getLevel();
-        PredicateManager var1 = var0.getServer().getPredicateManager();
-        LootItemCondition var2 = var1.get(param1, LootItemCondition.FALSE);
-        LootContext.Builder var3 = new LootContext.Builder(var0)
+        LootContext.Builder var1 = new LootContext.Builder(var0)
             .withParameter(LootContextParams.BLOCK_POS, new BlockPos(param0.getPosition()))
             .withOptionalParameter(LootContextParams.THIS_ENTITY, param0.getEntity());
-        return var2.test(var3.create(LootContextParamSets.COMMAND));
+        return param1.test(var1.create(LootContextParamSets.COMMAND));
     }
 
     private static Collection<CommandSourceStack> expect(CommandContext<CommandSourceStack> param0, boolean param1, boolean param2) {

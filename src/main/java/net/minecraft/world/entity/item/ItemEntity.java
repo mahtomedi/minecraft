@@ -205,10 +205,6 @@ public class ItemEntity extends Entity {
 
     }
 
-    public void setShortLifeTime() {
-        this.age = 4800;
-    }
-
     @Override
     protected void burn(int param0) {
         this.hurt(DamageSource.IN_FIRE, (float)param0);

@@ -255,11 +255,11 @@ public class ServerPlayerGameMode {
                     return true;
                 } else {
                     ItemStack var4 = this.player.getMainHandItem();
-                    boolean var5 = this.player.canDestroy(var0);
+                    ItemStack var5 = var4.copy();
+                    boolean var6 = this.player.canDestroy(var0);
                     var4.mineBlock(this.level, var0, param0, this.player);
-                    if (var3 && var5) {
-                        ItemStack var6 = var4.isEmpty() ? ItemStack.EMPTY : var4.copy();
-                        var2.playerDestroy(this.level, this.player, param0, var0, var1, var6);
+                    if (var3 && var6) {
+                        var2.playerDestroy(this.level, this.player, param0, var0, var1, var5);
                     }
 
                     return true;

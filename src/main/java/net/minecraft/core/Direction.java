@@ -111,18 +111,18 @@ public enum Direction implements StringRepresentable {
             case DOWN:
                 return Vector3f.XP.rotationDegrees(180.0F);
             case UP:
-                return Vector3f.YP.rotationDegrees(0.0F);
+                return Quaternion.ONE.copy();
             case NORTH:
                 var0.mul(Vector3f.ZP.rotationDegrees(180.0F));
                 return var0;
             case SOUTH:
                 return var0;
             case WEST:
-                var0.mul(Vector3f.ZP.rotationDegrees(-90.0F));
+                var0.mul(Vector3f.ZP.rotationDegrees(90.0F));
                 return var0;
             case EAST:
             default:
-                var0.mul(Vector3f.ZP.rotationDegrees(90.0F));
+                var0.mul(Vector3f.ZP.rotationDegrees(-90.0F));
                 return var0;
         }
     }

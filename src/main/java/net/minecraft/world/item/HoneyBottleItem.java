@@ -30,7 +30,19 @@ public class HoneyBottleItem extends Item {
             param2.removeEffect(MobEffects.POISON);
         }
 
-        return param0.isEmpty() ? new ItemStack(Items.GLASS_BOTTLE) : param0;
+        if (param0.isEmpty()) {
+            return new ItemStack(Items.GLASS_BOTTLE);
+        } else {
+            if (param2 instanceof Player && !((Player)param2).abilities.instabuild) {
+                ItemStack var1 = new ItemStack(Items.GLASS_BOTTLE);
+                Player var2 = (Player)param2;
+                if (!var2.inventory.add(var1)) {
+                    var2.drop(var1, false);
+                }
+            }
+
+            return param0;
+        }
     }
 
     @Override

@@ -268,7 +268,8 @@ public class Block implements ItemLike {
             || param0 == Blocks.CARVED_PUMPKIN
             || param0 == Blocks.JACK_O_LANTERN
             || param0 == Blocks.MELON
-            || param0 == Blocks.PUMPKIN;
+            || param0 == Blocks.PUMPKIN
+            || param0.is(BlockTags.SHULKER_BOXES);
     }
 
     @Deprecated

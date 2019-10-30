@@ -513,7 +513,7 @@ public class RecipeProvider implements DataProvider {
             .pattern("###")
             .pattern("###")
             .pattern("###")
-            .unlocks("has_at_least_9_packed_ice", this.has(MinMaxBounds.Ints.atLeast(9), Blocks.PACKED_ICE))
+            .unlocks("has_packed_ice", this.has(Blocks.PACKED_ICE))
             .save(param0);
         ShapedRecipeBuilder.shaped(Blocks.BLUE_STAINED_GLASS, 8)
             .define('#', Blocks.GLASS)
@@ -569,13 +569,12 @@ public class RecipeProvider implements DataProvider {
             .pattern("XXX")
             .pattern("XXX")
             .pattern("XXX")
-            .unlocks("has_at_least_9_bonemeal", this.has(MinMaxBounds.Ints.atLeast(9), var0))
+            .unlocks("has_bonemeal", this.has(var0))
             .save(param0);
         ShapelessRecipeBuilder.shapeless(Items.BONE_MEAL, 3).requires(Items.BONE).group("bonemeal").unlocks("has_bone", this.has(Items.BONE)).save(param0);
         ShapelessRecipeBuilder.shapeless(Items.BONE_MEAL, 9)
             .requires(Blocks.BONE_BLOCK)
             .group("bonemeal")
-            .unlocks("has_at_least_9_bonemeal", this.has(MinMaxBounds.Ints.atLeast(9), Items.BONE_MEAL))
             .unlocks("has_bone_block", this.has(Blocks.BONE_BLOCK))
             .save(param0, "bone_meal_from_bone_block");
         ShapelessRecipeBuilder.shapeless(Items.BOOK).requires(Items.PAPER, 3).requires(Items.LEATHER).unlocks("has_paper", this.has(Items.PAPER)).save(param0);
@@ -810,17 +809,13 @@ public class RecipeProvider implements DataProvider {
             .pattern(" # ")
             .unlocks("has_redstone", this.has(Items.REDSTONE))
             .save(param0);
-        ShapelessRecipeBuilder.shapeless(Items.COAL, 9)
-            .requires(Blocks.COAL_BLOCK)
-            .unlocks("has_at_least_9_coal", this.has(MinMaxBounds.Ints.atLeast(9), Items.COAL))
-            .unlocks("has_coal_block", this.has(Blocks.COAL_BLOCK))
-            .save(param0);
+        ShapelessRecipeBuilder.shapeless(Items.COAL, 9).requires(Blocks.COAL_BLOCK).unlocks("has_coal_block", this.has(Blocks.COAL_BLOCK)).save(param0);
         ShapedRecipeBuilder.shaped(Blocks.COAL_BLOCK)
             .define('#', Items.COAL)
             .pattern("###")
             .pattern("###")
             .pattern("###")
-            .unlocks("has_at_least_9_coal", this.has(MinMaxBounds.Ints.atLeast(9), Items.COAL))
+            .unlocks("has_coal", this.has(Items.COAL))
             .save(param0);
         ShapedRecipeBuilder.shaped(Blocks.COARSE_DIRT, 4)
             .define('D', Blocks.DIRT)
@@ -1128,7 +1123,6 @@ public class RecipeProvider implements DataProvider {
             .save(param0);
         ShapelessRecipeBuilder.shapeless(Items.DIAMOND, 9)
             .requires(Blocks.DIAMOND_BLOCK)
-            .unlocks("has_at_least_9_diamond", this.has(MinMaxBounds.Ints.atLeast(9), Items.DIAMOND))
             .unlocks("has_diamond_block", this.has(Blocks.DIAMOND_BLOCK))
             .save(param0);
         ShapedRecipeBuilder.shaped(Items.DIAMOND_AXE)
@@ -1144,7 +1138,7 @@ public class RecipeProvider implements DataProvider {
             .pattern("###")
             .pattern("###")
             .pattern("###")
-            .unlocks("has_at_least_9_diamond", this.has(MinMaxBounds.Ints.atLeast(9), Items.DIAMOND))
+            .unlocks("has_diamond", this.has(Items.DIAMOND))
             .save(param0);
         ShapedRecipeBuilder.shaped(Items.DIAMOND_BOOTS)
             .define('X', Items.DIAMOND)
@@ -1230,7 +1224,6 @@ public class RecipeProvider implements DataProvider {
             .save(param0);
         ShapelessRecipeBuilder.shapeless(Items.EMERALD, 9)
             .requires(Blocks.EMERALD_BLOCK)
-            .unlocks("has_at_least_9_emerald", this.has(MinMaxBounds.Ints.atLeast(9), Items.EMERALD))
             .unlocks("has_emerald_block", this.has(Blocks.EMERALD_BLOCK))
             .save(param0);
         ShapedRecipeBuilder.shaped(Blocks.EMERALD_BLOCK)
@@ -1238,7 +1231,7 @@ public class RecipeProvider implements DataProvider {
             .pattern("###")
             .pattern("###")
             .pattern("###")
-            .unlocks("has_at_least_9_emerald", this.has(MinMaxBounds.Ints.atLeast(9), Items.EMERALD))
+            .unlocks("has_emerald", this.has(Items.EMERALD))
             .save(param0);
         ShapedRecipeBuilder.shaped(Blocks.ENCHANTING_TABLE)
             .define('B', Items.BOOK)
@@ -1460,12 +1453,11 @@ public class RecipeProvider implements DataProvider {
             .pattern("###")
             .pattern("###")
             .pattern("###")
-            .unlocks("has_at_least_9_gold_ingot", this.has(MinMaxBounds.Ints.atLeast(9), Items.GOLD_INGOT))
+            .unlocks("has_gold_ingot", this.has(Items.GOLD_INGOT))
             .save(param0);
         ShapelessRecipeBuilder.shapeless(Items.GOLD_INGOT, 9)
             .requires(Blocks.GOLD_BLOCK)
             .group("gold_ingot")
-            .unlocks("has_at_least_9_gold_ingot", this.has(MinMaxBounds.Ints.atLeast(9), Items.GOLD_INGOT))
             .unlocks("has_gold_block", this.has(Blocks.GOLD_BLOCK))
             .save(param0, "gold_ingot_from_gold_block");
         ShapedRecipeBuilder.shaped(Items.GOLD_INGOT)
@@ -1474,13 +1466,9 @@ public class RecipeProvider implements DataProvider {
             .pattern("###")
             .pattern("###")
             .group("gold_ingot")
-            .unlocks("has_at_least_9_gold_nugget", this.has(MinMaxBounds.Ints.atLeast(9), Items.GOLD_NUGGET))
+            .unlocks("has_gold_nugget", this.has(Items.GOLD_NUGGET))
             .save(param0, "gold_ingot_from_nuggets");
-        ShapelessRecipeBuilder.shapeless(Items.GOLD_NUGGET, 9)
-            .requires(Items.GOLD_INGOT)
-            .unlocks("has_at_least_9_gold_nugget", this.has(MinMaxBounds.Ints.atLeast(9), Items.GOLD_NUGGET))
-            .unlocks("has_gold_ingot", this.has(Items.GOLD_INGOT))
-            .save(param0);
+        ShapelessRecipeBuilder.shapeless(Items.GOLD_NUGGET, 9).requires(Items.GOLD_INGOT).unlocks("has_gold_ingot", this.has(Items.GOLD_INGOT)).save(param0);
         ShapelessRecipeBuilder.shapeless(Blocks.GRANITE)
             .requires(Blocks.DIORITE)
             .requires(Items.QUARTZ)
@@ -1673,12 +1661,17 @@ public class RecipeProvider implements DataProvider {
             .pattern("###")
             .pattern("###")
             .pattern("###")
-            .unlocks("has_at_least_9_wheat", this.has(MinMaxBounds.Ints.atLeast(9), Items.WHEAT))
+            .unlocks("has_wheat", this.has(Items.WHEAT))
             .save(param0);
         ShapedRecipeBuilder.shaped(Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE)
             .define('#', Items.IRON_INGOT)
             .pattern("##")
             .unlocks("has_iron_ingot", this.has(Items.IRON_INGOT))
+            .save(param0);
+        ShapelessRecipeBuilder.shapeless(Items.HONEY_BOTTLE, 4)
+            .requires(Items.HONEY_BLOCK)
+            .requires(Items.GLASS_BOTTLE, 4)
+            .unlocks("has_honey_block", this.has(Blocks.HONEY_BLOCK))
             .save(param0);
         ShapedRecipeBuilder.shaped(Blocks.HONEY_BLOCK, 1)
             .define('S', Items.HONEY_BOTTLE)
@@ -1726,7 +1719,7 @@ public class RecipeProvider implements DataProvider {
             .pattern("###")
             .pattern("###")
             .pattern("###")
-            .unlocks("has_at_least_9_iron_ingot", this.has(MinMaxBounds.Ints.atLeast(9), Items.IRON_INGOT))
+            .unlocks("has_iron_ingot", this.has(Items.IRON_INGOT))
             .save(param0);
         ShapedRecipeBuilder.shaped(Items.IRON_BOOTS)
             .define('X', Items.IRON_INGOT)
@@ -1765,7 +1758,6 @@ public class RecipeProvider implements DataProvider {
         ShapelessRecipeBuilder.shapeless(Items.IRON_INGOT, 9)
             .requires(Blocks.IRON_BLOCK)
             .group("iron_ingot")
-            .unlocks("has_at_least_9_iron_ingot", this.has(MinMaxBounds.Ints.atLeast(9), Items.IRON_INGOT))
             .unlocks("has_iron_block", this.has(Blocks.IRON_BLOCK))
             .save(param0, "iron_ingot_from_iron_block");
         ShapedRecipeBuilder.shaped(Items.IRON_INGOT)
@@ -1774,7 +1766,7 @@ public class RecipeProvider implements DataProvider {
             .pattern("###")
             .pattern("###")
             .group("iron_ingot")
-            .unlocks("has_at_least_9_iron_nugget", this.has(MinMaxBounds.Ints.atLeast(9), Items.IRON_NUGGET))
+            .unlocks("has_iron_nugget", this.has(Items.IRON_NUGGET))
             .save(param0, "iron_ingot_from_nuggets");
         ShapedRecipeBuilder.shaped(Items.IRON_LEGGINGS)
             .define('X', Items.IRON_INGOT)
@@ -1783,11 +1775,7 @@ public class RecipeProvider implements DataProvider {
             .pattern("X X")
             .unlocks("has_iron_ingot", this.has(Items.IRON_INGOT))
             .save(param0);
-        ShapelessRecipeBuilder.shapeless(Items.IRON_NUGGET, 9)
-            .requires(Items.IRON_INGOT)
-            .unlocks("has_at_least_9_iron_nugget", this.has(MinMaxBounds.Ints.atLeast(9), Items.IRON_NUGGET))
-            .unlocks("has_iron_ingot", this.has(Items.IRON_INGOT))
-            .save(param0);
+        ShapelessRecipeBuilder.shapeless(Items.IRON_NUGGET, 9).requires(Items.IRON_INGOT).unlocks("has_iron_ingot", this.has(Items.IRON_INGOT)).save(param0);
         ShapedRecipeBuilder.shaped(Items.IRON_PICKAXE)
             .define('#', Items.STICK)
             .define('X', Items.IRON_INGOT)
@@ -1928,11 +1916,10 @@ public class RecipeProvider implements DataProvider {
             .pattern("###")
             .pattern("###")
             .pattern("###")
-            .unlocks("has_at_least_9_lapis", this.has(MinMaxBounds.Ints.atLeast(9), Items.LAPIS_LAZULI))
+            .unlocks("has_lapis", this.has(Items.LAPIS_LAZULI))
             .save(param0);
         ShapelessRecipeBuilder.shapeless(Items.LAPIS_LAZULI, 9)
             .requires(Blocks.LAPIS_BLOCK)
-            .unlocks("has_at_least_9_lapis", this.has(MinMaxBounds.Ints.atLeast(9), Items.LAPIS_LAZULI))
             .unlocks("has_lapis_block", this.has(Blocks.LAPIS_BLOCK))
             .save(param0);
         ShapedRecipeBuilder.shaped(Items.LEAD, 2)
@@ -2718,10 +2705,7 @@ public class RecipeProvider implements DataProvider {
             .unlocks("has_quartz_block", this.has(Blocks.QUARTZ_BLOCK))
             .unlocks("has_quartz_pillar", this.has(Blocks.QUARTZ_PILLAR))
             .save(param0);
-        ShapelessRecipeBuilder.shapeless(Blocks.PACKED_ICE)
-            .requires(Blocks.ICE, 9)
-            .unlocks("has_at_least_9_ice", this.has(MinMaxBounds.Ints.atLeast(9), Blocks.ICE))
-            .save(param0);
+        ShapelessRecipeBuilder.shapeless(Blocks.PACKED_ICE).requires(Blocks.ICE, 9).unlocks("has_ice", this.has(Blocks.ICE)).save(param0);
         ShapedRecipeBuilder.shaped(Items.PINK_BANNER)
             .define('#', Blocks.PINK_WOOL)
             .define('|', Items.STICK)
@@ -3068,14 +3052,13 @@ public class RecipeProvider implements DataProvider {
         ShapelessRecipeBuilder.shapeless(Items.REDSTONE, 9)
             .requires(Blocks.REDSTONE_BLOCK)
             .unlocks("has_redstone_block", this.has(Blocks.REDSTONE_BLOCK))
-            .unlocks("has_at_least_9_redstone", this.has(MinMaxBounds.Ints.atLeast(9), Items.REDSTONE))
             .save(param0);
         ShapedRecipeBuilder.shaped(Blocks.REDSTONE_BLOCK)
             .define('#', Items.REDSTONE)
             .pattern("###")
             .pattern("###")
             .pattern("###")
-            .unlocks("has_at_least_9_redstone", this.has(MinMaxBounds.Ints.atLeast(9), Items.REDSTONE))
+            .unlocks("has_redstone", this.has(Items.REDSTONE))
             .save(param0);
         ShapedRecipeBuilder.shaped(Blocks.REDSTONE_LAMP)
             .define('R', Items.REDSTONE)
@@ -3342,13 +3325,9 @@ public class RecipeProvider implements DataProvider {
             .pattern("###")
             .pattern("###")
             .pattern("###")
-            .unlocks("has_at_least_9_slime_ball", this.has(MinMaxBounds.Ints.atLeast(9), Items.SLIME_BALL))
+            .unlocks("has_slime_ball", this.has(Items.SLIME_BALL))
             .save(param0);
-        ShapelessRecipeBuilder.shapeless(Items.SLIME_BALL, 9)
-            .requires(Blocks.SLIME_BLOCK)
-            .unlocks("has_at_least_9_slime_ball", this.has(MinMaxBounds.Ints.atLeast(9), Items.SLIME_BALL))
-            .unlocks("has_slime", this.has(Blocks.SLIME_BLOCK))
-            .save(param0);
+        ShapelessRecipeBuilder.shapeless(Items.SLIME_BALL, 9).requires(Blocks.SLIME_BLOCK).unlocks("has_slime", this.has(Blocks.SLIME_BLOCK)).save(param0);
         ShapedRecipeBuilder.shaped(Blocks.CUT_RED_SANDSTONE, 4)
             .define('#', Blocks.RED_SANDSTONE)
             .pattern("##")
@@ -3631,11 +3610,7 @@ public class RecipeProvider implements DataProvider {
             .pattern("X X")
             .unlocks("has_scute", this.has(Items.SCUTE))
             .save(param0);
-        ShapelessRecipeBuilder.shapeless(Items.WHEAT, 9)
-            .requires(Blocks.HAY_BLOCK)
-            .unlocks("has_at_least_9_wheat", this.has(MinMaxBounds.Ints.atLeast(9), Items.WHEAT))
-            .unlocks("has_hay_block", this.has(Blocks.HAY_BLOCK))
-            .save(param0);
+        ShapelessRecipeBuilder.shapeless(Items.WHEAT, 9).requires(Blocks.HAY_BLOCK).unlocks("has_hay_block", this.has(Blocks.HAY_BLOCK)).save(param0);
         ShapedRecipeBuilder.shaped(Items.WHITE_BANNER)
             .define('#', Blocks.WHITE_WOOL)
             .define('|', Items.STICK)
@@ -3866,13 +3841,11 @@ public class RecipeProvider implements DataProvider {
             .save(param0);
         ShapelessRecipeBuilder.shapeless(Items.DRIED_KELP, 9)
             .requires(Blocks.DRIED_KELP_BLOCK)
-            .unlocks("has_at_least_9_dried_kelp", this.has(MinMaxBounds.Ints.atLeast(9), Items.DRIED_KELP))
             .unlocks("has_dried_kelp_block", this.has(Blocks.DRIED_KELP_BLOCK))
             .save(param0);
         ShapelessRecipeBuilder.shapeless(Blocks.DRIED_KELP_BLOCK)
             .requires(Items.DRIED_KELP, 9)
-            .unlocks("has_at_least_9_dried_kelp", this.has(MinMaxBounds.Ints.atLeast(9), Items.DRIED_KELP))
-            .unlocks("has_dried_kelp_block", this.has(Blocks.DRIED_KELP_BLOCK))
+            .unlocks("has_dried_kelp", this.has(Items.DRIED_KELP))
             .save(param0);
         ShapedRecipeBuilder.shaped(Blocks.CONDUIT)
             .define('#', Items.NAUTILUS_SHELL)
@@ -4826,10 +4799,6 @@ public class RecipeProvider implements DataProvider {
 
     private EnterBlockTrigger.TriggerInstance insideOf(Block param0) {
         return new EnterBlockTrigger.TriggerInstance(param0, StatePropertiesPredicate.ANY);
-    }
-
-    private InventoryChangeTrigger.TriggerInstance has(MinMaxBounds.Ints param0, ItemLike param1) {
-        return this.inventoryTrigger(ItemPredicate.Builder.item().of(param1).withCount(param0).build());
     }
 
     private InventoryChangeTrigger.TriggerInstance has(ItemLike param0) {

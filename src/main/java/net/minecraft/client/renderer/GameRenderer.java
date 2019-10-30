@@ -377,7 +377,7 @@ public class GameRenderer implements AutoCloseable, ResourceManagerReloadListene
 
     private void renderItemInHand(PoseStack param0, Camera param1, float param2) {
         if (!this.panoramicMode) {
-            this.resetProjectionMatrix(param1, param2, false, false, 2.0F);
+            this.resetProjectionMatrix(this.getProjectionMatrix(param1, param2, false));
             param0.getPose().setIdentity();
             param0.pushPose();
             this.bobHurt(param0, param2);
@@ -408,17 +408,17 @@ public class GameRenderer implements AutoCloseable, ResourceManagerReloadListene
         }
     }
 
-    public void resetProjectionMatrix(Camera param0, float param1, boolean param2, boolean param3, float param4) {
+    public void resetProjectionMatrix(Matrix4f param0) {
         RenderSystem.matrixMode(5889);
         RenderSystem.loadIdentity();
-        RenderSystem.multMatrix(this.getProjectionMatrix(param0, param1, param2, param3, param4));
+        RenderSystem.multMatrix(param0);
         RenderSystem.matrixMode(5888);
     }
 
-    public Matrix4f getProjectionMatrix(Camera param0, float param1, boolean param2, boolean param3, float param4) {
+    public Matrix4f getProjectionMatrix(Camera param0, float param1, boolean param2) {
         PoseStack var0 = new PoseStack();
         var0.getPose().setIdentity();
-        if (param3 && this.zoom != 1.0F) {
+        if (this.zoom != 1.0F) {
             var0.translate((double)this.zoomX, (double)(-this.zoomY), 0.0);
             var0.scale(this.zoom, this.zoom, 1.0F);
         }
@@ -429,7 +429,7 @@ public class GameRenderer implements AutoCloseable, ResourceManagerReloadListene
                     this.getFov(param0, param1, param2),
                     (float)this.minecraft.getWindow().getWidth() / (float)this.minecraft.getWindow().getHeight(),
                     0.05F,
-                    this.renderDistance * param4
+                    this.renderDistance * 4.0F
                 )
             );
         return var0.getPose();
@@ -638,26 +638,27 @@ public class GameRenderer implements AutoCloseable, ResourceManagerReloadListene
         this.minecraft.getProfiler().popPush("camera");
         Camera var1 = this.mainCamera;
         this.renderDistance = (float)(this.minecraft.options.renderDistance * 16);
-        this.resetProjectionMatrix(var1, param0, true, true, Mth.SQRT_OF_TWO);
+        Matrix4f var2 = this.getProjectionMatrix(var1, param0, true);
+        this.resetProjectionMatrix(var2);
         this.bobHurt(param2, param0);
         if (this.minecraft.options.bobView) {
             this.bobView(param2, param0);
         }
 
-        float var2 = Mth.lerp(param0, this.minecraft.player.oPortalTime, this.minecraft.player.portalTime);
-        if (var2 > 0.0F) {
-            int var3 = 20;
+        float var3 = Mth.lerp(param0, this.minecraft.player.oPortalTime, this.minecraft.player.portalTime);
+        if (var3 > 0.0F) {
+            int var4 = 20;
             if (this.minecraft.player.hasEffect(MobEffects.CONFUSION)) {
-                var3 = 7;
+                var4 = 7;
             }
 
-            float var4 = 5.0F / (var2 * var2 + 5.0F) - var2 * 0.04F;
-            var4 *= var4;
-            Vector3f var5 = new Vector3f(0.0F, Mth.SQRT_OF_TWO / 2.0F, Mth.SQRT_OF_TWO / 2.0F);
-            param2.mulPose(var5.rotationDegrees(((float)this.tick + param0) * (float)var3));
-            param2.scale(1.0F / var4, 1.0F, 1.0F);
-            float var6 = -((float)this.tick + param0) * (float)var3;
-            param2.mulPose(var5.rotationDegrees(var6));
+            float var5 = 5.0F / (var3 * var3 + 5.0F) - var3 * 0.04F;
+            var5 *= var5;
+            Vector3f var6 = new Vector3f(0.0F, Mth.SQRT_OF_TWO / 2.0F, Mth.SQRT_OF_TWO / 2.0F);
+            param2.mulPose(var6.rotationDegrees(((float)this.tick + param0) * (float)var4));
+            param2.scale(1.0F / var5, 1.0F, 1.0F);
+            float var7 = -((float)this.tick + param0) * (float)var4;
+            param2.mulPose(var6.rotationDegrees(var7));
         }
 
         var1.setup(
@@ -669,7 +670,7 @@ public class GameRenderer implements AutoCloseable, ResourceManagerReloadListene
         );
         param2.mulPose(Vector3f.XP.rotationDegrees(var1.getXRot()));
         param2.mulPose(Vector3f.YP.rotationDegrees(var1.getYRot() + 180.0F));
-        this.minecraft.levelRenderer.renderLevel(param2, param0, param1, var0, var1, this, this.lightTexture);
+        this.minecraft.levelRenderer.renderLevel(param2, param0, param1, var0, var1, this, this.lightTexture, var2);
         this.minecraft.getProfiler().popPush("hand");
         if (this.renderHand) {
             RenderSystem.clear(256, Minecraft.ON_OSX);

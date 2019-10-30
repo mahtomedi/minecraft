@@ -56,12 +56,11 @@ public class ShulkerBoxRenderer extends BlockEntityRenderer<ShulkerBoxBlockEntit
 
         TextureAtlasSprite var5 = this.getSprite(var3);
         param5.pushPose();
-        param5.translate(0.5, 1.5, 0.5);
-        param5.scale(1.0F, -1.0F, -1.0F);
-        param5.translate(0.0, 1.0, 0.0);
+        param5.translate(0.5, 0.5, 0.5);
         float var6 = 0.9995F;
         param5.scale(0.9995F, 0.9995F, 0.9995F);
         param5.mulPose(var0.getRotation());
+        param5.scale(1.0F, -1.0F, -1.0F);
         param5.translate(0.0, -1.0, 0.0);
         VertexConsumer var7 = param6.getBuffer(RenderType.entityCutoutNoCull(TextureAtlas.LOCATION_BLOCKS));
         this.model.getBase().render(param5, var7, 0.0625F, param7, param8, var5);

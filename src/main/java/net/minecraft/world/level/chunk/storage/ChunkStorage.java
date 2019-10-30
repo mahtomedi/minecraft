@@ -14,14 +14,15 @@ import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.structure.LegacyStructureDataHandler;
 import net.minecraft.world.level.storage.DimensionDataStorage;
 
-public class ChunkStorage extends RegionFileStorage {
+public class ChunkStorage implements AutoCloseable {
+    private final IOWorker worker;
     protected final DataFixer fixerUpper;
     @Nullable
     private LegacyStructureDataHandler legacyStructureHandler;
 
     public ChunkStorage(File param0, DataFixer param1) {
-        super(param0);
         this.fixerUpper = param1;
+        this.worker = new IOWorker(new RegionFileStorage(param0), "chunk");
     }
 
     public CompoundTag upgradeChunkTag(DimensionType param0, Supplier<DimensionDataStorage> param1, CompoundTag param2) {
@@ -50,12 +51,25 @@ public class ChunkStorage extends RegionFileStorage {
         return param0.contains("DataVersion", 99) ? param0.getInt("DataVersion") : -1;
     }
 
-    @Override
-    public void write(ChunkPos param0, CompoundTag param1) throws IOException {
-        super.write(param0, param1);
+    @Nullable
+    public CompoundTag read(ChunkPos param0) throws IOException {
+        return this.worker.load(param0);
+    }
+
+    public void write(ChunkPos param0, CompoundTag param1) {
+        this.worker.store(param0, param1);
         if (this.legacyStructureHandler != null) {
             this.legacyStructureHandler.removeIndex(param0.toLong());
         }
 
+    }
+
+    public void flushWorker() {
+        this.worker.synchronize().join();
+    }
+
+    @Override
+    public void close() throws IOException {
+        this.worker.close();
     }
 }

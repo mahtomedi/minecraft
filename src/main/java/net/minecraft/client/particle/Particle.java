@@ -31,6 +31,7 @@ public abstract class Particle {
     private AABB bb = INITIAL_AABB;
     protected boolean onGround;
     protected boolean hasPhysics = true;
+    private boolean stoppedByCollision;
     protected boolean removed;
     protected float bbWidth = 0.6F;
     protected float bbHeight = 1.8F;
@@ -171,10 +172,14 @@ public abstract class Particle {
     }
 
     public void move(double param0, double param1, double param2) {
+        if (this.stoppedByCollision) {
+            param1 = 0.0;
+        }
+
         double var0 = param0;
         double var1 = param1;
         double var2 = param2;
-        if (this.hasPhysics && (param0 != 0.0 || param1 != 0.0 || param2 != 0.0)) {
+        if (this.hasPhysics && (param0 != 0.0 || param1 != 0.0 || param2 != 0.0) && !this.stoppedByCollision) {
             Vec3 var3 = Entity.collideBoundingBoxHeuristically(
                 null, new Vec3(param0, param1, param2), this.getBoundingBox(), this.level, CollisionContext.empty(), new RewindableStream<>(Stream.empty())
             );
@@ -186,6 +191,10 @@ public abstract class Particle {
         if (param0 != 0.0 || param1 != 0.0 || param2 != 0.0) {
             this.setBoundingBox(this.getBoundingBox().move(param0, param1, param2));
             this.setLocationFromBoundingbox();
+        }
+
+        if (Math.abs(param1) < 1.0E-5F) {
+            this.stoppedByCollision = true;
         }
 
         this.onGround = var1 != param1 && var1 < 0.0;

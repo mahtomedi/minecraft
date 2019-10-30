@@ -365,13 +365,16 @@ public interface Component extends Message, Iterable<Component> {
                 if (param0 instanceof NbtComponent.BlockNbtComponent) {
                     NbtComponent.BlockNbtComponent var11 = (NbtComponent.BlockNbtComponent)param0;
                     var0.addProperty("block", var11.getPos());
+                } else if (param0 instanceof NbtComponent.EntityNbtComponent) {
+                    NbtComponent.EntityNbtComponent var12 = (NbtComponent.EntityNbtComponent)param0;
+                    var0.addProperty("entity", var12.getSelector());
                 } else {
-                    if (!(param0 instanceof NbtComponent.EntityNbtComponent)) {
+                    if (!(param0 instanceof NbtComponent.StorageNbtComponent)) {
                         throw new IllegalArgumentException("Don't know how to serialize " + param0 + " as a Component");
                     }
 
-                    NbtComponent.EntityNbtComponent var12 = (NbtComponent.EntityNbtComponent)param0;
-                    var0.addProperty("entity", var12.getSelector());
+                    NbtComponent.StorageNbtComponent var13 = (NbtComponent.StorageNbtComponent)param0;
+                    var0.addProperty("storage", var13.getId().toString());
                 }
             }
 
