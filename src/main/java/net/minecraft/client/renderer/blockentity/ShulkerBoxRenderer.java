@@ -27,17 +27,7 @@ public class ShulkerBoxRenderer extends BlockEntityRenderer<ShulkerBoxBlockEntit
         this.model = param0;
     }
 
-    public void render(
-        ShulkerBoxBlockEntity param0,
-        double param1,
-        double param2,
-        double param3,
-        float param4,
-        PoseStack param5,
-        MultiBufferSource param6,
-        int param7,
-        int param8
-    ) {
+    public void render(ShulkerBoxBlockEntity param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {
         Direction var0 = Direction.UP;
         if (param0.hasLevel()) {
             BlockState var1 = param0.getLevel().getBlockState(param0.getBlockPos());
@@ -55,18 +45,18 @@ public class ShulkerBoxRenderer extends BlockEntityRenderer<ShulkerBoxBlockEntit
         }
 
         TextureAtlasSprite var5 = this.getSprite(var3);
-        param5.pushPose();
-        param5.translate(0.5, 0.5, 0.5);
+        param2.pushPose();
+        param2.translate(0.5, 0.5, 0.5);
         float var6 = 0.9995F;
-        param5.scale(0.9995F, 0.9995F, 0.9995F);
-        param5.mulPose(var0.getRotation());
-        param5.scale(1.0F, -1.0F, -1.0F);
-        param5.translate(0.0, -1.0, 0.0);
-        VertexConsumer var7 = param6.getBuffer(RenderType.entityCutoutNoCull(TextureAtlas.LOCATION_BLOCKS));
-        this.model.getBase().render(param5, var7, 0.0625F, param7, param8, var5);
-        param5.translate(0.0, (double)(-param0.getProgress(param4) * 0.5F), 0.0);
-        param5.mulPose(Vector3f.YP.rotationDegrees(270.0F * param0.getProgress(param4)));
-        this.model.getLid().render(param5, var7, 0.0625F, param7, param8, var5);
-        param5.popPose();
+        param2.scale(0.9995F, 0.9995F, 0.9995F);
+        param2.mulPose(var0.getRotation());
+        param2.scale(1.0F, -1.0F, -1.0F);
+        param2.translate(0.0, -1.0, 0.0);
+        VertexConsumer var7 = param3.getBuffer(RenderType.entityCutoutNoCull(TextureAtlas.LOCATION_BLOCKS));
+        this.model.getBase().render(param2, var7, param4, param5, var5);
+        param2.translate(0.0, (double)(-param0.getProgress(param1) * 0.5F), 0.0);
+        param2.mulPose(Vector3f.YP.rotationDegrees(270.0F * param0.getProgress(param1)));
+        this.model.getLid().render(param2, var7, param4, param5, var5);
+        param2.popPose();
     }
 }

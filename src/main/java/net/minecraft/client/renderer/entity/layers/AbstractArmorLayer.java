@@ -33,22 +33,12 @@ public abstract class AbstractArmorLayer<T extends LivingEntity, M extends Human
     }
 
     public void render(
-        PoseStack param0,
-        MultiBufferSource param1,
-        int param2,
-        T param3,
-        float param4,
-        float param5,
-        float param6,
-        float param7,
-        float param8,
-        float param9,
-        float param10
+        PoseStack param0, MultiBufferSource param1, int param2, T param3, float param4, float param5, float param6, float param7, float param8, float param9
     ) {
-        this.renderArmorPiece(param0, param1, param3, param4, param5, param6, param7, param8, param9, param10, EquipmentSlot.CHEST, param2);
-        this.renderArmorPiece(param0, param1, param3, param4, param5, param6, param7, param8, param9, param10, EquipmentSlot.LEGS, param2);
-        this.renderArmorPiece(param0, param1, param3, param4, param5, param6, param7, param8, param9, param10, EquipmentSlot.FEET, param2);
-        this.renderArmorPiece(param0, param1, param3, param4, param5, param6, param7, param8, param9, param10, EquipmentSlot.HEAD, param2);
+        this.renderArmorPiece(param0, param1, param3, param4, param5, param6, param7, param8, param9, EquipmentSlot.CHEST, param2);
+        this.renderArmorPiece(param0, param1, param3, param4, param5, param6, param7, param8, param9, EquipmentSlot.LEGS, param2);
+        this.renderArmorPiece(param0, param1, param3, param4, param5, param6, param7, param8, param9, EquipmentSlot.FEET, param2);
+        this.renderArmorPiece(param0, param1, param3, param4, param5, param6, param7, param8, param9, EquipmentSlot.HEAD, param2);
     }
 
     private void renderArmorPiece(
@@ -61,30 +51,29 @@ public abstract class AbstractArmorLayer<T extends LivingEntity, M extends Human
         float param6,
         float param7,
         float param8,
-        float param9,
-        EquipmentSlot param10,
-        int param11
+        EquipmentSlot param9,
+        int param10
     ) {
-        ItemStack var0 = param2.getItemBySlot(param10);
+        ItemStack var0 = param2.getItemBySlot(param9);
         if (var0.getItem() instanceof ArmorItem) {
             ArmorItem var1 = (ArmorItem)var0.getItem();
-            if (var1.getSlot() == param10) {
-                A var2 = this.getArmorModel(param10);
+            if (var1.getSlot() == param9) {
+                A var2 = this.getArmorModel(param9);
                 this.getParentModel().copyPropertiesTo(var2);
                 var2.prepareMobModel(param2, param3, param4, param5);
-                this.setPartVisibility(var2, param10);
-                var2.setupAnim(param2, param3, param4, param6, param7, param8, param9);
-                boolean var3 = this.usesInnerModel(param10);
+                this.setPartVisibility(var2, param9);
+                var2.setupAnim(param2, param3, param4, param6, param7, param8);
+                boolean var3 = this.usesInnerModel(param9);
                 boolean var4 = var0.hasFoil();
                 if (var1 instanceof DyeableArmorItem) {
                     int var5 = ((DyeableArmorItem)var1).getColor(var0);
                     float var6 = (float)(var5 >> 16 & 0xFF) / 255.0F;
                     float var7 = (float)(var5 >> 8 & 0xFF) / 255.0F;
                     float var8 = (float)(var5 & 0xFF) / 255.0F;
-                    this.renderModel(param0, param1, param11, var1, var4, var2, var3, var6, var7, var8, null);
-                    this.renderModel(param0, param1, param11, var1, var4, var2, var3, 1.0F, 1.0F, 1.0F, "overlay");
+                    this.renderModel(param0, param1, param10, var1, var4, var2, var3, var6, var7, var8, null);
+                    this.renderModel(param0, param1, param10, var1, var4, var2, var3, 1.0F, 1.0F, 1.0F, "overlay");
                 } else {
-                    this.renderModel(param0, param1, param11, var1, var4, var2, var3, 1.0F, 1.0F, 1.0F, null);
+                    this.renderModel(param0, param1, param10, var1, var4, var2, var3, 1.0F, 1.0F, 1.0F, null);
                 }
 
             }

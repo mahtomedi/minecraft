@@ -13,8 +13,10 @@ import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.dimension.Dimension;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
-public interface LevelReader extends BlockAndBiomeGetter, CollisionGetter, BiomeManager.NoiseBiomeSource {
+public interface LevelReader extends BlockAndTintGetter, CollisionGetter, BiomeManager.NoiseBiomeSource {
     @Nullable
     ChunkAccess getChunk(int var1, int var2, ChunkStatus var3, boolean var4);
 
@@ -24,6 +26,18 @@ public interface LevelReader extends BlockAndBiomeGetter, CollisionGetter, Biome
     int getHeight(Heightmap.Types var1, int var2, int var3);
 
     int getSkyDarken();
+
+    BiomeManager getBiomeManager();
+
+    default Biome getBiome(BlockPos param0) {
+        return this.getBiomeManager().getBiome(param0);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    default int getBlockTint(BlockPos param0, ColorResolver param1) {
+        return param1.getColor(this.getBiome(param0), (double)param0.getX(), (double)param0.getZ());
+    }
 
     @Override
     default Biome getNoiseBiome(int param0, int param1, int param2) {
@@ -69,8 +83,9 @@ public interface LevelReader extends BlockAndBiomeGetter, CollisionGetter, Biome
         }
     }
 
+    @Deprecated
     default float getBrightness(BlockPos param0) {
-        return this.getDimension().getBrightnessRamp()[this.getMaxLocalRawBrightness(param0)];
+        return this.getDimension().getBrightness(this.getMaxLocalRawBrightness(param0));
     }
 
     default int getDirectSignal(BlockPos param0, Direction param1) {

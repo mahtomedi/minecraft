@@ -20,17 +20,7 @@ public class FoxHeldItemLayer extends RenderLayer<Fox, FoxModel<Fox>> {
     }
 
     public void render(
-        PoseStack param0,
-        MultiBufferSource param1,
-        int param2,
-        Fox param3,
-        float param4,
-        float param5,
-        float param6,
-        float param7,
-        float param8,
-        float param9,
-        float param10
+        PoseStack param0, MultiBufferSource param1, int param2, Fox param3, float param4, float param5, float param6, float param7, float param8, float param9
     ) {
         boolean var0 = param3.isSleeping();
         boolean var1 = param3.isBaby();
@@ -38,7 +28,7 @@ public class FoxHeldItemLayer extends RenderLayer<Fox, FoxModel<Fox>> {
         if (var1) {
             float var2 = 0.75F;
             param0.scale(0.75F, 0.75F, 0.75F);
-            param0.translate(0.0, (double)(8.0F * param10), (double)(3.35F * param10));
+            param0.translate(0.0, 0.5, 0.209375F);
         }
 
         param0.translate(
@@ -66,7 +56,7 @@ public class FoxHeldItemLayer extends RenderLayer<Fox, FoxModel<Fox>> {
         }
 
         ItemStack var4 = param3.getItemBySlot(EquipmentSlot.MAINHAND);
-        Minecraft.getInstance().getItemInHandRenderer().renderItem(param3, var4, ItemTransforms.TransformType.GROUND, false, param0, param1);
+        Minecraft.getInstance().getItemInHandRenderer().renderItem(param3, var4, ItemTransforms.TransformType.GROUND, false, param0, param1, param2);
         param0.popPose();
     }
 }

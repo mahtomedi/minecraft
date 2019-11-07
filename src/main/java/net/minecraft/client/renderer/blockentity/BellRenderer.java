@@ -28,10 +28,8 @@ public class BellRenderer extends BlockEntityRenderer<BellBlockEntity> {
         this.bellBody.addChild(var0);
     }
 
-    public void render(
-        BellBlockEntity param0, double param1, double param2, double param3, float param4, PoseStack param5, MultiBufferSource param6, int param7, int param8
-    ) {
-        float var0 = (float)param0.ticks + param4;
+    public void render(BellBlockEntity param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {
+        float var0 = (float)param0.ticks + param1;
         float var1 = 0.0F;
         float var2 = 0.0F;
         if (param0.shaking) {
@@ -49,7 +47,7 @@ public class BellRenderer extends BlockEntityRenderer<BellBlockEntity> {
 
         this.bellBody.xRot = var1;
         this.bellBody.zRot = var2;
-        VertexConsumer var4 = param6.getBuffer(RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS));
-        this.bellBody.render(param5, var4, 0.0625F, param7, param8, this.getSprite(BELL_RESOURCE_LOCATION));
+        VertexConsumer var4 = param3.getBuffer(RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS));
+        this.bellBody.render(param2, var4, param4, param5, this.getSprite(BELL_RESOURCE_LOCATION));
     }
 }

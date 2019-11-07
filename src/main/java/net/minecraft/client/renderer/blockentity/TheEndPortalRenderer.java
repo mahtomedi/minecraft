@@ -22,16 +22,16 @@ public class TheEndPortalRenderer<T extends TheEndPortalBlockEntity> extends Blo
         super(param0);
     }
 
-    public void render(T param0, double param1, double param2, double param3, float param4, PoseStack param5, MultiBufferSource param6, int param7, int param8) {
+    public void render(T param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {
         RANDOM.setSeed(31100L);
-        double var0 = param1 * param1 + param2 * param2 + param3 * param3;
+        double var0 = param0.getBlockPos().distSqr(this.renderer.camera.getPosition(), true);
         int var1 = this.getPasses(var0);
         float var2 = this.getOffset();
-        Matrix4f var3 = param5.getPose();
-        this.renderCube(param0, var2, 0.15F, var3, param6.getBuffer(RenderType.endPortal(1)));
+        Matrix4f var3 = param2.last().pose();
+        this.renderCube(param0, var2, 0.15F, var3, param3.getBuffer(RenderType.endPortal(1)));
 
         for(int var4 = 1; var4 < var1; ++var4) {
-            this.renderCube(param0, var2, 2.0F / (float)(18 - var4), var3, param6.getBuffer(RenderType.endPortal(var4 + 1)));
+            this.renderCube(param0, var2, 2.0F / (float)(18 - var4), var3, param3.getBuffer(RenderType.endPortal(var4 + 1)));
         }
 
     }

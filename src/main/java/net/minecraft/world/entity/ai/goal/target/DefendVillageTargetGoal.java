@@ -38,7 +38,11 @@ public class DefendVillageTargetGoal extends TargetGoal {
             }
         }
 
-        return this.potentialTarget != null;
+        if (this.potentialTarget == null) {
+            return false;
+        } else {
+            return !(this.potentialTarget instanceof Player) || !this.potentialTarget.isSpectator() && !((Player)this.potentialTarget).isCreative();
+        }
     }
 
     @Override

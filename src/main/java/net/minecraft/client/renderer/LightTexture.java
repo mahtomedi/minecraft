@@ -2,10 +2,11 @@ package net.minecraft.client.renderer;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -18,8 +19,7 @@ public class LightTexture implements AutoCloseable {
     private final NativeImage lightPixels;
     private final ResourceLocation lightTextureLocation;
     private boolean updateLightTexture;
-    private float blockLightRed;
-    private float blockLightRedTotal;
+    private float blockLightRedFlicker;
     private final GameRenderer renderer;
     private final Minecraft minecraft;
 
@@ -45,9 +45,8 @@ public class LightTexture implements AutoCloseable {
     }
 
     public void tick() {
-        this.blockLightRedTotal = (float)((double)this.blockLightRedTotal + (Math.random() - Math.random()) * Math.random() * Math.random());
-        this.blockLightRedTotal = (float)((double)this.blockLightRedTotal * 0.9);
-        this.blockLightRed += this.blockLightRedTotal - this.blockLightRed;
+        this.blockLightRedFlicker = (float)((double)this.blockLightRedFlicker + (Math.random() - Math.random()) * Math.random() * Math.random() * 0.1);
+        this.blockLightRedFlicker = (float)((double)this.blockLightRedFlicker * 0.9);
         this.updateLightTexture = true;
     }
 
@@ -77,106 +76,97 @@ public class LightTexture implements AutoCloseable {
 
     public void updateLightTexture(float param0) {
         if (this.updateLightTexture) {
+            this.updateLightTexture = false;
             this.minecraft.getProfiler().push("lightTex");
-            Level var0 = this.minecraft.level;
+            ClientLevel var0 = this.minecraft.level;
             if (var0 != null) {
                 float var1 = var0.getSkyDarken(1.0F);
-                float var2 = var1 * 0.95F + 0.05F;
-                float var3 = this.minecraft.player.getWaterVision();
-                float var4;
-                if (this.minecraft.player.hasEffect(MobEffects.NIGHT_VISION)) {
-                    var4 = GameRenderer.getNightVisionScale(this.minecraft.player, param0);
-                } else if (var3 > 0.0F && this.minecraft.player.hasEffect(MobEffects.CONDUIT_POWER)) {
-                    var4 = var3;
+                float var2;
+                if (var0.getSkyFlashTime() > 0) {
+                    var2 = 1.0F;
                 } else {
-                    var4 = 0.0F;
+                    var2 = var1 * 0.95F + 0.05F;
                 }
 
-                for(int var7 = 0; var7 < 16; ++var7) {
-                    for(int var8 = 0; var8 < 16; ++var8) {
-                        float var9 = this.getBrightness(var0, var7) * var2;
-                        float var10 = this.getBrightness(var0, var8) * (this.blockLightRed * 0.1F + 1.5F);
-                        if (var0.getSkyFlashTime() > 0) {
-                            var9 = this.getBrightness(var0, var7);
-                        }
+                float var4 = this.minecraft.player.getWaterVision();
+                float var5;
+                if (this.minecraft.player.hasEffect(MobEffects.NIGHT_VISION)) {
+                    var5 = GameRenderer.getNightVisionScale(this.minecraft.player, param0);
+                } else if (var4 > 0.0F && this.minecraft.player.hasEffect(MobEffects.CONDUIT_POWER)) {
+                    var5 = var4;
+                } else {
+                    var5 = 0.0F;
+                }
 
-                        float var11 = var9 * (var1 * 0.65F + 0.35F);
-                        float var12 = var9 * (var1 * 0.65F + 0.35F);
-                        float var15 = var10 * ((var10 * 0.6F + 0.4F) * 0.6F + 0.4F);
-                        float var16 = var10 * (var10 * var10 * 0.6F + 0.4F);
-                        float var17 = var11 + var10;
-                        float var18 = var12 + var15;
-                        float var19 = var9 + var16;
-                        var17 = var17 * 0.96F + 0.03F;
-                        var18 = var18 * 0.96F + 0.03F;
-                        var19 = var19 * 0.96F + 0.03F;
-                        if (this.renderer.getDarkenWorldAmount(param0) > 0.0F) {
-                            float var20 = this.renderer.getDarkenWorldAmount(param0);
-                            var17 = var17 * (1.0F - var20) + var17 * 0.7F * var20;
-                            var18 = var18 * (1.0F - var20) + var18 * 0.6F * var20;
-                            var19 = var19 * (1.0F - var20) + var19 * 0.6F * var20;
-                        }
+                Vector3f var8 = new Vector3f(var1, var1, 1.0F);
+                var8.lerp(new Vector3f(1.0F, 1.0F, 1.0F), 0.35F);
+                float var9 = this.blockLightRedFlicker + 1.5F;
+                Vector3f var10 = new Vector3f();
 
+                for(int var11 = 0; var11 < 16; ++var11) {
+                    for(int var12 = 0; var12 < 16; ++var12) {
+                        float var13 = this.getBrightness(var0, var11) * var2;
+                        float var14 = this.getBrightness(var0, var12) * var9;
+                        float var16 = var14 * ((var14 * 0.6F + 0.4F) * 0.6F + 0.4F);
+                        float var17 = var14 * (var14 * var14 * 0.6F + 0.4F);
+                        var10.set(var14, var16, var17);
                         if (var0.dimension.getType() == DimensionType.THE_END) {
-                            var17 = 0.22F + var10 * 0.75F;
-                            var18 = 0.28F + var15 * 0.75F;
-                            var19 = 0.25F + var16 * 0.75F;
+                            var10.lerp(new Vector3f(0.99F, 1.12F, 1.0F), 0.25F);
+                        } else {
+                            Vector3f var18 = var8.copy();
+                            var18.mul(var13);
+                            var10.add(var18);
+                            var10.lerp(new Vector3f(0.75F, 0.75F, 0.75F), 0.04F);
+                            if (this.renderer.getDarkenWorldAmount(param0) > 0.0F) {
+                                float var19 = this.renderer.getDarkenWorldAmount(param0);
+                                Vector3f var20 = var10.copy();
+                                var20.mul(0.7F, 0.6F, 0.6F);
+                                var10.lerp(var20, var19);
+                            }
                         }
 
-                        if (var4 > 0.0F) {
-                            float var21 = Math.min(1.0F / var17, Math.min(1.0F / var18, 1.0F / var19));
-                            var17 = var17 * (1.0F - var4) + var17 * var21 * var4;
-                            var18 = var18 * (1.0F - var4) + var18 * var21 * var4;
-                            var19 = var19 * (1.0F - var4) + var19 * var21 * var4;
+                        var10.clamp(0.0F, 1.0F);
+                        if (var5 > 0.0F) {
+                            float var21 = Math.max(var10.x(), Math.max(var10.y(), var10.z()));
+                            if (var21 < 1.0F) {
+                                float var22 = 1.0F / var21;
+                                Vector3f var23 = var10.copy();
+                                var23.mul(var22);
+                                var10.lerp(var23, var5);
+                            }
                         }
 
-                        var17 = Mth.clamp(var17, 0.0F, 1.0F);
-                        var18 = Mth.clamp(var18, 0.0F, 1.0F);
-                        var19 = Mth.clamp(var19, 0.0F, 1.0F);
-                        float var22 = (float)this.minecraft.options.gamma;
-                        float var23 = 1.0F - var17;
-                        float var24 = 1.0F - var18;
-                        float var25 = 1.0F - var19;
-                        var23 = 1.0F - var23 * var23 * var23 * var23;
-                        var24 = 1.0F - var24 * var24 * var24 * var24;
-                        var25 = 1.0F - var25 * var25 * var25 * var25;
-                        var17 = var17 * (1.0F - var22) + var23 * var22;
-                        var18 = var18 * (1.0F - var22) + var24 * var22;
-                        var19 = var19 * (1.0F - var22) + var25 * var22;
-                        var17 = var17 * 0.96F + 0.03F;
-                        var18 = var18 * 0.96F + 0.03F;
-                        var19 = var19 * 0.96F + 0.03F;
-                        var17 = Mth.clamp(var17, 0.0F, 1.0F);
-                        var18 = Mth.clamp(var18, 0.0F, 1.0F);
-                        var19 = Mth.clamp(var19, 0.0F, 1.0F);
+                        float var24 = (float)this.minecraft.options.gamma;
+                        Vector3f var25 = var10.copy();
+                        var25.map(this::notGamma);
+                        var10.lerp(var25, var24);
+                        var10.lerp(new Vector3f(0.75F, 0.75F, 0.75F), 0.04F);
+                        var10.clamp(0.0F, 1.0F);
+                        var10.mul(255.0F);
                         int var26 = 255;
-                        int var27 = (int)(var17 * 255.0F);
-                        int var28 = (int)(var18 * 255.0F);
-                        int var29 = (int)(var19 * 255.0F);
-                        this.lightPixels.setPixelRGBA(var8, var7, 0xFF000000 | var29 << 16 | var28 << 8 | var27);
+                        int var27 = (int)var10.x();
+                        int var28 = (int)var10.y();
+                        int var29 = (int)var10.z();
+                        this.lightPixels.setPixelRGBA(var12, var11, 0xFF000000 | var29 << 16 | var28 << 8 | var27);
                     }
                 }
 
                 this.lightTexture.upload();
-                this.updateLightTexture = false;
                 this.minecraft.getProfiler().pop();
             }
         }
     }
 
+    private float notGamma(float param0x) {
+        float var0x = 1.0F - param0x;
+        return 1.0F - var0x * var0x * var0x * var0x;
+    }
+
     private float getBrightness(Level param0, int param1) {
-        return param0.dimension.getBrightnessRamp()[param1];
+        return param0.dimension.getBrightness(param1);
     }
 
     public static int pack(int param0, int param1) {
-        return param0 | param1 << 16;
-    }
-
-    public static int block(int param0) {
-        return param0 & 65535;
-    }
-
-    public static int sky(int param0) {
-        return param0 >> 16 & 65535;
+        return param0 << 4 | param1 << 20;
     }
 }

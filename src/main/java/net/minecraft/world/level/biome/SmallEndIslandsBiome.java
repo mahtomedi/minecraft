@@ -36,7 +36,7 @@ public class SmallEndIslandsBiome extends Biome {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public int getSkyColor(float param0) {
+    public int getSkyColor() {
         return 0;
     }
 }

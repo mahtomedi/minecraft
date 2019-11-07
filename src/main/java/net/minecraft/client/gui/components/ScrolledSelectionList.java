@@ -163,7 +163,6 @@ public abstract class ScrolledSelectionList extends AbstractContainerEventHandle
             int var0 = this.getScrollbarPosition();
             int var1 = var0 + 6;
             this.capYPosition();
-            RenderSystem.disableFog();
             Tesselator var2 = Tesselator.getInstance();
             BufferBuilder var3 = var2.getBuilder();
             this.minecraft.getTextureManager().bind(GuiComponent.BACKGROUND_LOCATION);

@@ -32,8 +32,7 @@ public class ShulkerHeadLayer extends RenderLayer<Shulker, ShulkerModel<Shulker>
         float param6,
         float param7,
         float param8,
-        float param9,
-        float param10
+        float param9
     ) {
         param0.pushPose();
         param0.translate(0.0, 1.0, 0.0);
@@ -55,7 +54,7 @@ public class ShulkerHeadLayer extends RenderLayer<Shulker, ShulkerModel<Shulker>
         }
 
         VertexConsumer var5 = param1.getBuffer(RenderType.entitySolid(var3));
-        var1.render(param0, var5, param10, param2, LivingEntityRenderer.getOverlayCoords(param3, 0.0F), null);
+        var1.render(param0, var5, param2, LivingEntityRenderer.getOverlayCoords(param3, 0.0F), null);
         param0.popPose();
     }
 }

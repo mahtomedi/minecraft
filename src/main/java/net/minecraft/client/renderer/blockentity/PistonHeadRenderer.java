@@ -28,46 +28,36 @@ public class PistonHeadRenderer extends BlockEntityRenderer<PistonMovingBlockEnt
         super(param0);
     }
 
-    public void render(
-        PistonMovingBlockEntity param0,
-        double param1,
-        double param2,
-        double param3,
-        float param4,
-        PoseStack param5,
-        MultiBufferSource param6,
-        int param7,
-        int param8
-    ) {
+    public void render(PistonMovingBlockEntity param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {
         Level var0 = param0.getLevel();
         if (var0 != null) {
             BlockPos var1 = param0.getBlockPos().relative(param0.getMovementDirection().getOpposite());
             BlockState var2 = param0.getMovedState();
-            if (!var2.isAir() && !(param0.getProgress(param4) >= 1.0F)) {
+            if (!var2.isAir() && !(param0.getProgress(param1) >= 1.0F)) {
                 ModelBlockRenderer.enableCaching();
-                param5.pushPose();
-                param5.translate((double)param0.getXOff(param4), (double)param0.getYOff(param4), (double)param0.getZOff(param4));
-                if (var2.getBlock() == Blocks.PISTON_HEAD && param0.getProgress(param4) <= 4.0F) {
+                param2.pushPose();
+                param2.translate((double)param0.getXOff(param1), (double)param0.getYOff(param1), (double)param0.getZOff(param1));
+                if (var2.getBlock() == Blocks.PISTON_HEAD && param0.getProgress(param1) <= 4.0F) {
                     var2 = var2.setValue(PistonHeadBlock.SHORT, Boolean.valueOf(true));
-                    this.renderBlock(var1, var2, param5, param6, var0, false, param8);
+                    this.renderBlock(var1, var2, param2, param3, var0, false, param5);
                 } else if (param0.isSourcePiston() && !param0.isExtending()) {
                     PistonType var3 = var2.getBlock() == Blocks.STICKY_PISTON ? PistonType.STICKY : PistonType.DEFAULT;
                     BlockState var4 = Blocks.PISTON_HEAD
                         .defaultBlockState()
                         .setValue(PistonHeadBlock.TYPE, var3)
                         .setValue(PistonHeadBlock.FACING, var2.getValue(PistonBaseBlock.FACING));
-                    var4 = var4.setValue(PistonHeadBlock.SHORT, Boolean.valueOf(param0.getProgress(param4) >= 0.5F));
-                    this.renderBlock(var1, var4, param5, param6, var0, false, param8);
+                    var4 = var4.setValue(PistonHeadBlock.SHORT, Boolean.valueOf(param0.getProgress(param1) >= 0.5F));
+                    this.renderBlock(var1, var4, param2, param3, var0, false, param5);
                     BlockPos var5 = var1.relative(param0.getMovementDirection());
-                    param5.popPose();
-                    param5.pushPose();
+                    param2.popPose();
+                    param2.pushPose();
                     var2 = var2.setValue(PistonBaseBlock.EXTENDED, Boolean.valueOf(true));
-                    this.renderBlock(var5, var2, param5, param6, var0, true, param8);
+                    this.renderBlock(var5, var2, param2, param3, var0, true, param5);
                 } else {
-                    this.renderBlock(var1, var2, param5, param6, var0, false, param8);
+                    this.renderBlock(var1, var2, param2, param3, var0, false, param5);
                 }
 
-                param5.popPose();
+                param2.popPose();
                 ModelBlockRenderer.clearCache();
             }
         }

@@ -1,7 +1,7 @@
 package net.minecraft.client.tutorial;
 
 import net.minecraft.client.gui.components.toasts.TutorialToast;
-import net.minecraft.client.multiplayer.MultiPlayerLevel;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -66,7 +66,7 @@ public class PunchTreeTutorialStepInstance implements TutorialStepInstance {
     }
 
     @Override
-    public void onDestroyBlock(MultiPlayerLevel param0, BlockPos param1, BlockState param2, float param3) {
+    public void onDestroyBlock(ClientLevel param0, BlockPos param1, BlockState param2, float param3) {
         boolean var0 = param2.is(BlockTags.LOGS);
         if (var0 && param3 > 0.0F) {
             if (this.toast != null) {

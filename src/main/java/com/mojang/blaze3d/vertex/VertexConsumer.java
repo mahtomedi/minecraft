@@ -45,56 +45,55 @@ public interface VertexConsumer {
         return this.overlayCoords(param0 & 65535, param0 >> 16 & 65535);
     }
 
-    default void putBulkData(Matrix4f param0, Matrix3f param1, BakedQuad param2, float param3, float param4, float param5, int param6, int param7) {
-        this.putBulkData(
-            param0, param1, param2, new float[]{1.0F, 1.0F, 1.0F, 1.0F}, param3, param4, param5, new int[]{param6, param6, param6, param6}, param7, false
-        );
+    default void putBulkData(PoseStack.Pose param0, BakedQuad param1, float param2, float param3, float param4, int param5, int param6) {
+        this.putBulkData(param0, param1, new float[]{1.0F, 1.0F, 1.0F, 1.0F}, param2, param3, param4, new int[]{param5, param5, param5, param5}, param6, false);
     }
 
     default void putBulkData(
-        Matrix4f param0, Matrix3f param1, BakedQuad param2, float[] param3, float param4, float param5, float param6, int[] param7, int param8, boolean param9
+        PoseStack.Pose param0, BakedQuad param1, float[] param2, float param3, float param4, float param5, int[] param6, int param7, boolean param8
     ) {
-        int[] var0 = param2.getVertices();
-        Vec3i var1 = param2.getDirection().getNormal();
+        int[] var0 = param1.getVertices();
+        Vec3i var1 = param1.getDirection().getNormal();
         Vector3f var2 = new Vector3f((float)var1.getX(), (float)var1.getY(), (float)var1.getZ());
-        var2.transform(param1);
-        int var3 = 8;
-        int var4 = var0.length / 8;
+        Matrix4f var3 = param0.pose();
+        var2.transform(param0.normal());
+        int var4 = 8;
+        int var5 = var0.length / 8;
 
-        try (MemoryStack var5 = MemoryStack.stackPush()) {
-            ByteBuffer var6 = var5.malloc(DefaultVertexFormat.BLOCK.getVertexSize());
-            IntBuffer var7 = var6.asIntBuffer();
+        try (MemoryStack var6 = MemoryStack.stackPush()) {
+            ByteBuffer var7 = var6.malloc(DefaultVertexFormat.BLOCK.getVertexSize());
+            IntBuffer var8 = var7.asIntBuffer();
 
-            for(int var8 = 0; var8 < var4; ++var8) {
-                ((Buffer)var7).clear();
-                var7.put(var0, var8 * 8, 8);
-                float var9 = var6.getFloat(0);
-                float var10 = var6.getFloat(4);
-                float var11 = var6.getFloat(8);
-                byte var15;
+            for(int var9 = 0; var9 < var5; ++var9) {
+                ((Buffer)var8).clear();
+                var8.put(var0, var9 * 8, 8);
+                float var10 = var7.getFloat(0);
+                float var11 = var7.getFloat(4);
+                float var12 = var7.getFloat(8);
                 byte var16;
                 byte var17;
-                if (param9) {
-                    int var12 = var6.get(12) & 255;
-                    int var13 = var6.get(13) & 255;
-                    int var14 = var6.get(14) & 255;
-                    var15 = (byte)((int)((float)var12 * param3[var8] * param4));
-                    var16 = (byte)((int)((float)var13 * param3[var8] * param5));
-                    var17 = (byte)((int)((float)var14 * param3[var8] * param6));
+                byte var18;
+                if (param8) {
+                    int var13 = var7.get(12) & 255;
+                    int var14 = var7.get(13) & 255;
+                    int var15 = var7.get(14) & 255;
+                    var16 = (byte)((int)((float)var13 * param2[var9] * param3));
+                    var17 = (byte)((int)((float)var14 * param2[var9] * param4));
+                    var18 = (byte)((int)((float)var15 * param2[var9] * param5));
                 } else {
-                    var15 = (byte)((int)(255.0F * param3[var8] * param4));
-                    var16 = (byte)((int)(255.0F * param3[var8] * param5));
-                    var17 = (byte)((int)(255.0F * param3[var8] * param6));
+                    var16 = (byte)((int)(255.0F * param2[var9] * param3));
+                    var17 = (byte)((int)(255.0F * param2[var9] * param4));
+                    var18 = (byte)((int)(255.0F * param2[var9] * param5));
                 }
 
-                int var21 = param7[var8];
-                float var22 = var6.getFloat(16);
-                float var23 = var6.getFloat(20);
-                this.vertex(param0, var9, var10, var11);
-                this.color(var15, var16, var17, 255);
-                this.uv(var22, var23);
-                this.overlayCoords(param8);
-                this.uv2(var21);
+                int var22 = param6[var9];
+                float var23 = var7.getFloat(16);
+                float var24 = var7.getFloat(20);
+                this.vertex(var3, var10, var11, var12);
+                this.color(var16, var17, var18, 255);
+                this.uv(var23, var24);
+                this.overlayCoords(param7);
+                this.uv2(var22);
                 this.normal(var2.x(), var2.y(), var2.z());
                 this.endVertex();
             }
@@ -106,5 +105,11 @@ public interface VertexConsumer {
         Vector4f var0 = new Vector4f(param1, param2, param3, 1.0F);
         var0.transform(param0);
         return this.vertex((double)var0.x(), (double)var0.y(), (double)var0.z());
+    }
+
+    default VertexConsumer normal(Matrix3f param0, float param1, float param2, float param3) {
+        Vector3f var0 = new Vector3f(param1, param2, param3);
+        var0.transform(param0);
+        return this.normal(var0.x(), var0.y(), var0.z());
     }
 }

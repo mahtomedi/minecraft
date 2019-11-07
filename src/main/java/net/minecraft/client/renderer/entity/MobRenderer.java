@@ -8,10 +8,12 @@ import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.decoration.HangingEntity;
+import net.minecraft.world.level.LightLayer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -34,11 +36,11 @@ public abstract class MobRenderer<T extends Mob, M extends EntityModel<T>> exten
         }
     }
 
-    public void render(T param0, double param1, double param2, double param3, float param4, float param5, PoseStack param6, MultiBufferSource param7) {
-        super.render(param0, param1, param2, param3, param4, param5, param6, param7);
+    public void render(T param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {
+        super.render(param0, param1, param2, param3, param4, param5);
         Entity var0 = param0.getLeashHolder();
         if (var0 != null) {
-            renderLeash(param0, param5, param6, param7, var0);
+            renderLeash(param0, param2, param3, param4, var0);
         }
     }
 
@@ -73,43 +75,43 @@ public abstract class MobRenderer<T extends Mob, M extends EntityModel<T>> exten
         float var15 = (float)(var8 - var12);
         float var16 = 0.025F;
         VertexConsumer var17 = param3.getBuffer(RenderType.leash());
-        Matrix4f var18 = param2.getPose();
+        Matrix4f var18 = param2.last().pose();
         float var19 = Mth.fastInvSqrt(var13 * var13 + var15 * var15) * 0.025F / 2.0F;
         float var20 = var15 * var19;
         float var21 = var13 * var19;
-        int var22 = param0.getLightColor();
-        int var23 = param4.getLightColor();
-        renderSide(var17, var18, var22, var23, var13, var14, var15, 0.025F, 0.025F, var20, var21);
-        renderSide(var17, var18, var22, var23, var13, var14, var15, 0.025F, 0.0F, var20, var21);
+        int var22 = param0.getBlockLightLevel();
+        int var23 = param4.getBlockLightLevel();
+        int var24 = param0.level.getBrightness(LightLayer.SKY, new BlockPos(param0));
+        int var25 = param0.level.getBrightness(LightLayer.SKY, new BlockPos(param4));
+        renderSide(var17, var18, var13, var14, var15, var22, var23, var24, var25, 0.025F, 0.025F, var20, var21);
+        renderSide(var17, var18, var13, var14, var15, var22, var23, var24, var25, 0.025F, 0.0F, var20, var21);
         param2.popPose();
     }
 
     public static void renderSide(
         VertexConsumer param0,
         Matrix4f param1,
-        int param2,
-        int param3,
+        float param2,
+        float param3,
         float param4,
-        float param5,
-        float param6,
-        float param7,
-        float param8,
+        int param5,
+        int param6,
+        int param7,
+        int param8,
         float param9,
-        float param10
+        float param10,
+        float param11,
+        float param12
     ) {
         int var0 = 24;
-        int var1 = LightTexture.block(param2);
-        int var2 = LightTexture.block(param3);
-        int var3 = LightTexture.sky(param2);
-        int var4 = LightTexture.sky(param3);
 
-        for(int var5 = 0; var5 < 24; ++var5) {
-            float var6 = (float)var5 / 23.0F;
-            int var7 = (int)Mth.lerp(var6, (float)var1, (float)var2);
-            int var8 = (int)Mth.lerp(var6, (float)var3, (float)var4);
-            int var9 = LightTexture.pack(var7, var8);
-            addVertexPair(param0, param1, var9, param4, param5, param6, param7, param8, 24, var5, false, param9, param10);
-            addVertexPair(param0, param1, var9, param4, param5, param6, param7, param8, 24, var5 + 1, true, param9, param10);
+        for(int var1 = 0; var1 < 24; ++var1) {
+            float var2 = (float)var1 / 23.0F;
+            int var3 = (int)Mth.lerp(var2, (float)param5, (float)param6);
+            int var4 = (int)Mth.lerp(var2, (float)param7, (float)param8);
+            int var5 = LightTexture.pack(var3, var4);
+            addVertexPair(param0, param1, var5, param2, param3, param4, param9, param10, 24, var1, false, param11, param12);
+            addVertexPair(param0, param1, var5, param2, param3, param4, param9, param10, 24, var1 + 1, true, param11, param12);
         }
 
     }

@@ -21,13 +21,14 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class BaseCommandBlock implements CommandSource {
     private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");
+    private static final Component DEFAULT_NAME = new TextComponent("@");
     private long lastExecution = -1L;
     private boolean updateLastExecution = true;
     private int successCount;
     private boolean trackOutput = true;
     private Component lastOutput;
     private String command = "";
-    private Component name = new TextComponent("@");
+    private Component name = DEFAULT_NAME;
 
     public int getSuccessCount() {
         return this.successCount;
@@ -62,7 +63,7 @@ public abstract class BaseCommandBlock implements CommandSource {
         this.command = param0.getString("Command");
         this.successCount = param0.getInt("SuccessCount");
         if (param0.contains("CustomName", 8)) {
-            this.name = Component.Serializer.fromJson(param0.getString("CustomName"));
+            this.setName(Component.Serializer.fromJson(param0.getString("CustomName")));
         }
 
         if (param0.contains("TrackOutput", 1)) {
@@ -143,8 +144,13 @@ public abstract class BaseCommandBlock implements CommandSource {
         return this.name;
     }
 
-    public void setName(Component param0) {
-        this.name = param0;
+    public void setName(@Nullable Component param0) {
+        if (param0 != null) {
+            this.name = param0;
+        } else {
+            this.name = DEFAULT_NAME;
+        }
+
     }
 
     @Override

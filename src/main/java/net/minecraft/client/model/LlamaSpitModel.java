@@ -27,7 +27,7 @@ public class LlamaSpitModel<T extends Entity> extends ListModel<T> {
     }
 
     @Override
-    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
+    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
     }
 
     @Override

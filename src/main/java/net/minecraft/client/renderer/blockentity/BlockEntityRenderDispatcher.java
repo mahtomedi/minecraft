@@ -11,10 +11,10 @@ import net.minecraft.ReportedException;
 import net.minecraft.client.Camera;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.model.ShulkerModel;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -75,35 +75,29 @@ public class BlockEntityRenderDispatcher {
         this.cameraHitResult = param4;
     }
 
-    public <E extends BlockEntity> void render(E param0, float param1, PoseStack param2, MultiBufferSource param3, double param4, double param5, double param6) {
+    public <E extends BlockEntity> void render(E param0, float param1, PoseStack param2, MultiBufferSource param3) {
         if (param0.distanceToSqr(this.camera.getPosition().x, this.camera.getPosition().y, this.camera.getPosition().z) < param0.getViewDistance()) {
             BlockEntityRenderer<E> var0 = this.getRenderer(param0);
             if (var0 != null) {
                 if (param0.hasLevel() && param0.getType().isValid(param0.getBlockState().getBlock())) {
-                    BlockPos var1 = param0.getBlockPos();
-                    tryRender(
-                        param0,
-                        () -> setupAndRender(
-                                var0, param0, (double)var1.getX() - param4, (double)var1.getY() - param5, (double)var1.getZ() - param6, param1, param2, param3
-                            )
-                    );
+                    tryRender(param0, () -> setupAndRender(var0, param0, param1, param2, param3));
                 }
             }
         }
     }
 
     private static <T extends BlockEntity> void setupAndRender(
-        BlockEntityRenderer<T> param0, T param1, double param2, double param3, double param4, float param5, PoseStack param6, MultiBufferSource param7
+        BlockEntityRenderer<T> param0, T param1, float param2, PoseStack param3, MultiBufferSource param4
     ) {
         Level var0 = param1.getLevel();
         int var1;
         if (var0 != null) {
-            var1 = var0.getLightColor(param1.getBlockPos());
+            var1 = LevelRenderer.getLightColor(var0, param1.getBlockPos());
         } else {
             var1 = 15728880;
         }
 
-        param0.render(param1, param2, param3, param4, param5, param6, param7, var1, OverlayTexture.NO_OVERLAY);
+        param0.render(param1, param2, param3, param4, var1, OverlayTexture.NO_OVERLAY);
     }
 
     @Deprecated
@@ -118,7 +112,7 @@ public class BlockEntityRenderDispatcher {
         if (var0 == null) {
             return true;
         } else {
-            tryRender(param0, () -> var0.render(param0, 0.0, 0.0, 0.0, 0.0F, param1, param2, param3, param4));
+            tryRender(param0, () -> var0.render(param0, 0.0F, param1, param2, param3, param4));
             return false;
         }
     }

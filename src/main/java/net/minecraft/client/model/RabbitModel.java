@@ -101,7 +101,7 @@ public class RabbitModel<T extends Rabbit> extends EntityModel<T> {
             param0.scale(0.56666666F, 0.56666666F, 0.56666666F);
             param0.translate(0.0, 1.375, 0.125);
             ImmutableList.of(this.head, this.earLeft, this.earRight, this.nose)
-                .forEach(param7 -> param7.render(param0, param1, 0.0625F, param2, param3, null, param4, param5, param6));
+                .forEach(param7 -> param7.render(param0, param1, param2, param3, null, param4, param5, param6));
             param0.popPose();
             param0.pushPose();
             param0.scale(0.4F, 0.4F, 0.4F);
@@ -109,7 +109,7 @@ public class RabbitModel<T extends Rabbit> extends EntityModel<T> {
             ImmutableList.of(
                     this.rearFootLeft, this.rearFootRight, this.haunchLeft, this.haunchRight, this.body, this.frontLegLeft, this.frontLegRight, this.tail
                 )
-                .forEach(param7 -> param7.render(param0, param1, 0.0625F, param2, param3, null, param4, param5, param6));
+                .forEach(param7 -> param7.render(param0, param1, param2, param3, null, param4, param5, param6));
             param0.popPose();
         } else {
             param0.pushPose();
@@ -129,13 +129,13 @@ public class RabbitModel<T extends Rabbit> extends EntityModel<T> {
                     this.tail,
                     this.nose
                 )
-                .forEach(param7 -> param7.render(param0, param1, 0.0625F, param2, param3, null, param4, param5, param6));
+                .forEach(param7 -> param7.render(param0, param1, param2, param3, null, param4, param5, param6));
             param0.popPose();
         }
 
     }
 
-    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
+    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
         float var0 = param3 - (float)param0.tickCount;
         this.nose.xRot = param5 * (float) (Math.PI / 180.0);
         this.head.xRot = param5 * (float) (Math.PI / 180.0);

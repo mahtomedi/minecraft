@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.IronGolemModel;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -28,19 +29,18 @@ public class IronGolemFlowerLayer extends RenderLayer<IronGolem, IronGolemModel<
         float param6,
         float param7,
         float param8,
-        float param9,
-        float param10
+        float param9
     ) {
         if (param3.getOfferFlowerTick() != 0) {
             param0.pushPose();
-            param0.scale(-1.0F, -1.0F, 1.0F);
-            param0.mulPose(Vector3f.XP.rotationDegrees(5.0F + 180.0F * this.getParentModel().getFlowerHoldingArm().xRot / (float) Math.PI));
-            param0.mulPose(Vector3f.XP.rotationDegrees(90.0F));
-            param0.translate(0.6875, -0.3125, 1.0625);
-            float var0 = 0.5F;
+            ModelPart var0 = this.getParentModel().getFlowerHoldingArm();
+            var0.translateAndRotate(param0);
+            param0.translate(-1.1875, 1.0625, -0.9375);
+            param0.translate(0.5, 0.5, 0.5);
+            float var1 = 0.5F;
             param0.scale(0.5F, 0.5F, 0.5F);
-            param0.mulPose(Vector3f.XP.rotationDegrees(180.0F));
-            param0.translate(-0.5, -0.5, 0.5);
+            param0.mulPose(Vector3f.XP.rotationDegrees(-90.0F));
+            param0.translate(-0.5, -0.5, -0.5);
             Minecraft.getInstance().getBlockRenderer().renderSingleBlock(Blocks.POPPY.defaultBlockState(), param0, param1, param2, OverlayTexture.NO_OVERLAY);
             param0.popPose();
         }

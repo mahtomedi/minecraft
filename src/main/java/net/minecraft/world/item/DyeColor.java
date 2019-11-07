@@ -63,11 +63,6 @@ public enum DyeColor implements StringRepresentable {
         return this.name;
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public int getTextureDiffuseColorBGR() {
-        return this.textureDiffuseColorBGR;
-    }
-
     public float[] getTextureDiffuseColors() {
         return this.textureDiffuseColors;
     }

@@ -78,7 +78,7 @@ public class ServerPlayerGameMode {
             if (var0.isAir()) {
                 this.hasDelayedDestroy = false;
             } else {
-                float var1 = this.incrementDestroyProgress(var0, this.delayedDestroyPos);
+                float var1 = this.incrementDestroyProgress(var0, this.delayedDestroyPos, this.delayedTickStart);
                 if (var1 >= 1.0F) {
                     this.hasDelayedDestroy = false;
                     this.destroyBlock(this.delayedDestroyPos);
@@ -91,14 +91,14 @@ public class ServerPlayerGameMode {
                 this.lastSentState = -1;
                 this.isDestroyingBlock = false;
             } else {
-                this.incrementDestroyProgress(var2, this.destroyPos);
+                this.incrementDestroyProgress(var2, this.destroyPos, this.destroyProgressStart);
             }
         }
 
     }
 
-    private float incrementDestroyProgress(BlockState param0, BlockPos param1) {
-        int var0 = this.gameTicks - this.delayedTickStart;
+    private float incrementDestroyProgress(BlockState param0, BlockPos param1, int param2) {
+        int var0 = this.gameTicks - param2;
         float var1 = param0.getDestroyProgress(this.player, this.player.level, param1) * (float)(var0 + 1);
         int var2 = (int)(var1 * 10.0F);
         if (var2 != this.lastSentState) {

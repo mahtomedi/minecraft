@@ -36,8 +36,8 @@ public class EndermanModel<T extends LivingEntity> extends HumanoidModel<T> {
     }
 
     @Override
-    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        super.setupAnim(param0, param1, param2, param3, param4, param5, param6);
+    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
+        super.setupAnim(param0, param1, param2, param3, param4, param5);
         this.head.visible = true;
         float var0 = -14.0F;
         this.body.xRot = 0.0F;

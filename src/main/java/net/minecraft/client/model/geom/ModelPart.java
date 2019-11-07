@@ -126,29 +126,21 @@ public class ModelPart {
         this.z = param2;
     }
 
-    public void render(PoseStack param0, VertexConsumer param1, float param2, int param3, int param4, @Nullable TextureAtlasSprite param5) {
-        this.render(param0, param1, param2, param3, param4, param5, 1.0F, 1.0F, 1.0F);
+    public void render(PoseStack param0, VertexConsumer param1, int param2, int param3, @Nullable TextureAtlasSprite param4) {
+        this.render(param0, param1, param2, param3, param4, 1.0F, 1.0F, 1.0F);
     }
 
     public void render(
-        PoseStack param0,
-        VertexConsumer param1,
-        float param2,
-        int param3,
-        int param4,
-        @Nullable TextureAtlasSprite param5,
-        float param6,
-        float param7,
-        float param8
+        PoseStack param0, VertexConsumer param1, int param2, int param3, @Nullable TextureAtlasSprite param4, float param5, float param6, float param7
     ) {
         if (this.visible) {
             if (!this.cubes.isEmpty() || !this.children.isEmpty()) {
                 param0.pushPose();
-                this.translateAndRotate(param0, param2);
-                this.compile(param0.getPose(), param1, param2, param3, param4, param5, param6, param7, param8);
+                this.translateAndRotate(param0);
+                this.compile(param0.last(), param1, param2, param3, param4, param5, param6, param7);
 
                 for(ModelPart var0 : this.children) {
-                    var0.render(param0, param1, param2, param3, param4, param5, param6, param7, param8);
+                    var0.render(param0, param1, param2, param3, param4, param5, param6, param7);
                 }
 
                 param0.popPose();
@@ -156,8 +148,8 @@ public class ModelPart {
         }
     }
 
-    public void translateAndRotate(PoseStack param0, float param1) {
-        param0.translate((double)(this.x * param1), (double)(this.y * param1), (double)(this.z * param1));
+    public void translateAndRotate(PoseStack param0) {
+        param0.translate((double)(this.x / 16.0F), (double)(this.y / 16.0F), (double)(this.z / 16.0F));
         if (this.zRot != 0.0F) {
             param0.mulPose(Vector3f.ZP.rotation(this.zRot));
         }
@@ -173,50 +165,46 @@ public class ModelPart {
     }
 
     private void compile(
-        Matrix4f param0,
-        VertexConsumer param1,
-        float param2,
-        int param3,
-        int param4,
-        @Nullable TextureAtlasSprite param5,
-        float param6,
-        float param7,
-        float param8
+        PoseStack.Pose param0, VertexConsumer param1, int param2, int param3, @Nullable TextureAtlasSprite param4, float param5, float param6, float param7
     ) {
-        Matrix3f var0 = new Matrix3f(param0);
+        Matrix4f var0 = param0.pose();
+        Matrix3f var1 = new Matrix3f(var0);
 
-        for(ModelPart.Cube var1 : this.cubes) {
-            for(ModelPart.Polygon var2 : var1.polygons) {
-                Vector3f var3 = new Vector3f(var2.vertices[1].pos.vectorTo(var2.vertices[0].pos));
-                Vector3f var4 = new Vector3f(var2.vertices[1].pos.vectorTo(var2.vertices[2].pos));
-                var3.transform(var0);
-                var4.transform(var0);
-                var4.cross(var3);
-                var4.normalize();
-                float var5 = var4.x();
-                float var6 = var4.y();
-                float var7 = var4.z();
+        for(ModelPart.Cube var2 : this.cubes) {
+            for(ModelPart.Polygon var3 : var2.polygons) {
+                Vector3f var4 = new Vector3f(var3.vertices[1].pos.vectorTo(var3.vertices[0].pos));
+                Vector3f var5 = new Vector3f(var3.vertices[1].pos.vectorTo(var3.vertices[2].pos));
+                var4.transform(var1);
+                var5.transform(var1);
+                var5.cross(var4);
+                var5.normalize();
+                float var6 = var5.x();
+                float var7 = var5.y();
+                float var8 = var5.z();
 
-                for(int var8 = 0; var8 < 4; ++var8) {
-                    ModelPart.Vertex var9 = var2.vertices[var8];
-                    Vector4f var10 = new Vector4f((float)var9.pos.x * param2, (float)var9.pos.y * param2, (float)var9.pos.z * param2, 1.0F);
-                    var10.transform(param0);
-                    float var11;
-                    float var12;
-                    if (param5 == null) {
-                        var11 = var9.u;
-                        var12 = var9.v;
+                for(int var9 = 0; var9 < 4; ++var9) {
+                    ModelPart.Vertex var10 = var3.vertices[var9];
+                    float var11 = (float)var10.pos.x / 16.0F;
+                    float var12 = (float)var10.pos.y / 16.0F;
+                    float var13 = (float)var10.pos.z / 16.0F;
+                    Vector4f var14 = new Vector4f(var11, var12, var13, 1.0F);
+                    var14.transform(var0);
+                    float var15;
+                    float var16;
+                    if (param4 == null) {
+                        var15 = var10.u;
+                        var16 = var10.v;
                     } else {
-                        var11 = param5.getU((double)(var9.u * 16.0F));
-                        var12 = param5.getV((double)(var9.v * 16.0F));
+                        var15 = param4.getU((double)(var10.u * 16.0F));
+                        var16 = param4.getV((double)(var10.v * 16.0F));
                     }
 
-                    param1.vertex((double)var10.x(), (double)var10.y(), (double)var10.z())
-                        .color(param6, param7, param8, 1.0F)
-                        .uv(var11, var12)
-                        .overlayCoords(param4)
-                        .uv2(param3)
-                        .normal(var5, var6, var7)
+                    param1.vertex((double)var14.x(), (double)var14.y(), (double)var14.z())
+                        .color(param5, param6, param7, 1.0F)
+                        .uv(var15, var16)
+                        .overlayCoords(param3)
+                        .uv2(param2)
+                        .normal(var6, var7, var8)
                         .endVertex();
                 }
             }

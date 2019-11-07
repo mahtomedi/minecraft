@@ -46,8 +46,8 @@ public class PolarBearModel<T extends PolarBear> extends QuadrupedModel<T> {
         --this.leg3.z;
     }
 
-    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        super.setupAnim(param0, param1, param2, param3, param4, param5, param6);
+    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
+        super.setupAnim(param0, param1, param2, param3, param4, param5);
         float var0 = param3 - (float)param0.tickCount;
         float var1 = param0.getStandingAnimationScale(var0);
         var1 *= var1;

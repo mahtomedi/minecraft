@@ -23,11 +23,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class SignBlockEntity extends BlockEntity {
     public final Component[] messages = new Component[]{new TextComponent(""), new TextComponent(""), new TextComponent(""), new TextComponent("")};
-    @OnlyIn(Dist.CLIENT)
-    private boolean showCursor;
-    private int selectedLine = -1;
-    private int cursorPos = -1;
-    private int selectionPos = -1;
     private boolean isEditable = true;
     private Player playerWhoMayEdit;
     private final String[] renderMessages = new String[4];
@@ -174,41 +169,5 @@ public class SignBlockEntity extends BlockEntity {
         } else {
             return false;
         }
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public void setCursorInfo(int param0, int param1, int param2, boolean param3) {
-        this.selectedLine = param0;
-        this.cursorPos = param1;
-        this.selectionPos = param2;
-        this.showCursor = param3;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public void resetCursorInfo() {
-        this.selectedLine = -1;
-        this.cursorPos = -1;
-        this.selectionPos = -1;
-        this.showCursor = false;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public boolean isShowCursor() {
-        return this.showCursor;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public int getSelectedLine() {
-        return this.selectedLine;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public int getCursorPos() {
-        return this.cursorPos;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public int getSelectionPos() {
-        return this.selectionPos;
     }
 }

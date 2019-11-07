@@ -47,7 +47,7 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.CloudStatus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.ParticleStatus;
-import net.minecraft.client.multiplayer.MultiPlayerLevel;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
@@ -83,9 +83,11 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.RecordItem;
+import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -126,8 +128,7 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
     private final TextureManager textureManager;
     private final EntityRenderDispatcher entityRenderDispatcher;
     private final RenderBuffers renderBuffers;
-    private final FogRenderer fog;
-    private MultiPlayerLevel level;
+    private ClientLevel level;
     private Set<ChunkRenderDispatcher.RenderChunk> chunksToCompile = Sets.newLinkedHashSet();
     private List<LevelRenderer.RenderChunkInfo> renderChunks = Lists.newArrayListWithCapacity(69696);
     private final Set<BlockEntity> globalBlockEntities = Sets.newHashSet();
@@ -183,7 +184,6 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
         this.minecraft = param0;
         this.entityRenderDispatcher = param0.getEntityRenderDispatcher();
         this.renderBuffers = param1;
-        this.fog = new FogRenderer();
         this.textureManager = param0.getTextureManager();
 
         for(int var0 = 0; var0 < 32; ++var0) {
@@ -272,7 +272,7 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
                                 float var27 = Mth.sqrt(var25 * var25 + var26 * var26) / (float)var7;
                                 float var28 = ((1.0F - var27 * var27) * 0.5F + 0.5F) * var0;
                                 var10.set(var12, var20, var11);
-                                int var29 = var1.getLightColor(var10);
+                                int var29 = getLightColor(var1, var10);
                                 var6.vertex((double)var12 - param2 - var14 + 0.5, (double)var19 - param3, (double)var11 - param4 - var15 + 0.5)
                                     .uv(0.0F, (float)var18 * 0.25F + var24)
                                     .color(1.0F, 1.0F, 1.0F, var28)
@@ -312,7 +312,7 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
                                 float var35 = Mth.sqrt(var33 * var33 + var34 * var34) / (float)var7;
                                 float var36 = ((1.0F - var35 * var35) * 0.3F + 0.5F) * var0;
                                 var10.set(var12, var20, var11);
-                                int var37 = var1.getLightColor(var10);
+                                int var37 = getLightColor(var1, var10);
                                 int var38 = var37 >> 16 & 65535;
                                 int var39 = (var37 & 65535) * 3;
                                 int var40 = (var38 * 3 + 240) / 4;
@@ -622,7 +622,7 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
 
     }
 
-    public void setLevel(@Nullable MultiPlayerLevel param0) {
+    public void setLevel(@Nullable ClientLevel param0) {
         this.lastCameraX = Double.MIN_VALUE;
         this.lastCameraY = Double.MIN_VALUE;
         this.lastCameraZ = Double.MIN_VALUE;
@@ -653,6 +653,7 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
 
     public void allChanged() {
         if (this.level != null) {
+            this.level.clearTintCaches();
             if (this.chunkRenderDispatcher == null) {
                 this.chunkRenderDispatcher = new ChunkRenderDispatcher(
                     this.level, this, Util.backgroundExecutor(), this.minecraft.is64Bit(), this.renderBuffers.fixedBufferPack()
@@ -782,8 +783,8 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
                 LevelRenderer.RenderChunkInfo var16 = new LevelRenderer.RenderChunkInfo(var5, null, 0);
                 Set<Direction> var17 = this.getVisibleDirections(var4);
                 if (var17.size() == 1) {
-                    Vec3 var18 = param0.getLookVector();
-                    Direction var19 = Direction.getNearest(var18.x, var18.y, var18.z).getOpposite();
+                    Vector3f var18 = param0.getLookVector();
+                    Direction var19 = Direction.getNearest(var18.x(), var18.y(), var18.z()).getOpposite();
                     var17.remove(var19);
                 }
 
@@ -894,7 +895,7 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
 
     private void captureFrustum(Matrix4f param0, Matrix4f param1, double param2, double param3, double param4, Frustum param5) {
         this.capturedFrustum = param5;
-        Matrix4f var0 = new Matrix4f(param1);
+        Matrix4f var0 = param1.copy();
         var0.multiply(param0);
         var0.invert();
         this.frustumPos.x = param2;
@@ -928,7 +929,7 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
         double var2 = var1.x();
         double var3 = var1.y();
         double var4 = var1.z();
-        Matrix4f var5 = param0.getPose();
+        Matrix4f var5 = param0.last().pose();
         var0.popPush("culling");
         boolean var6 = this.capturedFrustum != null;
         Frustum var7;
@@ -947,7 +948,7 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
         }
 
         var0.popPush("clear");
-        this.fog.setupClearColor(param4, param1, this.minecraft.level, this.minecraft.options.renderDistance, param5.getDarkenWorldAmount(param1));
+        FogRenderer.setupColor(param4, param1, this.minecraft.level, this.minecraft.options.renderDistance, param5.getDarkenWorldAmount(param1));
         RenderSystem.clear(16640, Minecraft.ON_OSX);
         float var9 = param5.getRenderDistance();
         boolean var10 = this.minecraft.level.dimension.isFoggyAt(Mth.floor(var2), Mth.floor(var3))
@@ -968,13 +969,11 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
         this.renderChunkLayer(RenderType.solid(), param0, var2, var3, var4);
         this.renderChunkLayer(RenderType.cutoutMipped(), param0, var2, var3, var4);
         this.renderChunkLayer(RenderType.cutout(), param0, var2, var3, var4);
-        Lighting.setupLevel(param0.getPose());
+        Lighting.setupLevel(param0.last().pose());
         var0.popPush("entities");
         var0.push("prepare");
         this.renderedEntities = 0;
         this.culledEntities = 0;
-        RenderSystem.defaultAlphaFunc();
-        RenderSystem.enableAlphaTest();
         var0.popPush("entities");
         if (this.shouldShowEntityOutlines()) {
             var0.popPush("entityOutlines");
@@ -1040,7 +1039,7 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
                         int var29 = var28.last().getProgress();
                         if (var29 >= 0) {
                             VertexConsumer var30 = new BreakingTextureGenerator(
-                                this.renderBuffers.effectBufferSource().getBuffer(RenderType.crumbling(var29)), param0.getPose()
+                                this.renderBuffers.crumblingBufferSource().getBuffer(RenderType.crumbling(var29)), param0.last()
                             );
                             var27 = param2x -> {
                                 VertexConsumer var0x = var12.getBuffer(param2x);
@@ -1049,7 +1048,7 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
                         }
                     }
 
-                    BlockEntityRenderDispatcher.instance.render(var25, param1, param0, var27, var2, var3, var4);
+                    BlockEntityRenderDispatcher.instance.render(var25, param1, param0, var27);
                     param0.popPose();
                 }
             }
@@ -1060,7 +1059,7 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
                 BlockPos var32 = var31.getBlockPos();
                 param0.pushPose();
                 param0.translate((double)var32.getX() - var2, (double)var32.getY() - var3, (double)var32.getZ() - var4);
-                BlockEntityRenderDispatcher.instance.render(var31, param1, param0, var12, var2, var3, var4);
+                BlockEntityRenderDispatcher.instance.render(var31, param1, param0, var12);
                 param0.popPose();
             }
         }
@@ -1089,7 +1088,7 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
                     param0.pushPose();
                     param0.translate((double)var34.getX() - var2, (double)var34.getY() - var3, (double)var34.getZ() - var4);
                     VertexConsumer var40 = new BreakingTextureGenerator(
-                        this.renderBuffers.effectBufferSource().getBuffer(RenderType.crumbling(var39)), param0.getPose()
+                        this.renderBuffers.crumblingBufferSource().getBuffer(RenderType.crumbling(var39)), param0.last()
                     );
                     this.minecraft.getBlockRenderer().renderBreakingTexture(this.level.getBlockState(var34), var34, this.level, param0, var40);
                     param0.popPose();
@@ -1110,42 +1109,25 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
             }
         }
 
+        RenderSystem.pushMatrix();
+        RenderSystem.multMatrix(param0.last().pose());
+        this.minecraft.debugRenderer.render(param0, var12, var2, var3, var4, param2);
+        this.renderWorldBounds(param4);
+        RenderSystem.popMatrix();
+        var0.popPush("translucent");
+        this.renderChunkLayer(RenderType.translucent(), param0, var2, var3, var4);
         var12.endBatch(RenderType.entityTranslucent(TextureAtlas.LOCATION_BLOCKS));
         var12.endBatch(RenderType.entityNoOutline(TextureAtlas.LOCATION_BLOCKS));
         var12.endBatch();
-        this.renderBuffers.effectBufferSource().endBatch();
-        RenderSystem.pushMatrix();
-        RenderSystem.multMatrix(param0.getPose());
-        this.minecraft.debugRenderer.render(param2);
-        this.renderWorldBounds(param4, param1);
-        this.minecraft.getTextureManager().bind(TextureAtlas.LOCATION_BLOCKS);
-        FogRenderer.setupFog(param4, FogRenderer.FogMode.FOG_TERRAIN, var9, var10);
-        var0.popPush("translucent");
-        this.renderChunkLayer(RenderType.translucent(), param0, var2, var3, var4);
-        param6.turnOnLightLayer();
-        FogRenderer.setupFog(param4, FogRenderer.FogMode.FOG_TERRAIN, var9, var10);
+        this.renderBuffers.crumblingBufferSource().endBatch();
         var0.popPush("particles");
-        RenderSystem.enableAlphaTest();
-        RenderSystem.defaultAlphaFunc();
-        RenderSystem.enableDepthTest();
-        this.minecraft.particleEngine.render(param4, param1);
-        param6.turnOffLightLayer();
+        this.minecraft.particleEngine.render(param0, var12, param6, param4, param1);
+        RenderSystem.pushMatrix();
+        RenderSystem.multMatrix(param0.last().pose());
         var0.popPush("cloudsLayers");
         if (this.minecraft.options.getCloudsType() != CloudStatus.OFF) {
             var0.popPush("clouds");
-            FogRenderer.setupFog(param4, FogRenderer.FogMode.FOG_TERRAIN, param5.getRenderDistance(), var10);
-            RenderSystem.disableCull();
-            RenderSystem.enableBlend();
-            RenderSystem.enableAlphaTest();
-            RenderSystem.enableDepthTest();
-            RenderSystem.defaultAlphaFunc();
-            RenderSystem.defaultBlendFunc();
             this.renderClouds(param0, param1, var2, var3, var4);
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            RenderSystem.disableAlphaTest();
-            RenderSystem.enableCull();
-            RenderSystem.disableBlend();
-            RenderSystem.disableFog();
         }
 
         RenderSystem.depthMask(false);
@@ -1156,8 +1138,8 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
         RenderSystem.shadeModel(7424);
         RenderSystem.depthMask(true);
         RenderSystem.disableBlend();
-        RenderSystem.disableFog();
         RenderSystem.popMatrix();
+        FogRenderer.setupNoFog();
     }
 
     private void checkPoseStack(PoseStack param0) {
@@ -1171,7 +1153,8 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
         double var1 = Mth.lerp((double)param4, param0.yOld, param0.getY());
         double var2 = Mth.lerp((double)param4, param0.zOld, param0.getZ());
         float var3 = Mth.lerp(param4, param0.yRotO, param0.yRot);
-        this.entityRenderDispatcher.render(param0, var0 - param1, var1 - param2, var2 - param3, var3, param4, param5, param6);
+        this.entityRenderDispatcher
+            .render(param0, var0 - param1, var1 - param2, var2 - param3, var3, param4, param5, param6, EntityRenderDispatcher.getPackedLightCoords(param0));
     }
 
     private void renderChunkLayer(RenderType param0, PoseStack param1, double param2, double param3, double param4) {
@@ -1216,7 +1199,7 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
             param1.translate((double)var10.getX() - param2, (double)var10.getY() - param3, (double)var10.getZ() - param4);
             var9.bind();
             this.format.setupBufferState(0L);
-            var9.draw(param1.getPose(), 7);
+            var9.draw(param1.last().pose(), 7);
             param1.popPose();
         }
 
@@ -1332,7 +1315,6 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
             RenderSystem.disableTexture();
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
-            RenderSystem.disableFog();
             RenderSystem.lineWidth(10.0F);
             RenderSystem.pushMatrix();
             RenderSystem.translatef(
@@ -1382,7 +1364,6 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
             RenderSystem.disableBlend();
             RenderSystem.enableCull();
             RenderSystem.enableTexture();
-            RenderSystem.enableFog();
             RenderSystem.lineWidth(1.0F);
         }
 
@@ -1436,7 +1417,6 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
     }
 
     private void renderEndSky(PoseStack param0) {
-        RenderSystem.disableFog();
         RenderSystem.disableAlphaTest();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
@@ -1467,7 +1447,7 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
                 param0.mulPose(Vector3f.ZP.rotationDegrees(-90.0F));
             }
 
-            Matrix4f var3 = param0.getPose();
+            Matrix4f var3 = param0.last().pose();
             var1.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
             var1.vertex(var3, -100.0F, -100.0F, -100.0F).uv(0.0F, 0.0F).color(40, 40, 40, 255).endVertex();
             var1.vertex(var3, -100.0F, -100.0F, 100.0F).uv(0.0F, 16.0F).color(40, 40, 40, 255).endVertex();
@@ -1492,14 +1472,14 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
             float var1 = (float)var0.x;
             float var2 = (float)var0.y;
             float var3 = (float)var0.z;
-            RenderSystem.color3f(var1, var2, var3);
+            FogRenderer.levelFogColor();
             BufferBuilder var4 = Tesselator.getInstance().getBuilder();
             RenderSystem.depthMask(false);
             RenderSystem.enableFog();
             RenderSystem.color3f(var1, var2, var3);
             this.skyBuffer.bind();
             this.skyFormat.setupBufferState(0L);
-            this.skyBuffer.draw(param0.getPose(), 7);
+            this.skyBuffer.draw(param0.last().pose(), 7);
             VertexBuffer.unbind();
             this.skyFormat.clearBufferState();
             RenderSystem.disableFog();
@@ -1518,7 +1498,7 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
                 float var7 = var5[0];
                 float var8 = var5[1];
                 float var9 = var5[2];
-                Matrix4f var10 = param0.getPose();
+                Matrix4f var10 = param0.last().pose();
                 var4.begin(6, DefaultVertexFormat.POSITION_COLOR);
                 var4.vertex(var10, 0.0F, 100.0F, 0.0F).color(var7, var8, var9, var5[3]).endVertex();
                 int var11 = 16;
@@ -1545,7 +1525,7 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, var16);
             param0.mulPose(Vector3f.YP.rotationDegrees(-90.0F));
             param0.mulPose(Vector3f.XP.rotationDegrees(this.level.getTimeOfDay(param1) * 360.0F));
-            Matrix4f var17 = param0.getPose();
+            Matrix4f var17 = param0.last().pose();
             float var18 = 30.0F;
             this.textureManager.bind(SUN_LOCATION);
             var4.begin(7, DefaultVertexFormat.POSITION_TEX);
@@ -1577,7 +1557,7 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
                 RenderSystem.color4f(var26, var26, var26, var26);
                 this.starBuffer.bind();
                 this.skyFormat.setupBufferState(0L);
-                this.starBuffer.draw(param0.getPose(), 7);
+                this.starBuffer.draw(param0.last().pose(), 7);
                 VertexBuffer.unbind();
                 this.skyFormat.clearBufferState();
             }
@@ -1595,7 +1575,7 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
                 param0.translate(0.0, 12.0, 0.0);
                 this.darkBuffer.bind();
                 this.skyFormat.setupBufferState(0L);
-                this.darkBuffer.draw(param0.getPose(), 7);
+                this.darkBuffer.draw(param0.last().pose(), 7);
                 VertexBuffer.unbind();
                 this.skyFormat.clearBufferState();
                 param0.popPose();
@@ -1609,11 +1589,19 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
 
             RenderSystem.enableTexture();
             RenderSystem.depthMask(true);
+            RenderSystem.disableFog();
         }
     }
 
     public void renderClouds(PoseStack param0, float param1, double param2, double param3, double param4) {
         if (this.minecraft.level.dimension.isNaturalDimension()) {
+            RenderSystem.disableCull();
+            RenderSystem.enableBlend();
+            RenderSystem.enableAlphaTest();
+            RenderSystem.enableDepthTest();
+            RenderSystem.defaultAlphaFunc();
+            RenderSystem.defaultBlendFunc();
+            RenderSystem.enableFog();
             float var0 = 12.0F;
             float var1 = 4.0F;
             double var2 = 2.0E-4;
@@ -1672,7 +1660,7 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
                         RenderSystem.colorMask(true, true, true, true);
                     }
 
-                    this.cloudBuffer.draw(param0.getPose(), 7);
+                    this.cloudBuffer.draw(param0.last().pose(), 7);
                 }
 
                 VertexBuffer.unbind();
@@ -1680,6 +1668,11 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
             }
 
             param0.popPose();
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.disableAlphaTest();
+            RenderSystem.enableCull();
+            RenderSystem.disableBlend();
+            RenderSystem.disableFog();
         }
     }
 
@@ -1913,103 +1906,104 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
 
     }
 
-    private void renderWorldBounds(Camera param0, float param1) {
-        Tesselator var0 = Tesselator.getInstance();
-        BufferBuilder var1 = var0.getBuilder();
-        WorldBorder var2 = this.level.getWorldBorder();
-        double var3 = (double)(this.minecraft.options.renderDistance * 16);
-        if (!(param0.getPosition().x < var2.getMaxX() - var3)
-            || !(param0.getPosition().x > var2.getMinX() + var3)
-            || !(param0.getPosition().z < var2.getMaxZ() - var3)
-            || !(param0.getPosition().z > var2.getMinZ() + var3)) {
-            double var4 = 1.0 - var2.getDistanceToBorder(param0.getPosition().x, param0.getPosition().z) / var3;
-            var4 = Math.pow(var4, 4.0);
-            double var5 = param0.getPosition().x;
-            double var6 = param0.getPosition().y;
-            double var7 = param0.getPosition().z;
+    private void renderWorldBounds(Camera param0) {
+        BufferBuilder var0 = Tesselator.getInstance().getBuilder();
+        WorldBorder var1 = this.level.getWorldBorder();
+        double var2 = (double)(this.minecraft.options.renderDistance * 16);
+        if (!(param0.getPosition().x < var1.getMaxX() - var2)
+            || !(param0.getPosition().x > var1.getMinX() + var2)
+            || !(param0.getPosition().z < var1.getMaxZ() - var2)
+            || !(param0.getPosition().z > var1.getMinZ() + var2)) {
+            double var3 = 1.0 - var1.getDistanceToBorder(param0.getPosition().x, param0.getPosition().z) / var2;
+            var3 = Math.pow(var3, 4.0);
+            double var4 = param0.getPosition().x;
+            double var5 = param0.getPosition().y;
+            double var6 = param0.getPosition().z;
             RenderSystem.enableBlend();
+            RenderSystem.enableDepthTest();
             RenderSystem.blendFuncSeparate(
                 GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO
             );
             this.textureManager.bind(FORCEFIELD_LOCATION);
             RenderSystem.depthMask(false);
             RenderSystem.pushMatrix();
-            int var8 = var2.getStatus().getColor();
-            float var9 = (float)(var8 >> 16 & 0xFF) / 255.0F;
-            float var10 = (float)(var8 >> 8 & 0xFF) / 255.0F;
-            float var11 = (float)(var8 & 0xFF) / 255.0F;
-            RenderSystem.color4f(var9, var10, var11, (float)var4);
+            int var7 = var1.getStatus().getColor();
+            float var8 = (float)(var7 >> 16 & 0xFF) / 255.0F;
+            float var9 = (float)(var7 >> 8 & 0xFF) / 255.0F;
+            float var10 = (float)(var7 & 0xFF) / 255.0F;
+            RenderSystem.color4f(var8, var9, var10, (float)var3);
             RenderSystem.polygonOffset(-3.0F, -3.0F);
             RenderSystem.enablePolygonOffset();
             RenderSystem.defaultAlphaFunc();
             RenderSystem.enableAlphaTest();
             RenderSystem.disableCull();
-            float var12 = (float)(Util.getMillis() % 3000L) / 3000.0F;
+            float var11 = (float)(Util.getMillis() % 3000L) / 3000.0F;
+            float var12 = 0.0F;
             float var13 = 0.0F;
-            float var14 = 0.0F;
-            float var15 = 128.0F;
-            var1.begin(7, DefaultVertexFormat.POSITION_TEX);
-            double var16 = Math.max((double)Mth.floor(var7 - var3), var2.getMinZ());
-            double var17 = Math.min((double)Mth.ceil(var7 + var3), var2.getMaxZ());
-            if (var5 > var2.getMaxX() - var3) {
-                float var18 = 0.0F;
+            float var14 = 128.0F;
+            var0.begin(7, DefaultVertexFormat.POSITION_TEX);
+            double var15 = Math.max((double)Mth.floor(var6 - var2), var1.getMinZ());
+            double var16 = Math.min((double)Mth.ceil(var6 + var2), var1.getMaxZ());
+            if (var4 > var1.getMaxX() - var2) {
+                float var17 = 0.0F;
 
-                for(double var19 = var16; var19 < var17; var18 += 0.5F) {
-                    double var20 = Math.min(1.0, var17 - var19);
-                    float var21 = (float)var20 * 0.5F;
-                    this.vertex(var1, var5, var6, var7, var2.getMaxX(), 256, var19, var12 + var18, var12 + 0.0F);
-                    this.vertex(var1, var5, var6, var7, var2.getMaxX(), 256, var19 + var20, var12 + var21 + var18, var12 + 0.0F);
-                    this.vertex(var1, var5, var6, var7, var2.getMaxX(), 0, var19 + var20, var12 + var21 + var18, var12 + 128.0F);
-                    this.vertex(var1, var5, var6, var7, var2.getMaxX(), 0, var19, var12 + var18, var12 + 128.0F);
-                    ++var19;
+                for(double var18 = var15; var18 < var16; var17 += 0.5F) {
+                    double var19 = Math.min(1.0, var16 - var18);
+                    float var20 = (float)var19 * 0.5F;
+                    this.vertex(var0, var4, var5, var6, var1.getMaxX(), 256, var18, var11 + var17, var11 + 0.0F);
+                    this.vertex(var0, var4, var5, var6, var1.getMaxX(), 256, var18 + var19, var11 + var20 + var17, var11 + 0.0F);
+                    this.vertex(var0, var4, var5, var6, var1.getMaxX(), 0, var18 + var19, var11 + var20 + var17, var11 + 128.0F);
+                    this.vertex(var0, var4, var5, var6, var1.getMaxX(), 0, var18, var11 + var17, var11 + 128.0F);
+                    ++var18;
                 }
             }
 
-            if (var5 < var2.getMinX() + var3) {
-                float var22 = 0.0F;
+            if (var4 < var1.getMinX() + var2) {
+                float var21 = 0.0F;
 
-                for(double var23 = var16; var23 < var17; var22 += 0.5F) {
-                    double var24 = Math.min(1.0, var17 - var23);
-                    float var25 = (float)var24 * 0.5F;
-                    this.vertex(var1, var5, var6, var7, var2.getMinX(), 256, var23, var12 + var22, var12 + 0.0F);
-                    this.vertex(var1, var5, var6, var7, var2.getMinX(), 256, var23 + var24, var12 + var25 + var22, var12 + 0.0F);
-                    this.vertex(var1, var5, var6, var7, var2.getMinX(), 0, var23 + var24, var12 + var25 + var22, var12 + 128.0F);
-                    this.vertex(var1, var5, var6, var7, var2.getMinX(), 0, var23, var12 + var22, var12 + 128.0F);
-                    ++var23;
+                for(double var22 = var15; var22 < var16; var21 += 0.5F) {
+                    double var23 = Math.min(1.0, var16 - var22);
+                    float var24 = (float)var23 * 0.5F;
+                    this.vertex(var0, var4, var5, var6, var1.getMinX(), 256, var22, var11 + var21, var11 + 0.0F);
+                    this.vertex(var0, var4, var5, var6, var1.getMinX(), 256, var22 + var23, var11 + var24 + var21, var11 + 0.0F);
+                    this.vertex(var0, var4, var5, var6, var1.getMinX(), 0, var22 + var23, var11 + var24 + var21, var11 + 128.0F);
+                    this.vertex(var0, var4, var5, var6, var1.getMinX(), 0, var22, var11 + var21, var11 + 128.0F);
+                    ++var22;
                 }
             }
 
-            var16 = Math.max((double)Mth.floor(var5 - var3), var2.getMinX());
-            var17 = Math.min((double)Mth.ceil(var5 + var3), var2.getMaxX());
-            if (var7 > var2.getMaxZ() - var3) {
-                float var26 = 0.0F;
+            var15 = Math.max((double)Mth.floor(var4 - var2), var1.getMinX());
+            var16 = Math.min((double)Mth.ceil(var4 + var2), var1.getMaxX());
+            if (var6 > var1.getMaxZ() - var2) {
+                float var25 = 0.0F;
 
-                for(double var27 = var16; var27 < var17; var26 += 0.5F) {
-                    double var28 = Math.min(1.0, var17 - var27);
-                    float var29 = (float)var28 * 0.5F;
-                    this.vertex(var1, var5, var6, var7, var27, 256, var2.getMaxZ(), var12 + var26, var12 + 0.0F);
-                    this.vertex(var1, var5, var6, var7, var27 + var28, 256, var2.getMaxZ(), var12 + var29 + var26, var12 + 0.0F);
-                    this.vertex(var1, var5, var6, var7, var27 + var28, 0, var2.getMaxZ(), var12 + var29 + var26, var12 + 128.0F);
-                    this.vertex(var1, var5, var6, var7, var27, 0, var2.getMaxZ(), var12 + var26, var12 + 128.0F);
-                    ++var27;
+                for(double var26 = var15; var26 < var16; var25 += 0.5F) {
+                    double var27 = Math.min(1.0, var16 - var26);
+                    float var28 = (float)var27 * 0.5F;
+                    this.vertex(var0, var4, var5, var6, var26, 256, var1.getMaxZ(), var11 + var25, var11 + 0.0F);
+                    this.vertex(var0, var4, var5, var6, var26 + var27, 256, var1.getMaxZ(), var11 + var28 + var25, var11 + 0.0F);
+                    this.vertex(var0, var4, var5, var6, var26 + var27, 0, var1.getMaxZ(), var11 + var28 + var25, var11 + 128.0F);
+                    this.vertex(var0, var4, var5, var6, var26, 0, var1.getMaxZ(), var11 + var25, var11 + 128.0F);
+                    ++var26;
                 }
             }
 
-            if (var7 < var2.getMinZ() + var3) {
-                float var30 = 0.0F;
+            if (var6 < var1.getMinZ() + var2) {
+                float var29 = 0.0F;
 
-                for(double var31 = var16; var31 < var17; var30 += 0.5F) {
-                    double var32 = Math.min(1.0, var17 - var31);
-                    float var33 = (float)var32 * 0.5F;
-                    this.vertex(var1, var5, var6, var7, var31, 256, var2.getMinZ(), var12 + var30, var12 + 0.0F);
-                    this.vertex(var1, var5, var6, var7, var31 + var32, 256, var2.getMinZ(), var12 + var33 + var30, var12 + 0.0F);
-                    this.vertex(var1, var5, var6, var7, var31 + var32, 0, var2.getMinZ(), var12 + var33 + var30, var12 + 128.0F);
-                    this.vertex(var1, var5, var6, var7, var31, 0, var2.getMinZ(), var12 + var30, var12 + 128.0F);
-                    ++var31;
+                for(double var30 = var15; var30 < var16; var29 += 0.5F) {
+                    double var31 = Math.min(1.0, var16 - var30);
+                    float var32 = (float)var31 * 0.5F;
+                    this.vertex(var0, var4, var5, var6, var30, 256, var1.getMinZ(), var11 + var29, var11 + 0.0F);
+                    this.vertex(var0, var4, var5, var6, var30 + var31, 256, var1.getMinZ(), var11 + var32 + var29, var11 + 0.0F);
+                    this.vertex(var0, var4, var5, var6, var30 + var31, 0, var1.getMinZ(), var11 + var32 + var29, var11 + 128.0F);
+                    this.vertex(var0, var4, var5, var6, var30, 0, var1.getMinZ(), var11 + var29, var11 + 128.0F);
+                    ++var30;
                 }
             }
 
             var0.end();
+            BufferUploader.end(var0);
             RenderSystem.enableCull();
             RenderSystem.disableAlphaTest();
             RenderSystem.polygonOffset(0.0F, 0.0F);
@@ -2081,7 +2075,7 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
         float param8,
         float param9
     ) {
-        Matrix4f var0 = param0.getPose();
+        Matrix4f var0 = param0.last().pose();
         param2.forAllEdges(
             (param9x, param10, param11, param12, param13, param14) -> {
                 param1.vertex(var0, (float)(param9x + param3), (float)(param10 + param4), (float)(param11 + param5))
@@ -2164,7 +2158,7 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
         float param13,
         float param14
     ) {
-        Matrix4f var0 = param0.getPose();
+        Matrix4f var0 = param0.last().pose();
         float var1 = (float)param2;
         float var2 = (float)param3;
         float var3 = (float)param4;
@@ -2873,6 +2867,25 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
         synchronized(this.globalBlockEntities) {
             this.globalBlockEntities.removeAll(param0);
             this.globalBlockEntities.addAll(param1);
+        }
+    }
+
+    public static int getLightColor(BlockAndTintGetter param0, BlockPos param1) {
+        return getLightColor(param0, param0.getBlockState(param1), param1);
+    }
+
+    public static int getLightColor(BlockAndTintGetter param0, BlockState param1, BlockPos param2) {
+        if (param1.emissiveRendering()) {
+            return 15728880;
+        } else {
+            int var0 = param0.getBrightness(LightLayer.SKY, param2);
+            int var1 = param0.getBrightness(LightLayer.BLOCK, param2);
+            int var2 = param1.getLightEmission();
+            if (var1 < var2) {
+                var1 = var2;
+            }
+
+            return var0 << 20 | var1 << 4;
         }
     }
 

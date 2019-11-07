@@ -2,9 +2,11 @@ package net.minecraft.client.particle;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.Mth;
@@ -42,7 +44,7 @@ public class MobAppearanceParticle extends Particle {
     }
 
     @Override
-    public void render(VertexConsumer param0, Camera param1, float param2, float param3, float param4, float param5, float param6, float param7) {
+    public void render(VertexConsumer param0, Camera param1, float param2) {
         if (this.displayEntity != null) {
             EntityRenderDispatcher var0 = Minecraft.getInstance().getEntityRenderDispatcher();
             float var1 = 1.0F / ElderGuardian.ELDER_SIZE_SCALE;
@@ -65,7 +67,9 @@ public class MobAppearanceParticle extends Particle {
             this.displayEntity.yHeadRot = 0.0F;
             this.displayEntity.yRotO = 0.0F;
             this.displayEntity.yHeadRotO = 0.0F;
-            var0.render(this.displayEntity, param2);
+            MultiBufferSource.BufferSource var5 = Minecraft.getInstance().renderBuffers().bufferSource();
+            var0.render(this.displayEntity, 0.0, 0.0, 0.0, 0.0F, param2, new PoseStack(), var5, 15728880);
+            var5.endBatch();
             RenderSystem.popMatrix();
             RenderSystem.enableDepthTest();
         }

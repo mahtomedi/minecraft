@@ -356,7 +356,7 @@ public class ServerLevel extends Level {
             this.tickingEntities = true;
             ObjectIterator<Entry<Entity>> var11 = this.entitiesById.int2ObjectEntrySet().iterator();
 
-            label168:
+            label174:
             while(true) {
                 Entity var13;
                 while(true) {
@@ -370,7 +370,7 @@ public class ServerLevel extends Level {
 
                         var0.pop();
                         this.tickBlockEntities();
-                        break label168;
+                        break label174;
                     }
 
                     Entry<Entity> var12 = var11.next();
@@ -384,6 +384,12 @@ public class ServerLevel extends Level {
                         var13.remove();
                     }
 
+                    var0.push("checkDespawn");
+                    if (!var13.removed) {
+                        var13.checkDespawn();
+                    }
+
+                    var0.pop();
                     if (var14 == null) {
                         break;
                     }

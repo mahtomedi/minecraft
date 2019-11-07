@@ -36,8 +36,7 @@ public class IronGolemCrackinessLayer extends RenderLayer<IronGolem, IronGolemMo
         float param6,
         float param7,
         float param8,
-        float param9,
-        float param10
+        float param9
     ) {
         IronGolem.Crackiness var0 = param3.getCrackiness();
         if (var0 != IronGolem.Crackiness.NONE) {

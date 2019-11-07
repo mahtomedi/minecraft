@@ -36,7 +36,7 @@ public class BlazeModel<T extends Entity> extends ListModel<T> {
     }
 
     @Override
-    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
+    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
         float var0 = param3 * (float) Math.PI * -0.1F;
 
         for(int var1 = 0; var1 < 4; ++var1) {

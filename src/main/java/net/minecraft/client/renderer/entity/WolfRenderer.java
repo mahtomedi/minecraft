@@ -24,13 +24,13 @@ public class WolfRenderer extends MobRenderer<Wolf, WolfModel<Wolf>> {
         return param0.getTailAngle();
     }
 
-    public void render(Wolf param0, double param1, double param2, double param3, float param4, float param5, PoseStack param6, MultiBufferSource param7) {
+    public void render(Wolf param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {
         if (param0.isWet()) {
-            float var0 = param0.getBrightness() * param0.getWetShade(param5);
+            float var0 = param0.getBrightness() * param0.getWetShade(param2);
             this.model.setColor(var0, var0, var0);
         }
 
-        super.render(param0, param1, param2, param3, param4, param5, param6, param7);
+        super.render(param0, param1, param2, param3, param4, param5);
         if (param0.isWet()) {
             this.model.setColor(1.0F, 1.0F, 1.0F);
         }

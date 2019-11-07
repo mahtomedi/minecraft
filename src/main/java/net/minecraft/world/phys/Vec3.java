@@ -1,5 +1,6 @@
 package net.minecraft.world.phys;
 
+import com.mojang.math.Vector3f;
 import java.util.EnumSet;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
@@ -18,6 +19,10 @@ public class Vec3 implements Position {
         this.x = param0;
         this.y = param1;
         this.z = param2;
+    }
+
+    public Vec3(Vector3f param0) {
+        this((double)param0.x(), (double)param0.y(), (double)param0.z());
     }
 
     public Vec3(Vec3i param0) {

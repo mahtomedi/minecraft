@@ -16,6 +16,7 @@ import net.minecraft.client.Options;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.culling.Frustum;
@@ -39,6 +40,7 @@ import net.minecraft.world.entity.boss.EnderDragonPart;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -63,6 +65,10 @@ public class EntityRenderDispatcher {
     public final Options options;
     private boolean shouldRenderShadow = true;
     private boolean renderHitBoxes;
+
+    public static int getPackedLightCoords(Entity param0) {
+        return LightTexture.pack(param0.getBlockLightLevel(), param0.level.getBrightness(LightLayer.SKY, new BlockPos(param0)));
+    }
 
     private <T extends Entity> void register(EntityType<T> param0, EntityRenderer<? super T> param1) {
         this.renderers.put(param0, param1);
@@ -238,25 +244,19 @@ public class EntityRenderDispatcher {
         return var0.shouldRender(param0, param1, param2, param3, param4);
     }
 
-    public void render(Entity param0, float param1) {
-        MultiBufferSource.BufferSource var0 = Minecraft.getInstance().renderBuffers().bufferSource();
-        this.render(param0, 0.0, 0.0, 0.0, 0.0F, param1, new PoseStack(), var0);
-        var0.endBatch();
-    }
-
     public <E extends Entity> void render(
-        E param0, double param1, double param2, double param3, float param4, float param5, PoseStack param6, MultiBufferSource param7
+        E param0, double param1, double param2, double param3, float param4, float param5, PoseStack param6, MultiBufferSource param7, int param8
     ) {
         EntityRenderer<? super E> var0 = this.getRenderer(param0);
 
         try {
-            Vec3 var1 = var0.getRenderOffset(param0, param1, param2, param3, param5);
+            Vec3 var1 = var0.getRenderOffset(param0, param5);
             double var2 = param1 + var1.x();
             double var3 = param2 + var1.y();
             double var4 = param3 + var1.z();
             param6.pushPose();
             param6.translate(var2, var3, var4);
-            var0.render(param0, var2, var3, var4, param4, param5, param6, param7);
+            var0.render(param0, param4, param5, param6, param7, param8);
             if (param0.displayFireAnimation()) {
                 this.renderFlame(param6, param7, param0);
             }
@@ -275,8 +275,8 @@ public class EntityRenderDispatcher {
             }
 
             param6.popPose();
-        } catch (Throwable var23) {
-            CrashReport var8 = CrashReport.forThrowable(var23, "Rendering entity in world");
+        } catch (Throwable var24) {
+            CrashReport var8 = CrashReport.forThrowable(var24, "Rendering entity in world");
             CrashReportCategory var9 = var8.addCategory("Entity being rendered");
             param0.fillCrashReportCategory(var9);
             CrashReportCategory var10 = var8.addCategory("Renderer details");
@@ -326,7 +326,7 @@ public class EntityRenderDispatcher {
         }
 
         Vec3 var9 = param2.getViewVector(param3);
-        Matrix4f var10 = param0.getPose();
+        Matrix4f var10 = param0.last().pose();
         param1.vertex(var10, 0.0F, param2.getEyeHeight(), 0.0F).color(0, 0, 255, 255).endVertex();
         param1.vertex(var10, (float)(var9.x * 2.0), (float)((double)param2.getEyeHeight() + var9.y * 2.0), (float)(var9.z * 2.0))
             .color(0, 0, 255, 255)
@@ -355,7 +355,7 @@ public class EntityRenderDispatcher {
         int var9 = 0;
         VertexConsumer var10 = param1.getBuffer(RenderType.entityCutout(TextureAtlas.LOCATION_BLOCKS));
 
-        for(Matrix4f var11 = param0.getPose(); var6 > 0.0F; ++var9) {
+        for(PoseStack.Pose var11 = param0.last(); var6 > 0.0F; ++var9) {
             TextureAtlasSprite var12 = var9 % 2 == 0 ? var1 : var2;
             float var13 = var12.getU0();
             float var14 = var12.getV0();
@@ -380,13 +380,13 @@ public class EntityRenderDispatcher {
         param0.popPose();
     }
 
-    private static void fireVertex(Matrix4f param0, VertexConsumer param1, float param2, float param3, float param4, float param5, float param6) {
-        param1.vertex(param0, param2, param3, param4)
+    private static void fireVertex(PoseStack.Pose param0, VertexConsumer param1, float param2, float param3, float param4, float param5, float param6) {
+        param1.vertex(param0.pose(), param2, param3, param4)
             .color(255, 255, 255, 255)
             .uv(param5, param6)
             .overlayCoords(0, 10)
             .uv2(240)
-            .normal(0.0F, 1.0F, 0.0F)
+            .normal(param0.normal(), 0.0F, 1.0F, 0.0F)
             .endVertex();
     }
 
@@ -408,7 +408,7 @@ public class EntityRenderDispatcher {
         int var8 = Mth.floor(var3);
         int var9 = Mth.floor(var4 - (double)var0);
         int var10 = Mth.floor(var4 + (double)var0);
-        Matrix4f var11 = param0.getPose();
+        PoseStack.Pose var11 = param0.last();
         VertexConsumer var12 = param1.getBuffer(RenderType.entityNoOutline(SHADOW_LOCATION));
 
         for(BlockPos var13 : BlockPos.betweenClosed(new BlockPos(var5, var7, var9), new BlockPos(var6, var8, var10))) {
@@ -418,7 +418,15 @@ public class EntityRenderDispatcher {
     }
 
     private static void renderBlockShadow(
-        Matrix4f param0, VertexConsumer param1, LevelReader param2, BlockPos param3, double param4, double param5, double param6, float param7, float param8
+        PoseStack.Pose param0,
+        VertexConsumer param1,
+        LevelReader param2,
+        BlockPos param3,
+        double param4,
+        double param5,
+        double param6,
+        float param7,
+        float param8
     ) {
         BlockPos var0 = param3.below();
         BlockState var1 = param2.getBlockState(var0);
@@ -458,13 +466,15 @@ public class EntityRenderDispatcher {
         }
     }
 
-    private static void shadowVertex(Matrix4f param0, VertexConsumer param1, float param2, float param3, float param4, float param5, float param6, float param7) {
-        param1.vertex(param0, param3, param4, param5)
+    private static void shadowVertex(
+        PoseStack.Pose param0, VertexConsumer param1, float param2, float param3, float param4, float param5, float param6, float param7
+    ) {
+        param1.vertex(param0.pose(), param3, param4, param5)
             .color(1.0F, 1.0F, 1.0F, param2)
             .uv(param6, param7)
             .overlayCoords(OverlayTexture.NO_OVERLAY)
             .uv2(15728880)
-            .normal(0.0F, 1.0F, 0.0F)
+            .normal(param0.normal(), 0.0F, 1.0F, 0.0F)
             .endVertex();
     }
 

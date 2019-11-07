@@ -22,6 +22,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.village.ReputationEventType;
@@ -33,6 +34,7 @@ import net.minecraft.world.entity.npc.VillagerType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -190,6 +192,21 @@ public class ZombieVillager extends Zombie implements VillagerDataHolder {
 
     private void finishConversion(ServerLevel param0) {
         Villager var0 = EntityType.VILLAGER.create(param0);
+
+        for(EquipmentSlot var1 : EquipmentSlot.values()) {
+            ItemStack var2 = this.getItemBySlot(var1);
+            if (!var2.isEmpty()) {
+                if (EnchantmentHelper.hasBindingCurse(var2)) {
+                    var0.setSlot(var1.getIndex() + 300, var2);
+                } else {
+                    double var3 = (double)this.getEquipmentDropChance(var1);
+                    if (var3 > 1.0) {
+                        this.spawnAtLocation(var2);
+                    }
+                }
+            }
+        }
+
         var0.copyPosition(this);
         var0.setVillagerData(this.getVillagerData());
         if (this.gossips != null) {
@@ -220,10 +237,10 @@ public class ZombieVillager extends Zombie implements VillagerDataHolder {
         var0.setInvulnerable(this.isInvulnerable());
         param0.addFreshEntity(var0);
         if (this.conversionStarter != null) {
-            Player var1 = param0.getPlayerByUUID(this.conversionStarter);
-            if (var1 instanceof ServerPlayer) {
-                CriteriaTriggers.CURED_ZOMBIE_VILLAGER.trigger((ServerPlayer)var1, this, var0);
-                param0.onReputationEvent(ReputationEventType.ZOMBIE_VILLAGER_CURED, var1, var0);
+            Player var4 = param0.getPlayerByUUID(this.conversionStarter);
+            if (var4 instanceof ServerPlayer) {
+                CriteriaTriggers.CURED_ZOMBIE_VILLAGER.trigger((ServerPlayer)var4, this, var0);
+                param0.onReputationEvent(ReputationEventType.ZOMBIE_VILLAGER_CURED, var4, var0);
             }
         }
 

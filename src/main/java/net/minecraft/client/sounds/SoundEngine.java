@@ -8,6 +8,7 @@ import com.google.common.collect.Sets;
 import com.mojang.blaze3d.audio.Channel;
 import com.mojang.blaze3d.audio.Library;
 import com.mojang.blaze3d.audio.Listener;
+import com.mojang.math.Vector3f;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -370,8 +371,8 @@ public class SoundEngine {
     public void updateSource(Camera param0) {
         if (this.loaded && param0.isInitialized()) {
             Vec3 var0 = param0.getPosition();
-            Vec3 var1 = param0.getLookVector();
-            Vec3 var2 = param0.getUpVector();
+            Vector3f var1 = param0.getLookVector();
+            Vector3f var2 = param0.getUpVector();
             this.executor.execute(() -> {
                 this.listener.setListenerPosition(var0);
                 this.listener.setListenerOrientation(var1, var2);

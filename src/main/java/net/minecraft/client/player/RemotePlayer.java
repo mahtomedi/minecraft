@@ -2,7 +2,7 @@ package net.minecraft.client.player;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.MultiPlayerLevel;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
@@ -11,7 +11,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class RemotePlayer extends AbstractClientPlayer {
-    public RemotePlayer(MultiPlayerLevel param0, GameProfile param1) {
+    public RemotePlayer(ClientLevel param0, GameProfile param1) {
         super(param0, param1);
         this.maxUpStep = 1.0F;
         this.noPhysics = true;

@@ -7,7 +7,6 @@ import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LeavesBlock;
@@ -240,21 +239,6 @@ public class ItemBlockRenderTypes {
         param0.put(Blocks.FROSTED_ICE, var2);
         param0.put(Blocks.BUBBLE_COLUMN, var2);
     });
-    private static final Map<Item, RenderType> TYPE_BY_ITEM = Util.make(Maps.newHashMap(), param0 -> {
-        RenderType var0 = RenderType.entityCutout(TextureAtlas.LOCATION_BLOCKS);
-        param0.put(Items.LEVER, var0);
-        param0.put(Items.OAK_SIGN, var0);
-        param0.put(Items.DARK_OAK_SIGN, var0);
-        param0.put(Items.ACACIA_SIGN, var0);
-        param0.put(Items.BIRCH_SIGN, var0);
-        param0.put(Items.JUNGLE_SIGN, var0);
-        param0.put(Items.SPRUCE_SIGN, var0);
-        param0.put(Items.CAKE, var0);
-        param0.put(Items.CAULDRON, var0);
-        param0.put(Items.BELL, var0);
-        param0.put(Items.BARRIER, var0);
-        param0.put(Items.STRUCTURE_VOID, var0);
-    });
     private static final Map<Fluid, RenderType> TYPE_BY_FLUID = Util.make(Maps.newHashMap(), param0 -> {
         RenderType var0 = RenderType.translucent();
         param0.put(Fluids.FLOWING_WATER, var0);
@@ -274,23 +258,16 @@ public class ItemBlockRenderTypes {
 
     public static RenderType getRenderType(BlockState param0) {
         RenderType var0 = getChunkRenderType(param0);
-        if (var0 == RenderType.translucent()) {
-            return RenderType.entityTranslucent(TextureAtlas.LOCATION_BLOCKS);
-        } else {
-            return var0 != RenderType.cutout() && var0 != RenderType.cutoutMipped()
-                ? RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS)
-                : RenderType.entityCutout(TextureAtlas.LOCATION_BLOCKS);
-        }
+        return var0 == RenderType.translucent()
+            ? RenderType.entityTranslucent(TextureAtlas.LOCATION_BLOCKS)
+            : RenderType.entityCutout(TextureAtlas.LOCATION_BLOCKS);
     }
 
     public static RenderType getRenderType(ItemStack param0) {
         Item var0 = param0.getItem();
-        RenderType var1 = TYPE_BY_ITEM.get(var0);
-        if (var1 != null) {
-            return var1;
-        } else if (var0 instanceof BlockItem) {
-            Block var2 = ((BlockItem)var0).getBlock();
-            return getRenderType(var2.defaultBlockState());
+        if (var0 instanceof BlockItem) {
+            Block var1 = ((BlockItem)var0).getBlock();
+            return getRenderType(var1.defaultBlockState());
         } else {
             return RenderType.entityTranslucent(TextureAtlas.LOCATION_BLOCKS);
         }

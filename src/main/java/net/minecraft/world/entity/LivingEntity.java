@@ -1125,26 +1125,33 @@ public abstract class LivingEntity extends Entity {
             this.getCombatTracker().recheckStatus();
             if (!this.level.isClientSide) {
                 this.dropAllDeathLoot(param0);
-                boolean var2 = false;
-                if (var1 instanceof WitherBoss) {
-                    if (this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
-                        BlockPos var3 = new BlockPos(this);
-                        BlockState var4 = Blocks.WITHER_ROSE.defaultBlockState();
-                        if (this.level.getBlockState(var3).isAir() && var4.canSurvive(this.level, var3)) {
-                            this.level.setBlock(var3, var4, 3);
-                            var2 = true;
-                        }
-                    }
-
-                    if (!var2) {
-                        ItemEntity var5 = new ItemEntity(this.level, this.getX(), this.getY(), this.getZ(), new ItemStack(Items.WITHER_ROSE));
-                        this.level.addFreshEntity(var5);
-                    }
-                }
+                this.createWitherRose(var1);
             }
 
             this.level.broadcastEntityEvent(this, (byte)3);
             this.setPose(Pose.DYING);
+        }
+    }
+
+    protected void createWitherRose(@Nullable LivingEntity param0) {
+        if (!this.level.isClientSide) {
+            boolean var0 = false;
+            if (param0 instanceof WitherBoss) {
+                if (this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
+                    BlockPos var1 = new BlockPos(this);
+                    BlockState var2 = Blocks.WITHER_ROSE.defaultBlockState();
+                    if (this.level.getBlockState(var1).isAir() && var2.canSurvive(this.level, var1)) {
+                        this.level.setBlock(var1, var2, 3);
+                        var0 = true;
+                    }
+                }
+
+                if (!var0) {
+                    ItemEntity var3 = new ItemEntity(this.level, this.getX(), this.getY(), this.getZ(), new ItemStack(Items.WITHER_ROSE));
+                    this.level.addFreshEntity(var3);
+                }
+            }
+
         }
     }
 
@@ -1491,8 +1498,10 @@ public abstract class LivingEntity extends Entity {
                     this.playSound(var9, this.getSoundVolume(), (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
                 }
 
-                this.setHealth(0.0F);
-                this.die(DamageSource.GENERIC);
+                if (!(this instanceof Player)) {
+                    this.setHealth(0.0F);
+                    this.die(DamageSource.GENERIC);
+                }
                 break;
             case 4:
             case 5:
@@ -2900,7 +2909,7 @@ public abstract class LivingEntity extends Entity {
                 1.0F + (param0.random.nextFloat() - param0.random.nextFloat()) * 0.4F
             );
             this.addEatEffect(param1, param0, this);
-            if (this instanceof Player && !((Player)this).abilities.instabuild) {
+            if (!(this instanceof Player) || !((Player)this).abilities.instabuild) {
                 param1.shrink(1);
             }
         }

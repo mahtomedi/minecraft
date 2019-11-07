@@ -12,11 +12,13 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.GoalSelector;
+import net.minecraft.world.entity.animal.Bee;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raid;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.entity.BeehiveBlockEntity;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.pathfinder.Path;
 import org.apache.logging.log4j.LogManager;
@@ -67,6 +69,12 @@ public class DebugPackets {
     }
 
     public static void sendEntityBrain(LivingEntity param0) {
+    }
+
+    public static void sendBeeInfo(Bee param0) {
+    }
+
+    public static void sendHiveInfo(BeehiveBlockEntity param0) {
     }
 
     private static void sendPacketToAllPlayers(ServerLevel param0, FriendlyByteBuf param1, ResourceLocation param2) {

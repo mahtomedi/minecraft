@@ -160,20 +160,17 @@ public class PigZombie extends Zombie {
         } else {
             Entity var0 = param0.getEntity();
             if (var0 instanceof Player && !((Player)var0).isCreative() && this.canSee(var0)) {
-                this.makeAngry(var0);
+                this.makeAngry((LivingEntity)var0);
             }
 
             return super.hurt(param0, param1);
         }
     }
 
-    private boolean makeAngry(Entity param0) {
+    private boolean makeAngry(LivingEntity param0) {
         this.angerTime = this.getAngerTime();
         this.playAngrySoundIn = this.random.nextInt(40);
-        if (param0 instanceof LivingEntity) {
-            this.setLastHurtByMob((LivingEntity)param0);
-        }
-
+        this.setLastHurtByMob(param0);
         return true;
     }
 

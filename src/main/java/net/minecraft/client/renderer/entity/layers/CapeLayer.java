@@ -33,8 +33,7 @@ public class CapeLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<Abs
         float param6,
         float param7,
         float param8,
-        float param9,
-        float param10
+        float param9
     ) {
         if (param3.isCapeLoaded() && !param3.isInvisible() && param3.isModelPartShown(PlayerModelPart.CAPE) && param3.getCloakTextureLocation() != null) {
             ItemStack var0 = param3.getItemBySlot(EquipmentSlot.CHEST);
@@ -67,7 +66,7 @@ public class CapeLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<Abs
                 param0.mulPose(Vector3f.ZP.rotationDegrees(var9 / 2.0F));
                 param0.mulPose(Vector3f.YP.rotationDegrees(180.0F - var9 / 2.0F));
                 VertexConsumer var11 = param1.getBuffer(RenderType.entitySolid(param3.getCloakTextureLocation()));
-                this.getParentModel().renderCloak(param0, var11, 0.0625F, param2, OverlayTexture.NO_OVERLAY);
+                this.getParentModel().renderCloak(param0, var11, param2, OverlayTexture.NO_OVERLAY);
                 param0.popPose();
             }
         }

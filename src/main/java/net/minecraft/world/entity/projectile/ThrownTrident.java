@@ -27,6 +27,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ThrownTrident extends AbstractArrow {
     private static final EntityDataAccessor<Byte> ID_LOYALTY = SynchedEntityData.defineId(ThrownTrident.class, EntityDataSerializers.BYTE);
+    private static final EntityDataAccessor<Boolean> ID_FOIL = SynchedEntityData.defineId(ThrownTrident.class, EntityDataSerializers.BOOLEAN);
     private ItemStack tridentItem = new ItemStack(Items.TRIDENT);
     private boolean dealtDamage;
     public int clientSideReturnTridentTickCount;
@@ -39,6 +40,7 @@ public class ThrownTrident extends AbstractArrow {
         super(EntityType.TRIDENT, param1, param0);
         this.tridentItem = param2.copy();
         this.entityData.set(ID_LOYALTY, (byte)EnchantmentHelper.getLoyalty(param2));
+        this.entityData.set(ID_FOIL, param2.hasFoil());
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -50,6 +52,7 @@ public class ThrownTrident extends AbstractArrow {
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(ID_LOYALTY, (byte)0);
+        this.entityData.define(ID_FOIL, false);
     }
 
     @Override
@@ -100,6 +103,11 @@ public class ThrownTrident extends AbstractArrow {
     @Override
     protected ItemStack getPickupItem() {
         return this.tridentItem.copy();
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public boolean isFoil() {
+        return this.entityData.get(ID_FOIL);
     }
 
     @Nullable
@@ -179,10 +187,10 @@ public class ThrownTrident extends AbstractArrow {
     }
 
     @Override
-    protected void checkDespawn() {
+    public void tickDespawn() {
         int var0 = this.entityData.get(ID_LOYALTY);
         if (this.pickup != AbstractArrow.Pickup.ALLOWED || var0 <= 0) {
-            super.checkDespawn();
+            super.tickDespawn();
         }
 
     }

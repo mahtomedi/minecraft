@@ -1,8 +1,7 @@
 package net.minecraft.client.renderer.debug;
 
 import com.google.common.collect.Maps;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import java.util.List;
 import java.util.Map;
@@ -31,32 +30,23 @@ public class StructureRenderer implements DebugRenderer.SimpleDebugRenderer {
     }
 
     @Override
-    public void render(long param0) {
+    public void render(PoseStack param0, MultiBufferSource param1, double param2, double param3, double param4, long param5) {
         Camera var0 = this.minecraft.gameRenderer.getMainCamera();
         LevelAccessor var1 = this.minecraft.level;
         DimensionType var2 = var1.getDimension().getType();
-        double var3 = var0.getPosition().x;
-        double var4 = var0.getPosition().y;
-        double var5 = var0.getPosition().z;
-        RenderSystem.pushMatrix();
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.disableTexture();
-        RenderSystem.disableDepthTest();
-        BlockPos var6 = new BlockPos(var0.getPosition().x, 0.0, var0.getPosition().z);
-        MultiBufferSource.BufferSource var7 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-        VertexConsumer var8 = var7.getBuffer(RenderType.lines());
+        BlockPos var3 = new BlockPos(var0.getPosition().x, 0.0, var0.getPosition().z);
+        VertexConsumer var4 = param1.getBuffer(RenderType.lines());
         if (this.postMainBoxes.containsKey(var2)) {
-            for(BoundingBox var9 : this.postMainBoxes.get(var2).values()) {
-                if (var6.closerThan(var9.getCenter(), 500.0)) {
+            for(BoundingBox var5 : this.postMainBoxes.get(var2).values()) {
+                if (var3.closerThan(var5.getCenter(), 500.0)) {
                     LevelRenderer.renderLineBox(
-                        var8,
-                        (double)var9.x0 - var3,
-                        (double)var9.y0 - var4,
-                        (double)var9.z0 - var5,
-                        (double)(var9.x1 + 1) - var3,
-                        (double)(var9.y1 + 1) - var4,
-                        (double)(var9.z1 + 1) - var5,
+                        var4,
+                        (double)var5.x0 - param2,
+                        (double)var5.y0 - param3,
+                        (double)var5.z0 - param4,
+                        (double)(var5.x1 + 1) - param2,
+                        (double)(var5.y1 + 1) - param3,
+                        (double)(var5.z1 + 1) - param4,
                         1.0F,
                         1.0F,
                         1.0F,
@@ -67,20 +57,20 @@ public class StructureRenderer implements DebugRenderer.SimpleDebugRenderer {
         }
 
         if (this.postPiecesBoxes.containsKey(var2)) {
-            for(Entry<String, BoundingBox> var10 : this.postPiecesBoxes.get(var2).entrySet()) {
-                String var11 = var10.getKey();
-                BoundingBox var12 = var10.getValue();
-                Boolean var13 = this.startPiecesMap.get(var2).get(var11);
-                if (var6.closerThan(var12.getCenter(), 500.0)) {
-                    if (var13) {
+            for(Entry<String, BoundingBox> var6 : this.postPiecesBoxes.get(var2).entrySet()) {
+                String var7 = var6.getKey();
+                BoundingBox var8 = var6.getValue();
+                Boolean var9 = this.startPiecesMap.get(var2).get(var7);
+                if (var3.closerThan(var8.getCenter(), 500.0)) {
+                    if (var9) {
                         LevelRenderer.renderLineBox(
-                            var8,
-                            (double)var12.x0 - var3,
-                            (double)var12.y0 - var4,
-                            (double)var12.z0 - var5,
-                            (double)(var12.x1 + 1) - var3,
-                            (double)(var12.y1 + 1) - var4,
-                            (double)(var12.z1 + 1) - var5,
+                            var4,
+                            (double)var8.x0 - param2,
+                            (double)var8.y0 - param3,
+                            (double)var8.z0 - param4,
+                            (double)(var8.x1 + 1) - param2,
+                            (double)(var8.y1 + 1) - param3,
+                            (double)(var8.z1 + 1) - param4,
                             0.0F,
                             1.0F,
                             0.0F,
@@ -88,13 +78,13 @@ public class StructureRenderer implements DebugRenderer.SimpleDebugRenderer {
                         );
                     } else {
                         LevelRenderer.renderLineBox(
-                            var8,
-                            (double)var12.x0 - var3,
-                            (double)var12.y0 - var4,
-                            (double)var12.z0 - var5,
-                            (double)(var12.x1 + 1) - var3,
-                            (double)(var12.y1 + 1) - var4,
-                            (double)(var12.z1 + 1) - var5,
+                            var4,
+                            (double)var8.x0 - param2,
+                            (double)var8.y0 - param3,
+                            (double)var8.z0 - param4,
+                            (double)(var8.x1 + 1) - param2,
+                            (double)(var8.y1 + 1) - param3,
+                            (double)(var8.z1 + 1) - param4,
                             0.0F,
                             0.0F,
                             1.0F,
@@ -105,10 +95,6 @@ public class StructureRenderer implements DebugRenderer.SimpleDebugRenderer {
             }
         }
 
-        var7.endBatch();
-        RenderSystem.enableDepthTest();
-        RenderSystem.enableTexture();
-        RenderSystem.popMatrix();
     }
 
     public void addBoundingBox(BoundingBox param0, List<BoundingBox> param1, List<Boolean> param2, DimensionType param3) {

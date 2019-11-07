@@ -265,6 +265,10 @@ public class FlyNodeEvaluator extends WalkNodeEvaluator {
                 var0 = BlockPathTypes.DAMAGE_CACTUS;
             } else if (var2 == BlockPathTypes.DAMAGE_OTHER) {
                 var0 = BlockPathTypes.DAMAGE_OTHER;
+            } else if (var2 == BlockPathTypes.COCOA) {
+                var0 = BlockPathTypes.COCOA;
+            } else if (var2 == BlockPathTypes.FENCE) {
+                var0 = BlockPathTypes.FENCE;
             } else {
                 var0 = var2 != BlockPathTypes.WALKABLE && var2 != BlockPathTypes.OPEN && var2 != BlockPathTypes.WATER
                     ? BlockPathTypes.WALKABLE
@@ -272,7 +276,11 @@ public class FlyNodeEvaluator extends WalkNodeEvaluator {
             }
         }
 
-        return checkNeighbourBlocks(param0, param1, param2, param3, var0);
+        if (var0 == BlockPathTypes.WALKABLE || var0 == BlockPathTypes.OPEN) {
+            var0 = checkNeighbourBlocks(param0, param1, param2, param3, var0);
+        }
+
+        return var0;
     }
 
     private BlockPathTypes getBlockPathType(Mob param0, BlockPos param1) {

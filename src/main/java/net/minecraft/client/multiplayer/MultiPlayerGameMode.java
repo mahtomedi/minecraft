@@ -254,7 +254,7 @@ public class MultiPlayerGameMode {
 
     }
 
-    public InteractionResult useItemOn(LocalPlayer param0, MultiPlayerLevel param1, InteractionHand param2, BlockHitResult param3) {
+    public InteractionResult useItemOn(LocalPlayer param0, ClientLevel param1, InteractionHand param2, BlockHitResult param3) {
         this.ensureHasSentCarriedItem();
         BlockPos var0 = param3.getBlockPos();
         if (!this.minecraft.level.getWorldBorder().isWithinBounds(var0)) {
@@ -317,7 +317,7 @@ public class MultiPlayerGameMode {
         }
     }
 
-    public LocalPlayer createPlayer(MultiPlayerLevel param0, StatsCounter param1, ClientRecipeBook param2) {
+    public LocalPlayer createPlayer(ClientLevel param0, StatsCounter param1, ClientRecipeBook param2) {
         return new LocalPlayer(this.minecraft, param0, this.connection, param1, param2);
     }
 
@@ -421,7 +421,7 @@ public class MultiPlayerGameMode {
         this.connection.send(new ServerboundPlayerActionPacket(param0, param1, param2));
     }
 
-    public void handleBlockBreakAck(MultiPlayerLevel param0, BlockPos param1, BlockState param2, ServerboundPlayerActionPacket.Action param3, boolean param4) {
+    public void handleBlockBreakAck(ClientLevel param0, BlockPos param1, BlockState param2, ServerboundPlayerActionPacket.Action param3, boolean param4) {
         PosAndRot var0 = this.unAckedActions.remove(Pair.of(param1, param3));
         if (var0 == null || !param4 || param3 != ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK && param0.getBlockState(param1) != param2) {
             param0.setKnownState(param1, param2);

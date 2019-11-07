@@ -47,17 +47,17 @@ public abstract class LivingEntityRenderer<T extends LivingEntity, M extends Ent
         return this.model;
     }
 
-    public void render(T param0, double param1, double param2, double param3, float param4, float param5, PoseStack param6, MultiBufferSource param7) {
-        param6.pushPose();
-        this.model.attackTime = this.getAttackAnim(param0, param5);
+    public void render(T param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {
+        param3.pushPose();
+        this.model.attackTime = this.getAttackAnim(param0, param2);
         this.model.riding = param0.isPassenger();
         this.model.young = param0.isBaby();
-        float var0 = Mth.rotLerp(param5, param0.yBodyRotO, param0.yBodyRot);
-        float var1 = Mth.rotLerp(param5, param0.yHeadRotO, param0.yHeadRot);
+        float var0 = Mth.rotLerp(param2, param0.yBodyRotO, param0.yBodyRot);
+        float var1 = Mth.rotLerp(param2, param0.yHeadRotO, param0.yHeadRot);
         float var2 = var1 - var0;
         if (param0.isPassenger() && param0.getVehicle() instanceof LivingEntity) {
             LivingEntity var3 = (LivingEntity)param0.getVehicle();
-            var0 = Mth.rotLerp(param5, var3.yBodyRotO, var3.yBodyRot);
+            var0 = Mth.rotLerp(param2, var3.yBodyRotO, var3.yBodyRot);
             var2 = var1 - var0;
             float var4 = Mth.wrapDegrees(var2);
             if (var4 < -85.0F) {
@@ -76,54 +76,52 @@ public abstract class LivingEntityRenderer<T extends LivingEntity, M extends Ent
             var2 = var1 - var0;
         }
 
-        float var5 = Mth.lerp(param5, param0.xRotO, param0.xRot);
+        float var5 = Mth.lerp(param2, param0.xRotO, param0.xRot);
         if (param0.getPose() == Pose.SLEEPING) {
             Direction var6 = param0.getBedOrientation();
             if (var6 != null) {
                 float var7 = param0.getEyeHeight(Pose.STANDING) - 0.1F;
-                param6.translate((double)((float)(-var6.getStepX()) * var7), 0.0, (double)((float)(-var6.getStepZ()) * var7));
+                param3.translate((double)((float)(-var6.getStepX()) * var7), 0.0, (double)((float)(-var6.getStepZ()) * var7));
             }
         }
 
-        float var8 = this.getBob(param0, param5);
-        this.setupRotations(param0, param6, var8, var0, param5);
-        param6.scale(-1.0F, -1.0F, 1.0F);
-        this.scale(param0, param6, param5);
-        float var9 = 0.0625F;
-        param6.translate(0.0, -1.501F, 0.0);
+        float var8 = this.getBob(param0, param2);
+        this.setupRotations(param0, param3, var8, var0, param2);
+        param3.scale(-1.0F, -1.0F, 1.0F);
+        this.scale(param0, param3, param2);
+        param3.translate(0.0, -1.501F, 0.0);
+        float var9 = 0.0F;
         float var10 = 0.0F;
-        float var11 = 0.0F;
         if (!param0.isPassenger() && param0.isAlive()) {
-            var10 = Mth.lerp(param5, param0.animationSpeedOld, param0.animationSpeed);
-            var11 = param0.animationPosition - param0.animationSpeed * (1.0F - param5);
+            var9 = Mth.lerp(param2, param0.animationSpeedOld, param0.animationSpeed);
+            var10 = param0.animationPosition - param0.animationSpeed * (1.0F - param2);
             if (param0.isBaby()) {
-                var11 *= 3.0F;
+                var10 *= 3.0F;
             }
 
-            if (var10 > 1.0F) {
-                var10 = 1.0F;
+            if (var9 > 1.0F) {
+                var9 = 1.0F;
             }
         }
 
-        this.model.prepareMobModel(param0, var11, var10, param5);
-        boolean var12 = this.isVisible(param0, false);
-        boolean var13 = !var12 && !param0.isInvisibleTo(Minecraft.getInstance().player);
-        int var14 = param0.getLightColor();
-        this.model.setupAnim(param0, var11, var10, var8, var2, var5, 0.0625F);
-        if (var12 || var13) {
-            ResourceLocation var15 = this.getTextureLocation(param0);
-            VertexConsumer var16 = param7.getBuffer(var13 ? RenderType.entityForceTranslucent(var15) : this.model.renderType(var15));
-            this.model.renderToBuffer(param6, var16, var14, getOverlayCoords(param0, this.getWhiteOverlayProgress(param0, param5)), 1.0F, 1.0F, 1.0F);
+        this.model.prepareMobModel(param0, var10, var9, param2);
+        boolean var11 = this.isVisible(param0, false);
+        boolean var12 = !var11 && !param0.isInvisibleTo(Minecraft.getInstance().player);
+        this.model.setupAnim(param0, var10, var9, var8, var2, var5);
+        if (var11 || var12) {
+            ResourceLocation var13 = this.getTextureLocation(param0);
+            VertexConsumer var14 = param4.getBuffer(var12 ? RenderType.entityForceTranslucent(var13) : this.model.renderType(var13));
+            this.model.renderToBuffer(param3, var14, param5, getOverlayCoords(param0, this.getWhiteOverlayProgress(param0, param2)), 1.0F, 1.0F, 1.0F);
         }
 
         if (!param0.isSpectator()) {
-            for(RenderLayer<T, M> var17 : this.layers) {
-                var17.render(param6, param7, var14, param0, var11, var10, param5, var8, var2, var5, 0.0625F);
+            for(RenderLayer<T, M> var15 : this.layers) {
+                var15.render(param3, param4, param5, param0, var10, var9, param2, var8, var2, var5);
             }
         }
 
-        param6.popPose();
-        super.render(param0, param1, param2, param3, param4, param5, param6, param7);
+        param3.popPose();
+        super.render(param0, param1, param2, param3, param4, param5);
     }
 
     public static int getOverlayCoords(LivingEntity param0, float param1) {

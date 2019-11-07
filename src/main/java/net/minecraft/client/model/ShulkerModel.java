@@ -24,7 +24,7 @@ public class ShulkerModel<T extends Shulker> extends ListModel<T> {
         this.head.setPos(0.0F, 12.0F, 0.0F);
     }
 
-    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
+    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
         float var0 = param3 - (float)param0.tickCount;
         float var1 = (0.5F + param0.getClientPeekAmount(var0)) * (float) Math.PI;
         float var2 = -1.0F + Mth.sin(var1);

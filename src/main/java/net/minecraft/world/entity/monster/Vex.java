@@ -188,8 +188,8 @@ public class Vex extends Monster {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public int getLightColor() {
-        return 15728880;
+    public int getBlockLightLevel() {
+        return 15;
     }
 
     @Override

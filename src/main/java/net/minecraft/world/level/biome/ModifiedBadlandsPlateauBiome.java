@@ -1,6 +1,5 @@
 package net.minecraft.world.level.biome;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.levelgen.feature.Feature;
@@ -54,13 +53,13 @@ public final class ModifiedBadlandsPlateauBiome extends Biome {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public int getFoliageColor(BlockPos param0) {
+    public int getFoliageColor() {
         return 10387789;
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public int getGrassColor(BlockPos param0) {
+    public int getGrassColor(double param0, double param1) {
         return 9470285;
     }
 }

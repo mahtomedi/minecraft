@@ -19,15 +19,12 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class DebugStickItem extends Item {
     public DebugStickItem(Item.Properties param0) {
         super(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean isFoil(ItemStack param0) {
         return true;

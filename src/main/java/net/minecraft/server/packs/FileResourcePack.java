@@ -102,7 +102,7 @@ public class FileResourcePack extends AbstractResourcePack {
     }
 
     @Override
-    public Collection<ResourceLocation> getResources(PackType param0, String param1, int param2, Predicate<String> param3) {
+    public Collection<ResourceLocation> getResources(PackType param0, String param1, String param2, int param3, Predicate<String> param4) {
         ZipFile var0;
         try {
             var0 = this.getOrCreateZipFile();
@@ -112,23 +112,18 @@ public class FileResourcePack extends AbstractResourcePack {
 
         Enumeration<? extends ZipEntry> var3 = var0.entries();
         List<ResourceLocation> var4 = Lists.newArrayList();
-        String var5 = param0.getDirectory() + "/";
+        String var5 = param0.getDirectory() + "/" + param1 + "/";
+        String var6 = var5 + param2 + "/";
 
         while(var3.hasMoreElements()) {
-            ZipEntry var6 = var3.nextElement();
-            if (!var6.isDirectory() && var6.getName().startsWith(var5)) {
-                String var7 = var6.getName().substring(var5.length());
-                if (!var7.endsWith(".mcmeta")) {
-                    int var8 = var7.indexOf(47);
-                    if (var8 >= 0) {
-                        String var9 = var7.substring(var8 + 1);
-                        if (var9.startsWith(param1 + "/")) {
-                            String[] var10 = var9.substring(param1.length() + 2).split("/");
-                            if (var10.length >= param2 + 1 && param3.test(var9)) {
-                                String var11 = var7.substring(0, var8);
-                                var4.add(new ResourceLocation(var11, var9));
-                            }
-                        }
+            ZipEntry var7 = var3.nextElement();
+            if (!var7.isDirectory()) {
+                String var8 = var7.getName();
+                if (!var8.endsWith(".mcmeta") && var8.startsWith(var6)) {
+                    String var9 = var8.substring(var5.length());
+                    String[] var10 = var9.split("/");
+                    if (var10.length >= param3 + 1 && param4.test(var10[var10.length - 1])) {
+                        var4.add(new ResourceLocation(param1, var9));
                     }
                 }
             }

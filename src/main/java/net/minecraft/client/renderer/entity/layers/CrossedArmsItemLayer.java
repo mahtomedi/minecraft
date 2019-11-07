@@ -20,23 +20,13 @@ public class CrossedArmsItemLayer<T extends LivingEntity, M extends EntityModel<
     }
 
     public void render(
-        PoseStack param0,
-        MultiBufferSource param1,
-        int param2,
-        T param3,
-        float param4,
-        float param5,
-        float param6,
-        float param7,
-        float param8,
-        float param9,
-        float param10
+        PoseStack param0, MultiBufferSource param1, int param2, T param3, float param4, float param5, float param6, float param7, float param8, float param9
     ) {
         param0.pushPose();
         param0.translate(0.0, 0.4F, -0.4F);
         param0.mulPose(Vector3f.XP.rotationDegrees(180.0F));
         ItemStack var0 = param3.getItemBySlot(EquipmentSlot.MAINHAND);
-        Minecraft.getInstance().getItemInHandRenderer().renderItem(param3, var0, ItemTransforms.TransformType.GROUND, false, param0, param1);
+        Minecraft.getInstance().getItemInHandRenderer().renderItem(param3, var0, ItemTransforms.TransformType.GROUND, false, param0, param1, param2);
         param0.popPose();
     }
 }

@@ -32,15 +32,14 @@ public class HorseArmorLayer extends RenderLayer<Horse, HorseModel<Horse>> {
         float param6,
         float param7,
         float param8,
-        float param9,
-        float param10
+        float param9
     ) {
         ItemStack var0 = param3.getArmor();
         if (var0.getItem() instanceof HorseArmorItem) {
             HorseArmorItem var1 = (HorseArmorItem)var0.getItem();
             this.getParentModel().copyPropertiesTo(this.model);
             this.model.prepareMobModel(param3, param4, param5, param6);
-            this.model.setupAnim(param3, param4, param5, param7, param8, param9, param10);
+            this.model.setupAnim(param3, param4, param5, param7, param8, param9);
             float var3;
             float var4;
             float var5;

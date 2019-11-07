@@ -21,17 +21,7 @@ public class StructureBlockRenderer extends BlockEntityRenderer<StructureBlockEn
         super(param0);
     }
 
-    public void render(
-        StructureBlockEntity param0,
-        double param1,
-        double param2,
-        double param3,
-        float param4,
-        PoseStack param5,
-        MultiBufferSource param6,
-        int param7,
-        int param8
-    ) {
+    public void render(StructureBlockEntity param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {
         if (Minecraft.getInstance().player.canUseGameMasterBlocks() || Minecraft.getInstance().player.isSpectator()) {
             BlockPos var0 = param0.getStructurePos();
             BlockPos var1 = param0.getStructureSize();
@@ -90,14 +80,14 @@ public class StructureBlockRenderer extends BlockEntityRenderer<StructureBlockEn
                     float var28 = 1.0F;
                     float var29 = 0.9F;
                     float var30 = 0.5F;
-                    VertexConsumer var31 = param6.getBuffer(RenderType.lines());
+                    VertexConsumer var31 = param3.getBuffer(RenderType.lines());
                     if (param0.getMode() == StructureMode.SAVE || param0.getShowBoundingBox()) {
-                        LevelRenderer.renderLineBox(param5, var31, var24, var4, var25, var26, var5, var27, 0.9F, 0.9F, 0.9F, 1.0F, 0.5F, 0.5F, 0.5F);
+                        LevelRenderer.renderLineBox(param2, var31, var24, var4, var25, var26, var5, var27, 0.9F, 0.9F, 0.9F, 1.0F, 0.5F, 0.5F, 0.5F);
                     }
 
                     if (param0.getMode() == StructureMode.SAVE && param0.getShowAir()) {
-                        this.renderInvisibleBlocks(param0, var31, var0, true, param5);
-                        this.renderInvisibleBlocks(param0, var31, var0, false, param5);
+                        this.renderInvisibleBlocks(param0, var31, var0, true, param2);
+                        this.renderInvisibleBlocks(param0, var31, var0, false, param2);
                     }
 
                 }

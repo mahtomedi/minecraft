@@ -17,7 +17,7 @@ public class NoRenderParticle extends Particle {
     }
 
     @Override
-    public final void render(VertexConsumer param0, Camera param1, float param2, float param3, float param4, float param5, float param6, float param7) {
+    public final void render(VertexConsumer param0, Camera param1, float param2) {
     }
 
     @Override

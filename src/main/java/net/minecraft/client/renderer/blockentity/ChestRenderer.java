@@ -82,7 +82,7 @@ public class ChestRenderer<T extends BlockEntity & LidBlockEntity> extends Block
     }
 
     @Override
-    public void render(T param0, double param1, double param2, double param3, float param4, PoseStack param5, MultiBufferSource param6, int param7, int param8) {
+    public void render(T param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {
         BlockState var0 = param0.hasLevel() ? param0.getBlockState() : Blocks.CHEST.defaultBlockState().setValue(ChestBlock.FACING, Direction.SOUTH);
         ChestType var1 = var0.hasProperty(ChestBlock.TYPE) ? var0.getValue(ChestBlock.TYPE) : ChestType.SINGLE;
         boolean var2 = var1 != ChestType.SINGLE;
@@ -97,28 +97,28 @@ public class ChestRenderer<T extends BlockEntity & LidBlockEntity> extends Block
             var3 = this.chooseTexture(var1, CHEST_LOCATION, CHEST_LOCATION_LEFT, CHEST_LOCATION_RIGHT);
         }
 
-        param5.pushPose();
+        param2.pushPose();
         float var7 = var0.getValue(ChestBlock.FACING).toYRot();
-        param5.translate(0.5, 0.5, 0.5);
-        param5.mulPose(Vector3f.YP.rotationDegrees(-var7));
-        param5.translate(-0.5, -0.5, -0.5);
-        float var8 = param0.getOpenNess(param4);
+        param2.translate(0.5, 0.5, 0.5);
+        param2.mulPose(Vector3f.YP.rotationDegrees(-var7));
+        param2.translate(-0.5, -0.5, -0.5);
+        float var8 = param0.getOpenNess(param1);
         var8 = 1.0F - var8;
         var8 = 1.0F - var8 * var8 * var8;
         TextureAtlasSprite var9 = this.getSprite(var3);
         if (var2) {
-            VertexConsumer var10 = param6.getBuffer(RenderType.entityCutout(TextureAtlas.LOCATION_BLOCKS));
+            VertexConsumer var10 = param3.getBuffer(RenderType.entityCutout(TextureAtlas.LOCATION_BLOCKS));
             if (var1 == ChestType.LEFT) {
-                this.render(param5, var10, this.doubleRightLid, this.doubleRightLock, this.doubleRightBottom, var8, param7, param8, var9);
+                this.render(param2, var10, this.doubleRightLid, this.doubleRightLock, this.doubleRightBottom, var8, param4, param5, var9);
             } else {
-                this.render(param5, var10, this.doubleLeftLid, this.doubleLeftLock, this.doubleLeftBottom, var8, param7, param8, var9);
+                this.render(param2, var10, this.doubleLeftLid, this.doubleLeftLock, this.doubleLeftBottom, var8, param4, param5, var9);
             }
         } else {
-            VertexConsumer var11 = param6.getBuffer(RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS));
-            this.render(param5, var11, this.lid, this.lock, this.bottom, var8, param7, param8, var9);
+            VertexConsumer var11 = param3.getBuffer(RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS));
+            this.render(param2, var11, this.lid, this.lock, this.bottom, var8, param4, param5, var9);
         }
 
-        param5.popPose();
+        param2.popPose();
     }
 
     private ResourceLocation chooseTexture(ChestType param0, ResourceLocation param1, ResourceLocation param2, ResourceLocation param3) {
@@ -146,8 +146,8 @@ public class ChestRenderer<T extends BlockEntity & LidBlockEntity> extends Block
     ) {
         param2.xRot = -(param5 * (float) (Math.PI / 2));
         param3.xRot = param2.xRot;
-        param2.render(param0, param1, 0.0625F, param6, param7, param8);
-        param3.render(param0, param1, 0.0625F, param6, param7, param8);
-        param4.render(param0, param1, 0.0625F, param6, param7, param8);
+        param2.render(param0, param1, param6, param7, param8);
+        param3.render(param0, param1, param6, param7, param8);
+        param4.render(param0, param1, param6, param7, param8);
     }
 }

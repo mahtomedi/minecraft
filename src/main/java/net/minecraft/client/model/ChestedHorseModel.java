@@ -39,8 +39,8 @@ public class ChestedHorseModel<T extends AbstractChestedHorse> extends HorseMode
         param0.addChild(var1);
     }
 
-    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        super.setupAnim(param0, param1, param2, param3, param4, param5, param6);
+    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
+        super.setupAnim(param0, param1, param2, param3, param4, param5);
         if (param0.hasChest()) {
             this.boxL.visible = true;
             this.boxR.visible = true;

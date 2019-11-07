@@ -38,7 +38,7 @@ public class GhastModel<T extends Entity> extends ListModel<T> {
     }
 
     @Override
-    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
+    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
         for(int var0 = 0; var0 < this.tentacles.length; ++var0) {
             this.tentacles[var0].xRot = 0.2F * Mth.sin(param3 * 0.3F + (float)var0) + 0.4F;
         }

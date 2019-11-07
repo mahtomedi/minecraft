@@ -10,7 +10,6 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.blockentity.BeaconRenderer;
 import net.minecraft.client.renderer.blockentity.TheEndPortalRenderer;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.ModelBakery;
@@ -31,7 +30,7 @@ public class RenderType extends RenderStateShard {
             .setShadeModelState(SMOOTH_SHADE)
             .setLightmapState(LIGHTMAP)
             .setTextureState(BLOCK_SHEET_MIPPED)
-            .createCompositeState(false)
+            .createCompositeState(true)
     );
     private static final RenderType CUTOUT_MIPPED = new RenderType.CompositeRenderType(
         "cutout_mipped",
@@ -45,7 +44,7 @@ public class RenderType extends RenderStateShard {
             .setLightmapState(LIGHTMAP)
             .setTextureState(BLOCK_SHEET_MIPPED)
             .setAlphaState(MIDWAY_ALPHA)
-            .createCompositeState(false)
+            .createCompositeState(true)
     );
     private static final RenderType CUTOUT = new RenderType.CompositeRenderType(
         "cutout",
@@ -59,7 +58,7 @@ public class RenderType extends RenderStateShard {
             .setLightmapState(LIGHTMAP)
             .setTextureState(BLOCK_SHEET)
             .setAlphaState(MIDWAY_ALPHA)
-            .createCompositeState(false)
+            .createCompositeState(true)
     );
     private static final RenderType TRANSLUCENT = new RenderType.CompositeRenderType(
         "translucent",
@@ -73,7 +72,7 @@ public class RenderType extends RenderStateShard {
             .setLightmapState(LIGHTMAP)
             .setTextureState(BLOCK_SHEET_MIPPED)
             .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-            .createCompositeState(false)
+            .createCompositeState(true)
     );
     private static final RenderType TRANSLUCENT_NO_CRUMBLING = new RenderType(
         "translucent_no_crumbling", DefaultVertexFormat.BLOCK, 7, 256, false, true, TRANSLUCENT::setupRenderState, TRANSLUCENT::clearRenderState
@@ -118,20 +117,6 @@ public class RenderType extends RenderStateShard {
             .setDepthTestState(EQUAL_DEPTH_TEST)
             .setTransparencyState(GLINT_TRANSPARENCY)
             .setTexturingState(ENTITY_GLINT_TEXTURING)
-            .createCompositeState(false)
-    );
-    private static final RenderType BEACON_BEAM = new RenderType.CompositeRenderType(
-        "beacon_beam",
-        DefaultVertexFormat.BLOCK,
-        7,
-        256,
-        false,
-        true,
-        RenderType.CompositeState.builder()
-            .setTextureState(new RenderStateShard.TextureStateShard(BeaconRenderer.BEAM_LOCATION, false, false))
-            .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-            .setWriteMaskState(COLOR_WRITE)
-            .setFogState(NO_FOG)
             .createCompositeState(false)
     );
     private static final RenderType LIGHTNING = new RenderType.CompositeRenderType(
@@ -258,6 +243,16 @@ public class RenderType extends RenderStateShard {
         return new RenderType.CompositeRenderType("entity_smooth_cutout", DefaultVertexFormat.NEW_ENTITY, 7, 256, var0);
     }
 
+    public static RenderType beaconBeam(ResourceLocation param0, boolean param1) {
+        RenderType.CompositeState var0 = RenderType.CompositeState.builder()
+            .setTextureState(new RenderStateShard.TextureStateShard(param0, false, false))
+            .setTransparencyState(param1 ? TRANSLUCENT_TRANSPARENCY : NO_TRANSPARENCY)
+            .setWriteMaskState(param1 ? COLOR_WRITE : COLOR_DEPTH_WRITE)
+            .setFogState(NO_FOG)
+            .createCompositeState(false);
+        return new RenderType.CompositeRenderType("beacon_beam", DefaultVertexFormat.BLOCK, 7, 256, false, true, var0);
+    }
+
     public static RenderType entityDecal(ResourceLocation param0) {
         RenderType.CompositeState var0 = RenderType.CompositeState.builder()
             .setTextureState(new RenderStateShard.TextureStateShard(param0, false, false))
@@ -280,6 +275,7 @@ public class RenderType extends RenderStateShard {
             .setCullState(NO_CULL)
             .setLightmapState(LIGHTMAP)
             .setOverlayState(OVERLAY)
+            .setWriteMaskState(COLOR_WRITE)
             .createCompositeState(false);
         return new RenderType.CompositeRenderType("entity_no_outline", DefaultVertexFormat.NEW_ENTITY, 7, 256, false, true, var0);
     }
@@ -422,10 +418,6 @@ public class RenderType extends RenderStateShard {
         );
     }
 
-    public static RenderType beaconBeam() {
-        return BEACON_BEAM;
-    }
-
     public static RenderType lightning() {
         return LIGHTNING;
     }
@@ -480,8 +472,12 @@ public class RenderType extends RenderStateShard {
         this.sortOnUpload = param5;
     }
 
-    public void end(BufferBuilder param0) {
+    public void end(BufferBuilder param0, int param1, int param2, int param3) {
         if (param0.building()) {
+            if (this.sortOnUpload) {
+                param0.sortQuads((float)param1, (float)param2, (float)param3);
+            }
+
             param0.end();
             this.setupRenderState();
             BufferUploader.end(param0);

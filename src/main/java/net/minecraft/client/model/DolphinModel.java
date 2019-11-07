@@ -63,7 +63,7 @@ public class DolphinModel<T extends Entity> extends ListModel<T> {
     }
 
     @Override
-    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
+    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
         this.body.xRot = param5 * (float) (Math.PI / 180.0);
         this.body.yRot = param4 * (float) (Math.PI / 180.0);
         if (Entity.getHorizontalDistanceSqr(param0.getDeltaMovement()) > 1.0E-7) {

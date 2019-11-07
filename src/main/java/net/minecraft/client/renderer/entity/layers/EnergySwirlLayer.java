@@ -21,17 +21,7 @@ public abstract class EnergySwirlLayer<T extends Entity & PowerableMob, M extend
 
     @Override
     public void render(
-        PoseStack param0,
-        MultiBufferSource param1,
-        int param2,
-        T param3,
-        float param4,
-        float param5,
-        float param6,
-        float param7,
-        float param8,
-        float param9,
-        float param10
+        PoseStack param0, MultiBufferSource param1, int param2, T param3, float param4, float param5, float param6, float param7, float param8, float param9
     ) {
         if (param3.isPowered()) {
             float var0 = (float)param3.tickCount + param6;
@@ -39,7 +29,7 @@ public abstract class EnergySwirlLayer<T extends Entity & PowerableMob, M extend
             var1.prepareMobModel(param3, param4, param5, param6);
             this.getParentModel().copyPropertiesTo(var1);
             VertexConsumer var2 = param1.getBuffer(RenderType.energySwirl(this.getTextureLocation(), this.xOffset(var0), var0 * 0.01F));
-            var1.setupAnim(param3, param4, param5, param7, param8, param9, param10);
+            var1.setupAnim(param3, param4, param5, param7, param8, param9);
             var1.renderToBuffer(param0, var2, param2, OverlayTexture.NO_OVERLAY, 0.5F, 0.5F, 0.5F);
         }
     }

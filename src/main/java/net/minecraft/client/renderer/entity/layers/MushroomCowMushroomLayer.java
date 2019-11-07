@@ -20,43 +20,34 @@ public class MushroomCowMushroomLayer<T extends MushroomCow> extends RenderLayer
     }
 
     public void render(
-        PoseStack param0,
-        MultiBufferSource param1,
-        int param2,
-        T param3,
-        float param4,
-        float param5,
-        float param6,
-        float param7,
-        float param8,
-        float param9,
-        float param10
+        PoseStack param0, MultiBufferSource param1, int param2, T param3, float param4, float param5, float param6, float param7, float param8, float param9
     ) {
         if (!param3.isBaby() && !param3.isInvisible()) {
             BlockRenderDispatcher var0 = Minecraft.getInstance().getBlockRenderer();
             BlockState var1 = param3.getMushroomType().getBlockState();
-            param0.pushPose();
-            param0.scale(-1.0F, -1.0F, 1.0F);
-            param0.translate(-0.2F, 0.35F, 0.5);
-            param0.mulPose(Vector3f.YP.rotationDegrees(-42.0F));
             int var2 = LivingEntityRenderer.getOverlayCoords(param3, 0.0F);
             param0.pushPose();
-            param0.translate(-0.5, -0.5, 0.5);
-            var0.renderSingleBlock(var1, param0, param1, param2, var2);
-            param0.popPose();
-            param0.pushPose();
-            param0.translate(-0.1F, 0.0, -0.6F);
-            param0.mulPose(Vector3f.YP.rotationDegrees(-42.0F));
-            param0.translate(-0.5, -0.5, 0.5);
-            var0.renderSingleBlock(var1, param0, param1, param2, var2);
-            param0.popPose();
-            param0.popPose();
-            param0.pushPose();
-            this.getParentModel().getHead().translateAndRotate(param0, 0.0625F);
+            param0.translate(0.2F, -0.35F, 0.5);
+            param0.mulPose(Vector3f.YP.rotationDegrees(-48.0F));
             param0.scale(-1.0F, -1.0F, 1.0F);
-            param0.translate(0.0, 0.7F, -0.2F);
-            param0.mulPose(Vector3f.YP.rotationDegrees(-12.0F));
-            param0.translate(-0.5, -0.5, 0.5);
+            param0.translate(-0.5, -0.5, -0.5);
+            var0.renderSingleBlock(var1, param0, param1, param2, var2);
+            param0.popPose();
+            param0.pushPose();
+            param0.translate(0.2F, -0.35F, 0.5);
+            param0.mulPose(Vector3f.YP.rotationDegrees(42.0F));
+            param0.translate(0.1F, 0.0, -0.6F);
+            param0.mulPose(Vector3f.YP.rotationDegrees(-48.0F));
+            param0.scale(-1.0F, -1.0F, 1.0F);
+            param0.translate(-0.5, -0.5, -0.5);
+            var0.renderSingleBlock(var1, param0, param1, param2, var2);
+            param0.popPose();
+            param0.pushPose();
+            this.getParentModel().getHead().translateAndRotate(param0);
+            param0.translate(0.0, -0.7F, -0.2F);
+            param0.mulPose(Vector3f.YP.rotationDegrees(-78.0F));
+            param0.scale(-1.0F, -1.0F, 1.0F);
+            param0.translate(-0.5, -0.5, -0.5);
             var0.renderSingleBlock(var1, param0, param1, param2, var2);
             param0.popPose();
         }

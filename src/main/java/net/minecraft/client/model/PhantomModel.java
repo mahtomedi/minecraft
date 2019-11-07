@@ -66,7 +66,7 @@ public class PhantomModel<T extends Entity> extends ListModel<T> {
     }
 
     @Override
-    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
+    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
         float var0 = ((float)(param0.getId() * 3) + param3) * 0.13F;
         float var1 = 16.0F;
         this.leftWingBase.zRot = Mth.cos(var0) * 16.0F * (float) (Math.PI / 180.0);

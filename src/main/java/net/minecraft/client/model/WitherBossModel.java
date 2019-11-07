@@ -50,7 +50,7 @@ public class WitherBossModel<T extends WitherBoss> extends ListModel<T> {
         return this.parts;
     }
 
-    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
+    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
         float var0 = Mth.cos(param3 * 0.1F);
         this.upperBodyParts[1].xRot = (0.065F + 0.05F * var0) * (float) Math.PI;
         this.upperBodyParts[2].setPos(-2.0F, 6.9F + Mth.cos(this.upperBodyParts[1].xRot) * 10.0F, -0.5F + Mth.sin(this.upperBodyParts[1].xRot) * 10.0F);

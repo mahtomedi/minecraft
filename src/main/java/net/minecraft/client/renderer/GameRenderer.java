@@ -22,6 +22,7 @@ import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.MapRenderer;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -378,25 +379,34 @@ public class GameRenderer implements AutoCloseable, ResourceManagerReloadListene
     private void renderItemInHand(PoseStack param0, Camera param1, float param2) {
         if (!this.panoramicMode) {
             this.resetProjectionMatrix(this.getProjectionMatrix(param1, param2, false));
-            param0.getPose().setIdentity();
+            PoseStack.Pose var0 = param0.last();
+            var0.pose().setIdentity();
+            var0.normal().setIdentity();
             param0.pushPose();
             this.bobHurt(param0, param2);
             if (this.minecraft.options.bobView) {
                 this.bobView(param0, param2);
             }
 
-            boolean var0 = this.minecraft.getCameraEntity() instanceof LivingEntity && ((LivingEntity)this.minecraft.getCameraEntity()).isSleeping();
+            boolean var1 = this.minecraft.getCameraEntity() instanceof LivingEntity && ((LivingEntity)this.minecraft.getCameraEntity()).isSleeping();
             if (this.minecraft.options.thirdPersonView == 0
-                && !var0
+                && !var1
                 && !this.minecraft.options.hideGui
                 && this.minecraft.gameMode.getPlayerMode() != GameType.SPECTATOR) {
                 this.lightTexture.turnOnLightLayer();
-                this.itemInHandRenderer.renderHandsWithItems(param2, param0, this.renderBuffers.bufferSource());
+                this.itemInHandRenderer
+                    .renderHandsWithItems(
+                        param2,
+                        param0,
+                        this.renderBuffers.bufferSource(),
+                        this.minecraft.player,
+                        EntityRenderDispatcher.getPackedLightCoords(this.minecraft.player)
+                    );
                 this.lightTexture.turnOffLightLayer();
             }
 
             param0.popPose();
-            if (this.minecraft.options.thirdPersonView == 0 && !var0) {
+            if (this.minecraft.options.thirdPersonView == 0 && !var1) {
                 ScreenEffectRenderer.renderScreenEffect(this.minecraft, param0);
                 this.bobHurt(param0, param2);
             }
@@ -417,13 +427,14 @@ public class GameRenderer implements AutoCloseable, ResourceManagerReloadListene
 
     public Matrix4f getProjectionMatrix(Camera param0, float param1, boolean param2) {
         PoseStack var0 = new PoseStack();
-        var0.getPose().setIdentity();
+        var0.last().pose().setIdentity();
         if (this.zoom != 1.0F) {
             var0.translate((double)this.zoomX, (double)(-this.zoomY), 0.0);
             var0.scale(this.zoom, this.zoom, 1.0F);
         }
 
-        var0.getPose()
+        var0.last()
+            .pose()
             .multiply(
                 Matrix4f.perspective(
                     this.getFov(param0, param1, param2),
@@ -432,7 +443,7 @@ public class GameRenderer implements AutoCloseable, ResourceManagerReloadListene
                     this.renderDistance * 4.0F
                 )
             );
-        return var0.getPose();
+        return var0.last().pose();
     }
 
     public static float getNightVisionScale(LivingEntity param0, float param1) {
@@ -484,7 +495,6 @@ public class GameRenderer implements AutoCloseable, ResourceManagerReloadListene
                     RenderSystem.disableBlend();
                     RenderSystem.disableDepthTest();
                     RenderSystem.disableAlphaTest();
-                    RenderSystem.disableFog();
                     RenderSystem.enableTexture();
                     RenderSystem.matrixMode(5890);
                     RenderSystem.pushMatrix();
@@ -504,7 +514,7 @@ public class GameRenderer implements AutoCloseable, ResourceManagerReloadListene
             RenderSystem.matrixMode(5888);
             RenderSystem.loadIdentity();
             RenderSystem.translatef(0.0F, 0.0F, -2000.0F);
-            Lighting.setupGui(var3.getPose());
+            Lighting.setupGui(var3.last().pose());
             if (param2 && this.minecraft.level != null) {
                 this.minecraft.getProfiler().popPush("gui");
                 if (!this.minecraft.options.hideGui || this.minecraft.screen != null) {

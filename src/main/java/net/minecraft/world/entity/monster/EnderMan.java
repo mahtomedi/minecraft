@@ -49,7 +49,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 public class EnderMan extends Monster {
@@ -338,6 +337,7 @@ public class EnderMan extends Monster {
 
     static class EndermanFreezeWhenLookedAt extends Goal {
         private final EnderMan enderman;
+        private LivingEntity target;
 
         public EndermanFreezeWhenLookedAt(EnderMan param0) {
             this.enderman = param0;
@@ -346,18 +346,23 @@ public class EnderMan extends Monster {
 
         @Override
         public boolean canUse() {
-            LivingEntity var0 = this.enderman.getTarget();
-            if (!(var0 instanceof Player)) {
+            this.target = this.enderman.getTarget();
+            if (!(this.target instanceof Player)) {
                 return false;
             } else {
-                double var1 = var0.distanceToSqr(this.enderman);
-                return var1 > 256.0 ? false : this.enderman.isLookingAtMe((Player)var0);
+                double var0 = this.target.distanceToSqr(this.enderman);
+                return var0 > 256.0 ? false : this.enderman.isLookingAtMe((Player)this.target);
             }
         }
 
         @Override
         public void start() {
             this.enderman.getNavigation().stop();
+        }
+
+        @Override
+        public void tick() {
+            this.enderman.getLookControl().setLookAt(this.target.getX(), this.target.getEyeY(), this.target.getZ());
         }
     }
 
@@ -509,8 +514,8 @@ public class EnderMan extends Monster {
             Block var7 = var6.getBlock();
             Vec3 var8 = new Vec3((double)Mth.floor(this.enderman.getX()) + 0.5, (double)var3 + 0.5, (double)Mth.floor(this.enderman.getZ()) + 0.5);
             Vec3 var9 = new Vec3((double)var2 + 0.5, (double)var3 + 0.5, (double)var4 + 0.5);
-            BlockHitResult var10 = var1.clip(new ClipContext(var8, var9, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this.enderman));
-            boolean var11 = var10.getType() != HitResult.Type.MISS && var10.getBlockPos().equals(var5);
+            BlockHitResult var10 = var1.clip(new ClipContext(var8, var9, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, this.enderman));
+            boolean var11 = var10.getBlockPos().equals(var5);
             if (var7.is(BlockTags.ENDERMAN_HOLDABLE) && var11) {
                 this.enderman.setCarriedBlock(var6);
                 var1.removeBlock(var5, false);

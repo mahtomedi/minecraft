@@ -3,6 +3,7 @@ package net.minecraft.client.renderer.block;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BiomeColors;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.ModelBakery;
@@ -10,7 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.BlockAndBiomeGetter;
+import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -57,7 +58,7 @@ public class LiquidBlockRenderer {
         }
     }
 
-    public boolean tesselate(BlockAndBiomeGetter param0, BlockPos param1, VertexConsumer param2, FluidState param3) {
+    public boolean tesselate(BlockAndTintGetter param0, BlockPos param1, VertexConsumer param2, FluidState param3) {
         boolean var0 = param3.is(FluidTags.LAVA);
         TextureAtlasSprite[] var1 = var0 ? this.lavaIcons : this.waterIcons;
         int var2 = var0 ? 16777215 : BiomeColors.getAverageWaterColor(param0, param1);
@@ -263,9 +264,9 @@ public class LiquidBlockRenderer {
         param0.vertex(param1, param2, param3).color(param4, param5, param6, 1.0F).uv(param7, param8).uv2(param9).normal(0.0F, 1.0F, 0.0F).endVertex();
     }
 
-    private int getLightColor(BlockAndBiomeGetter param0, BlockPos param1) {
-        int var0 = param0.getLightColor(param1);
-        int var1 = param0.getLightColor(param1.above());
+    private int getLightColor(BlockAndTintGetter param0, BlockPos param1) {
+        int var0 = LevelRenderer.getLightColor(param0, param1);
+        int var1 = LevelRenderer.getLightColor(param0, param1.above());
         int var2 = var0 & 0xFF;
         int var3 = var1 & 0xFF;
         int var4 = var0 >> 16 & 0xFF;

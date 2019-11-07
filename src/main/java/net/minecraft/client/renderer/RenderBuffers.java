@@ -16,14 +16,24 @@ public class RenderBuffers {
         param0.put(RenderType.entityCutout(TextureAtlas.LOCATION_BLOCKS), this.fixedBufferPack.builder(RenderType.cutout()));
         param0.put(RenderType.entityNoOutline(TextureAtlas.LOCATION_BLOCKS), this.fixedBufferPack.builder(RenderType.cutoutMipped()));
         param0.put(RenderType.entityTranslucent(TextureAtlas.LOCATION_BLOCKS), this.fixedBufferPack.builder(RenderType.translucent()));
-        param0.put(RenderType.translucentNoCrumbling(), new BufferBuilder(RenderType.translucentNoCrumbling().bufferSize()));
-        param0.put(RenderType.glint(), new BufferBuilder(RenderType.glint().bufferSize()));
-        param0.put(RenderType.entityGlint(), new BufferBuilder(RenderType.entityGlint().bufferSize()));
-        param0.put(RenderType.waterMask(), new BufferBuilder(RenderType.waterMask().bufferSize()));
+        put(param0, RenderType.translucentNoCrumbling());
+        put(param0, RenderType.glint());
+        put(param0, RenderType.entityGlint());
+        put(param0, RenderType.waterMask());
+
+        for(int var0 = 0; var0 < 10; ++var0) {
+            RenderType var1 = RenderType.crumbling(var0);
+            put(param0, var1);
+        }
+
     });
     private final MultiBufferSource.BufferSource bufferSource = MultiBufferSource.immediateWithBuffers(this.fixedBuffers, new BufferBuilder(256));
-    private final MultiBufferSource.BufferSource effectBufferSource = MultiBufferSource.immediate(new BufferBuilder(256));
+    private final MultiBufferSource.BufferSource crumblingBufferSource = MultiBufferSource.immediate(new BufferBuilder(256));
     private final OutlineBufferSource outlineBufferSource = new OutlineBufferSource(this.bufferSource);
+
+    private static void put(Object2ObjectLinkedOpenHashMap<RenderType, BufferBuilder> param0, RenderType param1) {
+        param0.put(param1, new BufferBuilder(param1.bufferSize()));
+    }
 
     public ChunkBufferBuilderPack fixedBufferPack() {
         return this.fixedBufferPack;
@@ -33,8 +43,8 @@ public class RenderBuffers {
         return this.bufferSource;
     }
 
-    public MultiBufferSource.BufferSource effectBufferSource() {
-        return this.effectBufferSource;
+    public MultiBufferSource.BufferSource crumblingBufferSource() {
+        return this.crumblingBufferSource;
     }
 
     public OutlineBufferSource outlineBufferSource() {

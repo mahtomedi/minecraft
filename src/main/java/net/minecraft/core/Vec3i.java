@@ -3,6 +3,8 @@ package net.minecraft.core;
 import com.google.common.base.MoreObjects;
 import javax.annotation.concurrent.Immutable;
 import net.minecraft.util.Mth;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 @Immutable
 public class Vec3i implements Comparable<Vec3i> {
@@ -123,5 +125,10 @@ public class Vec3i implements Comparable<Vec3i> {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this).add("x", this.getX()).add("y", this.getY()).add("z", this.getZ()).toString();
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public String toShortString() {
+        return "" + this.getX() + ", " + this.getY() + ", " + this.getZ();
     }
 }

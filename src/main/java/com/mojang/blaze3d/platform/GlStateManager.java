@@ -678,7 +678,7 @@ public class GlStateManager {
 
     public static void setupGuiDiffuseLighting(Matrix4f param0) {
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
-        Matrix4f var0 = new Matrix4f(param0);
+        Matrix4f var0 = param0.copy();
         var0.multiply(Vector3f.YP.rotationDegrees(-22.5F));
         var0.multiply(Vector3f.XP.rotationDegrees(135.0F));
         setupLevelDiffuseLighting(var0);
@@ -769,7 +769,7 @@ public class GlStateManager {
     }
 
     @Deprecated
-    public static void _fog(int param0, FloatBuffer param1) {
+    public static void _fog(int param0, float[] param1) {
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         GL11.glFogfv(param0, param1);
     }

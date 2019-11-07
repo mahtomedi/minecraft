@@ -1,5 +1,6 @@
 package com.mojang.math;
 
+import it.unimi.dsi.fastutil.floats.Float2FloatFunction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -23,11 +24,6 @@ public final class Vector3f {
         this.x = param0;
         this.y = param1;
         this.z = param2;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public Vector3f(Vector3f param0) {
-        this(param0.x, param0.y, param0.z);
     }
 
     public Vector3f(Vec3 param0) {
@@ -79,19 +75,17 @@ public final class Vector3f {
     }
 
     @OnlyIn(Dist.CLIENT)
-    private static float clamp(float param0, float param1, float param2) {
-        if (param0 < param1) {
-            return param1;
-        } else {
-            return param0 > param2 ? param2 : param0;
-        }
+    public void mul(float param0, float param1, float param2) {
+        this.x *= param0;
+        this.y *= param1;
+        this.z *= param2;
     }
 
     @OnlyIn(Dist.CLIENT)
     public void clamp(float param0, float param1) {
-        this.x = clamp(this.x, param0, param1);
-        this.y = clamp(this.y, param0, param1);
-        this.z = clamp(this.z, param0, param1);
+        this.x = Mth.clamp(this.x, param0, param1);
+        this.y = Mth.clamp(this.y, param0, param1);
+        this.z = Mth.clamp(this.z, param0, param1);
     }
 
     public void set(float param0, float param1, float param2) {
@@ -105,6 +99,13 @@ public final class Vector3f {
         this.x += param0;
         this.y += param1;
         this.z += param2;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public void add(Vector3f param0) {
+        this.x += param0.x;
+        this.y += param0.y;
+        this.z += param0.z;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -171,6 +172,14 @@ public final class Vector3f {
     }
 
     @OnlyIn(Dist.CLIENT)
+    public void lerp(Vector3f param0, float param1) {
+        float var0 = 1.0F - param1;
+        this.x = this.x * var0 + param0.x * param1;
+        this.y = this.y * var0 + param0.y * param1;
+        this.z = this.z * var0 + param0.z * param1;
+    }
+
+    @OnlyIn(Dist.CLIENT)
     public Quaternion rotation(float param0) {
         return new Quaternion(this, param0, false);
     }
@@ -178,5 +187,17 @@ public final class Vector3f {
     @OnlyIn(Dist.CLIENT)
     public Quaternion rotationDegrees(float param0) {
         return new Quaternion(this, param0, true);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public Vector3f copy() {
+        return new Vector3f(this.x, this.y, this.z);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public void map(Float2FloatFunction param0) {
+        this.x = param0.get(this.x);
+        this.y = param0.get(this.y);
+        this.z = param0.get(this.z);
     }
 }

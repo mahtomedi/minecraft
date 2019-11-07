@@ -5,27 +5,22 @@ import com.google.common.collect.Maps;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import net.minecraft.client.Camera;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class CaveDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
-    private final Minecraft minecraft;
     private final Map<BlockPos, BlockPos> tunnelsList = Maps.newHashMap();
     private final Map<BlockPos, Float> thicknessMap = Maps.newHashMap();
     private final List<BlockPos> startPoses = Lists.newArrayList();
-
-    public CaveDebugRenderer(Minecraft param0) {
-        this.minecraft = param0;
-    }
 
     public void addTunnel(BlockPos param0, List<BlockPos> param1, List<Float> param2) {
         for(int var0 = 0; var0 < param1.size(); ++var0) {
@@ -37,54 +32,50 @@ public class CaveDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
     }
 
     @Override
-    public void render(long param0) {
-        Camera var0 = this.minecraft.gameRenderer.getMainCamera();
-        double var1 = var0.getPosition().x;
-        double var2 = var0.getPosition().y;
-        double var3 = var0.getPosition().z;
+    public void render(PoseStack param0, MultiBufferSource param1, double param2, double param3, double param4, long param5) {
         RenderSystem.pushMatrix();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableTexture();
-        BlockPos var4 = new BlockPos(var0.getPosition().x, 0.0, var0.getPosition().z);
-        Tesselator var5 = Tesselator.getInstance();
-        BufferBuilder var6 = var5.getBuilder();
-        var6.begin(5, DefaultVertexFormat.POSITION_COLOR);
+        BlockPos var0 = new BlockPos(param2, 0.0, param4);
+        Tesselator var1 = Tesselator.getInstance();
+        BufferBuilder var2 = var1.getBuilder();
+        var2.begin(5, DefaultVertexFormat.POSITION_COLOR);
 
-        for(Entry<BlockPos, BlockPos> var7 : this.tunnelsList.entrySet()) {
-            BlockPos var8 = var7.getKey();
-            BlockPos var9 = var7.getValue();
-            float var10 = (float)(var9.getX() * 128 % 256) / 256.0F;
-            float var11 = (float)(var9.getY() * 128 % 256) / 256.0F;
-            float var12 = (float)(var9.getZ() * 128 % 256) / 256.0F;
-            float var13 = this.thicknessMap.get(var8);
-            if (var4.closerThan(var8, 160.0)) {
+        for(Entry<BlockPos, BlockPos> var3 : this.tunnelsList.entrySet()) {
+            BlockPos var4 = var3.getKey();
+            BlockPos var5 = var3.getValue();
+            float var6 = (float)(var5.getX() * 128 % 256) / 256.0F;
+            float var7 = (float)(var5.getY() * 128 % 256) / 256.0F;
+            float var8 = (float)(var5.getZ() * 128 % 256) / 256.0F;
+            float var9 = this.thicknessMap.get(var4);
+            if (var0.closerThan(var4, 160.0)) {
                 LevelRenderer.addChainedFilledBoxVertices(
+                    var2,
+                    (double)((float)var4.getX() + 0.5F) - param2 - (double)var9,
+                    (double)((float)var4.getY() + 0.5F) - param3 - (double)var9,
+                    (double)((float)var4.getZ() + 0.5F) - param4 - (double)var9,
+                    (double)((float)var4.getX() + 0.5F) - param2 + (double)var9,
+                    (double)((float)var4.getY() + 0.5F) - param3 + (double)var9,
+                    (double)((float)var4.getZ() + 0.5F) - param4 + (double)var9,
                     var6,
-                    (double)((float)var8.getX() + 0.5F) - var1 - (double)var13,
-                    (double)((float)var8.getY() + 0.5F) - var2 - (double)var13,
-                    (double)((float)var8.getZ() + 0.5F) - var3 - (double)var13,
-                    (double)((float)var8.getX() + 0.5F) - var1 + (double)var13,
-                    (double)((float)var8.getY() + 0.5F) - var2 + (double)var13,
-                    (double)((float)var8.getZ() + 0.5F) - var3 + (double)var13,
-                    var10,
-                    var11,
-                    var12,
+                    var7,
+                    var8,
                     0.5F
                 );
             }
         }
 
-        for(BlockPos var14 : this.startPoses) {
-            if (var4.closerThan(var14, 160.0)) {
+        for(BlockPos var10 : this.startPoses) {
+            if (var0.closerThan(var10, 160.0)) {
                 LevelRenderer.addChainedFilledBoxVertices(
-                    var6,
-                    (double)var14.getX() - var1,
-                    (double)var14.getY() - var2,
-                    (double)var14.getZ() - var3,
-                    (double)((float)var14.getX() + 1.0F) - var1,
-                    (double)((float)var14.getY() + 1.0F) - var2,
-                    (double)((float)var14.getZ() + 1.0F) - var3,
+                    var2,
+                    (double)var10.getX() - param2,
+                    (double)var10.getY() - param3,
+                    (double)var10.getZ() - param4,
+                    (double)((float)var10.getX() + 1.0F) - param2,
+                    (double)((float)var10.getY() + 1.0F) - param3,
+                    (double)((float)var10.getZ() + 1.0F) - param4,
                     1.0F,
                     1.0F,
                     1.0F,
@@ -93,7 +84,7 @@ public class CaveDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
             }
         }
 
-        var5.end();
+        var1.end();
         RenderSystem.enableDepthTest();
         RenderSystem.enableTexture();
         RenderSystem.popMatrix();

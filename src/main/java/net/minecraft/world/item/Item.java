@@ -256,7 +256,6 @@ public class Item implements ItemLike {
         return new TranslatableComponent(this.getDescriptionId(param0));
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean isFoil(ItemStack param0) {
         return param0.isEnchanted();
     }

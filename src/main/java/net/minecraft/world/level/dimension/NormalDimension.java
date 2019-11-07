@@ -48,7 +48,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class NormalDimension extends Dimension {
     public NormalDimension(Level param0, DimensionType param1) {
-        super(param0, param1);
+        super(param0, param1, 0.0F);
     }
 
     @Override

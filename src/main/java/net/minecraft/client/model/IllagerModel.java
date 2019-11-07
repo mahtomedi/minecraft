@@ -66,7 +66,7 @@ public class IllagerModel<T extends AbstractIllager> extends ListModel<T> implem
         return ImmutableList.of(this.head, this.body, this.leftLeg, this.rightLeg, this.arms, this.rightArm, this.leftArm);
     }
 
-    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
+    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
         this.head.yRot = param4 * (float) (Math.PI / 180.0);
         this.head.xRot = param5 * (float) (Math.PI / 180.0);
         this.arms.y = 3.0F;
@@ -191,7 +191,7 @@ public class IllagerModel<T extends AbstractIllager> extends ListModel<T> implem
     }
 
     @Override
-    public void translateToHand(float param0, HumanoidArm param1, PoseStack param2) {
-        this.getArm(param1).translateAndRotate(param2, 0.0625F);
+    public void translateToHand(HumanoidArm param0, PoseStack param1) {
+        this.getArm(param0).translateAndRotate(param1);
     }
 }

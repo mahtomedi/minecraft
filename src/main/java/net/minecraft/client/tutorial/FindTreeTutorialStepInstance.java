@@ -3,7 +3,7 @@ package net.minecraft.client.tutorial;
 import com.google.common.collect.Sets;
 import java.util.Set;
 import net.minecraft.client.gui.components.toasts.TutorialToast;
-import net.minecraft.client.multiplayer.MultiPlayerLevel;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -91,7 +91,7 @@ public class FindTreeTutorialStepInstance implements TutorialStepInstance {
     }
 
     @Override
-    public void onLookAt(MultiPlayerLevel param0, HitResult param1) {
+    public void onLookAt(ClientLevel param0, HitResult param1) {
         if (param1.getType() == HitResult.Type.BLOCK) {
             BlockState var0 = param0.getBlockState(((BlockHitResult)param1).getBlockPos());
             if (TREE_BLOCKS.contains(var0.getBlock())) {

@@ -130,7 +130,6 @@ public class WrittenBookItem extends Item {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean isFoil(ItemStack param0) {
         return true;

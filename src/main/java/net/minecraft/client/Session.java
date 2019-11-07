@@ -2,8 +2,8 @@ package net.minecraft.client;
 
 import com.mojang.bridge.game.GameSession;
 import java.util.UUID;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.client.multiplayer.MultiPlayerLevel;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraftforge.api.distmarker.Dist;
@@ -17,7 +17,7 @@ public class Session implements GameSession {
     private final String gameMode;
     private final UUID id;
 
-    public Session(MultiPlayerLevel param0, LocalPlayer param1, ClientPacketListener param2) {
+    public Session(ClientLevel param0, LocalPlayer param1, ClientPacketListener param2) {
         this.players = param2.getOnlinePlayers().size();
         this.isRemoteServer = !param2.getConnection().isMemoryConnection();
         this.difficulty = param0.getDifficulty().getKey();

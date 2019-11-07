@@ -77,7 +77,7 @@ public class BeeModel<T extends Bee> extends AgeableListModel<T> {
         this.stinger.visible = !param0.hasStung();
     }
 
-    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
+    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
         this.rightWing.xRot = 0.0F;
         this.leftAntenna.xRot = 0.0F;
         this.rightAntenna.xRot = 0.0F;

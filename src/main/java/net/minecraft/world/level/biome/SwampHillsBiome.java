@@ -1,6 +1,5 @@
 package net.minecraft.world.level.biome;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.levelgen.feature.Feature;
@@ -57,14 +56,14 @@ public final class SwampHillsBiome extends Biome {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public int getGrassColor(BlockPos param0) {
-        double var0 = BIOME_INFO_NOISE.getValue((double)param0.getX() * 0.0225, (double)param0.getZ() * 0.0225, false);
+    public int getGrassColor(double param0, double param1) {
+        double var0 = BIOME_INFO_NOISE.getValue(param0 * 0.0225, param1 * 0.0225, false);
         return var0 < -0.1 ? 5011004 : 6975545;
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public int getFoliageColor(BlockPos param0) {
+    public int getFoliageColor() {
         return 6975545;
     }
 }

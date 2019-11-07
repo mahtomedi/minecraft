@@ -18,9 +18,7 @@ public class LightningBoltRenderer extends EntityRenderer<LightningBolt> {
         super(param0);
     }
 
-    public void render(
-        LightningBolt param0, double param1, double param2, double param3, float param4, float param5, PoseStack param6, MultiBufferSource param7
-    ) {
+    public void render(LightningBolt param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {
         float[] var0 = new float[8];
         float[] var1 = new float[8];
         float var2 = 0.0F;
@@ -34,8 +32,8 @@ public class LightningBoltRenderer extends EntityRenderer<LightningBolt> {
             var3 += (float)(var4.nextInt(11) - 5);
         }
 
-        VertexConsumer var6 = param7.getBuffer(RenderType.lightning());
-        Matrix4f var7 = param6.getPose();
+        VertexConsumer var6 = param4.getBuffer(RenderType.lightning());
+        Matrix4f var7 = param3.last().pose();
 
         for(int var8 = 0; var8 < 4; ++var8) {
             Random var9 = new Random(param0.seed);

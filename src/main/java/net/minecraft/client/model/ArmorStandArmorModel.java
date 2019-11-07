@@ -14,7 +14,7 @@ public class ArmorStandArmorModel extends HumanoidModel<ArmorStand> {
         super(param0, 0.0F, param1, param2);
     }
 
-    public void setupAnim(ArmorStand param0, float param1, float param2, float param3, float param4, float param5, float param6) {
+    public void setupAnim(ArmorStand param0, float param1, float param2, float param3, float param4, float param5) {
         this.head.xRot = (float) (Math.PI / 180.0) * param0.getHeadPose().getX();
         this.head.yRot = (float) (Math.PI / 180.0) * param0.getHeadPose().getY();
         this.head.zRot = (float) (Math.PI / 180.0) * param0.getHeadPose().getZ();

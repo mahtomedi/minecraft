@@ -54,7 +54,7 @@ public class BatModel extends ListModel<Bat> {
         return ImmutableList.of(this.head, this.body);
     }
 
-    public void setupAnim(Bat param0, float param1, float param2, float param3, float param4, float param5, float param6) {
+    public void setupAnim(Bat param0, float param1, float param2, float param3, float param4, float param5) {
         if (param0.isResting()) {
             this.head.xRot = param5 * (float) (Math.PI / 180.0);
             this.head.yRot = (float) Math.PI - param4 * (float) (Math.PI / 180.0);

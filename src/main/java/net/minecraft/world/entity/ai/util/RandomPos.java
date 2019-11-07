@@ -9,6 +9,8 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
+import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.Vec3;
 
 public class RandomPos {
@@ -47,15 +49,25 @@ public class RandomPos {
     }
 
     @Nullable
-    public static Vec3 getPosTowards(PathfinderMob param0, int param1, int param2, Vec3 param3) {
+    public static Vec3 getPosTowards(PathfinderMob param0, int param1, int param2, Vec3 param3, boolean param4) {
         Vec3 var0 = param3.subtract(param0.getX(), param0.getY(), param0.getZ());
-        return generateRandomPos(param0, param1, param2, var0);
+        return generateRandomPos(param0, param1, param2, var0, param4);
+    }
+
+    @Nullable
+    public static Vec3 getPosTowards(PathfinderMob param0, int param1, int param2, Vec3 param3) {
+        return getPosTowards(param0, param1, param2, param3, true);
+    }
+
+    @Nullable
+    public static Vec3 getPosTowards(PathfinderMob param0, int param1, int param2, Vec3 param3, double param4, boolean param5) {
+        Vec3 var0 = param3.subtract(param0.getX(), param0.getY(), param0.getZ());
+        return generateRandomPos(param0, param1, param2, var0, param5, param4, param0::getWalkTargetValue);
     }
 
     @Nullable
     public static Vec3 getPosTowards(PathfinderMob param0, int param1, int param2, Vec3 param3, double param4) {
-        Vec3 var0 = param3.subtract(param0.getX(), param0.getY(), param0.getZ());
-        return generateRandomPos(param0, param1, param2, var0, true, param4, param0::getWalkTargetValue);
+        return getPosTowards(param0, param1, param2, param3, param4, true);
     }
 
     @Nullable
@@ -78,6 +90,11 @@ public class RandomPos {
     @Nullable
     private static Vec3 generateRandomPos(PathfinderMob param0, int param1, int param2, @Nullable Vec3 param3) {
         return generateRandomPos(param0, param1, param2, param3, true, (float) (Math.PI / 2), param0::getWalkTargetValue);
+    }
+
+    @Nullable
+    private static Vec3 generateRandomPos(PathfinderMob param0, int param1, int param2, @Nullable Vec3 param3, boolean param4) {
+        return generateRandomPos(param0, param1, param2, param3, param4, (float) (Math.PI / 2), param0::getWalkTargetValue);
     }
 
     @Nullable
@@ -158,11 +175,14 @@ public class RandomPos {
                     }
 
                     if (param5 || !isWaterDestination(var13, param0)) {
-                        double var14 = param7.applyAsDouble(var13);
-                        if (var14 > var5) {
-                            var5 = var14;
-                            var6 = var13;
-                            var4 = true;
+                        BlockPathTypes var14 = WalkNodeEvaluator.getBlockPathTypeStatic(param0.level, var13.getX(), var13.getY(), var13.getZ());
+                        if (param0.getPathfindingMalus(var14) == 0.0F) {
+                            double var15 = param7.applyAsDouble(var13);
+                            if (var15 > var5) {
+                                var5 = var15;
+                                var6 = var13;
+                                var4 = true;
+                            }
                         }
                     }
                 }

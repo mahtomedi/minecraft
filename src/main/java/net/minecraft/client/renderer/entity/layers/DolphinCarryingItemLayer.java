@@ -29,8 +29,7 @@ public class DolphinCarryingItemLayer extends RenderLayer<Dolphin, DolphinModel<
         float param6,
         float param7,
         float param8,
-        float param9,
-        float param10
+        float param9
     ) {
         boolean var0 = param3.getMainArm() == HumanoidArm.RIGHT;
         param0.pushPose();
@@ -44,7 +43,7 @@ public class DolphinCarryingItemLayer extends RenderLayer<Dolphin, DolphinModel<
         }
 
         ItemStack var4 = var0 ? param3.getMainHandItem() : param3.getOffhandItem();
-        Minecraft.getInstance().getItemInHandRenderer().renderItem(param3, var4, ItemTransforms.TransformType.GROUND, false, param0, param1);
+        Minecraft.getInstance().getItemInHandRenderer().renderItem(param3, var4, ItemTransforms.TransformType.GROUND, false, param0, param1, param2);
         param0.popPose();
     }
 }

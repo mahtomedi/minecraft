@@ -19,17 +19,7 @@ public class CatCollarLayer extends RenderLayer<Cat, CatModel<Cat>> {
     }
 
     public void render(
-        PoseStack param0,
-        MultiBufferSource param1,
-        int param2,
-        Cat param3,
-        float param4,
-        float param5,
-        float param6,
-        float param7,
-        float param8,
-        float param9,
-        float param10
+        PoseStack param0, MultiBufferSource param1, int param2, Cat param3, float param4, float param5, float param6, float param7, float param8, float param9
     ) {
         if (param3.isTame()) {
             float[] var0 = param3.getCollarColor().getTextureDiffuseColors();
@@ -46,7 +36,6 @@ public class CatCollarLayer extends RenderLayer<Cat, CatModel<Cat>> {
                 param7,
                 param8,
                 param9,
-                param10,
                 param6,
                 var0[0],
                 var0[1],

@@ -28,8 +28,7 @@ public class CarriedBlockLayer extends RenderLayer<EnderMan, EndermanModel<Ender
         float param6,
         float param7,
         float param8,
-        float param9,
-        float param10
+        float param9
     ) {
         BlockState var0 = param3.getCarriedBlock();
         if (var0 != null) {
@@ -40,6 +39,7 @@ public class CarriedBlockLayer extends RenderLayer<EnderMan, EndermanModel<Ender
             param0.translate(0.25, 0.1875, 0.25);
             float var1 = 0.5F;
             param0.scale(-0.5F, -0.5F, 0.5F);
+            param0.mulPose(Vector3f.YP.rotationDegrees(90.0F));
             Minecraft.getInstance().getBlockRenderer().renderSingleBlock(var0, param0, param1, param2, OverlayTexture.NO_OVERLAY);
             param0.popPose();
         }

@@ -57,7 +57,6 @@ import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -71,7 +70,6 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     public final List<BlockEntity> tickableBlockEntities = Lists.newArrayList();
     protected final List<BlockEntity> pendingBlockEntities = Lists.newArrayList();
     protected final List<BlockEntity> blockEntitiesToUnload = Lists.newArrayList();
-    private final long cloudColor = 16777215L;
     private final Thread thread;
     private int skyDarken;
     protected int randValue = new Random().nextInt();
@@ -80,7 +78,6 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     protected float rainLevel;
     protected float oThunderLevel;
     protected float thunderLevel;
-    private int skyFlashTime;
     public final Random random = new Random();
     public final Dimension dimension;
     protected final ChunkSource chunkSource;
@@ -399,113 +396,9 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     ) {
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public float getSkyDarken(float param0) {
-        float var0 = this.getTimeOfDay(param0);
-        float var1 = 1.0F - (Mth.cos(var0 * (float) (Math.PI * 2)) * 2.0F + 0.2F);
-        var1 = Mth.clamp(var1, 0.0F, 1.0F);
-        var1 = 1.0F - var1;
-        var1 = (float)((double)var1 * (1.0 - (double)(this.getRainLevel(param0) * 5.0F) / 16.0));
-        var1 = (float)((double)var1 * (1.0 - (double)(this.getThunderLevel(param0) * 5.0F) / 16.0));
-        return var1 * 0.8F + 0.2F;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public Vec3 getSkyColor(BlockPos param0, float param1) {
-        float var0 = this.getTimeOfDay(param1);
-        float var1 = Mth.cos(var0 * (float) (Math.PI * 2)) * 2.0F + 0.5F;
-        var1 = Mth.clamp(var1, 0.0F, 1.0F);
-        Biome var2 = this.getBiome(param0);
-        float var3 = var2.getTemperature(param0);
-        int var4 = var2.getSkyColor(var3);
-        float var5 = (float)(var4 >> 16 & 0xFF) / 255.0F;
-        float var6 = (float)(var4 >> 8 & 0xFF) / 255.0F;
-        float var7 = (float)(var4 & 0xFF) / 255.0F;
-        var5 *= var1;
-        var6 *= var1;
-        var7 *= var1;
-        float var8 = this.getRainLevel(param1);
-        if (var8 > 0.0F) {
-            float var9 = (var5 * 0.3F + var6 * 0.59F + var7 * 0.11F) * 0.6F;
-            float var10 = 1.0F - var8 * 0.75F;
-            var5 = var5 * var10 + var9 * (1.0F - var10);
-            var6 = var6 * var10 + var9 * (1.0F - var10);
-            var7 = var7 * var10 + var9 * (1.0F - var10);
-        }
-
-        float var11 = this.getThunderLevel(param1);
-        if (var11 > 0.0F) {
-            float var12 = (var5 * 0.3F + var6 * 0.59F + var7 * 0.11F) * 0.2F;
-            float var13 = 1.0F - var11 * 0.75F;
-            var5 = var5 * var13 + var12 * (1.0F - var13);
-            var6 = var6 * var13 + var12 * (1.0F - var13);
-            var7 = var7 * var13 + var12 * (1.0F - var13);
-        }
-
-        if (this.skyFlashTime > 0) {
-            float var14 = (float)this.skyFlashTime - param1;
-            if (var14 > 1.0F) {
-                var14 = 1.0F;
-            }
-
-            var14 *= 0.45F;
-            var5 = var5 * (1.0F - var14) + 0.8F * var14;
-            var6 = var6 * (1.0F - var14) + 0.8F * var14;
-            var7 = var7 * (1.0F - var14) + 1.0F * var14;
-        }
-
-        return new Vec3((double)var5, (double)var6, (double)var7);
-    }
-
     public float getSunAngle(float param0) {
         float var0 = this.getTimeOfDay(param0);
         return var0 * (float) (Math.PI * 2);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public Vec3 getCloudColor(float param0) {
-        float var0 = this.getTimeOfDay(param0);
-        float var1 = Mth.cos(var0 * (float) (Math.PI * 2)) * 2.0F + 0.5F;
-        var1 = Mth.clamp(var1, 0.0F, 1.0F);
-        float var2 = 1.0F;
-        float var3 = 1.0F;
-        float var4 = 1.0F;
-        float var5 = this.getRainLevel(param0);
-        if (var5 > 0.0F) {
-            float var6 = (var2 * 0.3F + var3 * 0.59F + var4 * 0.11F) * 0.6F;
-            float var7 = 1.0F - var5 * 0.95F;
-            var2 = var2 * var7 + var6 * (1.0F - var7);
-            var3 = var3 * var7 + var6 * (1.0F - var7);
-            var4 = var4 * var7 + var6 * (1.0F - var7);
-        }
-
-        var2 *= var1 * 0.9F + 0.1F;
-        var3 *= var1 * 0.9F + 0.1F;
-        var4 *= var1 * 0.85F + 0.15F;
-        float var8 = this.getThunderLevel(param0);
-        if (var8 > 0.0F) {
-            float var9 = (var2 * 0.3F + var3 * 0.59F + var4 * 0.11F) * 0.2F;
-            float var10 = 1.0F - var8 * 0.95F;
-            var2 = var2 * var10 + var9 * (1.0F - var10);
-            var3 = var3 * var10 + var9 * (1.0F - var10);
-            var4 = var4 * var10 + var9 * (1.0F - var10);
-        }
-
-        return new Vec3((double)var2, (double)var3, (double)var4);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public Vec3 getFogColor(float param0) {
-        float var0 = this.getTimeOfDay(param0);
-        return this.dimension.getFogColor(var0, param0);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public float getStarBrightness(float param0) {
-        float var0 = this.getTimeOfDay(param0);
-        float var1 = 1.0F - (Mth.cos(var0 * (float) (Math.PI * 2)) * 2.0F + 0.25F);
-        var1 = Mth.clamp(var1, 0.0F, 1.0F);
-        return var1 * var1 * 0.5F;
     }
 
     public boolean addBlockEntity(BlockEntity param0) {
@@ -1194,11 +1087,6 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         return this.dimension.isHasCeiling() ? 128 : 256;
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public double getHorizonHeight() {
-        return this.levelData.getGeneratorType() == LevelType.FLAT ? 0.0 : 63.0;
-    }
-
     public CrashReportCategory fillReportDetails(CrashReport param0) {
         CrashReportCategory var0 = param0.addCategory("Affected level", 1);
         var0.setDetail("All players", () -> this.players().size() + " total; " + this.players());
@@ -1258,13 +1146,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         return this.skyDarken;
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public int getSkyFlashTime() {
-        return this.skyFlashTime;
-    }
-
     public void setSkyFlashTime(int param0) {
-        this.skyFlashTime = param0;
     }
 
     @Override

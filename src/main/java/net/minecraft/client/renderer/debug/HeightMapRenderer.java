@@ -3,10 +3,11 @@ package net.minecraft.client.renderer.debug;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
-import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -22,32 +23,28 @@ public class HeightMapRenderer implements DebugRenderer.SimpleDebugRenderer {
     }
 
     @Override
-    public void render(long param0) {
-        Camera var0 = this.minecraft.gameRenderer.getMainCamera();
-        LevelAccessor var1 = this.minecraft.level;
-        double var2 = var0.getPosition().x;
-        double var3 = var0.getPosition().y;
-        double var4 = var0.getPosition().z;
+    public void render(PoseStack param0, MultiBufferSource param1, double param2, double param3, double param4, long param5) {
+        LevelAccessor var0 = this.minecraft.level;
         RenderSystem.pushMatrix();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableTexture();
-        BlockPos var5 = new BlockPos(var0.getPosition().x, 0.0, var0.getPosition().z);
-        Tesselator var6 = Tesselator.getInstance();
-        BufferBuilder var7 = var6.getBuilder();
-        var7.begin(5, DefaultVertexFormat.POSITION_COLOR);
+        BlockPos var1 = new BlockPos(param2, 0.0, param4);
+        Tesselator var2 = Tesselator.getInstance();
+        BufferBuilder var3 = var2.getBuilder();
+        var3.begin(5, DefaultVertexFormat.POSITION_COLOR);
 
-        for(BlockPos var8 : BlockPos.betweenClosed(var5.offset(-40, 0, -40), var5.offset(40, 0, 40))) {
-            int var9 = var1.getHeight(Heightmap.Types.WORLD_SURFACE_WG, var8.getX(), var8.getZ());
-            if (var1.getBlockState(var8.offset(0, var9, 0).below()).isAir()) {
+        for(BlockPos var4 : BlockPos.betweenClosed(var1.offset(-40, 0, -40), var1.offset(40, 0, 40))) {
+            int var5 = var0.getHeight(Heightmap.Types.WORLD_SURFACE_WG, var4.getX(), var4.getZ());
+            if (var0.getBlockState(var4.offset(0, var5, 0).below()).isAir()) {
                 LevelRenderer.addChainedFilledBoxVertices(
-                    var7,
-                    (double)((float)var8.getX() + 0.25F) - var2,
-                    (double)var9 - var3,
-                    (double)((float)var8.getZ() + 0.25F) - var4,
-                    (double)((float)var8.getX() + 0.75F) - var2,
-                    (double)var9 + 0.09375 - var3,
-                    (double)((float)var8.getZ() + 0.75F) - var4,
+                    var3,
+                    (double)((float)var4.getX() + 0.25F) - param2,
+                    (double)var5 - param3,
+                    (double)((float)var4.getZ() + 0.25F) - param4,
+                    (double)((float)var4.getX() + 0.75F) - param2,
+                    (double)var5 + 0.09375 - param3,
+                    (double)((float)var4.getZ() + 0.75F) - param4,
                     0.0F,
                     0.0F,
                     1.0F,
@@ -55,13 +52,13 @@ public class HeightMapRenderer implements DebugRenderer.SimpleDebugRenderer {
                 );
             } else {
                 LevelRenderer.addChainedFilledBoxVertices(
-                    var7,
-                    (double)((float)var8.getX() + 0.25F) - var2,
-                    (double)var9 - var3,
-                    (double)((float)var8.getZ() + 0.25F) - var4,
-                    (double)((float)var8.getX() + 0.75F) - var2,
-                    (double)var9 + 0.09375 - var3,
-                    (double)((float)var8.getZ() + 0.75F) - var4,
+                    var3,
+                    (double)((float)var4.getX() + 0.25F) - param2,
+                    (double)var5 - param3,
+                    (double)((float)var4.getZ() + 0.25F) - param4,
+                    (double)((float)var4.getX() + 0.75F) - param2,
+                    (double)var5 + 0.09375 - param3,
+                    (double)((float)var4.getZ() + 0.75F) - param4,
                     0.0F,
                     1.0F,
                     0.0F,
@@ -70,7 +67,7 @@ public class HeightMapRenderer implements DebugRenderer.SimpleDebugRenderer {
             }
         }
 
-        var6.end();
+        var2.end();
         RenderSystem.enableTexture();
         RenderSystem.popMatrix();
     }

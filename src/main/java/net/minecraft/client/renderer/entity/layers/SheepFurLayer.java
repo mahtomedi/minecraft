@@ -30,8 +30,7 @@ public class SheepFurLayer extends RenderLayer<Sheep, SheepModel<Sheep>> {
         float param6,
         float param7,
         float param8,
-        float param9,
-        float param10
+        float param9
     ) {
         if (!param3.isSheared() && !param3.isInvisible()) {
             float var8;
@@ -69,7 +68,6 @@ public class SheepFurLayer extends RenderLayer<Sheep, SheepModel<Sheep>> {
                 param7,
                 param8,
                 param9,
-                param10,
                 param6,
                 var8,
                 var9,

@@ -113,7 +113,7 @@ public class HorseModel<T extends AbstractHorse> extends AgeableListModel<T> {
         param0.addChild(var1);
     }
 
-    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
+    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
         boolean var0 = param0.isSaddled();
         boolean var1 = param0.isVehicle();
 

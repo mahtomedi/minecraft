@@ -3,7 +3,7 @@ package net.minecraft.client.tutorial;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.MultiPlayerLevel;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.Input;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -39,14 +39,14 @@ public class Tutorial {
 
     }
 
-    public void onLookAt(@Nullable MultiPlayerLevel param0, @Nullable HitResult param1) {
+    public void onLookAt(@Nullable ClientLevel param0, @Nullable HitResult param1) {
         if (this.instance != null && param1 != null && param0 != null) {
             this.instance.onLookAt(param0, param1);
         }
 
     }
 
-    public void onDestroyBlock(MultiPlayerLevel param0, BlockPos param1, BlockState param2, float param3) {
+    public void onDestroyBlock(ClientLevel param0, BlockPos param1, BlockState param2, float param3) {
         if (this.instance != null) {
             this.instance.onDestroyBlock(param0, param1, param2, param3);
         }

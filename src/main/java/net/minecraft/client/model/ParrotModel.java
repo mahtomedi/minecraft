@@ -70,7 +70,7 @@ public class ParrotModel extends ListModel<Parrot> {
         return ImmutableList.of(this.body, this.wingLeft, this.wingRight, this.tail, this.head, this.legLeft, this.legRight);
     }
 
-    public void setupAnim(Parrot param0, float param1, float param2, float param3, float param4, float param5, float param6) {
+    public void setupAnim(Parrot param0, float param1, float param2, float param3, float param4, float param5) {
         this.setupAnim(getState(param0), param0.tickCount, param1, param2, param3, param4, param5);
     }
 
@@ -79,11 +79,11 @@ public class ParrotModel extends ListModel<Parrot> {
     }
 
     public void renderOnShoulder(
-        PoseStack param0, VertexConsumer param1, int param2, int param3, float param4, float param5, float param6, float param7, float param8, int param9
+        PoseStack param0, VertexConsumer param1, int param2, int param3, float param4, float param5, float param6, float param7, int param8
     ) {
         this.prepare(ParrotModel.State.ON_SHOULDER);
-        this.setupAnim(ParrotModel.State.ON_SHOULDER, param9, param4, param5, 0.0F, param6, param7);
-        this.parts().forEach(param5x -> param5x.render(param0, param1, param8, param2, param3, null));
+        this.setupAnim(ParrotModel.State.ON_SHOULDER, param8, param4, param5, 0.0F, param6, param7);
+        this.parts().forEach(param4x -> param4x.render(param0, param1, param2, param3, null));
     }
 
     private void setupAnim(ParrotModel.State param0, int param1, float param2, float param3, float param4, float param5, float param6) {

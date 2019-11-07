@@ -69,7 +69,7 @@ public class VillagerModel<T extends Entity> extends ListModel<T> implements Hea
     }
 
     @Override
-    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
+    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
         boolean var0 = false;
         if (param0 instanceof AbstractVillager) {
             var0 = ((AbstractVillager)param0).getUnhappyCounter() > 0;

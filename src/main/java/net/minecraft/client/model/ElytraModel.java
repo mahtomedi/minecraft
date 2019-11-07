@@ -30,7 +30,7 @@ public class ElytraModel<T extends LivingEntity> extends AgeableListModel<T> {
         return ImmutableList.of(this.leftWing, this.rightWing);
     }
 
-    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
+    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
         float var0 = (float) (Math.PI / 12);
         float var1 = (float) (-Math.PI / 12);
         float var2 = 0.0F;

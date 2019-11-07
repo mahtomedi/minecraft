@@ -22,9 +22,17 @@ public class ShieldModel extends Model {
         this.handle.addBox(-1.0F, -3.0F, -1.0F, 2.0F, 6.0F, 6.0F, 0.0F);
     }
 
+    public ModelPart plate() {
+        return this.plate;
+    }
+
+    public ModelPart handle() {
+        return this.handle;
+    }
+
     @Override
     public void renderToBuffer(PoseStack param0, VertexConsumer param1, int param2, int param3, float param4, float param5, float param6) {
-        this.plate.render(param0, param1, 0.0625F, param2, param3, null, param4, param5, param6);
-        this.handle.render(param0, param1, 0.0625F, param2, param3, null, param4, param5, param6);
+        this.plate.render(param0, param1, param2, param3, null, param4, param5, param6);
+        this.handle.render(param0, param1, param2, param3, null, param4, param5, param6);
     }
 }

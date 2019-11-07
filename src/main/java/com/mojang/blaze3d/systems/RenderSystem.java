@@ -269,9 +269,9 @@ public class RenderSystem {
         GlStateManager._fogEnd(param0);
     }
 
-    public static void fog(int param0, FloatBuffer param1) {
+    public static void fog(int param0, float param1, float param2, float param3, float param4) {
         assertThread(RenderSystem::isOnGameThread);
-        GlStateManager._fog(param0, param1);
+        GlStateManager._fog(param0, new float[]{param1, param2, param3, param4});
     }
 
     public static void fogi(int param0, int param1) {

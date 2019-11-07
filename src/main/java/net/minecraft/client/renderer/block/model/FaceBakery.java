@@ -41,23 +41,21 @@ public class FaceBakery {
 
         float[] var1 = new float[var0.uvs.length];
         System.arraycopy(var0.uvs, 0, var1, 0, var1.length);
-        float var2 = (float)param3.getWidth() / (param3.getU1() - param3.getU0());
-        float var3 = (float)param3.getHeight() / (param3.getV1() - param3.getV0());
-        float var4 = 4.0F / Math.max(var3, var2);
-        float var5 = (var0.uvs[0] + var0.uvs[0] + var0.uvs[2] + var0.uvs[2]) / 4.0F;
-        float var6 = (var0.uvs[1] + var0.uvs[1] + var0.uvs[3] + var0.uvs[3]) / 4.0F;
-        var0.uvs[0] = Mth.lerp(var4, var0.uvs[0], var5);
-        var0.uvs[2] = Mth.lerp(var4, var0.uvs[2], var5);
-        var0.uvs[1] = Mth.lerp(var4, var0.uvs[1], var6);
-        var0.uvs[3] = Mth.lerp(var4, var0.uvs[3], var6);
-        int[] var7 = this.makeVertices(var0, param3, param4, this.setupShape(param0, param1), param5.getRotation(), param6, param7);
-        Direction var8 = calculateFacing(var7);
+        float var2 = param3.uvShrinkRatio();
+        float var3 = (var0.uvs[0] + var0.uvs[0] + var0.uvs[2] + var0.uvs[2]) / 4.0F;
+        float var4 = (var0.uvs[1] + var0.uvs[1] + var0.uvs[3] + var0.uvs[3]) / 4.0F;
+        var0.uvs[0] = Mth.lerp(var2, var0.uvs[0], var3);
+        var0.uvs[2] = Mth.lerp(var2, var0.uvs[2], var3);
+        var0.uvs[1] = Mth.lerp(var2, var0.uvs[1], var4);
+        var0.uvs[3] = Mth.lerp(var2, var0.uvs[3], var4);
+        int[] var5 = this.makeVertices(var0, param3, param4, this.setupShape(param0, param1), param5.getRotation(), param6, param7);
+        Direction var6 = calculateFacing(var5);
         System.arraycopy(var1, 0, var0.uvs, 0, var1.length);
         if (param6 == null) {
-            this.recalculateWinding(var7, var8);
+            this.recalculateWinding(var5, var6);
         }
 
-        return new BakedQuad(var7, param2.tintIndex, var8, param3);
+        return new BakedQuad(var5, param2.tintIndex, var6, param3);
     }
 
     public static BlockFaceUV recomputeUVs(BlockFaceUV param0, Direction param1, Transformation param2, ResourceLocation param3) {
@@ -218,7 +216,7 @@ public class FaceBakery {
                 var1.set(1.0F, 1.0F, 1.0F);
             }
 
-            this.rotateVertexBy(param0, new Vector3f(param1.origin), new Matrix4f(var8), var1);
+            this.rotateVertexBy(param0, param1.origin.copy(), new Matrix4f(var8), var1);
         }
     }
 
@@ -239,11 +237,11 @@ public class FaceBakery {
         Vector3f var0 = new Vector3f(Float.intBitsToFloat(param0[0]), Float.intBitsToFloat(param0[1]), Float.intBitsToFloat(param0[2]));
         Vector3f var1 = new Vector3f(Float.intBitsToFloat(param0[8]), Float.intBitsToFloat(param0[9]), Float.intBitsToFloat(param0[10]));
         Vector3f var2 = new Vector3f(Float.intBitsToFloat(param0[16]), Float.intBitsToFloat(param0[17]), Float.intBitsToFloat(param0[18]));
-        Vector3f var3 = new Vector3f(var0);
+        Vector3f var3 = var0.copy();
         var3.sub(var1);
-        Vector3f var4 = new Vector3f(var2);
+        Vector3f var4 = var2.copy();
         var4.sub(var1);
-        Vector3f var5 = new Vector3f(var4);
+        Vector3f var5 = var4.copy();
         var5.cross(var3);
         var5.normalize();
         Direction var6 = null;

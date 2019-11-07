@@ -20,26 +20,25 @@ public class EvokerFangsRenderer extends EntityRenderer<EvokerFangs> {
         super(param0);
     }
 
-    public void render(EvokerFangs param0, double param1, double param2, double param3, float param4, float param5, PoseStack param6, MultiBufferSource param7) {
-        float var0 = param0.getAnimationProgress(param5);
+    public void render(EvokerFangs param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {
+        float var0 = param0.getAnimationProgress(param2);
         if (var0 != 0.0F) {
             float var1 = 2.0F;
             if (var0 > 0.9F) {
                 var1 = (float)((double)var1 * ((1.0 - (double)var0) / 0.1F));
             }
 
-            param6.pushPose();
-            param6.mulPose(Vector3f.YP.rotationDegrees(90.0F - param0.yRot));
-            param6.scale(-var1, -var1, var1);
+            param3.pushPose();
+            param3.mulPose(Vector3f.YP.rotationDegrees(90.0F - param0.yRot));
+            param3.scale(-var1, -var1, var1);
             float var2 = 0.03125F;
-            param6.translate(0.0, -0.626F, 0.0);
-            param6.scale(0.5F, 0.5F, 0.5F);
-            int var3 = param0.getLightColor();
-            this.model.setupAnim(param0, var0, 0.0F, 0.0F, param0.yRot, param0.xRot, 0.03125F);
-            VertexConsumer var4 = param7.getBuffer(this.model.renderType(TEXTURE_LOCATION));
-            this.model.renderToBuffer(param6, var4, var3, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F);
-            param6.popPose();
-            super.render(param0, param1, param2, param3, param4, param5, param6, param7);
+            param3.translate(0.0, -0.626F, 0.0);
+            param3.scale(0.5F, 0.5F, 0.5F);
+            this.model.setupAnim(param0, var0, 0.0F, 0.0F, param0.yRot, param0.xRot);
+            VertexConsumer var3 = param4.getBuffer(this.model.renderType(TEXTURE_LOCATION));
+            this.model.renderToBuffer(param3, var3, param5, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F);
+            param3.popPose();
+            super.render(param0, param1, param2, param3, param4, param5);
         }
     }
 

@@ -10,7 +10,7 @@ import com.mojang.bridge.launcher.Launcher;
 import com.mojang.bridge.launcher.SessionEventListener;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
-import net.minecraft.client.multiplayer.MultiPlayerLevel;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.util.FrameTimer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -44,7 +44,7 @@ public class Game implements RunningGame {
     @Nullable
     @Override
     public GameSession getCurrentSession() {
-        MultiPlayerLevel var0 = this.minecraft.level;
+        ClientLevel var0 = this.minecraft.level;
         return var0 == null ? null : new Session(var0, this.minecraft.player, this.minecraft.player.connection);
     }
 

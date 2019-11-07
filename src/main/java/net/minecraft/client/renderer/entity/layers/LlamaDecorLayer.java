@@ -50,8 +50,7 @@ public class LlamaDecorLayer extends RenderLayer<Llama, LlamaModel<Llama>> {
         float param6,
         float param7,
         float param8,
-        float param9,
-        float param10
+        float param9
     ) {
         DyeColor var0 = param3.getSwag();
         ResourceLocation var1;
@@ -66,7 +65,7 @@ public class LlamaDecorLayer extends RenderLayer<Llama, LlamaModel<Llama>> {
         }
 
         this.getParentModel().copyPropertiesTo(this.model);
-        this.model.setupAnim(param3, param4, param5, param7, param8, param9, param10);
+        this.model.setupAnim(param3, param4, param5, param7, param8, param9);
         VertexConsumer var4 = param1.getBuffer(RenderType.entityCutoutNoCull(var1));
         this.model.renderToBuffer(param0, var4, param2, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F);
     }

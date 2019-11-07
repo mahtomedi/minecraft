@@ -4,7 +4,7 @@ import com.google.common.hash.Hashing;
 import com.mojang.authlib.GameProfile;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.MultiPlayerLevel;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.HttpTexture;
@@ -26,9 +26,9 @@ public abstract class AbstractClientPlayer extends Player {
     public float elytraRotX;
     public float elytraRotY;
     public float elytraRotZ;
-    public final MultiPlayerLevel clientLevel;
+    public final ClientLevel clientLevel;
 
-    public AbstractClientPlayer(MultiPlayerLevel param0, GameProfile param1) {
+    public AbstractClientPlayer(ClientLevel param0, GameProfile param1) {
         super(param0, param1);
         this.clientLevel = param0;
     }

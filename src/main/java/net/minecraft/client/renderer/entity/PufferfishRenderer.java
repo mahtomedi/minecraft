@@ -29,7 +29,7 @@ public class PufferfishRenderer extends MobRenderer<Pufferfish, EntityModel<Puff
         return PUFFER_LOCATION;
     }
 
-    public void render(Pufferfish param0, double param1, double param2, double param3, float param4, float param5, PoseStack param6, MultiBufferSource param7) {
+    public void render(Pufferfish param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {
         int var0 = param0.getPuffState();
         if (var0 != this.puffStateO) {
             if (var0 == 0) {
@@ -43,7 +43,7 @@ public class PufferfishRenderer extends MobRenderer<Pufferfish, EntityModel<Puff
 
         this.puffStateO = var0;
         this.shadowRadius = 0.1F + 0.1F * (float)var0;
-        super.render(param0, param1, param2, param3, param4, param5, param6, param7);
+        super.render(param0, param1, param2, param3, param4, param5);
     }
 
     protected void setupRotations(Pufferfish param0, PoseStack param1, float param2, float param3, float param4) {

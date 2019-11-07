@@ -34,7 +34,7 @@ public class KelpFeature extends Feature<NoneFeatureConfiguration> {
                     && param0.getBlockState(var2.above()).getBlock() == Blocks.WATER
                     && var4.canSurvive(param0, var2)) {
                     if (var6 == var5) {
-                        param0.setBlock(var2, var3.setValue(KelpBlock.AGE, Integer.valueOf(param2.nextInt(23))), 2);
+                        param0.setBlock(var2, var3.setValue(KelpBlock.AGE, Integer.valueOf(param2.nextInt(4) + 20)), 2);
                         ++var0;
                     } else {
                         param0.setBlock(var2, var4, 2);
@@ -42,7 +42,7 @@ public class KelpFeature extends Feature<NoneFeatureConfiguration> {
                 } else if (var6 > 0) {
                     BlockPos var7 = var2.below();
                     if (var3.canSurvive(param0, var7) && param0.getBlockState(var7.below()).getBlock() != Blocks.KELP) {
-                        param0.setBlock(var7, var3.setValue(KelpBlock.AGE, Integer.valueOf(param2.nextInt(23))), 2);
+                        param0.setBlock(var7, var3.setValue(KelpBlock.AGE, Integer.valueOf(param2.nextInt(4) + 20)), 2);
                         ++var0;
                     }
                     break;

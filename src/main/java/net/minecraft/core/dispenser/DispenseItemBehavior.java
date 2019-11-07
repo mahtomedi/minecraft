@@ -183,6 +183,7 @@ public interface DispenseItemBehavior {
                 Level var2 = param0.getLevel();
                 ArmorStand var3 = new ArmorStand(var2, (double)var1.getX() + 0.5, (double)var1.getY(), (double)var1.getZ() + 0.5);
                 EntityType.updateCustomEntityTag(var2, null, var3, param1.getTag());
+                var3.yRot = var0.toYRot();
                 var2.addFreshEntity(var3);
                 param1.shrink(1);
                 return param1;
@@ -448,7 +449,7 @@ public interface DispenseItemBehavior {
                     Block var3 = var2.getBlock();
                     if (var3.is(BlockTags.BEEHIVES) && var2.getValue(BeehiveBlock.HONEY_LEVEL) >= 5) {
                         ((BeehiveBlock)var2.getBlock())
-                            .releaseBeesAndResetState(var0.getLevel(), var2, var1, null, BeehiveBlockEntity.BeeReleaseStatus.BEE_RELEASED);
+                            .releaseBeesAndResetHoneyLevel(var0.getLevel(), var2, var1, null, BeehiveBlockEntity.BeeReleaseStatus.BEE_RELEASED);
                         this.success = true;
                         return this.takeLiquid(param0, param1, new ItemStack(Items.HONEY_BOTTLE));
                     } else if (var0.getFluidState(var1).is(FluidTags.WATER)) {
@@ -493,7 +494,7 @@ public interface DispenseItemBehavior {
     
                                     BeehiveBlock.dropHoneycomb(var0, var1);
                                     ((BeehiveBlock)var4.getBlock())
-                                        .releaseBeesAndResetState(var0, var4, var1, null, BeehiveBlockEntity.BeeReleaseStatus.BEE_RELEASED);
+                                        .releaseBeesAndResetHoneyLevel(var0, var4, var1, null, BeehiveBlockEntity.BeeReleaseStatus.BEE_RELEASED);
                                     this.success = true;
                                 }
                             }

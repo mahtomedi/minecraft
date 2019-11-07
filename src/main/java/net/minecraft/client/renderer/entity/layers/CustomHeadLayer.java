@@ -33,17 +33,7 @@ public class CustomHeadLayer<T extends LivingEntity, M extends EntityModel<T> & 
     }
 
     public void render(
-        PoseStack param0,
-        MultiBufferSource param1,
-        int param2,
-        T param3,
-        float param4,
-        float param5,
-        float param6,
-        float param7,
-        float param8,
-        float param9,
-        float param10
+        PoseStack param0, MultiBufferSource param1, int param2, T param3, float param4, float param5, float param6, float param7, float param8, float param9
     ) {
         ItemStack var0 = param3.getItemBySlot(EquipmentSlot.HEAD);
         if (!var0.isEmpty()) {
@@ -53,12 +43,12 @@ public class CustomHeadLayer<T extends LivingEntity, M extends EntityModel<T> & 
             if (param3.isBaby() && !(param3 instanceof Villager)) {
                 float var3 = 2.0F;
                 float var4 = 1.4F;
-                param0.translate(0.0, (double)(0.5F * param10), 0.0);
+                param0.translate(0.0, 0.03125, 0.0);
                 param0.scale(0.7F, 0.7F, 0.7F);
-                param0.translate(0.0, (double)(16.0F * param10), 0.0);
+                param0.translate(0.0, 1.0, 0.0);
             }
 
-            this.getParentModel().getHead().translateAndRotate(param0, 0.0625F);
+            this.getParentModel().getHead().translateAndRotate(param0);
             if (var1 instanceof BlockItem && ((BlockItem)var1).getBlock() instanceof AbstractSkullBlock) {
                 float var5 = 1.1875F;
                 param0.scale(1.1875F, -1.1875F, -1.1875F);
@@ -91,7 +81,7 @@ public class CustomHeadLayer<T extends LivingEntity, M extends EntityModel<T> & 
                     param0.translate(0.0, 0.1875, 0.0);
                 }
 
-                Minecraft.getInstance().getItemInHandRenderer().renderItem(param3, var0, ItemTransforms.TransformType.HEAD, false, param0, param1);
+                Minecraft.getInstance().getItemInHandRenderer().renderItem(param3, var0, ItemTransforms.TransformType.HEAD, false, param0, param1, param2);
             }
 
             param0.popPose();

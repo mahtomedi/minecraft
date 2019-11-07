@@ -43,8 +43,8 @@ public class ItemEntityRenderer extends EntityRenderer<ItemEntity> {
         return var0;
     }
 
-    public void render(ItemEntity param0, double param1, double param2, double param3, float param4, float param5, PoseStack param6, MultiBufferSource param7) {
-        param6.pushPose();
+    public void render(ItemEntity param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {
+        param3.pushPose();
         ItemStack var0 = param0.getItem();
         int var1 = var0.isEmpty() ? 187 : Item.getId(var0.getItem()) + var0.getDamageValue();
         this.random.setSeed((long)var1);
@@ -52,11 +52,11 @@ public class ItemEntityRenderer extends EntityRenderer<ItemEntity> {
         boolean var3 = var2.isGui3d();
         int var4 = this.getRenderAmount(var0);
         float var5 = 0.25F;
-        float var6 = Mth.sin(((float)param0.getAge() + param5) / 10.0F + param0.bobOffs) * 0.1F + 0.1F;
+        float var6 = Mth.sin(((float)param0.getAge() + param2) / 10.0F + param0.bobOffs) * 0.1F + 0.1F;
         float var7 = var2.getTransforms().getTransform(ItemTransforms.TransformType.GROUND).scale.y();
-        param6.translate(0.0, (double)(var6 + 0.25F * var7), 0.0);
-        float var8 = ((float)param0.getAge() + param5) / 20.0F + param0.bobOffs;
-        param6.mulPose(Vector3f.YP.rotation(var8));
+        param3.translate(0.0, (double)(var6 + 0.25F * var7), 0.0);
+        float var8 = ((float)param0.getAge() + param2) / 20.0F + param0.bobOffs;
+        param3.mulPose(Vector3f.YP.rotation(var8));
         float var9 = var2.getTransforms().ground.scale.x();
         float var10 = var2.getTransforms().ground.scale.y();
         float var11 = var2.getTransforms().ground.scale.z();
@@ -64,33 +64,33 @@ public class ItemEntityRenderer extends EntityRenderer<ItemEntity> {
             float var12 = -0.0F * (float)(var4 - 1) * 0.5F * var9;
             float var13 = -0.0F * (float)(var4 - 1) * 0.5F * var10;
             float var14 = -0.09375F * (float)(var4 - 1) * 0.5F * var11;
-            param6.translate((double)var12, (double)var13, (double)var14);
+            param3.translate((double)var12, (double)var13, (double)var14);
         }
 
         for(int var15 = 0; var15 < var4; ++var15) {
-            param6.pushPose();
+            param3.pushPose();
             if (var15 > 0) {
                 if (var3) {
                     float var16 = (this.random.nextFloat() * 2.0F - 1.0F) * 0.15F;
                     float var17 = (this.random.nextFloat() * 2.0F - 1.0F) * 0.15F;
                     float var18 = (this.random.nextFloat() * 2.0F - 1.0F) * 0.15F;
-                    param6.translate((double)var16, (double)var17, (double)var18);
+                    param3.translate((double)var16, (double)var17, (double)var18);
                 } else {
                     float var19 = (this.random.nextFloat() * 2.0F - 1.0F) * 0.15F * 0.5F;
                     float var20 = (this.random.nextFloat() * 2.0F - 1.0F) * 0.15F * 0.5F;
-                    param6.translate((double)var19, (double)var20, 0.0);
+                    param3.translate((double)var19, (double)var20, 0.0);
                 }
             }
 
-            this.itemRenderer.render(var0, ItemTransforms.TransformType.GROUND, false, param6, param7, param0.getLightColor(), OverlayTexture.NO_OVERLAY, var2);
-            param6.popPose();
+            this.itemRenderer.render(var0, ItemTransforms.TransformType.GROUND, false, param3, param4, param5, OverlayTexture.NO_OVERLAY, var2);
+            param3.popPose();
             if (!var3) {
-                param6.translate((double)(0.0F * var9), (double)(0.0F * var10), (double)(0.09375F * var11));
+                param3.translate((double)(0.0F * var9), (double)(0.0F * var10), (double)(0.09375F * var11));
             }
         }
 
-        param6.popPose();
-        super.render(param0, param1, param2, param3, param4, param5, param6, param7);
+        param3.popPose();
+        super.render(param0, param1, param2, param3, param4, param5);
     }
 
     public ResourceLocation getTextureLocation(ItemEntity param0) {

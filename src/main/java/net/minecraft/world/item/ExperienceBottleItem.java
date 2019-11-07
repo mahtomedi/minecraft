@@ -8,15 +8,12 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ThrownExperienceBottle;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ExperienceBottleItem extends Item {
     public ExperienceBottleItem(Item.Properties param0) {
         super(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean isFoil(ItemStack param0) {
         return true;

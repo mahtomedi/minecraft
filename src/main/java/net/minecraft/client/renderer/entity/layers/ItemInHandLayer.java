@@ -21,17 +21,7 @@ public class ItemInHandLayer<T extends LivingEntity, M extends EntityModel<T> & 
     }
 
     public void render(
-        PoseStack param0,
-        MultiBufferSource param1,
-        int param2,
-        T param3,
-        float param4,
-        float param5,
-        float param6,
-        float param7,
-        float param8,
-        float param9,
-        float param10
+        PoseStack param0, MultiBufferSource param1, int param2, T param3, float param4, float param5, float param6, float param7, float param8, float param9
     ) {
         boolean var0 = param3.getMainArm() == HumanoidArm.RIGHT;
         ItemStack var1 = var0 ? param3.getOffhandItem() : param3.getMainHandItem();
@@ -44,23 +34,23 @@ public class ItemInHandLayer<T extends LivingEntity, M extends EntityModel<T> & 
                 param0.scale(0.5F, 0.5F, 0.5F);
             }
 
-            this.renderArmWithItem(param3, var2, ItemTransforms.TransformType.THIRD_PERSON_RIGHT_HAND, HumanoidArm.RIGHT, param0, param1);
-            this.renderArmWithItem(param3, var1, ItemTransforms.TransformType.THIRD_PERSON_LEFT_HAND, HumanoidArm.LEFT, param0, param1);
+            this.renderArmWithItem(param3, var2, ItemTransforms.TransformType.THIRD_PERSON_RIGHT_HAND, HumanoidArm.RIGHT, param0, param1, param2);
+            this.renderArmWithItem(param3, var1, ItemTransforms.TransformType.THIRD_PERSON_LEFT_HAND, HumanoidArm.LEFT, param0, param1, param2);
             param0.popPose();
         }
     }
 
     private void renderArmWithItem(
-        LivingEntity param0, ItemStack param1, ItemTransforms.TransformType param2, HumanoidArm param3, PoseStack param4, MultiBufferSource param5
+        LivingEntity param0, ItemStack param1, ItemTransforms.TransformType param2, HumanoidArm param3, PoseStack param4, MultiBufferSource param5, int param6
     ) {
         if (!param1.isEmpty()) {
             param4.pushPose();
-            this.getParentModel().translateToHand(0.0625F, param3, param4);
+            this.getParentModel().translateToHand(param3, param4);
             param4.mulPose(Vector3f.XP.rotationDegrees(-90.0F));
             param4.mulPose(Vector3f.YP.rotationDegrees(180.0F));
             boolean var0 = param3 == HumanoidArm.LEFT;
             param4.translate((double)((float)(var0 ? -1 : 1) / 16.0F), 0.125, -0.625);
-            Minecraft.getInstance().getItemInHandRenderer().renderItem(param0, param1, param2, var0, param4, param5);
+            Minecraft.getInstance().getItemInHandRenderer().renderItem(param0, param1, param2, var0, param4, param5, param6);
             param4.popPose();
         }
     }

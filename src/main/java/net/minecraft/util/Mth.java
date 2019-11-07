@@ -315,20 +315,6 @@ public class Mth {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static int colorMultiply(int param0, int param1) {
-        int var0 = (param0 & 0xFF0000) >> 16;
-        int var1 = (param1 & 0xFF0000) >> 16;
-        int var2 = (param0 & 0xFF00) >> 8;
-        int var3 = (param1 & 0xFF00) >> 8;
-        int var4 = (param0 & 0xFF) >> 0;
-        int var5 = (param1 & 0xFF) >> 0;
-        int var6 = (int)((float)var0 * (float)var1 / 255.0F);
-        int var7 = (int)((float)var2 * (float)var3 / 255.0F);
-        int var8 = (int)((float)var4 * (float)var5 / 255.0F);
-        return param0 & 0xFF000000 | var6 << 16 | var7 << 8 | var8;
-    }
-
-    @OnlyIn(Dist.CLIENT)
     public static float frac(float param0) {
         return param0 - (float)floor(param0);
     }

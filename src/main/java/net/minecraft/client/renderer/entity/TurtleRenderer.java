@@ -16,12 +16,12 @@ public class TurtleRenderer extends MobRenderer<Turtle, TurtleModel<Turtle>> {
         super(param0, new TurtleModel<>(0.0F), 0.7F);
     }
 
-    public void render(Turtle param0, double param1, double param2, double param3, float param4, float param5, PoseStack param6, MultiBufferSource param7) {
+    public void render(Turtle param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {
         if (param0.isBaby()) {
             this.shadowRadius *= 0.5F;
         }
 
-        super.render(param0, param1, param2, param3, param4, param5, param6, param7);
+        super.render(param0, param1, param2, param3, param4, param5);
     }
 
     public ResourceLocation getTextureLocation(Turtle param0) {

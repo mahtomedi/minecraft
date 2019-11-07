@@ -414,24 +414,26 @@ public class WalkNodeEvaluator extends NodeEvaluator {
             }
         }
 
-        return checkNeighbourBlocks(param0, param1, param2, param3, var0);
+        if (var0 == BlockPathTypes.WALKABLE) {
+            var0 = checkNeighbourBlocks(param0, param1, param2, param3, var0);
+        }
+
+        return var0;
     }
 
     public static BlockPathTypes checkNeighbourBlocks(BlockGetter param0, int param1, int param2, int param3, BlockPathTypes param4) {
-        if (param4 == BlockPathTypes.WALKABLE) {
-            try (BlockPos.PooledMutableBlockPos var0 = BlockPos.PooledMutableBlockPos.acquire()) {
-                for(int var1 = -1; var1 <= 1; ++var1) {
-                    for(int var2 = -1; var2 <= 1; ++var2) {
-                        for(int var3 = -1; var3 <= 1; ++var3) {
-                            if (var1 != 0 || var3 != 0) {
-                                Block var4 = param0.getBlockState(var0.set(var1 + param1, var2 + param2, var3 + param3)).getBlock();
-                                if (var4 == Blocks.CACTUS) {
-                                    param4 = BlockPathTypes.DANGER_CACTUS;
-                                } else if (var4 == Blocks.FIRE || var4 == Blocks.LAVA) {
-                                    param4 = BlockPathTypes.DANGER_FIRE;
-                                } else if (var4 == Blocks.SWEET_BERRY_BUSH) {
-                                    param4 = BlockPathTypes.DANGER_OTHER;
-                                }
+        try (BlockPos.PooledMutableBlockPos var0 = BlockPos.PooledMutableBlockPos.acquire()) {
+            for(int var1 = -1; var1 <= 1; ++var1) {
+                for(int var2 = -1; var2 <= 1; ++var2) {
+                    for(int var3 = -1; var3 <= 1; ++var3) {
+                        if (var1 != 0 || var3 != 0) {
+                            Block var4 = param0.getBlockState(var0.set(var1 + param1, var2 + param2, var3 + param3)).getBlock();
+                            if (var4 == Blocks.CACTUS) {
+                                param4 = BlockPathTypes.DANGER_CACTUS;
+                            } else if (var4 == Blocks.FIRE || var4 == Blocks.LAVA) {
+                                param4 = BlockPathTypes.DANGER_FIRE;
+                            } else if (var4 == Blocks.SWEET_BERRY_BUSH) {
+                                param4 = BlockPathTypes.DANGER_OTHER;
                             }
                         }
                     }
@@ -459,6 +461,8 @@ public class WalkNodeEvaluator extends NodeEvaluator {
             return BlockPathTypes.DAMAGE_OTHER;
         } else if (var2 == Blocks.HONEY_BLOCK) {
             return BlockPathTypes.STICKY_HONEY;
+        } else if (var2 == Blocks.COCOA) {
+            return BlockPathTypes.COCOA;
         } else if (var2 instanceof DoorBlock && var3 == Material.WOOD && !var1.getValue(DoorBlock.OPEN)) {
             return BlockPathTypes.DOOR_WOOD_CLOSED;
         } else if (var2 instanceof DoorBlock && var3 == Material.METAL && !var1.getValue(DoorBlock.OPEN)) {

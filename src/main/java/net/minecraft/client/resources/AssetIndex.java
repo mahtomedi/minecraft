@@ -27,7 +27,8 @@ import org.apache.logging.log4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class AssetIndex {
     protected static final Logger LOGGER = LogManager.getLogger();
-    private final Map<String, File> mapping = Maps.newHashMap();
+    private final Map<String, File> rootFiles = Maps.newHashMap();
+    private final Map<ResourceLocation, File> namespacedFiles = Maps.newHashMap();
 
     protected AssetIndex() {
     }
@@ -46,15 +47,18 @@ public class AssetIndex {
                     JsonObject var6 = (JsonObject)var5.getValue();
                     String var7 = var5.getKey();
                     String[] var8 = var7.split("/", 2);
-                    String var9 = var8.length == 1 ? var8[0] : var8[0] + ":" + var8[1];
-                    String var10 = GsonHelper.getAsString(var6, "hash");
-                    File var11 = new File(var0, var10.substring(0, 2) + "/" + var10);
-                    this.mapping.put(var9, var11);
+                    String var9 = GsonHelper.getAsString(var6, "hash");
+                    File var10 = new File(var0, var9.substring(0, 2) + "/" + var9);
+                    if (var8.length == 1) {
+                        this.rootFiles.put(var8[0], var10);
+                    } else {
+                        this.namespacedFiles.put(new ResourceLocation(var8[0], var8[1]), var10);
+                    }
                 }
             }
-        } catch (JsonParseException var20) {
+        } catch (JsonParseException var19) {
             LOGGER.error("Unable to parse resource index file: {}", var1);
-        } catch (FileNotFoundException var21) {
+        } catch (FileNotFoundException var20) {
             LOGGER.error("Can't find the resource index file: {}", var1);
         } finally {
             IOUtils.closeQuietly((Reader)var2);
@@ -64,23 +68,18 @@ public class AssetIndex {
 
     @Nullable
     public File getFile(ResourceLocation param0) {
-        return this.getFile(param0.toString());
+        return this.namespacedFiles.get(param0);
     }
 
     @Nullable
-    public File getFile(String param0) {
-        return this.mapping.get(param0);
+    public File getRootFile(String param0) {
+        return this.rootFiles.get(param0);
     }
 
-    public Collection<String> getFiles(String param0, int param1, Predicate<String> param2) {
-        return this.mapping
-            .keySet()
-            .stream()
-            .filter(param0x -> !param0x.endsWith(".mcmeta"))
-            .map(ResourceLocation::new)
-            .map(ResourceLocation::getPath)
-            .filter(param1x -> param1x.startsWith(param0 + "/"))
-            .filter(param2)
-            .collect(Collectors.toList());
+    public Collection<ResourceLocation> getFiles(String param0, String param1, int param2, Predicate<String> param3) {
+        return this.namespacedFiles.keySet().stream().filter(param3x -> {
+            String var0 = param3x.getPath();
+            return param3x.getNamespace().equals(param1) && !var0.endsWith(".mcmeta") && var0.startsWith(param0 + "/") && param3.test(var0);
+        }).collect(Collectors.toList());
     }
 }

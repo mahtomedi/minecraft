@@ -81,8 +81,9 @@ public enum BannerPattern {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public ResourceLocation location() {
-        return new ResourceLocation("entity/banner/" + this.getFilename());
+    public ResourceLocation location(boolean param0) {
+        String var0 = param0 ? "banner" : "shield";
+        return new ResourceLocation("entity/" + var0 + "/" + this.getFilename());
     }
 
     @OnlyIn(Dist.CLIENT)

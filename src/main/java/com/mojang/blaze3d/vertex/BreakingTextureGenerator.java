@@ -27,12 +27,12 @@ public class BreakingTextureGenerator extends DefaultedVertexConsumer {
     private float ny;
     private float nz;
 
-    public BreakingTextureGenerator(VertexConsumer param0, Matrix4f param1) {
+    public BreakingTextureGenerator(VertexConsumer param0, PoseStack.Pose param1) {
         this.delegate = param0;
-        this.cameraInversePose = param1.copy();
+        this.cameraInversePose = param1.pose().copy();
         this.cameraInversePose.invert();
-        this.normalPose = new Matrix3f(param1);
-        this.normalPose.transpose();
+        this.normalPose = param1.normal().copy();
+        this.normalPose.invert();
         this.resetState();
     }
 
@@ -59,27 +59,15 @@ public class BreakingTextureGenerator extends DefaultedVertexConsumer {
         Direction var1 = Direction.getNearest(var0.x(), var0.y(), var0.z());
         Vector4f var2 = new Vector4f(this.x, this.y, this.z, 1.0F);
         var2.transform(this.cameraInversePose);
-        float var3;
-        float var4;
-        switch(var1.getAxis()) {
-            case X:
-                var3 = var2.z();
-                var4 = var2.y();
-                break;
-            case Y:
-                var3 = var2.x();
-                var4 = var2.z();
-                break;
-            case Z:
-            default:
-                var3 = var2.x();
-                var4 = var2.y();
-        }
-
+        var2.transform(Vector3f.YP.rotationDegrees(180.0F));
+        var2.transform(Vector3f.XP.rotationDegrees(-90.0F));
+        var2.transform(var1.getRotation());
+        float var3 = -var2.x();
+        float var4 = -var2.y();
         this.delegate
             .vertex((double)this.x, (double)this.y, (double)this.z)
             .color(this.r, this.g, this.b, this.a)
-            .uv(var3, -var4)
+            .uv(var3, var4)
             .overlayCoords(this.overlayU, this.overlayV)
             .uv2(this.lightCoords)
             .normal(this.nx, this.ny, this.nz)

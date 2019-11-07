@@ -82,7 +82,7 @@ public class HumanoidModel<T extends LivingEntity> extends AgeableListModel<T> i
         super.prepareMobModel(param0, param1, param2, param3);
     }
 
-    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
+    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
         boolean var0 = param0.getFallFlyingTicks() > 4;
         boolean var1 = param0.isVisuallySwimming();
         this.head.yRot = param4 * (float) (Math.PI / 180.0);
@@ -349,8 +349,8 @@ public class HumanoidModel<T extends LivingEntity> extends AgeableListModel<T> i
     }
 
     @Override
-    public void translateToHand(float param0, HumanoidArm param1, PoseStack param2) {
-        this.getArm(param1).translateAndRotate(param2, param0);
+    public void translateToHand(HumanoidArm param0, PoseStack param1) {
+        this.getArm(param0).translateAndRotate(param1);
     }
 
     protected ModelPart getArm(HumanoidArm param0) {

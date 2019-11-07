@@ -33,8 +33,8 @@ public class VexModel extends HumanoidModel<Vex> {
         return Iterables.concat(super.bodyParts(), ImmutableList.of(this.rightWing, this.leftWing));
     }
 
-    public void setupAnim(Vex param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        super.setupAnim(param0, param1, param2, param3, param4, param5, param6);
+    public void setupAnim(Vex param0, float param1, float param2, float param3, float param4, float param5) {
+        super.setupAnim(param0, param1, param2, param3, param4, param5);
         if (param0.isCharging()) {
             if (param0.getMainArm() == HumanoidArm.RIGHT) {
                 this.rightArm.xRot = 3.7699115F;

@@ -3,6 +3,7 @@ package net.minecraft.client.renderer.debug;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -11,6 +12,7 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
@@ -23,7 +25,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class DebugRenderer {
-    public final PathfindingRenderer pathfindingRenderer;
+    public final PathfindingRenderer pathfindingRenderer = new PathfindingRenderer();
     public final DebugRenderer.SimpleDebugRenderer waterDebugRenderer;
     public final DebugRenderer.SimpleDebugRenderer chunkBorderRenderer;
     public final DebugRenderer.SimpleDebugRenderer heightMapRenderer;
@@ -36,25 +38,26 @@ public class DebugRenderer {
     public final DebugRenderer.SimpleDebugRenderer solidFaceRenderer;
     public final DebugRenderer.SimpleDebugRenderer chunkRenderer;
     public final VillageDebugRenderer villageDebugRenderer;
+    public final BeeDebugRenderer beeDebugRenderer;
     public final RaidDebugRenderer raidDebugRenderer;
     public final GoalSelectorDebugRenderer goalSelectorRenderer;
     public final GameTestDebugRenderer gameTestDebugRenderer;
     private boolean renderChunkborder;
 
     public DebugRenderer(Minecraft param0) {
-        this.pathfindingRenderer = new PathfindingRenderer(param0);
         this.waterDebugRenderer = new WaterDebugRenderer(param0);
         this.chunkBorderRenderer = new ChunkBorderRenderer(param0);
         this.heightMapRenderer = new HeightMapRenderer(param0);
         this.collisionBoxRenderer = new CollisionBoxRenderer(param0);
         this.neighborsUpdateRenderer = new NeighborsUpdateRenderer(param0);
-        this.caveRenderer = new CaveDebugRenderer(param0);
+        this.caveRenderer = new CaveDebugRenderer();
         this.structureRenderer = new StructureRenderer(param0);
         this.lightDebugRenderer = new LightDebugRenderer(param0);
-        this.worldGenAttemptRenderer = new WorldGenAttemptRenderer(param0);
+        this.worldGenAttemptRenderer = new WorldGenAttemptRenderer();
         this.solidFaceRenderer = new SolidFaceRenderer(param0);
         this.chunkRenderer = new ChunkDebugRenderer(param0);
         this.villageDebugRenderer = new VillageDebugRenderer(param0);
+        this.beeDebugRenderer = new BeeDebugRenderer(param0);
         this.raidDebugRenderer = new RaidDebugRenderer(param0);
         this.goalSelectorRenderer = new GoalSelectorDebugRenderer(param0);
         this.gameTestDebugRenderer = new GameTestDebugRenderer();
@@ -74,6 +77,7 @@ public class DebugRenderer {
         this.solidFaceRenderer.clear();
         this.chunkRenderer.clear();
         this.villageDebugRenderer.clear();
+        this.beeDebugRenderer.clear();
         this.raidDebugRenderer.clear();
         this.goalSelectorRenderer.clear();
         this.gameTestDebugRenderer.clear();
@@ -84,12 +88,12 @@ public class DebugRenderer {
         return this.renderChunkborder;
     }
 
-    public void render(long param0) {
+    public void render(PoseStack param0, MultiBufferSource.BufferSource param1, double param2, double param3, double param4, long param5) {
         if (this.renderChunkborder && !Minecraft.getInstance().showOnlyReducedInfo()) {
-            this.chunkBorderRenderer.render(param0);
+            this.chunkBorderRenderer.render(param0, param1, param2, param3, param4, param5);
         }
 
-        this.gameTestDebugRenderer.render(param0);
+        this.gameTestDebugRenderer.render(param0, param1, param2, param3, param4, param5);
     }
 
     public static Optional<Entity> getTargetedEntity(@Nullable Entity param0, int param1) {
@@ -192,7 +196,7 @@ public class DebugRenderer {
 
     @OnlyIn(Dist.CLIENT)
     public interface SimpleDebugRenderer {
-        void render(long var1);
+        void render(PoseStack var1, MultiBufferSource var2, double var3, double var5, double var7, long var9);
 
         default void clear() {
         }

@@ -227,7 +227,6 @@ public class RealmsPlayerScreen extends RealmsScreen {
         }
 
         int var0 = RealmsConstants.row(12) + 20;
-        RenderSystem.disableFog();
         Tezzelator var1 = Tezzelator.instance;
         bind("textures/gui/options_background.png");
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);

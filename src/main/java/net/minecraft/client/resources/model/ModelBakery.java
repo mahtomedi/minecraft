@@ -95,6 +95,8 @@ public class ModelBakery {
         new ResourceLocation("entity/shulker/shulker_black")
     );
     public static final ResourceLocation BANNER_BASE = new ResourceLocation("entity/banner_base");
+    public static final ResourceLocation SHIELD_BASE = new ResourceLocation("entity/shield_base");
+    public static final ResourceLocation NO_PATTERN_SHIELD = new ResourceLocation("entity/shield_base_nopattern");
     public static final ResourceLocation OAK_SIGN_TEXTURE = new ResourceLocation("entity/signs/oak");
     public static final ResourceLocation SPRUCE_SIGN_TEXTURE = new ResourceLocation("entity/signs/spruce");
     public static final ResourceLocation BIRCH_SIGN_TEXTURE = new ResourceLocation("entity/signs/birch");
@@ -135,9 +137,12 @@ public class ModelBakery {
         param0.add(DEFAULT_SHULKER_TEXTURE_LOCATION);
         param0.addAll(SHULKER_TEXTURE_LOCATION);
         param0.add(BANNER_BASE);
+        param0.add(SHIELD_BASE);
+        param0.add(NO_PATTERN_SHIELD);
 
         for(BannerPattern var0 : BannerPattern.values()) {
-            param0.add(var0.location());
+            param0.add(var0.location(true));
+            param0.add(var0.location(false));
         }
 
         param0.add(OAK_SIGN_TEXTURE);

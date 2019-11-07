@@ -10,6 +10,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
@@ -18,9 +19,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Bee;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BeehiveBlock;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FireBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -70,7 +69,7 @@ public class BeehiveBlockEntity extends BlockEntity implements TickableBlockEnti
                 if (var1 instanceof Bee) {
                     Bee var2 = (Bee)var1;
                     if (param0.position().distanceToSqr(var1.position()) <= 16.0) {
-                        if (!this.isCampfireBelow(this.level, this.getBlockPos())) {
+                        if (!BeehiveBlock.isCampfireBelow(this.level, this.getBlockPos())) {
                             var2.makeAngry(param0);
                         } else {
                             var2.setCannotEnterHiveTicks(400);
@@ -82,17 +81,6 @@ public class BeehiveBlockEntity extends BlockEntity implements TickableBlockEnti
 
     }
 
-    private boolean isCampfireBelow(Level param0, BlockPos param1) {
-        for(int var0 = 1; var0 <= 5; ++var0) {
-            BlockState var1 = param0.getBlockState(param1.below(var0));
-            if (!var1.isAir()) {
-                return var1.getBlock() == Blocks.CAMPFIRE;
-            }
-        }
-
-        return false;
-    }
-
     private List<Entity> releaseAllOccupants(BlockState param0, BeehiveBlockEntity.BeeReleaseStatus param1) {
         List<Entity> var0 = Lists.newArrayList();
         this.stored.removeIf(param3 -> this.releaseOccupant(param0, param3.entityData, var0, param1));
@@ -101,6 +89,10 @@ public class BeehiveBlockEntity extends BlockEntity implements TickableBlockEnti
 
     public void addOccupant(Entity param0, boolean param1) {
         this.addOccupantWithPresetTicks(param0, param1, 0);
+    }
+
+    protected void sendDebugPackets() {
+        DebugPackets.sendHiveInfo(this);
     }
 
     public void addOccupantWithPresetTicks(Entity param0, boolean param1, int param2) {
@@ -258,6 +250,7 @@ public class BeehiveBlockEntity extends BlockEntity implements TickableBlockEnti
                 this.level.playSound(null, var1, var2, var3, SoundEvents.BEEHIVE_WORK, SoundSource.BLOCKS, 1.0F, 1.0F);
             }
 
+            this.sendDebugPackets();
         }
     }
 

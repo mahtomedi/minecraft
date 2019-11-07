@@ -507,4 +507,14 @@ public class TextureAtlasSprite {
     public void uploadFirstFrame() {
         this.upload(0);
     }
+
+    private float atlasSize() {
+        float var0 = (float)this.width / (this.u1 - this.u0);
+        float var1 = (float)this.height / (this.v1 - this.v0);
+        return Math.max(var1, var0);
+    }
+
+    public float uvShrinkRatio() {
+        return 4.0F / this.atlasSize();
+    }
 }

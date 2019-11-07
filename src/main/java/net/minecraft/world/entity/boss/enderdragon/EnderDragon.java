@@ -472,32 +472,36 @@ public class EnderDragon extends Mob implements Enemy {
     }
 
     public boolean hurt(EnderDragonPart param0, DamageSource param1, float param2) {
-        param2 = this.phaseManager.getCurrentPhase().onHurt(param1, param2);
-        if (param0 != this.head) {
-            param2 = param2 / 4.0F + Math.min(param2, 1.0F);
-        }
-
-        if (param2 < 0.01F) {
+        if (this.phaseManager.getCurrentPhase().getPhase() == EnderDragonPhase.DYING) {
             return false;
         } else {
-            if (param1.getEntity() instanceof Player || param1.isExplosion()) {
-                float var0 = this.getHealth();
-                this.reallyHurt(param1, param2);
-                if (this.getHealth() <= 0.0F && !this.phaseManager.getCurrentPhase().isSitting()) {
-                    this.setHealth(1.0F);
-                    this.phaseManager.setPhase(EnderDragonPhase.DYING);
-                }
-
-                if (this.phaseManager.getCurrentPhase().isSitting()) {
-                    this.sittingDamageReceived = (int)((float)this.sittingDamageReceived + (var0 - this.getHealth()));
-                    if ((float)this.sittingDamageReceived > 0.25F * this.getMaxHealth()) {
-                        this.sittingDamageReceived = 0;
-                        this.phaseManager.setPhase(EnderDragonPhase.TAKEOFF);
-                    }
-                }
+            param2 = this.phaseManager.getCurrentPhase().onHurt(param1, param2);
+            if (param0 != this.head) {
+                param2 = param2 / 4.0F + Math.min(param2, 1.0F);
             }
 
-            return true;
+            if (param2 < 0.01F) {
+                return false;
+            } else {
+                if (param1.getEntity() instanceof Player || param1.isExplosion()) {
+                    float var0 = this.getHealth();
+                    this.reallyHurt(param1, param2);
+                    if (this.getHealth() <= 0.0F && !this.phaseManager.getCurrentPhase().isSitting()) {
+                        this.setHealth(1.0F);
+                        this.phaseManager.setPhase(EnderDragonPhase.DYING);
+                    }
+
+                    if (this.phaseManager.getCurrentPhase().isSitting()) {
+                        this.sittingDamageReceived = (int)((float)this.sittingDamageReceived + (var0 - this.getHealth()));
+                        if ((float)this.sittingDamageReceived > 0.25F * this.getMaxHealth()) {
+                            this.sittingDamageReceived = 0;
+                            this.phaseManager.setPhase(EnderDragonPhase.TAKEOFF);
+                        }
+                    }
+                }
+
+                return true;
+            }
         }
     }
 
@@ -774,7 +778,7 @@ public class EnderDragon extends Mob implements Enemy {
     }
 
     @Override
-    protected void checkDespawn() {
+    public void checkDespawn() {
     }
 
     public EnderDragonPart[] getSubEntities() {

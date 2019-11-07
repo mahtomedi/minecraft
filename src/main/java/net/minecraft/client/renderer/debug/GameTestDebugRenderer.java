@@ -3,8 +3,10 @@ package net.minecraft.client.renderer.debug;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Map;
 import net.minecraft.Util;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -23,13 +25,13 @@ public class GameTestDebugRenderer implements DebugRenderer.SimpleDebugRenderer 
     }
 
     @Override
-    public void render(long param0) {
+    public void render(PoseStack param0, MultiBufferSource param1, double param2, double param3, double param4, long param5) {
         long var0 = Util.getMillis();
-        this.markers.entrySet().removeIf(param1 -> var0 > param1.getValue().removeAtTime);
+        this.markers.entrySet().removeIf(param1x -> var0 > param1x.getValue().removeAtTime);
         this.markers.forEach(this::renderMarker);
     }
 
-    private void renderMarker(BlockPos param0x, GameTestDebugRenderer.Marker param1) {
+    private void renderMarker(BlockPos param0x, GameTestDebugRenderer.Marker param1x) {
         RenderSystem.pushMatrix();
         RenderSystem.enableBlend();
         RenderSystem.blendFuncSeparate(
@@ -40,12 +42,12 @@ public class GameTestDebugRenderer implements DebugRenderer.SimpleDebugRenderer 
         );
         RenderSystem.color4f(0.0F, 1.0F, 0.0F, 0.75F);
         RenderSystem.disableTexture();
-        DebugRenderer.renderFilledBox(param0x, 0.02F, param1.getR(), param1.getG(), param1.getB(), param1.getA());
-        if (!param1.text.isEmpty()) {
+        DebugRenderer.renderFilledBox(param0x, 0.02F, param1x.getR(), param1x.getG(), param1x.getB(), param1x.getA());
+        if (!param1x.text.isEmpty()) {
             double var0x = (double)param0x.getX() + 0.5;
             double var1 = (double)param0x.getY() + 1.2;
             double var2 = (double)param0x.getZ() + 0.5;
-            DebugRenderer.renderFloatingText(param1.text, var0x, var1, var2, -1, 0.01F, true, 0.0F, true);
+            DebugRenderer.renderFloatingText(param1x.text, var0x, var1, var2, -1, 0.01F, true, 0.0F, true);
         }
 
         RenderSystem.enableTexture();

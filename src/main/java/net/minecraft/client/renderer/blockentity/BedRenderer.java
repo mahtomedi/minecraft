@@ -54,17 +54,15 @@ public class BedRenderer extends BlockEntityRenderer<BedBlockEntity> {
         this.legs[3].zRot = (float) Math.PI;
     }
 
-    public void render(
-        BedBlockEntity param0, double param1, double param2, double param3, float param4, PoseStack param5, MultiBufferSource param6, int param7, int param8
-    ) {
+    public void render(BedBlockEntity param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {
         ResourceLocation var0 = TEXTURES[param0.getColor().getId()];
-        VertexConsumer var1 = param6.getBuffer(RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS));
+        VertexConsumer var1 = param3.getBuffer(RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS));
         if (param0.hasLevel()) {
             BlockState var2 = param0.getBlockState();
-            this.renderPiece(param5, var1, var2.getValue(BedBlock.PART) == BedPart.HEAD, var2.getValue(BedBlock.FACING), var0, param7, param8, false);
+            this.renderPiece(param2, var1, var2.getValue(BedBlock.PART) == BedPart.HEAD, var2.getValue(BedBlock.FACING), var0, param4, param5, false);
         } else {
-            this.renderPiece(param5, var1, true, Direction.SOUTH, var0, param7, param8, false);
-            this.renderPiece(param5, var1, false, Direction.SOUTH, var0, param7, param8, true);
+            this.renderPiece(param2, var1, true, Direction.SOUTH, var0, param4, param5, false);
+            this.renderPiece(param2, var1, false, Direction.SOUTH, var0, param4, param5, true);
         }
 
     }
@@ -85,12 +83,12 @@ public class BedRenderer extends BlockEntityRenderer<BedBlockEntity> {
         param0.mulPose(Vector3f.ZP.rotationDegrees(180.0F + param3.toYRot()));
         param0.translate(-0.5, -0.5, -0.5);
         TextureAtlasSprite var0 = this.getSprite(param4);
-        this.headPiece.render(param0, param1, 0.0625F, param5, param6, var0);
-        this.footPiece.render(param0, param1, 0.0625F, param5, param6, var0);
-        this.legs[0].render(param0, param1, 0.0625F, param5, param6, var0);
-        this.legs[1].render(param0, param1, 0.0625F, param5, param6, var0);
-        this.legs[2].render(param0, param1, 0.0625F, param5, param6, var0);
-        this.legs[3].render(param0, param1, 0.0625F, param5, param6, var0);
+        this.headPiece.render(param0, param1, param5, param6, var0);
+        this.footPiece.render(param0, param1, param5, param6, var0);
+        this.legs[0].render(param0, param1, param5, param6, var0);
+        this.legs[1].render(param0, param1, param5, param6, var0);
+        this.legs[2].render(param0, param1, param5, param6, var0);
+        this.legs[3].render(param0, param1, param5, param6, var0);
         param0.popPose();
     }
 }

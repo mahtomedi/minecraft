@@ -10,8 +10,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
@@ -137,19 +135,18 @@ public class ItemRenderer implements ResourceManagerReloadListener {
 
     private void renderQuadList(PoseStack param0, VertexConsumer param1, List<BakedQuad> param2, ItemStack param3, int param4, int param5) {
         boolean var0 = !param3.isEmpty();
-        Matrix4f var1 = param0.getPose();
-        Matrix3f var2 = param0.getNormal();
+        PoseStack.Pose var1 = param0.last();
 
-        for(BakedQuad var3 : param2) {
-            int var4 = -1;
-            if (var0 && var3.isTinted()) {
-                var4 = this.itemColors.getColor(param3, var3.getTintIndex());
+        for(BakedQuad var2 : param2) {
+            int var3 = -1;
+            if (var0 && var2.isTinted()) {
+                var3 = this.itemColors.getColor(param3, var2.getTintIndex());
             }
 
-            float var5 = (float)(var4 >> 16 & 0xFF) / 255.0F;
-            float var6 = (float)(var4 >> 8 & 0xFF) / 255.0F;
-            float var7 = (float)(var4 & 0xFF) / 255.0F;
-            param1.putBulkData(var1, var2, var3, var5, var6, var7, param4, param5);
+            float var4 = (float)(var3 >> 16 & 0xFF) / 255.0F;
+            float var5 = (float)(var3 >> 8 & 0xFF) / 255.0F;
+            float var6 = (float)(var3 & 0xFF) / 255.0F;
+            param1.putBulkData(var1, var2, var4, var5, var6, param4, param5);
         }
 
     }
@@ -256,7 +253,7 @@ public class ItemRenderer implements ResourceManagerReloadListener {
                 var0.translate(0.0, 0.0, (double)(this.blitOffset + 200.0F));
                 MultiBufferSource.BufferSource var2 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
                 param0.drawInBatch(
-                    var1, (float)(param2 + 19 - 2 - param0.width(var1)), (float)(param3 + 6 + 3), 16777215, true, var0.getPose(), var2, false, 0, 15728880
+                    var1, (float)(param2 + 19 - 2 - param0.width(var1)), (float)(param3 + 6 + 3), 16777215, true, var0.last().pose(), var2, false, 0, 15728880
                 );
                 var2.endBatch();
             }

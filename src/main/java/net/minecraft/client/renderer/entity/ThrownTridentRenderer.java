@@ -21,17 +21,14 @@ public class ThrownTridentRenderer extends EntityRenderer<ThrownTrident> {
         super(param0);
     }
 
-    public void render(
-        ThrownTrident param0, double param1, double param2, double param3, float param4, float param5, PoseStack param6, MultiBufferSource param7
-    ) {
-        param6.pushPose();
-        param6.mulPose(Vector3f.YP.rotationDegrees(Mth.lerp(param5, param0.yRotO, param0.yRot) - 90.0F));
-        param6.mulPose(Vector3f.ZP.rotationDegrees(Mth.lerp(param5, param0.xRotO, param0.xRot) + 90.0F));
-        int var0 = param0.getLightColor();
-        VertexConsumer var1 = param7.getBuffer(this.model.renderType(this.getTextureLocation(param0)));
-        this.model.renderToBuffer(param6, var1, var0, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F);
-        param6.popPose();
-        super.render(param0, param1, param2, param3, param4, param5, param6, param7);
+    public void render(ThrownTrident param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {
+        param3.pushPose();
+        param3.mulPose(Vector3f.YP.rotationDegrees(Mth.lerp(param2, param0.yRotO, param0.yRot) - 90.0F));
+        param3.mulPose(Vector3f.ZP.rotationDegrees(Mth.lerp(param2, param0.xRotO, param0.xRot) + 90.0F));
+        VertexConsumer var0 = ItemRenderer.getFoilBuffer(param4, this.model.renderType(this.getTextureLocation(param0)), false, param0.isFoil());
+        this.model.renderToBuffer(param3, var0, param5, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F);
+        param3.popPose();
+        super.render(param0, param1, param2, param3, param4, param5);
     }
 
     public ResourceLocation getTextureLocation(ThrownTrident param0) {

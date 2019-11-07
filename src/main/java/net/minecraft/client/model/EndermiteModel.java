@@ -42,7 +42,7 @@ public class EndermiteModel<T extends Entity> extends ListModel<T> {
     }
 
     @Override
-    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
+    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
         for(int var0 = 0; var0 < this.bodyParts.length; ++var0) {
             this.bodyParts[var0].yRot = Mth.cos(param3 * 0.9F + (float)var0 * 0.15F * (float) Math.PI)
                 * (float) Math.PI

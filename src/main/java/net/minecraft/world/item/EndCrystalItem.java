@@ -11,8 +11,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.dimension.end.EndDragonFight;
 import net.minecraft.world.level.dimension.end.TheEndDimension;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class EndCrystalItem extends Item {
     public EndCrystalItem(Item.Properties param0) {
@@ -55,7 +53,6 @@ public class EndCrystalItem extends Item {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean isFoil(ItemStack param0) {
         return true;

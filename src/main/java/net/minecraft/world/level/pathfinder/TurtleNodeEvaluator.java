@@ -271,7 +271,11 @@ public class TurtleNodeEvaluator extends WalkNodeEvaluator {
                 }
             }
 
-            return checkNeighbourBlocks(param0, param1, param2, param3, var0);
+            if (var0 == BlockPathTypes.WALKABLE) {
+                var0 = checkNeighbourBlocks(param0, param1, param2, param3, var0);
+            }
+
+            return var0;
         }
     }
 }

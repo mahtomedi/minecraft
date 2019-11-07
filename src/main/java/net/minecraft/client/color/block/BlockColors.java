@@ -9,7 +9,7 @@ import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.IdMapper;
 import net.minecraft.core.Registry;
-import net.minecraft.world.level.BlockAndBiomeGetter;
+import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.FoliageColor;
 import net.minecraft.world.level.GrassColor;
 import net.minecraft.world.level.Level;
@@ -95,7 +95,7 @@ public class BlockColors {
         }
     }
 
-    public int getColor(BlockState param0, @Nullable BlockAndBiomeGetter param1, @Nullable BlockPos param2, int param3) {
+    public int getColor(BlockState param0, @Nullable BlockAndTintGetter param1, @Nullable BlockPos param2, int param3) {
         BlockColor var0 = this.blockColors.byId(Registry.BLOCK.getId(param0.getBlock()));
         return var0 == null ? -1 : var0.getColor(param0, param1, param2, param3);
     }

@@ -2,9 +2,9 @@ package net.minecraft.client.renderer.chunk;
 
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.BlockAndBiomeGetter;
+import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.ColorResolver;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -14,7 +14,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class RenderChunkRegion implements BlockAndBiomeGetter {
+public class RenderChunkRegion implements BlockAndTintGetter {
     protected final int centerX;
     protected final int centerZ;
     protected final BlockPos start;
@@ -110,11 +110,6 @@ public class RenderChunkRegion implements BlockAndBiomeGetter {
         return this.level.getLightEngine();
     }
 
-    @Override
-    public BiomeManager getBiomeManager() {
-        return this.level.getBiomeManager();
-    }
-
     @Nullable
     @Override
     public BlockEntity getBlockEntity(BlockPos param0) {
@@ -126,5 +121,10 @@ public class RenderChunkRegion implements BlockAndBiomeGetter {
         int var0 = (param0.getX() >> 4) - this.centerX;
         int var1 = (param0.getZ() >> 4) - this.centerZ;
         return this.chunks[var0][var1].getBlockEntity(param0, param1);
+    }
+
+    @Override
+    public int getBlockTint(BlockPos param0, ColorResolver param1) {
+        return this.level.getBlockTint(param0, param1);
     }
 }

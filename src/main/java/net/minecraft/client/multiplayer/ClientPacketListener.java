@@ -50,6 +50,7 @@ import net.minecraft.client.particle.ItemPickupParticle;
 import net.minecraft.client.player.KeyboardInput;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.player.RemotePlayer;
+import net.minecraft.client.renderer.debug.BeeDebugRenderer;
 import net.minecraft.client.renderer.debug.GoalSelectorDebugRenderer;
 import net.minecraft.client.renderer.debug.NeighborsUpdateRenderer;
 import net.minecraft.client.renderer.debug.VillageDebugRenderer;
@@ -303,7 +304,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
     private final GameProfile localGameProfile;
     private final Screen callbackScreen;
     private Minecraft minecraft;
-    private MultiPlayerLevel level;
+    private ClientLevel level;
     private boolean started;
     private final Map<UUID, PlayerInfo> playerInfoMap = Maps.newHashMap();
     private final ClientAdvancements advancements;
@@ -342,7 +343,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         this.minecraft.gameMode = new MultiPlayerGameMode(this.minecraft, this);
         this.serverChunkRadius = param0.getChunkRadius();
-        this.level = new MultiPlayerLevel(
+        this.level = new ClientLevel(
             this,
             new LevelSettings(param0.getSeed(), param0.getGameType(), false, param0.isHardcore(), param0.getLevelType()),
             param0.getDimension(),
@@ -736,7 +737,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         int var1 = param0.getZ();
         LevelChunk var2 = this.level
             .getChunkSource()
-            .replaceWithPacketData(this.level, var0, var1, param0.getBiomes(), param0.getReadBuffer(), param0.getHeightmaps(), param0.getAvailableSections());
+            .replaceWithPacketData(var0, var1, param0.getBiomes(), param0.getReadBuffer(), param0.getHeightmaps(), param0.getAvailableSections());
         if (var2 != null && param0.isFullChunk()) {
             this.level.reAddEntitiesToChunk(var2);
         }
@@ -1029,7 +1030,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         if (var0 != var1.dimension) {
             this.started = false;
             Scoreboard var3 = this.level.getScoreboard();
-            this.level = new MultiPlayerLevel(
+            this.level = new ClientLevel(
                 this,
                 new LevelSettings(param0.getSeed(), param0.getPlayerGameType(), false, this.minecraft.level.getLevelData().isHardcore(), param0.getLevelType()),
                 param0.getDimension(),
@@ -1971,14 +1972,46 @@ public class ClientPacketListener implements ClientGamePacketListener {
                 }
 
                 this.minecraft.debugRenderer.villageDebugRenderer.addOrUpdateBrainDump(var54);
+            } else if (ClientboundCustomPayloadPacket.DEBUG_BEE.equals(var0)) {
+                double var70 = var1.readDouble();
+                double var71 = var1.readDouble();
+                double var72 = var1.readDouble();
+                Position var73 = new PositionImpl(var70, var71, var72);
+                UUID var74 = var1.readUUID();
+                int var75 = var1.readInt();
+                BlockPos var76 = var1.readBlockPos();
+                BlockPos var77 = var1.readBlockPos();
+                boolean var78 = var1.readBoolean();
+                Path var79;
+                if (var78) {
+                    var79 = Path.createFromStream(var1);
+                } else {
+                    var79 = null;
+                }
+
+                BeeDebugRenderer.BeeInfo var81 = new BeeDebugRenderer.BeeInfo(var74, var75, var73, var79, var76, var77);
+                int var82 = var1.readInt();
+
+                for(int var83 = 0; var83 < var82; ++var83) {
+                    String var84 = var1.readUtf();
+                    var81.goals.add(var84);
+                }
+
+                this.minecraft.debugRenderer.beeDebugRenderer.addOrUpdateBeeInfo(var81);
+            } else if (ClientboundCustomPayloadPacket.DEBUG_HIVE.equals(var0)) {
+                BlockPos var85 = var1.readBlockPos();
+                String var86 = var1.readUtf();
+                int var87 = var1.readInt();
+                BeeDebugRenderer.HiveInfo var88 = new BeeDebugRenderer.HiveInfo(var85, var86, var87, this.level.getGameTime());
+                this.minecraft.debugRenderer.beeDebugRenderer.addOrUpdateHiveInfo(var88);
             } else if (ClientboundCustomPayloadPacket.DEBUG_GAME_TEST_CLEAR.equals(var0)) {
                 this.minecraft.debugRenderer.gameTestDebugRenderer.clear();
             } else if (ClientboundCustomPayloadPacket.DEBUG_GAME_TEST_ADD_MARKER.equals(var0)) {
-                BlockPos var70 = var1.readBlockPos();
-                int var71 = var1.readInt();
-                String var72 = var1.readUtf();
-                int var73 = var1.readInt();
-                this.minecraft.debugRenderer.gameTestDebugRenderer.addMarker(var70, var71, var72, var73);
+                BlockPos var89 = var1.readBlockPos();
+                int var90 = var1.readInt();
+                String var91 = var1.readUtf();
+                int var92 = var1.readInt();
+                this.minecraft.debugRenderer.gameTestDebugRenderer.addMarker(var89, var90, var91, var92);
             } else {
                 LOGGER.warn("Unknown custom packed identifier: {}", var0);
             }
@@ -2268,7 +2301,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         return this.commands;
     }
 
-    public MultiPlayerLevel getLevel() {
+    public ClientLevel getLevel() {
         return this.level;
     }
 

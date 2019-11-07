@@ -37,14 +37,13 @@ public abstract class RenderLayer<T extends Entity, M extends EntityModel<T>> {
         float param12,
         float param13,
         float param14,
-        float param15,
-        float param16
+        float param15
     ) {
         if (!param6.isInvisible()) {
             param0.copyPropertiesTo(param1);
-            param1.prepareMobModel(param6, param7, param8, param13);
-            param1.setupAnim(param6, param7, param8, param9, param10, param11, param12);
-            renderColoredCutoutModel(param1, param2, param3, param4, param5, param6, param14, param15, param16);
+            param1.prepareMobModel(param6, param7, param8, param12);
+            param1.setupAnim(param6, param7, param8, param9, param10, param11);
+            renderColoredCutoutModel(param1, param2, param3, param4, param5, param6, param13, param14, param15);
         }
 
     }
@@ -73,6 +72,6 @@ public abstract class RenderLayer<T extends Entity, M extends EntityModel<T>> {
     }
 
     public abstract void render(
-        PoseStack var1, MultiBufferSource var2, int var3, T var4, float var5, float var6, float var7, float var8, float var9, float var10, float var11
+        PoseStack var1, MultiBufferSource var2, int var3, T var4, float var5, float var6, float var7, float var8, float var9, float var10
     );
 }

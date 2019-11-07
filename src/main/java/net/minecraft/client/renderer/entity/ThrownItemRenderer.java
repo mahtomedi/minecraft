@@ -28,17 +28,16 @@ public class ThrownItemRenderer<T extends Entity & ItemSupplier> extends EntityR
     }
 
     @Override
-    public void render(T param0, double param1, double param2, double param3, float param4, float param5, PoseStack param6, MultiBufferSource param7) {
-        param6.pushPose();
-        param6.scale(this.scale, this.scale, this.scale);
-        param6.mulPose(Vector3f.YP.rotationDegrees(-this.entityRenderDispatcher.playerRotY));
+    public void render(T param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {
+        param3.pushPose();
+        param3.scale(this.scale, this.scale, this.scale);
+        param3.mulPose(Vector3f.YP.rotationDegrees(-this.entityRenderDispatcher.playerRotY));
         float var0 = (float)(this.entityRenderDispatcher.options.thirdPersonView == 2 ? -1 : 1) * this.entityRenderDispatcher.playerRotX;
-        param6.mulPose(Vector3f.XP.rotationDegrees(var0));
-        param6.mulPose(Vector3f.YP.rotationDegrees(180.0F));
-        this.itemRenderer
-            .renderStatic(param0.getItem(), ItemTransforms.TransformType.GROUND, param0.getLightColor(), OverlayTexture.NO_OVERLAY, param6, param7);
-        param6.popPose();
-        super.render(param0, param1, param2, param3, param4, param5, param6, param7);
+        param3.mulPose(Vector3f.XP.rotationDegrees(var0));
+        param3.mulPose(Vector3f.YP.rotationDegrees(180.0F));
+        this.itemRenderer.renderStatic(param0.getItem(), ItemTransforms.TransformType.GROUND, param5, OverlayTexture.NO_OVERLAY, param3, param4);
+        param3.popPose();
+        super.render(param0, param1, param2, param3, param4, param5);
     }
 
     @Override

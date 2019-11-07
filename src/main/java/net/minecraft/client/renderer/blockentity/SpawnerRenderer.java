@@ -17,19 +17,9 @@ public class SpawnerRenderer extends BlockEntityRenderer<SpawnerBlockEntity> {
         super(param0);
     }
 
-    public void render(
-        SpawnerBlockEntity param0,
-        double param1,
-        double param2,
-        double param3,
-        float param4,
-        PoseStack param5,
-        MultiBufferSource param6,
-        int param7,
-        int param8
-    ) {
-        param5.pushPose();
-        param5.translate(0.5, 0.0, 0.5);
+    public void render(SpawnerBlockEntity param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {
+        param2.pushPose();
+        param2.translate(0.5, 0.0, 0.5);
         BaseSpawner var0 = param0.getSpawner();
         Entity var1 = var0.getOrCreateDisplayEntity();
         if (var1 != null) {
@@ -39,15 +29,14 @@ public class SpawnerRenderer extends BlockEntityRenderer<SpawnerBlockEntity> {
                 var2 /= var3;
             }
 
-            param5.translate(0.0, 0.4F, 0.0);
-            param5.mulPose(Vector3f.YP.rotationDegrees((float)Mth.lerp((double)param4, var0.getoSpin(), var0.getSpin()) * 10.0F));
-            param5.translate(0.0, -0.2F, 0.0);
-            param5.mulPose(Vector3f.XP.rotationDegrees(-30.0F));
-            param5.scale(var2, var2, var2);
-            var1.moveTo(param1, param2, param3, 0.0F, 0.0F);
-            Minecraft.getInstance().getEntityRenderDispatcher().render(var1, 0.0, 0.0, 0.0, 0.0F, param4, param5, param6);
+            param2.translate(0.0, 0.4F, 0.0);
+            param2.mulPose(Vector3f.YP.rotationDegrees((float)Mth.lerp((double)param1, var0.getoSpin(), var0.getSpin()) * 10.0F));
+            param2.translate(0.0, -0.2F, 0.0);
+            param2.mulPose(Vector3f.XP.rotationDegrees(-30.0F));
+            param2.scale(var2, var2, var2);
+            Minecraft.getInstance().getEntityRenderDispatcher().render(var1, 0.0, 0.0, 0.0, 0.0F, param1, param2, param3, param4);
         }
 
-        param5.popPose();
+        param2.popPose();
     }
 }

@@ -8,6 +8,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -29,6 +30,8 @@ import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.client.Camera;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -184,6 +187,7 @@ public class ParticleEngine implements PreparableReloadListener {
             .thenCompose(param0::wait)
             .thenAcceptAsync(
                 param2x -> {
+                    this.particles.clear();
                     param3.startTick();
                     param3.push("upload");
                     this.textureAtlas.reload(param2x);
@@ -321,43 +325,45 @@ public class ParticleEngine implements PreparableReloadListener {
         }
     }
 
-    public void render(Camera param0, float param1) {
-        float var0 = Mth.cos(param0.getYRot() * (float) (Math.PI / 180.0));
-        float var1 = Mth.sin(param0.getYRot() * (float) (Math.PI / 180.0));
-        float var2 = -var1 * Mth.sin(param0.getXRot() * (float) (Math.PI / 180.0));
-        float var3 = var0 * Mth.sin(param0.getXRot() * (float) (Math.PI / 180.0));
-        float var4 = Mth.cos(param0.getXRot() * (float) (Math.PI / 180.0));
-        Particle.xOff = param0.getPosition().x;
-        Particle.yOff = param0.getPosition().y;
-        Particle.zOff = param0.getPosition().z;
+    public void render(PoseStack param0, MultiBufferSource.BufferSource param1, LightTexture param2, Camera param3, float param4) {
+        param2.turnOnLightLayer();
+        RenderSystem.enableAlphaTest();
+        RenderSystem.defaultAlphaFunc();
+        RenderSystem.enableDepthTest();
+        RenderSystem.enableFog();
+        RenderSystem.pushMatrix();
+        RenderSystem.multMatrix(param0.last().pose());
 
-        for(ParticleRenderType var5 : RENDER_ORDER) {
-            Iterable<Particle> var6 = this.particles.get(var5);
-            if (var6 != null) {
+        for(ParticleRenderType var0 : RENDER_ORDER) {
+            Iterable<Particle> var1 = this.particles.get(var0);
+            if (var1 != null) {
                 RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-                Tesselator var7 = Tesselator.getInstance();
-                BufferBuilder var8 = var7.getBuilder();
-                var5.begin(var8, this.textureManager);
+                Tesselator var2 = Tesselator.getInstance();
+                BufferBuilder var3 = var2.getBuilder();
+                var0.begin(var3, this.textureManager);
 
-                for(Particle var9 : var6) {
+                for(Particle var4 : var1) {
                     try {
-                        var9.render(var8, param0, param1, var0, var4, var1, var2, var3);
-                    } catch (Throwable var18) {
-                        CrashReport var11 = CrashReport.forThrowable(var18, "Rendering Particle");
-                        CrashReportCategory var12 = var11.addCategory("Particle being rendered");
-                        var12.setDetail("Particle", var9::toString);
-                        var12.setDetail("Particle Type", var5::toString);
-                        throw new ReportedException(var11);
+                        var4.render(var3, param3, param4);
+                    } catch (Throwable var16) {
+                        CrashReport var6 = CrashReport.forThrowable(var16, "Rendering Particle");
+                        CrashReportCategory var7 = var6.addCategory("Particle being rendered");
+                        var7.setDetail("Particle", var4::toString);
+                        var7.setDetail("Particle Type", var0::toString);
+                        throw new ReportedException(var6);
                     }
                 }
 
-                var5.end(var7);
+                var0.end(var2);
             }
         }
 
+        RenderSystem.popMatrix();
         RenderSystem.depthMask(true);
         RenderSystem.disableBlend();
         RenderSystem.defaultAlphaFunc();
+        param2.turnOffLightLayer();
+        RenderSystem.disableFog();
     }
 
     public void setLevel(@Nullable Level param0) {

@@ -18,7 +18,7 @@ public interface Pack extends Closeable {
 
     InputStream getResource(PackType var1, ResourceLocation var2) throws IOException;
 
-    Collection<ResourceLocation> getResources(PackType var1, String var2, int var3, Predicate<String> var4);
+    Collection<ResourceLocation> getResources(PackType var1, String var2, String var3, int var4, Predicate<String> var5);
 
     boolean hasResource(PackType var1, ResourceLocation var2);
 

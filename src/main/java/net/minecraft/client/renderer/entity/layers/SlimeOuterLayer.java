@@ -21,22 +21,12 @@ public class SlimeOuterLayer<T extends LivingEntity> extends RenderLayer<T, Slim
     }
 
     public void render(
-        PoseStack param0,
-        MultiBufferSource param1,
-        int param2,
-        T param3,
-        float param4,
-        float param5,
-        float param6,
-        float param7,
-        float param8,
-        float param9,
-        float param10
+        PoseStack param0, MultiBufferSource param1, int param2, T param3, float param4, float param5, float param6, float param7, float param8, float param9
     ) {
         if (!param3.isInvisible()) {
             this.getParentModel().copyPropertiesTo(this.model);
             this.model.prepareMobModel(param3, param4, param5, param6);
-            this.model.setupAnim(param3, param4, param5, param7, param8, param9, param10);
+            this.model.setupAnim(param3, param4, param5, param7, param8, param9);
             VertexConsumer var0 = param1.getBuffer(RenderType.entityTranslucent(this.getTextureLocation(param3)));
             this.model.renderToBuffer(param0, var0, param2, LivingEntityRenderer.getOverlayCoords(param3, 0.0F), 1.0F, 1.0F, 1.0F);
         }

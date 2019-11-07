@@ -58,15 +58,13 @@ public class PlayerRenderer extends LivingEntityRenderer<AbstractClientPlayer, P
         this.addLayer(new BeeStingerLayer<>(this));
     }
 
-    public void render(
-        AbstractClientPlayer param0, double param1, double param2, double param3, float param4, float param5, PoseStack param6, MultiBufferSource param7
-    ) {
+    public void render(AbstractClientPlayer param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {
         this.setModelProperties(param0);
-        super.render(param0, param1, param2, param3, param4, param5, param6, param7);
+        super.render(param0, param1, param2, param3, param4, param5);
     }
 
-    public Vec3 getRenderOffset(AbstractClientPlayer param0, double param1, double param2, double param3, float param4) {
-        return param0.isCrouching() ? new Vec3(0.0, -0.125, 0.0) : super.getRenderOffset(param0, param1, param2, param3, param4);
+    public Vec3 getRenderOffset(AbstractClientPlayer param0, float param1) {
+        return param0.isCrouching() ? new Vec3(0.0, -0.125, 0.0) : super.getRenderOffset(param0, param1);
     }
 
     private void setModelProperties(AbstractClientPlayer param0) {
@@ -142,7 +140,7 @@ public class PlayerRenderer extends LivingEntityRenderer<AbstractClientPlayer, P
         param1.scale(0.9375F, 0.9375F, 0.9375F);
     }
 
-    protected void renderNameTag(AbstractClientPlayer param0, String param1, PoseStack param2, MultiBufferSource param3) {
+    protected void renderNameTag(AbstractClientPlayer param0, String param1, PoseStack param2, MultiBufferSource param3, int param4) {
         double var0 = this.entityRenderDispatcher.distanceToSqr(param0);
         param2.pushPose();
         if (var0 < 100.0) {
@@ -150,36 +148,34 @@ public class PlayerRenderer extends LivingEntityRenderer<AbstractClientPlayer, P
             Objective var2 = var1.getDisplayObjective(2);
             if (var2 != null) {
                 Score var3 = var1.getOrCreatePlayerScore(param0.getScoreboardName(), var2);
-                super.renderNameTag(param0, var3.getScore() + " " + var2.getDisplayName().getColoredString(), param2, param3);
+                super.renderNameTag(param0, var3.getScore() + " " + var2.getDisplayName().getColoredString(), param2, param3, param4);
                 param2.translate(0.0, (double)(9.0F * 1.15F * 0.025F), 0.0);
             }
         }
 
-        super.renderNameTag(param0, param1, param2, param3);
+        super.renderNameTag(param0, param1, param2, param3, param4);
         param2.popPose();
     }
 
-    public void renderRightHand(PoseStack param0, MultiBufferSource param1, AbstractClientPlayer param2) {
-        this.renderHand(param0, param1, param2, this.model.rightArm, this.model.rightSleeve);
+    public void renderRightHand(PoseStack param0, MultiBufferSource param1, int param2, AbstractClientPlayer param3) {
+        this.renderHand(param0, param1, param2, param3, this.model.rightArm, this.model.rightSleeve);
     }
 
-    public void renderLeftHand(PoseStack param0, MultiBufferSource param1, AbstractClientPlayer param2) {
-        this.renderHand(param0, param1, param2, this.model.leftArm, this.model.leftSleeve);
+    public void renderLeftHand(PoseStack param0, MultiBufferSource param1, int param2, AbstractClientPlayer param3) {
+        this.renderHand(param0, param1, param2, param3, this.model.leftArm, this.model.leftSleeve);
     }
 
-    private void renderHand(PoseStack param0, MultiBufferSource param1, AbstractClientPlayer param2, ModelPart param3, ModelPart param4) {
-        float var0 = 0.0625F;
-        PlayerModel<AbstractClientPlayer> var1 = this.getModel();
-        this.setModelProperties(param2);
-        int var2 = param2.getLightColor();
-        var1.attackTime = 0.0F;
-        var1.crouching = false;
-        var1.swimAmount = 0.0F;
-        var1.setupAnim(param2, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F);
-        param3.xRot = 0.0F;
-        param3.render(param0, param1.getBuffer(RenderType.entitySolid(param2.getSkinTextureLocation())), 0.0625F, var2, OverlayTexture.NO_OVERLAY, null);
+    private void renderHand(PoseStack param0, MultiBufferSource param1, int param2, AbstractClientPlayer param3, ModelPart param4, ModelPart param5) {
+        PlayerModel<AbstractClientPlayer> var0 = this.getModel();
+        this.setModelProperties(param3);
+        var0.attackTime = 0.0F;
+        var0.crouching = false;
+        var0.swimAmount = 0.0F;
+        var0.setupAnim(param3, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
         param4.xRot = 0.0F;
-        param4.render(param0, param1.getBuffer(RenderType.entityTranslucent(param2.getSkinTextureLocation())), 0.0625F, var2, OverlayTexture.NO_OVERLAY, null);
+        param4.render(param0, param1.getBuffer(RenderType.entitySolid(param3.getSkinTextureLocation())), param2, OverlayTexture.NO_OVERLAY, null);
+        param5.xRot = 0.0F;
+        param5.render(param0, param1.getBuffer(RenderType.entityTranslucent(param3.getSkinTextureLocation())), param2, OverlayTexture.NO_OVERLAY, null);
     }
 
     protected void setupRotations(AbstractClientPlayer param0, PoseStack param1, float param2, float param3, float param4) {

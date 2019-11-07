@@ -38,12 +38,15 @@ public class PoseStack {
         var1.set(2, 2, param2);
         var0.pose.multiply(var1);
         if (param0 != param1 || param1 != param2) {
-            float var2 = Mth.fastInvCubeRoot(param0 * param1 * param2);
-            Matrix3f var3 = new Matrix3f();
-            var3.set(0, 0, var2 / param0);
-            var3.set(1, 1, var2 / param1);
-            var3.set(2, 2, var2 / param2);
-            var0.normal.mul(var3);
+            float var2 = 1.0F / param0;
+            float var3 = 1.0F / param1;
+            float var4 = 1.0F / param2;
+            float var5 = Mth.fastInvCubeRoot(var2 * var3 * var4);
+            Matrix3f var6 = new Matrix3f();
+            var6.set(0, 0, var5 * var2);
+            var6.set(1, 1, var5 * var3);
+            var6.set(2, 2, var5 * var4);
+            var0.normal.mul(var6);
         }
     }
 
@@ -62,12 +65,8 @@ public class PoseStack {
         this.poseStack.removeLast();
     }
 
-    public Matrix4f getPose() {
-        return this.poseStack.getLast().pose;
-    }
-
-    public Matrix3f getNormal() {
-        return this.poseStack.getLast().normal;
+    public PoseStack.Pose last() {
+        return this.poseStack.getLast();
     }
 
     public boolean clear() {
@@ -75,13 +74,21 @@ public class PoseStack {
     }
 
     @OnlyIn(Dist.CLIENT)
-    static final class Pose {
+    public static final class Pose {
         private final Matrix4f pose;
         private final Matrix3f normal;
 
         private Pose(Matrix4f param0, Matrix3f param1) {
             this.pose = param0;
             this.normal = param1;
+        }
+
+        public Matrix4f pose() {
+            return this.pose;
+        }
+
+        public Matrix3f normal() {
+            return this.normal;
         }
     }
 }

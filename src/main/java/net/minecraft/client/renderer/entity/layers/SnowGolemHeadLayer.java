@@ -30,12 +30,11 @@ public class SnowGolemHeadLayer extends RenderLayer<SnowGolem, SnowGolemModel<Sn
         float param6,
         float param7,
         float param8,
-        float param9,
-        float param10
+        float param9
     ) {
         if (!param3.isInvisible() && param3.hasPumpkin()) {
             param0.pushPose();
-            this.getParentModel().getHead().translateAndRotate(param0, 0.0625F);
+            this.getParentModel().getHead().translateAndRotate(param0);
             float var0 = 0.625F;
             param0.translate(0.0, -0.34375, 0.0);
             param0.mulPose(Vector3f.YP.rotationDegrees(180.0F));
@@ -51,7 +50,7 @@ public class SnowGolemHeadLayer extends RenderLayer<SnowGolem, SnowGolemModel<Sn
                     param0,
                     param1,
                     param3.level,
-                    param3.getLightColor(),
+                    param2,
                     LivingEntityRenderer.getOverlayCoords(param3, 0.0F)
                 );
             param0.popPose();

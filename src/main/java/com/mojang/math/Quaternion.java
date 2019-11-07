@@ -131,6 +131,14 @@ public final class Quaternion {
         this.values[2] = -this.values[2];
     }
 
+    @OnlyIn(Dist.CLIENT)
+    public void set(float param0, float param1, float param2, float param3) {
+        this.values[0] = param0;
+        this.values[1] = param1;
+        this.values[2] = param2;
+        this.values[3] = param3;
+    }
+
     private static float cos(float param0) {
         return (float)Math.cos((double)param0);
     }

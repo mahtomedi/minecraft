@@ -21,29 +21,19 @@ public class LecternRenderer extends BlockEntityRenderer<LecternBlockEntity> {
         super(param0);
     }
 
-    public void render(
-        LecternBlockEntity param0,
-        double param1,
-        double param2,
-        double param3,
-        float param4,
-        PoseStack param5,
-        MultiBufferSource param6,
-        int param7,
-        int param8
-    ) {
+    public void render(LecternBlockEntity param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {
         BlockState var0 = param0.getBlockState();
         if (var0.getValue(LecternBlock.HAS_BOOK)) {
-            param5.pushPose();
-            param5.translate(0.5, 1.0625, 0.5);
+            param2.pushPose();
+            param2.translate(0.5, 1.0625, 0.5);
             float var1 = var0.getValue(LecternBlock.FACING).getClockWise().toYRot();
-            param5.mulPose(Vector3f.YP.rotationDegrees(-var1));
-            param5.mulPose(Vector3f.ZP.rotationDegrees(67.5F));
-            param5.translate(0.0, -0.125, 0.0);
+            param2.mulPose(Vector3f.YP.rotationDegrees(-var1));
+            param2.mulPose(Vector3f.ZP.rotationDegrees(67.5F));
+            param2.translate(0.0, -0.125, 0.0);
             this.bookModel.setupAnim(0.0F, 0.1F, 0.9F, 1.2F);
-            VertexConsumer var2 = param6.getBuffer(RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS));
-            this.bookModel.render(param5, var2, param7, param8, 1.0F, 1.0F, 1.0F, this.getSprite(EnchantTableRenderer.BOOK_LOCATION));
-            param5.popPose();
+            VertexConsumer var2 = param3.getBuffer(RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS));
+            this.bookModel.render(param2, var2, param4, param5, 1.0F, 1.0F, 1.0F, this.getSprite(EnchantTableRenderer.BOOK_LOCATION));
+            param2.popPose();
         }
     }
 }

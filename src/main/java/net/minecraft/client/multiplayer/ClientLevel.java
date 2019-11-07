@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap.Entry;
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import java.util.List;
 import java.util.Map;
@@ -15,13 +16,17 @@ import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.color.block.BlockTintCache;
 import net.minecraft.client.particle.FireworkParticles;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.resources.sounds.EntityBoundSoundInstance;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Cursor3D;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleOptions;
@@ -41,11 +46,13 @@ import net.minecraft.world.entity.global.LightningBolt;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.level.ColorResolver;
 import net.minecraft.world.level.EmptyTickList;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelSettings;
+import net.minecraft.world.level.LevelType;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.TickList;
 import net.minecraft.world.level.biome.Biome;
@@ -60,13 +67,14 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.level.storage.LevelData;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class MultiPlayerLevel extends Level {
+public class ClientLevel extends Level {
     private final List<Entity> globalEntities = Lists.newArrayList();
     private final Int2ObjectMap<Entity> entitiesById = new Int2ObjectOpenHashMap<>();
     private final ClientPacketListener connection;
@@ -76,9 +84,15 @@ public class MultiPlayerLevel extends Level {
     private int delayUntilNextMoodSound = this.random.nextInt(12000);
     private Scoreboard scoreboard = new Scoreboard();
     private final Map<String, MapItemSavedData> mapData = Maps.newHashMap();
+    private int skyFlashTime;
+    private final Object2ObjectArrayMap<ColorResolver, BlockTintCache> tintCaches = Util.make(new Object2ObjectArrayMap<>(3), param0x -> {
+        param0x.put(BiomeColors.GRASS_COLOR_RESOLVER, new BlockTintCache());
+        param0x.put(BiomeColors.FOLIAGE_COLOR_RESOLVER, new BlockTintCache());
+        param0x.put(BiomeColors.WATER_COLOR_RESOLVER, new BlockTintCache());
+    });
 
-    public MultiPlayerLevel(ClientPacketListener param0, LevelSettings param1, DimensionType param2, int param3, ProfilerFiller param4, LevelRenderer param5) {
-        super(new LevelData(param1, "MpServer"), param2, (param1x, param2x) -> new ClientChunkCache((MultiPlayerLevel)param1x, param3), param4, true);
+    public ClientLevel(ClientPacketListener param0, LevelSettings param1, DimensionType param2, int param3, ProfilerFiller param4, LevelRenderer param5) {
+        super(new LevelData(param1, "MpServer"), param2, (param1x, param2x) -> new ClientChunkCache((ClientLevel)param1x, param3), param4, true);
         this.connection = param0;
         this.levelRenderer = param5;
         this.setSpawnPos(new BlockPos(8, 64, 8));
@@ -210,6 +224,14 @@ public class MultiPlayerLevel extends Level {
     public void unload(LevelChunk param0) {
         this.blockEntitiesToUnload.addAll(param0.getBlockEntities().values());
         this.chunkSource.getLightEngine().enableLightSources(param0.getPos(), false);
+    }
+
+    public void onChunkLoaded(int param0, int param1) {
+        this.tintCaches.forEach((param2, param3) -> param3.invalidateForChunk(param0, param1));
+    }
+
+    public void clearTintCaches() {
+        this.tintCaches.forEach((param0, param1) -> param1.invalidateAll());
     }
 
     @Override
@@ -601,5 +623,145 @@ public class MultiPlayerLevel extends Level {
     @Override
     public Biome getUncachedNoiseBiome(int param0, int param1, int param2) {
         return Biomes.PLAINS;
+    }
+
+    public float getSkyDarken(float param0) {
+        float var0 = this.getTimeOfDay(param0);
+        float var1 = 1.0F - (Mth.cos(var0 * (float) (Math.PI * 2)) * 2.0F + 0.2F);
+        var1 = Mth.clamp(var1, 0.0F, 1.0F);
+        var1 = 1.0F - var1;
+        var1 = (float)((double)var1 * (1.0 - (double)(this.getRainLevel(param0) * 5.0F) / 16.0));
+        var1 = (float)((double)var1 * (1.0 - (double)(this.getThunderLevel(param0) * 5.0F) / 16.0));
+        return var1 * 0.8F + 0.2F;
+    }
+
+    public Vec3 getSkyColor(BlockPos param0, float param1) {
+        float var0 = this.getTimeOfDay(param1);
+        float var1 = Mth.cos(var0 * (float) (Math.PI * 2)) * 2.0F + 0.5F;
+        var1 = Mth.clamp(var1, 0.0F, 1.0F);
+        Biome var2 = this.getBiome(param0);
+        int var3 = var2.getSkyColor();
+        float var4 = (float)(var3 >> 16 & 0xFF) / 255.0F;
+        float var5 = (float)(var3 >> 8 & 0xFF) / 255.0F;
+        float var6 = (float)(var3 & 0xFF) / 255.0F;
+        var4 *= var1;
+        var5 *= var1;
+        var6 *= var1;
+        float var7 = this.getRainLevel(param1);
+        if (var7 > 0.0F) {
+            float var8 = (var4 * 0.3F + var5 * 0.59F + var6 * 0.11F) * 0.6F;
+            float var9 = 1.0F - var7 * 0.75F;
+            var4 = var4 * var9 + var8 * (1.0F - var9);
+            var5 = var5 * var9 + var8 * (1.0F - var9);
+            var6 = var6 * var9 + var8 * (1.0F - var9);
+        }
+
+        float var10 = this.getThunderLevel(param1);
+        if (var10 > 0.0F) {
+            float var11 = (var4 * 0.3F + var5 * 0.59F + var6 * 0.11F) * 0.2F;
+            float var12 = 1.0F - var10 * 0.75F;
+            var4 = var4 * var12 + var11 * (1.0F - var12);
+            var5 = var5 * var12 + var11 * (1.0F - var12);
+            var6 = var6 * var12 + var11 * (1.0F - var12);
+        }
+
+        if (this.skyFlashTime > 0) {
+            float var13 = (float)this.skyFlashTime - param1;
+            if (var13 > 1.0F) {
+                var13 = 1.0F;
+            }
+
+            var13 *= 0.45F;
+            var4 = var4 * (1.0F - var13) + 0.8F * var13;
+            var5 = var5 * (1.0F - var13) + 0.8F * var13;
+            var6 = var6 * (1.0F - var13) + 1.0F * var13;
+        }
+
+        return new Vec3((double)var4, (double)var5, (double)var6);
+    }
+
+    public Vec3 getCloudColor(float param0) {
+        float var0 = this.getTimeOfDay(param0);
+        float var1 = Mth.cos(var0 * (float) (Math.PI * 2)) * 2.0F + 0.5F;
+        var1 = Mth.clamp(var1, 0.0F, 1.0F);
+        float var2 = 1.0F;
+        float var3 = 1.0F;
+        float var4 = 1.0F;
+        float var5 = this.getRainLevel(param0);
+        if (var5 > 0.0F) {
+            float var6 = (var2 * 0.3F + var3 * 0.59F + var4 * 0.11F) * 0.6F;
+            float var7 = 1.0F - var5 * 0.95F;
+            var2 = var2 * var7 + var6 * (1.0F - var7);
+            var3 = var3 * var7 + var6 * (1.0F - var7);
+            var4 = var4 * var7 + var6 * (1.0F - var7);
+        }
+
+        var2 *= var1 * 0.9F + 0.1F;
+        var3 *= var1 * 0.9F + 0.1F;
+        var4 *= var1 * 0.85F + 0.15F;
+        float var8 = this.getThunderLevel(param0);
+        if (var8 > 0.0F) {
+            float var9 = (var2 * 0.3F + var3 * 0.59F + var4 * 0.11F) * 0.2F;
+            float var10 = 1.0F - var8 * 0.95F;
+            var2 = var2 * var10 + var9 * (1.0F - var10);
+            var3 = var3 * var10 + var9 * (1.0F - var10);
+            var4 = var4 * var10 + var9 * (1.0F - var10);
+        }
+
+        return new Vec3((double)var2, (double)var3, (double)var4);
+    }
+
+    public Vec3 getFogColor(float param0) {
+        float var0 = this.getTimeOfDay(param0);
+        return this.dimension.getFogColor(var0, param0);
+    }
+
+    public float getStarBrightness(float param0) {
+        float var0 = this.getTimeOfDay(param0);
+        float var1 = 1.0F - (Mth.cos(var0 * (float) (Math.PI * 2)) * 2.0F + 0.25F);
+        var1 = Mth.clamp(var1, 0.0F, 1.0F);
+        return var1 * var1 * 0.5F;
+    }
+
+    public double getHorizonHeight() {
+        return this.levelData.getGeneratorType() == LevelType.FLAT ? 0.0 : 63.0;
+    }
+
+    public int getSkyFlashTime() {
+        return this.skyFlashTime;
+    }
+
+    @Override
+    public void setSkyFlashTime(int param0) {
+        this.skyFlashTime = param0;
+    }
+
+    @Override
+    public int getBlockTint(BlockPos param0, ColorResolver param1) {
+        BlockTintCache var0 = this.tintCaches.get(param1);
+        return var0.getColor(param0, () -> this.calculateBlockTint(param0, param1));
+    }
+
+    public int calculateBlockTint(BlockPos param0, ColorResolver param1) {
+        int var0 = Minecraft.getInstance().options.biomeBlendRadius;
+        if (var0 == 0) {
+            return param1.getColor(this.getBiome(param0), (double)param0.getX(), (double)param0.getZ());
+        } else {
+            int var1 = (var0 * 2 + 1) * (var0 * 2 + 1);
+            int var2 = 0;
+            int var3 = 0;
+            int var4 = 0;
+            Cursor3D var5 = new Cursor3D(param0.getX() - var0, param0.getY(), param0.getZ() - var0, param0.getX() + var0, param0.getY(), param0.getZ() + var0);
+
+            int var7;
+            for(BlockPos.MutableBlockPos var6 = new BlockPos.MutableBlockPos(); var5.advance(); var4 += var7 & 0xFF) {
+                var6.set(var5.nextX(), var5.nextY(), var5.nextZ());
+                var7 = param1.getColor(this.getBiome(var6), (double)var6.getX(), (double)var6.getZ());
+                var2 += (var7 & 0xFF0000) >> 16;
+                var3 += (var7 & 0xFF00) >> 8;
+            }
+
+            return (var2 / var1 & 0xFF) << 16 | (var3 / var1 & 0xFF) << 8 | var4 / var1 & 0xFF;
+        }
     }
 }

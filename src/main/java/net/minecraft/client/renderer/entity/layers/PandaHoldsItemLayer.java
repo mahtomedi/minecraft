@@ -29,8 +29,7 @@ public class PandaHoldsItemLayer extends RenderLayer<Panda, PandaModel<Panda>> {
         float param6,
         float param7,
         float param8,
-        float param9,
-        float param10
+        float param9
     ) {
         ItemStack var0 = param3.getItemBySlot(EquipmentSlot.MAINHAND);
         if (param3.isSitting() && !param3.isScared()) {
@@ -43,7 +42,7 @@ public class PandaHoldsItemLayer extends RenderLayer<Panda, PandaModel<Panda>> {
 
             param0.pushPose();
             param0.translate(0.1F, (double)var2, (double)var1);
-            Minecraft.getInstance().getItemInHandRenderer().renderItem(param3, var0, ItemTransforms.TransformType.GROUND, false, param0, param1);
+            Minecraft.getInstance().getItemInHandRenderer().renderItem(param3, var0, ItemTransforms.TransformType.GROUND, false, param0, param1, param2);
             param0.popPose();
         }
     }

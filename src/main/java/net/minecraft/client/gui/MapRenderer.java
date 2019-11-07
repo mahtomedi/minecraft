@@ -104,7 +104,7 @@ public class MapRenderer implements AutoCloseable {
             int var0 = 0;
             int var1 = 0;
             float var2 = 0.0F;
-            Matrix4f var3 = param0.getPose();
+            Matrix4f var3 = param0.last().pose();
             VertexConsumer var4 = param1.getBuffer(RenderType.text(this.location));
             var4.vertex(var3, 0.0F, 128.0F, -0.01F).color(255, 255, 255, 255).uv(0.0F, 1.0F).uv2(param3).endVertex();
             var4.vertex(var3, 128.0F, 128.0F, -0.01F).color(255, 255, 255, 255).uv(1.0F, 1.0F).uv2(param3).endVertex();
@@ -124,7 +124,7 @@ public class MapRenderer implements AutoCloseable {
                     float var9 = (float)(var7 / 16 + 0) / 16.0F;
                     float var10 = (float)(var7 % 16 + 1) / 16.0F;
                     float var11 = (float)(var7 / 16 + 1) / 16.0F;
-                    Matrix4f var12 = param0.getPose();
+                    Matrix4f var12 = param0.last().pose();
                     float var13 = -0.001F;
                     VertexConsumer var14 = param1.getBuffer(RenderType.text(MapRenderer.MAP_ICONS_LOCATION));
                     var14.vertex(var12, -1.0F, 1.0F, (float)var5 * -0.001F).color(255, 255, 255, 255).uv(var8, var9).uv2(param3).endVertex();
@@ -145,7 +145,7 @@ public class MapRenderer implements AutoCloseable {
                         );
                         param0.scale(var18, var18, 1.0F);
                         param0.translate(0.0, 0.0, -0.1F);
-                        var15.drawInBatch(var16, 0.0F, 0.0F, -1, false, param0.getPose(), param1, false, Integer.MIN_VALUE, param3);
+                        var15.drawInBatch(var16, 0.0F, 0.0F, -1, false, param0.last().pose(), param1, false, Integer.MIN_VALUE, param3);
                         param0.popPose();
                     }
 

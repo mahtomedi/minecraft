@@ -24,7 +24,7 @@ public class Frustum {
     }
 
     private void calculateFrustum(Matrix4f param0, Matrix4f param1) {
-        Matrix4f var0 = new Matrix4f(param1);
+        Matrix4f var0 = param1.copy();
         var0.multiply(param0);
         var0.transpose();
         this.getPlane(var0, -1, 0, 0, 0);

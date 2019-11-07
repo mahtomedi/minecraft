@@ -29,8 +29,7 @@ public class TropicalFishPatternLayer extends RenderLayer<TropicalFish, EntityMo
         float param6,
         float param7,
         float param8,
-        float param9,
-        float param10
+        float param9
     ) {
         EntityModel<TropicalFish> var0 = (EntityModel<TropicalFish>)(param3.getBaseVariant() == 0 ? this.modelA : this.modelB);
         float[] var1 = param3.getPatternColor();
@@ -47,7 +46,6 @@ public class TropicalFishPatternLayer extends RenderLayer<TropicalFish, EntityMo
             param7,
             param8,
             param9,
-            param10,
             param6,
             var1[0],
             var1[1],

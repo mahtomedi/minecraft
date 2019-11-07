@@ -65,10 +65,21 @@ public class Vector4f {
         return this.z;
     }
 
+    public float w() {
+        return this.w;
+    }
+
     public void mul(Vector3f param0) {
         this.x *= param0.x();
         this.y *= param0.y();
         this.z *= param0.z();
+    }
+
+    public void set(float param0, float param1, float param2, float param3) {
+        this.x = param0;
+        this.y = param1;
+        this.z = param2;
+        this.w = param3;
     }
 
     public float dot(Vector4f param0) {
@@ -102,6 +113,15 @@ public class Vector4f {
 
     private static float multiplyRow(int param0, Matrix4f param1, float param2, float param3, float param4, float param5) {
         return param1.get(param0, 0) * param2 + param1.get(param0, 1) * param3 + param1.get(param0, 2) * param4 + param1.get(param0, 3) * param5;
+    }
+
+    public void transform(Quaternion param0) {
+        Quaternion var0 = new Quaternion(param0);
+        var0.mul(new Quaternion(this.x(), this.y(), this.z(), 0.0F));
+        Quaternion var1 = new Quaternion(param0);
+        var1.conj();
+        var0.mul(var1);
+        this.set(var0.i(), var0.j(), var0.k(), this.w());
     }
 
     public void perspectiveDivide() {

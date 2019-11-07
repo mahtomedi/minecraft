@@ -12,7 +12,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.chunk.ChunkBiomeContainer;
 import net.minecraft.world.level.chunk.ChunkSource;
@@ -32,9 +31,9 @@ public class ClientChunkCache extends ChunkSource {
     private final LevelChunk emptyChunk;
     private final LevelLightEngine lightEngine;
     private volatile ClientChunkCache.Storage storage;
-    private final MultiPlayerLevel level;
+    private final ClientLevel level;
 
-    public ClientChunkCache(MultiPlayerLevel param0, int param1) {
+    public ClientChunkCache(ClientLevel param0, int param1) {
         this.level = param0;
         this.emptyChunk = new EmptyLevelChunk(param0, new ChunkPos(0, 0));
         this.lightEngine = new LevelLightEngine(this, true, param0.getDimension().isHasSkyLight());
@@ -85,36 +84,37 @@ public class ClientChunkCache extends ChunkSource {
 
     @Nullable
     public LevelChunk replaceWithPacketData(
-        Level param0, int param1, int param2, @Nullable ChunkBiomeContainer param3, FriendlyByteBuf param4, CompoundTag param5, int param6
+        int param0, int param1, @Nullable ChunkBiomeContainer param2, FriendlyByteBuf param3, CompoundTag param4, int param5
     ) {
-        if (!this.storage.inRange(param1, param2)) {
-            LOGGER.warn("Ignoring chunk since it's not in the view range: {}, {}", param1, param2);
+        if (!this.storage.inRange(param0, param1)) {
+            LOGGER.warn("Ignoring chunk since it's not in the view range: {}, {}", param0, param1);
             return null;
         } else {
-            int var0 = this.storage.getIndex(param1, param2);
+            int var0 = this.storage.getIndex(param0, param1);
             LevelChunk var1 = this.storage.chunks.get(var0);
-            if (!isValidChunk(var1, param1, param2)) {
-                if (param3 == null) {
-                    LOGGER.warn("Ignoring chunk since we don't have complete data: {}, {}", param1, param2);
+            if (!isValidChunk(var1, param0, param1)) {
+                if (param2 == null) {
+                    LOGGER.warn("Ignoring chunk since we don't have complete data: {}, {}", param0, param1);
                     return null;
                 }
 
-                var1 = new LevelChunk(param0, new ChunkPos(param1, param2), param3);
-                var1.replaceWithPacketData(param3, param4, param5, param6);
+                var1 = new LevelChunk(this.level, new ChunkPos(param0, param1), param2);
+                var1.replaceWithPacketData(param2, param3, param4, param5);
                 this.storage.replace(var0, var1);
             } else {
-                var1.replaceWithPacketData(param3, param4, param5, param6);
+                var1.replaceWithPacketData(param2, param3, param4, param5);
             }
 
             LevelChunkSection[] var2 = var1.getSections();
             LevelLightEngine var3 = this.getLightEngine();
-            var3.enableLightSources(new ChunkPos(param1, param2), true);
+            var3.enableLightSources(new ChunkPos(param0, param1), true);
 
             for(int var4 = 0; var4 < var2.length; ++var4) {
                 LevelChunkSection var5 = var2[var4];
-                var3.updateSectionStatus(SectionPos.of(param1, var4, param2), LevelChunkSection.isEmpty(var5));
+                var3.updateSectionStatus(SectionPos.of(param0, var4, param1), LevelChunkSection.isEmpty(var5));
             }
 
+            this.level.onChunkLoaded(param0, param1);
             return var1;
         }
     }

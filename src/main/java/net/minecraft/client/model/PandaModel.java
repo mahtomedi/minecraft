@@ -48,8 +48,8 @@ public class PandaModel<T extends Panda> extends QuadrupedModel<T> {
         this.rollAmount = param0.isBaby() ? 0.0F : param0.getRollAmount(param3);
     }
 
-    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        super.setupAnim(param0, param1, param2, param3, param4, param5, param6);
+    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
+        super.setupAnim(param0, param1, param2, param3, param4, param5);
         boolean var0 = param0.getUnhappyCounter() > 0;
         boolean var1 = param0.isSneezing();
         int var2 = param0.getSneezeCounter();

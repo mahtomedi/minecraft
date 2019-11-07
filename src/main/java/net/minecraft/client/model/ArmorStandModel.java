@@ -59,8 +59,8 @@ public class ArmorStandModel extends ArmorStandArmorModel {
     }
 
     @Override
-    public void setupAnim(ArmorStand param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        super.setupAnim(param0, param1, param2, param3, param4, param5, param6);
+    public void setupAnim(ArmorStand param0, float param1, float param2, float param3, float param4, float param5) {
+        super.setupAnim(param0, param1, param2, param3, param4, param5);
         this.leftArm.visible = param0.isShowArms();
         this.rightArm.visible = param0.isShowArms();
         this.basePlate.visible = !param0.isNoBasePlate();
@@ -86,11 +86,11 @@ public class ArmorStandModel extends ArmorStandArmorModel {
     }
 
     @Override
-    public void translateToHand(float param0, HumanoidArm param1, PoseStack param2) {
-        ModelPart var0 = this.getArm(param1);
+    public void translateToHand(HumanoidArm param0, PoseStack param1) {
+        ModelPart var0 = this.getArm(param0);
         boolean var1 = var0.visible;
         var0.visible = true;
-        super.translateToHand(param0, param1, param2);
+        super.translateToHand(param0, param1);
         var0.visible = var1;
     }
 }

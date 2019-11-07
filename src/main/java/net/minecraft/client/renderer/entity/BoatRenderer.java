@@ -31,35 +31,34 @@ public class BoatRenderer extends EntityRenderer<Boat> {
         this.shadowRadius = 0.8F;
     }
 
-    public void render(Boat param0, double param1, double param2, double param3, float param4, float param5, PoseStack param6, MultiBufferSource param7) {
-        param6.pushPose();
-        param6.translate(0.0, 0.375, 0.0);
-        param6.mulPose(Vector3f.YP.rotationDegrees(180.0F - param4));
-        float var0 = (float)param0.getHurtTime() - param5;
-        float var1 = param0.getDamage() - param5;
+    public void render(Boat param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {
+        param3.pushPose();
+        param3.translate(0.0, 0.375, 0.0);
+        param3.mulPose(Vector3f.YP.rotationDegrees(180.0F - param1));
+        float var0 = (float)param0.getHurtTime() - param2;
+        float var1 = param0.getDamage() - param2;
         if (var1 < 0.0F) {
             var1 = 0.0F;
         }
 
         if (var0 > 0.0F) {
-            param6.mulPose(Vector3f.XP.rotationDegrees(Mth.sin(var0) * var0 * var1 / 10.0F * (float)param0.getHurtDir()));
+            param3.mulPose(Vector3f.XP.rotationDegrees(Mth.sin(var0) * var0 * var1 / 10.0F * (float)param0.getHurtDir()));
         }
 
-        float var2 = param0.getBubbleAngle(param5);
+        float var2 = param0.getBubbleAngle(param2);
         if (!Mth.equal(var2, 0.0F)) {
-            param6.mulPose(new Quaternion(new Vector3f(1.0F, 0.0F, 1.0F), param0.getBubbleAngle(param5), true));
+            param3.mulPose(new Quaternion(new Vector3f(1.0F, 0.0F, 1.0F), param0.getBubbleAngle(param2), true));
         }
 
-        param6.scale(-1.0F, -1.0F, 1.0F);
-        int var3 = param0.getLightColor();
-        param6.mulPose(Vector3f.YP.rotationDegrees(90.0F));
-        this.model.setupAnim(param0, param5, 0.0F, -0.1F, 0.0F, 0.0F, 0.0625F);
-        VertexConsumer var4 = param7.getBuffer(this.model.renderType(this.getTextureLocation(param0)));
-        this.model.renderToBuffer(param6, var4, var3, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F);
-        VertexConsumer var5 = param7.getBuffer(RenderType.waterMask());
-        this.model.waterPatch().render(param6, var5, 0.0625F, var3, OverlayTexture.NO_OVERLAY, null);
-        param6.popPose();
-        super.render(param0, param1, param2, param3, param4, param5, param6, param7);
+        param3.scale(-1.0F, -1.0F, 1.0F);
+        param3.mulPose(Vector3f.YP.rotationDegrees(90.0F));
+        this.model.setupAnim(param0, param2, 0.0F, -0.1F, 0.0F, 0.0F);
+        VertexConsumer var3 = param4.getBuffer(this.model.renderType(this.getTextureLocation(param0)));
+        this.model.renderToBuffer(param3, var3, param5, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F);
+        VertexConsumer var4 = param4.getBuffer(RenderType.waterMask());
+        this.model.waterPatch().render(param3, var4, param5, OverlayTexture.NO_OVERLAY, null);
+        param3.popPose();
+        super.render(param0, param1, param2, param3, param4, param5);
     }
 
     public ResourceLocation getTextureLocation(Boat param0) {

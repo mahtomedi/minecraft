@@ -28,19 +28,19 @@ public class ShulkerRenderer extends MobRenderer<Shulker, ShulkerModel<Shulker>>
         this.addLayer(new ShulkerHeadLayer(this));
     }
 
-    public Vec3 getRenderOffset(Shulker param0, double param1, double param2, double param3, float param4) {
+    public Vec3 getRenderOffset(Shulker param0, float param1) {
         int var0 = param0.getClientSideTeleportInterpolation();
         if (var0 > 0 && param0.hasValidInterpolationPositions()) {
             BlockPos var1 = param0.getAttachPosition();
             BlockPos var2 = param0.getOldAttachPosition();
-            double var3 = (double)((float)var0 - param4) / 6.0;
+            double var3 = (double)((float)var0 - param1) / 6.0;
             var3 *= var3;
             double var4 = (double)(var1.getX() - var2.getX()) * var3;
             double var5 = (double)(var1.getY() - var2.getY()) * var3;
             double var6 = (double)(var1.getZ() - var2.getZ()) * var3;
             return new Vec3(-var4, -var5, -var6);
         } else {
-            return super.getRenderOffset(param0, param1, param2, param3, param4);
+            return super.getRenderOffset(param0, param1);
         }
     }
 

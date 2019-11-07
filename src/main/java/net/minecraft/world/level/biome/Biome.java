@@ -136,10 +136,8 @@ public abstract class Biome {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public int getSkyColor(float param0) {
-        param0 /= 3.0F;
-        param0 = Mth.clamp(param0, -1.0F, 1.0F);
-        return Mth.hsvToRgb(0.62222224F - param0 * 0.05F, 0.5F + param0 * 0.1F, 1.0F);
+    public int getSkyColor() {
+        return 8364543;
     }
 
     protected void addSpawn(MobCategory param0, Biome.SpawnerData param1) {
@@ -297,15 +295,15 @@ public abstract class Biome {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public int getGrassColor(BlockPos param0) {
-        double var0 = (double)Mth.clamp(this.getTemperature(param0), 0.0F, 1.0F);
+    public int getGrassColor(double param0, double param1) {
+        double var0 = (double)Mth.clamp(this.getTemperature(), 0.0F, 1.0F);
         double var1 = (double)Mth.clamp(this.getDownfall(), 0.0F, 1.0F);
         return GrassColor.get(var0, var1);
     }
 
     @OnlyIn(Dist.CLIENT)
-    public int getFoliageColor(BlockPos param0) {
-        double var0 = (double)Mth.clamp(this.getTemperature(param0), 0.0F, 1.0F);
+    public int getFoliageColor() {
+        double var0 = (double)Mth.clamp(this.getTemperature(), 0.0F, 1.0F);
         double var1 = (double)Mth.clamp(this.getDownfall(), 0.0F, 1.0F);
         return FoliageColor.get(var0, var1);
     }

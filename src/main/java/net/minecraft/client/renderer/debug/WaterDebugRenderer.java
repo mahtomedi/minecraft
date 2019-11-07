@@ -1,8 +1,9 @@
 package net.minecraft.client.renderer.debug;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.Camera;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.LevelReader;
@@ -20,33 +21,29 @@ public class WaterDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
     }
 
     @Override
-    public void render(long param0) {
-        Camera var0 = this.minecraft.gameRenderer.getMainCamera();
-        double var1 = var0.getPosition().x;
-        double var2 = var0.getPosition().y;
-        double var3 = var0.getPosition().z;
-        BlockPos var4 = this.minecraft.player.getCommandSenderBlockPosition();
-        LevelReader var5 = this.minecraft.player.level;
+    public void render(PoseStack param0, MultiBufferSource param1, double param2, double param3, double param4, long param5) {
+        BlockPos var0 = this.minecraft.player.getCommandSenderBlockPosition();
+        LevelReader var1 = this.minecraft.player.level;
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.color4f(0.0F, 1.0F, 0.0F, 0.75F);
         RenderSystem.disableTexture();
         RenderSystem.lineWidth(6.0F);
 
-        for(BlockPos var6 : BlockPos.betweenClosed(var4.offset(-10, -10, -10), var4.offset(10, 10, 10))) {
-            FluidState var7 = var5.getFluidState(var6);
-            if (var7.is(FluidTags.WATER)) {
-                double var8 = (double)((float)var6.getY() + var7.getHeight(var5, var6));
+        for(BlockPos var2 : BlockPos.betweenClosed(var0.offset(-10, -10, -10), var0.offset(10, 10, 10))) {
+            FluidState var3 = var1.getFluidState(var2);
+            if (var3.is(FluidTags.WATER)) {
+                double var4 = (double)((float)var2.getY() + var3.getHeight(var1, var2));
                 DebugRenderer.renderFilledBox(
                     new AABB(
-                            (double)((float)var6.getX() + 0.01F),
-                            (double)((float)var6.getY() + 0.01F),
-                            (double)((float)var6.getZ() + 0.01F),
-                            (double)((float)var6.getX() + 0.99F),
-                            var8,
-                            (double)((float)var6.getZ() + 0.99F)
+                            (double)((float)var2.getX() + 0.01F),
+                            (double)((float)var2.getY() + 0.01F),
+                            (double)((float)var2.getZ() + 0.01F),
+                            (double)((float)var2.getX() + 0.99F),
+                            var4,
+                            (double)((float)var2.getZ() + 0.99F)
                         )
-                        .move(-var1, -var2, -var3),
+                        .move(-param2, -param3, -param4),
                     1.0F,
                     1.0F,
                     1.0F,
@@ -55,14 +52,14 @@ public class WaterDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
             }
         }
 
-        for(BlockPos var9 : BlockPos.betweenClosed(var4.offset(-10, -10, -10), var4.offset(10, 10, 10))) {
-            FluidState var10 = var5.getFluidState(var9);
-            if (var10.is(FluidTags.WATER)) {
+        for(BlockPos var5 : BlockPos.betweenClosed(var0.offset(-10, -10, -10), var0.offset(10, 10, 10))) {
+            FluidState var6 = var1.getFluidState(var5);
+            if (var6.is(FluidTags.WATER)) {
                 DebugRenderer.renderFloatingText(
-                    String.valueOf(var10.getAmount()),
-                    (double)var9.getX() + 0.5,
-                    (double)((float)var9.getY() + var10.getHeight(var5, var9)),
-                    (double)var9.getZ() + 0.5,
+                    String.valueOf(var6.getAmount()),
+                    (double)var5.getX() + 0.5,
+                    (double)((float)var5.getY() + var6.getHeight(var1, var5)),
+                    (double)var5.getZ() + 0.5,
                     -16777216
                 );
             }

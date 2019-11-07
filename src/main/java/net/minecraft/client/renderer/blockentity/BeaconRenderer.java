@@ -2,6 +2,7 @@ package net.minecraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import java.util.List;
@@ -22,16 +23,14 @@ public class BeaconRenderer extends BlockEntityRenderer<BeaconBlockEntity> {
         super(param0);
     }
 
-    public void render(
-        BeaconBlockEntity param0, double param1, double param2, double param3, float param4, PoseStack param5, MultiBufferSource param6, int param7, int param8
-    ) {
+    public void render(BeaconBlockEntity param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {
         long var0 = param0.getLevel().getGameTime();
         List<BeaconBlockEntity.BeaconBeamSection> var1 = param0.getBeamSections();
         int var2 = 0;
 
         for(int var3 = 0; var3 < var1.size(); ++var3) {
             BeaconBlockEntity.BeaconBeamSection var4 = var1.get(var3);
-            renderBeaconBeam(param5, param6, param4, var0, var2, var3 == var1.size() - 1 ? 1024 : var4.getHeight(), var4.getColor());
+            renderBeaconBeam(param2, param3, param1, var0, var2, var3 == var1.size() - 1 ? 1024 : var4.getHeight(), var4.getColor());
             var2 += var4.getHeight();
         }
 
@@ -77,7 +76,7 @@ public class BeaconRenderer extends BlockEntityRenderer<BeaconBlockEntity> {
         float var18 = (float)param7 * param4 * (0.5F / param9) + var17;
         renderPart(
             param0,
-            param1.getBuffer(RenderType.entitySolid(param2)),
+            param1.getBuffer(RenderType.beaconBeam(param2, false)),
             var4,
             var5,
             var6,
@@ -108,7 +107,7 @@ public class BeaconRenderer extends BlockEntityRenderer<BeaconBlockEntity> {
         var18 = (float)param7 * param4 + var17;
         renderPart(
             param0,
-            param1.getBuffer(RenderType.beaconBeam()),
+            param1.getBuffer(RenderType.beaconBeam(param2, true)),
             var4,
             var5,
             var6,
@@ -153,56 +152,60 @@ public class BeaconRenderer extends BlockEntityRenderer<BeaconBlockEntity> {
         float param18,
         float param19
     ) {
-        Matrix4f var0 = param0.getPose();
-        renderQuad(var0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param16, param17, param18, param19);
-        renderQuad(var0, param1, param2, param3, param4, param5, param6, param7, param14, param15, param12, param13, param16, param17, param18, param19);
-        renderQuad(var0, param1, param2, param3, param4, param5, param6, param7, param10, param11, param14, param15, param16, param17, param18, param19);
-        renderQuad(var0, param1, param2, param3, param4, param5, param6, param7, param12, param13, param8, param9, param16, param17, param18, param19);
+        PoseStack.Pose var0 = param0.last();
+        Matrix4f var1 = var0.pose();
+        Matrix3f var2 = var0.normal();
+        renderQuad(var1, var2, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param16, param17, param18, param19);
+        renderQuad(var1, var2, param1, param2, param3, param4, param5, param6, param7, param14, param15, param12, param13, param16, param17, param18, param19);
+        renderQuad(var1, var2, param1, param2, param3, param4, param5, param6, param7, param10, param11, param14, param15, param16, param17, param18, param19);
+        renderQuad(var1, var2, param1, param2, param3, param4, param5, param6, param7, param12, param13, param8, param9, param16, param17, param18, param19);
     }
 
     private static void renderQuad(
         Matrix4f param0,
-        VertexConsumer param1,
-        float param2,
+        Matrix3f param1,
+        VertexConsumer param2,
         float param3,
         float param4,
         float param5,
-        int param6,
+        float param6,
         int param7,
-        float param8,
+        int param8,
         float param9,
         float param10,
         float param11,
         float param12,
         float param13,
         float param14,
-        float param15
+        float param15,
+        float param16
     ) {
-        addVertex(param0, param1, param2, param3, param4, param5, param7, param8, param9, param13, param14);
-        addVertex(param0, param1, param2, param3, param4, param5, param6, param8, param9, param13, param15);
-        addVertex(param0, param1, param2, param3, param4, param5, param6, param10, param11, param12, param15);
-        addVertex(param0, param1, param2, param3, param4, param5, param7, param10, param11, param12, param14);
+        addVertex(param0, param1, param2, param3, param4, param5, param6, param8, param9, param10, param14, param15);
+        addVertex(param0, param1, param2, param3, param4, param5, param6, param7, param9, param10, param14, param16);
+        addVertex(param0, param1, param2, param3, param4, param5, param6, param7, param11, param12, param13, param16);
+        addVertex(param0, param1, param2, param3, param4, param5, param6, param8, param11, param12, param13, param15);
     }
 
     private static void addVertex(
         Matrix4f param0,
-        VertexConsumer param1,
-        float param2,
+        Matrix3f param1,
+        VertexConsumer param2,
         float param3,
         float param4,
         float param5,
-        int param6,
-        float param7,
+        float param6,
+        int param7,
         float param8,
         float param9,
-        float param10
+        float param10,
+        float param11
     ) {
-        param1.vertex(param0, param7, (float)param6, param8)
-            .color(param2, param3, param4, param5)
-            .uv(param9, param10)
+        param2.vertex(param0, param8, (float)param7, param9)
+            .color(param3, param4, param5, param6)
+            .uv(param10, param11)
             .overlayCoords(OverlayTexture.NO_OVERLAY)
             .uv2(15728880)
-            .normal(0.0F, 1.0F, 0.0F)
+            .normal(param1, 0.0F, 1.0F, 0.0F)
             .endVertex();
     }
 

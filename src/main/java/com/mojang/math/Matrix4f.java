@@ -44,10 +44,6 @@ public final class Matrix4f {
         this.set(1, 2, 2.0F * (var8 - var10));
     }
 
-    public Matrix4f(Matrix4f param0) {
-        this(Arrays.copyOf(param0.values, 16));
-    }
-
     @Override
     public boolean equals(Object param0) {
         if (this == param0) {

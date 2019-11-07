@@ -54,8 +54,8 @@ public class SkeletonModel<T extends Mob & RangedAttackMob> extends HumanoidMode
         super.prepareMobModel(param0, param1, param2, param3);
     }
 
-    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        super.setupAnim(param0, param1, param2, param3, param4, param5, param6);
+    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
+        super.setupAnim(param0, param1, param2, param3, param4, param5);
         ItemStack var0 = param0.getMainHandItem();
         if (param0.isAggressive() && (var0.isEmpty() || var0.getItem() != Items.BOW)) {
             float var1 = Mth.sin(this.attackTime * (float) Math.PI);
@@ -77,11 +77,11 @@ public class SkeletonModel<T extends Mob & RangedAttackMob> extends HumanoidMode
     }
 
     @Override
-    public void translateToHand(float param0, HumanoidArm param1, PoseStack param2) {
-        float var0 = param1 == HumanoidArm.RIGHT ? 1.0F : -1.0F;
-        ModelPart var1 = this.getArm(param1);
+    public void translateToHand(HumanoidArm param0, PoseStack param1) {
+        float var0 = param0 == HumanoidArm.RIGHT ? 1.0F : -1.0F;
+        ModelPart var1 = this.getArm(param0);
         var1.x += var0;
-        var1.translateAndRotate(param2, param0);
+        var1.translateAndRotate(param1);
         var1.x -= var0;
     }
 }

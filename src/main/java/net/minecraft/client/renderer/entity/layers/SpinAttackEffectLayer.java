@@ -25,17 +25,7 @@ public class SpinAttackEffectLayer<T extends LivingEntity> extends RenderLayer<T
     }
 
     public void render(
-        PoseStack param0,
-        MultiBufferSource param1,
-        int param2,
-        T param3,
-        float param4,
-        float param5,
-        float param6,
-        float param7,
-        float param8,
-        float param9,
-        float param10
+        PoseStack param0, MultiBufferSource param1, int param2, T param3, float param4, float param5, float param6, float param7, float param8, float param9
     ) {
         if (param3.isAutoSpinAttack()) {
             VertexConsumer var0 = param1.getBuffer(RenderType.entityCutoutNoCull(TEXTURE));
@@ -47,7 +37,7 @@ public class SpinAttackEffectLayer<T extends LivingEntity> extends RenderLayer<T
                 float var3 = 0.75F * (float)var1;
                 param0.scale(var3, var3, var3);
                 param0.translate(0.0, (double)(-0.2F + 0.6F * (float)var1), 0.0);
-                this.box.render(param0, var0, param10, param2, OverlayTexture.NO_OVERLAY, null);
+                this.box.render(param0, var0, param2, OverlayTexture.NO_OVERLAY, null);
                 param0.popPose();
             }
 

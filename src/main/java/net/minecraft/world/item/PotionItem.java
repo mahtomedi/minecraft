@@ -95,7 +95,6 @@ public class PotionItem extends Item {
         PotionUtils.addPotionTooltip(param0, param2, 1.0F);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean isFoil(ItemStack param0) {
         return super.isFoil(param0) || !PotionUtils.getMobEffects(param0).isEmpty();

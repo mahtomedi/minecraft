@@ -216,8 +216,8 @@ public class EyeOfEnder extends Entity implements ItemSupplier {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public int getLightColor() {
-        return 15728880;
+    public int getBlockLightLevel() {
+        return 15;
     }
 
     @Override

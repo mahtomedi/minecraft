@@ -6,7 +6,6 @@ import com.google.common.primitives.Floats;
 import com.mojang.blaze3d.platform.MemoryTracker;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.ints.IntArrays;
-import it.unimi.dsi.fastutil.ints.IntComparator;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -89,7 +88,7 @@ public class BufferBuilder extends DefaultedVertexConsumer implements BufferVert
             var4[var5] = var5++;
         }
 
-        IntArrays.quickSort(var4, (IntComparator)((param1x, param2x) -> Floats.compare(var2[param2x], var2[param1x])));
+        IntArrays.mergeSort(var4, (param1x, param2x) -> Floats.compare(var2[param2x], var2[param1x]));
         BitSet var6 = new BitSet();
         FloatBuffer var7 = MemoryTracker.createFloatBuffer(this.format.getIntegerSize() * 4);
 

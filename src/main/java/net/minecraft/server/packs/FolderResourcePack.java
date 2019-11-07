@@ -91,14 +91,10 @@ public class FolderResourcePack extends AbstractResourcePack {
     }
 
     @Override
-    public Collection<ResourceLocation> getResources(PackType param0, String param1, int param2, Predicate<String> param3) {
+    public Collection<ResourceLocation> getResources(PackType param0, String param1, String param2, int param3, Predicate<String> param4) {
         File var0 = new File(this.file, param0.getDirectory());
         List<ResourceLocation> var1 = Lists.newArrayList();
-
-        for(String var2 : this.getNamespaces(param0)) {
-            this.listResources(new File(new File(var0, var2), param1), param2, var2, var1, param1 + "/", param3);
-        }
-
+        this.listResources(new File(new File(var0, param1), param2), param3, param1, var1, param2 + "/", param4);
         return var1;
     }
 

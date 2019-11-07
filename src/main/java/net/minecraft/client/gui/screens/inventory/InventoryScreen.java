@@ -1,10 +1,13 @@
 package net.minecraft.client.gui.screens.inventory;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 import net.minecraft.client.gui.screens.recipebook.RecipeUpdateListener;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -94,38 +97,40 @@ public class InventoryScreen extends EffectRenderingInventoryScreen<InventoryMen
         int var0 = this.leftPos;
         int var1 = this.topPos;
         this.blit(var0, var1, 0, 0, this.imageWidth, this.imageHeight);
-        renderPlayerModel(var0 + 51, var1 + 75, 30, (float)(var0 + 51) - this.xMouse, (float)(var1 + 75 - 50) - this.yMouse, this.minecraft.player);
+        renderEntityInInventory(var0 + 51, var1 + 75, 30, (float)(var0 + 51) - this.xMouse, (float)(var1 + 75 - 50) - this.yMouse, this.minecraft.player);
     }
 
-    public static void renderPlayerModel(int param0, int param1, int param2, float param3, float param4, LivingEntity param5) {
+    public static void renderEntityInInventory(int param0, int param1, int param2, float param3, float param4, LivingEntity param5) {
         RenderSystem.pushMatrix();
-        RenderSystem.translatef((float)param0, (float)param1, 50.0F);
-        RenderSystem.scalef((float)(-param2), (float)param2, (float)param2);
-        RenderSystem.rotatef(180.0F, 0.0F, 0.0F, 1.0F);
-        float var0 = param5.yBodyRot;
-        float var1 = param5.yRot;
-        float var2 = param5.xRot;
-        float var3 = param5.yHeadRotO;
-        float var4 = param5.yHeadRot;
-        RenderSystem.rotatef(-((float)Math.atan((double)(param4 / 40.0F))) * 20.0F, 1.0F, 0.0F, 0.0F);
+        RenderSystem.scalef(-1.0F, 1.0F, 1.0F);
+        PoseStack var0 = new PoseStack();
+        var0.translate((double)(-param0), (double)param1, 50.0);
+        var0.scale((float)param2, (float)param2, (float)param2);
+        var0.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
+        var0.mulPose(Vector3f.XP.rotationDegrees(-((float)Math.atan((double)(param4 / 40.0F))) * 20.0F));
+        float var1 = param5.yBodyRot;
+        float var2 = param5.yRot;
+        float var3 = param5.xRot;
+        float var4 = param5.yHeadRotO;
+        float var5 = param5.yHeadRot;
         param5.yBodyRot = (float)Math.atan((double)(param3 / 40.0F)) * 20.0F;
         param5.yRot = (float)Math.atan((double)(param3 / 40.0F)) * 40.0F;
         param5.xRot = -((float)Math.atan((double)(param4 / 40.0F))) * 20.0F;
         param5.yHeadRot = param5.yRot;
         param5.yHeadRotO = param5.yRot;
-        RenderSystem.translatef(0.0F, 0.0F, 0.0F);
-        EntityRenderDispatcher var5 = Minecraft.getInstance().getEntityRenderDispatcher();
-        var5.setPlayerRotY(180.0F);
-        var5.setRenderShadow(false);
-        var5.render(param5, 1.0F);
-        var5.setRenderShadow(true);
-        param5.yBodyRot = var0;
-        param5.yRot = var1;
-        param5.xRot = var2;
-        param5.yHeadRotO = var3;
-        param5.yHeadRot = var4;
+        EntityRenderDispatcher var6 = Minecraft.getInstance().getEntityRenderDispatcher();
+        var6.setPlayerRotY(180.0F);
+        var6.setRenderShadow(false);
+        MultiBufferSource.BufferSource var7 = Minecraft.getInstance().renderBuffers().bufferSource();
+        var6.render(param5, 0.0, 0.0, 0.0, 0.0F, 1.0F, var0, var7, 15728880);
+        var7.endBatch(-param0, param1, 1000);
+        var6.setRenderShadow(true);
+        param5.yBodyRot = var1;
+        param5.yRot = var2;
+        param5.xRot = var3;
+        param5.yHeadRotO = var4;
+        param5.yHeadRot = var5;
         RenderSystem.popMatrix();
-        RenderSystem.disableRescaleNormal();
     }
 
     @Override

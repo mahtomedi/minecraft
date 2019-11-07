@@ -6,7 +6,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class DebugVillagerNameGenerator {
+public class DebugMobNameGenerator {
     private static final String[] NAMES_FIRST_PART = new String[]{
         "Slim", "Far", "River", "Silly", "Fat", "Thin", "Fish", "Bat", "Dark", "Oak", "Sly", "Bush", "Zen", "Bark", "Cry", "Slack", "Soup", "Grim", "Hook"
     };
@@ -32,7 +32,7 @@ public class DebugVillagerNameGenerator {
         "Tongue"
     };
 
-    public static String getVillagerName(UUID param0) {
+    public static String getMobName(UUID param0) {
         Random var0 = getRandom(param0);
         return getRandomString(var0, NAMES_FIRST_PART) + getRandomString(var0, NAMES_SECOND_PART);
     }

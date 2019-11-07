@@ -1,7 +1,6 @@
 package net.minecraft.world.level.biome;
 
 import com.google.common.collect.ImmutableList;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.levelgen.GenerationStep;
@@ -47,6 +46,7 @@ public final class DarkForestHillsBiome extends Biome {
                             Feature.HUGE_RED_MUSHROOM.configured(BiomeDefaultFeatures.HUGE_RED_MUSHROOM_CONFIG).weighted(0.025F),
                             Feature.HUGE_BROWN_MUSHROOM.configured(BiomeDefaultFeatures.HUGE_BROWN_MUSHROOM_CONFIG).weighted(0.05F),
                             Feature.DARK_OAK_TREE.configured(BiomeDefaultFeatures.DARK_OAK_TREE_CONFIG).weighted(0.6666667F),
+                            Feature.NORMAL_TREE.configured(BiomeDefaultFeatures.BIRCH_TREE_CONFIG).weighted(0.2F),
                             Feature.FANCY_TREE.configured(BiomeDefaultFeatures.FANCY_TREE_CONFIG).weighted(0.1F)
                         ),
                         Feature.NORMAL_TREE.configured(BiomeDefaultFeatures.NORMAL_TREE_CONFIG)
@@ -81,8 +81,8 @@ public final class DarkForestHillsBiome extends Biome {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public int getGrassColor(BlockPos param0) {
-        int var0 = super.getGrassColor(param0);
+    public int getGrassColor(double param0, double param1) {
+        int var0 = super.getGrassColor(param0, param1);
         return (var0 & 16711422) + 2634762 >> 1;
     }
 }

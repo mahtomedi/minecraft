@@ -66,7 +66,6 @@ public class RealmsSimpleScrolledSelectionListProxy extends ScrolledSelectionLis
             int var0 = this.getScrollbarPosition();
             int var1 = var0 + 6;
             this.capYPosition();
-            RenderSystem.disableFog();
             Tesselator var2 = Tesselator.getInstance();
             BufferBuilder var3 = var2.getBuilder();
             int var4 = this.x0 + this.width / 2 - this.getRowWidth() / 2 + 2;

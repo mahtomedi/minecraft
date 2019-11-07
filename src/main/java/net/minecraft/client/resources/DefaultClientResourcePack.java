@@ -6,7 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
@@ -54,7 +53,7 @@ public class DefaultClientResourcePack extends VanillaPack {
     @Nullable
     @Override
     protected InputStream getResourceAsStream(String param0) {
-        File var0 = this.assetIndex.getFile(param0);
+        File var0 = this.assetIndex.getRootFile(param0);
         if (var0 != null && var0.exists()) {
             try {
                 return new FileInputStream(var0);
@@ -66,9 +65,9 @@ public class DefaultClientResourcePack extends VanillaPack {
     }
 
     @Override
-    public Collection<ResourceLocation> getResources(PackType param0, String param1, int param2, Predicate<String> param3) {
-        Collection<ResourceLocation> var0 = super.getResources(param0, param1, param2, param3);
-        var0.addAll(this.assetIndex.getFiles(param1, param2, param3).stream().map(ResourceLocation::new).collect(Collectors.toList()));
+    public Collection<ResourceLocation> getResources(PackType param0, String param1, String param2, int param3, Predicate<String> param4) {
+        Collection<ResourceLocation> var0 = super.getResources(param0, param1, param2, param3, param4);
+        var0.addAll(this.assetIndex.getFiles(param2, param1, param3, param4));
         return var0;
     }
 }

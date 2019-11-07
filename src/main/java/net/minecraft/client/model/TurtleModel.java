@@ -48,8 +48,8 @@ public class TurtleModel<T extends Turtle> extends QuadrupedModel<T> {
         return Iterables.concat(super.bodyParts(), ImmutableList.of(this.eggBelly));
     }
 
-    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        super.setupAnim(param0, param1, param2, param3, param4, param5, param6);
+    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
+        super.setupAnim(param0, param1, param2, param3, param4, param5);
         this.leg0.xRot = Mth.cos(param1 * 0.6662F * 0.6F) * 0.5F * param2;
         this.leg1.xRot = Mth.cos(param1 * 0.6662F * 0.6F + (float) Math.PI) * 0.5F * param2;
         this.leg2.zRot = Mth.cos(param1 * 0.6662F * 0.6F + (float) Math.PI) * 0.5F * param2;

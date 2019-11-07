@@ -20,20 +20,10 @@ public abstract class StuckInBodyLayer<T extends LivingEntity, M extends PlayerM
 
     protected abstract int numStuck(T var1);
 
-    protected abstract void renderStuckItem(PoseStack var1, MultiBufferSource var2, Entity var3, float var4, float var5, float var6, float var7);
+    protected abstract void renderStuckItem(PoseStack var1, MultiBufferSource var2, int var3, Entity var4, float var5, float var6, float var7, float var8);
 
     public void render(
-        PoseStack param0,
-        MultiBufferSource param1,
-        int param2,
-        T param3,
-        float param4,
-        float param5,
-        float param6,
-        float param7,
-        float param8,
-        float param9,
-        float param10
+        PoseStack param0, MultiBufferSource param1, int param2, T param3, float param4, float param5, float param6, float param7, float param8, float param9
     ) {
         int var0 = this.numStuck(param3);
         Random var1 = new Random((long)param3.getId());
@@ -42,7 +32,7 @@ public abstract class StuckInBodyLayer<T extends LivingEntity, M extends PlayerM
                 param0.pushPose();
                 ModelPart var3 = this.getParentModel().getRandomModelPart(var1);
                 ModelPart.Cube var4 = var3.getRandomCube(var1);
-                var3.translateAndRotate(param0, 0.0625F);
+                var3.translateAndRotate(param0);
                 float var5 = var1.nextFloat();
                 float var6 = var1.nextFloat();
                 float var7 = var1.nextFloat();
@@ -53,7 +43,7 @@ public abstract class StuckInBodyLayer<T extends LivingEntity, M extends PlayerM
                 var5 = -1.0F * (var5 * 2.0F - 1.0F);
                 var6 = -1.0F * (var6 * 2.0F - 1.0F);
                 var7 = -1.0F * (var7 * 2.0F - 1.0F);
-                this.renderStuckItem(param0, param1, param3, var5, var6, var7, param6);
+                this.renderStuckItem(param0, param1, param2, param3, var5, var6, var7, param6);
                 param0.popPose();
             }
 

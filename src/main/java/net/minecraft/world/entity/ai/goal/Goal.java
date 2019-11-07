@@ -29,6 +29,11 @@ public abstract class Goal {
         this.flags.addAll(param0);
     }
 
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName();
+    }
+
     public EnumSet<Goal.Flag> getFlags() {
         return this.flags;
     }

@@ -35,49 +35,47 @@ public class EndCrystalRenderer extends EntityRenderer<EndCrystal> {
         this.base.addBox(-6.0F, 0.0F, -6.0F, 12.0F, 4.0F, 12.0F);
     }
 
-    public void render(EndCrystal param0, double param1, double param2, double param3, float param4, float param5, PoseStack param6, MultiBufferSource param7) {
-        param6.pushPose();
-        float var0 = getY(param0, param5);
-        float var1 = 0.0625F;
-        float var2 = ((float)param0.time + param5) * 3.0F;
-        int var3 = param0.getLightColor();
-        VertexConsumer var4 = param7.getBuffer(RenderType.entityCutoutNoCull(this.getTextureLocation(param0)));
-        param6.pushPose();
-        param6.scale(2.0F, 2.0F, 2.0F);
-        param6.translate(0.0, -0.5, 0.0);
-        int var5 = OverlayTexture.NO_OVERLAY;
+    public void render(EndCrystal param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {
+        param3.pushPose();
+        float var0 = getY(param0, param2);
+        float var1 = ((float)param0.time + param2) * 3.0F;
+        VertexConsumer var2 = param4.getBuffer(RenderType.entityCutoutNoCull(this.getTextureLocation(param0)));
+        param3.pushPose();
+        param3.scale(2.0F, 2.0F, 2.0F);
+        param3.translate(0.0, -0.5, 0.0);
+        int var3 = OverlayTexture.NO_OVERLAY;
         if (param0.showsBottom()) {
-            this.base.render(param6, var4, 0.0625F, var3, var5, null);
+            this.base.render(param3, var2, param5, var3, null);
         }
 
-        param6.mulPose(Vector3f.YP.rotationDegrees(var2));
-        param6.translate(0.0, (double)(1.5F + var0 / 2.0F), 0.0);
-        param6.mulPose(new Quaternion(new Vector3f(SIN_45, 0.0F, SIN_45), 60.0F, true));
-        this.glass.render(param6, var4, 0.0625F, var3, var5, null);
-        float var6 = 0.875F;
-        param6.scale(0.875F, 0.875F, 0.875F);
-        param6.mulPose(new Quaternion(new Vector3f(SIN_45, 0.0F, SIN_45), 60.0F, true));
-        param6.mulPose(Vector3f.YP.rotationDegrees(var2));
-        this.glass.render(param6, var4, 0.0625F, var3, var5, null);
-        param6.scale(0.875F, 0.875F, 0.875F);
-        param6.mulPose(new Quaternion(new Vector3f(SIN_45, 0.0F, SIN_45), 60.0F, true));
-        param6.mulPose(Vector3f.YP.rotationDegrees(var2));
-        this.cube.render(param6, var4, 0.0625F, var3, var5, null);
-        param6.popPose();
-        param6.popPose();
-        BlockPos var7 = param0.getBeamTarget();
-        if (var7 != null) {
-            float var8 = (float)var7.getX() + 0.5F;
-            float var9 = (float)var7.getY() + 0.5F;
-            float var10 = (float)var7.getZ() + 0.5F;
-            float var11 = (float)((double)var8 - param0.getX());
-            float var12 = (float)((double)var9 - param0.getY());
-            float var13 = (float)((double)var10 - param0.getZ());
-            param6.translate((double)var11, (double)var12, (double)var13);
-            EnderDragonRenderer.renderCrystalBeams(-var11, -var12 + var0, -var13, param5, param0.time, param6, param7, var3);
+        param3.mulPose(Vector3f.YP.rotationDegrees(var1));
+        param3.translate(0.0, (double)(1.5F + var0 / 2.0F), 0.0);
+        param3.mulPose(new Quaternion(new Vector3f(SIN_45, 0.0F, SIN_45), 60.0F, true));
+        this.glass.render(param3, var2, param5, var3, null);
+        float var4 = 0.875F;
+        param3.scale(0.875F, 0.875F, 0.875F);
+        param3.mulPose(new Quaternion(new Vector3f(SIN_45, 0.0F, SIN_45), 60.0F, true));
+        param3.mulPose(Vector3f.YP.rotationDegrees(var1));
+        this.glass.render(param3, var2, param5, var3, null);
+        param3.scale(0.875F, 0.875F, 0.875F);
+        param3.mulPose(new Quaternion(new Vector3f(SIN_45, 0.0F, SIN_45), 60.0F, true));
+        param3.mulPose(Vector3f.YP.rotationDegrees(var1));
+        this.cube.render(param3, var2, param5, var3, null);
+        param3.popPose();
+        param3.popPose();
+        BlockPos var5 = param0.getBeamTarget();
+        if (var5 != null) {
+            float var6 = (float)var5.getX() + 0.5F;
+            float var7 = (float)var5.getY() + 0.5F;
+            float var8 = (float)var5.getZ() + 0.5F;
+            float var9 = (float)((double)var6 - param0.getX());
+            float var10 = (float)((double)var7 - param0.getY());
+            float var11 = (float)((double)var8 - param0.getZ());
+            param3.translate((double)var9, (double)var10, (double)var11);
+            EnderDragonRenderer.renderCrystalBeams(-var9, -var10 + var0, -var11, param2, param0.time, param3, param4, param5);
         }
 
-        super.render(param0, param1, param2, param3, param4, param5, param6, param7);
+        super.render(param0, param1, param2, param3, param4, param5);
     }
 
     public static float getY(EndCrystal param0, float param1) {

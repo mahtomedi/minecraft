@@ -27,11 +27,10 @@ public class EvokerRenderer<T extends SpellcasterIllager> extends IllagerRendere
                     float param6,
                     float param7,
                     float param8,
-                    float param9,
-                    float param10
+                    float param9
                 ) {
                     if (param3.isCastingSpell()) {
-                        super.render(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10);
+                        super.render(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9);
                     }
     
                 }

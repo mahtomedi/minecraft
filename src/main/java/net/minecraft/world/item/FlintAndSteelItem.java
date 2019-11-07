@@ -25,25 +25,25 @@ public class FlintAndSteelItem extends Item {
         Player var0 = param0.getPlayer();
         LevelAccessor var1 = param0.getLevel();
         BlockPos var2 = param0.getClickedPos();
-        BlockPos var3 = var2.relative(param0.getClickedFace());
-        if (canUse(var1.getBlockState(var3), var1, var3)) {
-            var1.playSound(var0, var3, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS, 1.0F, random.nextFloat() * 0.4F + 0.8F);
-            BlockState var4 = ((FireBlock)Blocks.FIRE).getStateForPlacement(var1, var3);
-            var1.setBlock(var3, var4, 11);
-            ItemStack var5 = param0.getItemInHand();
-            if (var0 instanceof ServerPlayer) {
-                CriteriaTriggers.PLACED_BLOCK.trigger((ServerPlayer)var0, var3, var5);
-                var5.hurtAndBreak(1, var0, param1 -> param1.broadcastBreakEvent(param0.getHand()));
+        BlockState var3 = var1.getBlockState(var2);
+        if (canLightCampFire(var3)) {
+            var1.playSound(var0, var2, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS, 1.0F, random.nextFloat() * 0.4F + 0.8F);
+            var1.setBlock(var2, var3.setValue(BlockStateProperties.LIT, Boolean.valueOf(true)), 11);
+            if (var0 != null) {
+                param0.getItemInHand().hurtAndBreak(1, var0, param1 -> param1.broadcastBreakEvent(param0.getHand()));
             }
 
             return InteractionResult.SUCCESS;
         } else {
-            BlockState var6 = var1.getBlockState(var2);
-            if (canLightCampFire(var6)) {
-                var1.playSound(var0, var2, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS, 1.0F, random.nextFloat() * 0.4F + 0.8F);
-                var1.setBlock(var2, var6.setValue(BlockStateProperties.LIT, Boolean.valueOf(true)), 11);
-                if (var0 != null) {
-                    param0.getItemInHand().hurtAndBreak(1, var0, param1 -> param1.broadcastBreakEvent(param0.getHand()));
+            BlockPos var4 = var2.relative(param0.getClickedFace());
+            if (canUse(var1.getBlockState(var4), var1, var4)) {
+                var1.playSound(var0, var4, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS, 1.0F, random.nextFloat() * 0.4F + 0.8F);
+                BlockState var5 = ((FireBlock)Blocks.FIRE).getStateForPlacement(var1, var4);
+                var1.setBlock(var4, var5, 11);
+                ItemStack var6 = param0.getItemInHand();
+                if (var0 instanceof ServerPlayer) {
+                    CriteriaTriggers.PLACED_BLOCK.trigger((ServerPlayer)var0, var4, var6);
+                    var6.hurtAndBreak(1, var0, param1 -> param1.broadcastBreakEvent(param0.getHand()));
                 }
 
                 return InteractionResult.SUCCESS;

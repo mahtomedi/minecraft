@@ -40,67 +40,59 @@ public class ConduitRenderer extends BlockEntityRenderer<ConduitBlockEntity> {
         this.cage.addBox(-4.0F, -4.0F, -4.0F, 8.0F, 8.0F, 8.0F);
     }
 
-    public void render(
-        ConduitBlockEntity param0,
-        double param1,
-        double param2,
-        double param3,
-        float param4,
-        PoseStack param5,
-        MultiBufferSource param6,
-        int param7,
-        int param8
-    ) {
-        float var0 = (float)param0.tickCount + param4;
+    public void render(ConduitBlockEntity param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {
+        float var0 = (float)param0.tickCount + param1;
         if (!param0.isActive()) {
             float var1 = param0.getActiveRotation(0.0F);
-            VertexConsumer var2 = param6.getBuffer(RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS));
-            param5.pushPose();
-            param5.translate(0.5, 0.5, 0.5);
-            param5.mulPose(Vector3f.YP.rotationDegrees(var1));
-            this.shell.render(param5, var2, 0.0625F, param7, param8, this.getSprite(SHELL_TEXTURE));
-            param5.popPose();
+            VertexConsumer var2 = param3.getBuffer(RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS));
+            param2.pushPose();
+            param2.translate(0.5, 0.5, 0.5);
+            param2.mulPose(Vector3f.YP.rotationDegrees(var1));
+            this.shell.render(param2, var2, param4, param5, this.getSprite(SHELL_TEXTURE));
+            param2.popPose();
         } else {
-            VertexConsumer var3 = param6.getBuffer(RenderType.entityCutoutNoCull(TextureAtlas.LOCATION_BLOCKS));
-            float var4 = param0.getActiveRotation(param4) * (180.0F / (float)Math.PI);
+            VertexConsumer var3 = param3.getBuffer(RenderType.entityCutoutNoCull(TextureAtlas.LOCATION_BLOCKS));
+            float var4 = param0.getActiveRotation(param1) * (180.0F / (float)Math.PI);
             float var5 = Mth.sin(var0 * 0.1F) / 2.0F + 0.5F;
             var5 = var5 * var5 + var5;
-            param5.pushPose();
-            param5.translate(0.5, (double)(0.3F + var5 * 0.2F), 0.5);
+            param2.pushPose();
+            param2.translate(0.5, (double)(0.3F + var5 * 0.2F), 0.5);
             Vector3f var6 = new Vector3f(0.5F, 1.0F, 0.5F);
             var6.normalize();
-            param5.mulPose(new Quaternion(var6, var4, true));
-            this.cage.render(param5, var3, 0.0625F, param7, param8, this.getSprite(ACTIVE_SHELL_TEXTURE));
-            param5.popPose();
+            param2.mulPose(new Quaternion(var6, var4, true));
+            this.cage.render(param2, var3, param4, param5, this.getSprite(ACTIVE_SHELL_TEXTURE));
+            param2.popPose();
             int var7 = param0.tickCount / 66 % 3;
-            param5.pushPose();
-            param5.translate(0.5, 0.5, 0.5);
+            param2.pushPose();
+            param2.translate(0.5, 0.5, 0.5);
             if (var7 == 1) {
-                param5.mulPose(Vector3f.XP.rotationDegrees(90.0F));
+                param2.mulPose(Vector3f.XP.rotationDegrees(90.0F));
             } else if (var7 == 2) {
-                param5.mulPose(Vector3f.ZP.rotationDegrees(90.0F));
+                param2.mulPose(Vector3f.ZP.rotationDegrees(90.0F));
             }
 
             TextureAtlasSprite var8 = this.getSprite(var7 == 1 ? VERTICAL_WIND_TEXTURE : WIND_TEXTURE);
-            this.wind.render(param5, var3, 0.0625F, param7, param8, var8);
-            param5.popPose();
-            param5.pushPose();
-            param5.translate(0.5, 0.5, 0.5);
-            param5.scale(0.875F, 0.875F, 0.875F);
-            param5.mulPose(Vector3f.XP.rotationDegrees(180.0F));
-            param5.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
-            this.wind.render(param5, var3, 0.0625F, param7, param8, var8);
-            param5.popPose();
+            this.wind.render(param2, var3, param4, param5, var8);
+            param2.popPose();
+            param2.pushPose();
+            param2.translate(0.5, 0.5, 0.5);
+            param2.scale(0.875F, 0.875F, 0.875F);
+            param2.mulPose(Vector3f.XP.rotationDegrees(180.0F));
+            param2.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
+            this.wind.render(param2, var3, param4, param5, var8);
+            param2.popPose();
             Camera var9 = this.renderer.camera;
-            param5.pushPose();
-            param5.translate(0.5, (double)(0.3F + var5 * 0.2F), 0.5);
-            param5.scale(0.5F, 0.5F, 0.5F);
+            param2.pushPose();
+            param2.translate(0.5, (double)(0.3F + var5 * 0.2F), 0.5);
+            param2.scale(0.5F, 0.5F, 0.5F);
             float var10 = -var9.getYRot();
-            param5.mulPose(Vector3f.YP.rotationDegrees(var10));
-            param5.mulPose(Vector3f.XP.rotationDegrees(var9.getXRot()));
-            param5.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
-            this.eye.render(param5, var3, 0.083333336F, param7, param8, this.getSprite(param0.isHunting() ? OPEN_EYE_TEXTURE : CLOSED_EYE_TEXTURE));
-            param5.popPose();
+            param2.mulPose(Vector3f.YP.rotationDegrees(var10));
+            param2.mulPose(Vector3f.XP.rotationDegrees(var9.getXRot()));
+            param2.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
+            float var11 = 1.3333334F;
+            param2.scale(1.3333334F, 1.3333334F, 1.3333334F);
+            this.eye.render(param2, var3, param4, param5, this.getSprite(param0.isHunting() ? OPEN_EYE_TEXTURE : CLOSED_EYE_TEXTURE));
+            param2.popPose();
         }
     }
 }

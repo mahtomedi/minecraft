@@ -39,7 +39,7 @@ public class LavaSlimeModel<T extends Slime> extends ListModel<T> {
         this.parts = var3.build();
     }
 
-    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
+    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
     }
 
     public void prepareMobModel(T param0, float param1, float param2, float param3) {

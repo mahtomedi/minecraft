@@ -1,5 +1,6 @@
 package net.minecraft.server.packs.resources;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -24,9 +25,11 @@ public class FallbackResourceManager implements ResourceManager {
     private static final Logger LOGGER = LogManager.getLogger();
     protected final List<Pack> fallbacks = Lists.newArrayList();
     private final PackType type;
+    private final String namespace;
 
-    public FallbackResourceManager(PackType param0) {
+    public FallbackResourceManager(PackType param0, String param1) {
         this.type = param0;
+        this.namespace = param1;
     }
 
     @Override
@@ -37,7 +40,7 @@ public class FallbackResourceManager implements ResourceManager {
     @OnlyIn(Dist.CLIENT)
     @Override
     public Set<String> getNamespaces() {
-        return Collections.emptySet();
+        return ImmutableSet.of(this.namespace);
     }
 
     @Override
@@ -122,7 +125,7 @@ public class FallbackResourceManager implements ResourceManager {
         List<ResourceLocation> var0 = Lists.newArrayList();
 
         for(Pack var1 : this.fallbacks) {
-            var0.addAll(var1.getResources(this.type, param0, Integer.MAX_VALUE, param1));
+            var0.addAll(var1.getResources(this.type, this.namespace, param0, Integer.MAX_VALUE, param1));
         }
 
         Collections.sort(var0);

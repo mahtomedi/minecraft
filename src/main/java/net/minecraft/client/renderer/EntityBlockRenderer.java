@@ -5,15 +5,18 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import java.util.Arrays;
 import java.util.Comparator;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ShieldModel;
 import net.minecraft.client.model.TridentModel;
-import net.minecraft.client.renderer.banner.BannerTextures;
+import net.minecraft.client.renderer.blockentity.BannerRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.SkullBlockRenderer;
 import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
@@ -72,8 +75,8 @@ public class EntityBlockRenderer {
                     if (var3.contains("SkullOwner", 10)) {
                         var2 = NbtUtils.readGameProfile(var3.getCompound("SkullOwner"));
                     } else if (var3.contains("SkullOwner", 8) && !StringUtils.isBlank(var3.getString("SkullOwner"))) {
-                        GameProfile var13 = new GameProfile(null, var3.getString("SkullOwner"));
-                        var2 = SkullBlockEntity.updateGameprofile(var13);
+                        GameProfile var14 = new GameProfile(null, var3.getString("SkullOwner"));
+                        var2 = SkullBlockEntity.updateGameprofile(var14);
                         var3.remove("SkullOwner");
                         var3.put("SkullOwner", NbtUtils.writeGameProfile(new CompoundTag(), var2));
                     }
@@ -99,24 +102,25 @@ public class EntityBlockRenderer {
 
         } else {
             if (var0 == Items.SHIELD) {
-                ResourceLocation var5;
-                if (param0.getTagElement("BlockEntityTag") != null) {
-                    this.banner.fromItem(param0, ShieldItem.getColor(param0));
-                    var5 = BannerTextures.SHIELD_CACHE.getTextureLocation(this.banner.getTextureHashName(), this.banner.getPatterns(), this.banner.getColors());
-                } else {
-                    var5 = BannerTextures.NO_PATTERN_SHIELD;
-                }
-
+                boolean var5 = param0.getTagElement("BlockEntityTag") != null;
+                TextureAtlas var6 = Minecraft.getInstance().getTextureAtlas();
                 param1.pushPose();
                 param1.scale(1.0F, -1.0F, -1.0F);
-                VertexConsumer var7 = ItemRenderer.getFoilBuffer(param2, this.shieldModel.renderType(var5), false, param0.hasFoil());
-                this.shieldModel.renderToBuffer(param1, var7, param3, param4, 1.0F, 1.0F, 1.0F);
+                VertexConsumer var7 = ItemRenderer.getFoilBuffer(param2, this.shieldModel.renderType(TextureAtlas.LOCATION_BLOCKS), false, param0.hasFoil());
+                TextureAtlasSprite var8 = var6.getSprite(var5 ? ModelBakery.SHIELD_BASE : ModelBakery.NO_PATTERN_SHIELD);
+                this.shieldModel.handle().render(param1, var7, param3, param4, var8, 1.0F, 1.0F, 1.0F);
+                this.shieldModel.plate().render(param1, var7, param3, param4, var8, 1.0F, 1.0F, 1.0F);
+                if (var5) {
+                    this.banner.fromItem(param0, ShieldItem.getColor(param0));
+                    BannerRenderer.renderPatterns(this.banner, param1, param2, param3, param4, this.shieldModel.plate(), false);
+                }
+
                 param1.popPose();
             } else if (var0 == Items.TRIDENT) {
                 param1.pushPose();
                 param1.scale(1.0F, -1.0F, -1.0F);
-                VertexConsumer var8 = ItemRenderer.getFoilBuffer(param2, this.tridentModel.renderType(TridentModel.TEXTURE), false, param0.hasFoil());
-                this.tridentModel.renderToBuffer(param1, var8, param3, param4, 1.0F, 1.0F, 1.0F);
+                VertexConsumer var9 = ItemRenderer.getFoilBuffer(param2, this.tridentModel.renderType(TridentModel.TEXTURE), false, param0.hasFoil());
+                this.tridentModel.renderToBuffer(param1, var9, param3, param4, 1.0F, 1.0F, 1.0F);
                 param1.popPose();
             }
 

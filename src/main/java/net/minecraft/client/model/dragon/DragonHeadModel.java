@@ -43,7 +43,7 @@ public class DragonHeadModel extends SkullModel {
         param0.pushPose();
         param0.translate(0.0, -0.374375F, 0.0);
         param0.scale(0.75F, 0.75F, 0.75F);
-        this.head.render(param0, param1, 0.0625F, param2, param3, null, param4, param5, param6);
+        this.head.render(param0, param1, param2, param3, null, param4, param5, param6);
         param0.popPose();
     }
 }

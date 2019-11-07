@@ -64,7 +64,7 @@ public class LlamaModel<T extends AbstractChestedHorse> extends EntityModel<T> {
         --this.leg3.z;
     }
 
-    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
+    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
         this.head.xRot = param5 * (float) (Math.PI / 180.0);
         this.head.yRot = param4 * (float) (Math.PI / 180.0);
         this.body.xRot = (float) (Math.PI / 2);
@@ -85,23 +85,23 @@ public class LlamaModel<T extends AbstractChestedHorse> extends EntityModel<T> {
             float var1 = 0.7F;
             param0.scale(0.71428573F, 0.64935064F, 0.7936508F);
             param0.translate(0.0, 1.3125, 0.22F);
-            this.head.render(param0, param1, 0.0625F, param2, param3, null, param4, param5, param6);
+            this.head.render(param0, param1, param2, param3, null, param4, param5, param6);
             param0.popPose();
             param0.pushPose();
             float var2 = 1.1F;
             param0.scale(0.625F, 0.45454544F, 0.45454544F);
             param0.translate(0.0, 2.0625, 0.0);
-            this.body.render(param0, param1, 0.0625F, param2, param3, null, param4, param5, param6);
+            this.body.render(param0, param1, param2, param3, null, param4, param5, param6);
             param0.popPose();
             param0.pushPose();
             param0.scale(0.45454544F, 0.41322312F, 0.45454544F);
             param0.translate(0.0, 2.0625, 0.0);
             ImmutableList.of(this.leg0, this.leg1, this.leg2, this.leg3, this.chest1, this.chest2)
-                .forEach(param7 -> param7.render(param0, param1, 0.0625F, param2, param3, null, param4, param5, param6));
+                .forEach(param7 -> param7.render(param0, param1, param2, param3, null, param4, param5, param6));
             param0.popPose();
         } else {
             ImmutableList.of(this.head, this.body, this.leg0, this.leg1, this.leg2, this.leg3, this.chest1, this.chest2)
-                .forEach(param7 -> param7.render(param0, param1, 0.0625F, param2, param3, null, param4, param5, param6));
+                .forEach(param7 -> param7.render(param0, param1, param2, param3, null, param4, param5, param6));
         }
 
     }

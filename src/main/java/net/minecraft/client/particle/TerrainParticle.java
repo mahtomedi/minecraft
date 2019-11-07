@@ -2,6 +2,7 @@ package net.minecraft.client.particle;
 
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.world.level.Level;
@@ -89,7 +90,7 @@ public class TerrainParticle extends TextureSheetParticle {
         int var0 = super.getLightColor(param0);
         int var1 = 0;
         if (this.level.hasChunkAt(this.pos)) {
-            var1 = this.level.getLightColor(this.pos);
+            var1 = LevelRenderer.getLightColor(this.level, this.pos);
         }
 
         return var0 == 0 ? var1 : var0;

@@ -28,25 +28,23 @@ public class DirectAssetIndex extends AssetIndex {
     }
 
     @Override
-    public File getFile(String param0) {
+    public File getRootFile(String param0) {
         return new File(this.assetsDirectory, param0);
     }
 
     @Override
-    public Collection<String> getFiles(String param0, int param1, Predicate<String> param2) {
-        Path var0 = this.assetsDirectory.toPath().resolve("minecraft/");
+    public Collection<ResourceLocation> getFiles(String param0, String param1, int param2, Predicate<String> param3) {
+        Path var0 = this.assetsDirectory.toPath().resolve(param1);
 
-        try (Stream<Path> var1 = Files.walk(var0.resolve(param0), param1)) {
+        try (Stream<Path> var1 = Files.walk(var0.resolve(param0), param2)) {
             return var1.filter(param0x -> Files.isRegularFile(param0x))
                 .filter(param0x -> !param0x.endsWith(".mcmeta"))
-                .map(var0::relativize)
-                .map(Object::toString)
-                .map(param0x -> param0x.replaceAll("\\\\", "/"))
-                .filter(param2)
+                .filter(param1x -> param3.test(param1x.getFileName().toString()))
+                .map(param2x -> new ResourceLocation(param1, var0.relativize(param2x).toString().replaceAll("\\\\", "/")))
                 .collect(Collectors.toList());
-        } catch (NoSuchFileException var20) {
-        } catch (IOException var21) {
-            LOGGER.warn("Unable to getFiles on {}", param0, var21);
+        } catch (NoSuchFileException var21) {
+        } catch (IOException var22) {
+            LOGGER.warn("Unable to getFiles on {}", param0, var22);
         }
 
         return Collections.emptyList();

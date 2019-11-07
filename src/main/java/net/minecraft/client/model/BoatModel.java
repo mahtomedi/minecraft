@@ -59,9 +59,9 @@ public class BoatModel extends ListModel<Boat> {
         this.parts = var6.build();
     }
 
-    public void setupAnim(Boat param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        this.animatePaddle(param0, 0, param6, param1);
-        this.animatePaddle(param0, 1, param6, param1);
+    public void setupAnim(Boat param0, float param1, float param2, float param3, float param4, float param5) {
+        this.animatePaddle(param0, 0, param1);
+        this.animatePaddle(param0, 1, param1);
     }
 
     public ImmutableList<ModelPart> parts() {
@@ -83,8 +83,8 @@ public class BoatModel extends ListModel<Boat> {
         return var0;
     }
 
-    protected void animatePaddle(Boat param0, int param1, float param2, float param3) {
-        float var0 = param0.getRowingTime(param1, param3);
+    protected void animatePaddle(Boat param0, int param1, float param2) {
+        float var0 = param0.getRowingTime(param1, param2);
         ModelPart var1 = this.paddles[param1];
         var1.xRot = (float)Mth.clampedLerp((float) (-Math.PI / 3), (float) (-Math.PI / 12), (double)((Mth.sin(-var0) + 1.0F) / 2.0F));
         var1.yRot = (float)Mth.clampedLerp((float) (-Math.PI / 4), (float) (Math.PI / 4), (double)((Mth.sin(-var0 + 1.0F) + 1.0F) / 2.0F));

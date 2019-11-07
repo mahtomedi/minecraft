@@ -45,8 +45,8 @@ public class WitchModel<T extends Entity> extends VillagerModel<T> {
     }
 
     @Override
-    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-        super.setupAnim(param0, param1, param2, param3, param4, param5, param6);
+    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
+        super.setupAnim(param0, param1, param2, param3, param4, param5);
         this.nose.setPos(0.0F, -2.0F, 0.0F);
         float var0 = 0.01F * (float)(param0.getId() % 10);
         this.nose.xRot = Mth.sin((float)param0.tickCount * var0) * 4.5F * (float) (Math.PI / 180.0);

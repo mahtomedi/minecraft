@@ -27,21 +27,21 @@ public class MinecartRenderer<T extends AbstractMinecart> extends EntityRenderer
         this.shadowRadius = 0.7F;
     }
 
-    public void render(T param0, double param1, double param2, double param3, float param4, float param5, PoseStack param6, MultiBufferSource param7) {
-        super.render(param0, param1, param2, param3, param4, param5, param6, param7);
-        param6.pushPose();
+    public void render(T param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {
+        super.render(param0, param1, param2, param3, param4, param5);
+        param3.pushPose();
         long var0 = (long)param0.getId() * 493286711L;
         var0 = var0 * var0 * 4392167121L + var0 * 98761L;
         float var1 = (((float)(var0 >> 16 & 7L) + 0.5F) / 8.0F - 0.5F) * 0.004F;
         float var2 = (((float)(var0 >> 20 & 7L) + 0.5F) / 8.0F - 0.5F) * 0.004F;
         float var3 = (((float)(var0 >> 24 & 7L) + 0.5F) / 8.0F - 0.5F) * 0.004F;
-        param6.translate((double)var1, (double)var2, (double)var3);
-        double var4 = Mth.lerp((double)param5, param0.xOld, param0.getX());
-        double var5 = Mth.lerp((double)param5, param0.yOld, param0.getY());
-        double var6 = Mth.lerp((double)param5, param0.zOld, param0.getZ());
+        param3.translate((double)var1, (double)var2, (double)var3);
+        double var4 = Mth.lerp((double)param2, param0.xOld, param0.getX());
+        double var5 = Mth.lerp((double)param2, param0.yOld, param0.getY());
+        double var6 = Mth.lerp((double)param2, param0.zOld, param0.getZ());
         double var7 = 0.3F;
         Vec3 var8 = param0.getPos(var4, var5, var6);
-        float var9 = Mth.lerp(param5, param0.xRotO, param0.xRot);
+        float var9 = Mth.lerp(param2, param0.xRotO, param0.xRot);
         if (var8 != null) {
             Vec3 var10 = param0.getPosOffs(var4, var5, var6, 0.3F);
             Vec3 var11 = param0.getPosOffs(var4, var5, var6, -0.3F);
@@ -53,45 +53,45 @@ public class MinecartRenderer<T extends AbstractMinecart> extends EntityRenderer
                 var11 = var8;
             }
 
-            param6.translate(var8.x - var4, (var10.y + var11.y) / 2.0 - var5, var8.z - var6);
+            param3.translate(var8.x - var4, (var10.y + var11.y) / 2.0 - var5, var8.z - var6);
             Vec3 var12 = var11.add(-var10.x, -var10.y, -var10.z);
             if (var12.length() != 0.0) {
                 var12 = var12.normalize();
-                param4 = (float)(Math.atan2(var12.z, var12.x) * 180.0 / Math.PI);
+                param1 = (float)(Math.atan2(var12.z, var12.x) * 180.0 / Math.PI);
                 var9 = (float)(Math.atan(var12.y) * 73.0);
             }
         }
 
-        param6.translate(0.0, 0.375, 0.0);
-        param6.mulPose(Vector3f.YP.rotationDegrees(180.0F - param4));
-        param6.mulPose(Vector3f.ZP.rotationDegrees(-var9));
-        float var13 = (float)param0.getHurtTime() - param5;
-        float var14 = param0.getDamage() - param5;
+        param3.translate(0.0, 0.375, 0.0);
+        param3.mulPose(Vector3f.YP.rotationDegrees(180.0F - param1));
+        param3.mulPose(Vector3f.ZP.rotationDegrees(-var9));
+        float var13 = (float)param0.getHurtTime() - param2;
+        float var14 = param0.getDamage() - param2;
         if (var14 < 0.0F) {
             var14 = 0.0F;
         }
 
         if (var13 > 0.0F) {
-            param6.mulPose(Vector3f.XP.rotationDegrees(Mth.sin(var13) * var13 * var14 / 10.0F * (float)param0.getHurtDir()));
+            param3.mulPose(Vector3f.XP.rotationDegrees(Mth.sin(var13) * var13 * var14 / 10.0F * (float)param0.getHurtDir()));
         }
 
         int var15 = param0.getDisplayOffset();
-        int var16 = param0.getLightColor();
-        BlockState var17 = param0.getDisplayBlockState();
-        if (var17.getRenderShape() != RenderShape.INVISIBLE) {
-            param6.pushPose();
-            float var18 = 0.75F;
-            param6.scale(0.75F, 0.75F, 0.75F);
-            param6.translate(-0.5, (double)((float)(var15 - 8) / 16.0F), 0.5);
-            this.renderMinecartContents(param0, param5, var17, param6, param7, var16);
-            param6.popPose();
+        BlockState var16 = param0.getDisplayBlockState();
+        if (var16.getRenderShape() != RenderShape.INVISIBLE) {
+            param3.pushPose();
+            float var17 = 0.75F;
+            param3.scale(0.75F, 0.75F, 0.75F);
+            param3.translate(-0.5, (double)((float)(var15 - 8) / 16.0F), 0.5);
+            param3.mulPose(Vector3f.YP.rotationDegrees(90.0F));
+            this.renderMinecartContents(param0, param2, var16, param3, param4, param5);
+            param3.popPose();
         }
 
-        param6.scale(-1.0F, -1.0F, 1.0F);
-        this.model.setupAnim(param0, 0.0F, 0.0F, -0.1F, 0.0F, 0.0F, 0.0625F);
-        VertexConsumer var19 = param7.getBuffer(this.model.renderType(this.getTextureLocation(param0)));
-        this.model.renderToBuffer(param6, var19, var16, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F);
-        param6.popPose();
+        param3.scale(-1.0F, -1.0F, 1.0F);
+        this.model.setupAnim(param0, 0.0F, 0.0F, -0.1F, 0.0F, 0.0F);
+        VertexConsumer var18 = param4.getBuffer(this.model.renderType(this.getTextureLocation(param0)));
+        this.model.renderToBuffer(param3, var18, param5, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F);
+        param3.popPose();
     }
 
     public ResourceLocation getTextureLocation(T param0) {

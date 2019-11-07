@@ -48,7 +48,7 @@ public class TropicalFishModelB<T extends Entity> extends ColorableListModel<T> 
     }
 
     @Override
-    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
+    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
         float var0 = 1.0F;
         if (!param0.isInWater()) {
             var0 = 1.5F;

@@ -54,15 +54,13 @@ public class SkullBlockRenderer extends BlockEntityRenderer<SkullBlockEntity> {
         super(param0);
     }
 
-    public void render(
-        SkullBlockEntity param0, double param1, double param2, double param3, float param4, PoseStack param5, MultiBufferSource param6, int param7, int param8
-    ) {
-        float var0 = param0.getMouthAnimation(param4);
+    public void render(SkullBlockEntity param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {
+        float var0 = param0.getMouthAnimation(param1);
         BlockState var1 = param0.getBlockState();
         boolean var2 = var1.getBlock() instanceof WallSkullBlock;
         Direction var3 = var2 ? var1.getValue(WallSkullBlock.FACING) : null;
         float var4 = 22.5F * (float)(var2 ? (2 + var3.get2DDataValue()) * 4 : var1.getValue(SkullBlock.ROTATION));
-        renderSkull(var3, var4, ((AbstractSkullBlock)var1.getBlock()).getType(), param0.getOwnerProfile(), var0, param5, param6, param7);
+        renderSkull(var3, var4, ((AbstractSkullBlock)var1.getBlock()).getType(), param0.getOwnerProfile(), var0, param2, param3, param4);
     }
 
     public static void renderSkull(

@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -12,12 +13,12 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Position;
 import net.minecraft.core.SectionPos;
-import net.minecraft.network.protocol.game.DebugVillagerNameGenerator;
+import net.minecraft.network.protocol.game.DebugMobNameGenerator;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraftforge.api.distmarker.Dist;
@@ -76,12 +77,12 @@ public class VillageDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
     }
 
     @Override
-    public void render(long param0) {
+    public void render(PoseStack param0, MultiBufferSource param1, double param2, double param3, double param4, long param5) {
         RenderSystem.pushMatrix();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableTexture();
-        this.doRender();
+        this.doRender(param2, param3, param4);
         RenderSystem.enableTexture();
         RenderSystem.disableBlend();
         RenderSystem.popMatrix();
@@ -91,17 +92,17 @@ public class VillageDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
 
     }
 
-    private void doRender() {
-        BlockPos var0 = this.getCamera().getBlockPosition();
-        this.villageSections.forEach(param1 -> {
-            if (var0.closerThan(param1.center(), 60.0)) {
-                highlightVillageSection(param1);
+    private void doRender(double param0, double param1, double param2) {
+        BlockPos var0 = new BlockPos(param0, param1, param2);
+        this.villageSections.forEach(param1x -> {
+            if (var0.closerThan(param1x.center(), 60.0)) {
+                highlightVillageSection(param1x);
             }
 
         });
-        this.brainDumpsPerEntity.values().forEach(param0 -> {
-            if (this.isPlayerCloseEnoughToMob(param0)) {
-                this.renderVillagerInfo(param0);
+        this.brainDumpsPerEntity.values().forEach(param3 -> {
+            if (this.isPlayerCloseEnoughToMob(param3)) {
+                this.renderVillagerInfo(param3, param0, param1, param2);
             }
 
         });
@@ -112,15 +113,15 @@ public class VillageDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
             }
         }
 
-        this.pois.values().forEach(param1 -> {
-            if (var0.closerThan(param1.pos, 30.0)) {
-                this.renderPoiInfo(param1);
+        this.pois.values().forEach(param1x -> {
+            if (var0.closerThan(param1x.pos, 30.0)) {
+                this.renderPoiInfo(param1x);
             }
 
         });
-        this.getGhostPois().forEach((param1, param2) -> {
-            if (var0.closerThan(param1, 30.0)) {
-                this.renderGhostPoi(param1, param2);
+        this.getGhostPois().forEach((param1x, param2x) -> {
+            if (var0.closerThan(param1x, 30.0)) {
+                this.renderGhostPoi(param1x, param2x);
             }
 
         });
@@ -136,11 +137,15 @@ public class VillageDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
 
     private static void highlightPoi(BlockPos param0) {
         float var0 = 0.05F;
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
         DebugRenderer.renderFilledBox(param0, 0.05F, 0.2F, 0.2F, 1.0F, 0.3F);
     }
 
     private void renderGhostPoi(BlockPos param0, List<String> param1) {
         float var0 = 0.05F;
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
         DebugRenderer.renderFilledBox(param0, 0.05F, 0.2F, 0.2F, 1.0F, 0.3F);
         renderTextOverPos("" + param1, param0, 0, -256);
         renderTextOverPos("Ghost POI", param0, 1, -65536);
@@ -158,14 +163,14 @@ public class VillageDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
         renderTextOverPoi(param0.type, param0, ++var0, -1);
     }
 
-    private void renderPath(VillageDebugRenderer.BrainDump param0) {
+    private void renderPath(VillageDebugRenderer.BrainDump param0, double param1, double param2, double param3) {
         if (param0.path != null) {
-            PathfindingRenderer.renderPath(this.getCamera(), param0.path, 0.5F, false, false);
+            PathfindingRenderer.renderPath(param0.path, 0.5F, false, false, param1, param2, param3);
         }
 
     }
 
-    private void renderVillagerInfo(VillageDebugRenderer.BrainDump param0) {
+    private void renderVillagerInfo(VillageDebugRenderer.BrainDump param0, double param1, double param2, double param3) {
         boolean var0 = this.isVillagerSelected(param0);
         int var1 = 0;
         renderTextOverMob(param0.pos, var1, param0.name, -1, 0.03F);
@@ -219,7 +224,7 @@ public class VillageDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
         }
 
         if (var0) {
-            this.renderPath(param0);
+            this.renderPath(param0, param1, param2, param3);
         }
 
     }
@@ -249,12 +254,8 @@ public class VillageDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
         DebugRenderer.renderFloatingText(param2, var3, var4, var5, param3, param4, false, 0.5F, true);
     }
 
-    private Camera getCamera() {
-        return this.minecraft.gameRenderer.getMainCamera();
-    }
-
     private Set<String> getTicketHolderNames(VillageDebugRenderer.PoiInfo param0) {
-        return this.getTicketHolders(param0.pos).stream().map(DebugVillagerNameGenerator::getVillagerName).collect(Collectors.toSet());
+        return this.getTicketHolders(param0.pos).stream().map(DebugMobNameGenerator::getMobName).collect(Collectors.toSet());
     }
 
     private boolean isVillagerSelected(VillageDebugRenderer.BrainDump param0) {

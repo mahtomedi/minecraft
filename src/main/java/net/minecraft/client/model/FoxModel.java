@@ -132,7 +132,7 @@ public class FoxModel<T extends Fox> extends AgeableListModel<T> {
         return ImmutableList.of(this.body, this.leg0, this.leg1, this.leg2, this.leg3);
     }
 
-    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5, float param6) {
+    public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
         if (!param0.isSleeping() && !param0.isFaceplanted() && !param0.isCrouching()) {
             this.head.xRot = param5 * (float) (Math.PI / 180.0);
             this.head.yRot = param4 * (float) (Math.PI / 180.0);

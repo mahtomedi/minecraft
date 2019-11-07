@@ -29,8 +29,7 @@ public class Deadmau5EarsLayer extends RenderLayer<AbstractClientPlayer, PlayerM
         float param6,
         float param7,
         float param8,
-        float param9,
-        float param10
+        float param9
     ) {
         if ("deadmau5".equals(param3.getName().getString()) && param3.isSkinLoaded() && !param3.isInvisible()) {
             VertexConsumer var0 = param1.getBuffer(RenderType.entitySolid(param3.getSkinTextureLocation()));
@@ -48,7 +47,7 @@ public class Deadmau5EarsLayer extends RenderLayer<AbstractClientPlayer, PlayerM
                 param0.mulPose(Vector3f.YP.rotationDegrees(-var3));
                 float var5 = 1.3333334F;
                 param0.scale(1.3333334F, 1.3333334F, 1.3333334F);
-                this.getParentModel().renderEars(param0, var0, 0.0625F, param2, var1);
+                this.getParentModel().renderEars(param0, var0, param2, var1);
                 param0.popPose();
             }
 

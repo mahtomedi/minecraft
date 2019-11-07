@@ -81,7 +81,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
-import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.ChatVisiblity;
 import net.minecraft.world.entity.player.Player;
@@ -486,24 +485,10 @@ public class ServerPlayer extends Player implements ContainerListener {
         if (var3 != null) {
             this.awardStat(Stats.ENTITY_KILLED_BY.get(var3.getType()));
             var3.awardKillScore(this, this.deathScore, param0);
-            if (!this.level.isClientSide && var3 instanceof WitherBoss) {
-                boolean var4 = false;
-                if (this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
-                    BlockPos var5 = new BlockPos(this);
-                    BlockState var6 = Blocks.WITHER_ROSE.defaultBlockState();
-                    if (this.level.getBlockState(var5).isAir() && var6.canSurvive(this.level, var5)) {
-                        this.level.setBlock(var5, var6, 3);
-                        var4 = true;
-                    }
-                }
-
-                if (!var4) {
-                    ItemEntity var7 = new ItemEntity(this.level, this.getX(), this.getY(), this.getZ(), new ItemStack(Items.WITHER_ROSE));
-                    this.level.addFreshEntity(var7);
-                }
-            }
+            this.createWitherRose(var3);
         }
 
+        this.level.broadcastEntityEvent(this, (byte)3);
         this.awardStat(Stats.DEATHS);
         this.resetStat(Stats.CUSTOM.get(Stats.TIME_SINCE_DEATH));
         this.resetStat(Stats.CUSTOM.get(Stats.TIME_SINCE_REST));

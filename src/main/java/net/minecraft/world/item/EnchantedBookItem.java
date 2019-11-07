@@ -19,7 +19,6 @@ public class EnchantedBookItem extends Item {
         super(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean isFoil(ItemStack param0) {
         return true;

@@ -50,9 +50,9 @@ public class FireworkParticles {
         }
 
         @Override
-        public void render(VertexConsumer param0, Camera param1, float param2, float param3, float param4, float param5, float param6, float param7) {
+        public void render(VertexConsumer param0, Camera param1, float param2) {
             this.setAlpha(0.6F - ((float)this.age + param2 - 1.0F) * 0.25F * 0.5F);
-            super.render(param0, param1, param2, param3, param4, param5, param6, param7);
+            super.render(param0, param1, param2);
         }
 
         @Override
@@ -93,9 +93,9 @@ public class FireworkParticles {
         }
 
         @Override
-        public void render(VertexConsumer param0, Camera param1, float param2, float param3, float param4, float param5, float param6, float param7) {
+        public void render(VertexConsumer param0, Camera param1, float param2) {
             if (!this.flicker || this.age < this.lifetime / 3 || (this.age + this.lifetime) / 3 % 2 == 0) {
-                super.render(param0, param1, param2, param3, param4, param5, param6, param7);
+                super.render(param0, param1, param2);
             }
 
         }

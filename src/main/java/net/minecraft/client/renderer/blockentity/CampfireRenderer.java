@@ -19,33 +19,23 @@ public class CampfireRenderer extends BlockEntityRenderer<CampfireBlockEntity> {
         super(param0);
     }
 
-    public void render(
-        CampfireBlockEntity param0,
-        double param1,
-        double param2,
-        double param3,
-        float param4,
-        PoseStack param5,
-        MultiBufferSource param6,
-        int param7,
-        int param8
-    ) {
+    public void render(CampfireBlockEntity param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {
         Direction var0 = param0.getBlockState().getValue(CampfireBlock.FACING);
         NonNullList<ItemStack> var1 = param0.getItems();
 
         for(int var2 = 0; var2 < var1.size(); ++var2) {
             ItemStack var3 = var1.get(var2);
             if (var3 != ItemStack.EMPTY) {
-                param5.pushPose();
-                param5.translate(0.5, 0.44921875, 0.5);
+                param2.pushPose();
+                param2.translate(0.5, 0.44921875, 0.5);
                 Direction var4 = Direction.from2DDataValue((var2 + var0.get2DDataValue()) % 4);
                 float var5 = -var4.toYRot();
-                param5.mulPose(Vector3f.YP.rotationDegrees(var5));
-                param5.mulPose(Vector3f.XP.rotationDegrees(90.0F));
-                param5.translate(-0.3125, -0.3125, 0.0);
-                param5.scale(0.375F, 0.375F, 0.375F);
-                Minecraft.getInstance().getItemRenderer().renderStatic(var3, ItemTransforms.TransformType.FIXED, param7, param8, param5, param6);
-                param5.popPose();
+                param2.mulPose(Vector3f.YP.rotationDegrees(var5));
+                param2.mulPose(Vector3f.XP.rotationDegrees(90.0F));
+                param2.translate(-0.3125, -0.3125, 0.0);
+                param2.scale(0.375F, 0.375F, 0.375F);
+                Minecraft.getInstance().getItemRenderer().renderStatic(var3, ItemTransforms.TransformType.FIXED, param4, param5, param2, param3);
+                param2.popPose();
             }
         }
 
