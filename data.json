@@ -116,19 +116,19 @@
   "complianceLevel": 0,
   "downloads": {
     "client": {
-      "sha1": "67fb46186cd0469929a2a3e06d97a2edb42aa983",
-      "size": 15481849,
-      "url": "https://launcher.mojang.com/v1/objects/67fb46186cd0469929a2a3e06d97a2edb42aa983/client.jar"
+      "sha1": "bf60be81bb0902fdeb221d0d09870112d31df0b7",
+      "size": 15481924,
+      "url": "https://launcher.mojang.com/v1/objects/bf60be81bb0902fdeb221d0d09870112d31df0b7/client.jar"
     },
     "client_mappings": {
-      "sha1": "7ece060f64b34bf03b8e98024d6422a562908d90",
+      "sha1": "96d2736d57153d4b6195a3ba361396d7fad8d751",
       "size": 4917090,
-      "url": "https://launcher.mojang.com/v1/objects/7ece060f64b34bf03b8e98024d6422a562908d90/client.txt"
+      "url": "https://launcher.mojang.com/v1/objects/96d2736d57153d4b6195a3ba361396d7fad8d751/client.txt"
     },
     "server": {
-      "sha1": "fa9e744ee6e5cccd4000e2269f8dff8ce96ce5a9",
-      "size": 36130739,
-      "url": "https://launcher.mojang.com/v1/objects/fa9e744ee6e5cccd4000e2269f8dff8ce96ce5a9/server.jar"
+      "sha1": "0d0d7db69eb40408c23ce4503dfd00671bcb9e6b",
+      "size": 36130703,
+      "url": "https://launcher.mojang.com/v1/objects/0d0d7db69eb40408c23ce4503dfd00671bcb9e6b/server.jar"
     },
     "server_mappings": {
       "sha1": "5d63db192f83431fd627927ac9359baa76f3130f",
@@ -136,7 +136,7 @@
       "url": "https://launcher.mojang.com/v1/objects/5d63db192f83431fd627927ac9359baa76f3130f/server.txt"
     }
   },
-  "id": "19w45a",
+  "id": "19w45b",
   "javaVersion": {
     "component": "jre-legacy",
     "majorVersion": 8
@@ -1395,7 +1395,7 @@
   },
   "mainClass": "net.minecraft.client.main.Main",
   "minimumLauncherVersion": 21,
-  "releaseTime": "2019-11-07T16:19:20+00:00",
-  "time": "2019-11-07T16:19:20+00:00",
+  "releaseTime": "2019-11-08T12:42:44+00:00",
+  "time": "2019-11-08T12:42:44+00:00",
   "type": "snapshot"
 }

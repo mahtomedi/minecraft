@@ -98,8 +98,8 @@ public class BlockTintCache {
 
     @OnlyIn(Dist.CLIENT)
     static class LatestCacheInfo {
-        public int x;
-        public int z;
+        public int x = Integer.MIN_VALUE;
+        public int z = Integer.MIN_VALUE;
         public int[] cache;
 
         private LatestCacheInfo() {
