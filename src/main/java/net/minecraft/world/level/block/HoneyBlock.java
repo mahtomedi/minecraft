@@ -1,8 +1,10 @@
 package net.minecraft.world.level.block;
 
+import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Pose;
@@ -39,6 +41,10 @@ public class HoneyBlock extends HalfTransparentBlock {
         if (this.isSlidingDown(param2, param3)) {
             Vec3 var0 = param3.getDeltaMovement();
             if (var0.y < -0.05) {
+                if (param3 instanceof ServerPlayer && var0.y < -0.127) {
+                    CriteriaTriggers.HONEY_BLOCK_SLIDE.trigger((ServerPlayer)param3, param1.getBlockState(param2));
+                }
+
                 param3.setDeltaMovement(new Vec3(var0.x, -0.05, var0.z));
             }
 

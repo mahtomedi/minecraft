@@ -33,24 +33,31 @@ public abstract class AbstractSmallTreeFeature<T extends SmallTreeConfiguration>
     }
 
     public Optional<BlockPos> getProjectedOrigin(LevelSimulatedRW param0, int param1, int param2, int param3, BlockPos param4, SmallTreeConfiguration param5) {
-        int var0 = param0.getHeightmapPos(Heightmap.Types.OCEAN_FLOOR, param4).getY();
-        int var1 = param0.getHeightmapPos(Heightmap.Types.WORLD_SURFACE, param4).getY();
-        BlockPos var2 = new BlockPos(param4.getX(), var0, param4.getZ());
-        if (var1 - var0 > param5.maxWaterDepth) {
-            return Optional.empty();
-        } else if (var2.getY() >= 1 && var2.getY() + param1 + 1 <= 256) {
-            for(int var3 = 0; var3 <= param1 + 1; ++var3) {
-                int var4 = param5.foliagePlacer.getTreeRadiusForHeight(param2, param1, param3, var3);
-                BlockPos.MutableBlockPos var5 = new BlockPos.MutableBlockPos();
+        BlockPos var2;
+        if (!param5.fromSapling) {
+            int var0 = param0.getHeightmapPos(Heightmap.Types.OCEAN_FLOOR, param4).getY();
+            int var1 = param0.getHeightmapPos(Heightmap.Types.WORLD_SURFACE, param4).getY();
+            var2 = new BlockPos(param4.getX(), var0, param4.getZ());
+            if (var1 - var0 > param5.maxWaterDepth) {
+                return Optional.empty();
+            }
+        } else {
+            var2 = param4;
+        }
 
-                for(int var6 = -var4; var6 <= var4; ++var6) {
-                    int var7 = -var4;
+        if (var2.getY() >= 1 && var2.getY() + param1 + 1 <= 256) {
+            for(int var4 = 0; var4 <= param1 + 1; ++var4) {
+                int var5 = param5.foliagePlacer.getTreeRadiusForHeight(param2, param1, param3, var4);
+                BlockPos.MutableBlockPos var6 = new BlockPos.MutableBlockPos();
 
-                    while(var7 <= var4) {
-                        if (var3 + var2.getY() >= 0 && var3 + var2.getY() < 256) {
-                            var5.set(var6 + var2.getX(), var3 + var2.getY(), var7 + var2.getZ());
-                            if (isFree(param0, var5) && (param5.ignoreVines || !isVine(param0, var5))) {
-                                ++var7;
+                for(int var7 = -var5; var7 <= var5; ++var7) {
+                    int var8 = -var5;
+
+                    while(var8 <= var5) {
+                        if (var4 + var2.getY() >= 0 && var4 + var2.getY() < 256) {
+                            var6.set(var7 + var2.getX(), var4 + var2.getY(), var8 + var2.getZ());
+                            if (isFree(param0, var6) && (param5.ignoreVines || !isVine(param0, var6))) {
+                                ++var8;
                                 continue;
                             }
 

@@ -3,7 +3,6 @@ package net.minecraft.world.level.block.entity;
 import com.google.common.collect.Lists;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -20,12 +19,14 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Bee;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.BeehiveBlock;
+import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.FireBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class BeehiveBlockEntity extends BlockEntity implements TickableBlockEntity {
     private final List<BeehiveBlockEntity.BeeData> stored = Lists.newArrayList();
-    private BlockPos savedFlowerPos = BlockPos.ZERO;
+    @Nullable
+    private BlockPos savedFlowerPos = null;
 
     public BeehiveBlockEntity() {
         super(BlockEntityType.BEEHIVE);
@@ -69,7 +70,7 @@ public class BeehiveBlockEntity extends BlockEntity implements TickableBlockEnti
                 if (var1 instanceof Bee) {
                     Bee var2 = (Bee)var1;
                     if (param0.position().distanceToSqr(var1.position()) <= 16.0) {
-                        if (!BeehiveBlock.isCampfireBelow(this.level, this.getBlockPos())) {
+                        if (!this.isSedated()) {
                             var2.makeAngry(param0);
                         } else {
                             var2.setCannotEnterHiveTicks(400);
@@ -91,6 +92,18 @@ public class BeehiveBlockEntity extends BlockEntity implements TickableBlockEnti
         this.addOccupantWithPresetTicks(param0, param1, 0);
     }
 
+    public int getOccupantCount() {
+        return this.stored.size();
+    }
+
+    public static int getHoneyLevel(BlockState param0) {
+        return param0.getValue(BeehiveBlock.HONEY_LEVEL);
+    }
+
+    public boolean isSedated() {
+        return CampfireBlock.isSmokeyPos(this.level, this.getBlockPos(), 5);
+    }
+
     protected void sendDebugPackets() {
         DebugPackets.sendHiveInfo(this);
     }
@@ -104,7 +117,7 @@ public class BeehiveBlockEntity extends BlockEntity implements TickableBlockEnti
             if (this.level != null) {
                 if (param0 instanceof Bee) {
                     Bee var1 = (Bee)param0;
-                    if (!this.hasSavedFlowerPos() || var1.hasSavedFlowerPos() && this.level.random.nextBoolean()) {
+                    if (var1.hasSavedFlowerPos() && (!this.hasSavedFlowerPos() || this.level.random.nextBoolean())) {
                         this.savedFlowerPos = var1.getSavedFlowerPos();
                     }
                 }
@@ -120,91 +133,69 @@ public class BeehiveBlockEntity extends BlockEntity implements TickableBlockEnti
 
     private boolean releaseOccupant(BlockState param0, CompoundTag param1, @Nullable List<Entity> param2, BeehiveBlockEntity.BeeReleaseStatus param3) {
         BlockPos var0 = this.getBlockPos();
-        if ((!this.level.isDay() || this.level.isRaining()) && param3 != BeehiveBlockEntity.BeeReleaseStatus.EMERGENCY) {
+        if ((this.level.isNight() || this.level.isRaining()) && param3 != BeehiveBlockEntity.BeeReleaseStatus.EMERGENCY) {
             return false;
         } else {
             param1.remove("Passengers");
             param1.remove("Leash");
             param1.removeUUID("UUID");
-            Optional<BlockPos> var1 = Optional.empty();
-            Direction var2 = param0.getValue(BeehiveBlock.FACING);
-            BlockPos var3 = var0.relative(var2, 2);
-            if (this.level.getBlockState(var3).getCollisionShape(this.level, var3).isEmpty()) {
-                var1 = Optional.of(var3);
-            }
-
-            if (!var1.isPresent()) {
-                for(Direction var4 : Direction.Plane.HORIZONTAL) {
-                    BlockPos var5 = var0.offset(var4.getStepX() * 2, var4.getStepY(), var4.getStepZ() * 2);
-                    if (this.level.getBlockState(var5).getCollisionShape(this.level, var5).isEmpty()) {
-                        var1 = Optional.of(var5);
-                        break;
-                    }
-                }
-            }
-
-            if (!var1.isPresent()) {
-                for(Direction var6 : Direction.Plane.VERTICAL) {
-                    BlockPos var7 = var0.offset(var6.getStepX() * 2, var6.getStepY(), var6.getStepZ() * 2);
-                    if (this.level.getBlockState(var7).getCollisionShape(this.level, var7).isEmpty()) {
-                        var1 = Optional.of(var7);
-                    }
-                }
-            }
-
-            if (!var1.isPresent()) {
+            Direction var1 = param0.getValue(BeehiveBlock.FACING);
+            BlockPos var2 = var0.relative(var1);
+            if (!this.level.getBlockState(var2).getCollisionShape(this.level, var2).isEmpty()) {
                 return false;
             } else {
-                BlockPos var8 = var1.get();
-                Entity var9 = EntityType.loadEntityRecursive(param1, this.level, param1x -> {
-                    param1x.moveTo((double)var8.getX(), (double)var8.getY(), (double)var8.getZ(), param1x.yRot, param1x.xRot);
-                    return param1x;
-                });
-                if (var9 != null) {
-                    if (!var9.getType().is(EntityTypeTags.BEEHIVE_INHABITORS)) {
+                Entity var3 = EntityType.loadEntityRecursive(param1, this.level, param0x -> param0x);
+                if (var3 != null) {
+                    float var4 = var3.getBbWidth();
+                    double var5 = 0.55 + (double)(var4 / 2.0F);
+                    double var6 = (double)var0.getX() + 0.5 + var5 * (double)var1.getStepX();
+                    double var7 = (double)var0.getY() + 0.5 - (double)(var3.getBbHeight() / 2.0F);
+                    double var8 = (double)var0.getZ() + 0.5 + var5 * (double)var1.getStepZ();
+                    var3.moveTo(var6, var7, var8, var3.yRot, var3.xRot);
+                    if (!var3.getType().is(EntityTypeTags.BEEHIVE_INHABITORS)) {
                         return false;
                     } else {
-                        if (var9 instanceof Bee) {
-                            Bee var10 = (Bee)var9;
-                            if (this.hasSavedFlowerPos() && !var10.hasSavedFlowerPos() && this.level.random.nextFloat() < 0.9F) {
-                                var10.setSavedFlowerPos(this.savedFlowerPos);
+                        if (var3 instanceof Bee) {
+                            Bee var9 = (Bee)var3;
+                            if (this.hasSavedFlowerPos() && !var9.hasSavedFlowerPos() && this.level.random.nextFloat() < 0.9F) {
+                                var9.setSavedFlowerPos(this.savedFlowerPos);
                             }
 
                             if (param3 == BeehiveBlockEntity.BeeReleaseStatus.HONEY_DELIVERED) {
-                                var10.dropOffNectar();
+                                var9.dropOffNectar();
                                 if (param0.getBlock().is(BlockTags.BEEHIVES)) {
-                                    int var11 = param0.getValue(BeehiveBlock.HONEY_LEVEL);
-                                    if (var11 < 5) {
-                                        int var12 = this.level.random.nextInt(100) == 0 ? 2 : 1;
-                                        if (var11 + var12 > 5) {
-                                            --var12;
+                                    int var10 = getHoneyLevel(param0);
+                                    if (var10 < 5) {
+                                        int var11 = this.level.random.nextInt(100) == 0 ? 2 : 1;
+                                        if (var10 + var11 > 5) {
+                                            --var11;
                                         }
 
                                         this.level
-                                            .setBlockAndUpdate(this.getBlockPos(), param0.setValue(BeehiveBlock.HONEY_LEVEL, Integer.valueOf(var11 + var12)));
+                                            .setBlockAndUpdate(this.getBlockPos(), param0.setValue(BeehiveBlock.HONEY_LEVEL, Integer.valueOf(var10 + var11)));
                                     }
                                 }
                             }
 
                             if (param2 != null) {
-                                var10.resetTicksSincePollination();
-                                param2.add(var10);
+                                var9.resetTicksSincePollination();
+                                param2.add(var9);
                             }
                         }
 
-                        BlockPos var13 = this.getBlockPos();
+                        BlockPos var12 = this.getBlockPos();
                         this.level
                             .playSound(
                                 null,
-                                (double)var13.getX(),
-                                (double)var13.getY(),
-                                (double)var13.getZ(),
+                                (double)var12.getX(),
+                                (double)var12.getY(),
+                                (double)var12.getZ(),
                                 SoundEvents.BEEHIVE_EXIT,
                                 SoundSource.BLOCKS,
                                 1.0F,
                                 1.0F
                             );
-                        return this.level.addFreshEntity(var9);
+                        return this.level.addFreshEntity(var3);
                     }
                 } else {
                     return false;
@@ -214,7 +205,7 @@ public class BeehiveBlockEntity extends BlockEntity implements TickableBlockEnti
     }
 
     private boolean hasSavedFlowerPos() {
-        return this.savedFlowerPos != BlockPos.ZERO;
+        return this.savedFlowerPos != null;
     }
 
     private void tickOccupants() {
@@ -268,14 +259,21 @@ public class BeehiveBlockEntity extends BlockEntity implements TickableBlockEnti
             this.stored.add(var3);
         }
 
-        this.savedFlowerPos = NbtUtils.readBlockPos(param0.getCompound("FlowerPos"));
+        this.savedFlowerPos = null;
+        if (param0.contains("FlowerPos")) {
+            this.savedFlowerPos = NbtUtils.readBlockPos(param0.getCompound("FlowerPos"));
+        }
+
     }
 
     @Override
     public CompoundTag save(CompoundTag param0) {
         super.save(param0);
         param0.put("Bees", this.writeBees());
-        param0.put("FlowerPos", NbtUtils.writeBlockPos(this.savedFlowerPos));
+        if (this.hasSavedFlowerPos()) {
+            param0.put("FlowerPos", NbtUtils.writeBlockPos(this.savedFlowerPos));
+        }
+
         return param0;
     }
 

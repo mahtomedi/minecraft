@@ -297,13 +297,17 @@ public final class ItemStack {
     }
 
     public ItemStack copy() {
-        ItemStack var0 = new ItemStack(this.getItem(), this.count);
-        var0.setPopTime(this.getPopTime());
-        if (this.tag != null) {
-            var0.tag = this.tag.copy();
-        }
+        if (this.isEmpty()) {
+            return EMPTY;
+        } else {
+            ItemStack var0 = new ItemStack(this.getItem(), this.count);
+            var0.setPopTime(this.getPopTime());
+            if (this.tag != null) {
+                var0.tag = this.tag.copy();
+            }
 
-        return var0;
+            return var0;
+        }
     }
 
     public static boolean tagMatches(ItemStack param0, ItemStack param1) {

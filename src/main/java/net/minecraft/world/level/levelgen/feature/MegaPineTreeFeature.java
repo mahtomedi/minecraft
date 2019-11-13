@@ -39,7 +39,7 @@ public class MegaPineTreeFeature extends MegaTreeFeature<MegaTreeConfiguration> 
         BoundingBox param7,
         MegaTreeConfiguration param8
     ) {
-        int var0 = param1.nextInt(5) + param8.baseHeight;
+        int var0 = param1.nextInt(5) + param8.crownHeight;
         int var1 = 0;
 
         for(int var2 = param4 - var0; var2 <= param4; ++var2) {

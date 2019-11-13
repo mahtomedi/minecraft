@@ -67,7 +67,7 @@ public class BannerRenderer extends BlockEntityRenderer<BannerBlockEntity> {
             TextureAtlasSprite var7 = this.getSprite(ModelBakery.BANNER_BASE);
             param2.pushPose();
             param2.scale(0.6666667F, -0.6666667F, -0.6666667F);
-            VertexConsumer var8 = param3.getBuffer(RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS));
+            VertexConsumer var8 = param3.getBuffer(RenderType.blockentitySolid());
             this.pole.render(param2, var8, param4, param5, var7);
             this.bar.render(param2, var8, param4, param5, var7);
             if (param0.onlyRenderPattern()) {
@@ -92,7 +92,7 @@ public class BannerRenderer extends BlockEntityRenderer<BannerBlockEntity> {
         List<BannerPattern> var0 = param0.getPatterns();
         List<DyeColor> var1 = param0.getColors();
         TextureAtlas var2 = Minecraft.getInstance().getTextureAtlas();
-        VertexConsumer var3 = param2.getBuffer(RenderType.entityNoOutline(TextureAtlas.LOCATION_BLOCKS));
+        VertexConsumer var3 = param2.getBuffer(RenderType.blockentityNoOutline());
 
         for(int var4 = 0; var4 < 17 && var4 < var0.size() && var4 < var1.size(); ++var4) {
             BannerPattern var5 = var0.get(var4);

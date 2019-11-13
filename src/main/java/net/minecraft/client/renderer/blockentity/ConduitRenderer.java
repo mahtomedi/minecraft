@@ -8,7 +8,6 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -44,14 +43,14 @@ public class ConduitRenderer extends BlockEntityRenderer<ConduitBlockEntity> {
         float var0 = (float)param0.tickCount + param1;
         if (!param0.isActive()) {
             float var1 = param0.getActiveRotation(0.0F);
-            VertexConsumer var2 = param3.getBuffer(RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS));
+            VertexConsumer var2 = param3.getBuffer(RenderType.blockentitySolid());
             param2.pushPose();
             param2.translate(0.5, 0.5, 0.5);
             param2.mulPose(Vector3f.YP.rotationDegrees(var1));
             this.shell.render(param2, var2, param4, param5, this.getSprite(SHELL_TEXTURE));
             param2.popPose();
         } else {
-            VertexConsumer var3 = param3.getBuffer(RenderType.entityCutoutNoCull(TextureAtlas.LOCATION_BLOCKS));
+            VertexConsumer var3 = param3.getBuffer(RenderType.blockentityCutoutNoCull());
             float var4 = param0.getActiveRotation(param1) * (180.0F / (float)Math.PI);
             float var5 = Mth.sin(var0 * 0.1F) / 2.0F + 0.5F;
             var5 = var5 * var5 + var5;

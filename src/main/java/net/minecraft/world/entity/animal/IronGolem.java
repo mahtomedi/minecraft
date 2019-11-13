@@ -241,7 +241,7 @@ public class IronGolem extends AbstractGolem {
             float var2 = this.getHealth();
             this.heal(25.0F);
             if (this.getHealth() == var2) {
-                return true;
+                return false;
             } else {
                 float var3 = 1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.2F;
                 this.playSound(SoundEvents.IRON_GOLEM_REPAIR, 1.0F, var3);

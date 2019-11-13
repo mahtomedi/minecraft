@@ -192,24 +192,31 @@ public class PalettedContainer<T> implements PaletteResize<T> {
     public void write(CompoundTag param0, String param1, String param2) {
         this.acquire();
         HashMapPalette<T> var0 = new HashMapPalette<>(this.registry, this.bits, this.dummyPaletteResize, this.reader, this.writer);
-        var0.idFor(this.defaultValue);
-        int[] var1 = new int[4096];
+        T var1 = this.defaultValue;
+        int var2 = var0.idFor(this.defaultValue);
+        int[] var3 = new int[4096];
 
-        for(int var2 = 0; var2 < 4096; ++var2) {
-            var1[var2] = var0.idFor(this.get(var2));
+        for(int var4 = 0; var4 < 4096; ++var4) {
+            T var5 = this.get(var4);
+            if (var5 != var1) {
+                var1 = var5;
+                var2 = var0.idFor(var5);
+            }
+
+            var3[var4] = var2;
         }
 
-        ListTag var3 = new ListTag();
-        var0.write(var3);
-        param0.put(param1, var3);
-        int var4 = Math.max(4, Mth.ceillog2(var3.size()));
-        BitStorage var5 = new BitStorage(var4, 4096);
+        ListTag var6 = new ListTag();
+        var0.write(var6);
+        param0.put(param1, var6);
+        int var7 = Math.max(4, Mth.ceillog2(var6.size()));
+        BitStorage var8 = new BitStorage(var7, 4096);
 
-        for(int var6 = 0; var6 < var1.length; ++var6) {
-            var5.set(var6, var1[var6]);
+        for(int var9 = 0; var9 < var3.length; ++var9) {
+            var8.set(var9, var3[var9]);
         }
 
-        param0.putLongArray(param2, var5.getRaw());
+        param0.putLongArray(param2, var8.getRaw());
         this.release();
     }
 

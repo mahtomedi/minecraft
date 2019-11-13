@@ -24,11 +24,17 @@ public class AcaciaFoliagePlacer extends FoliagePlacer {
         param2.foliagePlacer.placeLeavesRow(param0, param1, param2, param3, param6, 1, 1, param7);
         BlockPos var0 = param6.above();
 
-        for(int var1 = 2; var1 <= param5 - 1; ++var1) {
-            this.placeLeaf(param0, param1, var0.east(var1), param2, param7);
-            this.placeLeaf(param0, param1, var0.west(var1), param2, param7);
-            this.placeLeaf(param0, param1, var0.south(var1), param2, param7);
-            this.placeLeaf(param0, param1, var0.north(var1), param2, param7);
+        for(int var1 = -1; var1 <= 1; ++var1) {
+            for(int var2 = -1; var2 <= 1; ++var2) {
+                this.placeLeaf(param0, param1, var0.offset(var1, 0, var2), param2, param7);
+            }
+        }
+
+        for(int var3 = 2; var3 <= param5 - 1; ++var3) {
+            this.placeLeaf(param0, param1, var0.east(var3), param2, param7);
+            this.placeLeaf(param0, param1, var0.west(var3), param2, param7);
+            this.placeLeaf(param0, param1, var0.south(var3), param2, param7);
+            this.placeLeaf(param0, param1, var0.north(var3), param2, param7);
         }
 
     }

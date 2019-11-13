@@ -5,7 +5,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -47,7 +46,7 @@ public class BellRenderer extends BlockEntityRenderer<BellBlockEntity> {
 
         this.bellBody.xRot = var1;
         this.bellBody.zRot = var2;
-        VertexConsumer var4 = param3.getBuffer(RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS));
+        VertexConsumer var4 = param3.getBuffer(RenderType.blockentitySolid());
         this.bellBody.render(param2, var4, param4, param5, this.getSprite(BELL_RESOURCE_LOCATION));
     }
 }

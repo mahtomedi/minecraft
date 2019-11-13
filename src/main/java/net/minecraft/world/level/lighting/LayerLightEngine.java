@@ -1,7 +1,6 @@
 package net.minecraft.world.level.lighting;
 
 import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -17,6 +16,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.commons.lang3.mutable.MutableInt;
 
 public abstract class LayerLightEngine<M extends DataLayerStorageMap<M>, S extends LayerLightSectionStorage<M>>
     extends DynamicGraphMinFixedPoint
@@ -74,10 +74,10 @@ public abstract class LayerLightEngine<M extends DataLayerStorageMap<M>, S exten
         Arrays.fill(this.lastChunk, null);
     }
 
-    protected BlockState getStateAndOpacity(long param0, @Nullable AtomicInteger param1) {
+    protected BlockState getStateAndOpacity(long param0, @Nullable MutableInt param1) {
         if (param0 == Long.MAX_VALUE) {
             if (param1 != null) {
-                param1.set(0);
+                param1.setValue(0);
             }
 
             return Blocks.AIR.defaultBlockState();
@@ -87,7 +87,7 @@ public abstract class LayerLightEngine<M extends DataLayerStorageMap<M>, S exten
             BlockGetter var2 = this.getChunk(var0, var1);
             if (var2 == null) {
                 if (param1 != null) {
-                    param1.set(16);
+                    param1.setValue(16);
                 }
 
                 return Blocks.BEDROCK.defaultBlockState();
@@ -96,7 +96,7 @@ public abstract class LayerLightEngine<M extends DataLayerStorageMap<M>, S exten
                 BlockState var3 = var2.getBlockState(this.pos);
                 boolean var4 = var3.canOcclude() && var3.useShapeForLightOcclusion();
                 if (param1 != null) {
-                    param1.set(var3.getLightBlock(this.chunkSource.getLevel(), this.pos));
+                    param1.setValue(var3.getLightBlock(this.chunkSource.getLevel(), this.pos));
                 }
 
                 return var4 ? var3 : Blocks.AIR.defaultBlockState();

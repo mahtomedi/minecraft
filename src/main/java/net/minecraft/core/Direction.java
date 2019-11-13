@@ -185,6 +185,11 @@ public enum Direction implements StringRepresentable {
         return this.axis == Direction.Axis.Z ? this.axisDirection.getStep() : 0;
     }
 
+    @OnlyIn(Dist.CLIENT)
+    public Vector3f step() {
+        return new Vector3f((float)this.getStepX(), (float)this.getStepY(), (float)this.getStepZ());
+    }
+
     public String getName() {
         return this.name;
     }

@@ -410,22 +410,31 @@ public class FlatLevelGeneratorSettings extends ChunkGeneratorSettings {
             } else {
                 var1.getLayersInfo().addAll(var2);
                 var1.updateLayers();
-                Biome var3 = var0.hasNext() ? Registry.BIOME.get(new ResourceLocation(var0.next())) : null;
-                var1.setBiome(var3 == null ? Biomes.PLAINS : var3);
+                Biome var3 = Biomes.PLAINS;
                 if (var0.hasNext()) {
-                    String[] var4 = var0.next().toLowerCase(Locale.ROOT).split(",");
+                    try {
+                        ResourceLocation var4 = new ResourceLocation(var0.next());
+                        var3 = Registry.BIOME.get(var4);
+                    } catch (Exception var17) {
+                        LOGGER.error("Error while parsing flat world string => {}", var17.getMessage());
+                    }
+                }
 
-                    for(String var5 : var4) {
-                        String[] var6 = var5.split("\\(", 2);
-                        if (!var6[0].isEmpty()) {
-                            var1.addStructure(var6[0]);
-                            if (var6.length > 1 && var6[1].endsWith(")") && var6[1].length() > 1) {
-                                String[] var7 = var6[1].substring(0, var6[1].length() - 1).split(" ");
+                var1.setBiome(var3);
+                if (var0.hasNext()) {
+                    String[] var6 = var0.next().toLowerCase(Locale.ROOT).split(",");
 
-                                for(String var8 : var7) {
-                                    String[] var9 = var8.split("=", 2);
-                                    if (var9.length == 2) {
-                                        var1.addStructureOption(var6[0], var9[0], var9[1]);
+                    for(String var7 : var6) {
+                        String[] var8 = var7.split("\\(", 2);
+                        if (!var8[0].isEmpty()) {
+                            var1.addStructure(var8[0]);
+                            if (var8.length > 1 && var8[1].endsWith(")") && var8[1].length() > 1) {
+                                String[] var9 = var8[1].substring(0, var8[1].length() - 1).split(" ");
+
+                                for(String var10 : var9) {
+                                    String[] var11 = var10.split("=", 2);
+                                    if (var11.length == 2) {
+                                        var1.addStructureOption(var8[0], var11[0], var11[1]);
                                     }
                                 }
                             }

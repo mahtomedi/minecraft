@@ -53,15 +53,7 @@ public class CommandFunction {
                 try {
                     ParseResults<CommandSourceStack> var6 = param1.getServer().getCommands().getDispatcher().parse(var4, param1.getCompilationContext());
                     if (var6.getReader().canRead()) {
-                        if (var6.getExceptions().size() == 1) {
-                            throw (CommandSyntaxException)var6.getExceptions().values().iterator().next();
-                        }
-
-                        if (var6.getContext().getRange().isEmpty()) {
-                            throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownCommand().createWithContext(var6.getReader());
-                        }
-
-                        throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownArgument().createWithContext(var6.getReader());
+                        throw Commands.getParseException(var6);
                     }
 
                     var0.add(new CommandFunction.CommandEntry(var6));

@@ -10,7 +10,6 @@ import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.network.chat.Component;
@@ -52,7 +51,7 @@ public class SignRenderer extends BlockEntityRenderer<SignBlockEntity> {
         TextureAtlasSprite var4 = this.getSprite(getTexture(var0.getBlock()));
         param2.pushPose();
         param2.scale(0.6666667F, -0.6666667F, -0.6666667F);
-        VertexConsumer var5 = param3.getBuffer(RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS));
+        VertexConsumer var5 = param3.getBuffer(RenderType.blockentitySolid());
         this.signModel.sign.render(param2, var5, param4, param5, var4);
         this.signModel.stick.render(param2, var5, param4, param5, var4);
         param2.popPose();

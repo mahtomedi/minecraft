@@ -38,7 +38,9 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -49,6 +51,7 @@ public class CampfireBlock extends BaseEntityBlock implements SimpleWaterloggedB
     public static final BooleanProperty SIGNAL_FIRE = BlockStateProperties.SIGNAL_FIRE;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    private static final VoxelShape VIRTUAL_FENCE_POST = Block.box(6.0, 0.0, 6.0, 10.0, 16.0, 10.0);
 
     public CampfireBlock(Block.Properties param0) {
         super(param0);
@@ -259,6 +262,28 @@ public class CampfireBlock extends BaseEntityBlock implements SimpleWaterloggedB
             );
         }
 
+    }
+
+    public static boolean isSmokeyPos(Level param0, BlockPos param1, int param2) {
+        for(int var0 = 1; var0 <= param2; ++var0) {
+            BlockPos var1 = param1.below(var0);
+            BlockState var2 = param0.getBlockState(var1);
+            if (isLitCampfire(var2)) {
+                return true;
+            }
+
+            boolean var3 = Shapes.joinIsNotEmpty(VIRTUAL_FENCE_POST, var2.getCollisionShape(param0, param1, CollisionContext.empty()), BooleanOp.AND);
+            if (var3) {
+                BlockState var4 = param0.getBlockState(var1.below());
+                return isLitCampfire(var4);
+            }
+        }
+
+        return false;
+    }
+
+    private static boolean isLitCampfire(BlockState param0) {
+        return param0.getBlock() == Blocks.CAMPFIRE && param0.getValue(LIT);
     }
 
     @Override

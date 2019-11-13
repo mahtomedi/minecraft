@@ -9,7 +9,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class VertexBuffer {
+public class VertexBuffer implements AutoCloseable {
     private int id;
     private final VertexFormat format;
     private int vertexCount;
@@ -43,11 +43,13 @@ public class VertexBuffer {
 
     private void upload_(BufferBuilder param0) {
         Pair<BufferBuilder.DrawState, ByteBuffer> var0 = param0.popNextBuffer();
-        ByteBuffer var1 = var0.getSecond();
-        this.vertexCount = var1.remaining() / this.format.getVertexSize();
-        this.bind();
-        RenderSystem.glBufferData(34962, var1, 35044);
-        unbind();
+        if (this.id != -1) {
+            ByteBuffer var1 = var0.getSecond();
+            this.vertexCount = var1.remaining() / this.format.getVertexSize();
+            this.bind();
+            RenderSystem.glBufferData(34962, var1, 35044);
+            unbind();
+        }
     }
 
     public void draw(Matrix4f param0, int param1) {
@@ -62,7 +64,8 @@ public class VertexBuffer {
         RenderSystem.glBindBuffer(34962, () -> 0);
     }
 
-    public void delete() {
+    @Override
+    public void close() {
         if (this.id >= 0) {
             RenderSystem.glDeleteBuffers(this.id);
             this.id = -1;

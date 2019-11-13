@@ -55,7 +55,7 @@ public abstract class FoliagePlacer implements Serializable {
             || AbstractTreeFeature.isReplaceablePlant(param0, param2)
             || AbstractTreeFeature.isBlockWater(param0, param2)) {
             param0.setBlock(param2, param3.leavesProvider.getState(param1, param2), 19);
-            param4.add(param2);
+            param4.add(param2.immutable());
         }
 
     }

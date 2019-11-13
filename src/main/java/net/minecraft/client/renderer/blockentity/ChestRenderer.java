@@ -7,10 +7,10 @@ import java.util.Calendar;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -83,39 +83,47 @@ public class ChestRenderer<T extends BlockEntity & LidBlockEntity> extends Block
 
     @Override
     public void render(T param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {
-        BlockState var0 = param0.hasLevel() ? param0.getBlockState() : Blocks.CHEST.defaultBlockState().setValue(ChestBlock.FACING, Direction.SOUTH);
-        ChestType var1 = var0.hasProperty(ChestBlock.TYPE) ? var0.getValue(ChestBlock.TYPE) : ChestType.SINGLE;
-        boolean var2 = var1 != ChestType.SINGLE;
-        ResourceLocation var3;
+        Level var0 = param0.getLevel();
+        boolean var1 = var0 != null;
+        BlockState var2 = var1 ? param0.getBlockState() : Blocks.CHEST.defaultBlockState().setValue(ChestBlock.FACING, Direction.SOUTH);
+        ChestType var3 = var2.hasProperty(ChestBlock.TYPE) ? var2.getValue(ChestBlock.TYPE) : ChestType.SINGLE;
+        boolean var4 = var3 != ChestType.SINGLE;
+        ResourceLocation var5;
         if (this.xmasTextures) {
-            var3 = this.chooseTexture(var1, CHEST_XMAS_LOCATION, CHEST_XMAS_LOCATION_LEFT, CHEST_XMAS_LOCATION_RIGHT);
+            var5 = this.chooseTexture(var3, CHEST_XMAS_LOCATION, CHEST_XMAS_LOCATION_LEFT, CHEST_XMAS_LOCATION_RIGHT);
         } else if (param0 instanceof TrappedChestBlockEntity) {
-            var3 = this.chooseTexture(var1, CHEST_TRAP_LOCATION, CHEST_TRAP_LOCATION_LEFT, CHEST_TRAP_LOCATION_RIGHT);
+            var5 = this.chooseTexture(var3, CHEST_TRAP_LOCATION, CHEST_TRAP_LOCATION_LEFT, CHEST_TRAP_LOCATION_RIGHT);
         } else if (param0 instanceof EnderChestBlockEntity) {
-            var3 = ENDER_CHEST_LOCATION;
+            var5 = ENDER_CHEST_LOCATION;
         } else {
-            var3 = this.chooseTexture(var1, CHEST_LOCATION, CHEST_LOCATION_LEFT, CHEST_LOCATION_RIGHT);
+            var5 = this.chooseTexture(var3, CHEST_LOCATION, CHEST_LOCATION_LEFT, CHEST_LOCATION_RIGHT);
         }
 
         param2.pushPose();
-        float var7 = var0.getValue(ChestBlock.FACING).toYRot();
+        float var9 = var2.getValue(ChestBlock.FACING).toYRot();
         param2.translate(0.5, 0.5, 0.5);
-        param2.mulPose(Vector3f.YP.rotationDegrees(-var7));
+        param2.mulPose(Vector3f.YP.rotationDegrees(-var9));
         param2.translate(-0.5, -0.5, -0.5);
-        float var8 = param0.getOpenNess(param1);
-        var8 = 1.0F - var8;
-        var8 = 1.0F - var8 * var8 * var8;
-        TextureAtlasSprite var9 = this.getSprite(var3);
-        if (var2) {
-            VertexConsumer var10 = param3.getBuffer(RenderType.entityCutout(TextureAtlas.LOCATION_BLOCKS));
-            if (var1 == ChestType.LEFT) {
-                this.render(param2, var10, this.doubleRightLid, this.doubleRightLock, this.doubleRightBottom, var8, param4, param5, var9);
+        float var10;
+        if (var1) {
+            var10 = ChestBlock.getCombinedOpenness(param0, var2, var0, param0.getBlockPos(), param1);
+        } else {
+            var10 = param0.getOpenNess(param1);
+        }
+
+        var10 = 1.0F - var10;
+        var10 = 1.0F - var10 * var10 * var10;
+        TextureAtlasSprite var12 = this.getSprite(var5);
+        if (var4) {
+            VertexConsumer var13 = param3.getBuffer(RenderType.blockentityCutout());
+            if (var3 == ChestType.LEFT) {
+                this.render(param2, var13, this.doubleRightLid, this.doubleRightLock, this.doubleRightBottom, var10, param4, param5, var12);
             } else {
-                this.render(param2, var10, this.doubleLeftLid, this.doubleLeftLock, this.doubleLeftBottom, var8, param4, param5, var9);
+                this.render(param2, var13, this.doubleLeftLid, this.doubleLeftLock, this.doubleLeftBottom, var10, param4, param5, var12);
             }
         } else {
-            VertexConsumer var11 = param3.getBuffer(RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS));
-            this.render(param2, var11, this.lid, this.lock, this.bottom, var8, param4, param5, var9);
+            VertexConsumer var14 = param3.getBuffer(RenderType.blockentitySolid());
+            this.render(param2, var14, this.lid, this.lock, this.bottom, var10, param4, param5, var12);
         }
 
         param2.popPose();

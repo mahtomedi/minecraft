@@ -320,13 +320,15 @@ public class ArmorStand extends LivingEntity {
         ItemStack var0 = param0.getItemInHand(param2);
         if (this.isMarker() || var0.getItem() == Items.NAME_TAG) {
             return InteractionResult.PASS;
-        } else if (!this.level.isClientSide && !param0.isSpectator()) {
+        } else if (param0.isSpectator()) {
+            return InteractionResult.SUCCESS;
+        } else {
             EquipmentSlot var1 = Mob.getEquipmentSlotForItem(var0);
             if (var0.isEmpty()) {
                 EquipmentSlot var2 = this.getClickedSlot(param1);
                 EquipmentSlot var3 = this.isDisabled(var2) ? var1 : var2;
-                if (this.hasItemInSlot(var3)) {
-                    this.swapItem(param0, var3, var0, param2);
+                if (this.hasItemInSlot(var3) && this.swapItem(param0, var3, var0, param2)) {
+                    return InteractionResult.SUCCESS;
                 }
             } else {
                 if (this.isDisabled(var1)) {
@@ -337,12 +339,12 @@ public class ArmorStand extends LivingEntity {
                     return InteractionResult.FAIL;
                 }
 
-                this.swapItem(param0, var1, var0, param2);
+                if (this.swapItem(param0, var1, var0, param2)) {
+                    return InteractionResult.SUCCESS;
+                }
             }
 
-            return InteractionResult.SUCCESS;
-        } else {
-            return InteractionResult.SUCCESS;
+            return InteractionResult.CONSUME;
         }
     }
 
@@ -370,24 +372,29 @@ public class ArmorStand extends LivingEntity {
         return (this.disabledSlots & 1 << param0.getFilterFlag()) != 0 || param0.getType() == EquipmentSlot.Type.HAND && !this.isShowArms();
     }
 
-    private void swapItem(Player param0, EquipmentSlot param1, ItemStack param2, InteractionHand param3) {
+    private boolean swapItem(Player param0, EquipmentSlot param1, ItemStack param2, InteractionHand param3) {
         ItemStack var0 = this.getItemBySlot(param1);
-        if (var0.isEmpty() || (this.disabledSlots & 1 << param1.getFilterFlag() + 8) == 0) {
-            if (!var0.isEmpty() || (this.disabledSlots & 1 << param1.getFilterFlag() + 16) == 0) {
-                if (param0.abilities.instabuild && var0.isEmpty() && !param2.isEmpty()) {
-                    ItemStack var1 = param2.copy();
-                    var1.setCount(1);
-                    this.setItemSlot(param1, var1);
-                } else if (param2.isEmpty() || param2.getCount() <= 1) {
-                    this.setItemSlot(param1, param2);
-                    param0.setItemInHand(param3, var0);
-                } else if (var0.isEmpty()) {
-                    ItemStack var2 = param2.copy();
-                    var2.setCount(1);
-                    this.setItemSlot(param1, var2);
-                    param2.shrink(1);
-                }
-            }
+        if (!var0.isEmpty() && (this.disabledSlots & 1 << param1.getFilterFlag() + 8) != 0) {
+            return false;
+        } else if (var0.isEmpty() && (this.disabledSlots & 1 << param1.getFilterFlag() + 16) != 0) {
+            return false;
+        } else if (param0.abilities.instabuild && var0.isEmpty() && !param2.isEmpty()) {
+            ItemStack var1 = param2.copy();
+            var1.setCount(1);
+            this.setItemSlot(param1, var1);
+            return true;
+        } else if (param2.isEmpty() || param2.getCount() <= 1) {
+            this.setItemSlot(param1, param2);
+            param0.setItemInHand(param3, var0);
+            return true;
+        } else if (!var0.isEmpty()) {
+            return false;
+        } else {
+            ItemStack var2 = param2.copy();
+            var2.setCount(1);
+            this.setItemSlot(param1, var2);
+            param2.shrink(1);
+            return true;
         }
     }
 

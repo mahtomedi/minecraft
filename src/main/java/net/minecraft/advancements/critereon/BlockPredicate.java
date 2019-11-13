@@ -104,4 +104,29 @@ public class BlockPredicate {
             return var0;
         }
     }
+
+    public static class Builder {
+        @Nullable
+        private Block block;
+        @Nullable
+        private Tag<Block> blocks;
+        private StatePropertiesPredicate properties = StatePropertiesPredicate.ANY;
+        private NbtPredicate nbt = NbtPredicate.ANY;
+
+        private Builder() {
+        }
+
+        public static BlockPredicate.Builder block() {
+            return new BlockPredicate.Builder();
+        }
+
+        public BlockPredicate.Builder of(Tag<Block> param0) {
+            this.blocks = param0;
+            return this;
+        }
+
+        public BlockPredicate build() {
+            return new BlockPredicate(this.blocks, this.block, this.properties, this.nbt);
+        }
+    }
 }

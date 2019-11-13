@@ -98,11 +98,12 @@ public class EnderEyeItem extends Item {
                     }
 
                     param1.awardStat(Stats.ITEM_USED.get(this));
+                    param1.swing(param2, true);
                     return InteractionResultHolder.success(var0);
                 }
             }
 
-            return InteractionResultHolder.success(var0);
+            return InteractionResultHolder.consume(var0);
         }
     }
 }

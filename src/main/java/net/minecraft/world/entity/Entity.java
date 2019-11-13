@@ -2707,7 +2707,7 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     public double getRandomX(double param0) {
-        return this.getX((2.0 * this.random.nextDouble() + 1.0) * param0);
+        return this.getX((2.0 * this.random.nextDouble() - 1.0) * param0);
     }
 
     public final double getY() {
@@ -2735,7 +2735,7 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     public double getRandomZ(double param0) {
-        return this.getZ((2.0 * this.random.nextDouble() + 1.0) * param0);
+        return this.getZ((2.0 * this.random.nextDouble() - 1.0) * param0);
     }
 
     public void setPosRaw(double param0, double param1, double param2) {

@@ -113,9 +113,9 @@ public class AnvilScreen extends AbstractContainerScreen<AnvilMenu> implements C
     public void render(int param0, int param1, float param2) {
         this.renderBackground();
         super.render(param0, param1, param2);
-        this.renderTooltip(param0, param1);
         RenderSystem.disableBlend();
         this.name.render(param0, param1, param2);
+        this.renderTooltip(param0, param1);
     }
 
     @Override

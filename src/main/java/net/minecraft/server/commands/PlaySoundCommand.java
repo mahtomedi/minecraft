@@ -145,7 +145,7 @@ public class PlaySoundCommand {
                         );
                     } else {
                         param0.sendSuccess(
-                            new TranslatableComponent("commands.playsound.success.single", param2, param1.iterator().next().getDisplayName()), true
+                            new TranslatableComponent("commands.playsound.success.multiple", param2, param1.iterator().next().getDisplayName()), true
                         );
                     }
 

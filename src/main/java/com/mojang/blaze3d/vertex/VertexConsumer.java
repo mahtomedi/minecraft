@@ -33,6 +33,31 @@ public interface VertexConsumer {
 
     void endVertex();
 
+    default void vertex(
+        float param0,
+        float param1,
+        float param2,
+        float param3,
+        float param4,
+        float param5,
+        float param6,
+        float param7,
+        float param8,
+        int param9,
+        int param10,
+        float param11,
+        float param12,
+        float param13
+    ) {
+        this.vertex((double)param0, (double)param1, (double)param2);
+        this.color(param3, param4, param5, param6);
+        this.uv(param7, param8);
+        this.overlayCoords(param9);
+        this.uv2(param10);
+        this.normal(param11, param12, param13);
+        this.endVertex();
+    }
+
     default VertexConsumer color(float param0, float param1, float param2, float param3) {
         return this.color((int)(param0 * 255.0F), (int)(param1 * 255.0F), (int)(param2 * 255.0F), (int)(param3 * 255.0F));
     }
@@ -70,32 +95,28 @@ public interface VertexConsumer {
                 float var10 = var7.getFloat(0);
                 float var11 = var7.getFloat(4);
                 float var12 = var7.getFloat(8);
-                byte var16;
-                byte var17;
-                byte var18;
+                float var16;
+                float var17;
+                float var18;
                 if (param8) {
-                    int var13 = var7.get(12) & 255;
-                    int var14 = var7.get(13) & 255;
-                    int var15 = var7.get(14) & 255;
-                    var16 = (byte)((int)((float)var13 * param2[var9] * param3));
-                    var17 = (byte)((int)((float)var14 * param2[var9] * param4));
-                    var18 = (byte)((int)((float)var15 * param2[var9] * param5));
+                    float var13 = (float)(var7.get(12) & 255) / 255.0F;
+                    float var14 = (float)(var7.get(13) & 255) / 255.0F;
+                    float var15 = (float)(var7.get(14) & 255) / 255.0F;
+                    var16 = var13 * param2[var9] * param3;
+                    var17 = var14 * param2[var9] * param4;
+                    var18 = var15 * param2[var9] * param5;
                 } else {
-                    var16 = (byte)((int)(255.0F * param2[var9] * param3));
-                    var17 = (byte)((int)(255.0F * param2[var9] * param4));
-                    var18 = (byte)((int)(255.0F * param2[var9] * param5));
+                    var16 = param2[var9] * param3;
+                    var17 = param2[var9] * param4;
+                    var18 = param2[var9] * param5;
                 }
 
                 int var22 = param6[var9];
                 float var23 = var7.getFloat(16);
                 float var24 = var7.getFloat(20);
-                this.vertex(var3, var10, var11, var12);
-                this.color(var16, var17, var18, 255);
-                this.uv(var23, var24);
-                this.overlayCoords(param7);
-                this.uv2(var22);
-                this.normal(var2.x(), var2.y(), var2.z());
-                this.endVertex();
+                Vector4f var25 = new Vector4f(var10, var11, var12, 1.0F);
+                var25.transform(var3);
+                this.vertex(var25.x(), var25.y(), var25.z(), var16, var17, var18, 1.0F, var23, var24, param7, var22, var2.x(), var2.y(), var2.z());
             }
         }
 

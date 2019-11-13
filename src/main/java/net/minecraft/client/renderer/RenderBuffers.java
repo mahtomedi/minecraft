@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import java.util.SortedMap;
 import net.minecraft.Util;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -12,10 +11,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class RenderBuffers {
     private final ChunkBufferBuilderPack fixedBufferPack = new ChunkBufferBuilderPack();
     private final SortedMap<RenderType, BufferBuilder> fixedBuffers = Util.make(new Object2ObjectLinkedOpenHashMap<>(), param0 -> {
-        param0.put(RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS), this.fixedBufferPack.builder(RenderType.solid()));
-        param0.put(RenderType.entityCutout(TextureAtlas.LOCATION_BLOCKS), this.fixedBufferPack.builder(RenderType.cutout()));
-        param0.put(RenderType.entityNoOutline(TextureAtlas.LOCATION_BLOCKS), this.fixedBufferPack.builder(RenderType.cutoutMipped()));
-        param0.put(RenderType.entityTranslucent(TextureAtlas.LOCATION_BLOCKS), this.fixedBufferPack.builder(RenderType.translucent()));
+        param0.put(RenderType.blockentitySolid(), this.fixedBufferPack.builder(RenderType.solid()));
+        param0.put(RenderType.blockentityCutout(), this.fixedBufferPack.builder(RenderType.cutout()));
+        param0.put(RenderType.blockentityNoOutline(), this.fixedBufferPack.builder(RenderType.cutoutMipped()));
+        param0.put(RenderType.blockentityTranslucent(), this.fixedBufferPack.builder(RenderType.translucent()));
         put(param0, RenderType.translucentNoCrumbling());
         put(param0, RenderType.glint());
         put(param0, RenderType.entityGlint());

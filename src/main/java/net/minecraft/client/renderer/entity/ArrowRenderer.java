@@ -42,7 +42,7 @@ public abstract class ArrowRenderer<T extends AbstractArrow> extends EntityRende
         param3.mulPose(Vector3f.XP.rotationDegrees(45.0F));
         param3.scale(0.05625F, 0.05625F, 0.05625F);
         param3.translate(-4.0, 0.0, 0.0);
-        VertexConsumer var12 = param4.getBuffer(RenderType.entityCutoutNoCull(this.getTextureLocation(param0)));
+        VertexConsumer var12 = param4.getBuffer(RenderType.entityCutout(this.getTextureLocation(param0)));
         PoseStack.Pose var13 = param3.last();
         Matrix4f var14 = var13.pose();
         Matrix3f var15 = var13.normal();

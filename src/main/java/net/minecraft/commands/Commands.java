@@ -2,6 +2,7 @@ package net.minecraft.commands;
 
 import com.google.common.collect.Maps;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
@@ -12,6 +13,7 @@ import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.RootCommandNode;
 import java.util.Map;
 import java.util.function.Predicate;
+import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
@@ -316,6 +318,19 @@ public class Commands {
 
     public CommandDispatcher<CommandSourceStack> getDispatcher() {
         return this.dispatcher;
+    }
+
+    @Nullable
+    public static <S> CommandSyntaxException getParseException(ParseResults<S> param0) {
+        if (!param0.getReader().canRead()) {
+            return null;
+        } else if (param0.getExceptions().size() == 1) {
+            return param0.getExceptions().values().iterator().next();
+        } else {
+            return param0.getContext().getRange().isEmpty()
+                ? CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownCommand().createWithContext(param0.getReader())
+                : CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownArgument().createWithContext(param0.getReader());
+        }
     }
 
     @FunctionalInterface

@@ -27,7 +27,6 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
@@ -58,10 +57,8 @@ public class EntityRenderDispatcher {
     private final Font font;
     public final TextureManager textureManager;
     private Level level;
-    private Camera camera;
+    public Camera camera;
     public Entity crosshairPickEntity;
-    public float playerRotY;
-    public float playerRotX;
     public final Options options;
     private boolean shouldRenderShadow = true;
     private boolean renderHitBoxes;
@@ -210,21 +207,6 @@ public class EntityRenderDispatcher {
         this.level = param0;
         this.camera = param1;
         this.crosshairPickEntity = param2;
-        if (param1.getEntity() instanceof LivingEntity && ((LivingEntity)param1.getEntity()).isSleeping()) {
-            Direction var0 = ((LivingEntity)param1.getEntity()).getBedOrientation();
-            if (var0 != null) {
-                this.playerRotY = var0.getOpposite().toYRot();
-                this.playerRotX = 0.0F;
-            }
-        } else {
-            this.playerRotY = param1.getYRot();
-            this.playerRotX = param1.getXRot();
-        }
-
-    }
-
-    public void setPlayerRotY(float param0) {
-        this.playerRotY = param0;
     }
 
     public void setRenderShadow(boolean param0) {
@@ -349,11 +331,11 @@ public class EntityRenderDispatcher {
         float var5 = 0.0F;
         float var6 = param2.getBbHeight() / var3;
         float var7 = 0.0F;
-        param0.mulPose(Vector3f.YP.rotationDegrees(-this.playerRotY));
+        param0.mulPose(Vector3f.YP.rotationDegrees(-this.camera.getYRot()));
         param0.translate(0.0, 0.0, (double)(-0.3F + (float)((int)var6) * 0.02F));
         float var8 = 0.0F;
         int var9 = 0;
-        VertexConsumer var10 = param1.getBuffer(RenderType.entityCutout(TextureAtlas.LOCATION_BLOCKS));
+        VertexConsumer var10 = param1.getBuffer(RenderType.blockentityCutout());
 
         for(PoseStack.Pose var11 = param0.last(); var6 > 0.0F; ++var9) {
             TextureAtlasSprite var12 = var9 % 2 == 0 ? var1 : var2;

@@ -32,6 +32,8 @@ public class BufferBuilder extends DefaultedVertexConsumer implements BufferVert
     private int elementIndex;
     private int mode;
     private VertexFormat format;
+    private boolean fastFormat;
+    private boolean fullFormat;
     private boolean building;
 
     public BufferBuilder(int param0) {
@@ -161,9 +163,10 @@ public class BufferBuilder extends DefaultedVertexConsumer implements BufferVert
         ((Buffer)this.buffer).position(this.totalRenderedBytes);
         this.buffer.put(param0.data);
         ((Buffer)this.buffer).clear();
-        this.format = param0.format;
-        this.vertices = var0 / this.format.getVertexSize();
-        this.nextElementByte = this.totalRenderedBytes + this.vertices * this.format.getVertexSize();
+        VertexFormat var1 = param0.format;
+        this.switchFormat(var1);
+        this.vertices = var0 / var1.getVertexSize();
+        this.nextElementByte = this.totalRenderedBytes + this.vertices * var1.getVertexSize();
     }
 
     public void begin(int param0, VertexFormat param1) {
@@ -172,10 +175,20 @@ public class BufferBuilder extends DefaultedVertexConsumer implements BufferVert
         } else {
             this.building = true;
             this.mode = param0;
-            this.format = param1;
+            this.switchFormat(param1);
             this.currentElement = param1.getElements().get(0);
             this.elementIndex = 0;
             ((Buffer)this.buffer).clear();
+        }
+    }
+
+    private void switchFormat(VertexFormat param0) {
+        if (this.format != param0) {
+            this.format = param0;
+            boolean var0 = param0 == DefaultVertexFormat.NEW_ENTITY;
+            boolean var1 = param0 == DefaultVertexFormat.BLOCK;
+            this.fastFormat = var0 || var1;
+            this.fullFormat = var0;
         }
     }
 
@@ -240,6 +253,56 @@ public class BufferBuilder extends DefaultedVertexConsumer implements BufferVert
             throw new IllegalStateException();
         } else {
             return BufferVertexConsumer.super.color(param0, param1, param2, param3);
+        }
+    }
+
+    @Override
+    public void vertex(
+        float param0,
+        float param1,
+        float param2,
+        float param3,
+        float param4,
+        float param5,
+        float param6,
+        float param7,
+        float param8,
+        int param9,
+        int param10,
+        float param11,
+        float param12,
+        float param13
+    ) {
+        if (this.defaultColorSet) {
+            throw new IllegalStateException();
+        } else if (this.fastFormat) {
+            this.putFloat(0, param0);
+            this.putFloat(4, param1);
+            this.putFloat(8, param2);
+            this.putByte(12, (byte)((int)(param3 * 255.0F)));
+            this.putByte(13, (byte)((int)(param4 * 255.0F)));
+            this.putByte(14, (byte)((int)(param5 * 255.0F)));
+            this.putByte(15, (byte)((int)(param6 * 255.0F)));
+            this.putFloat(16, param7);
+            this.putFloat(20, param8);
+            int var0;
+            if (this.fullFormat) {
+                this.putShort(24, (short)(param9 & 65535));
+                this.putShort(26, (short)(param9 >> 16 & 65535));
+                var0 = 28;
+            } else {
+                var0 = 24;
+            }
+
+            this.putShort(var0 + 0, (short)(param10 & 65535));
+            this.putShort(var0 + 2, (short)(param10 >> 16 & 65535));
+            this.putByte(var0 + 4, (byte)((int)(param11 * 127.0F) & 0xFF));
+            this.putByte(var0 + 5, (byte)((int)(param12 * 127.0F) & 0xFF));
+            this.putByte(var0 + 6, (byte)((int)(param13 * 127.0F) & 0xFF));
+            this.nextElementByte += var0 + 8;
+            this.endVertex();
+        } else {
+            super.vertex(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12, param13);
         }
     }
 

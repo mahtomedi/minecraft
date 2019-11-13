@@ -18,6 +18,7 @@ import net.minecraft.advancements.critereon.LocationTrigger;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.advancements.critereon.PlayerHurtEntityTrigger;
 import net.minecraft.advancements.critereon.ShotCrossbowTrigger;
+import net.minecraft.advancements.critereon.SlideDownBlockTrigger;
 import net.minecraft.advancements.critereon.SummonedEntityTrigger;
 import net.minecraft.advancements.critereon.TradeTrigger;
 import net.minecraft.advancements.critereon.UsedTotemTrigger;
@@ -394,6 +395,20 @@ public class AdventureAdvancements implements Consumer<Consumer<Advancement>> {
             .rewards(AdvancementRewards.Builder.experience(100))
             .addCriterion("hero_of_the_village", LocationTrigger.TriggerInstance.raidWon())
             .save(param0, "adventure/hero_of_the_village");
+        Advancement var18 = Advancement.Builder.advancement()
+            .parent(var0)
+            .display(
+                Blocks.HONEY_BLOCK.asItem(),
+                new TranslatableComponent("advancements.adventure.honey_block_slide.title"),
+                new TranslatableComponent("advancements.adventure.honey_block_slide.description"),
+                null,
+                FrameType.TASK,
+                true,
+                true,
+                false
+            )
+            .addCriterion("honey_block_slide", SlideDownBlockTrigger.TriggerInstance.slidesDownBlock(Blocks.HONEY_BLOCK))
+            .save(param0, "adventure/honey_block_slide");
     }
 
     private Advancement.Builder addMobsToKill(Advancement.Builder param0) {

@@ -8,7 +8,6 @@ import java.util.Comparator;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -56,7 +55,7 @@ public class BedRenderer extends BlockEntityRenderer<BedBlockEntity> {
 
     public void render(BedBlockEntity param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {
         ResourceLocation var0 = TEXTURES[param0.getColor().getId()];
-        VertexConsumer var1 = param3.getBuffer(RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS));
+        VertexConsumer var1 = param3.getBuffer(RenderType.blockentitySolid());
         if (param0.hasLevel()) {
             BlockState var2 = param0.getBlockState();
             this.renderPiece(param2, var1, var2.getValue(BedBlock.PART) == BedPart.HEAD, var2.getValue(BedBlock.FACING), var0, param4, param5, false);

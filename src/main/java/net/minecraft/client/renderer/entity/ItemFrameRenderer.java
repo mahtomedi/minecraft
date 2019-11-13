@@ -52,15 +52,7 @@ public class ItemFrameRenderer extends EntityRenderer<ItemFrame> {
         param3.translate(-0.5, -0.5, -0.5);
         var3.getModelRenderer()
             .renderModel(
-                param3.last(),
-                param4.getBuffer(RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS)),
-                null,
-                var4.getModel(var5),
-                1.0F,
-                1.0F,
-                1.0F,
-                param5,
-                OverlayTexture.NO_OVERLAY
+                param3.last(), param4.getBuffer(RenderType.blockentitySolid()), null, var4.getModel(var5), 1.0F, 1.0F, 1.0F, param5, OverlayTexture.NO_OVERLAY
             );
         param3.popPose();
         ItemStack var6 = param0.getItem();

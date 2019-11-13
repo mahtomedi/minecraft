@@ -348,7 +348,10 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
                 int var2 = param2 - 12;
                 int var3 = StatsScreen.this.font.width(var0);
                 this.fillGradient(var1 - 3, var2 - 3, var1 + var3 + 3, var2 + 8 + 3, -1073741824, -1073741824);
+                RenderSystem.pushMatrix();
+                RenderSystem.translatef(0.0F, 0.0F, 400.0F);
                 StatsScreen.this.font.drawShadow(var0, (float)var1, (float)var2, -1);
+                RenderSystem.popMatrix();
             }
         }
 

@@ -200,4 +200,9 @@ public final class Vector3f {
         this.y = param0.get(this.y);
         this.z = param0.get(this.z);
     }
+
+    @Override
+    public String toString() {
+        return "[" + this.x + ", " + this.y + ", " + this.z + "]";
+    }
 }

@@ -1,5 +1,6 @@
 package net.minecraft.world.level.block;
 
+import it.unimi.dsi.fastutil.floats.Float2FloatFunction;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -28,6 +29,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
+import net.minecraft.world.level.block.entity.LidBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -42,6 +44,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ChestBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
@@ -90,6 +94,15 @@ public class ChestBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
 
         public MenuProvider acceptSingle(ChestBlockEntity param0) {
             return param0;
+        }
+    };
+    private static final ChestBlock.ChestSearchCallback<Float2FloatFunction> OPENNES_COMBINER = new ChestBlock.ChestSearchCallback<Float2FloatFunction>() {
+        public Float2FloatFunction acceptDouble(ChestBlockEntity param0, ChestBlockEntity param1) {
+            return param2 -> Math.max(param0.getOpenNess(param2), param1.getOpenNess(param2));
+        }
+
+        public Float2FloatFunction acceptSingle(ChestBlockEntity param0) {
+            return param0::getOpenNess;
         }
     };
 
@@ -275,6 +288,12 @@ public class ChestBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
     @Override
     public MenuProvider getMenuProvider(BlockState param0, Level param1, BlockPos param2) {
         return combineWithNeigbour(param0, param1, param2, false, MENU_PROVIDER_COMBINER);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static float getCombinedOpenness(LidBlockEntity param0, BlockState param1, Level param2, BlockPos param3, float param4) {
+        Float2FloatFunction var0 = combineWithNeigbour(param1, param2, param3, true, OPENNES_COMBINER);
+        return var0 == null ? param0.getOpenNess(param4) : var0.get(param4);
     }
 
     @Override

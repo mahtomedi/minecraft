@@ -2,7 +2,6 @@ package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -67,8 +66,7 @@ public abstract class EntityRenderer<T extends Entity> {
             int var3 = "deadmau5".equals(param1) ? -10 : 0;
             param2.pushPose();
             param2.translate(0.0, (double)var2, 0.0);
-            param2.mulPose(Vector3f.YP.rotationDegrees(-this.entityRenderDispatcher.playerRotY));
-            param2.mulPose(Vector3f.XP.rotationDegrees(this.entityRenderDispatcher.playerRotX));
+            param2.mulPose(this.entityRenderDispatcher.camera.rotation());
             param2.scale(-0.025F, -0.025F, 0.025F);
             Matrix4f var4 = param2.last().pose();
             float var5 = Minecraft.getInstance().options.getBackgroundOpacity(0.25F);

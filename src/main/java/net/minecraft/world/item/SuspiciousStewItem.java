@@ -5,6 +5,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
 public class SuspiciousStewItem extends Item {
@@ -24,25 +25,25 @@ public class SuspiciousStewItem extends Item {
 
     @Override
     public ItemStack finishUsingItem(ItemStack param0, Level param1, LivingEntity param2) {
-        super.finishUsingItem(param0, param1, param2);
-        CompoundTag var0 = param0.getTag();
-        if (var0 != null && var0.contains("Effects", 9)) {
-            ListTag var1 = var0.getList("Effects", 10);
+        ItemStack var0 = super.finishUsingItem(param0, param1, param2);
+        CompoundTag var1 = param0.getTag();
+        if (var1 != null && var1.contains("Effects", 9)) {
+            ListTag var2 = var1.getList("Effects", 10);
 
-            for(int var2 = 0; var2 < var1.size(); ++var2) {
-                int var3 = 160;
-                CompoundTag var4 = var1.getCompound(var2);
-                if (var4.contains("EffectDuration", 3)) {
-                    var3 = var4.getInt("EffectDuration");
+            for(int var3 = 0; var3 < var2.size(); ++var3) {
+                int var4 = 160;
+                CompoundTag var5 = var2.getCompound(var3);
+                if (var5.contains("EffectDuration", 3)) {
+                    var4 = var5.getInt("EffectDuration");
                 }
 
-                MobEffect var5 = MobEffect.byId(var4.getByte("EffectId"));
-                if (var5 != null) {
-                    param2.addEffect(new MobEffectInstance(var5, var3));
+                MobEffect var6 = MobEffect.byId(var5.getByte("EffectId"));
+                if (var6 != null) {
+                    param2.addEffect(new MobEffectInstance(var6, var4));
                 }
             }
         }
 
-        return new ItemStack(Items.BOWL);
+        return param2 instanceof Player && ((Player)param2).abilities.instabuild ? var0 : new ItemStack(Items.BOWL);
     }
 }

@@ -111,8 +111,8 @@ public class ItemRenderer implements ResourceManagerReloadListener {
             if (!param7.isCustomRenderer() && (param0.getItem() != Items.TRIDENT || var1)) {
                 RenderType var2 = ItemBlockRenderTypes.getRenderType(param0);
                 RenderType var3;
-                if (var0 && Objects.equals(var2, RenderType.entityTranslucent(TextureAtlas.LOCATION_BLOCKS))) {
-                    var3 = RenderType.entityTranslucentCull(TextureAtlas.LOCATION_BLOCKS);
+                if (var0 && Objects.equals(var2, RenderType.blockentityTranslucent())) {
+                    var3 = RenderType.blockentityTranslucentCull();
                 } else {
                     var3 = var2;
                 }

@@ -226,7 +226,6 @@ public class ChestBlockEntity extends RandomizableContainerBlockEntity implement
         this.items = param0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public float getOpenNess(float param0) {
         return Mth.lerp(param0, this.oOpenness, this.openness);

@@ -143,7 +143,7 @@ public class Item implements ItemLike {
             ItemStack var0 = param1.getItemInHand(param2);
             if (param1.canEat(this.getFoodProperties().canAlwaysEat())) {
                 param1.startUsingItem(param2);
-                return InteractionResultHolder.success(var0);
+                return InteractionResultHolder.consume(var0);
             } else {
                 return InteractionResultHolder.fail(var0);
             }

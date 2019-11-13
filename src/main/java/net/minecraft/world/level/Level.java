@@ -365,7 +365,11 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     }
 
     public boolean isDay() {
-        return this.skyDarken < 4;
+        return this.dimension.getType() == DimensionType.OVERWORLD && this.skyDarken < 4;
+    }
+
+    public boolean isNight() {
+        return this.dimension.getType() == DimensionType.OVERWORLD && !this.isDay();
     }
 
     @Override

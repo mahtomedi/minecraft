@@ -6,7 +6,6 @@ import com.mojang.math.Vector3f;
 import net.minecraft.client.model.ShulkerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.core.Direction;
@@ -52,7 +51,7 @@ public class ShulkerBoxRenderer extends BlockEntityRenderer<ShulkerBoxBlockEntit
         param2.mulPose(var0.getRotation());
         param2.scale(1.0F, -1.0F, -1.0F);
         param2.translate(0.0, -1.0, 0.0);
-        VertexConsumer var7 = param3.getBuffer(RenderType.entityCutoutNoCull(TextureAtlas.LOCATION_BLOCKS));
+        VertexConsumer var7 = param3.getBuffer(RenderType.blockentityCutoutNoCull());
         this.model.getBase().render(param2, var7, param4, param5, var5);
         param2.translate(0.0, (double)(-param0.getProgress(param1) * 0.5F), 0.0);
         param2.mulPose(Vector3f.YP.rotationDegrees(270.0F * param0.getProgress(param1)));

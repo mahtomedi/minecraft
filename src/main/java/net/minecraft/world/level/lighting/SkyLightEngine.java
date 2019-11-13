@@ -1,6 +1,5 @@
 package net.minecraft.world.level.lighting;
 
-import java.util.concurrent.atomic.AtomicInteger;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
@@ -12,6 +11,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.commons.lang3.mutable.MutableInt;
 
 public final class SkyLightEngine extends LayerLightEngine<SkyLightSectionStorage.SkyDataLayerStorageMap, SkyLightSectionStorage> {
     private static final Direction[] DIRECTIONS = Direction.values();
@@ -37,9 +37,9 @@ public final class SkyLightEngine extends LayerLightEngine<SkyLightSectionStorag
             if (param2 >= 15) {
                 return param2;
             } else {
-                AtomicInteger var0 = new AtomicInteger();
+                MutableInt var0 = new MutableInt();
                 BlockState var1 = this.getStateAndOpacity(param1, var0);
-                if (var0.get() >= 15) {
+                if (var0.getValue() >= 15) {
                     return 15;
                 } else {
                     int var2 = BlockPos.getX(param0);
@@ -85,7 +85,7 @@ public final class SkyLightEngine extends LayerLightEngine<SkyLightSectionStorag
                     }
 
                     boolean var21 = param0 == Long.MAX_VALUE || var8 && var3 > var6;
-                    return var21 && param2 == 0 && var0.get() == 0 ? 0 : param2 + Math.max(1, var0.get());
+                    return var21 && param2 == 0 && var0.getValue() == 0 ? 0 : param2 + Math.max(1, var0.getValue());
                 }
             }
         }

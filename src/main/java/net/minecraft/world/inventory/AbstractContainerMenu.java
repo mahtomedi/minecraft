@@ -116,7 +116,7 @@ public abstract class AbstractContainerMenu {
             ItemStack var1 = this.slots.get(var0).getItem();
             ItemStack var2 = this.lastSlots.get(var0);
             if (!ItemStack.matches(var2, var1)) {
-                var2 = var1.isEmpty() ? ItemStack.EMPTY : var1.copy();
+                var2 = var1.copy();
                 this.lastSlots.set(var0, var2);
 
                 for(ContainerListener var3 : this.containerListeners) {

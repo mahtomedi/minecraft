@@ -15,7 +15,8 @@ public interface ParticleRenderType {
     ParticleRenderType TERRAIN_SHEET = new ParticleRenderType() {
         @Override
         public void begin(BufferBuilder param0, TextureManager param1) {
-            RenderSystem.disableBlend();
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
             RenderSystem.depthMask(true);
             param1.bind(TextureAtlas.LOCATION_BLOCKS);
             param0.begin(7, DefaultVertexFormat.PARTICLE);

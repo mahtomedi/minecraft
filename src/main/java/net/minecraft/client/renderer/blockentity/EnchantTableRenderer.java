@@ -6,7 +6,6 @@ import com.mojang.math.Vector3f;
 import net.minecraft.client.model.BookModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.EnchantmentTableBlockEntity;
@@ -45,7 +44,7 @@ public class EnchantTableRenderer extends BlockEntityRenderer<EnchantmentTableBl
         float var5 = Mth.frac(var3 + 0.75F) * 1.6F - 0.3F;
         float var6 = Mth.lerp(param1, param0.oOpen, param0.open);
         this.bookModel.setupAnim(var0, Mth.clamp(var4, 0.0F, 1.0F), Mth.clamp(var5, 0.0F, 1.0F), var6);
-        VertexConsumer var7 = param3.getBuffer(RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS));
+        VertexConsumer var7 = param3.getBuffer(RenderType.blockentitySolid());
         this.bookModel.render(param2, var7, param4, param5, 1.0F, 1.0F, 1.0F, this.getSprite(BOOK_LOCATION));
         param2.popPose();
     }

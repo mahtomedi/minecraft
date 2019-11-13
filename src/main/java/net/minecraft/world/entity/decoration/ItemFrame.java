@@ -319,9 +319,11 @@ public class ItemFrame extends HangingEntity {
     @Override
     public boolean interact(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
+        boolean var1 = !this.getItem().isEmpty();
+        boolean var2 = !var0.isEmpty();
         if (!this.level.isClientSide) {
-            if (this.getItem().isEmpty()) {
-                if (!var0.isEmpty()) {
+            if (!var1) {
+                if (var2) {
                     this.setItem(var0);
                     if (!param0.abilities.instabuild) {
                         var0.shrink(1);
@@ -331,9 +333,11 @@ public class ItemFrame extends HangingEntity {
                 this.playSound(SoundEvents.ITEM_FRAME_ROTATE_ITEM, 1.0F, 1.0F);
                 this.setRotation(this.getRotation() + 1);
             }
-        }
 
-        return true;
+            return true;
+        } else {
+            return var1 || var2;
+        }
     }
 
     public int getAnalogOutput() {

@@ -58,6 +58,7 @@ public class BeeDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableTexture();
         this.clearRemovedHives();
+        this.clearRemovedBees();
         this.doRender();
         RenderSystem.enableTexture();
         RenderSystem.disableBlend();
@@ -66,6 +67,10 @@ public class BeeDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
             this.updateLastLookedAtUuid();
         }
 
+    }
+
+    private void clearRemovedBees() {
+        this.beeInfosPerEntity.entrySet().removeIf(param0 -> this.minecraft.level.getEntity(param0.getValue().id) == null);
     }
 
     private void clearRemovedHives() {
@@ -162,7 +167,8 @@ public class BeeDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
             renderTextOverHive("In: " + param0.occupantCount + " bees", param0, var0, -256);
         }
 
-        renderTextOverHive(param0.hiveType, param0, ++var0, -1);
+        renderTextOverHive("Honey: " + param0.honeyLevel, param0, ++var0, -23296);
+        renderTextOverHive(param0.hiveType + (param0.sedated ? " (sedated)" : ""), param0, ++var0, -1);
     }
 
     private void renderPath(BeeDebugRenderer.BeeInfo param0) {
@@ -179,14 +185,14 @@ public class BeeDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
         int var1 = 0;
         renderTextOverMob(param0.pos, var1, param0.toString(), -1, 0.03F);
         ++var1;
-        if (param0.hivePos.equals(BlockPos.ZERO)) {
+        if (param0.hivePos == null) {
             renderTextOverMob(param0.pos, var1, "Homeless :(", -98404, 0.02F);
         } else {
             renderTextOverMob(param0.pos, var1, "Hive: " + this.getPosDescription(param0, param0.hivePos), -256, 0.02F);
         }
 
         ++var1;
-        if (param0.flowerPos.equals(BlockPos.ZERO)) {
+        if (param0.flowerPos == null) {
             renderTextOverMob(param0.pos, var1, "No flower :(", -98404, 0.02F);
         } else {
             renderTextOverMob(param0.pos, var1, "Flower: " + this.getPosDescription(param0, param0.flowerPos), -256, 0.02F);
@@ -293,7 +299,9 @@ public class BeeDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
         public final Position pos;
         @Nullable
         public final Path path;
+        @Nullable
         public final BlockPos hivePos;
+        @Nullable
         public final BlockPos flowerPos;
         public final List<String> goals = Lists.newArrayList();
 
@@ -324,7 +332,7 @@ public class BeeDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
         }
 
         public boolean hasFlower() {
-            return this.flowerPos != BlockPos.ZERO;
+            return this.flowerPos != null;
         }
     }
 
@@ -333,13 +341,17 @@ public class BeeDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
         public final BlockPos pos;
         public final String hiveType;
         public final int occupantCount;
+        public final int honeyLevel;
+        public final boolean sedated;
         public final long lastSeen;
 
-        public HiveInfo(BlockPos param0, String param1, int param2, long param3) {
+        public HiveInfo(BlockPos param0, String param1, int param2, int param3, boolean param4, long param5) {
             this.pos = param0;
             this.hiveType = param1;
             this.occupantCount = param2;
-            this.lastSeen = param3;
+            this.honeyLevel = param3;
+            this.sedated = param4;
+            this.lastSeen = param5;
         }
     }
 }

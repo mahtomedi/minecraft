@@ -58,7 +58,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Wolf extends TamableAnimal {
-    private static final EntityDataAccessor<Float> DATA_HEALTH_ID = SynchedEntityData.defineId(Wolf.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Boolean> DATA_INTERESTED_ID = SynchedEntityData.defineId(Wolf.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> DATA_COLLAR_COLOR = SynchedEntityData.defineId(Wolf.class, EntityDataSerializers.INT);
     public static final Predicate<LivingEntity> PREY_SELECTOR = param0 -> {
@@ -124,14 +123,8 @@ public class Wolf extends TamableAnimal {
     }
 
     @Override
-    protected void customServerAiStep() {
-        this.entityData.set(DATA_HEALTH_ID, this.getHealth());
-    }
-
-    @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
-        this.entityData.define(DATA_HEALTH_ID, this.getHealth());
         this.entityData.define(DATA_INTERESTED_ID, false);
         this.entityData.define(DATA_COLLAR_COLOR, DyeColor.RED.getId());
     }
@@ -163,7 +156,7 @@ public class Wolf extends TamableAnimal {
         if (this.isAngry()) {
             return SoundEvents.WOLF_GROWL;
         } else if (this.random.nextInt(3) == 0) {
-            return this.isTame() && this.entityData.get(DATA_HEALTH_ID) < 10.0F ? SoundEvents.WOLF_WHINE : SoundEvents.WOLF_PANT;
+            return this.isTame() && this.getHealth() < 10.0F ? SoundEvents.WOLF_WHINE : SoundEvents.WOLF_PANT;
         } else {
             return SoundEvents.WOLF_AMBIENT;
         }
@@ -345,7 +338,7 @@ public class Wolf extends TamableAnimal {
             return this.isOwnedBy(param0) || var1 == Items.BONE && !this.isAngry();
         } else {
             if (this.isTame()) {
-                if (var1.isEdible() && var1.getFoodProperties().isMeat() && this.getHealth() < 20.0F) {
+                if (var1.isEdible() && var1.getFoodProperties().isMeat() && this.getHealth() < this.getMaxHealth()) {
                     if (!param0.abilities.instabuild) {
                         var0.shrink(1);
                     }
@@ -389,7 +382,6 @@ public class Wolf extends TamableAnimal {
                     this.navigation.stop();
                     this.setTarget(null);
                     this.sitGoal.wantToSit(true);
-                    this.setHealth(20.0F);
                     this.level.broadcastEntityEvent(this, (byte)7);
                 } else {
                     this.level.broadcastEntityEvent(this, (byte)6);
@@ -420,7 +412,7 @@ public class Wolf extends TamableAnimal {
         if (this.isAngry()) {
             return 1.5393804F;
         } else {
-            return this.isTame() ? (0.55F - (this.getMaxHealth() - this.entityData.get(DATA_HEALTH_ID)) * 0.02F) * (float) Math.PI : (float) (Math.PI / 5);
+            return this.isTame() ? (0.55F - (this.getMaxHealth() - this.getHealth()) * 0.02F) * (float) Math.PI : (float) (Math.PI / 5);
         }
     }
 

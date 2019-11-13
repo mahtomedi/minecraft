@@ -119,7 +119,6 @@ public class InventoryScreen extends EffectRenderingInventoryScreen<InventoryMen
         param5.yHeadRot = param5.yRot;
         param5.yHeadRotO = param5.yRot;
         EntityRenderDispatcher var6 = Minecraft.getInstance().getEntityRenderDispatcher();
-        var6.setPlayerRotY(180.0F);
         var6.setRenderShadow(false);
         MultiBufferSource.BufferSource var7 = Minecraft.getInstance().renderBuffers().bufferSource();
         var6.render(param5, 0.0, 0.0, 0.0, 0.0F, 1.0F, var0, var7, 15728880);

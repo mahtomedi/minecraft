@@ -77,7 +77,7 @@ public class Main {
         if (var26 != null) {
             try {
                 var27 = new Proxy(Type.SOCKS, new InetSocketAddress(var26, parseArgument(var24, var7)));
-            } catch (Exception var66) {
+            } catch (Exception var68) {
             }
         }
 
@@ -142,17 +142,20 @@ public class Main {
             RenderSystem.beginInitialization();
             var52 = new Minecraft(var49);
             RenderSystem.finishInitialization();
-        } catch (Throwable var65) {
-            CrashReport var54 = CrashReport.forThrowable(var65, "Initializing game");
-            var54.addCategory("Initialization");
-            Minecraft.fillReport(null, var49.game.launchVersion, null, var54);
-            Minecraft.crash(var54);
+        } catch (SilentInitException var66) {
+            LOGGER.warn("Failed to create window: ", (Throwable)var66);
+            return;
+        } catch (Throwable var67) {
+            CrashReport var55 = CrashReport.forThrowable(var67, "Initializing game");
+            var55.addCategory("Initialization");
+            Minecraft.fillReport(null, var49.game.launchVersion, null, var55);
+            Minecraft.crash(var55);
             return;
         }
 
-        Thread var56;
+        Thread var57;
         if (var52.renderOnThread()) {
-            var56 = new Thread("Game thread") {
+            var57 = new Thread("Game thread") {
                 @Override
                 public void run() {
                     try {
@@ -164,28 +167,28 @@ public class Main {
 
                 }
             };
-            var56.start();
+            var57.start();
 
             while(var52.isRunning()) {
             }
         } else {
-            var56 = null;
+            var57 = null;
 
             try {
                 RenderSystem.initGameThread(false);
                 var52.run();
-            } catch (Throwable var64) {
-                LOGGER.error("Unhandled game exception", var64);
+            } catch (Throwable var65) {
+                LOGGER.error("Unhandled game exception", var65);
             }
         }
 
         try {
             var52.stop();
-            if (var56 != null) {
-                var56.join();
+            if (var57 != null) {
+                var57.join();
             }
-        } catch (InterruptedException var62) {
-            LOGGER.error("Exception during client thread shutdown", (Throwable)var62);
+        } catch (InterruptedException var63) {
+            LOGGER.error("Exception during client thread shutdown", (Throwable)var63);
         } finally {
             var52.destroy();
         }

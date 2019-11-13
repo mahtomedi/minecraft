@@ -274,7 +274,7 @@ public abstract class Player extends LivingEntity {
                 this.resetAttackStrengthTicker();
             }
 
-            this.lastItemInMainHand = var3.isEmpty() ? ItemStack.EMPTY : var3.copy();
+            this.lastItemInMainHand = var3.copy();
         }
 
         this.turtleHelmetTick();
@@ -679,7 +679,7 @@ public abstract class Player extends LivingEntity {
             if (param1) {
                 float var2 = this.random.nextFloat() * 0.5F;
                 float var3 = this.random.nextFloat() * (float) (Math.PI * 2);
-                this.setDeltaMovement((double)(-Mth.sin(var3) * var2), 0.2F, (double)(Mth.cos(var3) * var2));
+                var1.setDeltaMovement((double)(-Mth.sin(var3) * var2), 0.2F, (double)(Mth.cos(var3) * var2));
             } else {
                 float var4 = 0.3F;
                 float var5 = Mth.sin(this.xRot * (float) (Math.PI / 180.0));
@@ -970,7 +970,7 @@ public abstract class Player extends LivingEntity {
             return InteractionResult.PASS;
         } else {
             ItemStack var0 = this.getItemInHand(param1);
-            ItemStack var1 = var0.isEmpty() ? ItemStack.EMPTY : var0.copy();
+            ItemStack var1 = var0.copy();
             if (param0.interact(this, param1)) {
                 if (this.abilities.instabuild && var0 == this.getItemInHand(param1) && var0.getCount() < var1.getCount()) {
                     var0.setCount(var1.getCount());
@@ -1743,7 +1743,7 @@ public abstract class Player extends LivingEntity {
     }
 
     public boolean canEat(boolean param0) {
-        return !this.abilities.invulnerable && (param0 || this.foodData.needsFood());
+        return this.abilities.invulnerable || param0 || this.foodData.needsFood();
     }
 
     public boolean isHurt() {

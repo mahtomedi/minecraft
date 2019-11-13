@@ -409,27 +409,13 @@ public abstract class LivingEntity extends Entity {
     protected void tickDeath() {
         ++this.deathTime;
         if (this.deathTime == 20) {
-            if (!this.level.isClientSide
-                && (
-                    this.isAlwaysExperienceDropper()
-                        || this.lastHurtByPlayerTime > 0 && this.shouldDropExperience() && this.level.getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT)
-                )) {
-                int var0 = this.getExperienceReward(this.lastHurtByPlayer);
-
-                while(var0 > 0) {
-                    int var1 = ExperienceOrb.getExperienceValue(var0);
-                    var0 -= var1;
-                    this.level.addFreshEntity(new ExperienceOrb(this.level, this.getX(), this.getY(), this.getZ(), var1));
-                }
-            }
-
             this.remove();
 
-            for(int var2 = 0; var2 < 20; ++var2) {
+            for(int var0 = 0; var0 < 20; ++var0) {
+                double var1 = this.random.nextGaussian() * 0.02;
+                double var2 = this.random.nextGaussian() * 0.02;
                 double var3 = this.random.nextGaussian() * 0.02;
-                double var4 = this.random.nextGaussian() * 0.02;
-                double var5 = this.random.nextGaussian() * 0.02;
-                this.level.addParticle(ParticleTypes.POOF, this.getRandomX(1.0), this.getRandomY(), this.getRandomZ(1.0), var3, var4, var5);
+                this.level.addParticle(ParticleTypes.POOF, this.getRandomX(1.0), this.getRandomY(), this.getRandomZ(1.0), var1, var2, var3);
             }
         }
 
@@ -1171,9 +1157,27 @@ public abstract class LivingEntity extends Entity {
         }
 
         this.dropEquipment();
+        this.dropExperience();
     }
 
     protected void dropEquipment() {
+    }
+
+    protected void dropExperience() {
+        if (!this.level.isClientSide
+            && (
+                this.isAlwaysExperienceDropper()
+                    || this.lastHurtByPlayerTime > 0 && this.shouldDropExperience() && this.level.getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT)
+            )) {
+            int var0 = this.getExperienceReward(this.lastHurtByPlayer);
+
+            while(var0 > 0) {
+                int var1 = ExperienceOrb.getExperienceValue(var0);
+                var0 -= var1;
+                this.level.addFreshEntity(new ExperienceOrb(this.level, this.getX(), this.getY(), this.getZ(), var1));
+            }
+        }
+
     }
 
     protected void dropCustomDeathLoot(DamageSource param0, int param1, boolean param2) {
@@ -2095,10 +2099,10 @@ public abstract class LivingEntity extends Entity {
 
                     switch(var2.getType()) {
                         case HAND:
-                            this.lastHandItemStacks.set(var2.getIndex(), var6.isEmpty() ? ItemStack.EMPTY : var6.copy());
+                            this.lastHandItemStacks.set(var2.getIndex(), var6.copy());
                             break;
                         case ARMOR:
-                            this.lastArmorItemStacks.set(var2.getIndex(), var6.isEmpty() ? ItemStack.EMPTY : var6.copy());
+                            this.lastArmorItemStacks.set(var2.getIndex(), var6.copy());
                     }
                 }
             }

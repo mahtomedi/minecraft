@@ -20,11 +20,10 @@ public class SaddleItem extends Item {
                 var0.setSaddle(true);
                 var0.level.playSound(param1, var0.getX(), var0.getY(), var0.getZ(), SoundEvents.PIG_SADDLE, SoundSource.NEUTRAL, 0.5F, 1.0F);
                 param0.shrink(1);
+                return true;
             }
-
-            return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 }

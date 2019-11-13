@@ -53,9 +53,10 @@ public class HangingEntityItem extends Item {
                 }
 
                 var4.shrink(1);
+                return InteractionResult.SUCCESS;
+            } else {
+                return InteractionResult.CONSUME;
             }
-
-            return InteractionResult.SUCCESS;
         }
     }
 

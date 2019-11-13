@@ -717,16 +717,12 @@ public class ServerLevel extends Level {
 
     protected void generateBonusItemsNearSpawn() {
         ConfiguredFeature<?, ?> var0 = Feature.BONUS_CHEST.configured(FeatureConfiguration.NONE);
-
-        for(int var1 = 0; var1 < 10; ++var1) {
-            int var2 = this.levelData.getXSpawn() + this.random.nextInt(6) - this.random.nextInt(6);
-            int var3 = this.levelData.getZSpawn() + this.random.nextInt(6) - this.random.nextInt(6);
-            BlockPos var4 = this.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, new BlockPos(var2, 0, var3)).above();
-            if (var0.place(this, this.getChunkSource().getGenerator(), this.random, var4)) {
-                break;
-            }
-        }
-
+        var0.place(
+            this,
+            this.getChunkSource().getGenerator(),
+            this.random,
+            new BlockPos(this.levelData.getXSpawn(), this.levelData.getYSpawn(), this.levelData.getZSpawn())
+        );
     }
 
     @Nullable

@@ -1,18 +1,18 @@
 package net.minecraft.client.model.geom;
 
-import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import com.mojang.math.Vector4f;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.core.Direction;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -30,8 +30,8 @@ public class ModelPart {
     public float zRot;
     public boolean mirror;
     public boolean visible = true;
-    private final List<ModelPart.Cube> cubes = Lists.newArrayList();
-    private final List<ModelPart> children = Lists.newArrayList();
+    private final ObjectList<ModelPart.Cube> cubes = new ObjectArrayList<>();
+    private final ObjectList<ModelPart> children = new ObjectArrayList<>();
 
     public ModelPart(Model param0) {
         param0.accept(this);
@@ -168,44 +168,34 @@ public class ModelPart {
         PoseStack.Pose param0, VertexConsumer param1, int param2, int param3, @Nullable TextureAtlasSprite param4, float param5, float param6, float param7
     ) {
         Matrix4f var0 = param0.pose();
-        Matrix3f var1 = new Matrix3f(var0);
+        Matrix3f var1 = param0.normal();
 
         for(ModelPart.Cube var2 : this.cubes) {
             for(ModelPart.Polygon var3 : var2.polygons) {
-                Vector3f var4 = new Vector3f(var3.vertices[1].pos.vectorTo(var3.vertices[0].pos));
-                Vector3f var5 = new Vector3f(var3.vertices[1].pos.vectorTo(var3.vertices[2].pos));
+                Vector3f var4 = var3.normal.copy();
                 var4.transform(var1);
-                var5.transform(var1);
-                var5.cross(var4);
-                var5.normalize();
-                float var6 = var5.x();
-                float var7 = var5.y();
-                float var8 = var5.z();
+                float var5 = var4.x();
+                float var6 = var4.y();
+                float var7 = var4.z();
 
-                for(int var9 = 0; var9 < 4; ++var9) {
-                    ModelPart.Vertex var10 = var3.vertices[var9];
-                    float var11 = (float)var10.pos.x / 16.0F;
-                    float var12 = (float)var10.pos.y / 16.0F;
-                    float var13 = (float)var10.pos.z / 16.0F;
-                    Vector4f var14 = new Vector4f(var11, var12, var13, 1.0F);
-                    var14.transform(var0);
+                for(int var8 = 0; var8 < 4; ++var8) {
+                    ModelPart.Vertex var9 = var3.vertices[var8];
+                    float var10 = var9.pos.x() / 16.0F;
+                    float var11 = var9.pos.y() / 16.0F;
+                    float var12 = var9.pos.z() / 16.0F;
+                    Vector4f var13 = new Vector4f(var10, var11, var12, 1.0F);
+                    var13.transform(var0);
+                    float var14;
                     float var15;
-                    float var16;
                     if (param4 == null) {
-                        var15 = var10.u;
-                        var16 = var10.v;
+                        var14 = var9.u;
+                        var15 = var9.v;
                     } else {
-                        var15 = param4.getU((double)(var10.u * 16.0F));
-                        var16 = param4.getV((double)(var10.v * 16.0F));
+                        var14 = param4.getU((double)(var9.u * 16.0F));
+                        var15 = param4.getV((double)(var9.v * 16.0F));
                     }
 
-                    param1.vertex((double)var14.x(), (double)var14.y(), (double)var14.z())
-                        .color(param5, param6, param7, 1.0F)
-                        .uv(var15, var16)
-                        .overlayCoords(param3)
-                        .uv2(param2)
-                        .normal(var6, var7, var8)
-                        .endVertex();
+                    param1.vertex(var13.x(), var13.y(), var13.z(), param5, param6, param7, 1.0F, var14, var15, param3, param2, var5, var6, var7);
                 }
             }
         }
@@ -287,65 +277,75 @@ public class ModelPart {
             float var18 = (float)param1;
             float var19 = (float)param1 + param7;
             float var20 = (float)param1 + param7 + param6;
-            this.polygons[2] = new ModelPart.Polygon(new ModelPart.Vertex[]{var9, var8, var4, var5}, var13, var18, var14, var19, param12, param13);
-            this.polygons[3] = new ModelPart.Polygon(new ModelPart.Vertex[]{var6, var7, var11, var10}, var14, var19, var15, var18, param12, param13);
-            this.polygons[1] = new ModelPart.Polygon(new ModelPart.Vertex[]{var4, var8, var11, var7}, var12, var19, var13, var20, param12, param13);
-            this.polygons[4] = new ModelPart.Polygon(new ModelPart.Vertex[]{var5, var4, var7, var6}, var13, var19, var14, var20, param12, param13);
-            this.polygons[0] = new ModelPart.Polygon(new ModelPart.Vertex[]{var9, var5, var6, var10}, var14, var19, var16, var20, param12, param13);
-            this.polygons[5] = new ModelPart.Polygon(new ModelPart.Vertex[]{var8, var9, var10, var11}, var16, var19, var17, var20, param12, param13);
-            if (param11) {
-                for(ModelPart.Polygon var21 : this.polygons) {
-                    var21.mirror();
-                }
-            }
-
+            this.polygons[2] = new ModelPart.Polygon(
+                new ModelPart.Vertex[]{var9, var8, var4, var5}, var13, var18, var14, var19, param12, param13, param11, Direction.DOWN
+            );
+            this.polygons[3] = new ModelPart.Polygon(
+                new ModelPart.Vertex[]{var6, var7, var11, var10}, var14, var19, var15, var18, param12, param13, param11, Direction.UP
+            );
+            this.polygons[1] = new ModelPart.Polygon(
+                new ModelPart.Vertex[]{var4, var8, var11, var7}, var12, var19, var13, var20, param12, param13, param11, Direction.WEST
+            );
+            this.polygons[4] = new ModelPart.Polygon(
+                new ModelPart.Vertex[]{var5, var4, var7, var6}, var13, var19, var14, var20, param12, param13, param11, Direction.NORTH
+            );
+            this.polygons[0] = new ModelPart.Polygon(
+                new ModelPart.Vertex[]{var9, var5, var6, var10}, var14, var19, var16, var20, param12, param13, param11, Direction.EAST
+            );
+            this.polygons[5] = new ModelPart.Polygon(
+                new ModelPart.Vertex[]{var8, var9, var10, var11}, var16, var19, var17, var20, param12, param13, param11, Direction.SOUTH
+            );
         }
     }
 
     @OnlyIn(Dist.CLIENT)
     static class Polygon {
-        public ModelPart.Vertex[] vertices;
+        public final ModelPart.Vertex[] vertices;
+        public final Vector3f normal;
 
-        public Polygon(ModelPart.Vertex[] param0) {
+        public Polygon(
+            ModelPart.Vertex[] param0, float param1, float param2, float param3, float param4, float param5, float param6, boolean param7, Direction param8
+        ) {
             this.vertices = param0;
-        }
-
-        public Polygon(ModelPart.Vertex[] param0, float param1, float param2, float param3, float param4, float param5, float param6) {
-            this(param0);
             float var0 = 0.0F / param5;
             float var1 = 0.0F / param6;
             param0[0] = param0[0].remap(param3 / param5 - var0, param2 / param6 + var1);
             param0[1] = param0[1].remap(param1 / param5 + var0, param2 / param6 + var1);
             param0[2] = param0[2].remap(param1 / param5 + var0, param4 / param6 - var1);
             param0[3] = param0[3].remap(param3 / param5 - var0, param4 / param6 - var1);
-        }
+            if (param7) {
+                int var2 = param0.length;
 
-        public void mirror() {
-            ModelPart.Vertex[] var0 = new ModelPart.Vertex[this.vertices.length];
-
-            for(int var1 = 0; var1 < this.vertices.length; ++var1) {
-                var0[var1] = this.vertices[this.vertices.length - var1 - 1];
+                for(int var3 = 0; var3 < var2 / 2; ++var3) {
+                    ModelPart.Vertex var4 = param0[var3];
+                    param0[var3] = param0[var2 - 1 - var3];
+                    param0[var2 - 1 - var3] = var4;
+                }
             }
 
-            this.vertices = var0;
+            this.normal = param8.step();
+            if (param7) {
+                this.normal.mul(-1.0F, 1.0F, 1.0F);
+            }
+
         }
     }
 
     @OnlyIn(Dist.CLIENT)
     static class Vertex {
-        public final Vec3 pos;
+        public final Vector3f pos;
         public final float u;
         public final float v;
 
         public Vertex(float param0, float param1, float param2, float param3, float param4) {
-            this(new Vec3((double)param0, (double)param1, (double)param2), param3, param4);
+            this(new Vector3f(param0, param1, param2), param3, param4);
         }
 
         public ModelPart.Vertex remap(float param0, float param1) {
             return new ModelPart.Vertex(this.pos, param0, param1);
         }
 
-        public Vertex(Vec3 param0, float param1, float param2) {
+        public Vertex(Vector3f param0, float param1, float param2) {
             this.pos = param0;
             this.u = param1;
             this.v = param2;

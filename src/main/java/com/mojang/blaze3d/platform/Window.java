@@ -9,6 +9,7 @@ import java.nio.IntBuffer;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
+import net.minecraft.client.main.SilentInitException;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
@@ -23,6 +24,7 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
+import org.lwjgl.util.tinyfd.TinyFileDialogs;
 
 @OnlyIn(Dist.CLIENT)
 public final class Window implements AutoCloseable {
@@ -199,7 +201,11 @@ public final class Window implements AutoCloseable {
 
     private static void bootCrash(int param0, long param1) {
         RenderSystem.assertThread(RenderSystem::isInInitPhase);
-        throw new IllegalStateException("GLFW error " + param0 + ": " + MemoryUtil.memUTF8(param1));
+        String var0 = "GLFW error " + param0 + ": " + MemoryUtil.memUTF8(param1);
+        TinyFileDialogs.tinyfd_messageBox(
+            "Minecraft", var0 + ".\n\nPlease make sure you have up-to-date drivers (see aka.ms/mcdriver for instructions).", "ok", "error", false
+        );
+        throw new Window.WindowInitFailed(var0);
     }
 
     public void defaultErrorCallback(int param0x, long param1x) {
@@ -443,5 +449,12 @@ public final class Window implements AutoCloseable {
 
     public void updateRawMouseInput(boolean param0) {
         InputConstants.updateRawMouseInput(this.window, param0);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static class WindowInitFailed extends SilentInitException {
+        private WindowInitFailed(String param0) {
+            super(param0);
+        }
     }
 }
