@@ -48,7 +48,12 @@ public abstract class AbstractCommandBlockEditScreen extends Screen {
             var0.setTrackOutput(!var0.isTrackOutput());
             this.updateCommandOutput();
         }));
-        this.commandEdit = new EditBox(this.font, this.width / 2 - 150, 50, 300, 20, I18n.get("advMode.command"));
+        this.commandEdit = new EditBox(this.font, this.width / 2 - 150, 50, 300, 20, I18n.get("advMode.command")) {
+            @Override
+            protected String getNarrationMessage() {
+                return super.getNarrationMessage() + AbstractCommandBlockEditScreen.this.commandSuggestions.getNarrationMessage();
+            }
+        };
         this.commandEdit.setMaxLength(32500);
         this.commandEdit.setResponder(this::onEdited);
         this.children.add(this.commandEdit);
@@ -59,7 +64,7 @@ public abstract class AbstractCommandBlockEditScreen extends Screen {
         this.children.add(this.previousEdit);
         this.setInitialFocus(this.commandEdit);
         this.commandEdit.setFocus(true);
-        this.commandSuggestions = new CommandSuggestions(this.minecraft, this, this.commandEdit, this.font, false, true, 0, 7, false, Integer.MIN_VALUE);
+        this.commandSuggestions = new CommandSuggestions(this.minecraft, this, this.commandEdit, this.font, true, true, 0, 7, false, Integer.MIN_VALUE);
         this.commandSuggestions.setAllowSuggestions(true);
         this.commandSuggestions.updateCommandInfo();
     }

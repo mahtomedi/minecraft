@@ -655,12 +655,12 @@ public class Gui extends GuiComponent {
             int var21 = var10 - var13 * 9;
             int var22 = this.screenWidth - 3 + 2;
             fill(var12 - 2, var21, var22, var21 + 9, var14);
-            this.getFont().draw(var18, (float)var12, (float)var21, 553648127);
-            this.getFont().draw(var19, (float)(var22 - this.getFont().width(var19)), (float)var21, 553648127);
+            this.getFont().draw(var18, (float)var12, (float)var21, -1);
+            this.getFont().draw(var19, (float)(var22 - this.getFont().width(var19)), (float)var21, -1);
             if (var13 == var1.size()) {
                 fill(var12 - 2, var21 - 9 - 1, var22, var21 - 1, var15);
                 fill(var12 - 2, var21 - 1, var22, var21, var14);
-                this.getFont().draw(var3, (float)(var12 + var5 / 2 - var4 / 2), (float)(var21 - 9), 553648127);
+                this.getFont().draw(var3, (float)(var12 + var5 / 2 - var4 / 2), (float)(var21 - 9), -1);
             }
         }
 

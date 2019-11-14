@@ -484,9 +484,9 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
         private void renderWorldTemplateItem(WorldTemplate param0, int param1, int param2, int param3, int param4) {
             int var0 = param1 + 45 + 20;
             RealmsSelectWorldTemplateScreen.this.drawString(param0.name, var0, param2 + 2, 16777215);
-            RealmsSelectWorldTemplateScreen.this.drawString(param0.author, var0, param2 + 15, 7105644);
+            RealmsSelectWorldTemplateScreen.this.drawString(param0.author, var0, param2 + 15, 8421504);
             RealmsSelectWorldTemplateScreen.this.drawString(
-                param0.version, var0 + 227 - RealmsSelectWorldTemplateScreen.this.fontWidth(param0.version), param2 + 1, 7105644
+                param0.version, var0 + 227 - RealmsSelectWorldTemplateScreen.this.fontWidth(param0.version), param2 + 1, 8421504
             );
             if (!"".equals(param0.link) || !"".equals(param0.trailer) || !"".equals(param0.recommendedPlayers)) {
                 this.drawIcons(var0 - 1, param2 + 25, param3, param4, param0.link, param0.trailer, param0.recommendedPlayers);
@@ -506,7 +506,7 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
 
         private void drawIcons(int param0, int param1, int param2, int param3, String param4, String param5, String param6) {
             if (!"".equals(param6)) {
-                RealmsSelectWorldTemplateScreen.this.drawString(param6, param0, param1 + 4, 5000268);
+                RealmsSelectWorldTemplateScreen.this.drawString(param6, param0, param1 + 4, 8421504);
             }
 
             int var0 = "".equals(param6) ? 0 : RealmsSelectWorldTemplateScreen.this.fontWidth(param6) + 2;

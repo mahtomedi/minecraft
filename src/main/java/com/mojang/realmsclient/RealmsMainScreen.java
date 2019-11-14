@@ -837,7 +837,7 @@ public class RealmsMainScreen extends RealmsScreen {
         for(String var7 : var3) {
             int var10002 = this.width() / 2 + 52;
             ++var6;
-            this.drawString(var7, var10002, var1 + 10 * var6 - 3, 5000268, false);
+            this.drawString(var7, var10002, var1 + 10 * var6 - 3, 8421504, false);
         }
 
     }
@@ -1535,13 +1535,13 @@ public class RealmsMainScreen extends RealmsScreen {
                         String var16 = RealmsScreen.getLocalizedString("mco.selectServer.minigame") + " ";
                         int var17 = RealmsMainScreen.this.fontWidth(var16);
                         RealmsMainScreen.this.drawString(var16, param1 + 2, param2 + 12, 13413468);
-                        RealmsMainScreen.this.drawString(param0.getMinigameName(), param1 + 2 + var17, param2 + 12, 7105644);
+                        RealmsMainScreen.this.drawString(param0.getMinigameName(), param1 + 2 + var17, param2 + 12, 8421504);
                     } else {
-                        RealmsMainScreen.this.drawString(param0.getDescription(), param1 + 2, param2 + 12, 7105644);
+                        RealmsMainScreen.this.drawString(param0.getDescription(), param1 + 2, param2 + 12, 8421504);
                     }
 
                     if (!RealmsMainScreen.this.isSelfOwnedServer(param0)) {
-                        RealmsMainScreen.this.drawString(param0.owner, param1 + 2, param2 + 12 + 11, 5000268);
+                        RealmsMainScreen.this.drawString(param0.owner, param1 + 2, param2 + 12 + 11, 8421504);
                     }
                 }
 

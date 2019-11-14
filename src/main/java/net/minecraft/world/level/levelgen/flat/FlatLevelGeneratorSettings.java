@@ -414,7 +414,7 @@ public class FlatLevelGeneratorSettings extends ChunkGeneratorSettings {
                 if (var0.hasNext()) {
                     try {
                         ResourceLocation var4 = new ResourceLocation(var0.next());
-                        var3 = Registry.BIOME.get(var4);
+                        var3 = Registry.BIOME.getOptional(var4).orElseThrow(() -> new IllegalArgumentException("Invalid Biome: " + var4));
                     } catch (Exception var17) {
                         LOGGER.error("Error while parsing flat world string => {}", var17.getMessage());
                     }

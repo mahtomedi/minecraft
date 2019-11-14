@@ -27,8 +27,10 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.Rect2i;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.ComponentUtils;
@@ -44,7 +46,7 @@ public class CommandSuggestions {
     private final Screen screen;
     private final EditBox input;
     private final Font font;
-    private final boolean requireSlash;
+    private final boolean commandsOnly;
     private final boolean onlyShowIfCursorPastError;
     private final int lineStartOffset;
     private final int suggestionLineLimit;
@@ -66,7 +68,7 @@ public class CommandSuggestions {
         this.screen = param1;
         this.input = param2;
         this.font = param3;
-        this.requireSlash = param4;
+        this.commandsOnly = param4;
         this.onlyShowIfCursorPastError = param5;
         this.lineStartOffset = param6;
         this.suggestionLineLimit = param7;
@@ -87,7 +89,7 @@ public class CommandSuggestions {
         if (this.suggestions != null && this.suggestions.keyPressed(param0, param1, param2)) {
             return true;
         } else if (this.screen.getFocused() == this.input && param0 == 258) {
-            this.showSuggestions();
+            this.showSuggestions(true);
             return true;
         } else {
             return false;
@@ -102,7 +104,7 @@ public class CommandSuggestions {
         return this.suggestions != null && this.suggestions.mouseClicked((int)param0, (int)param1, param2);
     }
 
-    public void showSuggestions() {
+    public void showSuggestions(boolean param0) {
         if (this.pendingSuggestions != null && this.pendingSuggestions.isDone()) {
             Suggestions var0 = this.pendingSuggestions.join();
             if (!var0.isEmpty()) {
@@ -114,7 +116,7 @@ public class CommandSuggestions {
 
                 int var3 = Mth.clamp(this.input.getScreenX(var0.getRange().getStart()), 0, this.input.getScreenX(0) + this.input.getInnerWidth() - var1);
                 int var4 = this.anchorToBottom ? this.screen.height - 12 : 72;
-                this.suggestions = new CommandSuggestions.SuggestionsList(var3, var4, var1, var0);
+                this.suggestions = new CommandSuggestions.SuggestionsList(var3, var4, var1, var0, param0);
             }
         }
 
@@ -133,30 +135,37 @@ public class CommandSuggestions {
 
         this.commandUsage.clear();
         StringReader var1 = new StringReader(var0);
-        if (var1.canRead() && var1.peek() == '/') {
+        boolean var2;
+        if (this.commandsOnly) {
+            var2 = true;
+        } else if (var1.canRead() && var1.peek() == '/') {
             var1.skip();
-        } else if (this.requireSlash) {
-            return;
-        }
-
-        CommandDispatcher<SharedSuggestionProvider> var2 = this.minecraft.player.connection.getCommands();
-        if (this.currentParse == null) {
-            this.currentParse = var2.parse(var1, this.minecraft.player.connection.getSuggestionsProvider());
-        }
-
-        int var3 = this.onlyShowIfCursorPastError ? var1.getCursor() : 1;
-        int var4 = this.input.getCursorPosition();
-        if (var4 < var3 || this.suggestions != null && this.keepSuggestions) {
-            int var6 = getLastWordIndex(var0);
-            Collection<String> var7 = this.minecraft.player.connection.getSuggestionsProvider().getOnlinePlayerNames();
-            this.pendingSuggestions = SharedSuggestionProvider.suggest(var7, new SuggestionsBuilder(var0, var6));
+            var2 = true;
         } else {
-            this.pendingSuggestions = var2.getCompletionSuggestions(this.currentParse, var4);
-            this.pendingSuggestions.thenRun(() -> {
-                if (this.pendingSuggestions.isDone()) {
-                    this.updateUsageInfo();
-                }
-            });
+            var2 = false;
+        }
+
+        int var5 = this.input.getCursorPosition();
+        if (var2) {
+            CommandDispatcher<SharedSuggestionProvider> var6 = this.minecraft.player.connection.getCommands();
+            if (this.currentParse == null) {
+                this.currentParse = var6.parse(var1, this.minecraft.player.connection.getSuggestionsProvider());
+            }
+
+            int var7 = this.onlyShowIfCursorPastError ? var1.getCursor() : 1;
+            if (var5 >= var7 && (this.suggestions == null || !this.keepSuggestions)) {
+                this.pendingSuggestions = var6.getCompletionSuggestions(this.currentParse, var5);
+                this.pendingSuggestions.thenRun(() -> {
+                    if (this.pendingSuggestions.isDone()) {
+                        this.updateUsageInfo();
+                    }
+                });
+            }
+        } else {
+            String var8 = var0.substring(0, var5);
+            int var9 = getLastWordIndex(var8);
+            Collection<String> var10 = this.minecraft.player.connection.getSuggestionsProvider().getOnlinePlayerNames();
+            this.pendingSuggestions = SharedSuggestionProvider.suggest(var10, new SuggestionsBuilder(var8, var9));
         }
 
     }
@@ -206,7 +215,7 @@ public class CommandSuggestions {
 
         this.suggestions = null;
         if (this.allowSuggestions && this.minecraft.options.autoSuggestions) {
-            this.showSuggestions();
+            this.showSuggestions(false);
         }
 
     }
@@ -307,6 +316,10 @@ public class CommandSuggestions {
 
     }
 
+    public String getNarrationMessage() {
+        return this.suggestions != null ? "\n" + this.suggestions.getNarrationMessage() : "";
+    }
+
     @OnlyIn(Dist.CLIENT)
     public class SuggestionsList {
         private final Rect2i rect;
@@ -316,8 +329,9 @@ public class CommandSuggestions {
         private int current;
         private Vec2 lastMouse = Vec2.ZERO;
         private boolean tabCycles;
+        private int lastNarratedEntry;
 
-        private SuggestionsList(int param1, int param2, int param3, Suggestions param4) {
+        private SuggestionsList(int param1, int param2, int param3, Suggestions param4, boolean param5) {
             int var0 = param1 - 1;
             int var1 = CommandSuggestions.this.anchorToBottom
                 ? param2 - 3 - Math.min(param4.getList().size(), CommandSuggestions.this.suggestionLineLimit) * 12
@@ -325,6 +339,7 @@ public class CommandSuggestions {
             this.rect = new Rect2i(var0, var1, param3 + 1, Math.min(param4.getList().size(), CommandSuggestions.this.suggestionLineLimit) * 12);
             this.suggestions = param4;
             this.originalContents = CommandSuggestions.this.input.getValue();
+            this.lastNarratedEntry = param5 ? -1 : 0;
             this.select(0);
         }
 
@@ -501,6 +516,10 @@ public class CommandSuggestions {
             Suggestion var0 = this.suggestions.getList().get(this.current);
             CommandSuggestions.this.input
                 .setSuggestion(CommandSuggestions.calculateSuggestionSuffix(CommandSuggestions.this.input.getValue(), var0.apply(this.originalContents)));
+            if (NarratorChatListener.INSTANCE.isActive() && this.lastNarratedEntry != this.current) {
+                NarratorChatListener.INSTANCE.sayNow(this.getNarrationMessage());
+            }
+
         }
 
         public void useSuggestion() {
@@ -513,6 +532,16 @@ public class CommandSuggestions {
             this.select(this.current);
             CommandSuggestions.this.keepSuggestions = false;
             this.tabCycles = true;
+        }
+
+        private String getNarrationMessage() {
+            this.lastNarratedEntry = this.current;
+            List<Suggestion> var0 = this.suggestions.getList();
+            Suggestion var1 = var0.get(this.current);
+            Message var2 = var1.getTooltip();
+            return var2 != null
+                ? I18n.get("narration.suggestion.tooltip", this.current + 1, var0.size(), var1.getText(), var2.getString())
+                : I18n.get("narration.suggestion", this.current + 1, var0.size(), var1.getText());
         }
 
         public void hide() {

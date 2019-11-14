@@ -388,7 +388,7 @@ public class RealmsBackupScreen extends RealmsScreen {
                 param2 + 1,
                 var0
             );
-            RealmsBackupScreen.this.drawString(this.getMediumDatePresentation(param0.lastModifiedDate), param1 + 40, param2 + 12, 5000268);
+            RealmsBackupScreen.this.drawString(this.getMediumDatePresentation(param0.lastModifiedDate), param1 + 40, param2 + 12, 8421504);
             int var1 = RealmsBackupScreen.this.width() - 175;
             int var2 = -3;
             int var3 = var1 - 10;
