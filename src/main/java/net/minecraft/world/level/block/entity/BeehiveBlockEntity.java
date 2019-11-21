@@ -73,7 +73,7 @@ public class BeehiveBlockEntity extends BlockEntity implements TickableBlockEnti
                         if (!this.isSedated()) {
                             var2.makeAngry(param0);
                         } else {
-                            var2.setCannotEnterHiveTicks(400);
+                            var2.setStayOutOfHiveCountdown(400);
                         }
                     }
                 }
@@ -177,8 +177,8 @@ public class BeehiveBlockEntity extends BlockEntity implements TickableBlockEnti
                                 }
                             }
 
+                            var9.resetTicksWithoutNectarSinceExitingHive();
                             if (param2 != null) {
-                                var9.resetTicksSincePollination();
                                 param2.add(var9);
                             }
                         }

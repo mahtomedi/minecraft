@@ -60,7 +60,7 @@ public abstract class RenderLayer<T extends Entity, M extends EntityModel<T>> {
         float param8
     ) {
         VertexConsumer var0 = param3.getBuffer(RenderType.entityCutoutNoCull(param1));
-        param0.renderToBuffer(param2, var0, param4, LivingEntityRenderer.getOverlayCoords(param5, 0.0F), param6, param7, param8);
+        param0.renderToBuffer(param2, var0, param4, LivingEntityRenderer.getOverlayCoords(param5, 0.0F), param6, param7, param8, 1.0F);
     }
 
     public M getParentModel() {

@@ -30,8 +30,8 @@ public class LecternRenderer extends BlockEntityRenderer<LecternBlockEntity> {
             param2.mulPose(Vector3f.ZP.rotationDegrees(67.5F));
             param2.translate(0.0, -0.125, 0.0);
             this.bookModel.setupAnim(0.0F, 0.1F, 0.9F, 1.2F);
-            VertexConsumer var2 = param3.getBuffer(RenderType.blockentitySolid());
-            this.bookModel.render(param2, var2, param4, param5, 1.0F, 1.0F, 1.0F, this.getSprite(EnchantTableRenderer.BOOK_LOCATION));
+            VertexConsumer var2 = EnchantTableRenderer.BOOK_LOCATION.buffer(param3, RenderType::entitySolid);
+            this.bookModel.render(param2, var2, param4, param5, 1.0F, 1.0F, 1.0F, 1.0F);
             param2.popPose();
         }
     }

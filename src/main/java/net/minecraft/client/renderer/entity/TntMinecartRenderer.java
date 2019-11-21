@@ -1,6 +1,7 @@
 package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -38,6 +39,9 @@ public class TntMinecartRenderer extends MinecartRenderer<MinecartTNT> {
             var0 = OverlayTexture.NO_OVERLAY;
         }
 
+        param1.pushPose();
+        param1.mulPose(Vector3f.YP.rotationDegrees(90.0F));
         Minecraft.getInstance().getBlockRenderer().renderSingleBlock(param0, param1, param2, param3, var0);
+        param1.popPose();
     }
 }

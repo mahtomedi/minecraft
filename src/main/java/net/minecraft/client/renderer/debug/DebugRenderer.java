@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.math.Matrix4f;
+import com.mojang.math.Transformation;
 import java.util.Optional;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
@@ -172,9 +173,8 @@ public class DebugRenderer {
             RenderSystem.pushMatrix();
             RenderSystem.translatef((float)(param1 - var3), (float)(param2 - var4) + 0.07F, (float)(param3 - var5));
             RenderSystem.normal3f(0.0F, 1.0F, 0.0F);
-            RenderSystem.scalef(param5, -param5, param5);
-            RenderSystem.rotatef(180.0F, 0.0F, 1.0F, 0.0F);
             RenderSystem.multMatrix(new Matrix4f(var1.rotation()));
+            RenderSystem.scalef(param5, -param5, param5);
             RenderSystem.enableTexture();
             if (param8) {
                 RenderSystem.disableDepthTest();
@@ -186,7 +186,10 @@ public class DebugRenderer {
             RenderSystem.scalef(-1.0F, 1.0F, 1.0F);
             float var6 = param6 ? (float)(-var2.width(param0)) / 2.0F : 0.0F;
             var6 -= param7 / param5;
-            var2.draw(param0, var6, 0.0F, param4);
+            RenderSystem.enableAlphaTest();
+            MultiBufferSource.BufferSource var7 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
+            var2.drawInBatch(param0, var6, 0.0F, param4, false, Transformation.identity().getMatrix(), var7, param8, 0, 15728880);
+            var7.endBatch();
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             RenderSystem.enableDepthTest();
             RenderSystem.popMatrix();

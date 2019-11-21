@@ -16,9 +16,14 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class DragonFireballRenderer extends EntityRenderer<DragonFireball> {
     private static final ResourceLocation TEXTURE_LOCATION = new ResourceLocation("textures/entity/enderdragon/dragon_fireball.png");
+    private static final RenderType RENDER_TYPE = RenderType.entityCutoutNoCull(TEXTURE_LOCATION);
 
     public DragonFireballRenderer(EntityRenderDispatcher param0) {
         super(param0);
+    }
+
+    protected int getBlockLightLevel(DragonFireball param0, float param1) {
+        return 15;
     }
 
     public void render(DragonFireball param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {
@@ -29,7 +34,7 @@ public class DragonFireballRenderer extends EntityRenderer<DragonFireball> {
         PoseStack.Pose var0 = param3.last();
         Matrix4f var1 = var0.pose();
         Matrix3f var2 = var0.normal();
-        VertexConsumer var3 = param4.getBuffer(RenderType.entityCutoutNoCull(TEXTURE_LOCATION));
+        VertexConsumer var3 = param4.getBuffer(RENDER_TYPE);
         vertex(var3, var1, var2, param5, 0.0F, 0, 0, 1);
         vertex(var3, var1, var2, param5, 1.0F, 0, 1, 1);
         vertex(var3, var1, var2, param5, 1.0F, 1, 1, 0);

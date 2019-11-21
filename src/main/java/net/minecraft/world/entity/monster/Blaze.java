@@ -24,8 +24,6 @@ import net.minecraft.world.entity.projectile.SmallFireball;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Blaze extends Monster {
     private float allowedHeightOffset = 0.5F;
@@ -79,12 +77,6 @@ public class Blaze extends Monster {
     @Override
     protected SoundEvent getDeathSound() {
         return SoundEvents.BLAZE_DEATH;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public int getBlockLightLevel() {
-        return 15;
     }
 
     @Override

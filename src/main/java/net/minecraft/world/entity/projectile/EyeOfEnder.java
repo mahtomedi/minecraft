@@ -214,12 +214,6 @@ public class EyeOfEnder extends Entity implements ItemSupplier {
         return 1.0F;
     }
 
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public int getBlockLightLevel() {
-        return 15;
-    }
-
     @Override
     public boolean isAttackable() {
         return false;

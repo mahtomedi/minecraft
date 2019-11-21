@@ -152,14 +152,9 @@ public final class Vector3f {
         float var0 = this.x;
         float var1 = this.y;
         float var2 = this.z;
-        this.x = multiplyRow(0, param0, var0, var1, var2);
-        this.y = multiplyRow(1, param0, var0, var1, var2);
-        this.z = multiplyRow(2, param0, var0, var1, var2);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    private static float multiplyRow(int param0, Matrix3f param1, float param2, float param3, float param4) {
-        return param1.get(param0, 0) * param2 + param1.get(param0, 1) * param3 + param1.get(param0, 2) * param4;
+        this.x = param0.m00 * var0 + param0.m01 * var1 + param0.m02 * var2;
+        this.y = param0.m10 * var0 + param0.m11 * var1 + param0.m12 * var2;
+        this.z = param0.m20 * var0 + param0.m21 * var1 + param0.m22 * var2;
     }
 
     public void transform(Quaternion param0) {

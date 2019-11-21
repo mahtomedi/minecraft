@@ -2,9 +2,9 @@ package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.ShulkerModel;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.layers.ShulkerHeadLayer;
-import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.monster.Shulker;
@@ -16,11 +16,11 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class ShulkerRenderer extends MobRenderer<Shulker, ShulkerModel<Shulker>> {
     public static final ResourceLocation DEFAULT_TEXTURE_LOCATION = new ResourceLocation(
-        "textures/" + ModelBakery.DEFAULT_SHULKER_TEXTURE_LOCATION.getPath() + ".png"
+        "textures/" + Sheets.DEFAULT_SHULKER_TEXTURE_LOCATION.texture().getPath() + ".png"
     );
-    public static final ResourceLocation[] TEXTURE_LOCATION = ModelBakery.SHULKER_TEXTURE_LOCATION
+    public static final ResourceLocation[] TEXTURE_LOCATION = Sheets.SHULKER_TEXTURE_LOCATION
         .stream()
-        .map(param0 -> new ResourceLocation("textures/" + param0.getPath() + ".png"))
+        .map(param0 -> new ResourceLocation("textures/" + param0.texture().getPath() + ".png"))
         .toArray(param0 -> new ResourceLocation[param0]);
 
     public ShulkerRenderer(EntityRenderDispatcher param0) {

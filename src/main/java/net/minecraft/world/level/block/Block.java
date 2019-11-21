@@ -543,13 +543,6 @@ public class Block implements ItemLike {
         return param0.getDrops(var0);
     }
 
-    public static void dropResources(BlockState param0, LootContext.Builder param1) {
-        ServerLevel var0 = param1.getLevel();
-        BlockPos var1 = param1.getParameter(LootContextParams.BLOCK_POS);
-        param0.getDrops(param1).forEach(param2 -> popResource(var0, var1, param2));
-        param0.spawnAfterBreak(var0, var1, ItemStack.EMPTY);
-    }
-
     public static void dropResources(BlockState param0, Level param1, BlockPos param2) {
         if (param1 instanceof ServerLevel) {
             getDrops(param0, (ServerLevel)param1, param2, null).forEach(param2x -> popResource(param1, param2, param2x));

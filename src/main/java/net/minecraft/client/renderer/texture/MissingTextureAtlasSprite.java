@@ -1,8 +1,11 @@
 package net.minecraft.client.renderer.texture;
 
+import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.NativeImage;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.metadata.animation.AnimationFrame;
+import net.minecraft.client.resources.metadata.animation.AnimationMetadataSection;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.LazyLoadedValue;
 import net.minecraftforge.api.distmarker.Dist;
@@ -31,27 +34,32 @@ public final class MissingTextureAtlasSprite extends TextureAtlasSprite {
         var0.untrack();
         return var0;
     });
+    private static final TextureAtlasSprite.Info INFO = new TextureAtlasSprite.Info(
+        MISSING_TEXTURE_LOCATION, 16, 16, new AnimationMetadataSection(Lists.newArrayList(new AnimationFrame(0, -1)), 16, 16, 1, false)
+    );
 
-    private MissingTextureAtlasSprite() {
-        super(MISSING_TEXTURE_LOCATION, 16, 16);
-        this.mainImage = new NativeImage[]{MISSING_IMAGE_DATA.get()};
+    private MissingTextureAtlasSprite(TextureAtlas param0, int param1, int param2, int param3, int param4, int param5) {
+        super(param0, INFO, param1, param2, param3, param4, param5, MISSING_IMAGE_DATA.get());
     }
 
-    public static MissingTextureAtlasSprite newInstance() {
-        return new MissingTextureAtlasSprite();
+    public static MissingTextureAtlasSprite newInstance(TextureAtlas param0, int param1, int param2, int param3, int param4, int param5) {
+        return new MissingTextureAtlasSprite(param0, param1, param2, param3, param4, param5);
     }
 
     public static ResourceLocation getLocation() {
         return MISSING_TEXTURE_LOCATION;
     }
 
+    public static TextureAtlasSprite.Info info() {
+        return INFO;
+    }
+
     @Override
-    public void wipeFrameData() {
+    public void close() {
         for(int var0 = 1; var0 < this.mainImage.length; ++var0) {
             this.mainImage[var0].close();
         }
 
-        this.mainImage = new NativeImage[]{MISSING_IMAGE_DATA.get()};
     }
 
     public static DynamicTexture getTexture() {

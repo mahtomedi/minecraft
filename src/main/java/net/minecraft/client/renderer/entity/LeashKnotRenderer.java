@@ -24,7 +24,7 @@ public class LeashKnotRenderer extends EntityRenderer<LeashFenceKnotEntity> {
         param3.scale(-1.0F, -1.0F, 1.0F);
         this.model.setupAnim(param0, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
         VertexConsumer var0 = param4.getBuffer(this.model.renderType(KNOT_LOCATION));
-        this.model.renderToBuffer(param3, var0, param5, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F);
+        this.model.renderToBuffer(param3, var0, param5, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
         param3.popPose();
         super.render(param0, param1, param2, param3, param4, param5);
     }

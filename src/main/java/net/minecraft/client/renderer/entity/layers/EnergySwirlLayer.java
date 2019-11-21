@@ -30,7 +30,7 @@ public abstract class EnergySwirlLayer<T extends Entity & PowerableMob, M extend
             this.getParentModel().copyPropertiesTo(var1);
             VertexConsumer var2 = param1.getBuffer(RenderType.energySwirl(this.getTextureLocation(), this.xOffset(var0), var0 * 0.01F));
             var1.setupAnim(param3, param4, param5, param7, param8, param9);
-            var1.renderToBuffer(param0, var2, param2, OverlayTexture.NO_OVERLAY, 0.5F, 0.5F, 0.5F);
+            var1.renderToBuffer(param0, var2, param2, OverlayTexture.NO_OVERLAY, 0.5F, 0.5F, 0.5F, 1.0F);
         }
     }
 

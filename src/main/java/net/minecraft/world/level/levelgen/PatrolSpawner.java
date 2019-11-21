@@ -8,7 +8,9 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.monster.PatrollingMonster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class PatrolSpawner {
     private int nextTick;
@@ -81,19 +83,22 @@ public class PatrolSpawner {
     }
 
     private boolean spawnPatrolMember(Level param0, BlockPos param1, Random param2, boolean param3) {
-        if (!PatrollingMonster.checkPatrollingMonsterSpawnRules(EntityType.PILLAGER, param0, MobSpawnType.PATROL, param1, param2)) {
+        BlockState var0 = param0.getBlockState(param1);
+        if (!NaturalSpawner.isValidEmptySpawnBlock(param0, param1, var0, var0.getFluidState())) {
+            return false;
+        } else if (!PatrollingMonster.checkPatrollingMonsterSpawnRules(EntityType.PILLAGER, param0, MobSpawnType.PATROL, param1, param2)) {
             return false;
         } else {
-            PatrollingMonster var0 = EntityType.PILLAGER.create(param0);
-            if (var0 != null) {
+            PatrollingMonster var1 = EntityType.PILLAGER.create(param0);
+            if (var1 != null) {
                 if (param3) {
-                    var0.setPatrolLeader(true);
-                    var0.findPatrolTarget();
+                    var1.setPatrolLeader(true);
+                    var1.findPatrolTarget();
                 }
 
-                var0.setPos((double)param1.getX(), (double)param1.getY(), (double)param1.getZ());
-                var0.finalizeSpawn(param0, param0.getCurrentDifficultyAt(param1), MobSpawnType.PATROL, null, null);
-                param0.addFreshEntity(var0);
+                var1.setPos((double)param1.getX(), (double)param1.getY(), (double)param1.getZ());
+                var1.finalizeSpawn(param0, param0.getCurrentDifficultyAt(param1), MobSpawnType.PATROL, null, null);
+                param0.addFreshEntity(var1);
                 return true;
             } else {
                 return false;

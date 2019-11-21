@@ -14,7 +14,6 @@ import java.util.function.Consumer;
 import java.util.function.IntSupplier;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
-import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
@@ -28,6 +27,7 @@ public class RenderSystem {
     private static final ConcurrentLinkedQueue<RenderCall> recordingQueue = Queues.newConcurrentLinkedQueue();
     private static final Tesselator RENDER_THREAD_TESSELATOR = new Tesselator();
     public static final float DEFAULTALPHACUTOFF = 0.1F;
+    private static final int MINIMUM_ATLAS_TEXTURE_SIZE = 1024;
     private static boolean isReplayingQueue;
     private static Thread gameThread;
     private static Thread renderThread;
@@ -584,16 +584,18 @@ public class RenderSystem {
     public static int maxSupportedTextureSize() {
         assertThread(RenderSystem::isInInitPhase);
         if (MAX_SUPPORTED_TEXTURE_SIZE == -1) {
-            for(int var0 = 16384; var0 > 0; var0 >>= 1) {
-                GlStateManager._texImage2D(32868, 0, 6408, var0, var0, 0, 6408, 5121, null);
-                int var1 = GlStateManager._getTexLevelParameter(32868, 0, 4096);
-                if (var1 != 0) {
-                    MAX_SUPPORTED_TEXTURE_SIZE = var0;
-                    return var0;
+            int var0 = GlStateManager._getInteger(3379);
+
+            for(int var1 = Math.max(32768, var0); var1 >= 1024; var1 >>= 1) {
+                GlStateManager._texImage2D(32868, 0, 6408, var1, var1, 0, 6408, 5121, null);
+                int var2 = GlStateManager._getTexLevelParameter(32868, 0, 4096);
+                if (var2 != 0) {
+                    MAX_SUPPORTED_TEXTURE_SIZE = var1;
+                    return var1;
                 }
             }
 
-            MAX_SUPPORTED_TEXTURE_SIZE = Mth.clamp(GlStateManager._getInteger(3379), 1024, 16384);
+            MAX_SUPPORTED_TEXTURE_SIZE = Math.max(var0, 1024);
             LOGGER.info("Failed to determine maximum texture size by probing, trying GL_MAX_TEXTURE_SIZE = {}", MAX_SUPPORTED_TEXTURE_SIZE);
         }
 

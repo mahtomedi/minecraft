@@ -1,9 +1,13 @@
 package net.minecraft.world.entity.animal;
 
+import com.google.common.collect.Lists;
+import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -56,6 +60,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CropBlock;
@@ -82,14 +87,18 @@ public class Bee extends Animal implements FlyingAnimal {
     private float rollAmount;
     private float rollAmountO;
     private int timeSinceSting;
-    private int ticksSincePollination;
-    private int cannotEnterHiveTicks;
+    private int ticksWithoutNectarSinceExitingHive;
+    private int stayOutOfHiveCountdown;
     private int numCropsGrownSincePollination;
+    private int remainingCooldownBeforeLocatingNewHive = 0;
+    private int remainingCooldownBeforeLocatingNewFlower = 0;
     @Nullable
     private BlockPos savedFlowerPos = null;
     @Nullable
     private BlockPos hivePos = null;
     private Bee.BeePollinateGoal beePollinateGoal;
+    private Bee.BeeGoToHiveGoal goToHiveGoal;
+    private Bee.BeeGoToKnownFlowerGoal goToKnownFlowerGoal;
     private int underWaterTicks;
 
     public Bee(EntityType<? extends Bee> param0, Level param1) {
@@ -109,8 +118,12 @@ public class Bee extends Animal implements FlyingAnimal {
     }
 
     @Override
+    public float getWalkTargetValue(BlockPos param0, LevelReader param1) {
+        return param1.getBlockState(param0).isAir() ? 10.0F : 0.0F;
+    }
+
+    @Override
     protected void registerGoals() {
-        this.goalSelector.addGoal(0, new Bee.BeeLocateHiveGoal());
         this.goalSelector.addGoal(0, new Bee.BeeAttackGoal(this, 1.4F, true));
         this.goalSelector.addGoal(1, new Bee.BeeEnterHiveGoal());
         this.goalSelector.addGoal(2, new BreedGoal(this, 1.0));
@@ -118,8 +131,11 @@ public class Bee extends Animal implements FlyingAnimal {
         this.beePollinateGoal = new Bee.BeePollinateGoal();
         this.goalSelector.addGoal(4, this.beePollinateGoal);
         this.goalSelector.addGoal(5, new FollowParentGoal(this, 1.25));
-        this.goalSelector.addGoal(5, new Bee.BeeGoToHiveGoal());
-        this.goalSelector.addGoal(6, new Bee.BeeGoToKnownFlowerGoal());
+        this.goalSelector.addGoal(5, new Bee.BeeLocateHiveGoal());
+        this.goToHiveGoal = new Bee.BeeGoToHiveGoal();
+        this.goalSelector.addGoal(5, this.goToHiveGoal);
+        this.goToKnownFlowerGoal = new Bee.BeeGoToKnownFlowerGoal();
+        this.goalSelector.addGoal(6, this.goToKnownFlowerGoal);
         this.goalSelector.addGoal(7, new Bee.BeeGrowCropGoal());
         this.goalSelector.addGoal(8, new Bee.BeeWanderGoal());
         this.goalSelector.addGoal(9, new FloatGoal(this));
@@ -140,8 +156,8 @@ public class Bee extends Animal implements FlyingAnimal {
 
         param0.putBoolean("HasNectar", this.hasNectar());
         param0.putBoolean("HasStung", this.hasStung());
-        param0.putInt("TicksSincePollination", this.ticksSincePollination);
-        param0.putInt("CannotEnterHiveTicks", this.cannotEnterHiveTicks);
+        param0.putInt("TicksSincePollination", this.ticksWithoutNectarSinceExitingHive);
+        param0.putInt("CannotEnterHiveTicks", this.stayOutOfHiveCountdown);
         param0.putInt("CropsGrownSincePollination", this.numCropsGrownSincePollination);
         param0.putInt("Anger", this.getAngerTime());
         if (this.lastHurtByUUID != null) {
@@ -168,8 +184,8 @@ public class Bee extends Animal implements FlyingAnimal {
         this.setHasNectar(param0.getBoolean("HasNectar"));
         this.setHasStung(param0.getBoolean("HasStung"));
         this.setAngerTime(param0.getInt("Anger"));
-        this.ticksSincePollination = param0.getInt("TicksSincePollination");
-        this.cannotEnterHiveTicks = param0.getInt("CannotEnterHiveTicks");
+        this.ticksWithoutNectarSinceExitingHive = param0.getInt("TicksSincePollination");
+        this.stayOutOfHiveCountdown = param0.getInt("CannotEnterHiveTicks");
         this.numCropsGrownSincePollination = param0.getInt("NumCropsGrownSincePollination");
         String var0 = param0.getString("HurtBy");
         if (!var0.isEmpty()) {
@@ -231,6 +247,32 @@ public class Bee extends Animal implements FlyingAnimal {
         );
     }
 
+    private void pathfindRandomlyTowards(BlockPos param0) {
+        Vec3 var0 = new Vec3(param0);
+        int var1 = 0;
+        BlockPos var2 = new BlockPos(this);
+        int var3 = (int)var0.y - var2.getY();
+        if (var3 > 2) {
+            var1 = 4;
+        } else if (var3 < -2) {
+            var1 = -4;
+        }
+
+        int var4 = 6;
+        int var5 = 8;
+        int var6 = var2.distManhattan(param0);
+        if (var6 < 15) {
+            var4 = var6 / 2;
+            var5 = var6 / 2;
+        }
+
+        Vec3 var7 = RandomPos.getAirPosTowards(this, var4, var5, var1, var0, (float) (Math.PI / 10));
+        if (var7 != null) {
+            this.navigation.setMaxVisitedNodesMultiplier(0.5F);
+            this.navigation.moveTo(var7.x, var7.y, var7.z, 1.0);
+        }
+    }
+
     @Nullable
     public BlockPos getSavedFlowerPos() {
         return this.savedFlowerPos;
@@ -244,26 +286,21 @@ public class Bee extends Animal implements FlyingAnimal {
         this.savedFlowerPos = param0;
     }
 
-    private boolean canEnterHive() {
-        if (this.cannotEnterHiveTicks > 0) {
-            return false;
-        } else if (!this.hasHive()) {
-            return false;
-        } else if (this.hasStung()) {
-            return false;
+    private boolean isTiredOfLookingForNectar() {
+        return this.ticksWithoutNectarSinceExitingHive > 3600;
+    }
+
+    private boolean wantsToEnterHive() {
+        if (this.stayOutOfHiveCountdown <= 0 && !this.beePollinateGoal.isPollinating() && !this.hasStung()) {
+            boolean var0 = this.isTiredOfLookingForNectar() || this.level.isRaining() || this.level.isNight() || this.hasNectar();
+            return var0 && !this.isHiveNearFire();
         } else {
-            boolean var0 = this.ticksSincePollination > 3600;
-            if (!var0 && !this.hasNectar() && !this.level.isNight() && !this.level.isRaining()) {
-                return false;
-            } else {
-                BlockEntity var1 = this.level.getBlockEntity(this.hivePos);
-                return var1 instanceof BeehiveBlockEntity && !((BeehiveBlockEntity)var1).isFireNearby();
-            }
+            return false;
         }
     }
 
-    public void setCannotEnterHiveTicks(int param0) {
-        this.cannotEnterHiveTicks = param0;
+    public void setStayOutOfHiveCountdown(int param0) {
+        this.stayOutOfHiveCountdown = param0;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -320,25 +357,43 @@ public class Bee extends Animal implements FlyingAnimal {
         }
 
         if (!this.hasNectar()) {
-            ++this.ticksSincePollination;
+            ++this.ticksWithoutNectarSinceExitingHive;
         }
 
     }
 
-    public void resetTicksSincePollination() {
-        this.ticksSincePollination = 0;
+    public void resetTicksWithoutNectarSinceExitingHive() {
+        this.ticksWithoutNectarSinceExitingHive = 0;
+    }
+
+    private boolean isHiveNearFire() {
+        if (this.hivePos == null) {
+            return false;
+        } else {
+            BlockEntity var0 = this.level.getBlockEntity(this.hivePos);
+            return var0 instanceof BeehiveBlockEntity && ((BeehiveBlockEntity)var0).isFireNearby();
+        }
     }
 
     public boolean isAngry() {
         return this.getAngerTime() > 0;
     }
 
-    public int getAngerTime() {
+    private int getAngerTime() {
         return this.entityData.get(ANGER_TIME);
     }
 
-    public void setAngerTime(int param0) {
+    private void setAngerTime(int param0) {
         this.entityData.set(ANGER_TIME, param0);
+    }
+
+    private boolean doesHiveHaveSpace(BlockPos param0) {
+        BlockEntity var0 = this.level.getBlockEntity(param0);
+        if (var0 instanceof BeehiveBlockEntity) {
+            return !((BeehiveBlockEntity)var0).isFull();
+        } else {
+            return false;
+        }
     }
 
     public boolean hasHive() {
@@ -360,7 +415,7 @@ public class Bee extends Animal implements FlyingAnimal {
         return this.numCropsGrownSincePollination;
     }
 
-    public void resetNumCropsGrownSincePollination() {
+    private void resetNumCropsGrownSincePollination() {
         this.numCropsGrownSincePollination = 0;
     }
 
@@ -372,8 +427,16 @@ public class Bee extends Animal implements FlyingAnimal {
     public void aiStep() {
         super.aiStep();
         if (!this.level.isClientSide) {
-            if (this.cannotEnterHiveTicks > 0) {
-                --this.cannotEnterHiveTicks;
+            if (this.stayOutOfHiveCountdown > 0) {
+                --this.stayOutOfHiveCountdown;
+            }
+
+            if (this.remainingCooldownBeforeLocatingNewHive > 0) {
+                --this.remainingCooldownBeforeLocatingNewHive;
+            }
+
+            if (this.remainingCooldownBeforeLocatingNewFlower > 0) {
+                --this.remainingCooldownBeforeLocatingNewFlower;
             }
 
             boolean var0 = this.isAngry() && !this.hasStung() && this.getTarget() != null && this.getTarget().distanceToSqr(this) < 4.0;
@@ -398,7 +461,11 @@ public class Bee extends Animal implements FlyingAnimal {
         return this.getFlag(8);
     }
 
-    public void setHasNectar(boolean param0) {
+    private void setHasNectar(boolean param0) {
+        if (param0) {
+            this.resetTicksWithoutNectarSinceExitingHive();
+        }
+
         this.setFlag(8, param0);
     }
 
@@ -406,16 +473,20 @@ public class Bee extends Animal implements FlyingAnimal {
         return this.getFlag(4);
     }
 
-    public void setHasStung(boolean param0) {
+    private void setHasStung(boolean param0) {
         this.setFlag(4, param0);
     }
 
-    public boolean isRolling() {
+    private boolean isRolling() {
         return this.getFlag(2);
     }
 
-    public void setRolling(boolean param0) {
+    private void setRolling(boolean param0) {
         this.setFlag(2, param0);
+    }
+
+    private boolean isTooFarAway(BlockPos param0) {
+        return !this.closerThan(param0, 48);
     }
 
     private void setFlag(int param0, boolean param1) {
@@ -439,6 +510,7 @@ public class Bee extends Animal implements FlyingAnimal {
         this.getAttribute(SharedMonsterAttributes.FLYING_SPEED).setBaseValue(0.6F);
         this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.3F);
         this.getAttributes().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(2.0);
+        this.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(48.0);
     }
 
     @Override
@@ -465,6 +537,10 @@ public class Bee extends Animal implements FlyingAnimal {
     @Override
     public boolean isFood(ItemStack param0) {
         return param0.getItem().is(ItemTags.FLOWERS);
+    }
+
+    private boolean isFlowerValid(BlockPos param0) {
+        return this.level.isLoaded(param0) && this.level.getBlockState(param0).getBlock().is(BlockTags.FLOWERS);
     }
 
     @Override
@@ -553,6 +629,10 @@ public class Bee extends Animal implements FlyingAnimal {
         this.setDeltaMovement(this.getDeltaMovement().add(0.0, 0.01, 0.0));
     }
 
+    private boolean closerThan(BlockPos param0, int param1) {
+        return param0.closerThan(new BlockPos(this), (double)param1);
+    }
+
     abstract class BaseBeeGoal extends Goal {
         private BaseBeeGoal() {
         }
@@ -573,7 +653,7 @@ public class Bee extends Animal implements FlyingAnimal {
     }
 
     class BeeAttackGoal extends MeleeAttackGoal {
-        public BeeAttackGoal(PathfinderMob param0, double param1, boolean param2) {
+        BeeAttackGoal(PathfinderMob param0, double param1, boolean param2) {
             super(param0, param1, param2);
         }
 
@@ -589,7 +669,7 @@ public class Bee extends Animal implements FlyingAnimal {
     }
 
     static class BeeBecomeAngryTargetGoal extends NearestAttackableTargetGoal<Player> {
-        public BeeBecomeAngryTargetGoal(Bee param0) {
+        BeeBecomeAngryTargetGoal(Bee param0) {
             super(param0, Player.class, true);
         }
 
@@ -621,7 +701,7 @@ public class Bee extends Animal implements FlyingAnimal {
 
         @Override
         public boolean canBeeUse() {
-            if (Bee.this.canEnterHive() && Bee.this.hivePos.closerThan(Bee.this.position(), 2.0)) {
+            if (Bee.this.hasHive() && Bee.this.wantsToEnterHive() && Bee.this.hivePos.closerThan(Bee.this.position(), 2.0)) {
                 BlockEntity var0 = Bee.this.level.getBlockEntity(Bee.this.hivePos);
                 if (var0 instanceof BeehiveBlockEntity) {
                     BeehiveBlockEntity var1 = (BeehiveBlockEntity)var0;
@@ -652,119 +732,131 @@ public class Bee extends Animal implements FlyingAnimal {
         }
     }
 
-    abstract class BeeGoToBlockGoal extends Bee.BaseBeeGoal {
-        private int minThreshold;
-        private int maxThreshold;
+    public class BeeGoToHiveGoal extends Bee.BaseBeeGoal {
+        private int travellingTicks = Bee.this.level.random.nextInt(10);
+        private List<BlockPos> blacklistedTargets = Lists.newArrayList();
+        @Nullable
+        private Path lastPath = null;
 
-        public BeeGoToBlockGoal(int param0, int param1) {
-            this.minThreshold = param0;
-            this.maxThreshold = param1;
+        BeeGoToHiveGoal() {
             this.setFlags(EnumSet.of(Goal.Flag.MOVE));
         }
 
-        @Nullable
-        protected abstract BlockPos getTargetPos();
-
-        boolean isBeeWithinTargetPosRange() {
-            BlockPos var0 = this.getTargetPos();
-            if (var0 == null) {
-                return false;
-            } else {
-                double var1 = var0.distSqr(new BlockPos(Bee.this));
-                boolean var2 = var1 > (double)(this.minThreshold * this.minThreshold);
-                boolean var3 = var1 < (double)(this.maxThreshold * this.maxThreshold);
-                return var2 && var3;
-            }
+        @Override
+        public boolean canBeeUse() {
+            return Bee.this.hivePos != null
+                && !Bee.this.hasRestriction()
+                && Bee.this.wantsToEnterHive()
+                && !this.hasReachedTarget(Bee.this.hivePos)
+                && Bee.this.level.getBlockState(Bee.this.hivePos).is(BlockTags.BEEHIVES);
         }
 
-        protected abstract void cantPathfindToTarget();
+        @Override
+        public boolean canBeeContinueToUse() {
+            return this.canBeeUse();
+        }
 
         @Override
-        public void tick() {
-            BlockPos var0 = this.getTargetPos();
-            PathNavigation var1 = Bee.this.getNavigation();
-            if (var0 != null && (var1.getPath() == null || var1.getPath().canReach())) {
-                if (var1.isDone()) {
-                    Vec3 var2 = new Vec3(var0);
-                    Vec3 var3 = RandomPos.getPosTowards(Bee.this, 8, 6, var2, (float) (Math.PI / 10), false);
-                    if (var3 == null) {
-                        var3 = RandomPos.getPosTowards(Bee.this, 3, 3, var2, false);
-                    }
-
-                    if (var3 == null) {
-                        this.stop();
-                        this.cantPathfindToTarget();
-                        return;
-                    }
-
-                    var1.moveTo(var3.x, var3.y, var3.z, 1.0);
-                }
-
-            } else {
-                this.stop();
-                this.cantPathfindToTarget();
-            }
+        public void start() {
+            this.travellingTicks = 0;
+            super.start();
         }
 
         @Override
         public void stop() {
-            Bee.this.getNavigation().stop();
-        }
-    }
-
-    class BeeGoToHiveGoal extends Bee.BeeGoToBlockGoal {
-        public BeeGoToHiveGoal() {
-            super(2, 48);
-        }
-
-        @Nullable
-        @Override
-        protected BlockPos getTargetPos() {
-            return Bee.this.hivePos;
+            this.travellingTicks = 0;
+            Bee.this.navigation.stop();
+            Bee.this.navigation.resetMaxVisitedNodesMultiplier();
         }
 
         @Override
-        public boolean canBeeUse() {
-            if (this.isBeeWithinTargetPosRange()) {
-                return Bee.this.canEnterHive();
-            } else {
-                Bee.this.hivePos = null;
-                return false;
+        public void tick() {
+            if (Bee.this.hivePos != null) {
+                ++this.travellingTicks;
+                if (this.travellingTicks > 600) {
+                    this.dropAndBlacklistHive();
+                } else if (!Bee.this.navigation.isInProgress()) {
+                    if (!Bee.this.closerThan(Bee.this.hivePos, 16)) {
+                        if (Bee.this.isTooFarAway(Bee.this.hivePos)) {
+                            this.dropHive();
+                        } else {
+                            Bee.this.pathfindRandomlyTowards(Bee.this.hivePos);
+                        }
+                    } else {
+                        boolean var0 = this.pathfindDirectlyTowards(Bee.this.hivePos);
+                        if (!var0) {
+                            this.dropAndBlacklistHive();
+                        } else if (this.lastPath != null && Bee.this.navigation.getPath().sameAs(this.lastPath)) {
+                            this.dropHive();
+                        } else {
+                            this.lastPath = Bee.this.navigation.getPath();
+                        }
+
+                    }
+                }
             }
         }
 
-        @Override
-        public boolean canBeeContinueToUse() {
-            return this.canBeeUse();
+        private boolean pathfindDirectlyTowards(BlockPos param0) {
+            Bee.this.navigation.setMaxVisitedNodesMultiplier(10.0F);
+            Bee.this.navigation.moveTo((double)param0.getX(), (double)param0.getY(), (double)param0.getZ(), 1.0);
+            return Bee.this.navigation.getPath() != null && Bee.this.navigation.getPath().canReach();
         }
 
-        @Override
-        protected void cantPathfindToTarget() {
+        private boolean isTargetBlacklisted(BlockPos param0) {
+            return this.blacklistedTargets.contains(param0);
+        }
+
+        private void blacklistTarget(BlockPos param0) {
+            this.blacklistedTargets.add(param0);
+
+            while(this.blacklistedTargets.size() > 3) {
+                this.blacklistedTargets.remove(0);
+            }
+
+        }
+
+        private void clearBlacklist() {
+            this.blacklistedTargets.clear();
+        }
+
+        private void dropAndBlacklistHive() {
+            if (Bee.this.hivePos != null) {
+                this.blacklistTarget(Bee.this.hivePos);
+            }
+
+            this.dropHive();
+        }
+
+        private void dropHive() {
             Bee.this.hivePos = null;
+            Bee.this.remainingCooldownBeforeLocatingNewHive = 200;
+        }
+
+        private boolean hasReachedTarget(BlockPos param0) {
+            if (Bee.this.closerThan(param0, 2)) {
+                return true;
+            } else {
+                Path var0 = Bee.this.navigation.getPath();
+                return var0 != null && var0.getTarget().equals(param0) && var0.canReach() && var0.isDone();
+            }
         }
     }
 
-    public class BeeGoToKnownFlowerGoal extends Bee.BeeGoToBlockGoal {
-        public BeeGoToKnownFlowerGoal() {
-            super(1, 48);
-        }
+    public class BeeGoToKnownFlowerGoal extends Bee.BaseBeeGoal {
+        private int travellingTicks = Bee.this.level.random.nextInt(10);
 
-        @Nullable
-        @Override
-        protected BlockPos getTargetPos() {
-            return Bee.this.savedFlowerPos;
+        BeeGoToKnownFlowerGoal() {
+            this.setFlags(EnumSet.of(Goal.Flag.MOVE));
         }
 
         @Override
         public boolean canBeeUse() {
-            if (this.getTargetPos() == null) {
-                return false;
-            } else if (!this.isBeeWithinTargetPosRange()) {
-                Bee.this.savedFlowerPos = null;
-                return false;
-            } else {
-                return Bee.this.ticksSincePollination > 3600 && Bee.this.level.getBlockState(this.getTargetPos()).is(BlockTags.FLOWERS);
-            }
+            return Bee.this.savedFlowerPos != null
+                && !Bee.this.hasRestriction()
+                && this.wantsToGoToKnownFlower()
+                && Bee.this.isFlowerValid(Bee.this.savedFlowerPos)
+                && !Bee.this.closerThan(Bee.this.savedFlowerPos, 2);
         }
 
         @Override
@@ -773,8 +865,36 @@ public class Bee extends Animal implements FlyingAnimal {
         }
 
         @Override
-        protected void cantPathfindToTarget() {
-            Bee.this.savedFlowerPos = null;
+        public void start() {
+            this.travellingTicks = 0;
+            super.start();
+        }
+
+        @Override
+        public void stop() {
+            this.travellingTicks = 0;
+            Bee.this.navigation.stop();
+            Bee.this.navigation.resetMaxVisitedNodesMultiplier();
+        }
+
+        @Override
+        public void tick() {
+            if (Bee.this.savedFlowerPos != null) {
+                ++this.travellingTicks;
+                if (this.travellingTicks > 600) {
+                    Bee.this.savedFlowerPos = null;
+                } else if (!Bee.this.navigation.isInProgress()) {
+                    if (Bee.this.isTooFarAway(Bee.this.savedFlowerPos)) {
+                        Bee.this.savedFlowerPos = null;
+                    } else {
+                        Bee.this.pathfindRandomlyTowards(Bee.this.savedFlowerPos);
+                    }
+                }
+            }
+        }
+
+        private boolean wantsToGoToKnownFlower() {
+            return Bee.this.ticksWithoutNectarSinceExitingHive > 2400;
         }
     }
 
@@ -841,7 +961,7 @@ public class Bee extends Animal implements FlyingAnimal {
     }
 
     class BeeHurtByOtherGoal extends HurtByTargetGoal {
-        public BeeHurtByOtherGoal(Bee param0) {
+        BeeHurtByOtherGoal(Bee param0) {
             super(param0);
         }
 
@@ -860,7 +980,7 @@ public class Bee extends Animal implements FlyingAnimal {
 
         @Override
         public boolean canBeeUse() {
-            return Bee.this.tickCount % 10 == 0 && !Bee.this.hasHive();
+            return Bee.this.remainingCooldownBeforeLocatingNewHive == 0 && !Bee.this.hasHive() && Bee.this.wantsToEnterHive();
         }
 
         @Override
@@ -870,34 +990,34 @@ public class Bee extends Animal implements FlyingAnimal {
 
         @Override
         public void start() {
-            Stream<BlockPos> var0 = this.findNearestHives(20);
-            Optional<BlockPos> var1 = var0.filter(param0 -> {
-                BlockEntity var0x = Bee.this.level.getBlockEntity(param0);
-                if (var0x instanceof BeehiveBlockEntity && !((BeehiveBlockEntity)var0x).isFull()) {
-                    Path var1x = Bee.this.getNavigation().createPath(param0, 20);
-                    return var1x != null;
-                } else {
-                    return false;
+            Bee.this.remainingCooldownBeforeLocatingNewHive = 200;
+            List<BlockPos> var0 = this.findNearbyHivesWithSpace();
+            if (!var0.isEmpty()) {
+                for(BlockPos var1 : var0) {
+                    if (!Bee.this.goToHiveGoal.isTargetBlacklisted(var1)) {
+                        Bee.this.hivePos = var1;
+                        return;
+                    }
                 }
-            }).findFirst();
-            var1.ifPresent(param0 -> Bee.this.hivePos = param0);
+
+                Bee.this.goToHiveGoal.clearBlacklist();
+                Bee.this.hivePos = var0.get(0);
+            }
         }
 
-        private Stream<BlockPos> findNearestHives(int param0) {
+        private List<BlockPos> findNearbyHivesWithSpace() {
             BlockPos var0 = new BlockPos(Bee.this);
-            if (Bee.this.level instanceof ServerLevel) {
-                Stream<PoiRecord> var1 = ((ServerLevel)Bee.this.level)
-                    .getPoiManager()
-                    .getInRange(param0x -> param0x == PoiType.BEEHIVE || param0x == PoiType.BEE_NEST, var0, param0, PoiManager.Occupancy.ANY);
-                return var1.map(PoiRecord::getPos);
-            } else {
-                return Stream.empty();
-            }
+            PoiManager var1 = ((ServerLevel)Bee.this.level).getPoiManager();
+            Stream<PoiRecord> var2 = var1.getInRange(param0 -> param0 == PoiType.BEEHIVE || param0 == PoiType.BEE_NEST, var0, 20, PoiManager.Occupancy.ANY);
+            return var2.map(PoiRecord::getPos)
+                .filter(param1 -> Bee.this.doesHiveHaveSpace(param1))
+                .sorted(Comparator.comparingDouble(param1 -> param1.distSqr(var0)))
+                .collect(Collectors.toList());
         }
     }
 
     class BeeLookControl extends LookControl {
-        public BeeLookControl(Mob param0) {
+        BeeLookControl(Mob param0) {
             super(param0);
         }
 
@@ -926,18 +1046,21 @@ public class Bee extends Animal implements FlyingAnimal {
                 return param0.is(BlockTags.SMALL_FLOWERS);
             }
         };
-        private int pollinateTicks = 0;
+        private int successfulPollinatingTicks = 0;
         private int lastSoundPlayedTick = 0;
         private boolean pollinating;
         private Vec3 hoverPos;
+        private int pollinatingTicks = 0;
 
-        public BeePollinateGoal() {
+        BeePollinateGoal() {
             this.setFlags(EnumSet.of(Goal.Flag.MOVE));
         }
 
         @Override
         public boolean canBeeUse() {
-            if (Bee.this.hasNectar()) {
+            if (Bee.this.remainingCooldownBeforeLocatingNewFlower > 0) {
+                return false;
+            } else if (Bee.this.hasNectar()) {
                 return false;
             } else if (Bee.this.level.isRaining()) {
                 return false;
@@ -947,7 +1070,7 @@ public class Bee extends Animal implements FlyingAnimal {
                 Optional<BlockPos> var0 = this.findNearbyFlower();
                 if (var0.isPresent()) {
                     Bee.this.savedFlowerPos = var0.get();
-                    Bee.this.getNavigation()
+                    Bee.this.navigation
                         .moveTo(
                             (double)Bee.this.savedFlowerPos.getX() + 0.5,
                             (double)Bee.this.savedFlowerPos.getY() + 0.5,
@@ -971,17 +1094,16 @@ public class Bee extends Animal implements FlyingAnimal {
                 return false;
             } else if (this.hasPollinatedLongEnough()) {
                 return Bee.this.random.nextFloat() < 0.2F;
-            } else if (Bee.this.tickCount % 20 != 0) {
-                return true;
+            } else if (Bee.this.tickCount % 20 == 0 && !Bee.this.isFlowerValid(Bee.this.savedFlowerPos)) {
+                Bee.this.savedFlowerPos = null;
+                return false;
             } else {
-                return Bee.this.level.isLoaded(Bee.this.savedFlowerPos)
-                    && Bee.this.level.getBlockState(Bee.this.savedFlowerPos).getBlock().is(BlockTags.FLOWERS)
-                    && new BlockPos(Bee.this).closerThan(Bee.this.savedFlowerPos, 2.0);
+                return true;
             }
         }
 
         private boolean hasPollinatedLongEnough() {
-            return this.pollinateTicks > 400;
+            return this.successfulPollinatingTicks > 400;
         }
 
         private boolean isPollinating() {
@@ -994,9 +1116,11 @@ public class Bee extends Animal implements FlyingAnimal {
 
         @Override
         public void start() {
-            this.pollinateTicks = 0;
+            this.successfulPollinatingTicks = 0;
+            this.pollinatingTicks = 0;
             this.lastSoundPlayedTick = 0;
             this.pollinating = true;
+            Bee.this.resetTicksWithoutNectarSinceExitingHive();
         }
 
         @Override
@@ -1006,43 +1130,54 @@ public class Bee extends Animal implements FlyingAnimal {
             }
 
             this.pollinating = false;
+            Bee.this.navigation.stop();
+            Bee.this.remainingCooldownBeforeLocatingNewFlower = 200;
         }
 
         @Override
         public void tick() {
-            Vec3 var0 = new Vec3(Bee.this.savedFlowerPos).add(0.5, 0.6F, 0.5);
-            if (var0.distanceTo(Bee.this.position()) > 1.0) {
-                this.hoverPos = var0;
-                this.setWantedPos();
+            ++this.pollinatingTicks;
+            if (this.pollinatingTicks > 600) {
+                Bee.this.savedFlowerPos = null;
             } else {
-                if (this.hoverPos == null) {
+                Vec3 var0 = new Vec3(Bee.this.savedFlowerPos).add(0.5, 0.6F, 0.5);
+                if (var0.distanceTo(Bee.this.position()) > 1.0) {
                     this.hoverPos = var0;
-                }
-
-                boolean var1 = Bee.this.position().distanceTo(this.hoverPos) <= 0.1;
-                boolean var2 = true;
-                if (var1) {
-                    boolean var3 = Bee.this.random.nextInt(100) == 0;
-                    if (var3) {
-                        this.hoverPos = new Vec3(var0.x() + (double)this.getOffset(), var0.y(), var0.z() + (double)this.getOffset());
-                        Bee.this.getNavigation().stop();
-                    } else {
-                        var2 = false;
+                    this.setWantedPos();
+                } else {
+                    if (this.hoverPos == null) {
+                        this.hoverPos = var0;
                     }
 
-                    Bee.this.getLookControl().setLookAt(var0.x(), var0.y(), var0.z());
-                }
+                    boolean var1 = Bee.this.position().distanceTo(this.hoverPos) <= 0.1;
+                    boolean var2 = true;
+                    if (!var1 && this.pollinatingTicks > 600) {
+                        Bee.this.savedFlowerPos = null;
+                    } else {
+                        if (var1) {
+                            boolean var3 = Bee.this.random.nextInt(100) == 0;
+                            if (var3) {
+                                this.hoverPos = new Vec3(var0.x() + (double)this.getOffset(), var0.y(), var0.z() + (double)this.getOffset());
+                                Bee.this.navigation.stop();
+                            } else {
+                                var2 = false;
+                            }
 
-                if (var2) {
-                    this.setWantedPos();
-                }
+                            Bee.this.getLookControl().setLookAt(var0.x(), var0.y(), var0.z());
+                        }
 
-                ++this.pollinateTicks;
-                if (Bee.this.random.nextFloat() < 0.05F && this.pollinateTicks > this.lastSoundPlayedTick + 60) {
-                    this.lastSoundPlayedTick = this.pollinateTicks;
-                    Bee.this.playSound(SoundEvents.BEE_POLLINATE, 1.0F, 1.0F);
-                }
+                        if (var2) {
+                            this.setWantedPos();
+                        }
 
+                        ++this.successfulPollinatingTicks;
+                        if (Bee.this.random.nextFloat() < 0.05F && this.successfulPollinatingTicks > this.lastSoundPlayedTick + 60) {
+                            this.lastSoundPlayedTick = this.successfulPollinatingTicks;
+                            Bee.this.playSound(SoundEvents.BEE_POLLINATE, 1.0F, 1.0F);
+                        }
+
+                    }
+                }
             }
         }
 
@@ -1067,7 +1202,7 @@ public class Bee extends Animal implements FlyingAnimal {
                     for(int var4 = 0; var4 <= var3; var4 = var4 > 0 ? -var4 : 1 - var4) {
                         for(int var5 = var4 < var3 && var4 > -var3 ? var3 : 0; var5 <= var3; var5 = var5 > 0 ? -var5 : 1 - var5) {
                             var1.set(var0).move(var4, var2 - 1, var5);
-                            if (var0.distSqr(var1) < param1 * param1 && param0.test(Bee.this.level.getBlockState(var1))) {
+                            if (var0.closerThan(var1, param1) && param0.test(Bee.this.level.getBlockState(var1))) {
                                 return Optional.of(var1);
                             }
                         }
@@ -1080,26 +1215,25 @@ public class Bee extends Animal implements FlyingAnimal {
     }
 
     class BeeWanderGoal extends Goal {
-        public BeeWanderGoal() {
+        BeeWanderGoal() {
             this.setFlags(EnumSet.of(Goal.Flag.MOVE));
         }
 
         @Override
         public boolean canUse() {
-            return Bee.this.getNavigation().isDone() && Bee.this.random.nextInt(10) == 0;
+            return Bee.this.navigation.isDone() && Bee.this.random.nextInt(10) == 0;
         }
 
         @Override
         public boolean canContinueToUse() {
-            return Bee.this.getNavigation().getPath() != null && !Bee.this.getNavigation().isDone();
+            return Bee.this.navigation.isInProgress();
         }
 
         @Override
         public void start() {
             Vec3 var0 = this.findPos();
             if (var0 != null) {
-                PathNavigation var1 = Bee.this.getNavigation();
-                var1.moveTo(var1.createPath(new BlockPos(var0), 1), 1.0);
+                Bee.this.navigation.moveTo(Bee.this.navigation.createPath(new BlockPos(var0), 1), 1.0);
             }
 
         }
@@ -1107,7 +1241,7 @@ public class Bee extends Animal implements FlyingAnimal {
         @Nullable
         private Vec3 findPos() {
             Vec3 var1;
-            if (Bee.this.isHiveValid() && !Bee.this.hivePos.closerThan(Bee.this.position(), 40.0)) {
+            if (Bee.this.isHiveValid() && !Bee.this.closerThan(Bee.this.hivePos, 40)) {
                 Vec3 var0 = new Vec3(Bee.this.hivePos);
                 var1 = var0.subtract(Bee.this.position()).normalize();
             } else {
@@ -1115,7 +1249,7 @@ public class Bee extends Animal implements FlyingAnimal {
             }
 
             int var3 = 8;
-            Vec3 var4 = RandomPos.getPosAboveSolid(Bee.this, 8, 7, var1, (float) (Math.PI / 2), 2, 1);
+            Vec3 var4 = RandomPos.getAboveLandPos(Bee.this, 8, 7, var1, (float) (Math.PI / 2), 2, 1);
             return var4 != null ? var4 : RandomPos.getAirPos(Bee.this, 8, 4, -2, var1, (float) (Math.PI / 2));
         }
     }

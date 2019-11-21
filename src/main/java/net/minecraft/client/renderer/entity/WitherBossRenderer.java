@@ -18,6 +18,10 @@ public class WitherBossRenderer extends MobRenderer<WitherBoss, WitherBossModel<
         this.addLayer(new WitherArmorLayer(this));
     }
 
+    protected int getBlockLightLevel(WitherBoss param0, float param1) {
+        return 15;
+    }
+
     public ResourceLocation getTextureLocation(WitherBoss param0) {
         int var0 = param0.getInvulnerableTicks();
         return var0 > 0 && (var0 > 80 || var0 / 5 % 2 != 1) ? WITHER_INVULNERABLE_LOCATION : WITHER_LOCATION;

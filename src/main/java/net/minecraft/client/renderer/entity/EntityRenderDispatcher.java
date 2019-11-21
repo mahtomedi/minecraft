@@ -16,13 +16,12 @@ import net.minecraft.client.Options;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.model.ModelBakery;
@@ -39,7 +38,6 @@ import net.minecraft.world.entity.boss.EnderDragonPart;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -50,7 +48,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class EntityRenderDispatcher {
-    private static final ResourceLocation SHADOW_LOCATION = new ResourceLocation("textures/misc/shadow.png");
+    private static final RenderType SHADOW_RENDER_TYPE = RenderType.entityNoOutline(new ResourceLocation("textures/misc/shadow.png"));
     private final Map<EntityType<?>, EntityRenderer<?>> renderers = Maps.newHashMap();
     private final Map<String, PlayerRenderer> playerRenderers = Maps.newHashMap();
     private final PlayerRenderer defaultPlayerRenderer;
@@ -63,8 +61,8 @@ public class EntityRenderDispatcher {
     private boolean shouldRenderShadow = true;
     private boolean renderHitBoxes;
 
-    public static int getPackedLightCoords(Entity param0) {
-        return LightTexture.pack(param0.getBlockLightLevel(), param0.level.getBrightness(LightLayer.SKY, new BlockPos(param0)));
+    public <E extends Entity> int getPackedLightCoords(E param0, float param1) {
+        return this.getRenderer(param0).getPackedLightCoords(param0, param1);
     }
 
     private <T extends Entity> void register(EntityType<T> param0, EntityRenderer<? super T> param1) {
@@ -102,9 +100,9 @@ public class EntityRenderDispatcher {
         this.register(EntityType.EVOKER, new EvokerRenderer<>(this));
         this.register(EntityType.EXPERIENCE_BOTTLE, new ThrownItemRenderer<>(this, param0));
         this.register(EntityType.EXPERIENCE_ORB, new ExperienceOrbRenderer(this));
-        this.register(EntityType.EYE_OF_ENDER, new ThrownItemRenderer<>(this, param0));
+        this.register(EntityType.EYE_OF_ENDER, new ThrownItemRenderer<>(this, param0, 1.0F, true));
         this.register(EntityType.FALLING_BLOCK, new FallingBlockRenderer(this));
-        this.register(EntityType.FIREBALL, new ThrownItemRenderer<>(this, param0, 3.0F));
+        this.register(EntityType.FIREBALL, new ThrownItemRenderer<>(this, param0, 3.0F, true));
         this.register(EntityType.FIREWORK_ROCKET, new FireworkEntityRenderer(this, param0));
         this.register(EntityType.FISHING_BOBBER, new FishingHookRenderer(this));
         this.register(EntityType.FOX, new FoxRenderer(this));
@@ -147,7 +145,7 @@ public class EntityRenderDispatcher {
         this.register(EntityType.SKELETON_HORSE, new UndeadHorseRenderer(this));
         this.register(EntityType.SKELETON, new SkeletonRenderer(this));
         this.register(EntityType.SLIME, new SlimeRenderer(this));
-        this.register(EntityType.SMALL_FIREBALL, new ThrownItemRenderer<>(this, param0, 0.75F));
+        this.register(EntityType.SMALL_FIREBALL, new ThrownItemRenderer<>(this, param0, 0.75F, true));
         this.register(EntityType.SNOWBALL, new ThrownItemRenderer<>(this, param0));
         this.register(EntityType.SNOW_GOLEM, new SnowGolemRenderer(this));
         this.register(EntityType.SPAWNER_MINECART, new MinecartRenderer<>(this));
@@ -321,42 +319,41 @@ public class EntityRenderDispatcher {
     }
 
     private void renderFlame(PoseStack param0, MultiBufferSource param1, Entity param2) {
-        TextureAtlas var0 = Minecraft.getInstance().getTextureAtlas();
-        TextureAtlasSprite var1 = var0.getSprite(ModelBakery.FIRE_0);
-        TextureAtlasSprite var2 = var0.getSprite(ModelBakery.FIRE_1);
+        TextureAtlasSprite var0 = ModelBakery.FIRE_0.sprite();
+        TextureAtlasSprite var1 = ModelBakery.FIRE_1.sprite();
         param0.pushPose();
-        float var3 = param2.getBbWidth() * 1.4F;
-        param0.scale(var3, var3, var3);
-        float var4 = 0.5F;
-        float var5 = 0.0F;
-        float var6 = param2.getBbHeight() / var3;
-        float var7 = 0.0F;
+        float var2 = param2.getBbWidth() * 1.4F;
+        param0.scale(var2, var2, var2);
+        float var3 = 0.5F;
+        float var4 = 0.0F;
+        float var5 = param2.getBbHeight() / var2;
+        float var6 = 0.0F;
         param0.mulPose(Vector3f.YP.rotationDegrees(-this.camera.getYRot()));
-        param0.translate(0.0, 0.0, (double)(-0.3F + (float)((int)var6) * 0.02F));
-        float var8 = 0.0F;
-        int var9 = 0;
-        VertexConsumer var10 = param1.getBuffer(RenderType.blockentityCutout());
+        param0.translate(0.0, 0.0, (double)(-0.3F + (float)((int)var5) * 0.02F));
+        float var7 = 0.0F;
+        int var8 = 0;
+        VertexConsumer var9 = param1.getBuffer(Sheets.cutoutBlockSheet());
 
-        for(PoseStack.Pose var11 = param0.last(); var6 > 0.0F; ++var9) {
-            TextureAtlasSprite var12 = var9 % 2 == 0 ? var1 : var2;
-            float var13 = var12.getU0();
-            float var14 = var12.getV0();
-            float var15 = var12.getU1();
-            float var16 = var12.getV1();
-            if (var9 / 2 % 2 == 0) {
-                float var17 = var15;
-                var15 = var13;
-                var13 = var17;
+        for(PoseStack.Pose var10 = param0.last(); var5 > 0.0F; ++var8) {
+            TextureAtlasSprite var11 = var8 % 2 == 0 ? var0 : var1;
+            float var12 = var11.getU0();
+            float var13 = var11.getV0();
+            float var14 = var11.getU1();
+            float var15 = var11.getV1();
+            if (var8 / 2 % 2 == 0) {
+                float var16 = var14;
+                var14 = var12;
+                var12 = var16;
             }
 
-            fireVertex(var11, var10, var4 - 0.0F, 0.0F - var7, var8, var15, var16);
-            fireVertex(var11, var10, -var4 - 0.0F, 0.0F - var7, var8, var13, var16);
-            fireVertex(var11, var10, -var4 - 0.0F, 1.4F - var7, var8, var13, var14);
-            fireVertex(var11, var10, var4 - 0.0F, 1.4F - var7, var8, var15, var14);
+            fireVertex(var10, var9, var3 - 0.0F, 0.0F - var6, var7, var14, var15);
+            fireVertex(var10, var9, -var3 - 0.0F, 0.0F - var6, var7, var12, var15);
+            fireVertex(var10, var9, -var3 - 0.0F, 1.4F - var6, var7, var12, var13);
+            fireVertex(var10, var9, var3 - 0.0F, 1.4F - var6, var7, var14, var13);
+            var5 -= 0.45F;
             var6 -= 0.45F;
-            var7 -= 0.45F;
-            var4 *= 0.9F;
-            var8 += 0.03F;
+            var3 *= 0.9F;
+            var7 += 0.03F;
         }
 
         param0.popPose();
@@ -391,7 +388,7 @@ public class EntityRenderDispatcher {
         int var9 = Mth.floor(var4 - (double)var0);
         int var10 = Mth.floor(var4 + (double)var0);
         PoseStack.Pose var11 = param0.last();
-        VertexConsumer var12 = param1.getBuffer(RenderType.entityNoOutline(SHADOW_LOCATION));
+        VertexConsumer var12 = param1.getBuffer(SHADOW_RENDER_TYPE);
 
         for(BlockPos var13 : BlockPos.betweenClosed(new BlockPos(var5, var7, var9), new BlockPos(var6, var8, var10))) {
             renderBlockShadow(var11, var12, param5, var13, var2, var3, var4, var0, param3);

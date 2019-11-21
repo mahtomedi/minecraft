@@ -23,6 +23,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class FishingHookRenderer extends EntityRenderer<FishingHook> {
     private static final ResourceLocation TEXTURE_LOCATION = new ResourceLocation("textures/entity/fishing_hook.png");
+    private static final RenderType RENDER_TYPE = RenderType.entityCutout(TEXTURE_LOCATION);
 
     public FishingHookRenderer(EntityRenderDispatcher param0) {
         super(param0);
@@ -39,7 +40,7 @@ public class FishingHookRenderer extends EntityRenderer<FishingHook> {
             PoseStack.Pose var1 = param3.last();
             Matrix4f var2 = var1.pose();
             Matrix3f var3 = var1.normal();
-            VertexConsumer var4 = param4.getBuffer(RenderType.entityCutout(TEXTURE_LOCATION));
+            VertexConsumer var4 = param4.getBuffer(RENDER_TYPE);
             vertex(var4, var2, var3, param5, 0.0F, 0, 0, 1);
             vertex(var4, var2, var3, param5, 1.0F, 0, 1, 1);
             vertex(var4, var2, var3, param5, 1.0F, 1, 1, 0);

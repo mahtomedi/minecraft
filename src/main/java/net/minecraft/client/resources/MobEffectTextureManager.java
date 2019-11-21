@@ -1,6 +1,6 @@
 package net.minecraft.client.resources;
 
-import net.minecraft.client.renderer.texture.TextureAtlas;
+import java.util.stream.Stream;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.core.Registry;
@@ -12,12 +12,12 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class MobEffectTextureManager extends TextureAtlasHolder {
     public MobEffectTextureManager(TextureManager param0) {
-        super(param0, TextureAtlas.LOCATION_MOB_EFFECTS, "textures/mob_effect");
+        super(param0, new ResourceLocation("textures/atlas/mob_effects.png"), "mob_effect");
     }
 
     @Override
-    protected Iterable<ResourceLocation> getResourcesToLoad() {
-        return Registry.MOB_EFFECT.keySet();
+    protected Stream<ResourceLocation> getResourcesToLoad() {
+        return Registry.MOB_EFFECT.keySet().stream();
     }
 
     public TextureAtlasSprite get(MobEffect param0) {

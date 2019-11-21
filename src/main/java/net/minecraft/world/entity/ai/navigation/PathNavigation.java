@@ -31,7 +31,7 @@ public abstract class PathNavigation {
     @Nullable
     protected Path path;
     protected double speedModifier;
-    private final AttributeInstance dist;
+    private final AttributeInstance followRange;
     protected int tick;
     protected int lastStuckCheck;
     protected Vec3 lastStuckCheckPos = Vec3.ZERO;
@@ -45,13 +45,23 @@ public abstract class PathNavigation {
     protected NodeEvaluator nodeEvaluator;
     private BlockPos targetPos;
     private int reachRange;
-    private PathFinder pathFinder;
+    private float maxVisitedNodesMultiplier = 1.0F;
+    private final PathFinder pathFinder;
 
     public PathNavigation(Mob param0, Level param1) {
         this.mob = param0;
         this.level = param1;
-        this.dist = param0.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE);
-        this.pathFinder = this.createPathFinder(Mth.floor(this.dist.getValue() * 16.0));
+        this.followRange = param0.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE);
+        int var0 = Mth.floor(this.followRange.getValue() * 16.0);
+        this.pathFinder = this.createPathFinder(var0);
+    }
+
+    public void resetMaxVisitedNodesMultiplier() {
+        this.maxVisitedNodesMultiplier = 1.0F;
+    }
+
+    public void setMaxVisitedNodesMultiplier(float param0) {
+        this.maxVisitedNodesMultiplier = param0;
     }
 
     public BlockPos getTargetPos() {
@@ -62,10 +72,6 @@ public abstract class PathNavigation {
 
     public void setSpeedModifier(double param0) {
         this.speedModifier = param0;
-    }
-
-    public float getMaxDist() {
-        return (float)this.dist.getValue();
     }
 
     public boolean hasDelayedRecomputation() {
@@ -118,11 +124,11 @@ public abstract class PathNavigation {
             return this.path;
         } else {
             this.level.getProfiler().push("pathfind");
-            float var0 = this.getMaxDist();
+            float var0 = (float)this.followRange.getValue();
             BlockPos var1 = param2 ? new BlockPos(this.mob).above() : new BlockPos(this.mob);
             int var2 = (int)(var0 + (float)param1);
             PathNavigationRegion var3 = new PathNavigationRegion(this.level, var1.offset(-var2, -var2, -var2), var1.offset(var2, var2, var2));
-            Path var4 = this.pathFinder.findPath(var3, this.mob, param0, var0, param3);
+            Path var4 = this.pathFinder.findPath(var3, this.mob, param0, var0, param3, this.maxVisitedNodesMultiplier);
             this.level.getProfiler().pop();
             if (var4 != null && var4.getTarget() != null) {
                 this.targetPos = var4.getTarget();
@@ -253,6 +259,10 @@ public abstract class PathNavigation {
 
     public boolean isDone() {
         return this.path == null || this.path.isDone();
+    }
+
+    public boolean isInProgress() {
+        return !this.isDone();
     }
 
     public void stop() {

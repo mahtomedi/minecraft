@@ -18,10 +18,9 @@ import java.util.Random;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.font.FontSet;
 import net.minecraft.client.gui.font.glyphs.BakedGlyph;
+import net.minecraft.client.gui.font.glyphs.EmptyGlyph;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -190,20 +189,19 @@ public class Font implements AutoCloseable {
             } else {
                 GlyphInfo var19 = this.fonts.getGlyphInfo(var16);
                 BakedGlyph var20 = var9 && var16 != ' ' ? this.fonts.getRandomGlyph(var19) : this.fonts.getGlyph(var16);
-                ResourceLocation var21 = var20.getTexture();
-                if (var21 != null) {
-                    float var22 = var10 ? var19.getBoldOffset() : 0.0F;
-                    float var23 = param4 ? var19.getShadowOffset() : 0.0F;
-                    VertexConsumer var24 = param6.getBuffer(param7 ? RenderType.textSeeThrough(var21) : RenderType.text(var21));
-                    this.renderChar(var20, var10, var11, var22, var4 + var23, param2 + var23, param5, var24, var5, var6, var7, var8, param9);
+                if (!(var20 instanceof EmptyGlyph)) {
+                    float var21 = var10 ? var19.getBoldOffset() : 0.0F;
+                    float var22 = param4 ? var19.getShadowOffset() : 0.0F;
+                    VertexConsumer var23 = param6.getBuffer(var20.renderType(param7));
+                    this.renderChar(var20, var10, var11, var21, var4 + var22, param2 + var22, param5, var23, var5, var6, var7, var8, param9);
                 }
 
-                float var25 = var19.getAdvance(var10);
-                float var26 = param4 ? 1.0F : 0.0F;
+                float var24 = var19.getAdvance(var10);
+                float var25 = param4 ? 1.0F : 0.0F;
                 if (var13) {
                     var14.add(
                         new BakedGlyph.Effect(
-                            var4 + var26 - 1.0F, param2 + var26 + 4.5F, var4 + var26 + var25, param2 + var26 + 4.5F - 1.0F, -0.01F, var5, var6, var7, var8
+                            var4 + var25 - 1.0F, param2 + var25 + 4.5F, var4 + var25 + var24, param2 + var25 + 4.5F - 1.0F, -0.01F, var5, var6, var7, var8
                         )
                     );
                 }
@@ -211,32 +209,29 @@ public class Font implements AutoCloseable {
                 if (var12) {
                     var14.add(
                         new BakedGlyph.Effect(
-                            var4 + var26 - 1.0F, param2 + var26 + 9.0F, var4 + var26 + var25, param2 + var26 + 9.0F - 1.0F, -0.01F, var5, var6, var7, var8
+                            var4 + var25 - 1.0F, param2 + var25 + 9.0F, var4 + var25 + var24, param2 + var25 + 9.0F - 1.0F, -0.01F, var5, var6, var7, var8
                         )
                     );
                 }
 
-                var4 += var25;
+                var4 += var24;
             }
         }
 
         if (param8 != 0) {
-            float var27 = (float)(param8 >> 24 & 0xFF) / 255.0F;
-            float var28 = (float)(param8 >> 16 & 0xFF) / 255.0F;
-            float var29 = (float)(param8 >> 8 & 0xFF) / 255.0F;
-            float var30 = (float)(param8 & 0xFF) / 255.0F;
-            var14.add(new BakedGlyph.Effect(param1 - 1.0F, param2 + 9.0F, var4 + 1.0F, param2 - 1.0F, 0.01F, var28, var29, var30, var27));
+            float var26 = (float)(param8 >> 24 & 0xFF) / 255.0F;
+            float var27 = (float)(param8 >> 16 & 0xFF) / 255.0F;
+            float var28 = (float)(param8 >> 8 & 0xFF) / 255.0F;
+            float var29 = (float)(param8 & 0xFF) / 255.0F;
+            var14.add(new BakedGlyph.Effect(param1 - 1.0F, param2 + 9.0F, var4 + 1.0F, param2 - 1.0F, 0.01F, var27, var28, var29, var26));
         }
 
         if (!var14.isEmpty()) {
-            BakedGlyph var31 = this.fonts.whiteGlyph();
-            ResourceLocation var32 = var31.getTexture();
-            if (var32 != null) {
-                VertexConsumer var33 = param6.getBuffer(param7 ? RenderType.textSeeThrough(var32) : RenderType.text(var32));
+            BakedGlyph var30 = this.fonts.whiteGlyph();
+            VertexConsumer var31 = param6.getBuffer(var30.renderType(param7));
 
-                for(BakedGlyph.Effect var34 : var14) {
-                    var31.renderEffect(var34, param5, var33, param9);
-                }
+            for(BakedGlyph.Effect var32 : var14) {
+                var30.renderEffect(var32, param5, var31, param9);
             }
         }
 

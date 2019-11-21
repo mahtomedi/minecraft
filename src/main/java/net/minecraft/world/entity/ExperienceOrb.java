@@ -7,7 +7,6 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundAddExperienceOrbPacket;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -48,12 +47,6 @@ public class ExperienceOrb extends Entity {
 
     @Override
     protected void defineSynchedData() {
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public int getBlockLightLevel() {
-        return Mth.clamp(super.getBlockLightLevel() + 7, 0, 15);
     }
 
     @Override

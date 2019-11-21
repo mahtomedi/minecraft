@@ -4,7 +4,6 @@ import com.google.common.collect.Queues;
 import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
 import java.util.Deque;
 import net.minecraft.Util;
 import net.minecraft.util.Mth;
@@ -22,31 +21,19 @@ public class PoseStack {
     });
 
     public void translate(double param0, double param1, double param2) {
-        Matrix4f var0 = new Matrix4f();
-        var0.setIdentity();
-        var0.translate(new Vector3f((float)param0, (float)param1, (float)param2));
-        PoseStack.Pose var1 = this.poseStack.getLast();
-        var1.pose.multiply(var0);
+        PoseStack.Pose var0 = this.poseStack.getLast();
+        var0.pose.multiply(Matrix4f.createTranslateMatrix((float)param0, (float)param1, (float)param2));
     }
 
     public void scale(float param0, float param1, float param2) {
         PoseStack.Pose var0 = this.poseStack.getLast();
-        Matrix4f var1 = new Matrix4f();
-        var1.setIdentity();
-        var1.set(0, 0, param0);
-        var1.set(1, 1, param1);
-        var1.set(2, 2, param2);
-        var0.pose.multiply(var1);
+        var0.pose.multiply(Matrix4f.createScaleMatrix(param0, param1, param2));
         if (param0 != param1 || param1 != param2) {
-            float var2 = 1.0F / param0;
-            float var3 = 1.0F / param1;
-            float var4 = 1.0F / param2;
-            float var5 = Mth.fastInvCubeRoot(var2 * var3 * var4);
-            Matrix3f var6 = new Matrix3f();
-            var6.set(0, 0, var5 * var2);
-            var6.set(1, 1, var5 * var3);
-            var6.set(2, 2, var5 * var4);
-            var0.normal.mul(var6);
+            float var1 = 1.0F / param0;
+            float var2 = 1.0F / param1;
+            float var3 = 1.0F / param2;
+            float var4 = Mth.fastInvCubeRoot(var1 * var2 * var3);
+            var0.normal.mul(Matrix3f.createScaleMatrix(var4 * var1, var4 * var2, var4 * var3));
         }
     }
 

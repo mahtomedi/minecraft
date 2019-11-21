@@ -54,7 +54,7 @@ public class ShulkerHeadLayer extends RenderLayer<Shulker, ShulkerModel<Shulker>
         }
 
         VertexConsumer var5 = param1.getBuffer(RenderType.entitySolid(var3));
-        var1.render(param0, var5, param2, LivingEntityRenderer.getOverlayCoords(param3, 0.0F), null);
+        var1.render(param0, var5, param2, LivingEntityRenderer.getOverlayCoords(param3, 0.0F));
         param0.popPose();
     }
 }

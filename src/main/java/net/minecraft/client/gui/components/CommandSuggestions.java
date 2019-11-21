@@ -135,26 +135,22 @@ public class CommandSuggestions {
 
         this.commandUsage.clear();
         StringReader var1 = new StringReader(var0);
-        boolean var2;
-        if (this.commandsOnly) {
-            var2 = true;
-        } else if (var1.canRead() && var1.peek() == '/') {
+        boolean var2 = var1.canRead() && var1.peek() == '/';
+        if (var2) {
             var1.skip();
-            var2 = true;
-        } else {
-            var2 = false;
         }
 
-        int var5 = this.input.getCursorPosition();
-        if (var2) {
-            CommandDispatcher<SharedSuggestionProvider> var6 = this.minecraft.player.connection.getCommands();
+        boolean var3 = this.commandsOnly || var2;
+        int var4 = this.input.getCursorPosition();
+        if (var3) {
+            CommandDispatcher<SharedSuggestionProvider> var5 = this.minecraft.player.connection.getCommands();
             if (this.currentParse == null) {
-                this.currentParse = var6.parse(var1, this.minecraft.player.connection.getSuggestionsProvider());
+                this.currentParse = var5.parse(var1, this.minecraft.player.connection.getSuggestionsProvider());
             }
 
-            int var7 = this.onlyShowIfCursorPastError ? var1.getCursor() : 1;
-            if (var5 >= var7 && (this.suggestions == null || !this.keepSuggestions)) {
-                this.pendingSuggestions = var6.getCompletionSuggestions(this.currentParse, var5);
+            int var6 = this.onlyShowIfCursorPastError ? var1.getCursor() : 1;
+            if (var4 >= var6 && (this.suggestions == null || !this.keepSuggestions)) {
+                this.pendingSuggestions = var5.getCompletionSuggestions(this.currentParse, var4);
                 this.pendingSuggestions.thenRun(() -> {
                     if (this.pendingSuggestions.isDone()) {
                         this.updateUsageInfo();
@@ -162,10 +158,10 @@ public class CommandSuggestions {
                 });
             }
         } else {
-            String var8 = var0.substring(0, var5);
-            int var9 = getLastWordIndex(var8);
-            Collection<String> var10 = this.minecraft.player.connection.getSuggestionsProvider().getOnlinePlayerNames();
-            this.pendingSuggestions = SharedSuggestionProvider.suggest(var10, new SuggestionsBuilder(var8, var9));
+            String var7 = var0.substring(0, var4);
+            int var8 = getLastWordIndex(var7);
+            Collection<String> var9 = this.minecraft.player.connection.getSuggestionsProvider().getOnlinePlayerNames();
+            this.pendingSuggestions = SharedSuggestionProvider.suggest(var9, new SuggestionsBuilder(var7, var8));
         }
 
     }

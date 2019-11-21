@@ -136,39 +136,38 @@ public class FallingBlockEntity extends Entity {
                     }
                 }
 
-                boolean var7 = this.onGround && !FallingBlock.isFree(this.level.getBlockState(var2.below()));
-                if (var7 || var4) {
-                    BlockState var8 = this.level.getBlockState(var2);
+                if (this.onGround || var4) {
+                    BlockState var7 = this.level.getBlockState(var2);
                     this.setDeltaMovement(this.getDeltaMovement().multiply(0.7, -0.5, 0.7));
-                    if (var8.getBlock() != Blocks.MOVING_PISTON) {
+                    if (var7.getBlock() != Blocks.MOVING_PISTON) {
                         this.remove();
                         if (!this.cancelDrop) {
-                            boolean var9 = var8.canBeReplaced(new DirectionalPlaceContext(this.level, var2, Direction.DOWN, ItemStack.EMPTY, Direction.UP));
-                            boolean var10 = this.blockState.canSurvive(this.level, var2);
-                            if (var9 && var10) {
+                            boolean var8 = var7.canBeReplaced(new DirectionalPlaceContext(this.level, var2, Direction.DOWN, ItemStack.EMPTY, Direction.UP));
+                            boolean var9 = this.blockState.canSurvive(this.level, var2) && !FallingBlock.isFree(this.level.getBlockState(var2.below()));
+                            if (var8 && var9) {
                                 if (this.blockState.hasProperty(BlockStateProperties.WATERLOGGED) && this.level.getFluidState(var2).getType() == Fluids.WATER) {
                                     this.blockState = this.blockState.setValue(BlockStateProperties.WATERLOGGED, Boolean.valueOf(true));
                                 }
 
                                 if (this.level.setBlock(var2, this.blockState, 3)) {
                                     if (var0 instanceof FallingBlock) {
-                                        ((FallingBlock)var0).onLand(this.level, var2, this.blockState, var8);
+                                        ((FallingBlock)var0).onLand(this.level, var2, this.blockState, var7);
                                     }
 
                                     if (this.blockData != null && var0 instanceof EntityBlock) {
-                                        BlockEntity var11 = this.level.getBlockEntity(var2);
-                                        if (var11 != null) {
-                                            CompoundTag var12 = var11.save(new CompoundTag());
+                                        BlockEntity var10 = this.level.getBlockEntity(var2);
+                                        if (var10 != null) {
+                                            CompoundTag var11 = var10.save(new CompoundTag());
 
-                                            for(String var13 : this.blockData.getAllKeys()) {
-                                                Tag var14 = this.blockData.get(var13);
-                                                if (!"x".equals(var13) && !"y".equals(var13) && !"z".equals(var13)) {
-                                                    var12.put(var13, var14.copy());
+                                            for(String var12 : this.blockData.getAllKeys()) {
+                                                Tag var13 = this.blockData.get(var12);
+                                                if (!"x".equals(var12) && !"y".equals(var12) && !"z".equals(var12)) {
+                                                    var11.put(var12, var13.copy());
                                                 }
                                             }
 
-                                            var11.load(var12);
-                                            var11.setChanged();
+                                            var10.load(var11);
+                                            var10.setChanged();
                                         }
                                     }
                                 } else if (this.dropItem && this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {

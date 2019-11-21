@@ -3,15 +3,12 @@ package net.minecraft.client.renderer.blockentity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
-import java.util.Arrays;
-import java.util.Comparator;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.resources.model.Material;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.entity.BedBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -21,10 +18,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class BedRenderer extends BlockEntityRenderer<BedBlockEntity> {
-    public static final ResourceLocation[] TEXTURES = Arrays.stream(DyeColor.values())
-        .sorted(Comparator.comparingInt(DyeColor::getId))
-        .map(param0 -> new ResourceLocation("entity/bed/" + param0.getName()))
-        .toArray(param0 -> new ResourceLocation[param0]);
     private final ModelPart headPiece;
     private final ModelPart footPiece;
     private final ModelPart[] legs = new ModelPart[4];
@@ -54,20 +47,19 @@ public class BedRenderer extends BlockEntityRenderer<BedBlockEntity> {
     }
 
     public void render(BedBlockEntity param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {
-        ResourceLocation var0 = TEXTURES[param0.getColor().getId()];
-        VertexConsumer var1 = param3.getBuffer(RenderType.blockentitySolid());
+        Material var0 = Sheets.BED_TEXTURES[param0.getColor().getId()];
         if (param0.hasLevel()) {
-            BlockState var2 = param0.getBlockState();
-            this.renderPiece(param2, var1, var2.getValue(BedBlock.PART) == BedPart.HEAD, var2.getValue(BedBlock.FACING), var0, param4, param5, false);
+            BlockState var1 = param0.getBlockState();
+            this.renderPiece(param2, param3, var1.getValue(BedBlock.PART) == BedPart.HEAD, var1.getValue(BedBlock.FACING), var0, param4, param5, false);
         } else {
-            this.renderPiece(param2, var1, true, Direction.SOUTH, var0, param4, param5, false);
-            this.renderPiece(param2, var1, false, Direction.SOUTH, var0, param4, param5, true);
+            this.renderPiece(param2, param3, true, Direction.SOUTH, var0, param4, param5, false);
+            this.renderPiece(param2, param3, false, Direction.SOUTH, var0, param4, param5, true);
         }
 
     }
 
     private void renderPiece(
-        PoseStack param0, VertexConsumer param1, boolean param2, Direction param3, ResourceLocation param4, int param5, int param6, boolean param7
+        PoseStack param0, MultiBufferSource param1, boolean param2, Direction param3, Material param4, int param5, int param6, boolean param7
     ) {
         this.headPiece.visible = param2;
         this.footPiece.visible = !param2;
@@ -81,13 +73,13 @@ public class BedRenderer extends BlockEntityRenderer<BedBlockEntity> {
         param0.translate(0.5, 0.5, 0.5);
         param0.mulPose(Vector3f.ZP.rotationDegrees(180.0F + param3.toYRot()));
         param0.translate(-0.5, -0.5, -0.5);
-        TextureAtlasSprite var0 = this.getSprite(param4);
-        this.headPiece.render(param0, param1, param5, param6, var0);
-        this.footPiece.render(param0, param1, param5, param6, var0);
-        this.legs[0].render(param0, param1, param5, param6, var0);
-        this.legs[1].render(param0, param1, param5, param6, var0);
-        this.legs[2].render(param0, param1, param5, param6, var0);
-        this.legs[3].render(param0, param1, param5, param6, var0);
+        VertexConsumer var0 = param4.buffer(param1, RenderType::entitySolid);
+        this.headPiece.render(param0, var0, param5, param6);
+        this.footPiece.render(param0, var0, param5, param6);
+        this.legs[0].render(param0, var0, param5, param6);
+        this.legs[1].render(param0, var0, param5, param6);
+        this.legs[2].render(param0, var0, param5, param6);
+        this.legs[3].render(param0, var0, param5, param6);
         param0.popPose();
     }
 }

@@ -110,8 +110,11 @@ public abstract class LivingEntityRenderer<T extends LivingEntity, M extends Ent
         this.model.setupAnim(param0, var10, var9, var8, var2, var5);
         if (var11 || var12) {
             ResourceLocation var13 = this.getTextureLocation(param0);
-            VertexConsumer var14 = param4.getBuffer(var12 ? RenderType.entityForceTranslucent(var13) : this.model.renderType(var13));
-            this.model.renderToBuffer(param3, var14, param5, getOverlayCoords(param0, this.getWhiteOverlayProgress(param0, param2)), 1.0F, 1.0F, 1.0F);
+            VertexConsumer var14 = param4.getBuffer(var12 ? RenderType.entityTranslucent(var13) : this.model.renderType(var13));
+            this.model
+                .renderToBuffer(
+                    param3, var14, param5, getOverlayCoords(param0, this.getWhiteOverlayProgress(param0, param2)), 1.0F, 1.0F, 1.0F, var12 ? 0.15F : 1.0F
+                );
         }
 
         if (!param0.isSpectator()) {

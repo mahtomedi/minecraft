@@ -1,12 +1,10 @@
 package net.minecraft.client.renderer;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultedVertexConsumer;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
 import java.util.Optional;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -26,13 +24,13 @@ public class OutlineBufferSource implements MultiBufferSource {
     @Override
     public VertexConsumer getBuffer(RenderType param0) {
         VertexConsumer var0 = this.bufferSource.getBuffer(param0);
-        Optional<ResourceLocation> var1 = param0.outlineTexture();
+        Optional<RenderType> var1 = param0.outline();
         if (var1.isPresent()) {
-            VertexConsumer var2 = this.outlineBufferSource.getBuffer(RenderType.outline(var1.get()));
+            VertexConsumer var2 = this.outlineBufferSource.getBuffer(var1.get());
             OutlineBufferSource.EntityOutlineGenerator var3 = new OutlineBufferSource.EntityOutlineGenerator(
                 var2, this.teamR, this.teamG, this.teamB, this.teamA
             );
-            return new VertexMultiConsumer(ImmutableList.of(var3, var0));
+            return VertexMultiConsumer.create(var3, var0);
         } else {
             return var0;
         }
@@ -100,6 +98,30 @@ public class OutlineBufferSource implements MultiBufferSource {
         @Override
         public VertexConsumer normal(float param0, float param1, float param2) {
             return this;
+        }
+
+        @Override
+        public void vertex(
+            float param0,
+            float param1,
+            float param2,
+            float param3,
+            float param4,
+            float param5,
+            float param6,
+            float param7,
+            float param8,
+            int param9,
+            int param10,
+            float param11,
+            float param12,
+            float param13
+        ) {
+            this.delegate
+                .vertex((double)param0, (double)param1, (double)param2)
+                .color(this.defaultR, this.defaultG, this.defaultB, this.defaultA)
+                .uv(param7, param8)
+                .endVertex();
         }
 
         @Override

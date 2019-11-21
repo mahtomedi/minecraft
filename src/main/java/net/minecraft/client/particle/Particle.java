@@ -170,40 +170,38 @@ public abstract class Particle {
     }
 
     public void move(double param0, double param1, double param2) {
-        if (this.stoppedByCollision) {
-            param1 = 0.0;
-        }
+        if (!this.stoppedByCollision) {
+            double var0 = param0;
+            double var1 = param1;
+            double var2 = param2;
+            if (this.hasPhysics && (param0 != 0.0 || param1 != 0.0 || param2 != 0.0)) {
+                Vec3 var3 = Entity.collideBoundingBoxHeuristically(
+                    null, new Vec3(param0, param1, param2), this.getBoundingBox(), this.level, CollisionContext.empty(), new RewindableStream<>(Stream.empty())
+                );
+                param0 = var3.x;
+                param1 = var3.y;
+                param2 = var3.z;
+            }
 
-        double var0 = param0;
-        double var1 = param1;
-        double var2 = param2;
-        if (this.hasPhysics && (param0 != 0.0 || param1 != 0.0 || param2 != 0.0) && !this.stoppedByCollision) {
-            Vec3 var3 = Entity.collideBoundingBoxHeuristically(
-                null, new Vec3(param0, param1, param2), this.getBoundingBox(), this.level, CollisionContext.empty(), new RewindableStream<>(Stream.empty())
-            );
-            param0 = var3.x;
-            param1 = var3.y;
-            param2 = var3.z;
-        }
+            if (param0 != 0.0 || param1 != 0.0 || param2 != 0.0) {
+                this.setBoundingBox(this.getBoundingBox().move(param0, param1, param2));
+                this.setLocationFromBoundingbox();
+            }
 
-        if (param0 != 0.0 || param1 != 0.0 || param2 != 0.0) {
-            this.setBoundingBox(this.getBoundingBox().move(param0, param1, param2));
-            this.setLocationFromBoundingbox();
-        }
+            if (Math.abs(var1) >= 1.0E-5F && Math.abs(param1) < 1.0E-5F) {
+                this.stoppedByCollision = true;
+            }
 
-        if (Math.abs(param1) < 1.0E-5F) {
-            this.stoppedByCollision = true;
-        }
+            this.onGround = var1 != param1 && var1 < 0.0;
+            if (var0 != param0) {
+                this.xd = 0.0;
+            }
 
-        this.onGround = var1 != param1 && var1 < 0.0;
-        if (var0 != param0) {
-            this.xd = 0.0;
-        }
+            if (var2 != param2) {
+                this.zd = 0.0;
+            }
 
-        if (var2 != param2) {
-            this.zd = 0.0;
         }
-
     }
 
     protected void setLocationFromBoundingbox() {

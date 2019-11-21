@@ -1,8 +1,6 @@
 package net.minecraft.client.resources;
 
-import com.google.common.collect.Iterables;
-import java.util.Collections;
-import net.minecraft.client.renderer.texture.TextureAtlas;
+import java.util.stream.Stream;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.core.Registry;
@@ -16,12 +14,12 @@ public class PaintingTextureManager extends TextureAtlasHolder {
     private static final ResourceLocation BACK_SPRITE_LOCATION = new ResourceLocation("back");
 
     public PaintingTextureManager(TextureManager param0) {
-        super(param0, TextureAtlas.LOCATION_PAINTINGS, "textures/painting");
+        super(param0, new ResourceLocation("textures/atlas/paintings.png"), "painting");
     }
 
     @Override
-    protected Iterable<ResourceLocation> getResourcesToLoad() {
-        return Iterables.concat(Registry.MOTIVE.keySet(), Collections.singleton(BACK_SPRITE_LOCATION));
+    protected Stream<ResourceLocation> getResourcesToLoad() {
+        return Stream.concat(Registry.MOTIVE.keySet().stream(), Stream.of(BACK_SPRITE_LOCATION));
     }
 
     public TextureAtlasSprite get(Motive param0) {

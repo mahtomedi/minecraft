@@ -4,10 +4,13 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Matrix4f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -21,6 +24,16 @@ public abstract class EntityRenderer<T extends Entity> {
 
     protected EntityRenderer(EntityRenderDispatcher param0) {
         this.entityRenderDispatcher = param0;
+    }
+
+    public final int getPackedLightCoords(T param0, float param1) {
+        return LightTexture.pack(
+            this.getBlockLightLevel(param0, param1), param0.level.getBrightness(LightLayer.SKY, new BlockPos(param0.getEyePosition(param1)))
+        );
+    }
+
+    protected int getBlockLightLevel(T param0, float param1) {
+        return param0.isOnFire() ? 15 : param0.level.getBrightness(LightLayer.BLOCK, new BlockPos(param0.getEyePosition(param1)));
     }
 
     public boolean shouldRender(T param0, Frustum param1, double param2, double param3, double param4) {

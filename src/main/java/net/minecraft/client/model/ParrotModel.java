@@ -83,7 +83,7 @@ public class ParrotModel extends ListModel<Parrot> {
     ) {
         this.prepare(ParrotModel.State.ON_SHOULDER);
         this.setupAnim(ParrotModel.State.ON_SHOULDER, param8, param4, param5, 0.0F, param6, param7);
-        this.parts().forEach(param4x -> param4x.render(param0, param1, param2, param3, null));
+        this.parts().forEach(param4x -> param4x.render(param0, param1, param2, param3));
     }
 
     private void setupAnim(ParrotModel.State param0, int param1, float param2, float param3, float param4, float param5, float param6) {

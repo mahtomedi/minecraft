@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.core.BlockPos;
@@ -32,12 +31,11 @@ public class LiquidBlockRenderer {
     private TextureAtlasSprite waterOverlay;
 
     protected void setupSprites() {
-        TextureAtlas var0 = Minecraft.getInstance().getTextureAtlas();
         this.lavaIcons[0] = Minecraft.getInstance().getModelManager().getBlockModelShaper().getBlockModel(Blocks.LAVA.defaultBlockState()).getParticleIcon();
-        this.lavaIcons[1] = var0.getSprite(ModelBakery.LAVA_FLOW);
+        this.lavaIcons[1] = ModelBakery.LAVA_FLOW.sprite();
         this.waterIcons[0] = Minecraft.getInstance().getModelManager().getBlockModelShaper().getBlockModel(Blocks.WATER.defaultBlockState()).getParticleIcon();
-        this.waterIcons[1] = var0.getSprite(ModelBakery.WATER_FLOW);
-        this.waterOverlay = var0.getSprite(ModelBakery.WATER_OVERLAY);
+        this.waterIcons[1] = ModelBakery.WATER_FLOW.sprite();
+        this.waterOverlay = ModelBakery.WATER_OVERLAY.sprite();
     }
 
     private static boolean isNeighborSameFluid(BlockGetter param0, BlockPos param1, Direction param2, FluidState param3) {
@@ -166,10 +164,10 @@ public class LiquidBlockRenderer {
                 float var62 = 0.5F * var3;
                 float var63 = 0.5F * var4;
                 float var64 = 0.5F * var5;
-                this.vertex(param2, var21, var22, var23 + 1.0, var62, var63, var64, var57, var60, var61);
-                this.vertex(param2, var21, var22, var23, var62, var63, var64, var57, var59, var61);
-                this.vertex(param2, var21 + 1.0, var22, var23, var62, var63, var64, var58, var59, var61);
-                this.vertex(param2, var21 + 1.0, var22, var23 + 1.0, var62, var63, var64, var58, var60, var61);
+                this.vertex(param2, var21, var22 + 0.001F, var23 + 1.0, var62, var63, var64, var57, var60, var61);
+                this.vertex(param2, var21, var22 + 0.001F, var23, var62, var63, var64, var57, var59, var61);
+                this.vertex(param2, var21 + 1.0, var22 + 0.001F, var23, var62, var63, var64, var58, var59, var61);
+                this.vertex(param2, var21 + 1.0, var22 + 0.001F, var23 + 1.0, var62, var63, var64, var58, var60, var61);
                 var12 = true;
             }
 
@@ -243,11 +241,11 @@ public class LiquidBlockRenderer {
                     float var110 = 1.0F * var107 * var5;
                     this.vertex(param2, var68, var22 + (double)var66, var70, var108, var109, var110, var101, var103, var106);
                     this.vertex(param2, var69, var22 + (double)var67, var71, var108, var109, var110, var102, var104, var106);
-                    this.vertex(param2, var69, var22 + 0.0, var71, var108, var109, var110, var102, var105, var106);
-                    this.vertex(param2, var68, var22 + 0.0, var70, var108, var109, var110, var101, var105, var106);
+                    this.vertex(param2, var69, var22 + 0.001F, var71, var108, var109, var110, var102, var105, var106);
+                    this.vertex(param2, var68, var22 + 0.001F, var70, var108, var109, var110, var101, var105, var106);
                     if (var99 != this.waterOverlay) {
-                        this.vertex(param2, var68, var22 + 0.0, var70, var108, var109, var110, var101, var105, var106);
-                        this.vertex(param2, var69, var22 + 0.0, var71, var108, var109, var110, var102, var105, var106);
+                        this.vertex(param2, var68, var22 + 0.001F, var70, var108, var109, var110, var101, var105, var106);
+                        this.vertex(param2, var69, var22 + 0.001F, var71, var108, var109, var110, var102, var105, var106);
                         this.vertex(param2, var69, var22 + (double)var67, var71, var108, var109, var110, var102, var104, var106);
                         this.vertex(param2, var68, var22 + (double)var66, var70, var108, var109, var110, var101, var103, var106);
                     }

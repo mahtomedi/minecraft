@@ -16,26 +16,12 @@ import net.minecraft.world.phys.Vec3;
 public class RandomPos {
     @Nullable
     public static Vec3 getPos(PathfinderMob param0, int param1, int param2) {
-        return generateRandomPos(param0, param1, param2, null);
+        return generateRandomPos(param0, param1, param2, 0, null, true, (float) (Math.PI / 2), param0::getWalkTargetValue, false, 0, 0, true);
     }
 
     @Nullable
-    public static Vec3 getPosAboveSolid(PathfinderMob param0, int param1, int param2, Vec3 param3, float param4, int param5, int param6) {
-        return generateRandomPos(
-            param0,
-            param1,
-            param2,
-            0,
-            param3,
-            true,
-            (double)param4,
-            param0::getWalkTargetValue,
-            true,
-            param1x -> param0.getNavigation().isStableDestination(param1x),
-            param5,
-            param6,
-            true
-        );
+    public static Vec3 getAirPos(PathfinderMob param0, int param1, int param2, int param3, @Nullable Vec3 param4, double param5) {
+        return generateRandomPos(param0, param1, param2, param3, param4, true, param5, param0::getWalkTargetValue, true, 0, 0, false);
     }
 
     @Nullable
@@ -45,77 +31,42 @@ public class RandomPos {
 
     @Nullable
     public static Vec3 getLandPos(PathfinderMob param0, int param1, int param2, ToDoubleFunction<BlockPos> param3) {
-        return generateRandomPos(param0, param1, param2, null, false, 0.0, param3);
+        return generateRandomPos(param0, param1, param2, 0, null, false, 0.0, param3, true, 0, 0, true);
     }
 
     @Nullable
-    public static Vec3 getPosTowards(PathfinderMob param0, int param1, int param2, Vec3 param3, boolean param4) {
-        Vec3 var0 = param3.subtract(param0.getX(), param0.getY(), param0.getZ());
-        return generateRandomPos(param0, param1, param2, var0, param4);
+    public static Vec3 getAboveLandPos(PathfinderMob param0, int param1, int param2, Vec3 param3, float param4, int param5, int param6) {
+        return generateRandomPos(param0, param1, param2, 0, param3, false, (double)param4, param0::getWalkTargetValue, true, param5, param6, true);
     }
 
     @Nullable
     public static Vec3 getPosTowards(PathfinderMob param0, int param1, int param2, Vec3 param3) {
-        return getPosTowards(param0, param1, param2, param3, true);
-    }
-
-    @Nullable
-    public static Vec3 getPosTowards(PathfinderMob param0, int param1, int param2, Vec3 param3, double param4, boolean param5) {
         Vec3 var0 = param3.subtract(param0.getX(), param0.getY(), param0.getZ());
-        return generateRandomPos(param0, param1, param2, var0, param5, param4, param0::getWalkTargetValue);
+        return generateRandomPos(param0, param1, param2, 0, var0, true, (float) (Math.PI / 2), param0::getWalkTargetValue, false, 0, 0, true);
     }
 
     @Nullable
     public static Vec3 getPosTowards(PathfinderMob param0, int param1, int param2, Vec3 param3, double param4) {
-        return getPosTowards(param0, param1, param2, param3, param4, true);
+        Vec3 var0 = param3.subtract(param0.getX(), param0.getY(), param0.getZ());
+        return generateRandomPos(param0, param1, param2, 0, var0, true, param4, param0::getWalkTargetValue, false, 0, 0, true);
     }
 
     @Nullable
-    public static Vec3 getLandPosAvoid(PathfinderMob param0, int param1, int param2, Vec3 param3) {
-        Vec3 var0 = param0.position().subtract(param3);
-        return generateRandomPos(param0, param1, param2, var0, false, (float) (Math.PI / 2), param0::getWalkTargetValue);
+    public static Vec3 getAirPosTowards(PathfinderMob param0, int param1, int param2, int param3, Vec3 param4, double param5) {
+        Vec3 var0 = param4.subtract(param0.getX(), param0.getY(), param0.getZ());
+        return generateRandomPos(param0, param1, param2, param3, var0, false, param5, param0::getWalkTargetValue, true, 0, 0, false);
     }
 
     @Nullable
     public static Vec3 getPosAvoid(PathfinderMob param0, int param1, int param2, Vec3 param3) {
         Vec3 var0 = param0.position().subtract(param3);
-        return generateRandomPos(param0, param1, param2, var0);
+        return generateRandomPos(param0, param1, param2, 0, var0, true, (float) (Math.PI / 2), param0::getWalkTargetValue, false, 0, 0, true);
     }
 
     @Nullable
-    public static Vec3 getAirPos(PathfinderMob param0, int param1, int param2, int param3, @Nullable Vec3 param4, double param5) {
-        return generateRandomPos(param0, param1, param2, param3, param4, true, param5, param0::getWalkTargetValue, false, param0x -> false, 0, 0, false);
-    }
-
-    @Nullable
-    private static Vec3 generateRandomPos(PathfinderMob param0, int param1, int param2, @Nullable Vec3 param3) {
-        return generateRandomPos(param0, param1, param2, param3, true, (float) (Math.PI / 2), param0::getWalkTargetValue);
-    }
-
-    @Nullable
-    private static Vec3 generateRandomPos(PathfinderMob param0, int param1, int param2, @Nullable Vec3 param3, boolean param4) {
-        return generateRandomPos(param0, param1, param2, param3, param4, (float) (Math.PI / 2), param0::getWalkTargetValue);
-    }
-
-    @Nullable
-    private static Vec3 generateRandomPos(
-        PathfinderMob param0, int param1, int param2, @Nullable Vec3 param3, boolean param4, double param5, ToDoubleFunction<BlockPos> param6
-    ) {
-        return generateRandomPos(
-            param0,
-            param1,
-            param2,
-            0,
-            param3,
-            param4,
-            param5,
-            param6,
-            !param4,
-            param1x -> param0.level.getBlockState(param1x).getMaterial().isSolid(),
-            0,
-            0,
-            true
-        );
+    public static Vec3 getLandPosAvoid(PathfinderMob param0, int param1, int param2, Vec3 param3) {
+        Vec3 var0 = param0.position().subtract(param3);
+        return generateRandomPos(param0, param1, param2, 0, var0, false, (float) (Math.PI / 2), param0::getWalkTargetValue, true, 0, 0, true);
     }
 
     @Nullable
@@ -129,10 +80,9 @@ public class RandomPos {
         double param6,
         ToDoubleFunction<BlockPos> param7,
         boolean param8,
-        Predicate<BlockPos> param9,
+        int param9,
         int param10,
-        int param11,
-        boolean param12
+        boolean param11
     ) {
         PathNavigation var0 = param0.getNavigation();
         Random var1 = param0.getRandom();
@@ -169,12 +119,20 @@ public class RandomPos {
                 }
 
                 BlockPos var13 = new BlockPos((double)var9 + param0.getX(), (double)var10 + param0.getY(), (double)var11 + param0.getZ());
-                if ((!var2 || param0.isWithinRestriction(var13)) && (!param12 || var0.isStableDestination(var13))) {
+                if (var13.getY() >= 0
+                    && var13.getY() <= param0.level.getMaxBuildHeight()
+                    && (!var2 || param0.isWithinRestriction(var13))
+                    && (!param11 || var0.isStableDestination(var13))) {
                     if (param8) {
-                        var13 = moveAboveSolid(var13, var1.nextInt(param10 + 1) + param11, param0.level.getMaxBuildHeight(), param9);
+                        var13 = moveUpToAboveSolid(
+                            var13,
+                            var1.nextInt(param9 + 1) + param10,
+                            param0.level.getMaxBuildHeight(),
+                            param1x -> param0.level.getBlockState(param1x).getMaterial().isSolid()
+                        );
                     }
 
-                    if (param5 || !isWaterDestination(var13, param0)) {
+                    if (param5 || !param0.level.getFluidState(var13).is(FluidTags.WATER)) {
                         BlockPathTypes var14 = WalkNodeEvaluator.getBlockPathTypeStatic(param0.level, var13.getX(), var13.getY(), var13.getZ());
                         if (param0.getPathfindingMalus(var14) == 0.0F) {
                             double var15 = param7.applyAsDouble(var13);
@@ -214,7 +172,7 @@ public class RandomPos {
         }
     }
 
-    static BlockPos moveAboveSolid(BlockPos param0, int param1, int param2, Predicate<BlockPos> param3) {
+    static BlockPos moveUpToAboveSolid(BlockPos param0, int param1, int param2, Predicate<BlockPos> param3) {
         if (param1 < 0) {
             throw new IllegalArgumentException("aboveSolidAmount was " + param1 + ", expected >= 0");
         } else if (!param3.test(param0)) {
@@ -237,9 +195,5 @@ public class RandomPos {
 
             return var1;
         }
-    }
-
-    private static boolean isWaterDestination(BlockPos param0, PathfinderMob param1) {
-        return param1.level.getFluidState(param0).is(FluidTags.WATER);
     }
 }

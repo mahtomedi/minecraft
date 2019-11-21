@@ -17,11 +17,16 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class ExperienceOrbRenderer extends EntityRenderer<ExperienceOrb> {
     private static final ResourceLocation EXPERIENCE_ORB_LOCATION = new ResourceLocation("textures/entity/experience_orb.png");
+    private static final RenderType RENDER_TYPE = RenderType.entityTranslucent(EXPERIENCE_ORB_LOCATION);
 
     public ExperienceOrbRenderer(EntityRenderDispatcher param0) {
         super(param0);
         this.shadowRadius = 0.15F;
         this.shadowStrength = 0.75F;
+    }
+
+    protected int getBlockLightLevel(ExperienceOrb param0, float param1) {
+        return Mth.clamp(super.getBlockLightLevel(param0, param1) + 7, 0, 15);
     }
 
     public void render(ExperienceOrb param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {
@@ -44,7 +49,7 @@ public class ExperienceOrbRenderer extends EntityRenderer<ExperienceOrb> {
         param3.mulPose(Vector3f.YP.rotationDegrees(180.0F));
         float var13 = 0.3F;
         param3.scale(0.3F, 0.3F, 0.3F);
-        VertexConsumer var14 = param4.getBuffer(RenderType.entityTranslucent(EXPERIENCE_ORB_LOCATION));
+        VertexConsumer var14 = param4.getBuffer(RENDER_TYPE);
         PoseStack.Pose var15 = param3.last();
         Matrix4f var16 = var15.pose();
         Matrix3f var17 = var15.normal();

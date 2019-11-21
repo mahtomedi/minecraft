@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Random;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
@@ -75,10 +74,10 @@ public class ParticleEngine implements PreparableReloadListener {
     private final Int2ObjectMap<ParticleProvider<?>> providers = new Int2ObjectOpenHashMap<>();
     private final Queue<Particle> particlesToAdd = Queues.newArrayDeque();
     private final Map<ResourceLocation, ParticleEngine.MutableSpriteSet> spriteSets = Maps.newHashMap();
-    private final TextureAtlas textureAtlas = new TextureAtlas("textures/particle");
+    private final TextureAtlas textureAtlas = new TextureAtlas(TextureAtlas.LOCATION_PARTICLES);
 
     public ParticleEngine(Level param0, TextureManager param1) {
-        param1.register(TextureAtlas.LOCATION_PARTICLES, this.textureAtlas);
+        param1.register(this.textureAtlas.location(), this.textureAtlas);
         this.level = param0;
         this.textureManager = param1;
         this.registerProviders();
@@ -178,11 +177,10 @@ public class ParticleEngine implements PreparableReloadListener {
             .thenApplyAsync(param3x -> {
                 param2.startTick();
                 param2.push("stitching");
-                Set<ResourceLocation> var0x = var0.values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
-                TextureAtlas.Preparations var1x = this.textureAtlas.prepareToStitch(param1, var0x, param2);
+                TextureAtlas.Preparations var0x = this.textureAtlas.prepareToStitch(param1, var0.values().stream().flatMap(Collection::stream), param2, 0);
                 param2.pop();
                 param2.endTick();
-                return var1x;
+                return var0x;
             }, param4)
             .thenCompose(param0::wait)
             .thenAcceptAsync(
@@ -231,7 +229,10 @@ public class ParticleEngine implements PreparableReloadListener {
                     throw new IllegalStateException("Redundant texture list for particle " + param1);
                 }
 
-                param2.put(param1, var4);
+                param2.put(
+                    param1,
+                    var4.stream().map(param0x -> new ResourceLocation(param0x.getNamespace(), "particle/" + param0x.getPath())).collect(Collectors.toList())
+                );
             }
 
         } catch (IOException var39) {

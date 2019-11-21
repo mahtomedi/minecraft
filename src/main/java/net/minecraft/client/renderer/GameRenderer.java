@@ -22,7 +22,6 @@ import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.MapRenderer;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -400,7 +399,7 @@ public class GameRenderer implements AutoCloseable, ResourceManagerReloadListene
                         param0,
                         this.renderBuffers.bufferSource(),
                         this.minecraft.player,
-                        EntityRenderDispatcher.getPackedLightCoords(this.minecraft.player)
+                        this.minecraft.getEntityRenderDispatcher().getPackedLightCoords(this.minecraft.player, param2)
                     );
                 this.lightTexture.turnOffLightLayer();
             }
@@ -478,11 +477,11 @@ public class GameRenderer implements AutoCloseable, ResourceManagerReloadListene
             RenderSystem.viewport(0, 0, this.minecraft.getWindow().getWidth(), this.minecraft.getWindow().getHeight());
             if (param2 && this.minecraft.level != null) {
                 this.minecraft.getProfiler().push("level");
-                int var4 = Math.min(Minecraft.getAverageFps(), var2);
-                var4 = Math.max(var4, 60);
+                int var4 = 30;
                 long var5 = Util.getNanos() - param1;
-                long var6 = Math.max((long)(1000000000 / var4 / 4) - var5, 0L);
-                this.renderLevel(param0, Util.getNanos() + var6, var3);
+                long var6 = (long)(1000000000 / var4);
+                long var7 = Math.max(var6 * 3L / 4L - var5, var6 / 10L);
+                this.renderLevel(param0, Util.getNanos() + var7, var3);
                 if (this.minecraft.hasSingleplayerServer() && this.lastScreenshotAttempt < Util.getMillis() - 1000L) {
                     this.lastScreenshotAttempt = Util.getMillis();
                     if (!this.minecraft.getSingleplayerServer().hasWorldScreenshot()) {
@@ -506,11 +505,11 @@ public class GameRenderer implements AutoCloseable, ResourceManagerReloadListene
                 this.minecraft.getMainRenderTarget().bindWrite(true);
             }
 
-            Window var7 = this.minecraft.getWindow();
+            Window var8 = this.minecraft.getWindow();
             RenderSystem.clear(256, Minecraft.ON_OSX);
             RenderSystem.matrixMode(5889);
             RenderSystem.loadIdentity();
-            RenderSystem.ortho(0.0, (double)var7.getWidth() / var7.getGuiScale(), (double)var7.getHeight() / var7.getGuiScale(), 0.0, 1000.0, 3000.0);
+            RenderSystem.ortho(0.0, (double)var8.getWidth() / var8.getGuiScale(), (double)var8.getHeight() / var8.getGuiScale(), 0.0, 1000.0, 3000.0);
             RenderSystem.matrixMode(5888);
             RenderSystem.loadIdentity();
             RenderSystem.translatef(0.0F, 0.0F, -2000.0F);
@@ -530,20 +529,20 @@ public class GameRenderer implements AutoCloseable, ResourceManagerReloadListene
             if (this.minecraft.overlay != null) {
                 try {
                     this.minecraft.overlay.render(var0, var1, this.minecraft.getDeltaFrameTime());
-                } catch (Throwable var15) {
-                    CrashReport var9 = CrashReport.forThrowable(var15, "Rendering overlay");
-                    CrashReportCategory var10 = var9.addCategory("Overlay render details");
-                    var10.setDetail("Overlay name", () -> this.minecraft.overlay.getClass().getCanonicalName());
-                    throw new ReportedException(var9);
+                } catch (Throwable var17) {
+                    CrashReport var10 = CrashReport.forThrowable(var17, "Rendering overlay");
+                    CrashReportCategory var11 = var10.addCategory("Overlay render details");
+                    var11.setDetail("Overlay name", () -> this.minecraft.overlay.getClass().getCanonicalName());
+                    throw new ReportedException(var10);
                 }
             } else if (this.minecraft.screen != null) {
                 try {
                     this.minecraft.screen.render(var0, var1, this.minecraft.getDeltaFrameTime());
-                } catch (Throwable var14) {
-                    CrashReport var12 = CrashReport.forThrowable(var14, "Rendering screen");
-                    CrashReportCategory var13 = var12.addCategory("Screen render details");
-                    var13.setDetail("Screen name", () -> this.minecraft.screen.getClass().getCanonicalName());
-                    var13.setDetail(
+                } catch (Throwable var16) {
+                    CrashReport var13 = CrashReport.forThrowable(var16, "Rendering screen");
+                    CrashReportCategory var14 = var13.addCategory("Screen render details");
+                    var14.setDetail("Screen name", () -> this.minecraft.screen.getClass().getCanonicalName());
+                    var14.setDetail(
                         "Mouse location",
                         () -> String.format(
                                 Locale.ROOT,
@@ -554,7 +553,7 @@ public class GameRenderer implements AutoCloseable, ResourceManagerReloadListene
                                 this.minecraft.mouseHandler.ypos()
                             )
                     );
-                    var13.setDetail(
+                    var14.setDetail(
                         "Screen size",
                         () -> String.format(
                                 Locale.ROOT,
@@ -566,7 +565,7 @@ public class GameRenderer implements AutoCloseable, ResourceManagerReloadListene
                                 this.minecraft.getWindow().getGuiScale()
                             )
                     );
-                    throw new ReportedException(var12);
+                    throw new ReportedException(var13);
                 }
             }
 

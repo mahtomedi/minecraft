@@ -3,7 +3,7 @@ package net.minecraft.client.gui.screens.inventory;
 import com.google.common.collect.Ordering;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.Collection;
-import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.MobEffectTextureManager;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
@@ -79,13 +79,14 @@ public abstract class EffectRenderingInventoryScreen<T extends AbstractContainer
     }
 
     private void renderIcons(int param0, int param1, Iterable<MobEffectInstance> param2) {
-        this.minecraft.getTextureManager().bind(TextureAtlas.LOCATION_MOB_EFFECTS);
         MobEffectTextureManager var0 = this.minecraft.getMobEffectTextures();
         int var1 = this.topPos;
 
         for(MobEffectInstance var2 : param2) {
             MobEffect var3 = var2.getEffect();
-            blit(param0 + 6, var1 + 7, this.getBlitOffset(), 18, 18, var0.get(var3));
+            TextureAtlasSprite var4 = var0.get(var3);
+            this.minecraft.getTextureManager().bind(var4.atlas().location());
+            blit(param0 + 6, var1 + 7, this.getBlitOffset(), 18, 18, var4);
             var1 += param1;
         }
 

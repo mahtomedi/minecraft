@@ -1,6 +1,7 @@
 package net.minecraft.client.renderer.block.model;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -11,6 +12,8 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.mojang.datafixers.util.Either;
+import com.mojang.datafixers.util.Pair;
 import java.io.Reader;
 import java.io.StringReader;
 import java.lang.reflect.Type;
@@ -18,15 +21,18 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.BuiltInModel;
+import net.minecraft.client.resources.model.Material;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.resources.model.ModelState;
 import net.minecraft.client.resources.model.SimpleBakedModel;
@@ -60,7 +66,7 @@ public class BlockModel implements UnbakedModel {
     private final List<ItemOverride> overrides;
     public String name = "";
     @VisibleForTesting
-    protected final Map<String, String> textureMap;
+    protected final Map<String, Either<Material, String>> textureMap;
     @Nullable
     protected BlockModel parent;
     @Nullable
@@ -77,7 +83,7 @@ public class BlockModel implements UnbakedModel {
     public BlockModel(
         @Nullable ResourceLocation param0,
         List<BlockElement> param1,
-        Map<String, String> param2,
+        Map<String, Either<Material, String>> param2,
         boolean param3,
         boolean param4,
         ItemTransforms param5,
@@ -128,7 +134,7 @@ public class BlockModel implements UnbakedModel {
     }
 
     @Override
-    public Collection<ResourceLocation> getTextures(Function<ResourceLocation, UnbakedModel> param0, Set<String> param1) {
+    public Collection<Material> getMaterials(Function<ResourceLocation, UnbakedModel> param0, Set<Pair<String, String>> param1) {
         Set<UnbakedModel> var0 = Sets.newLinkedHashSet();
 
         for(BlockModel var1 = this; var1.parentLocation != null && var1.parent == null; var1 = var1.parent) {
@@ -160,41 +166,39 @@ public class BlockModel implements UnbakedModel {
             var1.parent = (BlockModel)var2;
         }
 
-        Set<ResourceLocation> var3 = Sets.newHashSet(new ResourceLocation(this.getTexture("particle")));
+        Set<Material> var3 = Sets.newHashSet(this.getMaterial("particle"));
 
         for(BlockElement var4 : this.getElements()) {
             for(BlockElementFace var5 : var4.faces.values()) {
-                String var6 = this.getTexture(var5.texture);
-                if (Objects.equals(var6, MissingTextureAtlasSprite.getLocation().toString())) {
-                    param1.add(String.format("%s in %s", var5.texture, this.name));
+                Material var6 = this.getMaterial(var5.texture);
+                if (Objects.equals(var6.texture(), MissingTextureAtlasSprite.getLocation())) {
+                    param1.add(Pair.of(var5.texture, this.name));
                 }
 
-                var3.add(new ResourceLocation(var6));
+                var3.add(var6);
             }
         }
 
         this.overrides.forEach(param3 -> {
             UnbakedModel var0x = param0.apply(param3.getModel());
             if (!Objects.equals(var0x, this)) {
-                var3.addAll(var0x.getTextures(param0, param1));
+                var3.addAll(var0x.getMaterials(param0, param1));
             }
         });
         if (this.getRootModel() == ModelBakery.GENERATION_MARKER) {
-            ItemModelGenerator.LAYERS.forEach(param1x -> var3.add(new ResourceLocation(this.getTexture(param1x))));
+            ItemModelGenerator.LAYERS.forEach(param1x -> var3.add(this.getMaterial(param1x)));
         }
 
         return var3;
     }
 
     @Override
-    public BakedModel bake(ModelBakery param0, Function<ResourceLocation, TextureAtlasSprite> param1, ModelState param2, ResourceLocation param3) {
+    public BakedModel bake(ModelBakery param0, Function<Material, TextureAtlasSprite> param1, ModelState param2, ResourceLocation param3) {
         return this.bake(param0, this, param1, param2, param3);
     }
 
-    public BakedModel bake(
-        ModelBakery param0, BlockModel param1, Function<ResourceLocation, TextureAtlasSprite> param2, ModelState param3, ResourceLocation param4
-    ) {
-        TextureAtlasSprite var0 = param2.apply(new ResourceLocation(this.getTexture("particle")));
+    public BakedModel bake(ModelBakery param0, BlockModel param1, Function<Material, TextureAtlasSprite> param2, ModelState param3, ResourceLocation param4) {
+        TextureAtlasSprite var0 = param2.apply(this.getMaterial("particle"));
         if (this.getRootModel() == ModelBakery.BLOCK_ENTITY_MARKER) {
             return new BuiltInModel(this.getTransforms(), this.getItemOverrides(param0, param1), var0);
         } else {
@@ -203,7 +207,7 @@ public class BlockModel implements UnbakedModel {
             for(BlockElement var2 : this.getElements()) {
                 for(Direction var3 : var2.faces.keySet()) {
                     BlockElementFace var4 = var2.faces.get(var3);
-                    TextureAtlasSprite var5 = param2.apply(new ResourceLocation(this.getTexture(var4.texture)));
+                    TextureAtlasSprite var5 = param2.apply(this.getMaterial(var4.texture));
                     if (var4.cullForDirection == null) {
                         var1.addUnculledFace(bakeFace(var2, var4, var5, var3, param3, param4));
                     } else {
@@ -225,41 +229,45 @@ public class BlockModel implements UnbakedModel {
     }
 
     public boolean hasTexture(String param0) {
-        return !MissingTextureAtlasSprite.getLocation().toString().equals(this.getTexture(param0));
+        return !MissingTextureAtlasSprite.getLocation().equals(this.getMaterial(param0).texture());
     }
 
-    public String getTexture(String param0) {
-        if (!this.isTextureReference(param0)) {
-            param0 = '#' + param0;
+    public Material getMaterial(String param0) {
+        if (isTextureReference(param0)) {
+            param0 = param0.substring(1);
         }
 
-        return this.getTexture(param0, new BlockModel.Bookkeep(this));
-    }
+        List<String> var0 = Lists.newArrayList();
 
-    private String getTexture(String param0, BlockModel.Bookkeep param1) {
-        if (this.isTextureReference(param0)) {
-            if (this == param1.maxDepth) {
-                LOGGER.warn("Unable to resolve texture due to upward reference: {} in {}", param0, this.name);
-                return MissingTextureAtlasSprite.getLocation().toString();
-            } else {
-                String var0 = this.textureMap.get(param0.substring(1));
-                if (var0 == null && this.parent != null) {
-                    var0 = this.parent.getTexture(param0, param1);
-                }
-
-                param1.maxDepth = this;
-                if (var0 != null && this.isTextureReference(var0)) {
-                    var0 = param1.root.getTexture(var0, param1);
-                }
-
-                return var0 != null && !this.isTextureReference(var0) ? var0 : MissingTextureAtlasSprite.getLocation().toString();
+        while(true) {
+            Either<Material, String> var1 = this.findTextureEntry(param0);
+            Optional<Material> var2 = var1.left();
+            if (var2.isPresent()) {
+                return var2.get();
             }
-        } else {
-            return param0;
+
+            param0 = var1.right().get();
+            if (var0.contains(param0)) {
+                LOGGER.warn("Unable to resolve texture due to reference chain {}->{} in {}", Joiner.on("->").join(var0), param0, this.name);
+                return new Material(TextureAtlas.LOCATION_BLOCKS, MissingTextureAtlasSprite.getLocation());
+            }
+
+            var0.add(param0);
         }
     }
 
-    private boolean isTextureReference(String param0) {
+    private Either<Material, String> findTextureEntry(String param0) {
+        for(BlockModel var0 = this; var0 != null; var0 = var0.parent) {
+            Either<Material, String> var1 = var0.textureMap.get(param0);
+            if (var1 != null) {
+                return var1;
+            }
+        }
+
+        return Either.left(new Material(TextureAtlas.LOCATION_BLOCKS, MissingTextureAtlasSprite.getLocation()));
+    }
+
+    private static boolean isTextureReference(String param0) {
         return param0.charAt(0) == '#';
     }
 
@@ -289,22 +297,12 @@ public class BlockModel implements UnbakedModel {
     }
 
     @OnlyIn(Dist.CLIENT)
-    static final class Bookkeep {
-        public final BlockModel root;
-        public BlockModel maxDepth;
-
-        private Bookkeep(BlockModel param0) {
-            this.root = param0;
-        }
-    }
-
-    @OnlyIn(Dist.CLIENT)
     public static class Deserializer implements JsonDeserializer<BlockModel> {
         public BlockModel deserialize(JsonElement param0, Type param1, JsonDeserializationContext param2) throws JsonParseException {
             JsonObject var0 = param0.getAsJsonObject();
             List<BlockElement> var1 = this.getElements(param2, var0);
             String var2 = this.getParentName(var0);
-            Map<String, String> var3 = this.getTextureMap(var0);
+            Map<String, Either<Material, String>> var3 = this.getTextureMap(var0);
             boolean var4 = this.getAmbientOcclusion(var0);
             ItemTransforms var5 = ItemTransforms.NO_TRANSFORMS;
             if (var0.has("display")) {
@@ -328,17 +326,31 @@ public class BlockModel implements UnbakedModel {
             return var0;
         }
 
-        private Map<String, String> getTextureMap(JsonObject param0) {
-            Map<String, String> var0 = Maps.newHashMap();
+        private Map<String, Either<Material, String>> getTextureMap(JsonObject param0) {
+            ResourceLocation var0 = TextureAtlas.LOCATION_BLOCKS;
+            Map<String, Either<Material, String>> var1 = Maps.newHashMap();
             if (param0.has("textures")) {
-                JsonObject var1 = GsonHelper.getAsJsonObject(param0, "textures");
+                JsonObject var2 = GsonHelper.getAsJsonObject(param0, "textures");
 
-                for(Entry<String, JsonElement> var2 : var1.entrySet()) {
-                    var0.put(var2.getKey(), var2.getValue().getAsString());
+                for(Entry<String, JsonElement> var3 : var2.entrySet()) {
+                    var1.put(var3.getKey(), parseTextureLocationOrReference(var0, var3.getValue().getAsString()));
                 }
             }
 
-            return var0;
+            return var1;
+        }
+
+        private static Either<Material, String> parseTextureLocationOrReference(ResourceLocation param0, String param1) {
+            if (BlockModel.isTextureReference(param1)) {
+                return Either.right(param1.substring(1));
+            } else {
+                ResourceLocation var0 = ResourceLocation.tryParse(param1);
+                if (var0 == null) {
+                    throw new JsonParseException(param1 + " is not valid resource location");
+                } else {
+                    return Either.left(new Material(param0, var0));
+                }
+            }
         }
 
         private String getParentName(JsonObject param0) {

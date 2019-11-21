@@ -1075,7 +1075,7 @@ public class RecipeProvider implements DataProvider {
             .save(param0);
         ShapedRecipeBuilder.shaped(Blocks.DARK_PRISMARINE)
             .define('S', Items.PRISMARINE_SHARD)
-            .define('I', Items.INK_SAC)
+            .define('I', Items.BLACK_DYE)
             .pattern("SSS")
             .pattern("SIS")
             .pattern("SSS")

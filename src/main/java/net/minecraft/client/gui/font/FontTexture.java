@@ -6,6 +6,7 @@ import com.mojang.blaze3d.platform.TextureUtil;
 import java.io.Closeable;
 import javax.annotation.Nullable;
 import net.minecraft.client.gui.font.glyphs.BakedGlyph;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -15,6 +16,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class FontTexture extends AbstractTexture implements Closeable {
     private final ResourceLocation name;
+    private final RenderType normalType;
+    private final RenderType seeThroughType;
     private final boolean colored;
     private final FontTexture.Node root;
 
@@ -23,6 +26,8 @@ public class FontTexture extends AbstractTexture implements Closeable {
         this.colored = param1;
         this.root = new FontTexture.Node(0, 0, 256, 256);
         TextureUtil.prepareImage(param1 ? NativeImage.InternalGlFormat.RGBA : NativeImage.InternalGlFormat.INTENSITY, this.getId(), 256, 256);
+        this.normalType = RenderType.text(param0);
+        this.seeThroughType = RenderType.textSeeThrough(param0);
     }
 
     @Override
@@ -47,7 +52,8 @@ public class FontTexture extends AbstractTexture implements Closeable {
                 float var2 = 256.0F;
                 float var3 = 0.01F;
                 return new BakedGlyph(
-                    this.name,
+                    this.normalType,
+                    this.seeThroughType,
                     ((float)var0.x + 0.01F) / 256.0F,
                     ((float)var0.x - 0.01F + (float)param0.getPixelWidth()) / 256.0F,
                     ((float)var0.y + 0.01F) / 256.0F,

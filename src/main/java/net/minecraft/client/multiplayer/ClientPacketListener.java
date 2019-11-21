@@ -1991,37 +1991,45 @@ public class ClientPacketListener implements ClientGamePacketListener {
                     var79 = var1.readBlockPos();
                 }
 
-                boolean var80 = var1.readBoolean();
-                Path var81 = null;
-                if (var80) {
-                    var81 = Path.createFromStream(var1);
+                int var80 = var1.readInt();
+                boolean var81 = var1.readBoolean();
+                Path var82 = null;
+                if (var81) {
+                    var82 = Path.createFromStream(var1);
                 }
 
-                BeeDebugRenderer.BeeInfo var82 = new BeeDebugRenderer.BeeInfo(var74, var75, var73, var81, var77, var79);
-                int var83 = var1.readInt();
+                BeeDebugRenderer.BeeInfo var83 = new BeeDebugRenderer.BeeInfo(var74, var75, var73, var82, var77, var79, var80);
+                int var84 = var1.readInt();
 
-                for(int var84 = 0; var84 < var83; ++var84) {
-                    String var85 = var1.readUtf();
-                    var82.goals.add(var85);
+                for(int var85 = 0; var85 < var84; ++var85) {
+                    String var86 = var1.readUtf();
+                    var83.goals.add(var86);
                 }
 
-                this.minecraft.debugRenderer.beeDebugRenderer.addOrUpdateBeeInfo(var82);
+                int var87 = var1.readInt();
+
+                for(int var88 = 0; var88 < var87; ++var88) {
+                    BlockPos var89 = var1.readBlockPos();
+                    var83.blacklistedHives.add(var89);
+                }
+
+                this.minecraft.debugRenderer.beeDebugRenderer.addOrUpdateBeeInfo(var83);
             } else if (ClientboundCustomPayloadPacket.DEBUG_HIVE.equals(var0)) {
-                BlockPos var86 = var1.readBlockPos();
-                String var87 = var1.readUtf();
-                int var88 = var1.readInt();
-                int var89 = var1.readInt();
-                boolean var90 = var1.readBoolean();
-                BeeDebugRenderer.HiveInfo var91 = new BeeDebugRenderer.HiveInfo(var86, var87, var88, var89, var90, this.level.getGameTime());
-                this.minecraft.debugRenderer.beeDebugRenderer.addOrUpdateHiveInfo(var91);
+                BlockPos var90 = var1.readBlockPos();
+                String var91 = var1.readUtf();
+                int var92 = var1.readInt();
+                int var93 = var1.readInt();
+                boolean var94 = var1.readBoolean();
+                BeeDebugRenderer.HiveInfo var95 = new BeeDebugRenderer.HiveInfo(var90, var91, var92, var93, var94, this.level.getGameTime());
+                this.minecraft.debugRenderer.beeDebugRenderer.addOrUpdateHiveInfo(var95);
             } else if (ClientboundCustomPayloadPacket.DEBUG_GAME_TEST_CLEAR.equals(var0)) {
                 this.minecraft.debugRenderer.gameTestDebugRenderer.clear();
             } else if (ClientboundCustomPayloadPacket.DEBUG_GAME_TEST_ADD_MARKER.equals(var0)) {
-                BlockPos var92 = var1.readBlockPos();
-                int var93 = var1.readInt();
-                String var94 = var1.readUtf();
-                int var95 = var1.readInt();
-                this.minecraft.debugRenderer.gameTestDebugRenderer.addMarker(var92, var93, var94, var95);
+                BlockPos var96 = var1.readBlockPos();
+                int var97 = var1.readInt();
+                String var98 = var1.readUtf();
+                int var99 = var1.readInt();
+                this.minecraft.debugRenderer.gameTestDebugRenderer.addMarker(var96, var97, var98, var99);
             } else {
                 LOGGER.warn("Unknown custom packed identifier: {}", var0);
             }

@@ -173,9 +173,9 @@ public class PlayerRenderer extends LivingEntityRenderer<AbstractClientPlayer, P
         var0.swimAmount = 0.0F;
         var0.setupAnim(param3, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
         param4.xRot = 0.0F;
-        param4.render(param0, param1.getBuffer(RenderType.entitySolid(param3.getSkinTextureLocation())), param2, OverlayTexture.NO_OVERLAY, null);
+        param4.render(param0, param1.getBuffer(RenderType.entitySolid(param3.getSkinTextureLocation())), param2, OverlayTexture.NO_OVERLAY);
         param5.xRot = 0.0F;
-        param5.render(param0, param1.getBuffer(RenderType.entityTranslucent(param3.getSkinTextureLocation())), param2, OverlayTexture.NO_OVERLAY, null);
+        param5.render(param0, param1.getBuffer(RenderType.entityTranslucent(param3.getSkinTextureLocation())), param2, OverlayTexture.NO_OVERLAY);
     }
 
     protected void setupRotations(AbstractClientPlayer param0, PoseStack param1, float param2, float param3, float param4) {

@@ -35,8 +35,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Vex extends Monster {
     protected static final EntityDataAccessor<Byte> DATA_FLAGS_ID = SynchedEntityData.defineId(Vex.class, EntityDataSerializers.BYTE);
@@ -184,12 +182,6 @@ public class Vex extends Monster {
     @Override
     protected SoundEvent getHurtSound(DamageSource param0) {
         return SoundEvents.VEX_HURT;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public int getBlockLightLevel() {
-        return 15;
     }
 
     @Override

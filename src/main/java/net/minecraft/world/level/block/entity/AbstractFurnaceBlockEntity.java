@@ -148,7 +148,7 @@ public abstract class AbstractFurnaceBlockEntity
         add(var0, Items.CROSSBOW, 300);
         add(var0, Blocks.BAMBOO, 50);
         add(var0, Blocks.DEAD_BUSH, 100);
-        add(var0, Blocks.SCAFFOLDING, 50);
+        add(var0, Blocks.SCAFFOLDING, 400);
         add(var0, Blocks.LOOM, 300);
         add(var0, Blocks.BARREL, 300);
         add(var0, Blocks.CARTOGRAPHY_TABLE, 300);

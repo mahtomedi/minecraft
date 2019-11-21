@@ -1,5 +1,6 @@
 package net.minecraft.client.resources;
 
+import java.util.stream.Stream;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
@@ -13,22 +14,28 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public abstract class TextureAtlasHolder extends SimplePreparableReloadListener<TextureAtlas.Preparations> implements AutoCloseable {
     private final TextureAtlas textureAtlas;
+    private final String prefix;
 
     public TextureAtlasHolder(TextureManager param0, ResourceLocation param1, String param2) {
-        this.textureAtlas = new TextureAtlas(param2);
-        param0.register(param1, this.textureAtlas);
+        this.prefix = param2;
+        this.textureAtlas = new TextureAtlas(param1);
+        param0.register(this.textureAtlas.location(), this.textureAtlas);
     }
 
-    protected abstract Iterable<ResourceLocation> getResourcesToLoad();
+    protected abstract Stream<ResourceLocation> getResourcesToLoad();
 
     protected TextureAtlasSprite getSprite(ResourceLocation param0) {
-        return this.textureAtlas.getSprite(param0);
+        return this.textureAtlas.getSprite(this.resolveLocation(param0));
+    }
+
+    private ResourceLocation resolveLocation(ResourceLocation param0) {
+        return new ResourceLocation(param0.getNamespace(), this.prefix + "/" + param0.getPath());
     }
 
     protected TextureAtlas.Preparations prepare(ResourceManager param0, ProfilerFiller param1) {
         param1.startTick();
         param1.push("stitching");
-        TextureAtlas.Preparations var0 = this.textureAtlas.prepareToStitch(param0, this.getResourcesToLoad(), param1);
+        TextureAtlas.Preparations var0 = this.textureAtlas.prepareToStitch(param0, this.getResourcesToLoad().map(this::resolveLocation), param1, 0);
         param1.pop();
         param1.endTick();
         return var0;

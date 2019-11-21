@@ -1,6 +1,5 @@
 package net.minecraft.client.renderer;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
@@ -55,7 +54,9 @@ import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import net.minecraft.client.renderer.chunk.VisGraph;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.core.BlockPos;
@@ -963,7 +964,7 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
         }
 
         var0.popPush("fog");
-        FogRenderer.setupFog(param4, FogRenderer.FogMode.FOG_TERRAIN, var9, var10);
+        FogRenderer.setupFog(param4, FogRenderer.FogMode.FOG_TERRAIN, Math.max(var9 - 16.0F, 32.0F), var10);
         var0.popPush("terrain_setup");
         this.setupRender(param4, var7, var6, this.frameId++, this.minecraft.player.isSpectator());
         var0.popPush("updatechunks");
@@ -1027,6 +1028,10 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
         }
 
         this.checkPoseStack(param0);
+        var12.endBatch(RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS));
+        var12.endBatch(RenderType.entityCutout(TextureAtlas.LOCATION_BLOCKS));
+        var12.endBatch(RenderType.entityCutoutNoCull(TextureAtlas.LOCATION_BLOCKS));
+        var12.endBatch(RenderType.entitySmoothCutout(TextureAtlas.LOCATION_BLOCKS));
         var0.popPush("blockentities");
 
         for(LevelRenderer.RenderChunkInfo var23 : this.renderChunks) {
@@ -1042,11 +1047,11 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
                         int var29 = var28.last().getProgress();
                         if (var29 >= 0) {
                             VertexConsumer var30 = new BreakingTextureGenerator(
-                                this.renderBuffers.crumblingBufferSource().getBuffer(RenderType.crumbling(var29)), param0.last()
+                                this.renderBuffers.crumblingBufferSource().getBuffer(ModelBakery.DESTROY_TYPES.get(var29)), param0.last()
                             );
                             var27 = param2x -> {
                                 VertexConsumer var0x = var12.getBuffer(param2x);
-                                return (VertexConsumer)(param2x.affectsCrumbling() ? new VertexMultiConsumer(ImmutableList.of(var30, var0x)) : var0x);
+                                return param2x.affectsCrumbling() ? VertexMultiConsumer.create(var30, var0x) : var0x;
                             };
                         }
                     }
@@ -1069,8 +1074,12 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
 
         this.checkPoseStack(param0);
         var12.endBatch(RenderType.solid());
-        var12.endBatch(RenderType.blockentitySolid());
-        var12.endBatch(RenderType.blockentityCutout());
+        var12.endBatch(Sheets.solidBlockSheet());
+        var12.endBatch(Sheets.cutoutBlockSheet());
+        var12.endBatch(Sheets.bedSheet());
+        var12.endBatch(Sheets.shulkerBoxSheet());
+        var12.endBatch(Sheets.signSheet());
+        var12.endBatch(Sheets.chestSheet());
         this.renderBuffers.outlineBufferSource().endOutlineBatch();
         if (var11) {
             this.entityEffect.process(param1);
@@ -1091,7 +1100,7 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
                     param0.pushPose();
                     param0.translate((double)var34.getX() - var2, (double)var34.getY() - var3, (double)var34.getZ() - var4);
                     VertexConsumer var40 = new BreakingTextureGenerator(
-                        this.renderBuffers.crumblingBufferSource().getBuffer(RenderType.crumbling(var39)), param0.last()
+                        this.renderBuffers.crumblingBufferSource().getBuffer(ModelBakery.DESTROY_TYPES.get(var39)), param0.last()
                     );
                     this.minecraft.getBlockRenderer().renderBreakingTexture(this.level.getBlockState(var34), var34, this.level, param0, var40);
                     param0.popPose();
@@ -1117,13 +1126,15 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
         this.minecraft.debugRenderer.render(param0, var12, var2, var3, var4, param2);
         this.renderWorldBounds(param4);
         RenderSystem.popMatrix();
-        var12.endBatch(RenderType.waterMask());
-        var0.popPush("translucent");
-        this.renderChunkLayer(RenderType.translucent(), param0, var2, var3, var4);
-        var12.endBatch(RenderType.blockentityTranslucent());
-        var12.endBatch(RenderType.blockentityNoOutline());
+        var12.endBatch(RenderType.lines());
         var12.endBatch();
         this.renderBuffers.crumblingBufferSource().endBatch();
+        var12.endBatch(RenderType.waterMask());
+        var12.endBatch(Sheets.translucentBlockSheet());
+        var12.endBatch(Sheets.bannerSheet());
+        var12.endBatch(Sheets.shieldSheet());
+        var0.popPush("translucent");
+        this.renderChunkLayer(RenderType.translucent(), param0, var2, var3, var4);
         var0.popPush("particles");
         this.minecraft.particleEngine.render(param0, var12, param6, param4, param1);
         RenderSystem.pushMatrix();
@@ -1158,7 +1169,17 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
         double var2 = Mth.lerp((double)param4, param0.zOld, param0.getZ());
         float var3 = Mth.lerp(param4, param0.yRotO, param0.yRot);
         this.entityRenderDispatcher
-            .render(param0, var0 - param1, var1 - param2, var2 - param3, var3, param4, param5, param6, EntityRenderDispatcher.getPackedLightCoords(param0));
+            .render(
+                param0,
+                var0 - param1,
+                var1 - param2,
+                var2 - param3,
+                var3,
+                param4,
+                param5,
+                param6,
+                this.entityRenderDispatcher.getPackedLightCoords(param0, param4)
+            );
     }
 
     private void renderChunkLayer(RenderType param0, PoseStack param1, double param2, double param3, double param4) {

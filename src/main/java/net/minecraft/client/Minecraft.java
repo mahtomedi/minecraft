@@ -26,6 +26,7 @@ import java.nio.ByteOrder;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -33,6 +34,7 @@ import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -91,7 +93,6 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.debug.DebugRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.ClientPackSource;
@@ -99,6 +100,7 @@ import net.minecraft.client.resources.FoliageColorReloadListener;
 import net.minecraft.client.resources.GrassColorReloadListener;
 import net.minecraft.client.resources.LegacyResourcePackAdapter;
 import net.minecraft.client.resources.MobEffectTextureManager;
+import net.minecraft.client.resources.PackAdapterV4;
 import net.minecraft.client.resources.PaintingTextureManager;
 import net.minecraft.client.resources.SkinManager;
 import net.minecraft.client.resources.SplashManager;
@@ -135,6 +137,7 @@ import net.minecraft.server.level.progress.ProcessorChunkProgressListener;
 import net.minecraft.server.level.progress.StoringChunkProgressListener;
 import net.minecraft.server.packs.Pack;
 import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
 import net.minecraft.server.packs.repository.FolderRepositorySource;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.server.packs.repository.UnopenedPack;
@@ -243,7 +246,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     private final BlockColors blockColors;
     private final ItemColors itemColors;
     private final RenderTarget mainRenderTarget;
-    private final TextureAtlas textureAtlas;
     private final SoundManager soundManager;
     private final MusicManager musicManager;
     private final FontManager fontManager;
@@ -315,16 +317,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.versionType = param0.game.versionType;
         this.profileProperties = param0.user.profileProperties;
         this.clientPackSource = new ClientPackSource(new File(this.gameDirectory, "server-resource-packs"), param0.location.getAssetIndex());
-        this.resourcePackRepository = new PackRepository<>((param0x, param1, param2, param3, param4, param5) -> {
-            Supplier<Pack> var0x;
-            if (param4.getPackFormat() < SharedConstants.getCurrentVersion().getPackVersion()) {
-                var0x = () -> new LegacyResourcePackAdapter((Pack)param2.get(), LegacyResourcePackAdapter.V3);
-            } else {
-                var0x = param2;
-            }
-
-            return new UnopenedResourcePack(param0x, param1, var0x, param3, param4, param5);
-        });
+        this.resourcePackRepository = new PackRepository<>(Minecraft::createClientPackAdapter);
         this.resourcePackRepository.addSource(this.clientPackSource);
         this.resourcePackRepository.addSource(new FolderRepositorySource(this.resourcePackDirectory));
         this.proxy = param0.user.proxy;
@@ -424,14 +417,9 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             this.window.setErrorSection("Startup");
             RenderSystem.setupDefaultState(0, 0, this.window.getWidth(), this.window.getHeight());
             this.window.setErrorSection("Post startup");
-            this.textureAtlas = new TextureAtlas("textures");
-            this.textureAtlas.setMaxMipLevel(this.options.mipmapLevels);
-            this.textureManager.register(TextureAtlas.LOCATION_BLOCKS, this.textureAtlas);
-            this.textureManager.bind(TextureAtlas.LOCATION_BLOCKS);
-            this.textureAtlas.setFilter(false, this.options.mipmapLevels > 0);
             this.blockColors = BlockColors.createDefault();
             this.itemColors = ItemColors.createDefault(this.blockColors);
-            this.modelManager = new ModelManager(this.textureAtlas, this.blockColors);
+            this.modelManager = new ModelManager(this.textureManager, this.blockColors, this.options.mipmapLevels);
             this.resourceManager.registerReloadListener(this.modelManager);
             this.itemRenderer = new ItemRenderer(this.textureManager, this.modelManager, this.itemColors);
             this.entityRenderDispatcher = new EntityRenderDispatcher(this.textureManager, this.itemRenderer, this.resourceManager, this.font, this.options);
@@ -472,12 +460,29 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
             LoadingOverlay.registerTextures(this);
             this.setOverlay(
-                new LoadingOverlay(this, this.resourceManager.createQueuedReload(Util.backgroundExecutor(), this, RESOURCE_RELOAD_INITIAL_TASK), () -> {
-                    if (SharedConstants.IS_RUNNING_IN_IDE) {
-                        this.selfTest();
-                    }
-    
-                }, false)
+                new LoadingOverlay(
+                    this,
+                    this.resourceManager.createQueuedReload(Util.backgroundExecutor(), this, RESOURCE_RELOAD_INITIAL_TASK),
+                    param0x -> Util.ifElse(param0x, param0xx -> {
+                            if (this.resourcePackRepository.getSelected().size() > 1) {
+                                LOGGER.info("Caught error loading resourcepacks, removing all assigned resourcepacks", param0xx);
+                                this.resourcePackRepository.setSelected(Collections.emptyList());
+                                this.options.resourcePacks.clear();
+                                this.options.incompatibleResourcePacks.clear();
+                                this.options.save();
+                                this.reloadResourcePacks();
+                            } else {
+                                Util.throwAsRuntime(param0xx);
+                            }
+        
+                        }, () -> {
+                            if (SharedConstants.IS_RUNNING_IN_IDE) {
+                                this.selfTest();
+                            }
+        
+                        }),
+                    false
+                )
             );
         }
     }
@@ -640,7 +645,8 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                 List<Pack> var1 = this.resourcePackRepository.getSelected().stream().map(UnopenedPack::open).collect(Collectors.toList());
                 this.setOverlay(
                     new LoadingOverlay(
-                        this, this.resourceManager.createFullReload(Util.backgroundExecutor(), this, RESOURCE_RELOAD_INITIAL_TASK, var1), () -> {
+                        this, this.resourceManager.createFullReload(Util.backgroundExecutor(), this, RESOURCE_RELOAD_INITIAL_TASK, var1), param2 -> {
+                            param2.ifPresent(Util::throwAsRuntime);
                             this.languageManager.reload(var1);
                             this.levelRenderer.allChanged();
                             var0.complete(null);
@@ -776,7 +782,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     @Override
     public void close() {
         try {
-            this.textureAtlas.clearTextureData();
+            this.modelManager.close();
             this.font.close();
             this.fontManager.close();
             this.gameRenderer.close();
@@ -1903,8 +1909,8 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         return this.languageManager;
     }
 
-    public TextureAtlas getTextureAtlas() {
-        return this.textureAtlas;
+    public Function<ResourceLocation, TextureAtlasSprite> getTextureAtlas(ResourceLocation param0) {
+        return this.modelManager.getAtlas(param0)::getSprite;
     }
 
     public boolean is64Bit() {
@@ -1994,10 +2000,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
     public <T> MutableSearchTree<T> getSearchTree(SearchRegistry.Key<T> param0) {
         return this.searchRegistry.getTree(param0);
-    }
-
-    public static int getAverageFps() {
-        return fps;
     }
 
     public FrameTimer getFrameTimer() {
@@ -2096,5 +2098,33 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
     public RenderBuffers renderBuffers() {
         return this.renderBuffers;
+    }
+
+    private static UnopenedResourcePack createClientPackAdapter(
+        String param0x, boolean param1, Supplier<Pack> param2, Pack param3, PackMetadataSection param4, UnopenedPack.Position param5
+    ) {
+        int var0x = param4.getPackFormat();
+        Supplier<Pack> var1x = param2;
+        if (var0x <= 3) {
+            var1x = adaptV3(param2);
+        }
+
+        if (var0x <= 4) {
+            var1x = adaptV4(var1x);
+        }
+
+        return new UnopenedResourcePack(param0x, param1, var1x, param3, param4, param5);
+    }
+
+    private static Supplier<Pack> adaptV3(Supplier<Pack> param0) {
+        return () -> new LegacyResourcePackAdapter(param0.get(), LegacyResourcePackAdapter.V3);
+    }
+
+    private static Supplier<Pack> adaptV4(Supplier<Pack> param0) {
+        return () -> new PackAdapterV4(param0.get());
+    }
+
+    public void updateMaxMipLevel(int param0) {
+        this.modelManager.updateMaxMipLevel(param0);
     }
 }

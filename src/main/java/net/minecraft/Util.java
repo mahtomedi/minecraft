@@ -146,6 +146,11 @@ public class Util {
         return var0;
     }
 
+    @OnlyIn(Dist.CLIENT)
+    public static void throwAsRuntime(Throwable param0) {
+        throw param0 instanceof RuntimeException ? (RuntimeException)param0 : new RuntimeException(param0);
+    }
+
     public static Util.OS getPlatform() {
         String var0 = System.getProperty("os.name").toLowerCase(Locale.ROOT);
         if (var0.contains("win")) {

@@ -1,6 +1,6 @@
 package net.minecraft.world.entity.item;
 
-import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -152,18 +152,18 @@ public class ItemEntity extends Entity {
     }
 
     private void mergeWithNeighbours() {
-        List<ItemEntity> var0 = this.level
-            .getEntitiesOfClass(ItemEntity.class, this.getBoundingBox().inflate(0.5, 0.0, 0.5), param0 -> param0 != this && param0.isMergable());
-        if (!var0.isEmpty()) {
-            for(ItemEntity var1 : var0) {
-                if (!this.isMergable()) {
-                    return;
+        if (this.isMergable()) {
+            for(ItemEntity var1 : this.level
+                .getEntitiesOfClass(ItemEntity.class, this.getBoundingBox().inflate(0.5, 0.0, 0.5), param0 -> param0 != this && param0.isMergable())) {
+                if (var1.isMergable()) {
+                    this.tryToMerge(var1);
+                    if (this.removed) {
+                        break;
+                    }
                 }
-
-                this.merge(var1);
             }
-        }
 
+        }
     }
 
     private boolean isMergable() {
@@ -171,32 +171,46 @@ public class ItemEntity extends Entity {
         return this.isAlive() && this.pickupDelay != 32767 && this.age != -32768 && this.age < 6000 && var0.getCount() < var0.getMaxStackSize();
     }
 
-    private void merge(ItemEntity param0) {
+    private void tryToMerge(ItemEntity param0) {
         ItemStack var0 = this.getItem();
         ItemStack var1 = param0.getItem();
-        if (var1.getItem() == var0.getItem()) {
-            if (var1.getCount() + var0.getCount() <= var1.getMaxStackSize()) {
-                if (!(var1.hasTag() ^ var0.hasTag())) {
-                    if (!var1.hasTag() || var1.getTag().equals(var0.getTag())) {
-                        if (var1.getCount() < var0.getCount()) {
-                            merge(this, var0, param0, var1);
-                        } else {
-                            merge(param0, var1, this, var0);
-                        }
-
-                    }
-                }
+        if (Objects.equals(this.getOwner(), param0.getOwner()) && areMergable(var0, var1)) {
+            if (var1.getCount() < var0.getCount()) {
+                merge(this, var0, param0, var1);
+            } else {
+                merge(param0, var1, this, var0);
             }
+
         }
     }
 
-    private static void merge(ItemEntity param0, ItemStack param1, ItemEntity param2, ItemStack param3) {
-        int var0 = Math.min(param1.getMaxStackSize() - param1.getCount(), param3.getCount());
-        ItemStack var1 = param1.copy();
+    public static boolean areMergable(ItemStack param0, ItemStack param1) {
+        if (param1.getItem() != param0.getItem()) {
+            return false;
+        } else if (param1.getCount() + param0.getCount() > param1.getMaxStackSize()) {
+            return false;
+        } else if (param1.hasTag() ^ param0.hasTag()) {
+            return false;
+        } else {
+            return !param1.hasTag() || param1.getTag().equals(param0.getTag());
+        }
+    }
+
+    public static ItemStack merge(ItemStack param0, ItemStack param1, int param2) {
+        int var0 = Math.min(Math.min(param0.getMaxStackSize(), param2) - param0.getCount(), param1.getCount());
+        ItemStack var1 = param0.copy();
         var1.grow(var0);
-        param0.setItem(var1);
-        param3.shrink(var0);
-        param2.setItem(param3);
+        param1.shrink(var0);
+        return var1;
+    }
+
+    private static void merge(ItemEntity param0, ItemStack param1, ItemStack param2) {
+        ItemStack var0 = merge(param1, param2, 64);
+        param0.setItem(var0);
+    }
+
+    private static void merge(ItemEntity param0, ItemStack param1, ItemEntity param2, ItemStack param3) {
+        merge(param0, param1, param3);
         param0.pickupDelay = Math.max(param0.pickupDelay, param2.pickupDelay);
         param0.age = Math.min(param0.age, param2.age);
         if (param3.isEmpty()) {
@@ -276,7 +290,7 @@ public class ItemEntity extends Entity {
             ItemStack var0 = this.getItem();
             Item var1 = var0.getItem();
             int var2 = var0.getCount();
-            if (this.pickupDelay == 0 && (this.owner == null || 6000 - this.age <= 200 || this.owner.equals(param0.getUUID())) && param0.inventory.add(var0)) {
+            if (this.pickupDelay == 0 && (this.owner == null || this.owner.equals(param0.getUUID())) && param0.inventory.add(var0)) {
                 param0.take(this, var2);
                 if (var0.isEmpty()) {
                     this.remove();

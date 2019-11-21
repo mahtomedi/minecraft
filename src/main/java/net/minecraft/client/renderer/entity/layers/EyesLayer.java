@@ -7,7 +7,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -22,9 +21,9 @@ public abstract class EyesLayer<T extends Entity, M extends EntityModel<T>> exte
     public void render(
         PoseStack param0, MultiBufferSource param1, int param2, T param3, float param4, float param5, float param6, float param7, float param8, float param9
     ) {
-        VertexConsumer var0 = param1.getBuffer(RenderType.eyes(this.getTextureLocation()));
-        this.getParentModel().renderToBuffer(param0, var0, 15728640, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F);
+        VertexConsumer var0 = param1.getBuffer(this.renderType());
+        this.getParentModel().renderToBuffer(param0, var0, 15728640, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
     }
 
-    public abstract ResourceLocation getTextureLocation();
+    public abstract RenderType renderType();
 }

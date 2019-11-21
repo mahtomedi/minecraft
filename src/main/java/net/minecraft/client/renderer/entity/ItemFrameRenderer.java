@@ -5,7 +5,7 @@ import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.MapRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -52,7 +52,7 @@ public class ItemFrameRenderer extends EntityRenderer<ItemFrame> {
         param3.translate(-0.5, -0.5, -0.5);
         var3.getModelRenderer()
             .renderModel(
-                param3.last(), param4.getBuffer(RenderType.blockentitySolid()), null, var4.getModel(var5), 1.0F, 1.0F, 1.0F, param5, OverlayTexture.NO_OVERLAY
+                param3.last(), param4.getBuffer(Sheets.solidBlockSheet()), null, var4.getModel(var5), 1.0F, 1.0F, 1.0F, param5, OverlayTexture.NO_OVERLAY
             );
         param3.popPose();
         ItemStack var6 = param0.getItem();

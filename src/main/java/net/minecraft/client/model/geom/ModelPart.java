@@ -9,9 +9,7 @@ import com.mojang.math.Vector4f;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Random;
-import javax.annotation.Nullable;
 import net.minecraft.client.model.Model;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -126,13 +124,11 @@ public class ModelPart {
         this.z = param2;
     }
 
-    public void render(PoseStack param0, VertexConsumer param1, int param2, int param3, @Nullable TextureAtlasSprite param4) {
-        this.render(param0, param1, param2, param3, param4, 1.0F, 1.0F, 1.0F);
+    public void render(PoseStack param0, VertexConsumer param1, int param2, int param3) {
+        this.render(param0, param1, param2, param3, 1.0F, 1.0F, 1.0F, 1.0F);
     }
 
-    public void render(
-        PoseStack param0, VertexConsumer param1, int param2, int param3, @Nullable TextureAtlasSprite param4, float param5, float param6, float param7
-    ) {
+    public void render(PoseStack param0, VertexConsumer param1, int param2, int param3, float param4, float param5, float param6, float param7) {
         if (this.visible) {
             if (!this.cubes.isEmpty() || !this.children.isEmpty()) {
                 param0.pushPose();
@@ -164,9 +160,7 @@ public class ModelPart {
 
     }
 
-    private void compile(
-        PoseStack.Pose param0, VertexConsumer param1, int param2, int param3, @Nullable TextureAtlasSprite param4, float param5, float param6, float param7
-    ) {
+    private void compile(PoseStack.Pose param0, VertexConsumer param1, int param2, int param3, float param4, float param5, float param6, float param7) {
         Matrix4f var0 = param0.pose();
         Matrix3f var1 = param0.normal();
 
@@ -185,17 +179,7 @@ public class ModelPart {
                     float var12 = var9.pos.z() / 16.0F;
                     Vector4f var13 = new Vector4f(var10, var11, var12, 1.0F);
                     var13.transform(var0);
-                    float var14;
-                    float var15;
-                    if (param4 == null) {
-                        var14 = var9.u;
-                        var15 = var9.v;
-                    } else {
-                        var14 = param4.getU((double)(var9.u * 16.0F));
-                        var15 = param4.getV((double)(var9.v * 16.0F));
-                    }
-
-                    param1.vertex(var13.x(), var13.y(), var13.z(), param5, param6, param7, 1.0F, var14, var15, param3, param2, var5, var6, var7);
+                    param1.vertex(var13.x(), var13.y(), var13.z(), param4, param5, param6, param7, var9.u, var9.v, param3, param2, var5, var6, var7);
                 }
             }
         }

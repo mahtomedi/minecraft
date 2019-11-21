@@ -5,6 +5,8 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.resources.model.Material;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -14,7 +16,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class BellRenderer extends BlockEntityRenderer<BellBlockEntity> {
-    public static final ResourceLocation BELL_RESOURCE_LOCATION = new ResourceLocation("entity/bell/bell_body");
+    public static final Material BELL_RESOURCE_LOCATION = new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation("entity/bell/bell_body"));
     private final ModelPart bellBody = new ModelPart(32, 32, 0, 0);
 
     public BellRenderer(BlockEntityRenderDispatcher param0) {
@@ -46,7 +48,7 @@ public class BellRenderer extends BlockEntityRenderer<BellBlockEntity> {
 
         this.bellBody.xRot = var1;
         this.bellBody.zRot = var2;
-        VertexConsumer var4 = param3.getBuffer(RenderType.blockentitySolid());
-        this.bellBody.render(param2, var4, param4, param5, this.getSprite(BELL_RESOURCE_LOCATION));
+        VertexConsumer var4 = BELL_RESOURCE_LOCATION.buffer(param3, RenderType::entitySolid);
+        this.bellBody.render(param2, var4, param4, param5);
     }
 }

@@ -16,10 +16,15 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class ShulkerBulletRenderer extends EntityRenderer<ShulkerBullet> {
     private static final ResourceLocation TEXTURE_LOCATION = new ResourceLocation("textures/entity/shulker/spark.png");
+    private static final RenderType RENDER_TYPE = RenderType.entityTranslucent(TEXTURE_LOCATION);
     private final ShulkerBulletModel<ShulkerBullet> model = new ShulkerBulletModel<>();
 
     public ShulkerBulletRenderer(EntityRenderDispatcher param0) {
         super(param0);
+    }
+
+    protected int getBlockLightLevel(ShulkerBullet param0, float param1) {
+        return 15;
     }
 
     public void render(ShulkerBullet param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {
@@ -34,10 +39,10 @@ public class ShulkerBulletRenderer extends EntityRenderer<ShulkerBullet> {
         param3.scale(-0.5F, -0.5F, 0.5F);
         this.model.setupAnim(param0, 0.0F, 0.0F, 0.0F, var0, var1);
         VertexConsumer var3 = param4.getBuffer(this.model.renderType(TEXTURE_LOCATION));
-        this.model.renderToBuffer(param3, var3, param5, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F);
+        this.model.renderToBuffer(param3, var3, param5, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
         param3.scale(1.5F, 1.5F, 1.5F);
-        VertexConsumer var4 = param4.getBuffer(RenderType.entityForceTranslucent(TEXTURE_LOCATION));
-        this.model.renderToBuffer(param3, var4, param5, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F);
+        VertexConsumer var4 = param4.getBuffer(RENDER_TYPE);
+        this.model.renderToBuffer(param3, var4, param5, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 0.15F);
         param3.popPose();
         super.render(param0, param1, param2, param3, param4, param5);
     }

@@ -10,16 +10,16 @@ import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.ModelBakery;
+import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.resources.model.Material;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SignBlock;
 import net.minecraft.world.level.block.StandingSignBlock;
 import net.minecraft.world.level.block.WallSignBlock;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -48,12 +48,12 @@ public class SignRenderer extends BlockEntityRenderer<SignBlockEntity> {
             this.signModel.stick.visible = false;
         }
 
-        TextureAtlasSprite var4 = this.getSprite(getTexture(var0.getBlock()));
         param2.pushPose();
         param2.scale(0.6666667F, -0.6666667F, -0.6666667F);
-        VertexConsumer var5 = param3.getBuffer(RenderType.blockentitySolid());
-        this.signModel.sign.render(param2, var5, param4, param5, var4);
-        this.signModel.stick.render(param2, var5, param4, param5, var4);
+        Material var4 = getMaterial(var0.getBlock());
+        VertexConsumer var5 = var4.buffer(param3, this.signModel::renderType);
+        this.signModel.sign.render(param2, var5, param4, param5);
+        this.signModel.stick.render(param2, var5, param4, param5);
         param2.popPose();
         Font var6 = this.renderer.getFont();
         float var7 = 0.010416667F;
@@ -75,20 +75,15 @@ public class SignRenderer extends BlockEntityRenderer<SignBlockEntity> {
         param2.popPose();
     }
 
-    public static ResourceLocation getTexture(Block param0) {
-        if (param0 == Blocks.OAK_SIGN || param0 == Blocks.OAK_WALL_SIGN) {
-            return ModelBakery.OAK_SIGN_TEXTURE;
-        } else if (param0 == Blocks.SPRUCE_SIGN || param0 == Blocks.SPRUCE_WALL_SIGN) {
-            return ModelBakery.SPRUCE_SIGN_TEXTURE;
-        } else if (param0 == Blocks.BIRCH_SIGN || param0 == Blocks.BIRCH_WALL_SIGN) {
-            return ModelBakery.BIRCH_SIGN_TEXTURE;
-        } else if (param0 == Blocks.ACACIA_SIGN || param0 == Blocks.ACACIA_WALL_SIGN) {
-            return ModelBakery.ACACIA_SIGN_TEXTURE;
-        } else if (param0 == Blocks.JUNGLE_SIGN || param0 == Blocks.JUNGLE_WALL_SIGN) {
-            return ModelBakery.JUNGLE_SIGN_TEXTURE;
+    public static Material getMaterial(Block param0) {
+        WoodType var0;
+        if (param0 instanceof SignBlock) {
+            var0 = ((SignBlock)param0).type();
         } else {
-            return param0 != Blocks.DARK_OAK_SIGN && param0 != Blocks.DARK_OAK_WALL_SIGN ? ModelBakery.OAK_SIGN_TEXTURE : ModelBakery.DARK_OAK_SIGN_TEXTURE;
+            var0 = WoodType.OAK;
         }
+
+        return Sheets.signTexture(var0);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -104,9 +99,9 @@ public class SignRenderer extends BlockEntityRenderer<SignBlockEntity> {
         }
 
         @Override
-        public void renderToBuffer(PoseStack param0, VertexConsumer param1, int param2, int param3, float param4, float param5, float param6) {
-            this.sign.render(param0, param1, param2, param3, null, param4, param5, param6);
-            this.stick.render(param0, param1, param2, param3, null, param4, param5, param6);
+        public void renderToBuffer(PoseStack param0, VertexConsumer param1, int param2, int param3, float param4, float param5, float param6, float param7) {
+            this.sign.render(param0, param1, param2, param3, param4, param5, param6, param7);
+            this.stick.render(param0, param1, param2, param3, param4, param5, param6, param7);
         }
     }
 }

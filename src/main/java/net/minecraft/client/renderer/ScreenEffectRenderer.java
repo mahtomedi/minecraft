@@ -9,7 +9,6 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.core.BlockPos;
@@ -62,7 +61,7 @@ public class ScreenEffectRenderer {
     }
 
     private static void renderTex(Minecraft param0, TextureAtlasSprite param1, PoseStack param2) {
-        param0.getTextureManager().bind(TextureAtlas.LOCATION_BLOCKS);
+        param0.getTextureManager().bind(param1.atlas().location());
         BufferBuilder var0 = Tesselator.getInstance().getBuilder();
         float var1 = 0.1F;
         float var2 = -1.0F;
@@ -115,8 +114,8 @@ public class ScreenEffectRenderer {
         RenderSystem.depthMask(false);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        TextureAtlasSprite var1 = param0.getTextureAtlas().getSprite(ModelBakery.FIRE_1);
-        param0.getTextureManager().bind(TextureAtlas.LOCATION_BLOCKS);
+        TextureAtlasSprite var1 = ModelBakery.FIRE_1.sprite();
+        param0.getTextureManager().bind(var1.atlas().location());
         float var2 = var1.getU0();
         float var3 = var1.getU1();
         float var4 = (var2 + var3) / 2.0F;

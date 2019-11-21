@@ -105,14 +105,10 @@ public class Vector4f {
         float var1 = this.y;
         float var2 = this.z;
         float var3 = this.w;
-        this.x = multiplyRow(0, param0, var0, var1, var2, var3);
-        this.y = multiplyRow(1, param0, var0, var1, var2, var3);
-        this.z = multiplyRow(2, param0, var0, var1, var2, var3);
-        this.w = multiplyRow(3, param0, var0, var1, var2, var3);
-    }
-
-    private static float multiplyRow(int param0, Matrix4f param1, float param2, float param3, float param4, float param5) {
-        return param1.get(param0, 0) * param2 + param1.get(param0, 1) * param3 + param1.get(param0, 2) * param4 + param1.get(param0, 3) * param5;
+        this.x = param0.m00 * var0 + param0.m01 * var1 + param0.m02 * var2 + param0.m03 * var3;
+        this.y = param0.m10 * var0 + param0.m11 * var1 + param0.m12 * var2 + param0.m13 * var3;
+        this.z = param0.m20 * var0 + param0.m21 * var1 + param0.m22 * var2 + param0.m23 * var3;
+        this.w = param0.m30 * var0 + param0.m31 * var1 + param0.m32 * var2 + param0.m33 * var3;
     }
 
     public void transform(Quaternion param0) {

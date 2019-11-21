@@ -21,6 +21,10 @@ public class WitherSkullRenderer extends EntityRenderer<WitherSkull> {
         super(param0);
     }
 
+    protected int getBlockLightLevel(WitherSkull param0, float param1) {
+        return 15;
+    }
+
     public void render(WitherSkull param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {
         param3.pushPose();
         param3.scale(-1.0F, -1.0F, 1.0F);
@@ -28,7 +32,7 @@ public class WitherSkullRenderer extends EntityRenderer<WitherSkull> {
         float var1 = Mth.lerp(param2, param0.xRotO, param0.xRot);
         VertexConsumer var2 = param4.getBuffer(this.model.renderType(this.getTextureLocation(param0)));
         this.model.setupAnim(0.0F, var0, var1);
-        this.model.renderToBuffer(param3, var2, param5, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F);
+        this.model.renderToBuffer(param3, var2, param5, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
         param3.popPose();
         super.render(param0, param1, param2, param3, param4, param5);
     }

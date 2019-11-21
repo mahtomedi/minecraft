@@ -87,12 +87,7 @@ public final class Transformation {
         }
 
         if (param2 != null) {
-            Matrix4f var1 = new Matrix4f();
-            var1.setIdentity();
-            var1.set(0, 0, param2.x());
-            var1.set(1, 1, param2.y());
-            var1.set(2, 2, param2.z());
-            var0.multiply(var1);
+            var0.multiply(Matrix4f.createScaleMatrix(param2.x(), param2.y(), param2.z()));
         }
 
         if (param3 != null) {
@@ -100,17 +95,17 @@ public final class Transformation {
         }
 
         if (param0 != null) {
-            var0.set(0, 3, param0.x());
-            var0.set(1, 3, param0.y());
-            var0.set(2, 3, param0.z());
+            var0.m03 = param0.x();
+            var0.m13 = param0.y();
+            var0.m32 = param0.z();
         }
 
         return var0;
     }
 
     public static Pair<Matrix3f, Vector3f> toAffine(Matrix4f param0) {
-        param0.multiply(1.0F / param0.get(3, 3));
-        Vector3f var0 = new Vector3f(param0.get(0, 3), param0.get(1, 3), param0.get(2, 3));
+        param0.multiply(1.0F / param0.m33);
+        Vector3f var0 = new Vector3f(param0.m03, param0.m13, param0.m23);
         Matrix3f var1 = new Matrix3f(param0);
         return Pair.of(var1, var0);
     }

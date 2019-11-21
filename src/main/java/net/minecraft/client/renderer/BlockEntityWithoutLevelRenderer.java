@@ -5,15 +5,13 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import java.util.Arrays;
 import java.util.Comparator;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ShieldModel;
 import net.minecraft.client.model.TridentModel;
 import net.minecraft.client.renderer.blockentity.BannerRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.SkullBlockRenderer;
 import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.Material;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
@@ -31,6 +29,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ShulkerBoxBlock;
 import net.minecraft.world.level.block.entity.BannerBlockEntity;
 import net.minecraft.world.level.block.entity.BedBlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.entity.ConduitBlockEntity;
 import net.minecraft.world.level.block.entity.EnderChestBlockEntity;
@@ -42,13 +41,13 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.StringUtils;
 
 @OnlyIn(Dist.CLIENT)
-public class EntityBlockRenderer {
+public class BlockEntityWithoutLevelRenderer {
     private static final ShulkerBoxBlockEntity[] SHULKER_BOXES = Arrays.stream(DyeColor.values())
         .sorted(Comparator.comparingInt(DyeColor::getId))
         .map(ShulkerBoxBlockEntity::new)
         .toArray(param0 -> new ShulkerBoxBlockEntity[param0]);
     private static final ShulkerBoxBlockEntity DEFAULT_SHULKER_BOX = new ShulkerBoxBlockEntity(null);
-    public static final EntityBlockRenderer instance = new EntityBlockRenderer();
+    public static final BlockEntityWithoutLevelRenderer instance = new BlockEntityWithoutLevelRenderer();
     private final ChestBlockEntity chest = new ChestBlockEntity();
     private final ChestBlockEntity trappedChest = new TrappedChestBlockEntity();
     private final EnderChestBlockEntity enderChest = new EnderChestBlockEntity();
@@ -62,13 +61,7 @@ public class EntityBlockRenderer {
         Item var0 = param0.getItem();
         if (var0 instanceof BlockItem) {
             Block var1 = ((BlockItem)var0).getBlock();
-            if (var1 instanceof AbstractBannerBlock) {
-                this.banner.fromItem(param0, ((AbstractBannerBlock)var1).getColor());
-                BlockEntityRenderDispatcher.instance.renderItem(this.banner, param1, param2, param3, param4);
-            } else if (var1 instanceof BedBlock) {
-                this.bed.setColor(((BedBlock)var1).getColor());
-                BlockEntityRenderDispatcher.instance.renderItem(this.bed, param1, param2, param3, param4);
-            } else if (var1 instanceof AbstractSkullBlock) {
+            if (var1 instanceof AbstractSkullBlock) {
                 GameProfile var2 = null;
                 if (param0.hasTag()) {
                     CompoundTag var3 = param0.getTag();
@@ -83,34 +76,48 @@ public class EntityBlockRenderer {
                 }
 
                 SkullBlockRenderer.renderSkull(null, 180.0F, ((AbstractSkullBlock)var1).getType(), var2, 0.0F, param1, param2, param3);
-            } else if (var1 == Blocks.CONDUIT) {
-                BlockEntityRenderDispatcher.instance.renderItem(this.conduit, param1, param2, param3, param4);
-            } else if (var1 == Blocks.CHEST) {
-                BlockEntityRenderDispatcher.instance.renderItem(this.chest, param1, param2, param3, param4);
-            } else if (var1 == Blocks.ENDER_CHEST) {
-                BlockEntityRenderDispatcher.instance.renderItem(this.enderChest, param1, param2, param3, param4);
-            } else if (var1 == Blocks.TRAPPED_CHEST) {
-                BlockEntityRenderDispatcher.instance.renderItem(this.trappedChest, param1, param2, param3, param4);
-            } else if (var1 instanceof ShulkerBoxBlock) {
-                DyeColor var4 = ShulkerBoxBlock.getColorFromItem(var0);
-                if (var4 == null) {
-                    BlockEntityRenderDispatcher.instance.renderItem(DEFAULT_SHULKER_BOX, param1, param2, param3, param4);
+            } else {
+                BlockEntity var4;
+                if (var1 instanceof AbstractBannerBlock) {
+                    this.banner.fromItem(param0, ((AbstractBannerBlock)var1).getColor());
+                    var4 = this.banner;
+                } else if (var1 instanceof BedBlock) {
+                    this.bed.setColor(((BedBlock)var1).getColor());
+                    var4 = this.bed;
+                } else if (var1 == Blocks.CONDUIT) {
+                    var4 = this.conduit;
+                } else if (var1 == Blocks.CHEST) {
+                    var4 = this.chest;
+                } else if (var1 == Blocks.ENDER_CHEST) {
+                    var4 = this.enderChest;
+                } else if (var1 == Blocks.TRAPPED_CHEST) {
+                    var4 = this.trappedChest;
                 } else {
-                    BlockEntityRenderDispatcher.instance.renderItem(SHULKER_BOXES[var4.getId()], param1, param2, param3, param4);
-                }
-            }
+                    if (!(var1 instanceof ShulkerBoxBlock)) {
+                        return;
+                    }
 
+                    DyeColor var10 = ShulkerBoxBlock.getColorFromItem(var0);
+                    if (var10 == null) {
+                        var4 = DEFAULT_SHULKER_BOX;
+                    } else {
+                        var4 = SHULKER_BOXES[var10.getId()];
+                    }
+                }
+
+                BlockEntityRenderDispatcher.instance.renderItem(var4, param1, param2, param3, param4);
+            }
         } else {
             if (var0 == Items.SHIELD) {
-                boolean var5 = param0.getTagElement("BlockEntityTag") != null;
-                TextureAtlas var6 = Minecraft.getInstance().getTextureAtlas();
+                boolean var14 = param0.getTagElement("BlockEntityTag") != null;
                 param1.pushPose();
                 param1.scale(1.0F, -1.0F, -1.0F);
-                VertexConsumer var7 = ItemRenderer.getFoilBuffer(param2, this.shieldModel.renderType(TextureAtlas.LOCATION_BLOCKS), false, param0.hasFoil());
-                TextureAtlasSprite var8 = var6.getSprite(var5 ? ModelBakery.SHIELD_BASE : ModelBakery.NO_PATTERN_SHIELD);
-                this.shieldModel.handle().render(param1, var7, param3, param4, var8, 1.0F, 1.0F, 1.0F);
-                this.shieldModel.plate().render(param1, var7, param3, param4, var8, 1.0F, 1.0F, 1.0F);
-                if (var5) {
+                Material var15 = var14 ? ModelBakery.SHIELD_BASE : ModelBakery.NO_PATTERN_SHIELD;
+                VertexConsumer var16 = var15.sprite()
+                    .wrap(ItemRenderer.getFoilBuffer(param2, this.shieldModel.renderType(var15.atlasLocation()), false, param0.hasFoil()));
+                this.shieldModel.handle().render(param1, var16, param3, param4, 1.0F, 1.0F, 1.0F, 1.0F);
+                this.shieldModel.plate().render(param1, var16, param3, param4, 1.0F, 1.0F, 1.0F, 1.0F);
+                if (var14) {
                     this.banner.fromItem(param0, ShieldItem.getColor(param0));
                     BannerRenderer.renderPatterns(this.banner, param1, param2, param3, param4, this.shieldModel.plate(), false);
                 }
@@ -119,8 +126,8 @@ public class EntityBlockRenderer {
             } else if (var0 == Items.TRIDENT) {
                 param1.pushPose();
                 param1.scale(1.0F, -1.0F, -1.0F);
-                VertexConsumer var9 = ItemRenderer.getFoilBuffer(param2, this.tridentModel.renderType(TridentModel.TEXTURE), false, param0.hasFoil());
-                this.tridentModel.renderToBuffer(param1, var9, param3, param4, 1.0F, 1.0F, 1.0F);
+                VertexConsumer var17 = ItemRenderer.getFoilBuffer(param2, this.tridentModel.renderType(TridentModel.TEXTURE), false, param0.hasFoil());
+                this.tridentModel.renderToBuffer(param1, var17, param3, param4, 1.0F, 1.0F, 1.0F, 1.0F);
                 param1.popPose();
             }
 

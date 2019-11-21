@@ -2,13 +2,14 @@ package net.minecraft.client.renderer.block.model;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.mojang.datafixers.util.Either;
 import com.mojang.math.Vector3f;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.Material;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -16,8 +17,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class ItemModelGenerator {
     public static final List<String> LAYERS = Lists.newArrayList("layer0", "layer1", "layer2", "layer3", "layer4");
 
-    public BlockModel generateBlockModel(Function<ResourceLocation, TextureAtlasSprite> param0, BlockModel param1) {
-        Map<String, String> var0 = Maps.newHashMap();
+    public BlockModel generateBlockModel(Function<Material, TextureAtlasSprite> param0, BlockModel param1) {
+        Map<String, Either<Material, String>> var0 = Maps.newHashMap();
         List<BlockElement> var1 = Lists.newArrayList();
 
         for(int var2 = 0; var2 < LAYERS.size(); ++var2) {
@@ -26,13 +27,13 @@ public class ItemModelGenerator {
                 break;
             }
 
-            String var4 = param1.getTexture(var3);
-            var0.put(var3, var4);
-            TextureAtlasSprite var5 = param0.apply(new ResourceLocation(var4));
+            Material var4 = param1.getMaterial(var3);
+            var0.put(var3, Either.left(var4));
+            TextureAtlasSprite var5 = param0.apply(var4);
             var1.addAll(this.processFrames(var2, var3, var5));
         }
 
-        var0.put("particle", param1.hasTexture("particle") ? param1.getTexture("particle") : var0.get("layer0"));
+        var0.put("particle", param1.hasTexture("particle") ? Either.left(param1.getMaterial("particle")) : var0.get("layer0"));
         BlockModel var6 = new BlockModel(null, var1, var0, false, false, param1.getTransforms(), param1.getOverrides());
         var6.name = param1.name;
         return var6;

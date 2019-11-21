@@ -23,6 +23,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class GuardianRenderer extends MobRenderer<Guardian, GuardianModel> {
     private static final ResourceLocation GUARDIAN_LOCATION = new ResourceLocation("textures/entity/guardian.png");
     private static final ResourceLocation GUARDIAN_BEAM_LOCATION = new ResourceLocation("textures/entity/guardian_beam.png");
+    private static final RenderType BEAM_RENDER_TYPE = RenderType.entityCutoutNoCull(GUARDIAN_BEAM_LOCATION);
 
     public GuardianRenderer(EntityRenderDispatcher param0) {
         this(param0, 0.5F);
@@ -103,7 +104,7 @@ public class GuardianRenderer extends MobRenderer<Guardian, GuardianModel> {
             float var37 = 0.4999F;
             float var38 = -1.0F + var3;
             float var39 = var8 * 2.5F + var38;
-            VertexConsumer var40 = param4.getBuffer(RenderType.entityCutoutNoCull(GUARDIAN_BEAM_LOCATION));
+            VertexConsumer var40 = param4.getBuffer(BEAM_RENDER_TYPE);
             PoseStack.Pose var41 = param3.last();
             Matrix4f var42 = var41.pose();
             Matrix3f var43 = var41.normal();

@@ -55,7 +55,7 @@ public class HorseArmorLayer extends RenderLayer<Horse, HorseModel<Horse>> {
             }
 
             VertexConsumer var9 = param1.getBuffer(RenderType.entityCutoutNoCull(var1.getTexture()));
-            this.model.renderToBuffer(param0, var9, param2, OverlayTexture.NO_OVERLAY, var3, var4, var5);
+            this.model.renderToBuffer(param0, var9, param2, OverlayTexture.NO_OVERLAY, var3, var4, var5, 1.0F);
         }
     }
 }

@@ -3,6 +3,7 @@ package net.minecraft.world.level;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -17,6 +18,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
@@ -180,7 +182,7 @@ public class Explosion {
         for(int var27 = 0; var27 < var25.size(); ++var27) {
             Entity var28 = var25.get(var27);
             if (!var28.ignoreExplosion()) {
-                double var29 = (double)(Mth.sqrt(var28.distanceToSqr(new Vec3(this.x, this.y, this.z))) / var18);
+                double var29 = (double)(Mth.sqrt(var28.distanceToSqr(var26)) / var18);
                 if (var29 <= 1.0) {
                     double var30 = var28.getX() - this.x;
                     double var31 = var28.getEyeY() - this.y;
@@ -213,80 +215,94 @@ public class Explosion {
     }
 
     public void finalizeExplosion(boolean param0) {
-        this.level
-            .playSound(
-                null,
-                this.x,
-                this.y,
-                this.z,
-                SoundEvents.GENERIC_EXPLODE,
-                SoundSource.BLOCKS,
-                4.0F,
-                (1.0F + (this.level.random.nextFloat() - this.level.random.nextFloat()) * 0.2F) * 0.7F
-            );
+        if (this.level.isClientSide) {
+            this.level
+                .playLocalSound(
+                    this.x,
+                    this.y,
+                    this.z,
+                    SoundEvents.GENERIC_EXPLODE,
+                    SoundSource.BLOCKS,
+                    4.0F,
+                    (1.0F + (this.level.random.nextFloat() - this.level.random.nextFloat()) * 0.2F) * 0.7F,
+                    false
+                );
+        }
+
         boolean var0 = this.blockInteraction != Explosion.BlockInteraction.NONE;
-        if (!(this.radius < 2.0F) && var0) {
-            this.level.addParticle(ParticleTypes.EXPLOSION_EMITTER, this.x, this.y, this.z, 1.0, 0.0, 0.0);
-        } else {
-            this.level.addParticle(ParticleTypes.EXPLOSION, this.x, this.y, this.z, 1.0, 0.0, 0.0);
+        if (param0) {
+            if (!(this.radius < 2.0F) && var0) {
+                this.level.addParticle(ParticleTypes.EXPLOSION_EMITTER, this.x, this.y, this.z, 1.0, 0.0, 0.0);
+            } else {
+                this.level.addParticle(ParticleTypes.EXPLOSION, this.x, this.y, this.z, 1.0, 0.0, 0.0);
+            }
         }
 
         if (var0) {
-            for(BlockPos var1 : this.toBlow) {
-                BlockState var2 = this.level.getBlockState(var1);
-                Block var3 = var2.getBlock();
-                if (param0) {
-                    double var4 = (double)((float)var1.getX() + this.level.random.nextFloat());
-                    double var5 = (double)((float)var1.getY() + this.level.random.nextFloat());
-                    double var6 = (double)((float)var1.getZ() + this.level.random.nextFloat());
-                    double var7 = var4 - this.x;
-                    double var8 = var5 - this.y;
-                    double var9 = var6 - this.z;
-                    double var10 = (double)Mth.sqrt(var7 * var7 + var8 * var8 + var9 * var9);
-                    var7 /= var10;
-                    var8 /= var10;
-                    var9 /= var10;
-                    double var11 = 0.5 / (var10 / (double)this.radius + 0.1);
-                    var11 *= (double)(this.level.random.nextFloat() * this.level.random.nextFloat() + 0.3F);
-                    var7 *= var11;
-                    var8 *= var11;
-                    var9 *= var11;
-                    this.level.addParticle(ParticleTypes.POOF, (var4 + this.x) / 2.0, (var5 + this.y) / 2.0, (var6 + this.z) / 2.0, var7, var8, var9);
-                    this.level.addParticle(ParticleTypes.SMOKE, var4, var5, var6, var7, var8, var9);
-                }
+            ObjectArrayList<ItemStack> var1 = new ObjectArrayList<>();
+            List<BlockPos> var2 = Lists.newArrayList();
 
-                if (!var2.isAir()) {
-                    if (var3.dropFromExplosion(this) && this.level instanceof ServerLevel) {
-                        BlockEntity var12 = var3.isEntityBlock() ? this.level.getBlockEntity(var1) : null;
-                        LootContext.Builder var13 = new LootContext.Builder((ServerLevel)this.level)
+            for(BlockPos var3 : this.toBlow) {
+                BlockState var4 = this.level.getBlockState(var3);
+                Block var5 = var4.getBlock();
+                if (!var4.isAir()) {
+                    var2.add(var3.immutable());
+                    this.level.getProfiler().push("explosion_blocks");
+                    if (var5.dropFromExplosion(this) && this.level instanceof ServerLevel) {
+                        BlockEntity var6 = var5.isEntityBlock() ? this.level.getBlockEntity(var3) : null;
+                        LootContext.Builder var7 = new LootContext.Builder((ServerLevel)this.level)
                             .withRandom(this.level.random)
-                            .withParameter(LootContextParams.BLOCK_POS, var1)
+                            .withParameter(LootContextParams.BLOCK_POS, var3)
                             .withParameter(LootContextParams.TOOL, ItemStack.EMPTY)
-                            .withOptionalParameter(LootContextParams.BLOCK_ENTITY, var12)
+                            .withOptionalParameter(LootContextParams.BLOCK_ENTITY, var6)
                             .withOptionalParameter(LootContextParams.THIS_ENTITY, this.source);
                         if (this.blockInteraction == Explosion.BlockInteraction.DESTROY) {
-                            var13.withParameter(LootContextParams.EXPLOSION_RADIUS, this.radius);
+                            var7.withParameter(LootContextParams.EXPLOSION_RADIUS, this.radius);
                         }
 
-                        Block.dropResources(var2, var13);
+                        var4.getDrops(var7).forEach(param1 -> addBlockDrops(var1, param1));
                     }
 
-                    this.level.setBlock(var1, Blocks.AIR.defaultBlockState(), 3);
-                    var3.wasExploded(this.level, var1, this);
+                    this.level.setBlock(var3, Blocks.AIR.defaultBlockState(), 3);
+                    var5.wasExploded(this.level, var3, this);
+                    this.level.getProfiler().pop();
                 }
+            }
+
+            int var8 = var2.size();
+
+            for(ItemStack var9 : var1) {
+                Block.popResource(this.level, var2.get(this.random.nextInt(var8)), var9);
             }
         }
 
         if (this.fire) {
-            for(BlockPos var14 : this.toBlow) {
-                if (this.level.getBlockState(var14).isAir()
-                    && this.level.getBlockState(var14.below()).isSolidRender(this.level, var14.below())
-                    && this.random.nextInt(3) == 0) {
-                    this.level.setBlockAndUpdate(var14, Blocks.FIRE.defaultBlockState());
+            for(BlockPos var10 : this.toBlow) {
+                if (this.random.nextInt(3) == 0
+                    && this.level.getBlockState(var10).isAir()
+                    && this.level.getBlockState(var10.below()).isSolidRender(this.level, var10.below())) {
+                    this.level.setBlockAndUpdate(var10, Blocks.FIRE.defaultBlockState());
                 }
             }
         }
 
+    }
+
+    private static void addBlockDrops(ObjectArrayList<ItemStack> param0, ItemStack param1) {
+        int var0 = param0.size();
+
+        for(int var1 = 0; var1 < var0; ++var1) {
+            ItemStack var2 = param0.get(var1);
+            if (ItemEntity.areMergable(var2, param1)) {
+                ItemStack var3 = ItemEntity.merge(var2, param1, 16);
+                param0.set(var1, var3);
+                if (param1.isEmpty()) {
+                    return;
+                }
+            }
+        }
+
+        param0.add(param1);
     }
 
     public DamageSource getDamageSource() {

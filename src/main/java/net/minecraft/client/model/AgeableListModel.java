@@ -44,7 +44,7 @@ public abstract class AgeableListModel<E extends Entity> extends EntityModel<E> 
     }
 
     @Override
-    public void renderToBuffer(PoseStack param0, VertexConsumer param1, int param2, int param3, float param4, float param5, float param6) {
+    public void renderToBuffer(PoseStack param0, VertexConsumer param1, int param2, int param3, float param4, float param5, float param6, float param7) {
         if (this.young) {
             param0.pushPose();
             if (this.scaleHead) {
@@ -53,17 +53,17 @@ public abstract class AgeableListModel<E extends Entity> extends EntityModel<E> 
             }
 
             param0.translate(0.0, (double)(this.yHeadOffset / 16.0F), (double)(this.zHeadOffset / 16.0F));
-            this.headParts().forEach(param7 -> param7.render(param0, param1, param2, param3, null, param4, param5, param6));
+            this.headParts().forEach(param8 -> param8.render(param0, param1, param2, param3, param4, param5, param6, param7));
             param0.popPose();
             param0.pushPose();
             float var1 = 1.0F / this.babyBodyScale;
             param0.scale(var1, var1, var1);
             param0.translate(0.0, (double)(this.bodyYOffset / 16.0F), 0.0);
-            this.bodyParts().forEach(param7 -> param7.render(param0, param1, param2, param3, null, param4, param5, param6));
+            this.bodyParts().forEach(param8 -> param8.render(param0, param1, param2, param3, param4, param5, param6, param7));
             param0.popPose();
         } else {
-            this.headParts().forEach(param7 -> param7.render(param0, param1, param2, param3, null, param4, param5, param6));
-            this.bodyParts().forEach(param7 -> param7.render(param0, param1, param2, param3, null, param4, param5, param6));
+            this.headParts().forEach(param8 -> param8.render(param0, param1, param2, param3, param4, param5, param6, param7));
+            this.bodyParts().forEach(param8 -> param8.render(param0, param1, param2, param3, param4, param5, param6, param7));
         }
 
     }

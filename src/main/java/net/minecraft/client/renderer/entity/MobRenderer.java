@@ -40,11 +40,11 @@ public abstract class MobRenderer<T extends Mob, M extends EntityModel<T>> exten
         super.render(param0, param1, param2, param3, param4, param5);
         Entity var0 = param0.getLeashHolder();
         if (var0 != null) {
-            renderLeash(param0, param2, param3, param4, var0);
+            this.renderLeash(param0, param2, param3, param4, var0);
         }
     }
 
-    public static void renderLeash(Mob param0, float param1, PoseStack param2, MultiBufferSource param3, Entity param4) {
+    private <E extends Entity> void renderLeash(T param0, float param1, PoseStack param2, MultiBufferSource param3, E param4) {
         param2.pushPose();
         double var0 = (double)(Mth.lerp(param1 * 0.5F, param4.yRot, param4.yRotO) * (float) (Math.PI / 180.0));
         double var1 = (double)(Mth.lerp(param1 * 0.5F, param4.xRot, param4.xRotO) * (float) (Math.PI / 180.0));
@@ -79,10 +79,10 @@ public abstract class MobRenderer<T extends Mob, M extends EntityModel<T>> exten
         float var19 = Mth.fastInvSqrt(var13 * var13 + var15 * var15) * 0.025F / 2.0F;
         float var20 = var15 * var19;
         float var21 = var13 * var19;
-        int var22 = param0.getBlockLightLevel();
-        int var23 = param4.getBlockLightLevel();
-        int var24 = param0.level.getBrightness(LightLayer.SKY, new BlockPos(param0));
-        int var25 = param0.level.getBrightness(LightLayer.SKY, new BlockPos(param4));
+        int var22 = this.getBlockLightLevel(param0, param1);
+        int var23 = this.entityRenderDispatcher.getRenderer(param4).getBlockLightLevel(param4, param1);
+        int var24 = param0.level.getBrightness(LightLayer.SKY, new BlockPos(param0.getEyePosition(param1)));
+        int var25 = param0.level.getBrightness(LightLayer.SKY, new BlockPos(param4.getEyePosition(param1)));
         renderSide(var17, var18, var13, var14, var15, var22, var23, var24, var25, 0.025F, 0.025F, var20, var21);
         renderSide(var17, var18, var13, var14, var15, var22, var23, var24, var25, 0.025F, 0.0F, var20, var21);
         param2.popPose();

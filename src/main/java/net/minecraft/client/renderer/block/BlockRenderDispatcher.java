@@ -7,7 +7,7 @@ import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.client.color.block.BlockColors;
-import net.minecraft.client.renderer.EntityBlockRenderer;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -104,7 +104,7 @@ public class BlockRenderDispatcher implements ResourceManagerReloadListener {
                         );
                     break;
                 case ENTITYBLOCK_ANIMATED:
-                    EntityBlockRenderer.instance.renderByItem(new ItemStack(param0.getBlock()), param1, param2, param3, param4);
+                    BlockEntityWithoutLevelRenderer.instance.renderByItem(new ItemStack(param0.getBlock()), param1, param2, param3, param4);
             }
 
         }

@@ -60,7 +60,7 @@ public class ItemPickupParticle extends Particle {
                 param2,
                 new PoseStack(),
                 var7,
-                EntityRenderDispatcher.getPackedLightCoords(this.itemEntity)
+                this.entityRenderDispatcher.getPackedLightCoords(this.itemEntity, param2)
             );
         var7.endBatch();
     }

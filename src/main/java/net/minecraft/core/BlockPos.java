@@ -131,7 +131,7 @@ public class BlockPos extends Vec3i implements Serializable {
     }
 
     public BlockPos above() {
-        return this.above(1);
+        return this.relative(Direction.UP);
     }
 
     public BlockPos above(int param0) {
@@ -139,7 +139,7 @@ public class BlockPos extends Vec3i implements Serializable {
     }
 
     public BlockPos below() {
-        return this.below(1);
+        return this.relative(Direction.DOWN);
     }
 
     public BlockPos below(int param0) {
@@ -147,7 +147,7 @@ public class BlockPos extends Vec3i implements Serializable {
     }
 
     public BlockPos north() {
-        return this.north(1);
+        return this.relative(Direction.NORTH);
     }
 
     public BlockPos north(int param0) {
@@ -155,7 +155,7 @@ public class BlockPos extends Vec3i implements Serializable {
     }
 
     public BlockPos south() {
-        return this.south(1);
+        return this.relative(Direction.SOUTH);
     }
 
     public BlockPos south(int param0) {
@@ -163,7 +163,7 @@ public class BlockPos extends Vec3i implements Serializable {
     }
 
     public BlockPos west() {
-        return this.west(1);
+        return this.relative(Direction.WEST);
     }
 
     public BlockPos west(int param0) {
@@ -171,7 +171,7 @@ public class BlockPos extends Vec3i implements Serializable {
     }
 
     public BlockPos east() {
-        return this.east(1);
+        return this.relative(Direction.EAST);
     }
 
     public BlockPos east(int param0) {
@@ -179,7 +179,7 @@ public class BlockPos extends Vec3i implements Serializable {
     }
 
     public BlockPos relative(Direction param0) {
-        return this.relative(param0, 1);
+        return new BlockPos(this.getX() + param0.getStepX(), this.getY() + param0.getStepY(), this.getZ() + param0.getStepZ());
     }
 
     public BlockPos relative(Direction param0, int param1) {

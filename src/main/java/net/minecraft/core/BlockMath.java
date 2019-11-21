@@ -32,18 +32,9 @@ public class BlockMath {
     });
 
     public static Transformation blockCenterToCorner(Transformation param0) {
-        Matrix4f var0 = new Matrix4f();
-        var0.setIdentity();
-        var0.set(0, 3, 0.5F);
-        var0.set(1, 3, 0.5F);
-        var0.set(2, 3, 0.5F);
+        Matrix4f var0 = Matrix4f.createTranslateMatrix(0.5F, 0.5F, 0.5F);
         var0.multiply(param0.getMatrix());
-        Matrix4f var1 = new Matrix4f();
-        var1.setIdentity();
-        var1.set(0, 3, -0.5F);
-        var1.set(1, 3, -0.5F);
-        var1.set(2, 3, -0.5F);
-        var0.multiply(var1);
+        var0.multiply(Matrix4f.createTranslateMatrix(-0.5F, -0.5F, -0.5F));
         return new Transformation(var0);
     }
 

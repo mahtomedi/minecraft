@@ -15,7 +15,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class Stitcher {
     private static final Comparator<Stitcher.Holder> HOLDER_COMPARATOR = Comparator.<Stitcher.Holder, Integer>comparing(param0 -> -param0.height)
         .thenComparing(param0 -> -param0.width)
-        .thenComparing(param0 -> param0.sprite.getName());
+        .thenComparing(param0 -> param0.spriteInfo.name());
     private final int mipLevel;
     private final Set<Stitcher.Holder> texturesToBeStitched = Sets.newHashSetWithExpectedSize(256);
     private final List<Stitcher.Region> storage = Lists.newArrayListWithCapacity(256);
@@ -38,7 +38,7 @@ public class Stitcher {
         return this.storageY;
     }
 
-    public void registerSprite(TextureAtlasSprite param0) {
+    public void registerSprite(TextureAtlasSprite.Info param0) {
         Stitcher.Holder var0 = new Stitcher.Holder(param0, this.mipLevel);
         this.texturesToBeStitched.add(var0);
     }
@@ -49,7 +49,7 @@ public class Stitcher {
 
         for(Stitcher.Holder var1 : var0) {
             if (!this.addToStorage(var1)) {
-                throw new StitcherException(var1.sprite, var0.stream().map(param0 -> param0.sprite).collect(ImmutableList.toImmutableList()));
+                throw new StitcherException(var1.spriteInfo, var0.stream().map(param0 -> param0.spriteInfo).collect(ImmutableList.toImmutableList()));
             }
         }
 
@@ -57,19 +57,15 @@ public class Stitcher {
         this.storageY = Mth.smallestEncompassingPowerOfTwo(this.storageY);
     }
 
-    public List<TextureAtlasSprite> gatherSprites() {
-        List<TextureAtlasSprite> var0 = Lists.newArrayList();
-
-        for(Stitcher.Region var1 : this.storage) {
-            var1.walk(param1 -> {
+    public void gatherSprites(Stitcher.SpriteLoader param0) {
+        for(Stitcher.Region var0 : this.storage) {
+            var0.walk(param1 -> {
                 Stitcher.Holder var0x = param1.getHolder();
-                TextureAtlasSprite var1x = var0x.sprite;
-                var1x.init(this.storageX, this.storageY, param1.getX(), param1.getY());
-                var0.add(var1x);
+                TextureAtlasSprite.Info var1x = var0x.spriteInfo;
+                param0.load(var1x, this.storageX, this.storageY, param1.getX(), param1.getY());
             });
         }
 
-        return var0;
     }
 
     private static int smallestFittingMinTexel(int param0, int param1) {
@@ -126,14 +122,14 @@ public class Stitcher {
 
     @OnlyIn(Dist.CLIENT)
     static class Holder {
-        public final TextureAtlasSprite sprite;
+        public final TextureAtlasSprite.Info spriteInfo;
         public final int width;
         public final int height;
 
-        public Holder(TextureAtlasSprite param0, int param1) {
-            this.sprite = param0;
-            this.width = Stitcher.smallestFittingMinTexel(param0.getWidth(), param1);
-            this.height = Stitcher.smallestFittingMinTexel(param0.getHeight(), param1);
+        public Holder(TextureAtlasSprite.Info param0, int param1) {
+            this.spriteInfo = param0;
+            this.width = Stitcher.smallestFittingMinTexel(param0.width(), param1);
+            this.height = Stitcher.smallestFittingMinTexel(param0.height(), param1);
         }
 
         @Override
@@ -244,5 +240,10 @@ public class Stitcher {
                 + this.subSlots
                 + '}';
         }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public interface SpriteLoader {
+        void load(TextureAtlasSprite.Info var1, int var2, int var3, int var4, int var5);
     }
 }

@@ -4,10 +4,8 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import java.util.List;
-import javax.annotation.Nullable;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -36,14 +34,12 @@ public class BookModel extends Model {
     }
 
     @Override
-    public void renderToBuffer(PoseStack param0, VertexConsumer param1, int param2, int param3, float param4, float param5, float param6) {
-        this.render(param0, param1, param2, param3, param4, param5, param6, null);
+    public void renderToBuffer(PoseStack param0, VertexConsumer param1, int param2, int param3, float param4, float param5, float param6, float param7) {
+        this.render(param0, param1, param2, param3, param4, param5, param6, param7);
     }
 
-    public void render(
-        PoseStack param0, VertexConsumer param1, int param2, int param3, float param4, float param5, float param6, @Nullable TextureAtlasSprite param7
-    ) {
-        this.parts.forEach(param8 -> param8.render(param0, param1, param2, param3, param7, param4, param5, param6));
+    public void render(PoseStack param0, VertexConsumer param1, int param2, int param3, float param4, float param5, float param6, float param7) {
+        this.parts.forEach(param8 -> param8.render(param0, param1, param2, param3, param4, param5, param6, param7));
     }
 
     public void setupAnim(float param0, float param1, float param2, float param3) {

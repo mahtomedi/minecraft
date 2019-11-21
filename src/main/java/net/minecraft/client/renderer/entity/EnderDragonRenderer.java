@@ -24,6 +24,10 @@ public class EnderDragonRenderer extends EntityRenderer<EnderDragon> {
     private static final ResourceLocation DRAGON_EXPLODING_LOCATION = new ResourceLocation("textures/entity/enderdragon/dragon_exploding.png");
     private static final ResourceLocation DRAGON_LOCATION = new ResourceLocation("textures/entity/enderdragon/dragon.png");
     private static final ResourceLocation DRAGON_EYES_LOCATION = new ResourceLocation("textures/entity/enderdragon/dragon_eyes.png");
+    private static final RenderType RENDER_TYPE = RenderType.entityCutoutNoCull(DRAGON_LOCATION);
+    private static final RenderType DECAL = RenderType.entityDecal(DRAGON_LOCATION);
+    private static final RenderType EYES = RenderType.eyes(DRAGON_EYES_LOCATION);
+    private static final RenderType BEAM = RenderType.entitySmoothCutout(CRYSTAL_BEAM_LOCATION);
     private static final float HALF_SQRT_3 = (float)(Math.sqrt(3.0) / 2.0);
     private final EnderDragonRenderer.DragonModel model = new EnderDragonRenderer.DragonModel();
 
@@ -46,16 +50,16 @@ public class EnderDragonRenderer extends EntityRenderer<EnderDragon> {
         if (param0.dragonDeathTime > 0) {
             float var3 = (float)param0.dragonDeathTime / 200.0F;
             VertexConsumer var4 = param4.getBuffer(RenderType.entityAlpha(DRAGON_EXPLODING_LOCATION, var3));
-            this.model.renderToBuffer(param3, var4, param5, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F);
-            VertexConsumer var5 = param4.getBuffer(RenderType.entityDecal(DRAGON_LOCATION));
-            this.model.renderToBuffer(param3, var5, param5, OverlayTexture.pack(0.0F, var2), 1.0F, 1.0F, 1.0F);
+            this.model.renderToBuffer(param3, var4, param5, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+            VertexConsumer var5 = param4.getBuffer(DECAL);
+            this.model.renderToBuffer(param3, var5, param5, OverlayTexture.pack(0.0F, var2), 1.0F, 1.0F, 1.0F, 1.0F);
         } else {
-            VertexConsumer var6 = param4.getBuffer(this.model.renderType(DRAGON_LOCATION));
-            this.model.renderToBuffer(param3, var6, param5, OverlayTexture.pack(0.0F, var2), 1.0F, 1.0F, 1.0F);
+            VertexConsumer var6 = param4.getBuffer(RENDER_TYPE);
+            this.model.renderToBuffer(param3, var6, param5, OverlayTexture.pack(0.0F, var2), 1.0F, 1.0F, 1.0F, 1.0F);
         }
 
-        VertexConsumer var7 = param4.getBuffer(RenderType.eyes(DRAGON_EYES_LOCATION));
-        this.model.renderToBuffer(param3, var7, param5, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F);
+        VertexConsumer var7 = param4.getBuffer(EYES);
+        this.model.renderToBuffer(param3, var7, param5, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
         if (param0.dragonDeathTime > 0) {
             float var8 = ((float)param0.dragonDeathTime + param2) / 200.0F;
             float var9 = 0.0F;
@@ -132,7 +136,7 @@ public class EnderDragonRenderer extends EntityRenderer<EnderDragon> {
         param5.translate(0.0, 2.0, 0.0);
         param5.mulPose(Vector3f.YP.rotation((float)(-Math.atan2((double)param2, (double)param0)) - (float) (Math.PI / 2)));
         param5.mulPose(Vector3f.XP.rotation((float)(-Math.atan2((double)var0, (double)param1)) - (float) (Math.PI / 2)));
-        VertexConsumer var2 = param6.getBuffer(RenderType.entitySmoothCutout(CRYSTAL_BEAM_LOCATION));
+        VertexConsumer var2 = param6.getBuffer(BEAM);
         float var3 = 0.0F - ((float)param4 + param3) * 0.01F;
         float var4 = Mth.sqrt(param0 * param0 + param1 * param1 + param2 * param2) / 32.0F - ((float)param4 + param3) * 0.01F;
         int var5 = 8;
@@ -314,7 +318,7 @@ public class EnderDragonRenderer extends EntityRenderer<EnderDragon> {
         }
 
         @Override
-        public void renderToBuffer(PoseStack param0, VertexConsumer param1, int param2, int param3, float param4, float param5, float param6) {
+        public void renderToBuffer(PoseStack param0, VertexConsumer param1, int param2, int param3, float param4, float param5, float param6, float param7) {
             param0.pushPose();
             float var0 = Mth.lerp(this.a, this.entity.oFlapTime, this.entity.flapTime);
             this.jaw.xRot = (float)(Math.sin((double)(var0 * (float) (Math.PI * 2))) + 1.0) * 0.2F;
@@ -343,7 +347,7 @@ public class EnderDragonRenderer extends EntityRenderer<EnderDragon> {
                 var3 = (float)((double)var3 + Math.sin((double)this.neck.xRot) * 10.0);
                 var4 = (float)((double)var4 - Math.cos((double)this.neck.yRot) * Math.cos((double)this.neck.xRot) * 10.0);
                 var2 = (float)((double)var2 - Math.sin((double)this.neck.yRot) * Math.cos((double)this.neck.xRot) * 10.0);
-                this.neck.render(param0, param1, param2, param3, null);
+                this.neck.render(param0, param1, param2, param3);
             }
 
             this.head.y = var3;
@@ -353,13 +357,13 @@ public class EnderDragonRenderer extends EntityRenderer<EnderDragon> {
             this.head.yRot = Mth.rotWrap(var13[0] - var6[0]) * (float) (Math.PI / 180.0);
             this.head.xRot = Mth.rotWrap((double)this.entity.getHeadPartYOffset(6, var6, var13)) * (float) (Math.PI / 180.0) * 1.5F * 5.0F;
             this.head.zRot = -Mth.rotWrap(var13[0] - (double)var8) * (float) (Math.PI / 180.0);
-            this.head.render(param0, param1, param2, param3, null);
+            this.head.render(param0, param1, param2, param3);
             param0.pushPose();
             param0.translate(0.0, 1.0, 0.0);
             param0.mulPose(Vector3f.ZP.rotationDegrees(-var7 * 1.5F));
             param0.translate(0.0, -1.0, 0.0);
             this.body.zRot = 0.0F;
-            this.body.render(param0, param1, param2, param3, null);
+            this.body.render(param0, param1, param2, param3);
             float var14 = var0 * (float) (Math.PI * 2);
             this.leftWing.xRot = 0.125F - (float)Math.cos((double)var14) * 0.2F;
             this.leftWing.yRot = -0.25F;
@@ -417,7 +421,7 @@ public class EnderDragonRenderer extends EntityRenderer<EnderDragon> {
                 var3 = (float)((double)var3 + Math.sin((double)this.neck.xRot) * 10.0);
                 var4 = (float)((double)var4 - Math.cos((double)this.neck.yRot) * Math.cos((double)this.neck.xRot) * 10.0);
                 var2 = (float)((double)var2 - Math.sin((double)this.neck.yRot) * Math.cos((double)this.neck.xRot) * 10.0);
-                this.neck.render(param0, param1, param2, param3, null);
+                this.neck.render(param0, param1, param2, param3);
             }
 
             param0.popPose();
@@ -443,9 +447,9 @@ public class EnderDragonRenderer extends EntityRenderer<EnderDragon> {
             param6.xRot = 1.3F + param4 * 0.1F;
             param7.xRot = -0.5F - param4 * 0.1F;
             param8.xRot = 0.75F + param4 * 0.1F;
-            param5.render(param0, param1, param2, param3, null);
-            param6.render(param0, param1, param2, param3, null);
-            param9.render(param0, param1, param2, param3, null);
+            param5.render(param0, param1, param2, param3);
+            param6.render(param0, param1, param2, param3);
+            param9.render(param0, param1, param2, param3);
         }
     }
 }

@@ -18,7 +18,6 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -35,28 +34,30 @@ import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.client.color.block.BlockColors;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.client.renderer.block.model.BlockModelDefinition;
 import net.minecraft.client.renderer.block.model.ItemModelGenerator;
 import net.minecraft.client.renderer.block.model.multipart.MultiPart;
 import net.minecraft.client.renderer.block.model.multipart.Selector;
-import net.minecraft.client.renderer.blockentity.BedRenderer;
 import net.minecraft.client.renderer.blockentity.BellRenderer;
-import net.minecraft.client.renderer.blockentity.ChestRenderer;
 import net.minecraft.client.renderer.blockentity.ConduitRenderer;
 import net.minecraft.client.renderer.blockentity.EnchantTableRenderer;
+import net.minecraft.client.renderer.texture.AtlasSet;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RenderShape;
-import net.minecraft.world.level.block.entity.BannerPattern;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
@@ -70,63 +71,28 @@ import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class ModelBakery {
-    public static final ResourceLocation FIRE_0 = new ResourceLocation("block/fire_0");
-    public static final ResourceLocation FIRE_1 = new ResourceLocation("block/fire_1");
-    public static final ResourceLocation LAVA_FLOW = new ResourceLocation("block/lava_flow");
-    public static final ResourceLocation WATER_FLOW = new ResourceLocation("block/water_flow");
-    public static final ResourceLocation WATER_OVERLAY = new ResourceLocation("block/water_overlay");
-    public static final ResourceLocation DEFAULT_SHULKER_TEXTURE_LOCATION = new ResourceLocation("entity/shulker/shulker");
-    public static final List<ResourceLocation> SHULKER_TEXTURE_LOCATION = ImmutableList.of(
-        new ResourceLocation("entity/shulker/shulker_white"),
-        new ResourceLocation("entity/shulker/shulker_orange"),
-        new ResourceLocation("entity/shulker/shulker_magenta"),
-        new ResourceLocation("entity/shulker/shulker_light_blue"),
-        new ResourceLocation("entity/shulker/shulker_yellow"),
-        new ResourceLocation("entity/shulker/shulker_lime"),
-        new ResourceLocation("entity/shulker/shulker_pink"),
-        new ResourceLocation("entity/shulker/shulker_gray"),
-        new ResourceLocation("entity/shulker/shulker_light_gray"),
-        new ResourceLocation("entity/shulker/shulker_cyan"),
-        new ResourceLocation("entity/shulker/shulker_purple"),
-        new ResourceLocation("entity/shulker/shulker_blue"),
-        new ResourceLocation("entity/shulker/shulker_brown"),
-        new ResourceLocation("entity/shulker/shulker_green"),
-        new ResourceLocation("entity/shulker/shulker_red"),
-        new ResourceLocation("entity/shulker/shulker_black")
-    );
-    public static final ResourceLocation BANNER_BASE = new ResourceLocation("entity/banner_base");
-    public static final ResourceLocation SHIELD_BASE = new ResourceLocation("entity/shield_base");
-    public static final ResourceLocation NO_PATTERN_SHIELD = new ResourceLocation("entity/shield_base_nopattern");
-    public static final ResourceLocation OAK_SIGN_TEXTURE = new ResourceLocation("entity/signs/oak");
-    public static final ResourceLocation SPRUCE_SIGN_TEXTURE = new ResourceLocation("entity/signs/spruce");
-    public static final ResourceLocation BIRCH_SIGN_TEXTURE = new ResourceLocation("entity/signs/birch");
-    public static final ResourceLocation ACACIA_SIGN_TEXTURE = new ResourceLocation("entity/signs/acacia");
-    public static final ResourceLocation JUNGLE_SIGN_TEXTURE = new ResourceLocation("entity/signs/jungle");
-    public static final ResourceLocation DARK_OAK_SIGN_TEXTURE = new ResourceLocation("entity/signs/dark_oak");
+    public static final Material FIRE_0 = new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation("block/fire_0"));
+    public static final Material FIRE_1 = new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation("block/fire_1"));
+    public static final Material LAVA_FLOW = new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation("block/lava_flow"));
+    public static final Material WATER_FLOW = new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation("block/water_flow"));
+    public static final Material WATER_OVERLAY = new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation("block/water_overlay"));
+    public static final Material BANNER_BASE = new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation("entity/banner_base"));
+    public static final Material SHIELD_BASE = new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation("entity/shield_base"));
+    public static final Material NO_PATTERN_SHIELD = new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation("entity/shield_base_nopattern"));
     public static final List<ResourceLocation> DESTROY_STAGES = IntStream.range(0, 10)
         .mapToObj(param0 -> new ResourceLocation("block/destroy_stage_" + param0))
         .collect(Collectors.toList());
     public static final List<ResourceLocation> BREAKING_LOCATIONS = DESTROY_STAGES.stream()
         .map(param0 -> new ResourceLocation("textures/" + param0.getPath() + ".png"))
         .collect(Collectors.toList());
-    private static final Set<ResourceLocation> UNREFERENCED_TEXTURES = Util.make(Sets.newHashSet(), param0 -> {
+    public static final List<RenderType> DESTROY_TYPES = BREAKING_LOCATIONS.stream().map(RenderType::crumbling).collect(Collectors.toList());
+    private static final Set<Material> UNREFERENCED_TEXTURES = Util.make(Sets.newHashSet(), param0 -> {
         param0.add(WATER_FLOW);
         param0.add(LAVA_FLOW);
         param0.add(WATER_OVERLAY);
         param0.add(FIRE_0);
         param0.add(FIRE_1);
         param0.add(BellRenderer.BELL_RESOURCE_LOCATION);
-        param0.addAll(Arrays.asList(BedRenderer.TEXTURES));
-        param0.add(ChestRenderer.CHEST_TRAP_LOCATION);
-        param0.add(ChestRenderer.CHEST_TRAP_LOCATION_LEFT);
-        param0.add(ChestRenderer.CHEST_TRAP_LOCATION_RIGHT);
-        param0.add(ChestRenderer.CHEST_XMAS_LOCATION);
-        param0.add(ChestRenderer.CHEST_XMAS_LOCATION_LEFT);
-        param0.add(ChestRenderer.CHEST_XMAS_LOCATION_RIGHT);
-        param0.add(ChestRenderer.CHEST_LOCATION);
-        param0.add(ChestRenderer.CHEST_LOCATION_LEFT);
-        param0.add(ChestRenderer.CHEST_LOCATION_RIGHT);
-        param0.add(ChestRenderer.ENDER_CHEST_LOCATION);
         param0.add(ConduitRenderer.SHELL_TEXTURE);
         param0.add(ConduitRenderer.ACTIVE_SHELL_TEXTURE);
         param0.add(ConduitRenderer.WIND_TEXTURE);
@@ -134,32 +100,24 @@ public class ModelBakery {
         param0.add(ConduitRenderer.OPEN_EYE_TEXTURE);
         param0.add(ConduitRenderer.CLOSED_EYE_TEXTURE);
         param0.add(EnchantTableRenderer.BOOK_LOCATION);
-        param0.add(DEFAULT_SHULKER_TEXTURE_LOCATION);
-        param0.addAll(SHULKER_TEXTURE_LOCATION);
         param0.add(BANNER_BASE);
         param0.add(SHIELD_BASE);
         param0.add(NO_PATTERN_SHIELD);
 
-        for(BannerPattern var0 : BannerPattern.values()) {
-            param0.add(var0.location(true));
-            param0.add(var0.location(false));
+        for(ResourceLocation var0 : DESTROY_STAGES) {
+            param0.add(new Material(TextureAtlas.LOCATION_BLOCKS, var0));
         }
 
-        param0.add(OAK_SIGN_TEXTURE);
-        param0.add(SPRUCE_SIGN_TEXTURE);
-        param0.add(BIRCH_SIGN_TEXTURE);
-        param0.add(ACACIA_SIGN_TEXTURE);
-        param0.add(JUNGLE_SIGN_TEXTURE);
-        param0.add(DARK_OAK_SIGN_TEXTURE);
-        param0.addAll(DESTROY_STAGES);
-        param0.add(new ResourceLocation("item/empty_armor_slot_helmet"));
-        param0.add(new ResourceLocation("item/empty_armor_slot_chestplate"));
-        param0.add(new ResourceLocation("item/empty_armor_slot_leggings"));
-        param0.add(new ResourceLocation("item/empty_armor_slot_boots"));
-        param0.add(new ResourceLocation("item/empty_armor_slot_shield"));
+        param0.add(new Material(TextureAtlas.LOCATION_BLOCKS, InventoryMenu.EMPTY_ARMOR_SLOT_HELMET));
+        param0.add(new Material(TextureAtlas.LOCATION_BLOCKS, InventoryMenu.EMPTY_ARMOR_SLOT_CHESTPLATE));
+        param0.add(new Material(TextureAtlas.LOCATION_BLOCKS, InventoryMenu.EMPTY_ARMOR_SLOT_LEGGINGS));
+        param0.add(new Material(TextureAtlas.LOCATION_BLOCKS, InventoryMenu.EMPTY_ARMOR_SLOT_BOOTS));
+        param0.add(new Material(TextureAtlas.LOCATION_BLOCKS, InventoryMenu.EMPTY_ARMOR_SLOT_SHIELD));
+        Sheets.getAllMaterials(param0::add);
     });
     private static final Logger LOGGER = LogManager.getLogger();
     public static final ModelResourceLocation MISSING_MODEL_LOCATION = new ModelResourceLocation("builtin/missing", "missing");
+    private static final String MISSING_MODEL_LOCATION_STRING = MISSING_MODEL_LOCATION.toString();
     @VisibleForTesting
     public static final String MISSING_MODEL_MESH = ("{    'textures': {       'particle': '"
             + MissingTextureAtlasSprite.getLocation().getPath()
@@ -180,7 +138,8 @@ public class ModelBakery {
         new ResourceLocation("item_frame"), ITEM_FRAME_FAKE_DEFINITION
     );
     private final ResourceManager resourceManager;
-    private final TextureAtlas blockAtlas;
+    @Nullable
+    private AtlasSet atlasSet;
     private final BlockColors blockColors;
     private final Set<ResourceLocation> loadingStack = Sets.newHashSet();
     private final BlockModelDefinition.Context context = new BlockModelDefinition.Context();
@@ -188,75 +147,95 @@ public class ModelBakery {
     private final Map<Triple<ResourceLocation, Transformation, Boolean>, BakedModel> bakedCache = Maps.newHashMap();
     private final Map<ResourceLocation, UnbakedModel> topLevelModels = Maps.newHashMap();
     private final Map<ResourceLocation, BakedModel> bakedTopLevelModels = Maps.newHashMap();
-    private final TextureAtlas.Preparations atlasPreparations;
+    private final Map<ResourceLocation, Pair<TextureAtlas, TextureAtlas.Preparations>> atlasPreparations;
     private int nextModelGroup = 1;
     private final Object2IntMap<BlockState> modelGroups = Util.make(new Object2IntOpenHashMap<>(), param0x -> param0x.defaultReturnValue(-1));
 
-    public ModelBakery(ResourceManager param0, TextureAtlas param1, BlockColors param2, ProfilerFiller param3) {
+    public ModelBakery(ResourceManager param0, BlockColors param1, ProfilerFiller param2, int param3) {
         this.resourceManager = param0;
-        this.blockAtlas = param1;
-        this.blockColors = param2;
-        param3.push("missing_model");
+        this.blockColors = param1;
+        param2.push("missing_model");
 
         try {
             this.unbakedCache.put(MISSING_MODEL_LOCATION, this.loadBlockModel(MISSING_MODEL_LOCATION));
             this.loadTopLevel(MISSING_MODEL_LOCATION);
-        } catch (IOException var7) {
-            LOGGER.error("Error loading missing model, should never happen :(", (Throwable)var7);
-            throw new RuntimeException(var7);
+        } catch (IOException var12) {
+            LOGGER.error("Error loading missing model, should never happen :(", (Throwable)var12);
+            throw new RuntimeException(var12);
         }
 
-        param3.popPush("static_definitions");
+        param2.popPush("static_definitions");
         STATIC_DEFINITIONS.forEach(
             (param0x, param1x) -> param1x.getPossibleStates().forEach(param1xx -> this.loadTopLevel(BlockModelShaper.stateToModelLocation(param0x, param1xx)))
         );
-        param3.popPush("blocks");
+        param2.popPush("blocks");
 
         for(Block var1 : Registry.BLOCK) {
             var1.getStateDefinition().getPossibleStates().forEach(param0x -> this.loadTopLevel(BlockModelShaper.stateToModelLocation(param0x)));
         }
 
-        param3.popPush("items");
+        param2.popPush("items");
 
         for(ResourceLocation var2 : Registry.ITEM.keySet()) {
             this.loadTopLevel(new ModelResourceLocation(var2, "inventory"));
         }
 
-        param3.popPush("special");
+        param2.popPush("special");
         this.loadTopLevel(new ModelResourceLocation("minecraft:trident_in_hand#inventory"));
-        param3.popPush("textures");
-        Set<String> var3 = Sets.newLinkedHashSet();
-        Set<ResourceLocation> var4 = this.topLevelModels
+        param2.popPush("textures");
+        Set<Pair<String, String>> var3 = Sets.newLinkedHashSet();
+        Set<Material> var4 = this.topLevelModels
             .values()
             .stream()
-            .flatMap(param1x -> param1x.getTextures(this::getModel, var3).stream())
+            .flatMap(param1x -> param1x.getMaterials(this::getModel, var3).stream())
             .collect(Collectors.toSet());
         var4.addAll(UNREFERENCED_TEXTURES);
-        var3.forEach(param0x -> LOGGER.warn("Unable to resolve texture reference: {}", param0x));
-        param3.popPush("stitching");
-        this.atlasPreparations = this.blockAtlas.prepareToStitch(this.resourceManager, var4, param3);
-        param3.pop();
+        var3.stream()
+            .filter(param0x -> !param0x.getSecond().equals(MISSING_MODEL_LOCATION_STRING))
+            .forEach(param0x -> LOGGER.warn("Unable to resolve texture reference: {} in {}", param0x.getFirst(), param0x.getSecond()));
+        Map<ResourceLocation, List<Material>> var5 = var4.stream().collect(Collectors.groupingBy(Material::atlasLocation));
+        param2.popPush("stitching");
+        this.atlasPreparations = Maps.newHashMap();
+
+        for(Entry<ResourceLocation, List<Material>> var6 : var5.entrySet()) {
+            TextureAtlas var7 = new TextureAtlas(var6.getKey());
+            TextureAtlas.Preparations var8 = var7.prepareToStitch(this.resourceManager, var6.getValue().stream().map(Material::texture), param2, param3);
+            this.atlasPreparations.put(var6.getKey(), Pair.of(var7, var8));
+        }
+
+        param2.pop();
     }
 
-    public void uploadTextures(ProfilerFiller param0) {
-        param0.push("atlas");
-        this.blockAtlas.reload(this.atlasPreparations);
-        param0.popPush("baking");
+    public AtlasSet uploadTextures(TextureManager param0, int param1, ProfilerFiller param2) {
+        param2.push("atlas");
+
+        for(Pair<TextureAtlas, TextureAtlas.Preparations> var0 : this.atlasPreparations.values()) {
+            TextureAtlas var1 = var0.getFirst();
+            var1.setMaxMipLevel(param1);
+            var1.reload(var0.getSecond());
+            param0.register(var1.location(), var1);
+            param0.bind(var1.location());
+            var1.setFilter(false, param1 > 0);
+        }
+
+        this.atlasSet = new AtlasSet(this.atlasPreparations.values().stream().map(Pair::getFirst).collect(Collectors.toList()));
+        param2.popPush("baking");
         this.topLevelModels.keySet().forEach(param0x -> {
-            BakedModel var0 = null;
+            BakedModel var0x = null;
 
             try {
-                var0 = this.bake(param0x, BlockModelRotation.X0_Y0);
+                var0x = this.bake(param0x, BlockModelRotation.X0_Y0);
             } catch (Exception var4) {
                 LOGGER.warn("Unable to bake model: '{}': {}", param0x, var4);
             }
 
-            if (var0 != null) {
-                this.bakedTopLevelModels.put(param0x, var0);
+            if (var0x != null) {
+                this.bakedTopLevelModels.put(param0x, var0x);
             }
 
         });
-        param0.pop();
+        param2.pop();
+        return this.atlasSet;
     }
 
     private static Predicate<BlockState> predicate(StateDefinition<Block, BlockState> param0, String param1) {
@@ -507,17 +486,18 @@ public class ModelBakery {
         Triple<ResourceLocation, Transformation, Boolean> var0 = Triple.of(param0, param1.getRotation(), param1.isUvLocked());
         if (this.bakedCache.containsKey(var0)) {
             return this.bakedCache.get(var0);
+        } else if (this.atlasSet == null) {
+            throw new IllegalStateException("bake called too early");
         } else {
             UnbakedModel var1 = this.getModel(param0);
             if (var1 instanceof BlockModel) {
                 BlockModel var2 = (BlockModel)var1;
                 if (var2.getRootModel() == GENERATION_MARKER) {
-                    return ITEM_MODEL_GENERATOR.generateBlockModel(this.blockAtlas::getSprite, var2)
-                        .bake(this, var2, this.blockAtlas::getSprite, param1, param0);
+                    return ITEM_MODEL_GENERATOR.generateBlockModel(this.atlasSet::getSprite, var2).bake(this, var2, this.atlasSet::getSprite, param1, param0);
                 }
             }
 
-            BakedModel var3 = var1.bake(this, this.blockAtlas::getSprite, param1, param0);
+            BakedModel var3 = var1.bake(this, this.atlasSet::getSprite, param1, param0);
             this.bakedCache.put(var0, var3);
             return var3;
         }

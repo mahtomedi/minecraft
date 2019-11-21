@@ -39,11 +39,11 @@ public class DragonHeadModel extends SkullModel {
     }
 
     @Override
-    public void renderToBuffer(PoseStack param0, VertexConsumer param1, int param2, int param3, float param4, float param5, float param6) {
+    public void renderToBuffer(PoseStack param0, VertexConsumer param1, int param2, int param3, float param4, float param5, float param6, float param7) {
         param0.pushPose();
         param0.translate(0.0, -0.374375F, 0.0);
         param0.scale(0.75F, 0.75F, 0.75F);
-        this.head.render(param0, param1, param2, param3, null, param4, param5, param6);
+        this.head.render(param0, param1, param2, param3, param4, param5, param6, param7);
         param0.popPose();
     }
 }

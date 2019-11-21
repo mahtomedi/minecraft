@@ -19,8 +19,6 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class MagmaCube extends Slime {
     public MagmaCube(EntityType<? extends MagmaCube> param0, Level param1) {
@@ -46,12 +44,6 @@ public class MagmaCube extends Slime {
     protected void setSize(int param0, boolean param1) {
         super.setSize(param0, param1);
         this.getAttribute(SharedMonsterAttributes.ARMOR).setBaseValue((double)(param0 * 3));
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public int getBlockLightLevel() {
-        return 15;
     }
 
     @Override

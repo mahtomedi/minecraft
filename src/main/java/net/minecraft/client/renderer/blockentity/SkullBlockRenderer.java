@@ -97,7 +97,7 @@ public class SkullBlockRenderer extends BlockEntityRenderer<SkullBlockEntity> {
         param5.scale(-1.0F, -1.0F, 1.0F);
         VertexConsumer var1 = param6.getBuffer(getRenderType(param2, param3));
         var0.setupAnim(param4, param1, 0.0F);
-        var0.renderToBuffer(param5, var1, param7, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F);
+        var0.renderToBuffer(param5, var1, param7, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
         param5.popPose();
     }
 

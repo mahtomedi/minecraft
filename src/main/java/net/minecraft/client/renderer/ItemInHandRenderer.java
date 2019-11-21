@@ -129,7 +129,7 @@ public class ItemInHandRenderer {
         param0.scale(0.38F, 0.38F, 0.38F);
         param0.translate(-0.5, -0.5, 0.0);
         param0.scale(0.0078125F, 0.0078125F, 0.0078125F);
-        VertexConsumer var0 = param1.getBuffer(RenderType.text(MapRenderer.MAP_BACKGROUND_LOCATION));
+        VertexConsumer var0 = param1.getBuffer(MapRenderer.MAP_BACKGROUND);
         Matrix4f var1 = param0.last().pose();
         var0.vertex(var1, -7.0F, 135.0F, 0.0F).color(255, 255, 255, 255).uv(0.0F, 1.0F).uv2(param2).endVertex();
         var0.vertex(var1, 135.0F, 135.0F, 0.0F).color(255, 255, 255, 255).uv(1.0F, 1.0F).uv2(param2).endVertex();

@@ -17,11 +17,10 @@ import net.minecraft.client.gui.font.TextFieldHelper;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.SignRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.client.resources.model.Material;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -132,11 +131,11 @@ public class SignEditScreen extends Screen {
         var0.pushPose();
         var0.scale(0.6666667F, -0.6666667F, -0.6666667F);
         MultiBufferSource.BufferSource var6 = this.minecraft.renderBuffers().bufferSource();
-        TextureAtlasSprite var7 = this.minecraft.getTextureAtlas().getSprite(SignRenderer.getTexture(var2.getBlock()));
-        VertexConsumer var8 = var6.getBuffer(RenderType.cutout());
-        this.signModel.sign.render(var0, var8, 15728880, OverlayTexture.NO_OVERLAY, var7);
+        Material var7 = SignRenderer.getMaterial(var2.getBlock());
+        VertexConsumer var8 = var7.buffer(var6, this.signModel::renderType);
+        this.signModel.sign.render(var0, var8, 15728880, OverlayTexture.NO_OVERLAY);
         if (var3) {
-            this.signModel.stick.render(var0, var8, 15728880, OverlayTexture.NO_OVERLAY, var7);
+            this.signModel.stick.render(var0, var8, 15728880, OverlayTexture.NO_OVERLAY);
         }
 
         var0.popPose();

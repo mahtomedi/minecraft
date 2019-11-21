@@ -499,12 +499,6 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public int getBlockLightLevel() {
-        return 15;
-    }
-
     @Override
     public boolean causeFallDamage(float param0, float param1) {
         return false;

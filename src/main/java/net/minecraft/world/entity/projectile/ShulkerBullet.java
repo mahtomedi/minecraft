@@ -315,12 +315,6 @@ public class ShulkerBullet extends Entity {
         return 1.0F;
     }
 
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public int getBlockLightLevel() {
-        return 15;
-    }
-
     protected void onHit(HitResult param0) {
         if (param0.getType() == HitResult.Type.ENTITY) {
             Entity var0 = ((EntityHitResult)param0).getEntity();

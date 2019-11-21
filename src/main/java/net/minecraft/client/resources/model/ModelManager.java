@@ -4,7 +4,9 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import java.util.Map;
 import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.client.renderer.block.BlockModelShaper;
+import net.minecraft.client.renderer.texture.AtlasSet;
 import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
@@ -15,17 +17,20 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class ModelManager extends SimplePreparableReloadListener<ModelBakery> {
+public class ModelManager extends SimplePreparableReloadListener<ModelBakery> implements AutoCloseable {
     private Map<ResourceLocation, BakedModel> bakedRegistry;
-    private final TextureAtlas terrainAtlas;
+    private AtlasSet atlases;
     private final BlockModelShaper blockModelShaper;
+    private final TextureManager textureManager;
     private final BlockColors blockColors;
+    private final int mipmapLevels;
     private BakedModel missingModel;
     private Object2IntMap<BlockState> modelGroups;
 
-    public ModelManager(TextureAtlas param0, BlockColors param1) {
-        this.terrainAtlas = param0;
+    public ModelManager(TextureManager param0, BlockColors param1, int param2) {
+        this.textureManager = param0;
         this.blockColors = param1;
+        this.mipmapLevels = param2;
         this.blockModelShaper = new BlockModelShaper(this);
     }
 
@@ -43,7 +48,7 @@ public class ModelManager extends SimplePreparableReloadListener<ModelBakery> {
 
     protected ModelBakery prepare(ResourceManager param0, ProfilerFiller param1) {
         param1.startTick();
-        ModelBakery var0 = new ModelBakery(param0, this.terrainAtlas, this.blockColors, param1);
+        ModelBakery var0 = new ModelBakery(param0, this.blockColors, param1, this.mipmapLevels);
         param1.endTick();
         return var0;
     }
@@ -51,7 +56,7 @@ public class ModelManager extends SimplePreparableReloadListener<ModelBakery> {
     protected void apply(ModelBakery param0, ResourceManager param1, ProfilerFiller param2) {
         param2.startTick();
         param2.push("upload");
-        param0.uploadTextures(param2);
+        this.atlases = param0.uploadTextures(this.textureManager, this.mipmapLevels, param2);
         this.bakedRegistry = param0.getBakedTopLevelModels();
         this.modelGroups = param0.getModelGroups();
         this.missingModel = this.bakedRegistry.get(ModelBakery.MISSING_MODEL_LOCATION);
@@ -77,5 +82,18 @@ public class ModelManager extends SimplePreparableReloadListener<ModelBakery> {
 
             return true;
         }
+    }
+
+    public TextureAtlas getAtlas(ResourceLocation param0) {
+        return this.atlases.getAtlas(param0);
+    }
+
+    @Override
+    public void close() {
+        this.atlases.close();
+    }
+
+    public void updateMaxMipLevel(int param0) {
+        this.atlases.updateMaxMipLevel(this.textureManager, param0);
     }
 }

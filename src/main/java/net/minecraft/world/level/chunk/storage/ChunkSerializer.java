@@ -162,7 +162,7 @@ public class ChunkSerializer {
         Heightmap.primeHeightmaps(var25, var30);
         CompoundTag var33 = var2.getCompound("Structures");
         var25.setAllStarts(unpackStructureStart(var0, param1, var33));
-        var25.setAllReferences(unpackStructureReferences(var33));
+        var25.setAllReferences(unpackStructureReferences(param3, var33));
         if (var2.getBoolean("shouldSave")) {
             var25.setUnsaved(true);
         }
@@ -414,12 +414,20 @@ public class ChunkSerializer {
         return var0;
     }
 
-    private static Map<String, LongSet> unpackStructureReferences(CompoundTag param0) {
+    private static Map<String, LongSet> unpackStructureReferences(ChunkPos param0, CompoundTag param1) {
         Map<String, LongSet> var0 = Maps.newHashMap();
-        CompoundTag var1 = param0.getCompound("References");
+        CompoundTag var1 = param1.getCompound("References");
 
         for(String var2 : var1.getAllKeys()) {
-            var0.put(var2, new LongOpenHashSet(var1.getLongArray(var2)));
+            var0.put(var2, new LongOpenHashSet(Arrays.stream(var1.getLongArray(var2)).filter(param2 -> {
+                ChunkPos var0x = new ChunkPos(param2);
+                if (var0x.getChessboardDistance(param0) > 8) {
+                    LOGGER.warn("Found invalid structure reference [ {} @ {} ] for chunk {}.", var2, var0x, param0);
+                    return false;
+                } else {
+                    return true;
+                }
+            }).toArray()));
         }
 
         return var0;

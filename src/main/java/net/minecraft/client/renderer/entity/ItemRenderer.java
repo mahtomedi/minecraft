@@ -1,6 +1,5 @@
 package net.minecraft.client.renderer.entity;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -22,11 +21,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.item.ItemColors;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.EntityBlockRenderer;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.ItemModelShaper;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -111,8 +111,8 @@ public class ItemRenderer implements ResourceManagerReloadListener {
             if (!param7.isCustomRenderer() && (param0.getItem() != Items.TRIDENT || var1)) {
                 RenderType var2 = ItemBlockRenderTypes.getRenderType(param0);
                 RenderType var3;
-                if (var0 && Objects.equals(var2, RenderType.blockentityTranslucent())) {
-                    var3 = RenderType.blockentityTranslucentCull();
+                if (var0 && Objects.equals(var2, Sheets.translucentBlockSheet())) {
+                    var3 = Sheets.translucentCullBlockSheet();
                 } else {
                     var3 = var2;
                 }
@@ -120,7 +120,7 @@ public class ItemRenderer implements ResourceManagerReloadListener {
                 VertexConsumer var5 = getFoilBuffer(param4, var3, true, param0.hasFoil());
                 this.renderModelLists(param7, param0, param5, param6, param3, var5);
             } else {
-                EntityBlockRenderer.instance.renderByItem(param0, param3, param4, param5, param6);
+                BlockEntityWithoutLevelRenderer.instance.renderByItem(param0, param3, param4, param5, param6);
             }
 
             param3.popPose();
@@ -128,9 +128,9 @@ public class ItemRenderer implements ResourceManagerReloadListener {
     }
 
     public static VertexConsumer getFoilBuffer(MultiBufferSource param0, RenderType param1, boolean param2, boolean param3) {
-        return (VertexConsumer)(param3
-            ? new VertexMultiConsumer(ImmutableList.of(param0.getBuffer(param2 ? RenderType.glint() : RenderType.entityGlint()), param0.getBuffer(param1)))
-            : param0.getBuffer(param1));
+        return param3
+            ? VertexMultiConsumer.create(param0.getBuffer(param2 ? RenderType.glint() : RenderType.entityGlint()), param0.getBuffer(param1))
+            : param0.getBuffer(param1);
     }
 
     private void renderQuadList(PoseStack param0, VertexConsumer param1, List<BakedQuad> param2, ItemStack param3, int param4, int param5) {

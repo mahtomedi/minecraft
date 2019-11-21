@@ -19,7 +19,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class EndCrystalRenderer extends EntityRenderer<EndCrystal> {
     private static final ResourceLocation END_CRYSTAL_LOCATION = new ResourceLocation("textures/entity/end_crystal/end_crystal.png");
-    public static final float SIN_45 = (float)Math.sin(Math.PI / 4);
+    private static final RenderType RENDER_TYPE = RenderType.entityCutoutNoCull(END_CRYSTAL_LOCATION);
+    private static final float SIN_45 = (float)Math.sin(Math.PI / 4);
     private final ModelPart cube;
     private final ModelPart glass;
     private final ModelPart base;
@@ -39,28 +40,28 @@ public class EndCrystalRenderer extends EntityRenderer<EndCrystal> {
         param3.pushPose();
         float var0 = getY(param0, param2);
         float var1 = ((float)param0.time + param2) * 3.0F;
-        VertexConsumer var2 = param4.getBuffer(RenderType.entityCutoutNoCull(this.getTextureLocation(param0)));
+        VertexConsumer var2 = param4.getBuffer(RENDER_TYPE);
         param3.pushPose();
         param3.scale(2.0F, 2.0F, 2.0F);
         param3.translate(0.0, -0.5, 0.0);
         int var3 = OverlayTexture.NO_OVERLAY;
         if (param0.showsBottom()) {
-            this.base.render(param3, var2, param5, var3, null);
+            this.base.render(param3, var2, param5, var3);
         }
 
         param3.mulPose(Vector3f.YP.rotationDegrees(var1));
         param3.translate(0.0, (double)(1.5F + var0 / 2.0F), 0.0);
         param3.mulPose(new Quaternion(new Vector3f(SIN_45, 0.0F, SIN_45), 60.0F, true));
-        this.glass.render(param3, var2, param5, var3, null);
+        this.glass.render(param3, var2, param5, var3);
         float var4 = 0.875F;
         param3.scale(0.875F, 0.875F, 0.875F);
         param3.mulPose(new Quaternion(new Vector3f(SIN_45, 0.0F, SIN_45), 60.0F, true));
         param3.mulPose(Vector3f.YP.rotationDegrees(var1));
-        this.glass.render(param3, var2, param5, var3, null);
+        this.glass.render(param3, var2, param5, var3);
         param3.scale(0.875F, 0.875F, 0.875F);
         param3.mulPose(new Quaternion(new Vector3f(SIN_45, 0.0F, SIN_45), 60.0F, true));
         param3.mulPose(Vector3f.YP.rotationDegrees(var1));
-        this.cube.render(param3, var2, param5, var3, null);
+        this.cube.render(param3, var2, param5, var3);
         param3.popPose();
         param3.popPose();
         BlockPos var5 = param0.getBeamTarget();

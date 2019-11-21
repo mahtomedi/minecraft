@@ -23,7 +23,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class MapRenderer implements AutoCloseable {
     public static final ResourceLocation MAP_BACKGROUND_LOCATION = new ResourceLocation("textures/map/map_background.png");
+    public static final RenderType MAP_BACKGROUND = RenderType.text(MAP_BACKGROUND_LOCATION);
     private static final ResourceLocation MAP_ICONS_LOCATION = new ResourceLocation("textures/map/map_icons.png");
+    private static final RenderType MAP_ICONS = RenderType.text(MAP_ICONS_LOCATION);
     private final TextureManager textureManager;
     private final Map<String, MapRenderer.MapInstance> maps = Maps.newHashMap();
 
@@ -76,12 +78,13 @@ public class MapRenderer implements AutoCloseable {
     class MapInstance implements AutoCloseable {
         private final MapItemSavedData data;
         private final DynamicTexture texture;
-        private final ResourceLocation location;
+        private final RenderType renderType;
 
         private MapInstance(MapItemSavedData param0) {
             this.data = param0;
             this.texture = new DynamicTexture(128, 128, true);
-            this.location = MapRenderer.this.textureManager.register("map/" + param0.getId(), this.texture);
+            ResourceLocation param1 = MapRenderer.this.textureManager.register("map/" + param0.getId(), this.texture);
+            this.renderType = RenderType.text(param1);
         }
 
         private void updateTexture() {
@@ -105,7 +108,7 @@ public class MapRenderer implements AutoCloseable {
             int var1 = 0;
             float var2 = 0.0F;
             Matrix4f var3 = param0.last().pose();
-            VertexConsumer var4 = param1.getBuffer(RenderType.text(this.location));
+            VertexConsumer var4 = param1.getBuffer(this.renderType);
             var4.vertex(var3, 0.0F, 128.0F, -0.01F).color(255, 255, 255, 255).uv(0.0F, 1.0F).uv2(param3).endVertex();
             var4.vertex(var3, 128.0F, 128.0F, -0.01F).color(255, 255, 255, 255).uv(1.0F, 1.0F).uv2(param3).endVertex();
             var4.vertex(var3, 128.0F, 0.0F, -0.01F).color(255, 255, 255, 255).uv(1.0F, 0.0F).uv2(param3).endVertex();
@@ -126,7 +129,7 @@ public class MapRenderer implements AutoCloseable {
                     float var11 = (float)(var7 / 16 + 1) / 16.0F;
                     Matrix4f var12 = param0.last().pose();
                     float var13 = -0.001F;
-                    VertexConsumer var14 = param1.getBuffer(RenderType.text(MapRenderer.MAP_ICONS_LOCATION));
+                    VertexConsumer var14 = param1.getBuffer(MapRenderer.MAP_ICONS);
                     var14.vertex(var12, -1.0F, 1.0F, (float)var5 * -0.001F).color(255, 255, 255, 255).uv(var8, var9).uv2(param3).endVertex();
                     var14.vertex(var12, 1.0F, 1.0F, (float)var5 * -0.001F).color(255, 255, 255, 255).uv(var10, var9).uv2(param3).endVertex();
                     var14.vertex(var12, 1.0F, -1.0F, (float)var5 * -0.001F).color(255, 255, 255, 255).uv(var10, var11).uv2(param3).endVertex();

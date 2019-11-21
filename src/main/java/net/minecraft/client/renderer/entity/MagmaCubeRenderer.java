@@ -16,6 +16,10 @@ public class MagmaCubeRenderer extends MobRenderer<MagmaCube, LavaSlimeModel<Mag
         super(param0, new LavaSlimeModel<>(), 0.25F);
     }
 
+    protected int getBlockLightLevel(MagmaCube param0, float param1) {
+        return 15;
+    }
+
     public ResourceLocation getTextureLocation(MagmaCube param0) {
         return MAGMACUBE_LOCATION;
     }

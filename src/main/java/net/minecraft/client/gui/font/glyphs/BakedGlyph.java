@@ -2,14 +2,14 @@ package net.minecraft.client.gui.font.glyphs;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix4f;
-import javax.annotation.Nullable;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class BakedGlyph {
-    private final ResourceLocation texture;
+    private final RenderType normalType;
+    private final RenderType seeThroughType;
     private final float u0;
     private final float u1;
     private final float v0;
@@ -19,16 +19,19 @@ public class BakedGlyph {
     private final float up;
     private final float down;
 
-    public BakedGlyph(ResourceLocation param0, float param1, float param2, float param3, float param4, float param5, float param6, float param7, float param8) {
-        this.texture = param0;
-        this.u0 = param1;
-        this.u1 = param2;
-        this.v0 = param3;
-        this.v1 = param4;
-        this.left = param5;
-        this.right = param6;
-        this.up = param7;
-        this.down = param8;
+    public BakedGlyph(
+        RenderType param0, RenderType param1, float param2, float param3, float param4, float param5, float param6, float param7, float param8, float param9
+    ) {
+        this.normalType = param0;
+        this.seeThroughType = param1;
+        this.u0 = param2;
+        this.u1 = param3;
+        this.v0 = param4;
+        this.v1 = param5;
+        this.left = param6;
+        this.right = param7;
+        this.up = param8;
+        this.down = param9;
     }
 
     public void render(
@@ -56,9 +59,8 @@ public class BakedGlyph {
         param2.vertex(param1, param0.x0, param0.y1, param0.depth).color(param0.r, param0.g, param0.b, param0.a).uv(this.u1, this.v0).uv2(param3).endVertex();
     }
 
-    @Nullable
-    public ResourceLocation getTexture() {
-        return this.texture;
+    public RenderType renderType(boolean param0) {
+        return param0 ? this.seeThroughType : this.normalType;
     }
 
     @OnlyIn(Dist.CLIENT)

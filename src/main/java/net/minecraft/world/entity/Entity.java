@@ -72,7 +72,6 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FenceGateBlock;
@@ -477,6 +476,7 @@ public abstract class Entity implements CommandSource, Nameable {
             if (this.stuckSpeedMultiplier.lengthSqr() > 1.0E-7) {
                 param1 = param1.multiply(this.stuckSpeedMultiplier);
                 this.stuckSpeedMultiplier = Vec3.ZERO;
+                this.setDeltaMovement(Vec3.ZERO);
             }
 
             param1 = this.maybeBackOffFromEdge(param1, param0);
@@ -1091,11 +1091,6 @@ public abstract class Entity implements CommandSource, Nameable {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public int getBlockLightLevel() {
-        return this.isOnFire() ? 15 : this.level.getBrightness(LightLayer.BLOCK, new BlockPos(this.getX(), this.getY(), this.getZ()));
-    }
-
     public float getBrightness() {
         BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos(this.getX(), 0.0, this.getZ());
         if (this.level.hasChunkAt(var0)) {
@@ -1254,7 +1249,7 @@ public abstract class Entity implements CommandSource, Nameable {
         return this.calculateViewVector(param0 - 90.0F, param1);
     }
 
-    public Vec3 getEyePosition(float param0) {
+    public final Vec3 getEyePosition(float param0) {
         if (param0 == 1.0F) {
             return new Vec3(this.getX(), this.getEyeY(), this.getZ());
         } else {

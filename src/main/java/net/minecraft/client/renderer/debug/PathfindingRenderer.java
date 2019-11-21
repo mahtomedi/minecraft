@@ -42,7 +42,7 @@ public class PathfindingRenderer implements DebugRenderer.SimpleDebugRenderer {
             }
 
             for(Integer var4 : this.creationMap.keySet().toArray(new Integer[0])) {
-                if (var0 - this.creationMap.get(var4) > 20000L) {
+                if (var0 - this.creationMap.get(var4) > 5000L) {
                     this.pathMap.remove(var4);
                     this.creationMap.remove(var4);
                 }
@@ -67,7 +67,7 @@ public class PathfindingRenderer implements DebugRenderer.SimpleDebugRenderer {
     private static void doRenderPath(Path param0, float param1, boolean param2, boolean param3, double param4, double param5, double param6) {
         renderPathLine(param0, param4, param5, param6);
         BlockPos var0 = param0.getTarget();
-        if (distanceToCamera(var0, param4, param5, param6) <= 40.0F) {
+        if (distanceToCamera(var0, param4, param5, param6) <= 80.0F) {
             DebugRenderer.renderFilledBox(
                 new AABB(
                         (double)((float)var0.getX() + 0.25F),
@@ -86,7 +86,7 @@ public class PathfindingRenderer implements DebugRenderer.SimpleDebugRenderer {
 
             for(int var1 = 0; var1 < param0.getSize(); ++var1) {
                 Node var2 = param0.get(var1);
-                if (distanceToCamera(var2.asBlockPos(), param4, param5, param6) <= 40.0F) {
+                if (distanceToCamera(var2.asBlockPos(), param4, param5, param6) <= 80.0F) {
                     float var3 = var1 == param0.getIndex() ? 1.0F : 0.0F;
                     float var4 = var1 == param0.getIndex() ? 0.0F : 1.0F;
                     DebugRenderer.renderFilledBox(
@@ -110,21 +110,41 @@ public class PathfindingRenderer implements DebugRenderer.SimpleDebugRenderer {
 
         if (param2) {
             for(Node var5 : param0.getClosedSet()) {
-                if (distanceToCamera(var5.asBlockPos(), param4, param5, param6) <= 40.0F) {
-                    DebugRenderer.renderFloatingText(String.format("%s", var5.type), (double)var5.x + 0.5, (double)var5.y + 0.75, (double)var5.z + 0.5, -65536);
-                    DebugRenderer.renderFloatingText(
-                        String.format(Locale.ROOT, "%.2f", var5.costMalus), (double)var5.x + 0.5, (double)var5.y + 0.25, (double)var5.z + 0.5, -65536
+                if (distanceToCamera(var5.asBlockPos(), param4, param5, param6) <= 80.0F) {
+                    DebugRenderer.renderFilledBox(
+                        new AABB(
+                                (double)((float)var5.x + 0.5F - param1 / 2.0F),
+                                (double)((float)var5.y + 0.01F),
+                                (double)((float)var5.z + 0.5F - param1 / 2.0F),
+                                (double)((float)var5.x + 0.5F + param1 / 2.0F),
+                                (double)var5.y + 0.1,
+                                (double)((float)var5.z + 0.5F + param1 / 2.0F)
+                            )
+                            .move(-param4, -param5, -param6),
+                        1.0F,
+                        0.8F,
+                        0.8F,
+                        0.5F
                     );
                 }
             }
 
             for(Node var6 : param0.getOpenSet()) {
-                if (distanceToCamera(var6.asBlockPos(), param4, param5, param6) <= 40.0F) {
-                    DebugRenderer.renderFloatingText(
-                        String.format("%s", var6.type), (double)var6.x + 0.5, (double)var6.y + 0.75, (double)var6.z + 0.5, -16776961
-                    );
-                    DebugRenderer.renderFloatingText(
-                        String.format(Locale.ROOT, "%.2f", var6.costMalus), (double)var6.x + 0.5, (double)var6.y + 0.25, (double)var6.z + 0.5, -16776961
+                if (distanceToCamera(var6.asBlockPos(), param4, param5, param6) <= 80.0F) {
+                    DebugRenderer.renderFilledBox(
+                        new AABB(
+                                (double)((float)var6.x + 0.5F - param1 / 2.0F),
+                                (double)((float)var6.y + 0.01F),
+                                (double)((float)var6.z + 0.5F - param1 / 2.0F),
+                                (double)((float)var6.x + 0.5F + param1 / 2.0F),
+                                (double)var6.y + 0.1,
+                                (double)((float)var6.z + 0.5F + param1 / 2.0F)
+                            )
+                            .move(-param4, -param5, -param6),
+                        0.8F,
+                        1.0F,
+                        1.0F,
+                        0.5F
                     );
                 }
             }
@@ -133,7 +153,7 @@ public class PathfindingRenderer implements DebugRenderer.SimpleDebugRenderer {
         if (param3) {
             for(int var7 = 0; var7 < param0.getSize(); ++var7) {
                 Node var8 = param0.get(var7);
-                if (distanceToCamera(var8.asBlockPos(), param4, param5, param6) <= 40.0F) {
+                if (distanceToCamera(var8.asBlockPos(), param4, param5, param6) <= 80.0F) {
                     DebugRenderer.renderFloatingText(String.format("%s", var8.type), (double)var8.x + 0.5, (double)var8.y + 0.75, (double)var8.z + 0.5, -1);
                     DebugRenderer.renderFloatingText(
                         String.format(Locale.ROOT, "%.2f", var8.costMalus), (double)var8.x + 0.5, (double)var8.y + 0.25, (double)var8.z + 0.5, -1
@@ -151,7 +171,7 @@ public class PathfindingRenderer implements DebugRenderer.SimpleDebugRenderer {
 
         for(int var2 = 0; var2 < param0.getSize(); ++var2) {
             Node var3 = param0.get(var2);
-            if (!(distanceToCamera(var3.asBlockPos(), param1, param2, param3) > 40.0F)) {
+            if (!(distanceToCamera(var3.asBlockPos(), param1, param2, param3) > 80.0F)) {
                 float var4 = (float)var2 / (float)param0.getSize() * 0.33F;
                 int var5 = var2 == 0 ? 0 : Mth.hsvToRgb(var4, 0.9F, 0.9F);
                 int var6 = var5 >> 16 & 0xFF;

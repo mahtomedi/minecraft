@@ -15,15 +15,22 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class ThrownItemRenderer<T extends Entity & ItemSupplier> extends EntityRenderer<T> {
     private final ItemRenderer itemRenderer;
     private final float scale;
+    private final boolean fullBright;
 
-    public ThrownItemRenderer(EntityRenderDispatcher param0, ItemRenderer param1, float param2) {
+    public ThrownItemRenderer(EntityRenderDispatcher param0, ItemRenderer param1, float param2, boolean param3) {
         super(param0);
         this.itemRenderer = param1;
         this.scale = param2;
+        this.fullBright = param3;
     }
 
     public ThrownItemRenderer(EntityRenderDispatcher param0, ItemRenderer param1) {
-        this(param0, param1, 1.0F);
+        this(param0, param1, 1.0F, false);
+    }
+
+    @Override
+    protected int getBlockLightLevel(T param0, float param1) {
+        return this.fullBright ? 15 : super.getBlockLightLevel(param0, param1);
     }
 
     @Override

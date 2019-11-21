@@ -1,24 +1,51 @@
 package com.mojang.math;
 
 import java.nio.FloatBuffer;
-import java.util.Arrays;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public final class Matrix4f {
-    private final float[] values;
+    protected float m00;
+    protected float m01;
+    protected float m02;
+    protected float m03;
+    protected float m10;
+    protected float m11;
+    protected float m12;
+    protected float m13;
+    protected float m20;
+    protected float m21;
+    protected float m22;
+    protected float m23;
+    protected float m30;
+    protected float m31;
+    protected float m32;
+    protected float m33;
 
     public Matrix4f() {
-        this(new float[16]);
     }
 
-    public Matrix4f(float[] param0) {
-        this.values = param0;
+    public Matrix4f(Matrix4f param0) {
+        this.m00 = param0.m00;
+        this.m01 = param0.m01;
+        this.m02 = param0.m02;
+        this.m03 = param0.m03;
+        this.m10 = param0.m10;
+        this.m11 = param0.m11;
+        this.m12 = param0.m12;
+        this.m13 = param0.m13;
+        this.m20 = param0.m20;
+        this.m21 = param0.m21;
+        this.m22 = param0.m22;
+        this.m23 = param0.m23;
+        this.m30 = param0.m30;
+        this.m31 = param0.m31;
+        this.m32 = param0.m32;
+        this.m33 = param0.m33;
     }
 
     public Matrix4f(Quaternion param0) {
-        this();
         float var0 = param0.i();
         float var1 = param0.j();
         float var2 = param0.k();
@@ -26,22 +53,22 @@ public final class Matrix4f {
         float var4 = 2.0F * var0 * var0;
         float var5 = 2.0F * var1 * var1;
         float var6 = 2.0F * var2 * var2;
-        this.set(0, 0, 1.0F - var5 - var6);
-        this.set(1, 1, 1.0F - var6 - var4);
-        this.set(2, 2, 1.0F - var4 - var5);
-        this.set(3, 3, 1.0F);
+        this.m00 = 1.0F - var5 - var6;
+        this.m11 = 1.0F - var6 - var4;
+        this.m22 = 1.0F - var4 - var5;
+        this.m33 = 1.0F;
         float var7 = var0 * var1;
         float var8 = var1 * var2;
         float var9 = var2 * var0;
         float var10 = var0 * var3;
         float var11 = var1 * var3;
         float var12 = var2 * var3;
-        this.set(1, 0, 2.0F * (var7 + var12));
-        this.set(0, 1, 2.0F * (var7 - var12));
-        this.set(2, 0, 2.0F * (var9 - var11));
-        this.set(0, 2, 2.0F * (var9 + var11));
-        this.set(2, 1, 2.0F * (var8 + var10));
-        this.set(1, 2, 2.0F * (var8 - var10));
+        this.m10 = 2.0F * (var7 + var12);
+        this.m01 = 2.0F * (var7 - var12);
+        this.m20 = 2.0F * (var9 - var11);
+        this.m02 = 2.0F * (var9 + var11);
+        this.m21 = 2.0F * (var8 + var10);
+        this.m12 = 2.0F * (var8 - var10);
     }
 
     @Override
@@ -50,7 +77,22 @@ public final class Matrix4f {
             return true;
         } else if (param0 != null && this.getClass() == param0.getClass()) {
             Matrix4f var0 = (Matrix4f)param0;
-            return Arrays.equals(this.values, var0.values);
+            return Float.compare(var0.m00, this.m00) == 0
+                && Float.compare(var0.m01, this.m01) == 0
+                && Float.compare(var0.m02, this.m02) == 0
+                && Float.compare(var0.m03, this.m03) == 0
+                && Float.compare(var0.m10, this.m10) == 0
+                && Float.compare(var0.m11, this.m11) == 0
+                && Float.compare(var0.m12, this.m12) == 0
+                && Float.compare(var0.m13, this.m13) == 0
+                && Float.compare(var0.m20, this.m20) == 0
+                && Float.compare(var0.m21, this.m21) == 0
+                && Float.compare(var0.m22, this.m22) == 0
+                && Float.compare(var0.m23, this.m23) == 0
+                && Float.compare(var0.m30, this.m30) == 0
+                && Float.compare(var0.m31, this.m31) == 0
+                && Float.compare(var0.m32, this.m32) == 0
+                && Float.compare(var0.m33, this.m33) == 0;
         } else {
             return false;
         }
@@ -58,133 +100,172 @@ public final class Matrix4f {
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(this.values);
+        int var0 = this.m00 != 0.0F ? Float.floatToIntBits(this.m00) : 0;
+        var0 = 31 * var0 + (this.m01 != 0.0F ? Float.floatToIntBits(this.m01) : 0);
+        var0 = 31 * var0 + (this.m02 != 0.0F ? Float.floatToIntBits(this.m02) : 0);
+        var0 = 31 * var0 + (this.m03 != 0.0F ? Float.floatToIntBits(this.m03) : 0);
+        var0 = 31 * var0 + (this.m10 != 0.0F ? Float.floatToIntBits(this.m10) : 0);
+        var0 = 31 * var0 + (this.m11 != 0.0F ? Float.floatToIntBits(this.m11) : 0);
+        var0 = 31 * var0 + (this.m12 != 0.0F ? Float.floatToIntBits(this.m12) : 0);
+        var0 = 31 * var0 + (this.m13 != 0.0F ? Float.floatToIntBits(this.m13) : 0);
+        var0 = 31 * var0 + (this.m20 != 0.0F ? Float.floatToIntBits(this.m20) : 0);
+        var0 = 31 * var0 + (this.m21 != 0.0F ? Float.floatToIntBits(this.m21) : 0);
+        var0 = 31 * var0 + (this.m22 != 0.0F ? Float.floatToIntBits(this.m22) : 0);
+        var0 = 31 * var0 + (this.m23 != 0.0F ? Float.floatToIntBits(this.m23) : 0);
+        var0 = 31 * var0 + (this.m30 != 0.0F ? Float.floatToIntBits(this.m30) : 0);
+        var0 = 31 * var0 + (this.m31 != 0.0F ? Float.floatToIntBits(this.m31) : 0);
+        var0 = 31 * var0 + (this.m32 != 0.0F ? Float.floatToIntBits(this.m32) : 0);
+        return 31 * var0 + (this.m33 != 0.0F ? Float.floatToIntBits(this.m33) : 0);
+    }
+
+    private static int bufferIndex(int param0, int param1) {
+        return param1 * 4 + param0;
     }
 
     @Override
     public String toString() {
         StringBuilder var0 = new StringBuilder();
         var0.append("Matrix4f:\n");
-
-        for(int var1 = 0; var1 < 4; ++var1) {
-            for(int var2 = 0; var2 < 4; ++var2) {
-                var0.append(this.values[var1 + var2 * 4]);
-                if (var2 != 3) {
-                    var0.append(" ");
-                }
-            }
-
-            var0.append("\n");
-        }
-
+        var0.append(this.m00);
+        var0.append(" ");
+        var0.append(this.m01);
+        var0.append(" ");
+        var0.append(this.m02);
+        var0.append(" ");
+        var0.append(this.m03);
+        var0.append("\n");
+        var0.append(this.m10);
+        var0.append(" ");
+        var0.append(this.m11);
+        var0.append(" ");
+        var0.append(this.m12);
+        var0.append(" ");
+        var0.append(this.m13);
+        var0.append("\n");
+        var0.append(this.m20);
+        var0.append(" ");
+        var0.append(this.m21);
+        var0.append(" ");
+        var0.append(this.m22);
+        var0.append(" ");
+        var0.append(this.m23);
+        var0.append("\n");
+        var0.append(this.m30);
+        var0.append(" ");
+        var0.append(this.m31);
+        var0.append(" ");
+        var0.append(this.m32);
+        var0.append(" ");
+        var0.append(this.m33);
+        var0.append("\n");
         return var0.toString();
     }
 
     public void store(FloatBuffer param0) {
-        this.store(param0, false);
-    }
-
-    public void store(FloatBuffer param0, boolean param1) {
-        if (param1) {
-            for(int var0 = 0; var0 < 4; ++var0) {
-                for(int var1 = 0; var1 < 4; ++var1) {
-                    param0.put(var1 * 4 + var0, this.values[var0 * 4 + var1]);
-                }
-            }
-        } else {
-            param0.put(this.values);
-        }
-
+        param0.put(bufferIndex(0, 0), this.m00);
+        param0.put(bufferIndex(0, 1), this.m01);
+        param0.put(bufferIndex(0, 2), this.m02);
+        param0.put(bufferIndex(0, 3), this.m03);
+        param0.put(bufferIndex(1, 0), this.m10);
+        param0.put(bufferIndex(1, 1), this.m11);
+        param0.put(bufferIndex(1, 2), this.m12);
+        param0.put(bufferIndex(1, 3), this.m13);
+        param0.put(bufferIndex(2, 0), this.m20);
+        param0.put(bufferIndex(2, 1), this.m21);
+        param0.put(bufferIndex(2, 2), this.m22);
+        param0.put(bufferIndex(2, 3), this.m23);
+        param0.put(bufferIndex(3, 0), this.m30);
+        param0.put(bufferIndex(3, 1), this.m31);
+        param0.put(bufferIndex(3, 2), this.m32);
+        param0.put(bufferIndex(3, 3), this.m33);
     }
 
     public void setIdentity() {
-        this.values[0] = 1.0F;
-        this.values[1] = 0.0F;
-        this.values[2] = 0.0F;
-        this.values[3] = 0.0F;
-        this.values[4] = 0.0F;
-        this.values[5] = 1.0F;
-        this.values[6] = 0.0F;
-        this.values[7] = 0.0F;
-        this.values[8] = 0.0F;
-        this.values[9] = 0.0F;
-        this.values[10] = 1.0F;
-        this.values[11] = 0.0F;
-        this.values[12] = 0.0F;
-        this.values[13] = 0.0F;
-        this.values[14] = 0.0F;
-        this.values[15] = 1.0F;
-    }
-
-    public float get(int param0, int param1) {
-        return this.values[4 * param1 + param0];
-    }
-
-    public void set(int param0, int param1, float param2) {
-        this.values[4 * param1 + param0] = param2;
+        this.m00 = 1.0F;
+        this.m01 = 0.0F;
+        this.m02 = 0.0F;
+        this.m03 = 0.0F;
+        this.m10 = 0.0F;
+        this.m11 = 1.0F;
+        this.m12 = 0.0F;
+        this.m13 = 0.0F;
+        this.m20 = 0.0F;
+        this.m21 = 0.0F;
+        this.m22 = 1.0F;
+        this.m23 = 0.0F;
+        this.m30 = 0.0F;
+        this.m31 = 0.0F;
+        this.m32 = 0.0F;
+        this.m33 = 1.0F;
     }
 
     public float adjugateAndDet() {
-        float var0 = this.det2(0, 1, 0, 1);
-        float var1 = this.det2(0, 1, 0, 2);
-        float var2 = this.det2(0, 1, 0, 3);
-        float var3 = this.det2(0, 1, 1, 2);
-        float var4 = this.det2(0, 1, 1, 3);
-        float var5 = this.det2(0, 1, 2, 3);
-        float var6 = this.det2(2, 3, 0, 1);
-        float var7 = this.det2(2, 3, 0, 2);
-        float var8 = this.det2(2, 3, 0, 3);
-        float var9 = this.det2(2, 3, 1, 2);
-        float var10 = this.det2(2, 3, 1, 3);
-        float var11 = this.det2(2, 3, 2, 3);
-        float var12 = this.get(1, 1) * var11 - this.get(1, 2) * var10 + this.get(1, 3) * var9;
-        float var13 = -this.get(1, 0) * var11 + this.get(1, 2) * var8 - this.get(1, 3) * var7;
-        float var14 = this.get(1, 0) * var10 - this.get(1, 1) * var8 + this.get(1, 3) * var6;
-        float var15 = -this.get(1, 0) * var9 + this.get(1, 1) * var7 - this.get(1, 2) * var6;
-        float var16 = -this.get(0, 1) * var11 + this.get(0, 2) * var10 - this.get(0, 3) * var9;
-        float var17 = this.get(0, 0) * var11 - this.get(0, 2) * var8 + this.get(0, 3) * var7;
-        float var18 = -this.get(0, 0) * var10 + this.get(0, 1) * var8 - this.get(0, 3) * var6;
-        float var19 = this.get(0, 0) * var9 - this.get(0, 1) * var7 + this.get(0, 2) * var6;
-        float var20 = this.get(3, 1) * var5 - this.get(3, 2) * var4 + this.get(3, 3) * var3;
-        float var21 = -this.get(3, 0) * var5 + this.get(3, 2) * var2 - this.get(3, 3) * var1;
-        float var22 = this.get(3, 0) * var4 - this.get(3, 1) * var2 + this.get(3, 3) * var0;
-        float var23 = -this.get(3, 0) * var3 + this.get(3, 1) * var1 - this.get(3, 2) * var0;
-        float var24 = -this.get(2, 1) * var5 + this.get(2, 2) * var4 - this.get(2, 3) * var3;
-        float var25 = this.get(2, 0) * var5 - this.get(2, 2) * var2 + this.get(2, 3) * var1;
-        float var26 = -this.get(2, 0) * var4 + this.get(2, 1) * var2 - this.get(2, 3) * var0;
-        float var27 = this.get(2, 0) * var3 - this.get(2, 1) * var1 + this.get(2, 2) * var0;
-        this.set(0, 0, var12);
-        this.set(1, 0, var13);
-        this.set(2, 0, var14);
-        this.set(3, 0, var15);
-        this.set(0, 1, var16);
-        this.set(1, 1, var17);
-        this.set(2, 1, var18);
-        this.set(3, 1, var19);
-        this.set(0, 2, var20);
-        this.set(1, 2, var21);
-        this.set(2, 2, var22);
-        this.set(3, 2, var23);
-        this.set(0, 3, var24);
-        this.set(1, 3, var25);
-        this.set(2, 3, var26);
-        this.set(3, 3, var27);
+        float var0 = this.m00 * this.m11 - this.m01 * this.m10;
+        float var1 = this.m00 * this.m12 - this.m02 * this.m10;
+        float var2 = this.m00 * this.m13 - this.m03 * this.m10;
+        float var3 = this.m01 * this.m12 - this.m02 * this.m11;
+        float var4 = this.m01 * this.m13 - this.m03 * this.m11;
+        float var5 = this.m02 * this.m13 - this.m03 * this.m12;
+        float var6 = this.m20 * this.m31 - this.m21 * this.m30;
+        float var7 = this.m20 * this.m32 - this.m22 * this.m30;
+        float var8 = this.m20 * this.m33 - this.m23 * this.m30;
+        float var9 = this.m21 * this.m32 - this.m22 * this.m31;
+        float var10 = this.m21 * this.m33 - this.m23 * this.m31;
+        float var11 = this.m22 * this.m33 - this.m23 * this.m32;
+        float var12 = this.m11 * var11 - this.m12 * var10 + this.m13 * var9;
+        float var13 = -this.m10 * var11 + this.m12 * var8 - this.m13 * var7;
+        float var14 = this.m10 * var10 - this.m11 * var8 + this.m13 * var6;
+        float var15 = -this.m10 * var9 + this.m11 * var7 - this.m12 * var6;
+        float var16 = -this.m01 * var11 + this.m02 * var10 - this.m03 * var9;
+        float var17 = this.m00 * var11 - this.m02 * var8 + this.m03 * var7;
+        float var18 = -this.m00 * var10 + this.m01 * var8 - this.m03 * var6;
+        float var19 = this.m00 * var9 - this.m01 * var7 + this.m02 * var6;
+        float var20 = this.m31 * var5 - this.m32 * var4 + this.m33 * var3;
+        float var21 = -this.m30 * var5 + this.m32 * var2 - this.m33 * var1;
+        float var22 = this.m30 * var4 - this.m31 * var2 + this.m33 * var0;
+        float var23 = -this.m30 * var3 + this.m31 * var1 - this.m32 * var0;
+        float var24 = -this.m21 * var5 + this.m22 * var4 - this.m23 * var3;
+        float var25 = this.m20 * var5 - this.m22 * var2 + this.m23 * var1;
+        float var26 = -this.m20 * var4 + this.m21 * var2 - this.m23 * var0;
+        float var27 = this.m20 * var3 - this.m21 * var1 + this.m22 * var0;
+        this.m00 = var12;
+        this.m10 = var13;
+        this.m20 = var14;
+        this.m30 = var15;
+        this.m01 = var16;
+        this.m11 = var17;
+        this.m21 = var18;
+        this.m31 = var19;
+        this.m02 = var20;
+        this.m12 = var21;
+        this.m22 = var22;
+        this.m32 = var23;
+        this.m03 = var24;
+        this.m13 = var25;
+        this.m23 = var26;
+        this.m33 = var27;
         return var0 * var11 - var1 * var10 + var2 * var9 + var3 * var8 - var4 * var7 + var5 * var6;
     }
 
     public void transpose() {
-        for(int var0 = 0; var0 < 4; ++var0) {
-            for(int var1 = 0; var1 < var0; ++var1) {
-                this.swap(var0, var1);
-            }
-        }
-
-    }
-
-    private void swap(int param0, int param1) {
-        float var0 = this.values[param0 + param1 * 4];
-        this.values[param0 + param1 * 4] = this.values[param1 + param0 * 4];
-        this.values[param1 + param0 * 4] = var0;
+        float var0 = this.m10;
+        this.m10 = this.m01;
+        this.m01 = var0;
+        var0 = this.m20;
+        this.m20 = this.m02;
+        this.m02 = var0;
+        var0 = this.m21;
+        this.m21 = this.m12;
+        this.m12 = var0;
+        var0 = this.m30;
+        this.m30 = this.m03;
+        this.m03 = var0;
+        var0 = this.m31;
+        this.m31 = this.m13;
+        this.m13 = var0;
+        var0 = this.m32;
+        this.m32 = this.m23;
+        this.m23 = var0;
     }
 
     public boolean invert() {
@@ -197,23 +278,39 @@ public final class Matrix4f {
         }
     }
 
-    private float det2(int param0, int param1, int param2, int param3) {
-        return this.get(param0, param2) * this.get(param1, param3) - this.get(param0, param3) * this.get(param1, param2);
-    }
-
     public void multiply(Matrix4f param0) {
-        float[] var0 = Arrays.copyOf(this.values, 16);
-
-        for(int var1 = 0; var1 < 4; ++var1) {
-            for(int var2 = 0; var2 < 4; ++var2) {
-                this.values[var1 + var2 * 4] = 0.0F;
-
-                for(int var3 = 0; var3 < 4; ++var3) {
-                    this.values[var1 + var2 * 4] += var0[var1 + var3 * 4] * param0.values[var3 + var2 * 4];
-                }
-            }
-        }
-
+        float var0 = this.m00 * param0.m00 + this.m01 * param0.m10 + this.m02 * param0.m20 + this.m03 * param0.m30;
+        float var1 = this.m00 * param0.m01 + this.m01 * param0.m11 + this.m02 * param0.m21 + this.m03 * param0.m31;
+        float var2 = this.m00 * param0.m02 + this.m01 * param0.m12 + this.m02 * param0.m22 + this.m03 * param0.m32;
+        float var3 = this.m00 * param0.m03 + this.m01 * param0.m13 + this.m02 * param0.m23 + this.m03 * param0.m33;
+        float var4 = this.m10 * param0.m00 + this.m11 * param0.m10 + this.m12 * param0.m20 + this.m13 * param0.m30;
+        float var5 = this.m10 * param0.m01 + this.m11 * param0.m11 + this.m12 * param0.m21 + this.m13 * param0.m31;
+        float var6 = this.m10 * param0.m02 + this.m11 * param0.m12 + this.m12 * param0.m22 + this.m13 * param0.m32;
+        float var7 = this.m10 * param0.m03 + this.m11 * param0.m13 + this.m12 * param0.m23 + this.m13 * param0.m33;
+        float var8 = this.m20 * param0.m00 + this.m21 * param0.m10 + this.m22 * param0.m20 + this.m23 * param0.m30;
+        float var9 = this.m20 * param0.m01 + this.m21 * param0.m11 + this.m22 * param0.m21 + this.m23 * param0.m31;
+        float var10 = this.m20 * param0.m02 + this.m21 * param0.m12 + this.m22 * param0.m22 + this.m23 * param0.m32;
+        float var11 = this.m20 * param0.m03 + this.m21 * param0.m13 + this.m22 * param0.m23 + this.m23 * param0.m33;
+        float var12 = this.m30 * param0.m00 + this.m31 * param0.m10 + this.m32 * param0.m20 + this.m33 * param0.m30;
+        float var13 = this.m30 * param0.m01 + this.m31 * param0.m11 + this.m32 * param0.m21 + this.m33 * param0.m31;
+        float var14 = this.m30 * param0.m02 + this.m31 * param0.m12 + this.m32 * param0.m22 + this.m33 * param0.m32;
+        float var15 = this.m30 * param0.m03 + this.m31 * param0.m13 + this.m32 * param0.m23 + this.m33 * param0.m33;
+        this.m00 = var0;
+        this.m01 = var1;
+        this.m02 = var2;
+        this.m03 = var3;
+        this.m10 = var4;
+        this.m11 = var5;
+        this.m12 = var6;
+        this.m13 = var7;
+        this.m20 = var8;
+        this.m21 = var9;
+        this.m22 = var10;
+        this.m23 = var11;
+        this.m30 = var12;
+        this.m31 = var13;
+        this.m32 = var14;
+        this.m33 = var15;
     }
 
     public void multiply(Quaternion param0) {
@@ -221,43 +318,76 @@ public final class Matrix4f {
     }
 
     public void multiply(float param0) {
-        for(int var0 = 0; var0 < 16; ++var0) {
-            this.values[var0] *= param0;
-        }
-
+        this.m00 *= param0;
+        this.m01 *= param0;
+        this.m02 *= param0;
+        this.m03 *= param0;
+        this.m10 *= param0;
+        this.m11 *= param0;
+        this.m12 *= param0;
+        this.m13 *= param0;
+        this.m20 *= param0;
+        this.m21 *= param0;
+        this.m22 *= param0;
+        this.m23 *= param0;
+        this.m30 *= param0;
+        this.m31 *= param0;
+        this.m32 *= param0;
+        this.m33 *= param0;
     }
 
     public static Matrix4f perspective(double param0, float param1, float param2, float param3) {
         float var0 = (float)(1.0 / Math.tan(param0 * (float) (Math.PI / 180.0) / 2.0));
         Matrix4f var1 = new Matrix4f();
-        var1.set(0, 0, var0 / param1);
-        var1.set(1, 1, var0);
-        var1.set(2, 2, (param3 + param2) / (param2 - param3));
-        var1.set(3, 2, -1.0F);
-        var1.set(2, 3, 2.0F * param3 * param2 / (param2 - param3));
+        var1.m00 = var0 / param1;
+        var1.m11 = var0;
+        var1.m22 = (param3 + param2) / (param2 - param3);
+        var1.m32 = -1.0F;
+        var1.m23 = 2.0F * param3 * param2 / (param2 - param3);
         return var1;
     }
 
     public static Matrix4f orthographic(float param0, float param1, float param2, float param3) {
         Matrix4f var0 = new Matrix4f();
-        var0.set(0, 0, 2.0F / param0);
-        var0.set(1, 1, 2.0F / param1);
+        var0.m00 = 2.0F / param0;
+        var0.m11 = 2.0F / param1;
         float var1 = param3 - param2;
-        var0.set(2, 2, -2.0F / var1);
-        var0.set(3, 3, 1.0F);
-        var0.set(0, 3, -1.0F);
-        var0.set(1, 3, -1.0F);
-        var0.set(2, 3, -(param3 + param2) / var1);
+        var0.m22 = -2.0F / var1;
+        var0.m33 = 1.0F;
+        var0.m03 = -1.0F;
+        var0.m13 = -1.0F;
+        var0.m23 = -(param3 + param2) / var1;
         return var0;
     }
 
     public void translate(Vector3f param0) {
-        this.set(0, 3, this.get(0, 3) + param0.x());
-        this.set(1, 3, this.get(1, 3) + param0.y());
-        this.set(2, 3, this.get(2, 3) + param0.z());
+        this.m03 += param0.x();
+        this.m13 += param0.y();
+        this.m23 += param0.z();
     }
 
     public Matrix4f copy() {
-        return new Matrix4f((float[])this.values.clone());
+        return new Matrix4f(this);
+    }
+
+    public static Matrix4f createScaleMatrix(float param0, float param1, float param2) {
+        Matrix4f var0 = new Matrix4f();
+        var0.m00 = param0;
+        var0.m11 = param1;
+        var0.m22 = param2;
+        var0.m33 = 1.0F;
+        return var0;
+    }
+
+    public static Matrix4f createTranslateMatrix(float param0, float param1, float param2) {
+        Matrix4f var0 = new Matrix4f();
+        var0.m00 = 1.0F;
+        var0.m11 = 1.0F;
+        var0.m22 = 1.0F;
+        var0.m33 = 1.0F;
+        var0.m03 = param0;
+        var0.m13 = param1;
+        var0.m23 = param2;
+        return var0;
     }
 }

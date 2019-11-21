@@ -448,13 +448,13 @@ public class Gui extends GuiComponent {
                     int var13 = var8;
                     float var14 = var9;
                     var4.add(() -> {
+                        this.minecraft.getTextureManager().bind(var11.atlas().location());
                         RenderSystem.color4f(1.0F, 1.0F, 1.0F, var14);
                         blit(var12 + 3, var13 + 3, this.getBlitOffset(), 18, 18, var11);
                     });
                 }
             }
 
-            this.minecraft.getTextureManager().bind(TextureAtlas.LOCATION_MOB_EFFECTS);
             var4.forEach(Runnable::run);
         }
     }

@@ -15,18 +15,23 @@ import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class SignBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     protected static final VoxelShape SHAPE = Block.box(4.0, 0.0, 4.0, 12.0, 16.0, 12.0);
+    private final WoodType type;
 
-    protected SignBlock(Block.Properties param0) {
+    protected SignBlock(Block.Properties param0, WoodType param1) {
         super(param0);
+        this.type = param1;
     }
 
     @Override
@@ -80,5 +85,10 @@ public abstract class SignBlock extends BaseEntityBlock implements SimpleWaterlo
     @Override
     public FluidState getFluidState(BlockState param0) {
         return param0.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(param0);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public WoodType type() {
+        return this.type;
     }
 }

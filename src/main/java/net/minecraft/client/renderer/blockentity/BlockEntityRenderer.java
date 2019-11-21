@@ -1,10 +1,7 @@
 package net.minecraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -18,10 +15,6 @@ public abstract class BlockEntityRenderer<T extends BlockEntity> {
     }
 
     public abstract void render(T var1, float var2, PoseStack var3, MultiBufferSource var4, int var5, int var6);
-
-    protected TextureAtlasSprite getSprite(ResourceLocation param0) {
-        return Minecraft.getInstance().getTextureAtlas().getSprite(param0);
-    }
 
     public boolean shouldRenderOffScreen(T param0) {
         return false;

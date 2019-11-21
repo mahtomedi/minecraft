@@ -101,7 +101,7 @@ public class ToastComponent extends GuiComponent {
             }
 
             RenderSystem.pushMatrix();
-            RenderSystem.translatef((float)param0 - 160.0F * this.getVisibility(var0), (float)(param1 * 32), (float)(500 + param1));
+            RenderSystem.translatef((float)param0 - 160.0F * this.getVisibility(var0), (float)(param1 * 32), (float)(800 + param1));
             Toast.Visibility var1 = this.toast.render(ToastComponent.this, var0 - this.visibleTime);
             RenderSystem.popMatrix();
             if (var1 != this.visibility) {

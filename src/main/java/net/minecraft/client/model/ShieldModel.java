@@ -31,8 +31,8 @@ public class ShieldModel extends Model {
     }
 
     @Override
-    public void renderToBuffer(PoseStack param0, VertexConsumer param1, int param2, int param3, float param4, float param5, float param6) {
-        this.plate.render(param0, param1, param2, param3, null, param4, param5, param6);
-        this.handle.render(param0, param1, param2, param3, null, param4, param5, param6);
+    public void renderToBuffer(PoseStack param0, VertexConsumer param1, int param2, int param3, float param4, float param5, float param6, float param7) {
+        this.plate.render(param0, param1, param2, param3, param4, param5, param6, param7);
+        this.handle.render(param0, param1, param2, param3, param4, param5, param6, param7);
     }
 }

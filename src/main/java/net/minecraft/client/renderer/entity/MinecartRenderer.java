@@ -90,7 +90,7 @@ public class MinecartRenderer<T extends AbstractMinecart> extends EntityRenderer
         param3.scale(-1.0F, -1.0F, 1.0F);
         this.model.setupAnim(param0, 0.0F, 0.0F, -0.1F, 0.0F, 0.0F);
         VertexConsumer var18 = param4.getBuffer(this.model.renderType(this.getTextureLocation(param0)));
-        this.model.renderToBuffer(param3, var18, param5, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F);
+        this.model.renderToBuffer(param3, var18, param5, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
         param3.popPose();
     }
 

@@ -114,6 +114,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelConflictException;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.LevelType;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.saveddata.SaveDataDirtyRunnable;
 import net.minecraft.world.level.storage.CommandStorage;
@@ -449,6 +451,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
         this.packRepository.setSelected(var0);
         this.updateSelectedPacks(param1);
+        this.refreshRegistries();
     }
 
     protected void prepareLevels(ChunkProgressListener param0) {
@@ -1416,6 +1419,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             this.packRepository.reload();
             this.updateSelectedPacks(this.getLevel(DimensionType.OVERWORLD).getLevelData());
             this.getPlayerList().reloadResources();
+            this.refreshRegistries();
         }
     }
 
@@ -1663,5 +1667,9 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             }
         }
 
+    }
+
+    private void refreshRegistries() {
+        Block.BLOCK_STATE_REGISTRY.forEach(BlockState::initCache);
     }
 }

@@ -5,6 +5,7 @@ import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -15,25 +16,12 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class RenderStateShard {
+public abstract class RenderStateShard {
     protected final String name;
     private final Runnable setupState;
     private final Runnable clearState;
     protected static final RenderStateShard.TransparencyStateShard NO_TRANSPARENCY = new RenderStateShard.TransparencyStateShard(
         "no_transparency", () -> RenderSystem.disableBlend(), () -> {
-        }
-    );
-    protected static final RenderStateShard.TransparencyStateShard FORCED_TRANSPARENCY = new RenderStateShard.TransparencyStateShard(
-        "forced_transparency", () -> {
-            RenderSystem.enableBlend();
-            RenderSystem.blendColor(1.0F, 1.0F, 1.0F, 0.15F);
-            RenderSystem.blendFunc(GlStateManager.SourceFactor.CONSTANT_ALPHA, GlStateManager.DestFactor.ONE_MINUS_CONSTANT_ALPHA);
-            RenderSystem.depthMask(false);
-        }, () -> {
-            RenderSystem.disableBlend();
-            RenderSystem.defaultBlendFunc();
-            RenderSystem.blendColor(1.0F, 1.0F, 1.0F, 1.0F);
-            RenderSystem.depthMask(true);
         }
     );
     protected static final RenderStateShard.TransparencyStateShard ADDITIVE_TRANSPARENCY = new RenderStateShard.TransparencyStateShard(
@@ -170,7 +158,7 @@ public class RenderStateShard {
         () -> Minecraft.getInstance().levelRenderer.entityTarget().bindWrite(false),
         () -> Minecraft.getInstance().getMainRenderTarget().bindWrite(false)
     );
-    protected static final RenderStateShard.LineStateShard DEFAULT_LINE = new RenderStateShard.LineStateShard(1.0F);
+    protected static final RenderStateShard.LineStateShard DEFAULT_LINE = new RenderStateShard.LineStateShard(OptionalDouble.of(1.0));
 
     public RenderStateShard(String param0, Runnable param1, Runnable param2) {
         this.name = param0;
@@ -388,16 +376,20 @@ public class RenderStateShard {
 
     @OnlyIn(Dist.CLIENT)
     public static class LineStateShard extends RenderStateShard {
-        private final float width;
+        private final OptionalDouble width;
 
-        public LineStateShard(float param0) {
+        public LineStateShard(OptionalDouble param0) {
             super("alpha", () -> {
-                if (param0 != 1.0F) {
-                    RenderSystem.lineWidth(param0);
+                if (!Objects.equals(param0, OptionalDouble.of(1.0))) {
+                    if (param0.isPresent()) {
+                        RenderSystem.lineWidth((float)param0.getAsDouble());
+                    } else {
+                        RenderSystem.lineWidth(Math.max(2.5F, (float)Minecraft.getInstance().getWindow().getWidth() / 1920.0F * 2.5F));
+                    }
                 }
 
             }, () -> {
-                if (param0 != 1.0F) {
+                if (!Objects.equals(param0, OptionalDouble.of(1.0))) {
                     RenderSystem.lineWidth(1.0F);
                 }
 
@@ -411,10 +403,8 @@ public class RenderStateShard {
                 return true;
             } else if (param0 == null || this.getClass() != param0.getClass()) {
                 return false;
-            } else if (!super.equals(param0)) {
-                return false;
             } else {
-                return this.width == ((RenderStateShard.LineStateShard)param0).width;
+                return !super.equals(param0) ? false : Objects.equals(this.width, ((RenderStateShard.LineStateShard)param0).width);
             }
         }
 
