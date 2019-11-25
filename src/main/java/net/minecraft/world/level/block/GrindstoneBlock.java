@@ -3,6 +3,7 @@ package net.minecraft.world.level.block;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -152,6 +153,7 @@ public class GrindstoneBlock extends FaceAttachedHorizontalDirectionalBlock {
             return InteractionResult.SUCCESS;
         } else {
             param3.openMenu(param0.getMenuProvider(param1, param2));
+            param3.awardStat(Stats.INTERACT_WITH_GRINDSTONE);
             return InteractionResult.SUCCESS;
         }
     }

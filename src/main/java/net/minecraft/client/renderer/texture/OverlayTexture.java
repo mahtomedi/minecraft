@@ -18,7 +18,7 @@ public class OverlayTexture implements AutoCloseable {
                 if (var1 < 8) {
                     var0.setPixelRGBA(var2, var1, -1308622593);
                 } else {
-                    int var3 = (int)((1.0F - (float)var2 / 15.0F * 0.2F) * 255.0F);
+                    int var3 = (int)((1.0F - (float)var2 / 15.0F * 0.75F) * 255.0F);
                     var0.setPixelRGBA(var2, var1, var3 << 24 | 16777215);
                 }
             }

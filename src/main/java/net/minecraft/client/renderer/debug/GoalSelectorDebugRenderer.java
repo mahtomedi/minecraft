@@ -31,7 +31,7 @@ public class GoalSelectorDebugRenderer implements DebugRenderer.SimpleDebugRende
     }
 
     @Override
-    public void render(PoseStack param0, MultiBufferSource param1, double param2, double param3, double param4, long param5) {
+    public void render(PoseStack param0, MultiBufferSource param1, double param2, double param3, double param4) {
         Camera var0 = this.minecraft.gameRenderer.getMainCamera();
         RenderSystem.pushMatrix();
         RenderSystem.enableBlend();

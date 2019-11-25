@@ -1,11 +1,11 @@
 package net.minecraft.client.renderer.blockentity;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix4f;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -20,7 +20,9 @@ public class TheEndPortalRenderer<T extends TheEndPortalBlockEntity> extends Blo
     public static final ResourceLocation END_SKY_LOCATION = new ResourceLocation("textures/environment/end_sky.png");
     public static final ResourceLocation END_PORTAL_LOCATION = new ResourceLocation("textures/entity/end_portal.png");
     private static final Random RANDOM = new Random(31100L);
-    private static final List<RenderType> RENDER_TYPES = IntStream.range(0, 16).mapToObj(RenderType::endPortal).collect(Collectors.toList());
+    private static final List<RenderType> RENDER_TYPES = IntStream.range(0, 16)
+        .mapToObj(param0 -> RenderType.endPortal(param0 + 1))
+        .collect(ImmutableList.toImmutableList());
 
     public TheEndPortalRenderer(BlockEntityRenderDispatcher param0) {
         super(param0);
@@ -32,10 +34,10 @@ public class TheEndPortalRenderer<T extends TheEndPortalBlockEntity> extends Blo
         int var1 = this.getPasses(var0);
         float var2 = this.getOffset();
         Matrix4f var3 = param2.last().pose();
-        this.renderCube(param0, var2, 0.15F, var3, param3.getBuffer(RENDER_TYPES.get(1)));
+        this.renderCube(param0, var2, 0.15F, var3, param3.getBuffer(RENDER_TYPES.get(0)));
 
         for(int var4 = 1; var4 < var1; ++var4) {
-            this.renderCube(param0, var2, 2.0F / (float)(18 - var4), var3, param3.getBuffer(RENDER_TYPES.get(var4 + 1)));
+            this.renderCube(param0, var2, 2.0F / (float)(18 - var4), var3, param3.getBuffer(RENDER_TYPES.get(var4)));
         }
 
     }
@@ -79,28 +81,23 @@ public class TheEndPortalRenderer<T extends TheEndPortalBlockEntity> extends Blo
     }
 
     protected int getPasses(double param0) {
-        int var0;
         if (param0 > 36864.0) {
-            var0 = 1;
+            return 1;
         } else if (param0 > 25600.0) {
-            var0 = 3;
+            return 3;
         } else if (param0 > 16384.0) {
-            var0 = 5;
+            return 5;
         } else if (param0 > 9216.0) {
-            var0 = 7;
+            return 7;
         } else if (param0 > 4096.0) {
-            var0 = 9;
+            return 9;
         } else if (param0 > 1024.0) {
-            var0 = 11;
+            return 11;
         } else if (param0 > 576.0) {
-            var0 = 13;
-        } else if (param0 > 256.0) {
-            var0 = 14;
+            return 13;
         } else {
-            var0 = 15;
+            return param0 > 256.0 ? 14 : 15;
         }
-
-        return var0;
     }
 
     protected float getOffset() {

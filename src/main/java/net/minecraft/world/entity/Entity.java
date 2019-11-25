@@ -75,6 +75,7 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FenceGateBlock;
+import net.minecraft.world.level.block.HoneyBlock;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.NetherPortalBlock;
 import net.minecraft.world.level.block.RenderShape;
@@ -600,7 +601,7 @@ public abstract class Entity implements CommandSource, Nameable {
         return (double)var0 == 1.0 ? var1 : var0;
     }
 
-    private float getBlockSpeedFactor() {
+    protected float getBlockSpeedFactor() {
         float var0 = this.level.getBlockState(new BlockPos(this)).getBlock().getSpeedFactor();
         float var1 = this.level.getBlockState(this.getBlockPosBelowThatAffectsMyMovement()).getBlock().getSpeedFactor();
         return (double)var0 == 1.0 ? var1 : var0;
@@ -1752,6 +1753,10 @@ public abstract class Entity implements CommandSource, Nameable {
 
     @OnlyIn(Dist.CLIENT)
     public void handleEntityEvent(byte param0) {
+        switch(param0) {
+            case 53:
+                HoneyBlock.showSlideParticles(this);
+        }
     }
 
     @OnlyIn(Dist.CLIENT)

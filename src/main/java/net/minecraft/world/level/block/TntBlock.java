@@ -91,10 +91,12 @@ public class TntBlock extends Block {
         } else {
             explode(param1, param2, param3);
             param1.setBlock(param2, Blocks.AIR.defaultBlockState(), 11);
-            if (var1 == Items.FLINT_AND_STEEL) {
-                var0.hurtAndBreak(1, param3, param1x -> param1x.broadcastBreakEvent(param4));
-            } else {
-                var0.shrink(1);
+            if (!param3.isCreative()) {
+                if (var1 == Items.FLINT_AND_STEEL) {
+                    var0.hurtAndBreak(1, param3, param1x -> param1x.broadcastBreakEvent(param4));
+                } else {
+                    var0.shrink(1);
+                }
             }
 
             return InteractionResult.SUCCESS;

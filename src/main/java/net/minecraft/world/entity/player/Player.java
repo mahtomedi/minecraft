@@ -1315,7 +1315,7 @@ public abstract class Player extends LivingEntity {
             }
 
             if (this.level.isDay()) {
-                this.setRespawnPosition(param0, false);
+                this.setRespawnPosition(param0, false, true);
                 return Either.left(Player.BedSleepingProblem.NOT_POSSIBLE_NOW);
             }
 
@@ -1361,7 +1361,7 @@ public abstract class Player extends LivingEntity {
     @Override
     public void startSleeping(BlockPos param0) {
         this.resetStat(Stats.CUSTOM.get(Stats.TIME_SINCE_REST));
-        this.setRespawnPosition(param0, false);
+        this.setRespawnPosition(param0, false, true);
         super.startSleeping(param0);
     }
 
@@ -1433,8 +1433,12 @@ public abstract class Player extends LivingEntity {
         return this.respawnForced;
     }
 
-    public void setRespawnPosition(BlockPos param0, boolean param1) {
+    public void setRespawnPosition(BlockPos param0, boolean param1, boolean param2) {
         if (param0 != null) {
+            if (param2 && !param0.equals(this.respawnPosition)) {
+                this.sendMessage(new TranslatableComponent("block.minecraft.bed.set_spawn"));
+            }
+
             this.respawnPosition = param0;
             this.respawnForced = param1;
         } else {
@@ -2074,6 +2078,11 @@ public abstract class Player extends LivingEntity {
 
     public ItemCooldowns getCooldowns() {
         return this.cooldowns;
+    }
+
+    @Override
+    protected float getBlockSpeedFactor() {
+        return !this.abilities.flying && !this.isFallFlying() ? super.getBlockSpeedFactor() : 1.0F;
     }
 
     public float getLuck() {

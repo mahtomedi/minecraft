@@ -1241,6 +1241,7 @@ public abstract class Mob extends LivingEntity {
             }
 
             this.doEnchantDamageEffects(this, param0);
+            this.setLastHurtMob(param0);
         }
 
         return var3;

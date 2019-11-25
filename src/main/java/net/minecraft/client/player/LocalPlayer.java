@@ -128,6 +128,11 @@ public class LocalPlayer extends AbstractClientPlayer {
     }
 
     @Override
+    public boolean isGlowing() {
+        return super.isGlowing() || this.minecraft.player.isSpectator() && this.minecraft.options.keySpectatorOutlines.isDown();
+    }
+
+    @Override
     public boolean hurt(DamageSource param0, float param1) {
         return false;
     }
@@ -603,7 +608,7 @@ public class LocalPlayer extends AbstractClientPlayer {
     @Override
     public boolean isCrouching() {
         if (!this.abilities.flying && !this.isSwimming() && this.canEnterPose(Pose.CROUCHING)) {
-            return this.isShiftKeyDown() || !this.canEnterPose(Pose.STANDING);
+            return this.isShiftKeyDown() || !this.isSleeping() && !this.canEnterPose(Pose.STANDING);
         } else {
             return false;
         }

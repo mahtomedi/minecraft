@@ -129,30 +129,33 @@ public class ThrownTrident extends AbstractArrow {
         DamageSource var4 = DamageSource.trident(this, (Entity)(var3 == null ? this : var3));
         this.dealtDamage = true;
         SoundEvent var5 = SoundEvents.TRIDENT_HIT;
-        if (var0.hurt(var4, var1) && var0 instanceof LivingEntity) {
-            LivingEntity var6 = (LivingEntity)var0;
-            if (var3 instanceof LivingEntity) {
-                EnchantmentHelper.doPostHurtEffects(var6, var3);
-                EnchantmentHelper.doPostDamageEffects((LivingEntity)var3, var6);
+        if (var0.hurt(var4, var1) && var0.getType() != EntityType.ENDERMAN) {
+            if (var0 instanceof LivingEntity) {
+                LivingEntity var6 = (LivingEntity)var0;
+                if (var3 instanceof LivingEntity) {
+                    EnchantmentHelper.doPostHurtEffects(var6, var3);
+                    EnchantmentHelper.doPostDamageEffects((LivingEntity)var3, var6);
+                }
+
+                this.doPostHurtEffects(var6);
             }
 
-            this.doPostHurtEffects(var6);
-        }
-
-        this.setDeltaMovement(this.getDeltaMovement().multiply(-0.01, -0.1, -0.01));
-        float var7 = 1.0F;
-        if (this.level instanceof ServerLevel && this.level.isThundering() && EnchantmentHelper.hasChanneling(this.tridentItem)) {
-            BlockPos var8 = var0.getCommandSenderBlockPosition();
-            if (this.level.canSeeSky(var8)) {
-                LightningBolt var9 = new LightningBolt(this.level, (double)var8.getX() + 0.5, (double)var8.getY(), (double)var8.getZ() + 0.5, false);
-                var9.setCause(var3 instanceof ServerPlayer ? (ServerPlayer)var3 : null);
-                ((ServerLevel)this.level).addGlobalEntity(var9);
-                var5 = SoundEvents.TRIDENT_THUNDER;
-                var7 = 5.0F;
+            this.setDeltaMovement(this.getDeltaMovement().multiply(-0.01, -0.1, -0.01));
+            float var7 = 1.0F;
+            if (this.level instanceof ServerLevel && this.level.isThundering() && EnchantmentHelper.hasChanneling(this.tridentItem)) {
+                BlockPos var8 = var0.getCommandSenderBlockPosition();
+                if (this.level.canSeeSky(var8)) {
+                    LightningBolt var9 = new LightningBolt(this.level, (double)var8.getX() + 0.5, (double)var8.getY(), (double)var8.getZ() + 0.5, false);
+                    var9.setCause(var3 instanceof ServerPlayer ? (ServerPlayer)var3 : null);
+                    ((ServerLevel)this.level).addGlobalEntity(var9);
+                    var5 = SoundEvents.TRIDENT_THUNDER;
+                    var7 = 5.0F;
+                }
             }
+
+            this.playSound(var5, var7, 1.0F);
         }
 
-        this.playSound(var5, var7, 1.0F);
     }
 
     @Override

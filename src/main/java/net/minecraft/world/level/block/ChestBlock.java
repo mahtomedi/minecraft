@@ -2,6 +2,9 @@ package net.minecraft.world.level.block;
 
 import it.unimi.dsi.fastutil.floats.Float2FloatFunction;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.BiPredicate;
+import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -28,6 +31,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.entity.LidBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -56,19 +60,28 @@ public class ChestBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
     protected static final VoxelShape WEST_AABB = Block.box(0.0, 0.0, 1.0, 15.0, 14.0, 15.0);
     protected static final VoxelShape EAST_AABB = Block.box(1.0, 0.0, 1.0, 16.0, 14.0, 15.0);
     protected static final VoxelShape AABB = Block.box(1.0, 0.0, 1.0, 15.0, 14.0, 15.0);
-    private static final ChestBlock.ChestSearchCallback<Container> CHEST_COMBINER = new ChestBlock.ChestSearchCallback<Container>() {
-        public Container acceptDouble(ChestBlockEntity param0, ChestBlockEntity param1) {
-            return new CompoundContainer(param0, param1);
+    protected final Supplier<BlockEntityType<? extends ChestBlockEntity>> blockEntityType;
+    private static final DoubleBlockCombiner.Combiner<ChestBlockEntity, Optional<Container>> CHEST_COMBINER = new DoubleBlockCombiner.Combiner<ChestBlockEntity, Optional<Container>>(
+        
+    ) {
+        public Optional<Container> acceptDouble(ChestBlockEntity param0, ChestBlockEntity param1) {
+            return Optional.of(new CompoundContainer(param0, param1));
         }
 
-        public Container acceptSingle(ChestBlockEntity param0) {
-            return param0;
+        public Optional<Container> acceptSingle(ChestBlockEntity param0) {
+            return Optional.of(param0);
+        }
+
+        public Optional<Container> acceptNone() {
+            return Optional.empty();
         }
     };
-    private static final ChestBlock.ChestSearchCallback<MenuProvider> MENU_PROVIDER_COMBINER = new ChestBlock.ChestSearchCallback<MenuProvider>() {
-        public MenuProvider acceptDouble(final ChestBlockEntity param0, final ChestBlockEntity param1) {
+    private static final DoubleBlockCombiner.Combiner<ChestBlockEntity, Optional<MenuProvider>> MENU_PROVIDER_COMBINER = new DoubleBlockCombiner.Combiner<ChestBlockEntity, Optional<MenuProvider>>(
+        
+    ) {
+        public Optional<MenuProvider> acceptDouble(final ChestBlockEntity param0, final ChestBlockEntity param1) {
             final Container var0 = new CompoundContainer(param0, param1);
-            return new MenuProvider() {
+            return Optional.of(new MenuProvider() {
                 @Nullable
                 @Override
                 public AbstractContainerMenu createMenu(int param0x, Inventory param1x, Player param2) {
@@ -89,28 +102,33 @@ public class ChestBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                         return (Component)(param1.hasCustomName() ? param1.getDisplayName() : new TranslatableComponent("container.chestDouble"));
                     }
                 }
-            };
+            });
         }
 
-        public MenuProvider acceptSingle(ChestBlockEntity param0) {
-            return param0;
-        }
-    };
-    private static final ChestBlock.ChestSearchCallback<Float2FloatFunction> OPENNES_COMBINER = new ChestBlock.ChestSearchCallback<Float2FloatFunction>() {
-        public Float2FloatFunction acceptDouble(ChestBlockEntity param0, ChestBlockEntity param1) {
-            return param2 -> Math.max(param0.getOpenNess(param2), param1.getOpenNess(param2));
+        public Optional<MenuProvider> acceptSingle(ChestBlockEntity param0) {
+            return Optional.of(param0);
         }
 
-        public Float2FloatFunction acceptSingle(ChestBlockEntity param0) {
-            return param0::getOpenNess;
+        public Optional<MenuProvider> acceptNone() {
+            return Optional.empty();
         }
     };
 
-    protected ChestBlock(Block.Properties param0) {
+    protected ChestBlock(Block.Properties param0, Supplier<BlockEntityType<? extends ChestBlockEntity>> param1) {
         super(param0);
+        this.blockEntityType = param1;
         this.registerDefaultState(
             this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(TYPE, ChestType.SINGLE).setValue(WATERLOGGED, Boolean.valueOf(false))
         );
+    }
+
+    public static DoubleBlockCombiner.BlockType getBlockType(BlockState param0) {
+        ChestType var0 = param0.getValue(TYPE);
+        if (var0 == ChestType.SINGLE) {
+            return DoubleBlockCombiner.BlockType.SINGLE;
+        } else {
+            return var0 == ChestType.RIGHT ? DoubleBlockCombiner.BlockType.FIRST : DoubleBlockCombiner.BlockType.SECOND;
+        }
     }
 
     @Override
@@ -244,56 +262,46 @@ public class ChestBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
     }
 
     @Nullable
-    public static <T> T combineWithNeigbour(BlockState param0, LevelAccessor param1, BlockPos param2, boolean param3, ChestBlock.ChestSearchCallback<T> param4) {
-        BlockEntity var0 = param1.getBlockEntity(param2);
-        if (!(var0 instanceof ChestBlockEntity)) {
-            return null;
-        } else if (!param3 && isChestBlockedAt(param1, param2)) {
-            return null;
-        } else {
-            ChestBlockEntity var1 = (ChestBlockEntity)var0;
-            ChestType var2 = param0.getValue(TYPE);
-            if (var2 == ChestType.SINGLE) {
-                return param4.acceptSingle(var1);
-            } else {
-                BlockPos var3 = param2.relative(getConnectedDirection(param0));
-                BlockState var4 = param1.getBlockState(var3);
-                if (var4.getBlock() == param0.getBlock()) {
-                    ChestType var5 = var4.getValue(TYPE);
-                    if (var5 != ChestType.SINGLE && var2 != var5 && var4.getValue(FACING) == param0.getValue(FACING)) {
-                        if (!param3 && isChestBlockedAt(param1, var3)) {
-                            return null;
-                        }
-
-                        BlockEntity var6 = param1.getBlockEntity(var3);
-                        if (var6 instanceof ChestBlockEntity) {
-                            ChestBlockEntity var7 = var2 == ChestType.RIGHT ? var1 : (ChestBlockEntity)var6;
-                            ChestBlockEntity var8 = var2 == ChestType.RIGHT ? (ChestBlockEntity)var6 : var1;
-                            return param4.acceptDouble(var7, var8);
-                        }
-                    }
-                }
-
-                return param4.acceptSingle(var1);
-            }
-        }
+    public static Container getContainer(ChestBlock param0, BlockState param1, Level param2, BlockPos param3, boolean param4) {
+        return combine(param0, param1, param2, param3, param4).<Optional<Container>>apply(CHEST_COMBINER).orElse(null);
     }
 
-    @Nullable
-    public static Container getContainer(BlockState param0, Level param1, BlockPos param2, boolean param3) {
-        return combineWithNeigbour(param0, param1, param2, param3, CHEST_COMBINER);
+    public static DoubleBlockCombiner.NeighborCombineResult<? extends ChestBlockEntity> combine(
+        ChestBlock param0, BlockState param1, Level param2, BlockPos param3, boolean param4
+    ) {
+        BiPredicate<LevelAccessor, BlockPos> var0;
+        if (param4) {
+            var0 = (param0x, param1x) -> false;
+        } else {
+            var0 = ChestBlock::isChestBlockedAt;
+        }
+
+        return DoubleBlockCombiner.combineWithNeigbour(
+            param0.blockEntityType.get(), ChestBlock::getBlockType, ChestBlock::getConnectedDirection, FACING, param1, param2, param3, var0
+        );
     }
 
     @Nullable
     @Override
     public MenuProvider getMenuProvider(BlockState param0, Level param1, BlockPos param2) {
-        return combineWithNeigbour(param0, param1, param2, false, MENU_PROVIDER_COMBINER);
+        return combine(this, param0, param1, param2, false).<Optional<MenuProvider>>apply(MENU_PROVIDER_COMBINER).orElse(null);
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static float getCombinedOpenness(LidBlockEntity param0, BlockState param1, Level param2, BlockPos param3, float param4) {
-        Float2FloatFunction var0 = combineWithNeigbour(param1, param2, param3, true, OPENNES_COMBINER);
-        return var0 == null ? param0.getOpenNess(param4) : var0.get(param4);
+    public static DoubleBlockCombiner.Combiner<ChestBlockEntity, Float2FloatFunction> opennessCombiner(final LidBlockEntity param0) {
+        return new DoubleBlockCombiner.Combiner<ChestBlockEntity, Float2FloatFunction>() {
+            public Float2FloatFunction acceptDouble(ChestBlockEntity param0x, ChestBlockEntity param1) {
+                return param2 -> Math.max(param0.getOpenNess(param2), param1.getOpenNess(param2));
+            }
+
+            public Float2FloatFunction acceptSingle(ChestBlockEntity param0x) {
+                return param0::getOpenNess;
+            }
+
+            public Float2FloatFunction acceptNone() {
+                return param0::getOpenNess;
+            }
+        };
     }
 
     @Override
@@ -301,8 +309,8 @@ public class ChestBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
         return new ChestBlockEntity();
     }
 
-    private static boolean isChestBlockedAt(LevelAccessor param0, BlockPos param1) {
-        return isBlockedChestByBlock(param0, param1) || isCatSittingOnChest(param0, param1);
+    public static boolean isChestBlockedAt(LevelAccessor param0x, BlockPos param1x) {
+        return isBlockedChestByBlock(param0x, param1x) || isCatSittingOnChest(param0x, param1x);
     }
 
     private static boolean isBlockedChestByBlock(BlockGetter param0, BlockPos param1) {
@@ -340,7 +348,7 @@ public class ChestBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
 
     @Override
     public int getAnalogOutputSignal(BlockState param0, Level param1, BlockPos param2) {
-        return AbstractContainerMenu.getRedstoneSignalFromContainer(getContainer(param0, param1, param2, false));
+        return AbstractContainerMenu.getRedstoneSignalFromContainer(getContainer(this, param0, param1, param2, false));
     }
 
     @Override
@@ -361,11 +369,5 @@ public class ChestBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
     @Override
     public boolean isPathfindable(BlockState param0, BlockGetter param1, BlockPos param2, PathComputationType param3) {
         return false;
-    }
-
-    interface ChestSearchCallback<T> {
-        T acceptDouble(ChestBlockEntity var1, ChestBlockEntity var2);
-
-        T acceptSingle(ChestBlockEntity var1);
     }
 }

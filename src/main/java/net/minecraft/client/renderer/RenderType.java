@@ -333,7 +333,7 @@ public abstract class RenderType extends RenderStateShard {
         return WATER_MASK;
     }
 
-    private static RenderType outline(ResourceLocation param0) {
+    public static RenderType outline(ResourceLocation param0) {
         return create(
             "outline",
             DefaultVertexFormat.POSITION_COLOR_TEX,
@@ -533,7 +533,7 @@ public abstract class RenderType extends RenderStateShard {
                 () -> param6.states.forEach(RenderStateShard::clearRenderState)
             );
             this.state = param6;
-            this.outline = param6.affectsOutline ? param6.textureState.texture().map(param0x -> RenderType.outline(param0x)) : Optional.empty();
+            this.outline = param6.affectsOutline ? param6.textureState.texture().map(RenderType::outline) : Optional.empty();
             this.hashCode = Objects.hash(super.hashCode(), param6);
         }
 

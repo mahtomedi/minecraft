@@ -80,6 +80,11 @@ public class ArmorStand extends LivingEntity {
     }
 
     @Override
+    public boolean isGlowing() {
+        return !this.isMarker() && super.isGlowing();
+    }
+
+    @Override
     public void refreshDimensions() {
         double var0 = this.getX();
         double var1 = this.getY();

@@ -23,14 +23,14 @@ public class ModelManager extends SimplePreparableReloadListener<ModelBakery> im
     private final BlockModelShaper blockModelShaper;
     private final TextureManager textureManager;
     private final BlockColors blockColors;
-    private final int mipmapLevels;
+    private int maxMipmapLevels;
     private BakedModel missingModel;
     private Object2IntMap<BlockState> modelGroups;
 
     public ModelManager(TextureManager param0, BlockColors param1, int param2) {
         this.textureManager = param0;
         this.blockColors = param1;
-        this.mipmapLevels = param2;
+        this.maxMipmapLevels = param2;
         this.blockModelShaper = new BlockModelShaper(this);
     }
 
@@ -48,7 +48,7 @@ public class ModelManager extends SimplePreparableReloadListener<ModelBakery> im
 
     protected ModelBakery prepare(ResourceManager param0, ProfilerFiller param1) {
         param1.startTick();
-        ModelBakery var0 = new ModelBakery(param0, this.blockColors, param1, this.mipmapLevels);
+        ModelBakery var0 = new ModelBakery(param0, this.blockColors, param1, this.maxMipmapLevels);
         param1.endTick();
         return var0;
     }
@@ -56,7 +56,7 @@ public class ModelManager extends SimplePreparableReloadListener<ModelBakery> im
     protected void apply(ModelBakery param0, ResourceManager param1, ProfilerFiller param2) {
         param2.startTick();
         param2.push("upload");
-        this.atlases = param0.uploadTextures(this.textureManager, this.mipmapLevels, param2);
+        this.atlases = param0.uploadTextures(this.textureManager, param2);
         this.bakedRegistry = param0.getBakedTopLevelModels();
         this.modelGroups = param0.getModelGroups();
         this.missingModel = this.bakedRegistry.get(ModelBakery.MISSING_MODEL_LOCATION);
@@ -94,6 +94,6 @@ public class ModelManager extends SimplePreparableReloadListener<ModelBakery> im
     }
 
     public void updateMaxMipLevel(int param0) {
-        this.atlases.updateMaxMipLevel(this.textureManager, param0);
+        this.maxMipmapLevels = param0;
     }
 }

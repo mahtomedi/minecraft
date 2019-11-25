@@ -30,12 +30,4 @@ public class AtlasSet implements AutoCloseable {
         this.atlases.values().forEach(TextureAtlas::clearTextureData);
         this.atlases.clear();
     }
-
-    public void updateMaxMipLevel(TextureManager param0, int param1) {
-        this.atlases.values().forEach(param2 -> {
-            param2.setMaxMipLevel(param1);
-            param0.bind(param2.location());
-            param2.setFilter(false, param1 > 0);
-        });
-    }
 }

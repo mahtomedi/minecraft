@@ -103,13 +103,13 @@ public class Slime extends Mob implements Enemy {
 
     @Override
     public void readAdditionalSaveData(CompoundTag param0) {
-        super.readAdditionalSaveData(param0);
         int var0 = param0.getInt("Size");
         if (var0 < 0) {
             var0 = 0;
         }
 
         this.setSize(var0 + 1, false);
+        super.readAdditionalSaveData(param0);
         this.wasOnGround = param0.getBoolean("wasOnGround");
     }
 

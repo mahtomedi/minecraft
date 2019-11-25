@@ -357,7 +357,7 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
             if (var4 instanceof Container) {
                 var0 = (Container)var4;
                 if (var0 instanceof ChestBlockEntity && var3 instanceof ChestBlock) {
-                    var0 = ChestBlock.getContainer(var2, param0, var1, true);
+                    var0 = ChestBlock.getContainer((ChestBlock)var3, var2, param0, var1, true);
                 }
             }
         }

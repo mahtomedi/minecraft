@@ -100,6 +100,11 @@ public class SelectWorldScreen extends Screen {
     }
 
     @Override
+    public void onClose() {
+        this.minecraft.setScreen(this.lastScreen);
+    }
+
+    @Override
     public boolean charTyped(char param0, int param1) {
         return this.searchBox.charTyped(param0, param1);
     }

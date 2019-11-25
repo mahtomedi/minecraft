@@ -1,6 +1,7 @@
 package net.minecraft.world.level.levelgen.structure.templatesystem;
 
 import com.google.common.collect.Lists;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import javax.annotation.Nullable;
@@ -25,7 +26,6 @@ public class StructurePlaceSettings {
     @Nullable
     private Random random;
     @Nullable
-    private Integer preferredPalette;
     private int palette;
     private final List<StructureProcessor> processors = Lists.newArrayList();
     private boolean knownShape;
@@ -40,7 +40,6 @@ public class StructurePlaceSettings {
         var0.boundingBox = this.boundingBox;
         var0.keepLiquids = this.keepLiquids;
         var0.random = this.random;
-        var0.preferredPalette = this.preferredPalette;
         var0.palette = this.palette;
         var0.processors.addAll(this.processors);
         var0.knownShape = this.knownShape;
@@ -154,14 +153,9 @@ public class StructurePlaceSettings {
         return this.keepLiquids;
     }
 
-    public List<StructureTemplate.StructureBlockInfo> getPalette(List<List<StructureTemplate.StructureBlockInfo>> param0, @Nullable BlockPos param1) {
-        this.preferredPalette = 8;
-        if (this.preferredPalette != null && this.preferredPalette >= 0 && this.preferredPalette < param0.size()) {
-            return param0.get(this.preferredPalette);
-        } else {
-            this.preferredPalette = this.getRandom(param1).nextInt(param0.size());
-            return param0.get(this.preferredPalette);
-        }
+    public List<StructureTemplate.StructureBlockInfo> getRandomPalette(List<List<StructureTemplate.StructureBlockInfo>> param0, @Nullable BlockPos param1) {
+        int var0 = param0.size();
+        return var0 > 0 ? param0.get(this.getRandom(param1).nextInt(var0)) : Collections.emptyList();
     }
 
     @Nullable

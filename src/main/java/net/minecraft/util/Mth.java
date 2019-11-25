@@ -92,6 +92,15 @@ public class Mth {
         }
     }
 
+    @OnlyIn(Dist.CLIENT)
+    public static long clamp(long param0, long param1, long param2) {
+        if (param0 < param1) {
+            return param1;
+        } else {
+            return param0 > param2 ? param2 : param0;
+        }
+    }
+
     public static float clamp(float param0, float param1, float param2) {
         if (param0 < param1) {
             return param1;

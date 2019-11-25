@@ -206,27 +206,27 @@ public class ModelBakery {
         param2.pop();
     }
 
-    public AtlasSet uploadTextures(TextureManager param0, int param1, ProfilerFiller param2) {
-        param2.push("atlas");
+    public AtlasSet uploadTextures(TextureManager param0, ProfilerFiller param1) {
+        param1.push("atlas");
 
         for(Pair<TextureAtlas, TextureAtlas.Preparations> var0 : this.atlasPreparations.values()) {
             TextureAtlas var1 = var0.getFirst();
-            var1.setMaxMipLevel(param1);
-            var1.reload(var0.getSecond());
+            TextureAtlas.Preparations var2 = var0.getSecond();
+            var1.reload(var2);
             param0.register(var1.location(), var1);
             param0.bind(var1.location());
-            var1.setFilter(false, param1 > 0);
+            var1.updateFilter(var2);
         }
 
         this.atlasSet = new AtlasSet(this.atlasPreparations.values().stream().map(Pair::getFirst).collect(Collectors.toList()));
-        param2.popPush("baking");
+        param1.popPush("baking");
         this.topLevelModels.keySet().forEach(param0x -> {
             BakedModel var0x = null;
 
             try {
                 var0x = this.bake(param0x, BlockModelRotation.X0_Y0);
-            } catch (Exception var4) {
-                LOGGER.warn("Unable to bake model: '{}': {}", param0x, var4);
+            } catch (Exception var4x) {
+                LOGGER.warn("Unable to bake model: '{}': {}", param0x, var4x);
             }
 
             if (var0x != null) {
@@ -234,7 +234,7 @@ public class ModelBakery {
             }
 
         });
-        param2.pop();
+        param1.pop();
         return this.atlasSet;
     }
 

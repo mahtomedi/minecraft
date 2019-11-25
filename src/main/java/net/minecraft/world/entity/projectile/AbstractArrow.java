@@ -31,7 +31,6 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.entity.monster.EnderMan;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -400,55 +399,60 @@ public abstract class AbstractArrow extends Entity implements Projectile {
             }
         }
 
-        int var6 = var0.getRemainingFireTicks();
-        if (this.isOnFire() && !(var0 instanceof EnderMan)) {
+        boolean var6 = var0.getType() == EntityType.ENDERMAN;
+        int var7 = var0.getRemainingFireTicks();
+        if (this.isOnFire() && !var6) {
             var0.setSecondsOnFire(5);
         }
 
         if (var0.hurt(var4, (float)var2)) {
+            if (var6) {
+                return;
+            }
+
             if (var0 instanceof LivingEntity) {
-                LivingEntity var7 = (LivingEntity)var0;
+                LivingEntity var8 = (LivingEntity)var0;
                 if (!this.level.isClientSide && this.getPierceLevel() <= 0) {
-                    var7.setArrowCount(var7.getArrowCount() + 1);
+                    var8.setArrowCount(var8.getArrowCount() + 1);
                 }
 
                 if (this.knockback > 0) {
-                    Vec3 var8 = this.getDeltaMovement().multiply(1.0, 0.0, 1.0).normalize().scale((double)this.knockback * 0.6);
-                    if (var8.lengthSqr() > 0.0) {
-                        var7.push(var8.x, 0.1, var8.z);
+                    Vec3 var9 = this.getDeltaMovement().multiply(1.0, 0.0, 1.0).normalize().scale((double)this.knockback * 0.6);
+                    if (var9.lengthSqr() > 0.0) {
+                        var8.push(var9.x, 0.1, var9.z);
                     }
                 }
 
                 if (!this.level.isClientSide && var3 instanceof LivingEntity) {
-                    EnchantmentHelper.doPostHurtEffects(var7, var3);
-                    EnchantmentHelper.doPostDamageEffects((LivingEntity)var3, var7);
+                    EnchantmentHelper.doPostHurtEffects(var8, var3);
+                    EnchantmentHelper.doPostDamageEffects((LivingEntity)var3, var8);
                 }
 
-                this.doPostHurtEffects(var7);
-                if (var3 != null && var7 != var3 && var7 instanceof Player && var3 instanceof ServerPlayer) {
+                this.doPostHurtEffects(var8);
+                if (var3 != null && var8 != var3 && var8 instanceof Player && var3 instanceof ServerPlayer) {
                     ((ServerPlayer)var3).connection.send(new ClientboundGameEventPacket(6, 0.0F));
                 }
 
                 if (!var0.isAlive() && this.piercedAndKilledEntities != null) {
-                    this.piercedAndKilledEntities.add(var7);
+                    this.piercedAndKilledEntities.add(var8);
                 }
 
                 if (!this.level.isClientSide && var3 instanceof ServerPlayer) {
-                    ServerPlayer var9 = (ServerPlayer)var3;
+                    ServerPlayer var10 = (ServerPlayer)var3;
                     if (this.piercedAndKilledEntities != null && this.shotFromCrossbow()) {
-                        CriteriaTriggers.KILLED_BY_CROSSBOW.trigger(var9, this.piercedAndKilledEntities, this.piercedAndKilledEntities.size());
+                        CriteriaTriggers.KILLED_BY_CROSSBOW.trigger(var10, this.piercedAndKilledEntities, this.piercedAndKilledEntities.size());
                     } else if (!var0.isAlive() && this.shotFromCrossbow()) {
-                        CriteriaTriggers.KILLED_BY_CROSSBOW.trigger(var9, Arrays.asList(var0), 0);
+                        CriteriaTriggers.KILLED_BY_CROSSBOW.trigger(var10, Arrays.asList(var0), 0);
                     }
                 }
             }
 
             this.playSound(this.soundEvent, 1.0F, 1.2F / (this.random.nextFloat() * 0.2F + 0.9F));
-            if (this.getPierceLevel() <= 0 && !(var0 instanceof EnderMan)) {
+            if (this.getPierceLevel() <= 0) {
                 this.remove();
             }
         } else {
-            var0.setRemainingFireTicks(var6);
+            var0.setRemainingFireTicks(var7);
             this.setDeltaMovement(this.getDeltaMovement().scale(-0.1));
             this.yRot += 180.0F;
             this.yRotO += 180.0F;

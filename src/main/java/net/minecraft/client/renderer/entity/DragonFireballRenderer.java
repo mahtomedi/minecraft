@@ -29,7 +29,7 @@ public class DragonFireballRenderer extends EntityRenderer<DragonFireball> {
     public void render(DragonFireball param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {
         param3.pushPose();
         param3.scale(2.0F, 2.0F, 2.0F);
-        param3.mulPose(this.entityRenderDispatcher.camera.rotation());
+        param3.mulPose(this.entityRenderDispatcher.cameraOrientation());
         param3.mulPose(Vector3f.YP.rotationDegrees(180.0F));
         PoseStack.Pose var0 = param3.last();
         Matrix4f var1 = var0.pose();

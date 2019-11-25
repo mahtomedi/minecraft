@@ -31,7 +31,7 @@ public class CreeperRenderer extends MobRenderer<Creeper, CreeperModel<Creeper>>
 
     protected float getWhiteOverlayProgress(Creeper param0, float param1) {
         float var0 = param0.getSwelling(param1);
-        return (int)(var0 * 10.0F) % 2 == 0 ? 0.0F : Mth.clamp(var0, 0.0F, 1.0F);
+        return (int)(var0 * 10.0F) % 2 == 0 ? 0.0F : Mth.clamp(var0, 0.5F, 1.0F);
     }
 
     public ResourceLocation getTextureLocation(Creeper param0) {

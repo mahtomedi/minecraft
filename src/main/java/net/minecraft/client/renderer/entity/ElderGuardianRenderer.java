@@ -9,7 +9,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ElderGuardianRenderer extends GuardianRenderer {
-    private static final ResourceLocation GUARDIAN_ELDER_LOCATION = new ResourceLocation("textures/entity/guardian_elder.png");
+    public static final ResourceLocation GUARDIAN_ELDER_LOCATION = new ResourceLocation("textures/entity/guardian_elder.png");
 
     public ElderGuardianRenderer(EntityRenderDispatcher param0) {
         super(param0, 1.2F);

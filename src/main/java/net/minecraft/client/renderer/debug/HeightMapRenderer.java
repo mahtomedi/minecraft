@@ -23,7 +23,7 @@ public class HeightMapRenderer implements DebugRenderer.SimpleDebugRenderer {
     }
 
     @Override
-    public void render(PoseStack param0, MultiBufferSource param1, double param2, double param3, double param4, long param5) {
+    public void render(PoseStack param0, MultiBufferSource param1, double param2, double param3, double param4) {
         LevelAccessor var0 = this.minecraft.level;
         RenderSystem.pushMatrix();
         RenderSystem.enableBlend();

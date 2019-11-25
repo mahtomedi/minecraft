@@ -3,6 +3,8 @@ package net.minecraft.client.renderer.blockentity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
+import it.unimi.dsi.fastutil.floats.Float2FloatFunction;
+import it.unimi.dsi.fastutil.ints.Int2IntFunction;
 import java.util.Calendar;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -11,9 +13,12 @@ import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ChestBlock;
+import net.minecraft.world.level.block.DoubleBlockCombiner;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.entity.LidBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.ChestType;
@@ -75,34 +80,40 @@ public class ChestRenderer<T extends BlockEntity & LidBlockEntity> extends Block
         boolean var1 = var0 != null;
         BlockState var2 = var1 ? param0.getBlockState() : Blocks.CHEST.defaultBlockState().setValue(ChestBlock.FACING, Direction.SOUTH);
         ChestType var3 = var2.hasProperty(ChestBlock.TYPE) ? var2.getValue(ChestBlock.TYPE) : ChestType.SINGLE;
-        boolean var4 = var3 != ChestType.SINGLE;
-        param2.pushPose();
-        float var5 = var2.getValue(ChestBlock.FACING).toYRot();
-        param2.translate(0.5, 0.5, 0.5);
-        param2.mulPose(Vector3f.YP.rotationDegrees(-var5));
-        param2.translate(-0.5, -0.5, -0.5);
-        float var6;
-        if (var1) {
-            var6 = ChestBlock.getCombinedOpenness(param0, var2, var0, param0.getBlockPos(), param1);
-        } else {
-            var6 = param0.getOpenNess(param1);
-        }
-
-        var6 = 1.0F - var6;
-        var6 = 1.0F - var6 * var6 * var6;
-        Material var8 = Sheets.chooseMaterial(param0, var3, this.xmasTextures);
-        VertexConsumer var9 = var8.buffer(param3, RenderType::entityCutout);
-        if (var4) {
-            if (var3 == ChestType.LEFT) {
-                this.render(param2, var9, this.doubleRightLid, this.doubleRightLock, this.doubleRightBottom, var6, param4, param5);
+        Block var4 = var2.getBlock();
+        if (var4 instanceof ChestBlock) {
+            ChestBlock var5 = (ChestBlock)var4;
+            boolean var6 = var3 != ChestType.SINGLE;
+            param2.pushPose();
+            float var7 = var2.getValue(ChestBlock.FACING).toYRot();
+            param2.translate(0.5, 0.5, 0.5);
+            param2.mulPose(Vector3f.YP.rotationDegrees(-var7));
+            param2.translate(-0.5, -0.5, -0.5);
+            DoubleBlockCombiner.NeighborCombineResult<? extends ChestBlockEntity> var8;
+            if (var1) {
+                var8 = ChestBlock.combine(var5, var2, var0, param0.getBlockPos(), true);
             } else {
-                this.render(param2, var9, this.doubleLeftLid, this.doubleLeftLock, this.doubleLeftBottom, var6, param4, param5);
+                var8 = DoubleBlockCombiner.Combiner::acceptNone;
             }
-        } else {
-            this.render(param2, var9, this.lid, this.lock, this.bottom, var6, param4, param5);
-        }
 
-        param2.popPose();
+            float var10 = var8.<Float2FloatFunction>apply(ChestBlock.opennessCombiner(param0)).get(param1);
+            var10 = 1.0F - var10;
+            var10 = 1.0F - var10 * var10 * var10;
+            int var11 = var8.<Int2IntFunction>apply(new BrightnessCombiner<>()).applyAsInt(param4);
+            Material var12 = Sheets.chooseMaterial(param0, var3, this.xmasTextures);
+            VertexConsumer var13 = var12.buffer(param3, RenderType::entityCutout);
+            if (var6) {
+                if (var3 == ChestType.LEFT) {
+                    this.render(param2, var13, this.doubleRightLid, this.doubleRightLock, this.doubleRightBottom, var10, var11, param5);
+                } else {
+                    this.render(param2, var13, this.doubleLeftLid, this.doubleLeftLock, this.doubleLeftBottom, var10, var11, param5);
+                }
+            } else {
+                this.render(param2, var13, this.lid, this.lock, this.bottom, var10, var11, param5);
+            }
+
+            param2.popPose();
+        }
     }
 
     private void render(PoseStack param0, VertexConsumer param1, ModelPart param2, ModelPart param3, ModelPart param4, float param5, int param6, int param7) {

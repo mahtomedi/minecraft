@@ -7,7 +7,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.EmptyLevelChunk;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
@@ -26,18 +26,19 @@ public class PathNavigationRegion implements BlockGetter, CollisionGetter {
         int var0 = param2.getX() >> 4;
         int var1 = param2.getZ() >> 4;
         this.chunks = new ChunkAccess[var0 - this.centerX + 1][var1 - this.centerZ + 1];
+        ChunkSource var2 = param0.getChunkSource();
         this.allEmpty = true;
 
-        for(int var2 = this.centerX; var2 <= var0; ++var2) {
-            for(int var3 = this.centerZ; var3 <= var1; ++var3) {
-                this.chunks[var2 - this.centerX][var3 - this.centerZ] = param0.getChunk(var2, var3, ChunkStatus.FULL, false);
+        for(int var3 = this.centerX; var3 <= var0; ++var3) {
+            for(int var4 = this.centerZ; var4 <= var1; ++var4) {
+                this.chunks[var3 - this.centerX][var4 - this.centerZ] = var2.getChunkNow(var3, var4);
             }
         }
 
-        for(int var4 = param1.getX() >> 4; var4 <= param2.getX() >> 4; ++var4) {
-            for(int var5 = param1.getZ() >> 4; var5 <= param2.getZ() >> 4; ++var5) {
-                ChunkAccess var6 = this.chunks[var4 - this.centerX][var5 - this.centerZ];
-                if (var6 != null && !var6.isYSpaceEmpty(param1.getY(), param2.getY())) {
+        for(int var5 = param1.getX() >> 4; var5 <= param2.getX() >> 4; ++var5) {
+            for(int var6 = param1.getZ() >> 4; var6 <= param2.getZ() >> 4; ++var6) {
+                ChunkAccess var7 = this.chunks[var5 - this.centerX][var6 - this.centerZ];
+                if (var7 != null && !var7.isYSpaceEmpty(param1.getY(), param2.getY())) {
                     this.allEmpty = false;
                     return;
                 }

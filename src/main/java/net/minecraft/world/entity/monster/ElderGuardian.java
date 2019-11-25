@@ -13,8 +13,6 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ElderGuardian extends Guardian {
     public static final float ELDER_SIZE_SCALE = EntityType.ELDER_GUARDIAN.getWidth() / EntityType.GUARDIAN.getWidth();
@@ -39,12 +37,6 @@ public class ElderGuardian extends Guardian {
     @Override
     public int getAttackDuration() {
         return 60;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public void setGhost() {
-        this.clientSideSpikesAnimation = 1.0F;
-        this.clientSideSpikesAnimationO = this.clientSideSpikesAnimation;
     }
 
     @Override

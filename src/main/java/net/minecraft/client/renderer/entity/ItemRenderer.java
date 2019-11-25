@@ -283,6 +283,8 @@ public class ItemRenderer implements ResourceManagerReloadListener {
             if (var11 > 0.0F) {
                 RenderSystem.disableDepthTest();
                 RenderSystem.disableTexture();
+                RenderSystem.enableBlend();
+                RenderSystem.defaultBlendFunc();
                 Tesselator var12 = Tesselator.getInstance();
                 BufferBuilder var13 = var12.getBuilder();
                 this.fillRect(var13, param2, param3 + Mth.floor(16.0F * (1.0F - var11)), 16, Mth.ceil(16.0F * var11), 255, 255, 255, 127);

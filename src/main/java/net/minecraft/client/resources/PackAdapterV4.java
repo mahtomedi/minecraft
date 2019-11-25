@@ -162,6 +162,10 @@ public class PackAdapterV4 implements Pack {
                         return var23;
                     }
 
+                    if ("textures/entity/conduit/closed_eye.png".equals(var0) || "textures/entity/conduit/open_eye.png".equals(var0)) {
+                        return fixConduitEyeTexture(this.pack.getResource(param0, param1));
+                    }
+
                     Pair<ChestType, ResourceLocation> var7 = CHESTS.get(var0);
                     if (var7 != null) {
                         ChestType var8 = var7.getFirst();
@@ -214,6 +218,21 @@ public class PackAdapterV4 implements Pack {
         }
 
         return var6;
+    }
+
+    public static InputStream fixConduitEyeTexture(InputStream param0) throws IOException {
+        ByteArrayInputStream var7;
+        try (NativeImage var0 = NativeImage.read(param0)) {
+            int var1 = var0.getWidth();
+            int var2 = var0.getHeight();
+
+            try (NativeImage var3 = new NativeImage(2 * var1, 2 * var2, true)) {
+                copyRect(var0, var3, 0, 0, 0, 0, var1, var2, 1, false, false);
+                var7 = new ByteArrayInputStream(var3.asByteArray());
+            }
+        }
+
+        return var7;
     }
 
     public static InputStream fixLeftChest(InputStream param0) throws IOException {

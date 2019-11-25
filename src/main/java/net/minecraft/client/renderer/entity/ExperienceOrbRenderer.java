@@ -45,7 +45,7 @@ public class ExperienceOrbRenderer extends EntityRenderer<ExperienceOrb> {
         int var11 = 255;
         int var12 = (int)((Mth.sin(var9 + (float) (Math.PI * 4.0 / 3.0)) + 1.0F) * 0.1F * 255.0F);
         param3.translate(0.0, 0.1F, 0.0);
-        param3.mulPose(this.entityRenderDispatcher.camera.rotation());
+        param3.mulPose(this.entityRenderDispatcher.cameraOrientation());
         param3.mulPose(Vector3f.YP.rotationDegrees(180.0F));
         float var13 = 0.3F;
         param3.scale(0.3F, 0.3F, 0.3F);

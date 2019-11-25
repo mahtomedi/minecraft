@@ -46,10 +46,6 @@ public class ArmorStandRenderer extends LivingEntityRenderer<ArmorStand, ArmorSt
     }
 
     protected boolean isVisible(ArmorStand param0, boolean param1) {
-        if (param0.isMarker()) {
-            return !param0.isInvisible() && !param1;
-        } else {
-            return !param0.isInvisible() || param1;
-        }
+        return !param0.isInvisible();
     }
 }

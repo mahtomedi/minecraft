@@ -339,13 +339,21 @@ public class ClientLevel extends Level {
     public void animateTick(int param0, int param1, int param2) {
         int var0 = 32;
         Random var1 = new Random();
-        ItemStack var2 = this.minecraft.player.getMainHandItem();
-        boolean var3 = this.minecraft.gameMode.getPlayerMode() == GameType.CREATIVE && !var2.isEmpty() && var2.getItem() == Blocks.BARRIER.asItem();
+        boolean var2 = false;
+        if (this.minecraft.gameMode.getPlayerMode() == GameType.CREATIVE) {
+            for(ItemStack var3 : this.minecraft.player.getHandSlots()) {
+                if (var3.getItem() == Blocks.BARRIER.asItem()) {
+                    var2 = true;
+                    break;
+                }
+            }
+        }
+
         BlockPos.MutableBlockPos var4 = new BlockPos.MutableBlockPos();
 
         for(int var5 = 0; var5 < 667; ++var5) {
-            this.doAnimateTick(param0, param1, param2, 16, var1, var3, var4);
-            this.doAnimateTick(param0, param1, param2, 32, var1, var3, var4);
+            this.doAnimateTick(param0, param1, param2, 16, var1, var2, var4);
+            this.doAnimateTick(param0, param1, param2, 32, var1, var2, var4);
         }
 
     }

@@ -3,14 +3,19 @@ package net.minecraft.client.renderer.blockentity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
+import it.unimi.dsi.fastutil.ints.Int2IntFunction;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BedBlock;
+import net.minecraft.world.level.block.ChestBlock;
+import net.minecraft.world.level.block.DoubleBlockCombiner;
 import net.minecraft.world.level.block.entity.BedBlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraftforge.api.distmarker.Dist;
@@ -48,9 +53,21 @@ public class BedRenderer extends BlockEntityRenderer<BedBlockEntity> {
 
     public void render(BedBlockEntity param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {
         Material var0 = Sheets.BED_TEXTURES[param0.getColor().getId()];
-        if (param0.hasLevel()) {
-            BlockState var1 = param0.getBlockState();
-            this.renderPiece(param2, param3, var1.getValue(BedBlock.PART) == BedPart.HEAD, var1.getValue(BedBlock.FACING), var0, param4, param5, false);
+        Level var1 = param0.getLevel();
+        if (var1 != null) {
+            BlockState var2 = param0.getBlockState();
+            DoubleBlockCombiner.NeighborCombineResult<? extends BedBlockEntity> var3 = DoubleBlockCombiner.combineWithNeigbour(
+                BlockEntityType.BED,
+                BedBlock::getBlockType,
+                BedBlock::getConnectedDirection,
+                ChestBlock.FACING,
+                var2,
+                var1,
+                param0.getBlockPos(),
+                (param0x, param1x) -> false
+            );
+            int var4 = var3.<Int2IntFunction>apply(new BrightnessCombiner<>()).get(param4);
+            this.renderPiece(param2, param3, var2.getValue(BedBlock.PART) == BedPart.HEAD, var2.getValue(BedBlock.FACING), var0, var4, param5, false);
         } else {
             this.renderPiece(param2, param3, true, Direction.SOUTH, var0, param4, param5, false);
             this.renderPiece(param2, param3, false, Direction.SOUTH, var0, param4, param5, true);

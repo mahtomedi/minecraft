@@ -233,7 +233,7 @@ public class RealmsMainScreen extends RealmsScreen {
             this.buyARealmButton = new RealmsButton(5, this.width() / 2 + 52, this.popupY0() + 160 - 20, 98, 20, getLocalizedString("mco.selectServer.buy")) {
                 @Override
                 public void onPress() {
-                    RealmsUtil.browseTo("https://minecraft.net/realms");
+                    RealmsUtil.browseTo("https://aka.ms/BuyJavaRealms");
                 }
             }
         );
@@ -444,9 +444,9 @@ public class RealmsMainScreen extends RealmsScreen {
     private void onRenew() {
         RealmsServer var0 = this.findServer(this.selectedServerId);
         if (var0 != null) {
-            String var1 = "https://account.mojang.com/buy/realms?sid="
+            String var1 = "https://aka.ms/ExtendJavaRealms?subscriptionId="
                 + var0.remoteSubscriptionId
-                + "&pid="
+                + "&profileId="
                 + Realms.getUUID()
                 + "&ref="
                 + (var0.expiredTrial ? "expiredTrial" : "expiredRealm");

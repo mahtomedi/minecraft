@@ -127,7 +127,7 @@ public class StructureTemplate {
         List<StructureTemplate.StructureBlockInfo> var0 = Lists.newArrayList();
         BoundingBox var1 = param1.getBoundingBox();
 
-        for(StructureTemplate.StructureBlockInfo var2 : param1.getPalette(this.palettes, param0)) {
+        for(StructureTemplate.StructureBlockInfo var2 : param1.getRandomPalette(this.palettes, param0)) {
             BlockPos var3 = param3 ? calculateRelativePosition(param1, var2.pos).offset(param0) : var2.pos;
             if (var1 == null || var1.isInside(var3)) {
                 BlockState var4 = var2.state;
@@ -163,7 +163,7 @@ public class StructureTemplate {
         if (this.palettes.isEmpty()) {
             return false;
         } else {
-            List<StructureTemplate.StructureBlockInfo> var0 = param2.getPalette(this.palettes, param1);
+            List<StructureTemplate.StructureBlockInfo> var0 = param2.getRandomPalette(this.palettes, param1);
             if ((!var0.isEmpty() || !param2.isIgnoreEntities() && !this.entityInfoList.isEmpty())
                 && this.size.getX() >= 1
                 && this.size.getY() >= 1

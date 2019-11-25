@@ -430,7 +430,7 @@ public abstract class PlayerList {
             if (var7.isPresent()) {
                 Vec3 var8 = var7.get();
                 var4.moveTo(var8.x, var8.y, var8.z, 0.0F, 0.0F);
-                var4.setRespawnPosition(var0, var1);
+                var4.setRespawnPosition(var0, var1, false);
             } else {
                 var4.connection.send(new ClientboundGameEventPacket(0, 0.0F));
             }

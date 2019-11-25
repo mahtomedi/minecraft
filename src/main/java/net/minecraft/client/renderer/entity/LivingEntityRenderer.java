@@ -105,21 +105,29 @@ public abstract class LivingEntityRenderer<T extends LivingEntity, M extends Ent
         }
 
         this.model.prepareMobModel(param0, var10, var9, param2);
-        boolean var11 = this.isVisible(param0, false);
-        boolean var12 = !var11 && !param0.isInvisibleTo(Minecraft.getInstance().player);
+        boolean var11 = param0.isGlowing();
+        boolean var12 = this.isVisible(param0, false);
+        boolean var13 = !var12 && !param0.isInvisibleTo(Minecraft.getInstance().player);
         this.model.setupAnim(param0, var10, var9, var8, var2, var5);
-        if (var11 || var12) {
-            ResourceLocation var13 = this.getTextureLocation(param0);
-            VertexConsumer var14 = param4.getBuffer(var12 ? RenderType.entityTranslucent(var13) : this.model.renderType(var13));
-            this.model
-                .renderToBuffer(
-                    param3, var14, param5, getOverlayCoords(param0, this.getWhiteOverlayProgress(param0, param2)), 1.0F, 1.0F, 1.0F, var12 ? 0.15F : 1.0F
-                );
+        ResourceLocation var14 = this.getTextureLocation(param0);
+        RenderType var15;
+        if (var13) {
+            var15 = RenderType.entityTranslucent(var14);
+        } else if (var12) {
+            var15 = this.model.renderType(var14);
+        } else {
+            var15 = RenderType.outline(var14);
+        }
+
+        if (var12 || var13 || var11) {
+            VertexConsumer var18 = param4.getBuffer(var15);
+            int var19 = getOverlayCoords(param0, this.getWhiteOverlayProgress(param0, param2));
+            this.model.renderToBuffer(param3, var18, param5, var19, 1.0F, 1.0F, 1.0F, var13 ? 0.15F : 1.0F);
         }
 
         if (!param0.isSpectator()) {
-            for(RenderLayer<T, M> var15 : this.layers) {
-                var15.render(param3, param4, param5, param0, var10, var9, param2, var8, var2, var5);
+            for(RenderLayer<T, M> var20 : this.layers) {
+                var20.render(param3, param4, param5, param0, var10, var9, param2, var8, var2, var5);
             }
         }
 

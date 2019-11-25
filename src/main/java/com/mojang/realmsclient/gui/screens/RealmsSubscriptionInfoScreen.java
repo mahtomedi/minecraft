@@ -36,7 +36,7 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
     private int daysLeft;
     private String startDate;
     private Subscription.SubscriptionType type;
-    private final String PURCHASE_LINK = "https://account.mojang.com/buy/realms";
+    private final String PURCHASE_LINK = "https://aka.ms/ExtendJavaRealms";
 
     public RealmsSubscriptionInfoScreen(RealmsScreen param0, RealmsServer param1, RealmsScreen param2) {
         this.lastScreen = param0;
@@ -59,9 +59,9 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
             new RealmsButton(2, this.width() / 2 - 100, RealmsConstants.row(6), getLocalizedString("mco.configure.world.subscription.extend")) {
                 @Override
                 public void onPress() {
-                    String var0 = "https://account.mojang.com/buy/realms?sid="
+                    String var0 = "https://aka.ms/ExtendJavaRealms?subscriptionId="
                         + RealmsSubscriptionInfoScreen.this.serverData.remoteSubscriptionId
-                        + "&pid="
+                        + "&profileId="
                         + Realms.getUUID();
                     Realms.setClipboard(var0);
                     RealmsUtil.browseTo(var0);

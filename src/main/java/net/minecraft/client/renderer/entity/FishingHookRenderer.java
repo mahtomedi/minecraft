@@ -35,7 +35,7 @@ public class FishingHookRenderer extends EntityRenderer<FishingHook> {
             param3.pushPose();
             param3.pushPose();
             param3.scale(0.5F, 0.5F, 0.5F);
-            param3.mulPose(this.entityRenderDispatcher.camera.rotation());
+            param3.mulPose(this.entityRenderDispatcher.cameraOrientation());
             param3.mulPose(Vector3f.YP.rotationDegrees(180.0F));
             PoseStack.Pose var1 = param3.last();
             Matrix4f var2 = var1.pose();

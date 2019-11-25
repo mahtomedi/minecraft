@@ -18,26 +18,29 @@ public class FireChargeItem extends Item {
     @Override
     public InteractionResult useOn(UseOnContext param0) {
         Level var0 = param0.getLevel();
-        if (var0.isClientSide) {
-            return InteractionResult.SUCCESS;
-        } else {
-            BlockPos var1 = param0.getClickedPos();
-            BlockState var2 = var0.getBlockState(var1);
-            if (var2.getBlock() == Blocks.CAMPFIRE) {
-                if (!var2.getValue(CampfireBlock.LIT) && !var2.getValue(CampfireBlock.WATERLOGGED)) {
-                    this.playSound(var0, var1);
-                    var0.setBlockAndUpdate(var1, var2.setValue(CampfireBlock.LIT, Boolean.valueOf(true)));
-                }
-            } else {
-                var1 = var1.relative(param0.getClickedFace());
-                if (var0.getBlockState(var1).isAir()) {
-                    this.playSound(var0, var1);
-                    var0.setBlockAndUpdate(var1, ((FireBlock)Blocks.FIRE).getStateForPlacement(var0, var1));
-                }
+        BlockPos var1 = param0.getClickedPos();
+        BlockState var2 = var0.getBlockState(var1);
+        boolean var3 = false;
+        if (var2.getBlock() == Blocks.CAMPFIRE) {
+            if (!var2.getValue(CampfireBlock.LIT) && !var2.getValue(CampfireBlock.WATERLOGGED)) {
+                this.playSound(var0, var1);
+                var0.setBlockAndUpdate(var1, var2.setValue(CampfireBlock.LIT, Boolean.valueOf(true)));
+                var3 = true;
             }
+        } else {
+            var1 = var1.relative(param0.getClickedFace());
+            if (var0.getBlockState(var1).isAir()) {
+                this.playSound(var0, var1);
+                var0.setBlockAndUpdate(var1, ((FireBlock)Blocks.FIRE).getStateForPlacement(var0, var1));
+                var3 = true;
+            }
+        }
 
+        if (var3) {
             param0.getItemInHand().shrink(1);
             return InteractionResult.SUCCESS;
+        } else {
+            return InteractionResult.FAIL;
         }
     }
 

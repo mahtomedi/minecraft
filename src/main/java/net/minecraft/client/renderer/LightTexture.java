@@ -169,4 +169,12 @@ public class LightTexture implements AutoCloseable {
     public static int pack(int param0, int param1) {
         return param0 << 4 | param1 << 20;
     }
+
+    public static int block(int param0) {
+        return param0 >> 4 & 65535;
+    }
+
+    public static int sky(int param0) {
+        return param0 >> 20 & 65535;
+    }
 }

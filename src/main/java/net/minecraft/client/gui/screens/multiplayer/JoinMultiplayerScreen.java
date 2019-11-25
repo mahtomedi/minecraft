@@ -72,11 +72,11 @@ public class JoinMultiplayerScreen extends Screen {
         );
         this.addButton(new Button(this.width / 2 - 50, this.height - 52, 100, 20, I18n.get("selectServer.direct"), param0 -> {
             this.editingServer = new ServerData(I18n.get("selectServer.defaultName"), "", false);
-            this.minecraft.setScreen(new DirectJoinServerScreen(this::directJoinCallback, this.editingServer));
+            this.minecraft.setScreen(new DirectJoinServerScreen(this, this::directJoinCallback, this.editingServer));
         }));
         this.addButton(new Button(this.width / 2 + 4 + 50, this.height - 52, 100, 20, I18n.get("selectServer.add"), param0 -> {
             this.editingServer = new ServerData(I18n.get("selectServer.defaultName"), "", false);
-            this.minecraft.setScreen(new EditServerScreen(this::addServerCallback, this.editingServer));
+            this.minecraft.setScreen(new EditServerScreen(this, this::addServerCallback, this.editingServer));
         }));
         this.editButton = this.addButton(new Button(this.width / 2 - 154, this.height - 28, 70, 20, I18n.get("selectServer.edit"), param0 -> {
             ServerSelectionList.Entry var0x = this.serverSelectionList.getSelected();
@@ -84,7 +84,7 @@ public class JoinMultiplayerScreen extends Screen {
                 ServerData var1 = ((ServerSelectionList.OnlineServerEntry)var0x).getServerData();
                 this.editingServer = new ServerData(var1.name, var1.ip, false);
                 this.editingServer.copyFrom(var1);
-                this.minecraft.setScreen(new EditServerScreen(this::editServerCallback, this.editingServer));
+                this.minecraft.setScreen(new EditServerScreen(this, this::editServerCallback, this.editingServer));
             }
 
         }));

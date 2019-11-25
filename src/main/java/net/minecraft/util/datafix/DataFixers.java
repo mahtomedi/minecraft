@@ -64,6 +64,7 @@ import net.minecraft.util.datafix.fixes.EntityTippedArrowFix;
 import net.minecraft.util.datafix.fixes.EntityWolfColorFix;
 import net.minecraft.util.datafix.fixes.EntityZombieSplitFix;
 import net.minecraft.util.datafix.fixes.EntityZombieVillagerTypeFix;
+import net.minecraft.util.datafix.fixes.ForcePoiRebuild;
 import net.minecraft.util.datafix.fixes.HeightmapRenamingFix;
 import net.minecraft.util.datafix.fixes.IglooMetadataRemovalFix;
 import net.minecraft.util.datafix.fixes.ItemBannerColorFix;
@@ -540,5 +541,7 @@ public class DataFixers {
         );
         Schema var98 = param0.addSchema(2211, SAME_NAMESPACED);
         param0.addFixer(new StructureReferenceCountFix(var98, false));
+        Schema var99 = param0.addSchema(2218, SAME_NAMESPACED);
+        param0.addFixer(new ForcePoiRebuild(var99, false));
     }
 }

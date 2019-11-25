@@ -104,6 +104,11 @@ public class CreateFlatWorldScreen extends Screen {
     }
 
     @Override
+    public void onClose() {
+        this.minecraft.setScreen(this.parent);
+    }
+
+    @Override
     public void render(int param0, int param1, float param2) {
         this.renderBackground();
         this.list.render(param0, param1, param2);

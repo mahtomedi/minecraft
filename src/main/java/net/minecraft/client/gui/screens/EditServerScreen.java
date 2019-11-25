@@ -21,6 +21,7 @@ public class EditServerScreen extends Screen {
     private EditBox ipEdit;
     private EditBox nameEdit;
     private Button serverPackButton;
+    private final Screen lastScreen;
     private final Predicate<String> addressFilter = param0x -> {
         if (StringUtil.isNullOrEmpty(param0x)) {
             return true;
@@ -32,17 +33,18 @@ public class EditServerScreen extends Screen {
                 try {
                     String var2x = IDN.toASCII(var0[0]);
                     return true;
-                } catch (IllegalArgumentException var3) {
+                } catch (IllegalArgumentException var3x) {
                     return false;
                 }
             }
         }
     };
 
-    public EditServerScreen(BooleanConsumer param0, ServerData param1) {
+    public EditServerScreen(Screen param0, BooleanConsumer param1, ServerData param2) {
         super(new TranslatableComponent("addServer.title"));
-        this.callback = param0;
-        this.serverData = param1;
+        this.lastScreen = param0;
+        this.callback = param1;
+        this.serverData = param2;
     }
 
     @Override
@@ -85,7 +87,7 @@ public class EditServerScreen extends Screen {
         );
         this.addButton = this.addButton(new Button(this.width / 2 - 100, this.height / 4 + 96 + 18, 200, 20, I18n.get("addServer.add"), param0 -> this.onAdd()));
         this.addButton(new Button(this.width / 2 - 100, this.height / 4 + 120 + 18, 200, 20, I18n.get("gui.cancel"), param0 -> this.callback.accept(false)));
-        this.onClose();
+        this.cleanUp();
     }
 
     @Override
@@ -114,6 +116,11 @@ public class EditServerScreen extends Screen {
 
     @Override
     public void onClose() {
+        this.cleanUp();
+        this.minecraft.setScreen(this.lastScreen);
+    }
+
+    private void cleanUp() {
         String var0 = this.ipEdit.getValue();
         boolean var1 = !var0.isEmpty() && var0.split(":").length > 0 && var0.indexOf(32) == -1;
         this.addButton.active = var1 && !this.nameEdit.getValue().isEmpty();

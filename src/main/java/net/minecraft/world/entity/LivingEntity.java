@@ -41,6 +41,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.Tag;
 import net.minecraft.util.Mth;
@@ -86,6 +87,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.HoneyBlock;
 import net.minecraft.world.level.block.LadderBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.TrapDoorBlock;
@@ -1543,6 +1545,7 @@ public abstract class LivingEntity extends Entity {
             case 42:
             case 43:
             case 45:
+            case 53:
             default:
                 super.handleEntityEvent(param0);
                 break;
@@ -1583,6 +1586,9 @@ public abstract class LivingEntity extends Entity {
                 break;
             case 52:
                 this.breakItem(this.getItemBySlot(EquipmentSlot.FEET));
+                break;
+            case 54:
+                HoneyBlock.showJumpParticles(this);
         }
 
     }
@@ -1718,8 +1724,10 @@ public abstract class LivingEntity extends Entity {
 
     }
 
-    public void findStandUpPosition(Entity param0) {
-        if (!(param0 instanceof Boat) && !(param0 instanceof AbstractHorse)) {
+    private void findStandUpPosition(Entity param0) {
+        if (this.level.getBlockState(new BlockPos(param0)).getBlock().is(BlockTags.PORTALS)) {
+            this.setPos(param0.getX(), param0.getY(1.0) + 0.001, param0.getZ());
+        } else if (!(param0 instanceof Boat) && !(param0 instanceof AbstractHorse)) {
             double var19 = param0.getX();
             double var20 = param0.getY(1.0);
             double var21 = param0.getZ();
