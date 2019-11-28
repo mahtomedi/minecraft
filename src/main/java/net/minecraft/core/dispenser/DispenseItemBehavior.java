@@ -348,7 +348,7 @@ public interface DispenseItemBehavior {
         DispenseItemBehavior var3 = new OptionalDispenseItemBehavior() {
             @Override
             protected ItemStack execute(BlockSource param0, ItemStack param1) {
-                this.success = !ArmorItem.dispenseArmor(param0, param1).isEmpty();
+                this.success = ArmorItem.dispenseArmor(param0, param1);
                 return param1;
             }
         };
@@ -365,7 +365,6 @@ public interface DispenseItemBehavior {
                     Level var0 = param0.getLevel();
                     Direction var1 = param0.getBlockState().getValue(DispenserBlock.FACING);
                     BlockPos var2 = param0.getPos().relative(var1);
-                    this.success = true;
                     if (var0.isEmptyBlock(var2) && WitherSkullBlock.canSpawnMob(var0, var2, param1)) {
                         var0.setBlock(
                             var2,
@@ -382,14 +381,12 @@ public interface DispenseItemBehavior {
                         }
     
                         param1.shrink(1);
+                        this.success = true;
                     } else {
-                        ItemStack var4 = ArmorItem.dispenseArmor(param0, param1);
-                        if (param1.getCount() < var4.getCount()) {
-                            this.success = false;
-                        }
+                        this.success = ArmorItem.dispenseArmor(param0, param1);
                     }
     
-                    return super.execute(param0, param1);
+                    return param1;
                 }
             }
         );
@@ -399,21 +396,18 @@ public interface DispenseItemBehavior {
                 Level var0 = param0.getLevel();
                 BlockPos var1 = param0.getPos().relative(param0.getBlockState().getValue(DispenserBlock.FACING));
                 CarvedPumpkinBlock var2 = (CarvedPumpkinBlock)Blocks.CARVED_PUMPKIN;
-                this.success = true;
                 if (var0.isEmptyBlock(var1) && var2.canSpawnGolem(var0, var1)) {
                     if (!var0.isClientSide) {
                         var0.setBlock(var1, var2.defaultBlockState(), 3);
                     }
 
                     param1.shrink(1);
+                    this.success = true;
                 } else {
-                    ItemStack var3 = ArmorItem.dispenseArmor(param0, param1);
-                    if (param1.getCount() < var3.getCount()) {
-                        this.success = false;
-                    }
+                    this.success = ArmorItem.dispenseArmor(param0, param1);
                 }
 
-                return super.execute(param0, param1);
+                return param1;
             }
         });
         DispenserBlock.registerBehavior(Blocks.SHULKER_BOX.asItem(), new ShulkerBoxDispenseBehavior());

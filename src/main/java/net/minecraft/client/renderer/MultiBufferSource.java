@@ -62,34 +62,26 @@ public interface MultiBufferSource {
         }
 
         public void endBatch() {
-            this.endBatch(0, 0, 0);
-        }
-
-        public void endBatch(int param0, int param1, int param2) {
-            this.lastState.ifPresent(param3 -> {
-                VertexConsumer var0x = this.getBuffer(param3);
+            this.lastState.ifPresent(param0 -> {
+                VertexConsumer var0x = this.getBuffer(param0);
                 if (var0x == this.builder) {
-                    this.endBatch(param3, param0, param1, param2);
+                    this.endBatch(param0);
                 }
 
             });
 
             for(RenderType var0 : this.fixedBuffers.keySet()) {
-                this.endBatch(var0, param0, param1, param2);
+                this.endBatch(var0);
             }
 
         }
 
         public void endBatch(RenderType param0) {
-            this.endBatch(param0, 0, 0, 0);
-        }
-
-        public void endBatch(RenderType param0, int param1, int param2, int param3) {
             BufferBuilder var0 = this.getBuilderRaw(param0);
             boolean var1 = Objects.equals(this.lastState, Optional.of(param0));
             if (var1 || var0 != this.builder) {
                 if (this.startedBuffers.remove(var0)) {
-                    param0.end(var0, param1, param2, param3);
+                    param0.end(var0, 0, 0, 0);
                     if (var1) {
                         this.lastState = Optional.empty();
                     }

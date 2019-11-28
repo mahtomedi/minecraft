@@ -2,6 +2,7 @@ package net.minecraft.client.gui.components;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.math.Matrix4f;
 import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -50,23 +51,24 @@ public class ChatComponent extends GuiComponent {
                 double var5 = this.minecraft.options.chatOpacity * 0.9F + 0.1F;
                 double var6 = this.minecraft.options.textBackgroundOpacity;
                 int var7 = 0;
+                Matrix4f var8 = Matrix4f.createTranslateMatrix(0.0F, 0.0F, -100.0F);
 
-                for(int var8 = 0; var8 + this.chatScrollbarPos < this.trimmedMessages.size() && var8 < var0; ++var8) {
-                    GuiMessage var9 = this.trimmedMessages.get(var8 + this.chatScrollbarPos);
-                    if (var9 != null) {
-                        int var10 = param0 - var9.getAddedTime();
-                        if (var10 < 200 || var2) {
-                            double var11 = var2 ? 1.0 : getTimeFactor(var10);
-                            int var12 = (int)(255.0 * var11 * var5);
-                            int var13 = (int)(255.0 * var11 * var6);
+                for(int var9 = 0; var9 + this.chatScrollbarPos < this.trimmedMessages.size() && var9 < var0; ++var9) {
+                    GuiMessage var10 = this.trimmedMessages.get(var9 + this.chatScrollbarPos);
+                    if (var10 != null) {
+                        int var11 = param0 - var10.getAddedTime();
+                        if (var11 < 200 || var2) {
+                            double var12 = var2 ? 1.0 : getTimeFactor(var11);
+                            int var13 = (int)(255.0 * var12 * var5);
+                            int var14 = (int)(255.0 * var12 * var6);
                             ++var7;
-                            if (var12 > 3) {
-                                int var14 = 0;
-                                int var15 = -var8 * 9;
-                                fill(-2, var15 - 9, 0 + var4 + 4, var15, var13 << 24);
-                                String var16 = var9.getMessage().getColoredString();
+                            if (var13 > 3) {
+                                int var15 = 0;
+                                int var16 = -var9 * 9;
+                                fill(var8, -2, var16 - 9, 0 + var4 + 4, var16, var14 << 24);
+                                String var17 = var10.getMessage().getColoredString();
                                 RenderSystem.enableBlend();
-                                this.minecraft.font.drawShadow(var16, 0.0F, (float)(var15 - 8), 16777215 + (var12 << 24));
+                                this.minecraft.font.drawShadow(var17, 0.0F, (float)(var16 - 8), 16777215 + (var13 << 24));
                                 RenderSystem.disableAlphaTest();
                                 RenderSystem.disableBlend();
                             }
@@ -75,17 +77,17 @@ public class ChatComponent extends GuiComponent {
                 }
 
                 if (var2) {
-                    int var17 = 9;
+                    int var18 = 9;
                     RenderSystem.translatef(-3.0F, 0.0F, 0.0F);
-                    int var18 = var1 * var17 + var1;
-                    int var19 = var7 * var17 + var7;
-                    int var20 = this.chatScrollbarPos * var19 / var1;
-                    int var21 = var19 * var19 / var18;
-                    if (var18 != var19) {
-                        int var22 = var20 > 0 ? 170 : 96;
-                        int var23 = this.newMessageSinceScroll ? 13382451 : 3355562;
-                        fill(0, -var20, 2, -var20 - var21, var23 + (var22 << 24));
-                        fill(2, -var20, 1, -var20 - var21, 13421772 + (var22 << 24));
+                    int var19 = var1 * var18 + var1;
+                    int var20 = var7 * var18 + var7;
+                    int var21 = this.chatScrollbarPos * var20 / var1;
+                    int var22 = var20 * var20 / var19;
+                    if (var19 != var20) {
+                        int var23 = var21 > 0 ? 170 : 96;
+                        int var24 = this.newMessageSinceScroll ? 13382451 : 3355562;
+                        fill(0, -var21, 2, -var21 - var22, var24 + (var23 << 24));
+                        fill(2, -var21, 1, -var21 - var22, 13421772 + (var23 << 24));
                     }
                 }
 

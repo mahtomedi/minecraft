@@ -58,9 +58,4 @@ public class SoulsandBlock extends Block {
     public boolean isValidSpawn(BlockState param0, BlockGetter param1, BlockPos param2, EntityType<?> param3) {
         return true;
     }
-
-    @Override
-    public boolean isViewBlocking(BlockState param0, BlockGetter param1, BlockPos param2) {
-        return true;
-    }
 }

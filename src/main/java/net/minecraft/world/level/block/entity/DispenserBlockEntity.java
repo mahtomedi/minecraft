@@ -28,17 +28,6 @@ public class DispenserBlockEntity extends RandomizableContainerBlockEntity {
         return 9;
     }
 
-    @Override
-    public boolean isEmpty() {
-        for(ItemStack var0 : this.items) {
-            if (!var0.isEmpty()) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     public int getRandomSlot() {
         this.unpackLootTable(null);
         int var0 = -1;

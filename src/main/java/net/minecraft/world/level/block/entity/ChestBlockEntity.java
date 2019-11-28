@@ -53,17 +53,6 @@ public class ChestBlockEntity extends RandomizableContainerBlockEntity implement
     }
 
     @Override
-    public boolean isEmpty() {
-        for(ItemStack var0 : this.items) {
-            if (!var0.isEmpty()) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    @Override
     protected Component getDefaultName() {
         return new TranslatableComponent("container.chest");
     }

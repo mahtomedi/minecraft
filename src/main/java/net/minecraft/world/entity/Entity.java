@@ -114,6 +114,7 @@ public abstract class Entity implements CommandSource, Nameable {
     public boolean blocksBuilding;
     private final List<Entity> passengers = Lists.newArrayList();
     protected int boardingCooldown;
+    @Nullable
     private Entity vehicle;
     public boolean forcedLoading;
     public Level level;
@@ -1566,8 +1567,12 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     public void positionRider(Entity param0) {
+        this.positionRider(param0, Entity::setPos);
+    }
+
+    public void positionRider(Entity param0, Entity.MoveCallback param1) {
         if (this.hasPassenger(param0)) {
-            param0.setPos(this.getX(), this.getY() + this.getRideHeight() + param0.getRidingHeight(), this.getZ());
+            param1.accept(param0, this.getX(), this.getY() + this.getRideHeight() + param0.getRidingHeight(), this.getZ());
         }
     }
 
@@ -2259,9 +2264,13 @@ public abstract class Entity implements CommandSource, Nameable {
 
     public void teleportTo(double param0, double param1, double param2) {
         if (this.level instanceof ServerLevel) {
-            this.teleported = true;
+            ServerLevel var0 = (ServerLevel)this.level;
             this.moveTo(param0, param1, param2, this.yRot, this.xRot);
-            ((ServerLevel)this.level).updateChunkPos(this);
+            this.getSelfAndPassengers().forEach(param1x -> {
+                var0.updateChunkPos(param1x);
+                param1x.teleported = true;
+                param1x.repositionDirectPassengers(Entity::forceMove);
+            });
         }
     }
 
@@ -2482,6 +2491,10 @@ public abstract class Entity implements CommandSource, Nameable {
         return var0;
     }
 
+    public Stream<Entity> getSelfAndPassengers() {
+        return Stream.concat(Stream.of(this), this.passengers.stream().flatMap(Entity::getSelfAndPassengers));
+    }
+
     public boolean hasOnePlayerPassenger() {
         Set<Entity> var0 = Sets.newHashSet();
         this.fillIndirectPassengers(true, var0);
@@ -2525,6 +2538,13 @@ public abstract class Entity implements CommandSource, Nameable {
         }
 
         return false;
+    }
+
+    public void repositionDirectPassengers(Entity.MoveCallback param0) {
+        for(Entity var0 : this.passengers) {
+            this.positionRider(var0, param0);
+        }
+
     }
 
     public boolean isControlledByLocalInstance() {
@@ -2745,5 +2765,14 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     public void checkDespawn() {
+    }
+
+    public void forceMove(double param0, double param1, double param2) {
+        this.moveTo(param0, param1, param2, this.yRot, this.xRot);
+    }
+
+    @FunctionalInterface
+    public interface MoveCallback {
+        void accept(Entity var1, double var2, double var4, double var6);
     }
 }

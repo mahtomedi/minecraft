@@ -1,5 +1,6 @@
 package net.minecraft.client.renderer.blockentity;
 
+import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
@@ -60,15 +61,20 @@ public class SignRenderer extends BlockEntityRenderer<SignBlockEntity> {
         param2.translate(0.0, 0.33333334F, 0.046666667F);
         param2.scale(0.010416667F, -0.010416667F, 0.010416667F);
         int var8 = param0.getColor().getTextColor();
+        double var9 = 0.4;
+        int var10 = (int)((double)NativeImage.getR(var8) * 0.4);
+        int var11 = (int)((double)NativeImage.getG(var8) * 0.4);
+        int var12 = (int)((double)NativeImage.getB(var8) * 0.4);
+        int var13 = NativeImage.combine(0, var12, var11, var10);
 
-        for(int var9 = 0; var9 < 4; ++var9) {
-            String var10 = param0.getRenderMessage(var9, param1x -> {
+        for(int var14 = 0; var14 < 4; ++var14) {
+            String var15 = param0.getRenderMessage(var14, param1x -> {
                 List<Component> var0x = ComponentRenderUtils.wrapComponents(param1x, 90, var6, false, true);
                 return var0x.isEmpty() ? "" : var0x.get(0).getColoredString();
             });
-            if (var10 != null) {
-                float var11 = (float)(-var6.width(var10) / 2);
-                var6.drawInBatch(var10, var11, (float)(var9 * 10 - param0.messages.length * 5), var8, false, param2.last().pose(), param3, false, 0, param4);
+            if (var15 != null) {
+                float var16 = (float)(-var6.width(var15) / 2);
+                var6.drawInBatch(var15, var16, (float)(var14 * 10 - param0.messages.length * 5), var13, false, param2.last().pose(), param3, false, 0, param4);
             }
         }
 

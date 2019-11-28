@@ -272,7 +272,7 @@ public class Ocelot extends Animal {
     ) {
         if (param3 == null) {
             param3 = new AgableMob.AgableMobGroupData();
-            ((AgableMob.AgableMobGroupData)param3).setBabySpawnChance(0.14285715F);
+            ((AgableMob.AgableMobGroupData)param3).setBabySpawnChance(1.0F);
         }
 
         return super.finalizeSpawn(param0, param1, param2, param3, param4);

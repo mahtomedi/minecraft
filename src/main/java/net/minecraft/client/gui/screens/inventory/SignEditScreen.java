@@ -9,7 +9,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
 import java.util.List;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ComponentRenderUtils;
@@ -117,8 +116,7 @@ public class SignEditScreen extends Screen {
         var0.pushPose();
         var0.translate((double)(this.width / 2), 0.0, 50.0);
         float var1 = 93.75F;
-        var0.scale(-93.75F, -93.75F, -93.75F);
-        var0.mulPose(Vector3f.YP.rotationDegrees(180.0F));
+        var0.scale(93.75F, -93.75F, 93.75F);
         var0.translate(0.0, -1.3125, 0.0);
         BlockState var2 = this.sign.getBlockState();
         boolean var3 = var2.getBlock() instanceof StandingSignBlock;

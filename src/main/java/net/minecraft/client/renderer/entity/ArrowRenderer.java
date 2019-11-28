@@ -46,14 +46,14 @@ public abstract class ArrowRenderer<T extends AbstractArrow> extends EntityRende
         PoseStack.Pose var13 = param3.last();
         Matrix4f var14 = var13.pose();
         Matrix3f var15 = var13.normal();
-        this.vertex(var14, var15, var12, -7, -2, -2, 0.0F, 0.15625F, 1, 0, 0, param5);
-        this.vertex(var14, var15, var12, -7, -2, 2, 0.15625F, 0.15625F, 1, 0, 0, param5);
-        this.vertex(var14, var15, var12, -7, 2, 2, 0.15625F, 0.3125F, 1, 0, 0, param5);
-        this.vertex(var14, var15, var12, -7, 2, -2, 0.0F, 0.3125F, 1, 0, 0, param5);
-        this.vertex(var14, var15, var12, -7, 2, -2, 0.0F, 0.15625F, -1, 0, 0, param5);
-        this.vertex(var14, var15, var12, -7, 2, 2, 0.15625F, 0.15625F, -1, 0, 0, param5);
-        this.vertex(var14, var15, var12, -7, -2, 2, 0.15625F, 0.3125F, -1, 0, 0, param5);
-        this.vertex(var14, var15, var12, -7, -2, -2, 0.0F, 0.3125F, -1, 0, 0, param5);
+        this.vertex(var14, var15, var12, -7, -2, -2, 0.0F, 0.15625F, -1, 0, 0, param5);
+        this.vertex(var14, var15, var12, -7, -2, 2, 0.15625F, 0.15625F, -1, 0, 0, param5);
+        this.vertex(var14, var15, var12, -7, 2, 2, 0.15625F, 0.3125F, -1, 0, 0, param5);
+        this.vertex(var14, var15, var12, -7, 2, -2, 0.0F, 0.3125F, -1, 0, 0, param5);
+        this.vertex(var14, var15, var12, -7, 2, -2, 0.0F, 0.15625F, 1, 0, 0, param5);
+        this.vertex(var14, var15, var12, -7, 2, 2, 0.15625F, 0.15625F, 1, 0, 0, param5);
+        this.vertex(var14, var15, var12, -7, -2, 2, 0.15625F, 0.3125F, 1, 0, 0, param5);
+        this.vertex(var14, var15, var12, -7, -2, -2, 0.0F, 0.3125F, 1, 0, 0, param5);
 
         for(int var16 = 0; var16 < 4; ++var16) {
             param3.mulPose(Vector3f.XP.rotationDegrees(90.0F));

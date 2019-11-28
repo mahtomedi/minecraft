@@ -270,17 +270,6 @@ public class ShulkerBoxBlockEntity extends RandomizableContainerBlockEntity impl
     }
 
     @Override
-    public boolean isEmpty() {
-        for(ItemStack var0 : this.itemStacks) {
-            if (!var0.isEmpty()) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    @Override
     public int[] getSlotsForFace(Direction param0) {
         return SLOTS;
     }

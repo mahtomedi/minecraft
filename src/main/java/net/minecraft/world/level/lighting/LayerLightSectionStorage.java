@@ -1,6 +1,7 @@
 package net.minecraft.world.level.lighting;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMaps;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -28,7 +29,7 @@ public abstract class LayerLightSectionStorage<M extends DataLayerStorageMap<M>>
     protected final M updatingSectionData;
     protected final LongSet changedSections = new LongOpenHashSet();
     protected final LongSet sectionsAffectedByLightUpdates = new LongOpenHashSet();
-    protected final Long2ObjectMap<DataLayer> queuedSections = new Long2ObjectOpenHashMap<>();
+    protected final Long2ObjectMap<DataLayer> queuedSections = Long2ObjectMaps.synchronize(new Long2ObjectOpenHashMap<>());
     private final LongSet columnsToRetainQueuedDataFor = new LongOpenHashSet();
     private final LongSet toRemove = new LongOpenHashSet();
     protected volatile boolean hasToRemove;
@@ -162,19 +163,23 @@ public abstract class LayerLightSectionStorage<M extends DataLayerStorageMap<M>>
     }
 
     protected void clearQueuedSectionBlocks(LayerLightEngine<?, ?> param0, long param1) {
-        int var0 = SectionPos.sectionToBlockCoord(SectionPos.x(param1));
-        int var1 = SectionPos.sectionToBlockCoord(SectionPos.y(param1));
-        int var2 = SectionPos.sectionToBlockCoord(SectionPos.z(param1));
+        if (param0.getQueueSize() < 8192) {
+            param0.removeIf(param1x -> SectionPos.blockToSection(param1x) == param1);
+        } else {
+            int var0 = SectionPos.sectionToBlockCoord(SectionPos.x(param1));
+            int var1 = SectionPos.sectionToBlockCoord(SectionPos.y(param1));
+            int var2 = SectionPos.sectionToBlockCoord(SectionPos.z(param1));
 
-        for(int var3 = 0; var3 < 16; ++var3) {
-            for(int var4 = 0; var4 < 16; ++var4) {
-                for(int var5 = 0; var5 < 16; ++var5) {
-                    long var6 = BlockPos.asLong(var0 + var3, var1 + var4, var2 + var5);
-                    param0.removeFromQueue(var6);
+            for(int var3 = 0; var3 < 16; ++var3) {
+                for(int var4 = 0; var4 < 16; ++var4) {
+                    for(int var5 = 0; var5 < 16; ++var5) {
+                        long var6 = BlockPos.asLong(var0 + var3, var1 + var4, var2 + var5);
+                        param0.removeFromQueue(var6);
+                    }
                 }
             }
-        }
 
+        }
     }
 
     protected boolean hasInconsistencies() {

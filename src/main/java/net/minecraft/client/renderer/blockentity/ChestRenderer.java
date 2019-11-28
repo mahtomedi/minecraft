@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.AbstractChestBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ChestBlock;
@@ -81,8 +82,8 @@ public class ChestRenderer<T extends BlockEntity & LidBlockEntity> extends Block
         BlockState var2 = var1 ? param0.getBlockState() : Blocks.CHEST.defaultBlockState().setValue(ChestBlock.FACING, Direction.SOUTH);
         ChestType var3 = var2.hasProperty(ChestBlock.TYPE) ? var2.getValue(ChestBlock.TYPE) : ChestType.SINGLE;
         Block var4 = var2.getBlock();
-        if (var4 instanceof ChestBlock) {
-            ChestBlock var5 = (ChestBlock)var4;
+        if (var4 instanceof AbstractChestBlock) {
+            AbstractChestBlock<?> var5 = (AbstractChestBlock)var4;
             boolean var6 = var3 != ChestType.SINGLE;
             param2.pushPose();
             float var7 = var2.getValue(ChestBlock.FACING).toYRot();
@@ -91,7 +92,7 @@ public class ChestRenderer<T extends BlockEntity & LidBlockEntity> extends Block
             param2.translate(-0.5, -0.5, -0.5);
             DoubleBlockCombiner.NeighborCombineResult<? extends ChestBlockEntity> var8;
             if (var1) {
-                var8 = ChestBlock.combine(var5, var2, var0, param0.getBlockPos(), true);
+                var8 = var5.combine(var2, var0, param0.getBlockPos(), true);
             } else {
                 var8 = DoubleBlockCombiner.Combiner::acceptNone;
             }

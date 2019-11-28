@@ -2,6 +2,7 @@ package net.minecraft.client.renderer.entity;
 
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
@@ -209,9 +210,17 @@ public class ItemRenderer implements ResourceManagerReloadListener {
         RenderSystem.scalef(16.0F, 16.0F, 16.0F);
         PoseStack var0 = new PoseStack();
         MultiBufferSource.BufferSource var1 = Minecraft.getInstance().renderBuffers().bufferSource();
+        if (param3.isGui3d()) {
+            Lighting.setupFor3DItems();
+        }
+
         this.render(param0, ItemTransforms.TransformType.GUI, false, var0, var1, 15728880, OverlayTexture.NO_OVERLAY, param3);
         var1.endBatch();
         RenderSystem.enableDepthTest();
+        if (param3.isGui3d()) {
+            Lighting.setupForFlatItems();
+        }
+
         RenderSystem.disableAlphaTest();
         RenderSystem.disableRescaleNormal();
         RenderSystem.popMatrix();

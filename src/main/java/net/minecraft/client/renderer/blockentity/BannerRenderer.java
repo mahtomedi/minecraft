@@ -76,21 +76,21 @@ public class BannerRenderer extends BlockEntityRenderer<BannerBlockEntity> {
                 this.flag.xRot = 0.0F;
             } else {
                 BlockPos var8 = param0.getBlockPos();
-                float var9 = (float)((long)(var8.getX() * 7 + var8.getY() * 9 + var8.getZ() * 13) + var2) + param1;
-                this.flag.xRot = (-0.0125F + 0.01F * Mth.cos(var9 * (float) Math.PI * 0.02F)) * (float) Math.PI;
+                float var9 = ((float)Math.floorMod((long)(var8.getX() * 7 + var8.getY() * 9 + var8.getZ() * 13) + var2, 100L) + param1) / 100.0F;
+                this.flag.xRot = (-0.0125F + 0.01F * Mth.cos((float) (Math.PI * 2) * var9)) * (float) Math.PI;
             }
 
             this.flag.y = -32.0F;
-            renderPatterns(param0, param2, param3, param4, param5, this.flag, true);
+            renderPatterns(param0, param2, param3, param4, param5, this.flag, ModelBakery.BANNER_BASE, true);
             param2.popPose();
             param2.popPose();
         }
     }
 
     public static void renderPatterns(
-        BannerBlockEntity param0, PoseStack param1, MultiBufferSource param2, int param3, int param4, ModelPart param5, boolean param6
+        BannerBlockEntity param0, PoseStack param1, MultiBufferSource param2, int param3, int param4, ModelPart param5, Material param6, boolean param7
     ) {
-        param5.render(param1, ModelBakery.BANNER_BASE.buffer(param2, RenderType::entitySolid), param3, param4);
+        param5.render(param1, param6.buffer(param2, RenderType::entitySolid), param3, param4);
         List<BannerPattern> var0 = param0.getPatterns();
         List<DyeColor> var1 = param0.getColors();
 
@@ -98,7 +98,7 @@ public class BannerRenderer extends BlockEntityRenderer<BannerBlockEntity> {
             BannerPattern var3 = var0.get(var2);
             DyeColor var4 = var1.get(var2);
             float[] var5 = var4.getTextureDiffuseColors();
-            Material var6 = new Material(param6 ? Sheets.BANNER_SHEET : Sheets.SHIELD_SHEET, var3.location(param6));
+            Material var6 = new Material(param7 ? Sheets.BANNER_SHEET : Sheets.SHIELD_SHEET, var3.location(param7));
             param5.render(param1, var6.buffer(param2, RenderType::entityNoOutline), param3, param4, var5[0], var5[1], var5[2], 1.0F);
         }
 

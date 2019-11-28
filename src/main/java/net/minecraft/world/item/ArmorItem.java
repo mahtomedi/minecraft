@@ -30,8 +30,7 @@ public class ArmorItem extends Item {
     public static final DispenseItemBehavior DISPENSE_ITEM_BEHAVIOR = new DefaultDispenseItemBehavior() {
         @Override
         protected ItemStack execute(BlockSource param0, ItemStack param1) {
-            ItemStack var0 = ArmorItem.dispenseArmor(param0, param1);
-            return var0.isEmpty() ? super.execute(param0, param1) : var0;
+            return ArmorItem.dispenseArmor(param0, param1) ? param1 : super.execute(param0, param1);
         }
     };
     protected final EquipmentSlot slot;
@@ -39,12 +38,12 @@ public class ArmorItem extends Item {
     protected final float toughness;
     protected final ArmorMaterial material;
 
-    public static ItemStack dispenseArmor(BlockSource param0, ItemStack param1) {
+    public static boolean dispenseArmor(BlockSource param0, ItemStack param1) {
         BlockPos var0 = param0.getPos().relative(param0.getBlockState().getValue(DispenserBlock.FACING));
         List<LivingEntity> var1 = param0.getLevel()
             .getEntitiesOfClass(LivingEntity.class, new AABB(var0), EntitySelector.NO_SPECTATORS.and(new EntitySelector.MobCanWearArmourEntitySelector(param1)));
         if (var1.isEmpty()) {
-            return ItemStack.EMPTY;
+            return false;
         } else {
             LivingEntity var2 = var1.get(0);
             EquipmentSlot var3 = Mob.getEquipmentSlotForItem(param1);
@@ -55,7 +54,7 @@ public class ArmorItem extends Item {
                 ((Mob)var2).setPersistenceRequired();
             }
 
-            return param1;
+            return true;
         }
     }
 

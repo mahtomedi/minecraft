@@ -56,46 +56,6 @@ public class BarrelBlockEntity extends RandomizableContainerBlockEntity {
     }
 
     @Override
-    public boolean isEmpty() {
-        for(ItemStack var0 : this.items) {
-            if (!var0.isEmpty()) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    @Override
-    public ItemStack getItem(int param0) {
-        return this.items.get(param0);
-    }
-
-    @Override
-    public ItemStack removeItem(int param0, int param1) {
-        return ContainerHelper.removeItem(this.items, param0, param1);
-    }
-
-    @Override
-    public ItemStack removeItemNoUpdate(int param0) {
-        return ContainerHelper.takeItem(this.items, param0);
-    }
-
-    @Override
-    public void setItem(int param0, ItemStack param1) {
-        this.items.set(param0, param1);
-        if (param1.getCount() > this.getMaxStackSize()) {
-            param1.setCount(this.getMaxStackSize());
-        }
-
-    }
-
-    @Override
-    public void clearContent() {
-        this.items.clear();
-    }
-
-    @Override
     protected NonNullList<ItemStack> getItems() {
         return this.items;
     }

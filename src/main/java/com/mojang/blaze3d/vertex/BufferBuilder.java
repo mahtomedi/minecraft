@@ -296,9 +296,9 @@ public class BufferBuilder extends DefaultedVertexConsumer implements BufferVert
 
             this.putShort(var0 + 0, (short)(param10 & 65535));
             this.putShort(var0 + 2, (short)(param10 >> 16 & 65535));
-            this.putByte(var0 + 4, (byte)((int)(param11 * 127.0F) & 0xFF));
-            this.putByte(var0 + 5, (byte)((int)(param12 * 127.0F) & 0xFF));
-            this.putByte(var0 + 6, (byte)((int)(param13 * 127.0F) & 0xFF));
+            this.putByte(var0 + 4, BufferVertexConsumer.normalIntValue(param11));
+            this.putByte(var0 + 5, BufferVertexConsumer.normalIntValue(param12));
+            this.putByte(var0 + 6, BufferVertexConsumer.normalIntValue(param13));
             this.nextElementByte += var0 + 8;
             this.endVertex();
         } else {

@@ -111,7 +111,7 @@ public class TridentItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level param0, Player param1, InteractionHand param2) {
         ItemStack var0 = param1.getItemInHand(param2);
-        if (var0.getDamageValue() >= var0.getMaxDamage()) {
+        if (var0.getDamageValue() >= var0.getMaxDamage() - 1) {
             return InteractionResultHolder.fail(var0);
         } else if (EnchantmentHelper.getRiptide(var0) > 0 && !param1.isInWaterOrRain()) {
             return InteractionResultHolder.fail(var0);

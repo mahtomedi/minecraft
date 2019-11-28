@@ -321,6 +321,7 @@ public class Wolf extends TamableAnimal {
         super.setTame(param0);
         if (param0) {
             this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(20.0);
+            this.setHealth(20.0F);
         } else {
             this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(8.0);
         }

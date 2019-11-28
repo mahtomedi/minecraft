@@ -82,17 +82,14 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
         int var0 = this.children().indexOf(this.getSelected());
         int var1 = Mth.clamp(var0 + param0, 0, this.getItemCount() - 1);
         ServerSelectionList.Entry var2 = this.children().get(var1);
-        super.setSelected(var2);
         if (var2 instanceof ServerSelectionList.LANHeader) {
-            if (param0 <= 0 || var1 != this.getItemCount() - 1) {
-                if (param0 >= 0 || var1 != 0) {
-                    this.moveSelection(param0);
-                }
-            }
-        } else {
-            this.ensureVisible(var2);
-            this.screen.onSelectedChange();
+            var1 = Mth.clamp(var1 + (param0 > 0 ? 1 : -1), 0, this.getItemCount() - 1);
+            var2 = this.children().get(var1);
         }
+
+        super.setSelected(var2);
+        this.ensureVisible(var2);
+        this.screen.onSelectedChange();
     }
 
     public void updateOnlineServers(ServerList param0) {

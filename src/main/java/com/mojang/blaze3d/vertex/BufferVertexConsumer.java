@@ -1,5 +1,6 @@
 package com.mojang.blaze3d.vertex;
 
+import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -94,11 +95,15 @@ public interface BufferVertexConsumer extends VertexConsumer {
         } else if (var0.getType() != VertexFormatElement.Type.BYTE) {
             throw new IllegalStateException();
         } else {
-            this.putByte(0, (byte)((int)(param0 * 127.0F) & 0xFF));
-            this.putByte(1, (byte)((int)(param1 * 127.0F) & 0xFF));
-            this.putByte(2, (byte)((int)(param2 * 127.0F) & 0xFF));
+            this.putByte(0, normalIntValue(param0));
+            this.putByte(1, normalIntValue(param1));
+            this.putByte(2, normalIntValue(param2));
             this.nextElement();
             return this;
         }
+    }
+
+    static byte normalIntValue(float param0) {
+        return (byte)((int)(Mth.clamp(param0, -1.0F, 1.0F) * 127.0F) & 0xFF);
     }
 }
