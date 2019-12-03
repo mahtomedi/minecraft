@@ -71,10 +71,12 @@ public class SnowLayerBlock extends Block {
     public boolean canSurvive(BlockState param0, LevelReader param1, BlockPos param2) {
         BlockState var0 = param1.getBlockState(param2.below());
         Block var1 = var0.getBlock();
-        if (var1 != Blocks.ICE && var1 != Blocks.PACKED_ICE && var1 != Blocks.BARRIER && var1 != Blocks.WHEAT) {
-            return Block.isFaceFull(var0.getShape(param1, param2.below()), Direction.UP) || var1 == this && var0.getValue(LAYERS) == 8;
-        } else {
+        if (var1 == Blocks.ICE || var1 == Blocks.PACKED_ICE || var1 == Blocks.BARRIER) {
             return false;
+        } else if (var1 != Blocks.HONEY_BLOCK && var1 != Blocks.SOUL_SAND) {
+            return Block.isFaceFull(var0.getCollisionShape(param1, param2.below()), Direction.UP) || var1 == this && var0.getValue(LAYERS) == 8;
+        } else {
+            return true;
         }
     }
 

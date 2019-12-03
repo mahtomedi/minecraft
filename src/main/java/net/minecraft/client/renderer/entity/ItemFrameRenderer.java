@@ -3,7 +3,6 @@ package net.minecraft.client.renderer.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.MapRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
@@ -62,7 +61,6 @@ public class ItemFrameRenderer extends EntityRenderer<ItemFrame> {
             int var8 = var7 ? param0.getRotation() % 4 * 2 : param0.getRotation();
             param3.mulPose(Vector3f.ZP.rotationDegrees((float)var8 * 360.0F / 8.0F));
             if (var7) {
-                this.entityRenderDispatcher.textureManager.bind(MapRenderer.MAP_BACKGROUND_LOCATION);
                 param3.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
                 float var9 = 0.0078125F;
                 param3.scale(0.0078125F, 0.0078125F, 0.0078125F);

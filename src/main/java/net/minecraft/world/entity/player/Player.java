@@ -1533,7 +1533,7 @@ public abstract class Player extends LivingEntity {
     }
 
     protected boolean freeAt(BlockPos param0) {
-        return !this.level.getBlockState(param0).isViewBlocking(this.level, param0);
+        return !this.level.getBlockState(param0).isSuffocating(this.level, param0);
     }
 
     @Override

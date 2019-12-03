@@ -1182,7 +1182,7 @@ public class ServerLevel extends Level {
         T param0, double param1, double param2, double param3, int param4, double param5, double param6, double param7, double param8
     ) {
         ClientboundLevelParticlesPacket var0 = new ClientboundLevelParticlesPacket(
-            param0, false, (float)param1, (float)param2, (float)param3, (float)param5, (float)param6, (float)param7, (float)param8, param4
+            param0, false, param1, param2, param3, (float)param5, (float)param6, (float)param7, (float)param8, param4
         );
         int var1 = 0;
 
@@ -1210,7 +1210,7 @@ public class ServerLevel extends Level {
         double param10
     ) {
         Packet<?> var0 = new ClientboundLevelParticlesPacket(
-            param1, param2, (float)param3, (float)param4, (float)param5, (float)param7, (float)param8, (float)param9, (float)param10, param6
+            param1, param2, param3, param4, param5, (float)param7, (float)param8, (float)param9, (float)param10, param6
         );
         return this.sendParticles(param0, param2, param3, param4, param5, var0);
     }

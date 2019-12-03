@@ -123,17 +123,25 @@ public class ShipwreckPieces {
         public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
             int var0 = 256;
             int var1 = 0;
-            BlockPos var2 = this.templatePosition.offset(this.template.getSize().getX() - 1, 0, this.template.getSize().getZ() - 1);
+            BlockPos var2 = this.template.getSize();
+            Heightmap.Types var3 = this.isBeached ? Heightmap.Types.WORLD_SURFACE_WG : Heightmap.Types.OCEAN_FLOOR_WG;
+            int var4 = var2.getX() * var2.getZ();
+            if (var4 == 0) {
+                var1 = param0.getHeight(var3, this.templatePosition.getX(), this.templatePosition.getZ());
+            } else {
+                BlockPos var5 = this.templatePosition.offset(var2.getX() - 1, 0, var2.getZ() - 1);
 
-            for(BlockPos var3 : BlockPos.betweenClosed(this.templatePosition, var2)) {
-                int var4 = param0.getHeight(this.isBeached ? Heightmap.Types.WORLD_SURFACE_WG : Heightmap.Types.OCEAN_FLOOR_WG, var3.getX(), var3.getZ());
-                var1 += var4;
-                var0 = Math.min(var0, var4);
+                for(BlockPos var6 : BlockPos.betweenClosed(this.templatePosition, var5)) {
+                    int var7 = param0.getHeight(var3, var6.getX(), var6.getZ());
+                    var1 += var7;
+                    var0 = Math.min(var0, var7);
+                }
+
+                var1 /= var4;
             }
 
-            var1 /= this.template.getSize().getX() * this.template.getSize().getZ();
-            int var5 = this.isBeached ? var0 - this.template.getSize().getY() / 2 - param2.nextInt(3) : var1;
-            this.templatePosition = new BlockPos(this.templatePosition.getX(), var5, this.templatePosition.getZ());
+            int var8 = this.isBeached ? var0 - var2.getY() / 2 - param2.nextInt(3) : var1;
+            this.templatePosition = new BlockPos(this.templatePosition.getX(), var8, this.templatePosition.getZ());
             return super.postProcess(param0, param1, param2, param3, param4);
         }
     }

@@ -239,13 +239,9 @@ public class ConduitBlockEntity extends BlockEntity implements TickableBlockEnti
 
     private void animationTick() {
         Random var0 = this.level.random;
-        float var1 = Mth.sin((float)(this.tickCount + 35) * 0.1F) / 2.0F + 0.5F;
+        double var1 = (double)(Mth.sin((float)(this.tickCount + 35) * 0.1F) / 2.0F + 0.5F);
         var1 = (var1 * var1 + var1) * 0.3F;
-        Vec3 var2 = new Vec3(
-            (double)((float)this.worldPosition.getX() + 0.5F),
-            (double)((float)this.worldPosition.getY() + 1.5F + var1),
-            (double)((float)this.worldPosition.getZ() + 0.5F)
-        );
+        Vec3 var2 = new Vec3((double)this.worldPosition.getX() + 0.5, (double)this.worldPosition.getY() + 1.5 + var1, (double)this.worldPosition.getZ() + 0.5);
 
         for(BlockPos var3 : this.effectBlocks) {
             if (var0.nextInt(50) == 0) {

@@ -129,6 +129,7 @@ public class SkyLightSectionStorage extends LayerLightSectionStorage<SkyLightSec
 
     @Override
     protected void enableLightSources(long param0, boolean param1) {
+        this.runAllUpdates();
         if (param1 && this.columnsWithSkySources.add(param0)) {
             int var0 = this.updatingSectionData.topSections.get(param0);
             if (var0 != this.updatingSectionData.currentLowestY) {

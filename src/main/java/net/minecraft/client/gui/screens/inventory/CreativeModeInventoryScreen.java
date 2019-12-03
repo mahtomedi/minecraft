@@ -55,7 +55,9 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
     private float scrollOffs;
     private boolean scrolling;
     private EditBox searchBox;
+    @Nullable
     private List<Slot> originalSlots;
+    @Nullable
     private Slot destroyItemSlot;
     private CreativeInventoryListener listener;
     private boolean ignoreTextInput;
@@ -468,31 +470,34 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
             this.menu.slots.clear();
 
             for(int var9 = 0; var9 < var8.slots.size(); ++var9) {
-                Slot var10 = new CreativeModeInventoryScreen.SlotWrapper(var8.slots.get(var9), var9);
-                this.menu.slots.add(var10);
+                int var13;
+                int var14;
                 if (var9 >= 5 && var9 < 9) {
-                    int var11 = var9 - 5;
-                    int var12 = var11 / 2;
-                    int var13 = var11 % 2;
-                    var10.x = 54 + var12 * 54;
-                    var10.y = 6 + var13 * 27;
+                    int var10 = var9 - 5;
+                    int var11 = var10 / 2;
+                    int var12 = var10 % 2;
+                    var13 = 54 + var11 * 54;
+                    var14 = 6 + var12 * 27;
                 } else if (var9 >= 0 && var9 < 5) {
-                    var10.x = -2000;
-                    var10.y = -2000;
+                    var13 = -2000;
+                    var14 = -2000;
                 } else if (var9 == 45) {
-                    var10.x = 35;
-                    var10.y = 20;
-                } else if (var9 < var8.slots.size()) {
-                    int var14 = var9 - 9;
-                    int var15 = var14 % 9;
-                    int var16 = var14 / 9;
-                    var10.x = 9 + var15 * 18;
+                    var13 = 35;
+                    var14 = 20;
+                } else {
+                    int var19 = var9 - 9;
+                    int var20 = var19 % 9;
+                    int var21 = var19 / 9;
+                    var13 = 9 + var20 * 18;
                     if (var9 >= 36) {
-                        var10.y = 112;
+                        var14 = 112;
                     } else {
-                        var10.y = 54 + var16 * 18;
+                        var14 = 54 + var21 * 18;
                     }
                 }
+
+                Slot var25 = new CreativeModeInventoryScreen.SlotWrapper(var8.slots.get(var9), var9, var13, var14);
+                this.menu.slots.add(var25);
             }
 
             this.destroyItemSlot = new Slot(CONTAINER, 0, 173, 112);
@@ -884,18 +889,17 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
     }
 
     @OnlyIn(Dist.CLIENT)
-    class SlotWrapper extends Slot {
+    static class SlotWrapper extends Slot {
         private final Slot target;
 
-        public SlotWrapper(Slot param0, int param1) {
-            super(param0.container, param1, 0, 0);
+        public SlotWrapper(Slot param0, int param1, int param2, int param3) {
+            super(param0.container, param1, param2, param3);
             this.target = param0;
         }
 
         @Override
         public ItemStack onTake(Player param0, ItemStack param1) {
-            this.target.onTake(param0, param1);
-            return param1;
+            return this.target.onTake(param0, param1);
         }
 
         @Override

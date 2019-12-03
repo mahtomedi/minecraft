@@ -1154,7 +1154,10 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
                     this.player.interactOn(var1, var4);
                 } else if (param0.getAction() == ServerboundInteractPacket.Action.INTERACT_AT) {
                     InteractionHand var5 = param0.getHand();
-                    var1.interactAt(this.player, param0.getLocation(), var5);
+                    InteractionResult var6 = var1.interactAt(this.player, param0.getLocation(), var5);
+                    if (var6.shouldSwing()) {
+                        this.player.swing(var5, true);
+                    }
                 } else if (param0.getAction() == ServerboundInteractPacket.Action.ATTACK) {
                     if (var1 instanceof ItemEntity || var1 instanceof ExperienceOrb || var1 instanceof AbstractArrow || var1 == this.player) {
                         this.disconnect(new TranslatableComponent("multiplayer.disconnect.invalid_entity_attacked"));

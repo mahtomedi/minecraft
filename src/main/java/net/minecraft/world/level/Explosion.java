@@ -3,7 +3,9 @@ package net.minecraft.world.level;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -239,20 +241,20 @@ public class Explosion {
         }
 
         if (var0) {
-            ObjectArrayList<ItemStack> var1 = new ObjectArrayList<>();
-            List<BlockPos> var2 = Lists.newArrayList();
+            ObjectArrayList<Pair<ItemStack, BlockPos>> var1 = new ObjectArrayList<>();
+            Collections.shuffle(this.toBlow, this.level.random);
 
-            for(BlockPos var3 : this.toBlow) {
-                BlockState var4 = this.level.getBlockState(var3);
-                Block var5 = var4.getBlock();
-                if (!var4.isAir()) {
-                    var2.add(var3.immutable());
+            for(BlockPos var2 : this.toBlow) {
+                BlockState var3 = this.level.getBlockState(var2);
+                Block var4 = var3.getBlock();
+                if (!var3.isAir()) {
+                    BlockPos var5 = var2.immutable();
                     this.level.getProfiler().push("explosion_blocks");
-                    if (var5.dropFromExplosion(this) && this.level instanceof ServerLevel) {
-                        BlockEntity var6 = var5.isEntityBlock() ? this.level.getBlockEntity(var3) : null;
+                    if (var4.dropFromExplosion(this) && this.level instanceof ServerLevel) {
+                        BlockEntity var6 = var4.isEntityBlock() ? this.level.getBlockEntity(var2) : null;
                         LootContext.Builder var7 = new LootContext.Builder((ServerLevel)this.level)
                             .withRandom(this.level.random)
-                            .withParameter(LootContextParams.BLOCK_POS, var3)
+                            .withParameter(LootContextParams.BLOCK_POS, var2)
                             .withParameter(LootContextParams.TOOL, ItemStack.EMPTY)
                             .withOptionalParameter(LootContextParams.BLOCK_ENTITY, var6)
                             .withOptionalParameter(LootContextParams.THIS_ENTITY, this.source);
@@ -260,49 +262,48 @@ public class Explosion {
                             var7.withParameter(LootContextParams.EXPLOSION_RADIUS, this.radius);
                         }
 
-                        var4.getDrops(var7).forEach(param1 -> addBlockDrops(var1, param1));
+                        var3.getDrops(var7).forEach(param2 -> addBlockDrops(var1, param2, var5));
                     }
 
-                    this.level.setBlock(var3, Blocks.AIR.defaultBlockState(), 3);
-                    var5.wasExploded(this.level, var3, this);
+                    this.level.setBlock(var2, Blocks.AIR.defaultBlockState(), 3);
+                    var4.wasExploded(this.level, var2, this);
                     this.level.getProfiler().pop();
                 }
             }
 
-            int var8 = var2.size();
-
-            for(ItemStack var9 : var1) {
-                Block.popResource(this.level, var2.get(this.random.nextInt(var8)), var9);
+            for(Pair<ItemStack, BlockPos> var8 : var1) {
+                Block.popResource(this.level, var8.getSecond(), var8.getFirst());
             }
         }
 
         if (this.fire) {
-            for(BlockPos var10 : this.toBlow) {
+            for(BlockPos var9 : this.toBlow) {
                 if (this.random.nextInt(3) == 0
-                    && this.level.getBlockState(var10).isAir()
-                    && this.level.getBlockState(var10.below()).isSolidRender(this.level, var10.below())) {
-                    this.level.setBlockAndUpdate(var10, Blocks.FIRE.defaultBlockState());
+                    && this.level.getBlockState(var9).isAir()
+                    && this.level.getBlockState(var9.below()).isSolidRender(this.level, var9.below())) {
+                    this.level.setBlockAndUpdate(var9, Blocks.FIRE.defaultBlockState());
                 }
             }
         }
 
     }
 
-    private static void addBlockDrops(ObjectArrayList<ItemStack> param0, ItemStack param1) {
+    private static void addBlockDrops(ObjectArrayList<Pair<ItemStack, BlockPos>> param0, ItemStack param1, BlockPos param2) {
         int var0 = param0.size();
 
         for(int var1 = 0; var1 < var0; ++var1) {
-            ItemStack var2 = param0.get(var1);
-            if (ItemEntity.areMergable(var2, param1)) {
-                ItemStack var3 = ItemEntity.merge(var2, param1, 16);
-                param0.set(var1, var3);
+            Pair<ItemStack, BlockPos> var2 = param0.get(var1);
+            ItemStack var3 = var2.getFirst();
+            if (ItemEntity.areMergable(var3, param1)) {
+                ItemStack var4 = ItemEntity.merge(var3, param1, 16);
+                param0.set(var1, Pair.of(var4, var2.getSecond()));
                 if (param1.isEmpty()) {
                     return;
                 }
             }
         }
 
-        param0.add(param1);
+        param0.add(Pair.of(param1, param2));
     }
 
     public DamageSource getDamageSource() {

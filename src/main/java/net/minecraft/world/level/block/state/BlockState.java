@@ -271,6 +271,11 @@ public class BlockState extends AbstractStateHolder<Block, BlockState> implement
         this.getBlock().attack(this, param0, param1, param2);
     }
 
+    public boolean isSuffocating(BlockGetter param0, BlockPos param1) {
+        return this.getBlock().isSuffocating(this, param0, param1);
+    }
+
+    @OnlyIn(Dist.CLIENT)
     public boolean isViewBlocking(BlockGetter param0, BlockPos param1) {
         return this.getBlock().isViewBlocking(this, param0, param1);
     }

@@ -327,6 +327,8 @@ public class ArmorStand extends LivingEntity {
             return InteractionResult.PASS;
         } else if (param0.isSpectator()) {
             return InteractionResult.SUCCESS;
+        } else if (param0.level.isClientSide) {
+            return InteractionResult.CONSUME;
         } else {
             EquipmentSlot var1 = Mob.getEquipmentSlotForItem(var0);
             if (var0.isEmpty()) {
@@ -349,11 +351,11 @@ public class ArmorStand extends LivingEntity {
                 }
             }
 
-            return InteractionResult.CONSUME;
+            return InteractionResult.PASS;
         }
     }
 
-    protected EquipmentSlot getClickedSlot(Vec3 param0) {
+    private EquipmentSlot getClickedSlot(Vec3 param0) {
         EquipmentSlot var0 = EquipmentSlot.MAINHAND;
         boolean var1 = this.isSmall();
         double var2 = var1 ? param0.y * 2.0 : param0.y;
@@ -373,7 +375,7 @@ public class ArmorStand extends LivingEntity {
         return var0;
     }
 
-    public boolean isDisabled(EquipmentSlot param0) {
+    private boolean isDisabled(EquipmentSlot param0) {
         return (this.disabledSlots & 1 << param0.getFilterFlag()) != 0 || param0.getType() == EquipmentSlot.Type.HAND && !this.isShowArms();
     }
 

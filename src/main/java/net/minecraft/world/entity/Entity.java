@@ -1538,7 +1538,7 @@ public abstract class Entity implements CommandSource, Nameable {
                     int var4 = Mth.floor(this.getZ() + (double)(((float)((var1 >> 2) % 2) - 0.5F) * this.dimensions.width * 0.8F));
                     if (var0.getX() != var3 || var0.getY() != var2 || var0.getZ() != var4) {
                         var0.set(var3, var2, var4);
-                        if (this.level.getBlockState(var0).isViewBlocking(this.level, var0)) {
+                        if (this.level.getBlockState(var0).isSuffocating(this.level, var0)) {
                             return true;
                         }
                     }

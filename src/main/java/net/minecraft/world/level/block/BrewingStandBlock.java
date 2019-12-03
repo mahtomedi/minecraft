@@ -88,9 +88,9 @@ public class BrewingStandBlock extends BaseEntityBlock {
     @OnlyIn(Dist.CLIENT)
     @Override
     public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
-        double var0 = (double)((float)param2.getX() + 0.4F + param3.nextFloat() * 0.2F);
-        double var1 = (double)((float)param2.getY() + 0.7F + param3.nextFloat() * 0.3F);
-        double var2 = (double)((float)param2.getZ() + 0.4F + param3.nextFloat() * 0.2F);
+        double var0 = (double)param2.getX() + 0.4 + (double)param3.nextFloat() * 0.2;
+        double var1 = (double)param2.getY() + 0.7 + (double)param3.nextFloat() * 0.3;
+        double var2 = (double)param2.getZ() + 0.4 + (double)param3.nextFloat() * 0.2;
         param1.addParticle(ParticleTypes.SMOKE, var0, var1, var2, 0.0, 0.0, 0.0);
     }
 

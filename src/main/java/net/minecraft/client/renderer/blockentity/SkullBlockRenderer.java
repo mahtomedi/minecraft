@@ -108,9 +108,9 @@ public class SkullBlockRenderer extends BlockEntityRenderer<SkullBlockEntity> {
             Map<Type, MinecraftProfileTexture> var2 = var1.getSkinManager().getInsecureSkinInformation(param1);
             return var2.containsKey(Type.SKIN)
                 ? RenderType.entityTranslucent(var1.getSkinManager().registerTexture(var2.get(Type.SKIN), Type.SKIN))
-                : RenderType.entityCutout(DefaultPlayerSkin.getDefaultSkin(Player.createPlayerUUID(param1)));
+                : RenderType.entityCutoutNoCull(DefaultPlayerSkin.getDefaultSkin(Player.createPlayerUUID(param1)));
         } else {
-            return RenderType.entityCutout(var0);
+            return RenderType.entityCutoutNoCull(var0);
         }
     }
 }

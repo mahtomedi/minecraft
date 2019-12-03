@@ -431,7 +431,6 @@ public class Mth {
         return 0.6666667F * var1 + 1.0F / (3.0F * var1 * var1 * param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static int hsvToRgb(float param0, float param1, float param2) {
         int var0 = (int)(param0 * 6.0F) % 6;
         float var1 = param0 * 6.0F - (float)var0;

@@ -508,7 +508,7 @@ public class GameRenderer implements AutoCloseable, ResourceManagerReloadListene
             RenderSystem.matrixMode(5888);
             RenderSystem.loadIdentity();
             RenderSystem.translatef(0.0F, 0.0F, -2000.0F);
-            Lighting.setupGui(var2.last().pose());
+            Lighting.setupFor3DItems();
             if (param2 && this.minecraft.level != null) {
                 this.minecraft.getProfiler().popPush("gui");
                 if (!this.minecraft.options.hideGui || this.minecraft.screen != null) {

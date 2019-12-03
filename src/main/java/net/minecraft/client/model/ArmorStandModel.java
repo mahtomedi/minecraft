@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraftforge.api.distmarker.Dist;
@@ -58,6 +59,12 @@ public class ArmorStandModel extends ArmorStandArmorModel {
         this.hat.visible = false;
     }
 
+    public void prepareMobModel(ArmorStand param0, float param1, float param2, float param3) {
+        this.basePlate.xRot = 0.0F;
+        this.basePlate.yRot = (float) (Math.PI / 180.0) * -Mth.rotLerp(param3, param0.yRotO, param0.yRot);
+        this.basePlate.zRot = 0.0F;
+    }
+
     @Override
     public void setupAnim(ArmorStand param0, float param1, float param2, float param3, float param4, float param5) {
         super.setupAnim(param0, param1, param2, param3, param4, param5);
@@ -75,9 +82,6 @@ public class ArmorStandModel extends ArmorStandArmorModel {
         this.shoulderStick.xRot = (float) (Math.PI / 180.0) * param0.getBodyPose().getX();
         this.shoulderStick.yRot = (float) (Math.PI / 180.0) * param0.getBodyPose().getY();
         this.shoulderStick.zRot = (float) (Math.PI / 180.0) * param0.getBodyPose().getZ();
-        this.basePlate.xRot = 0.0F;
-        this.basePlate.yRot = (float) (Math.PI / 180.0) * -param0.yRot;
-        this.basePlate.zRot = 0.0F;
     }
 
     @Override

@@ -68,6 +68,7 @@ public abstract class Biome {
     protected final float downfall;
     protected final int waterColor;
     protected final int waterFogColor;
+    private final int skyColor;
     @Nullable
     protected final String parent;
     protected final ConfiguredSurfaceBuilder<?> surfaceBuilder;
@@ -116,6 +117,7 @@ public abstract class Biome {
             this.downfall = param0.downfall;
             this.waterColor = param0.waterColor;
             this.waterFogColor = param0.waterFogColor;
+            this.skyColor = this.calculateSkyColor();
             this.parent = param0.parent;
 
             for(GenerationStep.Decoration var0 : GenerationStep.Decoration.values()) {
@@ -135,9 +137,16 @@ public abstract class Biome {
         return this.parent != null;
     }
 
+    private int calculateSkyColor() {
+        float var0 = this.temperature;
+        var0 /= 3.0F;
+        var0 = Mth.clamp(var0, -1.0F, 1.0F);
+        return Mth.hsvToRgb(0.62222224F - var0 * 0.05F, 0.5F + var0 * 0.1F, 1.0F);
+    }
+
     @OnlyIn(Dist.CLIENT)
     public int getSkyColor() {
-        return 8364543;
+        return this.skyColor;
     }
 
     protected void addSpawn(MobCategory param0, Biome.SpawnerData param1) {

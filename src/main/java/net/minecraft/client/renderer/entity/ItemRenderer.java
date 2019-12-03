@@ -210,15 +210,17 @@ public class ItemRenderer implements ResourceManagerReloadListener {
         RenderSystem.scalef(16.0F, 16.0F, 16.0F);
         PoseStack var0 = new PoseStack();
         MultiBufferSource.BufferSource var1 = Minecraft.getInstance().renderBuffers().bufferSource();
-        if (param3.isGui3d()) {
-            Lighting.setupFor3DItems();
+        Item var2 = param0.getItem();
+        boolean var3 = !param3.isGui3d() || var2 == Items.SHIELD || var2 == Items.TRIDENT;
+        if (var3) {
+            Lighting.setupForFlatItems();
         }
 
         this.render(param0, ItemTransforms.TransformType.GUI, false, var0, var1, 15728880, OverlayTexture.NO_OVERLAY, param3);
         var1.endBatch();
         RenderSystem.enableDepthTest();
-        if (param3.isGui3d()) {
-            Lighting.setupForFlatItems();
+        if (var3) {
+            Lighting.setupFor3DItems();
         }
 
         RenderSystem.disableAlphaTest();

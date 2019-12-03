@@ -68,9 +68,9 @@ public class FallingBlock extends Block {
         if (param3.nextInt(16) == 0) {
             BlockPos var0 = param2.below();
             if (isFree(param1.getBlockState(var0))) {
-                double var1 = (double)((float)param2.getX() + param3.nextFloat());
+                double var1 = (double)param2.getX() + (double)param3.nextFloat();
                 double var2 = (double)param2.getY() - 0.05;
-                double var3 = (double)((float)param2.getZ() + param3.nextFloat());
+                double var3 = (double)param2.getZ() + (double)param3.nextFloat();
                 param1.addParticle(new BlockParticleOption(ParticleTypes.FALLING_DUST, param0), var1, var2, var3, 0.0, 0.0, 0.0);
             }
         }

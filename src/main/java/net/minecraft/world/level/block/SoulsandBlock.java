@@ -11,6 +11,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class SoulsandBlock extends Block {
     protected static final VoxelShape SHAPE = Block.box(0.0, 0.0, 0.0, 16.0, 14.0, 16.0);
@@ -56,6 +58,12 @@ public class SoulsandBlock extends Block {
 
     @Override
     public boolean isValidSpawn(BlockState param0, BlockGetter param1, BlockPos param2, EntityType<?> param3) {
+        return true;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public boolean isViewBlocking(BlockState param0, BlockGetter param1, BlockPos param2) {
         return true;
     }
 }

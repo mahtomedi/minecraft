@@ -104,7 +104,7 @@ public class LeavesBlock extends Block {
     }
 
     @Override
-    public boolean isViewBlocking(BlockState param0, BlockGetter param1, BlockPos param2) {
+    public boolean isSuffocating(BlockState param0, BlockGetter param1, BlockPos param2) {
         return false;
     }
 

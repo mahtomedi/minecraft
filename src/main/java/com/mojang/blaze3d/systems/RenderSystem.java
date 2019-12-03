@@ -701,9 +701,14 @@ public class RenderSystem {
         GlStateManager.setupLevelDiffuseLighting(param0);
     }
 
-    public static void setupGuiDiffuseLighting(Matrix4f param0) {
+    public static void setupGuiFlatDiffuseLighting() {
         assertThread(RenderSystem::isOnGameThread);
-        GlStateManager.setupGuiDiffuseLighting(param0);
+        GlStateManager.setupGuiFlatDiffuseLighting();
+    }
+
+    public static void setupGui3DDiffuseLighting() {
+        assertThread(RenderSystem::isOnGameThread);
+        GlStateManager.setupGui3DDiffuseLighting();
     }
 
     public static void mulTextureByProjModelView() {

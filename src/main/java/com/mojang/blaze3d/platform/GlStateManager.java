@@ -656,6 +656,8 @@ public class GlStateManager {
 
     public static void setupLevelDiffuseLighting(Matrix4f param0) {
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        _pushMatrix();
+        _loadIdentity();
         _enableLight(0);
         _enableLight(1);
         Vector4f var0 = new Vector4f(DIFFUSE_LIGHT_0);
@@ -674,11 +676,26 @@ public class GlStateManager {
         _shadeModel(7424);
         float var3 = 0.4F;
         _lightModel(2899, getBuffer(0.4F, 0.4F, 0.4F, 1.0F));
+        _popMatrix();
     }
 
-    public static void setupGuiDiffuseLighting(Matrix4f param0) {
+    public static void setupGuiFlatDiffuseLighting() {
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
-        Matrix4f var0 = param0.copy();
+        Matrix4f var0 = new Matrix4f();
+        var0.setIdentity();
+        var0.multiply(Matrix4f.createScaleMatrix(1.0F, -1.0F, 1.0F));
+        var0.multiply(Vector3f.YP.rotationDegrees(-22.5F));
+        var0.multiply(Vector3f.XP.rotationDegrees(135.0F));
+        setupLevelDiffuseLighting(var0);
+    }
+
+    public static void setupGui3DDiffuseLighting() {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        Matrix4f var0 = new Matrix4f();
+        var0.setIdentity();
+        var0.multiply(Vector3f.YP.rotationDegrees(62.0F));
+        var0.multiply(Vector3f.XP.rotationDegrees(185.5F));
+        var0.multiply(Matrix4f.createScaleMatrix(1.0F, -1.0F, 1.0F));
         var0.multiply(Vector3f.YP.rotationDegrees(-22.5F));
         var0.multiply(Vector3f.XP.rotationDegrees(135.0F));
         setupLevelDiffuseLighting(var0);

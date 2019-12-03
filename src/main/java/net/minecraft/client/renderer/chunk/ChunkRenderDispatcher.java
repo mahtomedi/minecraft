@@ -42,6 +42,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
@@ -265,7 +266,7 @@ public class ChunkRenderDispatcher {
         private boolean playerChanged;
 
         private boolean doesChunkExistAt(BlockPos param0) {
-            return !ChunkRenderDispatcher.this.level.getChunk(param0.getX() >> 4, param0.getZ() >> 4).isEmpty();
+            return ChunkRenderDispatcher.this.level.getChunk(param0.getX() >> 4, param0.getZ() >> 4, ChunkStatus.FULL, false) != null;
         }
 
         public boolean hasAllNeighbors() {

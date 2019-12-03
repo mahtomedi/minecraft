@@ -24,7 +24,7 @@ public abstract class AbstractGlassBlock extends HalfTransparentBlock {
     }
 
     @Override
-    public boolean isViewBlocking(BlockState param0, BlockGetter param1, BlockPos param2) {
+    public boolean isSuffocating(BlockState param0, BlockGetter param1, BlockPos param2) {
         return false;
     }
 

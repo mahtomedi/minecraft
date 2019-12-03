@@ -8,6 +8,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
+import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.ModelBakery;
@@ -27,23 +28,11 @@ public class ScreenEffectRenderer {
 
     public static void renderScreenEffect(Minecraft param0, PoseStack param1) {
         RenderSystem.disableAlphaTest();
-        if (param0.player.isInWall()) {
-            BlockState var0 = param0.level.getBlockState(new BlockPos(param0.player));
-            Player var1 = param0.player;
-
-            for(int var2 = 0; var2 < 8; ++var2) {
-                double var3 = var1.getX() + (double)(((float)((var2 >> 0) % 2) - 0.5F) * var1.getBbWidth() * 0.8F);
-                double var4 = var1.getY() + (double)(((float)((var2 >> 1) % 2) - 0.5F) * 0.1F);
-                double var5 = var1.getZ() + (double)(((float)((var2 >> 2) % 2) - 0.5F) * var1.getBbWidth() * 0.8F);
-                BlockPos var6 = new BlockPos(var3, var4 + (double)var1.getEyeHeight(), var5);
-                BlockState var7 = param0.level.getBlockState(var6);
-                if (var7.isViewBlocking(param0.level, var6)) {
-                    var0 = var7;
-                }
-            }
-
-            if (var0.getRenderShape() != RenderShape.INVISIBLE) {
-                renderTex(param0, param0.getBlockRenderer().getBlockModelShaper().getParticleIcon(var0), param1);
+        Player var0 = param0.player;
+        if (!var0.noPhysics) {
+            BlockState var1 = getViewBlockingState(var0);
+            if (var1 != null) {
+                renderTex(param0, param0.getBlockRenderer().getBlockModelShaper().getParticleIcon(var1), param1);
             }
         }
 
@@ -58,6 +47,24 @@ public class ScreenEffectRenderer {
         }
 
         RenderSystem.enableAlphaTest();
+    }
+
+    @Nullable
+    private static BlockState getViewBlockingState(Player param0) {
+        BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
+
+        for(int var1 = 0; var1 < 8; ++var1) {
+            double var2 = param0.getX() + (double)(((float)((var1 >> 0) % 2) - 0.5F) * param0.getBbWidth() * 0.8F);
+            double var3 = param0.getEyeY() + (double)(((float)((var1 >> 1) % 2) - 0.5F) * 0.1F);
+            double var4 = param0.getZ() + (double)(((float)((var1 >> 2) % 2) - 0.5F) * param0.getBbWidth() * 0.8F);
+            var0.set(var2, var3, var4);
+            BlockState var5 = param0.level.getBlockState(var0);
+            if (var5.getRenderShape() != RenderShape.INVISIBLE && var5.isViewBlocking(param0.level, var0)) {
+                return var5;
+            }
+        }
+
+        return null;
     }
 
     private static void renderTex(Minecraft param0, TextureAtlasSprite param1, PoseStack param2) {

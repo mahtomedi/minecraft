@@ -491,23 +491,17 @@ public class Wolf extends TamableAnimal {
 
     @Override
     public boolean wantsToAttack(LivingEntity param0, LivingEntity param1) {
-        if (!(param0 instanceof Creeper) && !(param0 instanceof Ghast)) {
-            if (param0 instanceof Wolf) {
-                Wolf var0 = (Wolf)param0;
-                if (var0.isTame() && var0.getOwner() == param1) {
-                    return false;
-                }
-            }
-
-            if (param0 instanceof Player && param1 instanceof Player && !((Player)param1).canHarmPlayer((Player)param0)) {
-                return false;
-            } else if (param0 instanceof AbstractHorse && ((AbstractHorse)param0).isTamed()) {
-                return false;
-            } else {
-                return !(param0 instanceof Cat) || !((Cat)param0).isTame();
-            }
-        } else {
+        if (param0 instanceof Creeper || param0 instanceof Ghast) {
             return false;
+        } else if (param0 instanceof Wolf) {
+            Wolf var0 = (Wolf)param0;
+            return !var0.isTame() || var0.getOwner() != param1;
+        } else if (param0 instanceof Player && param1 instanceof Player && !((Player)param1).canHarmPlayer((Player)param0)) {
+            return false;
+        } else if (param0 instanceof AbstractHorse && ((AbstractHorse)param0).isTamed()) {
+            return false;
+        } else {
+            return !(param0 instanceof TamableAnimal) || !((TamableAnimal)param0).isTame();
         }
     }
 

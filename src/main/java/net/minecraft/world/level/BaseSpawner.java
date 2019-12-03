@@ -71,9 +71,9 @@ public abstract class BaseSpawner {
             Level var0 = this.getLevel();
             BlockPos var1 = this.getPos();
             if (var0.isClientSide) {
-                double var2 = (double)((float)var1.getX() + var0.random.nextFloat());
-                double var3 = (double)((float)var1.getY() + var0.random.nextFloat());
-                double var4 = (double)((float)var1.getZ() + var0.random.nextFloat());
+                double var2 = (double)var1.getX() + (double)var0.random.nextFloat();
+                double var3 = (double)var1.getY() + (double)var0.random.nextFloat();
+                double var4 = (double)var1.getZ() + (double)var0.random.nextFloat();
                 var0.addParticle(ParticleTypes.SMOKE, var2, var3, var4, 0.0, 0.0, 0.0);
                 var0.addParticle(ParticleTypes.FLAME, var2, var3, var4, 0.0, 0.0, 0.0);
                 if (this.spawnDelay > 0) {

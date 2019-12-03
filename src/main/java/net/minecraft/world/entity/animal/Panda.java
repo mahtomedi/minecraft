@@ -68,6 +68,7 @@ public class Panda extends Animal {
     private static final EntityDataAccessor<Byte> MAIN_GENE_ID = SynchedEntityData.defineId(Panda.class, EntityDataSerializers.BYTE);
     private static final EntityDataAccessor<Byte> HIDDEN_GENE_ID = SynchedEntityData.defineId(Panda.class, EntityDataSerializers.BYTE);
     private static final EntityDataAccessor<Byte> DATA_ID_FLAGS = SynchedEntityData.defineId(Panda.class, EntityDataSerializers.BYTE);
+    private static final TargetingConditions BREED_TARGETING = new TargetingConditions().range(8.0).allowSameTeam().allowInvulnerable();
     private boolean gotBamboo;
     private boolean didBite;
     public int rollCounter;
@@ -78,6 +79,7 @@ public class Panda extends Animal {
     private float onBackAmountO;
     private float rollAmount;
     private float rollAmountO;
+    private Panda.PandaLookAtPlayerGoal lookAtPlayerGoal;
     private static final Predicate<ItemEntity> PANDA_ITEMS = param0 -> {
         Item var0 = param0.getItem().getItem();
         return (var0 == Blocks.BAMBOO.asItem() || var0 == Blocks.CAKE.asItem()) && param0.isAlive() && !param0.hasPickUpDelay();
@@ -257,7 +259,8 @@ public class Panda extends Animal {
         this.goalSelector.addGoal(7, new Panda.PandaSitGoal());
         this.goalSelector.addGoal(8, new Panda.PandaLieOnBackGoal(this));
         this.goalSelector.addGoal(8, new Panda.PandaSneezeGoal(this));
-        this.goalSelector.addGoal(9, new Panda.PandaLookAtPlayerGoal(this, Player.class, 6.0F));
+        this.lookAtPlayerGoal = new Panda.PandaLookAtPlayerGoal(this, Player.class, 6.0F);
+        this.goalSelector.addGoal(9, this.lookAtPlayerGoal);
         this.goalSelector.addGoal(10, new RandomLookAroundGoal(this));
         this.goalSelector.addGoal(12, new Panda.PandaRollGoal(this));
         this.goalSelector.addGoal(13, new FollowParentGoal(this, 1.25));
@@ -795,8 +798,7 @@ public class Panda extends Animal {
         }
     }
 
-    static class PandaBreedGoal extends BreedGoal {
-        private static final TargetingConditions BREED_TARGETING = new TargetingConditions().range(8.0).allowSameTeam().allowInvulnerable();
+    class PandaBreedGoal extends BreedGoal {
         private final Panda panda;
         private int unhappyCooldown;
 
@@ -814,8 +816,8 @@ public class Panda extends Animal {
                     this.panda.setUnhappyCounter(32);
                     this.unhappyCooldown = this.panda.tickCount + 600;
                     if (this.panda.isEffectiveAi()) {
-                        Player var0 = this.level.getNearestPlayer(BREED_TARGETING, this.panda);
-                        this.panda.setTarget(var0);
+                        Player var0 = this.level.getNearestPlayer(Panda.BREED_TARGETING, this.panda);
+                        this.panda.lookAtPlayerGoal.setTarget(var0);
                     }
                 }
 
@@ -916,9 +918,35 @@ public class Panda extends Animal {
             this.panda = param0;
         }
 
+        public void setTarget(LivingEntity param0) {
+            this.lookAt = param0;
+        }
+
         @Override
         public boolean canUse() {
-            return this.panda.canPerformAction() && super.canUse();
+            if (this.mob.getRandom().nextFloat() >= this.probability) {
+                return false;
+            } else {
+                if (this.lookAt == null) {
+                    if (this.lookAtType == Player.class) {
+                        this.lookAt = this.mob.level.getNearestPlayer(this.lookAtContext, this.mob, this.mob.getX(), this.mob.getEyeY(), this.mob.getZ());
+                    } else {
+                        this.lookAt = this.mob
+                            .level
+                            .getNearestLoadedEntity(
+                                this.lookAtType,
+                                this.lookAtContext,
+                                this.mob,
+                                this.mob.getX(),
+                                this.mob.getEyeY(),
+                                this.mob.getZ(),
+                                this.mob.getBoundingBox().inflate((double)this.lookDistance, 3.0, (double)this.lookDistance)
+                            );
+                    }
+                }
+
+                return this.panda.canPerformAction() && this.lookAt != null;
+            }
         }
     }
 

@@ -11,9 +11,9 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientboundLevelParticlesPacket implements Packet<ClientGamePacketListener> {
-    private float x;
-    private float y;
-    private float z;
+    private double x;
+    private double y;
+    private double z;
     private float xDist;
     private float yDist;
     private float zDist;
@@ -26,7 +26,7 @@ public class ClientboundLevelParticlesPacket implements Packet<ClientGamePacketL
     }
 
     public <T extends ParticleOptions> ClientboundLevelParticlesPacket(
-        T param0, boolean param1, float param2, float param3, float param4, float param5, float param6, float param7, float param8, int param9
+        T param0, boolean param1, double param2, double param3, double param4, float param5, float param6, float param7, float param8, int param9
     ) {
         this.particle = param0;
         this.overrideLimiter = param1;
@@ -48,9 +48,9 @@ public class ClientboundLevelParticlesPacket implements Packet<ClientGamePacketL
         }
 
         this.overrideLimiter = param0.readBoolean();
-        this.x = param0.readFloat();
-        this.y = param0.readFloat();
-        this.z = param0.readFloat();
+        this.x = param0.readDouble();
+        this.y = param0.readDouble();
+        this.z = param0.readDouble();
         this.xDist = param0.readFloat();
         this.yDist = param0.readFloat();
         this.zDist = param0.readFloat();
@@ -67,9 +67,9 @@ public class ClientboundLevelParticlesPacket implements Packet<ClientGamePacketL
     public void write(FriendlyByteBuf param0) throws IOException {
         param0.writeInt(Registry.PARTICLE_TYPE.getId(this.particle.getType()));
         param0.writeBoolean(this.overrideLimiter);
-        param0.writeFloat(this.x);
-        param0.writeFloat(this.y);
-        param0.writeFloat(this.z);
+        param0.writeDouble(this.x);
+        param0.writeDouble(this.y);
+        param0.writeDouble(this.z);
         param0.writeFloat(this.xDist);
         param0.writeFloat(this.yDist);
         param0.writeFloat(this.zDist);
@@ -85,17 +85,17 @@ public class ClientboundLevelParticlesPacket implements Packet<ClientGamePacketL
 
     @OnlyIn(Dist.CLIENT)
     public double getX() {
-        return (double)this.x;
+        return this.x;
     }
 
     @OnlyIn(Dist.CLIENT)
     public double getY() {
-        return (double)this.y;
+        return this.y;
     }
 
     @OnlyIn(Dist.CLIENT)
     public double getZ() {
-        return (double)this.z;
+        return this.z;
     }
 
     @OnlyIn(Dist.CLIENT)

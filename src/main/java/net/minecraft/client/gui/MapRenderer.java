@@ -22,8 +22,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class MapRenderer implements AutoCloseable {
-    public static final ResourceLocation MAP_BACKGROUND_LOCATION = new ResourceLocation("textures/map/map_background.png");
-    public static final RenderType MAP_BACKGROUND = RenderType.text(MAP_BACKGROUND_LOCATION);
     private static final ResourceLocation MAP_ICONS_LOCATION = new ResourceLocation("textures/map/map_icons.png");
     private static final RenderType MAP_ICONS = RenderType.text(MAP_ICONS_LOCATION);
     private final TextureManager textureManager;
@@ -93,7 +91,7 @@ public class MapRenderer implements AutoCloseable {
                     int var2 = var1 + var0 * 128;
                     int var3 = this.data.colors[var2] & 255;
                     if (var3 / 4 == 0) {
-                        this.texture.getPixels().setPixelRGBA(var1, var0, (var2 + var2 / 128 & 1) * 8 + 16 << 24);
+                        this.texture.getPixels().setPixelRGBA(var1, var0, 0);
                     } else {
                         this.texture.getPixels().setPixelRGBA(var1, var0, MaterialColor.MATERIAL_COLORS[var3 / 4].calculateRGBColor(var3 & 3));
                     }

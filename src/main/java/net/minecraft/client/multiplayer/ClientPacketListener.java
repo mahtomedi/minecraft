@@ -584,7 +584,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
                 float var4 = (float)(param0.getyRot() * 360) / 256.0F;
                 float var5 = (float)(param0.getxRot() * 360) / 256.0F;
                 if (!(Math.abs(var0.getX() - var1) >= 0.03125) && !(Math.abs(var0.getY() - var2) >= 0.015625) && !(Math.abs(var0.getZ() - var3) >= 0.03125)) {
-                    var0.lerpTo(var0.getX(), var0.getY(), var0.getZ(), var4, var5, 0, true);
+                    var0.lerpTo(var0.getX(), var0.getY(), var0.getZ(), var4, var5, 3, true);
                 } else {
                     var0.lerpTo(var1, var2, var3, var4, var5, 3, true);
                 }

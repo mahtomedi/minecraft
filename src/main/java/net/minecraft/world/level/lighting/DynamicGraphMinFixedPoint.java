@@ -2,7 +2,9 @@ package net.minecraft.world.level.lighting;
 
 import it.unimi.dsi.fastutil.longs.Long2ByteMap;
 import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongList;
 import java.util.function.LongPredicate;
 import net.minecraft.util.Mth;
 
@@ -83,12 +85,14 @@ public abstract class DynamicGraphMinFixedPoint {
     }
 
     public void removeIf(LongPredicate param0) {
-        this.computedLevels.keySet().forEach(param1 -> {
-            if (param0.test(param1)) {
-                this.removeFromQueue(param1);
+        LongList var0 = new LongArrayList(0);
+        this.computedLevels.keySet().forEach(param2 -> {
+            if (param0.test(param2)) {
+                var0.add(param2);
             }
 
         });
+        var0.forEach(this::removeFromQueue);
     }
 
     private void dequeue(long param0, int param1, int param2, boolean param3) {
