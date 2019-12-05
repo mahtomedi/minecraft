@@ -115,7 +115,7 @@ public class ClientPackSource implements RepositorySource {
                 Map<String, String> var5 = getDownloadHeaders();
                 Minecraft var6 = Minecraft.getInstance();
                 var6.executeBlocking(() -> var6.setScreen(var4));
-                var3 = HttpUtil.downloadTo(var2, param0, var5, 52428800, var4, var6.getProxy());
+                var3 = HttpUtil.downloadTo(var2, param0, var5, 104857600, var4, var6.getProxy());
             }
 
             this.currentDownload = var3.<Void>thenCompose(

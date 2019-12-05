@@ -78,6 +78,10 @@ public abstract class ResourcePackList extends ObjectSelectionList<ResourcePackL
 
         public void addToList(SelectedResourcePackList param0) {
             this.getResourcePack().getDefaultPosition().insert(param0.children(), this, ResourcePackList.ResourcePackEntry::getResourcePack, true);
+            this.updateParentList(param0);
+        }
+
+        public void updateParentList(SelectedResourcePackList param0) {
             this.parent = param0;
         }
 
@@ -228,7 +232,7 @@ public abstract class ResourcePackList extends ObjectSelectionList<ResourcePackL
                 if (var0 > 16.0 && var1 < 16.0 && this.canMoveUp()) {
                     List<ResourcePackList.ResourcePackEntry> var4 = this.parent.children();
                     int var5 = var4.indexOf(this);
-                    var4.remove(this);
+                    var4.remove(var5);
                     var4.add(var5 - 1, this);
                     this.getScreen().setChanged();
                     return true;
@@ -237,7 +241,7 @@ public abstract class ResourcePackList extends ObjectSelectionList<ResourcePackL
                 if (var0 > 16.0 && var1 > 16.0 && this.canMoveDown()) {
                     List<ResourcePackList.ResourcePackEntry> var6 = this.parent.children();
                     int var7 = var6.indexOf(this);
-                    var6.remove(this);
+                    var6.remove(var7);
                     var6.add(var7 + 1, this);
                     this.getScreen().setChanged();
                     return true;

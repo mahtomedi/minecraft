@@ -12,9 +12,6 @@ public interface ReloadableResourceManager extends ResourceManager {
     CompletableFuture<Unit> reload(Executor var1, Executor var2, List<Pack> var3, CompletableFuture<Unit> var4);
 
     @OnlyIn(Dist.CLIENT)
-    ReloadInstance createQueuedReload(Executor var1, Executor var2, CompletableFuture<Unit> var3);
-
-    @OnlyIn(Dist.CLIENT)
     ReloadInstance createFullReload(Executor var1, Executor var2, CompletableFuture<Unit> var3, List<Pack> var4);
 
     void registerReloadListener(PreparableReloadListener var1);

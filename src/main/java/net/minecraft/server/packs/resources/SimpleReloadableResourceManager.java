@@ -37,7 +37,6 @@ public class SimpleReloadableResourceManager implements ReloadableResourceManage
         this.mainThread = param1;
     }
 
-    @Override
     public void add(Pack param0) {
         for(String var0 : param0.getNamespaces(this.type)) {
             this.namespaces.add(var0);
@@ -127,21 +126,74 @@ public class SimpleReloadableResourceManager implements ReloadableResourceManage
         return var0;
     }
 
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public ReloadInstance createQueuedReload(Executor param0, Executor param1, CompletableFuture<Unit> param2) {
-        return this.createReload(param0, param1, this.recentlyRegistered, param2);
-    }
-
     @Override
     public ReloadInstance createFullReload(Executor param0, Executor param1, CompletableFuture<Unit> param2, List<Pack> param3) {
         this.clear();
         LOGGER.info("Reloading ResourceManager: {}", param3.stream().map(Pack::getName).collect(Collectors.joining(", ")));
 
         for(Pack var0 : param3) {
-            this.add(var0);
+            try {
+                this.add(var0);
+            } catch (Exception var8) {
+                LOGGER.error("Failed to add resource pack {}", var0.getName(), var8);
+                return new SimpleReloadableResourceManager.FailingReloadInstance(new SimpleReloadableResourceManager.ResourcePackLoadingFailure(var0, var8));
+            }
         }
 
         return this.createReload(param0, param1, this.listeners, param2);
+    }
+
+    static class FailingReloadInstance implements ReloadInstance {
+        private final SimpleReloadableResourceManager.ResourcePackLoadingFailure exception;
+        private final CompletableFuture<Unit> failedFuture;
+
+        public FailingReloadInstance(SimpleReloadableResourceManager.ResourcePackLoadingFailure param0) {
+            this.exception = param0;
+            this.failedFuture = new CompletableFuture<>();
+            this.failedFuture.completeExceptionally(param0);
+        }
+
+        @Override
+        public CompletableFuture<Unit> done() {
+            return this.failedFuture;
+        }
+
+        @OnlyIn(Dist.CLIENT)
+        @Override
+        public float getActualProgress() {
+            return 0.0F;
+        }
+
+        @OnlyIn(Dist.CLIENT)
+        @Override
+        public boolean isApplying() {
+            return false;
+        }
+
+        @OnlyIn(Dist.CLIENT)
+        @Override
+        public boolean isDone() {
+            return true;
+        }
+
+        @OnlyIn(Dist.CLIENT)
+        @Override
+        public void checkExceptions() {
+            throw this.exception;
+        }
+    }
+
+    public static class ResourcePackLoadingFailure extends RuntimeException {
+        private final Pack pack;
+
+        public ResourcePackLoadingFailure(Pack param0, Throwable param1) {
+            super(param0.getName(), param1);
+            this.pack = param0;
+        }
+
+        @OnlyIn(Dist.CLIENT)
+        public Pack getPack() {
+            return this.pack;
+        }
     }
 }

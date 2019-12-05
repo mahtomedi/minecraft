@@ -82,7 +82,10 @@ public class ResourcePackSelectScreen extends OptionsSubScreen {
         this.selectedResourcePackList = new SelectedResourcePackList(this.minecraft, 200, this.height);
         this.selectedResourcePackList.setLeftPos(this.width / 2 + 4);
         if (var1 != null) {
-            this.selectedResourcePackList.children().addAll(var1.children());
+            var1.children().forEach(param0 -> {
+                this.selectedResourcePackList.children().add(param0);
+                param0.updateParentList(this.selectedResourcePackList);
+            });
         }
 
         this.children.add(this.selectedResourcePackList);

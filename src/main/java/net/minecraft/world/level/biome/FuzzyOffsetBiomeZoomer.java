@@ -25,9 +25,9 @@ public enum FuzzyOffsetBiomeZoomer implements BiomeZoomer {
             int var14 = var11 ? var3 : var3 + 1;
             int var15 = var12 ? var4 : var4 + 1;
             int var16 = var13 ? var5 : var5 + 1;
-            double var17 = var11 ? var6 : 1.0 - var6;
-            double var18 = var12 ? var7 : 1.0 - var7;
-            double var19 = var13 ? var8 : 1.0 - var8;
+            double var17 = var11 ? var6 : var6 - 1.0;
+            double var18 = var12 ? var7 : var7 - 1.0;
+            double var19 = var13 ? var8 : var8 - 1.0;
             var9[var10] = getFiddledDistance(param0, var14, var15, var16, var17, var18, var19);
         }
 

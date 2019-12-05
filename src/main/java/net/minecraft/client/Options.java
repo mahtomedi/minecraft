@@ -1,14 +1,16 @@
 package net.minecraft.client;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.common.io.Files;
 import com.google.gson.Gson;
 import com.mojang.blaze3d.platform.InputConstants;
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -36,7 +38,6 @@ import net.minecraft.world.entity.player.ChatVisiblity;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -61,7 +62,7 @@ public class Options {
             return null;
         }
     };
-    public static final Splitter COLON_SPLITTER = Splitter.on(':');
+    private static final Splitter OPTION_SPLITTER = Splitter.on(':').limit(2);
     public double sensitivity = 0.5;
     public int renderDistance = -1;
     public int framerateLimit = 120;
@@ -234,306 +235,311 @@ public class Options {
             }
 
             this.sourceVolumes.clear();
-            List<String> var0 = IOUtils.readLines(new FileInputStream(this.optionsFile));
-            CompoundTag var1 = new CompoundTag();
+            CompoundTag var0 = new CompoundTag();
 
-            for(String var2 : var0) {
-                try {
-                    Iterator<String> var3 = COLON_SPLITTER.omitEmptyStrings().limit(2).split(var2).iterator();
-                    var1.putString(var3.next(), var3.next());
-                } catch (Exception var10) {
-                    LOGGER.warn("Skipping bad option: {}", var2);
-                }
+            try (BufferedReader var1 = Files.newReader(this.optionsFile, Charsets.UTF_8)) {
+                var1.lines().forEach(param1 -> {
+                    try {
+                        Iterator<String> var0x = OPTION_SPLITTER.split(param1).iterator();
+                        var0.putString(var0x.next(), var0x.next());
+                    } catch (OutOfMemoryError var3x) {
+                        System.gc();
+                        throw new Options.OptionParseError("Failed to parse option: " + param1.substring(0, Math.min(200, param1.length())), var3x);
+                    } catch (Exception var4x) {
+                        LOGGER.warn("Skipping bad option: {}", param1);
+                    }
+
+                });
             }
 
-            var1 = this.dataFix(var1);
+            CompoundTag var2 = this.dataFix(var0);
 
-            for(String var5 : var1.getAllKeys()) {
-                String var6 = var1.getString(var5);
+            for(String var3 : var2.getAllKeys()) {
+                String var4 = var2.getString(var3);
 
                 try {
-                    if ("autoJump".equals(var5)) {
-                        Option.AUTO_JUMP.set(this, var6);
+                    if ("autoJump".equals(var3)) {
+                        Option.AUTO_JUMP.set(this, var4);
                     }
 
-                    if ("autoSuggestions".equals(var5)) {
-                        Option.AUTO_SUGGESTIONS.set(this, var6);
+                    if ("autoSuggestions".equals(var3)) {
+                        Option.AUTO_SUGGESTIONS.set(this, var4);
                     }
 
-                    if ("chatColors".equals(var5)) {
-                        Option.CHAT_COLOR.set(this, var6);
+                    if ("chatColors".equals(var3)) {
+                        Option.CHAT_COLOR.set(this, var4);
                     }
 
-                    if ("chatLinks".equals(var5)) {
-                        Option.CHAT_LINKS.set(this, var6);
+                    if ("chatLinks".equals(var3)) {
+                        Option.CHAT_LINKS.set(this, var4);
                     }
 
-                    if ("chatLinksPrompt".equals(var5)) {
-                        Option.CHAT_LINKS_PROMPT.set(this, var6);
+                    if ("chatLinksPrompt".equals(var3)) {
+                        Option.CHAT_LINKS_PROMPT.set(this, var4);
                     }
 
-                    if ("enableVsync".equals(var5)) {
-                        Option.ENABLE_VSYNC.set(this, var6);
+                    if ("enableVsync".equals(var3)) {
+                        Option.ENABLE_VSYNC.set(this, var4);
                     }
 
-                    if ("entityShadows".equals(var5)) {
-                        Option.ENTITY_SHADOWS.set(this, var6);
+                    if ("entityShadows".equals(var3)) {
+                        Option.ENTITY_SHADOWS.set(this, var4);
                     }
 
-                    if ("forceUnicodeFont".equals(var5)) {
-                        Option.FORCE_UNICODE_FONT.set(this, var6);
+                    if ("forceUnicodeFont".equals(var3)) {
+                        Option.FORCE_UNICODE_FONT.set(this, var4);
                     }
 
-                    if ("discrete_mouse_scroll".equals(var5)) {
-                        Option.DISCRETE_MOUSE_SCROLL.set(this, var6);
+                    if ("discrete_mouse_scroll".equals(var3)) {
+                        Option.DISCRETE_MOUSE_SCROLL.set(this, var4);
                     }
 
-                    if ("invertYMouse".equals(var5)) {
-                        Option.INVERT_MOUSE.set(this, var6);
+                    if ("invertYMouse".equals(var3)) {
+                        Option.INVERT_MOUSE.set(this, var4);
                     }
 
-                    if ("realmsNotifications".equals(var5)) {
-                        Option.REALMS_NOTIFICATIONS.set(this, var6);
+                    if ("realmsNotifications".equals(var3)) {
+                        Option.REALMS_NOTIFICATIONS.set(this, var4);
                     }
 
-                    if ("reducedDebugInfo".equals(var5)) {
-                        Option.REDUCED_DEBUG_INFO.set(this, var6);
+                    if ("reducedDebugInfo".equals(var3)) {
+                        Option.REDUCED_DEBUG_INFO.set(this, var4);
                     }
 
-                    if ("showSubtitles".equals(var5)) {
-                        Option.SHOW_SUBTITLES.set(this, var6);
+                    if ("showSubtitles".equals(var3)) {
+                        Option.SHOW_SUBTITLES.set(this, var4);
                     }
 
-                    if ("snooperEnabled".equals(var5)) {
-                        Option.SNOOPER_ENABLED.set(this, var6);
+                    if ("snooperEnabled".equals(var3)) {
+                        Option.SNOOPER_ENABLED.set(this, var4);
                     }
 
-                    if ("touchscreen".equals(var5)) {
-                        Option.TOUCHSCREEN.set(this, var6);
+                    if ("touchscreen".equals(var3)) {
+                        Option.TOUCHSCREEN.set(this, var4);
                     }
 
-                    if ("fullscreen".equals(var5)) {
-                        Option.USE_FULLSCREEN.set(this, var6);
+                    if ("fullscreen".equals(var3)) {
+                        Option.USE_FULLSCREEN.set(this, var4);
                     }
 
-                    if ("bobView".equals(var5)) {
-                        Option.VIEW_BOBBING.set(this, var6);
+                    if ("bobView".equals(var3)) {
+                        Option.VIEW_BOBBING.set(this, var4);
                     }
 
-                    if ("toggleCrouch".equals(var5)) {
-                        this.toggleCrouch = "true".equals(var6);
+                    if ("toggleCrouch".equals(var3)) {
+                        this.toggleCrouch = "true".equals(var4);
                     }
 
-                    if ("toggleSprint".equals(var5)) {
-                        this.toggleSprint = "true".equals(var6);
+                    if ("toggleSprint".equals(var3)) {
+                        this.toggleSprint = "true".equals(var4);
                     }
 
-                    if ("mouseSensitivity".equals(var5)) {
-                        this.sensitivity = (double)readFloat(var6);
+                    if ("mouseSensitivity".equals(var3)) {
+                        this.sensitivity = (double)readFloat(var4);
                     }
 
-                    if ("fov".equals(var5)) {
-                        this.fov = (double)(readFloat(var6) * 40.0F + 70.0F);
+                    if ("fov".equals(var3)) {
+                        this.fov = (double)(readFloat(var4) * 40.0F + 70.0F);
                     }
 
-                    if ("gamma".equals(var5)) {
-                        this.gamma = (double)readFloat(var6);
+                    if ("gamma".equals(var3)) {
+                        this.gamma = (double)readFloat(var4);
                     }
 
-                    if ("renderDistance".equals(var5)) {
-                        this.renderDistance = Integer.parseInt(var6);
+                    if ("renderDistance".equals(var3)) {
+                        this.renderDistance = Integer.parseInt(var4);
                     }
 
-                    if ("guiScale".equals(var5)) {
-                        this.guiScale = Integer.parseInt(var6);
+                    if ("guiScale".equals(var3)) {
+                        this.guiScale = Integer.parseInt(var4);
                     }
 
-                    if ("particles".equals(var5)) {
-                        this.particles = ParticleStatus.byId(Integer.parseInt(var6));
+                    if ("particles".equals(var3)) {
+                        this.particles = ParticleStatus.byId(Integer.parseInt(var4));
                     }
 
-                    if ("maxFps".equals(var5)) {
-                        this.framerateLimit = Integer.parseInt(var6);
+                    if ("maxFps".equals(var3)) {
+                        this.framerateLimit = Integer.parseInt(var4);
                         if (this.minecraft.getWindow() != null) {
                             this.minecraft.getWindow().setFramerateLimit(this.framerateLimit);
                         }
                     }
 
-                    if ("difficulty".equals(var5)) {
-                        this.difficulty = Difficulty.byId(Integer.parseInt(var6));
+                    if ("difficulty".equals(var3)) {
+                        this.difficulty = Difficulty.byId(Integer.parseInt(var4));
                     }
 
-                    if ("fancyGraphics".equals(var5)) {
-                        this.fancyGraphics = "true".equals(var6);
+                    if ("fancyGraphics".equals(var3)) {
+                        this.fancyGraphics = "true".equals(var4);
                     }
 
-                    if ("tutorialStep".equals(var5)) {
-                        this.tutorialStep = TutorialSteps.getByName(var6);
+                    if ("tutorialStep".equals(var3)) {
+                        this.tutorialStep = TutorialSteps.getByName(var4);
                     }
 
-                    if ("ao".equals(var5)) {
-                        if ("true".equals(var6)) {
+                    if ("ao".equals(var3)) {
+                        if ("true".equals(var4)) {
                             this.ambientOcclusion = AmbientOcclusionStatus.MAX;
-                        } else if ("false".equals(var6)) {
+                        } else if ("false".equals(var4)) {
                             this.ambientOcclusion = AmbientOcclusionStatus.OFF;
                         } else {
-                            this.ambientOcclusion = AmbientOcclusionStatus.byId(Integer.parseInt(var6));
+                            this.ambientOcclusion = AmbientOcclusionStatus.byId(Integer.parseInt(var4));
                         }
                     }
 
-                    if ("renderClouds".equals(var5)) {
-                        if ("true".equals(var6)) {
+                    if ("renderClouds".equals(var3)) {
+                        if ("true".equals(var4)) {
                             this.renderClouds = CloudStatus.FANCY;
-                        } else if ("false".equals(var6)) {
+                        } else if ("false".equals(var4)) {
                             this.renderClouds = CloudStatus.OFF;
-                        } else if ("fast".equals(var6)) {
+                        } else if ("fast".equals(var4)) {
                             this.renderClouds = CloudStatus.FAST;
                         }
                     }
 
-                    if ("attackIndicator".equals(var5)) {
-                        this.attackIndicator = AttackIndicatorStatus.byId(Integer.parseInt(var6));
+                    if ("attackIndicator".equals(var3)) {
+                        this.attackIndicator = AttackIndicatorStatus.byId(Integer.parseInt(var4));
                     }
 
-                    if ("resourcePacks".equals(var5)) {
-                        this.resourcePacks = GsonHelper.fromJson(GSON, var6, RESOURCE_PACK_TYPE);
+                    if ("resourcePacks".equals(var3)) {
+                        this.resourcePacks = GsonHelper.fromJson(GSON, var4, RESOURCE_PACK_TYPE);
                         if (this.resourcePacks == null) {
                             this.resourcePacks = Lists.newArrayList();
                         }
                     }
 
-                    if ("incompatibleResourcePacks".equals(var5)) {
-                        this.incompatibleResourcePacks = GsonHelper.fromJson(GSON, var6, RESOURCE_PACK_TYPE);
+                    if ("incompatibleResourcePacks".equals(var3)) {
+                        this.incompatibleResourcePacks = GsonHelper.fromJson(GSON, var4, RESOURCE_PACK_TYPE);
                         if (this.incompatibleResourcePacks == null) {
                             this.incompatibleResourcePacks = Lists.newArrayList();
                         }
                     }
 
-                    if ("lastServer".equals(var5)) {
-                        this.lastMpIp = var6;
+                    if ("lastServer".equals(var3)) {
+                        this.lastMpIp = var4;
                     }
 
-                    if ("lang".equals(var5)) {
-                        this.languageCode = var6;
+                    if ("lang".equals(var3)) {
+                        this.languageCode = var4;
                     }
 
-                    if ("chatVisibility".equals(var5)) {
-                        this.chatVisibility = ChatVisiblity.byId(Integer.parseInt(var6));
+                    if ("chatVisibility".equals(var3)) {
+                        this.chatVisibility = ChatVisiblity.byId(Integer.parseInt(var4));
                     }
 
-                    if ("chatOpacity".equals(var5)) {
-                        this.chatOpacity = (double)readFloat(var6);
+                    if ("chatOpacity".equals(var3)) {
+                        this.chatOpacity = (double)readFloat(var4);
                     }
 
-                    if ("textBackgroundOpacity".equals(var5)) {
-                        this.textBackgroundOpacity = (double)readFloat(var6);
+                    if ("textBackgroundOpacity".equals(var3)) {
+                        this.textBackgroundOpacity = (double)readFloat(var4);
                     }
 
-                    if ("backgroundForChatOnly".equals(var5)) {
-                        this.backgroundForChatOnly = "true".equals(var6);
+                    if ("backgroundForChatOnly".equals(var3)) {
+                        this.backgroundForChatOnly = "true".equals(var4);
                     }
 
-                    if ("fullscreenResolution".equals(var5)) {
-                        this.fullscreenVideoModeString = var6;
+                    if ("fullscreenResolution".equals(var3)) {
+                        this.fullscreenVideoModeString = var4;
                     }
 
-                    if ("hideServerAddress".equals(var5)) {
-                        this.hideServerAddress = "true".equals(var6);
+                    if ("hideServerAddress".equals(var3)) {
+                        this.hideServerAddress = "true".equals(var4);
                     }
 
-                    if ("advancedItemTooltips".equals(var5)) {
-                        this.advancedItemTooltips = "true".equals(var6);
+                    if ("advancedItemTooltips".equals(var3)) {
+                        this.advancedItemTooltips = "true".equals(var4);
                     }
 
-                    if ("pauseOnLostFocus".equals(var5)) {
-                        this.pauseOnLostFocus = "true".equals(var6);
+                    if ("pauseOnLostFocus".equals(var3)) {
+                        this.pauseOnLostFocus = "true".equals(var4);
                     }
 
-                    if ("overrideHeight".equals(var5)) {
-                        this.overrideHeight = Integer.parseInt(var6);
+                    if ("overrideHeight".equals(var3)) {
+                        this.overrideHeight = Integer.parseInt(var4);
                     }
 
-                    if ("overrideWidth".equals(var5)) {
-                        this.overrideWidth = Integer.parseInt(var6);
+                    if ("overrideWidth".equals(var3)) {
+                        this.overrideWidth = Integer.parseInt(var4);
                     }
 
-                    if ("heldItemTooltips".equals(var5)) {
-                        this.heldItemTooltips = "true".equals(var6);
+                    if ("heldItemTooltips".equals(var3)) {
+                        this.heldItemTooltips = "true".equals(var4);
                     }
 
-                    if ("chatHeightFocused".equals(var5)) {
-                        this.chatHeightFocused = (double)readFloat(var6);
+                    if ("chatHeightFocused".equals(var3)) {
+                        this.chatHeightFocused = (double)readFloat(var4);
                     }
 
-                    if ("chatHeightUnfocused".equals(var5)) {
-                        this.chatHeightUnfocused = (double)readFloat(var6);
+                    if ("chatHeightUnfocused".equals(var3)) {
+                        this.chatHeightUnfocused = (double)readFloat(var4);
                     }
 
-                    if ("chatScale".equals(var5)) {
-                        this.chatScale = (double)readFloat(var6);
+                    if ("chatScale".equals(var3)) {
+                        this.chatScale = (double)readFloat(var4);
                     }
 
-                    if ("chatWidth".equals(var5)) {
-                        this.chatWidth = (double)readFloat(var6);
+                    if ("chatWidth".equals(var3)) {
+                        this.chatWidth = (double)readFloat(var4);
                     }
 
-                    if ("mipmapLevels".equals(var5)) {
-                        this.mipmapLevels = Integer.parseInt(var6);
+                    if ("mipmapLevels".equals(var3)) {
+                        this.mipmapLevels = Integer.parseInt(var4);
                     }
 
-                    if ("useNativeTransport".equals(var5)) {
-                        this.useNativeTransport = "true".equals(var6);
+                    if ("useNativeTransport".equals(var3)) {
+                        this.useNativeTransport = "true".equals(var4);
                     }
 
-                    if ("mainHand".equals(var5)) {
-                        this.mainHand = "left".equals(var6) ? HumanoidArm.LEFT : HumanoidArm.RIGHT;
+                    if ("mainHand".equals(var3)) {
+                        this.mainHand = "left".equals(var4) ? HumanoidArm.LEFT : HumanoidArm.RIGHT;
                     }
 
-                    if ("narrator".equals(var5)) {
-                        this.narratorStatus = NarratorStatus.byId(Integer.parseInt(var6));
+                    if ("narrator".equals(var3)) {
+                        this.narratorStatus = NarratorStatus.byId(Integer.parseInt(var4));
                     }
 
-                    if ("biomeBlendRadius".equals(var5)) {
-                        this.biomeBlendRadius = Integer.parseInt(var6);
+                    if ("biomeBlendRadius".equals(var3)) {
+                        this.biomeBlendRadius = Integer.parseInt(var4);
                     }
 
-                    if ("mouseWheelSensitivity".equals(var5)) {
-                        this.mouseWheelSensitivity = (double)readFloat(var6);
+                    if ("mouseWheelSensitivity".equals(var3)) {
+                        this.mouseWheelSensitivity = (double)readFloat(var4);
                     }
 
-                    if ("rawMouseInput".equals(var5)) {
-                        this.rawMouseInput = "true".equals(var6);
+                    if ("rawMouseInput".equals(var3)) {
+                        this.rawMouseInput = "true".equals(var4);
                     }
 
-                    if ("glDebugVerbosity".equals(var5)) {
-                        this.glDebugVerbosity = Integer.parseInt(var6);
+                    if ("glDebugVerbosity".equals(var3)) {
+                        this.glDebugVerbosity = Integer.parseInt(var4);
                     }
 
-                    for(KeyMapping var7 : this.keyMappings) {
-                        if (var5.equals("key_" + var7.getName())) {
-                            var7.setKey(InputConstants.getKey(var6));
+                    for(KeyMapping var5 : this.keyMappings) {
+                        if (var3.equals("key_" + var5.getName())) {
+                            var5.setKey(InputConstants.getKey(var4));
                         }
                     }
 
-                    for(SoundSource var8 : SoundSource.values()) {
-                        if (var5.equals("soundCategory_" + var8.getName())) {
-                            this.sourceVolumes.put(var8, readFloat(var6));
+                    for(SoundSource var6 : SoundSource.values()) {
+                        if (var3.equals("soundCategory_" + var6.getName())) {
+                            this.sourceVolumes.put(var6, readFloat(var4));
                         }
                     }
 
-                    for(PlayerModelPart var9 : PlayerModelPart.values()) {
-                        if (var5.equals("modelPart_" + var9.getId())) {
-                            this.setModelPart(var9, "true".equals(var6));
+                    for(PlayerModelPart var7 : PlayerModelPart.values()) {
+                        if (var3.equals("modelPart_" + var7.getId())) {
+                            this.setModelPart(var7, "true".equals(var4));
                         }
                     }
-                } catch (Exception var111) {
-                    LOGGER.warn("Skipping bad option: {}:{}", var5, var6);
+                } catch (Exception var19) {
+                    LOGGER.warn("Skipping bad option: {}:{}", var3, var4);
                 }
             }
 
             KeyMapping.resetMapping();
-        } catch (Exception var12) {
-            LOGGER.error("Failed to load options", (Throwable)var12);
+        } catch (Exception var20) {
+            LOGGER.error("Failed to load options", (Throwable)var20);
         }
 
     }
@@ -735,5 +741,12 @@ public class Options {
         }
 
         param0.setSelected(var0);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    static class OptionParseError extends Error {
+        public OptionParseError(String param0, Throwable param1) {
+            super(param0, param1);
+        }
     }
 }

@@ -795,6 +795,10 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
                             var10 = var5 - this.lastGoodX;
                             var11 = var6 - this.lastGoodY;
                             var12 = var7 - this.lastGoodZ;
+                            if (var11 > 0.0) {
+                                this.player.fallDistance = 0.0F;
+                            }
+
                             if (this.player.onGround && !param0.isOnGround() && var11 > 0.0) {
                                 this.player.jumpFromGround();
                             }

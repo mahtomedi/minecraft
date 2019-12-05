@@ -274,6 +274,8 @@ public class DebugScreenOverlay extends GuiComponent {
                                     + var24.getLayerListener(LightLayer.BLOCK).getLightValue(var6)
                                     + " block)"
                             );
+                        } else {
+                            var17.add("Server Light: (?? sky, ?? block)");
                         }
 
                         StringBuilder var25 = new StringBuilder("CH");
@@ -285,19 +287,21 @@ public class DebugScreenOverlay extends GuiComponent {
                         }
 
                         var17.add(var25.toString());
-                        if (var23 != null) {
-                            var25.setLength(0);
-                            var25.append("SH");
+                        var25.setLength(0);
+                        var25.append("SH");
 
-                            for(Heightmap.Types var27 : Heightmap.Types.values()) {
-                                if (var27.keepAfterWorldgen()) {
-                                    var25.append(" ").append(HEIGHTMAP_NAMES.get(var27)).append(": ").append(var23.getHeight(var27, var6.getX(), var6.getZ()));
+                        for(Heightmap.Types var27 : Heightmap.Types.values()) {
+                            if (var27.keepAfterWorldgen()) {
+                                var25.append(" ").append(HEIGHTMAP_NAMES.get(var27)).append(": ");
+                                if (var23 != null) {
+                                    var25.append(var23.getHeight(var27, var6.getX(), var6.getZ()));
+                                } else {
+                                    var25.append("??");
                                 }
                             }
-
-                            var17.add(var25.toString());
                         }
 
+                        var17.add(var25.toString());
                         if (var6.getY() >= 0 && var6.getY() < 256) {
                             var17.add("Biome: " + Registry.BIOME.getKey(this.minecraft.level.getBiome(var6)));
                             long var28 = 0L;
@@ -492,43 +496,42 @@ public class DebugScreenOverlay extends GuiComponent {
         }
 
         int var12 = this.minecraft.getWindow().getGuiScaledHeight();
-        fill(param3, var12 - 60, param3 + var6, var12, -1873784752);
-        BufferBuilder var13 = Tesselator.getInstance().getBuilder();
+        Matrix4f var13 = param0.copy();
+        var13.multiply(Matrix4f.createTranslateMatrix(0.0F, 0.0F, 100.0F));
+        fill(var13, param3, var12 - 60, param3 + var6, var12, -1873784752);
+        BufferBuilder var14 = Tesselator.getInstance().getBuilder();
         RenderSystem.enableBlend();
         RenderSystem.disableTexture();
         RenderSystem.defaultBlendFunc();
-        var13.begin(7, DefaultVertexFormat.POSITION_COLOR);
+        var14.begin(7, DefaultVertexFormat.POSITION_COLOR);
 
         while(var3 != var1) {
-            int var14 = param2.scaleSampleTo(var2[var3], param5 ? 30 : 60, param5 ? 60 : 20);
-            int var15 = param5 ? 100 : 60;
-            int var16 = this.getSampleColor(Mth.clamp(var14, 0, var15), 0, var15 / 2, var15);
-            int var17 = var16 >> 24 & 0xFF;
-            int var18 = var16 >> 16 & 0xFF;
-            int var19 = var16 >> 8 & 0xFF;
-            int var20 = var16 & 0xFF;
-            var13.vertex(param0, (float)(var4 + 1), (float)var12, 0.0F).color(var18, var19, var20, var17).endVertex();
-            var13.vertex(param0, (float)var4, (float)var12, 0.0F).color(var18, var19, var20, var17).endVertex();
-            var13.vertex(param0, (float)var4, (float)(var12 - var14 + 1), 0.0F).color(var18, var19, var20, var17).endVertex();
-            var13.vertex(param0, (float)(var4 + 1), (float)(var12 - var14 + 1), 0.0F).color(var18, var19, var20, var17).endVertex();
+            int var15 = param2.scaleSampleTo(var2[var3], param5 ? 30 : 60, param5 ? 60 : 20);
+            int var16 = param5 ? 100 : 60;
+            int var17 = this.getSampleColor(Mth.clamp(var15, 0, var16), 0, var16 / 2, var16);
+            int var18 = var17 >> 24 & 0xFF;
+            int var19 = var17 >> 16 & 0xFF;
+            int var20 = var17 >> 8 & 0xFF;
+            int var21 = var17 & 0xFF;
+            var14.vertex(param0, (float)(var4 + 1), (float)var12, 0.0F).color(var19, var20, var21, var18).endVertex();
+            var14.vertex(param0, (float)var4, (float)var12, 0.0F).color(var19, var20, var21, var18).endVertex();
+            var14.vertex(param0, (float)var4, (float)(var12 - var15 + 1), 0.0F).color(var19, var20, var21, var18).endVertex();
+            var14.vertex(param0, (float)(var4 + 1), (float)(var12 - var15 + 1), 0.0F).color(var19, var20, var21, var18).endVertex();
             ++var4;
             var3 = param2.wrapIndex(var3 + 1);
         }
 
-        var13.end();
-        BufferUploader.end(var13);
+        var14.end();
+        BufferUploader.end(var14);
         RenderSystem.enableTexture();
         RenderSystem.disableBlend();
         if (param5) {
-            fill(param3 + 1, var12 - 30 + 1, param3 + 14, var12 - 30 + 10, -1873784752);
-            this.font.drawInBatch("60 FPS", (float)(param3 + 2), (float)(var12 - 30 + 2), 14737632, false, param0, param1, false, 0, 15728880);
+            this.font.drawInBatch("60 FPS", (float)(param3 + 2), (float)(var12 - 30 + 2), 14737632, false, param0, param1, false, -1873784752, 15728880);
             this.hLine(param3, param3 + var6 - 1, var12 - 30, -1);
-            fill(param3 + 1, var12 - 60 + 1, param3 + 14, var12 - 60 + 10, -1873784752);
-            this.font.drawInBatch("30 FPS", (float)(param3 + 2), (float)(var12 - 60 + 2), 14737632, false, param0, param1, false, 0, 15728880);
+            this.font.drawInBatch("30 FPS", (float)(param3 + 2), (float)(var12 - 60 + 2), 14737632, false, param0, param1, false, -1873784752, 15728880);
             this.hLine(param3, param3 + var6 - 1, var12 - 60, -1);
         } else {
-            fill(param3 + 1, var12 - 60 + 1, param3 + 14, var12 - 60 + 10, -1873784752);
-            this.font.drawInBatch("20 TPS", (float)(param3 + 2), (float)(var12 - 60 + 2), 14737632, false, param0, param1, false, 0, 15728880);
+            this.font.drawInBatch("20 TPS", (float)(param3 + 2), (float)(var12 - 60 + 2), 14737632, false, param0, param1, false, -1873784752, 15728880);
             this.hLine(param3, param3 + var6 - 1, var12 - 60, -1);
         }
 
@@ -539,17 +542,17 @@ public class DebugScreenOverlay extends GuiComponent {
             this.hLine(param3, param3 + var6 - 1, var12 - 1 - (int)(1800.0 / (double)this.minecraft.options.framerateLimit), -16711681);
         }
 
-        String var21 = var8 + " ms min";
-        String var22 = var7 / (long)var6 + " ms avg";
-        String var23 = var9 + " ms max";
-        int var24 = var12 - 60 - 9;
-        this.font.drawInBatch(var21, (float)(param3 + 2), (float)var24, 14737632, false, param0, param1, false, -1873784752, 15728880);
+        String var22 = var8 + " ms min";
+        String var23 = var7 / (long)var6 + " ms avg";
+        String var24 = var9 + " ms max";
+        int var25 = var12 - 60 - 9;
+        this.font.drawInBatch(var22, (float)(param3 + 2), (float)var25, 14737632, false, param0, param1, false, -1873784752, 15728880);
         this.font
             .drawInBatch(
-                var22, (float)(param3 + var6 / 2 - this.font.width(var22) / 2), (float)var24, 14737632, false, param0, param1, false, -1873784752, 15728880
+                var23, (float)(param3 + var6 / 2 - this.font.width(var23) / 2), (float)var25, 14737632, false, param0, param1, false, -1873784752, 15728880
             );
         this.font
-            .drawInBatch(var23, (float)(param3 + var6 - this.font.width(var23)), (float)var24, 14737632, false, param0, param1, false, -1873784752, 15728880);
+            .drawInBatch(var24, (float)(param3 + var6 - this.font.width(var24)), (float)var25, 14737632, false, param0, param1, false, -1873784752, 15728880);
     }
 
     private int getSampleColor(int param0, int param1, int param2, int param3) {
