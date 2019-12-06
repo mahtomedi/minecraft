@@ -1,6 +1,7 @@
 package net.minecraft.client.gui.screens.inventory;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
@@ -110,6 +111,7 @@ public class SignEditScreen extends Screen {
 
     @Override
     public void render(int param0, int param1, float param2) {
+        Lighting.setupForFlatItems();
         this.renderBackground();
         this.drawCenteredString(this.font, this.title.getColoredString(), this.width / 2, 40, 16777215);
         PoseStack var0 = new PoseStack();
@@ -210,6 +212,7 @@ public class SignEditScreen extends Screen {
         }
 
         var0.popPose();
+        Lighting.setupFor3DItems();
         super.render(param0, param1, param2);
     }
 }

@@ -65,7 +65,7 @@ public abstract class FoliagePlacer implements Serializable {
         Builder<T, T> var0 = ImmutableMap.builder();
         var0.put(param0.createString("type"), param0.createString(Registry.FOLIAGE_PLACER_TYPES.getKey(this.type).toString()))
             .put(param0.createString("radius"), param0.createInt(this.radius))
-            .put(param0.createString("radius_random"), param0.createInt(this.radius));
+            .put(param0.createString("radius_random"), param0.createInt(this.radiusRandom));
         return new Dynamic<>(param0, param0.createMap(var0.build())).getValue();
     }
 }

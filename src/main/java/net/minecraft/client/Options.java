@@ -242,10 +242,7 @@ public class Options {
                     try {
                         Iterator<String> var0x = OPTION_SPLITTER.split(param1).iterator();
                         var0.putString(var0x.next(), var0x.next());
-                    } catch (OutOfMemoryError var3x) {
-                        System.gc();
-                        throw new Options.OptionParseError("Failed to parse option: " + param1.substring(0, Math.min(200, param1.length())), var3x);
-                    } catch (Exception var4x) {
+                    } catch (Exception var3x) {
                         LOGGER.warn("Skipping bad option: {}", param1);
                     }
 
@@ -741,12 +738,5 @@ public class Options {
         }
 
         param0.setSelected(var0);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    static class OptionParseError extends Error {
-        public OptionParseError(String param0, Throwable param1) {
-            super(param0, param1);
-        }
     }
 }

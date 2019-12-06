@@ -14,7 +14,7 @@ public class IntArrayTag extends CollectionTag<IntTag> {
         public IntArrayTag load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
             param2.accountBits(192L);
             int var0 = param0.readInt();
-            param2.accountBits((long)(32 * var0));
+            param2.accountBits(32L * (long)var0);
             int[] var1 = new int[var0];
 
             for(int var2 = 0; var2 < var0; ++var2) {
