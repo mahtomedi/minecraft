@@ -482,7 +482,10 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
         this.lastRestockGameTime = param0.getLong("LastRestock");
         this.lastGossipDecayTime = param0.getLong("LastGossipDecay");
         this.setCanPickUpLoot(true);
-        this.refreshBrain((ServerLevel)this.level);
+        if (this.level instanceof ServerLevel) {
+            this.refreshBrain((ServerLevel)this.level);
+        }
+
         this.numberOfRestocksToday = param0.getInt("RestocksToday");
     }
 

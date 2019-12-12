@@ -459,6 +459,10 @@ public final class ItemStack {
 
     public void setTag(@Nullable CompoundTag param0) {
         this.tag = param0;
+        if (this.getItem().canBeDepleted()) {
+            this.setDamageValue(this.getDamageValue());
+        }
+
     }
 
     public Component getHoverName() {

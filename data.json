@@ -116,27 +116,27 @@
   "complianceLevel": 0,
   "downloads": {
     "client": {
-      "sha1": "7b07fd09d1e3aae1bc7a1304fedc73bfe5d81800",
-      "size": 15517346,
-      "url": "https://launcher.mojang.com/v1/objects/7b07fd09d1e3aae1bc7a1304fedc73bfe5d81800/client.jar"
+      "sha1": "70e27f84a178951b0df7c42c7b9313782cb9925e",
+      "size": 15518371,
+      "url": "https://launcher.mojang.com/v1/objects/70e27f84a178951b0df7c42c7b9313782cb9925e/client.jar"
     },
     "client_mappings": {
-      "sha1": "580c412cfa5869318a3a02d6b018a83781bf3ae7",
-      "size": 4963019,
-      "url": "https://launcher.mojang.com/v1/objects/580c412cfa5869318a3a02d6b018a83781bf3ae7/client.txt"
+      "sha1": "054ee5085ec49b6d037d10d43c04fd4c9c3b9f4b",
+      "size": 4963044,
+      "url": "https://launcher.mojang.com/v1/objects/054ee5085ec49b6d037d10d43c04fd4c9c3b9f4b/client.txt"
     },
     "server": {
-      "sha1": "e9f105b3c5c7e85c7b445249a93362a22f62442d",
-      "size": 36164465,
-      "url": "https://launcher.mojang.com/v1/objects/e9f105b3c5c7e85c7b445249a93362a22f62442d/server.jar"
+      "sha1": "289a247dd42928880769398b049d3890513f2917",
+      "size": 36164932,
+      "url": "https://launcher.mojang.com/v1/objects/289a247dd42928880769398b049d3890513f2917/server.jar"
     },
     "server_mappings": {
-      "sha1": "25ff0e2b1104b8f06fe55b7675dd11b05c72f5f4",
-      "size": 3730189,
-      "url": "https://launcher.mojang.com/v1/objects/25ff0e2b1104b8f06fe55b7675dd11b05c72f5f4/server.txt"
+      "sha1": "3a818e8d2f85b4a1ca6a35bac57be84e81d907a7",
+      "size": 3730135,
+      "url": "https://launcher.mojang.com/v1/objects/3a818e8d2f85b4a1ca6a35bac57be84e81d907a7/server.txt"
     }
   },
-  "id": "1.15",
+  "id": "1.15.1-pre1",
   "javaVersion": {
     "component": "jre-legacy",
     "majorVersion": 8
@@ -1548,7 +1548,7 @@
   },
   "mainClass": "net.minecraft.client.main.Main",
   "minimumLauncherVersion": 21,
-  "releaseTime": "2019-12-09T13:13:38+00:00",
-  "time": "2019-12-09T13:13:38+00:00",
-  "type": "release"
+  "releaseTime": "2019-12-12T14:02:30+00:00",
+  "time": "2019-12-12T14:02:30+00:00",
+  "type": "snapshot"
 }

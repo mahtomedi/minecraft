@@ -33,6 +33,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
+import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.realms.RealmListEntry;
 import net.minecraft.realms.Realms;
@@ -607,8 +608,8 @@ public class RealmsMainScreen extends RealmsScreen {
 
     }
 
-    private void leaveClicked(RealmsServer param0) {
-        if (!Realms.getUUID().equals(param0.ownerUUID)) {
+    private void leaveClicked(@Nullable RealmsServer param0) {
+        if (param0 != null && !Realms.getUUID().equals(param0.ownerUUID)) {
             this.saveListScrollPosition();
             String var0 = getLocalizedString("mco.configure.world.leave.question.line1");
             String var1 = getLocalizedString("mco.configure.world.leave.question.line2");
@@ -636,25 +637,35 @@ public class RealmsMainScreen extends RealmsScreen {
         if (param1 == 4) {
             if (param0) {
                 (new Thread("Realms-leave-server") {
-                    @Override
-                    public void run() {
-                        try {
-                            RealmsServer var0 = RealmsMainScreen.this.findServer(RealmsMainScreen.this.selectedServerId);
-                            if (var0 != null) {
-                                RealmsClient var1 = RealmsClient.createRealmsClient();
-                                var1.uninviteMyselfFrom(var0.id);
-                                RealmsMainScreen.realmsDataFetcher.removeItem(var0);
-                                RealmsMainScreen.this.realmsServers.remove(var0);
-                                RealmsMainScreen.this.selectedServerId = -1L;
-                                RealmsMainScreen.this.playButton.active(false);
+                        @Override
+                        public void run() {
+                            try {
+                                RealmsServer var0 = RealmsMainScreen.this.findServer(RealmsMainScreen.this.selectedServerId);
+                                if (var0 != null) {
+                                    RealmsClient var1 = RealmsClient.createRealmsClient();
+                                    var1.uninviteMyselfFrom(var0.id);
+                                    RealmsMainScreen.realmsDataFetcher.removeItem(var0);
+                                    RealmsMainScreen.this.realmsServers.remove(var0);
+                                    RealmsMainScreen.this.realmSelectionList
+                                        .children()
+                                        .removeIf(
+                                            param0 -> param0 instanceof RealmsMainScreen.RealmSelectionListEntry
+                                                    && ((RealmsMainScreen.RealmSelectionListEntry)param0).mServerData.id
+                                                        == RealmsMainScreen.this.selectedServerId
+                                        );
+                                    RealmsMainScreen.this.realmSelectionList.setSelected(-1);
+                                    RealmsMainScreen.this.updateButtonStates(null);
+                                    RealmsMainScreen.this.selectedServerId = -1L;
+                                    RealmsMainScreen.this.playButton.active(false);
+                                }
+                            } catch (RealmsServiceException var3) {
+                                RealmsMainScreen.LOGGER.error("Couldn't configure world");
+                                Realms.setScreen(new RealmsGenericErrorScreen(var3, RealmsMainScreen.this));
                             }
-                        } catch (RealmsServiceException var3) {
-                            RealmsMainScreen.LOGGER.error("Couldn't configure world");
-                            Realms.setScreen(new RealmsGenericErrorScreen(var3, RealmsMainScreen.this));
+    
                         }
-
-                    }
-                }).start();
+                    })
+                    .start();
             }
 
             Realms.setScreen(this);
@@ -1293,7 +1304,7 @@ public class RealmsMainScreen extends RealmsScreen {
     }
 
     @OnlyIn(Dist.CLIENT)
-    class RealmSelectionList extends RealmsObjectSelectionList {
+    class RealmSelectionList extends RealmsObjectSelectionList<RealmListEntry> {
         public RealmSelectionList() {
             super(RealmsMainScreen.this.width(), RealmsMainScreen.this.height(), 32, RealmsMainScreen.this.height() - 40, 36);
         }
@@ -1344,9 +1355,19 @@ public class RealmsMainScreen extends RealmsScreen {
                         );
                         var0 = null;
                     } else {
+                        if (param0 - 1 >= RealmsMainScreen.this.realmsServers.size()) {
+                            RealmsMainScreen.this.selectedServerId = -1L;
+                            return;
+                        }
+
                         var0 = RealmsMainScreen.this.realmsServers.get(param0 - 1);
                     }
                 } else {
+                    if (param0 >= RealmsMainScreen.this.realmsServers.size()) {
+                        RealmsMainScreen.this.selectedServerId = -1L;
+                        return;
+                    }
+
                     var0 = RealmsMainScreen.this.realmsServers.get(param0);
                 }
 

@@ -34,13 +34,11 @@ public abstract class AbstractStateHolder<O, S> implements StateHolder<S> {
     };
     protected final O owner;
     private final ImmutableMap<Property<?>, Comparable<?>> values;
-    private final int hashCode;
     private Table<Property<?>, Comparable<?>, S> neighbours;
 
     protected AbstractStateHolder(O param0, ImmutableMap<Property<?>, Comparable<?>> param1) {
         this.owner = param0;
         this.values = param1;
-        this.hashCode = param1.hashCode();
     }
 
     public <T extends Comparable<T>> S cycle(Property<T> param0) {
@@ -140,15 +138,5 @@ public abstract class AbstractStateHolder<O, S> implements StateHolder<S> {
     @Override
     public ImmutableMap<Property<?>, Comparable<?>> getValues() {
         return this.values;
-    }
-
-    @Override
-    public boolean equals(Object param0) {
-        return this == param0;
-    }
-
-    @Override
-    public int hashCode() {
-        return this.hashCode;
     }
 }

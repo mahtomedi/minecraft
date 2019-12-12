@@ -66,6 +66,7 @@ public class WorldUpgrader {
         this.thread.setUncaughtExceptionHandler((param0x, param1x) -> {
             LOGGER.error("Error upgrading world", param1x);
             this.status = new TranslatableComponent("optimizeWorld.stage.failed");
+            this.finished = true;
         });
         this.thread.start();
     }
