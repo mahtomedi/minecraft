@@ -116,9 +116,9 @@
   "complianceLevel": 0,
   "downloads": {
     "client": {
-      "sha1": "70e27f84a178951b0df7c42c7b9313782cb9925e",
-      "size": 15518371,
-      "url": "https://launcher.mojang.com/v1/objects/70e27f84a178951b0df7c42c7b9313782cb9925e/client.jar"
+      "sha1": "8b11614bea9293592a947ea8f4fd72981ea66677",
+      "size": 15518397,
+      "url": "https://launcher.mojang.com/v1/objects/8b11614bea9293592a947ea8f4fd72981ea66677/client.jar"
     },
     "client_mappings": {
       "sha1": "054ee5085ec49b6d037d10d43c04fd4c9c3b9f4b",
@@ -126,9 +126,9 @@
       "url": "https://launcher.mojang.com/v1/objects/054ee5085ec49b6d037d10d43c04fd4c9c3b9f4b/client.txt"
     },
     "server": {
-      "sha1": "289a247dd42928880769398b049d3890513f2917",
-      "size": 36164932,
-      "url": "https://launcher.mojang.com/v1/objects/289a247dd42928880769398b049d3890513f2917/server.jar"
+      "sha1": "4d1826eebac84847c71a77f9349cc22afd0cf0a1",
+      "size": 36164938,
+      "url": "https://launcher.mojang.com/v1/objects/4d1826eebac84847c71a77f9349cc22afd0cf0a1/server.jar"
     },
     "server_mappings": {
       "sha1": "3a818e8d2f85b4a1ca6a35bac57be84e81d907a7",
@@ -136,7 +136,7 @@
       "url": "https://launcher.mojang.com/v1/objects/3a818e8d2f85b4a1ca6a35bac57be84e81d907a7/server.txt"
     }
   },
-  "id": "1.15.1-pre1",
+  "id": "1.15.1",
   "javaVersion": {
     "component": "jre-legacy",
     "majorVersion": 8
@@ -1548,7 +1548,7 @@
   },
   "mainClass": "net.minecraft.client.main.Main",
   "minimumLauncherVersion": 21,
-  "releaseTime": "2019-12-12T14:02:30+00:00",
-  "time": "2019-12-12T14:02:30+00:00",
-  "type": "snapshot"
+  "releaseTime": "2019-12-16T10:29:47+00:00",
+  "time": "2019-12-16T10:29:47+00:00",
+  "type": "release"
 }
