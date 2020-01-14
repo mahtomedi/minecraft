@@ -22,6 +22,7 @@ public class SimpleBakedModel implements BakedModel {
     protected final Map<Direction, List<BakedQuad>> culledFaces;
     protected final boolean hasAmbientOcclusion;
     protected final boolean isGui3d;
+    protected final boolean usesBlockLight;
     protected final TextureAtlasSprite particleIcon;
     protected final ItemTransforms transforms;
     protected final ItemOverrides overrides;
@@ -31,17 +32,19 @@ public class SimpleBakedModel implements BakedModel {
         Map<Direction, List<BakedQuad>> param1,
         boolean param2,
         boolean param3,
-        TextureAtlasSprite param4,
-        ItemTransforms param5,
-        ItemOverrides param6
+        boolean param4,
+        TextureAtlasSprite param5,
+        ItemTransforms param6,
+        ItemOverrides param7
     ) {
         this.unculledFaces = param0;
         this.culledFaces = param1;
         this.hasAmbientOcclusion = param2;
-        this.isGui3d = param3;
-        this.particleIcon = param4;
-        this.transforms = param5;
-        this.overrides = param6;
+        this.isGui3d = param4;
+        this.usesBlockLight = param3;
+        this.particleIcon = param5;
+        this.transforms = param6;
+        this.overrides = param7;
     }
 
     @Override
@@ -57,6 +60,11 @@ public class SimpleBakedModel implements BakedModel {
     @Override
     public boolean isGui3d() {
         return this.isGui3d;
+    }
+
+    @Override
+    public boolean usesBlockLight() {
+        return this.usesBlockLight;
     }
 
     @Override
@@ -86,22 +94,24 @@ public class SimpleBakedModel implements BakedModel {
         private final ItemOverrides overrides;
         private final boolean hasAmbientOcclusion;
         private TextureAtlasSprite particleIcon;
+        private final boolean usesBlockLight;
         private final boolean isGui3d;
         private final ItemTransforms transforms;
 
-        public Builder(BlockModel param0, ItemOverrides param1) {
-            this(param0.hasAmbientOcclusion(), param0.isGui3d(), param0.getTransforms(), param1);
+        public Builder(BlockModel param0, ItemOverrides param1, boolean param2) {
+            this(param0.hasAmbientOcclusion(), param0.getGuiLight().lightLikeBlock(), param2, param0.getTransforms(), param1);
         }
 
-        private Builder(boolean param0, boolean param1, ItemTransforms param2, ItemOverrides param3) {
+        private Builder(boolean param0, boolean param1, boolean param2, ItemTransforms param3, ItemOverrides param4) {
             for(Direction var0 : Direction.values()) {
                 this.culledFaces.put(var0, Lists.newArrayList());
             }
 
-            this.overrides = param3;
+            this.overrides = param4;
             this.hasAmbientOcclusion = param0;
-            this.isGui3d = param1;
-            this.transforms = param2;
+            this.usesBlockLight = param1;
+            this.isGui3d = param2;
+            this.transforms = param3;
         }
 
         public SimpleBakedModel.Builder addCulledFace(Direction param0, BakedQuad param1) {
@@ -124,7 +134,14 @@ public class SimpleBakedModel implements BakedModel {
                 throw new RuntimeException("Missing particle!");
             } else {
                 return new SimpleBakedModel(
-                    this.unculledFaces, this.culledFaces, this.hasAmbientOcclusion, this.isGui3d, this.particleIcon, this.transforms, this.overrides
+                    this.unculledFaces,
+                    this.culledFaces,
+                    this.hasAmbientOcclusion,
+                    this.usesBlockLight,
+                    this.isGui3d,
+                    this.particleIcon,
+                    this.transforms,
+                    this.overrides
                 );
             }
         }

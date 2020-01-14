@@ -48,46 +48,51 @@ public class FontSet implements AutoCloseable {
     }
 
     public void reload(List<GlyphProvider> param0) {
-        for(GlyphProvider var0 : this.providers) {
-            var0.close();
-        }
-
-        this.providers.clear();
+        this.closeProviders();
         this.closeTextures();
-        this.textures.clear();
         this.glyphs.clear();
         this.glyphInfos.clear();
         this.glyphsByWidth.clear();
         this.missingGlyph = this.stitch(MissingGlyph.INSTANCE);
         this.whiteGlyph = this.stitch(WhiteGlyph.INSTANCE);
-        Set<GlyphProvider> var1 = Sets.newHashSet();
+        Set<GlyphProvider> var0 = Sets.newHashSet();
 
-        for(char var2 = 0; var2 < '\uffff'; ++var2) {
-            for(GlyphProvider var3 : param0) {
-                GlyphInfo var4 = (GlyphInfo)(var2 == ' ' ? SPACE_INFO : var3.getGlyph(var2));
-                if (var4 != null) {
-                    var1.add(var3);
-                    if (var4 != MissingGlyph.INSTANCE) {
-                        this.glyphsByWidth.computeIfAbsent(Mth.ceil(var4.getAdvance(false)), param0x -> new CharArrayList()).add(var2);
+        for(char var1 = 0; var1 < '\uffff'; ++var1) {
+            for(GlyphProvider var2 : param0) {
+                GlyphInfo var3 = (GlyphInfo)(var1 == ' ' ? SPACE_INFO : var2.getGlyph(var1));
+                if (var3 != null) {
+                    var0.add(var2);
+                    if (var3 != MissingGlyph.INSTANCE) {
+                        this.glyphsByWidth.computeIfAbsent(Mth.ceil(var3.getAdvance(false)), param0x -> new CharArrayList()).add(var1);
                     }
                     break;
                 }
             }
         }
 
-        param0.stream().filter(var1::contains).forEach(this.providers::add);
+        param0.stream().filter(var0::contains).forEach(this.providers::add);
     }
 
     @Override
     public void close() {
+        this.closeProviders();
         this.closeTextures();
     }
 
-    public void closeTextures() {
+    private void closeProviders() {
+        for(GlyphProvider var0 : this.providers) {
+            var0.close();
+        }
+
+        this.providers.clear();
+    }
+
+    private void closeTextures() {
         for(FontTexture var0 : this.textures) {
             var0.close();
         }
 
+        this.textures.clear();
     }
 
     public GlyphInfo getGlyphInfo(char param0) {

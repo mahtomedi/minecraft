@@ -110,6 +110,7 @@ public class BeehiveBlockEntity extends BlockEntity implements TickableBlockEnti
 
     public void addOccupantWithPresetTicks(Entity param0, boolean param1, int param2) {
         if (this.stored.size() < 3) {
+            param0.stopRiding();
             param0.ejectPassengers();
             CompoundTag var0 = new CompoundTag();
             param0.save(var0);
@@ -141,61 +142,62 @@ public class BeehiveBlockEntity extends BlockEntity implements TickableBlockEnti
             param1.removeUUID("UUID");
             Direction var1 = param0.getValue(BeehiveBlock.FACING);
             BlockPos var2 = var0.relative(var1);
-            if (!this.level.getBlockState(var2).getCollisionShape(this.level, var2).isEmpty()) {
+            boolean var3 = !this.level.getBlockState(var2).getCollisionShape(this.level, var2).isEmpty();
+            if (var3 && param3 != BeehiveBlockEntity.BeeReleaseStatus.EMERGENCY) {
                 return false;
             } else {
-                Entity var3 = EntityType.loadEntityRecursive(param1, this.level, param0x -> param0x);
-                if (var3 != null) {
-                    float var4 = var3.getBbWidth();
-                    double var5 = 0.55 + (double)(var4 / 2.0F);
-                    double var6 = (double)var0.getX() + 0.5 + var5 * (double)var1.getStepX();
-                    double var7 = (double)var0.getY() + 0.5 - (double)(var3.getBbHeight() / 2.0F);
-                    double var8 = (double)var0.getZ() + 0.5 + var5 * (double)var1.getStepZ();
-                    var3.moveTo(var6, var7, var8, var3.yRot, var3.xRot);
-                    if (!var3.getType().is(EntityTypeTags.BEEHIVE_INHABITORS)) {
+                Entity var4 = EntityType.loadEntityRecursive(param1, this.level, param0x -> param0x);
+                if (var4 != null) {
+                    float var5 = var4.getBbWidth();
+                    double var6 = var3 ? 0.0 : 0.55 + (double)(var5 / 2.0F);
+                    double var7 = (double)var0.getX() + 0.5 + var6 * (double)var1.getStepX();
+                    double var8 = (double)var0.getY() + 0.5 - (double)(var4.getBbHeight() / 2.0F);
+                    double var9 = (double)var0.getZ() + 0.5 + var6 * (double)var1.getStepZ();
+                    var4.moveTo(var7, var8, var9, var4.yRot, var4.xRot);
+                    if (!var4.getType().is(EntityTypeTags.BEEHIVE_INHABITORS)) {
                         return false;
                     } else {
-                        if (var3 instanceof Bee) {
-                            Bee var9 = (Bee)var3;
-                            if (this.hasSavedFlowerPos() && !var9.hasSavedFlowerPos() && this.level.random.nextFloat() < 0.9F) {
-                                var9.setSavedFlowerPos(this.savedFlowerPos);
+                        if (var4 instanceof Bee) {
+                            Bee var10 = (Bee)var4;
+                            if (this.hasSavedFlowerPos() && !var10.hasSavedFlowerPos() && this.level.random.nextFloat() < 0.9F) {
+                                var10.setSavedFlowerPos(this.savedFlowerPos);
                             }
 
                             if (param3 == BeehiveBlockEntity.BeeReleaseStatus.HONEY_DELIVERED) {
-                                var9.dropOffNectar();
+                                var10.dropOffNectar();
                                 if (param0.getBlock().is(BlockTags.BEEHIVES)) {
-                                    int var10 = getHoneyLevel(param0);
-                                    if (var10 < 5) {
-                                        int var11 = this.level.random.nextInt(100) == 0 ? 2 : 1;
-                                        if (var10 + var11 > 5) {
-                                            --var11;
+                                    int var11 = getHoneyLevel(param0);
+                                    if (var11 < 5) {
+                                        int var12 = this.level.random.nextInt(100) == 0 ? 2 : 1;
+                                        if (var11 + var12 > 5) {
+                                            --var12;
                                         }
 
                                         this.level
-                                            .setBlockAndUpdate(this.getBlockPos(), param0.setValue(BeehiveBlock.HONEY_LEVEL, Integer.valueOf(var10 + var11)));
+                                            .setBlockAndUpdate(this.getBlockPos(), param0.setValue(BeehiveBlock.HONEY_LEVEL, Integer.valueOf(var11 + var12)));
                                     }
                                 }
                             }
 
-                            var9.resetTicksWithoutNectarSinceExitingHive();
+                            var10.resetTicksWithoutNectarSinceExitingHive();
                             if (param2 != null) {
-                                param2.add(var9);
+                                param2.add(var10);
                             }
                         }
 
-                        BlockPos var12 = this.getBlockPos();
+                        BlockPos var13 = this.getBlockPos();
                         this.level
                             .playSound(
                                 null,
-                                (double)var12.getX(),
-                                (double)var12.getY(),
-                                (double)var12.getZ(),
+                                (double)var13.getX(),
+                                (double)var13.getY(),
+                                (double)var13.getZ(),
                                 SoundEvents.BEEHIVE_EXIT,
                                 SoundSource.BLOCKS,
                                 1.0F,
                                 1.0F
                             );
-                        return this.level.addFreshEntity(var3);
+                        return this.level.addFreshEntity(var4);
                     }
                 } else {
                     return false;

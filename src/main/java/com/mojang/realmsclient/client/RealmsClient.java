@@ -311,14 +311,6 @@ public class RealmsClient {
         return Boolean.valueOf(var1);
     }
 
-    public RealmsServer createTrial(String param0, String param1) throws RealmsServiceException, IOException {
-        RealmsDescriptionDto var0 = new RealmsDescriptionDto(param0, param1);
-        String var1 = gson.toJson(var0);
-        String var2 = this.url("trial");
-        String var3 = this.execute(Request.post(var2, var1, 5000, 10000));
-        return RealmsServer.parse(var3);
-    }
-
     public void deleteWorld(long param0) throws RealmsServiceException, IOException {
         String var0 = this.url("worlds" + "/$WORLD_ID".replace("$WORLD_ID", String.valueOf(param0)));
         this.execute(Request.delete(var0));

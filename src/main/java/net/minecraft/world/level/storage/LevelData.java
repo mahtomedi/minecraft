@@ -85,6 +85,8 @@ public class LevelData {
     private int wanderingTraderSpawnDelay;
     private int wanderingTraderSpawnChance;
     private UUID wanderingTraderId;
+    private Set<String> knownServerBrands = Sets.newLinkedHashSet();
+    private boolean wasModded;
     private final GameRules gameRules = new GameRules();
     private final TimerQueue<MinecraftServer> scheduledEvents = new TimerQueue<>(TimerCallbacks.SERVER_CALLBACKS);
 
@@ -96,28 +98,35 @@ public class LevelData {
 
     public LevelData(CompoundTag param0, DataFixer param1, int param2, @Nullable CompoundTag param3) {
         this.fixerUpper = param1;
+        ListTag var0 = param0.getList("ServerBrands", 8);
+
+        for(int var1 = 0; var1 < var0.size(); ++var1) {
+            this.knownServerBrands.add(var0.getString(var1));
+        }
+
+        this.wasModded = param0.getBoolean("WasModded");
         if (param0.contains("Version", 10)) {
-            CompoundTag var0 = param0.getCompound("Version");
-            this.minecraftVersionName = var0.getString("Name");
-            this.minecraftVersion = var0.getInt("Id");
-            this.snapshot = var0.getBoolean("Snapshot");
+            CompoundTag var2 = param0.getCompound("Version");
+            this.minecraftVersionName = var2.getString("Name");
+            this.minecraftVersion = var2.getInt("Id");
+            this.snapshot = var2.getBoolean("Snapshot");
         }
 
         this.seed = param0.getLong("RandomSeed");
         if (param0.contains("generatorName", 8)) {
-            String var1 = param0.getString("generatorName");
-            this.generator = LevelType.getLevelType(var1);
+            String var3 = param0.getString("generatorName");
+            this.generator = LevelType.getLevelType(var3);
             if (this.generator == null) {
                 this.generator = LevelType.NORMAL;
             } else if (this.generator == LevelType.CUSTOMIZED) {
                 this.legacyCustomOptions = param0.getString("generatorOptions");
             } else if (this.generator.hasReplacement()) {
-                int var2 = 0;
+                int var4 = 0;
                 if (param0.contains("generatorVersion", 99)) {
-                    var2 = param0.getInt("generatorVersion");
+                    var4 = param0.getInt("generatorVersion");
                 }
 
-                this.generator = this.generator.getReplacementForVersion(var2);
+                this.generator = this.generator.getReplacementForVersion(var4);
             }
 
             this.setGeneratorOptions(param0.getCompound("generatorOptions"));
@@ -220,25 +229,25 @@ public class LevelData {
         }
 
         if (param0.contains("DimensionData", 10)) {
-            CompoundTag var3 = param0.getCompound("DimensionData");
+            CompoundTag var5 = param0.getCompound("DimensionData");
 
-            for(String var4 : var3.getAllKeys()) {
-                this.dimensionData.put(DimensionType.getById(Integer.parseInt(var4)), var3.getCompound(var4));
+            for(String var6 : var5.getAllKeys()) {
+                this.dimensionData.put(DimensionType.getById(Integer.parseInt(var6)), var5.getCompound(var6));
             }
         }
 
         if (param0.contains("DataPacks", 10)) {
-            CompoundTag var5 = param0.getCompound("DataPacks");
-            ListTag var6 = var5.getList("Disabled", 8);
-
-            for(int var7 = 0; var7 < var6.size(); ++var7) {
-                this.disabledDataPacks.add(var6.getString(var7));
-            }
-
-            ListTag var8 = var5.getList("Enabled", 8);
+            CompoundTag var7 = param0.getCompound("DataPacks");
+            ListTag var8 = var7.getList("Disabled", 8);
 
             for(int var9 = 0; var9 < var8.size(); ++var9) {
-                this.enabledDataPacks.add(var8.getString(var9));
+                this.disabledDataPacks.add(var8.getString(var9));
+            }
+
+            ListTag var10 = var7.getList("Enabled", 8);
+
+            for(int var11 = 0; var11 < var10.size(); ++var11) {
+                this.enabledDataPacks.add(var10.getString(var11));
             }
         }
 
@@ -295,11 +304,15 @@ public class LevelData {
     }
 
     private void setTagData(CompoundTag param0, CompoundTag param1) {
-        CompoundTag var0 = new CompoundTag();
-        var0.putString("Name", SharedConstants.getCurrentVersion().getName());
-        var0.putInt("Id", SharedConstants.getCurrentVersion().getWorldVersion());
-        var0.putBoolean("Snapshot", !SharedConstants.getCurrentVersion().isStable());
-        param0.put("Version", var0);
+        ListTag var0 = new ListTag();
+        this.knownServerBrands.stream().map(StringTag::valueOf).forEach(var0::add);
+        param0.put("ServerBrands", var0);
+        param0.putBoolean("WasModded", this.wasModded);
+        CompoundTag var1 = new CompoundTag();
+        var1.putString("Name", SharedConstants.getCurrentVersion().getName());
+        var1.putInt("Id", SharedConstants.getCurrentVersion().getWorldVersion());
+        var1.putBoolean("Snapshot", !SharedConstants.getCurrentVersion().isStable());
+        param0.put("Version", var1);
         param0.putInt("DataVersion", SharedConstants.getCurrentVersion().getWorldVersion());
         param0.putLong("RandomSeed", this.seed);
         param0.putString("generatorName", this.generator.getSerialization());
@@ -346,33 +359,33 @@ public class LevelData {
 
         param0.putBoolean("DifficultyLocked", this.difficultyLocked);
         param0.put("GameRules", this.gameRules.createTag());
-        CompoundTag var1 = new CompoundTag();
+        CompoundTag var2 = new CompoundTag();
 
-        for(Entry<DimensionType, CompoundTag> var2 : this.dimensionData.entrySet()) {
-            var1.put(String.valueOf(var2.getKey().getId()), var2.getValue());
+        for(Entry<DimensionType, CompoundTag> var3 : this.dimensionData.entrySet()) {
+            var2.put(String.valueOf(var3.getKey().getId()), var3.getValue());
         }
 
-        param0.put("DimensionData", var1);
+        param0.put("DimensionData", var2);
         if (param1 != null) {
             param0.put("Player", param1);
         }
 
-        CompoundTag var3 = new CompoundTag();
-        ListTag var4 = new ListTag();
+        CompoundTag var4 = new CompoundTag();
+        ListTag var5 = new ListTag();
 
-        for(String var5 : this.enabledDataPacks) {
-            var4.add(StringTag.valueOf(var5));
+        for(String var6 : this.enabledDataPacks) {
+            var5.add(StringTag.valueOf(var6));
         }
 
-        var3.put("Enabled", var4);
-        ListTag var6 = new ListTag();
+        var4.put("Enabled", var5);
+        ListTag var7 = new ListTag();
 
-        for(String var7 : this.disabledDataPacks) {
-            var6.add(StringTag.valueOf(var7));
+        for(String var8 : this.disabledDataPacks) {
+            var7.add(StringTag.valueOf(var8));
         }
 
-        var3.put("Disabled", var6);
-        param0.put("DataPacks", var3);
+        var4.put("Disabled", var7);
+        param0.put("DataPacks", var4);
         if (this.customBossEvents != null) {
             param0.put("CustomBossEvents", this.customBossEvents);
         }
@@ -693,6 +706,8 @@ public class LevelData {
         param0.setDetail("Level generator options", () -> this.generatorOptions.toString());
         param0.setDetail("Level spawn location", () -> CrashReportCategory.formatLocation(this.xSpawn, this.ySpawn, this.zSpawn));
         param0.setDetail("Level time", () -> String.format("%d game time, %d day time", this.gameTime, this.dayTime));
+        param0.setDetail("Known server brands", () -> String.join(", ", this.knownServerBrands));
+        param0.setDetail("Level was modded", () -> Boolean.toString(this.wasModded));
         param0.setDetail("Level storage version", () -> {
             String var0 = "Unknown?";
 
@@ -780,5 +795,10 @@ public class LevelData {
 
     public void setWanderingTraderId(UUID param0) {
         this.wanderingTraderId = param0;
+    }
+
+    public void setModdedInfo(String param0, boolean param1) {
+        this.knownServerBrands.add(param0);
+        this.wasModded |= param1;
     }
 }

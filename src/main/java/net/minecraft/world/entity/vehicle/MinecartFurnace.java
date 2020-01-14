@@ -86,21 +86,17 @@ public class MinecartFurnace extends AbstractMinecart {
 
     @Override
     protected void moveAlongTrack(BlockPos param0, BlockState param1) {
+        double var0 = 1.0E-4;
+        double var1 = 0.001;
         super.moveAlongTrack(param0, param1);
-        double var0 = this.xPush * this.xPush + this.zPush * this.zPush;
-        Vec3 var1 = this.getDeltaMovement();
-        if (var0 > 1.0E-4 && getHorizontalDistanceSqr(var1) > 0.001) {
-            var0 = (double)Mth.sqrt(var0);
-            this.xPush /= var0;
-            this.zPush /= var0;
-            if (this.xPush * var1.x + this.zPush * var1.z < 0.0) {
-                this.xPush = 0.0;
-                this.zPush = 0.0;
-            } else {
-                double var2 = var0 / this.getMaxSpeed();
-                this.xPush *= var2;
-                this.zPush *= var2;
-            }
+        Vec3 var2 = this.getDeltaMovement();
+        double var3 = getHorizontalDistanceSqr(var2);
+        double var4 = this.xPush * this.xPush + this.zPush * this.zPush;
+        if (var4 > 1.0E-4 && var3 > 0.001) {
+            double var5 = (double)Mth.sqrt(var3);
+            double var6 = (double)Mth.sqrt(var4);
+            this.xPush = var2.x / var5 * var6;
+            this.zPush = var2.z / var5 * var6;
         }
 
     }

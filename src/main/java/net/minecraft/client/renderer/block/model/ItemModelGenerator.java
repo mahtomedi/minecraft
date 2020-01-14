@@ -34,7 +34,7 @@ public class ItemModelGenerator {
         }
 
         var0.put("particle", param1.hasTexture("particle") ? Either.left(param1.getMaterial("particle")) : var0.get("layer0"));
-        BlockModel var6 = new BlockModel(null, var1, var0, false, false, param1.getTransforms(), param1.getOverrides());
+        BlockModel var6 = new BlockModel(null, var1, var0, false, param1.getGuiLight(), param1.getTransforms(), param1.getOverrides());
         var6.name = param1.name;
         return var6;
     }

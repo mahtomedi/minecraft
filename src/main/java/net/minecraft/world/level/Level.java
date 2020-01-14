@@ -778,6 +778,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
 
     @Override
     public List<Entity> getEntities(@Nullable Entity param0, AABB param1, @Nullable Predicate<? super Entity> param2) {
+        this.getProfiler().incrementCounter("getEntities");
         List<Entity> var0 = Lists.newArrayList();
         int var1 = Mth.floor((param1.minX - 2.0) / 16.0);
         int var2 = Mth.floor((param1.maxX + 2.0) / 16.0);
@@ -797,6 +798,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     }
 
     public <T extends Entity> List<T> getEntities(@Nullable EntityType<T> param0, AABB param1, Predicate<? super T> param2) {
+        this.getProfiler().incrementCounter("getEntities");
         int var0 = Mth.floor((param1.minX - 2.0) / 16.0);
         int var1 = Mth.ceil((param1.maxX + 2.0) / 16.0);
         int var2 = Mth.floor((param1.minZ - 2.0) / 16.0);
@@ -817,6 +819,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
 
     @Override
     public <T extends Entity> List<T> getEntitiesOfClass(Class<? extends T> param0, AABB param1, @Nullable Predicate<? super T> param2) {
+        this.getProfiler().incrementCounter("getEntities");
         int var0 = Mth.floor((param1.minX - 2.0) / 16.0);
         int var1 = Mth.ceil((param1.maxX + 2.0) / 16.0);
         int var2 = Mth.floor((param1.minZ - 2.0) / 16.0);
@@ -838,6 +841,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
 
     @Override
     public <T extends Entity> List<T> getLoadedEntitiesOfClass(Class<? extends T> param0, AABB param1, @Nullable Predicate<? super T> param2) {
+        this.getProfiler().incrementCounter("getLoadedEntities");
         int var0 = Mth.floor((param1.minX - 2.0) / 16.0);
         int var1 = Mth.ceil((param1.maxX + 2.0) / 16.0);
         int var2 = Mth.floor((param1.minZ - 2.0) / 16.0);

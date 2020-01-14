@@ -2,6 +2,7 @@ package net.minecraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.math.Vector3f;
 import java.util.List;
 import net.minecraft.client.model.geom.ModelPart;
@@ -41,27 +42,28 @@ public class BannerRenderer extends BlockEntityRenderer<BannerBlockEntity> {
     }
 
     public void render(BannerBlockEntity param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {
-        if (param0.getPatterns() != null) {
-            float var0 = 0.6666667F;
-            boolean var1 = param0.getLevel() == null;
+        List<Pair<BannerPattern, DyeColor>> var0 = param0.getPatterns();
+        if (var0 != null) {
+            float var1 = 0.6666667F;
+            boolean var2 = param0.getLevel() == null;
             param2.pushPose();
-            long var2;
-            if (var1) {
-                var2 = 0L;
+            long var3;
+            if (var2) {
+                var3 = 0L;
                 param2.translate(0.5, 0.5, 0.5);
-                this.pole.visible = !param0.onlyRenderPattern();
+                this.pole.visible = true;
             } else {
-                var2 = param0.getLevel().getGameTime();
-                BlockState var4 = param0.getBlockState();
-                if (var4.getBlock() instanceof BannerBlock) {
+                var3 = param0.getLevel().getGameTime();
+                BlockState var5 = param0.getBlockState();
+                if (var5.getBlock() instanceof BannerBlock) {
                     param2.translate(0.5, 0.5, 0.5);
-                    float var5 = (float)(-var4.getValue(BannerBlock.ROTATION) * 360) / 16.0F;
-                    param2.mulPose(Vector3f.YP.rotationDegrees(var5));
+                    float var6 = (float)(-var5.getValue(BannerBlock.ROTATION) * 360) / 16.0F;
+                    param2.mulPose(Vector3f.YP.rotationDegrees(var6));
                     this.pole.visible = true;
                 } else {
                     param2.translate(0.5, -0.16666667F, 0.5);
-                    float var6 = -var4.getValue(WallBannerBlock.FACING).toYRot();
-                    param2.mulPose(Vector3f.YP.rotationDegrees(var6));
+                    float var7 = -var5.getValue(WallBannerBlock.FACING).toYRot();
+                    param2.mulPose(Vector3f.YP.rotationDegrees(var7));
                     param2.translate(0.0, -0.3125, -0.4375);
                     this.pole.visible = false;
                 }
@@ -69,37 +71,36 @@ public class BannerRenderer extends BlockEntityRenderer<BannerBlockEntity> {
 
             param2.pushPose();
             param2.scale(0.6666667F, -0.6666667F, -0.6666667F);
-            VertexConsumer var7 = ModelBakery.BANNER_BASE.buffer(param3, RenderType::entitySolid);
-            this.pole.render(param2, var7, param4, param5);
-            this.bar.render(param2, var7, param4, param5);
-            if (param0.onlyRenderPattern()) {
-                this.flag.xRot = 0.0F;
-            } else {
-                BlockPos var8 = param0.getBlockPos();
-                float var9 = ((float)Math.floorMod((long)(var8.getX() * 7 + var8.getY() * 9 + var8.getZ() * 13) + var2, 100L) + param1) / 100.0F;
-                this.flag.xRot = (-0.0125F + 0.01F * Mth.cos((float) (Math.PI * 2) * var9)) * (float) Math.PI;
-            }
-
+            VertexConsumer var8 = ModelBakery.BANNER_BASE.buffer(param3, RenderType::entitySolid);
+            this.pole.render(param2, var8, param4, param5);
+            this.bar.render(param2, var8, param4, param5);
+            BlockPos var9 = param0.getBlockPos();
+            float var10 = ((float)Math.floorMod((long)(var9.getX() * 7 + var9.getY() * 9 + var9.getZ() * 13) + var3, 100L) + param1) / 100.0F;
+            this.flag.xRot = (-0.0125F + 0.01F * Mth.cos((float) (Math.PI * 2) * var10)) * (float) Math.PI;
             this.flag.y = -32.0F;
-            renderPatterns(param0, param2, param3, param4, param5, this.flag, ModelBakery.BANNER_BASE, true);
+            renderPatterns(param2, param3, param4, param5, this.flag, ModelBakery.BANNER_BASE, true, var0);
             param2.popPose();
             param2.popPose();
         }
     }
 
     public static void renderPatterns(
-        BannerBlockEntity param0, PoseStack param1, MultiBufferSource param2, int param3, int param4, ModelPart param5, Material param6, boolean param7
+        PoseStack param0,
+        MultiBufferSource param1,
+        int param2,
+        int param3,
+        ModelPart param4,
+        Material param5,
+        boolean param6,
+        List<Pair<BannerPattern, DyeColor>> param7
     ) {
-        param5.render(param1, param6.buffer(param2, RenderType::entitySolid), param3, param4);
-        List<BannerPattern> var0 = param0.getPatterns();
-        List<DyeColor> var1 = param0.getColors();
+        param4.render(param0, param5.buffer(param1, RenderType::entitySolid), param2, param3);
 
-        for(int var2 = 0; var2 < 17 && var2 < var0.size() && var2 < var1.size(); ++var2) {
-            BannerPattern var3 = var0.get(var2);
-            DyeColor var4 = var1.get(var2);
-            float[] var5 = var4.getTextureDiffuseColors();
-            Material var6 = new Material(param7 ? Sheets.BANNER_SHEET : Sheets.SHIELD_SHEET, var3.location(param7));
-            param5.render(param1, var6.buffer(param2, RenderType::entityNoOutline), param3, param4, var5[0], var5[1], var5[2], 1.0F);
+        for(int var0 = 0; var0 < 17 && var0 < param7.size(); ++var0) {
+            Pair<BannerPattern, DyeColor> var1 = param7.get(var0);
+            float[] var2 = var1.getSecond().getTextureDiffuseColors();
+            Material var3 = new Material(param6 ? Sheets.BANNER_SHEET : Sheets.SHIELD_SHEET, var1.getFirst().location(param6));
+            param4.render(param0, var3.buffer(param1, RenderType::entityNoOutline), param2, param3, var2[0], var2[1], var2[2], 1.0F);
         }
 
     }

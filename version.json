@@ -1,10 +1,10 @@
 {
-    "id": "1.15.1",
-    "name": "1.15.1",
-    "release_target": "1.15.1",
-    "world_version": 2227,
-    "protocol_version": 575,
+    "id": "1.15.2-pre1",
+    "name": "1.15.2 Pre-Release 1",
+    "release_target": "1.15.2",
+    "world_version": 2228,
+    "protocol_version": 576,
     "pack_version": 5,
-    "build_time": "2019-12-16T10:28:09+00:00",
+    "build_time": "2020-01-14T16:17:47+00:00",
     "stable": true
 }

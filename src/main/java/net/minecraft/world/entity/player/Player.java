@@ -1330,20 +1330,14 @@ public abstract class Player extends LivingEntity {
             if (!this.isCreative()) {
                 double var1 = 8.0;
                 double var2 = 5.0;
-                List<Monster> var3 = this.level
+                Vec3 var3 = new Vec3((double)param0.getX() + 0.5, (double)param0.getY(), (double)param0.getZ() + 0.5);
+                List<Monster> var4 = this.level
                     .getEntitiesOfClass(
                         Monster.class,
-                        new AABB(
-                            (double)param0.getX() - 8.0,
-                            (double)param0.getY() - 5.0,
-                            (double)param0.getZ() - 8.0,
-                            (double)param0.getX() + 8.0,
-                            (double)param0.getY() + 5.0,
-                            (double)param0.getZ() + 8.0
-                        ),
+                        new AABB(var3.x() - 8.0, var3.y() - 5.0, var3.z() - 8.0, var3.x() + 8.0, var3.y() + 5.0, var3.z() + 8.0),
                         param0x -> param0x.isPreventingPlayerRest(this)
                     );
-                if (!var3.isEmpty()) {
+                if (!var4.isEmpty()) {
                     return Either.left(Player.BedSleepingProblem.NOT_SAFE);
                 }
             }
@@ -1366,16 +1360,12 @@ public abstract class Player extends LivingEntity {
     }
 
     private boolean bedInRange(BlockPos param0, Direction param1) {
-        if (Math.abs(this.getX() - (double)param0.getX()) <= 3.0
-            && Math.abs(this.getY() - (double)param0.getY()) <= 2.0
-            && Math.abs(this.getZ() - (double)param0.getZ()) <= 3.0) {
-            return true;
-        } else {
-            BlockPos var0 = param0.relative(param1.getOpposite());
-            return Math.abs(this.getX() - (double)var0.getX()) <= 3.0
-                && Math.abs(this.getY() - (double)var0.getY()) <= 2.0
-                && Math.abs(this.getZ() - (double)var0.getZ()) <= 3.0;
-        }
+        return this.isReachableBedBlock(param0) || this.isReachableBedBlock(param0.relative(param1.getOpposite()));
+    }
+
+    private boolean isReachableBedBlock(BlockPos param0) {
+        Vec3 var0 = new Vec3((double)param0.getX() + 0.5, (double)param0.getY(), (double)param0.getZ() + 0.5);
+        return Math.abs(this.getX() - var0.x()) <= 3.0 && Math.abs(this.getY() - var0.y()) <= 2.0 && Math.abs(this.getZ() - var0.z()) <= 3.0;
     }
 
     private boolean bedBlocked(BlockPos param0, Direction param1) {

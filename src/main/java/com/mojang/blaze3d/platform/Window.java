@@ -398,6 +398,10 @@ public final class Window implements AutoCloseable {
         this.guiScaledHeight = (double)this.framebufferHeight / param0 > (double)var1 ? var1 + 1 : var1;
     }
 
+    public void setTitle(String param0) {
+        GLFW.glfwSetWindowTitle(this.window, param0);
+    }
+
     public long getWindow() {
         return this.window;
     }

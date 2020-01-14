@@ -1,17 +1,22 @@
 package net.minecraft.util.profiling;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import com.google.common.collect.Maps;
+import it.unimi.dsi.fastutil.objects.Object2LongMap;
+import it.unimi.dsi.fastutil.objects.Object2LongMaps;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
+import java.util.Map.Entry;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import org.apache.commons.io.IOUtils;
@@ -20,79 +25,121 @@ import org.apache.logging.log4j.Logger;
 
 public class FilledProfileResults implements ProfileResults {
     private static final Logger LOGGER = LogManager.getLogger();
-    private final Map<String, Long> times;
-    private final Map<String, Long> counts;
+    private static final ProfilerPathEntry EMPTY = new ProfilerPathEntry() {
+        @Override
+        public long getDuration() {
+            return 0L;
+        }
+
+        @Override
+        public long getCount() {
+            return 0L;
+        }
+
+        @Override
+        public Object2LongMap<String> getCounters() {
+            return Object2LongMaps.emptyMap();
+        }
+    };
+    private static final Splitter SPLITTER = Splitter.on('\u001e');
+    private static final Comparator<Entry<String, FilledProfileResults.CounterCollector>> COUNTER_ENTRY_COMPARATOR = Entry.<String, FilledProfileResults.CounterCollector>comparingByValue(
+            Comparator.comparingLong(param0 -> param0.totalValue)
+        )
+        .reversed();
+    private final Map<String, ? extends ProfilerPathEntry> entries;
     private final long startTimeNano;
     private final int startTimeTicks;
     private final long endTimeNano;
     private final int endTimeTicks;
     private final int tickDuration;
 
-    public FilledProfileResults(Map<String, Long> param0, Map<String, Long> param1, long param2, int param3, long param4, int param5) {
-        this.times = param0;
-        this.counts = param1;
-        this.startTimeNano = param2;
-        this.startTimeTicks = param3;
-        this.endTimeNano = param4;
-        this.endTimeTicks = param5;
-        this.tickDuration = param5 - param3;
+    public FilledProfileResults(Map<String, ? extends ProfilerPathEntry> param0, long param1, int param2, long param3, int param4) {
+        this.entries = param0;
+        this.startTimeNano = param1;
+        this.startTimeTicks = param2;
+        this.endTimeNano = param3;
+        this.endTimeTicks = param4;
+        this.tickDuration = param4 - param2;
+    }
+
+    private ProfilerPathEntry getEntry(String param0) {
+        ProfilerPathEntry var0 = this.entries.get(param0);
+        return var0 != null ? var0 : EMPTY;
     }
 
     @Override
     public List<ResultField> getTimes(String param0) {
         String var0 = param0;
-        long var1 = this.times.containsKey("root") ? this.times.get("root") : 0L;
-        long var2 = this.times.getOrDefault(param0, -1L);
-        long var3 = this.counts.getOrDefault(param0, 0L);
-        List<ResultField> var4 = Lists.newArrayList();
+        ProfilerPathEntry var1 = this.getEntry("root");
+        long var2 = var1.getDuration();
+        ProfilerPathEntry var3 = this.getEntry(param0);
+        long var4 = var3.getDuration();
+        long var5 = var3.getCount();
+        List<ResultField> var6 = Lists.newArrayList();
         if (!param0.isEmpty()) {
             param0 = param0 + '\u001e';
         }
 
-        long var5 = 0L;
+        long var7 = 0L;
 
-        for(String var6 : this.times.keySet()) {
-            if (var6.length() > param0.length() && var6.startsWith(param0) && var6.indexOf(30, param0.length() + 1) < 0) {
-                var5 += this.times.get(var6);
+        for(String var8 : this.entries.keySet()) {
+            if (isDirectChild(param0, var8)) {
+                var7 += this.getEntry(var8).getDuration();
             }
         }
 
-        float var7 = (float)var5;
-        if (var5 < var2) {
-            var5 = var2;
+        float var9 = (float)var7;
+        if (var7 < var4) {
+            var7 = var4;
         }
 
-        if (var1 < var5) {
-            var1 = var5;
+        if (var2 < var7) {
+            var2 = var7;
         }
 
-        Set<String> var8 = Sets.newHashSet(this.times.keySet());
-        var8.addAll(this.counts.keySet());
-
-        for(String var9 : var8) {
-            if (var9.length() > param0.length() && var9.startsWith(param0) && var9.indexOf(30, param0.length() + 1) < 0) {
-                long var10 = this.times.getOrDefault(var9, 0L);
-                double var11 = (double)var10 * 100.0 / (double)var5;
-                double var12 = (double)var10 * 100.0 / (double)var1;
-                String var13 = var9.substring(param0.length());
-                long var14 = this.counts.getOrDefault(var9, 0L);
-                var4.add(new ResultField(var13, var11, var12, var14));
+        for(String var10 : this.entries.keySet()) {
+            if (isDirectChild(param0, var10)) {
+                ProfilerPathEntry var11 = this.getEntry(var10);
+                long var12 = var11.getDuration();
+                double var13 = (double)var12 * 100.0 / (double)var7;
+                double var14 = (double)var12 * 100.0 / (double)var2;
+                String var15 = var10.substring(param0.length());
+                var6.add(new ResultField(var15, var13, var14, var11.getCount()));
             }
         }
 
-        for(String var15 : this.times.keySet()) {
-            this.times.put(var15, this.times.get(var15) * 999L / 1000L);
-        }
-
-        if ((float)var5 > var7) {
-            var4.add(
-                new ResultField("unspecified", (double)((float)var5 - var7) * 100.0 / (double)var5, (double)((float)var5 - var7) * 100.0 / (double)var1, var3)
+        if ((float)var7 > var9) {
+            var6.add(
+                new ResultField("unspecified", (double)((float)var7 - var9) * 100.0 / (double)var7, (double)((float)var7 - var9) * 100.0 / (double)var2, var5)
             );
         }
 
-        Collections.sort(var4);
-        var4.add(0, new ResultField(var0, 100.0, (double)var5 * 100.0 / (double)var1, var3));
-        return var4;
+        Collections.sort(var6);
+        var6.add(0, new ResultField(var0, 100.0, (double)var7 * 100.0 / (double)var2, var5));
+        return var6;
+    }
+
+    private static boolean isDirectChild(String param0, String param1) {
+        return param1.length() > param0.length() && param1.startsWith(param0) && param1.indexOf(30, param0.length() + 1) < 0;
+    }
+
+    private Map<String, FilledProfileResults.CounterCollector> getCounterValues() {
+        Map<String, FilledProfileResults.CounterCollector> var0 = Maps.newTreeMap();
+        this.entries
+            .forEach(
+                (param1, param2) -> {
+                    Object2LongMap<String> var0x = param2.getCounters();
+                    if (!var0x.isEmpty()) {
+                        List<String> var1x = SPLITTER.splitToList(param1);
+                        var0x.forEach(
+                            (param2x, param3) -> var0.computeIfAbsent(param2x, param0x -> new FilledProfileResults.CounterCollector())
+                                    .addValue(var1x.iterator(), param3)
+                        );
+                    }
+        
+                }
+            );
+        return var0;
     }
 
     @Override
@@ -152,41 +199,91 @@ public class FilledProfileResults implements ProfileResults {
         var0.append("--- BEGIN PROFILE DUMP ---\n\n");
         this.appendProfilerResults(0, "root", var0);
         var0.append("--- END PROFILE DUMP ---\n\n");
+        Map<String, FilledProfileResults.CounterCollector> var1 = this.getCounterValues();
+        if (!var1.isEmpty()) {
+            var0.append("--- BEGIN COUNTER DUMP ---\n\n");
+            this.appendCounters(var1, var0, param1);
+            var0.append("--- END COUNTER DUMP ---\n\n");
+        }
+
         return var0.toString();
+    }
+
+    private static StringBuilder indentLine(StringBuilder param0, int param1) {
+        param0.append(String.format("[%02d] ", param1));
+
+        for(int var0 = 0; var0 < param1; ++var0) {
+            param0.append("|   ");
+        }
+
+        return param0;
     }
 
     private void appendProfilerResults(int param0, String param1, StringBuilder param2) {
         List<ResultField> var0 = this.getTimes(param1);
-        if (var0.size() >= 3) {
-            for(int var1 = 1; var1 < var0.size(); ++var1) {
-                ResultField var2 = var0.get(var1);
-                param2.append(String.format("[%02d] ", param0));
-
-                for(int var3 = 0; var3 < param0; ++var3) {
-                    param2.append("|   ");
-                }
-
-                param2.append(var2.name)
-                    .append('(')
-                    .append(var2.count)
+        Object2LongMap<String> var1 = this.entries.get(param1).getCounters();
+        var1.forEach(
+            (param2x, param3) -> indentLine(param2, param0)
+                    .append('#')
+                    .append(param2x)
+                    .append(' ')
+                    .append(param3)
                     .append('/')
-                    .append(String.format(Locale.ROOT, "%.0f", (float)var2.count / (float)this.tickDuration))
+                    .append(param3 / (long)this.tickDuration)
+                    .append('\n')
+        );
+        if (var0.size() >= 3) {
+            for(int var2 = 1; var2 < var0.size(); ++var2) {
+                ResultField var3 = var0.get(var2);
+                indentLine(param2, param0)
+                    .append(var3.name)
+                    .append('(')
+                    .append(var3.count)
+                    .append('/')
+                    .append(String.format(Locale.ROOT, "%.0f", (float)var3.count / (float)this.tickDuration))
                     .append(')')
                     .append(" - ")
-                    .append(String.format(Locale.ROOT, "%.2f", var2.percentage))
+                    .append(String.format(Locale.ROOT, "%.2f", var3.percentage))
                     .append("%/")
-                    .append(String.format(Locale.ROOT, "%.2f", var2.globalPercentage))
+                    .append(String.format(Locale.ROOT, "%.2f", var3.globalPercentage))
                     .append("%\n");
-                if (!"unspecified".equals(var2.name)) {
+                if (!"unspecified".equals(var3.name)) {
                     try {
-                        this.appendProfilerResults(param0 + 1, param1 + '\u001e' + var2.name, param2);
-                    } catch (Exception var8) {
-                        param2.append("[[ EXCEPTION ").append(var8).append(" ]]");
+                        this.appendProfilerResults(param0 + 1, param1 + '\u001e' + var3.name, param2);
+                    } catch (Exception var9) {
+                        param2.append("[[ EXCEPTION ").append(var9).append(" ]]");
                     }
                 }
             }
 
         }
+    }
+
+    private void appendCounterResults(int param0, String param1, FilledProfileResults.CounterCollector param2, int param3, StringBuilder param4) {
+        indentLine(param4, param0)
+            .append(param1)
+            .append(" total:")
+            .append(param2.selfValue)
+            .append('/')
+            .append(param2.totalValue)
+            .append(" average: ")
+            .append(param2.selfValue / (long)param3)
+            .append('/')
+            .append(param2.totalValue / (long)param3)
+            .append('\n');
+        param2.children
+            .entrySet()
+            .stream()
+            .sorted(COUNTER_ENTRY_COMPARATOR)
+            .forEach(param3x -> this.appendCounterResults(param0 + 1, param3x.getKey(), param3x.getValue(), param3, param4));
+    }
+
+    private void appendCounters(Map<String, FilledProfileResults.CounterCollector> param0, StringBuilder param1, int param2) {
+        param0.forEach((param2x, param3) -> {
+            param1.append("-- Counter: ").append(param2x).append(" --\n");
+            this.appendCounterResults(0, "root", param3.children.get("root"), param2, param1);
+            param1.append("\n\n");
+        });
     }
 
     private static String getComment() {
@@ -217,5 +314,24 @@ public class FilledProfileResults implements ProfileResults {
     @Override
     public int getTickDuration() {
         return this.tickDuration;
+    }
+
+    static class CounterCollector {
+        private long selfValue;
+        private long totalValue;
+        private final Map<String, FilledProfileResults.CounterCollector> children = Maps.newHashMap();
+
+        private CounterCollector() {
+        }
+
+        public void addValue(Iterator<String> param0, long param1) {
+            this.totalValue += param1;
+            if (!param0.hasNext()) {
+                this.selfValue += param1;
+            } else {
+                this.children.computeIfAbsent(param0.next(), param0x -> new FilledProfileResults.CounterCollector()).addValue(param0, param1);
+            }
+
+        }
     }
 }

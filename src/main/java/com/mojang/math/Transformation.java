@@ -97,7 +97,7 @@ public final class Transformation {
         if (param0 != null) {
             var0.m03 = param0.x();
             var0.m13 = param0.y();
-            var0.m32 = param0.z();
+            var0.m23 = param0.z();
         }
 
         return var0;

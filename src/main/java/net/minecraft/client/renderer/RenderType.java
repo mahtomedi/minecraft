@@ -137,6 +137,7 @@ public abstract class RenderType extends RenderStateShard {
     private final int bufferSize;
     private final boolean affectsCrumbling;
     private final boolean sortOnUpload;
+    private final Optional<RenderType> asOptional;
 
     public static RenderType solid() {
         return SOLID;
@@ -190,7 +191,7 @@ public abstract class RenderType extends RenderStateShard {
         return create("entity_cutout", DefaultVertexFormat.NEW_ENTITY, 7, 256, true, false, var0);
     }
 
-    public static RenderType entityCutoutNoCull(ResourceLocation param0) {
+    public static RenderType entityCutoutNoCull(ResourceLocation param0, boolean param1) {
         RenderType.CompositeState var0 = RenderType.CompositeState.builder()
             .setTextureState(new RenderStateShard.TextureStateShard(param0, false, false))
             .setTransparencyState(NO_TRANSPARENCY)
@@ -199,8 +200,12 @@ public abstract class RenderType extends RenderStateShard {
             .setCullState(NO_CULL)
             .setLightmapState(LIGHTMAP)
             .setOverlayState(OVERLAY)
-            .createCompositeState(true);
+            .createCompositeState(param1);
         return create("entity_cutout_no_cull", DefaultVertexFormat.NEW_ENTITY, 7, 256, true, false, var0);
+    }
+
+    public static RenderType entityCutoutNoCull(ResourceLocation param0) {
+        return entityCutoutNoCull(param0, true);
     }
 
     public static RenderType entityTranslucentCull(ResourceLocation param0) {
@@ -215,7 +220,7 @@ public abstract class RenderType extends RenderStateShard {
         return create("entity_translucent_cull", DefaultVertexFormat.NEW_ENTITY, 7, 256, true, true, var0);
     }
 
-    public static RenderType entityTranslucent(ResourceLocation param0) {
+    public static RenderType entityTranslucent(ResourceLocation param0, boolean param1) {
         RenderType.CompositeState var0 = RenderType.CompositeState.builder()
             .setTextureState(new RenderStateShard.TextureStateShard(param0, false, false))
             .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
@@ -224,8 +229,12 @@ public abstract class RenderType extends RenderStateShard {
             .setCullState(NO_CULL)
             .setLightmapState(LIGHTMAP)
             .setOverlayState(OVERLAY)
-            .createCompositeState(true);
+            .createCompositeState(param1);
         return create("entity_translucent", DefaultVertexFormat.NEW_ENTITY, 7, 256, true, true, var0);
+    }
+
+    public static RenderType entityTranslucent(ResourceLocation param0) {
+        return entityTranslucent(param0, true);
     }
 
     public static RenderType entitySmoothCutout(ResourceLocation param0) {
@@ -348,7 +357,7 @@ public abstract class RenderType extends RenderStateShard {
                 .setTexturingState(OUTLINE_TEXTURING)
                 .setFogState(NO_FOG)
                 .setOutputState(OUTLINE_TARGET)
-                .createCompositeState(false)
+                .createCompositeState(RenderType.OutlineProperty.IS_OUTLINE)
         );
     }
 
@@ -457,6 +466,7 @@ public abstract class RenderType extends RenderStateShard {
         this.bufferSize = param3;
         this.affectsCrumbling = param4;
         this.sortOnUpload = param5;
+        this.asOptional = Optional.of(this);
     }
 
     public static RenderType.CompositeRenderType create(String param0, VertexFormat param1, int param2, int param3, RenderType.CompositeState param4) {
@@ -507,8 +517,16 @@ public abstract class RenderType extends RenderStateShard {
         return Optional.empty();
     }
 
+    public boolean isOutline() {
+        return false;
+    }
+
     public boolean affectsCrumbling() {
         return this.affectsCrumbling;
+    }
+
+    public Optional<RenderType> asOptional() {
+        return this.asOptional;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -519,6 +537,7 @@ public abstract class RenderType extends RenderStateShard {
         private final RenderType.CompositeState state;
         private final int hashCode;
         private final Optional<RenderType> outline;
+        private final boolean isOutline;
 
         private CompositeRenderType(
             String param0, VertexFormat param1, int param2, int param3, boolean param4, boolean param5, RenderType.CompositeState param6
@@ -534,7 +553,10 @@ public abstract class RenderType extends RenderStateShard {
                 () -> param6.states.forEach(RenderStateShard::clearRenderState)
             );
             this.state = param6;
-            this.outline = param6.affectsOutline ? param6.textureState.texture().map(RenderType::outline) : Optional.empty();
+            this.outline = param6.outlineProperty == RenderType.OutlineProperty.AFFECTS_OUTLINE
+                ? param6.textureState.texture().map(RenderType::outline)
+                : Optional.empty();
+            this.isOutline = param6.outlineProperty == RenderType.OutlineProperty.IS_OUTLINE;
             this.hashCode = Objects.hash(super.hashCode(), param6);
         }
 
@@ -547,6 +569,11 @@ public abstract class RenderType extends RenderStateShard {
         @Override
         public Optional<RenderType> outline() {
             return this.outline;
+        }
+
+        @Override
+        public boolean isOutline() {
+            return this.isOutline;
         }
 
         @Override
@@ -594,7 +621,7 @@ public abstract class RenderType extends RenderStateShard {
         private final RenderStateShard.TexturingStateShard texturingState;
         private final RenderStateShard.WriteMaskStateShard writeMaskState;
         private final RenderStateShard.LineStateShard lineState;
-        private final boolean affectsOutline;
+        private final RenderType.OutlineProperty outlineProperty;
         private final ImmutableList<RenderStateShard> states;
 
         private CompositeState(
@@ -613,7 +640,7 @@ public abstract class RenderType extends RenderStateShard {
             RenderStateShard.TexturingStateShard param12,
             RenderStateShard.WriteMaskStateShard param13,
             RenderStateShard.LineStateShard param14,
-            boolean param15
+            RenderType.OutlineProperty param15
         ) {
             this.textureState = param0;
             this.transparencyState = param1;
@@ -630,7 +657,7 @@ public abstract class RenderType extends RenderStateShard {
             this.texturingState = param12;
             this.writeMaskState = param13;
             this.lineState = param14;
-            this.affectsOutline = param15;
+            this.outlineProperty = param15;
             this.states = ImmutableList.of(
                 this.textureState,
                 this.transparencyState,
@@ -656,7 +683,7 @@ public abstract class RenderType extends RenderStateShard {
                 return true;
             } else if (param0 != null && this.getClass() == param0.getClass()) {
                 RenderType.CompositeState var0 = (RenderType.CompositeState)param0;
-                return this.affectsOutline == var0.affectsOutline && this.states.equals(var0.states);
+                return this.outlineProperty == var0.outlineProperty && this.states.equals(var0.states);
             } else {
                 return false;
             }
@@ -664,7 +691,7 @@ public abstract class RenderType extends RenderStateShard {
 
         @Override
         public int hashCode() {
-            return Objects.hash(this.states, this.affectsOutline);
+            return Objects.hash(this.states, this.outlineProperty);
         }
 
         public static RenderType.CompositeState.CompositeStateBuilder builder() {
@@ -768,6 +795,10 @@ public abstract class RenderType extends RenderStateShard {
             }
 
             public RenderType.CompositeState createCompositeState(boolean param0) {
+                return this.createCompositeState(param0 ? RenderType.OutlineProperty.AFFECTS_OUTLINE : RenderType.OutlineProperty.NONE);
+            }
+
+            public RenderType.CompositeState createCompositeState(RenderType.OutlineProperty param0) {
                 return new RenderType.CompositeState(
                     this.textureState,
                     this.transparencyState,
@@ -788,5 +819,12 @@ public abstract class RenderType extends RenderStateShard {
                 );
             }
         }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    static enum OutlineProperty {
+        NONE,
+        IS_OUTLINE,
+        AFFECTS_OUTLINE;
     }
 }

@@ -110,6 +110,7 @@ public class Main {
         String var45 = var24.has(var20) ? var20.value(var24) : null;
         String var46 = parseArgument(var24, var1);
         Integer var47 = parseArgument(var24, var2);
+        CrashReport.preload();
         User var48 = new User(var10.value(var24), var44, var12.value(var24), var21.value(var24));
         GameConfig var49 = new GameConfig(
             new GameConfig.UserData(var48, var38, var39, var27),

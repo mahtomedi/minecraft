@@ -42,22 +42,24 @@ public class WanderingTraderSpawner {
     }
 
     public void tick() {
-        if (--this.tickDelay <= 0) {
-            this.tickDelay = 1200;
-            LevelData var0 = this.level.getLevelData();
-            this.spawnDelay -= 1200;
-            var0.setWanderingTraderSpawnDelay(this.spawnDelay);
-            if (this.spawnDelay <= 0) {
-                this.spawnDelay = 24000;
-                if (this.level.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING)) {
-                    int var1 = this.spawnChance;
-                    this.spawnChance = Mth.clamp(this.spawnChance + 25, 25, 75);
-                    var0.setWanderingTraderSpawnChance(this.spawnChance);
-                    if (this.random.nextInt(100) <= var1) {
-                        if (this.spawn()) {
-                            this.spawnChance = 25;
-                        }
+        if (this.level.getGameRules().getBoolean(GameRules.RULE_DO_TRADER_SPAWNING)) {
+            if (--this.tickDelay <= 0) {
+                this.tickDelay = 1200;
+                LevelData var0 = this.level.getLevelData();
+                this.spawnDelay -= 1200;
+                var0.setWanderingTraderSpawnDelay(this.spawnDelay);
+                if (this.spawnDelay <= 0) {
+                    this.spawnDelay = 24000;
+                    if (this.level.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING)) {
+                        int var1 = this.spawnChance;
+                        this.spawnChance = Mth.clamp(this.spawnChance + 25, 25, 75);
+                        var0.setWanderingTraderSpawnChance(this.spawnChance);
+                        if (this.random.nextInt(100) <= var1) {
+                            if (this.spawn()) {
+                                this.spawnChance = 25;
+                            }
 
+                        }
                     }
                 }
             }

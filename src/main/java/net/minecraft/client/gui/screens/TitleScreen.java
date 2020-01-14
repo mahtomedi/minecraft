@@ -13,6 +13,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
+import net.minecraft.client.gui.screens.multiplayer.SafetyScreen;
 import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
 import net.minecraft.client.renderer.CubeMap;
 import net.minecraft.client.renderer.PanoramaRenderer;
@@ -164,16 +165,14 @@ public class TitleScreen extends Screen {
         this.addButton(
             new Button(this.width / 2 - 100, param0, 200, 20, I18n.get("menu.singleplayer"), param0x -> this.minecraft.setScreen(new SelectWorldScreen(this)))
         );
-        this.addButton(
-            new Button(
-                this.width / 2 - 100,
-                param0 + param1 * 1,
-                200,
-                20,
-                I18n.get("menu.multiplayer"),
-                param0x -> this.minecraft.setScreen(new JoinMultiplayerScreen(this))
-            )
-        );
+        this.addButton(new Button(this.width / 2 - 100, param0 + param1 * 1, 200, 20, I18n.get("menu.multiplayer"), param0x -> {
+            if (this.minecraft.options.skipMultiplayerWarning) {
+                this.minecraft.setScreen(new JoinMultiplayerScreen(this));
+            } else {
+                this.minecraft.setScreen(new SafetyScreen(this));
+            }
+
+        }));
         this.addButton(new Button(this.width / 2 - 100, param0 + param1 * 2, 200, 20, I18n.get("menu.online"), param0x -> this.realmsButtonClicked()));
     }
 
@@ -278,6 +277,10 @@ public class TitleScreen extends Screen {
                 var7 = var7 + " Demo";
             } else {
                 var7 = var7 + ("release".equalsIgnoreCase(this.minecraft.getVersionType()) ? "" : "/" + this.minecraft.getVersionType());
+            }
+
+            if (this.minecraft.isProbablyModded()) {
+                var7 = var7 + I18n.get("menu.modded");
             }
 
             this.drawString(this.font, var7, 2, this.height - 10, 16777215 | var5);

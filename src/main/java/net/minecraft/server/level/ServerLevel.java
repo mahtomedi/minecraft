@@ -596,15 +596,17 @@ public class ServerLevel extends Level {
             param0x.xRotO = param0x.xRot;
             if (param0x.inChunk) {
                 ++param0x.tickCount;
-                this.getProfiler().push(() -> Registry.ENTITY_TYPE.getKey(param0x.getType()).toString());
+                ProfilerFiller var0x = this.getProfiler();
+                var0x.push(() -> Registry.ENTITY_TYPE.getKey(param0x.getType()).toString());
+                var0x.incrementCounter("tickNonPassenger");
                 param0x.tick();
-                this.getProfiler().pop();
+                var0x.pop();
             }
 
             this.updateChunkPos(param0x);
             if (param0x.inChunk) {
-                for(Entity var0x : param0x.getPassengers()) {
-                    this.tickPassenger(param0x, var0x);
+                for(Entity var1x : param0x.getPassengers()) {
+                    this.tickPassenger(param0x, var1x);
                 }
             }
 
@@ -620,13 +622,17 @@ public class ServerLevel extends Level {
             param1.xRotO = param1.xRot;
             if (param1.inChunk) {
                 ++param1.tickCount;
+                ProfilerFiller var0 = this.getProfiler();
+                var0.push(() -> Registry.ENTITY_TYPE.getKey(param1.getType()).toString());
+                var0.incrementCounter("tickPassenger");
                 param1.rideTick();
+                var0.pop();
             }
 
             this.updateChunkPos(param1);
             if (param1.inChunk) {
-                for(Entity var0 : param1.getPassengers()) {
-                    this.tickPassenger(param1, var0);
+                for(Entity var1 : param1.getPassengers()) {
+                    this.tickPassenger(param1, var1);
                 }
             }
 

@@ -67,6 +67,18 @@ public class GameProfiler implements ProfilerFiller {
         this.perTick.collector.popPush(param0);
     }
 
+    @Override
+    public void incrementCounter(String param0) {
+        this.continuous.collector.incrementCounter(param0);
+        this.perTick.collector.incrementCounter(param0);
+    }
+
+    @Override
+    public void incrementCounter(Supplier<String> param0) {
+        this.continuous.collector.incrementCounter(param0);
+        this.perTick.collector.incrementCounter(param0);
+    }
+
     public interface Profiler {
         boolean isEnabled();
 

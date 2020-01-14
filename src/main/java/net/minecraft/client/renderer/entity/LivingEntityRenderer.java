@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
 import java.util.List;
+import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
@@ -105,29 +106,19 @@ public abstract class LivingEntityRenderer<T extends LivingEntity, M extends Ent
         }
 
         this.model.prepareMobModel(param0, var10, var9, param2);
-        boolean var11 = param0.isGlowing();
-        boolean var12 = this.isVisible(param0, false);
-        boolean var13 = !var12 && !param0.isInvisibleTo(Minecraft.getInstance().player);
         this.model.setupAnim(param0, var10, var9, var8, var2, var5);
-        ResourceLocation var14 = this.getTextureLocation(param0);
-        RenderType var15;
-        if (var13) {
-            var15 = RenderType.entityTranslucent(var14);
-        } else if (var12) {
-            var15 = this.model.renderType(var14);
-        } else {
-            var15 = RenderType.outline(var14);
-        }
-
-        if (var12 || var13 || var11) {
-            VertexConsumer var18 = param4.getBuffer(var15);
-            int var19 = getOverlayCoords(param0, this.getWhiteOverlayProgress(param0, param2));
-            this.model.renderToBuffer(param3, var18, param5, var19, 1.0F, 1.0F, 1.0F, var13 ? 0.15F : 1.0F);
+        boolean var11 = this.isBodyVisible(param0);
+        boolean var12 = !var11 && !param0.isInvisibleTo(Minecraft.getInstance().player);
+        RenderType var13 = this.getRenderType(param0, var11, var12);
+        if (var13 != null) {
+            VertexConsumer var14 = param4.getBuffer(var13);
+            int var15 = getOverlayCoords(param0, this.getWhiteOverlayProgress(param0, param2));
+            this.model.renderToBuffer(param3, var14, param5, var15, 1.0F, 1.0F, 1.0F, var12 ? 0.15F : 1.0F);
         }
 
         if (!param0.isSpectator()) {
-            for(RenderLayer<T, M> var20 : this.layers) {
-                var20.render(param3, param4, param5, param0, var10, var9, param2, var8, var2, var5);
+            for(RenderLayer<T, M> var16 : this.layers) {
+                var16.render(param3, param4, param5, param0, var10, var9, param2, var8, var2, var5);
             }
         }
 
@@ -135,12 +126,24 @@ public abstract class LivingEntityRenderer<T extends LivingEntity, M extends Ent
         super.render(param0, param1, param2, param3, param4, param5);
     }
 
+    @Nullable
+    protected RenderType getRenderType(T param0, boolean param1, boolean param2) {
+        ResourceLocation var0 = this.getTextureLocation(param0);
+        if (param2) {
+            return RenderType.entityTranslucent(var0);
+        } else if (param1) {
+            return this.model.renderType(var0);
+        } else {
+            return param0.isGlowing() ? RenderType.outline(var0) : null;
+        }
+    }
+
     public static int getOverlayCoords(LivingEntity param0, float param1) {
         return OverlayTexture.pack(OverlayTexture.u(param1), OverlayTexture.v(param0.hurtTime > 0 || param0.deathTime > 0));
     }
 
-    protected boolean isVisible(T param0, boolean param1) {
-        return !param0.isInvisible() || param1;
+    protected boolean isBodyVisible(T param0) {
+        return !param0.isInvisible();
     }
 
     private static float sleepDirectionToRotation(Direction param0) {

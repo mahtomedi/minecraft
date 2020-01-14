@@ -289,4 +289,8 @@ public class CrashReport {
 
         return var0;
     }
+
+    public static void preload() {
+        new CrashReport("Don't panic!", new Throwable()).getFriendlyReport();
+    }
 }

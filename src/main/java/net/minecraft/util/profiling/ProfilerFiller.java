@@ -19,4 +19,8 @@ public interface ProfilerFiller {
 
     @OnlyIn(Dist.CLIENT)
     void popPush(Supplier<String> var1);
+
+    void incrementCounter(String var1);
+
+    void incrementCounter(Supplier<String> var1);
 }

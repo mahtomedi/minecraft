@@ -25,6 +25,7 @@ public class MultiPartBakedModel implements BakedModel {
     private final List<Pair<Predicate<BlockState>, BakedModel>> selectors;
     protected final boolean hasAmbientOcclusion;
     protected final boolean isGui3d;
+    protected final boolean usesBlockLight;
     protected final TextureAtlasSprite particleIcon;
     protected final ItemTransforms transforms;
     protected final ItemOverrides overrides;
@@ -35,6 +36,7 @@ public class MultiPartBakedModel implements BakedModel {
         BakedModel var0 = param0.iterator().next().getRight();
         this.hasAmbientOcclusion = var0.useAmbientOcclusion();
         this.isGui3d = var0.isGui3d();
+        this.usesBlockLight = var0.usesBlockLight();
         this.particleIcon = var0.getParticleIcon();
         this.transforms = var0.getTransforms();
         this.overrides = var0.getOverrides();
@@ -80,6 +82,11 @@ public class MultiPartBakedModel implements BakedModel {
     @Override
     public boolean isGui3d() {
         return this.isGui3d;
+    }
+
+    @Override
+    public boolean usesBlockLight() {
+        return this.usesBlockLight;
     }
 
     @Override

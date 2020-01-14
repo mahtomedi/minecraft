@@ -3,6 +3,7 @@ package net.minecraft.world.level.block.grower;
 import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -12,10 +13,10 @@ import net.minecraft.world.level.levelgen.feature.configurations.SmallTreeConfig
 
 public abstract class AbstractTreeGrower {
     @Nullable
-    protected abstract ConfiguredFeature<SmallTreeConfiguration, ?> getConfiguredFeature(Random var1);
+    protected abstract ConfiguredFeature<SmallTreeConfiguration, ?> getConfiguredFeature(Random var1, boolean var2);
 
     public boolean growTree(LevelAccessor param0, ChunkGenerator<?> param1, BlockPos param2, BlockState param3, Random param4) {
-        ConfiguredFeature<SmallTreeConfiguration, ?> var0 = this.getConfiguredFeature(param4);
+        ConfiguredFeature<SmallTreeConfiguration, ?> var0 = this.getConfiguredFeature(param4, this.hasFlowers(param0, param2));
         if (var0 == null) {
             return false;
         } else {
@@ -28,5 +29,15 @@ public abstract class AbstractTreeGrower {
                 return false;
             }
         }
+    }
+
+    private boolean hasFlowers(LevelAccessor param0, BlockPos param1) {
+        for(BlockPos var0 : BlockPos.MutableBlockPos.betweenClosed(param1.below().north(2).west(2), param1.above().south(2).east(2))) {
+            if (param0.getBlockState(var0).is(BlockTags.FLOWERS)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -23,16 +23,21 @@ public class OutlineBufferSource implements MultiBufferSource {
 
     @Override
     public VertexConsumer getBuffer(RenderType param0) {
-        VertexConsumer var0 = this.bufferSource.getBuffer(param0);
-        Optional<RenderType> var1 = param0.outline();
-        if (var1.isPresent()) {
-            VertexConsumer var2 = this.outlineBufferSource.getBuffer(var1.get());
-            OutlineBufferSource.EntityOutlineGenerator var3 = new OutlineBufferSource.EntityOutlineGenerator(
-                var2, this.teamR, this.teamG, this.teamB, this.teamA
-            );
-            return VertexMultiConsumer.create(var3, var0);
+        if (param0.isOutline()) {
+            VertexConsumer var0 = this.outlineBufferSource.getBuffer(param0);
+            return new OutlineBufferSource.EntityOutlineGenerator(var0, this.teamR, this.teamG, this.teamB, this.teamA);
         } else {
-            return var0;
+            VertexConsumer var1 = this.bufferSource.getBuffer(param0);
+            Optional<RenderType> var2 = param0.outline();
+            if (var2.isPresent()) {
+                VertexConsumer var3 = this.outlineBufferSource.getBuffer(var2.get());
+                OutlineBufferSource.EntityOutlineGenerator var4 = new OutlineBufferSource.EntityOutlineGenerator(
+                    var3, this.teamR, this.teamG, this.teamB, this.teamA
+                );
+                return VertexMultiConsumer.create(var4, var1);
+            } else {
+                return var1;
+            }
         }
     }
 

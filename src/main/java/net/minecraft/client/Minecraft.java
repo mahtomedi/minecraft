@@ -106,6 +106,7 @@ import net.minecraft.client.resources.PaintingTextureManager;
 import net.minecraft.client.resources.SkinManager;
 import net.minecraft.client.resources.SplashManager;
 import net.minecraft.client.resources.UnopenedResourcePack;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.resources.language.LanguageManager;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelManager;
@@ -367,7 +368,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
         Util.timeSource = RenderSystem.initBackendSystem();
         this.virtualScreen = new VirtualScreen(this);
-        this.window = this.virtualScreen.newWindow(var5, this.options.fullscreenVideoModeString, "Minecraft " + SharedConstants.getCurrentVersion().getName());
+        this.window = this.virtualScreen.newWindow(var5, this.options.fullscreenVideoModeString, this.createTitle());
         this.setWindowActive(true);
 
         try {
@@ -471,6 +472,39 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                 )
             );
         }
+    }
+
+    public void updateTitle() {
+        this.window.setTitle(this.createTitle());
+    }
+
+    private String createTitle() {
+        StringBuilder var0 = new StringBuilder("Minecraft");
+        if (this.isProbablyModded()) {
+            var0.append("*");
+        }
+
+        var0.append(" ");
+        var0.append(SharedConstants.getCurrentVersion().getName());
+        ClientPacketListener var1 = this.getConnection();
+        if (var1 != null) {
+            var0.append(" - ");
+            if (this.singleplayerServer != null && !this.singleplayerServer.isPublished()) {
+                var0.append(I18n.get("title.singleplayer"));
+            } else if (this.isConnectedToRealms()) {
+                var0.append(I18n.get("title.multiplayer.realms"));
+            } else if (this.singleplayerServer == null && (this.currentServer == null || !this.currentServer.isLan())) {
+                var0.append(I18n.get("title.multiplayer.other"));
+            } else {
+                var0.append(I18n.get("title.multiplayer.lan"));
+            }
+        }
+
+        return var0.toString();
+    }
+
+    public boolean isProbablyModded() {
+        return !"vanilla".equals(ClientBrandRetriever.getClientModName()) || Minecraft.class.getSigners() == null;
     }
 
     private void rollbackResourcePacks(Throwable param0) {
@@ -756,6 +790,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             this.mouseHandler.grabMouse();
         }
 
+        this.updateTitle();
     }
 
     public void setOverlay(@Nullable Overlay param0) {
@@ -765,7 +800,11 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     public void destroy() {
         try {
             LOGGER.info("Stopping!");
-            NarratorChatListener.INSTANCE.destroy();
+
+            try {
+                NarratorChatListener.INSTANCE.destroy();
+            } catch (Throwable var7) {
+            }
 
             try {
                 if (this.level != null) {
@@ -773,7 +812,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                 }
 
                 this.clearLevel();
-            } catch (Throwable var5) {
+            } catch (Throwable var6) {
             }
 
             if (this.screen != null) {
@@ -795,7 +834,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     public void close() {
         try {
             this.modelManager.close();
-            this.font.close();
             this.fontManager.close();
             this.gameRenderer.close();
             this.levelRenderer.close();
@@ -804,7 +842,11 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             this.particleEngine.close();
             this.mobEffectTextures.close();
             this.paintingTextures.close();
+            this.textureManager.close();
             Util.shutdownBackgroundExecutor();
+        } catch (Throwable var5) {
+            LOGGER.error("Shutdown failure!", var5);
+            throw var5;
         } finally {
             this.virtualScreen.close();
             this.window.close();
@@ -1608,6 +1650,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.levelRenderer.setLevel(param0);
         this.particleEngine.setLevel(param0);
         BlockEntityRenderDispatcher.instance.setLevel(param0);
+        this.updateTitle();
     }
 
     public final boolean isDemo() {

@@ -1094,7 +1094,7 @@ public abstract class LivingEntity extends Entity {
     }
 
     public void die(DamageSource param0) {
-        if (!this.dead) {
+        if (!this.removed && !this.dead) {
             Entity var0 = param0.getEntity();
             LivingEntity var1 = this.getKillCredit();
             if (this.deathScore >= 0 && var1 != null) {

@@ -38,10 +38,12 @@ public class IronGolemCrackinessLayer extends RenderLayer<IronGolem, IronGolemMo
         float param8,
         float param9
     ) {
-        IronGolem.Crackiness var0 = param3.getCrackiness();
-        if (var0 != IronGolem.Crackiness.NONE) {
-            ResourceLocation var1 = resourceLocations.get(var0);
-            renderColoredCutoutModel(this.getParentModel(), var1, param0, param1, param2, param3, 1.0F, 1.0F, 1.0F);
+        if (!param3.isInvisible()) {
+            IronGolem.Crackiness var0 = param3.getCrackiness();
+            if (var0 != IronGolem.Crackiness.NONE) {
+                ResourceLocation var1 = resourceLocations.get(var0);
+                renderColoredCutoutModel(this.getParentModel(), var1, param0, param1, param2, param3, 1.0F, 1.0F, 1.0F);
+            }
         }
     }
 }

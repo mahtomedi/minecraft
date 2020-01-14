@@ -56,6 +56,10 @@ public class ModelManager extends SimplePreparableReloadListener<ModelBakery> im
     protected void apply(ModelBakery param0, ResourceManager param1, ProfilerFiller param2) {
         param2.startTick();
         param2.push("upload");
+        if (this.atlases != null) {
+            this.atlases.close();
+        }
+
         this.atlases = param0.uploadTextures(this.textureManager, param2);
         this.bakedRegistry = param0.getBakedTopLevelModels();
         this.modelGroups = param0.getModelGroups();

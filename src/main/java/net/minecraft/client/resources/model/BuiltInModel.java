@@ -18,11 +18,13 @@ public class BuiltInModel implements BakedModel {
     private final ItemTransforms itemTransforms;
     private final ItemOverrides overrides;
     private final TextureAtlasSprite particleTexture;
+    private final boolean usesBlockLight;
 
-    public BuiltInModel(ItemTransforms param0, ItemOverrides param1, TextureAtlasSprite param2) {
+    public BuiltInModel(ItemTransforms param0, ItemOverrides param1, TextureAtlasSprite param2, boolean param3) {
         this.itemTransforms = param0;
         this.overrides = param1;
         this.particleTexture = param2;
+        this.usesBlockLight = param3;
     }
 
     @Override
@@ -38,6 +40,11 @@ public class BuiltInModel implements BakedModel {
     @Override
     public boolean isGui3d() {
         return true;
+    }
+
+    @Override
+    public boolean usesBlockLight() {
+        return this.usesBlockLight;
     }
 
     @Override

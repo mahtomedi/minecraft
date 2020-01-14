@@ -8,6 +8,7 @@ import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BooleanSupplier;
 import net.minecraft.CrashReport;
@@ -90,6 +91,7 @@ public class IntegratedServer extends MinecraftServer {
             var1.setLevelName(param1);
         }
 
+        var1.setModdedInfo(this.getServerModName(), this.getModdedStatus().isPresent());
         this.loadDataPacks(var0.getFolder(), var1);
         ChunkProgressListener var2 = this.progressListenerFactory.create(11);
         this.createLevels(var0, var1, this.settings, var2);
@@ -194,25 +196,23 @@ public class IntegratedServer extends MinecraftServer {
         param0 = super.fillReport(param0);
         param0.getSystemDetails().setDetail("Type", "Integrated Server (map_client.txt)");
         param0.getSystemDetails()
-            .setDetail(
-                "Is Modded",
-                () -> {
-                    String var0 = ClientBrandRetriever.getClientModName();
-                    if (!var0.equals("vanilla")) {
-                        return "Definitely; Client brand changed to '" + var0 + "'";
-                    } else {
-                        var0 = this.getServerModName();
-                        if (!"vanilla".equals(var0)) {
-                            return "Definitely; Server brand changed to '" + var0 + "'";
-                        } else {
-                            return Minecraft.class.getSigners() == null
-                                ? "Very likely; Jar signature invalidated"
-                                : "Probably not. Jar signature remains and both client + server brands are untouched.";
-                        }
-                    }
-                }
-            );
+            .setDetail("Is Modded", () -> this.getModdedStatus().orElse("Probably not. Jar signature remains and both client + server brands are untouched."));
         return param0;
+    }
+
+    @Override
+    public Optional<String> getModdedStatus() {
+        String var0 = ClientBrandRetriever.getClientModName();
+        if (!var0.equals("vanilla")) {
+            return Optional.of("Definitely; Client brand changed to '" + var0 + "'");
+        } else {
+            var0 = this.getServerModName();
+            if (!"vanilla".equals(var0)) {
+                return Optional.of("Definitely; Server brand changed to '" + var0 + "'");
+            } else {
+                return Minecraft.class.getSigners() == null ? Optional.of("Very likely; Jar signature invalidated") : Optional.empty();
+            }
+        }
     }
 
     @Override

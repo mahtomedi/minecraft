@@ -40,6 +40,14 @@ public class InactiveProfiler implements ProfileCollector {
     }
 
     @Override
+    public void incrementCounter(String param0) {
+    }
+
+    @Override
+    public void incrementCounter(Supplier<String> param0) {
+    }
+
+    @Override
     public ProfileResults getResults() {
         return EmptyProfileResults.EMPTY;
     }

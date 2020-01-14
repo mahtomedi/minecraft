@@ -21,7 +21,6 @@ import java.nio.IntBuffer;
 import java.util.Map;
 import java.util.UUID;
 import javax.imageio.ImageIO;
-import javax.xml.bind.DatatypeConverter;
 import net.minecraft.realms.Realms;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraftforge.api.distmarker.Dist;
@@ -109,7 +108,7 @@ public class RealmsTextureManager {
                                 var4 = new SkinProcessor().process(var4);
                                 ByteArrayOutputStream var7 = new ByteArrayOutputStream();
                                 ImageIO.write(var4, "png", var7);
-                                RealmsTextureManager.fetchedSkins.put(param0, DatatypeConverter.printBase64Binary(var7.toByteArray()));
+                                RealmsTextureManager.fetchedSkins.put(param0, new Base64().encodeToString(var7.toByteArray()));
                                 RealmsTextureManager.skinFetchStatus.put(param0, true);
                                 return;
                             }

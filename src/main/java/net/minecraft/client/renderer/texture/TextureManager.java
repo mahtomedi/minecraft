@@ -29,7 +29,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
-public class TextureManager implements Tickable, PreparableReloadListener {
+public class TextureManager implements Tickable, AutoCloseable, PreparableReloadListener {
     private static final Logger LOGGER = LogManager.getLogger();
     public static final ResourceLocation INTENTIONAL_MISSING_TEXTURE = new ResourceLocation("");
     private final Map<ResourceLocation, AbstractTexture> byPath = Maps.newHashMap();
@@ -60,33 +60,39 @@ public class TextureManager implements Tickable, PreparableReloadListener {
         var0.bind();
     }
 
-    public boolean register(ResourceLocation param0, AbstractTexture param1) {
-        boolean var0 = true;
-
-        try {
-            param1.load(this.resourceManager);
-        } catch (IOException var8) {
-            if (param0 != INTENTIONAL_MISSING_TEXTURE) {
-                LOGGER.warn("Failed to load texture: {}", param0, var8);
+    public void register(ResourceLocation param0, AbstractTexture param1) {
+        param1 = this.loadTexture(param0, param1);
+        AbstractTexture var0 = this.byPath.put(param0, param1);
+        if (var0 != param1) {
+            if (var0 != null && var0 != MissingTextureAtlasSprite.getTexture()) {
+                var0.releaseId();
+                this.tickableTextures.remove(var0);
             }
 
-            param1 = MissingTextureAtlasSprite.getTexture();
-            this.byPath.put(param0, param1);
-            var0 = false;
-        } catch (Throwable var9) {
-            CrashReport var3 = CrashReport.forThrowable(var9, "Registering texture");
-            CrashReportCategory var4 = var3.addCategory("Resource location being registered");
-            var4.setDetail("Resource location", param0);
-            var4.setDetail("Texture object class", () -> param1.getClass().getName());
-            throw new ReportedException(var3);
+            if (param1 instanceof Tickable) {
+                this.tickableTextures.add((Tickable)param1);
+            }
         }
 
-        this.byPath.put(param0, param1);
-        if (var0 && param1 instanceof Tickable) {
-            this.tickableTextures.add((Tickable)param1);
-        }
+    }
 
-        return var0;
+    private AbstractTexture loadTexture(ResourceLocation param0, AbstractTexture param1) {
+        try {
+            param1.load(this.resourceManager);
+            return param1;
+        } catch (IOException var7) {
+            if (param0 != INTENTIONAL_MISSING_TEXTURE) {
+                LOGGER.warn("Failed to load texture: {}", param0, var7);
+            }
+
+            return MissingTextureAtlasSprite.getTexture();
+        } catch (Throwable var8) {
+            CrashReport var2 = CrashReport.forThrowable(var8, "Registering texture");
+            CrashReportCategory var3 = var2.addCategory("Resource location being registered");
+            var3.setDetail("Resource location", param0);
+            var3.setDetail("Texture object class", () -> param1.getClass().getName());
+            throw new ReportedException(var2);
+        }
     }
 
     @Nullable
@@ -136,6 +142,14 @@ public class TextureManager implements Tickable, PreparableReloadListener {
             TextureUtil.releaseTextureId(var0.getId());
         }
 
+    }
+
+    @Override
+    public void close() {
+        this.byPath.values().forEach(AbstractTexture::releaseId);
+        this.byPath.clear();
+        this.tickableTextures.clear();
+        this.prefixRegister.clear();
     }
 
     @Override

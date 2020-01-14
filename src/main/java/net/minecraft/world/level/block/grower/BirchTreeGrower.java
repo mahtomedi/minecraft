@@ -10,7 +10,7 @@ import net.minecraft.world.level.levelgen.feature.configurations.SmallTreeConfig
 public class BirchTreeGrower extends AbstractTreeGrower {
     @Nullable
     @Override
-    protected ConfiguredFeature<SmallTreeConfiguration, ?> getConfiguredFeature(Random param0) {
-        return Feature.NORMAL_TREE.configured(BiomeDefaultFeatures.BIRCH_TREE_CONFIG);
+    protected ConfiguredFeature<SmallTreeConfiguration, ?> getConfiguredFeature(Random param0, boolean param1) {
+        return Feature.NORMAL_TREE.configured(param1 ? BiomeDefaultFeatures.BIRCH_TREE_WITH_BEES_005_CONFIG : BiomeDefaultFeatures.BIRCH_TREE_CONFIG);
     }
 }

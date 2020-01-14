@@ -114,22 +114,22 @@ public class ChunkRenderDispatcher {
                 this.freeBufferCount = this.freeBuffers.size();
                 CompletableFuture.runAsync(() -> {
                 }, this.executor).thenCompose(param2x -> var0x.doTask(var1x)).whenComplete((param1x, param2x) -> {
-                    this.mailbox.tell(() -> {
-                        if (param1x == ChunkRenderDispatcher.ChunkTaskResult.SUCCESSFUL) {
-                            var1x.clearAll();
-                        } else {
-                            var1x.discardAll();
-                        }
-
-                        this.freeBuffers.add(var1x);
-                        this.freeBufferCount = this.freeBuffers.size();
-                        this.runTask();
-                    });
                     if (param2x != null) {
                         CrashReport var0xx = CrashReport.forThrowable(param2x, "Batching chunks");
                         Minecraft.getInstance().delayCrash(Minecraft.getInstance().fillReport(var0xx));
-                    }
+                    } else {
+                        this.mailbox.tell(() -> {
+                            if (param1x == ChunkRenderDispatcher.ChunkTaskResult.SUCCESSFUL) {
+                                var1x.clearAll();
+                            } else {
+                                var1x.discardAll();
+                            }
 
+                            this.freeBuffers.add(var1x);
+                            this.freeBufferCount = this.freeBuffers.size();
+                            this.runTask();
+                        });
+                    }
                 });
             }
         }

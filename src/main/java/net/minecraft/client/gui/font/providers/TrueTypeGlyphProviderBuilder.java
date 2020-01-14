@@ -19,6 +19,9 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.lwjgl.stb.STBTTFontinfo;
+import org.lwjgl.stb.STBTruetype;
+import org.lwjgl.system.MemoryUtil;
 
 @OnlyIn(Dist.CLIENT)
 public class TrueTypeGlyphProviderBuilder implements GlyphProviderBuilder {
@@ -79,14 +82,27 @@ public class TrueTypeGlyphProviderBuilder implements GlyphProviderBuilder {
     @Nullable
     @Override
     public GlyphProvider create(ResourceManager param0) {
-        try (Resource var0 = param0.getResource(new ResourceLocation(this.location.getNamespace(), "font/" + this.location.getPath()))) {
-            LOGGER.info("Loading font");
-            ByteBuffer var1 = TextureUtil.readResource(var0.getInputStream());
+        STBTTFontinfo var0 = null;
+        ByteBuffer var1 = null;
+
+        try (Resource var2 = param0.getResource(new ResourceLocation(this.location.getNamespace(), "font/" + this.location.getPath()))) {
+            LOGGER.debug("Loading font {}", this.location);
+            var0 = STBTTFontinfo.malloc();
+            var1 = TextureUtil.readResource(var2.getInputStream());
             ((Buffer)var1).flip();
-            LOGGER.info("Reading font");
-            return new TrueTypeGlyphProvider(TrueTypeGlyphProvider.getStbttFontinfo(var1), this.size, this.oversample, this.shiftX, this.shiftY, this.skip);
-        } catch (IOException var17) {
-            LOGGER.error("Couldn't load truetype font {}", this.location, var17);
+            LOGGER.debug("Reading font {}", this.location);
+            if (!STBTruetype.stbtt_InitFont(var0, var1)) {
+                throw new IOException("Invalid ttf");
+            } else {
+                return new TrueTypeGlyphProvider(var1, var0, this.size, this.oversample, this.shiftX, this.shiftY, this.skip);
+            }
+        } catch (Exception var18) {
+            LOGGER.error("Couldn't load truetype font {}", this.location, var18);
+            if (var0 != null) {
+                var0.free();
+            }
+
+            MemoryUtil.memFree(var1);
             return null;
         }
     }

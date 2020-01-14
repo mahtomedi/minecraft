@@ -3,21 +3,19 @@ package com.mojang.blaze3d.font;
 import com.mojang.blaze3d.platform.NativeImage;
 import it.unimi.dsi.fastutil.chars.CharArraySet;
 import it.unimi.dsi.fastutil.chars.CharSet;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import javax.annotation.Nullable;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.lwjgl.stb.STBTTFontinfo;
 import org.lwjgl.stb.STBTruetype;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 
 @OnlyIn(Dist.CLIENT)
 public class TrueTypeGlyphProvider implements GlyphProvider {
-    private static final Logger LOGGER = LogManager.getLogger();
+    private final ByteBuffer fontMemory;
     private final STBTTFontinfo font;
     private final float oversample;
     private final CharSet skip = new CharArraySet();
@@ -26,19 +24,20 @@ public class TrueTypeGlyphProvider implements GlyphProvider {
     private final float pointScale;
     private final float ascent;
 
-    public TrueTypeGlyphProvider(STBTTFontinfo param0, float param1, float param2, float param3, float param4, String param5) {
-        this.font = param0;
-        this.oversample = param2;
-        param5.chars().forEach(param0x -> this.skip.add((char)(param0x & 65535)));
-        this.shiftX = param3 * param2;
-        this.shiftY = param4 * param2;
-        this.pointScale = STBTruetype.stbtt_ScaleForPixelHeight(param0, param1 * param2);
+    public TrueTypeGlyphProvider(ByteBuffer param0, STBTTFontinfo param1, float param2, float param3, float param4, float param5, String param6) {
+        this.fontMemory = param0;
+        this.font = param1;
+        this.oversample = param3;
+        param6.chars().forEach(param0x -> this.skip.add((char)(param0x & 65535)));
+        this.shiftX = param4 * param3;
+        this.shiftY = param5 * param3;
+        this.pointScale = STBTruetype.stbtt_ScaleForPixelHeight(param1, param2 * param3);
 
         try (MemoryStack var0 = MemoryStack.stackPush()) {
             IntBuffer var1 = var0.mallocInt(1);
             IntBuffer var2 = var0.mallocInt(1);
             IntBuffer var3 = var0.mallocInt(1);
-            STBTruetype.stbtt_GetFontVMetrics(param0, var1, var2, var3);
+            STBTruetype.stbtt_GetFontVMetrics(param1, var1, var2, var3);
             this.ascent = (float)var1.get(0) * this.pointScale;
         }
 
@@ -87,13 +86,10 @@ public class TrueTypeGlyphProvider implements GlyphProvider {
         }
     }
 
-    public static STBTTFontinfo getStbttFontinfo(ByteBuffer param0) throws IOException {
-        STBTTFontinfo var0 = STBTTFontinfo.create();
-        if (!STBTruetype.stbtt_InitFont(var0, param0)) {
-            throw new IOException("Invalid ttf");
-        } else {
-            return var0;
-        }
+    @Override
+    public void close() {
+        this.font.free();
+        MemoryUtil.memFree(this.fontMemory);
     }
 
     @OnlyIn(Dist.CLIENT)

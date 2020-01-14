@@ -488,6 +488,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
     private CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> scheduleChunkLoad(ChunkPos param0) {
         return CompletableFuture.supplyAsync(() -> {
             try {
+                this.level.getProfiler().incrementCounter("chunkLoad");
                 CompoundTag var0 = this.readChunk(param0);
                 if (var0 != null) {
                     boolean var1 = var0.contains("Level", 10) && var0.getCompound("Level").contains("Status", 8);
@@ -519,6 +520,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         CompletableFuture<Either<List<ChunkAccess>, ChunkHolder.ChunkLoadingFailure>> var1 = this.getChunkRangeFuture(
             var0, param1.getRange(), param1x -> this.getDependencyStatus(param1, param1x)
         );
+        this.level.getProfiler().incrementCounter(() -> "chunkGenerate " + param1.getName());
         return var1.thenComposeAsync(
             param3 -> param3.map(
                     param3x -> {
@@ -670,6 +672,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
                     }
                 }
 
+                this.level.getProfiler().incrementCounter("chunkSave");
                 CompoundTag var4 = ChunkSerializer.write(this.level, param0x);
                 this.write(var1x, var4);
                 return true;

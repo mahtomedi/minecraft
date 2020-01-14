@@ -119,28 +119,31 @@ public class ServerChunkCache extends ChunkSource {
         if (Thread.currentThread() != this.mainThread) {
             return CompletableFuture.<ChunkAccess>supplyAsync(() -> this.getChunk(param0, param1, param2, param3), this.mainThreadProcessor).join();
         } else {
-            long var0 = ChunkPos.asLong(param0, param1);
+            ProfilerFiller var0 = this.level.getProfiler();
+            var0.incrementCounter("getChunk");
+            long var1 = ChunkPos.asLong(param0, param1);
 
-            for(int var1 = 0; var1 < 4; ++var1) {
-                if (var0 == this.lastChunkPos[var1] && param2 == this.lastChunkStatus[var1]) {
-                    ChunkAccess var2 = this.lastChunk[var1];
-                    if (var2 != null || !param3) {
-                        return var2;
+            for(int var2 = 0; var2 < 4; ++var2) {
+                if (var1 == this.lastChunkPos[var2] && param2 == this.lastChunkStatus[var2]) {
+                    ChunkAccess var3 = this.lastChunk[var2];
+                    if (var3 != null || !param3) {
+                        return var3;
                     }
                 }
             }
 
-            CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> var3 = this.getChunkFutureMainThread(param0, param1, param2, param3);
-            this.mainThreadProcessor.managedBlock(var3::isDone);
-            ChunkAccess var4 = var3.join().map(param0x -> param0x, param1x -> {
+            var0.incrementCounter("getChunkCacheMiss");
+            CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> var4 = this.getChunkFutureMainThread(param0, param1, param2, param3);
+            this.mainThreadProcessor.managedBlock(var4::isDone);
+            ChunkAccess var5 = var4.join().map(param0x -> param0x, param1x -> {
                 if (param3) {
                     throw (IllegalStateException)Util.pauseInIde(new IllegalStateException("Chunk not there when requested: " + param1x));
                 } else {
                     return null;
                 }
             });
-            this.storeInCache(var0, var4, param2);
-            return var4;
+            this.storeInCache(var1, var5, param2);
+            return var5;
         }
     }
 
@@ -150,6 +153,7 @@ public class ServerChunkCache extends ChunkSource {
         if (Thread.currentThread() != this.mainThread) {
             return null;
         } else {
+            this.level.getProfiler().incrementCounter("getChunkNow");
             long var0 = ChunkPos.asLong(param0, param1);
 
             for(int var1 = 0; var1 < 4; ++var1) {
@@ -523,6 +527,12 @@ public class ServerChunkCache extends ChunkSource {
         @Override
         protected Thread getRunningThread() {
             return ServerChunkCache.this.mainThread;
+        }
+
+        @Override
+        protected void doRunTask(Runnable param0) {
+            ServerChunkCache.this.level.getProfiler().incrementCounter("runTask");
+            super.doRunTask(param0);
         }
 
         @Override

@@ -148,36 +148,36 @@ public class EnderDragonRenderer extends EntityRenderer<EnderDragon> {
         Matrix3f var11 = var9.normal();
 
         for(int var12 = 1; var12 <= 8; ++var12) {
-            float var13 = Mth.sin((float)(var12 % 8) * (float) (Math.PI * 2) / 8.0F) * 0.75F;
-            float var14 = Mth.cos((float)(var12 % 8) * (float) (Math.PI * 2) / 8.0F) * 0.75F;
-            float var15 = (float)(var12 % 8) / 8.0F;
+            float var13 = Mth.sin((float)var12 * (float) (Math.PI * 2) / 8.0F) * 0.75F;
+            float var14 = Mth.cos((float)var12 * (float) (Math.PI * 2) / 8.0F) * 0.75F;
+            float var15 = (float)var12 / 8.0F;
             var2.vertex(var10, var6 * 0.2F, var7 * 0.2F, 0.0F)
                 .color(0, 0, 0, 255)
                 .uv(var8, var3)
                 .overlayCoords(OverlayTexture.NO_OVERLAY)
                 .uv2(param7)
-                .normal(var11, 0.0F, 1.0F, 0.0F)
+                .normal(var11, 0.0F, -1.0F, 0.0F)
                 .endVertex();
             var2.vertex(var10, var6, var7, var1)
                 .color(255, 255, 255, 255)
                 .uv(var8, var4)
                 .overlayCoords(OverlayTexture.NO_OVERLAY)
                 .uv2(param7)
-                .normal(var11, 0.0F, 1.0F, 0.0F)
+                .normal(var11, 0.0F, -1.0F, 0.0F)
                 .endVertex();
             var2.vertex(var10, var13, var14, var1)
                 .color(255, 255, 255, 255)
                 .uv(var15, var4)
                 .overlayCoords(OverlayTexture.NO_OVERLAY)
                 .uv2(param7)
-                .normal(var11, 0.0F, 1.0F, 0.0F)
+                .normal(var11, 0.0F, -1.0F, 0.0F)
                 .endVertex();
             var2.vertex(var10, var13 * 0.2F, var14 * 0.2F, 0.0F)
                 .color(0, 0, 0, 255)
                 .uv(var15, var3)
                 .overlayCoords(OverlayTexture.NO_OVERLAY)
                 .uv2(param7)
-                .normal(var11, 0.0F, 1.0F, 0.0F)
+                .normal(var11, 0.0F, -1.0F, 0.0F)
                 .endVertex();
             var6 = var13;
             var7 = var14;

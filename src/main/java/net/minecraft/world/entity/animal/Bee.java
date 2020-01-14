@@ -186,7 +186,7 @@ public class Bee extends Animal implements FlyingAnimal {
         this.setAngerTime(param0.getInt("Anger"));
         this.ticksWithoutNectarSinceExitingHive = param0.getInt("TicksSincePollination");
         this.stayOutOfHiveCountdown = param0.getInt("CannotEnterHiveTicks");
-        this.numCropsGrownSincePollination = param0.getInt("NumCropsGrownSincePollination");
+        this.numCropsGrownSincePollination = param0.getInt("CropsGrownSincePollination");
         String var0 = param0.getString("HurtBy");
         if (!var0.isEmpty()) {
             this.lastHurtByUUID = UUID.fromString(var0);

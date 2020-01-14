@@ -493,7 +493,8 @@ public class ModelBakery {
             if (var1 instanceof BlockModel) {
                 BlockModel var2 = (BlockModel)var1;
                 if (var2.getRootModel() == GENERATION_MARKER) {
-                    return ITEM_MODEL_GENERATOR.generateBlockModel(this.atlasSet::getSprite, var2).bake(this, var2, this.atlasSet::getSprite, param1, param0);
+                    return ITEM_MODEL_GENERATOR.generateBlockModel(this.atlasSet::getSprite, var2)
+                        .bake(this, var2, this.atlasSet::getSprite, param1, param0, false);
                 }
             }
 

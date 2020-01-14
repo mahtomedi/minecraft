@@ -143,8 +143,9 @@ public class FallingBlockEntity extends Entity {
                         this.remove();
                         if (!this.cancelDrop) {
                             boolean var8 = var7.canBeReplaced(new DirectionalPlaceContext(this.level, var2, Direction.DOWN, ItemStack.EMPTY, Direction.UP));
-                            boolean var9 = this.blockState.canSurvive(this.level, var2) && !FallingBlock.isFree(this.level.getBlockState(var2.below()));
-                            if (var8 && var9) {
+                            boolean var9 = FallingBlock.isFree(this.level.getBlockState(var2.below())) && (!var3 || !var4);
+                            boolean var10 = this.blockState.canSurvive(this.level, var2) && !var9;
+                            if (var8 && var10) {
                                 if (this.blockState.hasProperty(BlockStateProperties.WATERLOGGED) && this.level.getFluidState(var2).getType() == Fluids.WATER) {
                                     this.blockState = this.blockState.setValue(BlockStateProperties.WATERLOGGED, Boolean.valueOf(true));
                                 }
@@ -155,19 +156,19 @@ public class FallingBlockEntity extends Entity {
                                     }
 
                                     if (this.blockData != null && var0 instanceof EntityBlock) {
-                                        BlockEntity var10 = this.level.getBlockEntity(var2);
-                                        if (var10 != null) {
-                                            CompoundTag var11 = var10.save(new CompoundTag());
+                                        BlockEntity var11 = this.level.getBlockEntity(var2);
+                                        if (var11 != null) {
+                                            CompoundTag var12 = var11.save(new CompoundTag());
 
-                                            for(String var12 : this.blockData.getAllKeys()) {
-                                                Tag var13 = this.blockData.get(var12);
-                                                if (!"x".equals(var12) && !"y".equals(var12) && !"z".equals(var12)) {
-                                                    var11.put(var12, var13.copy());
+                                            for(String var13 : this.blockData.getAllKeys()) {
+                                                Tag var14 = this.blockData.get(var13);
+                                                if (!"x".equals(var13) && !"y".equals(var13) && !"z".equals(var13)) {
+                                                    var12.put(var13, var14.copy());
                                                 }
                                             }
 
-                                            var10.load(var11);
-                                            var10.setChanged();
+                                            var11.load(var12);
+                                            var11.setChanged();
                                         }
                                     }
                                 } else if (this.dropItem && this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
