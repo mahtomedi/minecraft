@@ -74,15 +74,23 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
         boolean var0 = false;
         if (param0.amplifier > this.amplifier) {
             if (param0.duration < this.duration) {
+                MobEffectInstance var1 = this.hiddenEffect;
                 this.hiddenEffect = new MobEffectInstance(this);
+                this.hiddenEffect.hiddenEffect = var1;
             }
 
             this.amplifier = param0.amplifier;
             this.duration = param0.duration;
             var0 = true;
-        } else if (param0.amplifier == this.amplifier && this.duration < param0.duration) {
-            this.duration = param0.duration;
-            var0 = true;
+        } else if (param0.duration > this.duration) {
+            if (param0.amplifier == this.amplifier) {
+                this.duration = param0.duration;
+                var0 = true;
+            } else if (this.hiddenEffect == null) {
+                this.hiddenEffect = new MobEffectInstance(param0);
+            } else {
+                this.hiddenEffect.update(param0);
+            }
         }
 
         if (!param0.ambient && this.ambient || var0) {
@@ -127,7 +135,7 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
         return this.showIcon;
     }
 
-    public boolean tick(LivingEntity param0) {
+    public boolean tick(LivingEntity param0, Runnable param1) {
         if (this.duration > 0) {
             if (this.effect.isDurationEffectTick(this.duration, this.amplifier)) {
                 this.applyEffect(param0);
@@ -137,6 +145,7 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
             if (this.duration == 0 && this.hiddenEffect != null) {
                 this.setDetailsFrom(this.hiddenEffect);
                 this.hiddenEffect = this.hiddenEffect.hiddenEffect;
+                param1.run();
             }
         }
 

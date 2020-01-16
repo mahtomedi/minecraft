@@ -591,7 +591,7 @@ public abstract class LivingEntity extends Entity {
             while(var0.hasNext()) {
                 MobEffect var1 = var0.next();
                 MobEffectInstance var2 = this.activeEffects.get(var1);
-                if (!var2.tick(this)) {
+                if (!var2.tick(this, () -> this.onEffectUpdated(var2, true))) {
                     if (!this.level.isClientSide) {
                         var0.remove();
                         this.onEffectRemoved(var2);
