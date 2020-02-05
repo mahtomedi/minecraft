@@ -33,7 +33,7 @@ public class SimpleReloadInstance<S> implements ReloadInstance {
             param0,
             param1,
             (param1x, param2x, param3x, param4x, param5) -> param3x.reload(
-                    param1x, param2x, InactiveProfiler.INACTIVE, InactiveProfiler.INACTIVE, param2, param5
+                    param1x, param2x, InactiveProfiler.INSTANCE, InactiveProfiler.INSTANCE, param2, param5
                 ),
             param4
         );

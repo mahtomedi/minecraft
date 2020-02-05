@@ -20,7 +20,6 @@ import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Mth;
-import net.minecraft.util.profiling.GameProfiler;
 import net.minecraft.util.profiling.ProfileResults;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -50,11 +49,10 @@ public class DebugCommand {
 
     private static int start(CommandSourceStack param0) throws CommandSyntaxException {
         MinecraftServer var0 = param0.getServer();
-        GameProfiler var1 = var0.getProfiler();
-        if (var1.continuous().isEnabled()) {
+        if (var0.isProfiling()) {
             throw ERROR_ALREADY_RUNNING.create();
         } else {
-            var0.delayStartProfiler();
+            var0.startProfiling();
             param0.sendSuccess(new TranslatableComponent("commands.debug.started", "Started the debug profiler. Type '/debug stop' to stop it."), true);
             return 0;
         }
@@ -62,22 +60,21 @@ public class DebugCommand {
 
     private static int stop(CommandSourceStack param0) throws CommandSyntaxException {
         MinecraftServer var0 = param0.getServer();
-        GameProfiler var1 = var0.getProfiler();
-        if (!var1.continuous().isEnabled()) {
+        if (!var0.isProfiling()) {
             throw ERROR_NOT_RUNNING.create();
         } else {
-            ProfileResults var2 = var1.continuous().disable();
-            File var3 = new File(var0.getFile("debug"), "profile-results-" + new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss").format(new Date()) + ".txt");
-            var2.saveResults(var3);
-            float var4 = (float)var2.getNanoDuration() / 1.0E9F;
-            float var5 = (float)var2.getTickDuration() / var4;
+            ProfileResults var1 = var0.finishProfiling();
+            File var2 = new File(var0.getFile("debug"), "profile-results-" + new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss").format(new Date()) + ".txt");
+            var1.saveResults(var2);
+            float var3 = (float)var1.getNanoDuration() / 1.0E9F;
+            float var4 = (float)var1.getTickDuration() / var3;
             param0.sendSuccess(
                 new TranslatableComponent(
-                    "commands.debug.stopped", String.format(Locale.ROOT, "%.2f", var4), var2.getTickDuration(), String.format("%.2f", var5)
+                    "commands.debug.stopped", String.format(Locale.ROOT, "%.2f", var3), var1.getTickDuration(), String.format("%.2f", var4)
                 ),
                 true
             );
-            return Mth.floor(var5);
+            return Mth.floor(var4);
         }
     }
 

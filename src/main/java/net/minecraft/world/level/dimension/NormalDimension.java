@@ -223,16 +223,8 @@ public class NormalDimension extends Dimension {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public Vec3 getFogColor(float param0, float param1) {
-        float var0 = Mth.cos(param0 * (float) (Math.PI * 2)) * 2.0F + 0.5F;
-        var0 = Mth.clamp(var0, 0.0F, 1.0F);
-        float var1 = 0.7529412F;
-        float var2 = 0.84705883F;
-        float var3 = 1.0F;
-        var1 *= var0 * 0.94F + 0.06F;
-        var2 *= var0 * 0.94F + 0.06F;
-        var3 *= var0 * 0.91F + 0.09F;
-        return new Vec3((double)var1, (double)var2, (double)var3);
+    public Vec3 getBrightnessDependentFogColor(int param0, float param1) {
+        return Vec3.fromRGB24(param0).multiply((double)(param1 * 0.94F + 0.06F), (double)(param1 * 0.94F + 0.06F), (double)(param1 * 0.91F + 0.09F));
     }
 
     @Override

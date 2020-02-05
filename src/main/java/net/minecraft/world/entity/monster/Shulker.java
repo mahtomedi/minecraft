@@ -17,6 +17,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.ShulkerSharedHelper;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
@@ -225,36 +226,23 @@ public class Shulker extends AbstractGolem implements Enemy {
                 }
             }
 
-            BlockPos var5 = var0.relative(this.getAttachFace());
-            if (!this.level.loadedAndEntityCanStandOn(var5, this)) {
-                boolean var6 = false;
-
-                for(Direction var7 : Direction.values()) {
-                    var5 = var0.relative(var7);
-                    if (this.level.loadedAndEntityCanStandOn(var5, this)) {
-                        this.entityData.set(DATA_ATTACH_FACE_ID, var7);
-                        var6 = true;
-                        break;
-                    }
-                }
-
-                if (!var6) {
+            Direction var5 = this.getAttachFace();
+            if (!this.canAttachOnBlockFace(var0, var5)) {
+                Direction var6 = this.findAttachableFace(var0);
+                if (var6 != null) {
+                    this.entityData.set(DATA_ATTACH_FACE_ID, var6);
+                } else {
                     this.teleportSomewhere();
                 }
             }
-
-            BlockPos var8 = var0.relative(this.getAttachFace().getOpposite());
-            if (this.level.loadedAndEntityCanStandOn(var8, this)) {
-                this.teleportSomewhere();
-            }
         }
 
-        float var9 = (float)this.getRawPeekAmount() * 0.01F;
+        float var7 = (float)this.getRawPeekAmount() * 0.01F;
         this.currentPeekAmountO = this.currentPeekAmount;
-        if (this.currentPeekAmount > var9) {
-            this.currentPeekAmount = Mth.clamp(this.currentPeekAmount - 0.05F, var9, 1.0F);
-        } else if (this.currentPeekAmount < var9) {
-            this.currentPeekAmount = Mth.clamp(this.currentPeekAmount + 0.05F, 0.0F, var9);
+        if (this.currentPeekAmount > var7) {
+            this.currentPeekAmount = Mth.clamp(this.currentPeekAmount - 0.05F, var7, 1.0F);
+        } else if (this.currentPeekAmount < var7) {
+            this.currentPeekAmount = Mth.clamp(this.currentPeekAmount + 0.05F, 0.0F, var7);
         }
 
         if (var0 != null) {
@@ -267,22 +255,22 @@ public class Shulker extends AbstractGolem implements Enemy {
             }
 
             this.setPosAndOldPos((double)var0.getX() + 0.5, (double)var0.getY(), (double)var0.getZ() + 0.5);
-            double var10 = 0.5 - (double)Mth.sin((0.5F + this.currentPeekAmount) * (float) Math.PI) * 0.5;
-            double var11 = 0.5 - (double)Mth.sin((0.5F + this.currentPeekAmountO) * (float) Math.PI) * 0.5;
-            Direction var12 = this.getAttachFace().getOpposite();
+            double var8 = 0.5 - (double)Mth.sin((0.5F + this.currentPeekAmount) * (float) Math.PI) * 0.5;
+            double var9 = 0.5 - (double)Mth.sin((0.5F + this.currentPeekAmountO) * (float) Math.PI) * 0.5;
+            Direction var10 = this.getAttachFace().getOpposite();
             this.setBoundingBox(
                 new AABB(this.getX() - 0.5, this.getY(), this.getZ() - 0.5, this.getX() + 0.5, this.getY() + 1.0, this.getZ() + 0.5)
-                    .expandTowards((double)var12.getStepX() * var10, (double)var12.getStepY() * var10, (double)var12.getStepZ() * var10)
+                    .expandTowards((double)var10.getStepX() * var8, (double)var10.getStepY() * var8, (double)var10.getStepZ() * var8)
             );
-            double var13 = var10 - var11;
-            if (var13 > 0.0) {
-                List<Entity> var14 = this.level.getEntities(this, this.getBoundingBox());
-                if (!var14.isEmpty()) {
-                    for(Entity var15 : var14) {
-                        if (!(var15 instanceof Shulker) && !var15.noPhysics) {
-                            var15.move(
+            double var11 = var8 - var9;
+            if (var11 > 0.0) {
+                List<Entity> var12 = this.level.getEntities(this, this.getBoundingBox());
+                if (!var12.isEmpty()) {
+                    for(Entity var13 : var12) {
+                        if (!(var13 instanceof Shulker) && !var13.noPhysics) {
+                            var13.move(
                                 MoverType.SHULKER,
-                                new Vec3(var13 * (double)var12.getStepX(), var13 * (double)var12.getStepY(), var13 * (double)var12.getStepZ())
+                                new Vec3(var11 * (double)var10.getStepX(), var11 * (double)var10.getStepY(), var11 * (double)var10.getStepZ())
                             );
                         }
                     }
@@ -317,6 +305,22 @@ public class Shulker extends AbstractGolem implements Enemy {
         }
     }
 
+    @Nullable
+    protected Direction findAttachableFace(BlockPos param0) {
+        for(Direction var0 : Direction.values()) {
+            if (this.canAttachOnBlockFace(param0, var0)) {
+                return var0;
+            }
+        }
+
+        return null;
+    }
+
+    private boolean canAttachOnBlockFace(BlockPos param0, Direction param1) {
+        return this.level.loadedAndEntityCanStandOnFace(param0.relative(param1), this, param1.getOpposite())
+            && this.level.noCollision(this, ShulkerSharedHelper.openBoundingBox(param0, param1.getOpposite()));
+    }
+
     protected boolean teleportSomewhere() {
         if (!this.isNoAi() && this.isAlive()) {
             BlockPos var0 = new BlockPos(this);
@@ -327,17 +331,9 @@ public class Shulker extends AbstractGolem implements Enemy {
                     && this.level.isEmptyBlock(var2)
                     && this.level.getWorldBorder().isWithinBounds(var2)
                     && this.level.noCollision(this, new AABB(var2))) {
-                    boolean var3 = false;
-
-                    for(Direction var4 : Direction.values()) {
-                        if (this.level.loadedAndEntityCanStandOn(var2.relative(var4), this)) {
-                            this.entityData.set(DATA_ATTACH_FACE_ID, var4);
-                            var3 = true;
-                            break;
-                        }
-                    }
-
-                    if (var3) {
+                    Direction var3 = this.findAttachableFace(var2);
+                    if (var3 != null) {
+                        this.entityData.set(DATA_ATTACH_FACE_ID, var3);
                         this.playSound(SoundEvents.SHULKER_TELEPORT, 1.0F, 1.0F);
                         this.entityData.set(DATA_ATTACH_POS_ID, Optional.of(var2));
                         this.entityData.set(DATA_PEEK_ID, (byte)0);

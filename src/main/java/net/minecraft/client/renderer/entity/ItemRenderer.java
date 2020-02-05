@@ -11,7 +11,6 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
 import java.util.List;
-import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -27,7 +26,6 @@ import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.ItemModelShaper;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -111,15 +109,8 @@ public class ItemRenderer implements ResourceManagerReloadListener {
             param3.translate(-0.5, -0.5, -0.5);
             if (!param7.isCustomRenderer() && (param0.getItem() != Items.TRIDENT || var1)) {
                 RenderType var2 = ItemBlockRenderTypes.getRenderType(param0);
-                RenderType var3;
-                if (var0 && Objects.equals(var2, Sheets.translucentBlockSheet())) {
-                    var3 = Sheets.translucentCullBlockSheet();
-                } else {
-                    var3 = var2;
-                }
-
-                VertexConsumer var5 = getFoilBuffer(param4, var3, true, param0.hasFoil());
-                this.renderModelLists(param7, param0, param5, param6, param3, var5);
+                VertexConsumer var3 = getFoilBuffer(param4, var2, true, param0.hasFoil());
+                this.renderModelLists(param7, param0, param5, param6, param3, var3);
             } else {
                 BlockEntityWithoutLevelRenderer.instance.renderByItem(param0, param3, param4, param5, param6);
             }

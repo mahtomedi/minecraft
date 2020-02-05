@@ -1,11 +1,16 @@
 package net.minecraft.world.item.crafting;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.List;
+import java.util.Map;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -65,6 +70,20 @@ public class RepairItemRecipe extends CustomRecipe {
 
                 ItemStack var11 = new ItemStack(var4.getItem());
                 var11.setDamageValue(var10);
+                Map<Enchantment, Integer> var12 = Maps.newHashMap();
+                Map<Enchantment, Integer> var13 = EnchantmentHelper.getEnchantments(var4);
+                Map<Enchantment, Integer> var14 = EnchantmentHelper.getEnchantments(var5);
+                Registry.ENCHANTMENT.stream().filter(Enchantment::isCurse).forEach(param3 -> {
+                    int var0x = Math.max(var13.getOrDefault(param3, 0), var14.getOrDefault(param3, 0));
+                    if (var0x > 0) {
+                        var12.put(param3, var0x);
+                    }
+
+                });
+                if (!var12.isEmpty()) {
+                    EnchantmentHelper.setEnchantments(var12, var11);
+                }
+
                 return var11;
             }
         }

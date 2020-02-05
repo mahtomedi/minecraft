@@ -14,6 +14,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.biome.BiomeSpecialEffects;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -49,8 +50,7 @@ public class FlatLevelSource extends ChunkGenerator<FlatLevelGeneratorSettings> 
             var0.getScale(),
             var0.getTemperature(),
             var0.getDownfall(),
-            var0.getWaterColor(),
-            var0.getWaterFogColor(),
+            var0.getSpecialEffects(),
             var0.getParent()
         );
         Map<String, Map<String, String>> var2 = this.settings.getStructuresOptions();
@@ -189,9 +189,8 @@ public class FlatLevelSource extends ChunkGenerator<FlatLevelGeneratorSettings> 
             float param4,
             float param5,
             float param6,
-            int param7,
-            int param8,
-            @Nullable String param9
+            BiomeSpecialEffects param7,
+            @Nullable String param8
         ) {
             super(
                 new Biome.BiomeBuilder()
@@ -202,9 +201,8 @@ public class FlatLevelSource extends ChunkGenerator<FlatLevelGeneratorSettings> 
                     .scale(param4)
                     .temperature(param5)
                     .downfall(param6)
-                    .waterColor(param7)
-                    .waterFogColor(param8)
-                    .parent(param9)
+                    .specialEffects(param7)
+                    .parent(param8)
             );
         }
     }

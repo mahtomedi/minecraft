@@ -4,7 +4,6 @@ import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -64,7 +63,7 @@ public class RedstoneWallTorchBlock extends RedstoneTorchBlock {
             double var2 = (double)param2.getX() + 0.5 + (param3.nextDouble() - 0.5) * 0.2 + 0.27 * (double)var0.getStepX();
             double var3 = (double)param2.getY() + 0.7 + (param3.nextDouble() - 0.5) * 0.2 + 0.22;
             double var4 = (double)param2.getZ() + 0.5 + (param3.nextDouble() - 0.5) * 0.2 + 0.27 * (double)var0.getStepZ();
-            param1.addParticle(DustParticleOptions.REDSTONE, var2, var3, var4, 0.0, 0.0, 0.0);
+            param1.addParticle(this.flameParticle, var2, var3, var4, 0.0, 0.0, 0.0);
         }
     }
 

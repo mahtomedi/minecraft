@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -192,24 +193,26 @@ public class Slime extends Mob implements Enemy {
     public void remove() {
         int var0 = this.getSize();
         if (!this.level.isClientSide && var0 > 1 && this.getHealth() <= 0.0F) {
-            int var1 = 2 + this.random.nextInt(3);
+            Component var1 = this.getCustomName();
+            boolean var2 = this.isNoAi();
+            float var3 = (float)var0 / 4.0F;
+            int var4 = var0 / 2;
+            int var5 = 2 + this.random.nextInt(3);
 
-            for(int var2 = 0; var2 < var1; ++var2) {
-                float var3 = ((float)(var2 % 2) - 0.5F) * (float)var0 / 4.0F;
-                float var4 = ((float)(var2 / 2) - 0.5F) * (float)var0 / 4.0F;
-                Slime var5 = this.getType().create(this.level);
-                if (this.hasCustomName()) {
-                    var5.setCustomName(this.getCustomName());
-                }
-
+            for(int var6 = 0; var6 < var5; ++var6) {
+                float var7 = ((float)(var6 % 2) - 0.5F) * var3;
+                float var8 = ((float)(var6 / 2) - 0.5F) * var3;
+                Slime var9 = this.getType().create(this.level);
                 if (this.isPersistenceRequired()) {
-                    var5.setPersistenceRequired();
+                    var9.setPersistenceRequired();
                 }
 
-                var5.setInvulnerable(this.isInvulnerable());
-                var5.setSize(var0 / 2, true);
-                var5.moveTo(this.getX() + (double)var3, this.getY() + 0.5, this.getZ() + (double)var4, this.random.nextFloat() * 360.0F, 0.0F);
-                this.level.addFreshEntity(var5);
+                var9.setCustomName(var1);
+                var9.setNoAi(var2);
+                var9.setInvulnerable(this.isInvulnerable());
+                var9.setSize(var4, true);
+                var9.moveTo(this.getX() + (double)var7, this.getY() + 0.5, this.getZ() + (double)var8, this.random.nextFloat() * 360.0F, 0.0F);
+                this.level.addFreshEntity(var9);
             }
         }
 
@@ -338,6 +341,11 @@ public class Slime extends Mob implements Enemy {
         int var1 = 1 << var0;
         this.setSize(var1, true);
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
+    }
+
+    private float getSoundPitch() {
+        float var0 = this.isTiny() ? 1.4F : 0.8F;
+        return ((this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F) * var0;
     }
 
     protected SoundEvent getJumpSound() {
@@ -481,12 +489,7 @@ public class Slime extends Mob implements Enemy {
 
                         this.slime.getJumpControl().jump();
                         if (this.slime.doPlayJumpSound()) {
-                            this.slime
-                                .playSound(
-                                    this.slime.getJumpSound(),
-                                    this.slime.getSoundVolume(),
-                                    ((this.slime.getRandom().nextFloat() - this.slime.getRandom().nextFloat()) * 0.2F + 1.0F) * 0.8F
-                                );
+                            this.slime.playSound(this.slime.getJumpSound(), this.slime.getSoundVolume(), this.slime.getSoundPitch());
                         }
                     } else {
                         this.slime.xxa = 0.0F;

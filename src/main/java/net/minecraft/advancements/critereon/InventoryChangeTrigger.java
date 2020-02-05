@@ -1,11 +1,10 @@
 package net.minecraft.advancements.critereon;
 
-import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import java.util.Iterator;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.List;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -31,8 +30,28 @@ public class InventoryChangeTrigger extends SimpleCriterionTrigger<InventoryChan
         return new InventoryChangeTrigger.TriggerInstance(var1, var2, var3, var4);
     }
 
-    public void trigger(ServerPlayer param0, Inventory param1) {
-        this.trigger(param0.getAdvancements(), param1x -> param1x.matches(param1));
+    public void trigger(ServerPlayer param0, Inventory param1, ItemStack param2) {
+        int var0 = 0;
+        int var1 = 0;
+        int var2 = 0;
+
+        for(int var3 = 0; var3 < param1.getContainerSize(); ++var3) {
+            ItemStack var4 = param1.getItem(var3);
+            if (var4.isEmpty()) {
+                ++var1;
+            } else {
+                ++var2;
+                if (var4.getCount() >= var4.getMaxStackSize()) {
+                    ++var0;
+                }
+            }
+        }
+
+        this.trigger(param0, param1, param2, var0, var1, var2);
+    }
+
+    private void trigger(ServerPlayer param0, Inventory param1, ItemStack param2, int param3, int param4, int param5) {
+        this.trigger(param0.getAdvancements(), param5x -> param5x.matches(param1, param2, param3, param4, param5));
     }
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
@@ -96,41 +115,36 @@ public class InventoryChangeTrigger extends SimpleCriterionTrigger<InventoryChan
             return var0;
         }
 
-        public boolean matches(Inventory param0) {
-            int var0 = 0;
-            int var1 = 0;
-            int var2 = 0;
-            List<ItemPredicate> var3 = Lists.newArrayList(this.predicates);
-
-            for(int var4 = 0; var4 < param0.getContainerSize(); ++var4) {
-                ItemStack var5 = param0.getItem(var4);
-                if (var5.isEmpty()) {
-                    ++var1;
-                } else {
-                    ++var2;
-                    if (var5.getCount() >= var5.getMaxStackSize()) {
-                        ++var0;
-                    }
-
-                    Iterator<ItemPredicate> var6 = var3.iterator();
-
-                    while(var6.hasNext()) {
-                        ItemPredicate var7 = var6.next();
-                        if (var7.matches(var5)) {
-                            var6.remove();
-                        }
-                    }
-                }
-            }
-
-            if (!this.slotsFull.matches(var0)) {
+        public boolean matches(Inventory param0, ItemStack param1, int param2, int param3, int param4) {
+            if (!this.slotsFull.matches(param2)) {
                 return false;
-            } else if (!this.slotsEmpty.matches(var1)) {
+            } else if (!this.slotsEmpty.matches(param3)) {
                 return false;
-            } else if (!this.slotsOccupied.matches(var2)) {
+            } else if (!this.slotsOccupied.matches(param4)) {
                 return false;
             } else {
-                return var3.isEmpty();
+                int var0 = this.predicates.length;
+                if (var0 == 0) {
+                    return true;
+                } else if (var0 != 1) {
+                    List<ItemPredicate> var1 = new ObjectArrayList<>(this.predicates);
+                    int var2 = param0.getContainerSize();
+
+                    for(int var3 = 0; var3 < var2; ++var3) {
+                        if (var1.isEmpty()) {
+                            return true;
+                        }
+
+                        ItemStack var4 = param0.getItem(var3);
+                        if (!var4.isEmpty()) {
+                            var1.removeIf(param1x -> param1x.matches(var4));
+                        }
+                    }
+
+                    return var1.isEmpty();
+                } else {
+                    return !param1.isEmpty() && this.predicates[0].matches(param1);
+                }
             }
         }
     }

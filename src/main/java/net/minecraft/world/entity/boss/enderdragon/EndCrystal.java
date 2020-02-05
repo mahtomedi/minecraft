@@ -15,7 +15,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.level.dimension.end.EndDragonFight;
 import net.minecraft.world.level.dimension.end.TheEndDimension;
 import net.minecraftforge.api.distmarker.Dist;
@@ -56,7 +56,7 @@ public class EndCrystal extends Entity {
         if (!this.level.isClientSide) {
             BlockPos var0 = new BlockPos(this);
             if (this.level.dimension instanceof TheEndDimension && this.level.getBlockState(var0).isAir()) {
-                this.level.setBlockAndUpdate(var0, Blocks.FIRE.defaultBlockState());
+                this.level.setBlockAndUpdate(var0, BaseFireBlock.getState(this.level, var0));
             }
         }
 

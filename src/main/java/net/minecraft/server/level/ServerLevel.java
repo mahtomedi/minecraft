@@ -1,6 +1,7 @@
 package net.minecraft.server.level;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
@@ -164,15 +165,7 @@ public class ServerLevel extends Level {
     @Nullable
     private final WanderingTraderSpawner wanderingTraderSpawner;
 
-    public ServerLevel(
-        MinecraftServer param0,
-        Executor param1,
-        LevelStorage param2,
-        LevelData param3,
-        DimensionType param4,
-        ProfilerFiller param5,
-        ChunkProgressListener param6
-    ) {
+    public ServerLevel(MinecraftServer param0, Executor param1, LevelStorage param2, LevelData param3, DimensionType param4, ChunkProgressListener param5) {
         super(
             param3,
             param4,
@@ -184,10 +177,10 @@ public class ServerLevel extends Level {
                     param1,
                     param5x.createRandomLevelGenerator(),
                     param0.getPlayerList().getViewDistance(),
-                    param6,
+                    param5,
                     () -> param0.getLevel(DimensionType.OVERWORLD).getDataStorage()
                 ),
-            param5,
+            param0::getProfiler,
             false
         );
         this.levelStorage = param2;
@@ -1251,6 +1244,14 @@ public class ServerLevel extends Level {
         return this.getChunkSource().getGenerator().findNearestMapFeature(this, param0, param1, param2, param3);
     }
 
+    @Nullable
+    public BlockPos findNearestBiome(Biome param0, BlockPos param1, int param2, int param3) {
+        return this.getChunkSource()
+            .getGenerator()
+            .getBiomeSource()
+            .findBiomeHorizontal(param1.getX(), param1.getY(), param1.getZ(), param2, param3, ImmutableList.of(param0), this.random, true);
+    }
+
     @Override
     public RecipeManager getRecipeManager() {
         return this.server.getRecipeManager();
@@ -1491,5 +1492,13 @@ public class ServerLevel extends Level {
     @VisibleForTesting
     public void clearBlockEvents(BoundingBox param0) {
         this.blockEvents.removeIf(param1 -> param0.isInside(param1.getPos()));
+    }
+
+    @Override
+    public void blockUpdated(BlockPos param0, Block param1) {
+        if (this.levelData.getGeneratorType() != LevelType.DEBUG_ALL_BLOCK_STATES) {
+            this.updateNeighborsAt(param0, param1);
+        }
+
     }
 }

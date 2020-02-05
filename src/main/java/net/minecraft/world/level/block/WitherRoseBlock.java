@@ -27,7 +27,7 @@ public class WitherRoseBlock extends FlowerBlock {
     @Override
     protected boolean mayPlaceOn(BlockState param0, BlockGetter param1, BlockPos param2) {
         Block var0 = param0.getBlock();
-        return super.mayPlaceOn(param0, param1, param2) || var0 == Blocks.NETHERRACK || var0 == Blocks.SOUL_SAND;
+        return super.mayPlaceOn(param0, param1, param2) || var0 == Blocks.NETHERRACK || var0 == Blocks.SOUL_SAND || var0 == Blocks.SOUL_SOIL;
     }
 
     @OnlyIn(Dist.CLIENT)

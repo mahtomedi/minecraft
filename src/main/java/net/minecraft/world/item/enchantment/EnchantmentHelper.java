@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Map.Entry;
+import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.Registry;
@@ -232,6 +233,11 @@ public class EnchantmentHelper {
 
     @Nullable
     public static Entry<EquipmentSlot, ItemStack> getRandomItemWith(Enchantment param0, LivingEntity param1) {
+        return getRandomItemWith(param0, param1, param0x -> true);
+    }
+
+    @Nullable
+    public static Entry<EquipmentSlot, ItemStack> getRandomItemWith(Enchantment param0, LivingEntity param1, Predicate<ItemStack> param2) {
         Map<EquipmentSlot, ItemStack> var0 = param0.getSlotItems(param1);
         if (var0.isEmpty()) {
             return null;
@@ -240,7 +246,7 @@ public class EnchantmentHelper {
 
             for(Entry<EquipmentSlot, ItemStack> var2 : var0.entrySet()) {
                 ItemStack var3 = var2.getValue();
-                if (!var3.isEmpty() && getItemEnchantmentLevel(param0, var3) > 0) {
+                if (!var3.isEmpty() && getItemEnchantmentLevel(param0, var3) > 0 && param2.test(var3)) {
                     var1.add(var2);
                 }
             }

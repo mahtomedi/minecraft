@@ -15,6 +15,14 @@ public class Vec3 implements Position {
     public final double y;
     public final double z;
 
+    @OnlyIn(Dist.CLIENT)
+    public static Vec3 fromRGB24(int param0) {
+        double var0 = (double)(param0 >> 16 & 0xFF) / 255.0;
+        double var1 = (double)(param0 >> 8 & 0xFF) / 255.0;
+        double var2 = (double)(param0 & 0xFF) / 255.0;
+        return new Vec3(var0, var1, var2);
+    }
+
     public Vec3(double param0, double param1, double param2) {
         this.x = param0;
         this.y = param1;

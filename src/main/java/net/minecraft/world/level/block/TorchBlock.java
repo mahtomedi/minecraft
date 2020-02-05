@@ -3,6 +3,7 @@ package net.minecraft.world.level.block;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -16,9 +17,11 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class TorchBlock extends Block {
     protected static final VoxelShape AABB = Block.box(6.0, 0.0, 6.0, 10.0, 10.0, 10.0);
+    protected final ParticleOptions flameParticle;
 
-    protected TorchBlock(Block.Properties param0) {
+    protected TorchBlock(Block.Properties param0, ParticleOptions param1) {
         super(param0);
+        this.flameParticle = param1;
     }
 
     @Override
@@ -45,6 +48,6 @@ public class TorchBlock extends Block {
         double var1 = (double)param2.getY() + 0.7;
         double var2 = (double)param2.getZ() + 0.5;
         param1.addParticle(ParticleTypes.SMOKE, var0, var1, var2, 0.0, 0.0, 0.0);
-        param1.addParticle(ParticleTypes.FLAME, var0, var1, var2, 0.0, 0.0, 0.0);
+        param1.addParticle(this.flameParticle, var0, var1, var2, 0.0, 0.0, 0.0);
     }
 }

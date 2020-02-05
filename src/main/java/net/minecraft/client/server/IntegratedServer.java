@@ -22,7 +22,7 @@ import net.minecraft.server.level.progress.ChunkProgressListener;
 import net.minecraft.server.level.progress.ChunkProgressListenerFactory;
 import net.minecraft.server.players.GameProfileCache;
 import net.minecraft.util.Crypt;
-import net.minecraft.util.profiling.GameProfiler;
+import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.Snooper;
 import net.minecraft.world.level.GameType;
@@ -121,7 +121,7 @@ public class IntegratedServer extends MinecraftServer {
     public void tickServer(BooleanSupplier param0) {
         boolean var0 = this.paused;
         this.paused = Minecraft.getInstance().getConnection() != null && Minecraft.getInstance().isPaused();
-        GameProfiler var1 = this.getProfiler();
+        ProfilerFiller var1 = this.getProfiler();
         if (!var0 && this.paused) {
             var1.push("autoSave");
             LOGGER.info("Saving and pausing game...");

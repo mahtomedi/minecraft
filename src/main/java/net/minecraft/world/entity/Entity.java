@@ -556,21 +556,11 @@ public abstract class Entity implements CommandSource, Nameable {
             }
 
             this.setDeltaMovement(this.getDeltaMovement().multiply((double)this.getBlockSpeedFactor(), 1.0, (double)this.getBlockSpeedFactor()));
-            boolean var15 = this.isInWaterRainOrBubble();
-            if (this.level.containsFireBlock(this.getBoundingBox().deflate(0.001))) {
-                if (!var15) {
-                    ++this.remainingFireTicks;
-                    if (this.remainingFireTicks == 0) {
-                        this.setSecondsOnFire(8);
-                    }
-                }
-
-                this.burn(1);
-            } else if (this.remainingFireTicks <= 0) {
+            if (!this.level.containsFireBlock(this.getBoundingBox().deflate(0.001)) && this.remainingFireTicks <= 0) {
                 this.remainingFireTicks = -this.getFireImmuneTicks();
             }
 
-            if (var15 && this.isOnFire()) {
+            if (this.isInWaterRainOrBubble() && this.isOnFire()) {
                 this.playSound(SoundEvents.GENERIC_EXTINGUISH_FIRE, 0.7F, 1.6F + (this.random.nextFloat() - this.random.nextFloat()) * 0.4F);
                 this.remainingFireTicks = -this.getFireImmuneTicks();
             }
@@ -890,13 +880,6 @@ public abstract class Entity implements CommandSource, Nameable {
     @Nullable
     public AABB getCollideBox() {
         return null;
-    }
-
-    protected void burn(int param0) {
-        if (!this.fireImmune()) {
-            this.hurt(DamageSource.IN_FIRE, (float)param0);
-        }
-
     }
 
     public final boolean fireImmune() {

@@ -133,11 +133,6 @@ public class ExperienceOrb extends Entity {
     }
 
     @Override
-    protected void burn(int param0) {
-        this.hurt(DamageSource.IN_FIRE, (float)param0);
-    }
-
-    @Override
     public boolean hurt(DamageSource param0, float param1) {
         if (this.isInvulnerableTo(param0)) {
             return false;
@@ -172,7 +167,7 @@ public class ExperienceOrb extends Entity {
             if (this.throwTime == 0 && param0.takeXpDelay == 0) {
                 param0.takeXpDelay = 2;
                 param0.take(this, 1);
-                Entry<EquipmentSlot, ItemStack> var0 = EnchantmentHelper.getRandomItemWith(Enchantments.MENDING, param0);
+                Entry<EquipmentSlot, ItemStack> var0 = EnchantmentHelper.getRandomItemWith(Enchantments.MENDING, param0, ItemStack::isDamaged);
                 if (var0 != null) {
                     ItemStack var1 = var0.getValue();
                     if (!var1.isEmpty() && var1.isDamaged()) {

@@ -5,7 +5,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class InactiveProfiler implements ProfileCollector {
-    public static final InactiveProfiler INACTIVE = new InactiveProfiler();
+    public static final InactiveProfiler INSTANCE = new InactiveProfiler();
 
     private InactiveProfiler() {
     }

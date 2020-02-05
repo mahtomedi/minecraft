@@ -39,6 +39,7 @@ import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.level.block.BeehiveBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -301,7 +302,7 @@ public interface DispenseItemBehavior {
                 BlockPos var1 = param0.getPos().relative(param0.getBlockState().getValue(DispenserBlock.FACING));
                 BlockState var2 = var0.getBlockState(var1);
                 if (FlintAndSteelItem.canUse(var2, var0, var1)) {
-                    var0.setBlockAndUpdate(var1, Blocks.FIRE.defaultBlockState());
+                    var0.setBlockAndUpdate(var1, BaseFireBlock.getState(var0, var1));
                 } else if (FlintAndSteelItem.canLightCampFire(var2)) {
                     var0.setBlockAndUpdate(var1, var2.setValue(BlockStateProperties.LIT, Boolean.valueOf(true)));
                 } else if (var2.getBlock() instanceof TntBlock) {

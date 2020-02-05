@@ -78,14 +78,10 @@ public class ComparatorBlock extends DiodeBlock implements EntityBlock {
         } else if (var0 < 15 && var3.isRedstoneConductor(param0, var2)) {
             var2 = var2.relative(var1);
             var3 = param0.getBlockState(var2);
-            if (var3.hasAnalogOutputSignal()) {
-                var0 = var3.getAnalogOutputSignal(param0, var2);
-            } else if (var3.isAir()) {
-                ItemFrame var4 = this.getItemFrame(param0, var1, var2);
-                if (var4 != null) {
-                    var0 = var4.getAnalogOutput();
-                }
-            }
+            ItemFrame var4 = this.getItemFrame(param0, var1, var2);
+            int var5 = var4 == null ? 0 : var4.getAnalogOutput();
+            int var6 = var3.hasAnalogOutputSignal() ? var3.getAnalogOutputSignal(param0, var2) : 0;
+            var0 = Math.max(Math.max(var5, var6), var0);
         }
 
         return var0;

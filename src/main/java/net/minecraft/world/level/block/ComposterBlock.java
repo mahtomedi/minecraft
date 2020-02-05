@@ -347,7 +347,7 @@ public class ComposterBlock extends Block implements WorldlyContainerHolder {
             ItemStack var0 = this.getItem(0);
             if (!var0.isEmpty()) {
                 this.changed = true;
-                ComposterBlock.addItem(this.state, this.level, this.pos, var0);
+                this.level.levelEvent(1500, this.pos, ComposterBlock.addItem(this.state, this.level, this.pos, var0) ? 1 : 0);
                 this.removeItemNoUpdate(0);
             }
 

@@ -5,7 +5,6 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.BiomeSourceType;
@@ -53,17 +52,8 @@ public class TheEndDimension extends Dimension {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public Vec3 getFogColor(float param0, float param1) {
-        int var0 = 10518688;
-        float var1 = Mth.cos(param0 * (float) (Math.PI * 2)) * 2.0F + 0.5F;
-        var1 = Mth.clamp(var1, 0.0F, 1.0F);
-        float var2 = 0.627451F;
-        float var3 = 0.5019608F;
-        float var4 = 0.627451F;
-        var2 *= var1 * 0.0F + 0.15F;
-        var3 *= var1 * 0.0F + 0.15F;
-        var4 *= var1 * 0.0F + 0.15F;
-        return new Vec3((double)var2, (double)var3, (double)var4);
+    public Vec3 getBrightnessDependentFogColor(int param0, float param1) {
+        return Vec3.fromRGB24(param0).scale(0.15F);
     }
 
     @OnlyIn(Dist.CLIENT)

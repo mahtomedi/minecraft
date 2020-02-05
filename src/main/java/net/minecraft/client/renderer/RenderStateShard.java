@@ -108,9 +108,9 @@ public abstract class RenderStateShard {
     protected static final RenderStateShard.DiffuseLightingStateShard NO_DIFFUSE_LIGHTING = new RenderStateShard.DiffuseLightingStateShard(false);
     protected static final RenderStateShard.CullStateShard CULL = new RenderStateShard.CullStateShard(true);
     protected static final RenderStateShard.CullStateShard NO_CULL = new RenderStateShard.CullStateShard(false);
-    protected static final RenderStateShard.DepthTestStateShard NO_DEPTH_TEST = new RenderStateShard.DepthTestStateShard(519);
-    protected static final RenderStateShard.DepthTestStateShard EQUAL_DEPTH_TEST = new RenderStateShard.DepthTestStateShard(514);
-    protected static final RenderStateShard.DepthTestStateShard LEQUAL_DEPTH_TEST = new RenderStateShard.DepthTestStateShard(515);
+    protected static final RenderStateShard.DepthTestStateShard NO_DEPTH_TEST = new RenderStateShard.DepthTestStateShard("always", 519);
+    protected static final RenderStateShard.DepthTestStateShard EQUAL_DEPTH_TEST = new RenderStateShard.DepthTestStateShard("==", 514);
+    protected static final RenderStateShard.DepthTestStateShard LEQUAL_DEPTH_TEST = new RenderStateShard.DepthTestStateShard("<=", 515);
     protected static final RenderStateShard.WriteMaskStateShard COLOR_DEPTH_WRITE = new RenderStateShard.WriteMaskStateShard(true, true);
     protected static final RenderStateShard.WriteMaskStateShard COLOR_WRITE = new RenderStateShard.WriteMaskStateShard(true, false);
     protected static final RenderStateShard.WriteMaskStateShard DEPTH_WRITE = new RenderStateShard.WriteMaskStateShard(false, true);
@@ -126,6 +126,10 @@ public abstract class RenderStateShard {
             RenderSystem.disablePolygonOffset();
         }
     );
+    protected static final RenderStateShard.LayeringStateShard SHADOW_LAYERING = new RenderStateShard.LayeringStateShard("shadow_layering", () -> {
+        RenderSystem.pushMatrix();
+        RenderSystem.scalef(0.99975586F, 0.99975586F, 0.99975586F);
+    }, RenderSystem::popMatrix);
     protected static final RenderStateShard.LayeringStateShard PROJECTION_LAYERING = new RenderStateShard.LayeringStateShard("projection_layering", () -> {
         RenderSystem.matrixMode(5889);
         RenderSystem.pushMatrix();
@@ -191,6 +195,11 @@ public abstract class RenderStateShard {
         return this.name.hashCode();
     }
 
+    @Override
+    public String toString() {
+        return this.name;
+    }
+
     private static void setupGlintTexturing(float param0) {
         RenderSystem.matrixMode(5890);
         RenderSystem.pushMatrix();
@@ -241,6 +250,11 @@ public abstract class RenderStateShard {
         public int hashCode() {
             return Objects.hash(super.hashCode(), this.cutoff);
         }
+
+        @Override
+        public String toString() {
+            return this.name + '[' + this.cutoff + ']';
+        }
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -268,19 +282,24 @@ public abstract class RenderStateShard {
         public int hashCode() {
             return Boolean.hashCode(this.enabled);
         }
+
+        @Override
+        public String toString() {
+            return this.name + '[' + this.enabled + ']';
+        }
     }
 
     @OnlyIn(Dist.CLIENT)
     public static class CullStateShard extends RenderStateShard.BooleanStateShard {
         public CullStateShard(boolean param0) {
             super("cull", () -> {
-                if (param0) {
-                    RenderSystem.enableCull();
+                if (!param0) {
+                    RenderSystem.disableCull();
                 }
 
             }, () -> {
-                if (param0) {
-                    RenderSystem.disableCull();
+                if (!param0) {
+                    RenderSystem.enableCull();
                 }
 
             }, param0);
@@ -289,23 +308,25 @@ public abstract class RenderStateShard {
 
     @OnlyIn(Dist.CLIENT)
     public static class DepthTestStateShard extends RenderStateShard {
+        private final String functionName;
         private final int function;
 
-        public DepthTestStateShard(int param0) {
+        public DepthTestStateShard(String param0, int param1) {
             super("depth_test", () -> {
-                if (param0 != 519) {
+                if (param1 != 519) {
                     RenderSystem.enableDepthTest();
-                    RenderSystem.depthFunc(param0);
+                    RenderSystem.depthFunc(param1);
                 }
 
             }, () -> {
-                if (param0 != 519) {
+                if (param1 != 519) {
                     RenderSystem.disableDepthTest();
                     RenderSystem.depthFunc(515);
                 }
 
             });
-            this.function = param0;
+            this.functionName = param0;
+            this.function = param1;
         }
 
         @Override
@@ -323,6 +344,11 @@ public abstract class RenderStateShard {
         @Override
         public int hashCode() {
             return Integer.hashCode(this.function);
+        }
+
+        @Override
+        public String toString() {
+            return this.name + '[' + this.functionName + ']';
         }
     }
 
@@ -379,7 +405,7 @@ public abstract class RenderStateShard {
         private final OptionalDouble width;
 
         public LineStateShard(OptionalDouble param0) {
-            super("alpha", () -> {
+            super("line_width", () -> {
                 if (!Objects.equals(param0, OptionalDouble.of(1.0))) {
                     if (param0.isPresent()) {
                         RenderSystem.lineWidth((float)param0.getAsDouble());
@@ -411,6 +437,11 @@ public abstract class RenderStateShard {
         @Override
         public int hashCode() {
             return Objects.hash(super.hashCode(), this.width);
+        }
+
+        @Override
+        public String toString() {
+            return this.name + '[' + (this.width.isPresent() ? this.width.getAsDouble() : "window_scale") + ']';
         }
     }
 
@@ -546,6 +577,11 @@ public abstract class RenderStateShard {
         public int hashCode() {
             return Boolean.hashCode(this.smooth);
         }
+
+        @Override
+        public String toString() {
+            return this.name + '[' + (this.smooth ? "smooth" : "flat") + ']';
+        }
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -589,6 +625,11 @@ public abstract class RenderStateShard {
         @Override
         public int hashCode() {
             return this.texture.hashCode();
+        }
+
+        @Override
+        public String toString() {
+            return this.name + '[' + this.texture + "(blur=" + this.blur + ", mipmap=" + this.mipmap + ")]";
         }
 
         protected Optional<ResourceLocation> texture() {
@@ -654,6 +695,11 @@ public abstract class RenderStateShard {
         @Override
         public int hashCode() {
             return Objects.hash(this.writeColor, this.writeDepth);
+        }
+
+        @Override
+        public String toString() {
+            return this.name + "[writeColor=" + this.writeColor + ", writeDepth=" + this.writeDepth + ']';
         }
     }
 }

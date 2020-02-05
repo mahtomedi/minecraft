@@ -9,6 +9,7 @@ import java.util.Random;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
@@ -23,6 +24,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagManager;
 import net.minecraft.util.Mth;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -82,13 +84,13 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     public final Dimension dimension;
     protected final ChunkSource chunkSource;
     protected final LevelData levelData;
-    private final ProfilerFiller profiler;
+    private final Supplier<ProfilerFiller> profiler;
     public final boolean isClientSide;
     protected boolean updatingBlockEntities;
     private final WorldBorder worldBorder;
     private final BiomeManager biomeManager;
 
-    protected Level(LevelData param0, DimensionType param1, BiFunction<Level, Dimension, ChunkSource> param2, ProfilerFiller param3, boolean param4) {
+    protected Level(LevelData param0, DimensionType param1, BiFunction<Level, Dimension, ChunkSource> param2, Supplier<ProfilerFiller> param3, boolean param4) {
         this.profiler = param3;
         this.levelData = param0;
         this.dimension = param1.create(this);
@@ -179,9 +181,9 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
                             || var3.useShapeForLightOcclusion()
                             || var2.useShapeForLightOcclusion()
                     )) {
-                    this.profiler.push("queueCheckLight");
+                    this.getProfiler().push("queueCheckLight");
                     this.getChunkSource().getLightEngine().checkBlock(param0);
-                    this.profiler.pop();
+                    this.getProfiler().pop();
                 }
 
                 if (var3 == param1) {
@@ -195,9 +197,9 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
                         this.sendBlockUpdated(param0, var2, param1, param2);
                     }
 
-                    if (!this.isClientSide && (param2 & 1) != 0) {
+                    if ((param2 & 1) != 0) {
                         this.blockUpdated(param0, var2.getBlock());
-                        if (param1.hasAnalogOutputSignal()) {
+                        if (!this.isClientSide && param1.hasAnalogOutputSignal()) {
                             this.updateNeighbourForOutputSignal(param0, var1);
                         }
                     }
@@ -248,14 +250,6 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     }
 
     public abstract void sendBlockUpdated(BlockPos var1, BlockState var2, BlockState var3, int var4);
-
-    @Override
-    public void blockUpdated(BlockPos param0, Block param1) {
-        if (this.levelData.getGeneratorType() != LevelType.DEBUG_ALL_BLOCK_STATES) {
-            this.updateNeighborsAt(param0, param1);
-        }
-
-    }
 
     public void setBlocksDirty(BlockPos param0, BlockState param1, BlockState param2) {
     }
@@ -551,8 +545,8 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
                 for(int var7 = var0; var7 < var1; ++var7) {
                     for(int var8 = var2; var8 < var3; ++var8) {
                         for(int var9 = var4; var9 < var5; ++var9) {
-                            Block var10 = this.getBlockState(var6.set(var7, var8, var9)).getBlock();
-                            if (var10 == Blocks.FIRE || var10 == Blocks.LAVA) {
+                            BlockState var10 = this.getBlockState(var6.set(var7, var8, var9));
+                            if (var10.is(BlockTags.FIRE) || var10.getBlock() == Blocks.LAVA) {
                                 return true;
                             }
                         }
@@ -638,7 +632,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
 
     public boolean extinguishFire(@Nullable Player param0, BlockPos param1, Direction param2) {
         param1 = param1.relative(param2);
-        if (this.getBlockState(param1).getBlock() == Blocks.FIRE) {
+        if (this.getBlockState(param1).is(BlockTags.FIRE)) {
             this.levelEvent(param0, 1009, param1, 0);
             this.removeBlock(param1, false);
             return true;
@@ -735,13 +729,17 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         return isOutsideBuildHeight(param0) ? false : this.chunkSource.hasChunk(param0.getX() >> 4, param0.getZ() >> 4);
     }
 
-    public boolean loadedAndEntityCanStandOn(BlockPos param0, Entity param1) {
+    public boolean loadedAndEntityCanStandOnFace(BlockPos param0, Entity param1, Direction param2) {
         if (isOutsideBuildHeight(param0)) {
             return false;
         } else {
             ChunkAccess var0 = this.getChunk(param0.getX() >> 4, param0.getZ() >> 4, ChunkStatus.FULL, false);
-            return var0 == null ? false : var0.getBlockState(param0).entityCanStandOn(this, param0, param1);
+            return var0 == null ? false : var0.getBlockState(param0).entityCanStandOnFace(this, param0, param1, param2);
         }
+    }
+
+    public boolean loadedAndEntityCanStandOn(BlockPos param0, Entity param1) {
+        return this.loadedAndEntityCanStandOnFace(param0, param1, Direction.UP);
     }
 
     public void updateSkyBrightness() {
@@ -1196,6 +1194,10 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     }
 
     public ProfilerFiller getProfiler() {
+        return this.profiler.get();
+    }
+
+    public Supplier<ProfilerFiller> getProfilerSupplier() {
         return this.profiler;
     }
 

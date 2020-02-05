@@ -1,9 +1,11 @@
 package net.minecraft.world.level.levelgen.surfacebuilders;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.Dynamic;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
@@ -140,8 +142,8 @@ public class BadlandsSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseCon
 
         if (this.seed != param0 || this.pillarNoise == null || this.pillarRoofNoise == null) {
             WorldgenRandom var0 = new WorldgenRandom(param0);
-            this.pillarNoise = new PerlinSimplexNoise(var0, 3, 0);
-            this.pillarRoofNoise = new PerlinSimplexNoise(var0, 0, 0);
+            this.pillarNoise = new PerlinSimplexNoise(var0, IntStream.rangeClosed(-3, 0));
+            this.pillarRoofNoise = new PerlinSimplexNoise(var0, ImmutableList.of(0));
         }
 
         this.seed = param0;
@@ -151,7 +153,7 @@ public class BadlandsSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseCon
         this.clayBands = new BlockState[64];
         Arrays.fill(this.clayBands, TERRACOTTA);
         WorldgenRandom var0 = new WorldgenRandom(param0);
-        this.clayBandsOffsetNoise = new PerlinSimplexNoise(var0, 0, 0);
+        this.clayBandsOffsetNoise = new PerlinSimplexNoise(var0, ImmutableList.of(0));
 
         for(int var1 = 0; var1 < 64; ++var1) {
             var1 += var0.nextInt(5) + 1;

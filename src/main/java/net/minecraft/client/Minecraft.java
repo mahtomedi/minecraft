@@ -154,10 +154,12 @@ import net.minecraft.util.FrameTimer;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Unit;
 import net.minecraft.util.datafix.DataFixers;
-import net.minecraft.util.profiling.GameProfiler;
+import net.minecraft.util.profiling.ContinuousProfiler;
+import net.minecraft.util.profiling.InactiveProfiler;
 import net.minecraft.util.profiling.ProfileResults;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.util.profiling.ResultField;
+import net.minecraft.util.profiling.SingleTickProfiler;
 import net.minecraft.util.thread.ReentrantBlockableEventLoop;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
@@ -242,7 +244,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     public final FrameTimer frameTimer = new FrameTimer();
     private final boolean is64bit;
     private final boolean demo;
-    private final GameProfiler profiler = new GameProfiler(() -> this.timer.ticks);
     private final ReloadableResourceManager resourceManager;
     private final ClientPackSource clientPackSource;
     private final PackRepository<UnopenedResourcePack> resourcePackRepository;
@@ -309,6 +310,11 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     private final Queue<Runnable> progressTasks = Queues.newConcurrentLinkedQueue();
     @Nullable
     private CompletableFuture<Void> pendingReload;
+    private ProfilerFiller profiler = InactiveProfiler.INSTANCE;
+    private int fpsPieRenderTicks;
+    private final ContinuousProfiler fpsPieProfiler = new ContinuousProfiler(Util.timeSource, () -> this.fpsPieRenderTicks);
+    @Nullable
+    private ProfileResults fpsPieResults;
     private String debugPath = "root";
 
     public Minecraft(GameConfig param0) {
@@ -544,29 +550,35 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                 }
 
                 try {
+                    SingleTickProfiler var1 = SingleTickProfiler.createTickProfiler("Renderer");
+                    boolean var2 = this.shouldRenderFpsPie();
+                    this.startProfilers(var2, var1);
+                    this.profiler.startTick();
                     this.runTick(!var0);
-                } catch (OutOfMemoryError var31) {
+                    this.profiler.endTick();
+                    this.finishProfilers(var2, var1);
+                } catch (OutOfMemoryError var4) {
                     if (var0) {
-                        throw var31;
+                        throw var4;
                     }
 
                     this.emergencySave();
                     this.setScreen(new OutOfMemoryScreen());
                     System.gc();
-                    LOGGER.fatal("Out of memory", (Throwable)var31);
+                    LOGGER.fatal("Out of memory", (Throwable)var4);
                     var0 = true;
                 }
             }
-        } catch (ReportedException var41) {
-            this.fillReport(var41.getReport());
+        } catch (ReportedException var51) {
+            this.fillReport(var51.getReport());
             this.emergencySave();
-            LOGGER.fatal("Reported exception thrown!", (Throwable)var41);
-            crash(var41.getReport());
-        } catch (Throwable var5) {
-            CrashReport var4 = this.fillReport(new CrashReport("Unexpected error", var5));
-            LOGGER.fatal("Unreported exception thrown!", var5);
+            LOGGER.fatal("Reported exception thrown!", (Throwable)var51);
+            crash(var51.getReport());
+        } catch (Throwable var61) {
+            CrashReport var6 = this.fillReport(new CrashReport("Unexpected error", var61));
+            LOGGER.fatal("Unreported exception thrown!", var61);
             this.emergencySave();
-            crash(var4);
+            crash(var6);
         }
 
     }
@@ -857,7 +869,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     private void runTick(boolean param0) {
         this.window.setErrorSection("Pre render");
         long var0 = Util.getNanos();
-        this.profiler.startTick();
         if (this.window.shouldClose()) {
             this.stop();
         }
@@ -874,22 +885,23 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         }
 
         if (param0) {
-            this.timer.advanceTime(Util.getMillis());
+            int var3 = this.timer.advanceTime(Util.getMillis());
             this.profiler.push("scheduledExecutables");
             this.runAllTasks();
             this.profiler.pop();
-        }
+            this.profiler.push("tick");
 
-        this.profiler.push("tick");
-        if (param0) {
-            for(int var3 = 0; var3 < Math.min(10, this.timer.ticks); ++var3) {
+            for(int var4 = 0; var4 < Math.min(10, var3); ++var4) {
+                this.profiler.incrementCounter("clientTick");
                 this.tick();
             }
+
+            this.profiler.pop();
         }
 
         this.mouseHandler.turnPlayer();
         this.window.setErrorSection("Render");
-        this.profiler.popPush("sound");
+        this.profiler.push("sound");
         this.soundManager.updateSource(this.gameRenderer.getMainCamera());
         this.profiler.pop();
         this.profiler.push("render");
@@ -899,6 +911,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         FogRenderer.setupNoFog();
         this.profiler.push("display");
         RenderSystem.enableTexture();
+        RenderSystem.enableCull();
         this.profiler.pop();
         if (!this.noRender) {
             this.profiler.popPush("gameRenderer");
@@ -908,25 +921,23 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             this.profiler.pop();
         }
 
-        this.profiler.endTick();
-        if (this.options.renderDebug && this.options.renderDebugCharts && !this.options.hideGui) {
-            this.profiler.continuous().enable();
-            this.renderFpsMeter();
-        } else {
-            this.profiler.continuous().disable();
+        if (this.fpsPieResults != null) {
+            this.profiler.push("fpsPie");
+            this.renderFpsMeter(this.fpsPieResults);
+            this.profiler.pop();
         }
 
+        this.profiler.push("blit");
         this.mainRenderTarget.unbindWrite();
         RenderSystem.popMatrix();
         RenderSystem.pushMatrix();
         this.mainRenderTarget.blitToScreen(this.window.getWidth(), this.window.getHeight());
         RenderSystem.popMatrix();
-        this.profiler.startTick();
-        this.profiler.push("updateDisplay");
+        this.profiler.popPush("updateDisplay");
         this.window.updateDisplay();
-        int var4 = this.getFramerateLimit();
-        if ((double)var4 < Option.FRAMERATE_LIMIT.getMaxValue()) {
-            RenderSystem.limitDisplayFPS(var4);
+        int var5 = this.getFramerateLimit();
+        if ((double)var5 < Option.FRAMERATE_LIMIT.getMaxValue()) {
+            RenderSystem.limitDisplayFPS(var5);
         }
 
         this.profiler.popPush("yield");
@@ -934,22 +945,23 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.profiler.pop();
         this.window.setErrorSection("Post render");
         ++this.frames;
-        boolean var5 = this.hasSingleplayerServer()
+        boolean var6 = this.hasSingleplayerServer()
             && (this.screen != null && this.screen.isPauseScreen() || this.overlay != null && this.overlay.isPauseScreen())
             && !this.singleplayerServer.isPublished();
-        if (this.pause != var5) {
+        if (this.pause != var6) {
             if (this.pause) {
                 this.pausePartialTick = this.timer.partialTick;
             } else {
                 this.timer.partialTick = this.pausePartialTick;
             }
 
-            this.pause = var5;
+            this.pause = var6;
         }
 
-        long var6 = Util.getNanos();
-        this.frameTimer.logFrameDuration(var6 - this.lastNanoTime);
-        this.lastNanoTime = var6;
+        long var7 = Util.getNanos();
+        this.frameTimer.logFrameDuration(var7 - this.lastNanoTime);
+        this.lastNanoTime = var7;
+        this.profiler.push("fpsUpdate");
 
         while(Util.getMillis() >= this.lastTime + 1000L) {
             fps = this.frames;
@@ -970,7 +982,38 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             }
         }
 
-        this.profiler.endTick();
+        this.profiler.pop();
+    }
+
+    private boolean shouldRenderFpsPie() {
+        return this.options.renderDebug && this.options.renderDebugCharts && !this.options.hideGui;
+    }
+
+    private void startProfilers(boolean param0, @Nullable SingleTickProfiler param1) {
+        if (param0) {
+            if (!this.fpsPieProfiler.isEnabled()) {
+                this.fpsPieRenderTicks = 0;
+                this.fpsPieProfiler.enable();
+            }
+
+            ++this.fpsPieRenderTicks;
+        } else {
+            this.fpsPieProfiler.disable();
+        }
+
+        this.profiler = SingleTickProfiler.decorateFiller(this.fpsPieProfiler.getFiller(), param1);
+    }
+
+    private void finishProfilers(boolean param0, @Nullable SingleTickProfiler param1) {
+        if (param1 != null) {
+            param1.endTick();
+        }
+
+        if (param0) {
+            this.fpsPieResults = this.fpsPieProfiler.getResults();
+        }
+
+        this.profiler = this.fpsPieProfiler.getFiller();
     }
 
     @Override
@@ -1012,135 +1055,131 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     }
 
     void debugFpsMeterKeyPress(int param0) {
-        ProfileResults var0 = this.profiler.continuous().getResults();
-        List<ResultField> var1 = var0.getTimes(this.debugPath);
-        if (!var1.isEmpty()) {
-            ResultField var2 = var1.remove(0);
-            if (param0 == 0) {
-                if (!var2.name.isEmpty()) {
-                    int var3 = this.debugPath.lastIndexOf(30);
-                    if (var3 >= 0) {
-                        this.debugPath = this.debugPath.substring(0, var3);
+        if (this.fpsPieResults != null) {
+            List<ResultField> var0 = this.fpsPieResults.getTimes(this.debugPath);
+            if (!var0.isEmpty()) {
+                ResultField var1 = var0.remove(0);
+                if (param0 == 0) {
+                    if (!var1.name.isEmpty()) {
+                        int var2 = this.debugPath.lastIndexOf(30);
+                        if (var2 >= 0) {
+                            this.debugPath = this.debugPath.substring(0, var2);
+                        }
                     }
-                }
-            } else {
-                --param0;
-                if (param0 < var1.size() && !"unspecified".equals(var1.get(param0).name)) {
-                    if (!this.debugPath.isEmpty()) {
-                        this.debugPath = this.debugPath + '\u001e';
-                    }
+                } else {
+                    --param0;
+                    if (param0 < var0.size() && !"unspecified".equals(var0.get(param0).name)) {
+                        if (!this.debugPath.isEmpty()) {
+                            this.debugPath = this.debugPath + '\u001e';
+                        }
 
-                    this.debugPath = this.debugPath + var1.get(param0).name;
+                        this.debugPath = this.debugPath + var0.get(param0).name;
+                    }
                 }
+
             }
-
         }
     }
 
-    private void renderFpsMeter() {
-        if (this.profiler.continuous().isEnabled()) {
-            ProfileResults var0 = this.profiler.continuous().getResults();
-            List<ResultField> var1 = var0.getTimes(this.debugPath);
-            ResultField var2 = var1.remove(0);
-            RenderSystem.clear(256, ON_OSX);
-            RenderSystem.matrixMode(5889);
-            RenderSystem.loadIdentity();
-            RenderSystem.ortho(0.0, (double)this.window.getWidth(), (double)this.window.getHeight(), 0.0, 1000.0, 3000.0);
-            RenderSystem.matrixMode(5888);
-            RenderSystem.loadIdentity();
-            RenderSystem.translatef(0.0F, 0.0F, -2000.0F);
-            RenderSystem.lineWidth(1.0F);
-            RenderSystem.disableTexture();
-            Tesselator var3 = Tesselator.getInstance();
-            BufferBuilder var4 = var3.getBuilder();
-            int var5 = 160;
-            int var6 = this.window.getWidth() - 160 - 10;
-            int var7 = this.window.getHeight() - 320;
-            RenderSystem.enableBlend();
-            var4.begin(7, DefaultVertexFormat.POSITION_COLOR);
-            var4.vertex((double)((float)var6 - 176.0F), (double)((float)var7 - 96.0F - 16.0F), 0.0).color(200, 0, 0, 0).endVertex();
-            var4.vertex((double)((float)var6 - 176.0F), (double)(var7 + 320), 0.0).color(200, 0, 0, 0).endVertex();
-            var4.vertex((double)((float)var6 + 176.0F), (double)(var7 + 320), 0.0).color(200, 0, 0, 0).endVertex();
-            var4.vertex((double)((float)var6 + 176.0F), (double)((float)var7 - 96.0F - 16.0F), 0.0).color(200, 0, 0, 0).endVertex();
-            var3.end();
-            RenderSystem.disableBlend();
-            double var8 = 0.0;
+    private void renderFpsMeter(ProfileResults param0) {
+        List<ResultField> var0 = param0.getTimes(this.debugPath);
+        ResultField var1 = var0.remove(0);
+        RenderSystem.clear(256, ON_OSX);
+        RenderSystem.matrixMode(5889);
+        RenderSystem.loadIdentity();
+        RenderSystem.ortho(0.0, (double)this.window.getWidth(), (double)this.window.getHeight(), 0.0, 1000.0, 3000.0);
+        RenderSystem.matrixMode(5888);
+        RenderSystem.loadIdentity();
+        RenderSystem.translatef(0.0F, 0.0F, -2000.0F);
+        RenderSystem.lineWidth(1.0F);
+        RenderSystem.disableTexture();
+        Tesselator var2 = Tesselator.getInstance();
+        BufferBuilder var3 = var2.getBuilder();
+        int var4 = 160;
+        int var5 = this.window.getWidth() - 160 - 10;
+        int var6 = this.window.getHeight() - 320;
+        RenderSystem.enableBlend();
+        var3.begin(7, DefaultVertexFormat.POSITION_COLOR);
+        var3.vertex((double)((float)var5 - 176.0F), (double)((float)var6 - 96.0F - 16.0F), 0.0).color(200, 0, 0, 0).endVertex();
+        var3.vertex((double)((float)var5 - 176.0F), (double)(var6 + 320), 0.0).color(200, 0, 0, 0).endVertex();
+        var3.vertex((double)((float)var5 + 176.0F), (double)(var6 + 320), 0.0).color(200, 0, 0, 0).endVertex();
+        var3.vertex((double)((float)var5 + 176.0F), (double)((float)var6 - 96.0F - 16.0F), 0.0).color(200, 0, 0, 0).endVertex();
+        var2.end();
+        RenderSystem.disableBlend();
+        double var7 = 0.0;
 
-            for(ResultField var9 : var1) {
-                int var10 = Mth.floor(var9.percentage / 4.0) + 1;
-                var4.begin(6, DefaultVertexFormat.POSITION_COLOR);
-                int var11 = var9.getColor();
-                int var12 = var11 >> 16 & 0xFF;
-                int var13 = var11 >> 8 & 0xFF;
-                int var14 = var11 & 0xFF;
-                var4.vertex((double)var6, (double)var7, 0.0).color(var12, var13, var14, 255).endVertex();
+        for(ResultField var8 : var0) {
+            int var9 = Mth.floor(var8.percentage / 4.0) + 1;
+            var3.begin(6, DefaultVertexFormat.POSITION_COLOR);
+            int var10 = var8.getColor();
+            int var11 = var10 >> 16 & 0xFF;
+            int var12 = var10 >> 8 & 0xFF;
+            int var13 = var10 & 0xFF;
+            var3.vertex((double)var5, (double)var6, 0.0).color(var11, var12, var13, 255).endVertex();
 
-                for(int var15 = var10; var15 >= 0; --var15) {
-                    float var16 = (float)((var8 + var9.percentage * (double)var15 / (double)var10) * (float) (Math.PI * 2) / 100.0);
-                    float var17 = Mth.sin(var16) * 160.0F;
-                    float var18 = Mth.cos(var16) * 160.0F * 0.5F;
-                    var4.vertex((double)((float)var6 + var17), (double)((float)var7 - var18), 0.0).color(var12, var13, var14, 255).endVertex();
+            for(int var14 = var9; var14 >= 0; --var14) {
+                float var15 = (float)((var7 + var8.percentage * (double)var14 / (double)var9) * (float) (Math.PI * 2) / 100.0);
+                float var16 = Mth.sin(var15) * 160.0F;
+                float var17 = Mth.cos(var15) * 160.0F * 0.5F;
+                var3.vertex((double)((float)var5 + var16), (double)((float)var6 - var17), 0.0).color(var11, var12, var13, 255).endVertex();
+            }
+
+            var2.end();
+            var3.begin(5, DefaultVertexFormat.POSITION_COLOR);
+
+            for(int var18 = var9; var18 >= 0; --var18) {
+                float var19 = (float)((var7 + var8.percentage * (double)var18 / (double)var9) * (float) (Math.PI * 2) / 100.0);
+                float var20 = Mth.sin(var19) * 160.0F;
+                float var21 = Mth.cos(var19) * 160.0F * 0.5F;
+                if (!(var21 > 0.0F)) {
+                    var3.vertex((double)((float)var5 + var20), (double)((float)var6 - var21), 0.0).color(var11 >> 1, var12 >> 1, var13 >> 1, 255).endVertex();
+                    var3.vertex((double)((float)var5 + var20), (double)((float)var6 - var21 + 10.0F), 0.0)
+                        .color(var11 >> 1, var12 >> 1, var13 >> 1, 255)
+                        .endVertex();
                 }
-
-                var3.end();
-                var4.begin(5, DefaultVertexFormat.POSITION_COLOR);
-
-                for(int var19 = var10; var19 >= 0; --var19) {
-                    float var20 = (float)((var8 + var9.percentage * (double)var19 / (double)var10) * (float) (Math.PI * 2) / 100.0);
-                    float var21 = Mth.sin(var20) * 160.0F;
-                    float var22 = Mth.cos(var20) * 160.0F * 0.5F;
-                    if (!(var22 > 0.0F)) {
-                        var4.vertex((double)((float)var6 + var21), (double)((float)var7 - var22), 0.0)
-                            .color(var12 >> 1, var13 >> 1, var14 >> 1, 255)
-                            .endVertex();
-                        var4.vertex((double)((float)var6 + var21), (double)((float)var7 - var22 + 10.0F), 0.0)
-                            .color(var12 >> 1, var13 >> 1, var14 >> 1, 255)
-                            .endVertex();
-                    }
-                }
-
-                var3.end();
-                var8 += var9.percentage;
             }
 
-            DecimalFormat var23 = new DecimalFormat("##0.00");
-            var23.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ROOT));
-            RenderSystem.enableTexture();
-            String var24 = ProfileResults.demanglePath(var2.name);
-            String var25 = "";
-            if (!"unspecified".equals(var24)) {
-                var25 = var25 + "[0] ";
-            }
-
-            if (var24.isEmpty()) {
-                var25 = var25 + "ROOT ";
-            } else {
-                var25 = var25 + var24 + ' ';
-            }
-
-            int var26 = 16777215;
-            this.font.drawShadow(var25, (float)(var6 - 160), (float)(var7 - 80 - 16), 16777215);
-            var25 = var23.format(var2.globalPercentage) + "%";
-            this.font.drawShadow(var25, (float)(var6 + 160 - this.font.width(var25)), (float)(var7 - 80 - 16), 16777215);
-
-            for(int var27 = 0; var27 < var1.size(); ++var27) {
-                ResultField var28 = var1.get(var27);
-                StringBuilder var29 = new StringBuilder();
-                if ("unspecified".equals(var28.name)) {
-                    var29.append("[?] ");
-                } else {
-                    var29.append("[").append(var27 + 1).append("] ");
-                }
-
-                String var30 = var29.append(var28.name).toString();
-                this.font.drawShadow(var30, (float)(var6 - 160), (float)(var7 + 80 + var27 * 8 + 20), var28.getColor());
-                var30 = var23.format(var28.percentage) + "%";
-                this.font.drawShadow(var30, (float)(var6 + 160 - 50 - this.font.width(var30)), (float)(var7 + 80 + var27 * 8 + 20), var28.getColor());
-                var30 = var23.format(var28.globalPercentage) + "%";
-                this.font.drawShadow(var30, (float)(var6 + 160 - this.font.width(var30)), (float)(var7 + 80 + var27 * 8 + 20), var28.getColor());
-            }
-
+            var2.end();
+            var7 += var8.percentage;
         }
+
+        DecimalFormat var22 = new DecimalFormat("##0.00");
+        var22.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ROOT));
+        RenderSystem.enableTexture();
+        String var23 = ProfileResults.demanglePath(var1.name);
+        String var24 = "";
+        if (!"unspecified".equals(var23)) {
+            var24 = var24 + "[0] ";
+        }
+
+        if (var23.isEmpty()) {
+            var24 = var24 + "ROOT ";
+        } else {
+            var24 = var24 + var23 + ' ';
+        }
+
+        int var25 = 16777215;
+        this.font.drawShadow(var24, (float)(var5 - 160), (float)(var6 - 80 - 16), 16777215);
+        var24 = var22.format(var1.globalPercentage) + "%";
+        this.font.drawShadow(var24, (float)(var5 + 160 - this.font.width(var24)), (float)(var6 - 80 - 16), 16777215);
+
+        for(int var26 = 0; var26 < var0.size(); ++var26) {
+            ResultField var27 = var0.get(var26);
+            StringBuilder var28 = new StringBuilder();
+            if ("unspecified".equals(var27.name)) {
+                var28.append("[?] ");
+            } else {
+                var28.append("[").append(var26 + 1).append("] ");
+            }
+
+            String var29 = var28.append(var27.name).toString();
+            this.font.drawShadow(var29, (float)(var5 - 160), (float)(var6 + 80 + var26 * 8 + 20), var27.getColor());
+            var29 = var22.format(var27.percentage) + "%";
+            this.font.drawShadow(var29, (float)(var5 + 160 - 50 - this.font.width(var29)), (float)(var6 + 80 + var26 * 8 + 20), var27.getColor());
+            var29 = var22.format(var27.globalPercentage) + "%";
+            this.font.drawShadow(var29, (float)(var5 + 160 - this.font.width(var29)), (float)(var6 + 80 + var26 * 8 + 20), var27.getColor());
+        }
+
     }
 
     public void stop() {
@@ -1558,6 +1597,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
         LevelLoadingScreen var9 = new LevelLoadingScreen(this.progressListener.get());
         this.setScreen(var9);
+        this.profiler.push("waitForServer");
 
         while(!this.singleplayerServer.isReady()) {
             var9.tick();
@@ -1574,6 +1614,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             }
         }
 
+        this.profiler.pop();
         SocketAddress var10 = this.singleplayerServer.getConnection().startMemoryChannel();
         Connection var11 = Connection.connectToLocalServer(var10);
         var11.setListener(new ClientHandshakePacketListenerImpl(var11, this, null, param0x -> {
@@ -1620,9 +1661,13 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.updateScreenAndTick(param0);
         if (this.level != null) {
             if (var1 != null) {
+                this.profiler.push("waitForServer");
+
                 while(!var1.isShutdown()) {
                     this.runTick(false);
                 }
+
+                this.profiler.pop();
             }
 
             this.clientPackSource.clearServerPack();
@@ -1638,12 +1683,14 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     }
 
     private void updateScreenAndTick(Screen param0) {
+        this.profiler.push("forcedTick");
         this.musicManager.stopPlaying();
         this.soundManager.stop();
         this.cameraEntity = null;
         this.pendingConnection = null;
         this.setScreen(param0);
         this.runTick(false);
+        this.profiler.pop();
     }
 
     private void updateLevelInEngines(@Nullable ClientLevel param0) {

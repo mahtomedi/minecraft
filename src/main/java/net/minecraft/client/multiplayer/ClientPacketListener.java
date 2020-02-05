@@ -348,7 +348,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
             new LevelSettings(param0.getSeed(), param0.getGameType(), false, param0.isHardcore(), param0.getLevelType()),
             param0.getDimension(),
             this.serverChunkRadius,
-            this.minecraft.getProfiler(),
+            this.minecraft::getProfiler,
             this.minecraft.levelRenderer
         );
         this.minecraft.setLevel(this.level);
@@ -1035,7 +1035,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
                 new LevelSettings(param0.getSeed(), param0.getPlayerGameType(), false, this.minecraft.level.getLevelData().isHardcore(), param0.getLevelType()),
                 param0.getDimension(),
                 this.serverChunkRadius,
-                this.minecraft.getProfiler(),
+                this.minecraft::getProfiler,
                 this.minecraft.levelRenderer
             );
             this.level.setScoreboard(var3);

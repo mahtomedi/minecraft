@@ -53,7 +53,7 @@ public class Silverfish extends Monster {
 
     @Override
     protected float getStandingEyeHeight(Pose param0, EntityDimensions param1) {
-        return 0.1F;
+        return 0.13F;
     }
 
     @Override

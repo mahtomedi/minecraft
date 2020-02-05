@@ -80,7 +80,10 @@ public class ItemBlockRenderTypes {
         param0.put(Blocks.RED_MUSHROOM, var1);
         param0.put(Blocks.TORCH, var1);
         param0.put(Blocks.WALL_TORCH, var1);
+        param0.put(Blocks.SOUL_FIRE_TORCH, var1);
+        param0.put(Blocks.SOUL_FIRE_WALL_TORCH, var1);
         param0.put(Blocks.FIRE, var1);
+        param0.put(Blocks.SOUL_FIRE, var1);
         param0.put(Blocks.SPAWNER, var1);
         param0.put(Blocks.REDSTONE_WIRE, var1);
         param0.put(Blocks.WHEAT, var1);
@@ -99,6 +102,8 @@ public class ItemBlockRenderTypes {
         param0.put(Blocks.JUNGLE_TRAPDOOR, var1);
         param0.put(Blocks.ACACIA_TRAPDOOR, var1);
         param0.put(Blocks.DARK_OAK_TRAPDOOR, var1);
+        param0.put(Blocks.CRIMSON_TRAPDOOR, var1);
+        param0.put(Blocks.WARPED_TRAPDOOR, var1);
         param0.put(Blocks.ATTACHED_PUMPKIN_STEM, var1);
         param0.put(Blocks.ATTACHED_MELON_STEM, var1);
         param0.put(Blocks.PUMPKIN_STEM, var1);
@@ -195,8 +200,16 @@ public class ItemBlockRenderTypes {
         param0.put(Blocks.SCAFFOLDING, var1);
         param0.put(Blocks.STONECUTTER, var1);
         param0.put(Blocks.LANTERN, var1);
+        param0.put(Blocks.SOUL_FIRE_LANTERN, var1);
         param0.put(Blocks.CAMPFIRE, var1);
         param0.put(Blocks.SWEET_BERRY_BUSH, var1);
+        param0.put(Blocks.WEEPING_VINES_PLANT, var1);
+        param0.put(Blocks.WEEPING_VINES, var1);
+        param0.put(Blocks.NETHER_SPROUTS, var1);
+        param0.put(Blocks.CRIMSON_FUNGI, var1);
+        param0.put(Blocks.WARPED_FUNGI, var1);
+        param0.put(Blocks.CRIMSON_ROOTS, var1);
+        param0.put(Blocks.WARPED_ROOTS, var1);
         RenderType var2 = RenderType.translucent();
         param0.put(Blocks.ICE, var2);
         param0.put(Blocks.NETHER_PORTAL, var2);
@@ -257,7 +270,7 @@ public class ItemBlockRenderTypes {
 
     public static RenderType getRenderType(BlockState param0) {
         RenderType var0 = getChunkRenderType(param0);
-        return var0 == RenderType.translucent() ? Sheets.translucentBlockSheet() : Sheets.cutoutBlockSheet();
+        return var0 == RenderType.translucent() ? Sheets.translucentCullBlockSheet() : Sheets.cutoutBlockSheet();
     }
 
     public static RenderType getRenderType(ItemStack param0) {
@@ -266,7 +279,7 @@ public class ItemBlockRenderTypes {
             Block var1 = ((BlockItem)var0).getBlock();
             return getRenderType(var1.defaultBlockState());
         } else {
-            return Sheets.translucentBlockSheet();
+            return Sheets.translucentCullBlockSheet();
         }
     }
 

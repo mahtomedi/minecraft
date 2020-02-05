@@ -184,7 +184,7 @@ public class ParrotModel extends ListModel<Parrot> {
     private static ParrotModel.State getState(Parrot param0) {
         if (param0.isPartyParrot()) {
             return ParrotModel.State.PARTY;
-        } else if (param0.isSitting()) {
+        } else if (param0.isInSittingPose()) {
             return ParrotModel.State.SITTING;
         } else {
             return param0.isFlying() ? ParrotModel.State.FLYING : ParrotModel.State.STANDING;

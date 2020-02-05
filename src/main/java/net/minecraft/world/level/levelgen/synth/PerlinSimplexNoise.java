@@ -1,7 +1,9 @@
 package net.minecraft.world.level.levelgen.synth;
 
+import com.google.common.collect.ImmutableList;
 import it.unimi.dsi.fastutil.ints.IntRBTreeSet;
 import it.unimi.dsi.fastutil.ints.IntSortedSet;
+import java.util.List;
 import java.util.stream.IntStream;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 
@@ -10,11 +12,15 @@ public class PerlinSimplexNoise implements SurfaceNoise {
     private final double highestFreqValueFactor;
     private final double highestFreqInputFactor;
 
-    public PerlinSimplexNoise(WorldgenRandom param0, int param1, int param2) {
-        this(param0, new IntRBTreeSet(IntStream.rangeClosed(-param1, param2).toArray()));
+    public PerlinSimplexNoise(WorldgenRandom param0, IntStream param1) {
+        this(param0, param1.boxed().collect(ImmutableList.toImmutableList()));
     }
 
-    public PerlinSimplexNoise(WorldgenRandom param0, IntSortedSet param1) {
+    public PerlinSimplexNoise(WorldgenRandom param0, List<Integer> param1) {
+        this(param0, new IntRBTreeSet(param1));
+    }
+
+    private PerlinSimplexNoise(WorldgenRandom param0, IntSortedSet param1) {
         if (param1.isEmpty()) {
             throw new IllegalArgumentException("Need some octaves!");
         } else {

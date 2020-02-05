@@ -16,6 +16,7 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -101,7 +102,7 @@ public abstract class LavaFluid extends FlowingFluid {
                     }
 
                     if (param0.isEmptyBlock(var5.above()) && this.isFlammable(param0, var5)) {
-                        param0.setBlockAndUpdate(var5.above(), Blocks.FIRE.defaultBlockState());
+                        param0.setBlockAndUpdate(var5.above(), BaseFireBlock.getState(param0, var5));
                     }
                 }
             }

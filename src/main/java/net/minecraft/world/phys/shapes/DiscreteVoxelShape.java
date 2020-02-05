@@ -60,30 +60,6 @@ public abstract class DiscreteVoxelShape {
     public abstract int lastFull(Direction.Axis var1);
 
     @OnlyIn(Dist.CLIENT)
-    public int firstFull(Direction.Axis param0, int param1, int param2) {
-        int var0 = this.getSize(param0);
-        if (param1 >= 0 && param2 >= 0) {
-            Direction.Axis var1 = AxisCycle.FORWARD.cycle(param0);
-            Direction.Axis var2 = AxisCycle.BACKWARD.cycle(param0);
-            if (param1 < this.getSize(var1) && param2 < this.getSize(var2)) {
-                AxisCycle var3 = AxisCycle.between(Direction.Axis.X, param0);
-
-                for(int var4 = 0; var4 < var0; ++var4) {
-                    if (this.isFull(var3, var4, param1, param2)) {
-                        return var4;
-                    }
-                }
-
-                return var0;
-            } else {
-                return var0;
-            }
-        } else {
-            return var0;
-        }
-    }
-
-    @OnlyIn(Dist.CLIENT)
     public int lastFull(Direction.Axis param0, int param1, int param2) {
         if (param1 >= 0 && param2 >= 0) {
             Direction.Axis var0 = AxisCycle.FORWARD.cycle(param0);

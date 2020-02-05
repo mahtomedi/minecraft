@@ -56,6 +56,27 @@ public class StonecutterScreen extends AbstractContainerScreen<StonecutterMenu> 
         this.renderRecipes(var3, var4, var5);
     }
 
+    @Override
+    protected void renderTooltip(int param0, int param1) {
+        super.renderTooltip(param0, param1);
+        if (this.displayRecipes) {
+            int var0 = this.leftPos + 52;
+            int var1 = this.topPos + 14;
+            int var2 = this.startIndex + 12;
+            List<StonecutterRecipe> var3 = this.menu.getRecipes();
+
+            for(int var4 = this.startIndex; var4 < var2 && var4 < this.menu.getNumRecipes(); ++var4) {
+                int var5 = var4 - this.startIndex;
+                int var6 = var0 + var5 % 4 * 16;
+                int var7 = var1 + var5 / 4 * 18 + 2;
+                if (param0 >= var6 && param0 < var6 + 16 && param1 >= var7 && param1 < var7 + 18) {
+                    this.renderTooltip(var3.get(var4).getResultItem(), param0, param1);
+                }
+            }
+        }
+
+    }
+
     private void renderButtons(int param0, int param1, int param2, int param3, int param4) {
         for(int var0 = this.startIndex; var0 < param4 && var0 < this.menu.getNumRecipes(); ++var0) {
             int var1 = var0 - this.startIndex;

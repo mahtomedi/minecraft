@@ -11,6 +11,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.function.IntSupplier;
+import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
@@ -26,6 +27,7 @@ public class ActiveProfiler implements ProfileCollector {
     private final LongList startTimes = new LongArrayList();
     private final Map<String, ActiveProfiler.PathEntry> entries = Maps.newHashMap();
     private final IntSupplier getTickTime;
+    private final LongSupplier getRealTime;
     private final long startTimeNano;
     private final int startTimeTicks;
     private String path = "";
@@ -34,8 +36,9 @@ public class ActiveProfiler implements ProfileCollector {
     private ActiveProfiler.PathEntry currentEntry;
     private final boolean warn;
 
-    public ActiveProfiler(long param0, IntSupplier param1, boolean param2) {
-        this.startTimeNano = param0;
+    public ActiveProfiler(LongSupplier param0, IntSupplier param1, boolean param2) {
+        this.startTimeNano = param0.getAsLong();
+        this.getRealTime = param0;
         this.startTimeTicks = param1.getAsInt();
         this.getTickTime = param1;
         this.warn = param2;
@@ -146,7 +149,7 @@ public class ActiveProfiler implements ProfileCollector {
 
     @Override
     public ProfileResults getResults() {
-        return new FilledProfileResults(this.entries, this.startTimeNano, this.startTimeTicks, Util.getNanos(), this.getTickTime.getAsInt());
+        return new FilledProfileResults(this.entries, this.startTimeNano, this.startTimeTicks, this.getRealTime.getAsLong(), this.getTickTime.getAsInt());
     }
 
     static class PathEntry implements ProfilerPathEntry {

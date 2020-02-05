@@ -5,6 +5,7 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.apache.logging.log4j.LogManager;
@@ -25,11 +26,11 @@ public class GoalSelector {
     };
     private final Map<Goal.Flag, WrappedGoal> lockedFlags = new EnumMap<>(Goal.Flag.class);
     private final Set<WrappedGoal> availableGoals = Sets.newLinkedHashSet();
-    private final ProfilerFiller profiler;
+    private final Supplier<ProfilerFiller> profiler;
     private final EnumSet<Goal.Flag> disabledFlags = EnumSet.noneOf(Goal.Flag.class);
     private int newGoalRate = 3;
 
-    public GoalSelector(ProfilerFiller param0) {
+    public GoalSelector(Supplier<ProfilerFiller> param0) {
         this.profiler = param0;
     }
 
@@ -43,7 +44,8 @@ public class GoalSelector {
     }
 
     public void tick() {
-        this.profiler.push("goalCleanup");
+        ProfilerFiller var0 = this.profiler.get();
+        var0.push("goalCleanup");
         this.getRunningGoals()
             .filter(param0 -> !param0.isRunning() || param0.getFlags().stream().anyMatch(this.disabledFlags::contains) || !param0.canContinueToUse())
             .forEach(Goal::stop);
@@ -53,8 +55,8 @@ public class GoalSelector {
             }
 
         });
-        this.profiler.pop();
-        this.profiler.push("goalUpdate");
+        var0.pop();
+        var0.push("goalUpdate");
         this.availableGoals
             .stream()
             .filter(param0 -> !param0.isRunning())
@@ -63,16 +65,16 @@ public class GoalSelector {
             .filter(WrappedGoal::canUse)
             .forEach(param0 -> {
                 param0.getFlags().forEach(param1 -> {
-                    WrappedGoal var0 = this.lockedFlags.getOrDefault(param1, NO_GOAL);
-                    var0.stop();
+                    WrappedGoal var0x = this.lockedFlags.getOrDefault(param1, NO_GOAL);
+                    var0x.stop();
                     this.lockedFlags.put(param1, param0);
                 });
                 param0.start();
             });
-        this.profiler.pop();
-        this.profiler.push("goalTick");
+        var0.pop();
+        var0.push("goalTick");
         this.getRunningGoals().forEach(WrappedGoal::tick);
-        this.profiler.pop();
+        var0.pop();
     }
 
     public Stream<WrappedGoal> getRunningGoals() {

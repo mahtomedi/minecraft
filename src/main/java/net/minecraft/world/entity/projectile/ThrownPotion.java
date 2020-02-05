@@ -9,6 +9,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -194,7 +195,7 @@ public class ThrownPotion extends ThrowableProjectile implements ItemSupplier {
     private void dowseFire(BlockPos param0, Direction param1) {
         BlockState var0 = this.level.getBlockState(param0);
         Block var1 = var0.getBlock();
-        if (var1 == Blocks.FIRE) {
+        if (var0.is(BlockTags.FIRE)) {
             this.level.extinguishFire(null, param0.relative(param1), param1.getOpposite());
         } else if (var1 == Blocks.CAMPFIRE && var0.getValue(CampfireBlock.LIT)) {
             this.level.levelEvent(null, 1009, param0, 0);

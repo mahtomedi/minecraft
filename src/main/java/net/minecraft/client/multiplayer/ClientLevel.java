@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
@@ -91,7 +92,9 @@ public class ClientLevel extends Level {
         param0x.put(BiomeColors.WATER_COLOR_RESOLVER, new BlockTintCache());
     });
 
-    public ClientLevel(ClientPacketListener param0, LevelSettings param1, DimensionType param2, int param3, ProfilerFiller param4, LevelRenderer param5) {
+    public ClientLevel(
+        ClientPacketListener param0, LevelSettings param1, DimensionType param2, int param3, Supplier<ProfilerFiller> param4, LevelRenderer param5
+    ) {
         super(new LevelData(param1, "MpServer"), param2, (param1x, param2x) -> new ClientChunkCache((ClientLevel)param1x, param3), param4, true);
         this.connection = param0;
         this.levelRenderer = param5;
@@ -378,6 +381,27 @@ public class ClientLevel extends Level {
 
         if (param5 && var3.getBlock() == Blocks.BARRIER) {
             this.addParticle(ParticleTypes.BARRIER, (double)var0 + 0.5, (double)var1 + 0.5, (double)var2 + 0.5, 0.0, 0.0, 0.0);
+        }
+
+        if (!var3.isCollisionShapeFullBlock(this, param6)) {
+            this.getBiome(param6)
+                .getAmbientParticle()
+                .ifPresent(
+                    param1x -> {
+                        if (param1x.canSpawn(this.random)) {
+                            this.addParticle(
+                                param1x.getParticleType(),
+                                (double)((float)param6.getX() + this.random.nextFloat()),
+                                (double)((float)param6.getY() + this.random.nextFloat()),
+                                (double)((float)param6.getZ() + this.random.nextFloat()),
+                                param1x.getXVelocity(this.random),
+                                param1x.getYVelocity(this.random),
+                                param1x.getZVelocity(this.random)
+                            );
+                        }
+        
+                    }
+                );
         }
 
     }
@@ -717,11 +741,6 @@ public class ClientLevel extends Level {
         }
 
         return new Vec3((double)var2, (double)var3, (double)var4);
-    }
-
-    public Vec3 getFogColor(float param0) {
-        float var0 = this.getTimeOfDay(param0);
-        return this.dimension.getFogColor(var0, param0);
     }
 
     public float getStarBrightness(float param0) {

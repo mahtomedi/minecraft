@@ -17,6 +17,7 @@ import net.minecraft.tags.Tag;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.Nameable;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
@@ -537,19 +538,19 @@ public class Inventory implements Container, Nameable {
         return this.armor.get(param0);
     }
 
-    public void hurtArmor(float param0) {
-        if (!(param0 <= 0.0F)) {
-            param0 /= 4.0F;
-            if (param0 < 1.0F) {
-                param0 = 1.0F;
+    public void hurtArmor(DamageSource param0, float param1) {
+        if (!(param1 <= 0.0F)) {
+            param1 /= 4.0F;
+            if (param1 < 1.0F) {
+                param1 = 1.0F;
             }
 
             for(int var0 = 0; var0 < this.armor.size(); ++var0) {
                 ItemStack var1 = this.armor.get(var0);
-                if (var1.getItem() instanceof ArmorItem) {
+                if ((!param0.isFire() || !var1.getItem().isFireResistant()) && var1.getItem() instanceof ArmorItem) {
                     int var2 = var0;
                     var1.hurtAndBreak(
-                        (int)param0, this.player, param1 -> param1.broadcastBreakEvent(EquipmentSlot.byTypeAndIndex(EquipmentSlot.Type.ARMOR, var2))
+                        (int)param1, this.player, param1x -> param1x.broadcastBreakEvent(EquipmentSlot.byTypeAndIndex(EquipmentSlot.Type.ARMOR, var2))
                     );
                 }
             }

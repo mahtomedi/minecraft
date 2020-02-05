@@ -98,7 +98,11 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.ProgressListener;
 import net.minecraft.util.Unit;
 import net.minecraft.util.datafix.DataFixers;
-import net.minecraft.util.profiling.GameProfiler;
+import net.minecraft.util.profiling.ContinuousProfiler;
+import net.minecraft.util.profiling.InactiveProfiler;
+import net.minecraft.util.profiling.ProfileResults;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.util.profiling.SingleTickProfiler;
 import net.minecraft.util.thread.ReentrantBlockableEventLoop;
 import net.minecraft.util.worldupdate.WorldUpgrader;
 import net.minecraft.world.Difficulty;
@@ -144,7 +148,8 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     private final Snooper snooper = new Snooper("server", this, Util.getMillis());
     private final File universe;
     private final List<Runnable> tickables = Lists.newArrayList();
-    private final GameProfiler profiler = new GameProfiler(this::getTickCount);
+    private ContinuousProfiler continousProfiler = new ContinuousProfiler(Util.timeSource, this::getTickCount);
+    private ProfilerFiller profiler = InactiveProfiler.INSTANCE;
     private final ServerConnectionListener connection;
     protected final ChunkProgressListenerFactory progressListenerFactory;
     private final ServerStatus status = new ServerStatus();
@@ -378,7 +383,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             param1.setLevelSettings(DEMO_SETTINGS);
         }
 
-        ServerLevel var0 = new ServerLevel(this, this.executor, param0, param1, DimensionType.OVERWORLD, this.profiler, param3);
+        ServerLevel var0 = new ServerLevel(this, this.executor, param0, param1, DimensionType.OVERWORLD, param3);
         this.levels.put(DimensionType.OVERWORLD, var0);
         DimensionDataStorage var1 = var0.getDataStorage();
         this.readScoreboard(var1);
@@ -414,7 +419,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
         for(DimensionType var5 : DimensionType.getAllTypes()) {
             if (var5 != DimensionType.OVERWORLD) {
-                this.levels.put(var5, new DerivedServerLevel(var2, this, this.executor, param0, var5, this.profiler, param3));
+                this.levels.put(var5, new DerivedServerLevel(var2, this, this.executor, param0, var5, param3));
             }
         }
 
@@ -634,11 +639,8 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
                     }
 
                     this.nextTickTime += 50L;
-                    if (this.delayProfilerStart) {
-                        this.delayProfilerStart = false;
-                        this.profiler.continuous().enable();
-                    }
-
+                    SingleTickProfiler var2 = SingleTickProfiler.createTickProfiler("Server");
+                    this.startProfilerTick(var2);
                     this.profiler.startTick();
                     this.profiler.push("tick");
                     this.tickServer(this::haveTime);
@@ -648,6 +650,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
                     this.waitUntilNextTick();
                     this.profiler.pop();
                     this.profiler.endTick();
+                    this.endProfilerTick(var2);
                     this.isReady = true;
                 }
             } else {
@@ -655,23 +658,23 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             }
         } catch (Throwable var44) {
             LOGGER.error("Encountered an unexpected exception", var44);
-            CrashReport var4;
+            CrashReport var5;
             if (var44 instanceof ReportedException) {
-                var4 = this.fillReport(((ReportedException)var44).getReport());
+                var5 = this.fillReport(((ReportedException)var44).getReport());
             } else {
-                var4 = this.fillReport(new CrashReport("Exception in server tick loop", var44));
+                var5 = this.fillReport(new CrashReport("Exception in server tick loop", var44));
             }
 
-            File var6 = new File(
+            File var7 = new File(
                 new File(this.getServerDirectory(), "crash-reports"), "crash-" + new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss").format(new Date()) + "-server.txt"
             );
-            if (var4.saveToFile(var6)) {
-                LOGGER.error("This crash report has been saved to: {}", var6.getAbsolutePath());
+            if (var5.saveToFile(var7)) {
+                LOGGER.error("This crash report has been saved to: {}", var7.getAbsolutePath());
             } else {
                 LOGGER.error("We were unable to save this crash report to disk.");
             }
 
-            this.onServerCrash(var4);
+            this.onServerCrash(var5);
         } finally {
             try {
                 this.stopped = true;
@@ -1329,10 +1332,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         return this.tickCount;
     }
 
-    public void delayStartProfiler() {
-        this.delayProfilerStart = true;
-    }
-
     @OnlyIn(Dist.CLIENT)
     public Snooper getSnooper() {
         return this.snooper;
@@ -1586,7 +1585,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         return this.frameTimer;
     }
 
-    public GameProfiler getProfiler() {
+    public ProfilerFiller getProfiler() {
         return this.profiler;
     }
 
@@ -1680,5 +1679,36 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
     private void refreshRegistries() {
         Block.BLOCK_STATE_REGISTRY.forEach(BlockState::initCache);
+    }
+
+    private void startProfilerTick(@Nullable SingleTickProfiler param0) {
+        if (this.delayProfilerStart) {
+            this.delayProfilerStart = false;
+            this.continousProfiler.enable();
+        }
+
+        this.profiler = SingleTickProfiler.decorateFiller(this.continousProfiler.getFiller(), param0);
+    }
+
+    private void endProfilerTick(@Nullable SingleTickProfiler param0) {
+        if (param0 != null) {
+            param0.endTick();
+        }
+
+        this.profiler = this.continousProfiler.getFiller();
+    }
+
+    public boolean isProfiling() {
+        return this.continousProfiler.isEnabled();
+    }
+
+    public void startProfiling() {
+        this.delayProfilerStart = true;
+    }
+
+    public ProfileResults finishProfiling() {
+        ProfileResults var0 = this.continousProfiler.getResults();
+        this.continousProfiler.disable();
+        return var0;
     }
 }

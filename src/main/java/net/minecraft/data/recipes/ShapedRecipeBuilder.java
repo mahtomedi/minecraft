@@ -76,7 +76,7 @@ public class ShapedRecipeBuilder {
         }
     }
 
-    public ShapedRecipeBuilder unlocks(String param0, CriterionTriggerInstance param1) {
+    public ShapedRecipeBuilder unlockedBy(String param0, CriterionTriggerInstance param1) {
         this.advancement.addCriterion(param0, param1);
         return this;
     }

@@ -588,6 +588,9 @@ public final class ItemStack {
                         } else if (var12.getId() == Item.BASE_ATTACK_SPEED_UUID) {
                             var13 += param0.getAttribute(SharedMonsterAttributes.ATTACK_SPEED).getBaseValue();
                             var14 = true;
+                        } else if (var11.getKey().equals(SharedMonsterAttributes.KNOCKBACK_RESISTANCE.getName())) {
+                            var13 += param0.getAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).getBaseValue();
+                            var13 *= 10.0;
                         }
                     }
 

@@ -151,7 +151,7 @@ public class ZombieVillager extends Zombie implements VillagerDataHolder {
 
     @Override
     public boolean removeWhenFarAway(double param0) {
-        return !this.isConverting();
+        return !this.isConverting() && this.villagerXp == 0;
     }
 
     public boolean isConverting() {

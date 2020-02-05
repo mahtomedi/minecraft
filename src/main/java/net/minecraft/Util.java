@@ -99,7 +99,7 @@ public class Util {
                         super.onTermination(param0);
                     }
                 };
-                var0x.setName("Server-Worker-" + WORKER_COUNT.getAndIncrement());
+                var0x.setName("Worker-" + WORKER_COUNT.getAndIncrement());
                 return var0x;
             }, (param0, param1) -> {
                 pauseInIde(param1);

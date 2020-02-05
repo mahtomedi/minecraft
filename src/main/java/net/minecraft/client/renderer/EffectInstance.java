@@ -47,7 +47,6 @@ public class EffectInstance implements Effect, AutoCloseable {
     private final Map<String, Uniform> uniformMap = Maps.newHashMap();
     private final int programId;
     private final String name;
-    private final boolean cull;
     private boolean dirty;
     private final BlendMode blend;
     private final List<Integer> attributes;
@@ -122,7 +121,6 @@ public class EffectInstance implements Effect, AutoCloseable {
             }
 
             this.blend = parseBlendNode(GsonHelper.getAsJsonObject(var2, "blend", null));
-            this.cull = GsonHelper.getAsBoolean(var2, "cull", true);
             this.vertexProgram = getOrCreate(param0, Program.Type.VERTEX, var3);
             this.fragmentProgram = getOrCreate(param0, Program.Type.FRAGMENT, var4);
             this.programId = ProgramManager.createProgram();
@@ -251,12 +249,6 @@ public class EffectInstance implements Effect, AutoCloseable {
         if (this.programId != lastProgramId) {
             ProgramManager.glUseProgram(this.programId);
             lastProgramId = this.programId;
-        }
-
-        if (this.cull) {
-            RenderSystem.enableCull();
-        } else {
-            RenderSystem.disableCull();
         }
 
         for(int var0 = 0; var0 < this.samplerLocations.size(); ++var0) {

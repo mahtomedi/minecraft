@@ -82,6 +82,8 @@ public class ItemEntity extends Entity {
             Vec3 var0 = this.getDeltaMovement();
             if (this.isUnderLiquid(FluidTags.WATER)) {
                 this.setUnderwaterMovement();
+            } else if (this.isUnderLiquid(FluidTags.LAVA)) {
+                this.setUnderLavaMovement();
             } else if (!this.isNoGravity()) {
                 this.setDeltaMovement(this.getDeltaMovement().add(0.0, -0.04, 0.0));
             }
@@ -114,11 +116,6 @@ public class ItemEntity extends Entity {
             int var3 = var2 ? 2 : 40;
             if (this.tickCount % var3 == 0) {
                 if (this.level.getFluidState(new BlockPos(this)).is(FluidTags.LAVA)) {
-                    this.setDeltaMovement(
-                        (double)((this.random.nextFloat() - this.random.nextFloat()) * 0.2F),
-                        0.2F,
-                        (double)((this.random.nextFloat() - this.random.nextFloat()) * 0.2F)
-                    );
                     this.playSound(SoundEvents.GENERIC_BURN, 0.4F, 2.0F + this.random.nextFloat() * 0.4F);
                 }
 
@@ -149,6 +146,11 @@ public class ItemEntity extends Entity {
     private void setUnderwaterMovement() {
         Vec3 var0 = this.getDeltaMovement();
         this.setDeltaMovement(var0.x * 0.99F, var0.y + (double)(var0.y < 0.06F ? 5.0E-4F : 0.0F), var0.z * 0.99F);
+    }
+
+    private void setUnderLavaMovement() {
+        Vec3 var0 = this.getDeltaMovement();
+        this.setDeltaMovement(var0.x * 0.95F, var0.y + (double)(var0.y < 0.06F ? 5.0E-4F : 0.0F), var0.z * 0.95F);
     }
 
     private void mergeWithNeighbours() {
@@ -220,15 +222,12 @@ public class ItemEntity extends Entity {
     }
 
     @Override
-    protected void burn(int param0) {
-        this.hurt(DamageSource.IN_FIRE, (float)param0);
-    }
-
-    @Override
     public boolean hurt(DamageSource param0, float param1) {
         if (this.isInvulnerableTo(param0)) {
             return false;
         } else if (!this.getItem().isEmpty() && this.getItem().getItem() == Items.NETHER_STAR && param0.isExplosion()) {
+            return false;
+        } else if (!this.getItem().getItem().canBeHurtBy(param0)) {
             return false;
         } else {
             this.markHurt();

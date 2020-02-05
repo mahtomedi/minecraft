@@ -16,6 +16,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ShulkerSharedHelper;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -35,7 +36,6 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -81,20 +81,8 @@ public class ShulkerBoxBlock extends BaseEntityBlock {
             if (var0 instanceof ShulkerBoxBlockEntity) {
                 Direction var1 = param0.getValue(FACING);
                 ShulkerBoxBlockEntity var2 = (ShulkerBoxBlockEntity)var0;
-                boolean var4;
-                if (var2.getAnimationStatus() == ShulkerBoxBlockEntity.AnimationStatus.CLOSED) {
-                    AABB var3 = Shapes.block()
-                        .bounds()
-                        .expandTowards(
-                            (double)(0.5F * (float)var1.getStepX()), (double)(0.5F * (float)var1.getStepY()), (double)(0.5F * (float)var1.getStepZ())
-                        )
-                        .contract((double)var1.getStepX(), (double)var1.getStepY(), (double)var1.getStepZ());
-                    var4 = param1.noCollision(var3.move(param2.relative(var1)));
-                } else {
-                    var4 = true;
-                }
-
-                if (var4) {
+                if (var2.getAnimationStatus() == ShulkerBoxBlockEntity.AnimationStatus.CLOSED
+                    && param1.noCollision(ShulkerSharedHelper.openBoundingBox(param2, var1))) {
                     param3.openMenu(var2);
                     param3.awardStat(Stats.OPEN_SHULKER_BOX);
                 }
@@ -132,7 +120,7 @@ public class ShulkerBoxBlock extends BaseEntityBlock {
                     var2.setHoverName(var1.getCustomName());
                 }
 
-                ItemEntity var4 = new ItemEntity(param0, (double)param1.getX(), (double)param1.getY(), (double)param1.getZ(), var2);
+                ItemEntity var4 = new ItemEntity(param0, (double)param1.getX() + 0.5, (double)param1.getY() + 0.5, (double)param1.getZ() + 0.5, var2);
                 var4.setDefaultPickUpDelay();
                 param0.addFreshEntity(var4);
             } else {

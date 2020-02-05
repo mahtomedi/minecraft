@@ -36,6 +36,7 @@ public class ArmorItem extends Item {
     protected final EquipmentSlot slot;
     protected final int defense;
     protected final float toughness;
+    protected final float knockbackResistance;
     protected final ArmorMaterial material;
 
     public static boolean dispenseArmor(BlockSource param0, ItemStack param1) {
@@ -64,6 +65,7 @@ public class ArmorItem extends Item {
         this.slot = param1;
         this.defense = param0.getDefenseForSlot(param1);
         this.toughness = param0.getToughness();
+        this.knockbackResistance = param0.getKnockbackResistance();
         DispenserBlock.registerBehavior(this, DISPENSE_ITEM_BEHAVIOR);
     }
 
@@ -115,6 +117,17 @@ public class ArmorItem extends Item {
                     ARMOR_MODIFIER_UUID_PER_SLOT[param0.getIndex()], "Armor toughness", (double)this.toughness, AttributeModifier.Operation.ADDITION
                 )
             );
+            if (this.material == ArmorMaterials.NETHERITE) {
+                var0.put(
+                    SharedMonsterAttributes.KNOCKBACK_RESISTANCE.getName(),
+                    new AttributeModifier(
+                        ARMOR_MODIFIER_UUID_PER_SLOT[param0.getIndex()],
+                        "Armor knockback resistance",
+                        (double)this.knockbackResistance,
+                        AttributeModifier.Operation.ADDITION
+                    )
+                );
+            }
         }
 
         return var0;

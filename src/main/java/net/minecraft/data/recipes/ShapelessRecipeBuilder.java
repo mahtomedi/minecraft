@@ -70,7 +70,7 @@ public class ShapelessRecipeBuilder {
         return this;
     }
 
-    public ShapelessRecipeBuilder unlocks(String param0, CriterionTriggerInstance param1) {
+    public ShapelessRecipeBuilder unlockedBy(String param0, CriterionTriggerInstance param1) {
         this.advancement.addCriterion(param0, param1);
         return this;
     }

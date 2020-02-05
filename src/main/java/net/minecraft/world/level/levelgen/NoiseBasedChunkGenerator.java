@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectListIterator;
 import java.util.Random;
+import java.util.stream.IntStream;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.WorldGenRegion;
@@ -66,10 +67,12 @@ public abstract class NoiseBasedChunkGenerator<T extends ChunkGeneratorSettings>
         this.chunkCountY = param4 / this.chunkHeight;
         this.chunkCountZ = 16 / this.chunkWidth;
         this.random = new WorldgenRandom(this.seed);
-        this.minLimitPerlinNoise = new PerlinNoise(this.random, 15, 0);
-        this.maxLimitPerlinNoise = new PerlinNoise(this.random, 15, 0);
-        this.mainPerlinNoise = new PerlinNoise(this.random, 7, 0);
-        this.surfaceNoise = (SurfaceNoise)(param6 ? new PerlinSimplexNoise(this.random, 3, 0) : new PerlinNoise(this.random, 3, 0));
+        this.minLimitPerlinNoise = new PerlinNoise(this.random, IntStream.rangeClosed(-15, 0));
+        this.maxLimitPerlinNoise = new PerlinNoise(this.random, IntStream.rangeClosed(-15, 0));
+        this.mainPerlinNoise = new PerlinNoise(this.random, IntStream.rangeClosed(-7, 0));
+        this.surfaceNoise = (SurfaceNoise)(param6
+            ? new PerlinSimplexNoise(this.random, IntStream.rangeClosed(-3, 0))
+            : new PerlinNoise(this.random, IntStream.rangeClosed(-3, 0)));
     }
 
     private double sampleAndClampNoise(int param0, int param1, int param2, double param3, double param4, double param5, double param6) {

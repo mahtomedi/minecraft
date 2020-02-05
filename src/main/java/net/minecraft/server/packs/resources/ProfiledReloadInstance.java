@@ -28,8 +28,8 @@ public class ProfiledReloadInstance extends SimpleReloadInstance<ProfiledReloadI
             (param1x, param2x, param3x, param4x, param5) -> {
                 AtomicLong var0 = new AtomicLong();
                 AtomicLong var1x = new AtomicLong();
-                ActiveProfiler var2x = new ActiveProfiler(Util.getNanos(), () -> 0, false);
-                ActiveProfiler var3x = new ActiveProfiler(Util.getNanos(), () -> 0, false);
+                ActiveProfiler var2x = new ActiveProfiler(Util.timeSource, () -> 0, false);
+                ActiveProfiler var3x = new ActiveProfiler(Util.timeSource, () -> 0, false);
                 CompletableFuture<Void> var4x = param3x.reload(param1x, param2x, var2x, var3x, param2xx -> param4x.execute(() -> {
                         long var0x = Util.getNanos();
                         param2xx.run();

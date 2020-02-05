@@ -7,6 +7,7 @@ import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -36,8 +37,8 @@ public class WallTorchBlock extends TorchBlock {
         )
     );
 
-    protected WallTorchBlock(Block.Properties param0) {
-        super(param0);
+    protected WallTorchBlock(Block.Properties param0, ParticleOptions param1) {
+        super(param0, param1);
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
     }
 
@@ -100,7 +101,7 @@ public class WallTorchBlock extends TorchBlock {
         double var5 = 0.27;
         Direction var6 = var0.getOpposite();
         param1.addParticle(ParticleTypes.SMOKE, var1 + 0.27 * (double)var6.getStepX(), var2 + 0.22, var3 + 0.27 * (double)var6.getStepZ(), 0.0, 0.0, 0.0);
-        param1.addParticle(ParticleTypes.FLAME, var1 + 0.27 * (double)var6.getStepX(), var2 + 0.22, var3 + 0.27 * (double)var6.getStepZ(), 0.0, 0.0, 0.0);
+        param1.addParticle(this.flameParticle, var1 + 0.27 * (double)var6.getStepX(), var2 + 0.22, var3 + 0.27 * (double)var6.getStepZ(), 0.0, 0.0, 0.0);
     }
 
     @Override

@@ -286,6 +286,22 @@ public abstract class RenderType extends RenderStateShard {
         return create("entity_no_outline", DefaultVertexFormat.NEW_ENTITY, 7, 256, false, true, var0);
     }
 
+    public static RenderType entityShadow(ResourceLocation param0) {
+        RenderType.CompositeState var0 = RenderType.CompositeState.builder()
+            .setTextureState(new RenderStateShard.TextureStateShard(param0, false, false))
+            .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+            .setDiffuseLightingState(DIFFUSE_LIGHTING)
+            .setAlphaState(DEFAULT_ALPHA)
+            .setCullState(CULL)
+            .setLightmapState(LIGHTMAP)
+            .setOverlayState(OVERLAY)
+            .setWriteMaskState(COLOR_WRITE)
+            .setDepthTestState(LEQUAL_DEPTH_TEST)
+            .setLayeringState(SHADOW_LAYERING)
+            .createCompositeState(false);
+        return create("entity_shadow", DefaultVertexFormat.NEW_ENTITY, 7, 256, false, false, var0);
+    }
+
     public static RenderType entityAlpha(ResourceLocation param0, float param1) {
         RenderType.CompositeState var0 = RenderType.CompositeState.builder()
             .setTextureState(new RenderStateShard.TextureStateShard(param0, false, false))
@@ -344,6 +360,10 @@ public abstract class RenderType extends RenderStateShard {
     }
 
     public static RenderType outline(ResourceLocation param0) {
+        return outline(param0, NO_CULL);
+    }
+
+    public static RenderType outline(ResourceLocation param0, RenderStateShard.CullStateShard param1) {
         return create(
             "outline",
             DefaultVertexFormat.POSITION_COLOR_TEX,
@@ -351,7 +371,7 @@ public abstract class RenderType extends RenderStateShard {
             256,
             RenderType.CompositeState.builder()
                 .setTextureState(new RenderStateShard.TextureStateShard(param0, false, false))
-                .setCullState(NO_CULL)
+                .setCullState(param1)
                 .setDepthTestState(NO_DEPTH_TEST)
                 .setAlphaState(DEFAULT_ALPHA)
                 .setTexturingState(OUTLINE_TEXTURING)
@@ -554,7 +574,7 @@ public abstract class RenderType extends RenderStateShard {
             );
             this.state = param6;
             this.outline = param6.outlineProperty == RenderType.OutlineProperty.AFFECTS_OUTLINE
-                ? param6.textureState.texture().map(RenderType::outline)
+                ? param6.textureState.texture().map(param1x -> outline(param1x, param6.cullState))
                 : Optional.empty();
             this.isOutline = param6.outlineProperty == RenderType.OutlineProperty.IS_OUTLINE;
             this.hashCode = Objects.hash(super.hashCode(), param6);
@@ -584,6 +604,11 @@ public abstract class RenderType extends RenderStateShard {
         @Override
         public int hashCode() {
             return this.hashCode;
+        }
+
+        @Override
+        public String toString() {
+            return "RenderType[" + this.state + ']';
         }
 
         @OnlyIn(Dist.CLIENT)
@@ -692,6 +717,11 @@ public abstract class RenderType extends RenderStateShard {
         @Override
         public int hashCode() {
             return Objects.hash(this.states, this.outlineProperty);
+        }
+
+        @Override
+        public String toString() {
+            return "CompositeState[" + this.states + ", outlineProperty=" + this.outlineProperty + ']';
         }
 
         public static RenderType.CompositeState.CompositeStateBuilder builder() {
@@ -823,8 +853,19 @@ public abstract class RenderType extends RenderStateShard {
 
     @OnlyIn(Dist.CLIENT)
     static enum OutlineProperty {
-        NONE,
-        IS_OUTLINE,
-        AFFECTS_OUTLINE;
+        NONE("none"),
+        IS_OUTLINE("is_outline"),
+        AFFECTS_OUTLINE("affects_outline");
+
+        private final String name;
+
+        private OutlineProperty(String param0) {
+            this.name = param0;
+        }
+
+        @Override
+        public String toString() {
+            return this.name;
+        }
     }
 }

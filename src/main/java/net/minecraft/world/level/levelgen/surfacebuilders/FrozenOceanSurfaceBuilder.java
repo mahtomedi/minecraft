@@ -1,8 +1,10 @@
 package net.minecraft.world.level.levelgen.surfacebuilders;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.Dynamic;
 import java.util.Random;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
@@ -139,8 +141,8 @@ public class FrozenOceanSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBase
     public void initNoise(long param0) {
         if (this.seed != param0 || this.icebergNoise == null || this.icebergRoofNoise == null) {
             WorldgenRandom var0 = new WorldgenRandom(param0);
-            this.icebergNoise = new PerlinSimplexNoise(var0, 3, 0);
-            this.icebergRoofNoise = new PerlinSimplexNoise(var0, 0, 0);
+            this.icebergNoise = new PerlinSimplexNoise(var0, IntStream.rangeClosed(-3, 0));
+            this.icebergRoofNoise = new PerlinSimplexNoise(var0, ImmutableList.of(0));
         }
 
         this.seed = param0;

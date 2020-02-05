@@ -115,7 +115,7 @@ public class Ghast extends FlyingMob implements Enemy {
 
     @Override
     protected float getSoundVolume() {
-        return 10.0F;
+        return 5.0F;
     }
 
     public static boolean checkGhastSpawnRules(EntityType<Ghast> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {

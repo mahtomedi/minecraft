@@ -46,7 +46,7 @@ public class FollowOwnerGoal extends Goal {
             return false;
         } else if (var0.isSpectator()) {
             return false;
-        } else if (this.tamable.isSitting()) {
+        } else if (this.tamable.isOrderedToSit()) {
             return false;
         } else if (this.tamable.distanceToSqr(var0) < (double)(this.startDistance * this.startDistance)) {
             return false;
@@ -60,7 +60,7 @@ public class FollowOwnerGoal extends Goal {
     public boolean canContinueToUse() {
         if (this.navigation.isDone()) {
             return false;
-        } else if (this.tamable.isSitting()) {
+        } else if (this.tamable.isOrderedToSit()) {
             return false;
         } else {
             return !(this.tamable.distanceToSqr(this.owner) <= (double)(this.stopDistance * this.stopDistance));

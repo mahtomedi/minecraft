@@ -95,6 +95,7 @@ public class PistonMovingBlockEntity extends BlockEntity implements TickableBloc
         return !this.isExtending() && this.isSourcePiston() && this.movedState.getBlock() instanceof PistonBaseBlock
             ? Blocks.PISTON_HEAD
                 .defaultBlockState()
+                .setValue(PistonHeadBlock.SHORT, Boolean.valueOf(this.progress > 0.25F))
                 .setValue(PistonHeadBlock.TYPE, this.movedState.getBlock() == Blocks.STICKY_PISTON ? PistonType.STICKY : PistonType.DEFAULT)
                 .setValue(PistonHeadBlock.FACING, this.movedState.getValue(PistonBaseBlock.FACING))
             : this.movedState;
@@ -105,13 +106,13 @@ public class PistonMovingBlockEntity extends BlockEntity implements TickableBloc
         double var1 = (double)(param0 - this.progress);
         VoxelShape var2 = this.getCollisionRelatedBlockState().getCollisionShape(this.level, this.getBlockPos());
         if (!var2.isEmpty()) {
-            List<AABB> var3 = var2.toAabbs();
-            AABB var4 = this.moveByPositionAndProgress(this.getMinMaxPiecesAABB(var3));
-            List<Entity> var5 = this.level.getEntities(null, PistonMath.getMovementArea(var4, var0, var1).minmax(var4));
-            if (!var5.isEmpty()) {
+            AABB var3 = this.moveByPositionAndProgress(var2.bounds());
+            List<Entity> var4 = this.level.getEntities(null, PistonMath.getMovementArea(var3, var0, var1).minmax(var3));
+            if (!var4.isEmpty()) {
+                List<AABB> var5 = var2.toAabbs();
                 boolean var6 = this.movedState.getBlock() == Blocks.SLIME_BLOCK;
 
-                for(Entity var7 : var5) {
+                for(Entity var7 : var4) {
                     if (var7.getPistonPushReaction() != PushReaction.IGNORE) {
                         if (var6) {
                             Vec3 var8 = var7.getDeltaMovement();
@@ -134,7 +135,7 @@ public class PistonMovingBlockEntity extends BlockEntity implements TickableBloc
 
                         double var12 = 0.0;
 
-                        for(AABB var13 : var3) {
+                        for(AABB var13 : var5) {
                             AABB var14 = PistonMath.getMovementArea(this.moveByPositionAndProgress(var13), var0, var1);
                             AABB var15 = var7.getBoundingBox();
                             if (var14.intersects(var15)) {
@@ -196,26 +197,6 @@ public class PistonMovingBlockEntity extends BlockEntity implements TickableBloc
 
     public Direction getMovementDirection() {
         return this.extending ? this.direction : this.direction.getOpposite();
-    }
-
-    private AABB getMinMaxPiecesAABB(List<AABB> param0) {
-        double var0 = 0.0;
-        double var1 = 0.0;
-        double var2 = 0.0;
-        double var3 = 1.0;
-        double var4 = 1.0;
-        double var5 = 1.0;
-
-        for(AABB var6 : param0) {
-            var0 = Math.min(var6.minX, var0);
-            var1 = Math.min(var6.minY, var1);
-            var2 = Math.min(var6.minZ, var2);
-            var3 = Math.max(var6.maxX, var3);
-            var4 = Math.max(var6.maxY, var4);
-            var5 = Math.max(var6.maxZ, var5);
-        }
-
-        return new AABB(var0, var1, var2, var3, var4, var5);
     }
 
     private static double getMovement(AABB param0, Direction param1, AABB param2) {
@@ -358,7 +339,7 @@ public class PistonMovingBlockEntity extends BlockEntity implements TickableBloc
                 var3 = Blocks.PISTON_HEAD
                     .defaultBlockState()
                     .setValue(PistonHeadBlock.FACING, this.direction)
-                    .setValue(PistonHeadBlock.SHORT, Boolean.valueOf(this.extending != 1.0F - this.progress < 4.0F));
+                    .setValue(PistonHeadBlock.SHORT, Boolean.valueOf(this.extending != 1.0F - this.progress < 0.25F));
             } else {
                 var3 = this.movedState;
             }

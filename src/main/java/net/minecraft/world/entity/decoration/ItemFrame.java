@@ -323,7 +323,7 @@ public class ItemFrame extends HangingEntity {
         boolean var2 = !var0.isEmpty();
         if (!this.level.isClientSide) {
             if (!var1) {
-                if (var2) {
+                if (var2 && !this.removed) {
                     this.setItem(var0);
                     if (!param0.abilities.instabuild) {
                         var0.shrink(1);

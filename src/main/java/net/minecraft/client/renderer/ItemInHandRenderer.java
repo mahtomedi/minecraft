@@ -5,7 +5,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
-import java.util.Objects;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
@@ -433,8 +432,8 @@ public class ItemInHandRenderer {
             this.offHandHeight = Mth.clamp(this.offHandHeight - 0.4F, 0.0F, 1.0F);
         } else {
             float var3 = var0.getAttackStrengthScale(1.0F);
-            this.mainHandHeight += Mth.clamp((Objects.equals(this.mainHandItem, var1) ? var3 * var3 * var3 : 0.0F) - this.mainHandHeight, -0.4F, 0.4F);
-            this.offHandHeight += Mth.clamp((float)(Objects.equals(this.offHandItem, var2) ? 1 : 0) - this.offHandHeight, -0.4F, 0.4F);
+            this.mainHandHeight += Mth.clamp((ItemStack.matches(this.mainHandItem, var1) ? var3 * var3 * var3 : 0.0F) - this.mainHandHeight, -0.4F, 0.4F);
+            this.offHandHeight += Mth.clamp((float)(ItemStack.matches(this.offHandItem, var2) ? 1 : 0) - this.offHandHeight, -0.4F, 0.4F);
         }
 
         if (this.mainHandHeight < 0.1F) {

@@ -45,16 +45,20 @@ public class LocateCommand {
         if (var1 == null) {
             throw ERROR_FAILED.create();
         } else {
-            int var2 = Mth.floor(dist(var0.getX(), var0.getZ(), var1.getX(), var1.getZ()));
-            Component var3 = ComponentUtils.wrapInSquareBrackets(new TranslatableComponent("chat.coordinates", var1.getX(), "~", var1.getZ()))
-                .withStyle(
-                    param1x -> param1x.setColor(ChatFormatting.GREEN)
-                            .setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/tp @s " + var1.getX() + " ~ " + var1.getZ()))
-                            .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslatableComponent("chat.coordinates.tooltip")))
-                );
-            param0.sendSuccess(new TranslatableComponent("commands.locate.success", param1, var3, var2), false);
-            return var2;
+            return showLocateResult(param0, param1, var0, var1, "commands.locate.success");
         }
+    }
+
+    public static int showLocateResult(CommandSourceStack param0, String param1, BlockPos param2, BlockPos param3, String param4) {
+        int var0 = Mth.floor(dist(param2.getX(), param2.getZ(), param3.getX(), param3.getZ()));
+        Component var1 = ComponentUtils.wrapInSquareBrackets(new TranslatableComponent("chat.coordinates", param3.getX(), "~", param3.getZ()))
+            .withStyle(
+                param1x -> param1x.setColor(ChatFormatting.GREEN)
+                        .setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/tp @s " + param3.getX() + " ~ " + param3.getZ()))
+                        .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslatableComponent("chat.coordinates.tooltip")))
+            );
+        param0.sendSuccess(new TranslatableComponent(param4, param1, var1, var0), false);
+        return var0;
     }
 
     private static float dist(int param0, int param1, int param2, int param3) {

@@ -36,7 +36,7 @@ public abstract class PathfinderMob extends Mob {
         if (var0 != null && var0.level == this.level) {
             this.restrictTo(new BlockPos(var0), 5);
             float var1 = this.distanceTo(var0);
-            if (this instanceof TamableAnimal && ((TamableAnimal)this).isSitting()) {
+            if (this instanceof TamableAnimal && ((TamableAnimal)this).isInSittingPose()) {
                 if (var1 > 10.0F) {
                     this.dropLeash(true, true);
                 }

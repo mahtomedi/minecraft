@@ -6,6 +6,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -51,9 +52,8 @@ public class FallingBlock extends Block {
     }
 
     public static boolean isFree(BlockState param0) {
-        Block var0 = param0.getBlock();
-        Material var1 = param0.getMaterial();
-        return param0.isAir() || var0 == Blocks.FIRE || var1.isLiquid() || var1.isReplaceable();
+        Material var0 = param0.getMaterial();
+        return param0.isAir() || param0.is(BlockTags.FIRE) || var0.isLiquid() || var0.isReplaceable();
     }
 
     public void onLand(Level param0, BlockPos param1, BlockState param2, BlockState param3) {

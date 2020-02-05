@@ -73,7 +73,7 @@ public class WolfModel<T extends Wolf> extends ColorableAgeableListModel<T> {
             this.tail.yRot = Mth.cos(param1 * 0.6662F) * 1.4F * param2;
         }
 
-        if (param0.isSitting()) {
+        if (param0.isInSittingPose()) {
             this.upperBody.setPos(-1.0F, 16.0F, -3.0F);
             this.upperBody.xRot = (float) (Math.PI * 2.0 / 5.0);
             this.upperBody.yRot = 0.0F;

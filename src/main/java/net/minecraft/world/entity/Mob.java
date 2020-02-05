@@ -96,8 +96,8 @@ public abstract class Mob extends LivingEntity {
 
     protected Mob(EntityType<? extends Mob> param0, Level param1) {
         super(param0, param1);
-        this.goalSelector = new GoalSelector(param1 != null && param1.getProfiler() != null ? param1.getProfiler() : null);
-        this.targetSelector = new GoalSelector(param1 != null && param1.getProfiler() != null ? param1.getProfiler() : null);
+        this.goalSelector = new GoalSelector(param1.getProfilerSupplier());
+        this.targetSelector = new GoalSelector(param1.getProfilerSupplier());
         this.lookControl = new LookControl(this);
         this.moveControl = new MoveControl(this);
         this.jumpControl = new JumpControl(this);

@@ -116,7 +116,7 @@ public abstract class Dimension {
     public abstract boolean isNaturalDimension();
 
     @OnlyIn(Dist.CLIENT)
-    public abstract Vec3 getFogColor(float var1, float var2);
+    public abstract Vec3 getBrightnessDependentFogColor(int var1, float var2);
 
     public abstract boolean mayRespawn();
 

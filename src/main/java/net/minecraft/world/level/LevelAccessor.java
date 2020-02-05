@@ -62,7 +62,8 @@ public interface LevelAccessor extends EntityGetter, LevelReader, LevelSimulated
 
     Random getRandom();
 
-    void blockUpdated(BlockPos var1, Block var2);
+    default void blockUpdated(BlockPos param0, Block param1) {
+    }
 
     @OnlyIn(Dist.CLIENT)
     BlockPos getSharedSpawnPos();

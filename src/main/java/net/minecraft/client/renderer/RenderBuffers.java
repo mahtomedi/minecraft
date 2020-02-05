@@ -15,7 +15,7 @@ public class RenderBuffers {
         param0.put(Sheets.solidBlockSheet(), this.fixedBufferPack.builder(RenderType.solid()));
         param0.put(Sheets.cutoutBlockSheet(), this.fixedBufferPack.builder(RenderType.cutout()));
         param0.put(Sheets.bannerSheet(), this.fixedBufferPack.builder(RenderType.cutoutMipped()));
-        param0.put(Sheets.translucentBlockSheet(), this.fixedBufferPack.builder(RenderType.translucent()));
+        param0.put(Sheets.translucentCullBlockSheet(), this.fixedBufferPack.builder(RenderType.translucent()));
         put(param0, Sheets.shieldSheet());
         put(param0, Sheets.bedSheet());
         put(param0, Sheets.shulkerBoxSheet());

@@ -1,5 +1,6 @@
 package net.minecraft.world.level.biome;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -7,6 +8,7 @@ import it.unimi.dsi.fastutil.longs.Long2FloatLinkedOpenHashMap;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -58,22 +60,21 @@ public abstract class Biome {
     public static final Logger LOGGER = LogManager.getLogger();
     public static final Set<Biome> EXPLORABLE_BIOMES = Sets.newHashSet();
     public static final IdMapper<Biome> MUTATED_BIOMES = new IdMapper<>();
-    protected static final PerlinSimplexNoise TEMPERATURE_NOISE = new PerlinSimplexNoise(new WorldgenRandom(1234L), 0, 0);
-    public static final PerlinSimplexNoise BIOME_INFO_NOISE = new PerlinSimplexNoise(new WorldgenRandom(2345L), 0, 0);
+    protected static final PerlinSimplexNoise TEMPERATURE_NOISE = new PerlinSimplexNoise(new WorldgenRandom(1234L), ImmutableList.of(0));
+    public static final PerlinSimplexNoise BIOME_INFO_NOISE = new PerlinSimplexNoise(new WorldgenRandom(2345L), ImmutableList.of(0));
     @Nullable
     protected String descriptionId;
     protected final float depth;
     protected final float scale;
     protected final float temperature;
     protected final float downfall;
-    protected final int waterColor;
-    protected final int waterFogColor;
     private final int skyColor;
     @Nullable
     protected final String parent;
     protected final ConfiguredSurfaceBuilder<?> surfaceBuilder;
     protected final Biome.BiomeCategory biomeCategory;
     protected final Biome.Precipitation precipitation;
+    protected final BiomeSpecialEffects specialEffects;
     protected final Map<GenerationStep.Carving, List<ConfiguredWorldCarver<?>>> carvers = Maps.newHashMap();
     protected final Map<GenerationStep.Decoration, List<ConfiguredFeature<?, ?>>> features = Maps.newHashMap();
     protected final List<ConfiguredFeature<?, ?>> flowerFeatures = Lists.newArrayList();
@@ -88,6 +89,7 @@ public abstract class Biome {
             var0x.defaultReturnValue(Float.NaN);
             return var0x;
         }));
+    private final List<Biome.ClimateParameters> optimalParameters;
 
     @Nullable
     public static Biome getMutatedVariant(Biome param0) {
@@ -106,8 +108,7 @@ public abstract class Biome {
             && param0.scale != null
             && param0.temperature != null
             && param0.downfall != null
-            && param0.waterColor != null
-            && param0.waterFogColor != null) {
+            && param0.specialEffects != null) {
             this.surfaceBuilder = param0.surfaceBuilder;
             this.precipitation = param0.precipitation;
             this.biomeCategory = param0.biomeCategory;
@@ -115,10 +116,10 @@ public abstract class Biome {
             this.scale = param0.scale;
             this.temperature = param0.temperature;
             this.downfall = param0.downfall;
-            this.waterColor = param0.waterColor;
-            this.waterFogColor = param0.waterFogColor;
             this.skyColor = this.calculateSkyColor();
             this.parent = param0.parent;
+            this.optimalParameters = (List<Biome.ClimateParameters>)(param0.optimalParameters != null ? param0.optimalParameters : ImmutableList.of());
+            this.specialEffects = param0.specialEffects;
 
             for(GenerationStep.Decoration var0 : GenerationStep.Decoration.values()) {
                 this.features.put(var0, Lists.newArrayList());
@@ -304,6 +305,11 @@ public abstract class Biome {
     }
 
     @OnlyIn(Dist.CLIENT)
+    public int getFogColor() {
+        return this.specialEffects.getFogColor();
+    }
+
+    @OnlyIn(Dist.CLIENT)
     public int getGrassColor(double param0, double param1) {
         double var0 = (double)Mth.clamp(this.getTemperature(), 0.0F, 1.0F);
         double var1 = (double)Mth.clamp(this.getDownfall(), 0.0F, 1.0F);
@@ -342,7 +348,6 @@ public abstract class Biome {
         return this.downfall;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Component getName() {
         return new TranslatableComponent(this.getDescriptionId());
     }
@@ -363,12 +368,23 @@ public abstract class Biome {
         return this.temperature;
     }
 
-    public final int getWaterColor() {
-        return this.waterColor;
+    public BiomeSpecialEffects getSpecialEffects() {
+        return this.specialEffects;
     }
 
+    @OnlyIn(Dist.CLIENT)
+    public final int getWaterColor() {
+        return this.specialEffects.getWaterColor();
+    }
+
+    @OnlyIn(Dist.CLIENT)
     public final int getWaterFogColor() {
-        return this.waterFogColor;
+        return this.specialEffects.getWaterFogColor();
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public Optional<AmbientParticleSettings> getAmbientParticle() {
+        return this.specialEffects.getAmbientParticleSettings();
     }
 
     public final Biome.BiomeCategory getBiomeCategory() {
@@ -381,6 +397,10 @@ public abstract class Biome {
 
     public SurfaceBuilderConfiguration getSurfaceBuilderConfig() {
         return this.surfaceBuilder.getSurfaceBuilderConfiguration();
+    }
+
+    public float getFitness(Biome.ClimateParameters param0) {
+        return this.optimalParameters.stream().map(param1 -> param1.fitness(param0)).min(Float::compare).orElse(Float.POSITIVE_INFINITY);
     }
 
     @Nullable
@@ -404,11 +424,11 @@ public abstract class Biome {
         @Nullable
         private Float downfall;
         @Nullable
-        private Integer waterColor;
-        @Nullable
-        private Integer waterFogColor;
-        @Nullable
         private String parent;
+        @Nullable
+        private List<Biome.ClimateParameters> optimalParameters;
+        @Nullable
+        private BiomeSpecialEffects specialEffects;
 
         public <SC extends SurfaceBuilderConfiguration> Biome.BiomeBuilder surfaceBuilder(SurfaceBuilder<SC> param0, SC param1) {
             this.surfaceBuilder = new ConfiguredSurfaceBuilder<>(param0, param1);
@@ -450,18 +470,18 @@ public abstract class Biome {
             return this;
         }
 
-        public Biome.BiomeBuilder waterColor(int param0) {
-            this.waterColor = param0;
-            return this;
-        }
-
-        public Biome.BiomeBuilder waterFogColor(int param0) {
-            this.waterFogColor = param0;
-            return this;
-        }
-
         public Biome.BiomeBuilder parent(@Nullable String param0) {
             this.parent = param0;
+            return this;
+        }
+
+        public Biome.BiomeBuilder optimalParameters(List<Biome.ClimateParameters> param0) {
+            this.optimalParameters = param0;
+            return this;
+        }
+
+        public Biome.BiomeBuilder specialEffects(BiomeSpecialEffects param0) {
+            this.specialEffects = param0;
             return this;
         }
 
@@ -481,10 +501,8 @@ public abstract class Biome {
                 + this.temperature
                 + ",\ndownfall="
                 + this.downfall
-                + ",\nwaterColor="
-                + this.waterColor
-                + ",\nwaterFogColor="
-                + this.waterFogColor
+                + ",\nspecialEffects="
+                + this.specialEffects
                 + ",\nparent='"
                 + this.parent
                 + '\''
@@ -541,6 +559,58 @@ public abstract class Biome {
 
         public String getName() {
             return this.name;
+        }
+    }
+
+    public static class ClimateParameters {
+        private final float temperature;
+        private final float humidity;
+        private final float altitude;
+        private final float weirdness;
+        private final float weight;
+
+        public ClimateParameters(float param0, float param1, float param2, float param3, float param4) {
+            this.temperature = param0;
+            this.humidity = param1;
+            this.altitude = param2;
+            this.weirdness = param3;
+            this.weight = param4;
+        }
+
+        @Override
+        public boolean equals(Object param0) {
+            if (this == param0) {
+                return true;
+            } else if (param0 != null && this.getClass() == param0.getClass()) {
+                Biome.ClimateParameters var0 = (Biome.ClimateParameters)param0;
+                if (Float.compare(var0.temperature, this.temperature) != 0) {
+                    return false;
+                } else if (Float.compare(var0.humidity, this.humidity) != 0) {
+                    return false;
+                } else if (Float.compare(var0.altitude, this.altitude) != 0) {
+                    return false;
+                } else {
+                    return Float.compare(var0.weirdness, this.weirdness) == 0;
+                }
+            } else {
+                return false;
+            }
+        }
+
+        @Override
+        public int hashCode() {
+            int var0 = this.temperature != 0.0F ? Float.floatToIntBits(this.temperature) : 0;
+            var0 = 31 * var0 + (this.humidity != 0.0F ? Float.floatToIntBits(this.humidity) : 0);
+            var0 = 31 * var0 + (this.altitude != 0.0F ? Float.floatToIntBits(this.altitude) : 0);
+            return 31 * var0 + (this.weirdness != 0.0F ? Float.floatToIntBits(this.weirdness) : 0);
+        }
+
+        public float fitness(Biome.ClimateParameters param0) {
+            return (this.temperature - param0.temperature) * (this.temperature - param0.temperature)
+                + (this.humidity - param0.humidity) * (this.humidity - param0.humidity)
+                + (this.altitude - param0.altitude) * (this.altitude - param0.altitude)
+                + (this.weirdness - param0.weirdness) * (this.weirdness - param0.weirdness)
+                - (this.weight - param0.weight) * (this.weight - param0.weight);
         }
     }
 

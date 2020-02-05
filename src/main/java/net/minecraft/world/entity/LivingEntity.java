@@ -1212,7 +1212,8 @@ public abstract class LivingEntity extends Entity {
     }
 
     public void knockback(Entity param0, float param1, double param2, double param3) {
-        if (!(this.random.nextDouble() < this.getAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).getValue())) {
+        param1 = (float)((double)param1 * (1.0 - this.getAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).getValue()));
+        if (!(param1 <= 0.0F)) {
             this.hasImpulse = true;
             Vec3 var0 = this.getDeltaMovement();
             Vec3 var1 = new Vec3(param2, 0.0, param3).normalize().scale((double)param1);
@@ -1323,7 +1324,7 @@ public abstract class LivingEntity extends Entity {
         return Mth.floor(var0.getValue());
     }
 
-    protected void hurtArmor(float param0) {
+    protected void hurtArmor(DamageSource param0, float param1) {
     }
 
     protected void hurtCurrentlyUsedShield(float param0) {
@@ -1331,7 +1332,7 @@ public abstract class LivingEntity extends Entity {
 
     protected float getDamageAfterArmorAbsorb(DamageSource param0, float param1) {
         if (!param0.isBypassArmor()) {
-            this.hurtArmor(param1);
+            this.hurtArmor(param0, param1);
             param1 = CombatRules.getDamageAfterAbsorb(
                 param1, (float)this.getArmorValue(), (float)this.getAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS).getValue()
             );

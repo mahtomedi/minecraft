@@ -34,20 +34,8 @@ public class KelpBlock extends Block implements LiquidBlockContainer {
         return SHAPE;
     }
 
-    @Nullable
-    @Override
-    public BlockState getStateForPlacement(BlockPlaceContext param0) {
-        FluidState var0 = param0.getLevel().getFluidState(param0.getClickedPos());
-        return var0.is(FluidTags.WATER) && var0.getAmount() == 8 ? this.getStateForPlacement(param0.getLevel()) : null;
-    }
-
     public BlockState getStateForPlacement(LevelAccessor param0) {
         return this.defaultBlockState().setValue(AGE, Integer.valueOf(param0.getRandom().nextInt(25)));
-    }
-
-    @Override
-    public FluidState getFluidState(BlockState param0) {
-        return Fluids.WATER.getSource(false);
     }
 
     @Override
@@ -55,10 +43,11 @@ public class KelpBlock extends Block implements LiquidBlockContainer {
         if (!param0.canSurvive(param1, param2)) {
             param1.destroyBlock(param2, true);
         } else {
-            BlockPos var0 = param2.above();
-            BlockState var1 = param1.getBlockState(var0);
-            if (var1.getBlock() == Blocks.WATER && param0.getValue(AGE) < 25 && param3.nextDouble() < 0.14) {
-                param1.setBlockAndUpdate(var0, param0.cycle(AGE));
+            if (param0.getValue(AGE) < 25 && param3.nextDouble() < 0.14) {
+                BlockPos var0 = param2.above();
+                if (param1.getBlockState(var0).getBlock() == Blocks.WATER) {
+                    param1.setBlockAndUpdate(var0, param0.cycle(AGE));
+                }
             }
 
         }
@@ -78,11 +67,7 @@ public class KelpBlock extends Block implements LiquidBlockContainer {
 
     @Override
     public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
-        if (!param0.canSurvive(param3, param4)) {
-            if (param1 == Direction.DOWN) {
-                return Blocks.AIR.defaultBlockState();
-            }
-
+        if (param1 == Direction.DOWN && !param0.canSurvive(param3, param4)) {
             param3.getBlockTicks().scheduleTick(param4, this, 1);
         }
 
@@ -107,5 +92,17 @@ public class KelpBlock extends Block implements LiquidBlockContainer {
     @Override
     public boolean placeLiquid(LevelAccessor param0, BlockPos param1, BlockState param2, FluidState param3) {
         return false;
+    }
+
+    @Nullable
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext param0) {
+        FluidState var0 = param0.getLevel().getFluidState(param0.getClickedPos());
+        return var0.is(FluidTags.WATER) && var0.getAmount() == 8 ? this.getStateForPlacement(param0.getLevel()) : null;
+    }
+
+    @Override
+    public FluidState getFluidState(BlockState param0) {
+        return Fluids.WATER.getSource(false);
     }
 }

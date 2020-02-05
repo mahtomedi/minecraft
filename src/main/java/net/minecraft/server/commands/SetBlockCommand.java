@@ -89,7 +89,7 @@ public class SetBlockCommand {
             boolean var1;
             if (param3 == SetBlockCommand.Mode.DESTROY) {
                 var0.destroyBlock(param1, true);
-                var1 = !param2.getState().isAir();
+                var1 = !param2.getState().isAir() || !var0.getBlockState(param1).isAir();
             } else {
                 BlockEntity var2 = var0.getBlockEntity(param1);
                 Clearable.tryClear(var2);

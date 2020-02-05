@@ -26,6 +26,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.ProtectionEnchantment;
+import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -281,7 +282,7 @@ public class Explosion {
                 if (this.random.nextInt(3) == 0
                     && this.level.getBlockState(var9).isAir()
                     && this.level.getBlockState(var9.below()).isSolidRender(this.level, var9.below())) {
-                    this.level.setBlockAndUpdate(var9, Blocks.FIRE.defaultBlockState());
+                    this.level.setBlockAndUpdate(var9, BaseFireBlock.getState(this.level, var9));
                 }
             }
         }

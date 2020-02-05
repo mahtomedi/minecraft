@@ -669,6 +669,10 @@ public abstract class Player extends LivingEntity {
         if (param0.isEmpty()) {
             return null;
         } else {
+            if (this.level.isClientSide) {
+                this.swing(InteractionHand.MAIN_HAND);
+            }
+
             double var0 = this.getEyeY() - 0.3F;
             ItemEntity var1 = new ItemEntity(this.level, this.getX(), var0, this.getZ(), param0);
             var1.setPickUpDelay(40);
@@ -884,8 +888,8 @@ public abstract class Player extends LivingEntity {
     }
 
     @Override
-    protected void hurtArmor(float param0) {
-        this.inventory.hurtArmor(param0);
+    protected void hurtArmor(DamageSource param0, float param1) {
+        this.inventory.hurtArmor(param0, param1);
     }
 
     @Override
@@ -1314,17 +1318,17 @@ public abstract class Player extends LivingEntity {
                 return Either.left(Player.BedSleepingProblem.NOT_POSSIBLE_HERE);
             }
 
-            if (this.level.isDay()) {
-                this.setRespawnPosition(param0, false, true);
-                return Either.left(Player.BedSleepingProblem.NOT_POSSIBLE_NOW);
-            }
-
             if (!this.bedInRange(param0, var0)) {
                 return Either.left(Player.BedSleepingProblem.TOO_FAR_AWAY);
             }
 
             if (this.bedBlocked(param0, var0)) {
                 return Either.left(Player.BedSleepingProblem.OBSTRUCTED);
+            }
+
+            this.setRespawnPosition(param0, false, true);
+            if (this.level.isDay()) {
+                return Either.left(Player.BedSleepingProblem.NOT_POSSIBLE_NOW);
             }
 
             if (!this.isCreative()) {

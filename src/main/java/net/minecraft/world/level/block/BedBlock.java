@@ -90,7 +90,7 @@ public class BedBlock extends HorizontalDirectionalBlock implements EntityBlock 
                 }
             }
 
-            if (!param1.dimension.mayRespawn() || param1.getBiome(param2) == Biomes.NETHER) {
+            if (!param1.dimension.mayRespawn() || param1.getBiome(param2) == Biomes.NETHER_WASTES) {
                 param1.removeBlock(param2, false);
                 BlockPos var0 = param2.relative(param0.getValue(FACING).getOpposite());
                 if (param1.getBlockState(var0).getBlock() == this) {

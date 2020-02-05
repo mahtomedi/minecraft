@@ -182,6 +182,7 @@ public class Pig extends Animal {
         var0.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.GOLDEN_SWORD));
         var0.moveTo(this.getX(), this.getY(), this.getZ(), this.yRot, this.xRot);
         var0.setNoAi(this.isNoAi());
+        var0.setBaby(this.isBaby());
         if (this.hasCustomName()) {
             var0.setCustomName(this.getCustomName());
             var0.setCustomNameVisible(this.isCustomNameVisible());

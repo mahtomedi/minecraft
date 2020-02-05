@@ -13,7 +13,6 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.OldUsersConverter;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.ai.goal.SitGoal;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameRules;
@@ -27,7 +26,7 @@ public abstract class TamableAnimal extends Animal {
     protected static final EntityDataAccessor<Optional<UUID>> DATA_OWNERUUID_ID = SynchedEntityData.defineId(
         TamableAnimal.class, EntityDataSerializers.OPTIONAL_UUID
     );
-    protected SitGoal sitGoal;
+    private boolean orderedToSit;
 
     protected TamableAnimal(EntityType<? extends TamableAnimal> param0, Level param1) {
         super(param0, param1);
@@ -50,7 +49,7 @@ public abstract class TamableAnimal extends Animal {
             param0.putString("OwnerUUID", this.getOwnerUUID().toString());
         }
 
-        param0.putBoolean("Sitting", this.isSitting());
+        param0.putBoolean("Sitting", this.orderedToSit);
     }
 
     @Override
@@ -73,11 +72,8 @@ public abstract class TamableAnimal extends Animal {
             }
         }
 
-        if (this.sitGoal != null) {
-            this.sitGoal.wantToSit(param0.getBoolean("Sitting"));
-        }
-
-        this.setSitting(param0.getBoolean("Sitting"));
+        this.orderedToSit = param0.getBoolean("Sitting");
+        this.setInSittingPose(this.orderedToSit);
     }
 
     @Override
@@ -132,11 +128,11 @@ public abstract class TamableAnimal extends Animal {
     protected void reassessTameGoals() {
     }
 
-    public boolean isSitting() {
+    public boolean isInSittingPose() {
         return (this.entityData.get(DATA_FLAGS_ID) & 1) != 0;
     }
 
-    public void setSitting(boolean param0) {
+    public void setInSittingPose(boolean param0) {
         byte var0 = this.entityData.get(DATA_FLAGS_ID);
         if (param0) {
             this.entityData.set(DATA_FLAGS_ID, (byte)(var0 | 1));
@@ -183,10 +179,6 @@ public abstract class TamableAnimal extends Animal {
         return param0 == this.getOwner();
     }
 
-    public SitGoal getSitGoal() {
-        return this.sitGoal;
-    }
-
     public boolean wantsToAttack(LivingEntity param0, LivingEntity param1) {
         return true;
     }
@@ -226,5 +218,13 @@ public abstract class TamableAnimal extends Animal {
         }
 
         super.die(param0);
+    }
+
+    public boolean isOrderedToSit() {
+        return this.orderedToSit;
+    }
+
+    public void setOrderedToSit(boolean param0) {
+        this.orderedToSit = param0;
     }
 }

@@ -365,98 +365,62 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
     }
 
     public void tickRain(Camera param0) {
-        float var0 = this.minecraft.level.getRainLevel(1.0F);
-        if (!this.minecraft.options.fancyGraphics) {
-            var0 /= 2.0F;
-        }
-
-        if (var0 != 0.0F) {
+        float var0 = this.minecraft.level.getRainLevel(1.0F) / (this.minecraft.options.fancyGraphics ? 1.0F : 2.0F);
+        if (!(var0 <= 0.0F)) {
             Random var1 = new Random((long)this.ticks * 312987231L);
             LevelReader var2 = this.minecraft.level;
             BlockPos var3 = new BlockPos(param0.getPosition());
-            int var4 = 10;
-            double var5 = 0.0;
-            double var6 = 0.0;
-            double var7 = 0.0;
-            int var8 = 0;
-            int var9 = (int)(100.0F * var0 * var0);
-            if (this.minecraft.options.particles == ParticleStatus.DECREASED) {
-                var9 >>= 1;
-            } else if (this.minecraft.options.particles == ParticleStatus.MINIMAL) {
-                var9 = 0;
-            }
+            BlockPos var4 = null;
+            int var5 = (int)(100.0F * var0 * var0) / (this.minecraft.options.particles == ParticleStatus.DECREASED ? 2 : 1);
 
-            for(int var10 = 0; var10 < var9; ++var10) {
-                BlockPos var11 = var2.getHeightmapPos(
-                    Heightmap.Types.MOTION_BLOCKING, var3.offset(var1.nextInt(10) - var1.nextInt(10), 0, var1.nextInt(10) - var1.nextInt(10))
-                );
-                Biome var12 = var2.getBiome(var11);
-                BlockPos var13 = var11.below();
-                if (var11.getY() <= var3.getY() + 10
-                    && var11.getY() >= var3.getY() - 10
-                    && var12.getPrecipitation() == Biome.Precipitation.RAIN
-                    && var12.getTemperature(var11) >= 0.15F) {
-                    double var14 = var1.nextDouble();
-                    double var15 = var1.nextDouble();
-                    BlockState var16 = var2.getBlockState(var13);
-                    FluidState var17 = var2.getFluidState(var11);
-                    VoxelShape var18 = var16.getCollisionShape(var2, var13);
-                    double var19 = var18.max(Direction.Axis.Y, var14, var15);
-                    double var20 = (double)var17.getHeight(var2, var11);
-                    double var21;
-                    double var22;
-                    if (var19 >= var20) {
-                        var21 = var19;
-                        var22 = var18.min(Direction.Axis.Y, var14, var15);
-                    } else {
-                        var21 = 0.0;
-                        var22 = 0.0;
+            for(int var6 = 0; var6 < var5; ++var6) {
+                int var7 = var1.nextInt(21) - 10;
+                int var8 = var1.nextInt(21) - 10;
+                BlockPos var9 = var2.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, var3.offset(var7, 0, var8)).below();
+                Biome var10 = var2.getBiome(var9);
+                if (var9.getY() > 0
+                    && var9.getY() <= var3.getY() + 10
+                    && var9.getY() >= var3.getY() - 10
+                    && var10.getPrecipitation() == Biome.Precipitation.RAIN
+                    && var10.getTemperature(var9) >= 0.15F) {
+                    var4 = var9;
+                    if (this.minecraft.options.particles == ParticleStatus.MINIMAL) {
+                        break;
                     }
 
-                    if (var21 > -Double.MAX_VALUE) {
-                        if (!var17.is(FluidTags.LAVA)
-                            && var16.getBlock() != Blocks.MAGMA_BLOCK
-                            && (var16.getBlock() != Blocks.CAMPFIRE || !var16.getValue(CampfireBlock.LIT))) {
-                            if (var1.nextInt(++var8) == 0) {
-                                var5 = (double)var13.getX() + var14;
-                                var6 = (double)((float)var13.getY() + 0.1F) + var21 - 1.0;
-                                var7 = (double)var13.getZ() + var15;
-                            }
-
-                            this.minecraft
-                                .level
-                                .addParticle(
-                                    ParticleTypes.RAIN,
-                                    (double)var13.getX() + var14,
-                                    (double)((float)var13.getY() + 0.1F) + var21,
-                                    (double)var13.getZ() + var15,
-                                    0.0,
-                                    0.0,
-                                    0.0
-                                );
-                        } else {
-                            this.minecraft
-                                .level
-                                .addParticle(
-                                    ParticleTypes.SMOKE,
-                                    (double)var11.getX() + var14,
-                                    (double)((float)var11.getY() + 0.1F) - var22,
-                                    (double)var11.getZ() + var15,
-                                    0.0,
-                                    0.0,
-                                    0.0
-                                );
-                        }
-                    }
+                    float var11 = var1.nextFloat();
+                    float var12 = var1.nextFloat();
+                    BlockState var13 = var2.getBlockState(var9);
+                    FluidState var14 = var2.getFluidState(var9);
+                    VoxelShape var15 = var13.getCollisionShape(var2, var9);
+                    float var16 = (float)var15.max(Direction.Axis.Y, (double)var11, (double)var12);
+                    float var17 = var14.getHeight(var2, var9);
+                    float var18 = Math.max(var16, var17);
+                    ParticleOptions var19 = !var14.is(FluidTags.LAVA)
+                            && var13.getBlock() != Blocks.MAGMA_BLOCK
+                            && (var13.getBlock() != Blocks.CAMPFIRE || !var13.getValue(CampfireBlock.LIT))
+                        ? ParticleTypes.RAIN
+                        : ParticleTypes.SMOKE;
+                    this.minecraft
+                        .level
+                        .addParticle(
+                            var19,
+                            (double)((float)var9.getX() + var11),
+                            (double)((float)var9.getY() + var18),
+                            (double)((float)var9.getZ() + var12),
+                            0.0,
+                            0.0,
+                            0.0
+                        );
                 }
             }
 
-            if (var8 > 0 && var1.nextInt(3) < this.rainSoundTime++) {
+            if (var4 != null && var1.nextInt(3) < this.rainSoundTime++) {
                 this.rainSoundTime = 0;
-                if (var6 > (double)(var3.getY() + 1) && var2.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, var3).getY() > Mth.floor((float)var3.getY())) {
-                    this.minecraft.level.playLocalSound(var5, var6, var7, SoundEvents.WEATHER_RAIN_ABOVE, SoundSource.WEATHER, 0.1F, 0.5F, false);
+                if (var4.getY() > var3.getY() + 1 && var2.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, var3).getY() > Mth.floor((float)var3.getY())) {
+                    this.minecraft.level.playLocalSound(var4, SoundEvents.WEATHER_RAIN_ABOVE, SoundSource.WEATHER, 0.1F, 0.5F, false);
                 } else {
-                    this.minecraft.level.playLocalSound(var5, var6, var7, SoundEvents.WEATHER_RAIN, SoundSource.WEATHER, 0.2F, 1.0F, false);
+                    this.minecraft.level.playLocalSound(var4, SoundEvents.WEATHER_RAIN, SoundSource.WEATHER, 0.2F, 1.0F, false);
                 }
             }
 
@@ -1148,7 +1112,7 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
         this.minecraft.debugRenderer.render(param0, var21, var2, var3, var4);
         this.renderWorldBounds(param4);
         RenderSystem.popMatrix();
-        var21.endBatch(Sheets.translucentBlockSheet());
+        var21.endBatch(Sheets.translucentCullBlockSheet());
         var21.endBatch(Sheets.bannerSheet());
         var21.endBatch(Sheets.shieldSheet());
         var21.endBatch(RenderType.glint());

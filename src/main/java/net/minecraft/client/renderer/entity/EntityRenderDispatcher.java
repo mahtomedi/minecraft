@@ -49,7 +49,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class EntityRenderDispatcher {
-    private static final RenderType SHADOW_RENDER_TYPE = RenderType.entityNoOutline(new ResourceLocation("textures/misc/shadow.png"));
+    private static final RenderType SHADOW_RENDER_TYPE = RenderType.entityShadow(new ResourceLocation("textures/misc/shadow.png"));
     private final Map<EntityType<?>, EntityRenderer<?>> renderers = Maps.newHashMap();
     private final Map<String, PlayerRenderer> playerRenderers = Maps.newHashMap();
     private final PlayerRenderer defaultPlayerRenderer;
@@ -112,13 +112,14 @@ public class EntityRenderDispatcher {
         this.register(EntityType.GHAST, new GhastRenderer(this));
         this.register(EntityType.GIANT, new GiantMobRenderer(this, 6.0F));
         this.register(EntityType.GUARDIAN, new GuardianRenderer(this));
+        this.register(EntityType.HOGLIN, new HoglinRenderer(this));
         this.register(EntityType.HOPPER_MINECART, new MinecartRenderer<>(this));
         this.register(EntityType.HORSE, new HorseRenderer(this));
         this.register(EntityType.HUSK, new HuskRenderer(this));
         this.register(EntityType.ILLUSIONER, new IllusionerRenderer(this));
         this.register(EntityType.IRON_GOLEM, new IronGolemRenderer(this));
-        this.register(EntityType.ITEM_FRAME, new ItemFrameRenderer(this, param0));
         this.register(EntityType.ITEM, new ItemEntityRenderer(this, param0));
+        this.register(EntityType.ITEM_FRAME, new ItemFrameRenderer(this, param0));
         this.register(EntityType.LEASH_KNOT, new LeashKnotRenderer(this));
         this.register(EntityType.LIGHTNING_BOLT, new LightningBoltRenderer(this));
         this.register(EntityType.LLAMA, new LlamaRenderer(this));
@@ -434,7 +435,7 @@ public class EntityRenderDispatcher {
                         double var9 = (double)param3.getZ() + var4.maxZ;
                         float var10 = (float)(var5 - param4);
                         float var11 = (float)(var6 - param4);
-                        float var12 = (float)(var7 - param5 + 0.015625);
+                        float var12 = (float)(var7 - param5);
                         float var13 = (float)(var8 - param6);
                         float var14 = (float)(var9 - param6);
                         float var15 = -var10 / 2.0F / param7 + 0.5F;

@@ -34,7 +34,7 @@ public class CatModel<T extends Cat> extends OcelotModel<T> {
         }
 
         super.prepareMobModel(param0, param1, param2, param3);
-        if (param0.isSitting()) {
+        if (param0.isInSittingPose()) {
             this.body.xRot = (float) (Math.PI / 4);
             this.body.y += -4.0F;
             this.body.z += 5.0F;

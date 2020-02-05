@@ -212,7 +212,11 @@ public class BlockState extends AbstractStateHolder<Block, BlockState> implement
     }
 
     public final boolean entityCanStandOn(BlockGetter param0, BlockPos param1, Entity param2) {
-        return Block.isFaceFull(this.getCollisionShape(param0, param1, CollisionContext.of(param2)), Direction.UP);
+        return this.entityCanStandOnFace(param0, param1, param2, Direction.UP);
+    }
+
+    public final boolean entityCanStandOnFace(BlockGetter param0, BlockPos param1, Entity param2, Direction param3) {
+        return Block.isFaceFull(this.getCollisionShape(param0, param1, CollisionContext.of(param2)), param3);
     }
 
     public Vec3 getOffset(BlockGetter param0, BlockPos param1) {

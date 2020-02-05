@@ -62,7 +62,7 @@ public class McRegionUpgrader {
         }
 
         convertRegions(new File(var3, "region"), var0, var10, 0, var6, param3);
-        convertRegions(new File(var4, "region"), var1, var8.create(var8.createSettings(var7).setBiome(Biomes.NETHER)), var0.size(), var6, param3);
+        convertRegions(new File(var4, "region"), var1, var8.create(var8.createSettings(var7).setBiome(Biomes.NETHER_WASTES)), var0.size(), var6, param3);
         convertRegions(new File(var5, "region"), var2, var8.create(var8.createSettings(var7).setBiome(Biomes.THE_END)), var0.size() + var1.size(), var6, param3);
         var7.setVersion(19133);
         if (var7.getGeneratorType() == LevelType.NORMAL_1_1) {

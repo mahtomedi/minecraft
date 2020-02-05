@@ -54,33 +54,49 @@ public abstract class BiomeSource implements BiomeManager.NoiseBiomeSource {
         return var9;
     }
 
-    @Nullable
     public BlockPos findBiomeHorizontal(int param0, int param1, int param2, int param3, List<Biome> param4, Random param5) {
-        int var0 = param0 - param3 >> 2;
-        int var1 = param2 - param3 >> 2;
-        int var2 = param0 + param3 >> 2;
-        int var3 = param2 + param3 >> 2;
-        int var4 = var2 - var0 + 1;
-        int var5 = var3 - var1 + 1;
-        int var6 = param1 >> 2;
-        BlockPos var7 = null;
-        int var8 = 0;
+        return this.findBiomeHorizontal(param0, param1, param2, param3, 1, param4, param5, false);
+    }
 
-        for(int var9 = 0; var9 < var5; ++var9) {
-            for(int var10 = 0; var10 < var4; ++var10) {
-                int var11 = var0 + var10;
-                int var12 = var1 + var9;
-                if (param4.contains(this.getNoiseBiome(var11, var6, var12))) {
-                    if (var7 == null || param5.nextInt(var8 + 1) == 0) {
-                        var7 = new BlockPos(var11 << 2, param1, var12 << 2);
+    @Nullable
+    public BlockPos findBiomeHorizontal(int param0, int param1, int param2, int param3, int param4, List<Biome> param5, Random param6, boolean param7) {
+        int var0 = param0 >> 2;
+        int var1 = param2 >> 2;
+        int var2 = param3 >> 2;
+        int var3 = param1 >> 2;
+        BlockPos var4 = null;
+        int var5 = 0;
+        int var6 = param7 ? 0 : var2;
+
+        for(int var7 = var6; var7 <= var2; var7 += param4) {
+            for(int var8 = -var7; var8 <= var7; var8 += param4) {
+                boolean var9 = Math.abs(var8) == var7;
+
+                for(int var10 = -var7; var10 <= var7; var10 += param4) {
+                    if (param7) {
+                        boolean var11 = Math.abs(var10) == var7;
+                        if (!var11 && !var9) {
+                            continue;
+                        }
                     }
 
-                    ++var8;
+                    int var12 = var0 + var10;
+                    int var13 = var1 + var8;
+                    if (param5.contains(this.getNoiseBiome(var12, var3, var13))) {
+                        if (var4 == null || param6.nextInt(var5 + 1) == 0) {
+                            var4 = new BlockPos(var12 << 2, param1, var13 << 2);
+                            if (param7) {
+                                return var4;
+                            }
+                        }
+
+                        ++var5;
+                    }
                 }
             }
         }
 
-        return var7;
+        return var4;
     }
 
     public float getHeightValue(int param0, int param1) {

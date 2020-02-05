@@ -23,10 +23,14 @@ public class FixedBiomeSource extends BiomeSource {
 
     @Nullable
     @Override
-    public BlockPos findBiomeHorizontal(int param0, int param1, int param2, int param3, List<Biome> param4, Random param5) {
-        return param4.contains(this.biome)
-            ? new BlockPos(param0 - param3 + param5.nextInt(param3 * 2 + 1), param1, param2 - param3 + param5.nextInt(param3 * 2 + 1))
-            : null;
+    public BlockPos findBiomeHorizontal(int param0, int param1, int param2, int param3, int param4, List<Biome> param5, Random param6, boolean param7) {
+        if (param5.contains(this.biome)) {
+            return param7
+                ? new BlockPos(param0, param1, param2)
+                : new BlockPos(param0 - param3 + param6.nextInt(param3 * 2 + 1), param1, param2 - param3 + param6.nextInt(param3 * 2 + 1));
+        } else {
+            return null;
+        }
     }
 
     @Override
