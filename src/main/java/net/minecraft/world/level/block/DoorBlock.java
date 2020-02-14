@@ -273,4 +273,12 @@ public class DoorBlock extends Block {
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> param0) {
         param0.add(HALF, FACING, OPEN, HINGE, POWERED);
     }
+
+    public static boolean isWoodenDoor(Level param0, BlockPos param1) {
+        return isWoodenDoor(param0.getBlockState(param1));
+    }
+
+    public static boolean isWoodenDoor(BlockState param0) {
+        return param0.getBlock() instanceof DoorBlock && (param0.getMaterial() == Material.WOOD || param0.getMaterial() == Material.NETHER_WOOD);
+    }
 }

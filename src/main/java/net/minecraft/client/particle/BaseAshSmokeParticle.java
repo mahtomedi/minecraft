@@ -25,7 +25,8 @@ public class BaseAshSmokeParticle extends TextureSheetParticle {
         SpriteSet param11,
         float param12,
         int param13,
-        double param14
+        double param14,
+        boolean param15
     ) {
         super(param0, param1, param2, param3, 0.0, 0.0, 0.0);
         this.fallSpeed = param14;
@@ -45,6 +46,7 @@ public class BaseAshSmokeParticle extends TextureSheetParticle {
         this.lifetime = (int)((float)this.lifetime * param10);
         this.lifetime = Math.max(this.lifetime, 1);
         this.setSpriteFromAge(param11);
+        this.hasPhysics = param15;
     }
 
     @Override

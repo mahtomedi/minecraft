@@ -17,6 +17,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.LockCode;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.effect.MobEffect;
@@ -200,8 +201,7 @@ public class BeaconBlockEntity extends BlockEntity implements MenuProvider, Tick
 
             for(int var3 = param0 - var0; var3 <= param0 + var0 && var2; ++var3) {
                 for(int var4 = param2 - var0; var4 <= param2 + var0; ++var4) {
-                    Block var5 = this.level.getBlockState(new BlockPos(var3, var1, var4)).getBlock();
-                    if (var5 != Blocks.EMERALD_BLOCK && var5 != Blocks.GOLD_BLOCK && var5 != Blocks.DIAMOND_BLOCK && var5 != Blocks.IRON_BLOCK) {
+                    if (!this.level.getBlockState(new BlockPos(var3, var1, var4)).is(BlockTags.BEACON_BASE_BLOCKS)) {
                         var2 = false;
                         break;
                     }

@@ -251,7 +251,7 @@ public class TeleportCommand {
         @Nullable TeleportCommand.LookAt param9
     ) throws CommandSyntaxException {
         BlockPos var0 = new BlockPos(param3, param4, param5);
-        if (!Level.isInWorldBounds(var0)) {
+        if (!Level.isInWorldBoundsHorizontal(var0)) {
             throw INVALID_POSITION.create();
         } else {
             if (param1 instanceof ServerPlayer) {

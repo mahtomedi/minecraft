@@ -90,7 +90,7 @@ public class RavagerModel extends ListModel<Ravager> {
         int var3 = param0.getAttackTick();
         int var4 = 10;
         if (var3 > 0) {
-            float var5 = this.triangleWave((float)var3 - param3, 10.0F);
+            float var5 = Mth.triangleWave((float)var3 - param3, 10.0F);
             float var6 = (1.0F + var5) * 0.5F;
             float var7 = var6 * var6 * var6 * 12.0F;
             float var8 = var7 * Mth.sin(this.neck.xRot);
@@ -121,9 +121,5 @@ public class RavagerModel extends ListModel<Ravager> {
             }
         }
 
-    }
-
-    private float triangleWave(float param0, float param1) {
-        return (Math.abs(param0 % param1 - param1 * 0.5F) - param1 * 0.25F) / (param1 * 0.25F);
     }
 }

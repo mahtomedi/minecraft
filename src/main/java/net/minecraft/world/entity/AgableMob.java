@@ -7,11 +7,6 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 
@@ -45,41 +40,14 @@ public abstract class AgableMob extends PathfinderMob {
     @Nullable
     public abstract AgableMob getBreedOffspring(AgableMob var1);
 
-    protected void onOffspringSpawnedFromEgg(Player param0, AgableMob param1) {
-    }
-
-    @Override
-    public boolean mobInteract(Player param0, InteractionHand param1) {
-        ItemStack var0 = param0.getItemInHand(param1);
-        Item var1 = var0.getItem();
-        if (var1 instanceof SpawnEggItem && ((SpawnEggItem)var1).spawnsEntity(var0.getTag(), this.getType())) {
-            if (!this.level.isClientSide) {
-                AgableMob var2 = this.getBreedOffspring(this);
-                if (var2 != null) {
-                    var2.setAge(-24000);
-                    var2.moveTo(this.getX(), this.getY(), this.getZ(), 0.0F, 0.0F);
-                    this.level.addFreshEntity(var2);
-                    if (var0.hasCustomHoverName()) {
-                        var2.setCustomName(var0.getHoverName());
-                    }
-
-                    this.onOffspringSpawnedFromEgg(param0, var2);
-                    if (!param0.abilities.instabuild) {
-                        var0.shrink(1);
-                    }
-                }
-            }
-
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(DATA_BABY_ID, false);
+    }
+
+    public boolean canBreed() {
+        return false;
     }
 
     public int getAge() {
@@ -177,6 +145,11 @@ public abstract class AgableMob extends PathfinderMob {
     @Override
     public boolean isBaby() {
         return this.getAge() < 0;
+    }
+
+    @Override
+    public void setBaby(boolean param0) {
+        this.setAge(param0 ? -24000 : 0);
     }
 
     public static class AgableMobGroupData implements SpawnGroupData {

@@ -2,7 +2,7 @@ package net.minecraft.client.renderer.entity;
 
 import net.minecraft.client.model.HoglinModel;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.monster.Hoglin;
+import net.minecraft.world.entity.monster.hoglin.Hoglin;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 

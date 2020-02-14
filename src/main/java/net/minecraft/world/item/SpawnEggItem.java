@@ -4,6 +4,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -13,6 +14,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BaseSpawner;
@@ -26,6 +28,7 @@ import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -142,5 +145,29 @@ public class SpawnEggItem extends Item {
         }
 
         return this.defaultType;
+    }
+
+    public Optional<Mob> spawnOffspringFromSpawnEgg(Player param0, EntityType<? extends Mob> param1, Level param2, Vec3 param3, ItemStack param4) {
+        if (!this.spawnsEntity(param4.getTag(), param1)) {
+            return Optional.empty();
+        } else {
+            Mob var0 = param1.create(param2);
+            if (var0 == null) {
+                return Optional.empty();
+            } else {
+                var0.setBaby(true);
+                var0.moveTo(param3.x(), param3.y(), param3.z(), 0.0F, 0.0F);
+                param2.addFreshEntity(var0);
+                if (param4.hasCustomHoverName()) {
+                    var0.setCustomName(param4.getHoverName());
+                }
+
+                if (!param0.abilities.instabuild) {
+                    param4.shrink(1);
+                }
+
+                return Optional.of(var0);
+            }
+        }
     }
 }

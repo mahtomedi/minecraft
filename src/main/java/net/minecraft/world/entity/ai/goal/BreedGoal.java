@@ -3,14 +3,8 @@ package net.minecraft.world.entity.ai.goal;
 import java.util.EnumSet;
 import java.util.List;
 import javax.annotation.Nullable;
-import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.stats.Stats;
-import net.minecraft.world.entity.AgableMob;
-import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 
 public class BreedGoal extends Goal {
@@ -83,33 +77,6 @@ public class BreedGoal extends Goal {
     }
 
     protected void breed() {
-        AgableMob var0 = this.animal.getBreedOffspring(this.partner);
-        if (var0 != null) {
-            ServerPlayer var1 = this.animal.getLoveCause();
-            if (var1 == null && this.partner.getLoveCause() != null) {
-                var1 = this.partner.getLoveCause();
-            }
-
-            if (var1 != null) {
-                var1.awardStat(Stats.ANIMALS_BRED);
-                CriteriaTriggers.BRED_ANIMALS.trigger(var1, this.animal, this.partner, var0);
-            }
-
-            this.animal.setAge(6000);
-            this.partner.setAge(6000);
-            this.animal.resetLove();
-            this.partner.resetLove();
-            var0.setAge(-24000);
-            var0.moveTo(this.animal.getX(), this.animal.getY(), this.animal.getZ(), 0.0F, 0.0F);
-            this.level.addFreshEntity(var0);
-            this.level.broadcastEntityEvent(this.animal, (byte)18);
-            if (this.level.getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT)) {
-                this.level
-                    .addFreshEntity(
-                        new ExperienceOrb(this.level, this.animal.getX(), this.animal.getY(), this.animal.getZ(), this.animal.getRandom().nextInt(7) + 1)
-                    );
-            }
-
-        }
+        this.animal.spawnChildFromBreeding(this.level, this.partner);
     }
 }

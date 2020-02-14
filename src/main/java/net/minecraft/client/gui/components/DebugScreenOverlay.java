@@ -511,9 +511,9 @@ public class DebugScreenOverlay extends GuiComponent {
             int var20 = var17 >> 8 & 0xFF;
             int var21 = var17 & 0xFF;
             var13.vertex(var14, (float)(var4 + 1), (float)var12, 0.0F).color(var19, var20, var21, var18).endVertex();
-            var13.vertex(var14, (float)var4, (float)var12, 0.0F).color(var19, var20, var21, var18).endVertex();
-            var13.vertex(var14, (float)var4, (float)(var12 - var15 + 1), 0.0F).color(var19, var20, var21, var18).endVertex();
             var13.vertex(var14, (float)(var4 + 1), (float)(var12 - var15 + 1), 0.0F).color(var19, var20, var21, var18).endVertex();
+            var13.vertex(var14, (float)var4, (float)(var12 - var15 + 1), 0.0F).color(var19, var20, var21, var18).endVertex();
+            var13.vertex(var14, (float)var4, (float)var12, 0.0F).color(var19, var20, var21, var18).endVertex();
             ++var4;
         }
 

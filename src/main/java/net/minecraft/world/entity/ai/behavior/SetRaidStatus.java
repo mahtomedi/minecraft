@@ -25,10 +25,10 @@ public class SetRaidStatus extends Behavior<LivingEntity> {
         if (var1 != null) {
             if (var1.hasFirstWaveSpawned() && !var1.isBetweenWaves()) {
                 var0.setDefaultActivity(Activity.RAID);
-                var0.setActivity(Activity.RAID);
+                var0.setActiveActivityIfPossible(Activity.RAID);
             } else {
                 var0.setDefaultActivity(Activity.PRE_RAID);
-                var0.setActivity(Activity.PRE_RAID);
+                var0.setActiveActivityIfPossible(Activity.PRE_RAID);
             }
         }
 

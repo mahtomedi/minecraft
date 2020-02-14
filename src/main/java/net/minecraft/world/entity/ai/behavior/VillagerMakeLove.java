@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.AgableMob;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -14,10 +15,10 @@ import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.level.pathfinder.Path;
 
-public class MakeLove extends Behavior<Villager> {
+public class VillagerMakeLove extends Behavior<Villager> {
     private long birthTimestamp;
 
-    public MakeLove() {
+    public VillagerMakeLove() {
         super(
             ImmutableMap.of(MemoryModuleType.BREED_TARGET, MemoryStatus.VALUE_PRESENT, MemoryModuleType.VISIBLE_LIVING_ENTITIES, MemoryStatus.VALUE_PRESENT),
             350,
@@ -34,7 +35,7 @@ public class MakeLove extends Behavior<Villager> {
     }
 
     protected void start(ServerLevel param0, Villager param1, long param2) {
-        Villager var0 = this.getBreedingTarget(param1);
+        AgableMob var0 = param1.getBrain().getMemory(MemoryModuleType.BREED_TARGET).get();
         BehaviorUtils.lockGazeAndWalkToEachOther(param1, var0);
         param0.broadcastEntityEvent(var0, (byte)18);
         param0.broadcastEntityEvent(param1, (byte)18);
@@ -43,7 +44,7 @@ public class MakeLove extends Behavior<Villager> {
     }
 
     protected void tick(ServerLevel param0, Villager param1, long param2) {
-        Villager var0 = this.getBreedingTarget(param1);
+        Villager var0 = (Villager)param1.getBrain().getMemory(MemoryModuleType.BREED_TARGET).get();
         if (!(param1.distanceToSqr(var0) > 5.0)) {
             BehaviorUtils.lockGazeAndWalkToEachOther(param1, var0);
             if (param2 >= this.birthTimestamp) {
@@ -79,17 +80,13 @@ public class MakeLove extends Behavior<Villager> {
         param1.getBrain().eraseMemory(MemoryModuleType.BREED_TARGET);
     }
 
-    private Villager getBreedingTarget(Villager param0) {
-        return param0.getBrain().getMemory(MemoryModuleType.BREED_TARGET).get();
-    }
-
     private boolean isBreedingPossible(Villager param0) {
         Brain<Villager> var0 = param0.getBrain();
-        if (!var0.getMemory(MemoryModuleType.BREED_TARGET).isPresent()) {
+        Optional<AgableMob> var1 = var0.getMemory(MemoryModuleType.BREED_TARGET).filter(param0x -> param0x.getType() == EntityType.VILLAGER);
+        if (!var1.isPresent()) {
             return false;
         } else {
-            Villager var1 = this.getBreedingTarget(param0);
-            return BehaviorUtils.targetIsValid(var0, MemoryModuleType.BREED_TARGET, EntityType.VILLAGER) && param0.canBreed() && var1.canBreed();
+            return BehaviorUtils.targetIsValid(var0, MemoryModuleType.BREED_TARGET, EntityType.VILLAGER) && param0.canBreed() && var1.get().canBreed();
         }
     }
 

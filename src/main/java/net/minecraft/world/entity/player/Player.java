@@ -1136,7 +1136,6 @@ public abstract class Player extends LivingEntity {
                             if (param0 instanceof LivingEntity) {
                                 ((LivingEntity)param0)
                                     .knockback(
-                                        this,
                                         (float)var6 * 0.5F,
                                         (double)Mth.sin(this.yRot * (float) (Math.PI / 180.0)),
                                         (double)(-Mth.cos(this.yRot * (float) (Math.PI / 180.0)))
@@ -1163,10 +1162,7 @@ public abstract class Player extends LivingEntity {
                                     && (!(var18 instanceof ArmorStand) || !((ArmorStand)var18).isMarker())
                                     && this.distanceToSqr(var18) < 9.0) {
                                     var18.knockback(
-                                        this,
-                                        0.4F,
-                                        (double)Mth.sin(this.yRot * (float) (Math.PI / 180.0)),
-                                        (double)(-Mth.cos(this.yRot * (float) (Math.PI / 180.0)))
+                                        0.4F, (double)Mth.sin(this.yRot * (float) (Math.PI / 180.0)), (double)(-Mth.cos(this.yRot * (float) (Math.PI / 180.0)))
                                     );
                                     var18.hurt(DamageSource.playerAttack(this), var16);
                                 }

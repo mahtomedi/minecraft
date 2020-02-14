@@ -2,6 +2,7 @@ package net.minecraft.client.model;
 
 import com.google.common.collect.ImmutableList;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -49,8 +50,8 @@ public class IronGolemModel<T extends IronGolem> extends ListModel<T> {
     public void setupAnim(T param0, float param1, float param2, float param3, float param4, float param5) {
         this.head.yRot = param4 * (float) (Math.PI / 180.0);
         this.head.xRot = param5 * (float) (Math.PI / 180.0);
-        this.leg0.xRot = -1.5F * this.triangleWave(param1, 13.0F) * param2;
-        this.leg1.xRot = 1.5F * this.triangleWave(param1, 13.0F) * param2;
+        this.leg0.xRot = -1.5F * Mth.triangleWave(param1, 13.0F) * param2;
+        this.leg1.xRot = 1.5F * Mth.triangleWave(param1, 13.0F) * param2;
         this.leg0.yRot = 0.0F;
         this.leg1.yRot = 0.0F;
     }
@@ -58,23 +59,19 @@ public class IronGolemModel<T extends IronGolem> extends ListModel<T> {
     public void prepareMobModel(T param0, float param1, float param2, float param3) {
         int var0 = param0.getAttackAnimationTick();
         if (var0 > 0) {
-            this.arm0.xRot = -2.0F + 1.5F * this.triangleWave((float)var0 - param3, 10.0F);
-            this.arm1.xRot = -2.0F + 1.5F * this.triangleWave((float)var0 - param3, 10.0F);
+            this.arm0.xRot = -2.0F + 1.5F * Mth.triangleWave((float)var0 - param3, 10.0F);
+            this.arm1.xRot = -2.0F + 1.5F * Mth.triangleWave((float)var0 - param3, 10.0F);
         } else {
             int var1 = param0.getOfferFlowerTick();
             if (var1 > 0) {
-                this.arm0.xRot = -0.8F + 0.025F * this.triangleWave((float)var1, 70.0F);
+                this.arm0.xRot = -0.8F + 0.025F * Mth.triangleWave((float)var1, 70.0F);
                 this.arm1.xRot = 0.0F;
             } else {
-                this.arm0.xRot = (-0.2F + 1.5F * this.triangleWave(param1, 13.0F)) * param2;
-                this.arm1.xRot = (-0.2F - 1.5F * this.triangleWave(param1, 13.0F)) * param2;
+                this.arm0.xRot = (-0.2F + 1.5F * Mth.triangleWave(param1, 13.0F)) * param2;
+                this.arm1.xRot = (-0.2F - 1.5F * Mth.triangleWave(param1, 13.0F)) * param2;
             }
         }
 
-    }
-
-    private float triangleWave(float param0, float param1) {
-        return (Math.abs(param0 % param1 - param1 * 0.5F) - param1 * 0.25F) / (param1 * 0.25F);
     }
 
     public ModelPart getFlowerHoldingArm() {

@@ -52,7 +52,8 @@ public class PoiManager extends SectionStorage<PoiSection> {
     }
 
     public Stream<PoiRecord> getInSquare(Predicate<PoiType> param0, BlockPos param1, int param2, PoiManager.Occupancy param3) {
-        return ChunkPos.rangeClosed(new ChunkPos(param1), Math.floorDiv(param2, 16)).flatMap(param2x -> this.getInChunk(param0, param2x, param3));
+        int var0 = Math.floorDiv(param2, 16) + 1;
+        return ChunkPos.rangeClosed(new ChunkPos(param1), var0).flatMap(param2x -> this.getInChunk(param0, param2x, param3));
     }
 
     public Stream<PoiRecord> getInRange(Predicate<PoiType> param0, BlockPos param1, int param2, PoiManager.Occupancy param3) {
@@ -76,11 +77,10 @@ public class PoiManager extends SectionStorage<PoiSection> {
         return this.findAll(param0, param1, param2, param3, param4).findFirst();
     }
 
-    public Optional<BlockPos> findClosest(Predicate<PoiType> param0, Predicate<BlockPos> param1, BlockPos param2, int param3, PoiManager.Occupancy param4) {
-        return this.getInRange(param0, param2, param3, param4)
+    public Optional<BlockPos> findClosest(Predicate<PoiType> param0, BlockPos param1, int param2, PoiManager.Occupancy param3) {
+        return this.getInRange(param0, param1, param2, param3)
             .map(PoiRecord::getPos)
-            .sorted(Comparator.comparingDouble(param1x -> param1x.distSqr(param2)))
-            .filter(param1)
+            .sorted(Comparator.comparingDouble(param1x -> param1x.distSqr(param1)))
             .findFirst();
     }
 

@@ -5,6 +5,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MoverType;
@@ -131,6 +133,9 @@ public class PistonMovingBlockEntity extends BlockEntity implements TickableBloc
                             }
 
                             var7.setDeltaMovement(var9, var10, var11);
+                            if (var7 instanceof ServerPlayer) {
+                                ((ServerPlayer)var7).connection.send(new ClientboundSetEntityMotionPacket(var7));
+                            }
                         }
 
                         double var12 = 0.0;

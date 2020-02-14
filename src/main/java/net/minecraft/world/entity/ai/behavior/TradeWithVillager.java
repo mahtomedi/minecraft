@@ -102,7 +102,7 @@ public class TradeWithVillager extends Behavior<Villager> {
         }
 
         if (!var1.isEmpty()) {
-            BehaviorUtils.throwItem(param0, var1, param2);
+            BehaviorUtils.throwItem(param0, var1, param2.position());
         }
 
     }

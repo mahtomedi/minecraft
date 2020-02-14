@@ -16,11 +16,10 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.PathNavigationRegion;
 
 public class PathFinder {
-    private final BinaryHeap openSet = new BinaryHeap();
-    private final Set<Node> closedSet = Sets.newHashSet();
     private final Node[] neighbors = new Node[32];
     private final int maxVisitedNodes;
     private final NodeEvaluator nodeEvaluator;
+    private final BinaryHeap openSet = new BinaryHeap();
 
     public PathFinder(NodeEvaluator param0, int param1) {
         this.nodeEvaluator = param0;
@@ -50,60 +49,60 @@ public class PathFinder {
         param0.h = this.getBestH(param0, var0);
         param0.f = param0.h;
         this.openSet.clear();
-        this.closedSet.clear();
         this.openSet.insert(param0);
-        int var1 = 0;
-        int var2 = (int)((float)this.maxVisitedNodes * param4);
+        Set<Node> var1 = Sets.newHashSet();
+        int var2 = 0;
+        int var3 = (int)((float)this.maxVisitedNodes * param4);
 
         while(!this.openSet.isEmpty()) {
-            if (++var1 >= var2) {
+            if (++var2 >= var3) {
                 break;
             }
 
-            Node var3 = this.openSet.pop();
-            var3.closed = true;
-            var0.stream().filter(param2x -> var3.distanceManhattan(param2x) <= (float)param3).forEach(Target::setReached);
+            Node var4 = this.openSet.pop();
+            var4.closed = true;
+            var0.stream().filter(param2x -> var4.distanceManhattan(param2x) <= (float)param3).forEach(Target::setReached);
             if (var0.stream().anyMatch(Target::isReached)) {
                 break;
             }
 
-            if (!(var3.distanceTo(param0) >= param2)) {
-                int var4 = this.nodeEvaluator.getNeighbors(this.neighbors, var3);
+            if (!(var4.distanceTo(param0) >= param2)) {
+                int var5 = this.nodeEvaluator.getNeighbors(this.neighbors, var4);
 
-                for(int var5 = 0; var5 < var4; ++var5) {
-                    Node var6 = this.neighbors[var5];
-                    float var7 = var3.distanceTo(var6);
-                    var6.walkedDistance = var3.walkedDistance + var7;
-                    float var8 = var3.g + var7 + var6.costMalus;
-                    if (var6.walkedDistance < param2 && (!var6.inOpenSet() || var8 < var6.g)) {
-                        var6.cameFrom = var3;
-                        var6.g = var8;
-                        var6.h = this.getBestH(var6, var0) * 1.5F;
-                        if (var6.inOpenSet()) {
-                            this.openSet.changeCost(var6, var6.g + var6.h);
+                for(int var6 = 0; var6 < var5; ++var6) {
+                    Node var7 = this.neighbors[var6];
+                    float var8 = var4.distanceTo(var7);
+                    var7.walkedDistance = var4.walkedDistance + var8;
+                    float var9 = var4.g + var8 + var7.costMalus;
+                    if (var7.walkedDistance < param2 && (!var7.inOpenSet() || var9 < var7.g)) {
+                        var7.cameFrom = var4;
+                        var7.g = var9;
+                        var7.h = this.getBestH(var7, var0) * 1.5F;
+                        if (var7.inOpenSet()) {
+                            this.openSet.changeCost(var7, var7.g + var7.h);
                         } else {
-                            var6.f = var6.g + var6.h;
-                            this.openSet.insert(var6);
+                            var7.f = var7.g + var7.h;
+                            this.openSet.insert(var7);
                         }
                     }
                 }
             }
         }
 
-        Stream<Path> var9;
+        Stream<Path> var10;
         if (var0.stream().anyMatch(Target::isReached)) {
-            var9 = var0.stream()
+            var10 = var0.stream()
                 .filter(Target::isReached)
                 .map(param1x -> this.reconstructPath(param1x.getBestNode(), param1.get(param1x), true))
                 .sorted(Comparator.comparingInt(Path::getSize));
         } else {
-            var9 = var0.stream()
+            var10 = var0.stream()
                 .map(param1x -> this.reconstructPath(param1x.getBestNode(), param1.get(param1x), false))
                 .sorted(Comparator.comparingDouble(Path::getDistToTarget).thenComparingInt(Path::getSize));
         }
 
-        Optional<Path> var11 = var9.findFirst();
-        return !var11.isPresent() ? null : var11.get();
+        Optional<Path> var12 = var10.findFirst();
+        return !var12.isPresent() ? null : var12.get();
     }
 
     private float getBestH(Node param0, Set<Target> param1) {

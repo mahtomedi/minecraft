@@ -18,7 +18,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Position;
-import net.minecraft.network.protocol.game.DebugMobNameGenerator;
+import net.minecraft.network.protocol.game.DebugEntityNameGenerator;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.pathfinder.Path;
@@ -130,7 +130,7 @@ public class BeeDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
         var0.entrySet().forEach(param0 -> {
             BlockPos var0x = param0.getKey();
             Set<UUID> var1x = param0.getValue();
-            Set<String> var2 = var1x.stream().map(DebugMobNameGenerator::getMobName).collect(Collectors.toSet());
+            Set<String> var2 = var1x.stream().map(DebugEntityNameGenerator::getEntityName).collect(Collectors.toSet());
             int var3 = 1;
             renderTextOverPos(var2.toString(), var0x, var3++, -256);
             renderTextOverPos("Flower", var0x, var3++, -1);
@@ -145,7 +145,7 @@ public class BeeDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
         } else {
             return param0.size() > 3
                 ? "" + param0.size() + " bees"
-                : param0.stream().map(DebugMobNameGenerator::getMobName).collect(Collectors.toSet()).toString();
+                : param0.stream().map(DebugEntityNameGenerator::getEntityName).collect(Collectors.toSet()).toString();
         }
     }
 
@@ -347,7 +347,7 @@ public class BeeDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
         }
 
         public String getName() {
-            return DebugMobNameGenerator.getMobName(this.uuid);
+            return DebugEntityNameGenerator.getEntityName(this.uuid);
         }
 
         @Override

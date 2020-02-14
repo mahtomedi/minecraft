@@ -15,7 +15,7 @@ public class VillagerCalmDown extends Behavior<Villager> {
         if (!var0) {
             param1.getBrain().eraseMemory(MemoryModuleType.HURT_BY);
             param1.getBrain().eraseMemory(MemoryModuleType.HURT_BY_ENTITY);
-            param1.getBrain().updateActivity(param0.getDayTime(), param0.getGameTime());
+            param1.getBrain().updateActivityFromSchedule(param0.getDayTime(), param0.getGameTime());
         }
 
     }

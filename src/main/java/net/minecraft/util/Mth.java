@@ -580,6 +580,11 @@ public class Mth {
         return (float)param0;
     }
 
+    @OnlyIn(Dist.CLIENT)
+    public static float triangleWave(float param0, float param1) {
+        return (Math.abs(param0 % param1 - param1 * 0.5F) - param1 * 0.25F) / (param1 * 0.25F);
+    }
+
     static {
         for(int var0 = 0; var0 < 257; ++var0) {
             double var1 = (double)var0 / 256.0;

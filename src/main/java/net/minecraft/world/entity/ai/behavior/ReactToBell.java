@@ -20,7 +20,7 @@ public class ReactToBell extends Behavior<LivingEntity> {
         Brain<?> var0 = param1.getBrain();
         Raid var1 = param0.getRaidAt(new BlockPos(param1));
         if (var1 == null) {
-            var0.setActivity(Activity.HIDE);
+            var0.setActiveActivityIfPossible(Activity.HIDE);
         }
 
     }

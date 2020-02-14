@@ -457,7 +457,7 @@ public class Fox extends Animal {
     }
 
     @Override
-    protected boolean canHoldItem(ItemStack param0) {
+    public boolean canHoldItem(ItemStack param0) {
         Item var0 = param0.getItem();
         ItemStack var1 = this.getItemBySlot(EquipmentSlot.MAINHAND);
         return var1.isEmpty() || this.ticksSinceEaten > 0 && var0.isEdible() && !var1.getItem().isEdible();
@@ -542,7 +542,7 @@ public class Fox extends Animal {
     }
 
     @Override
-    protected void onOffspringSpawnedFromEgg(Player param0, AgableMob param1) {
+    protected void onOffspringSpawnedFromEgg(Player param0, Mob param1) {
         ((Fox)param1).addTrustedUUID(param0.getUUID());
     }
 
@@ -728,7 +728,7 @@ public class Fox extends Animal {
 
         @Override
         public void start() {
-            Fox.this.setTarget(this.trustedLastHurtBy);
+            this.setTarget(this.trustedLastHurtBy);
             this.target = this.trustedLastHurtBy;
             if (this.trustedLastHurt != null) {
                 this.timestamp = this.trustedLastHurt.getLastHurtByMobTimestamp();
@@ -849,7 +849,6 @@ public class Fox extends Animal {
                     CriteriaTriggers.BRED_ANIMALS.trigger(var3, this.animal, this.partner, var0);
                 }
 
-                int var4 = 6000;
                 this.animal.setAge(6000);
                 this.partner.setAge(6000);
                 this.animal.resetLove();

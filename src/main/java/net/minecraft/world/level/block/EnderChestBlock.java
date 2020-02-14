@@ -9,6 +9,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.entity.monster.piglin.PiglinAi;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.inventory.PlayerEnderChestContainer;
@@ -84,6 +85,7 @@ public class EnderChestBlock extends AbstractChestBlock<EnderChestBlockEntity> i
                 var0.setActiveChest(var3);
                 param3.openMenu(new SimpleMenuProvider((param1x, param2x, param3x) -> ChestMenu.threeRows(param1x, param2x, var0), CONTAINER_TITLE));
                 param3.awardStat(Stats.OPEN_ENDERCHEST);
+                PiglinAi.angerNearbyPiglinsThatSee(param3);
                 return InteractionResult.SUCCESS;
             }
         } else {
@@ -145,5 +147,11 @@ public class EnderChestBlock extends AbstractChestBlock<EnderChestBlockEntity> i
     @Override
     public boolean isPathfindable(BlockState param0, BlockGetter param1, BlockPos param2, PathComputationType param3) {
         return false;
+    }
+
+    @Override
+    public void playerWillDestroy(Level param0, BlockPos param1, BlockState param2, Player param3) {
+        super.playerWillDestroy(param0, param1, param2, param3);
+        PiglinAi.angerNearbyPiglinsThatSee(param3);
     }
 }

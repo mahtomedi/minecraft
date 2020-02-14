@@ -332,10 +332,10 @@ public class Wolf extends TamableAnimal {
         if (var0.getItem() instanceof SpawnEggItem) {
             return super.mobInteract(param0, param1);
         } else if (this.level.isClientSide) {
-            return this.isOwnedBy(param0) || var1 == Items.BONE && !this.isAngry();
+            return this.isOwnedBy(param0) || var1 == Items.BONE && !this.isTame() && !this.isAngry();
         } else {
             if (this.isTame()) {
-                if (var1.isEdible() && var1.getFoodProperties().isMeat() && this.getHealth() < this.getMaxHealth()) {
+                if (this.isFood(var0) && this.getHealth() < this.getMaxHealth()) {
                     if (!param0.abilities.instabuild) {
                         var0.shrink(1);
                     }
@@ -346,8 +346,11 @@ public class Wolf extends TamableAnimal {
 
                 if (!(var1 instanceof DyeItem)) {
                     boolean var3 = super.mobInteract(param0, param1);
-                    if (!var3 || this.isBaby()) {
+                    if ((!var3 || this.isBaby()) && this.isOwnedBy(param0) && !this.isFood(var0)) {
                         this.setOrderedToSit(!this.isOrderedToSit());
+                        this.jumping = false;
+                        this.navigation.stop();
+                        this.setTarget(null);
                     }
 
                     return var3;
@@ -361,13 +364,6 @@ public class Wolf extends TamableAnimal {
                     }
 
                     return true;
-                }
-
-                if (this.isOwnedBy(param0) && !this.isFood(var0)) {
-                    this.setOrderedToSit(!this.isOrderedToSit());
-                    this.jumping = false;
-                    this.navigation.stop();
-                    this.setTarget(null);
                 }
             } else if (var1 == Items.BONE && !this.isAngry()) {
                 if (!param0.abilities.instabuild) {

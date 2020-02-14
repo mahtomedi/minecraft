@@ -28,7 +28,7 @@ public class VillagerPanicTrigger extends Behavior<Villager> {
                 var0.eraseMemory(MemoryModuleType.INTERACTION_TARGET);
             }
 
-            var0.setActivity(Activity.PANIC);
+            var0.setActiveActivityIfPossible(Activity.PANIC);
         }
 
     }

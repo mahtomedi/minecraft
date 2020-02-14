@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
+import net.minecraft.world.entity.AgableMob;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobCategory;
@@ -25,7 +26,7 @@ public class VillagerGoalPackages {
             Pair.of(0, new SetRaidStatus()),
             Pair.of(1, new MoveToTargetSink(200)),
             Pair.of(2, new LookAndFollowTradingPlayerSink(param1)),
-            Pair.of(5, new PickUpItems()),
+            Pair.of(5, new GoToWantedItem<>(4, false)),
             Pair.of(10, new AcquirePoi(param0.getJobPoiType(), MemoryModuleType.JOB_SITE, true)),
             Pair.of(10, new AcquirePoi(PoiType.HOME, MemoryModuleType.HOME, false)),
             Pair.of(10, new AcquirePoi(PoiType.MEETING, MemoryModuleType.MEETING_POINT, true)),
@@ -133,7 +134,9 @@ public class VillagerGoalPackages {
                 new RunOne<>(
                     ImmutableList.of(
                         Pair.of(InteractWith.of(EntityType.VILLAGER, 8, MemoryModuleType.INTERACTION_TARGET, param1, 2), 2),
-                        Pair.of(new InteractWith<>(EntityType.VILLAGER, 8, Villager::canBreed, Villager::canBreed, MemoryModuleType.BREED_TARGET, param1, 2), 1),
+                        Pair.of(
+                            new InteractWith<>(EntityType.VILLAGER, 8, AgableMob::canBreed, AgableMob::canBreed, MemoryModuleType.BREED_TARGET, param1, 2), 1
+                        ),
                         Pair.of(InteractWith.of(EntityType.CAT, 8, MemoryModuleType.INTERACTION_TARGET, param1, 2), 1),
                         Pair.of(new VillageBoundRandomStroll(param1), 1),
                         Pair.of(new SetWalkTargetFromLookTarget(param1, 2), 1),
@@ -162,7 +165,7 @@ public class VillagerGoalPackages {
                     ImmutableSet.of(MemoryModuleType.BREED_TARGET),
                     GateBehavior.OrderPolicy.ORDERED,
                     GateBehavior.RunningPolicy.RUN_ONE,
-                    ImmutableList.of(Pair.of(new MakeLove(), 1))
+                    ImmutableList.of(Pair.of(new VillagerMakeLove(), 1))
                 )
             ),
             getFullLookBehavior(),
@@ -174,8 +177,8 @@ public class VillagerGoalPackages {
         float var0 = param1 * 1.5F;
         return ImmutableList.of(
             Pair.of(0, new VillagerCalmDown()),
-            Pair.of(1, new SetWalkTargetAwayFromEntity(MemoryModuleType.NEAREST_HOSTILE, var0)),
-            Pair.of(1, new SetWalkTargetAwayFromEntity(MemoryModuleType.HURT_BY_ENTITY, var0)),
+            Pair.of(1, SetWalkTargetAwayFrom.entity(MemoryModuleType.NEAREST_HOSTILE, var0, 6, false)),
+            Pair.of(1, SetWalkTargetAwayFrom.entity(MemoryModuleType.HURT_BY_ENTITY, var0, 6, false)),
             Pair.of(3, new VillageBoundRandomStroll(var0, 2, 2)),
             getMinimalLookBehavior()
         );
@@ -201,7 +204,7 @@ public class VillagerGoalPackages {
     public static ImmutableList<Pair<Integer, ? extends Behavior<? super Villager>>> getRaidPackage(VillagerProfession param0, float param1) {
         return ImmutableList.of(
             Pair.of(0, new RunOne<>(ImmutableList.of(Pair.of(new GoOutsideToCelebrate(param1), 5), Pair.of(new VictoryStroll(param1 * 1.1F), 2)))),
-            Pair.of(0, new Celebrate(600, 600)),
+            Pair.of(0, new CelebrateVillagersSurvivedRaid(600, 600)),
             Pair.of(2, new LocateHidingPlaceDuringRaid(24, param1 * 1.4F)),
             getMinimalLookBehavior(),
             Pair.of(99, new ResetRaidStatus())
@@ -210,7 +213,7 @@ public class VillagerGoalPackages {
 
     public static ImmutableList<Pair<Integer, ? extends Behavior<? super Villager>>> getHidePackage(VillagerProfession param0, float param1) {
         int var0 = 2;
-        return ImmutableList.of(Pair.of(0, new SetHiddenState(15, 2)), Pair.of(1, new LocateHidingPlace(32, param1 * 1.25F, 2)), getMinimalLookBehavior());
+        return ImmutableList.of(Pair.of(0, new SetHiddenState(15, 3)), Pair.of(1, new LocateHidingPlace(32, param1 * 1.25F, 2)), getMinimalLookBehavior());
     }
 
     private static Pair<Integer, Behavior<LivingEntity>> getFullLookBehavior() {

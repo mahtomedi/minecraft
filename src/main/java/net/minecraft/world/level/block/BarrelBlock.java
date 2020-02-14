@@ -11,6 +11,7 @@ import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.piglin.PiglinAi;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.BlockPlaceContext;
@@ -44,6 +45,7 @@ public class BarrelBlock extends BaseEntityBlock {
             if (var0 instanceof BarrelBlockEntity) {
                 param3.openMenu((BarrelBlockEntity)var0);
                 param3.awardStat(Stats.OPEN_BARREL);
+                PiglinAi.angerNearbyPiglinsThatSee(param3);
             }
 
             return InteractionResult.SUCCESS;
@@ -122,5 +124,11 @@ public class BarrelBlock extends BaseEntityBlock {
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext param0) {
         return this.defaultBlockState().setValue(FACING, param0.getNearestLookingDirection().getOpposite());
+    }
+
+    @Override
+    public void playerWillDestroy(Level param0, BlockPos param1, BlockState param2, Player param3) {
+        super.playerWillDestroy(param0, param1, param2, param3);
+        PiglinAi.angerNearbyPiglinsThatSee(param3);
     }
 }

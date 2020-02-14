@@ -1011,6 +1011,8 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
         if (param0) {
             this.fpsPieResults = this.fpsPieProfiler.getResults();
+        } else {
+            this.fpsPieResults = null;
         }
 
         this.profiler = this.fpsPieProfiler.getFiller();

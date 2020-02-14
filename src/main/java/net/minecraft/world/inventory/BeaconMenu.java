@@ -1,13 +1,12 @@
 package net.minecraft.world.inventory;
 
 import javax.annotation.Nullable;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -16,10 +15,7 @@ public class BeaconMenu extends AbstractContainerMenu {
     private final Container beacon = new SimpleContainer(1) {
         @Override
         public boolean canPlaceItem(int param0, ItemStack param1) {
-            return param1.getItem() == Items.EMERALD
-                || param1.getItem() == Items.DIAMOND
-                || param1.getItem() == Items.GOLD_INGOT
-                || param1.getItem() == Items.IRON_INGOT;
+            return param1.getItem().is(ItemTags.BEACON_PAYMENT_ITEMS);
         }
 
         @Override
@@ -164,8 +160,7 @@ public class BeaconMenu extends AbstractContainerMenu {
 
         @Override
         public boolean mayPlace(ItemStack param0) {
-            Item var0 = param0.getItem();
-            return var0 == Items.EMERALD || var0 == Items.DIAMOND || var0 == Items.GOLD_INGOT || var0 == Items.IRON_INGOT;
+            return param0.getItem().is(ItemTags.BEACON_PAYMENT_ITEMS);
         }
 
         @Override

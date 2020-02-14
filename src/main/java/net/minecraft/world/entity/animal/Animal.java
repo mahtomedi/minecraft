@@ -3,18 +3,22 @@ package net.minecraft.world.entity.animal;
 import java.util.Random;
 import java.util.UUID;
 import javax.annotation.Nullable;
+import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgableMob;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
@@ -188,6 +192,34 @@ public abstract class Animal extends AgableMob {
             return false;
         } else {
             return this.isInLove() && param0.isInLove();
+        }
+    }
+
+    public void spawnChildFromBreeding(Level param0, Animal param1) {
+        AgableMob var0 = this.getBreedOffspring(param1);
+        if (var0 != null) {
+            ServerPlayer var1 = this.getLoveCause();
+            if (var1 == null && param1.getLoveCause() != null) {
+                var1 = param1.getLoveCause();
+            }
+
+            if (var1 != null) {
+                var1.awardStat(Stats.ANIMALS_BRED);
+                CriteriaTriggers.BRED_ANIMALS.trigger(var1, this, param1, var0);
+            }
+
+            this.setAge(6000);
+            param1.setAge(6000);
+            this.resetLove();
+            param1.resetLove();
+            var0.setAge(-24000);
+            var0.moveTo(this.getX(), this.getY(), this.getZ(), 0.0F, 0.0F);
+            param0.addFreshEntity(var0);
+            param0.broadcastEntityEvent(this, (byte)18);
+            if (param0.getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT)) {
+                param0.addFreshEntity(new ExperienceOrb(param0, this.getX(), this.getY(), this.getZ(), this.getRandom().nextInt(7) + 1));
+            }
+
         }
     }
 

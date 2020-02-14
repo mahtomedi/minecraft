@@ -11,6 +11,6 @@ public class UpdateActivityFromSchedule extends Behavior<LivingEntity> {
 
     @Override
     protected void start(ServerLevel param0, LivingEntity param1, long param2) {
-        param1.getBrain().updateActivity(param0.getDayTime(), param0.getGameTime());
+        param1.getBrain().updateActivityFromSchedule(param0.getDayTime(), param0.getGameTime());
     }
 }

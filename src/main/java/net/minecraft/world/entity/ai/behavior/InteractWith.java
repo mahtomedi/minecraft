@@ -1,6 +1,7 @@
 package net.minecraft.world.entity.ai.behavior;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.List;
 import java.util.function.Predicate;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
@@ -28,8 +29,6 @@ public class InteractWith<E extends LivingEntity, T extends LivingEntity> extend
                 MemoryStatus.REGISTERED,
                 MemoryModuleType.WALK_TARGET,
                 MemoryStatus.VALUE_ABSENT,
-                param4,
-                MemoryStatus.VALUE_ABSENT,
                 MemoryModuleType.VISIBLE_LIVING_ENTITIES,
                 MemoryStatus.VALUE_PRESENT
             )
@@ -51,12 +50,16 @@ public class InteractWith<E extends LivingEntity, T extends LivingEntity> extend
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel param0, E param1) {
-        return this.selfFilter.test(param1)
-            && param1.getBrain()
-                .getMemory(MemoryModuleType.VISIBLE_LIVING_ENTITIES)
-                .get()
-                .stream()
-                .anyMatch(param0x -> this.type.equals(param0x.getType()) && this.targetFilter.test((T)param0x));
+        return this.selfFilter.test(param1) && this.seesAtLeastOneValidTarget(param1);
+    }
+
+    private boolean seesAtLeastOneValidTarget(E param0) {
+        List<LivingEntity> var0 = param0.getBrain().getMemory(MemoryModuleType.VISIBLE_LIVING_ENTITIES).get();
+        return var0.stream().anyMatch(this::isTargetValid);
+    }
+
+    private boolean isTargetValid(LivingEntity param0x) {
+        return this.type.equals(param0x.getType()) && this.targetFilter.test((T)param0x);
     }
 
     @Override

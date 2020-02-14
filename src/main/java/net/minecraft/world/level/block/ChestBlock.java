@@ -21,6 +21,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Cat;
+import net.minecraft.world.entity.monster.piglin.PiglinAi;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -249,6 +250,7 @@ public class ChestBlock extends AbstractChestBlock<ChestBlockEntity> implements 
             if (var0 != null) {
                 param3.openMenu(var0);
                 param3.awardStat(this.getOpenChestStat());
+                PiglinAi.angerNearbyPiglinsThatSee(param3);
             }
 
             return InteractionResult.SUCCESS;
@@ -366,5 +368,11 @@ public class ChestBlock extends AbstractChestBlock<ChestBlockEntity> implements 
     @Override
     public boolean isPathfindable(BlockState param0, BlockGetter param1, BlockPos param2, PathComputationType param3) {
         return false;
+    }
+
+    @Override
+    public void playerWillDestroy(Level param0, BlockPos param1, BlockState param2, Player param3) {
+        super.playerWillDestroy(param0, param1, param2, param3);
+        PiglinAi.angerNearbyPiglinsThatSee(param3);
     }
 }

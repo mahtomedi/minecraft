@@ -70,6 +70,10 @@ public class Vec3 implements Position {
         return new Vec3(this.x + param0, this.y + param1, this.z + param2);
     }
 
+    public boolean closerThan(Position param0, double param1) {
+        return this.distanceToSqr(param0.x(), param0.y(), param0.z()) < param1 * param1;
+    }
+
     public double distanceTo(Vec3 param0) {
         double var0 = param0.x - this.x;
         double var1 = param0.y - this.y;

@@ -127,11 +127,11 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     }
 
     public static boolean isInWorldBounds(BlockPos param0) {
-        return !isOutsideBuildHeight(param0)
-            && param0.getX() >= -30000000
-            && param0.getZ() >= -30000000
-            && param0.getX() < 30000000
-            && param0.getZ() < 30000000;
+        return !isOutsideBuildHeight(param0) && isInWorldBoundsHorizontal(param0);
+    }
+
+    public static boolean isInWorldBoundsHorizontal(BlockPos param0) {
+        return param0.getX() >= -30000000 && param0.getZ() >= -30000000 && param0.getX() < 30000000 && param0.getZ() < 30000000;
     }
 
     public static boolean isOutsideBuildHeight(BlockPos param0) {
@@ -1070,7 +1070,8 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         } else if (this.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, param0).getY() > param0.getY()) {
             return false;
         } else {
-            return this.getBiome(param0).getPrecipitation() == Biome.Precipitation.RAIN;
+            Biome var0 = this.getBiome(param0);
+            return var0.getPrecipitation() == Biome.Precipitation.RAIN && var0.getTemperature(param0) >= 0.15F;
         }
     }
 

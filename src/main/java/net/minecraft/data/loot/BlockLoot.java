@@ -835,7 +835,6 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
         this.dropSelf(Blocks.WARPED_FENCE_GATE);
         this.dropSelf(Blocks.WARPED_STAIRS);
         this.dropSelf(Blocks.WARPED_BUTTON);
-        this.dropSelf(Blocks.WARPED_DOOR);
         this.dropSelf(Blocks.WARPED_SIGN);
         this.dropSelf(Blocks.CRIMSON_PRESSURE_PLATE);
         this.dropSelf(Blocks.CRIMSON_FENCE);
@@ -843,7 +842,6 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
         this.dropSelf(Blocks.CRIMSON_FENCE_GATE);
         this.dropSelf(Blocks.CRIMSON_STAIRS);
         this.dropSelf(Blocks.CRIMSON_BUTTON);
-        this.dropSelf(Blocks.CRIMSON_DOOR);
         this.dropSelf(Blocks.CRIMSON_SIGN);
         this.dropSelf(Blocks.NETHERITE_BLOCK);
         this.dropSelf(Blocks.ANCIENT_DEBRIS);
@@ -929,13 +927,15 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
         this.add(Blocks.DIORITE_SLAB, BlockLoot::createSlabItemTable);
         this.add(Blocks.CRIMSON_SLAB, BlockLoot::createSlabItemTable);
         this.add(Blocks.WARPED_SLAB, BlockLoot::createSlabItemTable);
-        this.add(Blocks.ACACIA_DOOR, param0x -> createSinglePropConditionTable(param0x, DoorBlock.HALF, DoubleBlockHalf.LOWER));
-        this.add(Blocks.BIRCH_DOOR, param0x -> createSinglePropConditionTable(param0x, DoorBlock.HALF, DoubleBlockHalf.LOWER));
-        this.add(Blocks.DARK_OAK_DOOR, param0x -> createSinglePropConditionTable(param0x, DoorBlock.HALF, DoubleBlockHalf.LOWER));
-        this.add(Blocks.IRON_DOOR, param0x -> createSinglePropConditionTable(param0x, DoorBlock.HALF, DoubleBlockHalf.LOWER));
-        this.add(Blocks.JUNGLE_DOOR, param0x -> createSinglePropConditionTable(param0x, DoorBlock.HALF, DoubleBlockHalf.LOWER));
-        this.add(Blocks.OAK_DOOR, param0x -> createSinglePropConditionTable(param0x, DoorBlock.HALF, DoubleBlockHalf.LOWER));
-        this.add(Blocks.SPRUCE_DOOR, param0x -> createSinglePropConditionTable(param0x, DoorBlock.HALF, DoubleBlockHalf.LOWER));
+        this.add(Blocks.ACACIA_DOOR, BlockLoot::createDoorTable);
+        this.add(Blocks.BIRCH_DOOR, BlockLoot::createDoorTable);
+        this.add(Blocks.DARK_OAK_DOOR, BlockLoot::createDoorTable);
+        this.add(Blocks.IRON_DOOR, BlockLoot::createDoorTable);
+        this.add(Blocks.JUNGLE_DOOR, BlockLoot::createDoorTable);
+        this.add(Blocks.OAK_DOOR, BlockLoot::createDoorTable);
+        this.add(Blocks.SPRUCE_DOOR, BlockLoot::createDoorTable);
+        this.add(Blocks.WARPED_DOOR, BlockLoot::createDoorTable);
+        this.add(Blocks.CRIMSON_DOOR, BlockLoot::createDoorTable);
         this.add(Blocks.BLACK_BED, param0x -> createSinglePropConditionTable(param0x, BedBlock.PART, BedPart.HEAD));
         this.add(Blocks.BLUE_BED, param0x -> createSinglePropConditionTable(param0x, BedBlock.PART, BedPart.HEAD));
         this.add(Blocks.BROWN_BED, param0x -> createSinglePropConditionTable(param0x, BedBlock.PART, BedPart.HEAD));
@@ -1557,6 +1557,10 @@ public class BlockLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
         if (!this.map.isEmpty()) {
             throw new IllegalStateException("Created block loot tables for non-blocks: " + this.map.keySet());
         }
+    }
+
+    public static LootTable.Builder createDoorTable(Block param0x) {
+        return createSinglePropConditionTable(param0x, DoorBlock.HALF, DoubleBlockHalf.LOWER);
     }
 
     public void dropPottedContents(Block param0) {

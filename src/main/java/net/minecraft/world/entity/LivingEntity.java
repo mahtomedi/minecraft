@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
+import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
@@ -948,7 +949,7 @@ public abstract class LivingEntity extends Entity {
                     }
 
                     this.hurtDir = (float)(Mth.atan2(var13, var12) * 180.0F / (float)Math.PI - (double)this.yRot);
-                    this.knockback(var5, 0.4F, var12, var13);
+                    this.knockback(0.4F, var12, var13);
                 } else {
                     this.hurtDir = (float)((int)(Math.random() * 2.0) * 180);
                 }
@@ -993,7 +994,7 @@ public abstract class LivingEntity extends Entity {
     }
 
     protected void blockedByShield(LivingEntity param0) {
-        param0.knockback(this, 0.5F, param0.getX() - this.getX(), param0.getZ() - this.getZ());
+        param0.knockback(0.5F, param0.getX() - this.getX(), param0.getZ() - this.getZ());
     }
 
     private boolean checkTotemDeathProtection(DamageSource param0) {
@@ -1211,13 +1212,13 @@ public abstract class LivingEntity extends Entity {
         return var0;
     }
 
-    public void knockback(Entity param0, float param1, double param2, double param3) {
-        param1 = (float)((double)param1 * (1.0 - this.getAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).getValue()));
-        if (!(param1 <= 0.0F)) {
+    public void knockback(float param0, double param1, double param2) {
+        param0 = (float)((double)param0 * (1.0 - this.getAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).getValue()));
+        if (!(param0 <= 0.0F)) {
             this.hasImpulse = true;
             Vec3 var0 = this.getDeltaMovement();
-            Vec3 var1 = new Vec3(param2, 0.0, param3).normalize().scale((double)param1);
-            this.setDeltaMovement(var0.x / 2.0 - var1.x, this.onGround ? Math.min(0.4, var0.y / 2.0 + (double)param1) : var0.y, var0.z / 2.0 - var1.z);
+            Vec3 var1 = new Vec3(param1, 0.0, param2).normalize().scale((double)param0);
+            this.setDeltaMovement(var0.x / 2.0 - var1.x, this.onGround ? Math.min(0.4, var0.y / 2.0 + (double)param0) : var0.y, var0.z / 2.0 - var1.z);
         }
     }
 
@@ -1636,6 +1637,14 @@ public abstract class LivingEntity extends Entity {
 
     public ItemStack getOffhandItem() {
         return this.getItemBySlot(EquipmentSlot.OFFHAND);
+    }
+
+    public boolean isHolding(Item param0) {
+        return this.isHolding(param1 -> param1 == param0);
+    }
+
+    public boolean isHolding(Predicate<Item> param0) {
+        return param0.test(this.getMainHandItem().getItem()) || param0.test(this.getOffhandItem().getItem());
     }
 
     public ItemStack getItemInHand(InteractionHand param0) {

@@ -24,7 +24,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public abstract class AbstractArmorLayer<T extends LivingEntity, M extends HumanoidModel<T>, A extends HumanoidModel<T>> extends RenderLayer<T, M> {
     protected final A innerModel;
     protected final A outerModel;
-    private static final Map<String, ResourceLocation> ARMOR_LOCATION_CACHE = Maps.newHashMap();
+    protected static final Map<String, ResourceLocation> ARMOR_LOCATION_CACHE = Maps.newHashMap();
 
     protected AbstractArmorLayer(RenderLayerParent<T, M> param0, A param1, A param2) {
         super(param0);
@@ -35,10 +35,18 @@ public abstract class AbstractArmorLayer<T extends LivingEntity, M extends Human
     public void render(
         PoseStack param0, MultiBufferSource param1, int param2, T param3, float param4, float param5, float param6, float param7, float param8, float param9
     ) {
-        this.renderArmorPiece(param0, param1, param3, param4, param5, param6, param7, param8, param9, EquipmentSlot.CHEST, param2);
-        this.renderArmorPiece(param0, param1, param3, param4, param5, param6, param7, param8, param9, EquipmentSlot.LEGS, param2);
-        this.renderArmorPiece(param0, param1, param3, param4, param5, param6, param7, param8, param9, EquipmentSlot.FEET, param2);
-        this.renderArmorPiece(param0, param1, param3, param4, param5, param6, param7, param8, param9, EquipmentSlot.HEAD, param2);
+        this.renderArmorPiece(
+            param0, param1, param3, param4, param5, param6, param7, param8, param9, EquipmentSlot.CHEST, param2, this.getArmorModel(EquipmentSlot.CHEST)
+        );
+        this.renderArmorPiece(
+            param0, param1, param3, param4, param5, param6, param7, param8, param9, EquipmentSlot.LEGS, param2, this.getArmorModel(EquipmentSlot.LEGS)
+        );
+        this.renderArmorPiece(
+            param0, param1, param3, param4, param5, param6, param7, param8, param9, EquipmentSlot.FEET, param2, this.getArmorModel(EquipmentSlot.FEET)
+        );
+        this.renderArmorPiece(
+            param0, param1, param3, param4, param5, param6, param7, param8, param9, EquipmentSlot.HEAD, param2, this.getArmorModel(EquipmentSlot.HEAD)
+        );
     }
 
     private void renderArmorPiece(
@@ -52,28 +60,28 @@ public abstract class AbstractArmorLayer<T extends LivingEntity, M extends Human
         float param7,
         float param8,
         EquipmentSlot param9,
-        int param10
+        int param10,
+        A param11
     ) {
         ItemStack var0 = param2.getItemBySlot(param9);
         if (var0.getItem() instanceof ArmorItem) {
             ArmorItem var1 = (ArmorItem)var0.getItem();
             if (var1.getSlot() == param9) {
-                A var2 = this.getArmorModel(param9);
-                this.getParentModel().copyPropertiesTo(var2);
-                var2.prepareMobModel(param2, param3, param4, param5);
-                this.setPartVisibility(var2, param9);
-                var2.setupAnim(param2, param3, param4, param6, param7, param8);
-                boolean var3 = this.usesInnerModel(param9);
-                boolean var4 = var0.hasFoil();
+                this.getParentModel().copyPropertiesTo(param11);
+                param11.prepareMobModel(param2, param3, param4, param5);
+                this.setPartVisibility(param11, param9);
+                param11.setupAnim(param2, param3, param4, param6, param7, param8);
+                boolean var2 = this.usesInnerModel(param9);
+                boolean var3 = var0.hasFoil();
                 if (var1 instanceof DyeableArmorItem) {
-                    int var5 = ((DyeableArmorItem)var1).getColor(var0);
-                    float var6 = (float)(var5 >> 16 & 0xFF) / 255.0F;
-                    float var7 = (float)(var5 >> 8 & 0xFF) / 255.0F;
-                    float var8 = (float)(var5 & 0xFF) / 255.0F;
-                    this.renderModel(param0, param1, param10, var1, var4, var2, var3, var6, var7, var8, null);
-                    this.renderModel(param0, param1, param10, var1, var4, var2, var3, 1.0F, 1.0F, 1.0F, "overlay");
+                    int var4 = ((DyeableArmorItem)var1).getColor(var0);
+                    float var5 = (float)(var4 >> 16 & 0xFF) / 255.0F;
+                    float var6 = (float)(var4 >> 8 & 0xFF) / 255.0F;
+                    float var7 = (float)(var4 & 0xFF) / 255.0F;
+                    this.renderModel(param9, param0, param1, param10, var1, var3, param11, var2, var5, var6, var7, null);
+                    this.renderModel(param9, param0, param1, param10, var1, var3, param11, var2, 1.0F, 1.0F, 1.0F, "overlay");
                 } else {
-                    this.renderModel(param0, param1, param10, var1, var4, var2, var3, 1.0F, 1.0F, 1.0F, null);
+                    this.renderModel(param9, param0, param1, param10, var1, var3, param11, var2, 1.0F, 1.0F, 1.0F, null);
                 }
 
             }
@@ -81,20 +89,23 @@ public abstract class AbstractArmorLayer<T extends LivingEntity, M extends Human
     }
 
     private void renderModel(
-        PoseStack param0,
-        MultiBufferSource param1,
-        int param2,
-        ArmorItem param3,
-        boolean param4,
-        A param5,
-        boolean param6,
-        float param7,
+        EquipmentSlot param0,
+        PoseStack param1,
+        MultiBufferSource param2,
+        int param3,
+        ArmorItem param4,
+        boolean param5,
+        A param6,
+        boolean param7,
         float param8,
         float param9,
-        @Nullable String param10
+        float param10,
+        @Nullable String param11
     ) {
-        VertexConsumer var0 = ItemRenderer.getFoilBuffer(param1, RenderType.entityCutoutNoCull(this.getArmorLocation(param3, param6, param10)), false, param4);
-        param5.renderToBuffer(param0, var0, param2, OverlayTexture.NO_OVERLAY, param7, param8, param9, 1.0F);
+        VertexConsumer var0 = ItemRenderer.getFoilBuffer(
+            param2, RenderType.entityCutoutNoCull(this.getArmorLocation(param0, param4, param7, param11)), false, param5
+        );
+        param6.renderToBuffer(param1, var0, param3, OverlayTexture.NO_OVERLAY, param8, param9, param10, 1.0F);
     }
 
     public A getArmorModel(EquipmentSlot param0) {
@@ -105,8 +116,8 @@ public abstract class AbstractArmorLayer<T extends LivingEntity, M extends Human
         return param0 == EquipmentSlot.LEGS;
     }
 
-    private ResourceLocation getArmorLocation(ArmorItem param0, boolean param1, @Nullable String param2) {
-        String var0 = "textures/models/armor/" + param0.getMaterial().getName() + "_layer_" + (param1 ? 2 : 1) + (param2 == null ? "" : "_" + param2) + ".png";
+    protected ResourceLocation getArmorLocation(EquipmentSlot param0, ArmorItem param1, boolean param2, @Nullable String param3) {
+        String var0 = "textures/models/armor/" + param1.getMaterial().getName() + "_layer_" + (param2 ? 2 : 1) + (param3 == null ? "" : "_" + param3) + ".png";
         return ARMOR_LOCATION_CACHE.computeIfAbsent(var0, ResourceLocation::new);
     }
 

@@ -38,7 +38,8 @@ public class DebugRenderer {
     public final DebugRenderer.SimpleDebugRenderer worldGenAttemptRenderer;
     public final DebugRenderer.SimpleDebugRenderer solidFaceRenderer;
     public final DebugRenderer.SimpleDebugRenderer chunkRenderer;
-    public final VillageDebugRenderer villageDebugRenderer;
+    public final BrainDebugRenderer brainDebugRenderer;
+    public final VillageSectionsDebugRenderer villageSectionsDebugRenderer;
     public final BeeDebugRenderer beeDebugRenderer;
     public final RaidDebugRenderer raidDebugRenderer;
     public final GoalSelectorDebugRenderer goalSelectorRenderer;
@@ -57,7 +58,8 @@ public class DebugRenderer {
         this.worldGenAttemptRenderer = new WorldGenAttemptRenderer();
         this.solidFaceRenderer = new SolidFaceRenderer(param0);
         this.chunkRenderer = new ChunkDebugRenderer(param0);
-        this.villageDebugRenderer = new VillageDebugRenderer(param0);
+        this.brainDebugRenderer = new BrainDebugRenderer(param0);
+        this.villageSectionsDebugRenderer = new VillageSectionsDebugRenderer();
         this.beeDebugRenderer = new BeeDebugRenderer(param0);
         this.raidDebugRenderer = new RaidDebugRenderer(param0);
         this.goalSelectorRenderer = new GoalSelectorDebugRenderer(param0);
@@ -77,7 +79,8 @@ public class DebugRenderer {
         this.worldGenAttemptRenderer.clear();
         this.solidFaceRenderer.clear();
         this.chunkRenderer.clear();
-        this.villageDebugRenderer.clear();
+        this.brainDebugRenderer.clear();
+        this.villageSectionsDebugRenderer.clear();
         this.beeDebugRenderer.clear();
         this.raidDebugRenderer.clear();
         this.goalSelectorRenderer.clear();

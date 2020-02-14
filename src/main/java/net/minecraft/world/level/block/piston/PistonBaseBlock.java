@@ -199,6 +199,7 @@ public class PistonBaseBlock extends DirectionalBlock {
                 MovingPistonBlock.newMovingBlockEntity(this.defaultBlockState().setValue(FACING, Direction.from3DDataValue(param4 & 7)), var0, false, true)
             );
             param1.blockUpdated(param2, var3.getBlock());
+            var3.updateNeighbourShapes(param1, param2, 2);
             if (this.isSticky) {
                 BlockPos var4 = param2.offset(var0.getStepX() * 2, var0.getStepY() * 2, var0.getStepZ() * 2);
                 BlockState var5 = param1.getBlockState(var4);

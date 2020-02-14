@@ -24,7 +24,7 @@ public class ResetRaidStatus extends Behavior<LivingEntity> {
         Raid var1 = param0.getRaidAt(new BlockPos(param1));
         if (var1 == null || var1.isStopped() || var1.isLoss()) {
             var0.setDefaultActivity(Activity.IDLE);
-            var0.updateActivity(param0.getDayTime(), param0.getGameTime());
+            var0.updateActivityFromSchedule(param0.getDayTime(), param0.getGameTime());
         }
 
     }

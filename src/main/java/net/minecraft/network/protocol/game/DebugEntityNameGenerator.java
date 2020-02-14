@@ -6,9 +6,41 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class DebugMobNameGenerator {
+public class DebugEntityNameGenerator {
     private static final String[] NAMES_FIRST_PART = new String[]{
-        "Slim", "Far", "River", "Silly", "Fat", "Thin", "Fish", "Bat", "Dark", "Oak", "Sly", "Bush", "Zen", "Bark", "Cry", "Slack", "Soup", "Grim", "Hook"
+        "Slim",
+        "Far",
+        "River",
+        "Silly",
+        "Fat",
+        "Thin",
+        "Fish",
+        "Bat",
+        "Dark",
+        "Oak",
+        "Sly",
+        "Bush",
+        "Zen",
+        "Bark",
+        "Cry",
+        "Slack",
+        "Soup",
+        "Grim",
+        "Hook",
+        "Dirt",
+        "Mud",
+        "Sad",
+        "Hard",
+        "Crook",
+        "Sneak",
+        "Stink",
+        "Weird",
+        "Fire",
+        "Soot",
+        "Soft",
+        "Rough",
+        "Cling",
+        "Scar"
     };
     private static final String[] NAMES_SECOND_PART = new String[]{
         "Fox",
@@ -23,16 +55,27 @@ public class DebugMobNameGenerator {
         "Blade",
         "Fry",
         "Seek",
+        "Wart",
         "Tooth",
         "Foot",
         "Leaf",
         "Stone",
         "Fall",
         "Face",
-        "Tongue"
+        "Tongue",
+        "Voice",
+        "Lip",
+        "Mouth",
+        "Snail",
+        "Toe",
+        "Ear",
+        "Hair",
+        "Beard",
+        "Shirt",
+        "Fist"
     };
 
-    public static String getMobName(UUID param0) {
+    public static String getEntityName(UUID param0) {
         Random var0 = getRandom(param0);
         return getRandomString(var0, NAMES_FIRST_PART) + getRandomString(var0, NAMES_SECOND_PART);
     }

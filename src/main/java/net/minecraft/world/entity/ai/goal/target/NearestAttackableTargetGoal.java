@@ -71,4 +71,8 @@ public class NearestAttackableTargetGoal<T extends LivingEntity> extends TargetG
         this.mob.setTarget(this.target);
         super.start();
     }
+
+    public void setTarget(@Nullable LivingEntity param0) {
+        this.target = param0;
+    }
 }

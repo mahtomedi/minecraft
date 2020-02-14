@@ -132,10 +132,6 @@ public class WallBlock extends Block implements SimpleWaterloggedBlock {
         return !isExceptionForConnection(var0) && param1 || var1;
     }
 
-    private static boolean specialPostBlock(Block param0) {
-        return param0 == Blocks.LANTERN || param0 == Blocks.TORCH || param0 == Blocks.REDSTONE_TORCH;
-    }
-
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext param0) {
         LevelReader var0 = param0.getLevel();
@@ -150,7 +146,7 @@ public class WallBlock extends Block implements SimpleWaterloggedBlock {
         BlockState var9 = var0.getBlockState(var4);
         BlockState var10 = var0.getBlockState(var5);
         BlockState var11 = var0.getBlockState(var6);
-        BlockState var12 = var0.getBlockState(var6);
+        BlockState var12 = var0.getBlockState(var7);
         boolean var13 = this.connectsTo(var8, var8.isFaceSturdy(var0, var3, Direction.SOUTH), Direction.SOUTH);
         boolean var14 = this.connectsTo(var9, var9.isFaceSturdy(var0, var4, Direction.WEST), Direction.WEST);
         boolean var15 = this.connectsTo(var10, var10.isFaceSturdy(var0, var5, Direction.NORTH), Direction.NORTH);
@@ -204,7 +200,7 @@ public class WallBlock extends Block implements SimpleWaterloggedBlock {
     ) {
         VoxelShape var0 = param3.getCollisionShape(param0, param2).getFaceShape(Direction.DOWN);
         boolean var1 = (!param4 || param5 || !param6 || param7) && (param4 || !param5 || param6 || !param7);
-        boolean var2 = var1 || specialPostBlock(param3.getBlock()) || isCovered(var0, POST_TEST);
+        boolean var2 = var1 || param3.getBlock().is(BlockTags.WALL_POST_OVERRIDE) || isCovered(var0, POST_TEST);
         return this.updateSides(param1.setValue(UP, Boolean.valueOf(var2)), param4, param5, param6, param7, var0);
     }
 

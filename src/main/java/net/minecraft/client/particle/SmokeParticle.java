@@ -10,7 +10,7 @@ public class SmokeParticle extends BaseAshSmokeParticle {
     protected SmokeParticle(
         Level param0, double param1, double param2, double param3, double param4, double param5, double param6, float param7, SpriteSet param8
     ) {
-        super(param0, param1, param2, param3, 0.1F, 0.1F, 0.1F, param4, param5, param6, param7, param8, 0.3F, 8, 0.004);
+        super(param0, param1, param2, param3, 0.1F, 0.1F, 0.1F, param4, param5, param6, param7, param8, 0.3F, 8, 0.004, true);
     }
 
     @OnlyIn(Dist.CLIENT)

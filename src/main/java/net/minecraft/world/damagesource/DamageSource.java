@@ -103,6 +103,11 @@ public class DamageSource {
         return new NetherBedDamage();
     }
 
+    @Override
+    public String toString() {
+        return "DamageSource (" + this.msgId + ")";
+    }
+
     public boolean isProjectile() {
         return this.isProjectile;
     }

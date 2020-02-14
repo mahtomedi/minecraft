@@ -107,6 +107,8 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
         MemoryModuleType.VISIBLE_VILLAGER_BABIES,
         MemoryModuleType.NEAREST_PLAYERS,
         MemoryModuleType.NEAREST_VISIBLE_PLAYER,
+        MemoryModuleType.NEAREST_VISIBLE_TARGETABLE_PLAYER,
+        MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM,
         MemoryModuleType.WALK_TARGET,
         MemoryModuleType.LOOK_TARGET,
         MemoryModuleType.INTERACTION_TARGET,
@@ -130,6 +132,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
     private static final ImmutableList<SensorType<? extends Sensor<? super Villager>>> SENSOR_TYPES = ImmutableList.of(
         SensorType.NEAREST_LIVING_ENTITIES,
         SensorType.NEAREST_PLAYERS,
+        SensorType.NEAREST_ITEMS,
         SensorType.INTERACTABLE_DOORS,
         SensorType.NEAREST_BED,
         SensorType.HURT_BY,
@@ -175,7 +178,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
     public void refreshBrain(ServerLevel param0) {
         Brain<Villager> var0 = this.getBrain();
         var0.stopAll(param0, this);
-        this.brain = var0.copyWithoutGoals();
+        this.brain = var0.copyWithoutBehaviors();
         this.registerBrainGoals(this.getBrain());
     }
 
@@ -187,13 +190,13 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
             param0.addActivity(Activity.PLAY, VillagerGoalPackages.getPlayPackage(var1));
         } else {
             param0.setSchedule(Schedule.VILLAGER_DEFAULT);
-            param0.addActivity(
+            param0.addActivityWithConditions(
                 Activity.WORK, VillagerGoalPackages.getWorkPackage(var0, var1), ImmutableSet.of(Pair.of(MemoryModuleType.JOB_SITE, MemoryStatus.VALUE_PRESENT))
             );
         }
 
         param0.addActivity(Activity.CORE, VillagerGoalPackages.getCorePackage(var0, var1));
-        param0.addActivity(
+        param0.addActivityWithConditions(
             Activity.MEET,
             VillagerGoalPackages.getMeetPackage(var0, var1),
             ImmutableSet.of(Pair.of(MemoryModuleType.MEETING_POINT, MemoryStatus.VALUE_PRESENT))
@@ -206,8 +209,8 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
         param0.addActivity(Activity.HIDE, VillagerGoalPackages.getHidePackage(var0, var1));
         param0.setCoreActivities(ImmutableSet.of(Activity.CORE));
         param0.setDefaultActivity(Activity.IDLE);
-        param0.setActivity(Activity.IDLE);
-        param0.updateActivity(this.level.getDayTime(), this.level.getGameTime());
+        param0.setActiveActivityIfPossible(Activity.IDLE);
+        param0.updateActivityFromSchedule(this.level.getDayTime(), this.level.getGameTime());
     }
 
     @Override
@@ -228,7 +231,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
 
     @Override
     protected void customServerAiStep() {
-        this.level.getProfiler().push("brain");
+        this.level.getProfiler().push("villagerBrain");
         this.getBrain().tick((ServerLevel)this.level, this);
         this.level.getProfiler().pop();
         if (!this.isTrading() && this.updateMerchantTimer > 0) {
@@ -609,6 +612,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
         }
     }
 
+    @Override
     public boolean canBreed() {
         return this.foodLevel + this.countFoodPointsInInventory() >= 12 && this.getAge() == 0;
     }
@@ -741,8 +745,8 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
     @Override
     protected void pickUpItem(ItemEntity param0) {
         ItemStack var0 = param0.getItem();
-        Item var1 = var0.getItem();
-        if (this.wantToPickUp(var1)) {
+        if (this.wantsToPickUp(var0)) {
+            Item var1 = var0.getItem();
             SimpleContainer var2 = this.getInventory();
             boolean var3 = false;
 
@@ -779,8 +783,9 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
 
     }
 
-    public boolean wantToPickUp(Item param0) {
-        return WANTED_ITEMS.contains(param0) || this.getVillagerData().getProfession().getRequestedItems().contains(param0);
+    @Override
+    public boolean wantsToPickUp(ItemStack param0) {
+        return WANTED_ITEMS.contains(param0.getItem()) || this.getVillagerData().getProfession().getRequestedItems().contains(param0.getItem());
     }
 
     public boolean hasExcessFood() {

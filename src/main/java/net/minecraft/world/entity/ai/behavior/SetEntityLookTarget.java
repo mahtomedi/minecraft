@@ -22,6 +22,10 @@ public class SetEntityLookTarget extends Behavior<LivingEntity> {
         this(param1x -> param0.equals(param1x.getType()), param1);
     }
 
+    public SetEntityLookTarget(float param0) {
+        this(param0x -> true, param0);
+    }
+
     public SetEntityLookTarget(Predicate<LivingEntity> param0, float param1) {
         super(ImmutableMap.of(MemoryModuleType.LOOK_TARGET, MemoryStatus.VALUE_ABSENT, MemoryModuleType.VISIBLE_LIVING_ENTITIES, MemoryStatus.VALUE_PRESENT));
         this.predicate = param0;

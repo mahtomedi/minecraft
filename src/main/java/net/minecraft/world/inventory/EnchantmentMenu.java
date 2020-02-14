@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Random;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.Registry;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -183,15 +184,20 @@ public class EnchantmentMenu extends AbstractContainerMenu {
                     boolean var2x = var0.getItem() == Items.BOOK;
                     if (var2x) {
                         var0x = new ItemStack(Items.ENCHANTED_BOOK);
+                        CompoundTag var4x = var0.getTag();
+                        if (var4x != null) {
+                            var0x.setTag(var4x.copy());
+                        }
+
                         this.enchantSlots.setItem(0, var0x);
                     }
 
-                    for(int var3x = 0; var3x < var1x.size(); ++var3x) {
-                        EnchantmentInstance var4x = var1x.get(var3x);
+                    for(int var4 = 0; var4 < var1x.size(); ++var4) {
+                        EnchantmentInstance var5x = var1x.get(var4);
                         if (var2x) {
-                            EnchantedBookItem.addEnchantment(var0x, var4x);
+                            EnchantedBookItem.addEnchantment(var0x, var5x);
                         } else {
-                            var0x.enchant(var4x.enchantment, var4x.level);
+                            var0x.enchant(var5x.enchantment, var5x.level);
                         }
                     }
 

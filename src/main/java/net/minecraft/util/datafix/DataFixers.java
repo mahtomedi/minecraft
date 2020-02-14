@@ -87,6 +87,7 @@ import net.minecraft.util.datafix.fixes.LeavesFix;
 import net.minecraft.util.datafix.fixes.LevelDataGeneratorOptionsFix;
 import net.minecraft.util.datafix.fixes.LevelFlatGeneratorInfoFix;
 import net.minecraft.util.datafix.fixes.MapIdFix;
+import net.minecraft.util.datafix.fixes.MemoryExpiryDataFix;
 import net.minecraft.util.datafix.fixes.MobSpawnerEntityIdentifiersFix;
 import net.minecraft.util.datafix.fixes.NamedEntityFix;
 import net.minecraft.util.datafix.fixes.NewVillageFix;
@@ -153,6 +154,7 @@ import net.minecraft.util.datafix.schemas.V1931;
 import net.minecraft.util.datafix.schemas.V2100;
 import net.minecraft.util.datafix.schemas.V2501;
 import net.minecraft.util.datafix.schemas.V2502;
+import net.minecraft.util.datafix.schemas.V2505;
 import net.minecraft.util.datafix.schemas.V501;
 import net.minecraft.util.datafix.schemas.V700;
 import net.minecraft.util.datafix.schemas.V701;
@@ -568,5 +570,9 @@ public class DataFixers {
         param0.addFixer(new RenameBiomesFix(var101, false, ImmutableMap.of("minecraft:nether", "minecraft:nether_wastes")));
         Schema var102 = param0.addSchema(2503, SAME_NAMESPACED);
         param0.addFixer(new WallPropertyFix(var102, false));
+        Schema var103 = param0.addSchema(2504, SAME_NAMESPACED);
+        param0.addFixer(new MemoryExpiryDataFix(var103, "minecraft:villager"));
+        Schema var104 = param0.addSchema(2505, V2505::new);
+        param0.addFixer(new AddNewChoices(var104, "Added Piglin", References.ENTITY));
     }
 }

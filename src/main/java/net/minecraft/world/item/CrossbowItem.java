@@ -237,7 +237,7 @@ public class CrossbowItem extends ProjectileWeaponItem {
 
             if (param1 instanceof CrossbowAttackMob) {
                 CrossbowAttackMob var3 = (CrossbowAttackMob)param1;
-                var3.shootProjectile(var3.getTarget(), param3, var1, param9);
+                var3.shootCrossbowProjectile(var3.getTarget(), param3, var1, param9);
             } else {
                 Vec3 var4 = param1.getUpVector(1.0F);
                 Quaternion var5 = new Quaternion(new Vector3f(var4), param9, true);
@@ -400,5 +400,10 @@ public class CrossbowItem extends ProjectileWeaponItem {
 
     private static float getShootingPower(ItemStack param0) {
         return param0.getItem() == Items.CROSSBOW && containsChargedProjectile(param0, Items.FIREWORK_ROCKET) ? 1.6F : 3.15F;
+    }
+
+    @Override
+    public int getDefaultProjectileRange() {
+        return 8;
     }
 }
