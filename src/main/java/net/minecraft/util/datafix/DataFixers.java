@@ -570,9 +570,8 @@ public class DataFixers {
         param0.addFixer(new RenameBiomesFix(var101, false, ImmutableMap.of("minecraft:nether", "minecraft:nether_wastes")));
         Schema var102 = param0.addSchema(2503, SAME_NAMESPACED);
         param0.addFixer(new WallPropertyFix(var102, false));
-        Schema var103 = param0.addSchema(2504, SAME_NAMESPACED);
+        Schema var103 = param0.addSchema(2505, V2505::new);
+        param0.addFixer(new AddNewChoices(var103, "Added Piglin", References.ENTITY));
         param0.addFixer(new MemoryExpiryDataFix(var103, "minecraft:villager"));
-        Schema var104 = param0.addSchema(2505, V2505::new);
-        param0.addFixer(new AddNewChoices(var104, "Added Piglin", References.ENTITY));
     }
 }
