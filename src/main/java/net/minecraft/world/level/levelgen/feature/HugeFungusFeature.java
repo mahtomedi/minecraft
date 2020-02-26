@@ -6,7 +6,6 @@ import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
@@ -14,36 +13,62 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
+import net.minecraft.world.level.material.Material;
 
-public class HugeFungiFeature extends Feature<HugeFungiConfiguration> {
-    public HugeFungiFeature(Function<Dynamic<?>, ? extends HugeFungiConfiguration> param0) {
+public class HugeFungusFeature extends Feature<HugeFungusConfiguration> {
+    public HugeFungusFeature(Function<Dynamic<?>, ? extends HugeFungusConfiguration> param0) {
         super(param0);
     }
 
     public boolean place(
-        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, HugeFungiConfiguration param4
+        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, HugeFungusConfiguration param4
     ) {
-        BlockPos.MutableBlockPos var0 = findOnNyliumPosition(param0, param3);
-        if (var0 == null) {
+        Block var0 = param4.validBaseState.getBlock();
+        BlockPos var1 = null;
+        if (param4.planted) {
+            Block var2 = param0.getBlockState(param3.below()).getBlock();
+            if (var2 == var0) {
+                var1 = param3;
+            }
+        } else {
+            var1 = findOnNyliumPosition(param0, param3, var0);
+        }
+
+        if (var1 == null) {
             return false;
         } else {
-            int var1 = Mth.nextInt(param2, 4, 13);
+            int var3 = Mth.nextInt(param2, 4, 13);
             if (param2.nextInt(12) == 0) {
-                var1 *= 2;
+                var3 *= 2;
             }
 
-            if (var0.getY() + var1 + 1 >= 256) {
-                return false;
-            } else {
-                boolean var2 = !param4.planted && param2.nextFloat() < 0.06F;
-                this.placeHat(param0, param2, param4, var0, var1, var2);
-                this.placeStem(param0, param2, param4, var0, var1, var2);
-                return true;
+            if (!param4.planted) {
+                int var4 = param0.getHeight();
+                if (var1.getY() + var3 + 1 >= var4) {
+                    return false;
+                }
             }
+
+            boolean var5 = !param4.planted && param2.nextFloat() < 0.06F;
+            param0.setBlock(param3, Blocks.AIR.defaultBlockState(), 4);
+            this.placeHat(param0, param2, param4, var1, var3, var5);
+            this.placeStem(param0, param2, param4, var1, var3, var5);
+            return true;
         }
     }
 
-    private void placeStem(LevelAccessor param0, Random param1, HugeFungiConfiguration param2, BlockPos.MutableBlockPos param3, int param4, boolean param5) {
+    public static boolean isReplaceablePlant(LevelAccessor param0, BlockPos param1) {
+        return param0.isStateAtPosition(param1, param0x -> {
+            Material var0x = param0x.getMaterial();
+            return var0x == Material.REPLACEABLE_PLANT;
+        });
+    }
+
+    private static boolean isReplaceable(LevelAccessor param0, BlockPos param1) {
+        return param0.getBlockState(param1).isAir() || !param0.getFluidState(param1).isEmpty() || isReplaceablePlant(param0, param1);
+    }
+
+    private void placeStem(LevelAccessor param0, Random param1, HugeFungusConfiguration param2, BlockPos param3, int param4, boolean param5) {
         BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
         BlockState var1 = param2.stemState;
         int var2 = param5 ? 1 : 0;
@@ -54,8 +79,12 @@ public class HugeFungiFeature extends Feature<HugeFungiConfiguration> {
 
                 for(int var6 = 0; var6 < param4; ++var6) {
                     var0.set(param3).move(var3, var6, var4);
-                    if (!param0.getBlockState(var0).isSolidRender(param0, var0)) {
+                    if (isReplaceable(param0, var0)) {
                         if (param2.planted) {
+                            if (!param0.getBlockState(var0.below()).isAir()) {
+                                param0.destroyBlock(var0, true);
+                            }
+
                             param0.setBlock(var0, var1, 3);
                         } else if (var5) {
                             if (param1.nextFloat() < 0.1F) {
@@ -71,7 +100,7 @@ public class HugeFungiFeature extends Feature<HugeFungiConfiguration> {
 
     }
 
-    private void placeHat(LevelAccessor param0, Random param1, HugeFungiConfiguration param2, BlockPos.MutableBlockPos param3, int param4, boolean param5) {
+    private void placeHat(LevelAccessor param0, Random param1, HugeFungusConfiguration param2, BlockPos param3, int param4, boolean param5) {
         BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
         boolean var1 = param2.hatState.getBlock() == Blocks.NETHER_WART_BLOCK;
         int var2 = Math.min(param1.nextInt(1 + param4 / 3) + 5, param4);
@@ -95,7 +124,11 @@ public class HugeFungiFeature extends Feature<HugeFungiConfiguration> {
                     boolean var11 = var8 && var9;
                     boolean var12 = var4 < var3 + 3;
                     var0.set(param3).move(var6, var4, var7);
-                    if (!param0.getBlockState(var0).isSolidRender(param0, var0)) {
+                    if (isReplaceable(param0, var0)) {
+                        if (param2.planted && !param0.getBlockState(var0.below()).isAir()) {
+                            param0.destroyBlock(var0, true);
+                        }
+
                         if (var12) {
                             if (!var10) {
                                 this.placeHatDropBlock(param0, param1, var0, param2.hatState, var1);
@@ -115,14 +148,14 @@ public class HugeFungiFeature extends Feature<HugeFungiConfiguration> {
     }
 
     private void placeHatBlock(
-        LevelAccessor param0, Random param1, HugeFungiConfiguration param2, BlockPos.MutableBlockPos param3, float param4, float param5, float param6
+        LevelAccessor param0, Random param1, HugeFungusConfiguration param2, BlockPos.MutableBlockPos param3, float param4, float param5, float param6
     ) {
         if (param1.nextFloat() < param4) {
             this.setBlock(param0, param3, param2.decorState);
         } else if (param1.nextFloat() < param5) {
             this.setBlock(param0, param3, param2.hatState);
             if (param1.nextFloat() < param6) {
-                this.tryPlaceWeepingVines(param3, param0, param1);
+                tryPlaceWeepingVines(param3, param0, param1);
             }
         }
 
@@ -134,20 +167,20 @@ public class HugeFungiFeature extends Feature<HugeFungiConfiguration> {
         } else if ((double)param1.nextFloat() < 0.15) {
             this.setBlock(param0, param2, param3);
             if (param4 && param1.nextInt(11) == 0) {
-                this.tryPlaceWeepingVines(param2, param0, param1);
+                tryPlaceWeepingVines(param2, param0, param1);
             }
         }
 
     }
 
     @Nullable
-    private static BlockPos.MutableBlockPos findOnNyliumPosition(LevelAccessor param0, BlockPos param1) {
+    private static BlockPos.MutableBlockPos findOnNyliumPosition(LevelAccessor param0, BlockPos param1, Block param2) {
         BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos(param1);
 
         for(int var1 = param1.getY(); var1 >= 1; --var1) {
             var0.setY(var1);
             Block var2 = param0.getBlockState(var0.below()).getBlock();
-            if (var2.is(BlockTags.NYLIUM)) {
+            if (var2 == param2) {
                 return var0;
             }
         }
@@ -155,7 +188,7 @@ public class HugeFungiFeature extends Feature<HugeFungiConfiguration> {
         return null;
     }
 
-    private void tryPlaceWeepingVines(BlockPos param0, LevelAccessor param1, Random param2) {
+    private static void tryPlaceWeepingVines(BlockPos param0, LevelAccessor param1, Random param2) {
         BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos(param0).move(Direction.DOWN);
         if (param1.isEmptyBlock(var0)) {
             int var1 = Mth.nextInt(param2, 1, 5);

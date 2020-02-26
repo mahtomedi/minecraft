@@ -65,7 +65,7 @@ public class ServerEntity {
         this.yRotp = Mth.floor(param1.yRot * 256.0F / 360.0F);
         this.xRotp = Mth.floor(param1.xRot * 256.0F / 360.0F);
         this.yHeadRotp = Mth.floor(param1.getYHeadRot() * 256.0F / 360.0F);
-        this.wasOnGround = param1.onGround;
+        this.wasOnGround = param1.isOnGround();
     }
 
     public void sendChanges() {
@@ -99,7 +99,7 @@ public class ServerEntity {
                 int var7 = Mth.floor(this.entity.xRot * 256.0F / 360.0F);
                 boolean var8 = Math.abs(var6 - this.yRotp) >= 1 || Math.abs(var7 - this.xRotp) >= 1;
                 if (var8) {
-                    this.broadcast.accept(new ClientboundMoveEntityPacket.Rot(this.entity.getId(), (byte)var6, (byte)var7, this.entity.onGround));
+                    this.broadcast.accept(new ClientboundMoveEntityPacket.Rot(this.entity.getId(), (byte)var6, (byte)var7, this.entity.isOnGround()));
                     this.yRotp = var6;
                     this.xRotp = var7;
                 }
@@ -121,30 +121,28 @@ public class ServerEntity {
                     long var17 = ClientboundMoveEntityPacket.entityToPacket(var11.y);
                     long var18 = ClientboundMoveEntityPacket.entityToPacket(var11.z);
                     boolean var19 = var16 < -32768L || var16 > 32767L || var17 < -32768L || var17 > 32767L || var18 < -32768L || var18 > 32767L;
-                    if (!var19 && this.teleportDelay <= 400 && !this.wasRiding && this.wasOnGround == this.entity.onGround) {
-                        if ((!var14 || !var15) && !(this.entity instanceof AbstractArrow)) {
-                            if (var14) {
-                                var13 = new ClientboundMoveEntityPacket.Pos(
-                                    this.entity.getId(), (short)((int)var16), (short)((int)var17), (short)((int)var18), this.entity.onGround
-                                );
-                            } else if (var15) {
-                                var13 = new ClientboundMoveEntityPacket.Rot(this.entity.getId(), (byte)var9, (byte)var10, this.entity.onGround);
-                            }
-                        } else {
-                            var13 = new ClientboundMoveEntityPacket.PosRot(
-                                this.entity.getId(),
-                                (short)((int)var16),
-                                (short)((int)var17),
-                                (short)((int)var18),
-                                (byte)var9,
-                                (byte)var10,
-                                this.entity.onGround
-                            );
-                        }
-                    } else {
-                        this.wasOnGround = this.entity.onGround;
+                    if (var19 || this.teleportDelay > 400 || this.wasRiding || this.wasOnGround != this.entity.isOnGround()) {
+                        this.wasOnGround = this.entity.isOnGround();
                         this.teleportDelay = 0;
                         var13 = new ClientboundTeleportEntityPacket(this.entity);
+                    } else if ((!var14 || !var15) && !(this.entity instanceof AbstractArrow)) {
+                        if (var14) {
+                            var13 = new ClientboundMoveEntityPacket.Pos(
+                                this.entity.getId(), (short)((int)var16), (short)((int)var17), (short)((int)var18), this.entity.isOnGround()
+                            );
+                        } else if (var15) {
+                            var13 = new ClientboundMoveEntityPacket.Rot(this.entity.getId(), (byte)var9, (byte)var10, this.entity.isOnGround());
+                        }
+                    } else {
+                        var13 = new ClientboundMoveEntityPacket.PosRot(
+                            this.entity.getId(),
+                            (short)((int)var16),
+                            (short)((int)var17),
+                            (short)((int)var18),
+                            (byte)var9,
+                            (byte)var10,
+                            this.entity.isOnGround()
+                        );
                     }
                 }
 

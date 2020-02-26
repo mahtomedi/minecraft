@@ -8,7 +8,6 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
@@ -19,7 +18,6 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.end.TheEndDimension;
 
 public class FireBlock extends BaseFireBlock {
@@ -53,17 +51,10 @@ public class FireBlock extends BaseFireBlock {
 
     @Override
     public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
-        return this.canSurvive(param0, param3, param4)
-            ? this.getStateForPlacement(param3, param4).setValue(AGE, param0.getValue(AGE))
-            : Blocks.AIR.defaultBlockState();
+        return this.canSurvive(param0, param3, param4) ? this.getStateWithAge(param3, param4, param0.getValue(AGE)) : Blocks.AIR.defaultBlockState();
     }
 
-    @Override
-    public BlockState getStateForPlacement(BlockPlaceContext param0) {
-        return this.getStateForPlacement(param0.getLevel(), param0.getClickedPos());
-    }
-
-    public BlockState getStateForPlacement(BlockGetter param0, BlockPos param1) {
+    protected BlockState getStateForPlacement(BlockGetter param0, BlockPos param1) {
         BlockPos var0 = param1.below();
         BlockState var1 = param0.getBlockState(var0);
         if (!this.canBurn(var1) && !var1.isFaceSturdy(param0, var0, Direction.UP)) {
@@ -158,7 +149,7 @@ public class FireBlock extends BaseFireBlock {
 
                                     if (var13 > 0 && param3.nextInt(var11) <= var13 && (!param1.isRaining() || !this.isNearRain(param1, var7))) {
                                         int var14 = Math.min(15, var2 + param3.nextInt(5) / 4);
-                                        param1.setBlock(var7, this.getStateForPlacement(param1, var7).setValue(AGE, Integer.valueOf(var14)), 3);
+                                        param1.setBlock(var7, this.getStateWithAge(param1, var7, var14), 3);
                                     }
                                 }
                             }
@@ -196,7 +187,7 @@ public class FireBlock extends BaseFireBlock {
             BlockState var1 = param0.getBlockState(param1);
             if (param3.nextInt(param4 + 10) < 5 && !param0.isRainingAt(param1)) {
                 int var2 = Math.min(param4 + param3.nextInt(5) / 4, 15);
-                param0.setBlock(param1, this.getStateForPlacement(param0, param1).setValue(AGE, Integer.valueOf(var2)), 3);
+                param0.setBlock(param1, this.getStateWithAge(param0, param1, var2), 3);
             } else {
                 param0.removeBlock(param1, false);
             }
@@ -207,6 +198,11 @@ public class FireBlock extends BaseFireBlock {
             }
         }
 
+    }
+
+    private BlockState getStateWithAge(LevelAccessor param0, BlockPos param1, int param2) {
+        BlockState var0 = getState(param0, param1);
+        return var0.getBlock() == Blocks.FIRE ? var0.setValue(AGE, Integer.valueOf(param2)) : var0;
     }
 
     private boolean isValidFireLocation(BlockGetter param0, BlockPos param1) {
@@ -241,16 +237,8 @@ public class FireBlock extends BaseFireBlock {
 
     @Override
     public void onPlace(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
-        if (param3.getBlock() != param0.getBlock()) {
-            if (param1.dimension.getType() != DimensionType.OVERWORLD && param1.dimension.getType() != DimensionType.NETHER
-                || !((NetherPortalBlock)Blocks.NETHER_PORTAL).trySpawnPortal(param1, param2)) {
-                if (!param0.canSurvive(param1, param2)) {
-                    param1.removeBlock(param2, false);
-                } else {
-                    param1.getBlockTicks().scheduleTick(param2, this, this.getTickDelay(param1) + param1.random.nextInt(10));
-                }
-            }
-        }
+        super.onPlace(param0, param1, param2, param3, param4);
+        param1.getBlockTicks().scheduleTick(param2, this, this.getTickDelay(param1) + param1.random.nextInt(10));
     }
 
     @Override

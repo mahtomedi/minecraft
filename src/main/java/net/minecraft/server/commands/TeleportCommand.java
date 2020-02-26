@@ -299,7 +299,7 @@ public class TeleportCommand {
 
             if (!(param1 instanceof LivingEntity) || !((LivingEntity)param1).isFallFlying()) {
                 param1.setDeltaMovement(param1.getDeltaMovement().multiply(1.0, 0.0, 1.0));
-                param1.onGround = true;
+                param1.setOnGround(true);
             }
 
         }

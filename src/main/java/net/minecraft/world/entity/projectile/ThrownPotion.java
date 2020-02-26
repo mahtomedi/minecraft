@@ -94,15 +94,20 @@ public class ThrownPotion extends ThrowableProjectile implements ItemSupplier {
             Potion var1 = PotionUtils.getPotion(var0);
             List<MobEffectInstance> var2 = PotionUtils.getMobEffects(var0);
             boolean var3 = var1 == Potions.WATER && var2.isEmpty();
-            if (param0.getType() == HitResult.Type.BLOCK && var3) {
+            if (param0.getType() == HitResult.Type.BLOCK) {
                 BlockHitResult var4 = (BlockHitResult)param0;
                 Direction var5 = var4.getDirection();
-                BlockPos var6 = var4.getBlockPos().relative(var5);
-                this.dowseFire(var6, var5);
-                this.dowseFire(var6.relative(var5.getOpposite()), var5);
+                BlockPos var6 = var4.getBlockPos();
+                BlockPos var7 = var6.relative(var5);
+                BlockState var8 = this.level.getBlockState(var6);
+                var8.onProjectileHit(this.level, var8, var4, this);
+                if (var3) {
+                    this.dowseFire(var7, var5);
+                    this.dowseFire(var7.relative(var5.getOpposite()), var5);
 
-                for(Direction var7 : Direction.Plane.HORIZONTAL) {
-                    this.dowseFire(var6.relative(var7), var7);
+                    for(Direction var9 : Direction.Plane.HORIZONTAL) {
+                        this.dowseFire(var7.relative(var9), var9);
+                    }
                 }
             }
 
@@ -116,8 +121,8 @@ public class ThrownPotion extends ThrowableProjectile implements ItemSupplier {
                 }
             }
 
-            int var8 = var1.hasInstantEffects() ? 2007 : 2002;
-            this.level.levelEvent(var8, new BlockPos(this), PotionUtils.getColor(var0));
+            int var10 = var1.hasInstantEffects() ? 2007 : 2002;
+            this.level.levelEvent(var10, new BlockPos(this), PotionUtils.getColor(var0));
             this.remove();
         }
     }

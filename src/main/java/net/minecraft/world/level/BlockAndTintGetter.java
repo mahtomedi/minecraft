@@ -1,11 +1,15 @@
 package net.minecraft.world.level;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public interface BlockAndTintGetter extends BlockGetter {
+    @OnlyIn(Dist.CLIENT)
+    float getShade(Direction var1, boolean var2);
+
     LevelLightEngine getLightEngine();
 
     @OnlyIn(Dist.CLIENT)

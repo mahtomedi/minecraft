@@ -206,10 +206,14 @@ public class ItemBlockRenderTypes {
         param0.put(Blocks.WEEPING_VINES_PLANT, var1);
         param0.put(Blocks.WEEPING_VINES, var1);
         param0.put(Blocks.NETHER_SPROUTS, var1);
-        param0.put(Blocks.CRIMSON_FUNGI, var1);
-        param0.put(Blocks.WARPED_FUNGI, var1);
+        param0.put(Blocks.CRIMSON_FUNGUS, var1);
+        param0.put(Blocks.WARPED_FUNGUS, var1);
         param0.put(Blocks.CRIMSON_ROOTS, var1);
         param0.put(Blocks.WARPED_ROOTS, var1);
+        param0.put(Blocks.POTTED_CRIMSON_FUNGUS, var1);
+        param0.put(Blocks.POTTED_WARPED_FUNGUS, var1);
+        param0.put(Blocks.POTTED_CRIMSON_ROOTS, var1);
+        param0.put(Blocks.POTTED_WARPED_ROOTS, var1);
         RenderType var2 = RenderType.translucent();
         param0.put(Blocks.ICE, var2);
         param0.put(Blocks.NETHER_PORTAL, var2);

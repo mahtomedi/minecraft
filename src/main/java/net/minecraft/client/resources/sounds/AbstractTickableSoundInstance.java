@@ -7,7 +7,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class AbstractTickableSoundInstance extends AbstractSoundInstance implements TickableSoundInstance {
-    protected boolean stopped;
+    private boolean stopped;
 
     protected AbstractTickableSoundInstance(SoundEvent param0, SoundSource param1) {
         super(param0, param1);
@@ -16,5 +16,10 @@ public abstract class AbstractTickableSoundInstance extends AbstractSoundInstanc
     @Override
     public boolean isStopped() {
         return this.stopped;
+    }
+
+    protected final void stop() {
+        this.stopped = true;
+        this.looping = false;
     }
 }

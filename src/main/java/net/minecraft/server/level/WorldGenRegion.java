@@ -7,6 +7,7 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvent;
@@ -167,6 +168,12 @@ public class WorldGenRegion implements LevelAccessor {
     @Override
     public Biome getUncachedNoiseBiome(int param0, int param1, int param2) {
         return this.level.getUncachedNoiseBiome(param0, param1, param2);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public float getShade(Direction param0, boolean param1) {
+        return 1.0F;
     }
 
     @Override

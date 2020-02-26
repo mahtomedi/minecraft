@@ -278,7 +278,7 @@ public abstract class NoiseBasedChunkGenerator<T extends ChunkGeneratorSettings>
     @Override
     public void fillFromNoise(LevelAccessor param0, ChunkAccess param1) {
         int var0 = this.getSeaLevel();
-        ObjectList<PoolElementStructurePiece> var1 = new ObjectArrayList<>(10);
+        ObjectList<StructurePiece> var1 = new ObjectArrayList<>(10);
         ObjectList<JigsawJunction> var2 = new ObjectArrayList<>(32);
         ChunkPos var3 = param1.getPos();
         int var4 = var3.x;
@@ -297,19 +297,23 @@ public abstract class NoiseBasedChunkGenerator<T extends ChunkGeneratorSettings>
                 StructureStart var14 = var13.getStartForFeature(var9);
                 if (var14 != null && var14.isValid()) {
                     for(StructurePiece var15 : var14.getPieces()) {
-                        if (var15.isCloseToChunk(var3, 12) && var15 instanceof PoolElementStructurePiece) {
-                            PoolElementStructurePiece var16 = (PoolElementStructurePiece)var15;
-                            StructureTemplatePool.Projection var17 = var16.getElement().getProjection();
-                            if (var17 == StructureTemplatePool.Projection.RIGID) {
-                                var1.add(var16);
-                            }
-
-                            for(JigsawJunction var18 : var16.getJunctions()) {
-                                int var19 = var18.getSourceX();
-                                int var20 = var18.getSourceZ();
-                                if (var19 > var6 - 12 && var20 > var7 - 12 && var19 < var6 + 15 + 12 && var20 < var7 + 15 + 12) {
-                                    var2.add(var18);
+                        if (var15.isCloseToChunk(var3, 12)) {
+                            if (var15 instanceof PoolElementStructurePiece) {
+                                PoolElementStructurePiece var16 = (PoolElementStructurePiece)var15;
+                                StructureTemplatePool.Projection var17 = var16.getElement().getProjection();
+                                if (var17 == StructureTemplatePool.Projection.RIGID) {
+                                    var1.add(var16);
                                 }
+
+                                for(JigsawJunction var18 : var16.getJunctions()) {
+                                    int var19 = var18.getSourceX();
+                                    int var20 = var18.getSourceZ();
+                                    if (var19 > var6 - 12 && var20 > var7 - 12 && var19 < var6 + 15 + 12 && var20 < var7 + 15 + 12) {
+                                        var2.add(var18);
+                                    }
+                                }
+                            } else {
+                                var1.add(var15);
                             }
                         }
                     }
@@ -329,7 +333,7 @@ public abstract class NoiseBasedChunkGenerator<T extends ChunkGeneratorSettings>
         Heightmap var24 = var23.getOrCreateHeightmapUnprimed(Heightmap.Types.OCEAN_FLOOR_WG);
         Heightmap var25 = var23.getOrCreateHeightmapUnprimed(Heightmap.Types.WORLD_SURFACE_WG);
         BlockPos.MutableBlockPos var26 = new BlockPos.MutableBlockPos();
-        ObjectListIterator<PoolElementStructurePiece> var27 = var1.iterator();
+        ObjectListIterator<StructurePiece> var27 = var1.iterator();
         ObjectListIterator<JigsawJunction> var28 = var2.iterator();
 
         for(int var29 = 0; var29 < this.chunkCountX; ++var29) {
@@ -385,10 +389,14 @@ public abstract class NoiseBasedChunkGenerator<T extends ChunkGeneratorSettings>
                                 int var66;
                                 int var67;
                                 for(var62 = var62 / 2.0 - var62 * var62 * var62 / 24.0; var27.hasNext(); var62 += getContribution(var65, var66, var67) * 0.8) {
-                                    PoolElementStructurePiece var63 = var27.next();
+                                    StructurePiece var63 = var27.next();
                                     BoundingBox var64 = var63.getBoundingBox();
                                     var65 = Math.max(0, Math.max(var64.x0 - var52, var52 - var64.x1));
-                                    var66 = var43 - (var64.y0 + var63.getGroundLevelDelta());
+                                    var66 = var43
+                                        - (
+                                            var64.y0
+                                                + (var63 instanceof PoolElementStructurePiece ? ((PoolElementStructurePiece)var63).getGroundLevelDelta() : 0)
+                                        );
                                     var67 = Math.max(0, Math.max(var64.z0 - var58, var58 - var64.z1));
                                 }
 

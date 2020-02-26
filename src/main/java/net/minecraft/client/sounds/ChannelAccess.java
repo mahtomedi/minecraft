@@ -6,9 +6,11 @@ import com.mojang.blaze3d.audio.Library;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -23,13 +25,16 @@ public class ChannelAccess {
         this.executor = param1;
     }
 
-    public ChannelAccess.ChannelHandle createHandle(Library.Pool param0) {
-        ChannelAccess.ChannelHandle var0 = new ChannelAccess.ChannelHandle();
+    public CompletableFuture<ChannelAccess.ChannelHandle> createHandle(Library.Pool param0) {
+        CompletableFuture<ChannelAccess.ChannelHandle> var0 = new CompletableFuture<>();
         this.executor.execute(() -> {
             Channel var0x = this.library.acquireChannel(param0);
             if (var0x != null) {
-                var0.channel = var0x;
-                this.channels.add(var0);
+                ChannelAccess.ChannelHandle var1x = new ChannelAccess.ChannelHandle(var0x);
+                this.channels.add(var1x);
+                var0.complete(var1x);
+            } else {
+                var0.complete(null);
             }
 
         });
@@ -63,11 +68,16 @@ public class ChannelAccess {
 
     @OnlyIn(Dist.CLIENT)
     public class ChannelHandle {
+        @Nullable
         private Channel channel;
         private boolean stopped;
 
         public boolean isStopped() {
             return this.stopped;
+        }
+
+        public ChannelHandle(Channel param1) {
+            this.channel = param1;
         }
 
         public void execute(Consumer<Channel> param0) {

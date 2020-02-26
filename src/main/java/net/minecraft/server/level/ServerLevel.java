@@ -36,6 +36,7 @@ import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.particles.ParticleOptions;
@@ -1500,5 +1501,11 @@ public class ServerLevel extends Level {
             this.updateNeighborsAt(param0, param1);
         }
 
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public float getShade(Direction param0, boolean param1) {
+        return 1.0F;
     }
 }

@@ -1,6 +1,5 @@
 package net.minecraft.client.resources.sounds;
 
-import javax.annotation.Nullable;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.client.sounds.WeighedSoundEvents;
 import net.minecraft.resources.ResourceLocation;
@@ -12,8 +11,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public abstract class AbstractSoundInstance implements SoundInstance {
     protected Sound sound;
-    @Nullable
-    private WeighedSoundEvents soundEvent;
     protected final SoundSource source;
     protected final ResourceLocation location;
     protected float volume = 1.0F;
@@ -43,14 +40,14 @@ public abstract class AbstractSoundInstance implements SoundInstance {
 
     @Override
     public WeighedSoundEvents resolve(SoundManager param0) {
-        this.soundEvent = param0.getSoundEvent(this.location);
-        if (this.soundEvent == null) {
+        WeighedSoundEvents var0 = param0.getSoundEvent(this.location);
+        if (var0 == null) {
             this.sound = SoundManager.EMPTY_SOUND;
         } else {
-            this.sound = this.soundEvent.getSound();
+            this.sound = var0.getSound();
         }
 
-        return this.soundEvent;
+        return var0;
     }
 
     @Override

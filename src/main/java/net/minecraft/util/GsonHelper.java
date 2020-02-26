@@ -14,7 +14,6 @@ import com.google.gson.stream.JsonReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.lang.reflect.Type;
 import javax.annotation.Nullable;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
@@ -290,11 +289,11 @@ public class GsonHelper {
     }
 
     @Nullable
-    public static <T> T fromJson(Gson param0, Reader param1, Type param2, boolean param3) {
+    public static <T> T fromJson(Gson param0, Reader param1, TypeToken<T> param2, boolean param3) {
         try {
             JsonReader var0 = new JsonReader(param1);
             var0.setLenient(param3);
-            return (T)param0.getAdapter(TypeToken.get(param2)).read(var0);
+            return param0.getAdapter(param2).read(var0);
         } catch (IOException var5) {
             throw new JsonParseException(var5);
         }
@@ -302,7 +301,7 @@ public class GsonHelper {
 
     @Nullable
     @OnlyIn(Dist.CLIENT)
-    public static <T> T fromJson(Gson param0, String param1, Type param2, boolean param3) {
+    public static <T> T fromJson(Gson param0, String param1, TypeToken<T> param2, boolean param3) {
         return fromJson(param0, new StringReader(param1), param2, param3);
     }
 
@@ -312,13 +311,13 @@ public class GsonHelper {
     }
 
     @Nullable
-    public static <T> T fromJson(Gson param0, Reader param1, Type param2) {
+    public static <T> T fromJson(Gson param0, Reader param1, TypeToken<T> param2) {
         return fromJson(param0, param1, param2, false);
     }
 
     @Nullable
     @OnlyIn(Dist.CLIENT)
-    public static <T> T fromJson(Gson param0, String param1, Type param2) {
+    public static <T> T fromJson(Gson param0, String param1, TypeToken<T> param2) {
         return fromJson(param0, param1, param2, false);
     }
 

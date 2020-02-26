@@ -30,7 +30,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 
-public class PigZombie extends Zombie {
+public class ZombifiedPiglin extends Zombie {
     private static final UUID SPEED_MODIFIER_ATTACKING_UUID = UUID.fromString("49455A49-7EC5-45BA-B886-3B90B23A1718");
     private static final AttributeModifier SPEED_MODIFIER_ATTACKING = new AttributeModifier(
             SPEED_MODIFIER_ATTACKING_UUID, "Attacking speed boost", 0.05, AttributeModifier.Operation.ADDITION
@@ -40,7 +40,7 @@ public class PigZombie extends Zombie {
     private int playAngrySoundIn;
     private UUID lastHurtByUUID;
 
-    public PigZombie(EntityType<? extends PigZombie> param0, Level param1) {
+    public ZombifiedPiglin(EntityType<? extends ZombifiedPiglin> param0, Level param1) {
         super(param0, param1);
         this.setPathfindingMalus(BlockPathTypes.LAVA, 8.0F);
     }
@@ -58,8 +58,8 @@ public class PigZombie extends Zombie {
     protected void addBehaviourGoals() {
         this.goalSelector.addGoal(2, new ZombieAttackGoal(this, 1.0, false));
         this.goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 1.0));
-        this.targetSelector.addGoal(1, new PigZombie.PigZombieHurtByOtherGoal(this));
-        this.targetSelector.addGoal(2, new PigZombie.PigZombieAngerTargetGoal(this));
+        this.targetSelector.addGoal(1, new ZombifiedPiglin.ZombifiedPiglinHurtByOtherGoal(this));
+        this.targetSelector.addGoal(2, new ZombifiedPiglin.ZombifiedPiglinAngerTargetGoal(this));
     }
 
     @Override
@@ -100,7 +100,7 @@ public class PigZombie extends Zombie {
 
         if (this.playAngrySoundIn > 0 && --this.playAngrySoundIn == 0) {
             this.playSound(
-                SoundEvents.ZOMBIE_PIGMAN_ANGRY, this.getSoundVolume() * 2.0F, ((this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F) * 1.8F
+                SoundEvents.ZOMBIFIED_PIGLIN_ANGRY, this.getSoundVolume() * 2.0F, ((this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F) * 1.8F
             );
         }
 
@@ -114,7 +114,9 @@ public class PigZombie extends Zombie {
         super.customServerAiStep();
     }
 
-    public static boolean checkPigZombieSpawnRules(EntityType<PigZombie> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
+    public static boolean checkZombifiedPiglinSpawnRules(
+        EntityType<ZombifiedPiglin> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4
+    ) {
         return param1.getDifficulty() != Difficulty.PEACEFUL;
     }
 
@@ -183,17 +185,17 @@ public class PigZombie extends Zombie {
 
     @Override
     protected SoundEvent getAmbientSound() {
-        return SoundEvents.ZOMBIE_PIGMAN_AMBIENT;
+        return SoundEvents.ZOMBIFIED_PIGLIN_AMBIENT;
     }
 
     @Override
     protected SoundEvent getHurtSound(DamageSource param0) {
-        return SoundEvents.ZOMBIE_PIGMAN_HURT;
+        return SoundEvents.ZOMBIFIED_PIGLIN_HURT;
     }
 
     @Override
     protected SoundEvent getDeathSound() {
-        return SoundEvents.ZOMBIE_PIGMAN_DEATH;
+        return SoundEvents.ZOMBIFIED_PIGLIN_DEATH;
     }
 
     @Override
@@ -211,26 +213,26 @@ public class PigZombie extends Zombie {
         return this.isAngry();
     }
 
-    static class PigZombieAngerTargetGoal extends NearestAttackableTargetGoal<Player> {
-        public PigZombieAngerTargetGoal(PigZombie param0) {
+    static class ZombifiedPiglinAngerTargetGoal extends NearestAttackableTargetGoal<Player> {
+        public ZombifiedPiglinAngerTargetGoal(ZombifiedPiglin param0) {
             super(param0, Player.class, true);
         }
 
         @Override
         public boolean canUse() {
-            return ((PigZombie)this.mob).isAngry() && super.canUse();
+            return ((ZombifiedPiglin)this.mob).isAngry() && super.canUse();
         }
     }
 
-    static class PigZombieHurtByOtherGoal extends HurtByTargetGoal {
-        public PigZombieHurtByOtherGoal(PigZombie param0) {
+    static class ZombifiedPiglinHurtByOtherGoal extends HurtByTargetGoal {
+        public ZombifiedPiglinHurtByOtherGoal(ZombifiedPiglin param0) {
             super(param0);
             this.setAlertOthers(new Class[]{Zombie.class});
         }
 
         @Override
         protected void alertOther(Mob param0, LivingEntity param1) {
-            if (param0 instanceof PigZombie && this.mob.canSee(param1) && ((PigZombie)param0).makeAngry(param1)) {
+            if (param0 instanceof ZombifiedPiglin && this.mob.canSee(param1) && ((ZombifiedPiglin)param0).makeAngry(param1)) {
                 param0.setTarget(param1);
             }
 

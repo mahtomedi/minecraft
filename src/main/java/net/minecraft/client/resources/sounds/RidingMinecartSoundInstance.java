@@ -40,7 +40,7 @@ public class RidingMinecartSoundInstance extends AbstractTickableSoundInstance {
             }
 
         } else {
-            this.stopped = true;
+            this.stop();
         }
     }
 }

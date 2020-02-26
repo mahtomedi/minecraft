@@ -52,8 +52,8 @@ public class TheEndDimension extends Dimension {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public Vec3 getBrightnessDependentFogColor(int param0, float param1) {
-        return Vec3.fromRGB24(param0).scale(0.15F);
+    public Vec3 getBrightnessDependentFogColor(Vec3 param0, float param1) {
+        return param0.scale(0.15F);
     }
 
     @OnlyIn(Dist.CLIENT)

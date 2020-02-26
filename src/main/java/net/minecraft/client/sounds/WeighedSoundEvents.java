@@ -16,6 +16,7 @@ public class WeighedSoundEvents implements Weighted<Sound> {
     private final List<Weighted<Sound>> list = Lists.newArrayList();
     private final Random random = new Random();
     private final ResourceLocation location;
+    @Nullable
     private final Component subtitle;
 
     public WeighedSoundEvents(ResourceLocation param0, @Nullable String param1) {

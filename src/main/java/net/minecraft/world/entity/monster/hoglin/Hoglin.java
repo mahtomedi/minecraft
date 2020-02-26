@@ -12,6 +12,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgableMob;
 import net.minecraft.world.entity.Entity;
@@ -65,7 +66,7 @@ public class Hoglin extends Animal implements Enemy {
         MemoryModuleType.VISIBLE_ADULT_PIGLIN_COUNT,
         MemoryModuleType.VISIBLE_ADULT_HOGLIN_COUNT,
         MemoryModuleType.NEAREST_VISIBLE_ADULT_HOGLINS,
-        MemoryModuleType.NEAREST_WARPED_FUNGI,
+        MemoryModuleType.NEAREST_WARPED_FUNGUS,
         MemoryModuleType.PACIFIED
     );
 
@@ -156,10 +157,6 @@ public class Hoglin extends Animal implements Enemy {
         this.level.getProfiler().pop();
         HoglinAi.updateActivity(this);
         HoglinAi.maybePlayActivitySound(this);
-        if (HoglinAi.seesPlayer(this)) {
-            this.setPersistenceRequired();
-        }
-
     }
 
     @Override
@@ -194,11 +191,21 @@ public class Hoglin extends Animal implements Enemy {
 
     @Override
     public float getWalkTargetValue(BlockPos param0, LevelReader param1) {
-        if (HoglinAi.isPosNearNearestWarpedFungi(this, param0)) {
+        if (HoglinAi.isPosNearNearestWarpedFungus(this, param0)) {
             return -1.0F;
         } else {
             return param1.getBlockState(param0.below()).getBlock() == Blocks.CRIMSON_NYLIUM ? 10.0F : 0.0F;
         }
+    }
+
+    @Override
+    public boolean mobInteract(Player param0, InteractionHand param1) {
+        boolean var0 = super.mobInteract(param0, param1);
+        if (var0) {
+            this.setPersistenceRequired();
+        }
+
+        return var0;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -225,7 +232,7 @@ public class Hoglin extends Animal implements Enemy {
 
     @Override
     public boolean isFood(ItemStack param0) {
-        return param0.getItem() == Items.CRIMSON_FUNGI;
+        return param0.getItem() == Items.CRIMSON_FUNGUS;
     }
 
     public boolean isAdult() {
@@ -235,7 +242,12 @@ public class Hoglin extends Animal implements Enemy {
     @Nullable
     @Override
     public AgableMob getBreedOffspring(AgableMob param0) {
-        return EntityType.HOGLIN.create(this.level);
+        Hoglin var0 = EntityType.HOGLIN.create(this.level);
+        if (var0 != null) {
+            var0.setPersistenceRequired();
+        }
+
+        return var0;
     }
 
     @Override
@@ -288,10 +300,6 @@ public class Hoglin extends Animal implements Enemy {
 
     protected void playAngrySound() {
         this.playSound(SoundEvents.HOGLIN_ANGRY, 1.0F, this.getVoicePitch());
-    }
-
-    protected void playHurtSound() {
-        this.playRetreatSound();
     }
 
     protected void playRetreatSound() {

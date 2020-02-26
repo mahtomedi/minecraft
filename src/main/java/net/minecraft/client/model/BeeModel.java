@@ -83,7 +83,7 @@ public class BeeModel<T extends Bee> extends AgeableListModel<T> {
         this.rightAntenna.xRot = 0.0F;
         this.bone.xRot = 0.0F;
         this.bone.y = 19.0F;
-        boolean var0 = param0.onGround && param0.getDeltaMovement().lengthSqr() < 1.0E-7;
+        boolean var0 = param0.isOnGround() && param0.getDeltaMovement().lengthSqr() < 1.0E-7;
         if (var0) {
             this.rightWing.yRot = -0.2618F;
             this.rightWing.zRot = 0.0F;

@@ -5,6 +5,7 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -213,7 +214,10 @@ public class ChorusFlowerBlock extends Block {
 
     @Override
     public void onProjectileHit(Level param0, BlockState param1, BlockHitResult param2, Entity param3) {
-        BlockPos var0 = param2.getBlockPos();
-        param0.destroyBlock(var0, true, param3);
+        if (param3.getType().is(EntityTypeTags.IMPACT_PROJECTILES)) {
+            BlockPos var0 = param2.getBlockPos();
+            param0.destroyBlock(var0, true, param3);
+        }
+
     }
 }

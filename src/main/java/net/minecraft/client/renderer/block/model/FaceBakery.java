@@ -55,7 +55,7 @@ public class FaceBakery {
             this.recalculateWinding(var5, var6);
         }
 
-        return new BakedQuad(var5, param2.tintIndex, var6, param3);
+        return new BakedQuad(var5, param2.tintIndex, var6, param3, param7);
     }
 
     public static BlockFaceUV recomputeUVs(BlockFaceUV param0, Direction param1, Transformation param2, ResourceLocation param3) {
@@ -118,29 +118,6 @@ public class FaceBakery {
         return var0;
     }
 
-    private int getShadeValue(Direction param0) {
-        float var0 = this.getShade(param0);
-        int var1 = Mth.clamp((int)(var0 * 255.0F), 0, 255);
-        return 0xFF000000 | var1 << 16 | var1 << 8 | var1;
-    }
-
-    private float getShade(Direction param0) {
-        switch(param0) {
-            case DOWN:
-                return 0.5F;
-            case UP:
-                return 1.0F;
-            case NORTH:
-            case SOUTH:
-                return 0.8F;
-            case WEST:
-            case EAST:
-                return 0.6F;
-            default:
-                return 1.0F;
-        }
-    }
-
     private float[] setupShape(Vector3f param0, Vector3f param1) {
         float[] var0 = new float[Direction.values().length];
         var0[FaceInfo.Constants.MIN_X] = param0.x() / 16.0F;
@@ -163,23 +140,21 @@ public class FaceBakery {
         @Nullable BlockElementRotation param7,
         boolean param8
     ) {
-        Direction var0 = Direction.rotate(param6.getMatrix(), param2);
-        int var1 = param8 ? this.getShadeValue(var0) : -1;
-        FaceInfo.VertexInfo var2 = FaceInfo.fromFacing(param2).getVertexInfo(param1);
-        Vector3f var3 = new Vector3f(param4[var2.xFace], param4[var2.yFace], param4[var2.zFace]);
-        this.applyElementRotation(var3, param7);
-        this.applyModelRotation(var3, param6);
-        this.fillVertex(param0, param1, var3, var1, param5, param3);
+        FaceInfo.VertexInfo var0 = FaceInfo.fromFacing(param2).getVertexInfo(param1);
+        Vector3f var1 = new Vector3f(param4[var0.xFace], param4[var0.yFace], param4[var0.zFace]);
+        this.applyElementRotation(var1, param7);
+        this.applyModelRotation(var1, param6);
+        this.fillVertex(param0, param1, var1, param5, param3);
     }
 
-    private void fillVertex(int[] param0, int param1, Vector3f param2, int param3, TextureAtlasSprite param4, BlockFaceUV param5) {
+    private void fillVertex(int[] param0, int param1, Vector3f param2, TextureAtlasSprite param3, BlockFaceUV param4) {
         int var0 = param1 * 8;
         param0[var0] = Float.floatToRawIntBits(param2.x());
         param0[var0 + 1] = Float.floatToRawIntBits(param2.y());
         param0[var0 + 2] = Float.floatToRawIntBits(param2.z());
-        param0[var0 + 3] = param3;
-        param0[var0 + 4] = Float.floatToRawIntBits(param4.getU((double)param5.getU(param1)));
-        param0[var0 + 4 + 1] = Float.floatToRawIntBits(param4.getV((double)param5.getV(param1)));
+        param0[var0 + 3] = -1;
+        param0[var0 + 4] = Float.floatToRawIntBits(param3.getU((double)param4.getU(param1)));
+        param0[var0 + 4 + 1] = Float.floatToRawIntBits(param3.getV((double)param4.getV(param1)));
     }
 
     private void applyElementRotation(Vector3f param0, @Nullable BlockElementRotation param1) {

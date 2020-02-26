@@ -2,7 +2,6 @@ package net.minecraft.world.entity;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.Dynamic;
 import java.util.Collection;
@@ -64,13 +63,11 @@ import net.minecraft.world.entity.ai.attributes.ModifiableAttributeMap;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.animal.FlyingAnimal;
 import net.minecraft.world.entity.animal.Wolf;
-import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.SharedMonsterAttributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ElytraItem;
@@ -186,6 +183,7 @@ public abstract class LivingEntity extends Entity {
     protected int useItemRemaining;
     protected int fallFlyTicks;
     private BlockPos lastPos;
+    private Optional<BlockPos> lastLadderPos = Optional.empty();
     private DamageSource lastDamageSource;
     private long lastDamageStamp;
     protected int autoSpinAttackTicks;
@@ -246,7 +244,7 @@ public abstract class LivingEntity extends Entity {
     @Override
     protected void checkFallDamage(double param0, boolean param1, BlockState param2, BlockPos param3) {
         if (!this.isInWater()) {
-            this.updateInWaterState();
+            this.updateInWaterStateAndDoWaterCurrentPushing();
         }
 
         if (!this.level.isClientSide && this.fallDistance > 3.0F && param1) {
@@ -1244,16 +1242,34 @@ public abstract class LivingEntity extends Entity {
         return param0.getEatingSound();
     }
 
+    @Override
+    public void setOnGround(boolean param0) {
+        super.setOnGround(param0);
+        if (param0) {
+            this.lastLadderPos = Optional.empty();
+        }
+
+    }
+
+    public Optional<BlockPos> lastLadderPos() {
+        return this.lastLadderPos;
+    }
+
     public boolean onLadder() {
         if (this.isSpectator()) {
             return false;
         } else {
-            BlockState var0 = this.getFeetBlockState();
-            Block var1 = var0.getBlock();
-            if (var1 != Blocks.LADDER && var1 != Blocks.VINE && var1 != Blocks.SCAFFOLDING) {
-                return var1 instanceof TrapDoorBlock && this.trapdoorUsableAsLadder(new BlockPos(this), var0);
-            } else {
+            BlockPos var0 = this.getBlockPos();
+            BlockState var1 = this.getFeetBlockState();
+            Block var2 = var1.getBlock();
+            if (var2.is(BlockTags.CLIMBABLE)) {
+                this.lastLadderPos = Optional.of(var0);
                 return true;
+            } else if (var2 instanceof TrapDoorBlock && this.trapdoorUsableAsLadder(var0, var1)) {
+                this.lastLadderPos = Optional.of(var0);
+                return true;
+            } else {
+                return false;
             }
         }
     }
@@ -1734,100 +1750,15 @@ public abstract class LivingEntity extends Entity {
 
     }
 
-    private void findStandUpPosition(Entity param0) {
+    private void dismountVehicle(Entity param0) {
+        Vec3 var0;
         if (this.level.getBlockState(new BlockPos(param0)).getBlock().is(BlockTags.PORTALS)) {
-            this.setPos(param0.getX(), param0.getY(1.0) + 0.001, param0.getZ());
-        } else if (!(param0 instanceof Boat) && !(param0 instanceof AbstractHorse)) {
-            double var19 = param0.getX();
-            double var20 = param0.getY(1.0);
-            double var21 = param0.getZ();
-            Direction var22 = param0.getMotionDirection();
-            if (var22 != null && var22.getAxis() != Direction.Axis.Y) {
-                Direction var23 = var22.getClockWise();
-                int[][] var24 = new int[][]{{0, 1}, {0, -1}, {-1, 1}, {-1, -1}, {1, 1}, {1, -1}, {-1, 0}, {1, 0}, {0, 1}};
-                double var25 = Math.floor(this.getX()) + 0.5;
-                double var26 = Math.floor(this.getZ()) + 0.5;
-                double var27 = this.getBoundingBox().maxX - this.getBoundingBox().minX;
-                double var28 = this.getBoundingBox().maxZ - this.getBoundingBox().minZ;
-                AABB var29 = new AABB(
-                    var25 - var27 / 2.0,
-                    param0.getBoundingBox().minY,
-                    var26 - var28 / 2.0,
-                    var25 + var27 / 2.0,
-                    Math.floor(param0.getBoundingBox().minY) + (double)this.getBbHeight(),
-                    var26 + var28 / 2.0
-                );
-
-                for(int[] var30 : var24) {
-                    double var31 = (double)(var22.getStepX() * var30[0] + var23.getStepX() * var30[1]);
-                    double var32 = (double)(var22.getStepZ() * var30[0] + var23.getStepZ() * var30[1]);
-                    double var33 = var25 + var31;
-                    double var34 = var26 + var32;
-                    AABB var35 = var29.move(var31, 0.0, var32);
-                    if (this.level.noCollision(this, var35)) {
-                        BlockPos var36 = new BlockPos(var33, this.getY(), var34);
-                        if (this.level.getBlockState(var36).entityCanStandOn(this.level, var36, this)) {
-                            this.teleportTo(var33, this.getY() + 1.0, var34);
-                            return;
-                        }
-
-                        BlockPos var37 = new BlockPos(var33, this.getY() - 1.0, var34);
-                        if (this.level.getBlockState(var37).entityCanStandOn(this.level, var37, this) || this.level.getFluidState(var37).is(FluidTags.WATER)) {
-                            var19 = var33;
-                            var20 = this.getY() + 1.0;
-                            var21 = var34;
-                        }
-                    } else {
-                        BlockPos var38 = new BlockPos(var33, this.getY() + 1.0, var34);
-                        if (this.level.noCollision(this, var35.move(0.0, 1.0, 0.0))
-                            && this.level.getBlockState(var38).entityCanStandOn(this.level, var38, this)) {
-                            var19 = var33;
-                            var20 = this.getY() + 2.0;
-                            var21 = var34;
-                        }
-                    }
-                }
-            }
-
-            this.teleportTo(var19, var20, var21);
+            var0 = new Vec3(param0.getX(), param0.getY() + (double)param0.getBbHeight(), param0.getZ());
         } else {
-            double var0 = (double)(this.getBbWidth() / 2.0F + param0.getBbWidth() / 2.0F) + 0.4;
-            AABB var1 = param0.getBoundingBox();
-            float var4;
-            double var2;
-            int var3;
-            if (param0 instanceof Boat) {
-                var2 = var1.maxY;
-                var3 = 2;
-                var4 = 0.0F;
-            } else {
-                var2 = var1.minY;
-                var3 = 3;
-                var4 = (float) (Math.PI / 2) * (float)(this.getMainArm() == HumanoidArm.RIGHT ? -1 : 1);
-            }
-
-            float var8 = -this.yRot * (float) (Math.PI / 180.0) - (float) Math.PI + var4;
-            float var9 = -Mth.sin(var8);
-            float var10 = -Mth.cos(var8);
-            double var11 = Math.abs(var9) > Math.abs(var10) ? var0 / (double)Math.abs(var9) : var0 / (double)Math.abs(var10);
-            AABB var12 = this.getBoundingBox().move(-this.getX(), -this.getY(), -this.getZ());
-            ImmutableSet<Entity> var13 = ImmutableSet.of(this, param0);
-            double var14 = this.getX() + (double)var9 * var11;
-            double var15 = this.getZ() + (double)var10 * var11;
-            double var16 = 0.001;
-
-            for(int var17 = 0; var17 < var3; ++var17) {
-                double var18 = var2 + var16;
-                if (this.level.noCollision(this, var12.move(var14, var18, var15), var13)) {
-                    this.setPos(var14, var18, var15);
-                    return;
-                }
-
-                ++var16;
-            }
-
-            this.setPos(param0.getX(), param0.getY(1.0) + 0.001, param0.getZ());
+            var0 = param0.getDismountLocationForPassenger(this);
         }
+
+        this.setPos(var0.x, var0.y, var0.z);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -2306,10 +2237,11 @@ public abstract class LivingEntity extends Entity {
         this.level.getProfiler().pop();
         this.level.getProfiler().push("jump");
         if (this.jumping) {
-            if (!(this.waterHeight > 0.0) || this.onGround && !(this.waterHeight > 0.4)) {
+            boolean var8 = this.isInWater() && this.fluidHeight > 0.0;
+            if (!var8 || this.onGround && !(this.fluidHeight > 0.4)) {
                 if (this.isInLava()) {
                     this.jumpInLiquid(FluidTags.LAVA);
-                } else if ((this.onGround || this.waterHeight > 0.0 && this.waterHeight <= 0.4) && this.noJumpDelay == 0) {
+                } else if ((this.onGround || var8 && this.fluidHeight <= 0.4) && this.noJumpDelay == 0) {
                     this.jumpFromGround();
                     this.noJumpDelay = 10;
                 }
@@ -2325,13 +2257,13 @@ public abstract class LivingEntity extends Entity {
         this.xxa *= 0.98F;
         this.zza *= 0.98F;
         this.updateFallFlying();
-        AABB var8 = this.getBoundingBox();
+        AABB var9 = this.getBoundingBox();
         this.travel(new Vec3((double)this.xxa, (double)this.yya, (double)this.zza));
         this.level.getProfiler().pop();
         this.level.getProfiler().push("push");
         if (this.autoSpinAttackTicks > 0) {
             --this.autoSpinAttackTicks;
-            this.checkAutoSpinAttack(var8, this.getBoundingBox());
+            this.checkAutoSpinAttack(var9, this.getBoundingBox());
         }
 
         this.pushEntities();
@@ -2436,7 +2368,7 @@ public abstract class LivingEntity extends Entity {
         Entity var0 = this.getVehicle();
         super.stopRiding();
         if (var0 != null && var0 != this.getVehicle() && !this.level.isClientSide) {
-            this.findStandUpPosition(var0);
+            this.dismountVehicle(var0);
         }
 
     }
@@ -2833,6 +2765,17 @@ public abstract class LivingEntity extends Entity {
     @Override
     public EntityDimensions getDimensions(Pose param0) {
         return param0 == Pose.SLEEPING ? SLEEPING_DIMENSIONS : super.getDimensions(param0).scale(this.getScale());
+    }
+
+    public ImmutableList<Pose> getDismountPoses() {
+        return ImmutableList.of(Pose.STANDING);
+    }
+
+    public AABB getLocalBoundsForPose(Pose param0) {
+        EntityDimensions var0 = this.getDimensions(param0);
+        return new AABB(
+            (double)(-var0.width / 2.0F), 0.0, (double)(-var0.width / 2.0F), (double)(var0.width / 2.0F), (double)var0.height, (double)(var0.width / 2.0F)
+        );
     }
 
     public Optional<BlockPos> getSleepingPos() {

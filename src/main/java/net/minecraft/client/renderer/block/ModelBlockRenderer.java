@@ -150,7 +150,7 @@ public class ModelBlockRenderer {
     ) {
         for(BakedQuad var0 : param5) {
             this.calculateShape(param0, param1, param2, var0.getVertices(), var0.getDirection(), param6, param7);
-            param8.calculate(param0, param1, param2, var0.getDirection(), param6, param7);
+            param8.calculate(param0, param1, param2, var0.getDirection(), param6, param7, var0.isShade());
             this.putQuadData(
                 param0,
                 param1,
@@ -295,7 +295,8 @@ public class ModelBlockRenderer {
                 param3 = LevelRenderer.getLightColor(param0, param1, var1);
             }
 
-            this.putQuadData(param0, param1, param2, param7, param6.last(), var0, 1.0F, 1.0F, 1.0F, 1.0F, param3, param3, param3, param3, param4);
+            float var2 = param0.getShade(var0.getDirection(), var0.isShade());
+            this.putQuadData(param0, param1, param2, param7, param6.last(), var0, var2, var2, var2, var2, param3, param3, param3, param3, param4);
         }
 
     }
@@ -671,7 +672,7 @@ public class ModelBlockRenderer {
         public AmbientOcclusionFace() {
         }
 
-        public void calculate(BlockAndTintGetter param0, BlockState param1, BlockPos param2, Direction param3, float[] param4, BitSet param5) {
+        public void calculate(BlockAndTintGetter param0, BlockState param1, BlockPos param2, Direction param3, float[] param4, BitSet param5, boolean param6) {
             BlockPos var0 = param5.get(0) ? param2.relative(param3) : param2;
             ModelBlockRenderer.AdjacencyInfo var1 = ModelBlockRenderer.AdjacencyInfo.fromFacing(param3);
             BlockPos.MutableBlockPos var2 = new BlockPos.MutableBlockPos();
@@ -805,6 +806,12 @@ public class ModelBlockRenderer {
                 this.brightness[var43.vert1] = var45;
                 this.brightness[var43.vert2] = var46;
                 this.brightness[var43.vert3] = var47;
+            }
+
+            float var72 = param0.getShade(param3, param6);
+
+            for(int var73 = 0; var73 < this.brightness.length; ++var73) {
+                this.brightness[var73] *= var72;
             }
 
         }

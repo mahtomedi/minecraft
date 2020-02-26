@@ -12,7 +12,11 @@ public class StopHoldingItemIfNoLongerAdmiring<E extends Piglin> extends Behavio
         super(ImmutableMap.of(MemoryModuleType.ADMIRING_ITEM, MemoryStatus.VALUE_ABSENT));
     }
 
+    protected boolean checkExtraStartConditions(ServerLevel param0, E param1) {
+        return !param1.getOffhandItem().isEmpty();
+    }
+
     protected void start(ServerLevel param0, E param1, long param2) {
-        PiglinAi.stopHoldingOffHandItem(param1);
+        PiglinAi.stopHoldingOffHandItem(param1, true);
     }
 }

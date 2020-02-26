@@ -55,7 +55,7 @@ public class WalkNodeEvaluator extends NodeEvaluator {
             }
 
             --var0;
-        } else if (this.mob.onGround) {
+        } else if (this.mob.isOnGround()) {
             var0 = Mth.floor(this.mob.getY() + 0.5);
         } else {
             BlockPos var4 = new BlockPos(this.mob);

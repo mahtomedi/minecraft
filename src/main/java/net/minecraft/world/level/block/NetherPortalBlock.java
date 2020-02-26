@@ -59,8 +59,8 @@ public class NetherPortalBlock extends Block {
                 param2 = param2.below();
             }
 
-            if (param1.getBlockState(param2).isValidSpawn(param1, param2, EntityType.ZOMBIE_PIGMAN)) {
-                Entity var0 = EntityType.ZOMBIE_PIGMAN.spawn(param1, null, null, null, param2.above(), MobSpawnType.STRUCTURE, false, false);
+            if (param1.getBlockState(param2).isValidSpawn(param1, param2, EntityType.ZOMBIFIED_PIGLIN)) {
+                Entity var0 = EntityType.ZOMBIFIED_PIGLIN.spawn(param1, null, null, null, param2.above(), MobSpawnType.STRUCTURE, false, false);
                 if (var0 != null) {
                     var0.changingDimensionDelay = var0.getDimensionChangingDelay();
                 }

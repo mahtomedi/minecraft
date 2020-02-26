@@ -6,6 +6,7 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -27,10 +28,10 @@ import net.minecraft.world.entity.AgableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.PlayerRideableJumping;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.SpawnGroupData;
@@ -58,7 +59,10 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -162,11 +166,6 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
 
     public void setIsJumping(boolean param0) {
         this.isJumping = param0;
-    }
-
-    @Override
-    public boolean canBeLeashed(Player param0) {
-        return super.canBeLeashed(param0) && this.getMobType() != MobType.UNDEAD;
     }
 
     @Override
@@ -1006,6 +1005,38 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
     @Override
     public Entity getControllingPassenger() {
         return this.getPassengers().isEmpty() ? null : this.getPassengers().get(0);
+    }
+
+    @Override
+    public Vec3 getDismountLocationForPassenger(LivingEntity param0) {
+        Vec3 var0 = getCollisionHorizontalEscapeVector(
+            (double)this.getBbWidth(), (double)param0.getBbWidth(), this.yRot + (param0.getMainArm() == HumanoidArm.RIGHT ? 90.0F : -90.0F)
+        );
+        double var1 = this.getX() + var0.x;
+        double var2 = this.getBoundingBox().minY;
+        double var3 = this.getZ() + var0.z;
+        CollisionContext var4 = CollisionContext.of(param0);
+        AABB var5 = param0.getLocalBoundsForPose(Pose.SWIMMING).move(var1, var2, var3);
+        BlockPos.MutableBlockPos var6 = new BlockPos.MutableBlockPos(var1, var2, var3);
+        double var7 = this.getBoundingBox().maxY + 0.75;
+
+        do {
+            double var8 = getDismountTargetFloorHeight(this.level, var6, var4);
+            if ((double)var6.getY() + var8 > var7) {
+                break;
+            }
+
+            if (!Double.isInfinite(var8) && var8 < 1.0) {
+                AABB var9 = var5.move(var1, (double)var6.getY() + var8, var3);
+                if (this.level.getBlockCollisions(param0, var9).allMatch(VoxelShape::isEmpty)) {
+                    return new Vec3(var1, (double)var6.getY() + var8, var3);
+                }
+            }
+
+            var6.move(Direction.UP);
+        } while((double)var6.getY() < var7);
+
+        return new Vec3(this.getX(), this.getY(), this.getZ());
     }
 
     @Nullable

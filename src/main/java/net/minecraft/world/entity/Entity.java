@@ -1,5 +1,7 @@
 package net.minecraft.world.entity;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -107,6 +109,9 @@ public abstract class Entity implements CommandSource, Nameable {
     protected static final Logger LOGGER = LogManager.getLogger();
     private static final AtomicInteger ENTITY_COUNTER = new AtomicInteger();
     private static final List<ItemStack> EMPTY_LIST = Collections.emptyList();
+    private static final ImmutableMap<Pose, ImmutableList<Integer>> POSE_DISMOUNT_HEIGHTS = ImmutableMap.of(
+        Pose.STANDING, ImmutableList.of(0, 1, -1), Pose.CROUCHING, ImmutableList.of(0, 1, -1), Pose.SWIMMING, ImmutableList.of(0, 1)
+    );
     private static final AABB INITIAL_AABB = new AABB(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
     private static double viewScale = 1.0;
     private final EntityType<?> type;
@@ -130,7 +135,7 @@ public abstract class Entity implements CommandSource, Nameable {
     public float yRotO;
     public float xRotO;
     private AABB bb = INITIAL_AABB;
-    public boolean onGround;
+    protected boolean onGround;
     public boolean horizontalCollision;
     public boolean verticalCollision;
     public boolean collision;
@@ -153,7 +158,7 @@ public abstract class Entity implements CommandSource, Nameable {
     public int tickCount;
     private int remainingFireTicks = -this.getFireImmuneTicks();
     protected boolean wasInWater;
-    protected double waterHeight;
+    protected double fluidHeight;
     protected boolean wasUnderWater;
     protected boolean isInLava;
     public int invulnerableTime;
@@ -384,7 +389,9 @@ public abstract class Entity implements CommandSource, Nameable {
         this.yRotO = this.yRot;
         this.handleNetherPortal();
         this.updateSprintingState();
-        this.updateWaterState();
+        this.updateInWaterStateAndDoFluidPushing();
+        this.updateUnderWaterState();
+        this.updateSwimming();
         if (this.level.isClientSide) {
             this.clearFire();
         } else if (this.remainingFireTicks > 0) {
@@ -471,6 +478,14 @@ public abstract class Entity implements CommandSource, Nameable {
 
     private boolean isFree(AABB param0) {
         return this.level.noCollision(this, param0) && !this.level.containsAnyLiquid(param0);
+    }
+
+    public void setOnGround(boolean param0) {
+        this.onGround = param0;
+    }
+
+    public boolean isOnGround() {
+        return this.onGround;
     }
 
     public void move(MoverType param0, Vec3 param1) {
@@ -940,12 +955,6 @@ public abstract class Entity implements CommandSource, Nameable {
         return this.wasUnderWater && this.isInWater();
     }
 
-    private void updateWaterState() {
-        this.updateInWaterState();
-        this.updateUnderWaterState();
-        this.updateSwimming();
-    }
-
     public void updateSwimming() {
         if (this.isSwimming()) {
             this.setSwimming(this.isSprinting() && this.isInWater() && !this.isPassenger());
@@ -955,10 +964,20 @@ public abstract class Entity implements CommandSource, Nameable {
 
     }
 
-    public boolean updateInWaterState() {
+    protected boolean updateInWaterStateAndDoFluidPushing() {
+        this.updateInWaterStateAndDoWaterCurrentPushing();
+        if (this.isInWater()) {
+            return true;
+        } else {
+            double var0 = this.level.getDimension().isHasCeiling() ? 0.007 : 0.0023333333333333335;
+            return this.updateFluidHeightAndDoFluidPushing(FluidTags.LAVA, var0);
+        }
+    }
+
+    void updateInWaterStateAndDoWaterCurrentPushing() {
         if (this.getVehicle() instanceof Boat) {
             this.wasInWater = false;
-        } else if (this.checkAndHandleWater(FluidTags.WATER)) {
+        } else if (this.updateFluidHeightAndDoFluidPushing(FluidTags.WATER, 0.014)) {
             if (!this.wasInWater && !this.firstTick) {
                 this.doWaterSplashEffect();
             }
@@ -970,7 +989,6 @@ public abstract class Entity implements CommandSource, Nameable {
             this.wasInWater = false;
         }
 
-        return this.wasInWater;
     }
 
     private void updateUnderWaterState() {
@@ -2208,7 +2226,7 @@ public abstract class Entity implements CommandSource, Nameable {
         return this.stringUUID;
     }
 
-    public boolean isPushedByWater() {
+    public boolean isPushedByFluid() {
         return true;
     }
 
@@ -2554,6 +2572,72 @@ public abstract class Entity implements CommandSource, Nameable {
         }
     }
 
+    protected static Vec3 getCollisionHorizontalEscapeVector(double param0, double param1, float param2) {
+        double var0 = (param0 + param1 + 1.0E-5F) / 2.0;
+        float var1 = -Mth.sin(param2 * (float) (Math.PI / 180.0));
+        float var2 = Mth.cos(param2 * (float) (Math.PI / 180.0));
+        float var3 = Math.max(Math.abs(var1), Math.abs(var2));
+        return new Vec3((double)var1 * var0 / (double)var3, 0.0, (double)var2 * var0 / (double)var3);
+    }
+
+    protected static double getDismountTargetFloorHeight(Level param0, BlockPos param1, CollisionContext param2) {
+        VoxelShape var0 = param0.getBlockState(param1).getCollisionShape(param0, param1, param2);
+        if (var0.isEmpty()) {
+            BlockPos var1 = param1.below();
+            VoxelShape var2 = param0.getBlockState(var1).getCollisionShape(param0, var1, param2);
+            double var3 = var2.max(Direction.Axis.Y);
+            return var3 >= 1.0 ? var3 - 1.0 : Double.NEGATIVE_INFINITY;
+        } else {
+            return var0.max(Direction.Axis.Y);
+        }
+    }
+
+    public Vec3 getDismountLocationForPassenger(LivingEntity param0) {
+        Direction var0 = this.getMotionDirection();
+        if (var0.getAxis() == Direction.Axis.Y) {
+            return new Vec3(this.getX(), this.getBoundingBox().maxY, this.getZ());
+        } else {
+            Direction var1 = var0.getClockWise();
+            int[][] var2 = new int[][]{
+                {var1.getStepX(), var1.getStepZ()},
+                {-var1.getStepX(), -var1.getStepZ()},
+                {-var0.getStepX() + var1.getStepX(), -var0.getStepZ() + var1.getStepZ()},
+                {-var0.getStepX() - var1.getStepX(), -var0.getStepZ() - var1.getStepZ()},
+                {var0.getStepX() + var1.getStepX(), var0.getStepZ() + var1.getStepZ()},
+                {var0.getStepX() - var1.getStepX(), var0.getStepZ() - var1.getStepZ()},
+                {-var0.getStepX(), -var0.getStepZ()},
+                {var0.getStepX(), var0.getStepZ()}
+            };
+            BlockPos var3 = new BlockPos(this.getX(), this.getY(), this.getZ());
+            CollisionContext var4 = CollisionContext.of(param0);
+
+            for(Pose var6 : param0.getDismountPoses()) {
+                for(int var7 : POSE_DISMOUNT_HEIGHTS.get(var6)) {
+                    for(int[] var8 : var2) {
+                        BlockPos var9 = var3.offset(var8[0], var7, var8[1]);
+                        double var10 = getDismountTargetFloorHeight(this.level, var9, var4);
+                        if (!Double.isInfinite(var10) && !(var10 >= 1.0)) {
+                            double var11 = (double)var9.getY() + var10;
+                            AABB var12 = new AABB(
+                                (double)var9.getX(),
+                                var11,
+                                (double)var9.getZ(),
+                                (double)var9.getX() + 1.0,
+                                var11 + (double)param0.getDimensions(var6).height,
+                                (double)var9.getZ() + 1.0
+                            );
+                            if (this.level.getBlockCollisions(param0, var12).allMatch(VoxelShape::isEmpty)) {
+                                return new Vec3((double)var9.getX() + 0.5, (double)var9.getY() + var10, (double)var9.getZ() + 0.5);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return new Vec3(this.getX(), this.getBoundingBox().maxY, this.getZ());
+        }
+    }
+
     @Nullable
     public Entity getVehicle() {
         return this.vehicle;
@@ -2621,7 +2705,7 @@ public abstract class Entity implements CommandSource, Nameable {
         this.yRotO = this.yRot;
     }
 
-    public boolean checkAndHandleWater(Tag<Fluid> param0) {
+    public boolean updateFluidHeightAndDoFluidPushing(Tag<Fluid> param0, double param1) {
         AABB var0 = this.getBoundingBox().deflate(0.001);
         int var1 = Mth.floor(var0.minX);
         int var2 = Mth.ceil(var0.maxX);
@@ -2633,7 +2717,7 @@ public abstract class Entity implements CommandSource, Nameable {
             return false;
         } else {
             double var7 = 0.0;
-            boolean var8 = this.isPushedByWater();
+            boolean var8 = this.isPushedByFluid();
             boolean var9 = false;
             Vec3 var10 = Vec3.ZERO;
             int var11 = 0;
@@ -2674,16 +2758,16 @@ public abstract class Entity implements CommandSource, Nameable {
                     var10 = var10.normalize();
                 }
 
-                this.setDeltaMovement(this.getDeltaMovement().add(var10.scale(0.014)));
+                this.setDeltaMovement(this.getDeltaMovement().add(var10.scale(param1)));
             }
 
-            this.waterHeight = var7;
+            this.fluidHeight = var7;
             return var9;
         }
     }
 
-    public double getWaterHeight() {
-        return this.waterHeight;
+    public double getFluidHeight() {
+        return this.fluidHeight;
     }
 
     public final float getBbWidth() {

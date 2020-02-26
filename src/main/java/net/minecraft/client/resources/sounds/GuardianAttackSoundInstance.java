@@ -28,7 +28,7 @@ public class GuardianAttackSoundInstance extends AbstractTickableSoundInstance {
             this.volume = 0.0F + 1.0F * var0 * var0;
             this.pitch = 0.7F + 0.5F * var0;
         } else {
-            this.stopped = true;
+            this.stop();
         }
     }
 }

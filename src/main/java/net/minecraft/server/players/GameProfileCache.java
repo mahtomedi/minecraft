@@ -13,6 +13,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.google.gson.reflect.TypeToken;
 import com.mojang.authlib.Agent;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.GameProfileRepository;
@@ -24,7 +25,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
@@ -50,21 +50,7 @@ public class GameProfileCache {
     private final GameProfileRepository profileRepository;
     protected final Gson gson;
     private final File file;
-    private static final ParameterizedType GAMEPROFILE_ENTRY_TYPE = new ParameterizedType() {
-        @Override
-        public Type[] getActualTypeArguments() {
-            return new Type[]{GameProfileCache.GameProfileInfo.class};
-        }
-
-        @Override
-        public Type getRawType() {
-            return List.class;
-        }
-
-        @Override
-        public Type getOwnerType() {
-            return null;
-        }
+    private static final TypeToken<List<GameProfileCache.GameProfileInfo>> GAMEPROFILE_ENTRY_TYPE = new TypeToken<List<GameProfileCache.GameProfileInfo>>() {
     };
 
     public GameProfileCache(GameProfileRepository param0, File param1) {

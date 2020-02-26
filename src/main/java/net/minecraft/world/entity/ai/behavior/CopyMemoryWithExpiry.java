@@ -16,7 +16,7 @@ public class CopyMemoryWithExpiry<E extends Mob, T> extends Behavior<E> {
     private final IntRange durationOfCopy;
 
     public CopyMemoryWithExpiry(Predicate<E> param0, MemoryModuleType<? extends T> param1, MemoryModuleType<T> param2, IntRange param3) {
-        super(ImmutableMap.of(param2, MemoryStatus.VALUE_PRESENT, param1, MemoryStatus.VALUE_ABSENT));
+        super(ImmutableMap.of(param1, MemoryStatus.VALUE_PRESENT, param2, MemoryStatus.VALUE_ABSENT));
         this.predicate = param0;
         this.sourceMemory = param1;
         this.targetMemory = param2;

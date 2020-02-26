@@ -469,6 +469,7 @@ public interface DispenseItemBehavior {
                         for(Sheep var3 : var0.getEntitiesOfClass(Sheep.class, new AABB(var1))) {
                             if (var3.isAlive() && !var3.isSheared() && !var3.isBaby()) {
                                 var3.shear();
+                                var0.playSound(null, var1, SoundEvents.SHEEP_SHEAR, SoundSource.BLOCKS, 1.0F, 1.0F);
                                 if (param1.hurt(1, var0.random, null)) {
                                     param1.setCount(0);
                                 }

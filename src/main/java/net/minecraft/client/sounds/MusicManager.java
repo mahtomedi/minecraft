@@ -1,6 +1,7 @@
 package net.minecraft.client.sounds;
 
 import java.util.Random;
+import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance;
@@ -14,6 +15,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class MusicManager {
     private final Random random = new Random();
     private final Minecraft minecraft;
+    @Nullable
     private SoundInstance currentMusic;
     private int nextSongDelay = 100;
 

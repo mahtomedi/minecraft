@@ -1090,10 +1090,6 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     public void globalLevelEvent(int param0, BlockPos param1, int param2) {
     }
 
-    public int getHeight() {
-        return this.dimension.isHasCeiling() ? 128 : 256;
-    }
-
     public CrashReportCategory fillReportDetails(CrashReport param0) {
         CrashReportCategory var0 = param0.addCategory("Affected level", 1);
         var0.setDetail("All players", () -> this.players().size() + " total; " + this.players());

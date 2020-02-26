@@ -26,7 +26,7 @@ public class ClientboundTeleportEntityPacket implements Packet<ClientGamePacketL
         this.z = param0.getZ();
         this.yRot = (byte)((int)(param0.yRot * 256.0F / 360.0F));
         this.xRot = (byte)((int)(param0.xRot * 256.0F / 360.0F));
-        this.onGround = param0.onGround;
+        this.onGround = param0.isOnGround();
     }
 
     @Override

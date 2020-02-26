@@ -12,7 +12,9 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.horse.Llama;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -147,8 +149,13 @@ public class LlamaSpit extends Entity implements Projectile {
         HitResult.Type var0 = param0.getType();
         if (var0 == HitResult.Type.ENTITY && this.owner != null) {
             ((EntityHitResult)param0).getEntity().hurt(DamageSource.indirectMobAttack(this, this.owner).setProjectile(), 1.0F);
-        } else if (var0 == HitResult.Type.BLOCK && !this.level.isClientSide) {
-            this.remove();
+        } else if (var0 == HitResult.Type.BLOCK) {
+            BlockHitResult var1 = (BlockHitResult)param0;
+            BlockState var2 = this.level.getBlockState(var1.getBlockPos());
+            var2.onProjectileHit(this.level, var2, var1, this);
+            if (!this.level.isClientSide) {
+                this.remove();
+            }
         }
 
     }

@@ -1,17 +1,12 @@
 package net.minecraft.server.players;
 
-import com.google.gson.JsonObject;
 import javax.annotation.Nullable;
 
-public class StoredUserEntry<T> {
+public abstract class StoredUserEntry<T> {
     @Nullable
     private final T user;
 
-    public StoredUserEntry(T param0) {
-        this.user = param0;
-    }
-
-    protected StoredUserEntry(@Nullable T param0, JsonObject param1) {
+    public StoredUserEntry(@Nullable T param0) {
         this.user = param0;
     }
 
@@ -22,8 +17,5 @@ public class StoredUserEntry<T> {
 
     boolean hasExpired() {
         return false;
-    }
-
-    protected void serialize(JsonObject param0) {
     }
 }

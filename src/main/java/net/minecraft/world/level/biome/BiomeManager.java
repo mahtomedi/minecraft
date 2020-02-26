@@ -1,6 +1,8 @@
 package net.minecraft.world.level.biome;
 
 import net.minecraft.core.BlockPos;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class BiomeManager {
     private final BiomeManager.NoiseBiomeSource noiseBiomeSource;
@@ -19,6 +21,11 @@ public class BiomeManager {
 
     public Biome getBiome(BlockPos param0) {
         return this.zoomer.getBiome(this.biomeZoomSeed, param0.getX(), param0.getY(), param0.getZ(), this.noiseBiomeSource);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public Biome getNoiseBiome(int param0, int param1, int param2) {
+        return this.noiseBiomeSource.getNoiseBiome(param0, param1, param2);
     }
 
     public interface NoiseBiomeSource {

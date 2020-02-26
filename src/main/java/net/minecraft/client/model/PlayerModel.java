@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Random;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.api.distmarker.Dist;
@@ -97,12 +98,20 @@ public class PlayerModel<T extends LivingEntity> extends HumanoidModel<T> {
         this.leftSleeve.copyFrom(this.leftArm);
         this.rightSleeve.copyFrom(this.rightArm);
         this.jacket.copyFrom(this.body);
-        if (param0.isCrouching()) {
-            this.cloak.z = 1.6F;
-            this.cloak.y = 1.8F;
+        if (param0.getItemBySlot(EquipmentSlot.CHEST).isEmpty()) {
+            if (param0.isCrouching()) {
+                this.cloak.z = 1.4F;
+                this.cloak.y = 1.85F;
+            } else {
+                this.cloak.z = 0.0F;
+                this.cloak.y = 0.0F;
+            }
+        } else if (param0.isCrouching()) {
+            this.cloak.z = 0.3F;
+            this.cloak.y = 0.8F;
         } else {
-            this.cloak.z = 0.0F;
-            this.cloak.y = 0.0F;
+            this.cloak.z = -1.1F;
+            this.cloak.y = -0.85F;
         }
 
     }

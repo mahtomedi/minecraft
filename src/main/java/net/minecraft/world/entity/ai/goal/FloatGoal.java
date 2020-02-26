@@ -15,7 +15,7 @@ public class FloatGoal extends Goal {
     @Override
     public boolean canUse() {
         double var0 = (double)this.mob.getEyeHeight() < 0.4 ? 0.2 : 0.4;
-        return this.mob.isInWater() && this.mob.getWaterHeight() > var0 || this.mob.isInLava();
+        return this.mob.isInWater() && this.mob.getFluidHeight() > var0 || this.mob.isInLava();
     }
 
     @Override

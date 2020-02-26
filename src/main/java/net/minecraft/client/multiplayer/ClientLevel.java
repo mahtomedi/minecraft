@@ -764,6 +764,29 @@ public class ClientLevel extends Level {
     }
 
     @Override
+    public float getShade(Direction param0, boolean param1) {
+        boolean var0 = this.dimension.getType() == DimensionType.NETHER;
+        if (!param1) {
+            return var0 ? 0.9F : 1.0F;
+        } else {
+            switch(param0) {
+                case DOWN:
+                    return var0 ? 0.9F : 0.5F;
+                case UP:
+                    return var0 ? 0.9F : 1.0F;
+                case NORTH:
+                case SOUTH:
+                    return 0.8F;
+                case WEST:
+                case EAST:
+                    return 0.6F;
+                default:
+                    return 1.0F;
+            }
+        }
+    }
+
+    @Override
     public int getBlockTint(BlockPos param0, ColorResolver param1) {
         BlockTintCache var0 = this.tintCaches.get(param1);
         return var0.getColor(param0, () -> this.calculateBlockTint(param0, param1));

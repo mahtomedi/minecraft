@@ -8,7 +8,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.BedrockBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
@@ -84,18 +83,18 @@ public class NetherFossilPieces {
 
         @Override
         public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
-            while(param0.getBlockState(this.templatePosition.above()).getBlock() != Blocks.BEDROCK && this.templatePosition.getY() < 128) {
+            while(this.templatePosition.getY() > param1.getSeaLevel()) {
                 BlockPos var0 = this.templatePosition.below();
                 BlockState var1 = param0.getBlockState(var0);
                 if (!param0.getBlockState(this.templatePosition).isAir()
                     || var1.getBlock() != Blocks.SOUL_SAND && !var1.isFaceSturdy(param0, var0, Direction.UP)) {
-                    this.templatePosition = this.templatePosition.above();
+                    this.templatePosition = this.templatePosition.below();
                     continue;
                 }
                 break;
             }
 
-            if (param0.getBlockState(this.templatePosition.above()).getBlock() instanceof BedrockBlock) {
+            if (this.templatePosition.getY() <= param1.getSeaLevel()) {
                 return false;
             } else {
                 param3.expand(this.template.getBoundingBox(this.placeSettings, this.templatePosition));

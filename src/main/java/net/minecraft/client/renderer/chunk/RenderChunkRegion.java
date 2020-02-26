@@ -2,6 +2,7 @@ package net.minecraft.client.renderer.chunk;
 
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.ColorResolver;
 import net.minecraft.world.level.Level;
@@ -103,6 +104,11 @@ public class RenderChunkRegion implements BlockAndTintGetter {
     @Override
     public FluidState getFluidState(BlockPos param0) {
         return this.fluidStates[this.index(param0)];
+    }
+
+    @Override
+    public float getShade(Direction param0, boolean param1) {
+        return this.level.getShade(param0, param1);
     }
 
     @Override

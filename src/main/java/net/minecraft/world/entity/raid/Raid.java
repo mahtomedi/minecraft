@@ -510,7 +510,7 @@ public class Raid {
                 param1.setPos((double)param2.getX() + 0.5, (double)param2.getY() + 1.0, (double)param2.getZ() + 0.5);
                 param1.finalizeSpawn(this.level, this.level.getCurrentDifficultyAt(param2), MobSpawnType.EVENT, null, null);
                 param1.applyRaidBuffs(param0, false);
-                param1.onGround = true;
+                param1.setOnGround(true);
                 this.level.addFreshEntity(param1);
             }
         }

@@ -26,6 +26,7 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.SpawnGroupData;
@@ -39,8 +40,8 @@ import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.CrossbowAttackMob;
 import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.entity.monster.PigZombie;
 import net.minecraft.world.entity.monster.SharedMonsterAttributes;
+import net.minecraft.world.entity.monster.ZombifiedPiglin;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
@@ -58,6 +59,7 @@ import org.apache.logging.log4j.Logger;
 public class Piglin extends Monster implements CrossbowAttackMob {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final EntityDataAccessor<Boolean> DATA_BABY_ID = SynchedEntityData.defineId(Piglin.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> DATA_IMMUNE_TO_ZOMBIFICATION = SynchedEntityData.defineId(Piglin.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> DATA_IS_CHARGING_CROSSBOW = SynchedEntityData.defineId(Piglin.class, EntityDataSerializers.BOOLEAN);
     private static final UUID SPEED_MODIFIER_BABY_UUID = UUID.fromString("766bfa64-11f3-11ea-8d71-362b9e155667");
     private static final AttributeModifier SPEED_MODIFIER_BABY = new AttributeModifier(
@@ -136,6 +138,10 @@ public class Piglin extends Monster implements CrossbowAttackMob {
             param0.putBoolean("IsBaby", true);
         }
 
+        if (this.isImmuneToZombification()) {
+            param0.putBoolean("IsImmuneToZombification", true);
+        }
+
         param0.put("Inventory", createInventoryTag(this.inventory));
     }
 
@@ -143,6 +149,7 @@ public class Piglin extends Monster implements CrossbowAttackMob {
     public void readAdditionalSaveData(CompoundTag param0) {
         super.readAdditionalSaveData(param0);
         this.setBaby(param0.getBoolean("IsBaby"));
+        this.setImmuneToZombification(param0.getBoolean("IsImmuneToZombification"));
         updateInventoryFromTag(this.inventory, param0.getList("Inventory", 10));
     }
 
@@ -173,12 +180,6 @@ public class Piglin extends Monster implements CrossbowAttackMob {
     protected void dropCustomDeathLoot(DamageSource param0, int param1, boolean param2) {
         super.dropCustomDeathLoot(param0, param1, param2);
         this.inventory.removeAllItems().forEach(this::spawnAtLocation);
-        ItemStack var0 = this.getItemInHand(InteractionHand.OFF_HAND);
-        if (!var0.isEmpty()) {
-            this.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
-            this.spawnAtLocation(var0);
-        }
-
     }
 
     protected ItemStack addToInventory(ItemStack param0) {
@@ -190,6 +191,7 @@ public class Piglin extends Monster implements CrossbowAttackMob {
         super.defineSynchedData();
         this.entityData.define(DATA_BABY_ID, false);
         this.entityData.define(DATA_IS_CHARGING_CROSSBOW, false);
+        this.entityData.define(DATA_IMMUNE_TO_ZOMBIFICATION, false);
     }
 
     @Override
@@ -223,7 +225,7 @@ public class Piglin extends Monster implements CrossbowAttackMob {
         }
 
         this.populateDefaultEquipmentSlots(param1);
-        return super.finalizeSpawn(param0, param1, param2, param3, param4);
+        return param3;
     }
 
     @Override
@@ -301,8 +303,16 @@ public class Piglin extends Monster implements CrossbowAttackMob {
         return !this.isBaby();
     }
 
+    private void setImmuneToZombification(boolean param0) {
+        this.getEntityData().set(DATA_IMMUNE_TO_ZOMBIFICATION, param0);
+    }
+
+    private boolean isImmuneToZombification() {
+        return this.getEntityData().get(DATA_IMMUNE_TO_ZOMBIFICATION);
+    }
+
     public boolean isConverting() {
-        return this.level.getDimension().getType() == DimensionType.OVERWORLD;
+        return this.level.getDimension().getType() == DimensionType.OVERWORLD && !this.isImmuneToZombification();
     }
 
     @Override
@@ -312,11 +322,7 @@ public class Piglin extends Monster implements CrossbowAttackMob {
         this.level.getProfiler().pop();
         PiglinAi.updateActivity(this);
         PiglinAi.maybePlayActivitySound(this);
-        if (PiglinAi.seesPlayer(this)) {
-            this.setPersistenceRequired();
-        }
-
-        if (this.level.dimension.getType() == DimensionType.OVERWORLD) {
+        if (this.isConverting()) {
             ++this.timeInOverworld;
         } else {
             this.timeInOverworld = 0;
@@ -335,7 +341,7 @@ public class Piglin extends Monster implements CrossbowAttackMob {
     }
 
     private void finishConversion(ServerLevel param0) {
-        PigZombie var0 = EntityType.ZOMBIE_PIGMAN.create(param0);
+        ZombifiedPiglin var0 = EntityType.ZOMBIFIED_PIGLIN.create(param0);
         var0.copyPosition(this);
         var0.finalizeSpawn(param0, param0.getCurrentDifficultyAt(new BlockPos(var0)), MobSpawnType.CONVERSION, null, null);
         var0.setBaby(this.isBaby());
@@ -412,29 +418,44 @@ public class Piglin extends Monster implements CrossbowAttackMob {
         this.shootCrossbowProjectile(this, param0, param2, param3, 1.6F);
     }
 
+    protected void holdInMainHand(ItemStack param0) {
+        this.setItemSlotAndDropWhenKilled(EquipmentSlot.MAINHAND, param0);
+    }
+
+    protected void holdInOffHand(ItemStack param0) {
+        if (param0.getItem() == Items.GOLD_INGOT) {
+            this.setItemSlot(EquipmentSlot.OFFHAND, param0);
+        } else {
+            this.setItemSlotAndDropWhenKilled(EquipmentSlot.OFFHAND, param0);
+        }
+
+    }
+
     @Override
     public boolean wantsToPickUp(ItemStack param0) {
-        return PiglinAi.wantsToPickUp(this, param0);
+        return PiglinAi.wantsToPickup(this, param0);
+    }
+
+    protected boolean canReplaceCurrentItem(ItemStack param0) {
+        EquipmentSlot var0 = Mob.getEquipmentSlotForItem(param0);
+        ItemStack var1 = this.getItemBySlot(var0);
+        return this.canReplaceCurrentItem(param0, var1, var0);
     }
 
     @Override
     protected boolean canReplaceCurrentItem(ItemStack param0, ItemStack param1, EquipmentSlot param2) {
-        if (PiglinAi.isLovedItem(param0.getItem()) && !PiglinAi.isLovedItem(param1.getItem())) {
-            return true;
+        if (PiglinAi.isLovedItem(param1.getItem())) {
+            return false;
+        } else if (this.isAdult() && param1.getItem() == Items.CROSSBOW) {
+            return false;
         } else {
-            return !PiglinAi.isLovedItem(param0.getItem()) && PiglinAi.isLovedItem(param1.getItem())
-                ? false
-                : super.canReplaceCurrentItem(param0, param1, param2);
+            return PiglinAi.isLovedItem(param0.getItem()) ? true : super.canReplaceCurrentItem(param0, param1, param2);
         }
     }
 
     @Override
     protected void pickUpItem(ItemEntity param0) {
         PiglinAi.pickUpItem(this, param0);
-    }
-
-    protected boolean isOffHandEmpty() {
-        return this.getOffhandItem().isEmpty();
     }
 
     public boolean isRiding() {
@@ -485,10 +506,6 @@ public class Piglin extends Monster implements CrossbowAttackMob {
         this.playSound(SoundEvents.PIGLIN_CELEBRATE, 1.0F, this.getVoicePitch());
     }
 
-    void playHurtSound() {
-        this.playRetreatSound();
-    }
-
     void playRetreatSound() {
         this.playSound(SoundEvents.PIGLIN_RETREAT, 1.0F, this.getVoicePitch());
     }
@@ -498,7 +515,7 @@ public class Piglin extends Monster implements CrossbowAttackMob {
     }
 
     void playConvertedSound() {
-        this.playSound(SoundEvents.PIGLIN_CONVERTED_TO_ZOMBIFIED, 1.0F, 1.0F);
+        this.playSound(SoundEvents.PIGLIN_CONVERTED_TO_ZOMBIFIED, 1.0F, this.getVoicePitch());
     }
 
     @Override

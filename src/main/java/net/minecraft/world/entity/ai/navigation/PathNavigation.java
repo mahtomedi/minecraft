@@ -191,7 +191,7 @@ public abstract class PathNavigation {
             } else if (this.path != null && this.path.getIndex() < this.path.getSize()) {
                 Vec3 var0 = this.getTempMobPos();
                 Vec3 var1 = this.path.getPos(this.mob, this.path.getIndex());
-                if (var0.y > var1.y && !this.mob.onGround && Mth.floor(var0.x) == Mth.floor(var1.x) && Mth.floor(var0.z) == Mth.floor(var1.z)) {
+                if (var0.y > var1.y && !this.mob.isOnGround() && Mth.floor(var0.x) == Mth.floor(var1.x) && Mth.floor(var0.z) == Mth.floor(var1.z)) {
                     this.path.setIndex(this.path.getIndex() + 1);
                 }
             }

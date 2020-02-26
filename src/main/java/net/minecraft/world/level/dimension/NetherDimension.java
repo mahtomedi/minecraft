@@ -26,8 +26,8 @@ public class NetherDimension extends Dimension {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public Vec3 getBrightnessDependentFogColor(int param0, float param1) {
-        return Vec3.fromRGB24(param0);
+    public Vec3 getBrightnessDependentFogColor(Vec3 param0, float param1) {
+        return param0;
     }
 
     @Override

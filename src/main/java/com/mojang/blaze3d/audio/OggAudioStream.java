@@ -8,7 +8,6 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.List;
-import javax.annotation.Nullable;
 import javax.sound.sampled.AudioFormat;
 import net.minecraft.client.sounds.AudioStream;
 import net.minecraft.util.Mth;
@@ -174,7 +173,6 @@ public class OggAudioStream implements AudioStream {
         return this.audioFormat;
     }
 
-    @Nullable
     @Override
     public ByteBuffer read(int param0) throws IOException {
         OggAudioStream.OutputConcat var0 = new OggAudioStream.OutputConcat(param0 + 8192);
@@ -185,7 +183,6 @@ public class OggAudioStream implements AudioStream {
         return var0.get();
     }
 
-    @Override
     public ByteBuffer readAll() throws IOException {
         OggAudioStream.OutputConcat var0 = new OggAudioStream.OutputConcat(16384);
 

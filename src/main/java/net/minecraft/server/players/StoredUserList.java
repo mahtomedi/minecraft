@@ -5,60 +5,31 @@ import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 import net.minecraft.util.GsonHelper;
-import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class StoredUserList<K, V extends StoredUserEntry<K>> {
+public abstract class StoredUserList<K, V extends StoredUserEntry<K>> {
     protected static final Logger LOGGER = LogManager.getLogger();
-    protected final Gson gson;
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private final File file;
     private final Map<String, V> map = Maps.newHashMap();
     private boolean enabled = true;
-    private static final ParameterizedType USERLIST_ENTRY_TYPE = new ParameterizedType() {
-        @Override
-        public Type[] getActualTypeArguments() {
-            return new Type[]{StoredUserEntry.class};
-        }
-
-        @Override
-        public Type getRawType() {
-            return List.class;
-        }
-
-        @Override
-        public Type getOwnerType() {
-            return null;
-        }
-    };
 
     public StoredUserList(File param0) {
         this.file = param0;
-        GsonBuilder var0 = new GsonBuilder().setPrettyPrinting();
-        var0.registerTypeHierarchyAdapter(StoredUserEntry.class, new StoredUserList.Serializer());
-        this.gson = var0.create();
     }
 
     public boolean isEnabled() {
@@ -136,9 +107,7 @@ public class StoredUserList<K, V extends StoredUserEntry<K>> {
 
     }
 
-    protected StoredUserEntry<K> createEntry(JsonObject param0) {
-        return new StoredUserEntry<>((K)null, param0);
-    }
+    protected abstract StoredUserEntry<K> createEntry(JsonObject var1);
 
     public Collection<V> getEntries() {
         return this.map.values();
@@ -146,58 +115,28 @@ public class StoredUserList<K, V extends StoredUserEntry<K>> {
 
     public void save() throws IOException {
         Collection<V> var0 = this.map.values();
-        String var1 = this.gson.toJson(var0);
-        BufferedWriter var2 = null;
 
-        try {
-            var2 = Files.newWriter(this.file, StandardCharsets.UTF_8);
-            var2.write(var1);
-        } finally {
-            IOUtils.closeQuietly((Writer)var2);
+        try (BufferedWriter var1 = Files.newWriter(this.file, StandardCharsets.UTF_8)) {
+            GSON.toJson(var0, var1);
         }
 
     }
 
-    public void load() throws FileNotFoundException {
+    public void load() throws IOException {
         if (this.file.exists()) {
-            BufferedReader var0 = null;
+            try (BufferedReader var0 = Files.newReader(this.file, StandardCharsets.UTF_8)) {
+                JsonArray var1 = GSON.fromJson(var0, JsonArray.class);
+                this.map.clear();
 
-            try {
-                var0 = Files.newReader(this.file, StandardCharsets.UTF_8);
-                Collection<StoredUserEntry<K>> var1 = GsonHelper.fromJson(this.gson, var0, USERLIST_ENTRY_TYPE);
-                if (var1 != null) {
-                    this.map.clear();
-
-                    for(StoredUserEntry<K> var2 : var1) {
-                        if (var2.getUser() != null) {
-                            this.map.put(this.getKeyForUser(var2.getUser()), (V)var2);
-                        }
+                for(JsonElement var2 : var1) {
+                    JsonObject var3 = GsonHelper.convertToJsonObject(var2, "entry");
+                    StoredUserEntry<K> var4 = this.createEntry(var3);
+                    if (var4.getUser() != null) {
+                        this.map.put(this.getKeyForUser(var4.getUser()), (V)var4);
                     }
                 }
-            } finally {
-                IOUtils.closeQuietly((Reader)var0);
             }
 
-        }
-    }
-
-    class Serializer implements JsonDeserializer<StoredUserEntry<K>>, JsonSerializer<StoredUserEntry<K>> {
-        private Serializer() {
-        }
-
-        public JsonElement serialize(StoredUserEntry<K> param0, Type param1, JsonSerializationContext param2) {
-            JsonObject var0 = new JsonObject();
-            param0.serialize(var0);
-            return var0;
-        }
-
-        public StoredUserEntry<K> deserialize(JsonElement param0, Type param1, JsonDeserializationContext param2) throws JsonParseException {
-            if (param0.isJsonObject()) {
-                JsonObject var0 = param0.getAsJsonObject();
-                return StoredUserList.this.createEntry(var0);
-            } else {
-                return null;
-            }
         }
     }
 }

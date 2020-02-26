@@ -20,7 +20,7 @@ public class HoglinSpecificSensor extends Sensor<Hoglin> {
     public Set<MemoryModuleType<?>> requires() {
         return ImmutableSet.of(
             MemoryModuleType.VISIBLE_LIVING_ENTITIES,
-            MemoryModuleType.NEAREST_WARPED_FUNGI,
+            MemoryModuleType.NEAREST_WARPED_FUNGUS,
             MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLIN,
             MemoryModuleType.NEAREST_VISIBLE_ADULT_HOGLINS,
             MemoryModuleType.VISIBLE_ADULT_PIGLIN_COUNT,
@@ -30,7 +30,7 @@ public class HoglinSpecificSensor extends Sensor<Hoglin> {
 
     protected void doTick(ServerLevel param0, Hoglin param1) {
         Brain<?> var0 = param1.getBrain();
-        var0.setMemory(MemoryModuleType.NEAREST_WARPED_FUNGI, this.findNearestWarpedFungi(param0, param1));
+        var0.setMemory(MemoryModuleType.NEAREST_WARPED_FUNGUS, this.findNearestWarpedFungus(param0, param1));
         Optional<Piglin> var1 = Optional.empty();
         int var2 = 0;
         List<Hoglin> var3 = Lists.newArrayList();
@@ -55,7 +55,7 @@ public class HoglinSpecificSensor extends Sensor<Hoglin> {
         var0.setMemory(MemoryModuleType.VISIBLE_ADULT_HOGLIN_COUNT, var3.size());
     }
 
-    private Optional<BlockPos> findNearestWarpedFungi(ServerLevel param0, Hoglin param1) {
-        return BlockFinder.findClosestMatchingBlockPos(param1.getBlockPos(), 8, 4, param1x -> param0.getBlockState(param1x).getBlock() == Blocks.WARPED_FUNGI);
+    private Optional<BlockPos> findNearestWarpedFungus(ServerLevel param0, Hoglin param1) {
+        return BlockFinder.findClosestMatchingBlockPos(param1.getBlockPos(), 8, 4, param1x -> param0.getBlockState(param1x).getBlock() == Blocks.WARPED_FUNGUS);
     }
 }

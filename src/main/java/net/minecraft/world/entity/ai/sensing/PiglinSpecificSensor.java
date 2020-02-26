@@ -12,8 +12,8 @@ import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.monster.PigZombie;
 import net.minecraft.world.entity.monster.WitherSkeleton;
+import net.minecraft.world.entity.monster.ZombifiedPiglin;
 import net.minecraft.world.entity.monster.hoglin.Hoglin;
 import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.monster.piglin.PiglinAi;
@@ -46,7 +46,7 @@ public class PiglinSpecificSensor extends Sensor<LivingEntity> {
         Optional<Hoglin> var2 = Optional.empty();
         Optional<Hoglin> var3 = Optional.empty();
         Optional<Piglin> var4 = Optional.empty();
-        Optional<PigZombie> var5 = Optional.empty();
+        Optional<ZombifiedPiglin> var5 = Optional.empty();
         Optional<Player> var6 = Optional.empty();
         Optional<Player> var7 = Optional.empty();
         int var8 = 0;
@@ -65,8 +65,8 @@ public class PiglinSpecificSensor extends Sensor<LivingEntity> {
                 var4 = Optional.of((Piglin)var11);
             } else if (!var2.isPresent() && var11 instanceof Hoglin && !var11.isBaby()) {
                 var2 = Optional.of((Hoglin)var11);
-            } else if (!var5.isPresent() && var11 instanceof PigZombie) {
-                var5 = Optional.of((PigZombie)var11);
+            } else if (!var5.isPresent() && var11 instanceof ZombifiedPiglin) {
+                var5 = Optional.of((ZombifiedPiglin)var11);
             }
 
             if (var11 instanceof Piglin && !var11.isBaby()) {

@@ -31,6 +31,12 @@ public class SimpleSoundInstance extends AbstractSoundInstance {
         return new SimpleSoundInstance(param0, SoundSource.RECORDS, 4.0F, 1.0F, false, 0, SoundInstance.Attenuation.LINEAR, param1, param2, param3);
     }
 
+    public static SimpleSoundInstance forLocalAmbience(SoundEvent param0, float param1, float param2) {
+        return new SimpleSoundInstance(
+            param0.getLocation(), SoundSource.AMBIENT, param2, param1, false, 0, SoundInstance.Attenuation.NONE, 0.0F, 0.0F, 0.0F, true
+        );
+    }
+
     public SimpleSoundInstance(SoundEvent param0, SoundSource param1, float param2, float param3, float param4, float param5, float param6) {
         this(param0, param1, param2, param3, false, 0, SoundInstance.Attenuation.LINEAR, param4, param5, param6);
     }

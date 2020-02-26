@@ -65,6 +65,7 @@ import net.minecraft.util.datafix.fixes.EntityTippedArrowFix;
 import net.minecraft.util.datafix.fixes.EntityWolfColorFix;
 import net.minecraft.util.datafix.fixes.EntityZombieSplitFix;
 import net.minecraft.util.datafix.fixes.EntityZombieVillagerTypeFix;
+import net.minecraft.util.datafix.fixes.EntityZombifiedPiglinRenameFix;
 import net.minecraft.util.datafix.fixes.ForcePoiRebuild;
 import net.minecraft.util.datafix.fixes.FurnaceRecipeFix;
 import net.minecraft.util.datafix.fixes.HeightmapRenamingFix;
@@ -155,6 +156,7 @@ import net.minecraft.util.datafix.schemas.V2100;
 import net.minecraft.util.datafix.schemas.V2501;
 import net.minecraft.util.datafix.schemas.V2502;
 import net.minecraft.util.datafix.schemas.V2505;
+import net.minecraft.util.datafix.schemas.V2509;
 import net.minecraft.util.datafix.schemas.V501;
 import net.minecraft.util.datafix.schemas.V700;
 import net.minecraft.util.datafix.schemas.V701;
@@ -573,5 +575,27 @@ public class DataFixers {
         Schema var103 = param0.addSchema(2505, V2505::new);
         param0.addFixer(new AddNewChoices(var103, "Added Piglin", References.ENTITY));
         param0.addFixer(new MemoryExpiryDataFix(var103, "minecraft:villager"));
+        Schema var104 = param0.addSchema(2508, SAME_NAMESPACED);
+        param0.addFixer(
+            ItemRenameFix.create(
+                var104,
+                "Renamed fungi items to fungus",
+                param0x -> ImmutableMap.of("minecraft:warped_fungi", "minecraft:warped_fungus", "minecraft:crimson_fungi", "minecraft:crimson_fungus")
+                        .getOrDefault(param0x, param0x)
+            )
+        );
+        param0.addFixer(
+            BlockRenameFix.create(
+                var104,
+                "Renamed fungi blocks to fungus",
+                param0x -> ImmutableMap.of("minecraft:warped_fungi", "minecraft:warped_fungus", "minecraft:crimson_fungi", "minecraft:crimson_fungus")
+                        .getOrDefault(param0x, param0x)
+            )
+        );
+        Schema var105 = param0.addSchema(2509, V2509::new);
+        param0.addFixer(new EntityZombifiedPiglinRenameFix(var105));
+        param0.addFixer(
+            ItemRenameFix.create(var105, "Rename zombie pigman egg item", param0x -> EntityZombifiedPiglinRenameFix.RENAMED_IDS.getOrDefault(param0x, param0x))
+        );
     }
 }

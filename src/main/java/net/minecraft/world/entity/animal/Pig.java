@@ -24,8 +24,8 @@ import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.TemptGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.global.LightningBolt;
-import net.minecraft.world.entity.monster.PigZombie;
 import net.minecraft.world.entity.monster.SharedMonsterAttributes;
+import net.minecraft.world.entity.monster.ZombifiedPiglin;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -178,7 +178,7 @@ public class Pig extends Animal {
 
     @Override
     public void thunderHit(LightningBolt param0) {
-        PigZombie var0 = EntityType.ZOMBIE_PIGMAN.create(this.level);
+        ZombifiedPiglin var0 = EntityType.ZOMBIFIED_PIGLIN.create(this.level);
         var0.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.GOLDEN_SWORD));
         var0.moveTo(this.getX(), this.getY(), this.getZ(), this.yRot, this.xRot);
         var0.setNoAi(this.isNoAi());

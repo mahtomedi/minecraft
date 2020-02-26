@@ -62,9 +62,9 @@ public class HoglinAi {
             Activity.IDLE,
             10,
             ImmutableList.of(
-                new BecomePassiveIfMemoryPresent(MemoryModuleType.NEAREST_WARPED_FUNGI, 200),
+                new BecomePassiveIfMemoryPresent(MemoryModuleType.NEAREST_WARPED_FUNGUS, 200),
                 new AnimalMakeLove(EntityType.HOGLIN),
-                SetWalkTargetAwayFrom.pos(MemoryModuleType.NEAREST_WARPED_FUNGI, var0 * 1.8F, 8, true),
+                SetWalkTargetAwayFrom.pos(MemoryModuleType.NEAREST_WARPED_FUNGUS, var0 * 1.8F, 8, true),
                 new StartAttacking<Hoglin>(HoglinAi::findNearestValidAttackTarget),
                 new RunIf<Hoglin>(Hoglin::isAdult, SetWalkTargetAwayFrom.entity(MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLIN, var0, 8, false)),
                 new RunSometimes<LivingEntity>(new SetEntityLookTarget(8.0F), IntRange.of(30, 60)),
@@ -79,7 +79,7 @@ public class HoglinAi {
             Activity.FIGHT,
             10,
             ImmutableList.of(
-                new BecomePassiveIfMemoryPresent(MemoryModuleType.NEAREST_WARPED_FUNGI, 200),
+                new BecomePassiveIfMemoryPresent(MemoryModuleType.NEAREST_WARPED_FUNGUS, 200),
                 new AnimalMakeLove(EntityType.HOGLIN),
                 new SetWalkTargetFromAttackTargetIfTargetOutOfReach(var0 * 1.8F),
                 new RunIf<>(Hoglin::isAdult, new MeleeAttack(1.5, 40)),
@@ -157,8 +157,8 @@ public class HoglinAi {
             : Optional.empty();
     }
 
-    static boolean isPosNearNearestWarpedFungi(Hoglin param0, BlockPos param1) {
-        Optional<BlockPos> var0 = param0.getBrain().getMemory(MemoryModuleType.NEAREST_WARPED_FUNGI);
+    static boolean isPosNearNearestWarpedFungus(Hoglin param0, BlockPos param1) {
+        Optional<BlockPos> var0 = param0.getBrain().getMemory(MemoryModuleType.NEAREST_WARPED_FUNGUS);
         return var0.isPresent() && var0.get().closerThan(param1, 8.0);
     }
 
@@ -176,7 +176,6 @@ public class HoglinAi {
         Brain<Hoglin> var0 = param0.getBrain();
         var0.eraseMemory(MemoryModuleType.PACIFIED);
         var0.eraseMemory(MemoryModuleType.BREED_TARGET);
-        param0.playHurtSound();
         if (param0.isBaby()) {
             retreatFromNearestTarget(param0, param1);
         } else {
@@ -238,10 +237,6 @@ public class HoglinAi {
 
     public static float getMovementSpeed(Hoglin param0) {
         return (float)param0.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getValue();
-    }
-
-    protected static boolean seesPlayer(Hoglin param0) {
-        return param0.getBrain().hasMemoryValue(MemoryModuleType.NEAREST_PLAYERS);
     }
 
     private static boolean isBreeding(Hoglin param0) {

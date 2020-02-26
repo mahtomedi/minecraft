@@ -15,7 +15,7 @@ public class Swim extends Behavior<Mob> {
     }
 
     protected boolean checkExtraStartConditions(ServerLevel param0, Mob param1) {
-        return param1.isInWater() && param1.getWaterHeight() > (double)this.height || param1.isInLava();
+        return param1.isInWater() && param1.getFluidHeight() > (double)this.height || param1.isInLava();
     }
 
     protected boolean canStillUse(ServerLevel param0, Mob param1, long param2) {

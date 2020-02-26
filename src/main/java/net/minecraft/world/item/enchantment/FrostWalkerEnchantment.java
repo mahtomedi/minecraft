@@ -37,7 +37,7 @@ public class FrostWalkerEnchantment extends Enchantment {
     }
 
     public static void onEntityMoved(LivingEntity param0, Level param1, BlockPos param2, int param3) {
-        if (param0.onGround) {
+        if (param0.isOnGround()) {
             BlockState var0 = Blocks.FROSTED_ICE.defaultBlockState();
             float var1 = (float)Math.min(16, 2 + param3);
             BlockPos.MutableBlockPos var2 = new BlockPos.MutableBlockPos();

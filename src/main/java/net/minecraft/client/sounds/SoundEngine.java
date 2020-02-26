@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nullable;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Options;
@@ -94,7 +95,7 @@ public class SoundEngine {
         }
     }
 
-    private float getVolume(SoundSource param0) {
+    private float getVolume(@Nullable SoundSource param0) {
         return param0 != null && param0 != SoundSource.MASTER ? this.options.getSoundSourceVolume(param0) : 1.0F;
     }
 
@@ -206,9 +207,8 @@ public class SoundEngine {
             } else if (var7.isStopped()) {
                 int var10 = this.soundDeleteTime.get(var8);
                 if (var10 <= this.tickCount) {
-                    int var11 = var8.getDelay();
-                    if (var8.isLooping() && var11 > 0) {
-                        this.queuedSounds.put(var8, this.tickCount + var11);
+                    if (shouldLoopManually(var8)) {
+                        this.queuedSounds.put(var8, this.tickCount + var8.getDelay());
                     }
 
                     var5.remove();
@@ -217,7 +217,7 @@ public class SoundEngine {
 
                     try {
                         this.instanceBySource.remove(var8.getSource(), var8);
-                    } catch (RuntimeException var91) {
+                    } catch (RuntimeException var8) {
                     }
 
                     if (var8 instanceof TickableSoundInstance) {
@@ -227,21 +227,33 @@ public class SoundEngine {
             }
         }
 
-        Iterator<Entry<SoundInstance, Integer>> var12 = this.queuedSounds.entrySet().iterator();
+        Iterator<Entry<SoundInstance, Integer>> var11 = this.queuedSounds.entrySet().iterator();
 
-        while(var12.hasNext()) {
-            Entry<SoundInstance, Integer> var13 = var12.next();
-            if (this.tickCount >= var13.getValue()) {
-                SoundInstance var14 = var13.getKey();
-                if (var14 instanceof TickableSoundInstance) {
-                    ((TickableSoundInstance)var14).tick();
+        while(var11.hasNext()) {
+            Entry<SoundInstance, Integer> var12 = var11.next();
+            if (this.tickCount >= var12.getValue()) {
+                SoundInstance var13 = var12.getKey();
+                if (var13 instanceof TickableSoundInstance) {
+                    ((TickableSoundInstance)var13).tick();
                 }
 
-                this.play(var14);
-                var12.remove();
+                this.play(var13);
+                var11.remove();
             }
         }
 
+    }
+
+    private static boolean requiresManualLooping(SoundInstance param0) {
+        return param0.getDelay() > 0;
+    }
+
+    private static boolean shouldLoopManually(SoundInstance param0) {
+        return param0.isLooping() && requiresManualLooping(param0);
+    }
+
+    private static boolean shouldLoopAutomatically(SoundInstance param0) {
+        return param0.isLooping() && !requiresManualLooping(param0);
     }
 
     public boolean isActive(SoundInstance param0) {
@@ -290,43 +302,49 @@ public class SoundEngine {
                         if (var7x == 0.0F && !param0.canStartSilent()) {
                             LOGGER.debug(MARKER, "Skipped playing sound {}, volume was zero.", var3x.getLocation());
                         } else {
-                            boolean var11x = param0.isLooping() && param0.getDelay() == 0;
-                            Vec3 var12x = new Vec3((double)param0.getX(), (double)param0.getY(), (double)param0.getZ());
-                            ChannelAccess.ChannelHandle var13x = this.channelAccess
+                            boolean var11x = shouldLoopAutomatically(param0);
+                            boolean var12x = var3x.shouldStream();
+                            Vec3 var13x = new Vec3((double)param0.getX(), (double)param0.getY(), (double)param0.getZ());
+                            CompletableFuture<ChannelAccess.ChannelHandle> var14 = this.channelAccess
                                 .createHandle(var3x.shouldStream() ? Library.Pool.STREAMING : Library.Pool.STATIC);
-                            LOGGER.debug(MARKER, "Playing sound {} for event {}", var3x.getLocation(), var1x);
-                            this.soundDeleteTime.put(param0, this.tickCount + 20);
-                            this.instanceToChannel.put(param0, var13x);
-                            this.instanceBySource.put(var6x, param0);
-                            var13x.execute(param7 -> {
-                                param7.setPitch(var8x);
-                                param7.setVolume(var7x);
-                                if (var9x == SoundInstance.Attenuation.LINEAR) {
-                                    param7.linearAttenuation(var5x);
+                            ChannelAccess.ChannelHandle var15 = var14.join();
+                            if (var15 == null) {
+                                LOGGER.warn("Failed to create new sound handle");
+                            } else {
+                                LOGGER.debug(MARKER, "Playing sound {} for event {}", var3x.getLocation(), var1x);
+                                this.soundDeleteTime.put(param0, this.tickCount + 20);
+                                this.instanceToChannel.put(param0, var15);
+                                this.instanceBySource.put(var6x, param0);
+                                var15.execute(param8 -> {
+                                    param8.setPitch(var8x);
+                                    param8.setVolume(var7x);
+                                    if (var9x == SoundInstance.Attenuation.LINEAR) {
+                                        param8.linearAttenuation(var5x);
+                                    } else {
+                                        param8.disableAttenuation();
+                                    }
+
+                                    param8.setLooping(var11x && !var12x);
+                                    param8.setSelfPosition(var13x);
+                                    param8.setRelative(var10x);
+                                });
+                                if (!var12x) {
+                                    this.soundBuffers.getCompleteBuffer(var3x.getPath()).thenAccept(param1 -> var15.execute(param1x -> {
+                                            param1x.attachStaticBuffer(param1);
+                                            param1x.play();
+                                        }));
                                 } else {
-                                    param7.disableAttenuation();
+                                    this.soundBuffers.getStream(var3x.getPath(), var11x).thenAccept(param1 -> var15.execute(param1x -> {
+                                            param1x.attachBufferStream(param1);
+                                            param1x.play();
+                                        }));
                                 }
 
-                                param7.setLooping(var11x);
-                                param7.setSelfPosition(var12x);
-                                param7.setRelative(var10x);
-                            });
-                            if (!var3x.shouldStream()) {
-                                this.soundBuffers.getCompleteBuffer(var3x.getPath()).thenAccept(param1 -> var13x.execute(param1x -> {
-                                        param1x.attachStaticBuffer(param1);
-                                        param1x.play();
-                                    }));
-                            } else {
-                                this.soundBuffers.getStream(var3x.getPath()).thenAccept(param1 -> var13x.execute(param1x -> {
-                                        param1x.attachBufferStream(param1);
-                                        param1x.play();
-                                    }));
-                            }
+                                if (param0 instanceof TickableSoundInstance) {
+                                    this.tickingSounds.add((TickableSoundInstance)param0);
+                                }
 
-                            if (param0 instanceof TickableSoundInstance) {
-                                this.tickingSounds.add((TickableSoundInstance)param0);
                             }
-
                         }
                     }
                 }

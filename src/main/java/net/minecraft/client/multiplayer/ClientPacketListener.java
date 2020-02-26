@@ -589,7 +589,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
                     var0.lerpTo(var1, var2, var3, var4, var5, 3, true);
                 }
 
-                var0.onGround = param0.isOnGround();
+                var0.setOnGround(param0.isOnGround());
             }
 
         }
@@ -624,7 +624,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
                     var0.lerpTo(var0.getX(), var0.getY(), var0.getZ(), var4, var5, 3, false);
                 }
 
-                var0.onGround = param0.isOnGround();
+                var0.setOnGround(param0.isOnGround());
             }
 
         }

@@ -799,12 +799,11 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
                                 this.player.fallDistance = 0.0F;
                             }
 
-                            if (this.player.onGround && !param0.isOnGround() && var11 > 0.0) {
+                            if (this.player.isOnGround() && !param0.isOnGround() && var11 > 0.0) {
                                 this.player.jumpFromGround();
                             }
 
                             this.player.move(MoverType.PLAYER, new Vec3(var10, var11, var12));
-                            this.player.onGround = param0.isOnGround();
                             var10 = var5 - this.player.getX();
                             var11 = var6 - this.player.getY();
                             if (var11 > -0.5 || var11 < 0.5) {
@@ -840,9 +839,9 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
                                 && !this.player.hasEffect(MobEffects.LEVITATION)
                                 && !this.player.isFallFlying()
                                 && !var0.containsAnyBlocks(this.player.getBoundingBox().inflate(0.0625).expandTowards(0.0, -0.55, 0.0));
-                            this.player.onGround = param0.isOnGround();
                             this.player.getLevel().getChunkSource().move(this.player);
                             this.player.doCheckFallDamage(this.player.getY() - var4, param0.isOnGround());
+                            this.player.setOnGround(param0.isOnGround());
                             this.lastGoodX = this.player.getX();
                             this.lastGoodY = this.player.getY();
                             this.lastGoodZ = this.player.getZ();

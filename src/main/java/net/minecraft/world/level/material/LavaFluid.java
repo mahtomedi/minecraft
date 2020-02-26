@@ -87,7 +87,7 @@ public abstract class LavaFluid extends FlowingFluid {
                     BlockState var3 = param0.getBlockState(var1);
                     if (var3.isAir()) {
                         if (this.hasFlammableNeighbours(param0, var1)) {
-                            param0.setBlockAndUpdate(var1, Blocks.FIRE.defaultBlockState());
+                            param0.setBlockAndUpdate(var1, BaseFireBlock.getState(param0, var1));
                             return;
                         }
                     } else if (var3.getMaterial().blocksMotion()) {
