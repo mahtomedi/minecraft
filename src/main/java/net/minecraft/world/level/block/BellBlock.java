@@ -11,6 +11,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -34,7 +35,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class BellBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
-    private static final EnumProperty<BellAttachType> ATTACHMENT = BlockStateProperties.BELL_ATTACHMENT;
+    public static final EnumProperty<BellAttachType> ATTACHMENT = BlockStateProperties.BELL_ATTACHMENT;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     private static final VoxelShape NORTH_SOUTH_FLOOR_SHAPE = Block.box(0.0, 0.0, 4.0, 16.0, 16.0, 12.0);
     private static final VoxelShape EAST_WEST_FLOOR_SHAPE = Block.box(4.0, 0.0, 0.0, 12.0, 16.0, 16.0);
@@ -70,9 +71,9 @@ public class BellBlock extends BaseEntityBlock {
     }
 
     @Override
-    public void onProjectileHit(Level param0, BlockState param1, BlockHitResult param2, Entity param3) {
+    public void onProjectileHit(Level param0, BlockState param1, BlockHitResult param2, Projectile param3) {
         if (param3 instanceof AbstractArrow) {
-            Entity var0 = ((AbstractArrow)param3).getOwner();
+            Entity var0 = param3.getOwner();
             Player var1 = var0 instanceof Player ? (Player)var0 : null;
             this.onHit(param0, param1, param2, var1, true);
         }

@@ -11,13 +11,7 @@ public class DirectionalPlaceContext extends BlockPlaceContext {
     private final Direction direction;
 
     public DirectionalPlaceContext(Level param0, BlockPos param1, Direction param2, ItemStack param3, Direction param4) {
-        super(
-            param0,
-            null,
-            InteractionHand.MAIN_HAND,
-            param3,
-            new BlockHitResult(new Vec3((double)param1.getX() + 0.5, (double)param1.getY(), (double)param1.getZ() + 0.5), param4, param1, false)
-        );
+        super(param0, null, InteractionHand.MAIN_HAND, param3, new BlockHitResult(Vec3.atBottomCenterOf(param1), param4, param1, false));
         this.direction = param2;
     }
 

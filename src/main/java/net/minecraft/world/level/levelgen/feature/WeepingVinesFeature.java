@@ -44,12 +44,12 @@ public class WeepingVinesFeature extends Feature<NoneFeatureConfiguration> {
         BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos();
 
         for(int var2 = 0; var2 < 200; ++var2) {
-            var0.set(param2).move(param1.nextInt(6) - param1.nextInt(6), param1.nextInt(2) - param1.nextInt(5), param1.nextInt(6) - param1.nextInt(6));
+            var0.setWithOffset(param2, param1.nextInt(6) - param1.nextInt(6), param1.nextInt(2) - param1.nextInt(5), param1.nextInt(6) - param1.nextInt(6));
             if (param0.isEmptyBlock(var0)) {
                 int var3 = 0;
 
                 for(Direction var4 : DIRECTIONS) {
-                    Block var5 = param0.getBlockState(var1.set(var0).move(var4)).getBlock();
+                    Block var5 = param0.getBlockState(var1.setWithOffset(var0, var4)).getBlock();
                     if (var5 == Blocks.NETHERRACK || var5 == Blocks.NETHER_WART_BLOCK) {
                         ++var3;
                     }
@@ -71,7 +71,7 @@ public class WeepingVinesFeature extends Feature<NoneFeatureConfiguration> {
         BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
 
         for(int var1 = 0; var1 < 100; ++var1) {
-            var0.set(param2).move(param1.nextInt(8) - param1.nextInt(8), param1.nextInt(2) - param1.nextInt(7), param1.nextInt(8) - param1.nextInt(8));
+            var0.setWithOffset(param2, param1.nextInt(8) - param1.nextInt(8), param1.nextInt(2) - param1.nextInt(7), param1.nextInt(8) - param1.nextInt(8));
             if (param0.isEmptyBlock(var0)) {
                 Block var2 = param0.getBlockState(var0.above()).getBlock();
                 if (var2 == Blocks.NETHERRACK || var2 == Blocks.NETHER_WART_BLOCK) {

@@ -23,6 +23,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -32,7 +33,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
     value = Dist.CLIENT,
     _interface = ItemSupplier.class
 )
-public class FireworkRocketEntity extends Entity implements ItemSupplier, Projectile {
+public class FireworkRocketEntity extends Projectile implements ItemSupplier {
     private static final EntityDataAccessor<ItemStack> DATA_ID_FIREWORKS_ITEM = SynchedEntityData.defineId(
         FireworkRocketEntity.class, EntityDataSerializers.ITEM_STACK
     );
@@ -46,6 +47,41 @@ public class FireworkRocketEntity extends Entity implements ItemSupplier, Projec
 
     public FireworkRocketEntity(EntityType<? extends FireworkRocketEntity> param0, Level param1) {
         super(param0, param1);
+    }
+
+    public FireworkRocketEntity(Level param0, double param1, double param2, double param3, ItemStack param4) {
+        super(EntityType.FIREWORK_ROCKET, param0);
+        this.life = 0;
+        this.setPos(param1, param2, param3);
+        int var0 = 1;
+        if (!param4.isEmpty() && param4.hasTag()) {
+            this.entityData.set(DATA_ID_FIREWORKS_ITEM, param4.copy());
+            var0 += param4.getOrCreateTagElement("Fireworks").getByte("Flight");
+        }
+
+        this.setDeltaMovement(this.random.nextGaussian() * 0.001, 0.05, this.random.nextGaussian() * 0.001);
+        this.lifetime = 10 * var0 + this.random.nextInt(6) + this.random.nextInt(7);
+    }
+
+    public FireworkRocketEntity(Level param0, Entity param1, double param2, double param3, double param4, ItemStack param5) {
+        this(param0, param2, param3, param4, param5);
+        this.setOwner(param1);
+    }
+
+    public FireworkRocketEntity(Level param0, ItemStack param1, LivingEntity param2) {
+        this(param0, param2, param2.getX(), param2.getY(), param2.getZ(), param1);
+        this.entityData.set(DATA_ATTACHED_TO_TARGET, OptionalInt.of(param2.getId()));
+        this.attachedToEntity = param2;
+    }
+
+    public FireworkRocketEntity(Level param0, ItemStack param1, double param2, double param3, double param4, boolean param5) {
+        this(param0, param2, param3, param4, param1);
+        this.entityData.set(DATA_SHOT_AT_ANGLE, param5);
+    }
+
+    public FireworkRocketEntity(Level param0, ItemStack param1, Entity param2, double param3, double param4, double param5, boolean param6) {
+        this(param0, param1, param3, param4, param5, param6);
+        this.setOwner(param2);
     }
 
     @Override
@@ -65,45 +101,6 @@ public class FireworkRocketEntity extends Entity implements ItemSupplier, Projec
     @Override
     public boolean shouldRender(double param0, double param1, double param2) {
         return super.shouldRender(param0, param1, param2) && !this.isAttachedToEntity();
-    }
-
-    public FireworkRocketEntity(Level param0, double param1, double param2, double param3, ItemStack param4) {
-        super(EntityType.FIREWORK_ROCKET, param0);
-        this.life = 0;
-        this.setPos(param1, param2, param3);
-        int var0 = 1;
-        if (!param4.isEmpty() && param4.hasTag()) {
-            this.entityData.set(DATA_ID_FIREWORKS_ITEM, param4.copy());
-            var0 += param4.getOrCreateTagElement("Fireworks").getByte("Flight");
-        }
-
-        this.setDeltaMovement(this.random.nextGaussian() * 0.001, 0.05, this.random.nextGaussian() * 0.001);
-        this.lifetime = 10 * var0 + this.random.nextInt(6) + this.random.nextInt(7);
-    }
-
-    public FireworkRocketEntity(Level param0, ItemStack param1, LivingEntity param2) {
-        this(param0, param2.getX(), param2.getY(), param2.getZ(), param1);
-        this.entityData.set(DATA_ATTACHED_TO_TARGET, OptionalInt.of(param2.getId()));
-        this.attachedToEntity = param2;
-    }
-
-    public FireworkRocketEntity(Level param0, ItemStack param1, double param2, double param3, double param4, boolean param5) {
-        this(param0, param2, param3, param4, param1);
-        this.entityData.set(DATA_SHOT_AT_ANGLE, param5);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public void lerpMotion(double param0, double param1, double param2) {
-        this.setDeltaMovement(param0, param1, param2);
-        if (this.xRotO == 0.0F && this.yRotO == 0.0F) {
-            float var0 = Mth.sqrt(param0 * param0 + param2 * param2);
-            this.yRot = (float)(Mth.atan2(param0, param2) * 180.0F / (float)Math.PI);
-            this.xRot = (float)(Mth.atan2(param1, (double)var0) * 180.0F / (float)Math.PI);
-            this.yRotO = this.yRot;
-            this.xRotO = this.xRot;
-        }
-
     }
 
     @Override
@@ -156,7 +153,7 @@ public class FireworkRocketEntity extends Entity implements ItemSupplier, Projec
             true
         );
         if (!this.noPhysics) {
-            this.performHitChecks(var5);
+            this.onHit(var5);
             this.hasImpulse = true;
         }
 
@@ -212,17 +209,19 @@ public class FireworkRocketEntity extends Entity implements ItemSupplier, Projec
         this.remove();
     }
 
-    protected void performHitChecks(HitResult param0) {
-        if (param0.getType() == HitResult.Type.ENTITY && !this.level.isClientSide) {
+    @Override
+    protected void onHitEntity(EntityHitResult param0) {
+        super.onHitEntity(param0);
+        if (!this.level.isClientSide) {
             this.explode();
-        } else if (this.collision) {
-            BlockPos var0;
-            if (param0.getType() == HitResult.Type.BLOCK) {
-                var0 = new BlockPos(((BlockHitResult)param0).getBlockPos());
-            } else {
-                var0 = new BlockPos(this);
-            }
+        }
+    }
 
+    @Override
+    protected void onHitBlock(BlockHitResult param0) {
+        super.onHitBlock(param0);
+        if (this.collision) {
+            BlockPos var0 = new BlockPos(param0.getBlockPos());
             this.level.getBlockState(var0).entityInside(this.level, var0, this);
             if (this.hasExplosion()) {
                 this.explode();
@@ -249,7 +248,7 @@ public class FireworkRocketEntity extends Entity implements ItemSupplier, Projec
 
         if (var0 > 0.0F) {
             if (this.attachedToEntity != null) {
-                this.attachedToEntity.hurt(DamageSource.FIREWORKS, 5.0F + (float)(var3.size() * 2));
+                this.attachedToEntity.hurt(DamageSource.fireworks(this, this.getOwner()), 5.0F + (float)(var3.size() * 2));
             }
 
             double var4 = 5.0;
@@ -270,7 +269,7 @@ public class FireworkRocketEntity extends Entity implements ItemSupplier, Projec
 
                     if (var8) {
                         float var12 = var0 * (float)Math.sqrt((5.0 - (double)this.distanceTo(var7)) / 5.0);
-                        var7.hurt(DamageSource.FIREWORKS, var12);
+                        var7.hurt(DamageSource.fireworks(this, this.getOwner()), var12);
                     }
                 }
             }
@@ -316,6 +315,7 @@ public class FireworkRocketEntity extends Entity implements ItemSupplier, Projec
 
     @Override
     public void addAdditionalSaveData(CompoundTag param0) {
+        super.addAdditionalSaveData(param0);
         param0.putInt("Life", this.life);
         param0.putInt("LifeTime", this.lifetime);
         ItemStack var0 = this.entityData.get(DATA_ID_FIREWORKS_ITEM);
@@ -328,6 +328,7 @@ public class FireworkRocketEntity extends Entity implements ItemSupplier, Projec
 
     @Override
     public void readAdditionalSaveData(CompoundTag param0) {
+        super.readAdditionalSaveData(param0);
         this.life = param0.getInt("Life");
         this.lifetime = param0.getInt("LifeTime");
         ItemStack var0 = ItemStack.of(param0.getCompound("FireworksItem"));
@@ -356,20 +357,5 @@ public class FireworkRocketEntity extends Entity implements ItemSupplier, Projec
     @Override
     public Packet<?> getAddEntityPacket() {
         return new ClientboundAddEntityPacket(this);
-    }
-
-    @Override
-    public void shoot(double param0, double param1, double param2, float param3, float param4) {
-        float var0 = Mth.sqrt(param0 * param0 + param1 * param1 + param2 * param2);
-        param0 /= (double)var0;
-        param1 /= (double)var0;
-        param2 /= (double)var0;
-        param0 += this.random.nextGaussian() * 0.0075F * (double)param4;
-        param1 += this.random.nextGaussian() * 0.0075F * (double)param4;
-        param2 += this.random.nextGaussian() * 0.0075F * (double)param4;
-        param0 *= (double)param3;
-        param1 *= (double)param3;
-        param2 *= (double)param3;
-        this.setDeltaMovement(param0, param1, param2);
     }
 }

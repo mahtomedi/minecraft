@@ -281,7 +281,7 @@ public class Evoker extends SpellcasterIllager {
         @Override
         protected void performSpellCasting() {
             for(int var0 = 0; var0 < 3; ++var0) {
-                BlockPos var1 = new BlockPos(Evoker.this).offset(-2 + Evoker.this.random.nextInt(5), 1, -2 + Evoker.this.random.nextInt(5));
+                BlockPos var1 = Evoker.this.blockPosition().offset(-2 + Evoker.this.random.nextInt(5), 1, -2 + Evoker.this.random.nextInt(5));
                 Vex var2 = EntityType.VEX.create(Evoker.this.level);
                 var2.moveTo(var1, 0.0F, 0.0F);
                 var2.finalizeSpawn(Evoker.this.level, Evoker.this.level.getCurrentDifficultyAt(var1), MobSpawnType.MOB_SUMMONED, null, null);

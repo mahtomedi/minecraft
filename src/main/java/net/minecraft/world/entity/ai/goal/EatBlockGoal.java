@@ -28,7 +28,7 @@ public class EatBlockGoal extends Goal {
         if (this.mob.getRandom().nextInt(this.mob.isBaby() ? 50 : 1000) != 0) {
             return false;
         } else {
-            BlockPos var0 = new BlockPos(this.mob);
+            BlockPos var0 = this.mob.blockPosition();
             if (IS_TALL_GRASS.test(this.level.getBlockState(var0))) {
                 return true;
             } else {
@@ -62,7 +62,7 @@ public class EatBlockGoal extends Goal {
     public void tick() {
         this.eatAnimationTick = Math.max(0, this.eatAnimationTick - 1);
         if (this.eatAnimationTick == 4) {
-            BlockPos var0 = new BlockPos(this.mob);
+            BlockPos var0 = this.mob.blockPosition();
             if (IS_TALL_GRASS.test(this.level.getBlockState(var0))) {
                 if (this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
                     this.level.destroyBlock(var0, false);

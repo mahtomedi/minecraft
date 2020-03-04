@@ -677,29 +677,29 @@ public class ModelBlockRenderer {
             ModelBlockRenderer.AdjacencyInfo var1 = ModelBlockRenderer.AdjacencyInfo.fromFacing(param3);
             BlockPos.MutableBlockPos var2 = new BlockPos.MutableBlockPos();
             ModelBlockRenderer.Cache var3 = ModelBlockRenderer.CACHE.get();
-            var2.set(var0).move(var1.corners[0]);
+            var2.setWithOffset(var0, var1.corners[0]);
             BlockState var4 = param0.getBlockState(var2);
             int var5 = var3.getLightColor(var4, param0, var2);
             float var6 = var3.getShadeBrightness(var4, param0, var2);
-            var2.set(var0).move(var1.corners[1]);
+            var2.setWithOffset(var0, var1.corners[1]);
             BlockState var7 = param0.getBlockState(var2);
             int var8 = var3.getLightColor(var7, param0, var2);
             float var9 = var3.getShadeBrightness(var7, param0, var2);
-            var2.set(var0).move(var1.corners[2]);
+            var2.setWithOffset(var0, var1.corners[2]);
             BlockState var10 = param0.getBlockState(var2);
             int var11 = var3.getLightColor(var10, param0, var2);
             float var12 = var3.getShadeBrightness(var10, param0, var2);
-            var2.set(var0).move(var1.corners[3]);
+            var2.setWithOffset(var0, var1.corners[3]);
             BlockState var13 = param0.getBlockState(var2);
             int var14 = var3.getLightColor(var13, param0, var2);
             float var15 = var3.getShadeBrightness(var13, param0, var2);
-            var2.set(var0).move(var1.corners[0]).move(param3);
+            var2.setWithOffset(var0, var1.corners[0]).move(param3);
             boolean var16 = param0.getBlockState(var2).getLightBlock(param0, var2) == 0;
-            var2.set(var0).move(var1.corners[1]).move(param3);
+            var2.setWithOffset(var0, var1.corners[1]).move(param3);
             boolean var17 = param0.getBlockState(var2).getLightBlock(param0, var2) == 0;
-            var2.set(var0).move(var1.corners[2]).move(param3);
+            var2.setWithOffset(var0, var1.corners[2]).move(param3);
             boolean var18 = param0.getBlockState(var2).getLightBlock(param0, var2) == 0;
-            var2.set(var0).move(var1.corners[3]).move(param3);
+            var2.setWithOffset(var0, var1.corners[3]).move(param3);
             boolean var19 = param0.getBlockState(var2).getLightBlock(param0, var2) == 0;
             float var23;
             int var24;
@@ -707,7 +707,7 @@ public class ModelBlockRenderer {
                 var23 = var6;
                 var24 = var5;
             } else {
-                var2.set(var0).move(var1.corners[0]).move(var1.corners[2]);
+                var2.setWithOffset(var0, var1.corners[0]).move(var1.corners[2]);
                 BlockState var20 = param0.getBlockState(var2);
                 var23 = var3.getShadeBrightness(var20, param0, var2);
                 var24 = var3.getLightColor(var20, param0, var2);
@@ -719,7 +719,7 @@ public class ModelBlockRenderer {
                 var28 = var6;
                 var29 = var5;
             } else {
-                var2.set(var0).move(var1.corners[0]).move(var1.corners[3]);
+                var2.setWithOffset(var0, var1.corners[0]).move(var1.corners[3]);
                 BlockState var25 = param0.getBlockState(var2);
                 var28 = var3.getShadeBrightness(var25, param0, var2);
                 var29 = var3.getLightColor(var25, param0, var2);
@@ -731,7 +731,7 @@ public class ModelBlockRenderer {
                 var33 = var6;
                 var34 = var5;
             } else {
-                var2.set(var0).move(var1.corners[1]).move(var1.corners[2]);
+                var2.setWithOffset(var0, var1.corners[1]).move(var1.corners[2]);
                 BlockState var30 = param0.getBlockState(var2);
                 var33 = var3.getShadeBrightness(var30, param0, var2);
                 var34 = var3.getLightColor(var30, param0, var2);
@@ -743,14 +743,14 @@ public class ModelBlockRenderer {
                 var38 = var6;
                 var39 = var5;
             } else {
-                var2.set(var0).move(var1.corners[1]).move(var1.corners[3]);
+                var2.setWithOffset(var0, var1.corners[1]).move(var1.corners[3]);
                 BlockState var35 = param0.getBlockState(var2);
                 var38 = var3.getShadeBrightness(var35, param0, var2);
                 var39 = var3.getLightColor(var35, param0, var2);
             }
 
             int var40 = var3.getLightColor(param1, param0, param2);
-            var2.set(param2).move(param3);
+            var2.setWithOffset(param2, param3);
             BlockState var41 = param0.getBlockState(var2);
             if (param5.get(0) || !var41.isSolidRender(param0, var2)) {
                 var40 = var3.getLightColor(var41, param0, var2);

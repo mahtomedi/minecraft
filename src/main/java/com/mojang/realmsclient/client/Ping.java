@@ -7,6 +7,7 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.Comparator;
 import java.util.List;
+import net.minecraft.Util;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -60,7 +61,7 @@ public class Ping {
     }
 
     private static long now() {
-        return System.currentTimeMillis();
+        return Util.getMillis();
     }
 
     public static List<RegionPingResult> pingAllRegions() {

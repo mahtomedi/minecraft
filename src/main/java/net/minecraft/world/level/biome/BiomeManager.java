@@ -1,6 +1,7 @@
 package net.minecraft.world.level.biome;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -24,7 +25,15 @@ public class BiomeManager {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public Biome getNoiseBiome(int param0, int param1, int param2) {
+    public Biome getNoiseBiomeAtPosition(double param0, double param1, double param2) {
+        int var0 = Mth.floor(param0) >> 2;
+        int var1 = Mth.floor(param1) >> 2;
+        int var2 = Mth.floor(param2) >> 2;
+        return this.getNoiseBiomeAtQuart(var0, var1, var2);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public Biome getNoiseBiomeAtQuart(int param0, int param1, int param2) {
         return this.noiseBiomeSource.getNoiseBiome(param0, param1, param2);
     }
 

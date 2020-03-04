@@ -198,7 +198,7 @@ public class LecternBlockEntity extends BlockEntity implements Clearable, MenuPr
             var1 = param0.getDisplayName();
         }
 
-        Vec3 var4 = new Vec3((double)this.worldPosition.getX() + 0.5, (double)this.worldPosition.getY() + 0.5, (double)this.worldPosition.getZ() + 0.5);
+        Vec3 var4 = Vec3.atCenterOf(this.worldPosition);
         return new CommandSourceStack(CommandSource.NULL, var4, Vec2.ZERO, (ServerLevel)this.level, 2, var0, var1, this.level.getServer(), param0);
     }
 

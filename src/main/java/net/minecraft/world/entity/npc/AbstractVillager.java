@@ -6,7 +6,6 @@ import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -164,16 +163,7 @@ public abstract class AbstractVillager extends AgableMob implements Npc, Merchan
             param0.put("Offers", var0.createTag());
         }
 
-        ListTag var1 = new ListTag();
-
-        for(int var2 = 0; var2 < this.inventory.getContainerSize(); ++var2) {
-            ItemStack var3 = this.inventory.getItem(var2);
-            if (!var3.isEmpty()) {
-                var1.add(var3.save(new CompoundTag()));
-            }
-        }
-
-        param0.put("Inventory", var1);
+        param0.put("Inventory", this.inventory.createTag());
     }
 
     @Override
@@ -183,15 +173,7 @@ public abstract class AbstractVillager extends AgableMob implements Npc, Merchan
             this.offers = new MerchantOffers(param0.getCompound("Offers"));
         }
 
-        ListTag var0 = param0.getList("Inventory", 10);
-
-        for(int var1 = 0; var1 < var0.size(); ++var1) {
-            ItemStack var2 = ItemStack.of(var0.getCompound(var1));
-            if (!var2.isEmpty()) {
-                this.inventory.addItem(var2);
-            }
-        }
-
+        this.inventory.fromTag(param0.getList("Inventory", 10));
     }
 
     @Nullable

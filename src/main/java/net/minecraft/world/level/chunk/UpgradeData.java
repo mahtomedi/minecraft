@@ -100,7 +100,7 @@ public class UpgradeData {
                 BlockState var18 = var17;
 
                 for(Direction var19 : var14) {
-                    var15.set(var16).move(var19);
+                    var15.setWithOffset(var16, var19);
                     var18 = updateState(var18, var19, var0, var16, var15);
                 }
 
@@ -116,48 +116,45 @@ public class UpgradeData {
     }
 
     private void upgradeInside(LevelChunk param0) {
-        try (
-            BlockPos.PooledMutableBlockPos var0 = BlockPos.PooledMutableBlockPos.acquire();
-            BlockPos.PooledMutableBlockPos var1 = BlockPos.PooledMutableBlockPos.acquire();
-        ) {
-            ChunkPos var2 = param0.getPos();
-            LevelAccessor var3 = param0.getLevel();
+        BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
+        BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos();
+        ChunkPos var2 = param0.getPos();
+        LevelAccessor var3 = param0.getLevel();
 
-            for(int var4 = 0; var4 < 16; ++var4) {
-                LevelChunkSection var5 = param0.getSections()[var4];
-                int[] var6 = this.index[var4];
-                this.index[var4] = null;
-                if (var5 != null && var6 != null && var6.length > 0) {
-                    Direction[] var7 = Direction.values();
-                    PalettedContainer<BlockState> var8 = var5.getStates();
+        for(int var4 = 0; var4 < 16; ++var4) {
+            LevelChunkSection var5 = param0.getSections()[var4];
+            int[] var6 = this.index[var4];
+            this.index[var4] = null;
+            if (var5 != null && var6 != null && var6.length > 0) {
+                Direction[] var7 = Direction.values();
+                PalettedContainer<BlockState> var8 = var5.getStates();
 
-                    for(int var9 : var6) {
-                        int var10 = var9 & 15;
-                        int var11 = var9 >> 8 & 15;
-                        int var12 = var9 >> 4 & 15;
-                        var0.set(var2.getMinBlockX() + var10, (var4 << 4) + var11, var2.getMinBlockZ() + var12);
-                        BlockState var13 = var8.get(var9);
-                        BlockState var14 = var13;
+                for(int var9 : var6) {
+                    int var10 = var9 & 15;
+                    int var11 = var9 >> 8 & 15;
+                    int var12 = var9 >> 4 & 15;
+                    var0.set(var2.getMinBlockX() + var10, (var4 << 4) + var11, var2.getMinBlockZ() + var12);
+                    BlockState var13 = var8.get(var9);
+                    BlockState var14 = var13;
 
-                        for(Direction var15 : var7) {
-                            var1.set(var0).move(var15);
-                            if (var0.getX() >> 4 == var2.x && var0.getZ() >> 4 == var2.z) {
-                                var14 = updateState(var14, var15, var3, var0, var1);
-                            }
+                    for(Direction var15 : var7) {
+                        var1.setWithOffset(var0, var15);
+                        if (var0.getX() >> 4 == var2.x && var0.getZ() >> 4 == var2.z) {
+                            var14 = updateState(var14, var15, var3, var0, var1);
                         }
-
-                        Block.updateOrDestroy(var13, var14, var3, var0, 18);
                     }
+
+                    Block.updateOrDestroy(var13, var14, var3, var0, 18);
                 }
             }
+        }
 
-            for(int var16 = 0; var16 < this.index.length; ++var16) {
-                if (this.index[var16] != null) {
-                    LOGGER.warn("Discarding update data for section {} for chunk ({} {})", var16, var2.x, var2.z);
-                }
-
-                this.index[var16] = null;
+        for(int var16 = 0; var16 < this.index.length; ++var16) {
+            if (this.index[var16] != null) {
+                LOGGER.warn("Discarding update data for section {} for chunk ({} {})", var16, var2.x, var2.z);
             }
+
+            this.index[var16] = null;
         }
 
     }
@@ -318,7 +315,7 @@ public class UpgradeData {
                             param0.setBlock(var6, var7.setValue(BlockStateProperties.DISTANCE, Integer.valueOf(var3)), 18);
                             if (var2 != 7) {
                                 for(Direction var8 : DIRECTIONS) {
-                                    var0.set(var6).move(var8);
+                                    var0.setWithOffset(var6, var8);
                                     BlockState var9 = param0.getBlockState(var0);
                                     if (var9.hasProperty(BlockStateProperties.DISTANCE) && var7.getValue(BlockStateProperties.DISTANCE) > var2) {
                                         var5.add(var0.immutable());

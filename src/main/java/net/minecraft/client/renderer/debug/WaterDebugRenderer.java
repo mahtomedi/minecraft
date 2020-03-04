@@ -22,7 +22,7 @@ public class WaterDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
 
     @Override
     public void render(PoseStack param0, MultiBufferSource param1, double param2, double param3, double param4) {
-        BlockPos var0 = this.minecraft.player.getCommandSenderBlockPosition();
+        BlockPos var0 = this.minecraft.player.blockPosition();
         LevelReader var1 = this.minecraft.player.level;
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();

@@ -69,11 +69,6 @@ public class LevelStorageSource {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public String getName() {
-        return "Anvil";
-    }
-
-    @OnlyIn(Dist.CLIENT)
     public List<LevelSummary> getLevelList() throws LevelStorageException {
         if (!Files.isDirectory(this.baseDir)) {
             throw new LevelStorageException(new TranslatableComponent("selectWorld.load_folder_access").getString());

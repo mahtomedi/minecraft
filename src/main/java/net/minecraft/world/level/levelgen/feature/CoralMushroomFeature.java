@@ -20,7 +20,7 @@ public class CoralMushroomFeature extends CoralFeature {
         int var1 = param1.nextInt(3) + 3;
         int var2 = param1.nextInt(3) + 3;
         int var3 = param1.nextInt(3) + 1;
-        BlockPos.MutableBlockPos var4 = new BlockPos.MutableBlockPos(param2);
+        BlockPos.MutableBlockPos var4 = param2.mutable();
 
         for(int var5 = 0; var5 <= var1; ++var5) {
             for(int var6 = 0; var6 <= var0; ++var6) {

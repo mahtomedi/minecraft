@@ -27,4 +27,12 @@ public class IpBanListEntry extends BanListEntry<String> {
     private static String createIpInfo(JsonObject param0) {
         return param0.has("ip") ? param0.get("ip").getAsString() : null;
     }
+
+    @Override
+    protected void serialize(JsonObject param0) {
+        if (this.getUser() != null) {
+            param0.addProperty("ip", this.getUser());
+            super.serialize(param0);
+        }
+    }
 }

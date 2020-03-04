@@ -1,6 +1,5 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PiglinModel;
 import net.minecraft.client.renderer.entity.layers.PiglinArmorLayer;
@@ -41,11 +40,7 @@ public class PiglinRenderer extends HumanoidMobRenderer<Mob, PiglinModel<Mob>> {
         return param0 instanceof Piglin ? PIGLIN_LOCATION : ZOMBIFIED_PIGLIN_LOCATION;
     }
 
-    protected void setupRotations(Mob param0, PoseStack param1, float param2, float param3, float param4) {
-        if (param0 instanceof Piglin && ((Piglin)param0).isConverting()) {
-            param3 += (float)(Math.cos((double)param0.tickCount * 3.25) * Math.PI * 0.5);
-        }
-
-        super.setupRotations(param0, param1, param2, param3, param4);
+    protected boolean isShaking(Mob param0) {
+        return param0 instanceof Piglin && ((Piglin)param0).isConverting();
     }
 }

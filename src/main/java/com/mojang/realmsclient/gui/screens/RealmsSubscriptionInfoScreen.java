@@ -4,16 +4,16 @@ import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.dto.RealmsServer;
 import com.mojang.realmsclient.dto.Subscription;
 import com.mojang.realmsclient.exception.RealmsServiceException;
-import com.mojang.realmsclient.gui.RealmsConstants;
-import com.mojang.realmsclient.util.RealmsUtil;
-import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
-import net.minecraft.realms.Realms;
-import net.minecraft.realms.RealmsButton;
+import net.minecraft.Util;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.realms.NarrationHelper;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -23,12 +23,9 @@ import org.apache.logging.log4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class RealmsSubscriptionInfoScreen extends RealmsScreen {
     private static final Logger LOGGER = LogManager.getLogger();
-    private final RealmsScreen lastScreen;
+    private final Screen lastScreen;
     private final RealmsServer serverData;
-    private final RealmsScreen mainScreen;
-    private final int BUTTON_BACK_ID = 0;
-    private final int BUTTON_DELETE_ID = 1;
-    private final int BUTTON_SUBSCRIPTION_ID = 2;
+    private final Screen mainScreen;
     private final String subscriptionTitle;
     private final String subscriptionStartLabelText;
     private final String timeLeftLabelText;
@@ -36,63 +33,77 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
     private int daysLeft;
     private String startDate;
     private Subscription.SubscriptionType type;
-    private final String PURCHASE_LINK = "https://aka.ms/ExtendJavaRealms";
 
-    public RealmsSubscriptionInfoScreen(RealmsScreen param0, RealmsServer param1, RealmsScreen param2) {
+    public RealmsSubscriptionInfoScreen(Screen param0, RealmsServer param1, Screen param2) {
         this.lastScreen = param0;
         this.serverData = param1;
         this.mainScreen = param2;
-        this.subscriptionTitle = getLocalizedString("mco.configure.world.subscription.title");
-        this.subscriptionStartLabelText = getLocalizedString("mco.configure.world.subscription.start");
-        this.timeLeftLabelText = getLocalizedString("mco.configure.world.subscription.timeleft");
-        this.daysLeftLabelText = getLocalizedString("mco.configure.world.subscription.recurring.daysleft");
+        this.subscriptionTitle = I18n.get("mco.configure.world.subscription.title");
+        this.subscriptionStartLabelText = I18n.get("mco.configure.world.subscription.start");
+        this.timeLeftLabelText = I18n.get("mco.configure.world.subscription.timeleft");
+        this.daysLeftLabelText = I18n.get("mco.configure.world.subscription.recurring.daysleft");
     }
 
     @Override
     public void init() {
         this.getSubscription(this.serverData.id);
-        Realms.narrateNow(
+        NarrationHelper.now(
             this.subscriptionTitle, this.subscriptionStartLabelText, this.startDate, this.timeLeftLabelText, this.daysLeftPresentation(this.daysLeft)
         );
-        this.setKeyboardHandlerSendRepeatsToGui(true);
-        this.buttonsAdd(
-            new RealmsButton(2, this.width() / 2 - 100, RealmsConstants.row(6), getLocalizedString("mco.configure.world.subscription.extend")) {
-                @Override
-                public void onPress() {
+        this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
+        this.addButton(
+            new Button(
+                this.width / 2 - 100,
+                row(6),
+                200,
+                20,
+                I18n.get("mco.configure.world.subscription.extend"),
+                param0 -> {
                     String var0 = "https://aka.ms/ExtendJavaRealms?subscriptionId="
-                        + RealmsSubscriptionInfoScreen.this.serverData.remoteSubscriptionId
+                        + this.serverData.remoteSubscriptionId
                         + "&profileId="
-                        + Realms.getUUID();
-                    Realms.setClipboard(var0);
-                    RealmsUtil.browseTo(var0);
+                        + this.minecraft.getUser().getUuid();
+                    this.minecraft.keyboardHandler.setClipboard(var0);
+                    Util.getPlatform().openUri(var0);
                 }
-            }
+            )
         );
-        this.buttonsAdd(new RealmsButton(0, this.width() / 2 - 100, RealmsConstants.row(12), getLocalizedString("gui.back")) {
-            @Override
-            public void onPress() {
-                Realms.setScreen(RealmsSubscriptionInfoScreen.this.lastScreen);
-            }
-        });
+        this.addButton(new Button(this.width / 2 - 100, row(12), 200, 20, I18n.get("gui.back"), param0 -> this.minecraft.setScreen(this.lastScreen)));
         if (this.serverData.expired) {
-            this.buttonsAdd(
-                new RealmsButton(1, this.width() / 2 - 100, RealmsConstants.row(10), getLocalizedString("mco.configure.world.delete.button")) {
-                    @Override
-                    public void onPress() {
-                        String var0 = RealmsScreen.getLocalizedString("mco.configure.world.delete.question.line1");
-                        String var1 = RealmsScreen.getLocalizedString("mco.configure.world.delete.question.line2");
-                        Realms.setScreen(
-                            new RealmsLongConfirmationScreen(RealmsSubscriptionInfoScreen.this, RealmsLongConfirmationScreen.Type.Warning, var0, var1, true, 1)
-                        );
-                    }
-                }
-            );
+            this.addButton(new Button(this.width / 2 - 100, row(10), 200, 20, I18n.get("mco.configure.world.delete.button"), param0 -> {
+                String var0 = I18n.get("mco.configure.world.delete.question.line1");
+                String var1 = I18n.get("mco.configure.world.delete.question.line2");
+                this.minecraft.setScreen(new RealmsLongConfirmationScreen(this::deleteRealm, RealmsLongConfirmationScreen.Type.Warning, var0, var1, true));
+            }));
         }
 
     }
 
+    private void deleteRealm(boolean param0) {
+        if (param0) {
+            (new Thread("Realms-delete-realm") {
+                    @Override
+                    public void run() {
+                        try {
+                            RealmsClient var0 = RealmsClient.create();
+                            var0.deleteWorld(RealmsSubscriptionInfoScreen.this.serverData.id);
+                        } catch (RealmsServiceException var2) {
+                            RealmsSubscriptionInfoScreen.LOGGER.error("Couldn't delete world");
+                            RealmsSubscriptionInfoScreen.LOGGER.error(var2);
+                        }
+    
+                        RealmsSubscriptionInfoScreen.this.minecraft
+                            .execute(() -> RealmsSubscriptionInfoScreen.this.minecraft.setScreen(RealmsSubscriptionInfoScreen.this.mainScreen));
+                    }
+                })
+                .start();
+        }
+
+        this.minecraft.setScreen(this);
+    }
+
     private void getSubscription(long param0) {
-        RealmsClient var0 = RealmsClient.createRealmsClient();
+        RealmsClient var0 = RealmsClient.create();
 
         try {
             Subscription var1 = var0.subscriptionFor(param0);
@@ -101,36 +112,9 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
             this.type = var1.type;
         } catch (RealmsServiceException var5) {
             LOGGER.error("Couldn't get subscription");
-            Realms.setScreen(new RealmsGenericErrorScreen(var5, this.lastScreen));
-        } catch (IOException var6) {
-            LOGGER.error("Couldn't parse response subscribing");
+            this.minecraft.setScreen(new RealmsGenericErrorScreen(var5, this.lastScreen));
         }
 
-    }
-
-    @Override
-    public void confirmResult(boolean param0, int param1) {
-        if (param1 == 1 && param0) {
-            (new Thread("Realms-delete-realm") {
-                @Override
-                public void run() {
-                    try {
-                        RealmsClient var0 = RealmsClient.createRealmsClient();
-                        var0.deleteWorld(RealmsSubscriptionInfoScreen.this.serverData.id);
-                    } catch (RealmsServiceException var21) {
-                        RealmsSubscriptionInfoScreen.LOGGER.error("Couldn't delete world");
-                        RealmsSubscriptionInfoScreen.LOGGER.error(var21);
-                    } catch (IOException var3) {
-                        RealmsSubscriptionInfoScreen.LOGGER.error("Couldn't delete world");
-                        var3.printStackTrace();
-                    }
-
-                    Realms.setScreen(RealmsSubscriptionInfoScreen.this.mainScreen);
-                }
-            }).start();
-        }
-
-        Realms.setScreen(this);
     }
 
     private String localPresentation(long param0) {
@@ -141,13 +125,13 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
 
     @Override
     public void removed() {
-        this.setKeyboardHandlerSendRepeatsToGui(false);
+        this.minecraft.keyboardHandler.setSendRepeatsToGui(false);
     }
 
     @Override
     public boolean keyPressed(int param0, int param1, int param2) {
         if (param0 == 256) {
-            Realms.setScreen(this.lastScreen);
+            this.minecraft.setScreen(this.lastScreen);
             return true;
         } else {
             return super.keyPressed(param0, param1, param2);
@@ -157,25 +141,25 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
     @Override
     public void render(int param0, int param1, float param2) {
         this.renderBackground();
-        int var0 = this.width() / 2 - 100;
-        this.drawCenteredString(this.subscriptionTitle, this.width() / 2, 17, 16777215);
-        this.drawString(this.subscriptionStartLabelText, var0, RealmsConstants.row(0), 10526880);
-        this.drawString(this.startDate, var0, RealmsConstants.row(1), 16777215);
+        int var0 = this.width / 2 - 100;
+        this.drawCenteredString(this.font, this.subscriptionTitle, this.width / 2, 17, 16777215);
+        this.font.draw(this.subscriptionStartLabelText, (float)var0, (float)row(0), 10526880);
+        this.font.draw(this.startDate, (float)var0, (float)row(1), 16777215);
         if (this.type == Subscription.SubscriptionType.NORMAL) {
-            this.drawString(this.timeLeftLabelText, var0, RealmsConstants.row(3), 10526880);
+            this.font.draw(this.timeLeftLabelText, (float)var0, (float)row(3), 10526880);
         } else if (this.type == Subscription.SubscriptionType.RECURRING) {
-            this.drawString(this.daysLeftLabelText, var0, RealmsConstants.row(3), 10526880);
+            this.font.draw(this.daysLeftLabelText, (float)var0, (float)row(3), 10526880);
         }
 
-        this.drawString(this.daysLeftPresentation(this.daysLeft), var0, RealmsConstants.row(4), 16777215);
+        this.font.draw(this.daysLeftPresentation(this.daysLeft), (float)var0, (float)row(4), 16777215);
         super.render(param0, param1, param2);
     }
 
     private String daysLeftPresentation(int param0) {
         if (param0 == -1 && this.serverData.expired) {
-            return getLocalizedString("mco.configure.world.subscription.expired");
+            return I18n.get("mco.configure.world.subscription.expired");
         } else if (param0 <= 1) {
-            return getLocalizedString("mco.configure.world.subscription.less_than_a_day");
+            return I18n.get("mco.configure.world.subscription.less_than_a_day");
         } else {
             int var0 = param0 / 30;
             int var1 = param0 % 30;
@@ -183,9 +167,9 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
             if (var0 > 0) {
                 var2.append(var0).append(" ");
                 if (var0 == 1) {
-                    var2.append(getLocalizedString("mco.configure.world.subscription.month").toLowerCase(Locale.ROOT));
+                    var2.append(I18n.get("mco.configure.world.subscription.month").toLowerCase(Locale.ROOT));
                 } else {
-                    var2.append(getLocalizedString("mco.configure.world.subscription.months").toLowerCase(Locale.ROOT));
+                    var2.append(I18n.get("mco.configure.world.subscription.months").toLowerCase(Locale.ROOT));
                 }
             }
 
@@ -196,9 +180,9 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
 
                 var2.append(var1).append(" ");
                 if (var1 == 1) {
-                    var2.append(getLocalizedString("mco.configure.world.subscription.day").toLowerCase(Locale.ROOT));
+                    var2.append(I18n.get("mco.configure.world.subscription.day").toLowerCase(Locale.ROOT));
                 } else {
-                    var2.append(getLocalizedString("mco.configure.world.subscription.days").toLowerCase(Locale.ROOT));
+                    var2.append(I18n.get("mco.configure.world.subscription.days").toLowerCase(Locale.ROOT));
                 }
             }
 

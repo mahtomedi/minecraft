@@ -34,7 +34,7 @@ public class StrollThroughVillageGoal extends Goal {
             return false;
         } else {
             ServerLevel var0 = (ServerLevel)this.mob.level;
-            BlockPos var1 = new BlockPos(this.mob);
+            BlockPos var1 = this.mob.blockPosition();
             if (!var0.closeToVillage(var1, 6)) {
                 return false;
             } else {
@@ -55,7 +55,7 @@ public class StrollThroughVillageGoal extends Goal {
         if (this.wantedPos != null) {
             PathNavigation var0 = this.mob.getNavigation();
             if (var0.isDone() && !this.wantedPos.closerThan(this.mob.position(), 10.0)) {
-                Vec3 var1 = new Vec3(this.wantedPos);
+                Vec3 var1 = Vec3.atBottomCenterOf(this.wantedPos);
                 Vec3 var2 = this.mob.position();
                 Vec3 var3 = var2.subtract(var1);
                 var1 = var3.scale(0.4).add(var1);
@@ -74,7 +74,7 @@ public class StrollThroughVillageGoal extends Goal {
         Random var0 = this.mob.getRandom();
         BlockPos var1 = this.mob
             .level
-            .getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, new BlockPos(this.mob).offset(-8 + var0.nextInt(16), 0, -8 + var0.nextInt(16)));
+            .getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, this.mob.blockPosition().offset(-8 + var0.nextInt(16), 0, -8 + var0.nextInt(16)));
         this.mob.getNavigation().moveTo((double)var1.getX(), (double)var1.getY(), (double)var1.getZ(), 1.0);
     }
 }

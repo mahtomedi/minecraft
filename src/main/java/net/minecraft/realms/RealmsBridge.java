@@ -14,13 +14,13 @@ public class RealmsBridge extends RealmsScreen {
 
     public void switchToRealms(Screen param0) {
         this.previousScreen = param0;
-        Realms.setScreen(new RealmsMainScreen(this));
+        Minecraft.getInstance().setScreen(new RealmsMainScreen(this));
     }
 
     @Nullable
-    public RealmsScreenProxy getNotificationScreen(Screen param0) {
+    public RealmsScreen getNotificationScreen(Screen param0) {
         this.previousScreen = param0;
-        return new RealmsNotificationsScreen(this).getProxy();
+        return new RealmsNotificationsScreen();
     }
 
     @Override

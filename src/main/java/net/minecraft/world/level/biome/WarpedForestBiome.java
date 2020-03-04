@@ -2,6 +2,7 @@ package net.minecraft.world.level.biome;
 
 import com.google.common.collect.ImmutableList;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.block.Blocks;
@@ -42,6 +43,9 @@ public class WarpedForestBiome extends Biome {
                                 param0 -> 0.0
                             )
                         )
+                        .ambientLoopSound(SoundEvents.AMBIENT_WARPED_FOREST_LOOP)
+                        .ambientMoodSound(SoundEvents.AMBIENT_WARPED_FOREST_MOOD)
+                        .ambientAdditionsSound(SoundEvents.AMBIENT_WARPED_FOREST_ADDITIONS)
                         .build()
                 )
                 .parent(null)

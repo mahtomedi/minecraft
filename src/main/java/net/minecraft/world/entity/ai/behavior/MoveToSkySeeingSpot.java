@@ -32,18 +32,18 @@ public class MoveToSkySeeingSpot extends Behavior<LivingEntity> {
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel param0, LivingEntity param1) {
-        return !param0.canSeeSky(new BlockPos(param1));
+        return !param0.canSeeSky(param1.blockPosition());
     }
 
     @Nullable
     private Vec3 getOutdoorPosition(ServerLevel param0, LivingEntity param1) {
         Random var0 = param1.getRandom();
-        BlockPos var1 = new BlockPos(param1);
+        BlockPos var1 = param1.blockPosition();
 
         for(int var2 = 0; var2 < 10; ++var2) {
             BlockPos var3 = var1.offset(var0.nextInt(20) - 10, var0.nextInt(6) - 3, var0.nextInt(20) - 10);
             if (hasNoBlocksAbove(param0, param1, var3)) {
-                return new Vec3(var3);
+                return Vec3.atBottomCenterOf(var3);
             }
         }
 

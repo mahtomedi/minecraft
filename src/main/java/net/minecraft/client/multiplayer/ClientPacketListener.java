@@ -179,7 +179,7 @@ import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.network.protocol.game.ServerboundMoveVehiclePacket;
 import net.minecraft.network.protocol.game.ServerboundResourcePackPacket;
 import net.minecraft.realms.DisconnectedRealmsScreen;
-import net.minecraft.realms.RealmsScreenProxy;
+import net.minecraft.realms.RealmsScreen;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -788,9 +788,8 @@ public class ClientPacketListener implements ClientGamePacketListener {
     public void onDisconnect(Component param0) {
         this.minecraft.clearLevel();
         if (this.callbackScreen != null) {
-            if (this.callbackScreen instanceof RealmsScreenProxy) {
-                this.minecraft
-                    .setScreen(new DisconnectedRealmsScreen(((RealmsScreenProxy)this.callbackScreen).getScreen(), "disconnect.lost", param0).getProxy());
+            if (this.callbackScreen instanceof RealmsScreen) {
+                this.minecraft.setScreen(new DisconnectedRealmsScreen(this.callbackScreen, "disconnect.lost", param0));
             } else {
                 this.minecraft.setScreen(new DisconnectedScreen(this.callbackScreen, "disconnect.lost", param0));
             }

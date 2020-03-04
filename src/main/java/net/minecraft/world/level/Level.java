@@ -516,21 +516,20 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         int var3 = Mth.ceil(param0.maxY);
         int var4 = Mth.floor(param0.minZ);
         int var5 = Mth.ceil(param0.maxZ);
+        BlockPos.MutableBlockPos var6 = new BlockPos.MutableBlockPos();
 
-        try (BlockPos.PooledMutableBlockPos var6 = BlockPos.PooledMutableBlockPos.acquire()) {
-            for(int var7 = var0; var7 < var1; ++var7) {
-                for(int var8 = var2; var8 < var3; ++var8) {
-                    for(int var9 = var4; var9 < var5; ++var9) {
-                        BlockState var10 = this.getBlockState(var6.set(var7, var8, var9));
-                        if (!var10.isAir()) {
-                            return true;
-                        }
+        for(int var7 = var0; var7 < var1; ++var7) {
+            for(int var8 = var2; var8 < var3; ++var8) {
+                for(int var9 = var4; var9 < var5; ++var9) {
+                    BlockState var10 = this.getBlockState(var6.set(var7, var8, var9));
+                    if (!var10.isAir()) {
+                        return true;
                     }
                 }
             }
-
-            return false;
         }
+
+        return false;
     }
 
     public boolean containsFireBlock(AABB param0) {
@@ -541,23 +540,21 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         int var4 = Mth.floor(param0.minZ);
         int var5 = Mth.ceil(param0.maxZ);
         if (this.hasChunksAt(var0, var2, var4, var1, var3, var5)) {
-            try (BlockPos.PooledMutableBlockPos var6 = BlockPos.PooledMutableBlockPos.acquire()) {
-                for(int var7 = var0; var7 < var1; ++var7) {
-                    for(int var8 = var2; var8 < var3; ++var8) {
-                        for(int var9 = var4; var9 < var5; ++var9) {
-                            BlockState var10 = this.getBlockState(var6.set(var7, var8, var9));
-                            if (var10.is(BlockTags.FIRE) || var10.getBlock() == Blocks.LAVA) {
-                                return true;
-                            }
+            BlockPos.MutableBlockPos var6 = new BlockPos.MutableBlockPos();
+
+            for(int var7 = var0; var7 < var1; ++var7) {
+                for(int var8 = var2; var8 < var3; ++var8) {
+                    for(int var9 = var4; var9 < var5; ++var9) {
+                        BlockState var10 = this.getBlockState(var6.set(var7, var8, var9));
+                        if (var10.is(BlockTags.FIRE) || var10.getBlock() == Blocks.LAVA) {
+                            return true;
                         }
                     }
                 }
-
-                return false;
             }
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     @Nullable
@@ -570,23 +567,21 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         int var4 = Mth.floor(param0.minZ);
         int var5 = Mth.ceil(param0.maxZ);
         if (this.hasChunksAt(var0, var2, var4, var1, var3, var5)) {
-            try (BlockPos.PooledMutableBlockPos var6 = BlockPos.PooledMutableBlockPos.acquire()) {
-                for(int var7 = var0; var7 < var1; ++var7) {
-                    for(int var8 = var2; var8 < var3; ++var8) {
-                        for(int var9 = var4; var9 < var5; ++var9) {
-                            BlockState var10 = this.getBlockState(var6.set(var7, var8, var9));
-                            if (var10.getBlock() == param1) {
-                                return var10;
-                            }
+            BlockPos.MutableBlockPos var6 = new BlockPos.MutableBlockPos();
+
+            for(int var7 = var0; var7 < var1; ++var7) {
+                for(int var8 = var2; var8 < var3; ++var8) {
+                    for(int var9 = var4; var9 < var5; ++var9) {
+                        BlockState var10 = this.getBlockState(var6.set(var7, var8, var9));
+                        if (var10.getBlock() == param1) {
+                            return var10;
                         }
                     }
                 }
-
-                return null;
             }
-        } else {
-            return null;
         }
+
+        return null;
     }
 
     public boolean containsMaterial(AABB param0, Material param1) {
@@ -628,17 +623,6 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         var0.explode();
         var0.finalizeExplosion(true);
         return var0;
-    }
-
-    public boolean extinguishFire(@Nullable Player param0, BlockPos param1, Direction param2) {
-        param1 = param1.relative(param2);
-        if (this.getBlockState(param1).is(BlockTags.FIRE)) {
-            this.levelEvent(param0, 1009, param1, 0);
-            this.removeBlock(param1, false);
-            return true;
-        } else {
-            return false;
-        }
     }
 
     @OnlyIn(Dist.CLIENT)

@@ -15,6 +15,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -27,6 +28,7 @@ import net.minecraft.world.level.block.DiodeBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.Validate;
@@ -38,6 +40,7 @@ public class ItemFrame extends HangingEntity {
     private static final EntityDataAccessor<ItemStack> DATA_ITEM = SynchedEntityData.defineId(ItemFrame.class, EntityDataSerializers.ITEM_STACK);
     private static final EntityDataAccessor<Integer> DATA_ROTATION = SynchedEntityData.defineId(ItemFrame.class, EntityDataSerializers.INT);
     private float dropChance = 1.0F;
+    private boolean fixed;
 
     public ItemFrame(EntityType<? extends ItemFrame> param0, Level param1) {
         super(param0, param1);
@@ -108,7 +111,9 @@ public class ItemFrame extends HangingEntity {
 
     @Override
     public boolean survives() {
-        if (!this.level.noCollision(this)) {
+        if (this.fixed) {
+            return true;
+        } else if (!this.level.noCollision(this)) {
             return false;
         } else {
             BlockState var0 = this.level.getBlockState(this.pos.relative(this.direction.getOpposite()));
@@ -116,6 +121,22 @@ public class ItemFrame extends HangingEntity {
                 ? this.level.getEntities(this, this.getBoundingBox(), HANGING_ENTITY).isEmpty()
                 : false;
         }
+    }
+
+    @Override
+    public void move(MoverType param0, Vec3 param1) {
+        if (!this.fixed) {
+            super.move(param0, param1);
+        }
+
+    }
+
+    @Override
+    public void push(double param0, double param1, double param2) {
+        if (!this.fixed) {
+            super.push(param0, param1, param2);
+        }
+
     }
 
     @Override
@@ -131,7 +152,9 @@ public class ItemFrame extends HangingEntity {
 
     @Override
     public boolean hurt(DamageSource param0, float param1) {
-        if (this.isInvulnerableTo(param0)) {
+        if (this.fixed) {
+            return false;
+        } else if (this.isInvulnerableTo(param0)) {
             return false;
         } else if (!param0.isExplosion() && !this.getItem().isEmpty()) {
             if (!this.level.isClientSide) {
@@ -289,6 +312,8 @@ public class ItemFrame extends HangingEntity {
         }
 
         param0.putByte("Facing", (byte)this.direction.get3DDataValue());
+        param0.putBoolean("Invisible", this.isInvisible());
+        param0.putBoolean("Fixed", this.fixed);
     }
 
     @Override
@@ -314,6 +339,8 @@ public class ItemFrame extends HangingEntity {
         }
 
         this.setDirection(Direction.from3DDataValue(param0.getByte("Facing")));
+        this.setInvisible(param0.getBoolean("Invisible"));
+        this.fixed = param0.getBoolean("Fixed");
     }
 
     @Override
@@ -321,22 +348,20 @@ public class ItemFrame extends HangingEntity {
         ItemStack var0 = param0.getItemInHand(param1);
         boolean var1 = !this.getItem().isEmpty();
         boolean var2 = !var0.isEmpty();
-        if (!this.level.isClientSide) {
-            if (!var1) {
-                if (var2 && !this.removed) {
-                    this.setItem(var0);
-                    if (!param0.abilities.instabuild) {
-                        var0.shrink(1);
-                    }
-                }
-            } else {
+        if (this.level.isClientSide) {
+            return var1 || var2;
+        } else {
+            if (this.fixed || var1) {
                 this.playSound(SoundEvents.ITEM_FRAME_ROTATE_ITEM, 1.0F, 1.0F);
                 this.setRotation(this.getRotation() + 1);
+            } else if (var2 && !this.removed) {
+                this.setItem(var0);
+                if (!param0.abilities.instabuild) {
+                    var0.shrink(1);
+                }
             }
 
             return true;
-        } else {
-            return var1 || var2;
         }
     }
 

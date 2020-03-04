@@ -121,21 +121,20 @@ public interface LevelReader extends BlockAndTintGetter, CollisionGetter, BiomeM
         int var3 = Mth.ceil(param0.maxY);
         int var4 = Mth.floor(param0.minZ);
         int var5 = Mth.ceil(param0.maxZ);
+        BlockPos.MutableBlockPos var6 = new BlockPos.MutableBlockPos();
 
-        try (BlockPos.PooledMutableBlockPos var6 = BlockPos.PooledMutableBlockPos.acquire()) {
-            for(int var7 = var0; var7 < var1; ++var7) {
-                for(int var8 = var2; var8 < var3; ++var8) {
-                    for(int var9 = var4; var9 < var5; ++var9) {
-                        BlockState var10 = this.getBlockState(var6.set(var7, var8, var9));
-                        if (!var10.getFluidState().isEmpty()) {
-                            return true;
-                        }
+        for(int var7 = var0; var7 < var1; ++var7) {
+            for(int var8 = var2; var8 < var3; ++var8) {
+                for(int var9 = var4; var9 < var5; ++var9) {
+                    BlockState var10 = this.getBlockState(var6.set(var7, var8, var9));
+                    if (!var10.getFluidState().isEmpty()) {
+                        return true;
                     }
                 }
             }
-
-            return false;
         }
+
+        return false;
     }
 
     default int getMaxLocalRawBrightness(BlockPos param0) {

@@ -81,6 +81,7 @@ public interface ContainerEventHandler extends GuiEventListener {
 
     default void setInitialFocus(@Nullable GuiEventListener param0) {
         this.setFocused(param0);
+        param0.changeFocus(true);
     }
 
     default void magicalSpecialHackyFocus(@Nullable GuiEventListener param0) {

@@ -1,7 +1,6 @@
 package net.minecraft.world.entity.boss.enderdragon.phases;
 
 import javax.annotation.Nullable;
-import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
@@ -68,7 +67,7 @@ public class DragonStrafePlayerPhase extends AbstractDragonPhaseInstance {
                         double var17 = this.attackTarget.getX() - var14;
                         double var18 = this.attackTarget.getY(0.5) - var15;
                         double var19 = this.attackTarget.getZ() - var16;
-                        this.dragon.level.levelEvent(null, 1017, new BlockPos(this.dragon), 0);
+                        this.dragon.level.levelEvent(null, 1017, this.dragon.blockPosition(), 0);
                         DragonFireball var20 = new DragonFireball(this.dragon.level, this.dragon, var17, var18, var19);
                         var20.moveTo(var14, var15, var16, 0.0F, 0.0F);
                         this.dragon.level.addFreshEntity(var20);

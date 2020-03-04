@@ -12,8 +12,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.api.distmarker.Dist;
@@ -57,18 +55,16 @@ public class Snowball extends ThrowableItemProjectile {
     }
 
     @Override
-    protected void onHit(HitResult param0) {
-        HitResult.Type var0 = param0.getType();
-        if (var0 == HitResult.Type.ENTITY) {
-            Entity var1 = ((EntityHitResult)param0).getEntity();
-            int var2 = var1 instanceof Blaze ? 3 : 0;
-            var1.hurt(DamageSource.thrown(this, this.getOwner()), (float)var2);
-        } else if (var0 == HitResult.Type.BLOCK) {
-            BlockHitResult var3 = (BlockHitResult)param0;
-            BlockState var4 = this.level.getBlockState(var3.getBlockPos());
-            var4.onProjectileHit(this.level, var4, var3, this);
-        }
+    protected void onHitEntity(EntityHitResult param0) {
+        super.onHitEntity(param0);
+        Entity var0 = param0.getEntity();
+        int var1 = var0 instanceof Blaze ? 3 : 0;
+        var0.hurt(DamageSource.thrown(this, this.getOwner()), (float)var1);
+    }
 
+    @Override
+    protected void onHit(HitResult param0) {
+        super.onHit(param0);
         if (!this.level.isClientSide) {
             this.level.broadcastEntityEvent(this, (byte)3);
             this.remove();

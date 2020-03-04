@@ -71,13 +71,6 @@ public class MultiPlayerGameMode {
         this.connection = param1;
     }
 
-    public static void creativeDestroyBlock(Minecraft param0, MultiPlayerGameMode param1, BlockPos param2, Direction param3) {
-        if (!param0.level.extinguishFire(param0.player, param2, param3)) {
-            param1.destroyBlock(param2);
-        }
-
-    }
-
     public void adjustPlayer(Player param0) {
         this.localPlayerMode.updatePlayerAbilities(param0.abilities);
     }
@@ -130,7 +123,7 @@ public class MultiPlayerGameMode {
                 BlockState var0 = this.minecraft.level.getBlockState(param0);
                 this.minecraft.getTutorial().onDestroyBlock(this.minecraft.level, param0, var0, 1.0F);
                 this.sendBlockAction(ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK, param0, param1);
-                creativeDestroyBlock(this.minecraft, this, param0, param1);
+                this.destroyBlock(param0);
                 this.destroyDelay = 5;
             } else if (!this.isDestroying || !this.sameDestroyTarget(param0)) {
                 if (this.isDestroying) {
@@ -184,7 +177,7 @@ public class MultiPlayerGameMode {
             BlockState var0 = this.minecraft.level.getBlockState(param0);
             this.minecraft.getTutorial().onDestroyBlock(this.minecraft.level, param0, var0, 1.0F);
             this.sendBlockAction(ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK, param0, param1);
-            creativeDestroyBlock(this.minecraft, this, param0, param1);
+            this.destroyBlock(param0);
             return true;
         } else if (this.sameDestroyTarget(param0)) {
             BlockState var1 = this.minecraft.level.getBlockState(param0);

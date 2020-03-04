@@ -2,13 +2,13 @@ package net.minecraft.world.entity.monster.piglin;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.util.Pair;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.SerializableBoolean;
 import net.minecraft.core.SerializableUUID;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.IntRange;
@@ -20,8 +20,8 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.Brain;
-import net.minecraft.world.entity.ai.behavior.AdmireHeldItem;
 import net.minecraft.world.entity.ai.behavior.BackUpIfTooClose;
+import net.minecraft.world.entity.ai.behavior.Behavior;
 import net.minecraft.world.entity.ai.behavior.BehaviorUtils;
 import net.minecraft.world.entity.ai.behavior.CopyMemoryWithExpiry;
 import net.minecraft.world.entity.ai.behavior.CrossbowAttack;
@@ -37,7 +37,6 @@ import net.minecraft.world.entity.ai.behavior.MeleeAttack;
 import net.minecraft.world.entity.ai.behavior.Mount;
 import net.minecraft.world.entity.ai.behavior.MoveToTargetSink;
 import net.minecraft.world.entity.ai.behavior.RandomStroll;
-import net.minecraft.world.entity.ai.behavior.RememberIfHoglinWasKilled;
 import net.minecraft.world.entity.ai.behavior.RunIf;
 import net.minecraft.world.entity.ai.behavior.RunOne;
 import net.minecraft.world.entity.ai.behavior.RunSometimes;
@@ -46,14 +45,10 @@ import net.minecraft.world.entity.ai.behavior.SetLookAndInteract;
 import net.minecraft.world.entity.ai.behavior.SetWalkTargetAwayFrom;
 import net.minecraft.world.entity.ai.behavior.SetWalkTargetFromAttackTargetIfTargetOutOfReach;
 import net.minecraft.world.entity.ai.behavior.SetWalkTargetFromLookTarget;
-import net.minecraft.world.entity.ai.behavior.StartAdmiringItemIfSeen;
 import net.minecraft.world.entity.ai.behavior.StartAttacking;
 import net.minecraft.world.entity.ai.behavior.StartCelebratingIfTargetDead;
-import net.minecraft.world.entity.ai.behavior.StartHuntingHoglin;
-import net.minecraft.world.entity.ai.behavior.StopAdmiringIfItemTooFarAway;
 import net.minecraft.world.entity.ai.behavior.StopAttackingIfTargetInvalid;
 import net.minecraft.world.entity.ai.behavior.StopBeingAngryIfTargetDead;
-import net.minecraft.world.entity.ai.behavior.StopHoldingItemIfNoLongerAdmiring;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.util.RandomPos;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -67,7 +62,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TieredItem;
 import net.minecraft.world.item.Tiers;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -76,6 +70,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 
 public class PiglinAi {
+    private static final IntRange RANDOM_STROLL_INTERVAL_WHEN_ADMIRING = IntRange.of(10, 20);
     private static final IntRange TIME_BETWEEN_HUNTS = TimeUtil.rangeOfSeconds(30, 120);
     private static final IntRange RIDE_START_INTERVAL = TimeUtil.rangeOfSeconds(10, 40);
     private static final IntRange RIDE_DURATION = TimeUtil.rangeOfSeconds(10, 30);
@@ -104,17 +99,16 @@ public class PiglinAi {
         initFightActivity(param0, var0);
         initCelebrateActivity(param0, var0);
         initRetreatActivity(param0, var0);
-        initRidePiglinActivity(param0, var0);
+        initRideHoglinActivity(param0, var0);
         var0.setCoreActivities(ImmutableSet.of(Activity.CORE));
         var0.setDefaultActivity(Activity.IDLE);
         var0.useDefaultActivity();
-        initMemories(param0.level, var0);
         return var0;
     }
 
-    private static void initMemories(Level param0, Brain<Piglin> param1) {
-        int var0 = TIME_BETWEEN_HUNTS.randomValue(param0.random);
-        param1.setMemoryWithExpiry(MemoryModuleType.HUNTED_RECENTLY, true, param0.getGameTime(), (long)var0);
+    protected static void initMemories(Piglin param0) {
+        int var0 = TIME_BETWEEN_HUNTS.randomValue(param0.level.random);
+        param0.getBrain().setMemoryWithExpiry(MemoryModuleType.HUNTED_RECENTLY, SerializableBoolean.of(true), (long)var0);
     }
 
     private static void initCoreActivity(Piglin param0, Brain<Piglin> param1) {
@@ -143,7 +137,7 @@ public class PiglinAi {
                 new StartAttacking<>(Piglin::isAdult, PiglinAi::findNearestValidAttackTarget),
                 new StartHuntingHoglin(),
                 avoidZombifiedPiglin(var0),
-                avoidSoulFire(var0),
+                avoidRepellent(var0),
                 babySometimesRideBabyHoglin(),
                 createIdleLookBehaviors(),
                 createIdleMovementBehaviors(var0),
@@ -176,7 +170,7 @@ public class PiglinAi {
             10,
             ImmutableList.of(
                 avoidZombifiedPiglin(var0),
-                avoidSoulFire(var0),
+                avoidRepellent(var0),
                 new SetEntityLookTarget(PiglinAi::isPlayerHoldingLovedItem, 14.0F),
                 new StartAttacking<Piglin>(Piglin::isAdult, PiglinAi::findNearestValidAttackTarget),
                 new GoToCelebrateLocation(2),
@@ -198,7 +192,9 @@ public class PiglinAi {
             Activity.ADMIRE_ITEM,
             10,
             ImmutableList.of(
-                new GoToWantedItem<>(PiglinAi::isNotHoldingLovedItemInOffHand, 9, true), new AdmireHeldItem(var0 * 0.5F), new StopAdmiringIfItemTooFarAway(9)
+                new GoToWantedItem<>(PiglinAi::isNotHoldingLovedItemInOffHand, 9, true),
+                new RunIf(PiglinAi::isHoldingItemInOffHand, admireHeldItem(var0)),
+                new StopAdmiringIfItemTooFarAway(9)
             ),
             MemoryModuleType.ADMIRING_ITEM
         );
@@ -219,14 +215,14 @@ public class PiglinAi {
         );
     }
 
-    private static void initRidePiglinActivity(Piglin param0, Brain<Piglin> param1) {
+    private static void initRideHoglinActivity(Piglin param0, Brain<Piglin> param1) {
         param1.addActivityAndRemoveMemoryWhenStopped(
             Activity.RIDE,
             10,
             ImmutableList.of(
                 new Mount<>(),
                 new SetEntityLookTarget(PiglinAi::isPlayerHoldingLovedItem, 8.0F),
-                new RunIf(Piglin::isRiding, createIdleLookBehaviors()),
+                new RunIf(Entity::isPassenger, createIdleLookBehaviors()),
                 new DismountOrSkipMounting(8, PiglinAi::wantsToStopRiding)
             ),
             MemoryModuleType.RIDE_TARGET
@@ -255,8 +251,12 @@ public class PiglinAi {
         );
     }
 
-    private static SetWalkTargetAwayFrom<BlockPos> avoidSoulFire(float param0) {
-        return SetWalkTargetAwayFrom.pos(MemoryModuleType.NEAREST_SOUL_FIRE, param0 * 1.5F, 8, false);
+    private static Behavior<Piglin> admireHeldItem(float param0) {
+        return new RunSometimes<>(new RandomStroll(param0 * 0.5F, 1, 0), RANDOM_STROLL_INTERVAL_WHEN_ADMIRING);
+    }
+
+    private static SetWalkTargetAwayFrom<BlockPos> avoidRepellent(float param0) {
+        return SetWalkTargetAwayFrom.pos(MemoryModuleType.NEAREST_REPELLENT, param0 * 1.5F, 8, false);
     }
 
     private static SetWalkTargetAwayFrom<?> avoidZombifiedPiglin(float param0) {
@@ -279,7 +279,7 @@ public class PiglinAi {
             param0.stopRiding();
         }
 
-        if (param0.isRiding() && seesPlayerHoldingWantedItem(param0)) {
+        if (param0.isPassenger() && seesPlayerHoldingWantedItem(param0)) {
             param0.stopRiding();
             param0.getBrain().eraseMemory(MemoryModuleType.RIDE_TARGET);
         }
@@ -292,7 +292,7 @@ public class PiglinAi {
         ItemStack var0 = removeOneItemFromItemEntity(param1);
         Item var1 = var0.getItem();
         if (isLovedItem(var1)) {
-            if (!param0.getOffhandItem().isEmpty()) {
+            if (isHoldingItemInOffHand(param0)) {
                 param0.spawnAtLocation(param0.getItemInHand(InteractionHand.OFF_HAND));
             }
 
@@ -320,7 +320,7 @@ public class PiglinAi {
         return var1;
     }
 
-    public static void stopHoldingOffHandItem(Piglin param0, boolean param1) {
+    protected static void stopHoldingOffHandItem(Piglin param0, boolean param1) {
         ItemStack var0 = param0.getItemInHand(InteractionHand.OFF_HAND);
         param0.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
         if (param0.isAdult()) {
@@ -394,7 +394,7 @@ public class PiglinAi {
         Item var0 = param1.getItem();
         if (var0 == Items.GOLD_NUGGET) {
             return true;
-        } else if (wasHitByPlayer(param0) && param0.getBrain().hasMemoryValue(MemoryModuleType.ATTACK_TARGET)) {
+        } else if (isAdmiringDisabled(param0) && param0.getBrain().hasMemoryValue(MemoryModuleType.ATTACK_TARGET)) {
             return false;
         } else if (isFood(var0)) {
             return !hasEatenRecently(param0);
@@ -403,7 +403,7 @@ public class PiglinAi {
         }
     }
 
-    public static boolean isLovedItem(Item param0) {
+    protected static boolean isLovedItem(Item param0) {
         return LOVED_ITEMS_IN_ADDITION_TO_GOLD_TIER_AND_GOLD_MATERIAL.contains(param0)
             || param0 instanceof TieredItem && ((TieredItem)param0).getTier() == Tiers.GOLD
             || param0 instanceof ArmorItem && ((ArmorItem)param0).getMaterial() == ArmorMaterials.GOLD;
@@ -452,9 +452,9 @@ public class PiglinAi {
     public static boolean mobInteract(Piglin param0, Player param1, InteractionHand param2) {
         ItemStack var0 = param1.getItemInHand(param2);
         Item var1 = var0.getItem();
-        if (!isAdmiringItem(param0) && param0.isAdult() && isBarterCurrency(var1) && !wasHitByPlayer(param0)) {
-            var0.shrink(1);
-            param0.holdInOffHand(new ItemStack(var1, 1));
+        if (!isAdmiringItem(param0) && param0.isAdult() && isBarterCurrency(var1) && !isAdmiringDisabled(param0)) {
+            ItemStack var2 = var0.split(1);
+            param0.holdInOffHand(var2);
             admireGoldItem(param0);
             return true;
         } else {
@@ -464,7 +464,7 @@ public class PiglinAi {
 
     protected static void wasHurtBy(Piglin param0, LivingEntity param1) {
         if (!(param1 instanceof Piglin)) {
-            if (!param0.getOffhandItem().isEmpty()) {
+            if (isHoldingItemInOffHand(param0)) {
                 stopHoldingOffHandItem(param0, false);
             }
 
@@ -472,11 +472,15 @@ public class PiglinAi {
             var0.eraseMemory(MemoryModuleType.CELEBRATE_LOCATION);
             var0.eraseMemory(MemoryModuleType.ADMIRING_ITEM);
             if (param1 instanceof Player) {
-                var0.setMemoryWithExpiry(MemoryModuleType.WAS_HIT_BY_PLAYER, (Player)param1, param0.level.getGameTime(), 400L);
+                var0.setMemoryWithExpiry(MemoryModuleType.ADMIRING_DISABLED, SerializableBoolean.of(true), 400L);
             }
 
             if (param0.isBaby()) {
-                var0.setMemoryWithExpiry(MemoryModuleType.AVOID_TARGET, param1, param0.level.getGameTime(), 100L);
+                var0.setMemoryWithExpiry(MemoryModuleType.AVOID_TARGET, param1, 100L);
+                if (isAttackAllowed(param1)) {
+                    broadcastAngerTarget(param0, param1);
+                }
+
             } else if (param1.getType() == EntityType.HOGLIN && hoglinsOutnumberPiglins(param0)) {
                 setAvoidTargetAndDontHuntForAWhile(param0, param1);
                 broadcastRetreat(param0, param1);
@@ -509,7 +513,7 @@ public class PiglinAi {
                 param0.playCelebrateSound();
             } else if (seesPlayerHoldingLovedItem(param0)) {
                 param0.playJealousSound();
-            } else if (seesZombifiedPiglin(param0) || seesSoulFire(param0)) {
+            } else if (seesZombifiedPiglin(param0) || seesRepellent(param0)) {
                 param0.playRetreatSound();
             }
 
@@ -523,15 +527,13 @@ public class PiglinAi {
 
     }
 
-    public static boolean hasAnyoneNearbyHuntedRecently(Piglin param0) {
+    protected static boolean hasAnyoneNearbyHuntedRecently(Piglin param0) {
         return param0.getBrain().hasMemoryValue(MemoryModuleType.HUNTED_RECENTLY)
             || getVisibleAdultPiglins(param0).stream().anyMatch(param0x -> param0x.getBrain().hasMemoryValue(MemoryModuleType.HUNTED_RECENTLY));
     }
 
     private static List<Piglin> getVisibleAdultPiglins(Piglin param0) {
-        return (List<Piglin>)(param0.getBrain().hasMemoryValue(MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLINS)
-            ? param0.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLINS).get()
-            : Lists.newArrayList());
+        return param0.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLINS).orElse(ImmutableList.of());
     }
 
     public static boolean isWearingGold(LivingEntity param0) {
@@ -557,17 +559,17 @@ public class PiglinAi {
         );
     }
 
-    public static void broadcastAngerTarget(Piglin param0, LivingEntity param1) {
+    protected static void broadcastAngerTarget(Piglin param0, LivingEntity param1) {
         getVisibleAdultPiglins(param0).forEach(param1x -> setAngerTargetIfCloserThanCurrent(param1x, param1));
     }
 
-    public static void broadcastDontKillAnyMoreHoglinsForAWhile(Piglin param0) {
-        getVisibleAdultPiglins(param0).forEach(param0x -> dontKillAnyMoreHoglinsForAWhile(param0x));
+    protected static void broadcastDontKillAnyMoreHoglinsForAWhile(Piglin param0) {
+        getVisibleAdultPiglins(param0).forEach(PiglinAi::dontKillAnyMoreHoglinsForAWhile);
     }
 
-    public static void setAngerTarget(Piglin param0, LivingEntity param1) {
+    protected static void setAngerTarget(Piglin param0, LivingEntity param1) {
         param0.getBrain().eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
-        param0.getBrain().setMemoryWithExpiry(MemoryModuleType.ANGRY_AT, new SerializableUUID(param1.getUUID()), param0.level.getGameTime(), 600L);
+        param0.getBrain().setMemoryWithExpiry(MemoryModuleType.ANGRY_AT, new SerializableUUID(param1.getUUID()), 600L);
         if (param1.getType() == EntityType.HOGLIN) {
             dontKillAnyMoreHoglinsForAWhile(param0);
         }
@@ -577,7 +579,9 @@ public class PiglinAi {
     private static void setAngerTargetIfCloserThanCurrent(Piglin param0, LivingEntity param1) {
         Optional<LivingEntity> var0 = getAngerTarget(param0);
         LivingEntity var1 = BehaviorUtils.getNearestTarget(param0, var0, param1);
-        setAngerTarget(param0, var1);
+        if (!var0.isPresent() || var0.get() != var1) {
+            setAngerTarget(param0, var1);
+        }
     }
 
     private static Optional<LivingEntity> getAngerTarget(Piglin param0) {
@@ -612,14 +616,13 @@ public class PiglinAi {
     private static void setAvoidTargetAndDontHuntForAWhile(Piglin param0, LivingEntity param1) {
         param0.getBrain().eraseMemory(MemoryModuleType.ANGRY_AT);
         param0.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);
-        param0.getBrain()
-            .setMemoryWithExpiry(MemoryModuleType.AVOID_TARGET, param1, param0.level.getGameTime(), (long)RETREAT_DURATION.randomValue(param0.level.random));
+        param0.getBrain().setMemoryWithExpiry(MemoryModuleType.AVOID_TARGET, param1, (long)RETREAT_DURATION.randomValue(param0.level.random));
         dontKillAnyMoreHoglinsForAWhile(param0);
     }
 
-    public static void dontKillAnyMoreHoglinsForAWhile(Piglin param0) {
-        param0.getBrain()
-            .setMemoryWithExpiry(MemoryModuleType.HUNTED_RECENTLY, true, param0.level.getGameTime(), (long)TIME_BETWEEN_HUNTS.randomValue(param0.level.random));
+    protected static void dontKillAnyMoreHoglinsForAWhile(Piglin param0x) {
+        param0x.getBrain()
+            .setMemoryWithExpiry(MemoryModuleType.HUNTED_RECENTLY, SerializableBoolean.of(true), (long)TIME_BETWEEN_HUNTS.randomValue(param0x.level.random));
     }
 
     private static boolean seesPlayerHoldingWantedItem(Piglin param0) {
@@ -627,7 +630,7 @@ public class PiglinAi {
     }
 
     private static void eat(Piglin param0) {
-        param0.getBrain().setMemoryWithExpiry(MemoryModuleType.ATE_RECENTLY, true, param0.level.getGameTime(), 200L);
+        param0.getBrain().setMemoryWithExpiry(MemoryModuleType.ATE_RECENTLY, true, 200L);
     }
 
     private static Vec3 getRandomNearbyPos(Piglin param0) {
@@ -639,7 +642,7 @@ public class PiglinAi {
         return param0.getBrain().hasMemoryValue(MemoryModuleType.ATE_RECENTLY);
     }
 
-    static boolean isIdle(Piglin param0x) {
+    protected static boolean isIdle(Piglin param0x) {
         return param0x.getBrain().isActive(Activity.IDLE);
     }
 
@@ -648,7 +651,7 @@ public class PiglinAi {
     }
 
     private static void admireGoldItem(LivingEntity param0) {
-        param0.getBrain().setMemoryWithExpiry(MemoryModuleType.ADMIRING_ITEM, true, param0.level.getGameTime(), 120L);
+        param0.getBrain().setMemoryWithExpiry(MemoryModuleType.ADMIRING_ITEM, SerializableBoolean.of(true), 120L);
     }
 
     private static boolean isAdmiringItem(Piglin param0) {
@@ -667,8 +670,8 @@ public class PiglinAi {
         return EntitySelector.ATTACK_ALLOWED.test(param0);
     }
 
-    private static boolean seesSoulFire(Piglin param0) {
-        return param0.getBrain().hasMemoryValue(MemoryModuleType.NEAREST_SOUL_FIRE);
+    private static boolean seesRepellent(Piglin param0) {
+        return param0.getBrain().hasMemoryValue(MemoryModuleType.NEAREST_REPELLENT);
     }
 
     private static boolean seesZombifiedPiglin(Piglin param0) {
@@ -687,12 +690,16 @@ public class PiglinAi {
         return param0x.getType() == EntityType.PLAYER && param0x.isHolding(PiglinAi::isLovedItem);
     }
 
-    private static boolean wasHitByPlayer(Piglin param0) {
-        return param0.getBrain().hasMemoryValue(MemoryModuleType.WAS_HIT_BY_PLAYER);
+    private static boolean isAdmiringDisabled(Piglin param0) {
+        return param0.getBrain().hasMemoryValue(MemoryModuleType.ADMIRING_DISABLED);
     }
 
     private static boolean wasHurtRecently(LivingEntity param0) {
         return param0.getBrain().hasMemoryValue(MemoryModuleType.HURT_BY);
+    }
+
+    private static boolean isHoldingItemInOffHand(Piglin param0x) {
+        return !param0x.getOffhandItem().isEmpty();
     }
 
     private static boolean isNotHoldingLovedItemInOffHand(Piglin param0x) {

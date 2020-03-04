@@ -161,7 +161,15 @@ public abstract class LivingEntityRenderer<T extends LivingEntity, M extends Ent
         }
     }
 
+    protected boolean isShaking(T param0) {
+        return false;
+    }
+
     protected void setupRotations(T param0, PoseStack param1, float param2, float param3, float param4) {
+        if (this.isShaking(param0)) {
+            param3 += (float)(Math.cos((double)param0.tickCount * 3.25) * Math.PI * 0.4F);
+        }
+
         Pose var0 = param0.getPose();
         if (var0 != Pose.SLEEPING) {
             param1.mulPose(Vector3f.YP.rotationDegrees(180.0F - param3));

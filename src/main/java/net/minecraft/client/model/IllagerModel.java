@@ -19,7 +19,6 @@ public class IllagerModel<T extends AbstractIllager> extends ListModel<T> implem
     private final ModelPart rightLeg;
     private final ModelPart rightArm;
     private final ModelPart leftArm;
-    private float itemUseTicks;
 
     public IllagerModel(float param0, float param1, int param2, int param3) {
         this.head = new ModelPart(this).setTexSize(param2, param3);
@@ -142,17 +141,9 @@ public class IllagerModel<T extends AbstractIllager> extends ListModel<T> implem
             this.leftArm.yRot = this.head.yRot - 0.4F;
             this.leftArm.zRot = (float) (Math.PI / 2);
         } else if (var0 == AbstractIllager.IllagerArmPose.CROSSBOW_HOLD) {
-            this.rightArm.yRot = -0.3F + this.head.yRot;
-            this.leftArm.yRot = 0.6F + this.head.yRot;
-            this.rightArm.xRot = (float) (-Math.PI / 2) + this.head.xRot + 0.1F;
-            this.leftArm.xRot = -1.5F + this.head.xRot;
+            AnimationUtils.animateCrossbowHold(this.rightArm, this.leftArm, this.head, true);
         } else if (var0 == AbstractIllager.IllagerArmPose.CROSSBOW_CHARGE) {
-            this.rightArm.yRot = -0.8F;
-            this.rightArm.xRot = -0.97079635F;
-            this.leftArm.xRot = -0.97079635F;
-            float var3 = Mth.clamp(this.itemUseTicks, 0.0F, 25.0F);
-            this.leftArm.yRot = Mth.lerp(var3 / 25.0F, 0.4F, 0.85F);
-            this.leftArm.xRot = Mth.lerp(var3 / 25.0F, this.leftArm.xRot, (float) (-Math.PI / 2));
+            AnimationUtils.animateCrossbowCharge(this.rightArm, this.leftArm, param0, true);
         } else if (var0 == AbstractIllager.IllagerArmPose.CELEBRATING) {
             this.rightArm.z = 0.0F;
             this.rightArm.x = -5.0F;
@@ -166,15 +157,10 @@ public class IllagerModel<T extends AbstractIllager> extends ListModel<T> implem
             this.leftArm.yRot = 0.0F;
         }
 
-        boolean var4 = var0 == AbstractIllager.IllagerArmPose.CROSSED;
-        this.arms.visible = var4;
-        this.leftArm.visible = !var4;
-        this.rightArm.visible = !var4;
-    }
-
-    public void prepareMobModel(T param0, float param1, float param2, float param3) {
-        this.itemUseTicks = (float)param0.getTicksUsingItem();
-        super.prepareMobModel(param0, param1, param2, param3);
+        boolean var3 = var0 == AbstractIllager.IllagerArmPose.CROSSED;
+        this.arms.visible = var3;
+        this.leftArm.visible = !var3;
+        this.rightArm.visible = !var3;
     }
 
     private ModelPart getArm(HumanoidArm param0) {

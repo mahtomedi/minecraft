@@ -10,7 +10,7 @@ public class BlockFinder {
             return Optional.of(param0);
         } else {
             int var0 = Math.max(param1, param2);
-            BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos(param0);
+            BlockPos.MutableBlockPos var1 = param0.mutable();
 
             for(int var2 = 1; var2 <= var0; ++var2) {
                 for(int var3 = -var2; var3 <= var2; ++var3) {
@@ -24,7 +24,7 @@ public class BlockFinder {
                                 for(int var7 = -var2; var7 <= var2; ++var7) {
                                     if (var7 <= param1 && var7 >= -param1) {
                                         boolean var8 = var7 == -var2 || var7 == var2;
-                                        if ((var4 || var6 || var8) && param3.test(var1.set(param0).move(var3, var5, var7))) {
+                                        if ((var4 || var6 || var8) && param3.test(var1.setWithOffset(param0, var3, var5, var7))) {
                                             return Optional.of(param0.offset(var3, var5, var7));
                                         }
                                     }

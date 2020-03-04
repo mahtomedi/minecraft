@@ -34,8 +34,8 @@ public class BambooFeature extends Feature<ProbabilityFeatureConfiguration> {
         LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, ProbabilityFeatureConfiguration param4
     ) {
         int var0 = 0;
-        BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos(param3);
-        BlockPos.MutableBlockPos var2 = new BlockPos.MutableBlockPos(param3);
+        BlockPos.MutableBlockPos var1 = param3.mutable();
+        BlockPos.MutableBlockPos var2 = param3.mutable();
         if (param0.isEmptyBlock(var1)) {
             if (Blocks.BAMBOO.defaultBlockState().canSurvive(param0, var1)) {
                 int var3 = param2.nextInt(12) + 5;

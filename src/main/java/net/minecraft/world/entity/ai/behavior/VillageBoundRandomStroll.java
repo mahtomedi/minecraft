@@ -29,7 +29,7 @@ public class VillageBoundRandomStroll extends Behavior<PathfinderMob> {
     }
 
     protected void start(ServerLevel param0, PathfinderMob param1, long param2) {
-        BlockPos var0 = new BlockPos(param1);
+        BlockPos var0 = param1.blockPosition();
         if (param0.isVillage(var0)) {
             this.setRandomPos(param1);
         } else {
@@ -45,7 +45,7 @@ public class VillageBoundRandomStroll extends Behavior<PathfinderMob> {
     }
 
     private void setTargetedPos(PathfinderMob param0, SectionPos param1) {
-        Optional<Vec3> var0 = Optional.ofNullable(RandomPos.getPosTowards(param0, this.maxXyDist, this.maxYDist, new Vec3(param1.center())));
+        Optional<Vec3> var0 = Optional.ofNullable(RandomPos.getPosTowards(param0, this.maxXyDist, this.maxYDist, Vec3.atBottomCenterOf(param1.center())));
         param0.getBrain().setMemory(MemoryModuleType.WALK_TARGET, var0.map(param0x -> new WalkTarget(param0x, this.speed, 0)));
     }
 

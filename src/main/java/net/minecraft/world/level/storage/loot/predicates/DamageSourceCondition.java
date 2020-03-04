@@ -29,7 +29,7 @@ public class DamageSourceCondition implements LootItemCondition {
     public boolean test(LootContext param0) {
         DamageSource var0 = param0.getParamOrNull(LootContextParams.DAMAGE_SOURCE);
         BlockPos var1 = param0.getParamOrNull(LootContextParams.BLOCK_POS);
-        return var1 != null && var0 != null && this.predicate.matches(param0.getLevel(), new Vec3(var1), var0);
+        return var1 != null && var0 != null && this.predicate.matches(param0.getLevel(), Vec3.atLowerCornerOf(var1), var0);
     }
 
     public static LootItemCondition.Builder hasDamageSource(DamageSourcePredicate.Builder param0) {

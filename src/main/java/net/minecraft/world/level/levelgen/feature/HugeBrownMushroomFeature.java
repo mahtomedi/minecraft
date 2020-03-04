@@ -28,7 +28,7 @@ public class HugeBrownMushroomFeature extends AbstractHugeMushroomFeature {
                 boolean var7 = var3 || var4;
                 boolean var8 = var5 || var6;
                 if (!var7 || !var8) {
-                    param4.set(param2).move(var1, param3, var2);
+                    param4.setWithOffset(param2, var1, param3, var2);
                     if (!param0.getBlockState(param4).isSolidRender(param0, param4)) {
                         boolean var9 = var3 || var8 && var1 == 1 - var0;
                         boolean var10 = var4 || var8 && var1 == var0 - 1;

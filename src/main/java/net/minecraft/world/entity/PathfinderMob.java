@@ -22,7 +22,7 @@ public abstract class PathfinderMob extends Mob {
 
     @Override
     public boolean checkSpawnRules(LevelAccessor param0, MobSpawnType param1) {
-        return this.getWalkTargetValue(new BlockPos(this), param0) >= 0.0F;
+        return this.getWalkTargetValue(this.blockPosition(), param0) >= 0.0F;
     }
 
     public boolean isPathFinding() {
@@ -34,7 +34,7 @@ public abstract class PathfinderMob extends Mob {
         super.tickLeash();
         Entity var0 = this.getLeashHolder();
         if (var0 != null && var0.level == this.level) {
-            this.restrictTo(new BlockPos(var0), 5);
+            this.restrictTo(var0.blockPosition(), 5);
             float var1 = this.distanceTo(var0);
             if (this instanceof TamableAnimal && ((TamableAnimal)this).isInSittingPose()) {
                 if (var1 > 10.0F) {

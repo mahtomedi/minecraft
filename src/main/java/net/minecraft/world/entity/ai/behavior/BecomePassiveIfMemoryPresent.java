@@ -25,7 +25,7 @@ public class BecomePassiveIfMemoryPresent extends Behavior<LivingEntity> {
 
     @Override
     protected void start(ServerLevel param0, LivingEntity param1, long param2) {
-        param1.getBrain().setMemoryWithExpiry(MemoryModuleType.PACIFIED, true, param2, (long)this.pacifyDuration);
+        param1.getBrain().setMemoryWithExpiry(MemoryModuleType.PACIFIED, true, (long)this.pacifyDuration);
         param1.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);
     }
 }

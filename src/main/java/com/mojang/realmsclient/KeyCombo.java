@@ -16,24 +16,21 @@ public class KeyCombo {
             throw new IllegalArgumentException("Must have at least one char");
         } else {
             this.chars = param0;
-            this.matchIndex = 0;
         }
     }
 
     public boolean keyPressed(char param0) {
-        if (param0 == this.chars[this.matchIndex]) {
-            ++this.matchIndex;
+        if (param0 == this.chars[this.matchIndex++]) {
             if (this.matchIndex == this.chars.length) {
                 this.reset();
                 this.onCompletion.run();
                 return true;
-            } else {
-                return false;
             }
         } else {
             this.reset();
-            return false;
         }
+
+        return false;
     }
 
     public void reset() {

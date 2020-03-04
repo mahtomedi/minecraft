@@ -103,7 +103,7 @@ public abstract class AbstractArmorLayer<T extends LivingEntity, M extends Human
         @Nullable String param11
     ) {
         VertexConsumer var0 = ItemRenderer.getFoilBuffer(
-            param2, RenderType.entityCutoutNoCull(this.getArmorLocation(param0, param4, param7, param11)), false, param5
+            param2, RenderType.armorCutoutNoCull(this.getArmorLocation(param0, param4, param7, param11)), false, param5
         );
         param6.renderToBuffer(param1, var0, param3, OverlayTexture.NO_OVERLAY, param8, param9, param10, 1.0F);
     }

@@ -2,10 +2,11 @@ package com.mojang.realmsclient.gui.screens;
 
 import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.dto.RealmsServer;
-import com.mojang.realmsclient.gui.RealmsConstants;
-import net.minecraft.realms.Realms;
-import net.minecraft.realms.RealmsButton;
-import net.minecraft.realms.RealmsEditBox;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.realms.NarrationHelper;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -15,18 +16,14 @@ import org.apache.logging.log4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class RealmsInviteScreen extends RealmsScreen {
     private static final Logger LOGGER = LogManager.getLogger();
-    private RealmsEditBox profileName;
+    private EditBox profileName;
     private final RealmsServer serverData;
     private final RealmsConfigureWorldScreen configureScreen;
-    private final RealmsScreen lastScreen;
-    private final int BUTTON_INVITE_ID = 0;
-    private final int BUTTON_CANCEL_ID = 1;
-    private RealmsButton inviteButton;
-    private final int PROFILENAME_EDIT_BOX = 2;
+    private final Screen lastScreen;
     private String errorMsg;
     private boolean showError;
 
-    public RealmsInviteScreen(RealmsConfigureWorldScreen param0, RealmsScreen param1, RealmsServer param2) {
+    public RealmsInviteScreen(RealmsConfigureWorldScreen param0, Screen param1, RealmsServer param2) {
         this.configureScreen = param0;
         this.lastScreen = param1;
         this.serverData = param2;
@@ -39,64 +36,50 @@ public class RealmsInviteScreen extends RealmsScreen {
 
     @Override
     public void init() {
-        this.setKeyboardHandlerSendRepeatsToGui(true);
-        this.buttonsAdd(
-            this.inviteButton = new RealmsButton(0, this.width() / 2 - 100, RealmsConstants.row(10), getLocalizedString("mco.configure.world.buttons.invite")) {
-                @Override
-                public void onPress() {
-                    RealmsInviteScreen.this.onInvite();
-                }
-            }
-        );
-        this.buttonsAdd(new RealmsButton(1, this.width() / 2 - 100, RealmsConstants.row(12), getLocalizedString("gui.cancel")) {
-            @Override
-            public void onPress() {
-                Realms.setScreen(RealmsInviteScreen.this.lastScreen);
-            }
-        });
-        this.profileName = this.newEditBox(
-            2, this.width() / 2 - 100, RealmsConstants.row(2), 200, 20, getLocalizedString("mco.configure.world.invite.profile.name")
-        );
-        this.focusOn(this.profileName);
+        this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
+        this.profileName = new EditBox(this.minecraft.font, this.width / 2 - 100, row(2), 200, 20, null, I18n.get("mco.configure.world.invite.profile.name"));
         this.addWidget(this.profileName);
+        this.setInitialFocus(this.profileName);
+        this.addButton(new Button(this.width / 2 - 100, row(10), 200, 20, I18n.get("mco.configure.world.buttons.invite"), param0 -> this.onInvite()));
+        this.addButton(new Button(this.width / 2 - 100, row(12), 200, 20, I18n.get("gui.cancel"), param0 -> this.minecraft.setScreen(this.lastScreen)));
     }
 
     @Override
     public void removed() {
-        this.setKeyboardHandlerSendRepeatsToGui(false);
+        this.minecraft.keyboardHandler.setSendRepeatsToGui(false);
     }
 
     private void onInvite() {
-        RealmsClient var0 = RealmsClient.createRealmsClient();
+        RealmsClient var0 = RealmsClient.create();
         if (this.profileName.getValue() != null && !this.profileName.getValue().isEmpty()) {
             try {
                 RealmsServer var1 = var0.invite(this.serverData.id, this.profileName.getValue().trim());
                 if (var1 != null) {
                     this.serverData.players = var1.players;
-                    Realms.setScreen(new RealmsPlayerScreen(this.configureScreen, this.serverData));
+                    this.minecraft.setScreen(new RealmsPlayerScreen(this.configureScreen, this.serverData));
                 } else {
-                    this.showError(getLocalizedString("mco.configure.world.players.error"));
+                    this.showError(I18n.get("mco.configure.world.players.error"));
                 }
             } catch (Exception var3) {
                 LOGGER.error("Couldn't invite user");
-                this.showError(getLocalizedString("mco.configure.world.players.error"));
+                this.showError(I18n.get("mco.configure.world.players.error"));
             }
 
         } else {
-            this.showError(getLocalizedString("mco.configure.world.players.error"));
+            this.showError(I18n.get("mco.configure.world.players.error"));
         }
     }
 
     private void showError(String param0) {
         this.showError = true;
         this.errorMsg = param0;
-        Realms.narrateNow(param0);
+        NarrationHelper.now(param0);
     }
 
     @Override
     public boolean keyPressed(int param0, int param1, int param2) {
         if (param0 == 256) {
-            Realms.setScreen(this.lastScreen);
+            this.minecraft.setScreen(this.lastScreen);
             return true;
         } else {
             return super.keyPressed(param0, param1, param2);
@@ -106,9 +89,9 @@ public class RealmsInviteScreen extends RealmsScreen {
     @Override
     public void render(int param0, int param1, float param2) {
         this.renderBackground();
-        this.drawString(getLocalizedString("mco.configure.world.invite.profile.name"), this.width() / 2 - 100, RealmsConstants.row(1), 10526880);
+        this.font.draw(I18n.get("mco.configure.world.invite.profile.name"), (float)(this.width / 2 - 100), (float)row(1), 10526880);
         if (this.showError) {
-            this.drawCenteredString(this.errorMsg, this.width() / 2, RealmsConstants.row(5), 16711680);
+            this.drawCenteredString(this.font, this.errorMsg, this.width / 2, row(5), 16711680);
         }
 
         this.profileName.render(param0, param1, param2);

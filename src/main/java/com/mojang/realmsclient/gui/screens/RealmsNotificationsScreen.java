@@ -4,55 +4,60 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.exception.RealmsServiceException;
 import com.mojang.realmsclient.gui.RealmsDataFetcher;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import net.minecraft.realms.Realms;
+import net.minecraft.Util;
+import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.realms.RealmsScreen;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class RealmsNotificationsScreen extends RealmsScreen {
-    private static final RealmsDataFetcher realmsDataFetcher = new RealmsDataFetcher();
+    private static final ResourceLocation INVITE_ICON_LOCATION = new ResourceLocation("realms", "textures/gui/realms/invite_icon.png");
+    private static final ResourceLocation TRIAL_ICON_LOCATION = new ResourceLocation("realms", "textures/gui/realms/trial_icon.png");
+    private static final ResourceLocation NEWS_ICON_LOCATION = new ResourceLocation("realms", "textures/gui/realms/news_notification_mainscreen.png");
+    private static final RealmsDataFetcher REALMS_DATA_FETCHER = new RealmsDataFetcher();
     private volatile int numberOfPendingInvites;
     private static boolean checkedMcoAvailability;
     private static boolean trialAvailable;
     private static boolean validClient;
     private static boolean hasUnreadNews;
-    private static final List<RealmsDataFetcher.Task> tasks = Arrays.asList(
-        RealmsDataFetcher.Task.PENDING_INVITE, RealmsDataFetcher.Task.TRIAL_AVAILABLE, RealmsDataFetcher.Task.UNREAD_NEWS
-    );
-
-    public RealmsNotificationsScreen(RealmsScreen param0) {
-    }
 
     @Override
     public void init() {
         this.checkIfMcoEnabled();
-        this.setKeyboardHandlerSendRepeatsToGui(true);
+        this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
     }
 
     @Override
     public void tick() {
-        if ((!Realms.getRealmsNotificationsEnabled() || !Realms.inTitleScreen() || !validClient) && !realmsDataFetcher.isStopped()) {
-            realmsDataFetcher.stop();
-        } else if (validClient && Realms.getRealmsNotificationsEnabled()) {
-            realmsDataFetcher.initWithSpecificTaskList(tasks);
-            if (realmsDataFetcher.isFetchedSinceLastTry(RealmsDataFetcher.Task.PENDING_INVITE)) {
-                this.numberOfPendingInvites = realmsDataFetcher.getPendingInvitesCount();
+        if ((!this.getRealmsNotificationsEnabled() || !this.inTitleScreen() || !validClient) && !REALMS_DATA_FETCHER.isStopped()) {
+            REALMS_DATA_FETCHER.stop();
+        } else if (validClient && this.getRealmsNotificationsEnabled()) {
+            REALMS_DATA_FETCHER.initWithSpecificTaskList();
+            if (REALMS_DATA_FETCHER.isFetchedSinceLastTry(RealmsDataFetcher.Task.PENDING_INVITE)) {
+                this.numberOfPendingInvites = REALMS_DATA_FETCHER.getPendingInvitesCount();
             }
 
-            if (realmsDataFetcher.isFetchedSinceLastTry(RealmsDataFetcher.Task.TRIAL_AVAILABLE)) {
-                trialAvailable = realmsDataFetcher.isTrialAvailable();
+            if (REALMS_DATA_FETCHER.isFetchedSinceLastTry(RealmsDataFetcher.Task.TRIAL_AVAILABLE)) {
+                trialAvailable = REALMS_DATA_FETCHER.isTrialAvailable();
             }
 
-            if (realmsDataFetcher.isFetchedSinceLastTry(RealmsDataFetcher.Task.UNREAD_NEWS)) {
-                hasUnreadNews = realmsDataFetcher.hasUnreadNews();
+            if (REALMS_DATA_FETCHER.isFetchedSinceLastTry(RealmsDataFetcher.Task.UNREAD_NEWS)) {
+                hasUnreadNews = REALMS_DATA_FETCHER.hasUnreadNews();
             }
 
-            realmsDataFetcher.markClean();
+            REALMS_DATA_FETCHER.markClean();
         }
+    }
+
+    private boolean getRealmsNotificationsEnabled() {
+        return this.minecraft.options.realmsNotifications;
+    }
+
+    private boolean inTitleScreen() {
+        return this.minecraft.screen instanceof TitleScreen;
     }
 
     private void checkIfMcoEnabled() {
@@ -61,21 +66,18 @@ public class RealmsNotificationsScreen extends RealmsScreen {
             (new Thread("Realms Notification Availability checker #1") {
                 @Override
                 public void run() {
-                    RealmsClient var0 = RealmsClient.createRealmsClient();
+                    RealmsClient var0 = RealmsClient.create();
 
                     try {
                         RealmsClient.CompatibleVersionResponse var1 = var0.clientCompatible();
-                        if (!var1.equals(RealmsClient.CompatibleVersionResponse.COMPATIBLE)) {
+                        if (var1 != RealmsClient.CompatibleVersionResponse.COMPATIBLE) {
                             return;
                         }
-                    } catch (RealmsServiceException var31) {
-                        if (var31.httpResultCode != 401) {
+                    } catch (RealmsServiceException var3) {
+                        if (var3.httpResultCode != 401) {
                             RealmsNotificationsScreen.checkedMcoAvailability = false;
                         }
 
-                        return;
-                    } catch (IOException var4) {
-                        RealmsNotificationsScreen.checkedMcoAvailability = false;
                         return;
                     }
 
@@ -95,54 +97,45 @@ public class RealmsNotificationsScreen extends RealmsScreen {
         super.render(param0, param1, param2);
     }
 
-    @Override
-    public boolean mouseClicked(double param0, double param1, int param2) {
-        return super.mouseClicked(param0, param1, param2);
-    }
-
     private void drawIcons(int param0, int param1) {
         int var0 = this.numberOfPendingInvites;
         int var1 = 24;
-        int var2 = this.height() / 4 + 48;
-        int var3 = this.width() / 2 + 80;
+        int var2 = this.height / 4 + 48;
+        int var3 = this.width / 2 + 80;
         int var4 = var2 + 48 + 2;
         int var5 = 0;
         if (hasUnreadNews) {
-            RealmsScreen.bind("realms:textures/gui/realms/news_notification_mainscreen.png");
+            this.minecraft.getTextureManager().bind(NEWS_ICON_LOCATION);
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             RenderSystem.pushMatrix();
             RenderSystem.scalef(0.4F, 0.4F, 0.4F);
-            RealmsScreen.blit((int)((double)(var3 + 2 - var5) * 2.5), (int)((double)var4 * 2.5), 0.0F, 0.0F, 40, 40, 40, 40);
+            GuiComponent.blit((int)((double)(var3 + 2 - var5) * 2.5), (int)((double)var4 * 2.5), 0.0F, 0.0F, 40, 40, 40, 40);
             RenderSystem.popMatrix();
             var5 += 14;
         }
 
         if (var0 != 0) {
-            RealmsScreen.bind("realms:textures/gui/realms/invite_icon.png");
+            this.minecraft.getTextureManager().bind(INVITE_ICON_LOCATION);
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            RenderSystem.pushMatrix();
-            RealmsScreen.blit(var3 - var5, var4 - 6, 0.0F, 0.0F, 15, 25, 31, 25);
-            RenderSystem.popMatrix();
+            GuiComponent.blit(var3 - var5, var4 - 6, 0.0F, 0.0F, 15, 25, 31, 25);
             var5 += 16;
         }
 
         if (trialAvailable) {
-            RealmsScreen.bind("realms:textures/gui/realms/trial_icon.png");
+            this.minecraft.getTextureManager().bind(TRIAL_ICON_LOCATION);
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            RenderSystem.pushMatrix();
             int var6 = 0;
-            if ((System.currentTimeMillis() / 800L & 1L) == 1L) {
+            if ((Util.getMillis() / 800L & 1L) == 1L) {
                 var6 = 8;
             }
 
-            RealmsScreen.blit(var3 + 4 - var5, var4 + 4, 0.0F, (float)var6, 8, 8, 8, 16);
-            RenderSystem.popMatrix();
+            GuiComponent.blit(var3 + 4 - var5, var4 + 4, 0.0F, (float)var6, 8, 8, 8, 16);
         }
 
     }
 
     @Override
     public void removed() {
-        realmsDataFetcher.stop();
+        REALMS_DATA_FETCHER.stop();
     }
 }

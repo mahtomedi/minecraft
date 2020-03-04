@@ -33,13 +33,7 @@ public class LargeFireball extends Fireball {
     protected void onHit(HitResult param0) {
         super.onHit(param0);
         if (!this.level.isClientSide) {
-            if (param0.getType() == HitResult.Type.ENTITY) {
-                Entity var0 = ((EntityHitResult)param0).getEntity();
-                var0.hurt(DamageSource.fireball(this, this.owner), 6.0F);
-                this.doEnchantDamageEffects(this.owner, var0);
-            }
-
-            boolean var1 = this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING);
+            boolean var0 = this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING);
             this.level
                 .explode(
                     null,
@@ -47,12 +41,26 @@ public class LargeFireball extends Fireball {
                     this.getY(),
                     this.getZ(),
                     (float)this.explosionPower,
-                    var1,
-                    var1 ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.NONE
+                    var0,
+                    var0 ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.NONE
                 );
             this.remove();
         }
 
+    }
+
+    @Override
+    protected void onHitEntity(EntityHitResult param0) {
+        super.onHitEntity(param0);
+        if (!this.level.isClientSide) {
+            Entity var0 = param0.getEntity();
+            Entity var1 = this.getOwner();
+            var0.hurt(DamageSource.fireball(this, var1), 6.0F);
+            if (var1 instanceof LivingEntity) {
+                this.doEnchantDamageEffects((LivingEntity)var1, var0);
+            }
+
+        }
     }
 
     @Override

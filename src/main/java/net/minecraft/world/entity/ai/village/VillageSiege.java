@@ -65,7 +65,7 @@ public class VillageSiege {
     private boolean tryToSetupSiege(ServerLevel param0) {
         for(Player var0 : param0.players()) {
             if (!var0.isSpectator()) {
-                BlockPos var1 = var0.getCommandSenderBlockPosition();
+                BlockPos var1 = var0.blockPosition();
                 if (param0.isVillage(var1) && param0.getBiome(var1).getBiomeCategory() != Biome.BiomeCategory.MUSHROOM) {
                     for(int var2 = 0; var2 < 10; ++var2) {
                         float var3 = param0.random.nextFloat() * (float) (Math.PI * 2);
@@ -93,7 +93,7 @@ public class VillageSiege {
             Zombie var1;
             try {
                 var1 = new Zombie(param0);
-                var1.finalizeSpawn(param0, param0.getCurrentDifficultyAt(new BlockPos(var1)), MobSpawnType.EVENT, null, null);
+                var1.finalizeSpawn(param0, param0.getCurrentDifficultyAt(var1.blockPosition()), MobSpawnType.EVENT, null, null);
             } catch (Exception var5) {
                 var5.printStackTrace();
                 return;
@@ -112,7 +112,7 @@ public class VillageSiege {
             int var3 = param0.getHeight(Heightmap.Types.WORLD_SURFACE, var1, var2);
             BlockPos var4 = new BlockPos(var1, var3, var2);
             if (param0.isVillage(var4) && Monster.checkMonsterSpawnRules(EntityType.ZOMBIE, param0, MobSpawnType.EVENT, var4, param0.random)) {
-                return new Vec3((double)var4.getX() + 0.5, (double)var4.getY(), (double)var4.getZ() + 0.5);
+                return Vec3.atBottomCenterOf(var4);
             }
         }
 

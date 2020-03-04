@@ -1,6 +1,5 @@
 package net.minecraft.world.effect;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -108,7 +107,7 @@ public class MobEffects {
                     return;
                 }
 
-                if (var1.isVillage(new BlockPos(param0))) {
+                if (var1.isVillage(param0.blockPosition())) {
                     var1.getRaids().createOrExtendRaid(var0);
                 }
             }

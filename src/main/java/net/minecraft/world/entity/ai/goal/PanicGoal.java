@@ -66,7 +66,7 @@ public class PanicGoal extends Goal {
 
     @Nullable
     protected BlockPos lookForWater(BlockGetter param0, Entity param1, int param2, int param3) {
-        BlockPos var0 = new BlockPos(param1);
+        BlockPos var0 = param1.blockPosition();
         int var1 = var0.getX();
         int var2 = var0.getY();
         int var3 = var0.getZ();

@@ -28,7 +28,9 @@ public class RconConsoleSource implements CommandSource {
 
     public CommandSourceStack createCommandSourceStack() {
         ServerLevel var0 = this.server.getLevel(DimensionType.OVERWORLD);
-        return new CommandSourceStack(this, new Vec3(var0.getSharedSpawnPos()), Vec2.ZERO, var0, 4, "Recon", new TextComponent("Rcon"), this.server, null);
+        return new CommandSourceStack(
+            this, Vec3.atLowerCornerOf(var0.getSharedSpawnPos()), Vec2.ZERO, var0, 4, "Recon", new TextComponent("Rcon"), this.server, null
+        );
     }
 
     @Override

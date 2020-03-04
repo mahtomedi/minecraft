@@ -4,6 +4,8 @@ import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.stream.Collectors;
 import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.inventory.StackedContentsCompatible;
@@ -200,5 +202,28 @@ public class SimpleContainer implements Container, StackedContentsCompatible {
             this.setChanged();
         }
 
+    }
+
+    public void fromTag(ListTag param0) {
+        for(int var0 = 0; var0 < param0.size(); ++var0) {
+            ItemStack var1 = ItemStack.of(param0.getCompound(var0));
+            if (!var1.isEmpty()) {
+                this.addItem(var1);
+            }
+        }
+
+    }
+
+    public ListTag createTag() {
+        ListTag var0 = new ListTag();
+
+        for(int var1 = 0; var1 < this.getContainerSize(); ++var1) {
+            ItemStack var2 = this.getItem(var1);
+            if (!var2.isEmpty()) {
+                var0.add(var2.save(new CompoundTag()));
+            }
+        }
+
+        return var0;
     }
 }

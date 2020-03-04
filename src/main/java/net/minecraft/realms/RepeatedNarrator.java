@@ -11,15 +11,11 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class RepeatedNarrator {
-    final Duration repeatDelay;
     private final float permitsPerSecond;
-    final AtomicReference<RepeatedNarrator.Params> params;
+    private final AtomicReference<RepeatedNarrator.Params> params = new AtomicReference<>();
 
     public RepeatedNarrator(Duration param0) {
-        this.repeatDelay = param0;
-        this.params = new AtomicReference<>();
-        float var0 = (float)param0.toMillis() / 1000.0F;
-        this.permitsPerSecond = 1.0F / var0;
+        this.permitsPerSecond = 1000.0F / (float)param0.toMillis();
     }
 
     public void narrate(String param0) {
@@ -30,16 +26,15 @@ public class RepeatedNarrator {
                         : new RepeatedNarrator.Params(param0, RateLimiter.create((double)this.permitsPerSecond))
             );
         if (var0.rateLimiter.tryAcquire(1)) {
-            NarratorChatListener var1 = NarratorChatListener.INSTANCE;
-            var1.handle(ChatType.SYSTEM, new TextComponent(param0));
+            NarratorChatListener.INSTANCE.handle(ChatType.SYSTEM, new TextComponent(param0));
         }
 
     }
 
     @OnlyIn(Dist.CLIENT)
     static class Params {
-        String narration;
-        RateLimiter rateLimiter;
+        private final String narration;
+        private final RateLimiter rateLimiter;
 
         Params(String param0, RateLimiter param1) {
             this.narration = param0;

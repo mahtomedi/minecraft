@@ -1,6 +1,5 @@
 package net.minecraft.world.entity.projectile;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -14,16 +13,12 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public abstract class AbstractHurtingProjectile extends Entity {
-    public LivingEntity owner;
-    private int life;
+public abstract class AbstractHurtingProjectile extends Projectile {
     private int flightTime;
     public double xPower;
     public double yPower;
@@ -56,7 +51,7 @@ public abstract class AbstractHurtingProjectile extends Entity {
         EntityType<? extends AbstractHurtingProjectile> param0, LivingEntity param1, double param2, double param3, double param4, Level param5
     ) {
         this(param0, param5);
-        this.owner = param1;
+        this.setOwner(param1);
         this.moveTo(param1.getX(), param1.getY(), param1.getZ(), param1.yRot, param1.xRot);
         this.reapplyPosition();
         this.setDeltaMovement(Vec3.ZERO);
@@ -87,36 +82,37 @@ public abstract class AbstractHurtingProjectile extends Entity {
 
     @Override
     public void tick() {
-        if (this.level.isClientSide || (this.owner == null || !this.owner.removed) && this.level.hasChunkAt(new BlockPos(this))) {
+        Entity var0 = this.getOwner();
+        if (this.level.isClientSide || (var0 == null || !var0.removed) && this.level.hasChunkAt(this.blockPosition())) {
             super.tick();
             if (this.shouldBurn()) {
                 this.setSecondsOnFire(1);
             }
 
             ++this.flightTime;
-            HitResult var0 = ProjectileUtil.forwardsRaycast(this, true, this.flightTime >= 25, this.owner, ClipContext.Block.COLLIDER);
-            if (var0.getType() != HitResult.Type.MISS) {
-                this.onHit(var0);
+            HitResult var1 = ProjectileUtil.forwardsRaycast(this, true, this.flightTime >= 25, var0, ClipContext.Block.COLLIDER);
+            if (var1.getType() != HitResult.Type.MISS) {
+                this.onHit(var1);
             }
 
-            Vec3 var1 = this.getDeltaMovement();
-            double var2 = this.getX() + var1.x;
-            double var3 = this.getY() + var1.y;
-            double var4 = this.getZ() + var1.z;
+            Vec3 var2 = this.getDeltaMovement();
+            double var3 = this.getX() + var2.x;
+            double var4 = this.getY() + var2.y;
+            double var5 = this.getZ() + var2.z;
             ProjectileUtil.rotateTowardsMovement(this, 0.2F);
-            float var5 = this.getInertia();
+            float var6 = this.getInertia();
             if (this.isInWater()) {
-                for(int var6 = 0; var6 < 4; ++var6) {
-                    float var7 = 0.25F;
-                    this.level.addParticle(ParticleTypes.BUBBLE, var2 - var1.x * 0.25, var3 - var1.y * 0.25, var4 - var1.z * 0.25, var1.x, var1.y, var1.z);
+                for(int var7 = 0; var7 < 4; ++var7) {
+                    float var8 = 0.25F;
+                    this.level.addParticle(ParticleTypes.BUBBLE, var3 - var2.x * 0.25, var4 - var2.y * 0.25, var5 - var2.z * 0.25, var2.x, var2.y, var2.z);
                 }
 
-                var5 = 0.8F;
+                var6 = 0.8F;
             }
 
-            this.setDeltaMovement(var1.add(this.xPower, this.yPower, this.zPower).scale((double)var5));
-            this.level.addParticle(this.getTrailParticle(), var2, var3 + 0.5, var4, 0.0, 0.0, 0.0);
-            this.setPos(var2, var3, var4);
+            this.setDeltaMovement(var2.add(this.xPower, this.yPower, this.zPower).scale((double)var6));
+            this.level.addParticle(this.getTrailParticle(), var3, var4 + 0.5, var5, 0.0, 0.0, 0.0);
+            this.setPos(var3, var4, var5);
         } else {
             this.remove();
         }
@@ -134,26 +130,15 @@ public abstract class AbstractHurtingProjectile extends Entity {
         return 0.95F;
     }
 
-    protected void onHit(HitResult param0) {
-        HitResult.Type var0 = param0.getType();
-        if (var0 == HitResult.Type.BLOCK) {
-            BlockHitResult var1 = (BlockHitResult)param0;
-            BlockState var2 = this.level.getBlockState(var1.getBlockPos());
-            var2.onProjectileHit(this.level, var2, var1, this);
-        }
-
-    }
-
     @Override
     public void addAdditionalSaveData(CompoundTag param0) {
-        Vec3 var0 = this.getDeltaMovement();
-        param0.put("direction", this.newDoubleList(new double[]{var0.x, var0.y, var0.z}));
+        super.addAdditionalSaveData(param0);
         param0.put("power", this.newDoubleList(new double[]{this.xPower, this.yPower, this.zPower}));
-        param0.putInt("life", this.life);
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag param0) {
+        super.readAdditionalSaveData(param0);
         if (param0.contains("power", 9)) {
             ListTag var0 = param0.getList("power", 6);
             if (var0.size() == 3) {
@@ -161,14 +146,6 @@ public abstract class AbstractHurtingProjectile extends Entity {
                 this.yPower = var0.getDouble(1);
                 this.zPower = var0.getDouble(2);
             }
-        }
-
-        this.life = param0.getInt("life");
-        if (param0.contains("direction", 9) && param0.getList("direction", 6).size() == 3) {
-            ListTag var1 = param0.getList("direction", 6);
-            this.setDeltaMovement(var1.getDouble(0), var1.getDouble(1), var1.getDouble(2));
-        } else {
-            this.remove();
         }
 
     }
@@ -189,16 +166,14 @@ public abstract class AbstractHurtingProjectile extends Entity {
             return false;
         } else {
             this.markHurt();
-            if (param0.getEntity() != null) {
-                Vec3 var0 = param0.getEntity().getLookAngle();
-                this.setDeltaMovement(var0);
-                this.xPower = var0.x * 0.1;
-                this.yPower = var0.y * 0.1;
-                this.zPower = var0.z * 0.1;
-                if (param0.getEntity() instanceof LivingEntity) {
-                    this.owner = (LivingEntity)param0.getEntity();
-                }
-
+            Entity var0 = param0.getEntity();
+            if (var0 != null) {
+                Vec3 var1 = var0.getLookAngle();
+                this.setDeltaMovement(var1);
+                this.xPower = var1.x * 0.1;
+                this.yPower = var1.y * 0.1;
+                this.zPower = var1.z * 0.1;
+                this.setOwner(var0);
                 return true;
             } else {
                 return false;
@@ -213,7 +188,8 @@ public abstract class AbstractHurtingProjectile extends Entity {
 
     @Override
     public Packet<?> getAddEntityPacket() {
-        int var0 = this.owner == null ? 0 : this.owner.getId();
+        Entity var0 = this.getOwner();
+        int var1 = var0 == null ? 0 : var0.getId();
         return new ClientboundAddEntityPacket(
             this.getId(),
             this.getUUID(),
@@ -223,7 +199,7 @@ public abstract class AbstractHurtingProjectile extends Entity {
             this.xRot,
             this.yRot,
             this.getType(),
-            var0,
+            var1,
             new Vec3(this.xPower, this.yPower, this.zPower)
         );
     }

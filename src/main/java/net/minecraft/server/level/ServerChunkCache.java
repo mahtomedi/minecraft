@@ -354,37 +354,36 @@ public class ServerChunkCache extends ChunkSource {
         if (!var3) {
             this.level.getProfiler().push("pollingChunks");
             int var5 = this.level.getGameRules().getInt(GameRules.RULE_RANDOMTICKING);
-            BlockPos var6 = this.level.getSharedSpawnPos();
-            boolean var7 = var2.getGameTime() % 400L == 0L;
+            boolean var6 = var2.getGameTime() % 400L == 0L;
             this.level.getProfiler().push("naturalSpawnCount");
-            int var8 = this.distanceManager.getNaturalSpawnChunkCount();
-            MobCategory[] var9 = MobCategory.values();
-            Object2IntMap<MobCategory> var10 = this.level.getMobCategoryCounts();
+            int var7 = this.distanceManager.getNaturalSpawnChunkCount();
+            MobCategory[] var8 = MobCategory.values();
+            Object2IntMap<MobCategory> var9 = this.level.getMobCategoryCounts();
             this.level.getProfiler().pop();
             this.chunkMap
                 .getChunks()
                 .forEach(
-                    param8 -> {
-                        Optional<LevelChunk> var0x = param8.getEntityTickingChunkFuture().getNow(ChunkHolder.UNLOADED_LEVEL_CHUNK).left();
+                    param7 -> {
+                        Optional<LevelChunk> var0x = param7.getEntityTickingChunkFuture().getNow(ChunkHolder.UNLOADED_LEVEL_CHUNK).left();
                         if (var0x.isPresent()) {
                             LevelChunk var1x = var0x.get();
                             this.level.getProfiler().push("broadcast");
-                            param8.broadcastChanges(var1x);
+                            param7.broadcastChanges(var1x);
                             this.level.getProfiler().pop();
-                            ChunkPos var2x = param8.getPos();
+                            ChunkPos var2x = param7.getPos();
                             if (!this.chunkMap.noPlayersCloseForSpawning(var2x)) {
                                 var1x.setInhabitedTime(var1x.getInhabitedTime() + var1);
                                 if (var4 && (this.spawnEnemies || this.spawnFriendlies) && this.level.getWorldBorder().isWithinBounds(var1x.getPos())) {
                                     this.level.getProfiler().push("spawner");
         
-                                    for(MobCategory var3x : var9) {
+                                    for(MobCategory var3x : var8) {
                                         if (var3x != MobCategory.MISC
                                             && (!var3x.isFriendly() || this.spawnFriendlies)
                                             && (var3x.isFriendly() || this.spawnEnemies)
-                                            && (!var3x.isPersistent() || var7)) {
-                                            int var4x = var3x.getMaxInstancesPerChunk() * var8 / MAGIC_NUMBER;
-                                            if (var10.getInt(var3x) <= var4x) {
-                                                NaturalSpawner.spawnCategoryForChunk(var3x, this.level, var1x, var6);
+                                            && (!var3x.isPersistent() || var6)) {
+                                            int var4x = var3x.getMaxInstancesPerChunk() * var7 / MAGIC_NUMBER;
+                                            if (var9.getInt(var3x) <= var4x) {
+                                                NaturalSpawner.spawnCategoryForChunk(var3x, this.level, var1x);
                                             }
                                         }
                                     }

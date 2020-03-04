@@ -250,7 +250,7 @@ public class Ocelot extends Animal {
     @Override
     public boolean checkSpawnObstruction(LevelReader param0) {
         if (param0.isUnobstructed(this) && !param0.containsAnyLiquid(this.getBoundingBox())) {
-            BlockPos var0 = new BlockPos(this);
+            BlockPos var0 = this.blockPosition();
             if (var0.getY() < param0.getSeaLevel()) {
                 return false;
             }

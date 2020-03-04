@@ -61,12 +61,13 @@ public class Hoglin extends Animal implements Enemy {
         MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
         MemoryModuleType.PATH,
         MemoryModuleType.ATTACK_TARGET,
+        MemoryModuleType.ATTACK_COOLING_DOWN,
         MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLIN,
         MemoryModuleType.AVOID_TARGET,
         MemoryModuleType.VISIBLE_ADULT_PIGLIN_COUNT,
         MemoryModuleType.VISIBLE_ADULT_HOGLIN_COUNT,
         MemoryModuleType.NEAREST_VISIBLE_ADULT_HOGLINS,
-        MemoryModuleType.NEAREST_WARPED_FUNGUS,
+        MemoryModuleType.NEAREST_REPELLENT,
         MemoryModuleType.PACIFIED
     );
 
@@ -191,7 +192,7 @@ public class Hoglin extends Animal implements Enemy {
 
     @Override
     public float getWalkTargetValue(BlockPos param0, LevelReader param1) {
-        if (HoglinAi.isPosNearNearestWarpedFungus(this, param0)) {
+        if (HoglinAi.isPosNearNearestRepellent(this, param0)) {
             return -1.0F;
         } else {
             return param1.getBlockState(param0.below()).getBlock() == Blocks.CRIMSON_NYLIUM ? 10.0F : 0.0F;
@@ -248,6 +249,10 @@ public class Hoglin extends Animal implements Enemy {
         }
 
         return var0;
+    }
+
+    protected float getMovementSpeed() {
+        return (float)this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getValue();
     }
 
     @Override

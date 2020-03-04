@@ -147,7 +147,7 @@ public class ScaffoldingBlock extends Block implements SimpleWaterloggedBlock {
     }
 
     public static int getDistance(BlockGetter param0, BlockPos param1) {
-        BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos(param1).move(Direction.DOWN);
+        BlockPos.MutableBlockPos var0 = param1.mutable().move(Direction.DOWN);
         BlockState var1 = param0.getBlockState(var0);
         int var2 = 7;
         if (var1.getBlock() == Blocks.SCAFFOLDING) {
@@ -157,7 +157,7 @@ public class ScaffoldingBlock extends Block implements SimpleWaterloggedBlock {
         }
 
         for(Direction var3 : Direction.Plane.HORIZONTAL) {
-            BlockState var4 = param0.getBlockState(var0.set(param1).move(var3));
+            BlockState var4 = param0.getBlockState(var0.setWithOffset(param1, var3));
             if (var4.getBlock() == Blocks.SCAFFOLDING) {
                 var2 = Math.min(var2, var4.getValue(DISTANCE) + 1);
                 if (var2 == 1) {

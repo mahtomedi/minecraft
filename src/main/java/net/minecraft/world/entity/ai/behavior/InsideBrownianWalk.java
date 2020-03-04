@@ -21,11 +21,11 @@ public class InsideBrownianWalk extends Behavior<PathfinderMob> {
     }
 
     protected boolean checkExtraStartConditions(ServerLevel param0, PathfinderMob param1) {
-        return !param0.canSeeSky(new BlockPos(param1));
+        return !param0.canSeeSky(param1.blockPosition());
     }
 
     protected void start(ServerLevel param0, PathfinderMob param1, long param2) {
-        BlockPos var0 = new BlockPos(param1);
+        BlockPos var0 = param1.blockPosition();
         List<BlockPos> var1 = BlockPos.betweenClosedStream(var0.offset(-1, -1, -1), var0.offset(1, 1, 1)).map(BlockPos::immutable).collect(Collectors.toList());
         Collections.shuffle(var1);
         Optional<BlockPos> var2 = var1.stream()

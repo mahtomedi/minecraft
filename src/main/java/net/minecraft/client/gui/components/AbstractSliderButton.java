@@ -2,7 +2,6 @@ package net.minecraft.client.gui.components;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.Options;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.util.Mth;
@@ -11,16 +10,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class AbstractSliderButton extends AbstractWidget {
-    protected final Options options;
     protected double value;
 
-    protected AbstractSliderButton(int param0, int param1, int param2, int param3, double param4) {
-        this(Minecraft.getInstance().options, param0, param1, param2, param3, param4);
-    }
-
-    protected AbstractSliderButton(Options param0, int param1, int param2, int param3, int param4, double param5) {
-        super(param1, param2, param3, param4, "");
-        this.options = param0;
+    public AbstractSliderButton(int param0, int param1, int param2, int param3, String param4, double param5) {
+        super(param0, param1, param2, param3, param4);
         this.value = param5;
     }
 

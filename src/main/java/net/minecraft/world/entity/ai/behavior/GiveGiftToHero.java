@@ -120,7 +120,7 @@ public class GiveGiftToHero extends Behavior<Villager> {
             if (gifts.containsKey(var0)) {
                 LootTable var1 = param0.level.getServer().getLootTables().get(gifts.get(var0));
                 LootContext.Builder var2 = new LootContext.Builder((ServerLevel)param0.level)
-                    .withParameter(LootContextParams.BLOCK_POS, new BlockPos(param0))
+                    .withParameter(LootContextParams.BLOCK_POS, param0.blockPosition())
                     .withParameter(LootContextParams.THIS_ENTITY, param0)
                     .withRandom(param0.getRandom());
                 return var1.getRandomItems(var2.create(LootContextParamSets.GIFT));
@@ -143,8 +143,8 @@ public class GiveGiftToHero extends Behavior<Villager> {
     }
 
     private boolean isWithinThrowingDistance(Villager param0, Player param1) {
-        BlockPos var0 = new BlockPos(param1);
-        BlockPos var1 = new BlockPos(param0);
+        BlockPos var0 = param1.blockPosition();
+        BlockPos var1 = param0.blockPosition();
         return var1.closerThan(var0, 5.0);
     }
 

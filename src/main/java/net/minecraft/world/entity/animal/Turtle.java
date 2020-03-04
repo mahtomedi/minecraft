@@ -167,7 +167,7 @@ public class Turtle extends Animal {
     public SpawnGroupData finalizeSpawn(
         LevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
-        this.setHomePos(new BlockPos(this));
+        this.setHomePos(this.blockPosition());
         this.setTravelPos(BlockPos.ZERO);
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
@@ -296,7 +296,7 @@ public class Turtle extends Animal {
     public void aiStep() {
         super.aiStep();
         if (this.isAlive() && this.isLayingEgg() && this.layEggCounter >= 1 && this.layEggCounter % 5 == 0) {
-            BlockPos var0 = new BlockPos(this);
+            BlockPos var0 = this.blockPosition();
             if (this.level.getBlockState(var0.below()).getBlock() == Blocks.SAND) {
                 this.level.levelEvent(2001, var0, Block.getId(Blocks.SAND.defaultBlockState()));
             }
@@ -424,7 +424,7 @@ public class Turtle extends Animal {
             }
 
             if (this.turtle.getNavigation().isDone()) {
-                Vec3 var2 = new Vec3(var0);
+                Vec3 var2 = Vec3.atBottomCenterOf(var0);
                 Vec3 var3 = RandomPos.getPosTowards(this.turtle, 16, 3, var2, (float) (Math.PI / 10));
                 if (var3 == null) {
                     var3 = RandomPos.getPosTowards(this.turtle, 8, 7, var2);
@@ -501,7 +501,7 @@ public class Turtle extends Animal {
         @Override
         public void tick() {
             super.tick();
-            BlockPos var0 = new BlockPos(this.turtle);
+            BlockPos var0 = this.turtle.blockPosition();
             if (!this.turtle.isInWater() && this.isReachedTarget()) {
                 if (this.turtle.layEggCounter < 1) {
                     this.turtle.setLayingEgg(true);
@@ -741,7 +741,7 @@ public class Turtle extends Animal {
         @Override
         public void tick() {
             if (this.turtle.getNavigation().isDone()) {
-                Vec3 var0 = new Vec3(this.turtle.getTravelPos());
+                Vec3 var0 = Vec3.atBottomCenterOf(this.turtle.getTravelPos());
                 Vec3 var1 = RandomPos.getPosTowards(this.turtle, 16, 3, var0, (float) (Math.PI / 10));
                 if (var1 == null) {
                     var1 = RandomPos.getPosTowards(this.turtle, 8, 7, var0);

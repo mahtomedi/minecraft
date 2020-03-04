@@ -91,7 +91,7 @@ public abstract class Raider extends PatrollingMonster {
             if (this.canJoinRaid()) {
                 if (var0 == null) {
                     if (this.level.getGameTime() % 20L == 0L) {
-                        Raid var1 = ((ServerLevel)this.level).getRaidAt(new BlockPos(this));
+                        Raid var1 = ((ServerLevel)this.level).getRaidAt(this.blockPosition());
                         if (var1 != null && Raids.canJoinRaid(this, var1)) {
                             var1.joinRaid(var1.getGroupsSpawned(), this, null, true);
                         }
@@ -130,7 +130,7 @@ public abstract class Raider extends PatrollingMonster {
                 var1.removeFromRaid(this, false);
             }
 
-            if (this.isPatrolLeader() && var1 == null && ((ServerLevel)this.level).getRaidAt(new BlockPos(this)) == null) {
+            if (this.isPatrolLeader() && var1 == null && ((ServerLevel)this.level).getRaidAt(this.blockPosition()) == null) {
                 ItemStack var2 = this.getItemBySlot(EquipmentSlot.HEAD);
                 Player var3 = null;
                 if (var0 instanceof Player) {
@@ -477,7 +477,7 @@ public abstract class Raider extends PatrollingMonster {
 
         private boolean hasSuitablePoi() {
             ServerLevel var0 = (ServerLevel)this.raider.level;
-            BlockPos var1 = new BlockPos(this.raider);
+            BlockPos var1 = this.raider.blockPosition();
             Optional<BlockPos> var2 = var0.getPoiManager()
                 .getRandom(param0 -> param0 == PoiType.HOME, this::hasNotVisited, PoiManager.Occupancy.ANY, var1, 48, this.raider.random);
             if (!var2.isPresent()) {
@@ -518,7 +518,7 @@ public abstract class Raider extends PatrollingMonster {
         @Override
         public void tick() {
             if (this.raider.getNavigation().isDone()) {
-                Vec3 var0 = new Vec3(this.poiPos);
+                Vec3 var0 = Vec3.atBottomCenterOf(this.poiPos);
                 Vec3 var1 = RandomPos.getPosTowards(this.raider, 16, 7, var0, (float) (Math.PI / 10));
                 if (var1 == null) {
                     var1 = RandomPos.getPosTowards(this.raider, 8, 7, var0);

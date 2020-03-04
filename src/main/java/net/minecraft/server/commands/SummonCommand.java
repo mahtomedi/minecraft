@@ -95,7 +95,7 @@ public class SummonCommand {
                 } else {
                     if (param4 && var4 instanceof Mob) {
                         ((Mob)var4)
-                            .finalizeSpawn(param0.getLevel(), param0.getLevel().getCurrentDifficultyAt(new BlockPos(var4)), MobSpawnType.COMMAND, null, null);
+                            .finalizeSpawn(param0.getLevel(), param0.getLevel().getCurrentDifficultyAt(var4.blockPosition()), MobSpawnType.COMMAND, null, null);
                     }
 
                     param0.sendSuccess(new TranslatableComponent("commands.summon.success", var4.getDisplayName()), true);

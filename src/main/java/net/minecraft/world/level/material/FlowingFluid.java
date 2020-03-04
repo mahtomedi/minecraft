@@ -52,52 +52,48 @@ public abstract class FlowingFluid extends Fluid {
     public Vec3 getFlow(BlockGetter param0, BlockPos param1, FluidState param2) {
         double var0 = 0.0;
         double var1 = 0.0;
+        BlockPos.MutableBlockPos var2 = new BlockPos.MutableBlockPos();
 
-        Vec3 var28;
-        try (BlockPos.PooledMutableBlockPos var2 = BlockPos.PooledMutableBlockPos.acquire()) {
-            for(Direction var3 : Direction.Plane.HORIZONTAL) {
-                var2.set(param1).move(var3);
-                FluidState var4 = param0.getFluidState(var2);
-                if (this.affectsFlow(var4)) {
-                    float var5 = var4.getOwnHeight();
-                    float var6 = 0.0F;
-                    if (var5 == 0.0F) {
-                        if (!param0.getBlockState(var2).getMaterial().blocksMotion()) {
-                            BlockPos var7 = var2.below();
-                            FluidState var8 = param0.getFluidState(var7);
-                            if (this.affectsFlow(var8)) {
-                                var5 = var8.getOwnHeight();
-                                if (var5 > 0.0F) {
-                                    var6 = param2.getOwnHeight() - (var5 - 0.8888889F);
-                                }
+        for(Direction var3 : Direction.Plane.HORIZONTAL) {
+            var2.setWithOffset(param1, var3);
+            FluidState var4 = param0.getFluidState(var2);
+            if (this.affectsFlow(var4)) {
+                float var5 = var4.getOwnHeight();
+                float var6 = 0.0F;
+                if (var5 == 0.0F) {
+                    if (!param0.getBlockState(var2).getMaterial().blocksMotion()) {
+                        BlockPos var7 = var2.below();
+                        FluidState var8 = param0.getFluidState(var7);
+                        if (this.affectsFlow(var8)) {
+                            var5 = var8.getOwnHeight();
+                            if (var5 > 0.0F) {
+                                var6 = param2.getOwnHeight() - (var5 - 0.8888889F);
                             }
                         }
-                    } else if (var5 > 0.0F) {
-                        var6 = param2.getOwnHeight() - var5;
                     }
+                } else if (var5 > 0.0F) {
+                    var6 = param2.getOwnHeight() - var5;
+                }
 
-                    if (var6 != 0.0F) {
-                        var0 += (double)((float)var3.getStepX() * var6);
-                        var1 += (double)((float)var3.getStepZ() * var6);
-                    }
+                if (var6 != 0.0F) {
+                    var0 += (double)((float)var3.getStepX() * var6);
+                    var1 += (double)((float)var3.getStepZ() * var6);
                 }
             }
-
-            Vec3 var9 = new Vec3(var0, 0.0, var1);
-            if (param2.getValue(FALLING)) {
-                for(Direction var10 : Direction.Plane.HORIZONTAL) {
-                    var2.set(param1).move(var10);
-                    if (this.isSolidFace(param0, var2, var10) || this.isSolidFace(param0, var2.above(), var10)) {
-                        var9 = var9.normalize().add(0.0, -6.0, 0.0);
-                        break;
-                    }
-                }
-            }
-
-            var28 = var9.normalize();
         }
 
-        return var28;
+        Vec3 var9 = new Vec3(var0, 0.0, var1);
+        if (param2.getValue(FALLING)) {
+            for(Direction var10 : Direction.Plane.HORIZONTAL) {
+                var2.setWithOffset(param1, var10);
+                if (this.isSolidFace(param0, var2, var10) || this.isSolidFace(param0, var2.above(), var10)) {
+                    var9 = var9.normalize().add(0.0, -6.0, 0.0);
+                    break;
+                }
+            }
+        }
+
+        return var9.normalize();
     }
 
     private boolean affectsFlow(FluidState param0) {

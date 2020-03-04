@@ -292,7 +292,7 @@ public class Fox extends Animal {
     public SpawnGroupData finalizeSpawn(
         LevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
-        Biome var0 = param0.getBiome(new BlockPos(this));
+        Biome var0 = param0.getBiome(this.blockPosition());
         Fox.Type var1 = Fox.Type.byBiome(var0);
         boolean var2 = false;
         if (param3 instanceof Fox.FoxGroupData) {
@@ -511,7 +511,7 @@ public class Fox extends Animal {
             }
 
             if (this.isFaceplanted() && this.level.random.nextFloat() < 0.2F) {
-                BlockPos var1 = new BlockPos(this);
+                BlockPos var1 = this.blockPosition();
                 BlockState var2 = this.level.getBlockState(var1);
                 this.level.levelEvent(2001, var1, Block.getId(var2));
             }
@@ -1167,7 +1167,7 @@ public class Fox extends Animal {
             } else if (Fox.this.xRot > 0.0F
                 && Fox.this.onGround
                 && (float)Fox.this.getDeltaMovement().y != 0.0F
-                && Fox.this.level.getBlockState(new BlockPos(Fox.this)).getBlock() == Blocks.SNOW) {
+                && Fox.this.level.getBlockState(Fox.this.blockPosition()).getBlock() == Blocks.SNOW) {
                 Fox.this.xRot = 60.0F;
                 Fox.this.setTarget(null);
                 Fox.this.setFaceplanted(true);
@@ -1328,7 +1328,7 @@ public class Fox extends Animal {
                 return false;
             } else {
                 this.interval = 100;
-                BlockPos var0 = new BlockPos(this.mob);
+                BlockPos var0 = this.mob.blockPosition();
                 return Fox.this.level.isDay() && Fox.this.level.canSeeSky(var0) && !((ServerLevel)Fox.this.level).isVillage(var0) && this.setWantedPos();
             }
         }

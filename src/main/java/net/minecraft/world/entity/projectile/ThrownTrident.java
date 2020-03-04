@@ -118,6 +118,7 @@ public class ThrownTrident extends AbstractArrow {
 
     @Override
     protected void onHitEntity(EntityHitResult param0) {
+        super.onHitEntity(param0);
         Entity var0 = param0.getEntity();
         float var1 = 8.0F;
         if (var0 instanceof LivingEntity) {
@@ -148,7 +149,7 @@ public class ThrownTrident extends AbstractArrow {
         this.setDeltaMovement(this.getDeltaMovement().multiply(-0.01, -0.1, -0.01));
         float var7 = 1.0F;
         if (this.level instanceof ServerLevel && this.level.isThundering() && EnchantmentHelper.hasChanneling(this.tridentItem)) {
-            BlockPos var8 = var0.getCommandSenderBlockPosition();
+            BlockPos var8 = var0.blockPosition();
             if (this.level.canSeeSky(var8)) {
                 LightningBolt var9 = new LightningBolt(this.level, (double)var8.getX() + 0.5, (double)var8.getY(), (double)var8.getZ() + 0.5, false);
                 var9.setCause(var3 instanceof ServerPlayer ? (ServerPlayer)var3 : null);

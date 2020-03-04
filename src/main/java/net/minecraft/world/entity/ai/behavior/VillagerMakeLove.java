@@ -91,7 +91,7 @@ public class VillagerMakeLove extends Behavior<Villager> {
     }
 
     private Optional<BlockPos> takeVacantBed(ServerLevel param0, Villager param1) {
-        return param0.getPoiManager().take(PoiType.HOME.getPredicate(), param1x -> this.canReach(param1, param1x), new BlockPos(param1), 48);
+        return param0.getPoiManager().take(PoiType.HOME.getPredicate(), param1x -> this.canReach(param1, param1x), param1.blockPosition(), 48);
     }
 
     private boolean canReach(Villager param0, BlockPos param1) {

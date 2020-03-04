@@ -34,7 +34,7 @@ public class PortalForcer {
     public boolean findAndMoveToPortal(Entity param0, float param1) {
         Vec3 var0 = param0.getPortalEntranceOffset();
         Direction var1 = param0.getPortalEntranceForwards();
-        BlockPattern.PortalInfo var2 = this.findPortal(new BlockPos(param0), param0.getDeltaMovement(), var1, var0.x, var0.y, param0 instanceof Player);
+        BlockPattern.PortalInfo var2 = this.findPortal(param0.blockPosition(), param0.getDeltaMovement(), var1, var0.x, var0.y, param0 instanceof Player);
         if (var2 == null) {
             return false;
         } else {

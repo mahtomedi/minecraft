@@ -35,7 +35,7 @@ public class CatRenderer extends MobRenderer<Cat, CatModel<Cat>> {
         if (var0 > 0.0F) {
             param1.translate((double)(0.4F * var0), (double)(0.15F * var0), (double)(0.1F * var0));
             param1.mulPose(Vector3f.ZP.rotationDegrees(Mth.rotLerp(var0, 0.0F, 90.0F)));
-            BlockPos var1 = new BlockPos(param0);
+            BlockPos var1 = param0.blockPosition();
 
             for(Player var3 : param0.level.getEntitiesOfClass(Player.class, new AABB(var1).inflate(2.0, 2.0, 2.0))) {
                 if (var3.isSleeping()) {

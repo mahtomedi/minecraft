@@ -115,7 +115,7 @@ public class Bat extends AmbientCreature {
     @Override
     protected void customServerAiStep() {
         super.customServerAiStep();
-        BlockPos var0 = new BlockPos(this);
+        BlockPos var0 = this.blockPosition();
         BlockPos var1 = var0.above();
         if (this.isResting()) {
             if (this.level.getBlockState(var1).isRedstoneConductor(this.level, var0)) {

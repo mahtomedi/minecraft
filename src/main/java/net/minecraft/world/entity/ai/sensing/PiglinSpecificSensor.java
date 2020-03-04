@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.BlockFinder;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
@@ -18,8 +19,6 @@ import net.minecraft.world.entity.monster.hoglin.Hoglin;
 import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.monster.piglin.PiglinAi;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 
 public class PiglinSpecificSensor extends Sensor<LivingEntity> {
     @Override
@@ -34,14 +33,14 @@ public class PiglinSpecificSensor extends Sensor<LivingEntity> {
             MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLINS,
             MemoryModuleType.VISIBLE_ADULT_PIGLIN_COUNT,
             MemoryModuleType.VISIBLE_ADULT_HOGLIN_COUNT,
-            MemoryModuleType.NEAREST_SOUL_FIRE
+            MemoryModuleType.NEAREST_REPELLENT
         );
     }
 
     @Override
     protected void doTick(ServerLevel param0, LivingEntity param1) {
         Brain<?> var0 = param1.getBrain();
-        var0.setMemory(MemoryModuleType.NEAREST_SOUL_FIRE, findNearestSoulFire(param0, param1));
+        var0.setMemory(MemoryModuleType.NEAREST_REPELLENT, findNearestRepellent(param0, param1));
         Optional<WitherSkeleton> var1 = Optional.empty();
         Optional<Hoglin> var2 = Optional.empty();
         Optional<Hoglin> var3 = Optional.empty();
@@ -53,35 +52,36 @@ public class PiglinSpecificSensor extends Sensor<LivingEntity> {
         List<Piglin> var9 = Lists.newArrayList();
 
         for(LivingEntity var11 : var0.getMemory(MemoryModuleType.VISIBLE_LIVING_ENTITIES).orElse(Lists.newArrayList())) {
-            if (var11 instanceof Hoglin && ((Hoglin)var11).isAdult()) {
-                ++var8;
-            }
+            if (var11 instanceof Hoglin) {
+                Hoglin var12 = (Hoglin)var11;
+                if (var12.isBaby() && !var3.isPresent()) {
+                    var3 = Optional.of(var12);
+                } else if (var12.isAdult()) {
+                    ++var8;
+                    if (!var2.isPresent()) {
+                        var2 = Optional.of(var12);
+                    }
+                }
+            } else if (var11 instanceof Piglin) {
+                Piglin var13 = (Piglin)var11;
+                if (var13.isBaby() && !var4.isPresent()) {
+                    var4 = Optional.of(var13);
+                } else if (var13.isAdult()) {
+                    var9.add(var13);
+                }
+            } else if (var11 instanceof Player) {
+                Player var14 = (Player)var11;
+                if (!var6.isPresent() && EntitySelector.ATTACK_ALLOWED.test(var11) && !PiglinAi.isWearingGold(var14)) {
+                    var6 = Optional.of(var14);
+                }
 
-            if (!var1.isPresent() && var11 instanceof WitherSkeleton) {
+                if (!var7.isPresent() && !var14.isSpectator() && PiglinAi.isPlayerHoldingLovedItem(var14)) {
+                    var7 = Optional.of(var14);
+                }
+            } else if (!var1.isPresent() && var11 instanceof WitherSkeleton) {
                 var1 = Optional.of((WitherSkeleton)var11);
-            } else if (!var3.isPresent() && var11 instanceof Hoglin && var11.isBaby()) {
-                var3 = Optional.of((Hoglin)var11);
-            } else if (!var4.isPresent() && var11 instanceof Piglin && var11.isBaby()) {
-                var4 = Optional.of((Piglin)var11);
-            } else if (!var2.isPresent() && var11 instanceof Hoglin && !var11.isBaby()) {
-                var2 = Optional.of((Hoglin)var11);
             } else if (!var5.isPresent() && var11 instanceof ZombifiedPiglin) {
                 var5 = Optional.of((ZombifiedPiglin)var11);
-            }
-
-            if (var11 instanceof Piglin && !var11.isBaby()) {
-                var9.add((Piglin)var11);
-            }
-
-            if (var11 instanceof Player) {
-                Player var12 = (Player)var11;
-                if (!var6.isPresent() && EntitySelector.ATTACK_ALLOWED.test(var11) && !PiglinAi.isWearingGold(var12)) {
-                    var6 = Optional.of(var12);
-                }
-
-                if (!var7.isPresent() && !var12.isSpectator() && PiglinAi.isPlayerHoldingLovedItem(var12)) {
-                    var7 = Optional.of(var12);
-                }
             }
         }
 
@@ -97,12 +97,7 @@ public class PiglinSpecificSensor extends Sensor<LivingEntity> {
         var0.setMemory(MemoryModuleType.VISIBLE_ADULT_HOGLIN_COUNT, var8);
     }
 
-    private static Optional<BlockPos> findNearestSoulFire(ServerLevel param0, LivingEntity param1) {
-        return BlockFinder.findClosestMatchingBlockPos(param1.getBlockPos(), 8, 4, param1x -> containsSoulFire(param0, param1x));
-    }
-
-    private static boolean containsSoulFire(ServerLevel param0, BlockPos param1) {
-        Block var0 = param0.getBlockState(param1).getBlock();
-        return var0 == Blocks.SOUL_FIRE || var0 == Blocks.SOUL_FIRE_TORCH || var0 == Blocks.SOUL_FIRE_WALL_TORCH || var0 == Blocks.SOUL_FIRE_LANTERN;
+    private static Optional<BlockPos> findNearestRepellent(ServerLevel param0, LivingEntity param1) {
+        return BlockFinder.findClosestMatchingBlockPos(param1.blockPosition(), 8, 4, param1x -> param0.getBlockState(param1x).is(BlockTags.PIGLIN_REPELLENTS));
     }
 }

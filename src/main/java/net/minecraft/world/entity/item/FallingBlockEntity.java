@@ -65,7 +65,7 @@ public class FallingBlockEntity extends Entity {
         this.xo = param1;
         this.yo = param2;
         this.zo = param3;
-        this.setStartPos(new BlockPos(this));
+        this.setStartPos(this.blockPosition());
     }
 
     @Override
@@ -104,7 +104,7 @@ public class FallingBlockEntity extends Entity {
         } else {
             Block var0 = this.blockState.getBlock();
             if (this.time++ == 0) {
-                BlockPos var1 = new BlockPos(this);
+                BlockPos var1 = this.blockPosition();
                 if (this.level.getBlockState(var1).getBlock() == var0) {
                     this.level.removeBlock(var1, false);
                 } else if (!this.level.isClientSide) {
@@ -119,7 +119,7 @@ public class FallingBlockEntity extends Entity {
 
             this.move(MoverType.SELF, this.getDeltaMovement());
             if (!this.level.isClientSide) {
-                BlockPos var2 = new BlockPos(this);
+                BlockPos var2 = this.blockPosition();
                 boolean var3 = this.blockState.getBlock() instanceof ConcretePowderBlock;
                 boolean var4 = var3 && this.level.getFluidState(var2).is(FluidTags.WATER);
                 double var5 = this.getDeltaMovement().lengthSqr();

@@ -39,7 +39,7 @@ public class FlyNodeEvaluator extends WalkNodeEvaluator {
             var0 = Mth.floor(this.mob.getY() + 0.5);
         }
 
-        BlockPos var4 = new BlockPos(this.mob);
+        BlockPos var4 = this.mob.blockPosition();
         BlockPathTypes var5 = this.getBlockPathType(this.mob, var4.getX(), var0, var4.getZ());
         if (this.mob.getPathfindingMalus(var5) < 0.0F) {
             Set<BlockPos> var6 = Sets.newHashSet();
@@ -232,7 +232,7 @@ public class FlyNodeEvaluator extends WalkNodeEvaluator {
     ) {
         EnumSet<BlockPathTypes> var0 = EnumSet.noneOf(BlockPathTypes.class);
         BlockPathTypes var1 = BlockPathTypes.BLOCKED;
-        BlockPos var2 = new BlockPos(param4);
+        BlockPos var2 = param4.blockPosition();
         var1 = this.getBlockPathTypes(param0, param1, param2, param3, param5, param6, param7, param8, param9, var0, var1, var2);
         if (var0.contains(BlockPathTypes.FENCE)) {
             return BlockPathTypes.FENCE;

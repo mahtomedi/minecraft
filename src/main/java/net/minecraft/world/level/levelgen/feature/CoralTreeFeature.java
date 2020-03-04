@@ -19,7 +19,7 @@ public class CoralTreeFeature extends CoralFeature {
 
     @Override
     protected boolean placeFeature(LevelAccessor param0, Random param1, BlockPos param2, BlockState param3) {
-        BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos(param2);
+        BlockPos.MutableBlockPos var0 = param2.mutable();
         int var1 = param1.nextInt(3) + 1;
 
         for(int var2 = 0; var2 < var1; ++var2) {

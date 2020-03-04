@@ -36,8 +36,8 @@ public class SetClosestHomeAsWalkTarget extends Behavior<LivingEntity> {
         } else {
             PathfinderMob var0 = (PathfinderMob)param1;
             PoiManager var1 = param0.getPoiManager();
-            Optional<BlockPos> var2 = var1.findClosest(PoiType.HOME.getPredicate(), new BlockPos(param1), 48, PoiManager.Occupancy.ANY);
-            return var2.isPresent() && !(var2.get().distSqr(new BlockPos(var0)) <= 4.0);
+            Optional<BlockPos> var2 = var1.findClosest(PoiType.HOME.getPredicate(), param1.blockPosition(), 48, PoiManager.Occupancy.ANY);
+            return var2.isPresent() && !(var2.get().distSqr(var0.blockPosition()) <= 4.0);
         }
     }
 
@@ -58,7 +58,7 @@ public class SetClosestHomeAsWalkTarget extends Behavior<LivingEntity> {
                 return true;
             }
         };
-        Stream<BlockPos> var3 = var1.findAll(PoiType.HOME.getPredicate(), var2, new BlockPos(param1), 48, PoiManager.Occupancy.ANY);
+        Stream<BlockPos> var3 = var1.findAll(PoiType.HOME.getPredicate(), var2, param1.blockPosition(), 48, PoiManager.Occupancy.ANY);
         Path var4 = var0.getNavigation().createPath(var3, PoiType.HOME.getValidRange());
         if (var4 != null && var4.canReach()) {
             BlockPos var5 = var4.getTarget();

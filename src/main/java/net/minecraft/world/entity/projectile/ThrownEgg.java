@@ -9,8 +9,6 @@ import net.minecraft.world.entity.animal.Chicken;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.api.distmarker.Dist;
@@ -52,28 +50,26 @@ public class ThrownEgg extends ThrowableItemProjectile {
     }
 
     @Override
-    protected void onHit(HitResult param0) {
-        HitResult.Type var0 = param0.getType();
-        if (var0 == HitResult.Type.ENTITY) {
-            ((EntityHitResult)param0).getEntity().hurt(DamageSource.thrown(this, this.getOwner()), 0.0F);
-        } else if (var0 == HitResult.Type.BLOCK) {
-            BlockHitResult var1 = (BlockHitResult)param0;
-            BlockState var2 = this.level.getBlockState(var1.getBlockPos());
-            var2.onProjectileHit(this.level, var2, var1, this);
-        }
+    protected void onHitEntity(EntityHitResult param0) {
+        super.onHitEntity(param0);
+        param0.getEntity().hurt(DamageSource.thrown(this, this.getOwner()), 0.0F);
+    }
 
+    @Override
+    protected void onHit(HitResult param0) {
+        super.onHit(param0);
         if (!this.level.isClientSide) {
             if (this.random.nextInt(8) == 0) {
-                int var3 = 1;
+                int var0 = 1;
                 if (this.random.nextInt(32) == 0) {
-                    var3 = 4;
+                    var0 = 4;
                 }
 
-                for(int var4 = 0; var4 < var3; ++var4) {
-                    Chicken var5 = EntityType.CHICKEN.create(this.level);
-                    var5.setAge(-24000);
-                    var5.moveTo(this.getX(), this.getY(), this.getZ(), this.yRot, 0.0F);
-                    this.level.addFreshEntity(var5);
+                for(int var1 = 0; var1 < var0; ++var1) {
+                    Chicken var2 = EntityType.CHICKEN.create(this.level);
+                    var2.setAge(-24000);
+                    var2.moveTo(this.getX(), this.getY(), this.getZ(), this.yRot, 0.0F);
+                    this.level.addFreshEntity(var2);
                 }
             }
 

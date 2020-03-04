@@ -23,6 +23,7 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
@@ -334,7 +335,7 @@ public class BlockState extends AbstractStateHolder<Block, BlockState> implement
         return this.getBlock().getSoundType(this);
     }
 
-    public void onProjectileHit(Level param0, BlockState param1, BlockHitResult param2, Entity param3) {
+    public void onProjectileHit(Level param0, BlockState param1, BlockHitResult param2, Projectile param3) {
         this.getBlock().onProjectileHit(param0, param1, param2, param3);
     }
 

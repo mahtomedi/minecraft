@@ -363,7 +363,7 @@ public class Rabbit extends Animal {
     }
 
     private int getRandomRabbitType(LevelAccessor param0) {
-        Biome var0 = param0.getBiome(new BlockPos(this));
+        Biome var0 = param0.getBiome(this.blockPosition());
         int var1 = this.random.nextInt(100);
         if (var0.getPrecipitation() == Biome.Precipitation.SNOW) {
             return var1 < 80 ? 1 : 3;

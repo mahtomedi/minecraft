@@ -108,6 +108,10 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
 
     protected <T extends AbstractWidget> T addButton(T param0) {
         this.buttons.add(param0);
+        return this.addWidget(param0);
+    }
+
+    protected <T extends GuiEventListener> T addWidget(T param0) {
         this.children.add(param0);
         return param0;
     }
@@ -328,11 +332,6 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
         this.children.clear();
         this.setFocused(null);
         this.init();
-    }
-
-    public void setSize(int param0, int param1) {
-        this.width = param0;
-        this.height = param1;
     }
 
     @Override

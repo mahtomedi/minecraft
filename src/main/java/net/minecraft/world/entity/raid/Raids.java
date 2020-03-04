@@ -89,7 +89,7 @@ public class Raids extends SavedData {
             if (var0 == DimensionType.NETHER) {
                 return null;
             } else {
-                BlockPos var1 = new BlockPos(param0);
+                BlockPos var1 = param0.blockPosition();
                 List<PoiRecord> var2 = this.level
                     .getPoiManager()
                     .getInRange(PoiType.ALL, var1, 64, PoiManager.Occupancy.IS_OCCUPIED)

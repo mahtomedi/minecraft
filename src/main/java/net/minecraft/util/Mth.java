@@ -61,11 +61,6 @@ public class Mth {
         return param0 < (double)var0 ? var0 - 1L : var0;
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public static int absFloor(double param0) {
-        return (int)(param0 >= 0.0 ? param0 : -param0 + 1.0);
-    }
-
     public static float abs(float param0) {
         return Math.abs(param0);
     }
@@ -258,20 +253,6 @@ public class Mth {
     @OnlyIn(Dist.CLIENT)
     public static int getInt(String param0, int param1, int param2) {
         return Math.max(param2, getInt(param0, param1));
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public static double getDouble(String param0, double param1) {
-        try {
-            return Double.parseDouble(param0);
-        } catch (Throwable var4) {
-            return param1;
-        }
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public static double getDouble(String param0, double param1, double param2) {
-        return Math.max(param2, getDouble(param0, param1));
     }
 
     public static int smallestEncompassingPowerOfTwo(int param0) {

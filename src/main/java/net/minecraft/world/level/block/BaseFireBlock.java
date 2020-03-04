@@ -16,13 +16,18 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class BaseFireBlock extends Block {
     private final float fireDamage;
+    protected static final VoxelShape UP_AABB = Block.box(0.0, 15.0, 0.0, 16.0, 16.0, 16.0);
+    protected static final VoxelShape DOWN_AABB = Block.box(0.0, 0.0, 0.0, 16.0, 1.0, 16.0);
+    protected static final VoxelShape WEST_AABB = Block.box(0.0, 0.0, 0.0, 1.0, 16.0, 16.0);
+    protected static final VoxelShape EAST_AABB = Block.box(15.0, 0.0, 0.0, 16.0, 16.0, 16.0);
+    protected static final VoxelShape NORTH_AABB = Block.box(0.0, 0.0, 0.0, 16.0, 16.0, 1.0);
+    protected static final VoxelShape SOUTH_AABB = Block.box(0.0, 0.0, 15.0, 16.0, 16.0, 16.0);
 
     public BaseFireBlock(Block.Properties param0, float param1) {
         super(param0);
@@ -42,7 +47,7 @@ public abstract class BaseFireBlock extends Block {
 
     @Override
     public VoxelShape getShape(BlockState param0, BlockGetter param1, BlockPos param2, CollisionContext param3) {
-        return Shapes.empty();
+        return DOWN_AABB;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -141,12 +146,18 @@ public abstract class BaseFireBlock extends Block {
     public void onPlace(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
         if (param3.getBlock() != param0.getBlock()) {
             if (param1.dimension.getType() != DimensionType.OVERWORLD && param1.dimension.getType() != DimensionType.NETHER
-                || !((NetherPortalBlock)Blocks.NETHER_PORTAL).trySpawnPortal(param1, param2)) {
+                || !NetherPortalBlock.trySpawnPortal(param1, param2)) {
                 if (!param0.canSurvive(param1, param2)) {
                     param1.removeBlock(param2, false);
                 }
 
             }
         }
+    }
+
+    @Override
+    public void onRemove(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
+        super.onRemove(param0, param1, param2, param3, param4);
+        param1.levelEvent(null, 1009, param2, 0);
     }
 }

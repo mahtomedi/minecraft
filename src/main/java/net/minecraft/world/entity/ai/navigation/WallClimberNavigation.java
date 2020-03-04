@@ -21,7 +21,7 @@ public class WallClimberNavigation extends GroundPathNavigation {
 
     @Override
     public Path createPath(Entity param0, int param1) {
-        this.pathToPosition = new BlockPos(param0);
+        this.pathToPosition = param0.blockPosition();
         return super.createPath(param0, param1);
     }
 
@@ -31,7 +31,7 @@ public class WallClimberNavigation extends GroundPathNavigation {
         if (var0 != null) {
             return this.moveTo(var0, param1);
         } else {
-            this.pathToPosition = new BlockPos(param0);
+            this.pathToPosition = param0.blockPosition();
             this.speedModifier = param1;
             return true;
         }

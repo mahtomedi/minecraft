@@ -64,4 +64,12 @@ public abstract class BanListEntry<T> extends StoredUserEntry<T> {
     boolean hasExpired() {
         return this.expires == null ? false : this.expires.before(new Date());
     }
+
+    @Override
+    protected void serialize(JsonObject param0) {
+        param0.addProperty("created", DATE_FORMAT.format(this.created));
+        param0.addProperty("source", this.source);
+        param0.addProperty("expires", this.expires == null ? "forever" : DATE_FORMAT.format(this.expires));
+        param0.addProperty("reason", this.reason);
+    }
 }

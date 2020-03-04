@@ -113,7 +113,7 @@ public class MoveToTargetSink extends Behavior<Mob> {
                 return true;
             }
 
-            Vec3 var3 = RandomPos.getPosTowards((PathfinderMob)param0, 10, 7, new Vec3(var0));
+            Vec3 var3 = RandomPos.getPosTowards((PathfinderMob)param0, 10, 7, Vec3.atBottomCenterOf(var0));
             if (var3 != null) {
                 this.path = param0.getNavigation().createPath(var3.x, var3.y, var3.z, 0);
                 return this.path != null;
@@ -124,6 +124,6 @@ public class MoveToTargetSink extends Behavior<Mob> {
     }
 
     private boolean reachedTarget(Mob param0, WalkTarget param1) {
-        return param1.getTarget().getPos().distManhattan(new BlockPos(param0)) <= param1.getCloseEnoughDist();
+        return param1.getTarget().getPos().distManhattan(param0.blockPosition()) <= param1.getCloseEnoughDist();
     }
 }

@@ -4,31 +4,28 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.resources.language.I18n;
-import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundRenameItemPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.AnvilMenu;
-import net.minecraft.world.inventory.ContainerListener;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class AnvilScreen extends AbstractContainerScreen<AnvilMenu> implements ContainerListener {
+public class AnvilScreen extends ItemCombinerScreen<AnvilMenu> {
     private static final ResourceLocation ANVIL_LOCATION = new ResourceLocation("textures/gui/container/anvil.png");
     private EditBox name;
 
     public AnvilScreen(AnvilMenu param0, Inventory param1, Component param2) {
-        super(param0, param1, param2);
+        super(param0, param1, param2, ANVIL_LOCATION);
     }
 
     @Override
-    protected void init() {
-        super.init();
+    protected void subInit() {
         this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
         int var0 = (this.width - this.imageWidth) / 2;
         int var1 = (this.height - this.imageHeight) / 2;
@@ -41,7 +38,6 @@ public class AnvilScreen extends AbstractContainerScreen<AnvilMenu> implements C
         this.name.setMaxLength(35);
         this.name.setResponder(this::onNameChanged);
         this.children.add(this.name);
-        this.menu.addSlotListener(this);
         this.setInitialFocus(this.name);
     }
 
@@ -56,7 +52,6 @@ public class AnvilScreen extends AbstractContainerScreen<AnvilMenu> implements C
     public void removed() {
         super.removed();
         this.minecraft.keyboardHandler.setSendRepeatsToGui(false);
-        this.menu.removeSlotListener(this);
     }
 
     @Override
@@ -66,6 +61,19 @@ public class AnvilScreen extends AbstractContainerScreen<AnvilMenu> implements C
         }
 
         return !this.name.keyPressed(param0, param1, param2) && !this.name.canConsumeInput() ? super.keyPressed(param0, param1, param2) : true;
+    }
+
+    private void onNameChanged(String param0) {
+        if (!param0.isEmpty()) {
+            String var0x = param0;
+            Slot var1x = this.menu.getSlot(0);
+            if (var1x != null && var1x.hasItem() && !var1x.getItem().hasCustomHoverName() && param0.equals(var1x.getItem().getHoverName().getString())) {
+                var0x = "";
+            }
+
+            this.menu.setItemName(var0x);
+            this.minecraft.player.connection.send(new ServerboundRenameItemPacket(var0x));
+        }
     }
 
     @Override
@@ -96,45 +104,9 @@ public class AnvilScreen extends AbstractContainerScreen<AnvilMenu> implements C
 
     }
 
-    private void onNameChanged(String param0) {
-        if (!param0.isEmpty()) {
-            String var0x = param0;
-            Slot var1x = this.menu.getSlot(0);
-            if (var1x != null && var1x.hasItem() && !var1x.getItem().hasCustomHoverName() && param0.equals(var1x.getItem().getHoverName().getString())) {
-                var0x = "";
-            }
-
-            this.menu.setItemName(var0x);
-            this.minecraft.player.connection.send(new ServerboundRenameItemPacket(var0x));
-        }
-    }
-
     @Override
-    public void render(int param0, int param1, float param2) {
-        this.renderBackground();
-        super.render(param0, param1, param2);
-        RenderSystem.disableBlend();
+    public void renderFg(int param0, int param1, float param2) {
         this.name.render(param0, param1, param2);
-        this.renderTooltip(param0, param1);
-    }
-
-    @Override
-    protected void renderBg(float param0, int param1, int param2) {
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        this.minecraft.getTextureManager().bind(ANVIL_LOCATION);
-        int var0 = (this.width - this.imageWidth) / 2;
-        int var1 = (this.height - this.imageHeight) / 2;
-        this.blit(var0, var1, 0, 0, this.imageWidth, this.imageHeight);
-        this.blit(var0 + 59, var1 + 20, 0, this.imageHeight + (this.menu.getSlot(0).hasItem() ? 0 : 16), 110, 16);
-        if ((this.menu.getSlot(0).hasItem() || this.menu.getSlot(1).hasItem()) && !this.menu.getSlot(2).hasItem()) {
-            this.blit(var0 + 99, var1 + 45, this.imageWidth, 0, 28, 21);
-        }
-
-    }
-
-    @Override
-    public void refreshContainer(AbstractContainerMenu param0, NonNullList<ItemStack> param1) {
-        this.slotChanged(param0, 0, param0.getSlot(0).getItem());
     }
 
     @Override
@@ -144,9 +116,5 @@ public class AnvilScreen extends AbstractContainerScreen<AnvilMenu> implements C
             this.name.setEditable(!param2.isEmpty());
         }
 
-    }
-
-    @Override
-    public void setContainerData(AbstractContainerMenu param0, int param1, int param2) {
     }
 }

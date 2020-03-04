@@ -78,7 +78,7 @@ public class HugeFungusFeature extends Feature<HugeFungusConfiguration> {
                 boolean var5 = param5 && Mth.abs(var3) == var2 && Mth.abs(var4) == var2;
 
                 for(int var6 = 0; var6 < param4; ++var6) {
-                    var0.set(param3).move(var3, var6, var4);
+                    var0.setWithOffset(param3, var3, var6, var4);
                     if (isReplaceable(param0, var0)) {
                         if (param2.planted) {
                             if (!param0.getBlockState(var0.below()).isAir()) {
@@ -123,7 +123,7 @@ public class HugeFungusFeature extends Feature<HugeFungusConfiguration> {
                     boolean var10 = !var8 && !var9 && var4 != param4;
                     boolean var11 = var8 && var9;
                     boolean var12 = var4 < var3 + 3;
-                    var0.set(param3).move(var6, var4, var7);
+                    var0.setWithOffset(param3, var6, var4, var7);
                     if (isReplaceable(param0, var0)) {
                         if (param2.planted && !param0.getBlockState(var0.below()).isAir()) {
                             param0.destroyBlock(var0, true);
@@ -175,7 +175,7 @@ public class HugeFungusFeature extends Feature<HugeFungusConfiguration> {
 
     @Nullable
     private static BlockPos.MutableBlockPos findOnNyliumPosition(LevelAccessor param0, BlockPos param1, Block param2) {
-        BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos(param1);
+        BlockPos.MutableBlockPos var0 = param1.mutable();
 
         for(int var1 = param1.getY(); var1 >= 1; --var1) {
             var0.setY(var1);
@@ -189,7 +189,7 @@ public class HugeFungusFeature extends Feature<HugeFungusConfiguration> {
     }
 
     private static void tryPlaceWeepingVines(BlockPos param0, LevelAccessor param1, Random param2) {
-        BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos(param0).move(Direction.DOWN);
+        BlockPos.MutableBlockPos var0 = param0.mutable().move(Direction.DOWN);
         if (param1.isEmptyBlock(var0)) {
             int var1 = Mth.nextInt(param2, 1, 5);
             if (param2.nextInt(7) == 0) {

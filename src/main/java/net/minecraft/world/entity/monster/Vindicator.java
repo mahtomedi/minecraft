@@ -5,7 +5,6 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -78,7 +77,7 @@ public class Vindicator extends AbstractIllager {
         if (!this.isNoAi()) {
             PathNavigation var0 = this.getNavigation();
             if (var0 instanceof GroundPathNavigation) {
-                boolean var1 = ((ServerLevel)this.level).isRaided(new BlockPos(this));
+                boolean var1 = ((ServerLevel)this.level).isRaided(this.blockPosition());
                 ((GroundPathNavigation)var0).setCanOpenDoors(var1);
             }
         }

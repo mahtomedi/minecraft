@@ -1,7 +1,6 @@
 package net.minecraft.world.entity.monster;
 
 import java.util.EnumSet;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -231,7 +230,7 @@ public class Blaze extends Monster {
 
                         if (this.attackStep > 1) {
                             float var6 = Mth.sqrt(Mth.sqrt(var2)) * 0.5F;
-                            this.blaze.level.levelEvent(null, 1018, new BlockPos(this.blaze), 0);
+                            this.blaze.level.levelEvent(null, 1018, this.blaze.blockPosition(), 0);
 
                             for(int var7 = 0; var7 < 1; ++var7) {
                                 SmallFireball var8 = new SmallFireball(

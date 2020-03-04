@@ -10,7 +10,7 @@ public class BlockPosWrapper implements PositionWrapper {
 
     public BlockPosWrapper(BlockPos param0) {
         this.pos = param0;
-        this.lookAt = new Vec3((double)param0.getX() + 0.5, (double)param0.getY() + 0.5, (double)param0.getZ() + 0.5);
+        this.lookAt = Vec3.atCenterOf(param0);
     }
 
     @Override

@@ -33,7 +33,7 @@ public class NoSurfaceOreFeature extends Feature<OreConfiguration> {
         int var0 = this.getRandomPlacementInOneAxisRelativeToOrigin(param1, param3);
         int var1 = this.getRandomPlacementInOneAxisRelativeToOrigin(param1, param3);
         int var2 = this.getRandomPlacementInOneAxisRelativeToOrigin(param1, param3);
-        param0.set(param2).move(var0, var1, var2);
+        param0.setWithOffset(param2, var0, var1, var2);
     }
 
     private int getRandomPlacementInOneAxisRelativeToOrigin(Random param0, int param1) {
@@ -44,7 +44,7 @@ public class NoSurfaceOreFeature extends Feature<OreConfiguration> {
         BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
 
         for(Direction var1 : Direction.values()) {
-            var0.set(param1).move(var1);
+            var0.setWithOffset(param1, var1);
             if (param0.getBlockState(var0).isAir()) {
                 return true;
             }

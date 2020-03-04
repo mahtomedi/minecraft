@@ -180,7 +180,7 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
             param2.set(var0);
             param4.set(param10, param13, param11);
             BlockState var1 = param0.getBlockState(param4);
-            BlockState var2 = param0.getBlockState(param5.set(param4).move(Direction.UP));
+            BlockState var2 = param0.getBlockState(param5.setWithOffset(param4, Direction.UP));
             if (var1.getBlock() == Blocks.GRASS_BLOCK || var1.getBlock() == Blocks.MYCELIUM) {
                 param15.set(true);
             }
@@ -193,7 +193,7 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
                 } else {
                     param0.setBlockState(param4, CAVE_AIR, false);
                     if (param15.get()) {
-                        param6.set(param4).move(Direction.DOWN);
+                        param6.setWithOffset(param4, Direction.DOWN);
                         if (param0.getBlockState(param6).getBlock() == Blocks.DIRT) {
                             param0.setBlockState(param6, param1.apply(param4).getSurfaceBuilderConfig().getTopMaterial(), false);
                         }

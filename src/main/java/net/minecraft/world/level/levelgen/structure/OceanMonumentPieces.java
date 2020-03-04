@@ -1514,7 +1514,7 @@ public class OceanMonumentPieces {
                 ElderGuardian var3 = EntityType.ELDER_GUARDIAN.create(param0.getLevel());
                 var3.heal(var3.getMaxHealth());
                 var3.moveTo((double)var0 + 0.5, (double)var1, (double)var2 + 0.5, 0.0F, 0.0F);
-                var3.finalizeSpawn(param0, param0.getCurrentDifficultyAt(new BlockPos(var3)), MobSpawnType.STRUCTURE, null, null);
+                var3.finalizeSpawn(param0, param0.getCurrentDifficultyAt(var3.blockPosition()), MobSpawnType.STRUCTURE, null, null);
                 param0.addFreshEntity(var3);
                 return true;
             } else {

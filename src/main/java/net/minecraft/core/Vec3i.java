@@ -9,12 +9,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @Immutable
 public class Vec3i implements Comparable<Vec3i> {
     public static final Vec3i ZERO = new Vec3i(0, 0, 0);
-    @Deprecated
-    private final int x;
-    @Deprecated
-    private final int y;
-    @Deprecated
-    private final int z;
+    private int x;
+    private int y;
+    private int z;
 
     public Vec3i(int param0, int param1, int param2) {
         this.x = param0;
@@ -67,6 +64,18 @@ public class Vec3i implements Comparable<Vec3i> {
 
     public int getZ() {
         return this.z;
+    }
+
+    protected void setX(int param0) {
+        this.x = param0;
+    }
+
+    protected void setY(int param0) {
+        this.y = param0;
+    }
+
+    protected void setZ(int param0) {
+        this.z = param0;
     }
 
     public Vec3i below() {

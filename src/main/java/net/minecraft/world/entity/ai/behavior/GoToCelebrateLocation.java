@@ -29,7 +29,7 @@ public class GoToCelebrateLocation<E extends Mob> extends Behavior<E> {
 
     protected void start(ServerLevel param0, Mob param1, long param2) {
         BlockPos var0 = getCelebrateLocation(param1);
-        boolean var1 = var0.closerThan(param1.getBlockPos(), (double)this.closeEnoughDist);
+        boolean var1 = var0.closerThan(param1.blockPosition(), (double)this.closeEnoughDist);
         if (!var1) {
             BehaviorUtils.setWalkAndLookTargetMemories(param1, getNearbyPos(param1, var0), this.closeEnoughDist);
         }

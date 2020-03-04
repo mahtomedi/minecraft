@@ -38,7 +38,7 @@ public class LocateHidingPlace extends Behavior<LivingEntity> {
     @Override
     protected boolean checkExtraStartConditions(ServerLevel param0, LivingEntity param1) {
         Optional<BlockPos> var0 = param0.getPoiManager()
-            .find(param0x -> param0x == PoiType.HOME, param0x -> true, new BlockPos(param1), this.closeEnoughDist + 1, PoiManager.Occupancy.ANY);
+            .find(param0x -> param0x == PoiType.HOME, param0x -> true, param1.blockPosition(), this.closeEnoughDist + 1, PoiManager.Occupancy.ANY);
         if (var0.isPresent() && var0.get().closerThan(param1.position(), (double)this.closeEnoughDist)) {
             this.currentPos = var0;
         } else {
@@ -54,7 +54,9 @@ public class LocateHidingPlace extends Behavior<LivingEntity> {
         Optional<BlockPos> var1 = this.currentPos;
         if (!var1.isPresent()) {
             var1 = param0.getPoiManager()
-                .getRandom(param0x -> param0x == PoiType.HOME, param0x -> true, PoiManager.Occupancy.ANY, new BlockPos(param1), this.radius, param1.getRandom());
+                .getRandom(
+                    param0x -> param0x == PoiType.HOME, param0x -> true, PoiManager.Occupancy.ANY, param1.blockPosition(), this.radius, param1.getRandom()
+                );
             if (!var1.isPresent()) {
                 Optional<GlobalPos> var2 = var0.getMemory(MemoryModuleType.HOME);
                 if (var2.isPresent()) {

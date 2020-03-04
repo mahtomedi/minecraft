@@ -285,7 +285,7 @@ public class IronGolem extends AbstractGolem {
 
     @Override
     public boolean checkSpawnObstruction(LevelReader param0) {
-        BlockPos var0 = new BlockPos(this);
+        BlockPos var0 = this.blockPosition();
         BlockPos var1 = var0.below();
         BlockState var2 = param0.getBlockState(var1);
         if (!var2.entityCanStandOn(param0, var1, this)) {

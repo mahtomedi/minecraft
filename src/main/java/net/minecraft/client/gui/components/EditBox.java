@@ -1,11 +1,11 @@
 package net.minecraft.client.gui.components;
 
-import com.google.common.base.Predicates;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
+import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -39,7 +39,7 @@ public class EditBox extends AbstractWidget implements Widget, GuiEventListener 
     private int textColorUneditable = 7368816;
     private String suggestion;
     private Consumer<String> responder;
-    private Predicate<String> filter = Predicates.alwaysTrue();
+    private Predicate<String> filter = Objects::nonNull;
     private BiFunction<String, Integer, String> formatter = (param0x, param1x) -> param0x;
 
     public EditBox(Font param0, int param1, int param2, int param3, int param4, String param5) {

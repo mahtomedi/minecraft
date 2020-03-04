@@ -165,7 +165,7 @@ public class DebugScreenOverlay extends GuiComponent {
             var4 = String.format("\"%s\" server, %.0f tx, %.0f rx", this.minecraft.player.getServerBrand(), var2, var3);
         }
 
-        BlockPos var6 = new BlockPos(this.minecraft.getCameraEntity());
+        BlockPos var6 = this.minecraft.getCameraEntity().blockPosition();
         if (this.minecraft.showOnlyReducedInfo()) {
             return Lists.newArrayList(
                 "Minecraft "

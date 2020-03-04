@@ -106,23 +106,23 @@ public abstract class MegaTreeFeature<T extends TreeConfiguration> extends Abstr
         BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
 
         for(int var1 = 0; var1 < param3; ++var1) {
-            var0.set(param2).move(0, var1, 0);
+            var0.setWithOffset(param2, 0, var1, 0);
             if (isFree(param0, var0)) {
                 this.placeLog(param0, param1, var0, param4, param5, param6);
             }
 
             if (var1 < param3 - 1) {
-                var0.set(param2).move(1, var1, 0);
+                var0.setWithOffset(param2, 1, var1, 0);
                 if (isFree(param0, var0)) {
                     this.placeLog(param0, param1, var0, param4, param5, param6);
                 }
 
-                var0.set(param2).move(1, var1, 1);
+                var0.setWithOffset(param2, 1, var1, 1);
                 if (isFree(param0, var0)) {
                     this.placeLog(param0, param1, var0, param4, param5, param6);
                 }
 
-                var0.set(param2).move(0, var1, 1);
+                var0.setWithOffset(param2, 0, var1, 1);
                 if (isFree(param0, var0)) {
                     this.placeLog(param0, param1, var0, param4, param5, param6);
                 }

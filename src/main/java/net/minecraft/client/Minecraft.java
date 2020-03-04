@@ -2046,7 +2046,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         } else if (this.player.level.dimension instanceof TheEndDimension) {
             return this.gui.getBossOverlay().shouldPlayMusic() ? MusicManager.Music.END_BOSS : MusicManager.Music.END;
         } else {
-            Biome.BiomeCategory var0 = this.player.level.getBiome(new BlockPos(this.player)).getBiomeCategory();
+            Biome.BiomeCategory var0 = this.player.level.getBiome(this.player.blockPosition()).getBiomeCategory();
             if (!this.musicManager.isPlayingMusic(MusicManager.Music.UNDER_WATER)
                 && (
                     !this.player.isUnderWater()

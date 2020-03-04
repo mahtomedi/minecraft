@@ -55,41 +55,48 @@ public class WitherSkull extends AbstractHurtingProjectile {
     }
 
     @Override
-    protected void onHit(HitResult param0) {
-        super.onHit(param0);
+    protected void onHitEntity(EntityHitResult param0) {
+        super.onHitEntity(param0);
         if (!this.level.isClientSide) {
-            if (param0.getType() == HitResult.Type.ENTITY) {
-                Entity var0 = ((EntityHitResult)param0).getEntity();
-                if (this.owner != null) {
-                    if (var0.hurt(DamageSource.mobAttack(this.owner), 8.0F)) {
-                        if (var0.isAlive()) {
-                            this.doEnchantDamageEffects(this.owner, var0);
-                        } else {
-                            this.owner.heal(5.0F);
-                        }
+            Entity var0 = param0.getEntity();
+            Entity var1 = this.getOwner();
+            if (var1 instanceof LivingEntity) {
+                LivingEntity var2 = (LivingEntity)var1;
+                if (var0.hurt(DamageSource.mobAttack(var2), 8.0F)) {
+                    if (var0.isAlive()) {
+                        this.doEnchantDamageEffects(var2, var0);
+                    } else {
+                        var2.heal(5.0F);
                     }
-                } else {
-                    var0.hurt(DamageSource.MAGIC, 5.0F);
+                }
+            } else {
+                var0.hurt(DamageSource.MAGIC, 5.0F);
+            }
+
+            if (var0 instanceof LivingEntity) {
+                int var3 = 0;
+                if (this.level.getDifficulty() == Difficulty.NORMAL) {
+                    var3 = 10;
+                } else if (this.level.getDifficulty() == Difficulty.HARD) {
+                    var3 = 40;
                 }
 
-                if (var0 instanceof LivingEntity) {
-                    int var1 = 0;
-                    if (this.level.getDifficulty() == Difficulty.NORMAL) {
-                        var1 = 10;
-                    } else if (this.level.getDifficulty() == Difficulty.HARD) {
-                        var1 = 40;
-                    }
-
-                    if (var1 > 0) {
-                        ((LivingEntity)var0).addEffect(new MobEffectInstance(MobEffects.WITHER, 20 * var1, 1));
-                    }
+                if (var3 > 0) {
+                    ((LivingEntity)var0).addEffect(new MobEffectInstance(MobEffects.WITHER, 20 * var3, 1));
                 }
             }
 
-            Explosion.BlockInteraction var2 = this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)
+        }
+    }
+
+    @Override
+    protected void onHit(HitResult param0) {
+        super.onHit(param0);
+        if (!this.level.isClientSide) {
+            Explosion.BlockInteraction var0 = this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)
                 ? Explosion.BlockInteraction.DESTROY
                 : Explosion.BlockInteraction.NONE;
-            this.level.explode(this, this.getX(), this.getY(), this.getZ(), 1.0F, false, var2);
+            this.level.explode(this, this.getX(), this.getY(), this.getZ(), 1.0F, false, var0);
             this.remove();
         }
 

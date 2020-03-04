@@ -270,7 +270,7 @@ public class BedBlock extends HorizontalDirectionalBlock implements EntityBlock 
         if (var0.max(Direction.Axis.Y) > 0.4375) {
             return Optional.empty();
         } else {
-            BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos(param2);
+            BlockPos.MutableBlockPos var1 = param2.mutable();
 
             while(var1.getY() >= 0 && param2.getY() - var1.getY() <= 2 && param1.getBlockState(var1).getCollisionShape(param1, var1).isEmpty()) {
                 var1.move(Direction.DOWN);

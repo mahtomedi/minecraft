@@ -1252,7 +1252,7 @@ public class WoodlandMansionPieces {
 
                 var2.setPersistenceRequired();
                 var2.moveTo(param1, 0.0F, 0.0F);
-                var2.finalizeSpawn(param2, param2.getCurrentDifficultyAt(new BlockPos(var2)), MobSpawnType.STRUCTURE, null, null);
+                var2.finalizeSpawn(param2, param2.getCurrentDifficultyAt(var2.blockPosition()), MobSpawnType.STRUCTURE, null, null);
                 param2.addFreshEntity(var2);
                 param2.setBlock(param1, Blocks.AIR.defaultBlockState(), 2);
             }

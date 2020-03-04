@@ -438,7 +438,7 @@ public class EndDragonFight {
             this.updateCrystalCount();
             Entity var0 = this.level.getEntity(this.dragonUUID);
             if (var0 instanceof EnderDragon) {
-                ((EnderDragon)var0).onCrystalDestroyed(param0, new BlockPos(param0), param1);
+                ((EnderDragon)var0).onCrystalDestroyed(param0, param0.blockPosition(), param1);
             }
         }
 

@@ -596,13 +596,17 @@ public abstract class Mob extends LivingEntity {
             Entity var0 = this.level.getNearestPlayer(this, -1.0);
             if (var0 != null) {
                 double var1 = var0.distanceToSqr(this);
-                if (var1 > 16384.0 && this.removeWhenFarAway(var1)) {
+                int var2 = this.getType().getInstantDespawnDistance();
+                int var3 = var2 * var2;
+                if (var1 > (double)var3 && this.removeWhenFarAway(var1)) {
                     this.remove();
                 }
 
-                if (this.noActionTime > 600 && this.random.nextInt(800) == 0 && var1 > 1024.0 && this.removeWhenFarAway(var1)) {
+                int var4 = this.getType().getNoDespawnDistance();
+                int var5 = var4 * var4;
+                if (this.noActionTime > 600 && this.random.nextInt(800) == 0 && var1 > (double)var5 && this.removeWhenFarAway(var1)) {
                     this.remove();
-                } else if (var1 < 1024.0) {
+                } else if (var1 < (double)var5) {
                     this.noActionTime = 0;
                 }
             }
@@ -1016,7 +1020,7 @@ public abstract class Mob extends LivingEntity {
     }
 
     public boolean isWithinRestriction() {
-        return this.isWithinRestriction(new BlockPos(this));
+        return this.isWithinRestriction(this.blockPosition());
     }
 
     public boolean isWithinRestriction(BlockPos param0) {

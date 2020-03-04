@@ -55,7 +55,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
-public class GameRenderer implements AutoCloseable, ResourceManagerReloadListener {
+public class GameRenderer implements ResourceManagerReloadListener, AutoCloseable {
     private static final Logger LOGGER = LogManager.getLogger();
     private final Minecraft minecraft;
     private final ResourceManager resourceManager;

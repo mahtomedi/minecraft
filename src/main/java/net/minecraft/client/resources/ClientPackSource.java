@@ -13,6 +13,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
@@ -22,6 +23,8 @@ import net.minecraft.client.gui.screens.ProgressScreen;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.FileResourcePack;
+import net.minecraft.server.packs.FolderResourcePack;
+import net.minecraft.server.packs.Pack;
 import net.minecraft.server.packs.VanillaPack;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
 import net.minecraft.server.packs.repository.PackCompatibility;
@@ -67,19 +70,7 @@ public class ClientPackSource implements RepositorySource {
             param0.put("server", (T)this.serverPack);
         }
 
-        File var1 = this.assetIndex.getFile(new ResourceLocation("resourcepacks/programmer_art.zip"));
-        if (var1 != null && var1.isFile()) {
-            T var2 = UnopenedPack.create("programer_art", false, () -> new FileResourcePack(var1) {
-                    @Override
-                    public String getName() {
-                        return "Programmer Art";
-                    }
-                }, param1, UnopenedPack.Position.TOP);
-            if (var2 != null) {
-                param0.put("programer_art", var2);
-            }
-        }
-
+        this.addProgrammerArtPack(param0, param1);
     }
 
     public VanillaPack getVanillaPack() {
@@ -239,5 +230,48 @@ public class ClientPackSource implements RepositorySource {
             );
             return Minecraft.getInstance().delayTextureReload();
         }
+    }
+
+    private <T extends UnopenedPack> void addProgrammerArtPack(Map<String, T> param0, UnopenedPack.UnopenedPackConstructor<T> param1) {
+        File var0 = this.assetIndex.getFile(new ResourceLocation("resourcepacks/programmer_art.zip"));
+        if (var0 == null || !var0.isFile() || !addProgrammerArtPack(param0, param1, () -> createProgrammerArtZipPack(var0))) {
+            if (SharedConstants.IS_RUNNING_IN_IDE) {
+                File var1 = this.assetIndex.getRootFile("../resourcepacks/programmer_art");
+                if (var1 != null && var1.isDirectory()) {
+                    addProgrammerArtPack(param0, param1, () -> createProgrammerArtDirPack(var1));
+                }
+            }
+
+        }
+    }
+
+    private static <T extends UnopenedPack> boolean addProgrammerArtPack(
+        Map<String, T> param0, UnopenedPack.UnopenedPackConstructor<T> param1, Supplier<Pack> param2
+    ) {
+        T var0 = UnopenedPack.create("programer_art", false, param2, param1, UnopenedPack.Position.TOP);
+        if (var0 != null) {
+            param0.put("programer_art", var0);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private static FolderResourcePack createProgrammerArtDirPack(File param0) {
+        return new FolderResourcePack(param0) {
+            @Override
+            public String getName() {
+                return "Programmer Art";
+            }
+        };
+    }
+
+    private static Pack createProgrammerArtZipPack(File param0) {
+        return new FileResourcePack(param0) {
+            @Override
+            public String getName() {
+                return "Programmer Art";
+            }
+        };
     }
 }

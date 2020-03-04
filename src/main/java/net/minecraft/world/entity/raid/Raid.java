@@ -157,7 +157,7 @@ public class Raid {
 
     private Predicate<ServerPlayer> validPlayer() {
         return param0 -> {
-            BlockPos var0 = new BlockPos(param0);
+            BlockPos var0 = param0.blockPosition();
             return param0.isAlive() && this.level.getRaidAt(var0) == this;
         };
     }
@@ -408,7 +408,7 @@ public class Raid {
             Set<Raider> var2 = var0.next();
 
             for(Raider var3 : var2) {
-                BlockPos var4 = new BlockPos(var3);
+                BlockPos var4 = var3.blockPosition();
                 if (var3.removed || var3.dimension != this.level.getDimension().getType() || this.center.distSqr(var4) >= 12544.0) {
                     var1.add(var3);
                 } else if (var3.tickCount > 600) {
@@ -440,7 +440,7 @@ public class Raid {
 
         for(ServerPlayer var3 : this.level.players()) {
             Vec3 var4 = var3.position();
-            Vec3 var5 = new Vec3(param0);
+            Vec3 var5 = Vec3.atCenterOf(param0);
             float var6 = Mth.sqrt((var5.x - var4.x) * (var5.x - var4.x) + (var5.z - var4.z) * (var5.z - var4.z));
             double var7 = var4.x + (double)(13.0F / var6) * (var5.x - var4.x);
             double var8 = var4.z + (double)(13.0F / var6) * (var5.z - var4.z);

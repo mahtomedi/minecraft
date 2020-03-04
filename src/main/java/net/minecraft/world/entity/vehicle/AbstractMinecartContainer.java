@@ -1,7 +1,6 @@
 package net.minecraft.world.entity.vehicle;
 
 import javax.annotation.Nullable;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -183,7 +182,7 @@ public abstract class AbstractMinecartContainer extends AbstractMinecart impleme
             LootTable var0 = this.level.getServer().getLootTables().get(this.lootTable);
             this.lootTable = null;
             LootContext.Builder var1 = new LootContext.Builder((ServerLevel)this.level)
-                .withParameter(LootContextParams.BLOCK_POS, new BlockPos(this))
+                .withParameter(LootContextParams.BLOCK_POS, this.blockPosition())
                 .withOptionalRandomSeed(this.lootTableSeed);
             if (param0 != null) {
                 var1.withLuck(param0.getLuck()).withParameter(LootContextParams.THIS_ENTITY, param0);

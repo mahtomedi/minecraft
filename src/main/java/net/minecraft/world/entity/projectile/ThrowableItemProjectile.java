@@ -47,7 +47,6 @@ public abstract class ThrowableItemProjectile extends ThrowableProjectile implem
         return this.getEntityData().get(DATA_ITEM_STACK);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public ItemStack getItem() {
         ItemStack var0 = this.getItemRaw();

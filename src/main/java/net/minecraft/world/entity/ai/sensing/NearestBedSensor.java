@@ -45,7 +45,7 @@ public class NearestBedSensor extends Sensor<Mob> {
                     return true;
                 }
             };
-            Stream<BlockPos> var2 = var0.findAll(PoiType.HOME.getPredicate(), var1, new BlockPos(param1), 48, PoiManager.Occupancy.ANY);
+            Stream<BlockPos> var2 = var0.findAll(PoiType.HOME.getPredicate(), var1, param1.blockPosition(), 48, PoiManager.Occupancy.ANY);
             Path var3 = param1.getNavigation().createPath(var2, PoiType.HOME.getValidRange());
             if (var3 != null && var3.canReach()) {
                 BlockPos var4 = var3.getTarget();

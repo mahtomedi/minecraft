@@ -10,7 +10,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.world.entity.projectile.ThrowableProjectile;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -30,19 +30,13 @@ public class TargetBlock extends Block {
     }
 
     @Override
-    public void onProjectileHit(Level param0, BlockState param1, BlockHitResult param2, Entity param3) {
+    public void onProjectileHit(Level param0, BlockState param1, BlockHitResult param2, Projectile param3) {
         int var0 = updateRedstoneOutput(param0, param1, param2, param3);
-        Entity var1 = null;
-        if (param3 instanceof AbstractArrow) {
-            var1 = ((AbstractArrow)param3).getOwner();
-        } else if (param3 instanceof ThrowableProjectile) {
-            var1 = ((ThrowableProjectile)param3).getOwner();
-        }
-
+        Entity var1 = param3.getOwner();
         if (var1 instanceof ServerPlayer) {
             ServerPlayer var2 = (ServerPlayer)var1;
             var2.awardStat(Stats.TARGET_HIT);
-            CriteriaTriggers.TARGET_BLOCK_HIT.trigger(var2, var0);
+            CriteriaTriggers.TARGET_BLOCK_HIT.trigger(var2, param3, param2.getLocation(), var0);
         }
 
     }
@@ -101,5 +95,15 @@ public class TargetBlock extends Block {
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> param0) {
         param0.add(OUTPUT_POWER);
+    }
+
+    @Override
+    public void onPlace(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
+        if (!param1.isClientSide() && param0.getBlock() != param3.getBlock()) {
+            if (param0.getValue(OUTPUT_POWER) > 0 && !param1.getBlockTicks().hasScheduledTick(param2, this)) {
+                param1.setBlock(param2, param0.setValue(OUTPUT_POWER, Integer.valueOf(0)), 18);
+            }
+
+        }
     }
 }

@@ -107,10 +107,6 @@ public abstract class GuiComponent {
         param0.drawShadow(param1, (float)(param2 - param0.width(param1) / 2), (float)param3, param4);
     }
 
-    public void drawRightAlignedString(Font param0, String param1, int param2, int param3, int param4) {
-        param0.drawShadow(param1, (float)(param2 - param0.width(param1)), (float)param3, param4);
-    }
-
     public void drawString(Font param0, String param1, int param2, int param3, int param4) {
         param0.drawShadow(param1, (float)param2, (float)param3, param4);
     }

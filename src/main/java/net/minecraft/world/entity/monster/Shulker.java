@@ -191,7 +191,7 @@ public class Shulker extends AbstractGolem implements Enemy {
         super.tick();
         BlockPos var0 = this.entityData.get(DATA_ATTACH_POS_ID).orElse(null);
         if (var0 == null && !this.level.isClientSide) {
-            var0 = new BlockPos(this);
+            var0 = this.blockPosition();
             this.entityData.set(DATA_ATTACH_POS_ID, Optional.of(var0));
         }
 
@@ -323,7 +323,7 @@ public class Shulker extends AbstractGolem implements Enemy {
 
     protected boolean teleportSomewhere() {
         if (!this.isNoAi() && this.isAlive()) {
-            BlockPos var0 = new BlockPos(this);
+            BlockPos var0 = this.blockPosition();
 
             for(int var1 = 0; var1 < 5; ++var1) {
                 BlockPos var2 = var0.offset(8 - this.random.nextInt(17), 8 - this.random.nextInt(17), 8 - this.random.nextInt(17));

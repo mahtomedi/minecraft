@@ -1,12 +1,13 @@
 package net.minecraft.realms;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class RealmsLabel extends RealmsGuiEventListener {
-    private final RealmsLabelProxy proxy = new RealmsLabelProxy(this);
+public class RealmsLabel implements GuiEventListener {
     private final String text;
     private final int x;
     private final int y;
@@ -19,13 +20,8 @@ public class RealmsLabel extends RealmsGuiEventListener {
         this.color = param3;
     }
 
-    public void render(RealmsScreen param0) {
-        param0.drawCenteredString(this.text, this.x, this.y, this.color);
-    }
-
-    @Override
-    public GuiEventListener getProxy() {
-        return this.proxy;
+    public void render(Screen param0) {
+        param0.drawCenteredString(Minecraft.getInstance().font, this.text, this.x, this.y, this.color);
     }
 
     public String getText() {

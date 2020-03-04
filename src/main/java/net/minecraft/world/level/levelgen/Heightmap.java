@@ -34,32 +34,31 @@ public class Heightmap {
         ObjectList<Heightmap> var1 = new ObjectArrayList<>(var0);
         ObjectListIterator<Heightmap> var2 = var1.iterator();
         int var3 = param0.getHighestSectionPosition() + 16;
+        BlockPos.MutableBlockPos var4 = new BlockPos.MutableBlockPos();
 
-        try (BlockPos.PooledMutableBlockPos var4 = BlockPos.PooledMutableBlockPos.acquire()) {
-            for(int var5 = 0; var5 < 16; ++var5) {
-                for(int var6 = 0; var6 < 16; ++var6) {
-                    for(Heightmap.Types var7 : param1) {
-                        var1.add(param0.getOrCreateHeightmapUnprimed(var7));
-                    }
+        for(int var5 = 0; var5 < 16; ++var5) {
+            for(int var6 = 0; var6 < 16; ++var6) {
+                for(Heightmap.Types var7 : param1) {
+                    var1.add(param0.getOrCreateHeightmapUnprimed(var7));
+                }
 
-                    for(int var8 = var3 - 1; var8 >= 0; --var8) {
-                        var4.set(var5, var8, var6);
-                        BlockState var9 = param0.getBlockState(var4);
-                        if (var9.getBlock() != Blocks.AIR) {
-                            while(var2.hasNext()) {
-                                Heightmap var10 = var2.next();
-                                if (var10.isOpaque.test(var9)) {
-                                    var10.setHeight(var5, var6, var8 + 1);
-                                    var2.remove();
-                                }
+                for(int var8 = var3 - 1; var8 >= 0; --var8) {
+                    var4.set(var5, var8, var6);
+                    BlockState var9 = param0.getBlockState(var4);
+                    if (var9.getBlock() != Blocks.AIR) {
+                        while(var2.hasNext()) {
+                            Heightmap var10 = var2.next();
+                            if (var10.isOpaque.test(var9)) {
+                                var10.setHeight(var5, var6, var8 + 1);
+                                var2.remove();
                             }
-
-                            if (var1.isEmpty()) {
-                                break;
-                            }
-
-                            var2.back(var0);
                         }
+
+                        if (var1.isEmpty()) {
+                            break;
+                        }
+
+                        var2.back(var0);
                     }
                 }
             }

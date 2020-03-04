@@ -119,7 +119,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
-public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListener {
+public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseable {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final ResourceLocation MOON_LOCATION = new ResourceLocation("textures/environment/moon_phases.png");
     private static final ResourceLocation SUN_LOCATION = new ResourceLocation("textures/environment/sun.png");
@@ -2601,6 +2601,9 @@ public class LevelRenderer implements AutoCloseable, ResourceManagerReloadListen
                 break;
             case 1043:
                 this.level.playLocalSound(param2, SoundEvents.BOOK_PAGE_TURN, SoundSource.BLOCKS, 1.0F, this.level.random.nextFloat() * 0.1F + 0.9F, false);
+                break;
+            case 1044:
+                this.level.playLocalSound(param2, SoundEvents.SMITHING_TABLE_USE, SoundSource.BLOCKS, 1.0F, this.level.random.nextFloat() * 0.1F + 0.9F, false);
                 break;
             case 1500:
                 ComposterBlock.handleFill(this.level, param2, param3 > 0);

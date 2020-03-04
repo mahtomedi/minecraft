@@ -74,7 +74,7 @@ public class GroundPathNavigation extends PathNavigation {
 
     @Override
     public Path createPath(Entity param0, int param1) {
-        return this.createPath(new BlockPos(param0), param1);
+        return this.createPath(param0.blockPosition(), param1);
     }
 
     private int getSurfaceY() {

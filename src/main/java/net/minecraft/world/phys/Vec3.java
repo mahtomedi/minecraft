@@ -23,6 +23,18 @@ public class Vec3 implements Position {
         return new Vec3(var0, var1, var2);
     }
 
+    public static Vec3 atCenterOf(Vec3i param0) {
+        return new Vec3((double)param0.getX() + 0.5, (double)param0.getY() + 0.5, (double)param0.getZ() + 0.5);
+    }
+
+    public static Vec3 atLowerCornerOf(Vec3i param0) {
+        return new Vec3((double)param0.getX(), (double)param0.getY(), (double)param0.getZ());
+    }
+
+    public static Vec3 atBottomCenterOf(Vec3i param0) {
+        return new Vec3((double)param0.getX() + 0.5, (double)param0.getY(), (double)param0.getZ() + 0.5);
+    }
+
     public Vec3(double param0, double param1, double param2) {
         this.x = param0;
         this.y = param1;
@@ -31,10 +43,6 @@ public class Vec3 implements Position {
 
     public Vec3(Vector3f param0) {
         this((double)param0.x(), (double)param0.y(), (double)param0.z());
-    }
-
-    public Vec3(Vec3i param0) {
-        this((double)param0.getX(), (double)param0.getY(), (double)param0.getZ());
     }
 
     public Vec3 vectorTo(Vec3 param0) {

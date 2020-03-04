@@ -23,7 +23,7 @@ public class MoveTowardsRestrictionGoal extends Goal {
         if (this.mob.isWithinRestriction()) {
             return false;
         } else {
-            Vec3 var0 = RandomPos.getPosTowards(this.mob, 16, 7, new Vec3(this.mob.getRestrictCenter()));
+            Vec3 var0 = RandomPos.getPosTowards(this.mob, 16, 7, Vec3.atBottomCenterOf(this.mob.getRestrictCenter()));
             if (var0 == null) {
                 return false;
             } else {

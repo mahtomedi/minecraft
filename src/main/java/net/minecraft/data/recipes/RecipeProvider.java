@@ -132,12 +132,16 @@ public class RecipeProvider implements DataProvider {
         woodFromLogs(param0, Blocks.JUNGLE_WOOD, Blocks.JUNGLE_LOG);
         woodFromLogs(param0, Blocks.OAK_WOOD, Blocks.OAK_LOG);
         woodFromLogs(param0, Blocks.SPRUCE_WOOD, Blocks.SPRUCE_LOG);
+        woodFromLogs(param0, Blocks.CRIMSON_HYPHAE, Blocks.CRIMSON_STEM);
+        woodFromLogs(param0, Blocks.WARPED_HYPHAE, Blocks.WARPED_STEM);
         woodFromLogs(param0, Blocks.STRIPPED_ACACIA_WOOD, Blocks.STRIPPED_ACACIA_LOG);
         woodFromLogs(param0, Blocks.STRIPPED_BIRCH_WOOD, Blocks.STRIPPED_BIRCH_LOG);
         woodFromLogs(param0, Blocks.STRIPPED_DARK_OAK_WOOD, Blocks.STRIPPED_DARK_OAK_LOG);
         woodFromLogs(param0, Blocks.STRIPPED_JUNGLE_WOOD, Blocks.STRIPPED_JUNGLE_LOG);
         woodFromLogs(param0, Blocks.STRIPPED_OAK_WOOD, Blocks.STRIPPED_OAK_LOG);
         woodFromLogs(param0, Blocks.STRIPPED_SPRUCE_WOOD, Blocks.STRIPPED_SPRUCE_LOG);
+        woodFromLogs(param0, Blocks.STRIPPED_CRIMSON_HYPHAE, Blocks.STRIPPED_CRIMSON_STEM);
+        woodFromLogs(param0, Blocks.STRIPPED_WARPED_HYPHAE, Blocks.STRIPPED_WARPED_STEM);
         woodenBoat(param0, Items.ACACIA_BOAT, Blocks.ACACIA_PLANKS);
         woodenBoat(param0, Items.BIRCH_BOAT, Blocks.BIRCH_PLANKS);
         woodenBoat(param0, Items.DARK_OAK_BOAT, Blocks.DARK_OAK_PLANKS);
@@ -1554,51 +1558,6 @@ public class RecipeProvider implements DataProvider {
             .pattern("###")
             .pattern("###")
             .unlockedBy("has_nether_wart", has(Items.NETHER_WART))
-            .save(param0);
-        ShapelessRecipeBuilder.shapeless(Items.NETHERITE_SWORD)
-            .requires(Items.NETHERITE_INGOT)
-            .requires(Items.DIAMOND_SWORD)
-            .unlockedBy("has_netherite_ingot", has(Items.NETHERITE_INGOT))
-            .save(param0);
-        ShapelessRecipeBuilder.shapeless(Items.NETHERITE_SHOVEL)
-            .requires(Items.NETHERITE_INGOT)
-            .requires(Items.DIAMOND_SHOVEL)
-            .unlockedBy("has_netherite_ingot", has(Items.NETHERITE_INGOT))
-            .save(param0);
-        ShapelessRecipeBuilder.shapeless(Items.NETHERITE_PICKAXE)
-            .requires(Items.NETHERITE_INGOT)
-            .requires(Items.DIAMOND_PICKAXE)
-            .unlockedBy("has_netherite_ingot", has(Items.NETHERITE_INGOT))
-            .save(param0);
-        ShapelessRecipeBuilder.shapeless(Items.NETHERITE_AXE)
-            .requires(Items.NETHERITE_INGOT)
-            .requires(Items.DIAMOND_AXE)
-            .unlockedBy("has_netherite_ingot", has(Items.NETHERITE_INGOT))
-            .save(param0);
-        ShapelessRecipeBuilder.shapeless(Items.NETHERITE_HOE)
-            .requires(Items.NETHERITE_INGOT)
-            .requires(Items.DIAMOND_HOE)
-            .unlockedBy("has_netherite_ingot", has(Items.NETHERITE_INGOT))
-            .save(param0);
-        ShapelessRecipeBuilder.shapeless(Items.NETHERITE_HELMET)
-            .requires(Items.NETHERITE_INGOT)
-            .requires(Items.DIAMOND_HELMET)
-            .unlockedBy("has_netherite_ingot", has(Items.NETHERITE_INGOT))
-            .save(param0);
-        ShapelessRecipeBuilder.shapeless(Items.NETHERITE_CHESTPLATE)
-            .requires(Items.NETHERITE_INGOT)
-            .requires(Items.DIAMOND_CHESTPLATE)
-            .unlockedBy("has_netherite_ingot", has(Items.NETHERITE_INGOT))
-            .save(param0);
-        ShapelessRecipeBuilder.shapeless(Items.NETHERITE_LEGGINGS)
-            .requires(Items.NETHERITE_INGOT)
-            .requires(Items.DIAMOND_LEGGINGS)
-            .unlockedBy("has_netherite_ingot", has(Items.NETHERITE_INGOT))
-            .save(param0);
-        ShapelessRecipeBuilder.shapeless(Items.NETHERITE_BOOTS)
-            .requires(Items.NETHERITE_INGOT)
-            .requires(Items.DIAMOND_BOOTS)
-            .unlockedBy("has_netherite_ingot", has(Items.NETHERITE_INGOT))
             .save(param0);
         ShapedRecipeBuilder.shaped(Blocks.NOTE_BLOCK)
             .define('#', ItemTags.PLANKS)

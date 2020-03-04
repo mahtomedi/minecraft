@@ -214,7 +214,7 @@ public class EnderMan extends Monster {
 
         if (this.level.isDay() && this.tickCount >= this.targetChangeTime + 600) {
             float var0 = this.getBrightness();
-            if (var0 > 0.5F && this.level.canSeeSky(new BlockPos(this)) && this.random.nextFloat() * 30.0F < (var0 - 0.4F) * 2.0F) {
+            if (var0 > 0.5F && this.level.canSeeSky(this.blockPosition()) && this.random.nextFloat() * 30.0F < (var0 - 0.4F) * 2.0F) {
                 this.setTarget(null);
                 this.teleport();
             }
@@ -305,14 +305,7 @@ public class EnderMan extends Monster {
     public boolean hurt(DamageSource param0, float param1) {
         if (this.isInvulnerableTo(param0)) {
             return false;
-        } else if (!(param0 instanceof IndirectEntityDamageSource) && param0 != DamageSource.FIREWORKS) {
-            boolean var1 = super.hurt(param0, param1);
-            if (!this.level.isClientSide() && param0.isBypassArmor() && this.random.nextInt(10) != 0) {
-                this.teleport();
-            }
-
-            return var1;
-        } else {
+        } else if (param0 instanceof IndirectEntityDamageSource) {
             for(int var0 = 0; var0 < 64; ++var0) {
                 if (this.teleport()) {
                     return true;
@@ -320,6 +313,13 @@ public class EnderMan extends Monster {
             }
 
             return false;
+        } else {
+            boolean var1 = super.hurt(param0, param1);
+            if (!this.level.isClientSide() && param0.isBypassArmor() && this.random.nextInt(10) != 0) {
+                this.teleport();
+            }
+
+            return var1;
         }
     }
 

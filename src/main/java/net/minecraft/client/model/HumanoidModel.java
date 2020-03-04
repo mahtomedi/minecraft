@@ -10,7 +10,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.CrossbowItem;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -27,7 +26,6 @@ public class HumanoidModel<T extends LivingEntity> extends AgeableListModel<T> i
     public HumanoidModel.ArmPose rightArmPose = HumanoidModel.ArmPose.EMPTY;
     public boolean crouching;
     public float swimAmount;
-    private float itemUseTicks;
 
     public HumanoidModel(float param0) {
         this(RenderType::entityCutoutNoCull, param0, 0.0F, 64, 32);
@@ -78,7 +76,6 @@ public class HumanoidModel<T extends LivingEntity> extends AgeableListModel<T> i
 
     public void prepareMobModel(T param0, float param1, float param2, float param3) {
         this.swimAmount = param0.getSwimAmount(param3);
-        this.itemUseTicks = (float)param0.getTicksUsingItem();
         super.prepareMobModel(param0, param1, param2, param3);
     }
 
@@ -244,69 +241,52 @@ public class HumanoidModel<T extends LivingEntity> extends AgeableListModel<T> i
             this.leftArm.xRot = (float) (-Math.PI / 2) + this.head.xRot;
         }
 
-        float var8 = (float)CrossbowItem.getChargeDuration(param0.getUseItem());
         if (this.rightArmPose == HumanoidModel.ArmPose.CROSSBOW_CHARGE) {
-            this.rightArm.yRot = -0.8F;
-            this.rightArm.xRot = -0.97079635F;
-            this.leftArm.xRot = -0.97079635F;
-            float var9 = Mth.clamp(this.itemUseTicks, 0.0F, var8);
-            this.leftArm.yRot = Mth.lerp(var9 / var8, 0.4F, 0.85F);
-            this.leftArm.xRot = Mth.lerp(var9 / var8, this.leftArm.xRot, (float) (-Math.PI / 2));
+            AnimationUtils.animateCrossbowCharge(this.rightArm, this.leftArm, param0, true);
         } else if (this.leftArmPose == HumanoidModel.ArmPose.CROSSBOW_CHARGE) {
-            this.leftArm.yRot = 0.8F;
-            this.rightArm.xRot = -0.97079635F;
-            this.leftArm.xRot = -0.97079635F;
-            float var10 = Mth.clamp(this.itemUseTicks, 0.0F, var8);
-            this.rightArm.yRot = Mth.lerp(var10 / var8, -0.4F, -0.85F);
-            this.rightArm.xRot = Mth.lerp(var10 / var8, this.rightArm.xRot, (float) (-Math.PI / 2));
+            AnimationUtils.animateCrossbowCharge(this.leftArm, this.rightArm, param0, false);
         }
 
         if (this.rightArmPose == HumanoidModel.ArmPose.CROSSBOW_HOLD && this.attackTime <= 0.0F) {
-            this.rightArm.yRot = -0.3F + this.head.yRot;
-            this.leftArm.yRot = 0.6F + this.head.yRot;
-            this.rightArm.xRot = (float) (-Math.PI / 2) + this.head.xRot + 0.1F;
-            this.leftArm.xRot = -1.5F + this.head.xRot;
+            AnimationUtils.animateCrossbowHold(this.rightArm, this.leftArm, this.head, true);
         } else if (this.leftArmPose == HumanoidModel.ArmPose.CROSSBOW_HOLD) {
-            this.rightArm.yRot = -0.6F + this.head.yRot;
-            this.leftArm.yRot = 0.3F + this.head.yRot;
-            this.rightArm.xRot = -1.5F + this.head.xRot;
-            this.leftArm.xRot = (float) (-Math.PI / 2) + this.head.xRot + 0.1F;
+            AnimationUtils.animateCrossbowHold(this.leftArm, this.rightArm, this.head, false);
         }
 
         if (this.swimAmount > 0.0F) {
-            float var11 = param1 % 26.0F;
-            float var12 = this.attackTime > 0.0F ? 0.0F : this.swimAmount;
-            if (var11 < 14.0F) {
+            float var8 = param1 % 26.0F;
+            float var9 = this.attackTime > 0.0F ? 0.0F : this.swimAmount;
+            if (var8 < 14.0F) {
                 this.leftArm.xRot = this.rotlerpRad(this.leftArm.xRot, 0.0F, this.swimAmount);
-                this.rightArm.xRot = Mth.lerp(var12, this.rightArm.xRot, 0.0F);
+                this.rightArm.xRot = Mth.lerp(var9, this.rightArm.xRot, 0.0F);
                 this.leftArm.yRot = this.rotlerpRad(this.leftArm.yRot, (float) Math.PI, this.swimAmount);
-                this.rightArm.yRot = Mth.lerp(var12, this.rightArm.yRot, (float) Math.PI);
+                this.rightArm.yRot = Mth.lerp(var9, this.rightArm.yRot, (float) Math.PI);
                 this.leftArm.zRot = this.rotlerpRad(
-                    this.leftArm.zRot, (float) Math.PI + 1.8707964F * this.quadraticArmUpdate(var11) / this.quadraticArmUpdate(14.0F), this.swimAmount
+                    this.leftArm.zRot, (float) Math.PI + 1.8707964F * this.quadraticArmUpdate(var8) / this.quadraticArmUpdate(14.0F), this.swimAmount
                 );
                 this.rightArm.zRot = Mth.lerp(
-                    var12, this.rightArm.zRot, (float) Math.PI - 1.8707964F * this.quadraticArmUpdate(var11) / this.quadraticArmUpdate(14.0F)
+                    var9, this.rightArm.zRot, (float) Math.PI - 1.8707964F * this.quadraticArmUpdate(var8) / this.quadraticArmUpdate(14.0F)
                 );
-            } else if (var11 >= 14.0F && var11 < 22.0F) {
-                float var13 = (var11 - 14.0F) / 8.0F;
-                this.leftArm.xRot = this.rotlerpRad(this.leftArm.xRot, (float) (Math.PI / 2) * var13, this.swimAmount);
-                this.rightArm.xRot = Mth.lerp(var12, this.rightArm.xRot, (float) (Math.PI / 2) * var13);
+            } else if (var8 >= 14.0F && var8 < 22.0F) {
+                float var10 = (var8 - 14.0F) / 8.0F;
+                this.leftArm.xRot = this.rotlerpRad(this.leftArm.xRot, (float) (Math.PI / 2) * var10, this.swimAmount);
+                this.rightArm.xRot = Mth.lerp(var9, this.rightArm.xRot, (float) (Math.PI / 2) * var10);
                 this.leftArm.yRot = this.rotlerpRad(this.leftArm.yRot, (float) Math.PI, this.swimAmount);
-                this.rightArm.yRot = Mth.lerp(var12, this.rightArm.yRot, (float) Math.PI);
-                this.leftArm.zRot = this.rotlerpRad(this.leftArm.zRot, 5.012389F - 1.8707964F * var13, this.swimAmount);
-                this.rightArm.zRot = Mth.lerp(var12, this.rightArm.zRot, 1.2707963F + 1.8707964F * var13);
-            } else if (var11 >= 22.0F && var11 < 26.0F) {
-                float var14 = (var11 - 22.0F) / 4.0F;
-                this.leftArm.xRot = this.rotlerpRad(this.leftArm.xRot, (float) (Math.PI / 2) - (float) (Math.PI / 2) * var14, this.swimAmount);
-                this.rightArm.xRot = Mth.lerp(var12, this.rightArm.xRot, (float) (Math.PI / 2) - (float) (Math.PI / 2) * var14);
+                this.rightArm.yRot = Mth.lerp(var9, this.rightArm.yRot, (float) Math.PI);
+                this.leftArm.zRot = this.rotlerpRad(this.leftArm.zRot, 5.012389F - 1.8707964F * var10, this.swimAmount);
+                this.rightArm.zRot = Mth.lerp(var9, this.rightArm.zRot, 1.2707963F + 1.8707964F * var10);
+            } else if (var8 >= 22.0F && var8 < 26.0F) {
+                float var11 = (var8 - 22.0F) / 4.0F;
+                this.leftArm.xRot = this.rotlerpRad(this.leftArm.xRot, (float) (Math.PI / 2) - (float) (Math.PI / 2) * var11, this.swimAmount);
+                this.rightArm.xRot = Mth.lerp(var9, this.rightArm.xRot, (float) (Math.PI / 2) - (float) (Math.PI / 2) * var11);
                 this.leftArm.yRot = this.rotlerpRad(this.leftArm.yRot, (float) Math.PI, this.swimAmount);
-                this.rightArm.yRot = Mth.lerp(var12, this.rightArm.yRot, (float) Math.PI);
+                this.rightArm.yRot = Mth.lerp(var9, this.rightArm.yRot, (float) Math.PI);
                 this.leftArm.zRot = this.rotlerpRad(this.leftArm.zRot, (float) Math.PI, this.swimAmount);
-                this.rightArm.zRot = Mth.lerp(var12, this.rightArm.zRot, (float) Math.PI);
+                this.rightArm.zRot = Mth.lerp(var9, this.rightArm.zRot, (float) Math.PI);
             }
 
-            float var15 = 0.3F;
-            float var16 = 0.33333334F;
+            float var12 = 0.3F;
+            float var13 = 0.33333334F;
             this.leftLeg.xRot = Mth.lerp(this.swimAmount, this.leftLeg.xRot, 0.3F * Mth.cos(param1 * 0.33333334F + (float) Math.PI));
             this.rightLeg.xRot = Mth.lerp(this.swimAmount, this.rightLeg.xRot, 0.3F * Mth.cos(param1 * 0.33333334F));
         }

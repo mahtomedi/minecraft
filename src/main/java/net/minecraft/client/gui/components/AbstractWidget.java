@@ -21,8 +21,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public abstract class AbstractWidget extends GuiComponent implements Widget, GuiEventListener {
     public static final ResourceLocation WIDGETS_LOCATION = new ResourceLocation("textures/gui/widgets.png");
-    private static final int NARRATE_DELAY_MOUSE = 750;
-    private static final int NARRATE_DELAY_FOCUS = 200;
     protected int width;
     protected int height;
     public int x;
@@ -36,16 +34,16 @@ public abstract class AbstractWidget extends GuiComponent implements Widget, Gui
     protected long nextNarration = Long.MAX_VALUE;
     private boolean focused;
 
-    public AbstractWidget(int param0, int param1, String param2) {
-        this(param0, param1, 200, 20, param2);
-    }
-
     public AbstractWidget(int param0, int param1, int param2, int param3, String param4) {
         this.x = param0;
         this.y = param1;
         this.width = param2;
         this.height = param3;
         this.message = param4;
+    }
+
+    public int getHeight() {
+        return this.height;
     }
 
     protected int getYImage(boolean param0) {

@@ -8,6 +8,7 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
@@ -19,6 +20,9 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.dimension.end.TheEndDimension;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class FireBlock extends BaseFireBlock {
     public static final IntegerProperty AGE = BlockStateProperties.AGE_15;
@@ -52,6 +56,37 @@ public class FireBlock extends BaseFireBlock {
     @Override
     public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
         return this.canSurvive(param0, param3, param4) ? this.getStateWithAge(param3, param4, param0.getValue(AGE)) : Blocks.AIR.defaultBlockState();
+    }
+
+    @Override
+    public VoxelShape getShape(BlockState param0, BlockGetter param1, BlockPos param2, CollisionContext param3) {
+        VoxelShape var0 = Shapes.empty();
+        if (param0.getValue(UP)) {
+            var0 = UP_AABB;
+        }
+
+        if (param0.getValue(WEST)) {
+            var0 = Shapes.or(var0, WEST_AABB);
+        }
+
+        if (param0.getValue(EAST)) {
+            var0 = Shapes.or(var0, EAST_AABB);
+        }
+
+        if (param0.getValue(NORTH)) {
+            var0 = Shapes.or(var0, NORTH_AABB);
+        }
+
+        if (param0.getValue(SOUTH)) {
+            var0 = Shapes.or(var0, SOUTH_AABB);
+        }
+
+        return var0 == Shapes.empty() ? DOWN_AABB : var0;
+    }
+
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext param0) {
+        return this.getStateForPlacement(param0.getLevel(), param0.getClickedPos());
     }
 
     protected BlockState getStateForPlacement(BlockGetter param0, BlockPos param1) {
@@ -139,7 +174,7 @@ public class FireBlock extends BaseFireBlock {
                                     var11 += (var10 - 1) * 100;
                                 }
 
-                                var7.set(param2).move(var8, var10, var9);
+                                var7.setWithOffset(param2, var8, var10, var9);
                                 int var12 = this.getFireOdds(param1, var7);
                                 if (var12 > 0) {
                                     int var13 = (var12 + 40 + param1.getDifficulty().getId() * 7) / (var2 + 30);
@@ -356,6 +391,7 @@ public class FireBlock extends BaseFireBlock {
         var0.setFlammable(Blocks.VINE, 15, 100);
         var0.setFlammable(Blocks.COAL_BLOCK, 5, 5);
         var0.setFlammable(Blocks.HAY_BLOCK, 60, 20);
+        var0.setFlammable(Blocks.TARGET, 15, 20);
         var0.setFlammable(Blocks.WHITE_CARPET, 60, 20);
         var0.setFlammable(Blocks.ORANGE_CARPET, 60, 20);
         var0.setFlammable(Blocks.MAGENTA_CARPET, 60, 20);

@@ -1,27 +1,23 @@
 package net.minecraft.world.item;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
 import java.util.Map;
+import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.monster.SharedMonsterAttributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class HoeItem extends TieredItem {
-    private final float attackSpeed;
+public class HoeItem extends DiggerItem {
+    private static final Set<Block> DIGGABLES = ImmutableSet.of(Blocks.NETHER_WART_BLOCK, Blocks.WARPED_WART_BLOCK, Blocks.HAY_BLOCK);
     protected static final Map<Block, BlockState> TILLABLES = Maps.newHashMap(
         ImmutableMap.of(
             Blocks.GRASS_BLOCK,
@@ -35,23 +31,8 @@ public class HoeItem extends TieredItem {
         )
     );
 
-    public HoeItem(Tier param0, float param1, Item.Properties param2) {
-        super(param0, param2);
-        this.attackSpeed = param1;
-    }
-
-    @Override
-    public float getDestroySpeed(ItemStack param0, BlockState param1) {
-        return param1.is(BlockTags.WART_BLOCKS) ? 15.0F : 1.0F;
-    }
-
-    @Override
-    public boolean mineBlock(ItemStack param0, Level param1, BlockState param2, BlockPos param3, LivingEntity param4) {
-        if (!param1.isClientSide) {
-            param0.hurtAndBreak(1, param4, param0x -> param0x.broadcastBreakEvent(EquipmentSlot.MAINHAND));
-        }
-
-        return param2.is(BlockTags.WART_BLOCKS) ? true : super.mineBlock(param0, param1, param2, param3, param4);
+    protected HoeItem(Tier param0, int param1, float param2, Item.Properties param3) {
+        super((float)param1, param2, param0, DIGGABLES, param3);
     }
 
     @Override
@@ -75,28 +56,5 @@ public class HoeItem extends TieredItem {
         }
 
         return InteractionResult.PASS;
-    }
-
-    @Override
-    public boolean hurtEnemy(ItemStack param0, LivingEntity param1, LivingEntity param2) {
-        param0.hurtAndBreak(1, param2, param0x -> param0x.broadcastBreakEvent(EquipmentSlot.MAINHAND));
-        return true;
-    }
-
-    @Override
-    public Multimap<String, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot param0) {
-        Multimap<String, AttributeModifier> var0 = super.getDefaultAttributeModifiers(param0);
-        if (param0 == EquipmentSlot.MAINHAND) {
-            var0.put(
-                SharedMonsterAttributes.ATTACK_DAMAGE.getName(),
-                new AttributeModifier(BASE_ATTACK_DAMAGE_UUID, "Weapon modifier", 0.0, AttributeModifier.Operation.ADDITION)
-            );
-            var0.put(
-                SharedMonsterAttributes.ATTACK_SPEED.getName(),
-                new AttributeModifier(BASE_ATTACK_SPEED_UUID, "Weapon modifier", (double)this.attackSpeed, AttributeModifier.Operation.ADDITION)
-            );
-        }
-
-        return var0;
     }
 }

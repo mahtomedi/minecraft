@@ -81,7 +81,7 @@ public class FogRenderer {
             Vec3 var22 = CubicSampler.gaussianSampleVec3(
                 var21,
                 (param3x, param4x, param5) -> var20.getBrightnessDependentFogColor(
-                        Vec3.fromRGB24(var19.getNoiseBiome(param3x, param4x, param5).getFogColor()), var18
+                        Vec3.fromRGB24(var19.getNoiseBiomeAtQuart(param3x, param4x, param5).getFogColor()), var18
                     )
             );
             fogRed = (float)var22.x();
@@ -194,7 +194,7 @@ public class FogRenderer {
                 if (var1 instanceof LocalPlayer) {
                     LocalPlayer var4 = (LocalPlayer)var1;
                     var3 -= var4.getWaterVision() * var4.getWaterVision() * 0.03F;
-                    Biome var5 = var4.level.getBiome(new BlockPos(var4));
+                    Biome var5 = var4.level.getBiome(var4.blockPosition());
                     if (var5 == Biomes.SWAMP || var5 == Biomes.SWAMP_HILLS) {
                         var3 += 0.005F;
                     }

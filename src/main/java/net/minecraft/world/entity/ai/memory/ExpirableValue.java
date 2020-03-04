@@ -9,11 +9,11 @@ import net.minecraft.util.Serializable;
 
 public class ExpirableValue<T> implements Serializable {
     private final T value;
-    private final long expireAtGameTime;
+    private long timeToLive;
 
     public ExpirableValue(T param0, long param1) {
         this.value = param0;
-        this.expireAtGameTime = param1;
+        this.timeToLive = param1;
     }
 
     public ExpirableValue(T param0) {
@@ -21,7 +21,14 @@ public class ExpirableValue<T> implements Serializable {
     }
 
     public ExpirableValue(Function<Dynamic<?>, T> param0, Dynamic<?> param1) {
-        this(param0.apply(param1.get("value").get().orElseThrow(RuntimeException::new)), param1.get("expiry").asLong(Long.MAX_VALUE));
+        this(param0.apply(param1.get("value").get().orElseThrow(RuntimeException::new)), param1.get("ttl").asLong(Long.MAX_VALUE));
+    }
+
+    public void tick() {
+        if (this.canExpire()) {
+            --this.timeToLive;
+        }
+
     }
 
     public static <T> ExpirableValue<T> of(T param0) {
@@ -32,33 +39,29 @@ public class ExpirableValue<T> implements Serializable {
         return new ExpirableValue<>(param0, param1);
     }
 
-    public long getExpireAtGameTime() {
-        return this.expireAtGameTime;
-    }
-
     public T getValue() {
         return this.value;
     }
 
-    public boolean hasExpired(long param0) {
-        return this.getRemainingTime(param0) <= 0L;
-    }
-
-    public long getRemainingTime(long param0) {
-        return this.expireAtGameTime - param0;
+    public boolean hasExpired() {
+        return this.timeToLive <= 0L;
     }
 
     @Override
     public String toString() {
-        return this.value.toString() + (this.getExpireAtGameTime() != Long.MAX_VALUE ? " (expiry: " + this.expireAtGameTime + ")" : "");
+        return this.value.toString() + (this.canExpire() ? " (ttl: " + this.timeToLive + ")" : "");
+    }
+
+    public boolean canExpire() {
+        return this.timeToLive != Long.MAX_VALUE;
     }
 
     @Override
     public <T> T serialize(DynamicOps<T> param0) {
         Map<T, T> var0 = Maps.newHashMap();
         var0.put(param0.createString("value"), ((Serializable)this.value).serialize(param0));
-        if (this.expireAtGameTime != Long.MAX_VALUE) {
-            var0.put(param0.createString("expiry"), param0.createLong(this.expireAtGameTime));
+        if (this.canExpire()) {
+            var0.put(param0.createString("ttl"), param0.createLong(this.timeToLive));
         }
 
         return param0.createMap(var0);

@@ -63,7 +63,7 @@ public class ShulkerBullet extends Entity {
     public ShulkerBullet(Level param0, LivingEntity param1, Entity param2, Direction.Axis param3) {
         this(EntityType.SHULKER_BULLET, param0);
         this.owner = param1;
-        BlockPos var0 = new BlockPos(param1);
+        BlockPos var0 = param1.blockPosition();
         double var1 = (double)var0.getX() + 0.5;
         double var2 = (double)var0.getY() + 0.5;
         double var3 = (double)var0.getZ() + 0.5;
@@ -81,7 +81,7 @@ public class ShulkerBullet extends Entity {
     @Override
     protected void addAdditionalSaveData(CompoundTag param0) {
         if (this.owner != null) {
-            BlockPos var0 = new BlockPos(this.owner);
+            BlockPos var0 = this.owner.blockPosition();
             CompoundTag var1 = NbtUtils.createUUIDTag(this.owner.getUUID());
             var1.putInt("X", var0.getX());
             var1.putInt("Y", var0.getY());
@@ -90,7 +90,7 @@ public class ShulkerBullet extends Entity {
         }
 
         if (this.finalTarget != null) {
-            BlockPos var2 = new BlockPos(this.finalTarget);
+            BlockPos var2 = this.finalTarget.blockPosition();
             CompoundTag var3 = NbtUtils.createUUIDTag(this.finalTarget.getUUID());
             var3.putInt("X", var2.getX());
             var3.putInt("Y", var2.getY());
@@ -144,7 +144,7 @@ public class ShulkerBullet extends Entity {
         double var0 = 0.5;
         BlockPos var1;
         if (this.finalTarget == null) {
-            var1 = new BlockPos(this).below();
+            var1 = this.blockPosition().below();
         } else {
             var0 = (double)this.finalTarget.getBbHeight() * 0.5;
             var1 = new BlockPos(this.finalTarget.getX(), this.finalTarget.getY() + var0, this.finalTarget.getZ());
@@ -155,7 +155,7 @@ public class ShulkerBullet extends Entity {
         double var5 = (double)var1.getZ() + 0.5;
         Direction var6 = null;
         if (!var1.closerThan(this.position(), 2.0)) {
-            BlockPos var7 = new BlockPos(this);
+            BlockPos var7 = this.blockPosition();
             List<Direction> var8 = Lists.newArrayList();
             if (param0 != Direction.Axis.X) {
                 if (var7.getX() < var1.getX() && this.level.isEmptyBlock(var7.east())) {
@@ -282,12 +282,12 @@ public class ShulkerBullet extends Entity {
             }
 
             if (this.currentMoveDirection != null) {
-                BlockPos var7 = new BlockPos(this);
+                BlockPos var7 = this.blockPosition();
                 Direction.Axis var8 = this.currentMoveDirection.getAxis();
                 if (this.level.loadedAndEntityCanStandOn(var7.relative(this.currentMoveDirection), this)) {
                     this.selectNextMoveDirection(var8);
                 } else {
-                    BlockPos var9 = new BlockPos(this.finalTarget);
+                    BlockPos var9 = this.finalTarget.blockPosition();
                     if (var8 == Direction.Axis.X && var7.getX() == var9.getX()
                         || var8 == Direction.Axis.Z && var7.getZ() == var9.getZ()
                         || var8 == Direction.Axis.Y && var7.getY() == var9.getY()) {

@@ -17,6 +17,7 @@ import net.minecraft.client.gui.screens.inventory.StructureBlockEditScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.resources.sounds.AmbientSoundHandler;
+import net.minecraft.client.resources.sounds.BiomeAmbientSoundsHandler;
 import net.minecraft.client.resources.sounds.BubbleColumnAmbientSoundHandler;
 import net.minecraft.client.resources.sounds.ElytraOnPlayerSoundInstance;
 import net.minecraft.client.resources.sounds.RidingMinecartSoundInstance;
@@ -125,6 +126,7 @@ public class LocalPlayer extends AbstractClientPlayer {
         this.dimension = DimensionType.OVERWORLD;
         this.ambientSoundHandlers.add(new UnderwaterAmbientSoundHandler(this, param0.getSoundManager()));
         this.ambientSoundHandlers.add(new BubbleColumnAmbientSoundHandler(this));
+        this.ambientSoundHandlers.add(new BiomeAmbientSoundsHandler(this, param0.getSoundManager(), param1.getBiomeManager()));
     }
 
     @Override
@@ -440,7 +442,7 @@ public class LocalPlayer extends AbstractClientPlayer {
 
     private boolean blocked(BlockPos param0) {
         AABB var0 = this.getBoundingBox();
-        BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos(param0);
+        BlockPos.MutableBlockPos var1 = param0.mutable();
 
         for(int var2 = Mth.floor(var0.minY); var2 < Mth.ceil(var0.maxY); ++var2) {
             var1.setY(var2);

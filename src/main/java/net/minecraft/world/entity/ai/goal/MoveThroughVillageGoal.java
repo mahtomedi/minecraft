@@ -47,7 +47,7 @@ public class MoveThroughVillageGoal extends Goal {
             return false;
         } else {
             ServerLevel var0 = (ServerLevel)this.mob.level;
-            BlockPos var1 = new BlockPos(this.mob);
+            BlockPos var1 = this.mob.blockPosition();
             if (!var0.closeToVillage(var1, 6)) {
                 return false;
             } else {
@@ -74,7 +74,7 @@ public class MoveThroughVillageGoal extends Goal {
                         this.path = var4.createPath(this.poiPos, 0);
                         var4.setCanOpenDoors(var5);
                         if (this.path == null) {
-                            Vec3 var6 = RandomPos.getPosTowards(this.mob, 10, 7, new Vec3(this.poiPos));
+                            Vec3 var6 = RandomPos.getPosTowards(this.mob, 10, 7, Vec3.atBottomCenterOf(this.poiPos));
                             if (var6 == null) {
                                 return false;
                             }

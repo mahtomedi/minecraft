@@ -104,29 +104,17 @@ public class ExecuteCommand {
         
                     return var0x;
                 })))
-                .then(
-                    Commands.literal("at")
-                        .then(
-                            Commands.argument("targets", EntityArgument.entities())
-                                .fork(
-                                    var0,
-                                    param0x -> {
-                                        List<CommandSourceStack> var0x = Lists.newArrayList();
-                            
-                                        for(Entity var1x : EntityArgument.getOptionalEntities(param0x, "targets")) {
-                                            var0x.add(
-                                                param0x.getSource()
-                                                    .withLevel((ServerLevel)var1x.level)
-                                                    .withPosition(var1x.getCommandSenderWorldPosition())
-                                                    .withRotation(var1x.getRotationVector())
-                                            );
-                                        }
-                            
-                                        return var0x;
-                                    }
-                                )
-                        )
-                )
+                .then(Commands.literal("at").then(Commands.argument("targets", EntityArgument.entities()).fork(var0, param0x -> {
+                    List<CommandSourceStack> var0x = Lists.newArrayList();
+        
+                    for(Entity var1x : EntityArgument.getOptionalEntities(param0x, "targets")) {
+                        var0x.add(
+                            param0x.getSource().withLevel((ServerLevel)var1x.level).withPosition(var1x.position()).withRotation(var1x.getRotationVector())
+                        );
+                    }
+        
+                    return var0x;
+                })))
                 .then(
                     Commands.literal("store")
                         .then(wrapStores(var0, Commands.literal("result"), true))
@@ -147,7 +135,7 @@ public class ExecuteCommand {
                             List<CommandSourceStack> var0x = Lists.newArrayList();
                 
                             for(Entity var1x : EntityArgument.getOptionalEntities(param0x, "targets")) {
-                                var0x.add(param0x.getSource().withPosition(var1x.getCommandSenderWorldPosition()));
+                                var0x.add(param0x.getSource().withPosition(var1x.position()));
                             }
                 
                             return var0x;

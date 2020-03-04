@@ -157,6 +157,28 @@ public final class NbtUtils {
         }
     }
 
+    public static IntArrayTag createUUIDArray(UUID param0) {
+        long var0 = param0.getMostSignificantBits();
+        long var1 = param0.getLeastSignificantBits();
+        return new IntArrayTag(new int[]{(int)(var0 >> 32), (int)var0, (int)(var1 >> 32), (int)var1});
+    }
+
+    public static UUID loadUUIDArray(Tag param0) {
+        if (param0.getType() != IntArrayTag.TYPE) {
+            throw new IllegalArgumentException(
+                "Expected UUID-Tag to be of type " + IntArrayTag.TYPE.getName() + ", but found " + param0.getType().getName() + "."
+            );
+        } else {
+            int[] var0 = ((IntArrayTag)param0).getAsIntArray();
+            if (var0.length != 4) {
+                throw new IllegalArgumentException("Expected UUID-Array to be of length 4, but found " + var0.length + ".");
+            } else {
+                return new UUID((long)var0[0] << 32 | (long)var0[1] & 4294967295L, (long)var0[2] << 32 | (long)var0[3] & 4294967295L);
+            }
+        }
+    }
+
+    @Deprecated
     public static CompoundTag createUUIDTag(UUID param0) {
         CompoundTag var0 = new CompoundTag();
         var0.putLong("M", param0.getMostSignificantBits());
@@ -164,6 +186,7 @@ public final class NbtUtils {
         return var0;
     }
 
+    @Deprecated
     public static UUID loadUUIDTag(CompoundTag param0) {
         return new UUID(param0.getLong("M"), param0.getLong("L"));
     }

@@ -56,7 +56,7 @@ public class Backup extends ValueObject {
                     var1.append(var2).append(" ");
                 } else {
                     char var3 = Character.toUpperCase(var2.charAt(0));
-                    var1.append(var3).append(var2.substring(1, var2.length())).append(" ");
+                    var1.append(var3).append(var2.substring(1)).append(" ");
                 }
             }
         }

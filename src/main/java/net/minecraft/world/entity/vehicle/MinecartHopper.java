@@ -91,7 +91,7 @@ public class MinecartHopper extends AbstractMinecartContainer implements Hopper 
     public void tick() {
         super.tick();
         if (!this.level.isClientSide && this.isAlive() && this.isEnabled()) {
-            BlockPos var0 = new BlockPos(this);
+            BlockPos var0 = this.blockPosition();
             if (var0.equals(this.lastPosition)) {
                 --this.cooldownTime;
             } else {

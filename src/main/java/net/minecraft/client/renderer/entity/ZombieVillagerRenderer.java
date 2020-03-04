@@ -1,6 +1,5 @@
 package net.minecraft.client.renderer.entity;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.ZombieVillagerModel;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.layers.VillagerProfessionLayer;
@@ -24,11 +23,7 @@ public class ZombieVillagerRenderer extends HumanoidMobRenderer<ZombieVillager, 
         return ZOMBIE_VILLAGER_LOCATION;
     }
 
-    protected void setupRotations(ZombieVillager param0, PoseStack param1, float param2, float param3, float param4) {
-        if (param0.isConverting()) {
-            param3 += (float)(Math.cos((double)param0.tickCount * 3.25) * Math.PI * 0.25);
-        }
-
-        super.setupRotations(param0, param1, param2, param3, param4);
+    protected boolean isShaking(ZombieVillager param0) {
+        return param0.isConverting();
     }
 }

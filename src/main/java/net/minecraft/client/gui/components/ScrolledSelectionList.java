@@ -17,8 +17,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class ScrolledSelectionList extends AbstractContainerEventHandler implements Widget {
-    protected static final int NO_DRAG = -1;
-    protected static final int DRAG_OUTSIDE = -2;
     protected final Minecraft minecraft;
     protected int width;
     protected int height;
@@ -45,32 +43,6 @@ public abstract class ScrolledSelectionList extends AbstractContainerEventHandle
         this.itemHeight = param5;
         this.x0 = 0;
         this.x1 = param1;
-    }
-
-    public void updateSize(int param0, int param1, int param2, int param3) {
-        this.width = param0;
-        this.height = param1;
-        this.y0 = param2;
-        this.y1 = param3;
-        this.x0 = 0;
-        this.x1 = param0;
-    }
-
-    public void setRenderSelection(boolean param0) {
-        this.renderSelection = param0;
-    }
-
-    protected void setRenderHeader(boolean param0, int param1) {
-        this.renderHeader = param0;
-        this.headerHeight = param1;
-        if (!param0) {
-            this.headerHeight = 0;
-        }
-
-    }
-
-    public void setVisible(boolean param0) {
-        this.visible = param0;
     }
 
     public boolean isVisible() {
@@ -133,27 +105,8 @@ public abstract class ScrolledSelectionList extends AbstractContainerEventHandle
         return Math.max(0, this.getMaxPosition() - (this.y1 - this.y0 - 4));
     }
 
-    public void centerScrollOn(int param0) {
-        this.yo = (double)(param0 * this.itemHeight + this.itemHeight / 2 - (this.y1 - this.y0) / 2);
-        this.capYPosition();
-    }
-
-    public int getScroll() {
-        return (int)this.yo;
-    }
-
     public boolean isMouseInList(double param0, double param1) {
         return param1 >= (double)this.y0 && param1 <= (double)this.y1 && param0 >= (double)this.x0 && param0 <= (double)this.x1;
-    }
-
-    public int getScrollBottom() {
-        return (int)this.yo - this.height - this.headerHeight;
-    }
-
-    public void scroll(int param0) {
-        this.yo += (double)param0;
-        this.capYPosition();
-        this.yDrag = -2;
     }
 
     @Override
@@ -435,14 +388,5 @@ public abstract class ScrolledSelectionList extends AbstractContainerEventHandle
             .endVertex();
         var1.vertex((double)this.x0, (double)param0, 0.0).uv(0.0F, (float)param0 / 32.0F).color(64, 64, 64, param2).endVertex();
         var0.end();
-    }
-
-    public void setLeftPos(int param0) {
-        this.x0 = param0;
-        this.x1 = param0 + this.width;
-    }
-
-    public int getItemHeight() {
-        return this.itemHeight;
     }
 }

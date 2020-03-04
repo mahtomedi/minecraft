@@ -1,10 +1,8 @@
 package net.minecraft.core;
 
 import com.google.common.collect.AbstractIterator;
-import com.google.common.collect.Lists;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
-import java.util.List;
 import java.util.Spliterator.OfInt;
 import java.util.Spliterators.AbstractSpliterator;
 import java.util.function.Consumer;
@@ -14,7 +12,6 @@ import java.util.stream.StreamSupport;
 import javax.annotation.concurrent.Immutable;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Serializable;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.Vec3;
@@ -40,10 +37,6 @@ public class BlockPos extends Vec3i implements Serializable {
 
     public BlockPos(double param0, double param1, double param2) {
         super(param0, param1, param2);
-    }
-
-    public BlockPos(Entity param0) {
-        this(param0.getX(), param0.getY(), param0.getZ());
     }
 
     public BlockPos(Vec3 param0) {
@@ -214,6 +207,10 @@ public class BlockPos extends Vec3i implements Serializable {
         return this;
     }
 
+    public BlockPos.MutableBlockPos mutable() {
+        return new BlockPos.MutableBlockPos(this.getX(), this.getY(), this.getZ());
+    }
+
     public static Iterable<BlockPos> betweenClosed(BlockPos param0, BlockPos param1) {
         return betweenClosed(
             Math.min(param0.getX(), param1.getX()),
@@ -280,31 +277,16 @@ public class BlockPos extends Vec3i implements Serializable {
     }
 
     public static class MutableBlockPos extends BlockPos {
-        protected int x;
-        protected int y;
-        protected int z;
-
         public MutableBlockPos() {
             this(0, 0, 0);
         }
 
-        public MutableBlockPos(BlockPos param0) {
-            this(param0.getX(), param0.getY(), param0.getZ());
-        }
-
         public MutableBlockPos(int param0, int param1, int param2) {
-            super(0, 0, 0);
-            this.x = param0;
-            this.y = param1;
-            this.z = param2;
+            super(param0, param1, param2);
         }
 
         public MutableBlockPos(double param0, double param1, double param2) {
             this(Mth.floor(param0), Mth.floor(param1), Mth.floor(param2));
-        }
-
-        public MutableBlockPos(Entity param0) {
-            this(param0.getX(), param0.getY(), param0.getZ());
         }
 
         @Override
@@ -327,30 +309,11 @@ public class BlockPos extends Vec3i implements Serializable {
             return super.rotate(param0).immutable();
         }
 
-        @Override
-        public int getX() {
-            return this.x;
-        }
-
-        @Override
-        public int getY() {
-            return this.y;
-        }
-
-        @Override
-        public int getZ() {
-            return this.z;
-        }
-
         public BlockPos.MutableBlockPos set(int param0, int param1, int param2) {
-            this.x = param0;
-            this.y = param1;
-            this.z = param2;
+            this.setX(param0);
+            this.setY(param1);
+            this.setZ(param2);
             return this;
-        }
-
-        public BlockPos.MutableBlockPos set(Entity param0) {
-            return this.set(param0.getX(), param0.getY(), param0.getZ());
         }
 
         public BlockPos.MutableBlockPos set(double param0, double param1, double param2) {
@@ -373,108 +336,44 @@ public class BlockPos extends Vec3i implements Serializable {
             );
         }
 
+        public BlockPos.MutableBlockPos setWithOffset(Vec3i param0, Direction param1) {
+            return this.set(param0.getX() + param1.getStepX(), param0.getY() + param1.getStepY(), param0.getZ() + param1.getStepZ());
+        }
+
+        public BlockPos.MutableBlockPos setWithOffset(Vec3i param0, int param1, int param2, int param3) {
+            return this.set(param0.getX() + param1, param0.getY() + param2, param0.getZ() + param3);
+        }
+
         public BlockPos.MutableBlockPos move(Direction param0) {
             return this.move(param0, 1);
         }
 
         public BlockPos.MutableBlockPos move(Direction param0, int param1) {
-            return this.set(this.x + param0.getStepX() * param1, this.y + param0.getStepY() * param1, this.z + param0.getStepZ() * param1);
+            return this.set(this.getX() + param0.getStepX() * param1, this.getY() + param0.getStepY() * param1, this.getZ() + param0.getStepZ() * param1);
         }
 
         public BlockPos.MutableBlockPos move(int param0, int param1, int param2) {
-            return this.set(this.x + param0, this.y + param1, this.z + param2);
+            return this.set(this.getX() + param0, this.getY() + param1, this.getZ() + param2);
         }
 
+        @Override
         public void setX(int param0) {
-            this.x = param0;
+            super.setX(param0);
         }
 
+        @Override
         public void setY(int param0) {
-            this.y = param0;
+            super.setY(param0);
         }
 
+        @Override
         public void setZ(int param0) {
-            this.z = param0;
+            super.setZ(param0);
         }
 
         @Override
         public BlockPos immutable() {
             return new BlockPos(this);
-        }
-    }
-
-    public static final class PooledMutableBlockPos extends BlockPos.MutableBlockPos implements AutoCloseable {
-        private boolean free;
-        private static final List<BlockPos.PooledMutableBlockPos> POOL = Lists.newArrayList();
-
-        private PooledMutableBlockPos(int param0, int param1, int param2) {
-            super(param0, param1, param2);
-        }
-
-        public static BlockPos.PooledMutableBlockPos acquire() {
-            return acquire(0, 0, 0);
-        }
-
-        public static BlockPos.PooledMutableBlockPos acquire(Entity param0) {
-            return acquire(param0.getX(), param0.getY(), param0.getZ());
-        }
-
-        public static BlockPos.PooledMutableBlockPos acquire(double param0, double param1, double param2) {
-            return acquire(Mth.floor(param0), Mth.floor(param1), Mth.floor(param2));
-        }
-
-        public static BlockPos.PooledMutableBlockPos acquire(int param0, int param1, int param2) {
-            synchronized(POOL) {
-                if (!POOL.isEmpty()) {
-                    BlockPos.PooledMutableBlockPos var0 = POOL.remove(POOL.size() - 1);
-                    if (var0 != null && var0.free) {
-                        var0.free = false;
-                        var0.set(param0, param1, param2);
-                        return var0;
-                    }
-                }
-            }
-
-            return new BlockPos.PooledMutableBlockPos(param0, param1, param2);
-        }
-
-        public BlockPos.PooledMutableBlockPos set(int param0, int param1, int param2) {
-            return (BlockPos.PooledMutableBlockPos)super.set(param0, param1, param2);
-        }
-
-        public BlockPos.PooledMutableBlockPos set(Entity param0) {
-            return (BlockPos.PooledMutableBlockPos)super.set(param0);
-        }
-
-        public BlockPos.PooledMutableBlockPos set(double param0, double param1, double param2) {
-            return (BlockPos.PooledMutableBlockPos)super.set(param0, param1, param2);
-        }
-
-        public BlockPos.PooledMutableBlockPos set(Vec3i param0) {
-            return (BlockPos.PooledMutableBlockPos)super.set(param0);
-        }
-
-        public BlockPos.PooledMutableBlockPos move(Direction param0) {
-            return (BlockPos.PooledMutableBlockPos)super.move(param0);
-        }
-
-        public BlockPos.PooledMutableBlockPos move(Direction param0, int param1) {
-            return (BlockPos.PooledMutableBlockPos)super.move(param0, param1);
-        }
-
-        public BlockPos.PooledMutableBlockPos move(int param0, int param1, int param2) {
-            return (BlockPos.PooledMutableBlockPos)super.move(param0, param1, param2);
-        }
-
-        @Override
-        public void close() {
-            synchronized(POOL) {
-                if (POOL.size() < 100) {
-                    POOL.add(this);
-                }
-
-                this.free = true;
-            }
         }
     }
 }

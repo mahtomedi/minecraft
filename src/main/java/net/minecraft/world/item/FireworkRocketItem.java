@@ -35,7 +35,12 @@ public class FireworkRocketItem extends Item {
             Vec3 var2 = param0.getClickLocation();
             Direction var3 = param0.getClickedFace();
             FireworkRocketEntity var4 = new FireworkRocketEntity(
-                var0, var2.x + (double)var3.getStepX() * 0.15, var2.y + (double)var3.getStepY() * 0.15, var2.z + (double)var3.getStepZ() * 0.15, var1
+                var0,
+                param0.getPlayer(),
+                var2.x + (double)var3.getStepX() * 0.15,
+                var2.y + (double)var3.getStepY() * 0.15,
+                var2.z + (double)var3.getStepZ() * 0.15,
+                var1
             );
             var0.addFreshEntity(var4);
             var1.shrink(1);

@@ -1331,7 +1331,7 @@ public abstract class Player extends LivingEntity {
             if (!this.isCreative()) {
                 double var1 = 8.0;
                 double var2 = 5.0;
-                Vec3 var3 = new Vec3((double)param0.getX() + 0.5, (double)param0.getY(), (double)param0.getZ() + 0.5);
+                Vec3 var3 = Vec3.atBottomCenterOf(param0);
                 List<Monster> var4 = this.level
                     .getEntitiesOfClass(
                         Monster.class,
@@ -1365,7 +1365,7 @@ public abstract class Player extends LivingEntity {
     }
 
     private boolean isReachableBedBlock(BlockPos param0) {
-        Vec3 var0 = new Vec3((double)param0.getX() + 0.5, (double)param0.getY(), (double)param0.getZ() + 0.5);
+        Vec3 var0 = Vec3.atBottomCenterOf(param0);
         return Math.abs(this.getX() - var0.x()) <= 3.0 && Math.abs(this.getY() - var0.y()) <= 2.0 && Math.abs(this.getZ() - var0.z()) <= 3.0;
     }
 

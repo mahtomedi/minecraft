@@ -13,6 +13,14 @@ public class UserWhiteListEntry extends StoredUserEntry<GameProfile> {
         super(createGameProfile(param0));
     }
 
+    @Override
+    protected void serialize(JsonObject param0) {
+        if (this.getUser() != null) {
+            param0.addProperty("uuid", this.getUser().getId() == null ? "" : this.getUser().getId().toString());
+            param0.addProperty("name", this.getUser().getName());
+        }
+    }
+
     private static GameProfile createGameProfile(JsonObject param0) {
         if (param0.has("uuid") && param0.has("name")) {
             String var0 = param0.get("uuid").getAsString();

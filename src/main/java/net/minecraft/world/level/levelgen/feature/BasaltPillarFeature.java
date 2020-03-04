@@ -21,8 +21,8 @@ public class BasaltPillarFeature extends Feature<NoneFeatureConfiguration> {
         LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, NoneFeatureConfiguration param4
     ) {
         if (param0.isEmptyBlock(param3) && !param0.isEmptyBlock(param3.above())) {
-            BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos(param3);
-            BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos(param3);
+            BlockPos.MutableBlockPos var0 = param3.mutable();
+            BlockPos.MutableBlockPos var1 = param3.mutable();
             boolean var2 = true;
             boolean var3 = true;
             boolean var4 = true;
@@ -30,18 +30,18 @@ public class BasaltPillarFeature extends Feature<NoneFeatureConfiguration> {
 
             while(param0.isEmptyBlock(var0)) {
                 param0.setBlock(var0, Blocks.BASALT.defaultBlockState(), 2);
-                var2 = var2 && this.placeHangOff(param0, param2, var1.set(var0).move(Direction.NORTH));
-                var3 = var3 && this.placeHangOff(param0, param2, var1.set(var0).move(Direction.SOUTH));
-                var4 = var4 && this.placeHangOff(param0, param2, var1.set(var0).move(Direction.WEST));
-                var5 = var5 && this.placeHangOff(param0, param2, var1.set(var0).move(Direction.EAST));
+                var2 = var2 && this.placeHangOff(param0, param2, var1.setWithOffset(var0, Direction.NORTH));
+                var3 = var3 && this.placeHangOff(param0, param2, var1.setWithOffset(var0, Direction.SOUTH));
+                var4 = var4 && this.placeHangOff(param0, param2, var1.setWithOffset(var0, Direction.WEST));
+                var5 = var5 && this.placeHangOff(param0, param2, var1.setWithOffset(var0, Direction.EAST));
                 var0.move(Direction.DOWN);
             }
 
             var0.move(Direction.UP);
-            this.placeBaseHangOff(param0, param2, var1.set(var0).move(Direction.NORTH));
-            this.placeBaseHangOff(param0, param2, var1.set(var0).move(Direction.SOUTH));
-            this.placeBaseHangOff(param0, param2, var1.set(var0).move(Direction.WEST));
-            this.placeBaseHangOff(param0, param2, var1.set(var0).move(Direction.EAST));
+            this.placeBaseHangOff(param0, param2, var1.setWithOffset(var0, Direction.NORTH));
+            this.placeBaseHangOff(param0, param2, var1.setWithOffset(var0, Direction.SOUTH));
+            this.placeBaseHangOff(param0, param2, var1.setWithOffset(var0, Direction.WEST));
+            this.placeBaseHangOff(param0, param2, var1.setWithOffset(var0, Direction.EAST));
             BlockPos.MutableBlockPos var6 = new BlockPos.MutableBlockPos();
 
             for(int var7 = -3; var7 < 4; ++var7) {
@@ -51,14 +51,14 @@ public class BasaltPillarFeature extends Feature<NoneFeatureConfiguration> {
                         var6.set(var0.offset(var7, 0, var8));
                         int var10 = 3;
 
-                        while(param0.isEmptyBlock(var1.set(var6).move(Direction.DOWN))) {
+                        while(param0.isEmptyBlock(var1.setWithOffset(var6, Direction.DOWN))) {
                             var6.move(Direction.DOWN);
                             if (--var10 <= 0) {
                                 break;
                             }
                         }
 
-                        if (!param0.isEmptyBlock(var1.set(var6).move(Direction.DOWN))) {
+                        if (!param0.isEmptyBlock(var1.setWithOffset(var6, Direction.DOWN))) {
                             param0.setBlock(var6, Blocks.BASALT.defaultBlockState(), 2);
                         }
                     }

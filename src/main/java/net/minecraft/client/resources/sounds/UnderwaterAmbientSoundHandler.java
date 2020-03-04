@@ -10,7 +10,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class UnderwaterAmbientSoundHandler implements AmbientSoundHandler {
     private final LocalPlayer player;
     private final SoundManager soundManager;
-    private int tick_delay = 0;
+    private int tickDelay = 0;
 
     public UnderwaterAmbientSoundHandler(LocalPlayer param0, SoundManager param1) {
         this.player = param0;
@@ -19,17 +19,17 @@ public class UnderwaterAmbientSoundHandler implements AmbientSoundHandler {
 
     @Override
     public void tick() {
-        --this.tick_delay;
-        if (this.tick_delay <= 0 && this.player.isUnderWater()) {
+        --this.tickDelay;
+        if (this.tickDelay <= 0 && this.player.isUnderWater()) {
             float var0 = this.player.level.random.nextFloat();
             if (var0 < 1.0E-4F) {
-                this.tick_delay = 0;
+                this.tickDelay = 0;
                 this.soundManager.play(new UnderwaterAmbientSoundInstances.SubSound(this.player, SoundEvents.AMBIENT_UNDERWATER_LOOP_ADDITIONS_ULTRA_RARE));
             } else if (var0 < 0.001F) {
-                this.tick_delay = 0;
+                this.tickDelay = 0;
                 this.soundManager.play(new UnderwaterAmbientSoundInstances.SubSound(this.player, SoundEvents.AMBIENT_UNDERWATER_LOOP_ADDITIONS_RARE));
             } else if (var0 < 0.01F) {
-                this.tick_delay = 0;
+                this.tickDelay = 0;
                 this.soundManager.play(new UnderwaterAmbientSoundInstances.SubSound(this.player, SoundEvents.AMBIENT_UNDERWATER_LOOP_ADDITIONS));
             }
         }

@@ -22,7 +22,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.CrossbowAttackMob;
 import net.minecraft.world.entity.player.Player;
@@ -227,7 +226,7 @@ public class CrossbowItem extends ProjectileWeaponItem {
             boolean var0 = param4.getItem() == Items.FIREWORK_ROCKET;
             Projectile var1;
             if (var0) {
-                var1 = new FireworkRocketEntity(param0, param4, param1.getX(), param1.getEyeY() - 0.15F, param1.getZ(), true);
+                var1 = new FireworkRocketEntity(param0, param4, param1, param1.getX(), param1.getEyeY() - 0.15F, param1.getZ(), true);
             } else {
                 var1 = getArrow(param0, param1, param3, param4);
                 if (param6 || param9 != 0.0F) {
@@ -248,7 +247,7 @@ public class CrossbowItem extends ProjectileWeaponItem {
             }
 
             param3.hurtAndBreak(var0 ? 3 : 1, param1, param1x -> param1x.broadcastBreakEvent(param2));
-            param0.addFreshEntity((Entity)var1);
+            param0.addFreshEntity(var1);
             param0.playSound(null, param1.getX(), param1.getY(), param1.getZ(), SoundEvents.CROSSBOW_SHOOT, SoundSource.PLAYERS, 1.0F, param5);
         }
     }

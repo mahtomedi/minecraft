@@ -73,7 +73,7 @@ public class RemoveBlockGoal extends MoveToBlockGoal {
     public void tick() {
         super.tick();
         Level var0 = this.removerMob.level;
-        BlockPos var1 = new BlockPos(this.removerMob);
+        BlockPos var1 = this.removerMob.blockPosition();
         BlockPos var2 = this.getPosWithBlock(var1, var0);
         Random var3 = this.removerMob.getRandom();
         if (this.isReachedTarget() && var2 != null) {

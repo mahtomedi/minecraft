@@ -49,8 +49,8 @@ public class ShulkerRenderer extends MobRenderer<Shulker, ShulkerModel<Shulker>>
             return true;
         } else {
             if (param0.getClientSideTeleportInterpolation() > 0 && param0.hasValidInterpolationPositions()) {
-                Vec3 var0 = new Vec3(param0.getAttachPosition());
-                Vec3 var1 = new Vec3(param0.getOldAttachPosition());
+                Vec3 var0 = Vec3.atLowerCornerOf(param0.getAttachPosition());
+                Vec3 var1 = Vec3.atLowerCornerOf(param0.getOldAttachPosition());
                 if (param1.isVisible(new AABB(var1.x, var1.y, var1.z, var0.x, var0.y, var0.z))) {
                     return true;
                 }

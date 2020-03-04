@@ -163,7 +163,7 @@ public class ConduitBlockEntity extends BlockEntity implements TickableBlockEnti
         List<Player> var6 = this.level.getEntitiesOfClass(Player.class, var5);
         if (!var6.isEmpty()) {
             for(Player var7 : var6) {
-                if (this.worldPosition.closerThan(new BlockPos(var7), (double)var1) && var7.isInWaterOrRain()) {
+                if (this.worldPosition.closerThan(var7.blockPosition(), (double)var1) && var7.isInWaterOrRain()) {
                     var7.addEffect(new MobEffectInstance(MobEffects.CONDUIT_POWER, 260, 0, true, true));
                 }
             }
@@ -185,7 +185,7 @@ public class ConduitBlockEntity extends BlockEntity implements TickableBlockEnti
             if (!var2.isEmpty()) {
                 this.destroyTarget = var2.get(this.level.random.nextInt(var2.size()));
             }
-        } else if (!this.destroyTarget.isAlive() || !this.worldPosition.closerThan(new BlockPos(this.destroyTarget), 8.0)) {
+        } else if (!this.destroyTarget.isAlive() || !this.worldPosition.closerThan(this.destroyTarget.blockPosition(), 8.0)) {
             this.destroyTarget = null;
         }
 

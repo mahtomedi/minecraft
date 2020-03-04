@@ -247,7 +247,7 @@ public class Zombie extends Monster {
 
     protected void doUnderWaterConversion() {
         this.convertTo(EntityType.DROWNED);
-        this.level.levelEvent(null, 1040, new BlockPos(this), 0);
+        this.level.levelEvent(null, 1040, this.blockPosition(), 0);
     }
 
     protected void convertTo(EntityType<? extends Zombie> param0) {
@@ -256,7 +256,7 @@ public class Zombie extends Monster {
             var0.copyPosition(this);
             var0.setCanPickUpLoot(this.canPickUpLoot());
             var0.setCanBreakDoors(var0.supportsBreakDoorGoal() && this.canBreakDoors());
-            var0.handleAttributes(var0.level.getCurrentDifficultyAt(new BlockPos(var0)).getSpecialMultiplier());
+            var0.handleAttributes(var0.level.getCurrentDifficultyAt(var0.blockPosition()).getSpecialMultiplier());
             var0.setBaby(this.isBaby());
             var0.setNoAi(this.isNoAi());
 
@@ -319,7 +319,7 @@ public class Zombie extends Monster {
                             && !this.level.containsAnyLiquid(var4.getBoundingBox())) {
                             this.level.addFreshEntity(var4);
                             var4.setTarget(var0);
-                            var4.finalizeSpawn(this.level, this.level.getCurrentDifficultyAt(new BlockPos(var4)), MobSpawnType.REINFORCEMENT, null, null);
+                            var4.finalizeSpawn(this.level, this.level.getCurrentDifficultyAt(var4.blockPosition()), MobSpawnType.REINFORCEMENT, null, null);
                             this.getAttribute(SPAWN_REINFORCEMENTS_CHANCE)
                                 .addModifier(new AttributeModifier("Zombie reinforcement caller charge", -0.05F, AttributeModifier.Operation.ADDITION));
                             var4.getAttribute(SPAWN_REINFORCEMENTS_CHANCE)
@@ -340,7 +340,7 @@ public class Zombie extends Monster {
     public boolean doHurtTarget(Entity param0) {
         boolean var0 = super.doHurtTarget(param0);
         if (var0) {
-            float var1 = this.level.getCurrentDifficultyAt(new BlockPos(this)).getEffectiveDifficulty();
+            float var1 = this.level.getCurrentDifficultyAt(this.blockPosition()).getEffectiveDifficulty();
             if (this.getMainHandItem().isEmpty() && this.isOnFire() && this.random.nextFloat() < var1 * 0.3F) {
                 param0.setSecondsOnFire(2 * (int)var1);
             }
@@ -432,7 +432,7 @@ public class Zombie extends Monster {
             var1.copyPosition(var0);
             var0.remove();
             var1.finalizeSpawn(
-                this.level, this.level.getCurrentDifficultyAt(new BlockPos(var1)), MobSpawnType.CONVERSION, new Zombie.ZombieGroupData(false), null
+                this.level, this.level.getCurrentDifficultyAt(var1.blockPosition()), MobSpawnType.CONVERSION, new Zombie.ZombieGroupData(false), null
             );
             var1.setVillagerData(var0.getVillagerData());
             var1.setGossips(var0.getGossips().store(NbtOps.INSTANCE).getValue());
@@ -451,7 +451,7 @@ public class Zombie extends Monster {
 
             var1.setInvulnerable(this.isInvulnerable());
             this.level.addFreshEntity(var1);
-            this.level.levelEvent(null, 1026, new BlockPos(this), 0);
+            this.level.levelEvent(null, 1026, this.blockPosition(), 0);
         }
 
     }

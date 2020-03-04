@@ -1,29 +1,31 @@
 package com.mojang.realmsclient.gui.screens;
 
 import com.mojang.realmsclient.exception.RealmsServiceException;
-import net.minecraft.realms.Realms;
-import net.minecraft.realms.RealmsButton;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.realms.NarrationHelper;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class RealmsGenericErrorScreen extends RealmsScreen {
-    private final RealmsScreen nextScreen;
+    private final Screen nextScreen;
     private String line1;
     private String line2;
 
-    public RealmsGenericErrorScreen(RealmsServiceException param0, RealmsScreen param1) {
+    public RealmsGenericErrorScreen(RealmsServiceException param0, Screen param1) {
         this.nextScreen = param1;
         this.errorMessage(param0);
     }
 
-    public RealmsGenericErrorScreen(String param0, RealmsScreen param1) {
+    public RealmsGenericErrorScreen(String param0, Screen param1) {
         this.nextScreen = param1;
         this.errorMessage(param0);
     }
 
-    public RealmsGenericErrorScreen(String param0, String param1, RealmsScreen param2) {
+    public RealmsGenericErrorScreen(String param0, String param1, Screen param2) {
         this.nextScreen = param2;
         this.errorMessage(param0, param1);
     }
@@ -35,7 +37,7 @@ public class RealmsGenericErrorScreen extends RealmsScreen {
         } else {
             this.line1 = "Realms (" + param0.errorCode + "):";
             String var0 = "mco.errorMessage." + param0.errorCode;
-            String var1 = getLocalizedString(var0);
+            String var1 = I18n.get(var0);
             this.line2 = var1.equals(var0) ? param0.errorMsg : var1;
         }
 
@@ -53,25 +55,15 @@ public class RealmsGenericErrorScreen extends RealmsScreen {
 
     @Override
     public void init() {
-        Realms.narrateNow(this.line1 + ": " + this.line2);
-        this.buttonsAdd(new RealmsButton(10, this.width() / 2 - 100, this.height() - 52, 200, 20, "Ok") {
-            @Override
-            public void onPress() {
-                Realms.setScreen(RealmsGenericErrorScreen.this.nextScreen);
-            }
-        });
-    }
-
-    @Override
-    public void tick() {
-        super.tick();
+        NarrationHelper.now(this.line1 + ": " + this.line2);
+        this.addButton(new Button(this.width / 2 - 100, this.height - 52, 200, 20, "Ok", param0 -> this.minecraft.setScreen(this.nextScreen)));
     }
 
     @Override
     public void render(int param0, int param1, float param2) {
         this.renderBackground();
-        this.drawCenteredString(this.line1, this.width() / 2, 80, 16777215);
-        this.drawCenteredString(this.line2, this.width() / 2, 100, 16711680);
+        this.drawCenteredString(this.font, this.line1, this.width / 2, 80, 16777215);
+        this.drawCenteredString(this.font, this.line2, this.width / 2, 100, 16711680);
         super.render(param0, param1, param2);
     }
 }

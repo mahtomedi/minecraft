@@ -95,24 +95,6 @@ public interface EntityGetter {
         return this.getNearestPlayer(param0, param1, param2, param3, var0);
     }
 
-    @Nullable
-    default Player getNearestPlayerIgnoreY(double param0, double param1, double param2) {
-        double var0 = -1.0;
-        Player var1 = null;
-
-        for(Player var2 : this.players()) {
-            if (EntitySelector.NO_SPECTATORS.test(var2)) {
-                double var3 = var2.distanceToSqr(param0, var2.getY(), param1);
-                if ((param2 < 0.0 || var3 < param2 * param2) && (var0 == -1.0 || var3 < var0)) {
-                    var0 = var3;
-                    var1 = var2;
-                }
-            }
-        }
-
-        return var1;
-    }
-
     default boolean hasNearbyAlivePlayer(double param0, double param1, double param2, double param3) {
         for(Player var0 : this.players()) {
             if (EntitySelector.NO_SPECTATORS.test(var0) && EntitySelector.LIVING_ENTITY_STILL_ALIVE.test(var0)) {

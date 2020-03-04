@@ -248,9 +248,9 @@ public class Bee extends Animal implements FlyingAnimal {
     }
 
     private void pathfindRandomlyTowards(BlockPos param0) {
-        Vec3 var0 = new Vec3(param0);
+        Vec3 var0 = Vec3.atBottomCenterOf(param0);
         int var1 = 0;
-        BlockPos var2 = new BlockPos(this);
+        BlockPos var2 = this.blockPosition();
         int var3 = (int)var0.y - var2.getY();
         if (var3 > 2) {
             var1 = 4;
@@ -630,7 +630,7 @@ public class Bee extends Animal implements FlyingAnimal {
     }
 
     private boolean closerThan(BlockPos param0, int param1) {
-        return param0.closerThan(new BlockPos(this), (double)param1);
+        return param0.closerThan(this.blockPosition(), (double)param1);
     }
 
     abstract class BaseBeeGoal extends Goal {
@@ -922,7 +922,7 @@ public class Bee extends Animal implements FlyingAnimal {
         public void tick() {
             if (Bee.this.random.nextInt(30) == 0) {
                 for(int var0 = 1; var0 <= 2; ++var0) {
-                    BlockPos var1 = new BlockPos(Bee.this).below(var0);
+                    BlockPos var1 = Bee.this.blockPosition().below(var0);
                     BlockState var2 = Bee.this.level.getBlockState(var1);
                     Block var3 = var2.getBlock();
                     boolean var4 = false;
@@ -1006,7 +1006,7 @@ public class Bee extends Animal implements FlyingAnimal {
         }
 
         private List<BlockPos> findNearbyHivesWithSpace() {
-            BlockPos var0 = new BlockPos(Bee.this);
+            BlockPos var0 = Bee.this.blockPosition();
             PoiManager var1 = ((ServerLevel)Bee.this.level).getPoiManager();
             Stream<PoiRecord> var2 = var1.getInRange(param0 -> param0 == PoiType.BEEHIVE || param0 == PoiType.BEE_NEST, var0, 20, PoiManager.Occupancy.ANY);
             return var2.map(PoiRecord::getPos)
@@ -1140,7 +1140,7 @@ public class Bee extends Animal implements FlyingAnimal {
             if (this.pollinatingTicks > 600) {
                 Bee.this.savedFlowerPos = null;
             } else {
-                Vec3 var0 = new Vec3(Bee.this.savedFlowerPos).add(0.5, 0.6F, 0.5);
+                Vec3 var0 = Vec3.atBottomCenterOf(Bee.this.savedFlowerPos).add(0.0, 0.6F, 0.0);
                 if (var0.distanceTo(Bee.this.position()) > 1.0) {
                     this.hoverPos = var0;
                     this.setWantedPos();
@@ -1194,14 +1194,14 @@ public class Bee extends Animal implements FlyingAnimal {
         }
 
         private Optional<BlockPos> findNearestBlock(Predicate<BlockState> param0, double param1) {
-            BlockPos var0 = new BlockPos(Bee.this);
+            BlockPos var0 = Bee.this.blockPosition();
             BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos();
 
             for(int var2 = 0; (double)var2 <= param1; var2 = var2 > 0 ? -var2 : 1 - var2) {
                 for(int var3 = 0; (double)var3 < param1; ++var3) {
                     for(int var4 = 0; var4 <= var3; var4 = var4 > 0 ? -var4 : 1 - var4) {
                         for(int var5 = var4 < var3 && var4 > -var3 ? var3 : 0; var5 <= var3; var5 = var5 > 0 ? -var5 : 1 - var5) {
-                            var1.set(var0).move(var4, var2 - 1, var5);
+                            var1.setWithOffset(var0, var4, var2 - 1, var5);
                             if (var0.closerThan(var1, param1) && param0.test(Bee.this.level.getBlockState(var1))) {
                                 return Optional.of(var1);
                             }
@@ -1242,7 +1242,7 @@ public class Bee extends Animal implements FlyingAnimal {
         private Vec3 findPos() {
             Vec3 var1;
             if (Bee.this.isHiveValid() && !Bee.this.closerThan(Bee.this.hivePos, 40)) {
-                Vec3 var0 = new Vec3(Bee.this.hivePos);
+                Vec3 var0 = Vec3.atCenterOf(Bee.this.hivePos);
                 var1 = var0.subtract(Bee.this.position()).normalize();
             } else {
                 var1 = Bee.this.getViewVector(0.0F);

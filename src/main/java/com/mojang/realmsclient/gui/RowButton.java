@@ -1,7 +1,7 @@
 package com.mojang.realmsclient.gui;
 
 import java.util.List;
-import net.minecraft.realms.RealmListEntry;
+import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.realms.RealmsObjectSelectionList;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -43,7 +43,7 @@ public abstract class RowButton {
 
     public abstract void onClick(int var1);
 
-    public static void drawButtonsInRow(List<RowButton> param0, RealmsObjectSelectionList param1, int param2, int param3, int param4, int param5) {
+    public static void drawButtonsInRow(List<RowButton> param0, RealmsObjectSelectionList<?> param1, int param2, int param3, int param4, int param5) {
         for(RowButton var0 : param0) {
             if (param1.getRowWidth() > var0.getRight()) {
                 var0.drawForRowAt(param2, param3, param4, param5);
@@ -53,7 +53,7 @@ public abstract class RowButton {
     }
 
     public static void rowButtonMouseClicked(
-        RealmsObjectSelectionList param0, RealmListEntry param1, List<RowButton> param2, int param3, double param4, double param5
+        RealmsObjectSelectionList<?> param0, ObjectSelectionList.Entry<?> param1, List<RowButton> param2, int param3, double param4, double param5
     ) {
         if (param3 == 0) {
             int var0 = param0.children().indexOf(param1);

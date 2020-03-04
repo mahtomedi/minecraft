@@ -32,12 +32,12 @@ public class RandomPatchFeature extends Feature<RandomPatchConfiguration> {
         BlockPos.MutableBlockPos var4 = new BlockPos.MutableBlockPos();
 
         for(int var5 = 0; var5 < param4.tries; ++var5) {
-            var4.set(var1)
-                .move(
-                    param2.nextInt(param4.xspread + 1) - param2.nextInt(param4.xspread + 1),
-                    param2.nextInt(param4.yspread + 1) - param2.nextInt(param4.yspread + 1),
-                    param2.nextInt(param4.zspread + 1) - param2.nextInt(param4.zspread + 1)
-                );
+            var4.setWithOffset(
+                var1,
+                param2.nextInt(param4.xspread + 1) - param2.nextInt(param4.xspread + 1),
+                param2.nextInt(param4.yspread + 1) - param2.nextInt(param4.yspread + 1),
+                param2.nextInt(param4.zspread + 1) - param2.nextInt(param4.zspread + 1)
+            );
             BlockPos var6 = var4.below();
             BlockState var7 = param0.getBlockState(var6);
             if ((param0.isEmptyBlock(var4) || param4.canReplace && param0.getBlockState(var4).getMaterial().isReplaceable())

@@ -54,7 +54,7 @@ public class EndCrystal extends Entity {
     public void tick() {
         ++this.time;
         if (!this.level.isClientSide) {
-            BlockPos var0 = new BlockPos(this);
+            BlockPos var0 = this.blockPosition();
             if (this.level.dimension instanceof TheEndDimension && this.level.getBlockState(var0).isAir()) {
                 this.level.setBlockAndUpdate(var0, BaseFireBlock.getState(this.level, var0));
             }

@@ -253,7 +253,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
         }
 
         if (!this.isNoAi() && this.random.nextInt(100) == 0) {
-            Raid var0 = ((ServerLevel)this.level).getRaidAt(new BlockPos(this));
+            Raid var0 = ((ServerLevel)this.level).getRaidAt(this.blockPosition());
             if (var0 != null && var0.isActive() && !var0.isOver()) {
                 this.level.broadcastEntityEvent(this, (byte)42);
             }
@@ -705,7 +705,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
         }
 
         if (param2 == MobSpawnType.COMMAND || param2 == MobSpawnType.SPAWN_EGG || param2 == MobSpawnType.SPAWNER || param2 == MobSpawnType.DISPENSER) {
-            this.setVillagerData(this.getVillagerData().setType(VillagerType.byBiome(param0.getBiome(new BlockPos(this)))));
+            this.setVillagerData(this.getVillagerData().setType(VillagerType.byBiome(param0.getBiome(this.blockPosition()))));
         }
 
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
@@ -715,7 +715,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
         double var0 = this.random.nextDouble();
         VillagerType var1;
         if (var0 < 0.5) {
-            var1 = VillagerType.byBiome(this.level.getBiome(new BlockPos(this)));
+            var1 = VillagerType.byBiome(this.level.getBiome(this.blockPosition()));
         } else if (var0 < 0.75) {
             var1 = this.getVillagerData().getType();
         } else {
@@ -723,7 +723,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
         }
 
         Villager var4 = new Villager(EntityType.VILLAGER, this.level, var1);
-        var4.finalizeSpawn(this.level, this.level.getCurrentDifficultyAt(new BlockPos(var4)), MobSpawnType.BREEDING, null, null);
+        var4.finalizeSpawn(this.level, this.level.getCurrentDifficultyAt(var4.blockPosition()), MobSpawnType.BREEDING, null, null);
         return var4;
     }
 
@@ -731,7 +731,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
     public void thunderHit(LightningBolt param0) {
         Witch var0 = EntityType.WITCH.create(this.level);
         var0.moveTo(this.getX(), this.getY(), this.getZ(), this.yRot, this.xRot);
-        var0.finalizeSpawn(this.level, this.level.getCurrentDifficultyAt(new BlockPos(var0)), MobSpawnType.CONVERSION, null, null);
+        var0.finalizeSpawn(this.level, this.level.getCurrentDifficultyAt(var0.blockPosition()), MobSpawnType.CONVERSION, null, null);
         var0.setNoAi(this.isNoAi());
         if (this.hasCustomName()) {
             var0.setCustomName(this.getCustomName());
@@ -895,7 +895,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
 
     @Nullable
     private IronGolem trySpawnGolem() {
-        BlockPos var0 = new BlockPos(this);
+        BlockPos var0 = this.blockPosition();
 
         for(int var1 = 0; var1 < 10; ++var1) {
             double var2 = (double)(this.level.random.nextInt(16) - 8);

@@ -95,7 +95,7 @@ public class RandomPos {
 
         boolean var4 = false;
         double var5 = Double.NEGATIVE_INFINITY;
-        BlockPos var6 = new BlockPos(param0);
+        BlockPos var6 = param0.blockPosition();
 
         for(int var7 = 0; var7 < 10; ++var7) {
             BlockPos var8 = getRandomDelta(var1, param1, param2, param3, param4, param6);
@@ -147,7 +147,7 @@ public class RandomPos {
             }
         }
 
-        return var4 ? new Vec3(var6) : null;
+        return var4 ? Vec3.atBottomCenterOf(var6) : null;
     }
 
     @Nullable

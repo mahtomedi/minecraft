@@ -7,20 +7,20 @@ import java.util.Optional;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.BlockFinder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.monster.hoglin.Hoglin;
 import net.minecraft.world.entity.monster.piglin.Piglin;
-import net.minecraft.world.level.block.Blocks;
 
 public class HoglinSpecificSensor extends Sensor<Hoglin> {
     @Override
     public Set<MemoryModuleType<?>> requires() {
         return ImmutableSet.of(
             MemoryModuleType.VISIBLE_LIVING_ENTITIES,
-            MemoryModuleType.NEAREST_WARPED_FUNGUS,
+            MemoryModuleType.NEAREST_REPELLENT,
             MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLIN,
             MemoryModuleType.NEAREST_VISIBLE_ADULT_HOGLINS,
             MemoryModuleType.VISIBLE_ADULT_PIGLIN_COUNT,
@@ -30,18 +30,17 @@ public class HoglinSpecificSensor extends Sensor<Hoglin> {
 
     protected void doTick(ServerLevel param0, Hoglin param1) {
         Brain<?> var0 = param1.getBrain();
-        var0.setMemory(MemoryModuleType.NEAREST_WARPED_FUNGUS, this.findNearestWarpedFungus(param0, param1));
+        var0.setMemory(MemoryModuleType.NEAREST_REPELLENT, this.findNearestRepellent(param0, param1));
         Optional<Piglin> var1 = Optional.empty();
         int var2 = 0;
         List<Hoglin> var3 = Lists.newArrayList();
 
         for(LivingEntity var5 : var0.getMemory(MemoryModuleType.VISIBLE_LIVING_ENTITIES).orElse(Lists.newArrayList())) {
-            if (var5 instanceof Piglin && ((Piglin)var5).isAdult()) {
+            if (var5 instanceof Piglin && !var5.isBaby()) {
                 ++var2;
-            }
-
-            if (!var1.isPresent() && var5 instanceof Piglin && !var5.isBaby() && var5.closerThan(param1, 15.0)) {
-                var1 = Optional.of((Piglin)var5);
+                if (!var1.isPresent()) {
+                    var1 = Optional.of((Piglin)var5);
+                }
             }
 
             if (var5 instanceof Hoglin && !var5.isBaby()) {
@@ -55,7 +54,7 @@ public class HoglinSpecificSensor extends Sensor<Hoglin> {
         var0.setMemory(MemoryModuleType.VISIBLE_ADULT_HOGLIN_COUNT, var3.size());
     }
 
-    private Optional<BlockPos> findNearestWarpedFungus(ServerLevel param0, Hoglin param1) {
-        return BlockFinder.findClosestMatchingBlockPos(param1.getBlockPos(), 8, 4, param1x -> param0.getBlockState(param1x).getBlock() == Blocks.WARPED_FUNGUS);
+    private Optional<BlockPos> findNearestRepellent(ServerLevel param0, Hoglin param1) {
+        return BlockFinder.findClosestMatchingBlockPos(param1.blockPosition(), 8, 4, param1x -> param0.getBlockState(param1x).is(BlockTags.HOGLIN_REPELLENTS));
     }
 }

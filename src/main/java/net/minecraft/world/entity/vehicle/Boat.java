@@ -452,39 +452,32 @@ public class Boat extends Entity {
         int var4 = Mth.ceil(var0.maxY - this.lastYd);
         int var5 = Mth.floor(var0.minZ);
         int var6 = Mth.ceil(var0.maxZ);
+        BlockPos.MutableBlockPos var7 = new BlockPos.MutableBlockPos();
 
-        try (BlockPos.PooledMutableBlockPos var7 = BlockPos.PooledMutableBlockPos.acquire()) {
-            label136:
-            for(int var8 = var3; var8 < var4; ++var8) {
-                float var9 = 0.0F;
-                int var10 = var1;
+        label39:
+        for(int var8 = var3; var8 < var4; ++var8) {
+            float var9 = 0.0F;
 
-                while(true) {
-                    if (var10 < var2) {
-                        for(int var11 = var5; var11 < var6; ++var11) {
-                            var7.set(var10, var8, var11);
-                            FluidState var12 = this.level.getFluidState(var7);
-                            if (var12.is(FluidTags.WATER)) {
-                                var9 = Math.max(var9, var12.getHeight(this.level, var7));
-                            }
+            for(int var10 = var1; var10 < var2; ++var10) {
+                for(int var11 = var5; var11 < var6; ++var11) {
+                    var7.set(var10, var8, var11);
+                    FluidState var12 = this.level.getFluidState(var7);
+                    if (var12.is(FluidTags.WATER)) {
+                        var9 = Math.max(var9, var12.getHeight(this.level, var7));
+                    }
 
-                            if (var9 >= 1.0F) {
-                                continue label136;
-                            }
-                        }
-
-                        ++var10;
-                    } else {
-                        if (var9 < 1.0F) {
-                            return (float)var7.getY() + var9;
-                        }
-                        break;
+                    if (var9 >= 1.0F) {
+                        continue label39;
                     }
                 }
             }
 
-            return (float)(var4 + 1);
+            if (var9 < 1.0F) {
+                return (float)var7.getY() + var9;
+            }
         }
+
+        return (float)(var4 + 1);
     }
 
     public float getGroundFriction() {
@@ -499,23 +492,22 @@ public class Boat extends Entity {
         VoxelShape var8 = Shapes.create(var1);
         float var9 = 0.0F;
         int var10 = 0;
+        BlockPos.MutableBlockPos var11 = new BlockPos.MutableBlockPos();
 
-        try (BlockPos.PooledMutableBlockPos var11 = BlockPos.PooledMutableBlockPos.acquire()) {
-            for(int var12 = var2; var12 < var3; ++var12) {
-                for(int var13 = var6; var13 < var7; ++var13) {
-                    int var14 = (var12 != var2 && var12 != var3 - 1 ? 0 : 1) + (var13 != var6 && var13 != var7 - 1 ? 0 : 1);
-                    if (var14 != 2) {
-                        for(int var15 = var4; var15 < var5; ++var15) {
-                            if (var14 <= 0 || var15 != var4 && var15 != var5 - 1) {
-                                var11.set(var12, var15, var13);
-                                BlockState var16 = this.level.getBlockState(var11);
-                                if (!(var16.getBlock() instanceof WaterlilyBlock)
-                                    && Shapes.joinIsNotEmpty(
-                                        var16.getCollisionShape(this.level, var11).move((double)var12, (double)var15, (double)var13), var8, BooleanOp.AND
-                                    )) {
-                                    var9 += var16.getBlock().getFriction();
-                                    ++var10;
-                                }
+        for(int var12 = var2; var12 < var3; ++var12) {
+            for(int var13 = var6; var13 < var7; ++var13) {
+                int var14 = (var12 != var2 && var12 != var3 - 1 ? 0 : 1) + (var13 != var6 && var13 != var7 - 1 ? 0 : 1);
+                if (var14 != 2) {
+                    for(int var15 = var4; var15 < var5; ++var15) {
+                        if (var14 <= 0 || var15 != var4 && var15 != var5 - 1) {
+                            var11.set(var12, var15, var13);
+                            BlockState var16 = this.level.getBlockState(var11);
+                            if (!(var16.getBlock() instanceof WaterlilyBlock)
+                                && Shapes.joinIsNotEmpty(
+                                    var16.getCollisionShape(this.level, var11).move((double)var12, (double)var15, (double)var13), var8, BooleanOp.AND
+                                )) {
+                                var9 += var16.getBlock().getFriction();
+                                ++var10;
                             }
                         }
                     }
@@ -536,18 +528,17 @@ public class Boat extends Entity {
         int var6 = Mth.ceil(var0.maxZ);
         boolean var7 = false;
         this.waterLevel = Double.MIN_VALUE;
+        BlockPos.MutableBlockPos var8 = new BlockPos.MutableBlockPos();
 
-        try (BlockPos.PooledMutableBlockPos var8 = BlockPos.PooledMutableBlockPos.acquire()) {
-            for(int var9 = var1; var9 < var2; ++var9) {
-                for(int var10 = var3; var10 < var4; ++var10) {
-                    for(int var11 = var5; var11 < var6; ++var11) {
-                        var8.set(var9, var10, var11);
-                        FluidState var12 = this.level.getFluidState(var8);
-                        if (var12.is(FluidTags.WATER)) {
-                            float var13 = (float)var10 + var12.getHeight(this.level, var8);
-                            this.waterLevel = Math.max((double)var13, this.waterLevel);
-                            var7 |= var0.minY < (double)var13;
-                        }
+        for(int var9 = var1; var9 < var2; ++var9) {
+            for(int var10 = var3; var10 < var4; ++var10) {
+                for(int var11 = var5; var11 < var6; ++var11) {
+                    var8.set(var9, var10, var11);
+                    FluidState var12 = this.level.getFluidState(var8);
+                    if (var12.is(FluidTags.WATER)) {
+                        float var13 = (float)var10 + var12.getHeight(this.level, var8);
+                        this.waterLevel = Math.max((double)var13, this.waterLevel);
+                        var7 |= var0.minY < (double)var13;
                     }
                 }
             }
@@ -567,20 +558,19 @@ public class Boat extends Entity {
         int var6 = Mth.floor(var0.minZ);
         int var7 = Mth.ceil(var0.maxZ);
         boolean var8 = false;
+        BlockPos.MutableBlockPos var9 = new BlockPos.MutableBlockPos();
 
-        try (BlockPos.PooledMutableBlockPos var9 = BlockPos.PooledMutableBlockPos.acquire()) {
-            for(int var10 = var2; var10 < var3; ++var10) {
-                for(int var11 = var4; var11 < var5; ++var11) {
-                    for(int var12 = var6; var12 < var7; ++var12) {
-                        var9.set(var10, var11, var12);
-                        FluidState var13 = this.level.getFluidState(var9);
-                        if (var13.is(FluidTags.WATER) && var1 < (double)((float)var9.getY() + var13.getHeight(this.level, var9))) {
-                            if (!var13.isSource()) {
-                                return Boat.Status.UNDER_FLOWING_WATER;
-                            }
-
-                            var8 = true;
+        for(int var10 = var2; var10 < var3; ++var10) {
+            for(int var11 = var4; var11 < var5; ++var11) {
+                for(int var12 = var6; var12 < var7; ++var12) {
+                    var9.set(var10, var11, var12);
+                    FluidState var13 = this.level.getFluidState(var9);
+                    if (var13.is(FluidTags.WATER) && var1 < (double)((float)var9.getY() + var13.getHeight(this.level, var9))) {
+                        if (!var13.isSource()) {
+                            return Boat.Status.UNDER_FLOWING_WATER;
                         }
+
+                        var8 = true;
                     }
                 }
             }
@@ -789,7 +779,7 @@ public class Boat extends Entity {
                 }
 
                 this.fallDistance = 0.0F;
-            } else if (!this.level.getFluidState(new BlockPos(this).below()).is(FluidTags.WATER) && param0 < 0.0) {
+            } else if (!this.level.getFluidState(this.blockPosition().below()).is(FluidTags.WATER) && param0 < 0.0) {
                 this.fallDistance = (float)((double)this.fallDistance - param0);
             }
 

@@ -47,38 +47,42 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
     }
 
     @Override
-    protected void onHit(HitResult param0) {
-        LivingEntity var0 = this.getOwner();
-        if (param0.getType() == HitResult.Type.ENTITY) {
-            Entity var1 = ((EntityHitResult)param0).getEntity();
-            if (var1 == this.originalOwner) {
-                return;
-            }
-
-            var1.hurt(DamageSource.thrown(this, var0), 0.0F);
+    protected void onHitEntity(EntityHitResult param0) {
+        super.onHitEntity(param0);
+        Entity var0 = param0.getEntity();
+        if (var0 != this.originalOwner) {
+            var0.hurt(DamageSource.thrown(this, this.getOwner()), 0.0F);
         }
+    }
 
-        if (param0.getType() == HitResult.Type.BLOCK) {
-            BlockPos var2 = ((BlockHitResult)param0).getBlockPos();
-            BlockEntity var3 = this.level.getBlockEntity(var2);
-            if (var3 instanceof TheEndGatewayBlockEntity) {
-                TheEndGatewayBlockEntity var4 = (TheEndGatewayBlockEntity)var3;
-                if (var0 != null) {
-                    if (var0 instanceof ServerPlayer) {
-                        CriteriaTriggers.ENTER_BLOCK.trigger((ServerPlayer)var0, this.level.getBlockState(var2));
-                    }
-
-                    var4.teleportEntity(var0);
-                    this.remove();
-                    return;
+    @Override
+    protected void onHitBlock(BlockHitResult param0) {
+        super.onHitBlock(param0);
+        Entity var0 = this.getOwner();
+        BlockPos var1 = param0.getBlockPos();
+        BlockEntity var2 = this.level.getBlockEntity(var1);
+        if (var2 instanceof TheEndGatewayBlockEntity) {
+            TheEndGatewayBlockEntity var3 = (TheEndGatewayBlockEntity)var2;
+            if (var0 != null) {
+                if (var0 instanceof ServerPlayer) {
+                    CriteriaTriggers.ENTER_BLOCK.trigger((ServerPlayer)var0, this.level.getBlockState(var1));
                 }
 
-                var4.teleportEntity(this);
-                return;
+                var3.teleportEntity(var0);
+                this.remove();
+            } else {
+                var3.teleportEntity(this);
             }
         }
 
-        for(int var5 = 0; var5 < 32; ++var5) {
+    }
+
+    @Override
+    protected void onHit(HitResult param0) {
+        super.onHit(param0);
+        Entity var0 = this.getOwner();
+
+        for(int var1 = 0; var1 < 32; ++var1) {
             this.level
                 .addParticle(
                     ParticleTypes.PORTAL,
@@ -93,13 +97,13 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
 
         if (!this.level.isClientSide) {
             if (var0 instanceof ServerPlayer) {
-                ServerPlayer var6 = (ServerPlayer)var0;
-                if (var6.connection.getConnection().isConnected() && var6.level == this.level && !var6.isSleeping()) {
+                ServerPlayer var2 = (ServerPlayer)var0;
+                if (var2.connection.getConnection().isConnected() && var2.level == this.level && !var2.isSleeping()) {
                     if (this.random.nextFloat() < 0.05F && this.level.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING)) {
-                        Endermite var7 = EntityType.ENDERMITE.create(this.level);
-                        var7.setPlayerSpawned(true);
-                        var7.moveTo(var0.getX(), var0.getY(), var0.getZ(), var0.yRot, var0.xRot);
-                        this.level.addFreshEntity(var7);
+                        Endermite var3 = EntityType.ENDERMITE.create(this.level);
+                        var3.setPlayerSpawned(true);
+                        var3.moveTo(var0.getX(), var0.getY(), var0.getZ(), var0.yRot, var0.xRot);
+                        this.level.addFreshEntity(var3);
                     }
 
                     if (var0.isPassenger()) {
@@ -122,7 +126,7 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
 
     @Override
     public void tick() {
-        LivingEntity var0 = this.getOwner();
+        Entity var0 = this.getOwner();
         if (var0 != null && var0 instanceof Player && !var0.isAlive()) {
             this.remove();
         } else {
@@ -134,8 +138,9 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
     @Nullable
     @Override
     public Entity changeDimension(DimensionType param0) {
-        if (this.owner.dimension != param0) {
-            this.owner = null;
+        Entity var0 = this.getOwner();
+        if (var0.dimension != param0) {
+            this.setOwner(null);
         }
 
         return super.changeDimension(param0);

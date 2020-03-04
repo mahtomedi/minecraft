@@ -115,7 +115,7 @@ public class ItemEntity extends Entity {
                 || Mth.floor(this.zo) != Mth.floor(this.getZ());
             int var3 = var2 ? 2 : 40;
             if (this.tickCount % var3 == 0) {
-                if (this.level.getFluidState(new BlockPos(this)).is(FluidTags.LAVA)) {
+                if (this.level.getFluidState(this.blockPosition()).is(FluidTags.LAVA) && !this.fireImmune()) {
                     this.playSound(SoundEvents.GENERIC_BURN, 0.4F, 2.0F + this.random.nextFloat() * 0.4F);
                 }
 
@@ -219,6 +219,11 @@ public class ItemEntity extends Entity {
             param2.remove();
         }
 
+    }
+
+    @Override
+    public boolean fireImmune() {
+        return this.getItem().getItem().isFireResistant() || super.fireImmune();
     }
 
     @Override

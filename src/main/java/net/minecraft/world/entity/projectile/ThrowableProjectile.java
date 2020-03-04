@@ -1,14 +1,10 @@
 package net.minecraft.world.entity.projectile;
 
-import java.util.UUID;
 import java.util.function.Predicate;
-import javax.annotation.Nullable;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -23,14 +19,12 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public abstract class ThrowableProjectile extends Entity implements Projectile {
+public abstract class ThrowableProjectile extends Projectile {
     private int xBlock = -1;
     private int yBlock = -1;
     private int zBlock = -1;
     protected boolean inGround;
-    public int shakeTime;
-    protected LivingEntity owner;
-    private UUID ownerId;
+    private int shakeTime;
     private boolean leftOwner;
 
     protected ThrowableProjectile(EntityType<? extends ThrowableProjectile> param0, Level param1) {
@@ -44,8 +38,7 @@ public abstract class ThrowableProjectile extends Entity implements Projectile {
 
     protected ThrowableProjectile(EntityType<? extends ThrowableProjectile> param0, LivingEntity param1, Level param2) {
         this(param0, param1.getX(), param1.getEyeY() - 0.1F, param1.getZ(), param2);
-        this.owner = param1;
-        this.ownerId = param1.getUUID();
+        this.setOwner(param1);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -58,47 +51,6 @@ public abstract class ThrowableProjectile extends Entity implements Projectile {
 
         var0 *= 64.0;
         return param0 < var0 * var0;
-    }
-
-    public void shootFromRotation(Entity param0, float param1, float param2, float param3, float param4, float param5) {
-        float var0 = -Mth.sin(param2 * (float) (Math.PI / 180.0)) * Mth.cos(param1 * (float) (Math.PI / 180.0));
-        float var1 = -Mth.sin((param1 + param3) * (float) (Math.PI / 180.0));
-        float var2 = Mth.cos(param2 * (float) (Math.PI / 180.0)) * Mth.cos(param1 * (float) (Math.PI / 180.0));
-        this.shoot((double)var0, (double)var1, (double)var2, param4, param5);
-        Vec3 var3 = param0.getDeltaMovement();
-        this.setDeltaMovement(this.getDeltaMovement().add(var3.x, param0.isOnGround() ? 0.0 : var3.y, var3.z));
-    }
-
-    @Override
-    public void shoot(double param0, double param1, double param2, float param3, float param4) {
-        Vec3 var0 = new Vec3(param0, param1, param2)
-            .normalize()
-            .add(
-                this.random.nextGaussian() * 0.0075F * (double)param4,
-                this.random.nextGaussian() * 0.0075F * (double)param4,
-                this.random.nextGaussian() * 0.0075F * (double)param4
-            )
-            .scale((double)param3);
-        this.setDeltaMovement(var0);
-        float var1 = Mth.sqrt(getHorizontalDistanceSqr(var0));
-        this.yRot = (float)(Mth.atan2(var0.x, var0.z) * 180.0F / (float)Math.PI);
-        this.xRot = (float)(Mth.atan2(var0.y, (double)var1) * 180.0F / (float)Math.PI);
-        this.yRotO = this.yRot;
-        this.xRotO = this.xRot;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public void lerpMotion(double param0, double param1, double param2) {
-        this.setDeltaMovement(param0, param1, param2);
-        if (this.xRotO == 0.0F && this.yRotO == 0.0F) {
-            float var0 = Mth.sqrt(param0 * param0 + param2 * param2);
-            this.yRot = (float)(Mth.atan2(param0, param2) * 180.0F / (float)Math.PI);
-            this.xRot = (float)(Mth.atan2(param1, (double)var0) * 180.0F / (float)Math.PI);
-            this.yRotO = this.yRot;
-            this.xRotO = this.xRot;
-        }
-
     }
 
     @Override
@@ -117,40 +69,41 @@ public abstract class ThrowableProjectile extends Entity implements Projectile {
         }
 
         AABB var0 = this.getBoundingBox().expandTowards(this.getDeltaMovement()).inflate(1.0);
-        if (this.owner == null) {
+        Entity var1 = this.getOwner();
+        if (var1 == null) {
             this.leftOwner = true;
         } else if (!this.leftOwner) {
-            boolean var1 = false;
+            boolean var2 = false;
 
-            for(Entity var2 : this.level.getEntities(this, var0, param0 -> !param0.isSpectator() && param0.isPickable())) {
-                if (this.isEntityOrVehicle(var2, this.owner)) {
-                    var1 = true;
+            for(Entity var3 : this.level.getEntities(this, var0, param0 -> !param0.isSpectator() && param0.isPickable())) {
+                if (this.isEntityOrVehicle(var3, var1)) {
+                    var2 = true;
                     break;
                 }
             }
 
-            if (!var1) {
+            if (!var2) {
                 this.leftOwner = true;
             }
         }
 
-        Predicate<Entity> var3 = param0 -> !param0.isSpectator() && param0.isPickable() && (this.leftOwner || !this.isEntityOrVehicle(param0, this.owner));
-        HitResult var4 = ProjectileUtil.getHitResult(this, var0, var3, ClipContext.Block.OUTLINE, true);
-        if (var4.getType() != HitResult.Type.MISS) {
-            if (var4.getType() == HitResult.Type.BLOCK && this.level.getBlockState(((BlockHitResult)var4).getBlockPos()).getBlock() == Blocks.NETHER_PORTAL) {
-                this.handleInsidePortal(((BlockHitResult)var4).getBlockPos());
+        Predicate<Entity> var4 = param1 -> !param1.isSpectator() && param1.isPickable() && (this.leftOwner || !this.isEntityOrVehicle(param1, var1));
+        HitResult var5 = ProjectileUtil.getHitResult(this, var0, var4, ClipContext.Block.OUTLINE, true);
+        if (var5.getType() != HitResult.Type.MISS) {
+            if (var5.getType() == HitResult.Type.BLOCK && this.level.getBlockState(((BlockHitResult)var5).getBlockPos()).getBlock() == Blocks.NETHER_PORTAL) {
+                this.handleInsidePortal(((BlockHitResult)var5).getBlockPos());
             } else {
-                this.onHit(var4);
+                this.onHit(var5);
             }
         }
 
-        Vec3 var5 = this.getDeltaMovement();
-        double var6 = this.getX() + var5.x;
-        double var7 = this.getY() + var5.y;
-        double var8 = this.getZ() + var5.z;
-        float var9 = Mth.sqrt(getHorizontalDistanceSqr(var5));
-        this.yRot = (float)(Mth.atan2(var5.x, var5.z) * 180.0F / (float)Math.PI);
-        this.xRot = (float)(Mth.atan2(var5.y, (double)var9) * 180.0F / (float)Math.PI);
+        Vec3 var6 = this.getDeltaMovement();
+        double var7 = this.getX() + var6.x;
+        double var8 = this.getY() + var6.y;
+        double var9 = this.getZ() + var6.z;
+        float var10 = Mth.sqrt(getHorizontalDistanceSqr(var6));
+        this.yRot = (float)(Mth.atan2(var6.x, var6.z) * 180.0F / (float)Math.PI);
+        this.xRot = (float)(Mth.atan2(var6.y, (double)var10) * 180.0F / (float)Math.PI);
 
         while(this.xRot - this.xRotO < -180.0F) {
             this.xRotO -= 360.0F;
@@ -170,25 +123,25 @@ public abstract class ThrowableProjectile extends Entity implements Projectile {
 
         this.xRot = Mth.lerp(0.2F, this.xRotO, this.xRot);
         this.yRot = Mth.lerp(0.2F, this.yRotO, this.yRot);
-        float var12;
+        float var13;
         if (this.isInWater()) {
-            for(int var10 = 0; var10 < 4; ++var10) {
-                float var11 = 0.25F;
-                this.level.addParticle(ParticleTypes.BUBBLE, var6 - var5.x * 0.25, var7 - var5.y * 0.25, var8 - var5.z * 0.25, var5.x, var5.y, var5.z);
+            for(int var11 = 0; var11 < 4; ++var11) {
+                float var12 = 0.25F;
+                this.level.addParticle(ParticleTypes.BUBBLE, var7 - var6.x * 0.25, var8 - var6.y * 0.25, var9 - var6.z * 0.25, var6.x, var6.y, var6.z);
             }
 
-            var12 = 0.8F;
+            var13 = 0.8F;
         } else {
-            var12 = 0.99F;
+            var13 = 0.99F;
         }
 
-        this.setDeltaMovement(var5.scale((double)var12));
+        this.setDeltaMovement(var6.scale((double)var13));
         if (!this.isNoGravity()) {
-            Vec3 var14 = this.getDeltaMovement();
-            this.setDeltaMovement(var14.x, var14.y - (double)this.getGravity(), var14.z);
+            Vec3 var15 = this.getDeltaMovement();
+            this.setDeltaMovement(var15.x, var15.y - (double)this.getGravity(), var15.z);
         }
 
-        this.setPos(var6, var7, var8);
+        this.setPos(var7, var8, var9);
     }
 
     private boolean isEntityOrVehicle(Entity param0, Entity param1) {
@@ -199,47 +152,24 @@ public abstract class ThrowableProjectile extends Entity implements Projectile {
         return 0.03F;
     }
 
-    protected abstract void onHit(HitResult var1);
-
     @Override
     public void addAdditionalSaveData(CompoundTag param0) {
+        super.addAdditionalSaveData(param0);
         param0.putInt("xTile", this.xBlock);
         param0.putInt("yTile", this.yBlock);
         param0.putInt("zTile", this.zBlock);
         param0.putByte("shake", (byte)this.shakeTime);
         param0.putBoolean("inGround", this.inGround);
-        if (this.ownerId != null) {
-            param0.put("owner", NbtUtils.createUUIDTag(this.ownerId));
-        }
-
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag param0) {
+        super.readAdditionalSaveData(param0);
         this.xBlock = param0.getInt("xTile");
         this.yBlock = param0.getInt("yTile");
         this.zBlock = param0.getInt("zTile");
         this.shakeTime = param0.getByte("shake") & 255;
         this.inGround = param0.getBoolean("inGround");
-        this.owner = null;
-        if (param0.contains("owner", 10)) {
-            this.ownerId = NbtUtils.loadUUIDTag(param0.getCompound("owner"));
-        }
-
-    }
-
-    @Nullable
-    public LivingEntity getOwner() {
-        if ((this.owner == null || this.owner.removed) && this.ownerId != null && this.level instanceof ServerLevel) {
-            Entity var0 = ((ServerLevel)this.level).getEntity(this.ownerId);
-            if (var0 instanceof LivingEntity) {
-                this.owner = (LivingEntity)var0;
-            } else {
-                this.owner = null;
-            }
-        }
-
-        return this.owner;
     }
 
     @Override

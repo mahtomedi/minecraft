@@ -3,6 +3,7 @@ package com.mojang.realmsclient.client;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mojang.realmsclient.dto.BackupList;
+import com.mojang.realmsclient.dto.GuardedSerializer;
 import com.mojang.realmsclient.dto.Ops;
 import com.mojang.realmsclient.dto.PendingInvitesList;
 import com.mojang.realmsclient.dto.PingResult;
@@ -22,12 +23,12 @@ import com.mojang.realmsclient.dto.WorldTemplatePaginatedList;
 import com.mojang.realmsclient.exception.RealmsHttpException;
 import com.mojang.realmsclient.exception.RealmsServiceException;
 import com.mojang.realmsclient.exception.RetryCallException;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.Proxy;
 import java.net.URI;
 import java.net.URISyntaxException;
-import net.minecraft.realms.Realms;
+import javax.annotation.Nullable;
+import net.minecraft.SharedConstants;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
@@ -40,32 +41,29 @@ public class RealmsClient {
     private static final Logger LOGGER = LogManager.getLogger();
     private final String sessionId;
     private final String username;
-    private static final Gson gson = new Gson();
+    private static final GuardedSerializer GSON = new GuardedSerializer();
 
-    public static RealmsClient createRealmsClient() {
-        String var0 = Realms.userName();
-        String var1 = Realms.sessionId();
-        if (var0 != null && var1 != null) {
-            if (!initialized) {
-                initialized = true;
-                String var2 = System.getenv("realms.environment");
-                if (var2 == null) {
-                    var2 = System.getProperty("realms.environment");
-                }
-
-                if (var2 != null) {
-                    if ("LOCAL".equals(var2)) {
-                        switchToLocal();
-                    } else if ("STAGE".equals(var2)) {
-                        switchToStage();
-                    }
-                }
+    public static RealmsClient create() {
+        Minecraft var0 = Minecraft.getInstance();
+        String var1 = var0.getUser().getName();
+        String var2 = var0.getUser().getSessionId();
+        if (!initialized) {
+            initialized = true;
+            String var3 = System.getenv("realms.environment");
+            if (var3 == null) {
+                var3 = System.getProperty("realms.environment");
             }
 
-            return new RealmsClient(var1, var0, Realms.getProxy());
-        } else {
-            return null;
+            if (var3 != null) {
+                if ("LOCAL".equals(var3)) {
+                    switchToLocal();
+                } else if ("STAGE".equals(var3)) {
+                    switchToStage();
+                }
+            }
         }
+
+        return new RealmsClient(var2, var1, var0.getProxy());
     }
 
     public static void switchToStage() {
@@ -86,13 +84,13 @@ public class RealmsClient {
         RealmsClientConfig.setProxy(param2);
     }
 
-    public RealmsServerList listWorlds() throws RealmsServiceException, IOException {
+    public RealmsServerList listWorlds() throws RealmsServiceException {
         String var0 = this.url("worlds");
         String var1 = this.execute(Request.get(var0));
         return RealmsServerList.parse(var1);
     }
 
-    public RealmsServer getOwnWorld(long param0) throws RealmsServiceException, IOException {
+    public RealmsServer getOwnWorld(long param0) throws RealmsServiceException {
         String var0 = this.url("worlds" + "/$ID".replace("$ID", String.valueOf(param0)));
         String var1 = this.execute(Request.get(var0));
         return RealmsServer.parse(var1);
@@ -104,32 +102,32 @@ public class RealmsClient {
         return RealmsServerPlayerLists.parse(var1);
     }
 
-    public RealmsServerAddress join(long param0) throws RealmsServiceException, IOException {
+    public RealmsServerAddress join(long param0) throws RealmsServiceException {
         String var0 = this.url("worlds" + "/v1/$ID/join/pc".replace("$ID", "" + param0));
         String var1 = this.execute(Request.get(var0, 5000, 30000));
         return RealmsServerAddress.parse(var1);
     }
 
-    public void initializeWorld(long param0, String param1, String param2) throws RealmsServiceException, IOException {
+    public void initializeWorld(long param0, String param1, String param2) throws RealmsServiceException {
         RealmsDescriptionDto var0 = new RealmsDescriptionDto(param1, param2);
         String var1 = this.url("worlds" + "/$WORLD_ID/initialize".replace("$WORLD_ID", String.valueOf(param0)));
-        String var2 = gson.toJson(var0);
+        String var2 = GSON.toJson(var0);
         this.execute(Request.post(var1, var2, 5000, 10000));
     }
 
-    public Boolean mcoEnabled() throws RealmsServiceException, IOException {
+    public Boolean mcoEnabled() throws RealmsServiceException {
         String var0 = this.url("mco/available");
         String var1 = this.execute(Request.get(var0));
         return Boolean.valueOf(var1);
     }
 
-    public Boolean stageAvailable() throws RealmsServiceException, IOException {
+    public Boolean stageAvailable() throws RealmsServiceException {
         String var0 = this.url("mco/stageAvailable");
         String var1 = this.execute(Request.get(var0));
         return Boolean.valueOf(var1);
     }
 
-    public RealmsClient.CompatibleVersionResponse clientCompatible() throws RealmsServiceException, IOException {
+    public RealmsClient.CompatibleVersionResponse clientCompatible() throws RealmsServiceException {
         String var0 = this.url("mco/client/compatible");
         String var1 = this.execute(Request.get(var0));
 
@@ -150,11 +148,11 @@ public class RealmsClient {
         this.execute(Request.delete(var0));
     }
 
-    public RealmsServer invite(long param0, String param1) throws RealmsServiceException, IOException {
+    public RealmsServer invite(long param0, String param1) throws RealmsServiceException {
         PlayerInfo var0 = new PlayerInfo();
         var0.setName(param1);
         String var1 = this.url("invites" + "/$WORLD_ID".replace("$WORLD_ID", String.valueOf(param0)));
-        String var2 = this.execute(Request.post(var1, gson.toJson(var0)));
+        String var2 = this.execute(Request.post(var1, GSON.toJson(var0)));
         return RealmsServer.parse(var2);
     }
 
@@ -164,13 +162,13 @@ public class RealmsClient {
         return BackupList.parse(var1);
     }
 
-    public void update(long param0, String param1, String param2) throws RealmsServiceException, UnsupportedEncodingException {
+    public void update(long param0, String param1, String param2) throws RealmsServiceException {
         RealmsDescriptionDto var0 = new RealmsDescriptionDto(param1, param2);
         String var1 = this.url("worlds" + "/$WORLD_ID".replace("$WORLD_ID", String.valueOf(param0)));
-        this.execute(Request.post(var1, gson.toJson(var0)));
+        this.execute(Request.post(var1, GSON.toJson(var0)));
     }
 
-    public void updateSlot(long param0, int param1, RealmsWorldOptions param2) throws RealmsServiceException, UnsupportedEncodingException {
+    public void updateSlot(long param0, int param1, RealmsWorldOptions param2) throws RealmsServiceException {
         String var0 = this.url("worlds" + "/$WORLD_ID/slot/$SLOT_ID".replace("$WORLD_ID", String.valueOf(param0)).replace("$SLOT_ID", String.valueOf(param1)));
         String var1 = param2.toJson();
         this.execute(Request.post(var0, var1));
@@ -213,33 +211,33 @@ public class RealmsClient {
         return Ops.parse(this.execute(Request.delete(var1)));
     }
 
-    public Boolean open(long param0) throws RealmsServiceException, IOException {
+    public Boolean open(long param0) throws RealmsServiceException {
         String var0 = this.url("worlds" + "/$WORLD_ID/open".replace("$WORLD_ID", String.valueOf(param0)));
         String var1 = this.execute(Request.put(var0, ""));
         return Boolean.valueOf(var1);
     }
 
-    public Boolean close(long param0) throws RealmsServiceException, IOException {
+    public Boolean close(long param0) throws RealmsServiceException {
         String var0 = this.url("worlds" + "/$WORLD_ID/close".replace("$WORLD_ID", String.valueOf(param0)));
         String var1 = this.execute(Request.put(var0, ""));
         return Boolean.valueOf(var1);
     }
 
-    public Boolean resetWorldWithSeed(long param0, String param1, Integer param2, boolean param3) throws RealmsServiceException, IOException {
+    public Boolean resetWorldWithSeed(long param0, String param1, Integer param2, boolean param3) throws RealmsServiceException {
         RealmsWorldResetDto var0 = new RealmsWorldResetDto(param1, -1L, param2, param3);
         String var1 = this.url("worlds" + "/$WORLD_ID/reset".replace("$WORLD_ID", String.valueOf(param0)));
-        String var2 = this.execute(Request.post(var1, gson.toJson(var0), 30000, 80000));
+        String var2 = this.execute(Request.post(var1, GSON.toJson(var0), 30000, 80000));
         return Boolean.valueOf(var2);
     }
 
-    public Boolean resetWorldWithTemplate(long param0, String param1) throws RealmsServiceException, IOException {
+    public Boolean resetWorldWithTemplate(long param0, String param1) throws RealmsServiceException {
         RealmsWorldResetDto var0 = new RealmsWorldResetDto(null, Long.valueOf(param1), -1, false);
         String var1 = this.url("worlds" + "/$WORLD_ID/reset".replace("$WORLD_ID", String.valueOf(param0)));
-        String var2 = this.execute(Request.post(var1, gson.toJson(var0), 30000, 80000));
+        String var2 = this.execute(Request.post(var1, GSON.toJson(var0), 30000, 80000));
         return Boolean.valueOf(var2);
     }
 
-    public Subscription subscriptionFor(long param0) throws RealmsServiceException, IOException {
+    public Subscription subscriptionFor(long param0) throws RealmsServiceException {
         String var0 = this.url("subscriptions" + "/$WORLD_ID".replace("$WORLD_ID", String.valueOf(param0)));
         String var1 = this.execute(Request.get(var0));
         return Subscription.parse(var1);
@@ -294,7 +292,7 @@ public class RealmsClient {
         this.execute(Request.post(var0, ""));
     }
 
-    public RealmsNews getNews() throws RealmsServiceException, IOException {
+    public RealmsNews getNews() throws RealmsServiceException {
         String var0 = this.url("mco/v1/news");
         String var1 = this.execute(Request.get(var0, 5000, 10000));
         return RealmsNews.parse(var1);
@@ -302,28 +300,29 @@ public class RealmsClient {
 
     public void sendPingResults(PingResult param0) throws RealmsServiceException {
         String var0 = this.url("regions/ping/stat");
-        this.execute(Request.post(var0, gson.toJson(param0)));
+        this.execute(Request.post(var0, GSON.toJson(param0)));
     }
 
-    public Boolean trialAvailable() throws RealmsServiceException, IOException {
+    public Boolean trialAvailable() throws RealmsServiceException {
         String var0 = this.url("trial");
         String var1 = this.execute(Request.get(var0));
         return Boolean.valueOf(var1);
     }
 
-    public void deleteWorld(long param0) throws RealmsServiceException, IOException {
+    public void deleteWorld(long param0) throws RealmsServiceException {
         String var0 = this.url("worlds" + "/$WORLD_ID".replace("$WORLD_ID", String.valueOf(param0)));
         this.execute(Request.delete(var0));
     }
 
+    @Nullable
     private String url(String param0) {
         return this.url(param0, null);
     }
 
-    private String url(String param0, String param1) {
+    @Nullable
+    private String url(String param0, @Nullable String param1) {
         try {
-            URI var0 = new URI(currentEnvironment.protocol, currentEnvironment.baseUrl, "/" + param0, param1, null);
-            return var0.toASCIIString();
+            return new URI(currentEnvironment.protocol, currentEnvironment.baseUrl, "/" + param0, param1, null).toASCIIString();
         } catch (URISyntaxException var4) {
             var4.printStackTrace();
             return null;
@@ -333,7 +332,7 @@ public class RealmsClient {
     private String execute(Request<?> param0) throws RealmsServiceException {
         param0.cookie("sid", this.sessionId);
         param0.cookie("user", this.username);
-        param0.cookie("version", Realms.getMinecraftVersionString());
+        param0.cookie("version", SharedConstants.getCurrentVersion().getName());
 
         try {
             int var0 = param0.responseCode();

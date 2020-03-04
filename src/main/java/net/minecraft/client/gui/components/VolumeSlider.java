@@ -7,7 +7,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class VolumeSlider extends AbstractSliderButton {
+public class VolumeSlider extends AbstractOptionSliderButton {
     private final SoundSource source;
 
     public VolumeSlider(Minecraft param0, int param1, int param2, SoundSource param3, int param4) {

@@ -65,7 +65,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class Dolphin extends WaterAnimal {
     private static final EntityDataAccessor<BlockPos> TREASURE_POS = SynchedEntityData.defineId(Dolphin.class, EntityDataSerializers.BLOCK_POS);
     private static final EntityDataAccessor<Boolean> GOT_FISH = SynchedEntityData.defineId(Dolphin.class, EntityDataSerializers.BOOLEAN);
-    private static final EntityDataAccessor<Integer> MOISNTESS_LEVEL = SynchedEntityData.defineId(Dolphin.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> MOISTNESS_LEVEL = SynchedEntityData.defineId(Dolphin.class, EntityDataSerializers.INT);
     private static final TargetingConditions SWIM_WITH_PLAYER_TARGETING = new TargetingConditions()
         .range(10.0)
         .allowSameTeam()
@@ -116,11 +116,11 @@ public class Dolphin extends WaterAnimal {
     }
 
     public int getMoistnessLevel() {
-        return this.entityData.get(MOISNTESS_LEVEL);
+        return this.entityData.get(MOISTNESS_LEVEL);
     }
 
     public void setMoisntessLevel(int param0) {
-        this.entityData.set(MOISNTESS_LEVEL, param0);
+        this.entityData.set(MOISTNESS_LEVEL, param0);
     }
 
     @Override
@@ -128,7 +128,7 @@ public class Dolphin extends WaterAnimal {
         super.defineSynchedData();
         this.entityData.define(TREASURE_POS, BlockPos.ZERO);
         this.entityData.define(GOT_FISH, false);
-        this.entityData.define(MOISNTESS_LEVEL, 2400);
+        this.entityData.define(MOISTNESS_LEVEL, 2400);
     }
 
     @Override
@@ -487,7 +487,7 @@ public class Dolphin extends WaterAnimal {
                 ServerLevel var0 = (ServerLevel)this.dolphin.level;
                 this.stuck = false;
                 this.dolphin.getNavigation().stop();
-                BlockPos var1 = new BlockPos(this.dolphin);
+                BlockPos var1 = this.dolphin.blockPosition();
                 String var2 = (double)var0.random.nextFloat() >= 0.5 ? "Ocean_Ruin" : "Shipwreck";
                 BlockPos var3 = var0.findNearestMapFeature(var2, var1, 50, false);
                 if (var3 == null) {
@@ -519,7 +519,7 @@ public class Dolphin extends WaterAnimal {
         public void tick() {
             Level var0 = this.dolphin.level;
             if (this.dolphin.closeToNextPos() || this.dolphin.getNavigation().isDone()) {
-                Vec3 var1 = new Vec3(this.dolphin.getTreasurePos());
+                Vec3 var1 = Vec3.atCenterOf(this.dolphin.getTreasurePos());
                 Vec3 var2 = RandomPos.getPosTowards(this.dolphin, 16, 1, var1, (float) (Math.PI / 8));
                 if (var2 == null) {
                     var2 = RandomPos.getPosTowards(this.dolphin, 8, 4, var1);
@@ -563,7 +563,11 @@ public class Dolphin extends WaterAnimal {
         @Override
         public boolean canUse() {
             this.player = this.dolphin.level.getNearestPlayer(Dolphin.SWIM_WITH_PLAYER_TARGETING, this.dolphin);
-            return this.player == null ? false : this.player.isSwimming();
+            if (this.player == null) {
+                return false;
+            } else {
+                return this.player.isSwimming() && this.dolphin.getTarget() != this.player;
+            }
         }
 
         @Override

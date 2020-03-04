@@ -6,7 +6,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class SliderButton extends AbstractSliderButton {
+public class SliderButton extends AbstractOptionSliderButton {
     private final ProgressOption option;
 
     public SliderButton(Options param0, int param1, int param2, int param3, int param4, ProgressOption param5) {

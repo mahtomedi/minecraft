@@ -15,7 +15,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import net.minecraft.realms.Realms;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
@@ -26,11 +26,11 @@ public class RealmsDataFetcher {
     private static final Logger LOGGER = LogManager.getLogger();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(3);
     private volatile boolean stopped = true;
-    private final RealmsDataFetcher.ServerListUpdateTask serverListUpdateTask = new RealmsDataFetcher.ServerListUpdateTask();
-    private final RealmsDataFetcher.PendingInviteUpdateTask pendingInviteUpdateTask = new RealmsDataFetcher.PendingInviteUpdateTask();
-    private final RealmsDataFetcher.TrialAvailabilityTask trialAvailabilityTask = new RealmsDataFetcher.TrialAvailabilityTask();
-    private final RealmsDataFetcher.LiveStatsTask liveStatsTask = new RealmsDataFetcher.LiveStatsTask();
-    private final RealmsDataFetcher.UnreadNewsTask unreadNewsTask = new RealmsDataFetcher.UnreadNewsTask();
+    private final Runnable serverListUpdateTask = new RealmsDataFetcher.ServerListUpdateTask();
+    private final Runnable pendingInviteUpdateTask = new RealmsDataFetcher.PendingInviteUpdateTask();
+    private final Runnable trialAvailabilityTask = new RealmsDataFetcher.TrialAvailabilityTask();
+    private final Runnable liveStatsTask = new RealmsDataFetcher.LiveStatsTask();
+    private final Runnable unreadNewsTask = new RealmsDataFetcher.UnreadNewsTask();
     private final Set<RealmsServer> removedServers = Sets.newHashSet();
     private List<RealmsServer> servers = Lists.newArrayList();
     private RealmsServerPlayerLists livestats;
@@ -58,30 +58,16 @@ public class RealmsDataFetcher {
 
     }
 
-    public synchronized void initWithSpecificTaskList(List<RealmsDataFetcher.Task> param0) {
+    public synchronized void initWithSpecificTaskList() {
         if (this.stopped) {
             this.stopped = false;
             this.cancelTasks();
-
-            for(RealmsDataFetcher.Task var0 : param0) {
-                this.fetchStatus.put(var0, false);
-                switch(var0) {
-                    case SERVER_LIST:
-                        this.serverListScheduledFuture = this.scheduler.scheduleAtFixedRate(this.serverListUpdateTask, 0L, 60L, TimeUnit.SECONDS);
-                        break;
-                    case PENDING_INVITE:
-                        this.pendingInviteScheduledFuture = this.scheduler.scheduleAtFixedRate(this.pendingInviteUpdateTask, 0L, 10L, TimeUnit.SECONDS);
-                        break;
-                    case TRIAL_AVAILABLE:
-                        this.trialAvailableScheduledFuture = this.scheduler.scheduleAtFixedRate(this.trialAvailabilityTask, 0L, 60L, TimeUnit.SECONDS);
-                        break;
-                    case LIVE_STATS:
-                        this.liveStatsScheduledFuture = this.scheduler.scheduleAtFixedRate(this.liveStatsTask, 0L, 10L, TimeUnit.SECONDS);
-                        break;
-                    case UNREAD_NEWS:
-                        this.unreadNewsScheduledFuture = this.scheduler.scheduleAtFixedRate(this.unreadNewsTask, 0L, 300L, TimeUnit.SECONDS);
-                }
-            }
+            this.fetchStatus.put(RealmsDataFetcher.Task.PENDING_INVITE, false);
+            this.pendingInviteScheduledFuture = this.scheduler.scheduleAtFixedRate(this.pendingInviteUpdateTask, 0L, 10L, TimeUnit.SECONDS);
+            this.fetchStatus.put(RealmsDataFetcher.Task.TRIAL_AVAILABLE, false);
+            this.trialAvailableScheduledFuture = this.scheduler.scheduleAtFixedRate(this.trialAvailabilityTask, 0L, 60L, TimeUnit.SECONDS);
+            this.fetchStatus.put(RealmsDataFetcher.Task.UNREAD_NEWS, false);
+            this.unreadNewsScheduledFuture = this.scheduler.scheduleAtFixedRate(this.unreadNewsTask, 0L, 300L, TimeUnit.SECONDS);
         }
 
     }
@@ -192,10 +178,6 @@ public class RealmsDataFetcher {
         this.removedServers.add(param0);
     }
 
-    private void sort(List<RealmsServer> param0) {
-        param0.sort(new RealmsServer.McoServerComparator(Realms.getName()));
-    }
-
     private boolean isActive() {
         return !this.stopped;
     }
@@ -215,11 +197,9 @@ public class RealmsDataFetcher {
 
         private void getLiveStats() {
             try {
-                RealmsClient var0 = RealmsClient.createRealmsClient();
-                if (var0 != null) {
-                    RealmsDataFetcher.this.livestats = var0.getLiveStats();
-                    RealmsDataFetcher.this.fetchStatus.put(RealmsDataFetcher.Task.LIVE_STATS, true);
-                }
+                RealmsClient var0 = RealmsClient.create();
+                RealmsDataFetcher.this.livestats = var0.getLiveStats();
+                RealmsDataFetcher.this.fetchStatus.put(RealmsDataFetcher.Task.LIVE_STATS, true);
             } catch (Exception var2) {
                 RealmsDataFetcher.LOGGER.error("Couldn't get live stats", (Throwable)var2);
             }
@@ -242,11 +222,9 @@ public class RealmsDataFetcher {
 
         private void updatePendingInvites() {
             try {
-                RealmsClient var0 = RealmsClient.createRealmsClient();
-                if (var0 != null) {
-                    RealmsDataFetcher.this.pendingInvitesCount = var0.pendingInvitesCount();
-                    RealmsDataFetcher.this.fetchStatus.put(RealmsDataFetcher.Task.PENDING_INVITE, true);
-                }
+                RealmsClient var0 = RealmsClient.create();
+                RealmsDataFetcher.this.pendingInvitesCount = var0.pendingInvitesCount();
+                RealmsDataFetcher.this.fetchStatus.put(RealmsDataFetcher.Task.PENDING_INVITE, true);
             } catch (Exception var2) {
                 RealmsDataFetcher.LOGGER.error("Couldn't get pending invite count", (Throwable)var2);
             }
@@ -269,16 +247,14 @@ public class RealmsDataFetcher {
 
         private void updateServersList() {
             try {
-                RealmsClient var0 = RealmsClient.createRealmsClient();
-                if (var0 != null) {
-                    List<RealmsServer> var1 = var0.listWorlds().servers;
-                    if (var1 != null) {
-                        RealmsDataFetcher.this.sort(var1);
-                        RealmsDataFetcher.this.setServers(var1);
-                        RealmsDataFetcher.this.fetchStatus.put(RealmsDataFetcher.Task.SERVER_LIST, true);
-                    } else {
-                        RealmsDataFetcher.LOGGER.warn("Realms server list was null or empty");
-                    }
+                RealmsClient var0 = RealmsClient.create();
+                List<RealmsServer> var1 = var0.listWorlds().servers;
+                if (var1 != null) {
+                    var1.sort(new RealmsServer.McoServerComparator(Minecraft.getInstance().getUser().getName()));
+                    RealmsDataFetcher.this.setServers(var1);
+                    RealmsDataFetcher.this.fetchStatus.put(RealmsDataFetcher.Task.SERVER_LIST, true);
+                } else {
+                    RealmsDataFetcher.LOGGER.warn("Realms server list was null or empty");
                 }
             } catch (Exception var3) {
                 RealmsDataFetcher.this.fetchStatus.put(RealmsDataFetcher.Task.SERVER_LIST, true);
@@ -312,11 +288,9 @@ public class RealmsDataFetcher {
 
         private void getTrialAvailable() {
             try {
-                RealmsClient var0 = RealmsClient.createRealmsClient();
-                if (var0 != null) {
-                    RealmsDataFetcher.this.trialAvailable = var0.trialAvailable();
-                    RealmsDataFetcher.this.fetchStatus.put(RealmsDataFetcher.Task.TRIAL_AVAILABLE, true);
-                }
+                RealmsClient var0 = RealmsClient.create();
+                RealmsDataFetcher.this.trialAvailable = var0.trialAvailable();
+                RealmsDataFetcher.this.fetchStatus.put(RealmsDataFetcher.Task.TRIAL_AVAILABLE, true);
             } catch (Exception var2) {
                 RealmsDataFetcher.LOGGER.error("Couldn't get trial availability", (Throwable)var2);
             }
@@ -339,29 +313,27 @@ public class RealmsDataFetcher {
 
         private void getUnreadNews() {
             try {
-                RealmsClient var0 = RealmsClient.createRealmsClient();
-                if (var0 != null) {
-                    RealmsNews var1 = null;
+                RealmsClient var0 = RealmsClient.create();
+                RealmsNews var1 = null;
 
-                    try {
-                        var1 = var0.getNews();
-                    } catch (Exception var5) {
-                    }
-
-                    RealmsPersistence.RealmsPersistenceData var2 = RealmsPersistence.readFile();
-                    if (var1 != null) {
-                        String var3 = var1.newsLink;
-                        if (var3 != null && !var3.equals(var2.newsLink)) {
-                            var2.hasUnreadNews = true;
-                            var2.newsLink = var3;
-                            RealmsPersistence.writeFile(var2);
-                        }
-                    }
-
-                    RealmsDataFetcher.this.hasUnreadNews = var2.hasUnreadNews;
-                    RealmsDataFetcher.this.newsLink = var2.newsLink;
-                    RealmsDataFetcher.this.fetchStatus.put(RealmsDataFetcher.Task.UNREAD_NEWS, true);
+                try {
+                    var1 = var0.getNews();
+                } catch (Exception var5) {
                 }
+
+                RealmsPersistence.RealmsPersistenceData var2 = RealmsPersistence.readFile();
+                if (var1 != null) {
+                    String var3 = var1.newsLink;
+                    if (var3 != null && !var3.equals(var2.newsLink)) {
+                        var2.hasUnreadNews = true;
+                        var2.newsLink = var3;
+                        RealmsPersistence.writeFile(var2);
+                    }
+                }
+
+                RealmsDataFetcher.this.hasUnreadNews = var2.hasUnreadNews;
+                RealmsDataFetcher.this.newsLink = var2.newsLink;
+                RealmsDataFetcher.this.fetchStatus.put(RealmsDataFetcher.Task.UNREAD_NEWS, true);
             } catch (Exception var6) {
                 RealmsDataFetcher.LOGGER.error("Couldn't get unread news", (Throwable)var6);
             }

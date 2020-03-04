@@ -21,7 +21,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entry<E>> extends AbstractContainerEventHandler implements Widget {
-    protected static final int DRAG_OUTSIDE = -2;
     protected final Minecraft minecraft;
     protected final int itemHeight;
     private final List<E> children = new AbstractSelectionList.TrackedList();
@@ -49,10 +48,6 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
         this.itemHeight = param5;
         this.x0 = 0;
         this.x1 = param1;
-    }
-
-    public void setRenderSelection(boolean param0) {
-        this.renderSelection = param0;
     }
 
     protected void setRenderHeader(boolean param0, int param1) {
@@ -291,10 +286,6 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
 
     private int getMaxScroll() {
         return Math.max(0, this.getMaxPosition() - (this.y1 - this.y0 - 4));
-    }
-
-    public int getScrollBottom() {
-        return (int)this.getScrollAmount() - this.height - this.headerHeight;
     }
 
     protected void updateScrollingState(double param0, double param1, int param2) {

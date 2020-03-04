@@ -53,7 +53,7 @@ public abstract class AbstractHugeMushroomFeature extends Feature<HugeMushroomFe
 
                     for(int var4 = -var3; var4 <= var3; ++var4) {
                         for(int var5 = -var3; var5 <= var3; ++var5) {
-                            BlockState var6 = param0.getBlockState(param3.set(param1).move(var4, var2, var5));
+                            BlockState var6 = param0.getBlockState(param3.setWithOffset(param1, var4, var2, var5));
                             if (!var6.isAir() && !var6.is(BlockTags.LEAVES)) {
                                 return false;
                             }

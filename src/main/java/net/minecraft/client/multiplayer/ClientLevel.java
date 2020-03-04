@@ -36,7 +36,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagManager;
@@ -54,7 +53,6 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.LevelType;
-import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.TickList;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
@@ -82,7 +80,6 @@ public class ClientLevel extends Level {
     private final LevelRenderer levelRenderer;
     private final Minecraft minecraft = Minecraft.getInstance();
     private final List<AbstractClientPlayer> players = Lists.newArrayList();
-    private int delayUntilNextMoodSound = this.random.nextInt(12000);
     private Scoreboard scoreboard = new Scoreboard();
     private final Map<String, MapItemSavedData> mapData = Maps.newHashMap();
     private int skyFlashTime;
@@ -108,7 +105,6 @@ public class ClientLevel extends Level {
         this.tickTime();
         this.getProfiler().push("blocks");
         this.chunkSource.tick(param0);
-        this.playMoodSounds();
         this.getProfiler().pop();
     }
 
@@ -240,35 +236,6 @@ public class ClientLevel extends Level {
     @Override
     public boolean hasChunk(int param0, int param1) {
         return true;
-    }
-
-    private void playMoodSounds() {
-        if (this.minecraft.player != null) {
-            if (this.delayUntilNextMoodSound > 0) {
-                --this.delayUntilNextMoodSound;
-            } else {
-                BlockPos var0 = new BlockPos(this.minecraft.player);
-                BlockPos var1 = var0.offset(4 * (this.random.nextInt(3) - 1), 4 * (this.random.nextInt(3) - 1), 4 * (this.random.nextInt(3) - 1));
-                double var2 = var0.distSqr(var1);
-                if (var2 >= 4.0 && var2 <= 256.0) {
-                    BlockState var3 = this.getBlockState(var1);
-                    if (var3.isAir() && this.getRawBrightness(var1, 0) <= this.random.nextInt(8) && this.getBrightness(LightLayer.SKY, var1) <= 0) {
-                        this.playLocalSound(
-                            (double)var1.getX() + 0.5,
-                            (double)var1.getY() + 0.5,
-                            (double)var1.getZ() + 0.5,
-                            SoundEvents.AMBIENT_CAVE,
-                            SoundSource.AMBIENT,
-                            0.7F,
-                            0.8F + this.random.nextFloat() * 0.2F,
-                            false
-                        );
-                        this.delayUntilNextMoodSound = this.random.nextInt(12000) + 6000;
-                    }
-                }
-
-            }
-        }
     }
 
     public int getEntityCount() {

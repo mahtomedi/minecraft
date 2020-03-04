@@ -14,15 +14,15 @@ import net.minecraft.world.level.block.state.BlockState;
 public class DiggerItem extends TieredItem {
     private final Set<Block> blocks;
     protected final float speed;
-    protected final float attackDamage;
-    protected final float attackSpeed;
+    protected final float attackDamageBaseline;
+    protected final float attackSpeedBaseline;
 
     protected DiggerItem(float param0, float param1, Tier param2, Set<Block> param3, Item.Properties param4) {
         super(param2, param4);
         this.blocks = param3;
         this.speed = param2.getSpeed();
-        this.attackDamage = param0 + param2.getAttackDamageBonus();
-        this.attackSpeed = param1;
+        this.attackDamageBaseline = param0 + param2.getAttackDamageBonus();
+        this.attackSpeedBaseline = param1;
     }
 
     @Override
@@ -51,11 +51,11 @@ public class DiggerItem extends TieredItem {
         if (param0 == EquipmentSlot.MAINHAND) {
             var0.put(
                 SharedMonsterAttributes.ATTACK_DAMAGE.getName(),
-                new AttributeModifier(BASE_ATTACK_DAMAGE_UUID, "Tool modifier", (double)this.attackDamage, AttributeModifier.Operation.ADDITION)
+                new AttributeModifier(BASE_ATTACK_DAMAGE_UUID, "Tool modifier", (double)this.attackDamageBaseline, AttributeModifier.Operation.ADDITION)
             );
             var0.put(
                 SharedMonsterAttributes.ATTACK_SPEED.getName(),
-                new AttributeModifier(BASE_ATTACK_SPEED_UUID, "Tool modifier", (double)this.attackSpeed, AttributeModifier.Operation.ADDITION)
+                new AttributeModifier(BASE_ATTACK_SPEED_UUID, "Tool modifier", (double)this.attackSpeedBaseline, AttributeModifier.Operation.ADDITION)
             );
         }
 

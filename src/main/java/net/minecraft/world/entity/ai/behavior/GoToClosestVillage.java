@@ -23,12 +23,12 @@ public class GoToClosestVillage extends Behavior<Villager> {
     }
 
     protected boolean checkExtraStartConditions(ServerLevel param0, Villager param1) {
-        return !param0.isVillage(new BlockPos(param1));
+        return !param0.isVillage(param1.blockPosition());
     }
 
     protected void start(ServerLevel param0, Villager param1, long param2) {
         PoiManager var0 = param0.getPoiManager();
-        int var1 = var0.sectionsToVillage(SectionPos.of(new BlockPos(param1)));
+        int var1 = var0.sectionsToVillage(SectionPos.of(param1.blockPosition()));
         Vec3 var2 = null;
 
         for(int var3 = 0; var3 < 5; ++var3) {

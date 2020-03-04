@@ -59,7 +59,7 @@ public class TripWireHookBlock extends Block {
         Direction var0 = param0.getValue(FACING);
         BlockPos var1 = param2.relative(var0.getOpposite());
         BlockState var2 = param1.getBlockState(var1);
-        return var0.getAxis().isHorizontal() && var2.isFaceSturdy(param1, var1, var0) && !var2.isSignalSource();
+        return var0.getAxis().isHorizontal() && var2.isFaceSturdy(param1, var1, var0);
     }
 
     @Override

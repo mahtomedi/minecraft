@@ -150,7 +150,7 @@ public abstract class BaseSpawner {
                             }
 
                             if (this.nextSpawnData.getTag().size() == 1 && this.nextSpawnData.getTag().contains("id", 8)) {
-                                ((Mob)var14).finalizeSpawn(var0, var0.getCurrentDifficultyAt(new BlockPos(var14)), MobSpawnType.SPAWNER, null, null);
+                                ((Mob)var14).finalizeSpawn(var0, var0.getCurrentDifficultyAt(var14.blockPosition()), MobSpawnType.SPAWNER, null, null);
                             }
                         }
 
@@ -267,7 +267,9 @@ public abstract class BaseSpawner {
             this.displayEntity = EntityType.loadEntityRecursive(this.nextSpawnData.getTag(), this.getLevel(), Function.identity());
             if (this.nextSpawnData.getTag().size() == 1 && this.nextSpawnData.getTag().contains("id", 8) && this.displayEntity instanceof Mob) {
                 ((Mob)this.displayEntity)
-                    .finalizeSpawn(this.getLevel(), this.getLevel().getCurrentDifficultyAt(new BlockPos(this.displayEntity)), MobSpawnType.SPAWNER, null, null);
+                    .finalizeSpawn(
+                        this.getLevel(), this.getLevel().getCurrentDifficultyAt(this.displayEntity.blockPosition()), MobSpawnType.SPAWNER, null, null
+                    );
             }
         }
 

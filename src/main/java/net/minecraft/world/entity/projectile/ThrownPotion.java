@@ -6,9 +6,6 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
@@ -19,6 +16,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Blaze;
 import net.minecraft.world.entity.monster.EnderMan;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potion;
@@ -35,16 +33,12 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 @OnlyIn(
     value = Dist.CLIENT,
     _interface = ItemSupplier.class
 )
-public class ThrownPotion extends ThrowableProjectile implements ItemSupplier {
-    private static final EntityDataAccessor<ItemStack> DATA_ITEM_STACK = SynchedEntityData.defineId(ThrownPotion.class, EntityDataSerializers.ITEM_STACK);
-    private static final Logger LOGGER = LogManager.getLogger();
+public class ThrownPotion extends ThrowableItemProjectile implements ItemSupplier {
     public static final Predicate<LivingEntity> WATER_SENSITIVE = ThrownPotion::isWaterSensitiveEntity;
 
     public ThrownPotion(EntityType<? extends ThrownPotion> param0, Level param1) {
@@ -60,26 +54,8 @@ public class ThrownPotion extends ThrowableProjectile implements ItemSupplier {
     }
 
     @Override
-    protected void defineSynchedData() {
-        this.getEntityData().define(DATA_ITEM_STACK, ItemStack.EMPTY);
-    }
-
-    @Override
-    public ItemStack getItem() {
-        ItemStack var0 = this.getEntityData().get(DATA_ITEM_STACK);
-        if (var0.getItem() != Items.SPLASH_POTION && var0.getItem() != Items.LINGERING_POTION) {
-            if (this.level != null) {
-                LOGGER.error("ThrownPotion entity {} has no item?!", this.getId());
-            }
-
-            return new ItemStack(Items.SPLASH_POTION);
-        } else {
-            return var0;
-        }
-    }
-
-    public void setItem(ItemStack param0) {
-        this.getEntityData().set(DATA_ITEM_STACK, param0.copy());
+    protected Item getDefaultItem() {
+        return Items.SPLASH_POTION;
     }
 
     @Override
@@ -88,29 +64,36 @@ public class ThrownPotion extends ThrowableProjectile implements ItemSupplier {
     }
 
     @Override
-    protected void onHit(HitResult param0) {
+    protected void onHitBlock(BlockHitResult param0) {
+        super.onHitBlock(param0);
         if (!this.level.isClientSide) {
             ItemStack var0 = this.getItem();
             Potion var1 = PotionUtils.getPotion(var0);
             List<MobEffectInstance> var2 = PotionUtils.getMobEffects(var0);
             boolean var3 = var1 == Potions.WATER && var2.isEmpty();
-            if (param0.getType() == HitResult.Type.BLOCK) {
-                BlockHitResult var4 = (BlockHitResult)param0;
-                Direction var5 = var4.getDirection();
-                BlockPos var6 = var4.getBlockPos();
-                BlockPos var7 = var6.relative(var5);
-                BlockState var8 = this.level.getBlockState(var6);
-                var8.onProjectileHit(this.level, var8, var4, this);
-                if (var3) {
-                    this.dowseFire(var7, var5);
-                    this.dowseFire(var7.relative(var5.getOpposite()), var5);
+            Direction var4 = param0.getDirection();
+            BlockPos var5 = param0.getBlockPos();
+            BlockPos var6 = var5.relative(var4);
+            if (var3) {
+                this.dowseFire(var6, var4);
+                this.dowseFire(var6.relative(var4.getOpposite()), var4);
 
-                    for(Direction var9 : Direction.Plane.HORIZONTAL) {
-                        this.dowseFire(var7.relative(var9), var9);
-                    }
+                for(Direction var7 : Direction.Plane.HORIZONTAL) {
+                    this.dowseFire(var6.relative(var7), var7);
                 }
             }
 
+        }
+    }
+
+    @Override
+    protected void onHit(HitResult param0) {
+        super.onHit(param0);
+        if (!this.level.isClientSide) {
+            ItemStack var0 = this.getItem();
+            Potion var1 = PotionUtils.getPotion(var0);
+            List<MobEffectInstance> var2 = PotionUtils.getMobEffects(var0);
+            boolean var3 = var1 == Potions.WATER && var2.isEmpty();
             if (var3) {
                 this.applyWater();
             } else if (!var2.isEmpty()) {
@@ -121,8 +104,8 @@ public class ThrownPotion extends ThrowableProjectile implements ItemSupplier {
                 }
             }
 
-            int var10 = var1.hasInstantEffects() ? 2007 : 2002;
-            this.level.levelEvent(var10, new BlockPos(this), PotionUtils.getColor(var0));
+            int var4 = var1.hasInstantEffects() ? 2007 : 2002;
+            this.level.levelEvent(var4, this.blockPosition(), PotionUtils.getColor(var0));
             this.remove();
         }
     }
@@ -174,20 +157,24 @@ public class ThrownPotion extends ThrowableProjectile implements ItemSupplier {
 
     private void makeAreaOfEffectCloud(ItemStack param0, Potion param1) {
         AreaEffectCloud var0 = new AreaEffectCloud(this.level, this.getX(), this.getY(), this.getZ());
-        var0.setOwner(this.getOwner());
+        Entity var1 = this.getOwner();
+        if (var1 instanceof LivingEntity) {
+            var0.setOwner((LivingEntity)var1);
+        }
+
         var0.setRadius(3.0F);
         var0.setRadiusOnUse(-0.5F);
         var0.setWaitTime(10);
         var0.setRadiusPerTick(-var0.getRadius() / (float)var0.getDuration());
         var0.setPotion(param1);
 
-        for(MobEffectInstance var1 : PotionUtils.getCustomEffects(param0)) {
-            var0.addEffect(new MobEffectInstance(var1));
+        for(MobEffectInstance var2 : PotionUtils.getCustomEffects(param0)) {
+            var0.addEffect(new MobEffectInstance(var2));
         }
 
-        CompoundTag var2 = param0.getTag();
-        if (var2 != null && var2.contains("CustomPotionColor", 99)) {
-            var0.setFixedColor(var2.getInt("CustomPotionColor"));
+        CompoundTag var3 = param0.getTag();
+        if (var3 != null && var3.contains("CustomPotionColor", 99)) {
+            var0.setFixedColor(var3.getInt("CustomPotionColor"));
         }
 
         this.level.addFreshEntity(var0);
@@ -201,32 +188,10 @@ public class ThrownPotion extends ThrowableProjectile implements ItemSupplier {
         BlockState var0 = this.level.getBlockState(param0);
         Block var1 = var0.getBlock();
         if (var0.is(BlockTags.FIRE)) {
-            this.level.extinguishFire(null, param0.relative(param1), param1.getOpposite());
+            this.level.removeBlock(param0, false);
         } else if (var1 == Blocks.CAMPFIRE && var0.getValue(CampfireBlock.LIT)) {
             this.level.levelEvent(null, 1009, param0, 0);
             this.level.setBlockAndUpdate(param0, var0.setValue(CampfireBlock.LIT, Boolean.valueOf(false)));
-        }
-
-    }
-
-    @Override
-    public void readAdditionalSaveData(CompoundTag param0) {
-        super.readAdditionalSaveData(param0);
-        ItemStack var0 = ItemStack.of(param0.getCompound("Potion"));
-        if (var0.isEmpty()) {
-            this.remove();
-        } else {
-            this.setItem(var0);
-        }
-
-    }
-
-    @Override
-    public void addAdditionalSaveData(CompoundTag param0) {
-        super.addAdditionalSaveData(param0);
-        ItemStack var0 = this.getItem();
-        if (!var0.isEmpty()) {
-            param0.put("Potion", var0.save(new CompoundTag()));
         }
 
     }

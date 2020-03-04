@@ -3,8 +3,6 @@ package net.minecraft.world.inventory;
 import java.util.Map;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.EnchantedBookItem;
@@ -20,107 +18,73 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class AnvilMenu extends AbstractContainerMenu {
+public class AnvilMenu extends ItemCombinerMenu {
     private static final Logger LOGGER = LogManager.getLogger();
-    private final Container resultSlots = new ResultContainer();
-    private final Container repairSlots = new SimpleContainer(2) {
-        @Override
-        public void setChanged() {
-            super.setChanged();
-            AnvilMenu.this.slotsChanged(this);
-        }
-    };
-    private final DataSlot cost = DataSlot.standalone();
-    private final ContainerLevelAccess access;
     private int repairItemCountCost;
     private String itemName;
-    private final Player player;
+    private final DataSlot cost = DataSlot.standalone();
 
     public AnvilMenu(int param0, Inventory param1) {
         this(param0, param1, ContainerLevelAccess.NULL);
     }
 
-    public AnvilMenu(int param0, Inventory param1, final ContainerLevelAccess param2) {
-        super(MenuType.ANVIL, param0);
-        this.access = param2;
-        this.player = param1.player;
+    public AnvilMenu(int param0, Inventory param1, ContainerLevelAccess param2) {
+        super(MenuType.ANVIL, param0, param1, param2);
         this.addDataSlot(this.cost);
-        this.addSlot(new Slot(this.repairSlots, 0, 27, 47));
-        this.addSlot(new Slot(this.repairSlots, 1, 76, 47));
-        this.addSlot(new Slot(this.resultSlots, 2, 134, 47) {
-            @Override
-            public boolean mayPlace(ItemStack param0) {
-                return false;
-            }
-
-            @Override
-            public boolean mayPickup(Player param0) {
-                return (param0.abilities.instabuild || param0.experienceLevel >= AnvilMenu.this.cost.get()) && AnvilMenu.this.cost.get() > 0 && this.hasItem();
-            }
-
-            @Override
-            public ItemStack onTake(Player param0, ItemStack param1) {
-                if (!param0.abilities.instabuild) {
-                    param0.giveExperienceLevels(-AnvilMenu.this.cost.get());
-                }
-
-                AnvilMenu.this.repairSlots.setItem(0, ItemStack.EMPTY);
-                if (AnvilMenu.this.repairItemCountCost > 0) {
-                    ItemStack var0 = AnvilMenu.this.repairSlots.getItem(1);
-                    if (!var0.isEmpty() && var0.getCount() > AnvilMenu.this.repairItemCountCost) {
-                        var0.shrink(AnvilMenu.this.repairItemCountCost);
-                        AnvilMenu.this.repairSlots.setItem(1, var0);
-                    } else {
-                        AnvilMenu.this.repairSlots.setItem(1, ItemStack.EMPTY);
-                    }
-                } else {
-                    AnvilMenu.this.repairSlots.setItem(1, ItemStack.EMPTY);
-                }
-
-                AnvilMenu.this.cost.set(0);
-                param2.execute((param1x, param2xx) -> {
-                    BlockState var0x = param1x.getBlockState(param2xx);
-                    if (!param0.abilities.instabuild && var0x.is(BlockTags.ANVIL) && param0.getRandom().nextFloat() < 0.12F) {
-                        BlockState var1x = AnvilBlock.damage(var0x);
-                        if (var1x == null) {
-                            param1x.removeBlock(param2xx, false);
-                            param1x.levelEvent(1029, param2xx, 0);
-                        } else {
-                            param1x.setBlock(param2xx, var1x, 2);
-                            param1x.levelEvent(1030, param2xx, 0);
-                        }
-                    } else {
-                        param1x.levelEvent(1030, param2xx, 0);
-                    }
-
-                });
-                return param1;
-            }
-        });
-
-        for(int var0 = 0; var0 < 3; ++var0) {
-            for(int var1 = 0; var1 < 9; ++var1) {
-                this.addSlot(new Slot(param1, var1 + var0 * 9 + 9, 8 + var1 * 18, 84 + var0 * 18));
-            }
-        }
-
-        for(int var2 = 0; var2 < 9; ++var2) {
-            this.addSlot(new Slot(param1, var2, 8 + var2 * 18, 142));
-        }
-
     }
 
     @Override
-    public void slotsChanged(Container param0) {
-        super.slotsChanged(param0);
-        if (param0 == this.repairSlots) {
-            this.createResult();
-        }
-
+    protected boolean isValidBlock(BlockState param0) {
+        return param0.is(BlockTags.ANVIL);
     }
 
+    @Override
+    protected boolean mayPickup(Player param0, boolean param1) {
+        return (param0.abilities.instabuild || param0.experienceLevel >= this.cost.get()) && this.cost.get() > 0;
+    }
+
+    @Override
+    protected ItemStack onTake(Player param0, ItemStack param1) {
+        if (!param0.abilities.instabuild) {
+            param0.giveExperienceLevels(-this.cost.get());
+        }
+
+        this.inputSlots.setItem(0, ItemStack.EMPTY);
+        if (this.repairItemCountCost > 0) {
+            ItemStack var0 = this.inputSlots.getItem(1);
+            if (!var0.isEmpty() && var0.getCount() > this.repairItemCountCost) {
+                var0.shrink(this.repairItemCountCost);
+                this.inputSlots.setItem(1, var0);
+            } else {
+                this.inputSlots.setItem(1, ItemStack.EMPTY);
+            }
+        } else {
+            this.inputSlots.setItem(1, ItemStack.EMPTY);
+        }
+
+        this.cost.set(0);
+        this.access.execute((param1x, param2) -> {
+            BlockState var0x = param1x.getBlockState(param2);
+            if (!param0.abilities.instabuild && var0x.is(BlockTags.ANVIL) && param0.getRandom().nextFloat() < 0.12F) {
+                BlockState var1x = AnvilBlock.damage(var0x);
+                if (var1x == null) {
+                    param1x.removeBlock(param2, false);
+                    param1x.levelEvent(1029, param2, 0);
+                } else {
+                    param1x.setBlock(param2, var1x, 2);
+                    param1x.levelEvent(1030, param2, 0);
+                }
+            } else {
+                param1x.levelEvent(1030, param2, 0);
+            }
+
+        });
+        return param1;
+    }
+
+    @Override
     public void createResult() {
-        ItemStack var0 = this.repairSlots.getItem(0);
+        ItemStack var0 = this.inputSlots.getItem(0);
         this.cost.set(1);
         int var1 = 0;
         int var2 = 0;
@@ -130,7 +94,7 @@ public class AnvilMenu extends AbstractContainerMenu {
             this.cost.set(0);
         } else {
             ItemStack var4 = var0.copy();
-            ItemStack var5 = this.repairSlots.getItem(1);
+            ItemStack var5 = this.inputSlots.getItem(1);
             Map<Enchantment, Integer> var6 = EnchantmentHelper.getEnchantments(var4);
             var2 += var0.getBaseRepairCost() + (var5.isEmpty() ? 0 : var5.getBaseRepairCost());
             this.repairItemCountCost = 0;
@@ -287,60 +251,6 @@ public class AnvilMenu extends AbstractContainerMenu {
 
     public static int calculateIncreasedRepairCost(int param0) {
         return param0 * 2 + 1;
-    }
-
-    @Override
-    public void removed(Player param0) {
-        super.removed(param0);
-        this.access.execute((param1, param2) -> this.clearContainer(param0, param1, this.repairSlots));
-    }
-
-    @Override
-    public boolean stillValid(Player param0) {
-        return this.access
-            .evaluate(
-                (param1, param2) -> !param1.getBlockState(param2).is(BlockTags.ANVIL)
-                        ? false
-                        : param0.distanceToSqr((double)param2.getX() + 0.5, (double)param2.getY() + 0.5, (double)param2.getZ() + 0.5) <= 64.0,
-                true
-            );
-    }
-
-    @Override
-    public ItemStack quickMoveStack(Player param0, int param1) {
-        ItemStack var0 = ItemStack.EMPTY;
-        Slot var1 = this.slots.get(param1);
-        if (var1 != null && var1.hasItem()) {
-            ItemStack var2 = var1.getItem();
-            var0 = var2.copy();
-            if (param1 == 2) {
-                if (!this.moveItemStackTo(var2, 3, 39, true)) {
-                    return ItemStack.EMPTY;
-                }
-
-                var1.onQuickCraft(var2, var0);
-            } else if (param1 != 0 && param1 != 1) {
-                if (param1 >= 3 && param1 < 39 && !this.moveItemStackTo(var2, 0, 2, false)) {
-                    return ItemStack.EMPTY;
-                }
-            } else if (!this.moveItemStackTo(var2, 3, 39, false)) {
-                return ItemStack.EMPTY;
-            }
-
-            if (var2.isEmpty()) {
-                var1.set(ItemStack.EMPTY);
-            } else {
-                var1.setChanged();
-            }
-
-            if (var2.getCount() == var0.getCount()) {
-                return ItemStack.EMPTY;
-            }
-
-            var1.onTake(param0, var2);
-        }
-
-        return var0;
     }
 
     public void setItemName(String param0) {

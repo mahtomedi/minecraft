@@ -5,7 +5,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -56,7 +55,7 @@ public final class ProjectileUtil {
         Vec3 var2 = param0.position();
         if (param5
             && !var1.noCollision(param0, param0.getBoundingBox(), (Set<Entity>)(!param2 && param3 != null ? getIgnoredEntities(param3) : ImmutableSet.of()))) {
-            return new BlockHitResult(var2, Direction.getNearest(var0.x, var0.y, var0.z), new BlockPos(param0), false);
+            return new BlockHitResult(var2, Direction.getNearest(var0.x, var0.y, var0.z), param0.blockPosition(), false);
         } else {
             Vec3 var3 = var2.add(var0);
             HitResult var4 = var1.clip(new ClipContext(var2, var3, param4, ClipContext.Fluid.NONE, param0));

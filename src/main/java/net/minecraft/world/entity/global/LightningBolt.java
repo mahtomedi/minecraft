@@ -119,7 +119,7 @@ public class LightningBolt extends Entity {
 
     private void spawnFire(int param0) {
         if (!this.visualOnly && !this.level.isClientSide && this.level.getGameRules().getBoolean(GameRules.RULE_DOFIRETICK)) {
-            BlockPos var0 = new BlockPos(this);
+            BlockPos var0 = this.blockPosition();
             BlockState var1 = BaseFireBlock.getState(this.level, var0);
             if (this.level.getBlockState(var0).isAir() && var1.canSurvive(this.level, var0)) {
                 this.level.setBlockAndUpdate(var0, var1);

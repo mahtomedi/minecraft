@@ -1,38 +1,34 @@
 package com.mojang.realmsclient.gui.screens;
 
 import com.google.common.collect.Lists;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.realmsclient.dto.Backup;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
-import net.minecraft.realms.Realms;
-import net.minecraft.realms.RealmsButton;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.ScrolledSelectionList;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.realms.RealmsScreen;
-import net.minecraft.realms.RealmsSimpleScrolledSelectionList;
-import net.minecraft.realms.Tezzelator;
+import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class RealmsBackupInfoScreen extends RealmsScreen {
-    private final RealmsScreen lastScreen;
-    private final int BUTTON_BACK_ID = 0;
+    private final Screen lastScreen;
     private final Backup backup;
     private final List<String> keys = Lists.newArrayList();
     private RealmsBackupInfoScreen.BackupInfoList backupInfoList;
-    String[] difficulties = new String[]{
-        getLocalizedString("options.difficulty.peaceful"),
-        getLocalizedString("options.difficulty.easy"),
-        getLocalizedString("options.difficulty.normal"),
-        getLocalizedString("options.difficulty.hard")
-    };
-    String[] gameModes = new String[]{
-        getLocalizedString("selectWorld.gameMode.survival"),
-        getLocalizedString("selectWorld.gameMode.creative"),
-        getLocalizedString("selectWorld.gameMode.adventure")
-    };
 
-    public RealmsBackupInfoScreen(RealmsScreen param0, Backup param1) {
+    public RealmsBackupInfoScreen(Screen param0, Backup param1) {
         this.lastScreen = param0;
         this.backup = param1;
         if (param1.changeList != null) {
@@ -49,27 +45,24 @@ public class RealmsBackupInfoScreen extends RealmsScreen {
 
     @Override
     public void init() {
-        this.setKeyboardHandlerSendRepeatsToGui(true);
-        this.buttonsAdd(new RealmsButton(0, this.width() / 2 - 100, this.height() / 4 + 120 + 24, getLocalizedString("gui.back")) {
-            @Override
-            public void onPress() {
-                Realms.setScreen(RealmsBackupInfoScreen.this.lastScreen);
-            }
-        });
-        this.backupInfoList = new RealmsBackupInfoScreen.BackupInfoList();
+        this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
+        this.addButton(
+            new Button(this.width / 2 - 100, this.height / 4 + 120 + 24, 200, 20, I18n.get("gui.back"), param0 -> this.minecraft.setScreen(this.lastScreen))
+        );
+        this.backupInfoList = new RealmsBackupInfoScreen.BackupInfoList(this.minecraft);
         this.addWidget(this.backupInfoList);
-        this.focusOn(this.backupInfoList);
+        this.magicalSpecialHackyFocus(this.backupInfoList);
     }
 
     @Override
     public void removed() {
-        this.setKeyboardHandlerSendRepeatsToGui(false);
+        this.minecraft.keyboardHandler.setSendRepeatsToGui(false);
     }
 
     @Override
     public boolean keyPressed(int param0, int param1, int param2) {
         if (param0 == 256) {
-            Realms.setScreen(this.lastScreen);
+            this.minecraft.setScreen(this.lastScreen);
             return true;
         } else {
             return super.keyPressed(param0, param1, param2);
@@ -79,7 +72,7 @@ public class RealmsBackupInfoScreen extends RealmsScreen {
     @Override
     public void render(int param0, int param1, float param2) {
         this.renderBackground();
-        this.drawCenteredString("Changes from last backup", this.width() / 2, 10, 16777215);
+        this.drawCenteredString(this.font, "Changes from last backup", this.width / 2, 10, 16777215);
         this.backupInfoList.render(param0, param1, param2);
         super.render(param0, param1, param2);
     }
@@ -95,7 +88,7 @@ public class RealmsBackupInfoScreen extends RealmsScreen {
 
     private String gameDifficultyMetadata(String param0) {
         try {
-            return this.difficulties[Integer.parseInt(param0)];
+            return I18n.get(RealmsSlotOptionsScreen.DIFFICULTIES[Integer.parseInt(param0)]);
         } catch (Exception var3) {
             return "UNKNOWN";
         }
@@ -103,16 +96,16 @@ public class RealmsBackupInfoScreen extends RealmsScreen {
 
     private String gameModeMetadata(String param0) {
         try {
-            return this.gameModes[Integer.parseInt(param0)];
+            return I18n.get(RealmsSlotOptionsScreen.GAME_MODES[Integer.parseInt(param0)]);
         } catch (Exception var3) {
             return "UNKNOWN";
         }
     }
 
     @OnlyIn(Dist.CLIENT)
-    class BackupInfoList extends RealmsSimpleScrolledSelectionList {
-        public BackupInfoList() {
-            super(RealmsBackupInfoScreen.this.width(), RealmsBackupInfoScreen.this.height(), 32, RealmsBackupInfoScreen.this.height() - 64, 36);
+    class BackupInfoList extends ScrolledSelectionList {
+        public BackupInfoList(Minecraft param0) {
+            super(param0, RealmsBackupInfoScreen.this.width, RealmsBackupInfoScreen.this.height, 32, RealmsBackupInfoScreen.this.height - 64, 36);
         }
 
         @Override
@@ -121,13 +114,17 @@ public class RealmsBackupInfoScreen extends RealmsScreen {
         }
 
         @Override
-        public boolean isSelectedItem(int param0) {
-            return false;
+        protected void renderItem(int param0, int param1, int param2, int param3, int param4, int param5, float param6) {
+            String var0 = RealmsBackupInfoScreen.this.keys.get(param0);
+            Font var1 = this.minecraft.font;
+            this.drawString(var1, var0, this.width / 2 - 40, param2, 10526880);
+            String var2 = RealmsBackupInfoScreen.this.backup.changeList.get(var0);
+            this.drawString(var1, RealmsBackupInfoScreen.this.checkForSpecificMetadata(var0, var2), this.width / 2 - 40, param2 + 12, 16777215);
         }
 
         @Override
-        public int getMaxPosition() {
-            return this.getItemCount() * 36;
+        public boolean isSelectedItem(int param0) {
+            return false;
         }
 
         @Override
@@ -135,13 +132,70 @@ public class RealmsBackupInfoScreen extends RealmsScreen {
         }
 
         @Override
-        public void renderItem(int param0, int param1, int param2, int param3, Tezzelator param4, int param5, int param6) {
-            String var0 = RealmsBackupInfoScreen.this.keys.get(param0);
-            RealmsBackupInfoScreen.this.drawString(var0, this.width() / 2 - 40, param2, 10526880);
-            String var1 = RealmsBackupInfoScreen.this.backup.changeList.get(var0);
-            RealmsBackupInfoScreen.this.drawString(
-                RealmsBackupInfoScreen.this.checkForSpecificMetadata(var0, var1), this.width() / 2 - 40, param2 + 12, 16777215
-            );
+        public void render(int param0, int param1, float param2) {
+            if (this.visible) {
+                this.renderBackground();
+                int var0 = this.getScrollbarPosition();
+                int var1 = var0 + 6;
+                this.capYPosition();
+                RenderSystem.disableFog();
+                Tesselator var2 = Tesselator.getInstance();
+                BufferBuilder var3 = var2.getBuilder();
+                int var4 = this.x0 + this.width / 2 - this.getRowWidth() / 2 + 2;
+                int var5 = this.y0 + 4 - (int)this.yo;
+                if (this.renderHeader) {
+                    this.renderHeader(var4, var5, var2);
+                }
+
+                this.renderList(var4, var5, param0, param1, param2);
+                RenderSystem.disableDepthTest();
+                this.renderHoleBackground(0, this.y0, 255, 255);
+                this.renderHoleBackground(this.y1, this.height, 255, 255);
+                RenderSystem.enableBlend();
+                RenderSystem.blendFuncSeparate(
+                    GlStateManager.SourceFactor.SRC_ALPHA,
+                    GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+                    GlStateManager.SourceFactor.ZERO,
+                    GlStateManager.DestFactor.ONE
+                );
+                RenderSystem.disableAlphaTest();
+                RenderSystem.shadeModel(7425);
+                RenderSystem.disableTexture();
+                int var6 = this.getMaxScroll();
+                if (var6 > 0) {
+                    int var7 = (this.y1 - this.y0) * (this.y1 - this.y0) / this.getMaxPosition();
+                    var7 = Mth.clamp(var7, 32, this.y1 - this.y0 - 8);
+                    int var8 = (int)this.yo * (this.y1 - this.y0 - var7) / var6 + this.y0;
+                    if (var8 < this.y0) {
+                        var8 = this.y0;
+                    }
+
+                    var3.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
+                    var3.vertex((double)var0, (double)this.y1, 0.0).uv(0.0F, 1.0F).color(0, 0, 0, 255).endVertex();
+                    var3.vertex((double)var1, (double)this.y1, 0.0).uv(1.0F, 1.0F).color(0, 0, 0, 255).endVertex();
+                    var3.vertex((double)var1, (double)this.y0, 0.0).uv(1.0F, 0.0F).color(0, 0, 0, 255).endVertex();
+                    var3.vertex((double)var0, (double)this.y0, 0.0).uv(0.0F, 0.0F).color(0, 0, 0, 255).endVertex();
+                    var2.end();
+                    var3.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
+                    var3.vertex((double)var0, (double)(var8 + var7), 0.0).uv(0.0F, 1.0F).color(128, 128, 128, 255).endVertex();
+                    var3.vertex((double)var1, (double)(var8 + var7), 0.0).uv(1.0F, 1.0F).color(128, 128, 128, 255).endVertex();
+                    var3.vertex((double)var1, (double)var8, 0.0).uv(1.0F, 0.0F).color(128, 128, 128, 255).endVertex();
+                    var3.vertex((double)var0, (double)var8, 0.0).uv(0.0F, 0.0F).color(128, 128, 128, 255).endVertex();
+                    var2.end();
+                    var3.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
+                    var3.vertex((double)var0, (double)(var8 + var7 - 1), 0.0).uv(0.0F, 1.0F).color(192, 192, 192, 255).endVertex();
+                    var3.vertex((double)(var1 - 1), (double)(var8 + var7 - 1), 0.0).uv(1.0F, 1.0F).color(192, 192, 192, 255).endVertex();
+                    var3.vertex((double)(var1 - 1), (double)var8, 0.0).uv(1.0F, 0.0F).color(192, 192, 192, 255).endVertex();
+                    var3.vertex((double)var0, (double)var8, 0.0).uv(0.0F, 0.0F).color(192, 192, 192, 255).endVertex();
+                    var2.end();
+                }
+
+                this.renderDecorations(param0, param1);
+                RenderSystem.enableTexture();
+                RenderSystem.shadeModel(7424);
+                RenderSystem.enableAlphaTest();
+                RenderSystem.disableBlend();
+            }
         }
     }
 }

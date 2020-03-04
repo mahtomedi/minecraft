@@ -218,7 +218,7 @@ public class ZombieVillager extends Zombie implements VillagerDataHolder {
         }
 
         var0.setVillagerXp(this.villagerXp);
-        var0.finalizeSpawn(param0, param0.getCurrentDifficultyAt(new BlockPos(var0)), MobSpawnType.CONVERSION, null, null);
+        var0.finalizeSpawn(param0, param0.getCurrentDifficultyAt(var0.blockPosition()), MobSpawnType.CONVERSION, null, null);
         if (this.isBaby()) {
             var0.setAge(-24000);
         }
@@ -245,7 +245,7 @@ public class ZombieVillager extends Zombie implements VillagerDataHolder {
         }
 
         var0.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 200, 0));
-        param0.levelEvent(null, 1027, new BlockPos(this), 0);
+        param0.levelEvent(null, 1027, this.blockPosition(), 0);
     }
 
     private int getConversionProgress() {
@@ -318,7 +318,7 @@ public class ZombieVillager extends Zombie implements VillagerDataHolder {
     public SpawnGroupData finalizeSpawn(
         LevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
     ) {
-        this.setVillagerData(this.getVillagerData().setType(VillagerType.byBiome(param0.getBiome(new BlockPos(this)))));
+        this.setVillagerData(this.getVillagerData().setType(VillagerType.byBiome(param0.getBiome(this.blockPosition()))));
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
 

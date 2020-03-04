@@ -3,7 +3,6 @@ package net.minecraft.core.dispenser;
 import net.minecraft.core.BlockSource;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -17,7 +16,7 @@ public abstract class AbstractProjectileDispenseBehavior extends DefaultDispense
         Direction var2 = param0.getBlockState().getValue(DispenserBlock.FACING);
         Projectile var3 = this.getProjectile(var0, var1, param1);
         var3.shoot((double)var2.getStepX(), (double)((float)var2.getStepY() + 0.1F), (double)var2.getStepZ(), this.getPower(), this.getUncertainty());
-        var0.addFreshEntity((Entity)var3);
+        var0.addFreshEntity(var3);
         param1.shrink(1);
         return param1;
     }

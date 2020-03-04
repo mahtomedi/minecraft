@@ -185,7 +185,7 @@ public class CommandBlock extends BaseEntityBlock {
     }
 
     private static void executeChain(Level param0, BlockPos param1, Direction param2) {
-        BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos(param1);
+        BlockPos.MutableBlockPos var0 = param1.mutable();
         GameRules var1 = param0.getGameRules();
 
         int var2;

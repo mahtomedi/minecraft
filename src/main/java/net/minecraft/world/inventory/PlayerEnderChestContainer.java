@@ -18,6 +18,7 @@ public class PlayerEnderChestContainer extends SimpleContainer {
         this.activeChest = param0;
     }
 
+    @Override
     public void fromTag(ListTag param0) {
         for(int var0 = 0; var0 < this.getContainerSize(); ++var0) {
             this.setItem(var0, ItemStack.EMPTY);
@@ -33,6 +34,7 @@ public class PlayerEnderChestContainer extends SimpleContainer {
 
     }
 
+    @Override
     public ListTag createTag() {
         ListTag var0 = new ListTag();
 

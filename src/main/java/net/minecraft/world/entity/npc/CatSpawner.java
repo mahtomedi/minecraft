@@ -34,7 +34,7 @@ public class CatSpawner {
                     Random var1 = param0.random;
                     int var2 = (8 + var1.nextInt(24)) * (var1.nextBoolean() ? -1 : 1);
                     int var3 = (8 + var1.nextInt(24)) * (var1.nextBoolean() ? -1 : 1);
-                    BlockPos var4 = new BlockPos(var0).offset(var2, 0, var3);
+                    BlockPos var4 = var0.blockPosition().offset(var2, 0, var3);
                     if (!param0.hasChunksAt(var4.getX() - 10, var4.getY() - 10, var4.getZ() - 10, var4.getX() + 10, var4.getY() + 10, var4.getZ() + 10)) {
                         return 0;
                     } else {

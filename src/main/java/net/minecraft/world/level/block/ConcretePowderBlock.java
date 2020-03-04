@@ -41,12 +41,12 @@ public class ConcretePowderBlock extends FallingBlock {
 
     private static boolean touchesLiquid(BlockGetter param0, BlockPos param1) {
         boolean var0 = false;
-        BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos(param1);
+        BlockPos.MutableBlockPos var1 = param1.mutable();
 
         for(Direction var2 : Direction.values()) {
             BlockState var3 = param0.getBlockState(var1);
             if (var2 != Direction.DOWN || canSolidify(var3)) {
-                var1.set(param1).move(var2);
+                var1.setWithOffset(param1, var2);
                 var3 = param0.getBlockState(var1);
                 if (canSolidify(var3) && !var3.isFaceSturdy(param0, param1, var2.getOpposite())) {
                     var0 = true;

@@ -34,6 +34,7 @@ import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.item.CreativeModeTab;
@@ -182,13 +183,13 @@ public class Block implements ItemLike {
 
     @Deprecated
     public void updateNeighbourShapes(BlockState param0, LevelAccessor param1, BlockPos param2, int param3) {
-        try (BlockPos.PooledMutableBlockPos var0 = BlockPos.PooledMutableBlockPos.acquire()) {
-            for(Direction var1 : UPDATE_SHAPE_ORDER) {
-                var0.set(param2).move(var1);
-                BlockState var2 = param1.getBlockState(var0);
-                BlockState var3 = var2.updateShape(var1.getOpposite(), param0, param1, var0, param2);
-                updateOrDestroy(var2, var3, param1, var0, param3);
-            }
+        BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
+
+        for(Direction var1 : UPDATE_SHAPE_ORDER) {
+            var0.setWithOffset(param2, var1);
+            BlockState var2 = param1.getBlockState(var0);
+            BlockState var3 = var2.updateShape(var1.getOpposite(), param0, param1, var0, param2);
+            updateOrDestroy(var2, var3, param1, var0, param3);
         }
 
     }
@@ -202,7 +203,7 @@ public class Block implements ItemLike {
         BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos();
 
         for(Direction var2 : UPDATE_SHAPE_ORDER) {
-            var1.set(param2).move(var2);
+            var1.setWithOffset(param2, var2);
             var0 = var0.updateShape(var2, param1.getBlockState(var1), param1, param2, var1);
         }
 
@@ -726,7 +727,7 @@ public class Block implements ItemLike {
         return Mth.getSeed(param1);
     }
 
-    public void onProjectileHit(Level param0, BlockState param1, BlockHitResult param2, Entity param3) {
+    public void onProjectileHit(Level param0, BlockState param1, BlockHitResult param2, Projectile param3) {
     }
 
     public void playerWillDestroy(Level param0, BlockPos param1, BlockState param2, Player param3) {

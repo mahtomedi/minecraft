@@ -493,10 +493,10 @@ public class ServerLevel extends Level {
         BlockPos var0 = this.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, param0);
         AABB var1 = new AABB(var0, new BlockPos(var0.getX(), this.getMaxBuildHeight(), var0.getZ())).inflate(3.0);
         List<LivingEntity> var2 = this.getEntitiesOfClass(
-            LivingEntity.class, var1, param0x -> param0x != null && param0x.isAlive() && this.canSeeSky(param0x.getCommandSenderBlockPosition())
+            LivingEntity.class, var1, param0x -> param0x != null && param0x.isAlive() && this.canSeeSky(param0x.blockPosition())
         );
         if (!var2.isEmpty()) {
-            return var2.get(this.random.nextInt(var2.size())).getCommandSenderBlockPosition();
+            return var2.get(this.random.nextInt(var2.size())).blockPosition();
         } else {
             if (var0.getY() == -1) {
                 var0 = var0.above(2);
@@ -1219,7 +1219,7 @@ public class ServerLevel extends Level {
         if (param0.getLevel() != this) {
             return false;
         } else {
-            BlockPos var0 = param0.getCommandSenderBlockPosition();
+            BlockPos var0 = param0.blockPosition();
             if (var0.closerThan(new Vec3(param2, param3, param4), param1 ? 512.0 : 32.0)) {
                 param0.connection.send(param5);
                 return true;

@@ -19,6 +19,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.Fireball;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CampfireCookingRecipe;
@@ -212,21 +213,12 @@ public class CampfireBlock extends BaseEntityBlock implements SimpleWaterloggedB
         }
     }
 
-    @Nullable
-    private Entity getShooter(Entity param0) {
-        if (param0 instanceof Fireball) {
-            return ((Fireball)param0).owner;
-        } else {
-            return param0 instanceof AbstractArrow ? ((AbstractArrow)param0).getOwner() : null;
-        }
-    }
-
     @Override
-    public void onProjectileHit(Level param0, BlockState param1, BlockHitResult param2, Entity param3) {
+    public void onProjectileHit(Level param0, BlockState param1, BlockHitResult param2, Projectile param3) {
         if (!param0.isClientSide) {
             boolean var0 = param3 instanceof Fireball || param3 instanceof AbstractArrow && param3.isOnFire();
             if (var0) {
-                Entity var1 = this.getShooter(param3);
+                Entity var1 = param3.getOwner();
                 boolean var2 = var1 == null || var1 instanceof Player || param0.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING);
                 if (var2 && !param1.getValue(LIT) && !param1.getValue(WATERLOGGED)) {
                     BlockPos var3 = param2.getBlockPos();

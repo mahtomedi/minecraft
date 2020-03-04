@@ -1,18 +1,16 @@
 package net.minecraft.world.entity.projectile;
 
-import java.util.UUID;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.horse.Llama;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
@@ -21,17 +19,14 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class LlamaSpit extends Entity implements Projectile {
-    public Llama owner;
-    private CompoundTag ownerTag;
-
+public class LlamaSpit extends Projectile {
     public LlamaSpit(EntityType<? extends LlamaSpit> param0, Level param1) {
         super(param0, param1);
     }
 
     public LlamaSpit(Level param0, Llama param1) {
         this(EntityType.LLAMA_SPIT, param0);
-        this.owner = param1;
+        super.setOwner(param1);
         this.setPos(
             param1.getX() - (double)(param1.getBbWidth() + 1.0F) * 0.5 * (double)Mth.sin(param1.yBodyRot * (float) (Math.PI / 180.0)),
             param1.getEyeY() - 0.1F,
@@ -55,15 +50,11 @@ public class LlamaSpit extends Entity implements Projectile {
     @Override
     public void tick() {
         super.tick();
-        if (this.ownerTag != null) {
-            this.restoreOwnerFromSave();
-        }
-
         Vec3 var0 = this.getDeltaMovement();
         HitResult var1 = ProjectileUtil.getHitResult(
             this,
             this.getBoundingBox().expandTowards(var0).inflate(1.0),
-            param0 -> !param0.isSpectator() && param0 != this.owner,
+            param0 -> !param0.isSpectator() && param0 != this.getOwner(),
             ClipContext.Block.OUTLINE,
             true
         );
@@ -112,90 +103,27 @@ public class LlamaSpit extends Entity implements Projectile {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
-    public void lerpMotion(double param0, double param1, double param2) {
-        this.setDeltaMovement(param0, param1, param2);
-        if (this.xRotO == 0.0F && this.yRotO == 0.0F) {
-            float var0 = Mth.sqrt(param0 * param0 + param2 * param2);
-            this.xRot = (float)(Mth.atan2(param1, (double)var0) * 180.0F / (float)Math.PI);
-            this.yRot = (float)(Mth.atan2(param0, param2) * 180.0F / (float)Math.PI);
-            this.xRotO = this.xRot;
-            this.yRotO = this.yRot;
-            this.moveTo(this.getX(), this.getY(), this.getZ(), this.yRot, this.xRot);
+    protected void onHitEntity(EntityHitResult param0) {
+        super.onHitEntity(param0);
+        Entity var0 = this.getOwner();
+        if (var0 instanceof LivingEntity) {
+            param0.getEntity().hurt(DamageSource.indirectMobAttack(this, (LivingEntity)var0).setProjectile(), 1.0F);
         }
 
     }
 
     @Override
-    public void shoot(double param0, double param1, double param2, float param3, float param4) {
-        Vec3 var0 = new Vec3(param0, param1, param2)
-            .normalize()
-            .add(
-                this.random.nextGaussian() * 0.0075F * (double)param4,
-                this.random.nextGaussian() * 0.0075F * (double)param4,
-                this.random.nextGaussian() * 0.0075F * (double)param4
-            )
-            .scale((double)param3);
-        this.setDeltaMovement(var0);
-        float var1 = Mth.sqrt(getHorizontalDistanceSqr(var0));
-        this.yRot = (float)(Mth.atan2(var0.x, param2) * 180.0F / (float)Math.PI);
-        this.xRot = (float)(Mth.atan2(var0.y, (double)var1) * 180.0F / (float)Math.PI);
-        this.yRotO = this.yRot;
-        this.xRotO = this.xRot;
-    }
-
-    public void onHit(HitResult param0) {
-        HitResult.Type var0 = param0.getType();
-        if (var0 == HitResult.Type.ENTITY && this.owner != null) {
-            ((EntityHitResult)param0).getEntity().hurt(DamageSource.indirectMobAttack(this, this.owner).setProjectile(), 1.0F);
-        } else if (var0 == HitResult.Type.BLOCK) {
-            BlockHitResult var1 = (BlockHitResult)param0;
-            BlockState var2 = this.level.getBlockState(var1.getBlockPos());
-            var2.onProjectileHit(this.level, var2, var1, this);
-            if (!this.level.isClientSide) {
-                this.remove();
-            }
+    protected void onHitBlock(BlockHitResult param0) {
+        super.onHitBlock(param0);
+        if (!this.level.isClientSide) {
+            this.remove();
         }
 
     }
 
     @Override
     protected void defineSynchedData() {
-    }
-
-    @Override
-    protected void readAdditionalSaveData(CompoundTag param0) {
-        if (param0.contains("Owner", 10)) {
-            this.ownerTag = param0.getCompound("Owner");
-        }
-
-    }
-
-    @Override
-    protected void addAdditionalSaveData(CompoundTag param0) {
-        if (this.owner != null) {
-            CompoundTag var0 = new CompoundTag();
-            UUID var1 = this.owner.getUUID();
-            var0.putUUID("OwnerUUID", var1);
-            param0.put("Owner", var0);
-        }
-
-    }
-
-    private void restoreOwnerFromSave() {
-        if (this.ownerTag != null && this.ownerTag.hasUUID("OwnerUUID")) {
-            UUID var0 = this.ownerTag.getUUID("OwnerUUID");
-
-            for(Llama var2 : this.level.getEntitiesOfClass(Llama.class, this.getBoundingBox().inflate(15.0))) {
-                if (var2.getUUID().equals(var0)) {
-                    this.owner = var2;
-                    break;
-                }
-            }
-        }
-
-        this.ownerTag = null;
     }
 
     @Override

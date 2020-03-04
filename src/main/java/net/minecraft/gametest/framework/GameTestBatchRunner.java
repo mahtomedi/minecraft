@@ -22,7 +22,7 @@ public class GameTestBatchRunner {
     private int maxDepthOnThisRow = 0;
 
     public GameTestBatchRunner(Collection<GameTestBatch> param0, BlockPos param1, ServerLevel param2, GameTestTicker param3) {
-        this.nextTestPos = new BlockPos.MutableBlockPos(param1);
+        this.nextTestPos = param1.mutable();
         this.startPos = param1;
         this.level = param2;
         this.testTicker = param3;

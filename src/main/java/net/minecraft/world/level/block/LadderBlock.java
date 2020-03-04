@@ -47,7 +47,7 @@ public class LadderBlock extends Block implements SimpleWaterloggedBlock {
 
     private boolean canAttachTo(BlockGetter param0, BlockPos param1, Direction param2) {
         BlockState var0 = param0.getBlockState(param1);
-        return !var0.isSignalSource() && var0.isFaceSturdy(param0, param1, param2);
+        return var0.isFaceSturdy(param0, param1, param2);
     }
 
     @Override

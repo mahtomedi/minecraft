@@ -28,13 +28,13 @@ public class FrostedIceBlock extends IceBlock {
         if ((param3.nextInt(3) == 0 || this.fewerNeigboursThan(param1, param2, 4))
             && param1.getMaxLocalRawBrightness(param2) > 11 - param0.getValue(AGE) - param0.getLightBlock(param1, param2)
             && this.slightlyMelt(param0, param1, param2)) {
-            try (BlockPos.PooledMutableBlockPos var0 = BlockPos.PooledMutableBlockPos.acquire()) {
-                for(Direction var1 : Direction.values()) {
-                    var0.set(param2).move(var1);
-                    BlockState var2 = param1.getBlockState(var0);
-                    if (var2.getBlock() == this && !this.slightlyMelt(var2, param1, var0)) {
-                        param1.getBlockTicks().scheduleTick(var0, this, Mth.nextInt(param3, 20, 40));
-                    }
+            BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
+
+            for(Direction var1 : Direction.values()) {
+                var0.setWithOffset(param2, var1);
+                BlockState var2 = param1.getBlockState(var0);
+                if (var2.getBlock() == this && !this.slightlyMelt(var2, param1, var0)) {
+                    param1.getBlockTicks().scheduleTick(var0, this, Mth.nextInt(param3, 20, 40));
                 }
             }
 
@@ -65,19 +65,18 @@ public class FrostedIceBlock extends IceBlock {
 
     private boolean fewerNeigboursThan(BlockGetter param0, BlockPos param1, int param2) {
         int var0 = 0;
+        BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos();
 
-        try (BlockPos.PooledMutableBlockPos var1 = BlockPos.PooledMutableBlockPos.acquire()) {
-            for(Direction var2 : Direction.values()) {
-                var1.set(param1).move(var2);
-                if (param0.getBlockState(var1).getBlock() == this) {
-                    if (++var0 >= param2) {
-                        return false;
-                    }
+        for(Direction var2 : Direction.values()) {
+            var1.setWithOffset(param1, var2);
+            if (param0.getBlockState(var1).getBlock() == this) {
+                if (++var0 >= param2) {
+                    return false;
                 }
             }
-
-            return true;
         }
+
+        return true;
     }
 
     @Override

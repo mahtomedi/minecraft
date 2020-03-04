@@ -163,57 +163,57 @@ public abstract class AbstractTreeFeature<T extends TreeConfiguration> extends F
             var0.add(Sets.newHashSet());
         }
 
-        try (BlockPos.PooledMutableBlockPos var4 = BlockPos.PooledMutableBlockPos.acquire()) {
-            for(BlockPos var5 : Lists.newArrayList(param3)) {
-                if (param1.isInside(var5)) {
-                    var1.setFull(var5.getX() - param1.x0, var5.getY() - param1.y0, var5.getZ() - param1.z0, true, true);
-                }
+        BlockPos.MutableBlockPos var4 = new BlockPos.MutableBlockPos();
+
+        for(BlockPos var5 : Lists.newArrayList(param3)) {
+            if (param1.isInside(var5)) {
+                var1.setFull(var5.getX() - param1.x0, var5.getY() - param1.y0, var5.getZ() - param1.z0, true, true);
+            }
+        }
+
+        for(BlockPos var6 : Lists.newArrayList(param2)) {
+            if (param1.isInside(var6)) {
+                var1.setFull(var6.getX() - param1.x0, var6.getY() - param1.y0, var6.getZ() - param1.z0, true, true);
             }
 
-            for(BlockPos var6 : Lists.newArrayList(param2)) {
-                if (param1.isInside(var6)) {
-                    var1.setFull(var6.getX() - param1.x0, var6.getY() - param1.y0, var6.getZ() - param1.z0, true, true);
-                }
-
-                for(Direction var7 : Direction.values()) {
-                    var4.set(var6).move(var7);
-                    if (!param2.contains(var4)) {
-                        BlockState var8 = param0.getBlockState(var4);
-                        if (var8.hasProperty(BlockStateProperties.DISTANCE)) {
-                            var0.get(0).add(var4.immutable());
-                            this.setBlockKnownShape(param0, var4, var8.setValue(BlockStateProperties.DISTANCE, Integer.valueOf(1)));
-                            if (param1.isInside(var4)) {
-                                var1.setFull(var4.getX() - param1.x0, var4.getY() - param1.y0, var4.getZ() - param1.z0, true, true);
-                            }
+            for(Direction var7 : Direction.values()) {
+                var4.setWithOffset(var6, var7);
+                if (!param2.contains(var4)) {
+                    BlockState var8 = param0.getBlockState(var4);
+                    if (var8.hasProperty(BlockStateProperties.DISTANCE)) {
+                        var0.get(0).add(var4.immutable());
+                        this.setBlockKnownShape(param0, var4, var8.setValue(BlockStateProperties.DISTANCE, Integer.valueOf(1)));
+                        if (param1.isInside(var4)) {
+                            var1.setFull(var4.getX() - param1.x0, var4.getY() - param1.y0, var4.getZ() - param1.z0, true, true);
                         }
                     }
                 }
             }
+        }
 
-            for(int var9 = 1; var9 < 6; ++var9) {
-                Set<BlockPos> var10 = var0.get(var9 - 1);
-                Set<BlockPos> var11 = var0.get(var9);
+        for(int var9 = 1; var9 < 6; ++var9) {
+            Set<BlockPos> var10 = var0.get(var9 - 1);
+            Set<BlockPos> var11 = var0.get(var9);
 
-                for(BlockPos var12 : var10) {
-                    if (param1.isInside(var12)) {
-                        var1.setFull(var12.getX() - param1.x0, var12.getY() - param1.y0, var12.getZ() - param1.z0, true, true);
-                    }
+            for(BlockPos var12 : var10) {
+                if (param1.isInside(var12)) {
+                    var1.setFull(var12.getX() - param1.x0, var12.getY() - param1.y0, var12.getZ() - param1.z0, true, true);
+                }
 
-                    for(Direction var13 : Direction.values()) {
-                        var4.set(var12).move(var13);
-                        if (!var10.contains(var4) && !var11.contains(var4)) {
-                            BlockState var14 = param0.getBlockState(var4);
-                            if (var14.hasProperty(BlockStateProperties.DISTANCE)) {
-                                int var15 = var14.getValue(BlockStateProperties.DISTANCE);
-                                if (var15 > var9 + 1) {
-                                    BlockState var16 = var14.setValue(BlockStateProperties.DISTANCE, Integer.valueOf(var9 + 1));
-                                    this.setBlockKnownShape(param0, var4, var16);
-                                    if (param1.isInside(var4)) {
-                                        var1.setFull(var4.getX() - param1.x0, var4.getY() - param1.y0, var4.getZ() - param1.z0, true, true);
-                                    }
-
-                                    var11.add(var4.immutable());
+                for(Direction var13 : Direction.values()) {
+                    var4.setWithOffset(var12, var13);
+                    if (!var10.contains(var4) && !var11.contains(var4)) {
+                        BlockState var14 = param0.getBlockState(var4);
+                        if (var14.hasProperty(BlockStateProperties.DISTANCE)) {
+                            int var15 = var14.getValue(BlockStateProperties.DISTANCE);
+                            if (var15 > var9 + 1) {
+                                BlockState var16 = var14.setValue(BlockStateProperties.DISTANCE, Integer.valueOf(var9 + 1));
+                                this.setBlockKnownShape(param0, var4, var16);
+                                if (param1.isInside(var4)) {
+                                    var1.setFull(var4.getX() - param1.x0, var4.getY() - param1.y0, var4.getZ() - param1.z0, true, true);
                                 }
+
+                                var11.add(var4.immutable());
                             }
                         }
                     }

@@ -1,44 +1,49 @@
 package com.mojang.realmsclient.util;
 
-import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
+import com.mojang.realmsclient.dto.GuardedSerializer;
+import com.mojang.realmsclient.dto.ReflectionBasedSerialization;
 import java.io.File;
 import java.io.IOException;
-import net.minecraft.realms.Realms;
+import java.nio.charset.StandardCharsets;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.io.FileUtils;
 
 @OnlyIn(Dist.CLIENT)
 public class RealmsPersistence {
+    private static final GuardedSerializer GSON = new GuardedSerializer();
+
     public static RealmsPersistence.RealmsPersistenceData readFile() {
-        File var0 = new File(Realms.getGameDirectoryPath(), "realms_persistence.json");
-        Gson var1 = new Gson();
+        File var0 = getPathToData();
 
         try {
-            return var1.fromJson(FileUtils.readFileToString(var0), RealmsPersistence.RealmsPersistenceData.class);
-        } catch (IOException var3) {
+            return GSON.fromJson(FileUtils.readFileToString(var0, StandardCharsets.UTF_8), RealmsPersistence.RealmsPersistenceData.class);
+        } catch (IOException var2) {
             return new RealmsPersistence.RealmsPersistenceData();
         }
     }
 
     public static void writeFile(RealmsPersistence.RealmsPersistenceData param0) {
-        File var0 = new File(Realms.getGameDirectoryPath(), "realms_persistence.json");
-        Gson var1 = new Gson();
-        String var2 = var1.toJson(param0);
+        File var0 = getPathToData();
 
         try {
-            FileUtils.writeStringToFile(var0, var2);
-        } catch (IOException var5) {
+            FileUtils.writeStringToFile(var0, GSON.toJson(param0), StandardCharsets.UTF_8);
+        } catch (IOException var3) {
         }
 
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public static class RealmsPersistenceData {
-        public String newsLink;
-        public boolean hasUnreadNews;
+    private static File getPathToData() {
+        return new File(Minecraft.getInstance().gameDirectory, "realms_persistence.json");
+    }
 
-        private RealmsPersistenceData() {
-        }
+    @OnlyIn(Dist.CLIENT)
+    public static class RealmsPersistenceData implements ReflectionBasedSerialization {
+        @SerializedName("newsLink")
+        public String newsLink;
+        @SerializedName("hasUnreadNews")
+        public boolean hasUnreadNews;
     }
 }

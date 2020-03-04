@@ -3,7 +3,6 @@ package net.minecraft.world.entity.decoration;
 import java.util.List;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.Rotations;
 import net.minecraft.core.particles.BlockParticleOption;
@@ -510,7 +509,7 @@ public class ArmorStand extends LivingEntity {
     }
 
     private void brokenByPlayer(DamageSource param0) {
-        Block.popResource(this.level, new BlockPos(this), new ItemStack(Items.ARMOR_STAND));
+        Block.popResource(this.level, this.blockPosition(), new ItemStack(Items.ARMOR_STAND));
         this.brokenByAnything(param0);
     }
 
@@ -521,7 +520,7 @@ public class ArmorStand extends LivingEntity {
         for(int var0 = 0; var0 < this.handItems.size(); ++var0) {
             ItemStack var1 = this.handItems.get(var0);
             if (!var1.isEmpty()) {
-                Block.popResource(this.level, new BlockPos(this).above(), var1);
+                Block.popResource(this.level, this.blockPosition().above(), var1);
                 this.handItems.set(var0, ItemStack.EMPTY);
             }
         }
@@ -529,7 +528,7 @@ public class ArmorStand extends LivingEntity {
         for(int var2 = 0; var2 < this.armorItems.size(); ++var2) {
             ItemStack var3 = this.armorItems.get(var2);
             if (!var3.isEmpty()) {
-                Block.popResource(this.level, new BlockPos(this).above(), var3);
+                Block.popResource(this.level, this.blockPosition().above(), var3);
                 this.armorItems.set(var2, ItemStack.EMPTY);
             }
         }
@@ -749,7 +748,7 @@ public class ArmorStand extends LivingEntity {
 
     @Override
     public boolean skipAttackInteraction(Entity param0) {
-        return param0 instanceof Player && !this.level.mayInteract((Player)param0, new BlockPos(this));
+        return param0 instanceof Player && !this.level.mayInteract((Player)param0, this.blockPosition());
     }
 
     @Override

@@ -84,13 +84,13 @@ public class JumpOnBed extends Behavior<Mob> {
     }
 
     private boolean onOrOverBed(ServerLevel param0, Mob param1) {
-        BlockPos var0 = new BlockPos(param1);
+        BlockPos var0 = param1.blockPosition();
         BlockPos var1 = var0.below();
         return this.isBed(param0, var0) || this.isBed(param0, var1);
     }
 
     private boolean onBedSurface(ServerLevel param0, Mob param1) {
-        return this.isBed(param0, new BlockPos(param1));
+        return this.isBed(param0, param1.blockPosition());
     }
 
     private boolean isBed(ServerLevel param0, BlockPos param1) {

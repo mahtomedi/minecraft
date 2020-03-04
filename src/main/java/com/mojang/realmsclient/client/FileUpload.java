@@ -16,6 +16,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import net.minecraft.client.User;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.http.Header;
@@ -48,15 +49,15 @@ public class FileUpload {
         .setConnectTimeout((int)TimeUnit.SECONDS.toMillis(15L))
         .build();
 
-    public FileUpload(File param0, long param1, int param2, UploadInfo param3, String param4, String param5, String param6, UploadStatus param7) {
+    public FileUpload(File param0, long param1, int param2, UploadInfo param3, User param4, String param5, UploadStatus param6) {
         this.file = param0;
         this.worldId = param1;
         this.slotId = param2;
         this.uploadInfo = param3;
-        this.sessionId = param4;
-        this.username = param5;
-        this.clientVersion = param6;
-        this.uploadStatus = param7;
+        this.sessionId = param4.getSessionId();
+        this.username = param4.getName();
+        this.clientVersion = param5;
+        this.uploadStatus = param6;
     }
 
     public void upload(Consumer<UploadResult> param0) {

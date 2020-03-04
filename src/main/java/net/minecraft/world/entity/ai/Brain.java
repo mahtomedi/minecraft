@@ -83,9 +83,8 @@ public class Brain<E extends LivingEntity> implements Serializable {
         this.setMemory(param0, Optional.ofNullable(param1));
     }
 
-    public <U> void setMemoryWithExpiry(MemoryModuleType<U> param0, U param1, long param2, long param3) {
-        long var0 = param2 + param3;
-        this.setMemoryInternal(param0, Optional.of(ExpirableValue.of(param1, var0)));
+    public <U> void setMemoryWithExpiry(MemoryModuleType<U> param0, U param1, long param2) {
+        this.setMemoryInternal(param0, Optional.of(ExpirableValue.of(param1, param2)));
     }
 
     public <U> void setMemory(MemoryModuleType<U> param0, Optional<U> param1) {
@@ -248,8 +247,8 @@ public class Brain<E extends LivingEntity> implements Serializable {
     }
 
     public void tick(ServerLevel param0, E param1) {
-        this.expireMemories(param0);
-        this.tickEachSensor(param0, param1);
+        this.memories.forEach(this::tickMemoryAndRemoveIfExpired);
+        this.sensors.values().forEach(param2 -> param2.tick(param0, param1));
         this.startEachNonRunningBehavior(param0, param1);
         this.tickEachRunningBehavior(param0, param1);
     }
@@ -277,10 +276,6 @@ public class Brain<E extends LivingEntity> implements Serializable {
         return param0.createMap(ImmutableMap.of(param0.createString("memories"), var0));
     }
 
-    private void tickEachSensor(ServerLevel param0, E param1) {
-        this.sensors.values().forEach(param2 -> param2.tick(param0, param1));
-    }
-
     private void startEachNonRunningBehavior(ServerLevel param0, E param1) {
         long var0 = param0.getGameTime();
         this.availableBehaviorsByPriority
@@ -299,10 +294,11 @@ public class Brain<E extends LivingEntity> implements Serializable {
         this.getRunningBehaviorsStream().forEach(param3 -> param3.tickOrStop(param0, param1, var0));
     }
 
-    private void expireMemories(ServerLevel param0) {
-        this.memories.forEach((param1, param2) -> {
-            if (param2.isPresent() && param2.get().hasExpired(param0.getGameTime())) {
-                this.eraseMemory(param1);
+    private void tickMemoryAndRemoveIfExpired(MemoryModuleType<?> param0x, Optional<? extends ExpirableValue<?>> param1x) {
+        param1x.ifPresent(param1xx -> {
+            param1xx.tick();
+            if (param1xx.hasExpired()) {
+                this.eraseMemory(param0x);
             }
 
         });
