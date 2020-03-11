@@ -570,7 +570,7 @@ public class DataFixers {
         param0.addFixer(new FurnaceRecipeFix(var100, true));
         Schema var101 = param0.addSchema(2502, V2502::new);
         param0.addFixer(new AddNewChoices(var101, "Added Hoglin", References.ENTITY));
-        param0.addFixer(new RenameBiomesFix(var101, false, ImmutableMap.of("minecraft:nether", "minecraft:nether_wastes")));
+        param0.addFixer(new RenameBiomesFix(var101, false, "Nether biome rename", ImmutableMap.of("minecraft:nether", "minecraft:nether_wastes")));
         Schema var102 = param0.addSchema(2503, SAME_NAMESPACED);
         param0.addFixer(new WallPropertyFix(var102, false));
         Schema var103 = param0.addSchema(2505, V2505::new);

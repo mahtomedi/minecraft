@@ -37,6 +37,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
+import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -130,8 +131,16 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         return !isOutsideBuildHeight(param0) && isInWorldBoundsHorizontal(param0);
     }
 
-    public static boolean isInWorldBoundsHorizontal(BlockPos param0) {
+    public static boolean isInSpawnableBounds(BlockPos param0) {
+        return !isOutsideSpawnableHeight(param0.getY()) && isInWorldBoundsHorizontal(param0);
+    }
+
+    private static boolean isInWorldBoundsHorizontal(BlockPos param0) {
         return param0.getX() >= -30000000 && param0.getZ() >= -30000000 && param0.getX() < 30000000 && param0.getZ() < 30000000;
+    }
+
+    private static boolean isOutsideSpawnableHeight(int param0) {
+        return param0 < -20000000 || param0 >= 20000000;
     }
 
     public static boolean isOutsideBuildHeight(BlockPos param0) {
@@ -235,7 +244,10 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
             return false;
         } else {
             FluidState var1 = this.getFluidState(param0);
-            this.levelEvent(2001, param0, Block.getId(var0));
+            if (!(var0.getBlock() instanceof BaseFireBlock)) {
+                this.levelEvent(2001, param0, Block.getId(var0));
+            }
+
             if (param1) {
                 BlockEntity var2 = var0.getBlock().isEntityBlock() ? this.getBlockEntity(param0) : null;
                 Block.dropResources(var0, this, param0, var2, param2, ItemStack.EMPTY);

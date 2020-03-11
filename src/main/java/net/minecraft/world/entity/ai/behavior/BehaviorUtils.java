@@ -10,12 +10,15 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.SharedMonsterAttributes;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ProjectileWeaponItem;
 import net.minecraft.world.phys.Vec3;
 
 public class BehaviorUtils {
@@ -87,14 +90,20 @@ public class BehaviorUtils {
             .orElse(param1);
     }
 
-    public static boolean isAttackTargetVisibleAndInRange(LivingEntity param0, double param1) {
-        Brain<?> var0 = param0.getBrain();
-        if (!var0.hasMemoryValue(MemoryModuleType.ATTACK_TARGET)) {
-            return false;
+    public static boolean isWithinAttackRange(Mob param0, LivingEntity param1, int param2) {
+        Item var0 = param0.getMainHandItem().getItem();
+        if (var0 instanceof ProjectileWeaponItem && param0.canFireProjectileWeapon((ProjectileWeaponItem)var0)) {
+            int var1 = ((ProjectileWeaponItem)var0).getDefaultProjectileRange() - param2;
+            return param0.closerThan(param1, (double)var1);
         } else {
-            LivingEntity var1 = var0.getMemory(MemoryModuleType.ATTACK_TARGET).get();
-            return !canSee(param0, var1) ? false : var1.closerThan(param0, param1);
+            return isWithinMeleeAttackRange(param0, param1);
         }
+    }
+
+    public static boolean isWithinMeleeAttackRange(LivingEntity param0, LivingEntity param1) {
+        double var0 = param0.distanceToSqr(param1.getX(), param1.getY(), param1.getZ());
+        double var1 = (double)(param0.getBbWidth() * 2.0F * param0.getBbWidth() * 2.0F + param1.getBbWidth());
+        return var0 <= var1;
     }
 
     public static boolean isOtherTargetMuchFurtherAwayThanCurrentAttackTarget(LivingEntity param0, LivingEntity param1, double param2) {

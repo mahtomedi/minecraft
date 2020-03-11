@@ -204,6 +204,10 @@ public class BlockState extends AbstractStateHolder<Block, BlockState> implement
         return this.getBlock().getCollisionShape(this, param0, param1, param2);
     }
 
+    public VoxelShape getBlockSupportShape(BlockGetter param0, BlockPos param1) {
+        return this.getBlock().getBlockSupportShape(this, param0, param1);
+    }
+
     public VoxelShape getOcclusionShape(BlockGetter param0, BlockPos param1) {
         return this.getBlock().getOcclusionShape(this, param0, param1);
     }

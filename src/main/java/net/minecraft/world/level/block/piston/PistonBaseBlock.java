@@ -238,30 +238,32 @@ public class PistonBaseBlock extends DirectionalBlock {
 
     public static boolean isPushable(BlockState param0, Level param1, BlockPos param2, Direction param3, boolean param4, Direction param5) {
         Block var0 = param0.getBlock();
-        if (var0 == Blocks.OBSIDIAN) {
-            return false;
-        } else if (!param1.getWorldBorder().isWithinBounds(param2)) {
-            return false;
-        } else if (param2.getY() >= 0 && (param3 != Direction.DOWN || param2.getY() != 0)) {
-            if (param2.getY() <= param1.getMaxBuildHeight() - 1 && (param3 != Direction.UP || param2.getY() != param1.getMaxBuildHeight() - 1)) {
-                if (var0 != Blocks.PISTON && var0 != Blocks.STICKY_PISTON) {
-                    if (param0.getDestroySpeed(param1, param2) == -1.0F) {
+        if (var0 != Blocks.OBSIDIAN && var0 != Blocks.CRYING_OBSIDIAN) {
+            if (!param1.getWorldBorder().isWithinBounds(param2)) {
+                return false;
+            } else if (param2.getY() >= 0 && (param3 != Direction.DOWN || param2.getY() != 0)) {
+                if (param2.getY() <= param1.getMaxBuildHeight() - 1 && (param3 != Direction.UP || param2.getY() != param1.getMaxBuildHeight() - 1)) {
+                    if (var0 != Blocks.PISTON && var0 != Blocks.STICKY_PISTON) {
+                        if (param0.getDestroySpeed(param1, param2) == -1.0F) {
+                            return false;
+                        }
+
+                        switch(param0.getPistonPushReaction()) {
+                            case BLOCK:
+                                return false;
+                            case DESTROY:
+                                return param4;
+                            case PUSH_ONLY:
+                                return param3 == param5;
+                        }
+                    } else if (param0.getValue(EXTENDED)) {
                         return false;
                     }
 
-                    switch(param0.getPistonPushReaction()) {
-                        case BLOCK:
-                            return false;
-                        case DESTROY:
-                            return param4;
-                        case PUSH_ONLY:
-                            return param3 == param5;
-                    }
-                } else if (param0.getValue(EXTENDED)) {
+                    return !var0.isEntityBlock();
+                } else {
                     return false;
                 }
-
-                return !var0.isEntityBlock();
             } else {
                 return false;
             }

@@ -2611,8 +2611,8 @@ public class RecipeProvider implements DataProvider {
         SimpleCookingRecipeBuilder.smelting(Ingredient.of(ItemTags.SAND), Blocks.GLASS.asItem(), 0.1F, 200)
             .unlockedBy("has_sand", has(ItemTags.SAND))
             .save(param0);
-        SimpleCookingRecipeBuilder.smelting(Ingredient.of(Blocks.GOLD_ORE.asItem()), Items.GOLD_INGOT, 1.0F, 200)
-            .unlockedBy("has_gold_ore", has(Blocks.GOLD_ORE))
+        SimpleCookingRecipeBuilder.smelting(Ingredient.of(ItemTags.GOLD_ORES), Items.GOLD_INGOT, 1.0F, 200)
+            .unlockedBy("has_gold_ore", has(ItemTags.GOLD_ORES))
             .save(param0);
         SimpleCookingRecipeBuilder.smelting(Ingredient.of(Blocks.SEA_PICKLE.asItem()), Items.LIME_DYE, 0.1F, 200)
             .unlockedBy("has_sea_pickle", has(Blocks.SEA_PICKLE))
@@ -2774,8 +2774,8 @@ public class RecipeProvider implements DataProvider {
         SimpleCookingRecipeBuilder.blasting(Ingredient.of(Blocks.IRON_ORE.asItem()), Items.IRON_INGOT, 0.7F, 100)
             .unlockedBy("has_iron_ore", has(Blocks.IRON_ORE.asItem()))
             .save(param0, "iron_ingot_from_blasting");
-        SimpleCookingRecipeBuilder.blasting(Ingredient.of(Blocks.GOLD_ORE.asItem()), Items.GOLD_INGOT, 1.0F, 100)
-            .unlockedBy("has_gold_ore", has(Blocks.GOLD_ORE))
+        SimpleCookingRecipeBuilder.blasting(Ingredient.of(ItemTags.GOLD_ORES), Items.GOLD_INGOT, 1.0F, 100)
+            .unlockedBy("has_gold_ore", has(ItemTags.GOLD_ORES))
             .save(param0, "gold_ingot_from_blasting");
         SimpleCookingRecipeBuilder.blasting(Ingredient.of(Blocks.DIAMOND_ORE.asItem()), Items.DIAMOND, 1.0F, 100)
             .unlockedBy("has_diamond_ore", has(Blocks.DIAMOND_ORE))

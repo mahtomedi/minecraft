@@ -392,6 +392,11 @@ public class Block implements ItemLike {
     }
 
     @Deprecated
+    public VoxelShape getBlockSupportShape(BlockState param0, BlockGetter param1, BlockPos param2) {
+        return this.getCollisionShape(param0, param1, param2, CollisionContext.empty());
+    }
+
+    @Deprecated
     public VoxelShape getOcclusionShape(BlockState param0, BlockGetter param1, BlockPos param2) {
         return param0.getShape(param1, param2);
     }
@@ -403,18 +408,16 @@ public class Block implements ItemLike {
 
     public static boolean canSupportRigidBlock(BlockGetter param0, BlockPos param1) {
         BlockState var0 = param0.getBlockState(param1);
-        return !var0.is(BlockTags.LEAVES)
-            && !Shapes.joinIsNotEmpty(var0.getCollisionShape(param0, param1).getFaceShape(Direction.UP), RIGID_SUPPORT_SHAPE, BooleanOp.ONLY_SECOND);
+        return !Shapes.joinIsNotEmpty(var0.getBlockSupportShape(param0, param1).getFaceShape(Direction.UP), RIGID_SUPPORT_SHAPE, BooleanOp.ONLY_SECOND);
     }
 
     public static boolean canSupportCenter(LevelReader param0, BlockPos param1, Direction param2) {
         BlockState var0 = param0.getBlockState(param1);
-        return !var0.is(BlockTags.LEAVES)
-            && !Shapes.joinIsNotEmpty(var0.getCollisionShape(param0, param1).getFaceShape(param2), CENTER_SUPPORT_SHAPE, BooleanOp.ONLY_SECOND);
+        return !Shapes.joinIsNotEmpty(var0.getBlockSupportShape(param0, param1).getFaceShape(param2), CENTER_SUPPORT_SHAPE, BooleanOp.ONLY_SECOND);
     }
 
     public static boolean isFaceSturdy(BlockState param0, BlockGetter param1, BlockPos param2, Direction param3) {
-        return !param0.is(BlockTags.LEAVES) && isFaceFull(param0.getCollisionShape(param1, param2), param3);
+        return isFaceFull(param0.getBlockSupportShape(param1, param2), param3);
     }
 
     public static boolean isFaceFull(VoxelShape param0, Direction param1) {

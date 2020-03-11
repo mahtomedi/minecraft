@@ -960,7 +960,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
     }
 
     @Override
-    public boolean onLadder() {
+    public boolean onClimbable() {
         return false;
     }
 

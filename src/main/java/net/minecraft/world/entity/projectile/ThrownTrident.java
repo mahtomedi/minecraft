@@ -118,7 +118,6 @@ public class ThrownTrident extends AbstractArrow {
 
     @Override
     protected void onHitEntity(EntityHitResult param0) {
-        super.onHitEntity(param0);
         Entity var0 = param0.getEntity();
         float var1 = 8.0F;
         if (var0 instanceof LivingEntity) {

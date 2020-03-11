@@ -71,18 +71,9 @@ public class MoveControl {
             float var6 = Mth.cos(this.mob.yRot * (float) (Math.PI / 180.0));
             float var7 = var2 * var6 - var3 * var5;
             float var8 = var3 * var6 + var2 * var5;
-            PathNavigation var9 = this.mob.getNavigation();
-            if (var9 != null) {
-                NodeEvaluator var10 = var9.getNodeEvaluator();
-                if (var10 != null
-                    && var10.getBlockPathType(
-                            this.mob.level, Mth.floor(this.mob.getX() + (double)var7), Mth.floor(this.mob.getY()), Mth.floor(this.mob.getZ() + (double)var8)
-                        )
-                        != BlockPathTypes.WALKABLE) {
-                    this.strafeForwards = 1.0F;
-                    this.strafeRight = 0.0F;
-                    var1 = var0;
-                }
+            if (!this.isWalkable(var7, var8)) {
+                this.strafeForwards = 1.0F;
+                this.strafeRight = 0.0F;
             }
 
             this.mob.setSpeed(var1);
@@ -91,27 +82,27 @@ public class MoveControl {
             this.operation = MoveControl.Operation.WAIT;
         } else if (this.operation == MoveControl.Operation.MOVE_TO) {
             this.operation = MoveControl.Operation.WAIT;
-            double var11 = this.wantedX - this.mob.getX();
-            double var12 = this.wantedZ - this.mob.getZ();
-            double var13 = this.wantedY - this.mob.getY();
-            double var14 = var11 * var11 + var13 * var13 + var12 * var12;
-            if (var14 < 2.5000003E-7F) {
+            double var9 = this.wantedX - this.mob.getX();
+            double var10 = this.wantedZ - this.mob.getZ();
+            double var11 = this.wantedY - this.mob.getY();
+            double var12 = var9 * var9 + var11 * var11 + var10 * var10;
+            if (var12 < 2.5000003E-7F) {
                 this.mob.setZza(0.0F);
                 return;
             }
 
-            float var15 = (float)(Mth.atan2(var12, var11) * 180.0F / (float)Math.PI) - 90.0F;
-            this.mob.yRot = this.rotlerp(this.mob.yRot, var15, 90.0F);
+            float var13 = (float)(Mth.atan2(var10, var9) * 180.0F / (float)Math.PI) - 90.0F;
+            this.mob.yRot = this.rotlerp(this.mob.yRot, var13, 90.0F);
             this.mob.setSpeed((float)(this.speedModifier * this.mob.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getValue()));
-            BlockPos var16 = this.mob.blockPosition();
-            BlockState var17 = this.mob.level.getBlockState(var16);
-            Block var18 = var17.getBlock();
-            VoxelShape var19 = var17.getCollisionShape(this.mob.level, var16);
-            if (var13 > (double)this.mob.maxUpStep && var11 * var11 + var12 * var12 < (double)Math.max(1.0F, this.mob.getBbWidth())
-                || !var19.isEmpty()
-                    && this.mob.getY() < var19.max(Direction.Axis.Y) + (double)var16.getY()
-                    && !var18.is(BlockTags.DOORS)
-                    && !var18.is(BlockTags.FENCES)) {
+            BlockPos var14 = this.mob.blockPosition();
+            BlockState var15 = this.mob.level.getBlockState(var14);
+            Block var16 = var15.getBlock();
+            VoxelShape var17 = var15.getCollisionShape(this.mob.level, var14);
+            if (var11 > (double)this.mob.maxUpStep && var9 * var9 + var10 * var10 < (double)Math.max(1.0F, this.mob.getBbWidth())
+                || !var17.isEmpty()
+                    && this.mob.getY() < var17.max(Direction.Axis.Y) + (double)var14.getY()
+                    && !var16.is(BlockTags.DOORS)
+                    && !var16.is(BlockTags.FENCES)) {
                 this.mob.getJumpControl().jump();
                 this.operation = MoveControl.Operation.JUMPING;
             }
@@ -124,6 +115,22 @@ public class MoveControl {
             this.mob.setZza(0.0F);
         }
 
+    }
+
+    private boolean isWalkable(float param0, float param1) {
+        PathNavigation var0 = this.mob.getNavigation();
+        if (var0 != null) {
+            NodeEvaluator var1 = var0.getNodeEvaluator();
+            if (var1 != null
+                && var1.getBlockPathType(
+                        this.mob.level, Mth.floor(this.mob.getX() + (double)param0), Mth.floor(this.mob.getY()), Mth.floor(this.mob.getZ() + (double)param1)
+                    )
+                    != BlockPathTypes.WALKABLE) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     protected float rotlerp(float param0, float param1, float param2) {

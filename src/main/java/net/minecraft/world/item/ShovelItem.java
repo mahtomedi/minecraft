@@ -78,7 +78,10 @@ public class ShovelItem extends DiggerItem {
                 var0.playSound(var3, var1, SoundEvents.SHOVEL_FLATTEN, SoundSource.BLOCKS, 1.0F, 1.0F);
                 var5 = var4;
             } else if (var2.getBlock() instanceof CampfireBlock && var2.getValue(CampfireBlock.LIT)) {
-                var0.levelEvent(null, 1009, var1, 0);
+                if (!var0.isClientSide()) {
+                    var0.levelEvent(null, 1009, var1, 0);
+                }
+
                 var5 = var2.setValue(CampfireBlock.LIT, Boolean.valueOf(false));
             }
 

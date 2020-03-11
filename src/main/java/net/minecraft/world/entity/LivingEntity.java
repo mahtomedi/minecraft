@@ -183,7 +183,7 @@ public abstract class LivingEntity extends Entity {
     protected int useItemRemaining;
     protected int fallFlyTicks;
     private BlockPos lastPos;
-    private Optional<BlockPos> lastLadderPos = Optional.empty();
+    private Optional<BlockPos> lastClimbablePos = Optional.empty();
     private DamageSource lastDamageSource;
     private long lastDamageStamp;
     protected int autoSpinAttackTicks;
@@ -386,10 +386,51 @@ public abstract class LivingEntity extends Entity {
         this.level.getProfiler().pop();
     }
 
+    @Override
+    public void updateSprintingState() {
+        super.updateSprintingState();
+        if (EnchantmentHelper.hasSoulSpeed(this)
+            && this.getBlockStateOn().is(BlockTags.SOUL_SPEED_BLOCKS)
+            && this.getDeltaMovement().x != 0.0
+            && this.getDeltaMovement().z != 0.0
+            && this.tickCount % 5 == 0) {
+            this.doSoulSpeedParticles();
+        }
+
+    }
+
+    protected void doSoulSpeedParticles() {
+        Vec3 var0 = this.getDeltaMovement();
+        this.level
+            .addParticle(
+                ParticleTypes.SOUL,
+                this.getX() + ((double)this.random.nextFloat() - 0.5) * (double)this.getBbWidth(),
+                this.getY() + 0.1,
+                this.getZ() + ((double)this.random.nextFloat() - 0.5) * (double)this.getBbWidth(),
+                var0.x * -0.2,
+                0.1,
+                var0.z * -0.2
+            );
+        float var1 = this.random.nextFloat() * 0.4F + (this.random.nextFloat() > 0.9F ? 0.6F : 0.0F);
+        this.playSound(SoundEvents.SOUL_ESCAPE, var1, 0.6F + this.random.nextFloat() * 0.4F);
+    }
+
+    @Override
+    protected float getBlockSpeedFactor() {
+        int var0 = EnchantmentHelper.getEnchantmentLevel(Enchantments.SOUL_SPEED, this);
+        return this.getBlockStateOn().is(BlockTags.SOUL_SPEED_BLOCKS) && var0 > 0 ? 0.9F + (float)var0 * 0.125F : super.getBlockSpeedFactor();
+    }
+
     protected void onChangedBlock(BlockPos param0) {
         int var0 = EnchantmentHelper.getEnchantmentLevel(Enchantments.FROST_WALKER, this);
         if (var0 > 0) {
             FrostWalkerEnchantment.onEntityMoved(this, this.level, param0, var0);
+        }
+
+        if (this.getBlockStateOn().is(BlockTags.SOUL_SPEED_BLOCKS) && EnchantmentHelper.hasSoulSpeed(this) && this.getRandom().nextFloat() < 0.04F) {
+            ItemStack var1 = this.getItemBySlot(EquipmentSlot.FEET);
+            ServerPlayer var2 = this instanceof ServerPlayer ? (ServerPlayer)this : null;
+            var1.hurt(1, this.getRandom(), var2);
         }
 
     }
@@ -1246,16 +1287,16 @@ public abstract class LivingEntity extends Entity {
     public void setOnGround(boolean param0) {
         super.setOnGround(param0);
         if (param0) {
-            this.lastLadderPos = Optional.empty();
+            this.lastClimbablePos = Optional.empty();
         }
 
     }
 
-    public Optional<BlockPos> lastLadderPos() {
-        return this.lastLadderPos;
+    public Optional<BlockPos> getLastClimbablePos() {
+        return this.lastClimbablePos;
     }
 
-    public boolean onLadder() {
+    public boolean onClimbable() {
         if (this.isSpectator()) {
             return false;
         } else {
@@ -1263,10 +1304,10 @@ public abstract class LivingEntity extends Entity {
             BlockState var1 = this.getFeetBlockState();
             Block var2 = var1.getBlock();
             if (var2.is(BlockTags.CLIMBABLE)) {
-                this.lastLadderPos = Optional.of(var0);
+                this.lastClimbablePos = Optional.of(var0);
                 return true;
             } else if (var2 instanceof TrapDoorBlock && this.trapdoorUsableAsLadder(var0, var1)) {
-                this.lastLadderPos = Optional.of(var0);
+                this.lastClimbablePos = Optional.of(var0);
                 return true;
             } else {
                 return false;
@@ -1862,7 +1903,7 @@ public abstract class LivingEntity extends Entity {
                         this.setDeltaMovement(this.handleOnClimbable(this.getDeltaMovement()));
                         this.move(MoverType.SELF, this.getDeltaMovement());
                         Vec3 var28 = this.getDeltaMovement();
-                        if ((this.horizontalCollision || this.jumping) && this.onLadder()) {
+                        if ((this.horizontalCollision || this.jumping) && this.onClimbable()) {
                             var28 = new Vec3(var28.x, 0.2, var28.z);
                         }
 
@@ -1921,7 +1962,7 @@ public abstract class LivingEntity extends Entity {
                 this.moveRelative(var4, param0);
                 this.move(MoverType.SELF, this.getDeltaMovement());
                 Vec3 var6 = this.getDeltaMovement();
-                if (this.horizontalCollision && this.onLadder()) {
+                if (this.horizontalCollision && this.onClimbable()) {
                     var6 = new Vec3(var6.x, 0.2, var6.z);
                 }
 
@@ -1959,7 +2000,7 @@ public abstract class LivingEntity extends Entity {
     }
 
     private Vec3 handleOnClimbable(Vec3 param0) {
-        if (this.onLadder()) {
+        if (this.onClimbable()) {
             this.fallDistance = 0.0F;
             float var0 = 0.15F;
             double var1 = Mth.clamp(param0.x, -0.15F, 0.15F);
@@ -2444,7 +2485,7 @@ public abstract class LivingEntity extends Entity {
 
     @Override
     public boolean isPushable() {
-        return this.isAlive() && !this.onLadder();
+        return this.isAlive() && !this.onClimbable();
     }
 
     @Override

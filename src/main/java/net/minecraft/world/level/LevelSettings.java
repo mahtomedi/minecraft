@@ -1,7 +1,6 @@
 package net.minecraft.world.level;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import net.minecraft.world.level.levelgen.ChunkGeneratorProvider;
 import net.minecraft.world.level.storage.LevelData;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -11,21 +10,20 @@ public final class LevelSettings {
     private final GameType gameType;
     private final boolean generateMapFeatures;
     private final boolean hardcore;
-    private final LevelType levelType;
+    private final ChunkGeneratorProvider generatorProvider;
     private boolean allowCommands;
     private boolean startingBonusItems;
-    private JsonElement levelTypeOptions = new JsonObject();
 
-    public LevelSettings(long param0, GameType param1, boolean param2, boolean param3, LevelType param4) {
+    public LevelSettings(long param0, GameType param1, boolean param2, boolean param3, ChunkGeneratorProvider param4) {
         this.seed = param0;
         this.gameType = param1;
         this.generateMapFeatures = param2;
         this.hardcore = param3;
-        this.levelType = param4;
+        this.generatorProvider = param4;
     }
 
     public LevelSettings(LevelData param0) {
-        this(param0.getSeed(), param0.getGameType(), param0.isGenerateMapFeatures(), param0.isHardcore(), param0.getGeneratorType());
+        this(param0.getSeed(), param0.getGameType(), param0.isGenerateMapFeatures(), param0.isHardcore(), param0.getGeneratorProvider());
     }
 
     public LevelSettings enableStartingBonusItems() {
@@ -36,11 +34,6 @@ public final class LevelSettings {
     @OnlyIn(Dist.CLIENT)
     public LevelSettings enableSinglePlayerCommands() {
         this.allowCommands = true;
-        return this;
-    }
-
-    public LevelSettings setLevelTypeOptions(JsonElement param0) {
-        this.levelTypeOptions = param0;
         return this;
     }
 
@@ -64,15 +57,11 @@ public final class LevelSettings {
         return this.generateMapFeatures;
     }
 
-    public LevelType getLevelType() {
-        return this.levelType;
+    public ChunkGeneratorProvider getGeneratorProvider() {
+        return this.generatorProvider;
     }
 
     public boolean getAllowCommands() {
         return this.allowCommands;
-    }
-
-    public JsonElement getLevelTypeOptions() {
-        return this.levelTypeOptions;
     }
 }

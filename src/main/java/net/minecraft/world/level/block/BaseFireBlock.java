@@ -9,6 +9,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.BlockGetter;
@@ -156,8 +157,10 @@ public abstract class BaseFireBlock extends Block {
     }
 
     @Override
-    public void onRemove(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
-        super.onRemove(param0, param1, param2, param3, param4);
-        param1.levelEvent(null, 1009, param2, 0);
+    public void playerWillDestroy(Level param0, BlockPos param1, BlockState param2, Player param3) {
+        if (!param0.isClientSide()) {
+            param0.levelEvent(null, 1009, param1, 0);
+        }
+
     }
 }

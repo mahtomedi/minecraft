@@ -10,7 +10,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -106,7 +105,7 @@ public class TntBlock extends Block {
 
     @Override
     public void onProjectileHit(Level param0, BlockState param1, BlockHitResult param2, Projectile param3) {
-        if (!param0.isClientSide && param3 instanceof AbstractArrow) {
+        if (!param0.isClientSide) {
             Entity var0 = param3.getOwner();
             if (param3.isOnFire()) {
                 BlockPos var1 = param2.getBlockPos();

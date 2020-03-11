@@ -9,7 +9,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.WeepingVines;
+import net.minecraft.world.level.block.GrowingPlantHeadBlock;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
@@ -96,20 +96,16 @@ public class WeepingVinesFeature extends Feature<NoneFeatureConfiguration> {
     public static void placeWeepingVinesColumn(LevelAccessor param0, Random param1, BlockPos.MutableBlockPos param2, int param3, int param4, int param5) {
         for(int var0 = 0; var0 <= param3; ++var0) {
             if (param0.isEmptyBlock(param2)) {
-                if (var0 == param3) {
+                if (var0 == param3 || !param0.isEmptyBlock(param2.below())) {
                     param0.setBlock(
-                        param2, Blocks.WEEPING_VINES.defaultBlockState().setValue(WeepingVines.AGE, Integer.valueOf(Mth.nextInt(param1, param4, param5))), 2
+                        param2,
+                        Blocks.WEEPING_VINES.defaultBlockState().setValue(GrowingPlantHeadBlock.AGE, Integer.valueOf(Mth.nextInt(param1, param4, param5))),
+                        2
                     );
-                } else {
-                    param0.setBlock(param2, Blocks.WEEPING_VINES_PLANT.defaultBlockState(), 2);
+                    break;
                 }
-            } else if (param0.getBlockState(param2.above()).getBlock() == Blocks.WEEPING_VINES_PLANT) {
-                param0.setBlock(
-                    param2.above(),
-                    Blocks.WEEPING_VINES.defaultBlockState().setValue(WeepingVines.AGE, Integer.valueOf(Mth.nextInt(param1, param4, param5))),
-                    2
-                );
-                break;
+
+                param0.setBlock(param2, Blocks.WEEPING_VINES_PLANT.defaultBlockState(), 2);
             }
 
             param2.move(Direction.DOWN);

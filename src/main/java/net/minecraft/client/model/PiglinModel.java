@@ -55,14 +55,19 @@ public class PiglinModel<T extends Mob> extends HumanoidModel<T> {
             Piglin var3 = (Piglin)param0;
             Piglin.PiglinArmPose var4 = var3.getArmPose();
             if (var4 == Piglin.PiglinArmPose.CROSSBOW_HOLD) {
-                AnimationUtils.animateCrossbowHold(this.rightArm, this.leftArm, this.head, true);
+                AnimationUtils.animateCrossbowHold(this.rightArm, this.leftArm, this.head, !param0.isLeftHanded());
             } else if (var4 == Piglin.PiglinArmPose.CROSSBOW_CHARGE) {
-                AnimationUtils.animateCrossbowCharge(this.rightArm, this.leftArm, param0, true);
+                AnimationUtils.animateCrossbowCharge(this.rightArm, this.leftArm, param0, !param0.isLeftHanded());
             } else if (var4 == Piglin.PiglinArmPose.ADMIRING_ITEM) {
-                this.leftArm.yRot = 0.5F;
-                this.leftArm.xRot = -0.9F;
                 this.head.xRot = 0.5F;
                 this.head.yRot = 0.0F;
+                if (param0.isLeftHanded()) {
+                    this.rightArm.yRot = -0.5F;
+                    this.rightArm.xRot = -0.9F;
+                } else {
+                    this.leftArm.yRot = 0.5F;
+                    this.leftArm.xRot = -0.9F;
+                }
             }
         }
 

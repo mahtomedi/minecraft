@@ -3,12 +3,13 @@ package net.minecraft.core;
 import com.google.common.collect.AbstractIterator;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
+import java.util.Optional;
 import java.util.Spliterator.OfInt;
-import java.util.Spliterators.AbstractSpliterator;
-import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Serializable;
@@ -211,6 +212,67 @@ public class BlockPos extends Vec3i implements Serializable {
         return new BlockPos.MutableBlockPos(this.getX(), this.getY(), this.getZ());
     }
 
+    public static Iterable<BlockPos> withinManhattan(BlockPos param0, int param1, int param2, int param3) {
+        int var0 = param1 + param2 + param3;
+        return () -> new AbstractIterator<BlockPos>() {
+                private int currentDepth;
+                private int maxX;
+                private int maxY;
+                private int x;
+                private int y;
+                @Nullable
+                private BlockPos pendingBlockPos;
+
+                protected BlockPos computeNext() {
+                    if (this.pendingBlockPos != null) {
+                        BlockPos var0 = this.pendingBlockPos;
+                        this.pendingBlockPos = null;
+                        return var0;
+                    } else {
+                        BlockPos var1;
+                        for(var1 = null; var1 == null; ++this.y) {
+                            if (this.y > this.maxY) {
+                                ++this.x;
+                                if (this.x > this.maxX) {
+                                    ++this.currentDepth;
+                                    if (this.currentDepth > var0) {
+                                        return this.endOfData();
+                                    }
+
+                                    this.maxX = Math.min(param1, this.currentDepth);
+                                    this.x = -this.maxX;
+                                }
+
+                                this.maxY = Math.min(param2, this.currentDepth - Math.abs(this.x));
+                                this.y = -this.maxY;
+                            }
+
+                            int var2 = this.x;
+                            int var3 = this.y;
+                            int var4 = this.currentDepth - Math.abs(var2) - Math.abs(var3);
+                            if (var4 <= param3) {
+                                if (var4 != 0) {
+                                    this.pendingBlockPos = param0.offset(var2, var3, -var4);
+                                }
+
+                                var1 = param0.offset(var2, var3, var4);
+                            }
+                        }
+
+                        return var1;
+                    }
+                }
+            };
+    }
+
+    public static Optional<BlockPos> findClosestMatch(BlockPos param0, int param1, int param2, Predicate<BlockPos> param3) {
+        return withinManhattanStream(param0, param1, param2, param1).filter(param3).findFirst();
+    }
+
+    public static Stream<BlockPos> withinManhattanStream(BlockPos param0, int param1, int param2, int param3) {
+        return StreamSupport.stream(withinManhattan(param0, param1, param2, param3).spliterator(), false);
+    }
+
     public static Iterable<BlockPos> betweenClosed(BlockPos param0, BlockPos param1) {
         return betweenClosed(
             Math.min(param0.getX(), param1.getX()),
@@ -223,14 +285,7 @@ public class BlockPos extends Vec3i implements Serializable {
     }
 
     public static Stream<BlockPos> betweenClosedStream(BlockPos param0, BlockPos param1) {
-        return betweenClosedStream(
-            Math.min(param0.getX(), param1.getX()),
-            Math.min(param0.getY(), param1.getY()),
-            Math.min(param0.getZ(), param1.getZ()),
-            Math.max(param0.getX(), param1.getX()),
-            Math.max(param0.getY(), param1.getY()),
-            Math.max(param0.getZ(), param1.getZ())
-        );
+        return StreamSupport.stream(betweenClosed(param0, param1).spliterator(), false);
     }
 
     public static Stream<BlockPos> betweenClosedStream(BoundingBox param0) {
@@ -244,34 +299,29 @@ public class BlockPos extends Vec3i implements Serializable {
         );
     }
 
-    public static Stream<BlockPos> betweenClosedStream(
-        final int param0, final int param1, final int param2, final int param3, final int param4, final int param5
-    ) {
-        return StreamSupport.stream(new AbstractSpliterator<BlockPos>((long)((param3 - param0 + 1) * (param4 - param1 + 1) * (param5 - param2 + 1)), 64) {
-            final Cursor3D cursor = new Cursor3D(param0, param1, param2, param3, param4, param5);
-            final BlockPos.MutableBlockPos nextPos = new BlockPos.MutableBlockPos();
-
-            @Override
-            public boolean tryAdvance(Consumer<? super BlockPos> param0x) {
-                if (this.cursor.advance()) {
-                    param0.accept(this.nextPos.set(this.cursor.nextX(), this.cursor.nextY(), this.cursor.nextZ()));
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        }, false);
+    public static Stream<BlockPos> betweenClosedStream(int param0, int param1, int param2, int param3, int param4, int param5) {
+        return StreamSupport.stream(betweenClosed(param0, param1, param2, param3, param4, param5).spliterator(), false);
     }
 
     public static Iterable<BlockPos> betweenClosed(int param0, int param1, int param2, int param3, int param4, int param5) {
+        int var0 = param3 - param0 + 1;
+        int var1 = param4 - param1 + 1;
+        int var2 = param5 - param2 + 1;
+        int var3 = var0 * var1 * var2;
         return () -> new AbstractIterator<BlockPos>() {
-                final Cursor3D cursor = new Cursor3D(param0, param1, param2, param3, param4, param5);
-                final BlockPos.MutableBlockPos nextPos = new BlockPos.MutableBlockPos();
+                private int index;
 
                 protected BlockPos computeNext() {
-                    return (BlockPos)(this.cursor.advance()
-                        ? this.nextPos.set(this.cursor.nextX(), this.cursor.nextY(), this.cursor.nextZ())
-                        : this.endOfData());
+                    if (this.index == var3) {
+                        return this.endOfData();
+                    } else {
+                        int var0 = this.index % var0;
+                        int var1 = this.index / var0;
+                        int var2 = var1 % var1;
+                        int var3 = var1 / var1;
+                        ++this.index;
+                        return new BlockPos(param0 + var0, param1 + var2, param2 + var3);
+                    }
                 }
             };
     }

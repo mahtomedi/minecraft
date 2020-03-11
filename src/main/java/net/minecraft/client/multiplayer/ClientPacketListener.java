@@ -345,7 +345,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         this.serverChunkRadius = param0.getChunkRadius();
         this.level = new ClientLevel(
             this,
-            new LevelSettings(param0.getSeed(), param0.getGameType(), false, param0.isHardcore(), param0.getLevelType()),
+            new LevelSettings(param0.getSeed(), param0.getGameType(), false, param0.isHardcore(), param0.getLevelType().getDefaultProvider()),
             param0.getDimension(),
             this.serverChunkRadius,
             this.minecraft::getProfiler,
@@ -1036,7 +1036,13 @@ public class ClientPacketListener implements ClientGamePacketListener {
             Scoreboard var3 = this.level.getScoreboard();
             this.level = new ClientLevel(
                 this,
-                new LevelSettings(param0.getSeed(), param0.getPlayerGameType(), false, this.minecraft.level.getLevelData().isHardcore(), param0.getLevelType()),
+                new LevelSettings(
+                    param0.getSeed(),
+                    param0.getPlayerGameType(),
+                    false,
+                    this.minecraft.level.getLevelData().isHardcore(),
+                    param0.getLevelType().getDefaultProvider()
+                ),
                 param0.getDimension(),
                 this.serverChunkRadius,
                 this.minecraft::getProfiler,

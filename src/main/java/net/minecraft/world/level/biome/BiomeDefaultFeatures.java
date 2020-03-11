@@ -143,6 +143,7 @@ public class BiomeDefaultFeatures {
         .defaultBlockState()
         .setValue(HugeMushroomBlock.UP, Boolean.valueOf(false))
         .setValue(HugeMushroomBlock.DOWN, Boolean.valueOf(false));
+    private static final BlockState NETHER_GOLD_ORE = Blocks.NETHER_GOLD_ORE.defaultBlockState();
     private static final BlockState NETHER_QUARTZ_ORE = Blocks.NETHER_QUARTZ_ORE.defaultBlockState();
     private static final BlockState WARPED_STEM = Blocks.WARPED_STEM.defaultBlockState();
     private static final BlockState WARPED_WART_BLOCK = Blocks.WARPED_WART_BLOCK.defaultBlockState();
@@ -1539,6 +1540,12 @@ public class BiomeDefaultFeatures {
         param0.addFeature(
             GenerationStep.Decoration.UNDERGROUND_DECORATION,
             Feature.ORE
+                .configured(new OreConfiguration(OreConfiguration.Predicates.NETHERRACK, NETHER_GOLD_ORE, 10))
+                .decorated(FeatureDecorator.COUNT_RANGE.configured(new CountRangeDecoratorConfiguration(10, 10, 20, 128)))
+        );
+        param0.addFeature(
+            GenerationStep.Decoration.UNDERGROUND_DECORATION,
+            Feature.ORE
                 .configured(new OreConfiguration(OreConfiguration.Predicates.NETHERRACK, NETHER_QUARTZ_ORE, 14))
                 .decorated(FeatureDecorator.COUNT_RANGE.configured(new CountRangeDecoratorConfiguration(16, 10, 20, 128)))
         );
@@ -1589,6 +1596,12 @@ public class BiomeDefaultFeatures {
             Feature.NETHER_FOREST_VEGETATION
                 .configured(NETHER_SPROUTS_CONFIG)
                 .decorated(FeatureDecorator.COUNT_HEIGHTMAP.configured(new FrequencyDecoratorConfiguration(4)))
+        );
+        param0.addFeature(
+            GenerationStep.Decoration.VEGETAL_DECORATION,
+            Feature.TWISTING_VINES
+                .configured(FeatureConfiguration.NONE)
+                .decorated(FeatureDecorator.COUNT_RANGE.configured(new CountRangeDecoratorConfiguration(10, 0, 0, 128)))
         );
     }
 }

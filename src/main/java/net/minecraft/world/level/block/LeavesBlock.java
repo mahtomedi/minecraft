@@ -16,6 +16,8 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -26,6 +28,11 @@ public class LeavesBlock extends Block {
     public LeavesBlock(Block.Properties param0) {
         super(param0);
         this.registerDefaultState(this.stateDefinition.any().setValue(DISTANCE, Integer.valueOf(7)).setValue(PERSISTENT, Boolean.valueOf(false)));
+    }
+
+    @Override
+    public VoxelShape getBlockSupportShape(BlockState param0, BlockGetter param1, BlockPos param2) {
+        return Shapes.empty();
     }
 
     @Override

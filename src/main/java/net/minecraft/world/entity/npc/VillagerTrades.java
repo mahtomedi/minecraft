@@ -798,19 +798,20 @@ public class VillagerTrades {
 
         @Override
         public MerchantOffer getOffer(Entity param0, Random param1) {
-            Enchantment var0 = Registry.ENCHANTMENT.getRandom(param1);
-            int var1 = Mth.nextInt(param1, var0.getMinLevel(), var0.getMaxLevel());
-            ItemStack var2 = EnchantedBookItem.createForEnchantment(new EnchantmentInstance(var0, var1));
-            int var3 = 2 + param1.nextInt(5 + var1 * 10) + 3 * var1;
-            if (var0.isTreasureOnly()) {
-                var3 *= 2;
+            List<Enchantment> var0 = Registry.ENCHANTMENT.stream().filter(Enchantment::isTradeable).collect(Collectors.toList());
+            Enchantment var1 = var0.get(param1.nextInt(var0.size()));
+            int var2 = Mth.nextInt(param1, var1.getMinLevel(), var1.getMaxLevel());
+            ItemStack var3 = EnchantedBookItem.createForEnchantment(new EnchantmentInstance(var1, var2));
+            int var4 = 2 + param1.nextInt(5 + var2 * 10) + 3 * var2;
+            if (var1.isTreasureOnly()) {
+                var4 *= 2;
             }
 
-            if (var3 > 64) {
-                var3 = 64;
+            if (var4 > 64) {
+                var4 = 64;
             }
 
-            return new MerchantOffer(new ItemStack(Items.EMERALD, var3), new ItemStack(Items.BOOK), var2, 12, this.villagerXp, 0.2F);
+            return new MerchantOffer(new ItemStack(Items.EMERALD, var4), new ItemStack(Items.BOOK), var3, 12, this.villagerXp, 0.2F);
         }
     }
 

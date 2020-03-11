@@ -13,7 +13,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 public class CrossbowAttack<E extends Mob & CrossbowAttackMob, T extends LivingEntity> extends Behavior<E> {
-    private final int shootRange = 8;
     private int attackDelay;
     private CrossbowAttack.CrossbowState crossbowState = CrossbowAttack.CrossbowState.UNCHARGED;
 
@@ -22,11 +21,12 @@ public class CrossbowAttack<E extends Mob & CrossbowAttackMob, T extends LivingE
     }
 
     protected boolean checkExtraStartConditions(ServerLevel param0, E param1) {
-        return param1.isHolding(Items.CROSSBOW) && BehaviorUtils.isAttackTargetVisibleAndInRange(param1, 8.0);
+        LivingEntity var0 = getAttackTarget(param1);
+        return param1.isHolding(Items.CROSSBOW) && BehaviorUtils.canSee(param1, var0) && BehaviorUtils.isWithinAttackRange(param1, var0, 0);
     }
 
     protected boolean canStillUse(ServerLevel param0, E param1, long param2) {
-        return this.checkExtraStartConditions(param0, param1);
+        return param1.getBrain().hasMemoryValue(MemoryModuleType.ATTACK_TARGET) && this.checkExtraStartConditions(param0, param1);
     }
 
     protected void tick(ServerLevel param0, E param1, long param2) {

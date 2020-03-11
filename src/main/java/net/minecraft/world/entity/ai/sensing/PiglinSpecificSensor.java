@@ -8,7 +8,6 @@ import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.util.BlockFinder;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.Brain;
@@ -98,6 +97,6 @@ public class PiglinSpecificSensor extends Sensor<LivingEntity> {
     }
 
     private static Optional<BlockPos> findNearestRepellent(ServerLevel param0, LivingEntity param1) {
-        return BlockFinder.findClosestMatchingBlockPos(param1.blockPosition(), 8, 4, param1x -> param0.getBlockState(param1x).is(BlockTags.PIGLIN_REPELLENTS));
+        return BlockPos.findClosestMatch(param1.blockPosition(), 8, 4, param1x -> param0.getBlockState(param1x).is(BlockTags.PIGLIN_REPELLENTS));
     }
 }

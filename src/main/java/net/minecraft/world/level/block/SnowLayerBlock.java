@@ -63,6 +63,11 @@ public class SnowLayerBlock extends Block {
     }
 
     @Override
+    public VoxelShape getBlockSupportShape(BlockState param0, BlockGetter param1, BlockPos param2) {
+        return SHAPE_BY_LAYER[param0.getValue(LAYERS)];
+    }
+
+    @Override
     public boolean useShapeForLightOcclusion(BlockState param0) {
         return true;
     }

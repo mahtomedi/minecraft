@@ -126,9 +126,6 @@ public abstract class Entity implements CommandSource, Nameable {
     public double xo;
     public double yo;
     public double zo;
-    private double x;
-    private double y;
-    private double z;
     private Vec3 position;
     private BlockPos blockPosition;
     private Vec3 deltaMovement = Vec3.ZERO;
@@ -206,6 +203,8 @@ public abstract class Entity implements CommandSource, Nameable {
         this.type = param0;
         this.level = param1;
         this.dimensions = param0.getDimensions();
+        this.position = Vec3.ZERO;
+        this.blockPosition = BlockPos.ZERO;
         this.setPos(0.0, 0.0, 0.0);
         if (param1 != null) {
             this.dimension = param1.dimension.getType();
@@ -326,9 +325,9 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     public boolean closerThan(Entity param0, double param1) {
-        double var0 = param0.x - this.x;
-        double var1 = param0.y - this.y;
-        double var2 = param0.z - this.z;
+        double var0 = param0.position.x - this.position.x;
+        double var1 = param0.position.y - this.position.y;
+        double var2 = param0.position.z - this.position.z;
         return var0 * var0 + var1 * var1 + var2 * var2 < param1 * param1;
     }
 
@@ -345,7 +344,7 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     protected void reapplyPosition() {
-        this.setPos(this.x, this.y, this.z);
+        this.setPos(this.position.x, this.position.y, this.position.z);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -543,7 +542,7 @@ public abstract class Entity implements CommandSource, Nameable {
                 double var5 = var0.x;
                 double var6 = var0.y;
                 double var7 = var0.z;
-                if (var4 != Blocks.LADDER && var4 != Blocks.SCAFFOLDING) {
+                if (!var4.is(BlockTags.CLIMBABLE)) {
                     var6 = 0.0;
                 }
 
@@ -594,9 +593,9 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     protected BlockPos getOnPos() {
-        int var0 = Mth.floor(this.x);
-        int var1 = Mth.floor(this.y - 0.2F);
-        int var2 = Mth.floor(this.z);
+        int var0 = Mth.floor(this.position.x);
+        int var1 = Mth.floor(this.position.y - 0.2F);
+        int var2 = Mth.floor(this.position.z);
         BlockPos var3 = new BlockPos(var0, var1, var2);
         if (this.level.getBlockState(var3).isAir()) {
             BlockPos var4 = var3.below();
@@ -627,7 +626,7 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     protected BlockPos getBlockPosBelowThatAffectsMyMovement() {
-        return new BlockPos(this.x, this.getBoundingBox().minY - 0.5000001, this.z);
+        return new BlockPos(this.position.x, this.getBoundingBox().minY - 0.5000001, this.position.z);
     }
 
     protected Vec3 maybeBackOffFromEdge(Vec3 param0, MoverType param1) {
@@ -1024,6 +1023,10 @@ public abstract class Entity implements CommandSource, Nameable {
                 .addParticle(ParticleTypes.SPLASH, this.getX() + (double)var9, (double)(var4 + 1.0F), this.getZ() + (double)var10, var2.x, var2.y, var2.z);
         }
 
+    }
+
+    protected BlockState getBlockStateOn() {
+        return this.level.getBlockState(this.getOnPos());
     }
 
     public void updateSprintingState() {
@@ -2786,11 +2789,11 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     public final double getX() {
-        return this.x;
+        return this.position.x;
     }
 
     public double getX(double param0) {
-        return this.x + (double)this.getBbWidth() * param0;
+        return this.position.x + (double)this.getBbWidth() * param0;
     }
 
     public double getRandomX(double param0) {
@@ -2798,11 +2801,11 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     public final double getY() {
-        return this.y;
+        return this.position.y;
     }
 
     public double getY(double param0) {
-        return this.y + (double)this.getBbHeight() * param0;
+        return this.position.y + (double)this.getBbHeight() * param0;
     }
 
     public double getRandomY() {
@@ -2810,15 +2813,15 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     public double getEyeY() {
-        return this.y + (double)this.eyeHeight;
+        return this.position.y + (double)this.eyeHeight;
     }
 
     public final double getZ() {
-        return this.z;
+        return this.position.z;
     }
 
     public double getZ(double param0) {
-        return this.z + (double)this.getBbWidth() * param0;
+        return this.position.z + (double)this.getBbWidth() * param0;
     }
 
     public double getRandomZ(double param0) {
@@ -2826,11 +2829,16 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     public void setPosRaw(double param0, double param1, double param2) {
-        this.x = param0;
-        this.y = param1;
-        this.z = param2;
-        this.position = new Vec3(param0, param1, param2);
-        this.blockPosition = new BlockPos(param0, param1, param2);
+        if (this.position.x != param0 || this.position.y != param1 || this.position.z != param2) {
+            this.position = new Vec3(param0, param1, param2);
+            int var0 = Mth.floor(param0);
+            int var1 = Mth.floor(param1);
+            int var2 = Mth.floor(param2);
+            if (var0 != this.blockPosition.getX() || var1 != this.blockPosition.getY() || var2 != this.blockPosition.getZ()) {
+                this.blockPosition = new BlockPos(var0, var1, var2);
+            }
+        }
+
     }
 
     public void checkDespawn() {

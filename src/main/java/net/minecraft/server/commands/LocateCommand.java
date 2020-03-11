@@ -36,6 +36,7 @@ public class LocateCommand {
                 .then(Commands.literal("Buried_Treasure").executes(param0x -> locate(param0x.getSource(), "Buried_Treasure")))
                 .then(Commands.literal("Shipwreck").executes(param0x -> locate(param0x.getSource(), "Shipwreck")))
                 .then(Commands.literal("Village").executes(param0x -> locate(param0x.getSource(), "Village")))
+                .then(Commands.literal("Nether_Fossil").executes(param0x -> locate(param0x.getSource(), "Nether_Fossil")))
         );
     }
 

@@ -44,6 +44,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ProjectileWeaponItem;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
@@ -208,11 +210,6 @@ public class Piglin extends Monster implements CrossbowAttackMob {
     }
 
     @Override
-    public boolean isLeftHanded() {
-        return false;
-    }
-
-    @Override
     protected boolean shouldDespawnInPeaceful() {
         return false;
     }
@@ -330,13 +327,30 @@ public class Piglin extends Monster implements CrossbowAttackMob {
             var0.copyPosition(this);
             var0.finalizeSpawn(param0, param0.getCurrentDifficultyAt(var0.blockPosition()), MobSpawnType.CONVERSION, null, null);
             var0.setBaby(this.isBaby());
-            this.remove();
             var0.setNoAi(this.isNoAi());
+            PiglinAi.cancelAdmiring(this);
+
+            for(EquipmentSlot var1 : EquipmentSlot.values()) {
+                if (!this.isAdult() || var1 != EquipmentSlot.MAINHAND) {
+                    ItemStack var2 = this.getItemBySlot(var1);
+                    if (!var2.isEmpty()) {
+                        var0.setItemSlot(var1, var2.copy());
+                        var0.setDropChance(var1, this.getEquipmentDropChance(var1));
+                        var2.setCount(0);
+                    }
+                }
+            }
+
             if (this.hasCustomName()) {
                 var0.setCustomName(this.getCustomName());
                 var0.setCustomNameVisible(this.isCustomNameVisible());
             }
 
+            if (this.isPersistenceRequired()) {
+                var0.setPersistenceRequired();
+            }
+
+            this.remove();
             param0.addFreshEntity(var0);
             var0.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 200, 0));
         }
@@ -404,6 +418,11 @@ public class Piglin extends Monster implements CrossbowAttackMob {
         this.shootCrossbowProjectile(this, param0, param2, param3, 1.6F);
     }
 
+    @Override
+    public boolean canFireProjectileWeapon(ProjectileWeaponItem param0) {
+        return param0 == Items.CROSSBOW;
+    }
+
     protected void holdInMainHand(ItemStack param0) {
         this.setItemSlotAndDropWhenKilled(EquipmentSlot.MAINHAND, param0);
     }
@@ -411,6 +430,7 @@ public class Piglin extends Monster implements CrossbowAttackMob {
     protected void holdInOffHand(ItemStack param0) {
         if (param0.getItem() == Items.GOLD_INGOT) {
             this.setItemSlot(EquipmentSlot.OFFHAND, param0);
+            this.setGuaranteedDrop(EquipmentSlot.OFFHAND);
         } else {
             this.setItemSlotAndDropWhenKilled(EquipmentSlot.OFFHAND, param0);
         }
@@ -419,7 +439,7 @@ public class Piglin extends Monster implements CrossbowAttackMob {
 
     @Override
     public boolean wantsToPickUp(ItemStack param0) {
-        return PiglinAi.wantsToPickup(this, param0);
+        return this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) && PiglinAi.wantsToPickup(this, param0);
     }
 
     protected boolean canReplaceCurrentItem(ItemStack param0) {

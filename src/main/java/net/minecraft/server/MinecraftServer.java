@@ -3,7 +3,6 @@ package net.minecraft.server;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.gson.JsonElement;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
@@ -121,6 +120,7 @@ import net.minecraft.world.level.LevelType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.levelgen.ChunkGeneratorProvider;
 import net.minecraft.world.level.saveddata.SaveDataDirtyRunnable;
 import net.minecraft.world.level.storage.CommandStorage;
 import net.minecraft.world.level.storage.DimensionDataStorage;
@@ -142,7 +142,9 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     private static final Logger LOGGER = LogManager.getLogger();
     public static final File USERID_CACHE_FILE = new File("usercache.json");
     private static final CompletableFuture<Unit> DATA_RELOAD_INITIAL_TASK = CompletableFuture.completedFuture(Unit.INSTANCE);
-    public static final LevelSettings DEMO_SETTINGS = new LevelSettings((long)"North Carolina".hashCode(), GameType.SURVIVAL, true, false, LevelType.NORMAL)
+    public static final LevelSettings DEMO_SETTINGS = new LevelSettings(
+            (long)"North Carolina".hashCode(), GameType.SURVIVAL, true, false, LevelType.NORMAL.getDefaultProvider()
+        )
         .enableStartingBonusItems();
     private final LevelStorageSource storageSource;
     private final Snooper snooper = new Snooper("server", this, Util.getMillis());
@@ -346,7 +348,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         this.startupState = param0;
     }
 
-    protected void loadLevel(String param0, String param1, long param2, LevelType param3, JsonElement param4) {
+    protected void loadLevel(String param0, String param1, long param2, ChunkGeneratorProvider param3) {
         this.ensureLevelConversion(param0);
         this.setServerStartupState(new TranslatableComponent("menu.loadingLevel"));
         LevelStorage var0 = this.getStorageSource().selectLevel(param0, this);
@@ -358,7 +360,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
                 var2 = DEMO_SETTINGS;
             } else {
                 var2 = new LevelSettings(param2, this.getDefaultGameType(), this.canGenerateStructures(), this.isHardcore(), param3);
-                var2.setLevelTypeOptions(param4);
                 if (this.levelHasStartingBonusChest) {
                     var2.enableStartingBonusItems();
                 }

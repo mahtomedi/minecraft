@@ -52,26 +52,27 @@ public class McRegionUpgrader {
         int var6 = var0.size() + var1.size() + var2.size();
         LOGGER.info("Total conversion count is {}", var6);
         LevelData var7 = LevelStorageSource.getDataTagFor(param0, param1, param2);
-        BiomeSourceType<FixedBiomeSourceSettings, FixedBiomeSource> var8 = BiomeSourceType.FIXED;
-        BiomeSourceType<OverworldBiomeSourceSettings, OverworldBiomeSource> var9 = BiomeSourceType.VANILLA_LAYERED;
-        BiomeSource var10;
+        long var8 = var7 != null ? var7.getSeed() : 0L;
+        BiomeSourceType<FixedBiomeSourceSettings, FixedBiomeSource> var9 = BiomeSourceType.FIXED;
+        BiomeSourceType<OverworldBiomeSourceSettings, OverworldBiomeSource> var10 = BiomeSourceType.VANILLA_LAYERED;
+        BiomeSource var11;
         if (var7 != null && var7.getGeneratorType() == LevelType.FLAT) {
-            var10 = var8.create(var8.createSettings(var7).setBiome(Biomes.PLAINS));
+            var11 = var9.create(var9.createSettings(var7.getSeed()).setBiome(Biomes.PLAINS));
         } else {
-            var10 = var9.create(var9.createSettings(var7));
+            var11 = var10.create(var10.createSettings(var8));
         }
 
-        convertRegions(new File(var3, "region"), var0, var10, 0, var6, param3);
-        convertRegions(new File(var4, "region"), var1, var8.create(var8.createSettings(var7).setBiome(Biomes.NETHER_WASTES)), var0.size(), var6, param3);
-        convertRegions(new File(var5, "region"), var2, var8.create(var8.createSettings(var7).setBiome(Biomes.THE_END)), var0.size() + var1.size(), var6, param3);
+        convertRegions(new File(var3, "region"), var0, var11, 0, var6, param3);
+        convertRegions(new File(var4, "region"), var1, var9.create(var9.createSettings(var8).setBiome(Biomes.NETHER_WASTES)), var0.size(), var6, param3);
+        convertRegions(new File(var5, "region"), var2, var9.create(var9.createSettings(var8).setBiome(Biomes.THE_END)), var0.size() + var1.size(), var6, param3);
         var7.setVersion(19133);
         if (var7.getGeneratorType() == LevelType.NORMAL_1_1) {
-            var7.setGenerator(LevelType.NORMAL);
+            var7.setGeneratorProvider(LevelType.NORMAL.getDefaultProvider());
         }
 
         makeMcrLevelDatBackup(param0, param2);
-        LevelStorage var12 = LevelStorageSource.selectLevel(param0, param1, param2, null);
-        var12.saveLevelData(var7);
+        LevelStorage var13 = LevelStorageSource.selectLevel(param0, param1, param2, null);
+        var13.saveLevelData(var7);
         return true;
     }
 

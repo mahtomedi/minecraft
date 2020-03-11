@@ -2,17 +2,22 @@ package net.minecraft.world.level.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public abstract class GrowingPlantBlock extends Block {
     protected final Direction growthDirection;
     protected final boolean scheduleFluidTicks;
+    protected final VoxelShape shape;
 
-    protected GrowingPlantBlock(Block.Properties param0, Direction param1, boolean param2) {
+    protected GrowingPlantBlock(Block.Properties param0, Direction param1, VoxelShape param2, boolean param3) {
         super(param0);
         this.growthDirection = param1;
-        this.scheduleFluidTicks = param2;
+        this.shape = param2;
+        this.scheduleFluidTicks = param3;
     }
 
     @Override
@@ -29,6 +34,11 @@ public abstract class GrowingPlantBlock extends Block {
 
     protected boolean canAttachToBlock(Block param0) {
         return true;
+    }
+
+    @Override
+    public VoxelShape getShape(BlockState param0, BlockGetter param1, BlockPos param2, CollisionContext param3) {
+        return this.shape;
     }
 
     protected abstract GrowingPlantHeadBlock getHeadBlock();

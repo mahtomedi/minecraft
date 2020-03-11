@@ -2,7 +2,7 @@ package net.minecraft.world.level.chunk;
 
 import java.util.function.Supplier;
 import net.minecraft.core.Registry;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.DebugGeneratorSettings;
@@ -51,7 +51,7 @@ public class ChunkGeneratorType<C extends ChunkGeneratorSettings, T extends Chun
     }
 
     @Override
-    public T create(Level param0, BiomeSource param1, C param2) {
+    public T create(LevelAccessor param0, BiomeSource param1, C param2) {
         return this.factory.create(param0, param1, param2);
     }
 

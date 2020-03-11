@@ -192,7 +192,7 @@ public class Zombie extends Monster {
 
     @Override
     public void tick() {
-        if (!this.level.isClientSide && this.isAlive()) {
+        if (!this.level.isClientSide && this.isAlive() && !this.isNoAi()) {
             if (this.isUnderWaterConverting()) {
                 --this.conversionTime;
                 if (this.conversionTime < 0) {

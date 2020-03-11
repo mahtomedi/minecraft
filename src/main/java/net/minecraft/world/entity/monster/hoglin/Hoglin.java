@@ -103,9 +103,16 @@ public class Hoglin extends Animal implements Enemy {
     public boolean doHurtTarget(Entity param0) {
         this.attackAnimationRemainingTicks = 10;
         this.level.broadcastEntityEvent(this, (byte)4);
-        float var0 = this.isBaby() ? 0.5F : this.getAttackDamage() / 2.0F + (float)this.random.nextInt((int)this.getAttackDamage());
-        boolean var1 = param0.hurt(DamageSource.mobAttack(this), var0);
-        if (var1) {
+        float var0 = this.getAttackDamage();
+        float var2;
+        if (!this.isAdult() && (int)var0 <= 0) {
+            var2 = var0;
+        } else {
+            var2 = var0 / 2.0F + (float)this.random.nextInt((int)var0);
+        }
+
+        boolean var3 = param0.hurt(DamageSource.mobAttack(this), var2);
+        if (var3) {
             this.doEnchantDamageEffects(this, param0);
             if (this.isAdult()) {
                 this.throwTarget(param0);
@@ -117,7 +124,7 @@ public class Hoglin extends Animal implements Enemy {
             HoglinAi.onHitTarget(this, (LivingEntity)param0);
         }
 
-        return var1;
+        return var3;
     }
 
     private void throwTarget(Entity param0) {
@@ -180,6 +187,8 @@ public class Hoglin extends Animal implements Enemy {
     ) {
         if (param0.getRandom().nextFloat() < 0.2F) {
             this.setBaby(true);
+            this.xpReward = 3;
+            this.getAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(0.5);
         }
 
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
@@ -224,6 +233,11 @@ public class Hoglin extends Animal implements Enemy {
     @OnlyIn(Dist.CLIENT)
     public int getAttackAnimationRemainingTicks() {
         return this.attackAnimationRemainingTicks;
+    }
+
+    @Override
+    protected boolean shouldDropExperience() {
+        return true;
     }
 
     @Override

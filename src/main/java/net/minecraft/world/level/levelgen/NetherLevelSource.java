@@ -3,7 +3,7 @@ package net.minecraft.world.level.levelgen;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.block.Blocks;
@@ -12,7 +12,7 @@ import net.minecraft.world.level.levelgen.feature.Feature;
 public class NetherLevelSource extends NoiseBasedChunkGenerator<NetherGeneratorSettings> {
     private final double[] yOffsets = this.makeYOffsets();
 
-    public NetherLevelSource(Level param0, BiomeSource param1, NetherGeneratorSettings param2) {
+    public NetherLevelSource(LevelAccessor param0, BiomeSource param1, NetherGeneratorSettings param2) {
         super(param0, param1, 4, 8, 128, param2, false);
     }
 

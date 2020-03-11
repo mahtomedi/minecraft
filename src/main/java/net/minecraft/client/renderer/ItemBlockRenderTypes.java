@@ -203,8 +203,10 @@ public class ItemBlockRenderTypes {
         param0.put(Blocks.SOUL_FIRE_LANTERN, var1);
         param0.put(Blocks.CAMPFIRE, var1);
         param0.put(Blocks.SWEET_BERRY_BUSH, var1);
-        param0.put(Blocks.WEEPING_VINES_PLANT, var1);
         param0.put(Blocks.WEEPING_VINES, var1);
+        param0.put(Blocks.WEEPING_VINES_PLANT, var1);
+        param0.put(Blocks.TWISTING_VINES, var1);
+        param0.put(Blocks.TWISTING_VINES_PLANT, var1);
         param0.put(Blocks.NETHER_SPROUTS, var1);
         param0.put(Blocks.CRIMSON_FUNGUS, var1);
         param0.put(Blocks.WARPED_FUNGUS, var1);

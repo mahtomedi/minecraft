@@ -11,6 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.SerializableBoolean;
 import net.minecraft.core.SerializableUUID;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.IntRange;
 import net.minecraft.util.TimeUtil;
 import net.minecraft.world.InteractionHand;
@@ -155,7 +156,7 @@ public class PiglinAi {
                 new StopAttackingIfTargetInvalid<>(param1x -> !isNearestValidAttackTarget(param0, param1x)),
                 new RunIf(PiglinAi::hasCrossbow, new BackUpIfTooClose<>(5, 0.75F)),
                 new SetWalkTargetFromAttackTargetIfTargetOutOfReach(var0 * 1.2F),
-                new MeleeAttack(1.5, 20),
+                new MeleeAttack(20),
                 new CrossbowAttack(),
                 new RememberIfHoglinWasKilled()
             ),
@@ -348,6 +349,14 @@ public class PiglinAi {
 
     }
 
+    protected static void cancelAdmiring(Piglin param0) {
+        if (isAdmiringItem(param0) && !param0.getOffhandItem().isEmpty()) {
+            param0.spawnAtLocation(param0.getOffhandItem());
+            param0.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
+        }
+
+    }
+
     private static void putInInventory(Piglin param0, ItemStack param1) {
         ItemStack var0 = param0.addToInventory(param1);
         throwItemTowardRandomPos(param0, var0);
@@ -394,6 +403,8 @@ public class PiglinAi {
         Item var0 = param1.getItem();
         if (var0 == Items.GOLD_NUGGET) {
             return true;
+        } else if (var0.is(ItemTags.PIGLIN_REPELLENTS)) {
+            return false;
         } else if (isAdmiringDisabled(param0) && param0.getBrain().hasMemoryValue(MemoryModuleType.ATTACK_TARGET)) {
             return false;
         } else if (isFood(var0)) {

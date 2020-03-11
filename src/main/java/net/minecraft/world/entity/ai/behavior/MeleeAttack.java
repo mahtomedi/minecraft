@@ -10,10 +10,9 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.item.ProjectileWeaponItem;
 
 public class MeleeAttack extends Behavior<Mob> {
-    private final double attackRange;
     private final int cooldownBetweenAttacks;
 
-    public MeleeAttack(double param0, int param1) {
+    public MeleeAttack(int param0) {
         super(
             ImmutableMap.of(
                 MemoryModuleType.LOOK_TARGET,
@@ -24,19 +23,27 @@ public class MeleeAttack extends Behavior<Mob> {
                 MemoryStatus.VALUE_ABSENT
             )
         );
-        this.attackRange = param0;
-        this.cooldownBetweenAttacks = param1;
+        this.cooldownBetweenAttacks = param0;
     }
 
     protected boolean checkExtraStartConditions(ServerLevel param0, Mob param1) {
-        return !param1.isHolding(param0x -> param0x instanceof ProjectileWeaponItem) && BehaviorUtils.isAttackTargetVisibleAndInRange(param1, this.attackRange);
+        LivingEntity var0 = this.getAttackTarget(param1);
+        return !this.isHoldingUsableProjectileWeapon(param1) && BehaviorUtils.canSee(param1, var0) && BehaviorUtils.isWithinMeleeAttackRange(param1, var0);
+    }
+
+    private boolean isHoldingUsableProjectileWeapon(Mob param0) {
+        return param0.isHolding(param1 -> param1 instanceof ProjectileWeaponItem && param0.canFireProjectileWeapon((ProjectileWeaponItem)param1));
     }
 
     protected void start(ServerLevel param0, Mob param1, long param2) {
-        LivingEntity var0 = param1.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).get();
+        LivingEntity var0 = this.getAttackTarget(param1);
         BehaviorUtils.lookAtEntity(param1, var0);
         param1.swing(InteractionHand.MAIN_HAND);
         param1.doHurtTarget(var0);
         param1.getBrain().setMemoryWithExpiry(MemoryModuleType.ATTACK_COOLING_DOWN, true, (long)this.cooldownBetweenAttacks);
+    }
+
+    private LivingEntity getAttackTarget(Mob param0) {
+        return param0.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).get();
     }
 }

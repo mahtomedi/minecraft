@@ -36,7 +36,7 @@ public class NetherDimension extends Dimension {
         var0.setDefaultBlock(Blocks.NETHERRACK.defaultBlockState());
         var0.setDefaultFluid(Blocks.LAVA.defaultBlockState());
         MultiNoiseBiomeSourceSettings var1 = BiomeSourceType.MULTI_NOISE
-            .createSettings(this.level.getLevelData())
+            .createSettings(this.level.getSeed())
             .setBiomes(ImmutableSet.of(Biomes.NETHER_WASTES, Biomes.SOUL_SAND_VALLEY, Biomes.CRIMSON_FOREST, Biomes.WARPED_FOREST));
         return ChunkGeneratorType.CAVES.create(this.level, BiomeSourceType.MULTI_NOISE.create(var1), var0);
     }

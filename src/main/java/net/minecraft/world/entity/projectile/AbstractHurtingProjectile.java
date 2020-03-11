@@ -40,28 +40,22 @@ public abstract class AbstractHurtingProjectile extends Projectile {
     ) {
         this(param0, param7);
         this.moveTo(param1, param2, param3, this.yRot, this.xRot);
-        this.setPos(param1, param2, param3);
+        this.reapplyPosition();
         double var0 = (double)Mth.sqrt(param4 * param4 + param5 * param5 + param6 * param6);
-        this.xPower = param4 / var0 * 0.1;
-        this.yPower = param5 / var0 * 0.1;
-        this.zPower = param6 / var0 * 0.1;
+        if (var0 != 0.0) {
+            this.xPower = param4 / var0 * 0.1;
+            this.yPower = param5 / var0 * 0.1;
+            this.zPower = param6 / var0 * 0.1;
+        }
+
     }
 
     public AbstractHurtingProjectile(
         EntityType<? extends AbstractHurtingProjectile> param0, LivingEntity param1, double param2, double param3, double param4, Level param5
     ) {
-        this(param0, param5);
+        this(param0, param1.getX(), param1.getY(), param1.getZ(), param2, param3, param4, param5);
         this.setOwner(param1);
-        this.moveTo(param1.getX(), param1.getY(), param1.getZ(), param1.yRot, param1.xRot);
-        this.reapplyPosition();
-        this.setDeltaMovement(Vec3.ZERO);
-        param2 += this.random.nextGaussian() * 0.4;
-        param3 += this.random.nextGaussian() * 0.4;
-        param4 += this.random.nextGaussian() * 0.4;
-        double var0 = (double)Mth.sqrt(param2 * param2 + param3 * param3 + param4 * param4);
-        this.xPower = param2 / var0 * 0.1;
-        this.yPower = param3 / var0 * 0.1;
-        this.zPower = param4 / var0 * 0.1;
+        this.setRot(param1.yRot, param1.xRot);
     }
 
     @Override

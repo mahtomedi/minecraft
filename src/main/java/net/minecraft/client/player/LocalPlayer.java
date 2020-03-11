@@ -91,6 +91,7 @@ public class LocalPlayer extends AbstractClientPlayer {
     private float yRotLast;
     private float xRotLast;
     private boolean lastOnGround;
+    private boolean crouching;
     private boolean wasShiftKeyDown;
     private boolean wasSprinting;
     private int positionReminder;
@@ -609,11 +610,7 @@ public class LocalPlayer extends AbstractClientPlayer {
 
     @Override
     public boolean isCrouching() {
-        if (!this.abilities.flying && !this.isSwimming() && this.canEnterPose(Pose.CROUCHING)) {
-            return this.isShiftKeyDown() || !this.isSleeping() && !this.canEnterPose(Pose.STANDING);
-        } else {
-            return false;
-        }
+        return this.crouching;
     }
 
     public boolean isMovingSlowly() {
@@ -650,6 +647,10 @@ public class LocalPlayer extends AbstractClientPlayer {
         boolean var0 = this.input.jumping;
         boolean var1 = this.input.shiftKeyDown;
         boolean var2 = this.hasEnoughImpulseToStartSprinting();
+        this.crouching = !this.abilities.flying
+            && !this.isSwimming()
+            && this.canEnterPose(Pose.CROUCHING)
+            && (this.isShiftKeyDown() || !this.isSleeping() && !this.canEnterPose(Pose.STANDING));
         this.input.tick(this.isMovingSlowly());
         this.minecraft.getTutorial().onInput(this.input);
         if (this.isUsingItem() && !this.isPassenger()) {
@@ -730,7 +731,7 @@ public class LocalPlayer extends AbstractClientPlayer {
             }
         }
 
-        if (this.input.jumping && !var7 && !var0 && !this.abilities.flying && !this.isPassenger() && !this.onLadder()) {
+        if (this.input.jumping && !var7 && !var0 && !this.abilities.flying && !this.isPassenger() && !this.onClimbable()) {
             ItemStack var8 = this.getItemBySlot(EquipmentSlot.CHEST);
             if (var8.getItem() == Items.ELYTRA && ElytraItem.isFlyEnabled(var8) && this.tryToStartFallFlying()) {
                 this.connection.send(new ServerboundPlayerCommandPacket(this, ServerboundPlayerCommandPacket.Action.START_FALL_FLYING));

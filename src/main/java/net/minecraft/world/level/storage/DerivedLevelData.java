@@ -10,6 +10,7 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LevelType;
 import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.levelgen.ChunkGeneratorProvider;
 import net.minecraft.world.level.timers.TimerQueue;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -169,7 +170,7 @@ public class DerivedLevelData extends LevelData {
     }
 
     @Override
-    public void setGenerator(LevelType param0) {
+    public void setGeneratorProvider(ChunkGeneratorProvider param0) {
     }
 
     @Override

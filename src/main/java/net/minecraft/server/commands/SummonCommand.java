@@ -74,7 +74,7 @@ public class SummonCommand {
 
     private static int spawnEntity(CommandSourceStack param0, ResourceLocation param1, Vec3 param2, CompoundTag param3, boolean param4) throws CommandSyntaxException {
         BlockPos var0 = new BlockPos(param2);
-        if (!Level.isInWorldBoundsHorizontal(var0)) {
+        if (!Level.isInSpawnableBounds(var0)) {
             throw INVALID_POSITION.create();
         } else {
             CompoundTag var1 = param3.copy();

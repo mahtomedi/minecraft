@@ -1,5 +1,6 @@
 package net.minecraft.client.gui.screens;
 
+import com.mojang.datafixers.Dynamic;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -14,10 +15,13 @@ import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.LevelType;
 import net.minecraft.world.level.biome.BiomeSourceType;
+import net.minecraft.world.level.levelgen.ChunkGeneratorProvider;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -34,10 +38,15 @@ public class CreateBuffetWorldScreen extends Screen {
     private int generatorIndex;
     private Button doneButton;
 
-    public CreateBuffetWorldScreen(CreateWorldScreen param0, CompoundTag param1) {
+    public CreateBuffetWorldScreen(CreateWorldScreen param0, ChunkGeneratorProvider param1) {
         super(new TranslatableComponent("createWorld.customize.buffet.title"));
         this.parent = param0;
-        this.optionsTag = param1;
+        if (param1.getType() == LevelType.BUFFET) {
+            this.optionsTag = (CompoundTag)param1.getSettings().convert(NbtOps.INSTANCE).getValue();
+        } else {
+            this.optionsTag = new CompoundTag();
+        }
+
     }
 
     @Override
@@ -69,7 +78,7 @@ public class CreateBuffetWorldScreen extends Screen {
         this.list = new CreateBuffetWorldScreen.BiomeList();
         this.children.add(this.list);
         this.doneButton = this.addButton(new Button(this.width / 2 - 155, this.height - 28, 150, 20, I18n.get("gui.done"), param0 -> {
-            this.parent.levelTypeOptions = this.saveOptions();
+            this.parent.levelTypeOptions = LevelType.BUFFET.createProvider(new Dynamic<>(NbtOps.INSTANCE, this.saveOptions()));
             this.minecraft.setScreen(this.parent);
         }));
         this.addButton(new Button(this.width / 2 + 5, this.height - 28, 150, 20, I18n.get("gui.cancel"), param0 -> this.minecraft.setScreen(this.parent)));

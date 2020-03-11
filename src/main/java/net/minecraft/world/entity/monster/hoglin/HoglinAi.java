@@ -80,8 +80,8 @@ public class HoglinAi {
                 new BecomePassiveIfMemoryPresent(MemoryModuleType.NEAREST_REPELLENT, 200),
                 new AnimalMakeLove(EntityType.HOGLIN),
                 new SetWalkTargetFromAttackTargetIfTargetOutOfReach(var0 * 1.8F),
-                new RunIf<>(Hoglin::isAdult, new MeleeAttack(1.5, 40)),
-                new RunIf<>(AgableMob::isBaby, new MeleeAttack(1.5, 15)),
+                new RunIf<>(Hoglin::isAdult, new MeleeAttack(40)),
+                new RunIf<>(AgableMob::isBaby, new MeleeAttack(15)),
                 new StopAttackingIfTargetInvalid()
             ),
             MemoryModuleType.ATTACK_TARGET
@@ -97,7 +97,7 @@ public class HoglinAi {
                 SetWalkTargetAwayFrom.entity(MemoryModuleType.AVOID_TARGET, var0, 15, false),
                 createIdleMovementBehaviors(param0.getMovementSpeed()),
                 new RunSometimes<LivingEntity>(new SetEntityLookTarget(8.0F), IntRange.of(30, 60)),
-                new EraseMemoryIf<Hoglin>(HoglinAi::hoglinsOutnumberPiglins, MemoryModuleType.AVOID_TARGET)
+                new EraseMemoryIf<Hoglin>(HoglinAi::wantsToStopFleeing, MemoryModuleType.AVOID_TARGET)
             ),
             MemoryModuleType.AVOID_TARGET
         );
@@ -123,7 +123,7 @@ public class HoglinAi {
 
     protected static void onHitTarget(Hoglin param0, LivingEntity param1) {
         if (!param0.isBaby()) {
-            if (param1.getType() == EntityType.PIGLIN && !hoglinsOutnumberPiglins(param0)) {
+            if (param1.getType() == EntityType.PIGLIN && piglinsOutnumberHoglins(param0)) {
                 setAvoidTarget(param0, param1);
                 broadcastRetreat(param0, param1);
             } else {
@@ -159,13 +159,17 @@ public class HoglinAi {
         return var0.isPresent() && var0.get().closerThan(param1, 8.0);
     }
 
-    private static boolean hoglinsOutnumberPiglins(Hoglin param0x) {
-        if (param0x.isBaby()) {
+    private static boolean wantsToStopFleeing(Hoglin param0x) {
+        return param0x.isAdult() && !piglinsOutnumberHoglins(param0x);
+    }
+
+    private static boolean piglinsOutnumberHoglins(Hoglin param0) {
+        if (param0.isBaby()) {
             return false;
         } else {
-            int var0x = param0x.getBrain().getMemory(MemoryModuleType.VISIBLE_ADULT_PIGLIN_COUNT).orElse(0);
-            int var1 = param0x.getBrain().getMemory(MemoryModuleType.VISIBLE_ADULT_HOGLIN_COUNT).orElse(0) + 1;
-            return var1 > var0x;
+            int var0 = param0.getBrain().getMemory(MemoryModuleType.VISIBLE_ADULT_PIGLIN_COUNT).orElse(0);
+            int var1 = param0.getBrain().getMemory(MemoryModuleType.VISIBLE_ADULT_HOGLIN_COUNT).orElse(0) + 1;
+            return var0 > var1;
         }
     }
 

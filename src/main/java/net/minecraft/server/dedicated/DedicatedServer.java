@@ -8,6 +8,8 @@ import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.datafixers.DataFixer;
+import com.mojang.datafixers.Dynamic;
+import com.mojang.datafixers.types.JsonOps;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -56,6 +58,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelType;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
 import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.levelgen.ChunkGeneratorProvider;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -166,9 +169,9 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
 
         try {
             this.getConnection().startTcpServerListener(var2, this.getPort());
-        } catch (IOException var17) {
+        } catch (IOException var18) {
             LOGGER.warn("**** FAILED TO BIND TO PORT!");
-            LOGGER.warn("The exception was: {}", var17.toString());
+            LOGGER.warn("The exception was: {}", var18.toString());
             LOGGER.warn("Perhaps a server is already running on that port?");
             return false;
         }
@@ -200,7 +203,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
                     if (var8 != 0L) {
                         var7 = var8;
                     }
-                } catch (NumberFormatException var16) {
+                } catch (NumberFormatException var17) {
                     var7 = (long)var5.hashCode();
                 }
             }
@@ -211,17 +214,12 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
             SkullBlockEntity.setSessionService(this.getSessionService());
             GameProfileCache.setUsesAuthentication(this.usesAuthentication());
             LOGGER.info("Preparing level \"{}\"", this.getLevelIdName());
-            JsonObject var11 = new JsonObject();
-            if (var10 == LevelType.FLAT) {
-                var11.addProperty("flat_world_options", var6);
-            } else if (!var6.isEmpty()) {
-                var11 = GsonHelper.parse(var6);
-            }
-
-            this.loadLevel(this.getLevelIdName(), this.getLevelIdName(), var7, var10, var11);
-            long var12 = Util.getNanos() - var4;
-            String var13 = String.format(Locale.ROOT, "%.3fs", (double)var12 / 1.0E9);
-            LOGGER.info("Done ({})! For help, type \"help\"", var13);
+            JsonObject var11 = !var6.isEmpty() ? GsonHelper.parse(var6) : new JsonObject();
+            ChunkGeneratorProvider var12 = var10.createProvider(new Dynamic<>(JsonOps.INSTANCE, var11));
+            this.loadLevel(this.getLevelIdName(), this.getLevelIdName(), var7, var12);
+            long var13 = Util.getNanos() - var4;
+            String var14 = String.format(Locale.ROOT, "%.3fs", (double)var13 / 1.0E9);
+            LOGGER.info("Done ({})! For help, type \"help\"", var14);
             if (var1.announcePlayerAchievements != null) {
                 this.getGameRules().getRule(GameRules.RULE_ANNOUNCE_ADVANCEMENTS).set(var1.announcePlayerAchievements, this);
             }
@@ -239,11 +237,11 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
             }
 
             if (this.getMaxTickLength() > 0L) {
-                Thread var14 = new Thread(new ServerWatchdog(this));
-                var14.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandlerWithName(LOGGER));
-                var14.setName("Server Watchdog");
-                var14.setDaemon(true);
-                var14.start();
+                Thread var15 = new Thread(new ServerWatchdog(this));
+                var15.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandlerWithName(LOGGER));
+                var15.setName("Server Watchdog");
+                var15.setDaemon(true);
+                var15.start();
             }
 
             Items.AIR.fillItemCategory(CreativeModeTab.TAB_SEARCH, NonNullList.create());
