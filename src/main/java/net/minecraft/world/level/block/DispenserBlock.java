@@ -26,10 +26,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.DispenserBlockEntity;
 import net.minecraft.world.level.block.entity.DropperBlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -48,14 +48,9 @@ public class DispenserBlock extends BaseEntityBlock {
         DISPENSER_REGISTRY.put(param0.asItem(), param1);
     }
 
-    protected DispenserBlock(Block.Properties param0) {
+    protected DispenserBlock(BlockBehaviour.Properties param0) {
         super(param0);
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(TRIGGERED, Boolean.valueOf(false)));
-    }
-
-    @Override
-    public int getTickDelay(LevelReader param0) {
-        return 4;
     }
 
     @Override
@@ -102,7 +97,7 @@ public class DispenserBlock extends BaseEntityBlock {
         boolean var0 = param1.hasNeighborSignal(param2) || param1.hasNeighborSignal(param2.above());
         boolean var1 = param0.getValue(TRIGGERED);
         if (var0 && !var1) {
-            param1.getBlockTicks().scheduleTick(param2, this, this.getTickDelay(param1));
+            param1.getBlockTicks().scheduleTick(param2, this, 4);
             param1.setBlock(param2, param0.setValue(TRIGGERED, Boolean.valueOf(true)), 4);
         } else if (!var0 && var1) {
             param1.setBlock(param2, param0.setValue(TRIGGERED, Boolean.valueOf(false)), 4);

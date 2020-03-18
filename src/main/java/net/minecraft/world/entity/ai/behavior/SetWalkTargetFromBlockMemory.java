@@ -15,7 +15,7 @@ import net.minecraft.world.phys.Vec3;
 
 public class SetWalkTargetFromBlockMemory extends Behavior<Villager> {
     private final MemoryModuleType<GlobalPos> memoryType;
-    private final float speed;
+    private final float speedModifier;
     private final int closeEnoughDist;
     private final int tooFarDistance;
     private final int tooLongUnreachableDuration;
@@ -32,7 +32,7 @@ public class SetWalkTargetFromBlockMemory extends Behavior<Villager> {
             )
         );
         this.memoryType = param0;
-        this.speed = param1;
+        this.speedModifier = param1;
         this.closeEnoughDist = param2;
         this.tooFarDistance = param3;
         this.tooLongUnreachableDuration = param4;
@@ -68,9 +68,9 @@ public class SetWalkTargetFromBlockMemory extends Behavior<Villager> {
                             return;
                         }
         
-                        var0.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(var0x, this.speed, this.closeEnoughDist));
+                        var0.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(var0x, this.speedModifier, this.closeEnoughDist));
                     } else if (!this.closeEnough(param0, param1, param4)) {
-                        var0.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(param4.pos(), this.speed, this.closeEnoughDist));
+                        var0.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(param4.pos(), this.speedModifier, this.closeEnoughDist));
                     }
         
                 }

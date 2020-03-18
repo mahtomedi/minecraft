@@ -77,6 +77,7 @@ import net.minecraft.network.protocol.game.ClientboundSetCameraPacket;
 import net.minecraft.network.protocol.game.ClientboundSetCarriedItemPacket;
 import net.minecraft.network.protocol.game.ClientboundSetChunkCacheCenterPacket;
 import net.minecraft.network.protocol.game.ClientboundSetChunkCacheRadiusPacket;
+import net.minecraft.network.protocol.game.ClientboundSetDefaultSpawnPositionPacket;
 import net.minecraft.network.protocol.game.ClientboundSetDisplayObjectivePacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityLinkPacket;
@@ -88,7 +89,6 @@ import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket;
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket;
 import net.minecraft.network.protocol.game.ClientboundSetScorePacket;
-import net.minecraft.network.protocol.game.ClientboundSetSpawnPositionPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitlesPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundEntityPacket;
@@ -249,6 +249,7 @@ public enum ConnectionProtocol {
                     .addPacket(ClientboundSetCarriedItemPacket.class, ClientboundSetCarriedItemPacket::new)
                     .addPacket(ClientboundSetChunkCacheCenterPacket.class, ClientboundSetChunkCacheCenterPacket::new)
                     .addPacket(ClientboundSetChunkCacheRadiusPacket.class, ClientboundSetChunkCacheRadiusPacket::new)
+                    .addPacket(ClientboundSetDefaultSpawnPositionPacket.class, ClientboundSetDefaultSpawnPositionPacket::new)
                     .addPacket(ClientboundSetDisplayObjectivePacket.class, ClientboundSetDisplayObjectivePacket::new)
                     .addPacket(ClientboundSetEntityDataPacket.class, ClientboundSetEntityDataPacket::new)
                     .addPacket(ClientboundSetEntityLinkPacket.class, ClientboundSetEntityLinkPacket::new)
@@ -260,7 +261,6 @@ public enum ConnectionProtocol {
                     .addPacket(ClientboundSetPassengersPacket.class, ClientboundSetPassengersPacket::new)
                     .addPacket(ClientboundSetPlayerTeamPacket.class, ClientboundSetPlayerTeamPacket::new)
                     .addPacket(ClientboundSetScorePacket.class, ClientboundSetScorePacket::new)
-                    .addPacket(ClientboundSetSpawnPositionPacket.class, ClientboundSetSpawnPositionPacket::new)
                     .addPacket(ClientboundSetTimePacket.class, ClientboundSetTimePacket::new)
                     .addPacket(ClientboundSetTitlesPacket.class, ClientboundSetTitlesPacket::new)
                     .addPacket(ClientboundSoundEntityPacket.class, ClientboundSoundEntityPacket::new)

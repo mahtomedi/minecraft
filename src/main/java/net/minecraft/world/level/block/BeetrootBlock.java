@@ -7,6 +7,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -25,7 +26,7 @@ public class BeetrootBlock extends CropBlock {
         Block.box(0.0, 0.0, 0.0, 16.0, 8.0, 16.0)
     };
 
-    public BeetrootBlock(Block.Properties param0) {
+    public BeetrootBlock(BlockBehaviour.Properties param0) {
         super(param0);
     }
 
@@ -46,9 +47,9 @@ public class BeetrootBlock extends CropBlock {
     }
 
     @Override
-    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         if (param3.nextInt(3) != 0) {
-            super.tick(param0, param1, param2, param3);
+            super.randomTick(param0, param1, param2, param3);
         }
 
     }

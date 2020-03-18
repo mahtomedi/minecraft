@@ -12,11 +12,12 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BeaconBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
 public class BeaconBlock extends BaseEntityBlock implements BeaconBeamBlock {
-    public BeaconBlock(Block.Properties param0) {
+    public BeaconBlock(BlockBehaviour.Properties param0) {
         super(param0);
     }
 
@@ -43,11 +44,6 @@ public class BeaconBlock extends BaseEntityBlock implements BeaconBeamBlock {
 
             return InteractionResult.SUCCESS;
         }
-    }
-
-    @Override
-    public boolean isRedstoneConductor(BlockState param0, BlockGetter param1, BlockPos param2) {
-        return false;
     }
 
     @Override

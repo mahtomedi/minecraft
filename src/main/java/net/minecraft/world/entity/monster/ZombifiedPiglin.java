@@ -130,9 +130,7 @@ public class ZombifiedPiglin extends Zombie {
         super.addAdditionalSaveData(param0);
         param0.putShort("Anger", (short)this.angerTime);
         if (this.lastHurtByUUID != null) {
-            param0.putString("HurtBy", this.lastHurtByUUID.toString());
-        } else {
-            param0.putString("HurtBy", "");
+            param0.putUUID("HurtBy", this.lastHurtByUUID);
         }
 
     }
@@ -141,13 +139,12 @@ public class ZombifiedPiglin extends Zombie {
     public void readAdditionalSaveData(CompoundTag param0) {
         super.readAdditionalSaveData(param0);
         this.angerTime = param0.getShort("Anger");
-        String var0 = param0.getString("HurtBy");
-        if (!var0.isEmpty()) {
-            this.lastHurtByUUID = UUID.fromString(var0);
-            Player var1 = this.level.getPlayerByUUID(this.lastHurtByUUID);
-            this.setLastHurtByMob(var1);
-            if (var1 != null) {
-                this.lastHurtByPlayer = var1;
+        if (param0.hasUUID("HurtBy")) {
+            this.lastHurtByUUID = param0.getUUID("HurtBy");
+            Player var0 = this.level.getPlayerByUUID(this.lastHurtByUUID);
+            this.setLastHurtByMob(var0);
+            if (var0 != null) {
+                this.lastHurtByPlayer = var0;
                 this.lastHurtByPlayerTime = this.getLastHurtByMobTimestamp();
             }
         }

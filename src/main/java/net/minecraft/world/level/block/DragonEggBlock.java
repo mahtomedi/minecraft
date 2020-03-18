@@ -8,7 +8,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
@@ -18,7 +18,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 public class DragonEggBlock extends FallingBlock {
     protected static final VoxelShape SHAPE = Block.box(1.0, 0.0, 1.0, 15.0, 16.0, 15.0);
 
-    public DragonEggBlock(Block.Properties param0) {
+    public DragonEggBlock(BlockBehaviour.Properties param0) {
         super(param0);
     }
 
@@ -69,7 +69,7 @@ public class DragonEggBlock extends FallingBlock {
     }
 
     @Override
-    public int getTickDelay(LevelReader param0) {
+    protected int getDelayAfterPlace() {
         return 5;
     }
 

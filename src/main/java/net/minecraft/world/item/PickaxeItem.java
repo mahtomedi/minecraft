@@ -2,7 +2,6 @@ package net.minecraft.world.item;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -104,19 +103,23 @@ public class PickaxeItem extends DiggerItem {
     public boolean canDestroySpecial(BlockState param0) {
         Block var0 = param0.getBlock();
         int var1 = this.getTier().getLevel();
-        if (var0 == Blocks.OBSIDIAN || var0 == Blocks.CRYING_OBSIDIAN || var0 == Blocks.NETHERITE_BLOCK || var0 == Blocks.ANCIENT_DEBRIS) {
+        if (var0 == Blocks.OBSIDIAN
+            || var0 == Blocks.CRYING_OBSIDIAN
+            || var0 == Blocks.NETHERITE_BLOCK
+            || var0 == Blocks.RESPAWN_ANCHOR
+            || var0 == Blocks.ANCIENT_DEBRIS) {
             return var1 >= 3;
         } else if (var0 == Blocks.DIAMOND_BLOCK
             || var0 == Blocks.DIAMOND_ORE
             || var0 == Blocks.EMERALD_ORE
             || var0 == Blocks.EMERALD_BLOCK
             || var0 == Blocks.GOLD_BLOCK
-            || var0.is(BlockTags.GOLD_ORES)
+            || var0 == Blocks.GOLD_ORE
             || var0 == Blocks.REDSTONE_ORE) {
             return var1 >= 2;
         } else if (var0 != Blocks.IRON_BLOCK && var0 != Blocks.IRON_ORE && var0 != Blocks.LAPIS_BLOCK && var0 != Blocks.LAPIS_ORE) {
             Material var2 = param0.getMaterial();
-            return var2 == Material.STONE || var2 == Material.METAL || var2 == Material.HEAVY_METAL;
+            return var2 == Material.STONE || var2 == Material.METAL || var2 == Material.HEAVY_METAL || var0 == Blocks.NETHER_GOLD_ORE;
         } else {
             return var1 >= 1;
         }

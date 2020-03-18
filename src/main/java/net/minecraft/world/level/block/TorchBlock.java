@@ -9,6 +9,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -19,7 +20,7 @@ public class TorchBlock extends Block {
     protected static final VoxelShape AABB = Block.box(6.0, 0.0, 6.0, 10.0, 10.0, 10.0);
     protected final ParticleOptions flameParticle;
 
-    protected TorchBlock(Block.Properties param0, ParticleOptions param1) {
+    protected TorchBlock(BlockBehaviour.Properties param0, ParticleOptions param1) {
         super(param0);
         this.flameParticle = param1;
     }

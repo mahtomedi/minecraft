@@ -343,7 +343,9 @@ public class DebugScreenOverlay extends GuiComponent {
                 var17.add(String.format("Looking at liquid: %d %d %d", var33.getX(), var33.getY(), var33.getZ()));
             }
 
-            var17.add(this.minecraft.getSoundManager().getDebugString());
+            var17.add(
+                this.minecraft.getSoundManager().getDebugString() + String.format(" (Mood %d%%)", Math.round(this.minecraft.player.getCurrentMood() * 100.0F))
+            );
             return var17;
         }
     }

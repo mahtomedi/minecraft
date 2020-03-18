@@ -13,6 +13,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -24,14 +25,9 @@ public abstract class AbstractFurnaceBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
 
-    protected AbstractFurnaceBlock(Block.Properties param0) {
+    protected AbstractFurnaceBlock(BlockBehaviour.Properties param0) {
         super(param0);
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(LIT, Boolean.valueOf(false)));
-    }
-
-    @Override
-    public int getLightEmission(BlockState param0) {
-        return param0.getValue(LIT) ? super.getLightEmission(param0) : 0;
     }
 
     @Override

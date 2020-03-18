@@ -1,6 +1,7 @@
 package net.minecraft.world.entity.boss.enderdragon.phases;
 
 import javax.annotation.Nullable;
+import net.minecraft.core.Vec3i;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
@@ -67,7 +68,10 @@ public class DragonStrafePlayerPhase extends AbstractDragonPhaseInstance {
                         double var17 = this.attackTarget.getX() - var14;
                         double var18 = this.attackTarget.getY(0.5) - var15;
                         double var19 = this.attackTarget.getZ() - var16;
-                        this.dragon.level.levelEvent(null, 1017, this.dragon.blockPosition(), 0);
+                        if (!this.dragon.isSilent()) {
+                            this.dragon.level.levelEvent(null, 1017, this.dragon.blockPosition(), 0);
+                        }
+
                         DragonFireball var20 = new DragonFireball(this.dragon.level, this.dragon, var17, var18, var19);
                         var20.moveTo(var14, var15, var16, 0.0F, 0.0F);
                         this.dragon.level.addFreshEntity(var20);
@@ -127,15 +131,15 @@ public class DragonStrafePlayerPhase extends AbstractDragonPhaseInstance {
 
     private void navigateToNextPathNode() {
         if (this.currentPath != null && !this.currentPath.isDone()) {
-            Vec3 var0 = this.currentPath.currentPos();
+            Vec3i var0 = this.currentPath.currentPos();
             this.currentPath.next();
-            double var1 = var0.x;
-            double var2 = var0.z;
+            double var1 = (double)var0.getX();
+            double var2 = (double)var0.getZ();
 
             double var3;
             do {
-                var3 = var0.y + (double)(this.dragon.getRandom().nextFloat() * 20.0F);
-            } while(var3 < var0.y);
+                var3 = (double)((float)var0.getY() + this.dragon.getRandom().nextFloat() * 20.0F);
+            } while(var3 < (double)var0.getY());
 
             this.targetLocation = new Vec3(var1, var3, var2);
         }

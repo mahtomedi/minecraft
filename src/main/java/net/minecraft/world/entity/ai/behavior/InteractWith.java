@@ -13,7 +13,7 @@ import net.minecraft.world.entity.ai.memory.WalkTarget;
 
 public class InteractWith<E extends LivingEntity, T extends LivingEntity> extends Behavior<E> {
     private final int maxDist;
-    private final float speed;
+    private final float speedModifier;
     private final EntityType<? extends T> type;
     private final int interactionRangeSqr;
     private final Predicate<T> targetFilter;
@@ -34,7 +34,7 @@ public class InteractWith<E extends LivingEntity, T extends LivingEntity> extend
             )
         );
         this.type = param0;
-        this.speed = param5;
+        this.speedModifier = param5;
         this.interactionRangeSqr = param1 * param1;
         this.maxDist = param6;
         this.targetFilter = param3;
@@ -76,7 +76,7 @@ public class InteractWith<E extends LivingEntity, T extends LivingEntity> extend
                         .ifPresent(param1x -> {
                             var0.setMemory(this.memory, (T)param1x);
                             var0.setMemory(MemoryModuleType.LOOK_TARGET, new EntityPosWrapper(param1x));
-                            var0.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(new EntityPosWrapper(param1x), this.speed, this.maxDist));
+                            var0.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(new EntityPosWrapper(param1x), this.speedModifier, this.maxDist));
                         })
             );
     }

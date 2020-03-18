@@ -11,12 +11,13 @@ import net.minecraft.world.entity.item.ItemEntity;
 public class GoToWantedItem<E extends LivingEntity> extends Behavior<E> {
     private final Predicate<E> predicate;
     private final int maxDistToWalk;
+    private final float speedModifier;
 
-    public GoToWantedItem(int param0, boolean param1) {
-        this(param0x -> true, param0, param1);
+    public GoToWantedItem(float param0, boolean param1, int param2) {
+        this(param0x -> true, param0, param1, param2);
     }
 
-    public GoToWantedItem(Predicate<E> param0, int param1, boolean param2) {
+    public GoToWantedItem(Predicate<E> param0, float param1, boolean param2, int param3) {
         super(
             ImmutableMap.of(
                 MemoryModuleType.LOOK_TARGET,
@@ -28,7 +29,8 @@ public class GoToWantedItem<E extends LivingEntity> extends Behavior<E> {
             )
         );
         this.predicate = param0;
-        this.maxDistToWalk = param1;
+        this.maxDistToWalk = param3;
+        this.speedModifier = param1;
     }
 
     @Override
@@ -38,7 +40,7 @@ public class GoToWantedItem<E extends LivingEntity> extends Behavior<E> {
 
     @Override
     protected void start(ServerLevel param0, E param1, long param2) {
-        BehaviorUtils.setWalkAndLookTargetMemories(param1, this.getClosestLovedItem(param1), 0);
+        BehaviorUtils.setWalkAndLookTargetMemories(param1, this.getClosestLovedItem(param1), this.speedModifier, 0);
     }
 
     private ItemEntity getClosestLovedItem(E param0) {

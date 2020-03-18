@@ -9,6 +9,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.AABB;
@@ -20,7 +21,7 @@ public abstract class BasePressurePlateBlock extends Block {
     protected static final VoxelShape AABB = Block.box(1.0, 0.0, 1.0, 15.0, 1.0, 15.0);
     protected static final AABB TOUCH_AABB = new AABB(0.125, 0.0, 0.125, 0.875, 0.25, 0.875);
 
-    protected BasePressurePlateBlock(Block.Properties param0) {
+    protected BasePressurePlateBlock(BlockBehaviour.Properties param0) {
         super(param0);
     }
 
@@ -29,8 +30,7 @@ public abstract class BasePressurePlateBlock extends Block {
         return this.getSignalForState(param0) > 0 ? PRESSED_AABB : AABB;
     }
 
-    @Override
-    public int getTickDelay(LevelReader param0) {
+    protected int getPressedTime() {
         return 20;
     }
 
@@ -90,7 +90,7 @@ public abstract class BasePressurePlateBlock extends Block {
         }
 
         if (var2) {
-            param0.getBlockTicks().scheduleTick(new BlockPos(param1), this, this.getTickDelay(param0));
+            param0.getBlockTicks().scheduleTick(new BlockPos(param1), this, this.getPressedTime());
         }
 
     }

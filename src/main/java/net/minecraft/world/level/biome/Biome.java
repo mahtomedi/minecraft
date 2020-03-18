@@ -341,21 +341,6 @@ public abstract class Biome {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public Optional<SoundEvent> getAmbientLoopSoundEvent() {
-        return this.specialEffects.getAmbientLoopSoundEvent();
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public Optional<SoundEvent> getAmbientMoodSoundEvent() {
-        return this.specialEffects.getAmbientMoodSoundEvent();
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public Optional<SoundEvent> getAmbientAdditionsSoundEvent() {
-        return this.specialEffects.getAmbientAdditionsSoundEvent();
-    }
-
     public final float getDepth() {
         return this.depth;
     }
@@ -401,6 +386,21 @@ public abstract class Biome {
     @OnlyIn(Dist.CLIENT)
     public Optional<AmbientParticleSettings> getAmbientParticle() {
         return this.specialEffects.getAmbientParticleSettings();
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public Optional<SoundEvent> getAmbientLoop() {
+        return this.specialEffects.getAmbientLoopSoundEvent();
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public Optional<AmbientMoodSettings> getAmbientMood() {
+        return this.specialEffects.getAmbientMoodSettings();
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public Optional<AmbientAdditionsSettings> getAmbientAdditions() {
+        return this.specialEffects.getAmbientAdditionsSettings();
     }
 
     public final Biome.BiomeCategory getBiomeCategory() {

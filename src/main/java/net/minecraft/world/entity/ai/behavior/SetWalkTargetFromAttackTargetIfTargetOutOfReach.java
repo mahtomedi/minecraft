@@ -10,7 +10,7 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 
 public class SetWalkTargetFromAttackTargetIfTargetOutOfReach extends Behavior<Mob> {
-    private final float speed;
+    private final float speedModifier;
 
     public SetWalkTargetFromAttackTargetIfTargetOutOfReach(float param0) {
         super(
@@ -25,7 +25,7 @@ public class SetWalkTargetFromAttackTargetIfTargetOutOfReach extends Behavior<Mo
                 MemoryStatus.REGISTERED
             )
         );
-        this.speed = param0;
+        this.speedModifier = param0;
     }
 
     protected void start(ServerLevel param0, Mob param1, long param2) {
@@ -42,7 +42,7 @@ public class SetWalkTargetFromAttackTargetIfTargetOutOfReach extends Behavior<Mo
         Brain var0 = param0.getBrain();
         PositionWrapper var1 = new EntityPosWrapper(param1);
         var0.setMemory(MemoryModuleType.LOOK_TARGET, var1);
-        WalkTarget var2 = new WalkTarget(var1, this.speed, 0);
+        WalkTarget var2 = new WalkTarget(var1, this.speedModifier, 0);
         var0.setMemory(MemoryModuleType.WALK_TARGET, var2);
     }
 

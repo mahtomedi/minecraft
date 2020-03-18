@@ -7,6 +7,7 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
@@ -16,7 +17,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 public class KelpBlock extends GrowingPlantHeadBlock implements LiquidBlockContainer {
     protected static final VoxelShape SHAPE = Block.box(0.0, 0.0, 0.0, 16.0, 9.0, 16.0);
 
-    protected KelpBlock(Block.Properties param0) {
+    protected KelpBlock(BlockBehaviour.Properties param0) {
         super(param0, Direction.UP, SHAPE, true, 0.14);
     }
 

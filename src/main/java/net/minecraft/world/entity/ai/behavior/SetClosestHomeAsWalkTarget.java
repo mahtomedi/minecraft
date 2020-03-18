@@ -19,14 +19,14 @@ import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.level.pathfinder.Path;
 
 public class SetClosestHomeAsWalkTarget extends Behavior<LivingEntity> {
-    private final float speed;
+    private final float speedModifier;
     private final Long2LongMap batchCache = new Long2LongOpenHashMap();
     private int triedCount;
     private long lastUpdate;
 
     public SetClosestHomeAsWalkTarget(float param0) {
         super(ImmutableMap.of(MemoryModuleType.WALK_TARGET, MemoryStatus.VALUE_ABSENT, MemoryModuleType.HOME, MemoryStatus.VALUE_ABSENT));
-        this.speed = param0;
+        this.speedModifier = param0;
     }
 
     @Override
@@ -64,7 +64,7 @@ public class SetClosestHomeAsWalkTarget extends Behavior<LivingEntity> {
             BlockPos var5 = var4.getTarget();
             Optional<PoiType> var6 = var1.getType(var5);
             if (var6.isPresent()) {
-                param1.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(var5, this.speed, 1));
+                param1.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(var5, this.speedModifier, 1));
                 DebugPackets.sendPoiTicketCountPacket(param0, var5);
             }
         } else if (this.triedCount < 5) {

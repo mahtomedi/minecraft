@@ -3,10 +3,12 @@ package net.minecraft.world.level.block;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -14,13 +16,13 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class ConcretePowderBlock extends FallingBlock {
     private final BlockState concrete;
 
-    public ConcretePowderBlock(Block param0, Block.Properties param1) {
+    public ConcretePowderBlock(Block param0, BlockBehaviour.Properties param1) {
         super(param1);
         this.concrete = param0.defaultBlockState();
     }
 
     @Override
-    public void onLand(Level param0, BlockPos param1, BlockState param2, BlockState param3) {
+    public void onLand(Level param0, BlockPos param1, BlockState param2, BlockState param3, FallingBlockEntity param4) {
         if (shouldSolidify(param0, param1, param3)) {
             param0.setBlock(param1, this.concrete, 3);
         }
@@ -69,7 +71,7 @@ public class ConcretePowderBlock extends FallingBlock {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public int getDustColor(BlockState param0) {
-        return this.materialColor.col;
+    public int getDustColor(BlockState param0, BlockGetter param1, BlockPos param2) {
+        return param0.getMapColor(param1, param2).col;
     }
 }

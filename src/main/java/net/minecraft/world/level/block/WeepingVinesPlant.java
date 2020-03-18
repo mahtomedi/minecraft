@@ -1,9 +1,10 @@
 package net.minecraft.world.level.block;
 
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 
 public class WeepingVinesPlant extends GrowingPlantBodyBlock {
-    public WeepingVinesPlant(Block.Properties param0) {
+    public WeepingVinesPlant(BlockBehaviour.Properties param0) {
         super(param0, Direction.DOWN, NetherVines.SHAPE, false);
     }
 

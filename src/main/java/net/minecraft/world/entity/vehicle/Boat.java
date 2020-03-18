@@ -24,7 +24,6 @@ import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.WaterAnimal;
 import net.minecraft.world.entity.player.Player;
@@ -40,7 +39,6 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
-import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
@@ -693,20 +691,19 @@ public class Boat extends Entity {
         BlockPos var4 = new BlockPos(var1, var2, var3);
         BlockPos var5 = var4.below();
         if (!this.level.isWaterAt(var5)) {
-            CollisionContext var6 = CollisionContext.of(param0);
-            AABB var7 = param0.getLocalBoundsForPose(Pose.SWIMMING).move(var1, var2, var3);
-            double var8 = getDismountTargetFloorHeight(this.level, var4, var6);
-            if (!Double.isInfinite(var8) && var8 < 1.0) {
-                AABB var9 = var7.move(var1, (double)var4.getY() + var8, var3);
-                if (this.level.getBlockCollisions(param0, var9).allMatch(VoxelShape::isEmpty)) {
-                    return new Vec3(var1, (double)var4.getY() + var8, var3);
+            AABB var6 = param0.getLocalBoundsForPose(param0.getShortestDismountPose()).move(var1, var2, var3);
+            double var7 = this.level.getRelativeFloorHeight(var4);
+            if (!Double.isInfinite(var7) && var7 < 1.0) {
+                AABB var8 = var6.move(var1, (double)var4.getY() + var7, var3);
+                if (this.level.getBlockCollisions(param0, var8).allMatch(VoxelShape::isEmpty)) {
+                    return new Vec3(var1, (double)var4.getY() + var7, var3);
                 }
-            } else if (var8 < 1.0) {
-                double var10 = getDismountTargetFloorHeight(this.level, var5, var6);
-                if (!Double.isInfinite(var10) && var10 <= 0.5) {
-                    AABB var11 = var7.move(var1, (double)var5.getY() + var10, var3);
-                    if (this.level.getBlockCollisions(param0, var11).allMatch(VoxelShape::isEmpty)) {
-                        return new Vec3(var1, (double)var5.getY() + var10, var3);
+            } else if (var7 < 1.0) {
+                double var9 = this.level.getRelativeFloorHeight(var5);
+                if (!Double.isInfinite(var9) && var9 <= 0.5) {
+                    AABB var10 = var6.move(var1, (double)var5.getY() + var9, var3);
+                    if (this.level.getBlockCollisions(param0, var10).allMatch(VoxelShape::isEmpty)) {
+                        return new Vec3(var1, (double)var5.getY() + var9, var3);
                     }
                 }
             }

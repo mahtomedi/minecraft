@@ -40,7 +40,7 @@ public class SkullBlockEntity extends BlockEntity implements TickableBlockEntity
         if (this.owner != null) {
             CompoundTag var0 = new CompoundTag();
             NbtUtils.writeGameProfile(var0, this.owner);
-            param0.put("Owner", var0);
+            param0.put("SkullOwner", var0);
         }
 
         return param0;
@@ -49,8 +49,8 @@ public class SkullBlockEntity extends BlockEntity implements TickableBlockEntity
     @Override
     public void load(CompoundTag param0) {
         super.load(param0);
-        if (param0.contains("Owner", 10)) {
-            this.setOwner(NbtUtils.readGameProfile(param0.getCompound("Owner")));
+        if (param0.contains("SkullOwner", 10)) {
+            this.setOwner(NbtUtils.readGameProfile(param0.getCompound("SkullOwner")));
         } else if (param0.contains("ExtraType", 8)) {
             String var0 = param0.getString("ExtraType");
             if (!StringUtil.isNullOrEmpty(var0)) {

@@ -21,6 +21,7 @@ import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -42,15 +43,10 @@ public class PistonBaseBlock extends DirectionalBlock {
     protected static final VoxelShape DOWN_AABB = Block.box(0.0, 4.0, 0.0, 16.0, 16.0, 16.0);
     private final boolean isSticky;
 
-    public PistonBaseBlock(boolean param0, Block.Properties param1) {
+    public PistonBaseBlock(boolean param0, BlockBehaviour.Properties param1) {
         super(param1);
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(EXTENDED, Boolean.valueOf(false)));
         this.isSticky = param0;
-    }
-
-    @Override
-    public boolean isSuffocating(BlockState param0, BlockGetter param1, BlockPos param2) {
-        return !param0.getValue(EXTENDED);
     }
 
     @Override
@@ -74,11 +70,6 @@ public class PistonBaseBlock extends DirectionalBlock {
         } else {
             return Shapes.block();
         }
-    }
-
-    @Override
-    public boolean isRedstoneConductor(BlockState param0, BlockGetter param1, BlockPos param2) {
-        return false;
     }
 
     @Override
@@ -238,7 +229,7 @@ public class PistonBaseBlock extends DirectionalBlock {
 
     public static boolean isPushable(BlockState param0, Level param1, BlockPos param2, Direction param3, boolean param4, Direction param5) {
         Block var0 = param0.getBlock();
-        if (var0 != Blocks.OBSIDIAN && var0 != Blocks.CRYING_OBSIDIAN) {
+        if (var0 != Blocks.OBSIDIAN && var0 != Blocks.CRYING_OBSIDIAN && var0 != Blocks.RESPAWN_ANCHOR) {
             if (!param1.getWorldBorder().isWithinBounds(param2)) {
                 return false;
             } else if (param2.getY() >= 0 && (param3 != Direction.DOWN || param2.getY() != 0)) {

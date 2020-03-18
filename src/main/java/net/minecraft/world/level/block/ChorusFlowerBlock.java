@@ -10,6 +10,7 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -20,7 +21,7 @@ public class ChorusFlowerBlock extends Block {
     public static final IntegerProperty AGE = BlockStateProperties.AGE_5;
     private final ChorusPlantBlock plant;
 
-    protected ChorusFlowerBlock(ChorusPlantBlock param0, Block.Properties param1) {
+    protected ChorusFlowerBlock(ChorusPlantBlock param0, BlockBehaviour.Properties param1) {
         super(param1);
         this.plant = param0;
         this.registerDefaultState(this.stateDefinition.any().setValue(AGE, Integer.valueOf(0)));
@@ -30,69 +31,78 @@ public class ChorusFlowerBlock extends Block {
     public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         if (!param0.canSurvive(param1, param2)) {
             param1.destroyBlock(param2, true);
-        } else {
-            BlockPos var0 = param2.above();
-            if (param1.isEmptyBlock(var0) && var0.getY() < 256) {
-                int var1 = param0.getValue(AGE);
-                if (var1 < 5) {
-                    boolean var2 = false;
-                    boolean var3 = false;
-                    BlockState var4 = param1.getBlockState(param2.below());
-                    Block var5 = var4.getBlock();
-                    if (var5 == Blocks.END_STONE) {
-                        var2 = true;
-                    } else if (var5 == this.plant) {
-                        int var6 = 1;
+        }
 
-                        for(int var7 = 0; var7 < 4; ++var7) {
-                            Block var8 = param1.getBlockState(param2.below(var6 + 1)).getBlock();
-                            if (var8 != this.plant) {
-                                if (var8 == Blocks.END_STONE) {
-                                    var3 = true;
-                                }
-                                break;
+    }
+
+    @Override
+    public boolean isRandomlyTicking(BlockState param0) {
+        return param0.getValue(AGE) < 5;
+    }
+
+    @Override
+    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+        BlockPos var0 = param2.above();
+        if (param1.isEmptyBlock(var0) && var0.getY() < 256) {
+            int var1 = param0.getValue(AGE);
+            if (var1 < 5) {
+                boolean var2 = false;
+                boolean var3 = false;
+                BlockState var4 = param1.getBlockState(param2.below());
+                Block var5 = var4.getBlock();
+                if (var5 == Blocks.END_STONE) {
+                    var2 = true;
+                } else if (var5 == this.plant) {
+                    int var6 = 1;
+
+                    for(int var7 = 0; var7 < 4; ++var7) {
+                        Block var8 = param1.getBlockState(param2.below(var6 + 1)).getBlock();
+                        if (var8 != this.plant) {
+                            if (var8 == Blocks.END_STONE) {
+                                var3 = true;
                             }
-
-                            ++var6;
+                            break;
                         }
 
-                        if (var6 < 2 || var6 <= param3.nextInt(var3 ? 5 : 4)) {
-                            var2 = true;
-                        }
-                    } else if (var4.isAir()) {
-                        var2 = true;
+                        ++var6;
                     }
 
-                    if (var2 && allNeighborsEmpty(param1, var0, null) && param1.isEmptyBlock(param2.above(2))) {
+                    if (var6 < 2 || var6 <= param3.nextInt(var3 ? 5 : 4)) {
+                        var2 = true;
+                    }
+                } else if (var4.isAir()) {
+                    var2 = true;
+                }
+
+                if (var2 && allNeighborsEmpty(param1, var0, null) && param1.isEmptyBlock(param2.above(2))) {
+                    param1.setBlock(param2, this.plant.getStateForPlacement(param1, param2), 2);
+                    this.placeGrownFlower(param1, var0, var1);
+                } else if (var1 < 4) {
+                    int var9 = param3.nextInt(4);
+                    if (var3) {
+                        ++var9;
+                    }
+
+                    boolean var10 = false;
+
+                    for(int var11 = 0; var11 < var9; ++var11) {
+                        Direction var12 = Direction.Plane.HORIZONTAL.getRandomDirection(param3);
+                        BlockPos var13 = param2.relative(var12);
+                        if (param1.isEmptyBlock(var13) && param1.isEmptyBlock(var13.below()) && allNeighborsEmpty(param1, var13, var12.getOpposite())) {
+                            this.placeGrownFlower(param1, var13, var1 + 1);
+                            var10 = true;
+                        }
+                    }
+
+                    if (var10) {
                         param1.setBlock(param2, this.plant.getStateForPlacement(param1, param2), 2);
-                        this.placeGrownFlower(param1, var0, var1);
-                    } else if (var1 < 4) {
-                        int var9 = param3.nextInt(4);
-                        if (var3) {
-                            ++var9;
-                        }
-
-                        boolean var10 = false;
-
-                        for(int var11 = 0; var11 < var9; ++var11) {
-                            Direction var12 = Direction.Plane.HORIZONTAL.getRandomDirection(param3);
-                            BlockPos var13 = param2.relative(var12);
-                            if (param1.isEmptyBlock(var13) && param1.isEmptyBlock(var13.below()) && allNeighborsEmpty(param1, var13, var12.getOpposite())) {
-                                this.placeGrownFlower(param1, var13, var1 + 1);
-                                var10 = true;
-                            }
-                        }
-
-                        if (var10) {
-                            param1.setBlock(param2, this.plant.getStateForPlacement(param1, param2), 2);
-                        } else {
-                            this.placeDeadFlower(param1, param2);
-                        }
                     } else {
                         this.placeDeadFlower(param1, param2);
                     }
-
+                } else {
+                    this.placeDeadFlower(param1, param2);
                 }
+
             }
         }
     }

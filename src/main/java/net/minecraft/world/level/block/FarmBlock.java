@@ -15,6 +15,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.piston.MovingPistonBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -22,14 +23,12 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class FarmBlock extends Block {
     public static final IntegerProperty MOISTURE = BlockStateProperties.MOISTURE;
     protected static final VoxelShape SHAPE = Block.box(0.0, 0.0, 0.0, 16.0, 15.0, 16.0);
 
-    protected FarmBlock(Block.Properties param0) {
+    protected FarmBlock(BlockBehaviour.Properties param0) {
         super(param0);
         this.registerDefaultState(this.stateDefinition.any().setValue(MOISTURE, Integer.valueOf(0)));
     }
@@ -70,19 +69,23 @@ public class FarmBlock extends Block {
     public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         if (!param0.canSurvive(param1, param2)) {
             turnToDirt(param0, param1, param2);
-        } else {
-            int var0 = param0.getValue(MOISTURE);
-            if (!isNearWater(param1, param2) && !param1.isRainingAt(param2.above())) {
-                if (var0 > 0) {
-                    param1.setBlock(param2, param0.setValue(MOISTURE, Integer.valueOf(var0 - 1)), 2);
-                } else if (!isUnderCrops(param1, param2)) {
-                    turnToDirt(param0, param1, param2);
-                }
-            } else if (var0 < 7) {
-                param1.setBlock(param2, param0.setValue(MOISTURE, Integer.valueOf(7)), 2);
-            }
-
         }
+
+    }
+
+    @Override
+    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+        int var0 = param0.getValue(MOISTURE);
+        if (!isNearWater(param1, param2) && !param1.isRainingAt(param2.above())) {
+            if (var0 > 0) {
+                param1.setBlock(param2, param0.setValue(MOISTURE, Integer.valueOf(var0 - 1)), 2);
+            } else if (!isUnderCrops(param1, param2)) {
+                turnToDirt(param0, param1, param2);
+            }
+        } else if (var0 < 7) {
+            param1.setBlock(param2, param0.setValue(MOISTURE, Integer.valueOf(7)), 2);
+        }
+
     }
 
     @Override
@@ -125,11 +128,5 @@ public class FarmBlock extends Block {
     @Override
     public boolean isPathfindable(BlockState param0, BlockGetter param1, BlockPos param2, PathComputationType param3) {
         return false;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public boolean isViewBlocking(BlockState param0, BlockGetter param1, BlockPos param2) {
-        return true;
     }
 }

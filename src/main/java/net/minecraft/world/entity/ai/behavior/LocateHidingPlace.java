@@ -14,7 +14,7 @@ import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 
 public class LocateHidingPlace extends Behavior<LivingEntity> {
-    private final float speed;
+    private final float speedModifier;
     private final int radius;
     private final int closeEnoughDist;
     private Optional<BlockPos> currentPos = Optional.empty();
@@ -31,7 +31,7 @@ public class LocateHidingPlace extends Behavior<LivingEntity> {
             )
         );
         this.radius = param0;
-        this.speed = param1;
+        this.speedModifier = param1;
         this.closeEnoughDist = param2;
     }
 
@@ -72,7 +72,7 @@ public class LocateHidingPlace extends Behavior<LivingEntity> {
             var0.eraseMemory(MemoryModuleType.INTERACTION_TARGET);
             var0.setMemory(MemoryModuleType.HIDING_PLACE, GlobalPos.of(param0.getDimension().getType(), var1.get()));
             if (!var1.get().closerThan(param1.position(), (double)this.closeEnoughDist)) {
-                var0.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(var1.get(), this.speed, this.closeEnoughDist));
+                var0.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(var1.get(), this.speedModifier, this.closeEnoughDist));
             }
         }
 

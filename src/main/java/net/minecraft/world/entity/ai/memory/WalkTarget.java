@@ -7,7 +7,7 @@ import net.minecraft.world.phys.Vec3;
 
 public class WalkTarget {
     private final PositionWrapper target;
-    private final float speed;
+    private final float speedModifier;
     private final int closeEnoughDist;
 
     public WalkTarget(BlockPos param0, float param1, int param2) {
@@ -20,7 +20,7 @@ public class WalkTarget {
 
     public WalkTarget(PositionWrapper param0, float param1, int param2) {
         this.target = param0;
-        this.speed = param1;
+        this.speedModifier = param1;
         this.closeEnoughDist = param2;
     }
 
@@ -28,8 +28,8 @@ public class WalkTarget {
         return this.target;
     }
 
-    public float getSpeed() {
-        return this.speed;
+    public float getSpeedModifier() {
+        return this.speedModifier;
     }
 
     public int getCloseEnoughDist() {

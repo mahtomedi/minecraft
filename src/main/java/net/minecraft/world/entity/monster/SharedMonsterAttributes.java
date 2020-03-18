@@ -109,9 +109,8 @@ public class SharedMonsterAttributes {
 
     @Nullable
     public static AttributeModifier loadAttributeModifier(CompoundTag param0) {
-        UUID var0 = param0.getUUID("UUID");
-
         try {
+            UUID var0 = param0.getUUID("UUID");
             AttributeModifier.Operation var1 = AttributeModifier.Operation.fromValue(param0.getInt("Operation"));
             return new AttributeModifier(var0, param0.getString("Name"), param0.getDouble("Amount"), var1);
         } catch (Exception var3) {

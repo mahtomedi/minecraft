@@ -11,7 +11,7 @@ import net.minecraft.world.entity.ai.util.RandomPos;
 import net.minecraft.world.phys.Vec3;
 
 public class RandomStroll extends Behavior<PathfinderMob> {
-    private final float speed;
+    private final float speedModifier;
     private final int maxHorizontalDistance;
     private final int maxVerticalDistance;
 
@@ -21,13 +21,13 @@ public class RandomStroll extends Behavior<PathfinderMob> {
 
     public RandomStroll(float param0, int param1, int param2) {
         super(ImmutableMap.of(MemoryModuleType.WALK_TARGET, MemoryStatus.VALUE_ABSENT));
-        this.speed = param0;
+        this.speedModifier = param0;
         this.maxHorizontalDistance = param1;
         this.maxVerticalDistance = param2;
     }
 
     protected void start(ServerLevel param0, PathfinderMob param1, long param2) {
         Optional<Vec3> var0 = Optional.ofNullable(RandomPos.getLandPos(param1, this.maxHorizontalDistance, this.maxVerticalDistance));
-        param1.getBrain().setMemory(MemoryModuleType.WALK_TARGET, var0.map(param0x -> new WalkTarget(param0x, this.speed, 0)));
+        param1.getBrain().setMemory(MemoryModuleType.WALK_TARGET, var0.map(param0x -> new WalkTarget(param0x, this.speedModifier, 0)));
     }
 }

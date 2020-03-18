@@ -10,11 +10,11 @@ import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
 
 public class LookAndFollowTradingPlayerSink extends Behavior<Villager> {
-    private final float speed;
+    private final float speedModifier;
 
     public LookAndFollowTradingPlayerSink(float param0) {
         super(ImmutableMap.of(MemoryModuleType.WALK_TARGET, MemoryStatus.REGISTERED, MemoryModuleType.LOOK_TARGET, MemoryStatus.REGISTERED), Integer.MAX_VALUE);
-        this.speed = param0;
+        this.speedModifier = param0;
     }
 
     protected boolean checkExtraStartConditions(ServerLevel param0, Villager param1) {
@@ -53,7 +53,7 @@ public class LookAndFollowTradingPlayerSink extends Behavior<Villager> {
     private void followPlayer(Villager param0) {
         EntityPosWrapper var0 = new EntityPosWrapper(param0.getTradingPlayer());
         Brain<?> var1 = param0.getBrain();
-        var1.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(var0, this.speed, 2));
+        var1.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(var0, this.speedModifier, 2));
         var1.setMemory(MemoryModuleType.LOOK_TARGET, var0);
     }
 }

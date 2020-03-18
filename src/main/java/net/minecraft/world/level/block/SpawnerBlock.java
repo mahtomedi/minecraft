@@ -6,12 +6,13 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class SpawnerBlock extends BaseEntityBlock {
-    protected SpawnerBlock(Block.Properties param0) {
+    protected SpawnerBlock(BlockBehaviour.Properties param0) {
         super(param0);
     }
 

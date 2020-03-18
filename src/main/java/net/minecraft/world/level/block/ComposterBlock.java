@@ -24,6 +24,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -130,7 +131,7 @@ public class ComposterBlock extends Block implements WorldlyContainerHolder {
         COMPOSTABLES.put(param1.asItem(), param0);
     }
 
-    public ComposterBlock(Block.Properties param0) {
+    public ComposterBlock(BlockBehaviour.Properties param0) {
         super(param0);
         this.registerDefaultState(this.stateDefinition.any().setValue(LEVEL, Integer.valueOf(0)));
     }
@@ -255,7 +256,6 @@ public class ComposterBlock extends Block implements WorldlyContainerHolder {
             param1.playSound(null, param2, SoundEvents.COMPOSTER_READY, SoundSource.BLOCKS, 1.0F, 1.0F);
         }
 
-        super.tick(param0, param1, param2, param3);
     }
 
     @Override

@@ -10,6 +10,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -17,7 +18,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class GrowingPlantBodyBlock extends GrowingPlantBlock implements BonemealableBlock {
-    protected GrowingPlantBodyBlock(Block.Properties param0, Direction param1, VoxelShape param2, boolean param3) {
+    protected GrowingPlantBodyBlock(BlockBehaviour.Properties param0, Direction param1, VoxelShape param2, boolean param3) {
         super(param0, param1, param2, param3);
     }
 
@@ -27,7 +28,6 @@ public abstract class GrowingPlantBodyBlock extends GrowingPlantBlock implements
             param1.destroyBlock(param2, true);
         }
 
-        super.tick(param0, param1, param2, param3);
     }
 
     @Override

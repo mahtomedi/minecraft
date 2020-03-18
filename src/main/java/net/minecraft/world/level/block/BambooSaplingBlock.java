@@ -13,6 +13,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BambooLeaves;
 import net.minecraft.world.phys.Vec3;
@@ -24,13 +25,13 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class BambooSaplingBlock extends Block implements BonemealableBlock {
     protected static final VoxelShape SAPLING_SHAPE = Block.box(4.0, 0.0, 4.0, 12.0, 12.0, 12.0);
 
-    public BambooSaplingBlock(Block.Properties param0) {
+    public BambooSaplingBlock(BlockBehaviour.Properties param0) {
         super(param0);
     }
 
     @Override
-    public Block.OffsetType getOffsetType() {
-        return Block.OffsetType.XZ;
+    public BlockBehaviour.OffsetType getOffsetType() {
+        return BlockBehaviour.OffsetType.XZ;
     }
 
     @Override
@@ -40,7 +41,7 @@ public class BambooSaplingBlock extends Block implements BonemealableBlock {
     }
 
     @Override
-    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         if (param3.nextInt(3) == 0 && param1.isEmptyBlock(param2.above()) && param1.getRawBrightness(param2.above(), 0) >= 9) {
             this.growBamboo(param1, param2);
         }

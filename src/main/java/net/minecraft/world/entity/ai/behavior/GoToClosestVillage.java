@@ -13,12 +13,12 @@ import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.phys.Vec3;
 
 public class GoToClosestVillage extends Behavior<Villager> {
-    private final float speed;
+    private final float speedModifier;
     private final int closeEnoughDistance;
 
     public GoToClosestVillage(float param0, int param1) {
         super(ImmutableMap.of(MemoryModuleType.WALK_TARGET, MemoryStatus.VALUE_ABSENT));
-        this.speed = param0;
+        this.speedModifier = param0;
         this.closeEnoughDistance = param1;
     }
 
@@ -47,7 +47,7 @@ public class GoToClosestVillage extends Behavior<Villager> {
         }
 
         if (var2 != null) {
-            param1.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(var2, this.speed, this.closeEnoughDistance));
+            param1.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(var2, this.speedModifier, this.closeEnoughDistance));
         }
 
     }

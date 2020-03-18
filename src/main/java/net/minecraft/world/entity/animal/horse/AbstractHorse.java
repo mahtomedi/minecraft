@@ -61,7 +61,6 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -770,7 +769,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
         param0.putInt("Temper", this.getTemper());
         param0.putBoolean("Tame", this.isTamed());
         if (this.getOwnerUUID() != null) {
-            param0.putString("OwnerUUID", this.getOwnerUUID().toString());
+            param0.putUUID("Owner", this.getOwnerUUID());
         }
 
         if (!this.inventory.getItem(0).isEmpty()) {
@@ -786,16 +785,16 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
         this.setBred(param0.getBoolean("Bred"));
         this.setTemper(param0.getInt("Temper"));
         this.setTamed(param0.getBoolean("Tame"));
-        String var0;
-        if (param0.contains("OwnerUUID", 8)) {
-            var0 = param0.getString("OwnerUUID");
+        UUID var0;
+        if (param0.hasUUID("Owner")) {
+            var0 = param0.getUUID("Owner");
         } else {
             String var1 = param0.getString("Owner");
             var0 = OldUsersConverter.convertMobOwnerIfNecessary(this.getServer(), var1);
         }
 
-        if (!var0.isEmpty()) {
-            this.setOwnerUUID(UUID.fromString(var0));
+        if (var0 != null) {
+            this.setOwnerUUID(var0);
         }
 
         AttributeInstance var3 = this.getAttributes().getInstance("Speed");
@@ -1015,26 +1014,25 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
         double var1 = this.getX() + var0.x;
         double var2 = this.getBoundingBox().minY;
         double var3 = this.getZ() + var0.z;
-        CollisionContext var4 = CollisionContext.of(param0);
-        AABB var5 = param0.getLocalBoundsForPose(Pose.SWIMMING).move(var1, var2, var3);
-        BlockPos.MutableBlockPos var6 = new BlockPos.MutableBlockPos(var1, var2, var3);
-        double var7 = this.getBoundingBox().maxY + 0.75;
+        AABB var4 = param0.getLocalBoundsForPose(param0.getShortestDismountPose()).move(var1, var2, var3);
+        BlockPos.MutableBlockPos var5 = new BlockPos.MutableBlockPos(var1, var2, var3);
+        double var6 = this.getBoundingBox().maxY + 0.75;
 
         do {
-            double var8 = getDismountTargetFloorHeight(this.level, var6, var4);
-            if ((double)var6.getY() + var8 > var7) {
+            double var7 = this.level.getRelativeFloorHeight(var5);
+            if ((double)var5.getY() + var7 > var6) {
                 break;
             }
 
-            if (!Double.isInfinite(var8) && var8 < 1.0) {
-                AABB var9 = var5.move(var1, (double)var6.getY() + var8, var3);
-                if (this.level.getBlockCollisions(param0, var9).allMatch(VoxelShape::isEmpty)) {
-                    return new Vec3(var1, (double)var6.getY() + var8, var3);
+            if (!Double.isInfinite(var7) && var7 < 1.0) {
+                AABB var8 = var4.move(var1, (double)var5.getY() + var7, var3);
+                if (this.level.getBlockCollisions(param0, var8).allMatch(VoxelShape::isEmpty)) {
+                    return new Vec3(var1, (double)var5.getY() + var7, var3);
                 }
             }
 
-            var6.move(Direction.UP);
-        } while((double)var6.getY() < var7);
+            var5.move(Direction.UP);
+        } while((double)var5.getY() < var6);
 
         return new Vec3(this.getX(), this.getY(), this.getZ());
     }

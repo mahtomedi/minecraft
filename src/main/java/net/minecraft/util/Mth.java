@@ -304,7 +304,6 @@ public class Mth {
         return (var0 << 8) + param2;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static float frac(float param0) {
         return param0 - (float)floor(param0);
     }

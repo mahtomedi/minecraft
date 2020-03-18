@@ -11,10 +11,11 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.entity.TrappedChestBlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class TrappedChestBlock extends ChestBlock {
-    public TrappedChestBlock(Block.Properties param0) {
+    public TrappedChestBlock(BlockBehaviour.Properties param0) {
         super(param0, () -> BlockEntityType.TRAPPED_CHEST);
     }
 

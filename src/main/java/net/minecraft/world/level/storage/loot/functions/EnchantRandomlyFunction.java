@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -42,30 +43,32 @@ public class EnchantRandomlyFunction extends LootItemConditionalFunction {
         Random var0 = param1.getRandom();
         Enchantment var3;
         if (this.enchantments.isEmpty()) {
-            List<Enchantment> var1 = Lists.newArrayList();
-
-            for(Enchantment var2 : Registry.ENCHANTMENT) {
-                if (param0.getItem() == Items.BOOK || var2.canEnchant(param0)) {
-                    var1.add(var2);
-                }
-            }
-
-            if (var1.isEmpty()) {
+            boolean var1 = param0.getItem() == Items.BOOK;
+            List<Enchantment> var2 = Registry.ENCHANTMENT
+                .stream()
+                .filter(Enchantment::isDiscoverable)
+                .filter(param2 -> var1 || param2.canEnchant(param0))
+                .collect(Collectors.toList());
+            if (var2.isEmpty()) {
                 LOGGER.warn("Couldn't find a compatible enchantment for {}", param0);
                 return param0;
             }
 
-            var3 = var1.get(var0.nextInt(var1.size()));
+            var3 = var2.get(var0.nextInt(var2.size()));
         } else {
             var3 = this.enchantments.get(var0.nextInt(this.enchantments.size()));
         }
 
-        int var5 = Mth.nextInt(var0, var3.getMinLevel(), var3.getMaxLevel());
+        return enchantItem(param0, var3, var0);
+    }
+
+    private static ItemStack enchantItem(ItemStack param0, Enchantment param1, Random param2) {
+        int var0 = Mth.nextInt(param2, param1.getMinLevel(), param1.getMaxLevel());
         if (param0.getItem() == Items.BOOK) {
             param0 = new ItemStack(Items.ENCHANTED_BOOK);
-            EnchantedBookItem.addEnchantment(param0, new EnchantmentInstance(var3, var5));
+            EnchantedBookItem.addEnchantment(param0, new EnchantmentInstance(param1, var0));
         } else {
-            param0.enchant(var3, var5);
+            param0.enchant(param1, var0);
         }
 
         return param0;

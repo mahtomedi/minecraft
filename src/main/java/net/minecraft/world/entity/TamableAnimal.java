@@ -43,10 +43,8 @@ public abstract class TamableAnimal extends Animal {
     @Override
     public void addAdditionalSaveData(CompoundTag param0) {
         super.addAdditionalSaveData(param0);
-        if (this.getOwnerUUID() == null) {
-            param0.putString("OwnerUUID", "");
-        } else {
-            param0.putString("OwnerUUID", this.getOwnerUUID().toString());
+        if (this.getOwnerUUID() != null) {
+            param0.putUUID("Owner", this.getOwnerUUID());
         }
 
         param0.putBoolean("Sitting", this.orderedToSit);
@@ -55,17 +53,17 @@ public abstract class TamableAnimal extends Animal {
     @Override
     public void readAdditionalSaveData(CompoundTag param0) {
         super.readAdditionalSaveData(param0);
-        String var0;
-        if (param0.contains("OwnerUUID", 8)) {
-            var0 = param0.getString("OwnerUUID");
+        UUID var0;
+        if (param0.hasUUID("Owner")) {
+            var0 = param0.getUUID("Owner");
         } else {
             String var1 = param0.getString("Owner");
             var0 = OldUsersConverter.convertMobOwnerIfNecessary(this.getServer(), var1);
         }
 
-        if (!var0.isEmpty()) {
+        if (var0 != null) {
             try {
-                this.setOwnerUUID(UUID.fromString(var0));
+                this.setOwnerUUID(var0);
                 this.setTame(true);
             } catch (Throwable var4) {
                 this.setTame(false);

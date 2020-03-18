@@ -461,21 +461,16 @@ public abstract class AbstractFurnaceBlockEntity
     }
 
     private static void createExperience(Player param0, int param1, float param2) {
-        if (param2 == 0.0F) {
-            param1 = 0;
-        } else if (param2 < 1.0F) {
-            int var0 = Mth.floor((float)param1 * param2);
-            if (var0 < Mth.ceil((float)param1 * param2) && Math.random() < (double)((float)param1 * param2 - (float)var0)) {
-                ++var0;
-            }
-
-            param1 = var0;
+        int var0 = Mth.floor((float)param1 * param2);
+        float var1 = Mth.frac((float)param1 * param2);
+        if (var1 != 0.0F && Math.random() < (double)var1) {
+            ++var0;
         }
 
-        while(param1 > 0) {
-            int var1 = ExperienceOrb.getExperienceValue(param1);
-            param1 -= var1;
-            param0.level.addFreshEntity(new ExperienceOrb(param0.level, param0.getX(), param0.getY() + 0.5, param0.getZ() + 0.5, var1));
+        while(var0 > 0) {
+            int var2 = ExperienceOrb.getExperienceValue(var0);
+            var0 -= var2;
+            param0.level.addFreshEntity(new ExperienceOrb(param0.level, param0.getX(), param0.getY() + 0.5, param0.getZ() + 0.5, var2));
         }
 
     }

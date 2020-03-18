@@ -14,6 +14,7 @@ import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -30,7 +31,7 @@ public abstract class BaseFireBlock extends Block {
     protected static final VoxelShape NORTH_AABB = Block.box(0.0, 0.0, 0.0, 16.0, 16.0, 1.0);
     protected static final VoxelShape SOUTH_AABB = Block.box(0.0, 0.0, 15.0, 16.0, 16.0, 16.0);
 
-    public BaseFireBlock(Block.Properties param0, float param1) {
+    public BaseFireBlock(BlockBehaviour.Properties param0, float param1) {
         super(param0);
         this.fireDamage = param1;
     }
@@ -43,7 +44,9 @@ public abstract class BaseFireBlock extends Block {
     public static BlockState getState(BlockGetter param0, BlockPos param1) {
         BlockPos var0 = param1.below();
         BlockState var1 = param0.getBlockState(var0);
-        return var1.getBlock() == Blocks.SOUL_SOIL ? Blocks.SOUL_FIRE.defaultBlockState() : ((FireBlock)Blocks.FIRE).getStateForPlacement(param0, param1);
+        return SoulFireBlock.canSurviveOnBlock(var1.getBlock())
+            ? Blocks.SOUL_FIRE.defaultBlockState()
+            : ((FireBlock)Blocks.FIRE).getStateForPlacement(param0, param1);
     }
 
     @Override

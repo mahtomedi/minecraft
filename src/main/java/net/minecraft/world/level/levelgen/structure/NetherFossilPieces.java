@@ -3,15 +3,12 @@ package net.minecraft.world.level.levelgen.structure;
 import java.util.List;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockIgnoreProcessor;
@@ -83,23 +80,8 @@ public class NetherFossilPieces {
 
         @Override
         public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
-            while(this.templatePosition.getY() > param1.getSeaLevel()) {
-                BlockPos var0 = this.templatePosition.below();
-                BlockState var1 = param0.getBlockState(var0);
-                if (!param0.getBlockState(this.templatePosition).isAir()
-                    || var1.getBlock() != Blocks.SOUL_SAND && !var1.isFaceSturdy(param0, var0, Direction.UP)) {
-                    this.templatePosition = this.templatePosition.below();
-                    continue;
-                }
-                break;
-            }
-
-            if (this.templatePosition.getY() <= param1.getSeaLevel()) {
-                return false;
-            } else {
-                param3.expand(this.template.getBoundingBox(this.placeSettings, this.templatePosition));
-                return super.postProcess(param0, param1, param2, param3, param4);
-            }
+            param3.expand(this.template.getBoundingBox(this.placeSettings, this.templatePosition));
+            return super.postProcess(param0, param1, param2, param3, param4);
         }
     }
 }

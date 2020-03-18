@@ -139,7 +139,7 @@ public class BeehiveBlockEntity extends BlockEntity implements TickableBlockEnti
         } else {
             param1.remove("Passengers");
             param1.remove("Leash");
-            param1.removeUUID("UUID");
+            param1.remove("UUID");
             Direction var1 = param0.getValue(BeehiveBlock.FACING);
             BlockPos var2 = var0.relative(var1);
             boolean var3 = !this.level.getBlockState(var2).getCollisionShape(this.level, var2).isEmpty();
@@ -283,7 +283,7 @@ public class BeehiveBlockEntity extends BlockEntity implements TickableBlockEnti
         ListTag var0 = new ListTag();
 
         for(BeehiveBlockEntity.BeeData var1 : this.stored) {
-            var1.entityData.removeUUID("UUID");
+            var1.entityData.remove("UUID");
             CompoundTag var2 = new CompoundTag();
             var2.put("EntityData", var1.entityData);
             var2.putInt("TicksInHive", var1.ticksInHive);
@@ -300,7 +300,7 @@ public class BeehiveBlockEntity extends BlockEntity implements TickableBlockEnti
         private final int minOccupationTicks;
 
         private BeeData(CompoundTag param0, int param1, int param2) {
-            param0.removeUUID("UUID");
+            param0.remove("UUID");
             this.entityData = param0;
             this.ticksInHive = param1;
             this.minOccupationTicks = param2;

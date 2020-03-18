@@ -51,6 +51,7 @@ import net.minecraft.network.protocol.game.ClientboundExplodePacket;
 import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
 import net.minecraft.network.protocol.game.ClientboundLevelEventPacket;
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
+import net.minecraft.network.protocol.game.ClientboundSetDefaultSpawnPositionPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.network.protocol.game.DebugPackets;
@@ -538,29 +539,6 @@ public class ServerLevel extends Level {
         this.levelData.setRaining(false);
         this.levelData.setThunderTime(0);
         this.levelData.setThundering(false);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public void validateSpawn() {
-        if (this.levelData.getYSpawn() <= 0) {
-            this.levelData.setYSpawn(this.getSeaLevel() + 1);
-        }
-
-        int var0 = this.levelData.getXSpawn();
-        int var1 = this.levelData.getZSpawn();
-        int var2 = 0;
-
-        while(this.getTopBlockState(new BlockPos(var0, 0, var1)).isAir()) {
-            var0 += this.random.nextInt(8) - this.random.nextInt(8);
-            var1 += this.random.nextInt(8) - this.random.nextInt(8);
-            if (++var2 == 10000) {
-                break;
-            }
-        }
-
-        this.levelData.setXSpawn(var0);
-        this.levelData.setZSpawn(var1);
     }
 
     public void resetEmptyTime() {
@@ -1303,11 +1281,12 @@ public class ServerLevel extends Level {
     }
 
     @Override
-    public void setSpawnPos(BlockPos param0) {
+    public void setDefaultSpawnPos(BlockPos param0) {
         ChunkPos var0 = new ChunkPos(new BlockPos(this.levelData.getXSpawn(), 0, this.levelData.getZSpawn()));
-        super.setSpawnPos(param0);
+        super.setDefaultSpawnPos(param0);
         this.getChunkSource().removeRegionTicket(TicketType.START, var0, 11, Unit.INSTANCE);
         this.getChunkSource().addRegionTicket(TicketType.START, new ChunkPos(param0), 11, Unit.INSTANCE);
+        this.getServer().getPlayerList().broadcastAll(new ClientboundSetDefaultSpawnPositionPacket(param0));
     }
 
     public LongSet getForcedChunks() {

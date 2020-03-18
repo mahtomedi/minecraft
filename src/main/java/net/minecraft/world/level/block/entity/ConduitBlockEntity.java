@@ -8,7 +8,6 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -52,8 +51,8 @@ public class ConduitBlockEntity extends BlockEntity implements TickableBlockEnti
     @Override
     public void load(CompoundTag param0) {
         super.load(param0);
-        if (param0.contains("target_uuid")) {
-            this.destroyTargetUUID = NbtUtils.loadUUIDTag(param0.getCompound("target_uuid"));
+        if (param0.hasUUID("Target")) {
+            this.destroyTargetUUID = param0.getUUID("Target");
         } else {
             this.destroyTargetUUID = null;
         }
@@ -64,7 +63,7 @@ public class ConduitBlockEntity extends BlockEntity implements TickableBlockEnti
     public CompoundTag save(CompoundTag param0) {
         super.save(param0);
         if (this.destroyTarget != null) {
-            param0.put("target_uuid", NbtUtils.createUUIDTag(this.destroyTarget.getUUID()));
+            param0.putUUID("Target", this.destroyTarget.getUUID());
         }
 
         return param0;

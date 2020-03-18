@@ -2,6 +2,7 @@ package net.minecraft.world.entity.monster.piglin;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.Dynamic;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -20,6 +21,7 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -39,6 +41,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.CrossbowAttackMob;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.SharedMonsterAttributes;
+import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.monster.ZombifiedPiglin;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -187,7 +190,7 @@ public class Piglin extends Monster implements CrossbowAttackMob {
     protected void registerAttributes() {
         super.registerAttributes();
         this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(16.0);
-        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.5);
+        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.35F);
         this.getAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(5.0);
     }
 
@@ -325,7 +328,9 @@ public class Piglin extends Monster implements CrossbowAttackMob {
         ZombifiedPiglin var0 = EntityType.ZOMBIFIED_PIGLIN.create(param0);
         if (var0 != null) {
             var0.copyPosition(this);
-            var0.finalizeSpawn(param0, param0.getCurrentDifficultyAt(var0.blockPosition()), MobSpawnType.CONVERSION, null, null);
+            var0.finalizeSpawn(
+                param0, param0.getCurrentDifficultyAt(var0.blockPosition()), MobSpawnType.CONVERSION, new Zombie.ZombieGroupData(this.isBaby()), null
+            );
             var0.setBaby(this.isBaby());
             var0.setNoAi(this.isNoAi());
             PiglinAi.cancelAdmiring(this);
@@ -464,8 +469,16 @@ public class Piglin extends Monster implements CrossbowAttackMob {
         PiglinAi.pickUpItem(this, param0);
     }
 
-    protected float getMovementSpeed() {
-        return (float)this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getValue();
+    @Override
+    public boolean startRiding(Entity param0, boolean param1) {
+        int var0 = 3;
+        Entity var1 = this.getTopPassenger(param0, var0);
+        return super.startRiding(var1, param1);
+    }
+
+    private Entity getTopPassenger(Entity param0, int param1) {
+        List<Entity> var0 = param0.getPassengers();
+        return param1 != 1 && !var0.isEmpty() ? this.getTopPassenger(var0.get(0), param1 - 1) : param0;
     }
 
     @Override

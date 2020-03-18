@@ -35,6 +35,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
@@ -90,8 +91,9 @@ public class Hoglin extends Animal implements Enemy {
     protected void registerAttributes() {
         super.registerAttributes();
         this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(40.0);
-        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.4F);
+        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.3F);
         this.getAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(0.5);
+        this.getAttribute(SharedMonsterAttributes.ATTACK_KNOCKBACK).setBaseValue(1.0);
         this.getAttributes().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(6.0);
     }
 
@@ -103,35 +105,54 @@ public class Hoglin extends Animal implements Enemy {
     public boolean doHurtTarget(Entity param0) {
         this.attackAnimationRemainingTicks = 10;
         this.level.broadcastEntityEvent(this, (byte)4);
-        float var0 = this.getAttackDamage();
-        float var2;
-        if (!this.isAdult() && (int)var0 <= 0) {
-            var2 = var0;
+        if (!(param0 instanceof LivingEntity)) {
+            return false;
         } else {
-            var2 = var0 / 2.0F + (float)this.random.nextInt((int)var0);
-        }
-
-        boolean var3 = param0.hurt(DamageSource.mobAttack(this), var2);
-        if (var3) {
-            this.doEnchantDamageEffects(this, param0);
-            if (this.isAdult()) {
-                this.throwTarget(param0);
+            LivingEntity var0 = (LivingEntity)param0;
+            float var1 = this.getAttackDamage();
+            float var2;
+            if (this.isAdult() && (int)var1 > 0) {
+                var2 = var1 / 2.0F + (float)this.random.nextInt((int)var1);
+            } else {
+                var2 = var1;
             }
-        }
 
-        this.playSound(SoundEvents.HOGLIN_ATTACK, 1.0F, this.getVoicePitch());
-        if (param0 instanceof LivingEntity) {
-            HoglinAi.onHitTarget(this, (LivingEntity)param0);
-        }
+            boolean var4 = param0.hurt(DamageSource.mobAttack(this), var2);
+            if (var4) {
+                this.doEnchantDamageEffects(this, param0);
+                if (this.isAdult()) {
+                    this.throwTarget(var0);
+                }
+            }
 
-        return var3;
+            this.playSound(SoundEvents.HOGLIN_ATTACK, 1.0F, this.getVoicePitch());
+            HoglinAi.onHitTarget(this, var0);
+            return var4;
+        }
     }
 
-    private void throwTarget(Entity param0) {
-        param0.setDeltaMovement(
-            param0.getDeltaMovement()
-                .add((double)((this.random.nextFloat() - 0.5F) * 0.5F), (double)(this.random.nextFloat() * 0.5F), (double)(this.random.nextFloat() * -0.5F))
-        );
+    private void throwTarget(LivingEntity param0) {
+        double var0 = this.getAttribute(SharedMonsterAttributes.ATTACK_KNOCKBACK).getValue();
+        double var1 = param0.getAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).getValue();
+        double var2 = var0 - var1;
+        if (!(var2 <= 0.0)) {
+            double var3 = param0.getX() - this.getX();
+            double var4 = param0.getZ() - this.getZ();
+            float var5 = (float)(this.random.nextInt(21) - 10);
+            double var6 = var2 * (double)(this.random.nextFloat() * 0.5F + 0.2F);
+            Vec3 var7 = new Vec3(var3, 0.0, var4).normalize().scale(var6).yRot(var5);
+            double var8 = var2 * (double)this.random.nextFloat() * 0.5;
+            param0.push(var7.x, var8, var7.z);
+            param0.hurtMarked = true;
+        }
+    }
+
+    @Override
+    protected void blockedByShield(LivingEntity param0) {
+        if (this.isAdult()) {
+            this.throwTarget(param0);
+        }
+
     }
 
     @Override
@@ -263,10 +284,6 @@ public class Hoglin extends Animal implements Enemy {
         }
 
         return var0;
-    }
-
-    protected float getMovementSpeed() {
-        return (float)this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getValue();
     }
 
     @Override

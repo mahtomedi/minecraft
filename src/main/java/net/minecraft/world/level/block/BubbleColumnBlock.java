@@ -12,6 +12,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -28,7 +29,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class BubbleColumnBlock extends Block implements BucketPickup {
     public static final BooleanProperty DRAG_DOWN = BlockStateProperties.DRAG;
 
-    public BubbleColumnBlock(Block.Properties param0) {
+    public BubbleColumnBlock(BlockBehaviour.Properties param0) {
         super(param0);
         this.registerDefaultState(this.stateDefinition.any().setValue(DRAG_DOWN, Boolean.valueOf(true)));
     }
@@ -109,11 +110,6 @@ public class BubbleColumnBlock extends Block implements BucketPickup {
         }
     }
 
-    @Override
-    public int getTickDelay(LevelReader param0) {
-        return 5;
-    }
-
     @OnlyIn(Dist.CLIENT)
     @Override
     public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
@@ -169,7 +165,7 @@ public class BubbleColumnBlock extends Block implements BucketPickup {
             if (param1 == Direction.DOWN) {
                 param3.setBlock(param4, Blocks.BUBBLE_COLUMN.defaultBlockState().setValue(DRAG_DOWN, Boolean.valueOf(getDrag(param3, param5))), 2);
             } else if (param1 == Direction.UP && param2.getBlock() != Blocks.BUBBLE_COLUMN && canExistIn(param3, param5)) {
-                param3.getBlockTicks().scheduleTick(param4, this, this.getTickDelay(param3));
+                param3.getBlockTicks().scheduleTick(param4, this, 5);
             }
 
             param3.getLiquidTicks().scheduleTick(param4, Fluids.WATER, Fluids.WATER.getTickDelay(param3));

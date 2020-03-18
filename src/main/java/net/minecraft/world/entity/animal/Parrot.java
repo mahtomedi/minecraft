@@ -20,6 +20,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
@@ -54,7 +55,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.LogBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.Vec3;
@@ -132,6 +132,11 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
     }
 
     @Override
+    public boolean isBaby() {
+        return false;
+    }
+
+    @Override
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new PanicGoal(this, 1.25));
         this.goalSelector.addGoal(0, new FloatGoal(this));
@@ -168,10 +173,13 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
 
     @Override
     public void aiStep() {
-        imitateNearbyMobs(this.level, this);
         if (this.jukebox == null || !this.jukebox.closerThan(this.position(), 3.46) || this.level.getBlockState(this.jukebox).getBlock() != Blocks.JUKEBOX) {
             this.partyParrot = false;
             this.jukebox = null;
+        }
+
+        if (this.level.random.nextInt(400) == 0) {
+            imitateNearbyMobs(this.level, this);
         }
 
         super.aiStep();
@@ -208,8 +216,8 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
         this.flap += this.flapping * 2.0F;
     }
 
-    private static boolean imitateNearbyMobs(Level param0, Entity param1) {
-        if (param1.isAlive() && !param1.isSilent() && param0.random.nextInt(50) == 0) {
+    public static boolean imitateNearbyMobs(Level param0, Entity param1) {
+        if (param1.isAlive() && !param1.isSilent() && param0.random.nextInt(2) == 0) {
             List<Mob> var0 = param0.getEntitiesOfClass(Mob.class, param1.getBoundingBox().inflate(20.0), NOT_PARROT_PREDICATE);
             if (!var0.isEmpty()) {
                 Mob var1 = var0.get(param0.random.nextInt(var0.size()));
@@ -289,7 +297,7 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
 
     public static boolean checkParrotSpawnRules(EntityType<Parrot> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
         Block var0 = param1.getBlockState(param3.below()).getBlock();
-        return (var0.is(BlockTags.LEAVES) || var0 == Blocks.GRASS_BLOCK || var0 instanceof LogBlock || var0 == Blocks.AIR)
+        return (var0.is(BlockTags.LEAVES) || var0 == Blocks.GRASS_BLOCK || var0.is(BlockTags.LOGS) || var0 == Blocks.AIR)
             && param1.getRawBrightness(param3, 0) > 8;
     }
 
@@ -313,15 +321,6 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
         return null;
     }
 
-    public static void playAmbientSound(Level param0, Entity param1) {
-        if (!param1.isSilent() && !imitateNearbyMobs(param0, param1) && param0.random.nextInt(200) == 0) {
-            param0.playSound(
-                null, param1.getX(), param1.getY(), param1.getZ(), getAmbient(param0.random), param1.getSoundSource(), 1.0F, getPitch(param0.random)
-            );
-        }
-
-    }
-
     @Override
     public boolean doHurtTarget(Entity param0) {
         return param0.hurt(DamageSource.mobAttack(this), 3.0F);
@@ -330,13 +329,13 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
     @Nullable
     @Override
     public SoundEvent getAmbientSound() {
-        return getAmbient(this.random);
+        return getAmbient(this.level, this.level.random);
     }
 
-    private static SoundEvent getAmbient(Random param0) {
-        if (param0.nextInt(1000) == 0) {
+    public static SoundEvent getAmbient(Level param0, Random param1) {
+        if (param0.getDifficulty() != Difficulty.PEACEFUL && param1.nextInt(1000) == 0) {
             List<EntityType<?>> var0 = Lists.newArrayList(MOB_SOUND_MAP.keySet());
-            return getImitatedSound(var0.get(param0.nextInt(var0.size())));
+            return getImitatedSound(var0.get(param1.nextInt(var0.size())));
         } else {
             return SoundEvents.PARROT_AMBIENT;
         }
@@ -377,7 +376,7 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
         return getPitch(this.random);
     }
 
-    private static float getPitch(Random param0) {
+    public static float getPitch(Random param0) {
         return (param0.nextFloat() - param0.nextFloat()) * 0.2F + 1.0F;
     }
 

@@ -152,7 +152,7 @@ public class FallingBlockEntity extends Entity {
 
                                 if (this.level.setBlock(var2, this.blockState, 3)) {
                                     if (var0 instanceof FallingBlock) {
-                                        ((FallingBlock)var0).onLand(this.level, var2, this.blockState, var7);
+                                        ((FallingBlock)var0).onLand(this.level, var2, this.blockState, var7, this);
                                     }
 
                                     if (this.blockData != null && var0 instanceof EntityBlock) {
@@ -178,7 +178,7 @@ public class FallingBlockEntity extends Entity {
                                 this.spawnAtLocation(var0);
                             }
                         } else if (var0 instanceof FallingBlock) {
-                            ((FallingBlock)var0).onBroken(this.level, var2);
+                            ((FallingBlock)var0).onBroken(this.level, var2, this);
                         }
                     }
                 } else if (!this.level.isClientSide && (this.time > 100 && (var2.getY() < 1 || var2.getY() > 256) || this.time > 600)) {

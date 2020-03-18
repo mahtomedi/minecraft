@@ -26,6 +26,7 @@ public class EntityPredicate {
         EntityFlagsPredicate.ANY,
         EntityEquipmentPredicate.ANY,
         PlayerPredicate.ANY,
+        FishingHookPredicate.ANY,
         null,
         null
     );
@@ -38,6 +39,7 @@ public class EntityPredicate {
     private final EntityFlagsPredicate flags;
     private final EntityEquipmentPredicate equipment;
     private final PlayerPredicate player;
+    private final FishingHookPredicate fishingHook;
     @Nullable
     private final String team;
     @Nullable
@@ -52,8 +54,9 @@ public class EntityPredicate {
         EntityFlagsPredicate param5,
         EntityEquipmentPredicate param6,
         PlayerPredicate param7,
-        @Nullable String param8,
-        @Nullable ResourceLocation param9
+        FishingHookPredicate param8,
+        @Nullable String param9,
+        @Nullable ResourceLocation param10
     ) {
         this.entityType = param0;
         this.distanceToPlayer = param1;
@@ -63,8 +66,9 @@ public class EntityPredicate {
         this.flags = param5;
         this.equipment = param6;
         this.player = param7;
-        this.team = param8;
-        this.catType = param9;
+        this.fishingHook = param8;
+        this.team = param9;
+        this.catType = param10;
     }
 
     public boolean matches(ServerPlayer param0, @Nullable Entity param1) {
@@ -99,6 +103,8 @@ public class EntityPredicate {
                 return false;
             } else if (!this.player.matches(param2)) {
                 return false;
+            } else if (!this.fishingHook.matches(param2)) {
+                return false;
             } else {
                 if (this.team != null) {
                     Team var0 = param2.getTeam();
@@ -123,8 +129,9 @@ public class EntityPredicate {
             EntityFlagsPredicate var6 = EntityFlagsPredicate.fromJson(var0.get("flags"));
             EntityEquipmentPredicate var7 = EntityEquipmentPredicate.fromJson(var0.get("equipment"));
             PlayerPredicate var8 = PlayerPredicate.fromJson(var0.get("player"));
-            String var9 = GsonHelper.getAsString(var0, "team", null);
-            ResourceLocation var10 = var0.has("catType") ? new ResourceLocation(GsonHelper.getAsString(var0, "catType")) : null;
+            FishingHookPredicate var9 = FishingHookPredicate.fromJson(var0.get("fishing_hook"));
+            String var10 = GsonHelper.getAsString(var0, "team", null);
+            ResourceLocation var11 = var0.has("catType") ? new ResourceLocation(GsonHelper.getAsString(var0, "catType")) : null;
             return new EntityPredicate.Builder()
                 .entityType(var1)
                 .distance(var2)
@@ -134,8 +141,9 @@ public class EntityPredicate {
                 .flags(var6)
                 .equipment(var7)
                 .player(var8)
-                .team(var9)
-                .catType(var10)
+                .fishingHook(var9)
+                .team(var10)
+                .catType(var11)
                 .build();
         } else {
             return ANY;
@@ -170,6 +178,7 @@ public class EntityPredicate {
             var0.add("flags", this.flags.serializeToJson());
             var0.add("equipment", this.equipment.serializeToJson());
             var0.add("player", this.player.serializeToJson());
+            var0.add("fishing_hook", this.fishingHook.serializeToJson());
             var0.addProperty("team", this.team);
             if (this.catType != null) {
                 var0.addProperty("catType", this.catType.toString());
@@ -205,6 +214,7 @@ public class EntityPredicate {
         private EntityFlagsPredicate flags = EntityFlagsPredicate.ANY;
         private EntityEquipmentPredicate equipment = EntityEquipmentPredicate.ANY;
         private PlayerPredicate player = PlayerPredicate.ANY;
+        private FishingHookPredicate fishingHook = FishingHookPredicate.ANY;
         private String team;
         private ResourceLocation catType;
 
@@ -267,6 +277,11 @@ public class EntityPredicate {
             return this;
         }
 
+        public EntityPredicate.Builder fishingHook(FishingHookPredicate param0) {
+            this.fishingHook = param0;
+            return this;
+        }
+
         public EntityPredicate.Builder team(@Nullable String param0) {
             this.team = param0;
             return this;
@@ -279,7 +294,17 @@ public class EntityPredicate {
 
         public EntityPredicate build() {
             return new EntityPredicate(
-                this.entityType, this.distanceToPlayer, this.location, this.effects, this.nbt, this.flags, this.equipment, this.player, this.team, this.catType
+                this.entityType,
+                this.distanceToPlayer,
+                this.location,
+                this.effects,
+                this.nbt,
+                this.flags,
+                this.equipment,
+                this.player,
+                this.fishingHook,
+                this.team,
+                this.catType
             );
         }
     }

@@ -137,7 +137,6 @@ public abstract class Entity implements CommandSource, Nameable {
     protected boolean onGround;
     public boolean horizontalCollision;
     public boolean verticalCollision;
-    public boolean collision;
     public boolean hurtMarked;
     protected Vec3 stuckSpeedMultiplier = Vec3.ZERO;
     public boolean removed;
@@ -516,7 +515,6 @@ public abstract class Entity implements CommandSource, Nameable {
             this.horizontalCollision = !Mth.equal(param1.x, var0.x) || !Mth.equal(param1.z, var0.z);
             this.verticalCollision = param1.y != var0.y;
             this.onGround = this.verticalCollision && param1.y < 0.0;
-            this.collision = this.horizontalCollision || this.verticalCollision;
             BlockPos var1 = this.getOnPos();
             BlockState var2 = this.level.getBlockState(var1);
             this.checkFallDamage(var0.y, this.onGround, var2, var1);
@@ -2565,18 +2563,6 @@ public abstract class Entity implements CommandSource, Nameable {
         return new Vec3((double)var1 * var0 / (double)var3, 0.0, (double)var2 * var0 / (double)var3);
     }
 
-    protected static double getDismountTargetFloorHeight(Level param0, BlockPos param1, CollisionContext param2) {
-        VoxelShape var0 = param0.getBlockState(param1).getCollisionShape(param0, param1, param2);
-        if (var0.isEmpty()) {
-            BlockPos var1 = param1.below();
-            VoxelShape var2 = param0.getBlockState(var1).getCollisionShape(param0, var1, param2);
-            double var3 = var2.max(Direction.Axis.Y);
-            return var3 >= 1.0 ? var3 - 1.0 : Double.NEGATIVE_INFINITY;
-        } else {
-            return var0.max(Direction.Axis.Y);
-        }
-    }
-
     public Vec3 getDismountLocationForPassenger(LivingEntity param0) {
         Direction var0 = this.getMotionDirection();
         if (var0.getAxis() == Direction.Axis.Y) {
@@ -2593,25 +2579,23 @@ public abstract class Entity implements CommandSource, Nameable {
                 {-var0.getStepX(), -var0.getStepZ()},
                 {var0.getStepX(), var0.getStepZ()}
             };
-            BlockPos var3 = new BlockPos(this.getX(), this.getY(), this.getZ());
-            CollisionContext var4 = CollisionContext.of(param0);
+            BlockPos var3 = this.blockPosition();
+            ImmutableList<Pose> var4 = param0.getDismountPoses();
 
-            for(Pose var6 : param0.getDismountPoses()) {
-                for(int var7 : POSE_DISMOUNT_HEIGHTS.get(var6)) {
+            for(Pose var5 : var4) {
+                double var6 = (double)param0.getDimensions(var5).height;
+
+                for(int var7 : POSE_DISMOUNT_HEIGHTS.get(var5)) {
                     for(int[] var8 : var2) {
                         BlockPos var9 = var3.offset(var8[0], var7, var8[1]);
-                        double var10 = getDismountTargetFloorHeight(this.level, var9, var4);
+                        double var10 = this.level.getRelativeFloorHeight(var9);
                         if (!Double.isInfinite(var10) && !(var10 >= 1.0)) {
                             double var11 = (double)var9.getY() + var10;
                             AABB var12 = new AABB(
-                                (double)var9.getX(),
-                                var11,
-                                (double)var9.getZ(),
-                                (double)var9.getX() + 1.0,
-                                var11 + (double)param0.getDimensions(var6).height,
-                                (double)var9.getZ() + 1.0
+                                (double)var9.getX(), var11, (double)var9.getZ(), (double)var9.getX() + 1.0, var11 + var6, (double)var9.getZ() + 1.0
                             );
                             if (this.level.getBlockCollisions(param0, var12).allMatch(VoxelShape::isEmpty)) {
+                                param0.setPose(var5);
                                 return new Vec3((double)var9.getX() + 0.5, (double)var9.getY() + var10, (double)var9.getZ() + 0.5);
                             }
                         }
@@ -2619,7 +2603,19 @@ public abstract class Entity implements CommandSource, Nameable {
                 }
             }
 
-            return new Vec3(this.getX(), this.getBoundingBox().maxY, this.getZ());
+            double var13 = this.getBoundingBox().maxY;
+            BlockPos var14 = new BlockPos((double)var3.getX(), var13, (double)var3.getZ());
+
+            for(Pose var15 : var4) {
+                double var16 = (double)param0.getDimensions(var15).height;
+                double var17 = (double)var14.getY() + this.level.getRelativeCeilingHeight(var14, var13 - (double)var14.getY() + var16);
+                if (var13 + var16 <= var17) {
+                    param0.setPose(var15);
+                    break;
+                }
+            }
+
+            return new Vec3(this.getX(), var13, this.getZ());
         }
     }
 

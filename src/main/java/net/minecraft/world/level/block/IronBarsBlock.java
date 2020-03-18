@@ -5,15 +5,19 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class IronBarsBlock extends CrossCollisionBlock {
-    protected IronBarsBlock(Block.Properties param0) {
+    protected IronBarsBlock(BlockBehaviour.Properties param0) {
         super(1.0F, 1.0F, 16.0F, 16.0F, 16.0F, param0);
         this.registerDefaultState(
             this.stateDefinition
@@ -58,6 +62,11 @@ public class IronBarsBlock extends CrossCollisionBlock {
                 PROPERTY_BY_DIRECTION.get(param1), Boolean.valueOf(this.attachsTo(param2, param2.isFaceSturdy(param3, param5, param1.getOpposite())))
             )
             : super.updateShape(param0, param1, param2, param3, param4, param5);
+    }
+
+    @Override
+    public VoxelShape getVisualShape(BlockState param0, BlockGetter param1, BlockPos param2, CollisionContext param3) {
+        return Shapes.empty();
     }
 
     @OnlyIn(Dist.CLIENT)

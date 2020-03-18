@@ -19,6 +19,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.EnchantmentTableBlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
@@ -30,7 +31,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class EnchantmentTableBlock extends BaseEntityBlock {
     protected static final VoxelShape SHAPE = Block.box(0.0, 0.0, 0.0, 16.0, 12.0, 16.0);
 
-    protected EnchantmentTableBlock(Block.Properties param0) {
+    protected EnchantmentTableBlock(BlockBehaviour.Properties param0) {
         super(param0);
     }
 

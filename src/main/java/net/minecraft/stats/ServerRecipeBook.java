@@ -78,6 +78,10 @@ public class ServerRecipeBook extends RecipeBook {
         var0.putBoolean("isFilteringCraftable", this.filteringCraftable);
         var0.putBoolean("isFurnaceGuiOpen", this.furnaceGuiOpen);
         var0.putBoolean("isFurnaceFilteringCraftable", this.furnaceFilteringCraftable);
+        var0.putBoolean("isBlastingFurnaceGuiOpen", this.blastingFurnaceGuiOpen);
+        var0.putBoolean("isBlastingFurnaceFilteringCraftable", this.blastingFurnaceFilteringCraftable);
+        var0.putBoolean("isSmokerGuiOpen", this.smokerGuiOpen);
+        var0.putBoolean("isSmokerFilteringCraftable", this.smokerFilteringCraftable);
         ListTag var1 = new ListTag();
 
         for(ResourceLocation var2 : this.known) {
@@ -100,6 +104,10 @@ public class ServerRecipeBook extends RecipeBook {
         this.filteringCraftable = param0.getBoolean("isFilteringCraftable");
         this.furnaceGuiOpen = param0.getBoolean("isFurnaceGuiOpen");
         this.furnaceFilteringCraftable = param0.getBoolean("isFurnaceFilteringCraftable");
+        this.blastingFurnaceGuiOpen = param0.getBoolean("isBlastingFurnaceGuiOpen");
+        this.blastingFurnaceFilteringCraftable = param0.getBoolean("isBlastingFurnaceFilteringCraftable");
+        this.smokerGuiOpen = param0.getBoolean("isSmokerGuiOpen");
+        this.smokerFilteringCraftable = param0.getBoolean("isSmokerFilteringCraftable");
         ListTag var0 = param0.getList("recipes", 8);
         this.loadRecipes(var0, this::add);
         ListTag var1 = param0.getList("toBeDisplayed", 8);

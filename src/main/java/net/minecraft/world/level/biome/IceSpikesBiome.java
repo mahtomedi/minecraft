@@ -1,6 +1,5 @@
 package net.minecraft.world.level.biome;
 
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.block.Blocks;
@@ -36,7 +35,7 @@ public final class IceSpikesBiome extends Biome {
                         .waterColor(4159204)
                         .waterFogColor(329011)
                         .fogColor(12638463)
-                        .ambientMoodSound(SoundEvents.AMBIENT_CAVE)
+                        .ambientMoodSound(AmbientMoodSettings.LEGACY_CAVE_SETTINGS)
                         .build()
                 )
                 .parent("snowy_tundra")

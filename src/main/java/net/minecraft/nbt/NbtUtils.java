@@ -12,6 +12,7 @@ import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.SerializableUUID;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringUtil;
 import net.minecraft.util.datafix.DataFixTypes;
@@ -30,44 +31,37 @@ public final class NbtUtils {
     @Nullable
     public static GameProfile readGameProfile(CompoundTag param0) {
         String var0 = null;
-        String var1 = null;
+        UUID var1 = null;
         if (param0.contains("Name", 8)) {
             var0 = param0.getString("Name");
         }
 
-        if (param0.contains("Id", 8)) {
-            var1 = param0.getString("Id");
+        if (param0.hasUUID("Id")) {
+            var1 = param0.getUUID("Id");
         }
 
         try {
-            UUID var2;
-            try {
-                var2 = UUID.fromString(var1);
-            } catch (Throwable var12) {
-                var2 = null;
-            }
-
-            GameProfile var5 = new GameProfile(var2, var0);
+            GameProfile var2 = new GameProfile(var1, var0);
             if (param0.contains("Properties", 10)) {
-                CompoundTag var6 = param0.getCompound("Properties");
+                CompoundTag var3 = param0.getCompound("Properties");
 
-                for(String var7 : var6.getAllKeys()) {
-                    ListTag var8 = var6.getList(var7, 10);
+                for(String var4 : var3.getAllKeys()) {
+                    ListTag var5 = var3.getList(var4, 10);
 
-                    for(int var9 = 0; var9 < var8.size(); ++var9) {
-                        CompoundTag var10 = var8.getCompound(var9);
-                        String var11 = var10.getString("Value");
-                        if (var10.contains("Signature", 8)) {
-                            var5.getProperties().put(var7, new com.mojang.authlib.properties.Property(var7, var11, var10.getString("Signature")));
+                    for(int var6 = 0; var6 < var5.size(); ++var6) {
+                        CompoundTag var7 = var5.getCompound(var6);
+                        String var8 = var7.getString("Value");
+                        if (var7.contains("Signature", 8)) {
+                            var2.getProperties().put(var4, new com.mojang.authlib.properties.Property(var4, var8, var7.getString("Signature")));
                         } else {
-                            var5.getProperties().put(var7, new com.mojang.authlib.properties.Property(var7, var11));
+                            var2.getProperties().put(var4, new com.mojang.authlib.properties.Property(var4, var8));
                         }
                     }
                 }
             }
 
-            return var5;
-        } catch (Throwable var13) {
+            return var2;
+        } catch (Throwable var11) {
             return null;
         }
     }
@@ -78,7 +72,7 @@ public final class NbtUtils {
         }
 
         if (param1.getId() != null) {
-            param0.putString("Id", param1.getId().toString());
+            param0.putUUID("Id", param1.getId());
         }
 
         if (!param1.getProperties().isEmpty()) {
@@ -157,13 +151,11 @@ public final class NbtUtils {
         }
     }
 
-    public static IntArrayTag createUUIDArray(UUID param0) {
-        long var0 = param0.getMostSignificantBits();
-        long var1 = param0.getLeastSignificantBits();
-        return new IntArrayTag(new int[]{(int)(var0 >> 32), (int)var0, (int)(var1 >> 32), (int)var1});
+    public static IntArrayTag createUUID(UUID param0) {
+        return new IntArrayTag(SerializableUUID.uuidToIntArray(param0));
     }
 
-    public static UUID loadUUIDArray(Tag param0) {
+    public static UUID loadUUID(Tag param0) {
         if (param0.getType() != IntArrayTag.TYPE) {
             throw new IllegalArgumentException(
                 "Expected UUID-Tag to be of type " + IntArrayTag.TYPE.getName() + ", but found " + param0.getType().getName() + "."
@@ -173,22 +165,9 @@ public final class NbtUtils {
             if (var0.length != 4) {
                 throw new IllegalArgumentException("Expected UUID-Array to be of length 4, but found " + var0.length + ".");
             } else {
-                return new UUID((long)var0[0] << 32 | (long)var0[1] & 4294967295L, (long)var0[2] << 32 | (long)var0[3] & 4294967295L);
+                return SerializableUUID.uuidFromIntArray(var0);
             }
         }
-    }
-
-    @Deprecated
-    public static CompoundTag createUUIDTag(UUID param0) {
-        CompoundTag var0 = new CompoundTag();
-        var0.putLong("M", param0.getMostSignificantBits());
-        var0.putLong("L", param0.getLeastSignificantBits());
-        return var0;
-    }
-
-    @Deprecated
-    public static UUID loadUUIDTag(CompoundTag param0) {
-        return new UUID(param0.getLong("M"), param0.getLong("L"));
     }
 
     public static BlockPos readBlockPos(CompoundTag param0) {

@@ -7,13 +7,13 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class ClientboundSetSpawnPositionPacket implements Packet<ClientGamePacketListener> {
+public class ClientboundSetDefaultSpawnPositionPacket implements Packet<ClientGamePacketListener> {
     private BlockPos pos;
 
-    public ClientboundSetSpawnPositionPacket() {
+    public ClientboundSetDefaultSpawnPositionPacket() {
     }
 
-    public ClientboundSetSpawnPositionPacket(BlockPos param0) {
+    public ClientboundSetDefaultSpawnPositionPacket(BlockPos param0) {
         this.pos = param0;
     }
 

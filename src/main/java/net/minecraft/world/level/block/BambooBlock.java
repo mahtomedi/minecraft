@@ -13,6 +13,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BambooLeaves;
@@ -33,7 +34,7 @@ public class BambooBlock extends Block implements BonemealableBlock {
     public static final EnumProperty<BambooLeaves> LEAVES = BlockStateProperties.BAMBOO_LEAVES;
     public static final IntegerProperty STAGE = BlockStateProperties.STAGE;
 
-    public BambooBlock(Block.Properties param0) {
+    public BambooBlock(BlockBehaviour.Properties param0) {
         super(param0);
         this.registerDefaultState(
             this.stateDefinition.any().setValue(AGE, Integer.valueOf(0)).setValue(LEAVES, BambooLeaves.NONE).setValue(STAGE, Integer.valueOf(0))
@@ -46,8 +47,8 @@ public class BambooBlock extends Block implements BonemealableBlock {
     }
 
     @Override
-    public Block.OffsetType getOffsetType() {
-        return Block.OffsetType.XZ;
+    public BlockBehaviour.OffsetType getOffsetType() {
+        return BlockBehaviour.OffsetType.XZ;
     }
 
     @Override
@@ -101,7 +102,18 @@ public class BambooBlock extends Block implements BonemealableBlock {
     public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         if (!param0.canSurvive(param1, param2)) {
             param1.destroyBlock(param2, true);
-        } else if (param0.getValue(STAGE) == 0) {
+        }
+
+    }
+
+    @Override
+    public boolean isRandomlyTicking(BlockState param0) {
+        return param0.getValue(STAGE) == 0;
+    }
+
+    @Override
+    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+        if (param0.getValue(STAGE) == 0) {
             if (param3.nextInt(3) == 0 && param1.isEmptyBlock(param2.above()) && param1.getRawBrightness(param2.above(), 0) >= 9) {
                 int var0 = this.getHeightBelowUpToMax(param1, param2) + 1;
                 if (var0 < 16) {

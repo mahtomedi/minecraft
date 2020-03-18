@@ -11,6 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -34,7 +35,7 @@ public class StemBlock extends BushBlock implements BonemealableBlock {
     };
     private final StemGrownBlock fruit;
 
-    protected StemBlock(StemGrownBlock param0, Block.Properties param1) {
+    protected StemBlock(StemGrownBlock param0, BlockBehaviour.Properties param1) {
         super(param1);
         this.fruit = param0;
         this.registerDefaultState(this.stateDefinition.any().setValue(AGE, Integer.valueOf(0)));
@@ -51,8 +52,7 @@ public class StemBlock extends BushBlock implements BonemealableBlock {
     }
 
     @Override
-    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
-        super.tick(param0, param1, param2, param3);
+    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         if (param1.getRawBrightness(param2, 0) >= 9) {
             float var0 = CropBlock.getGrowthSpeed(this, param1, param2);
             if (param3.nextInt((int)(25.0F / var0) + 1) == 0) {
@@ -110,7 +110,7 @@ public class StemBlock extends BushBlock implements BonemealableBlock {
         BlockState var1 = param3.setValue(AGE, Integer.valueOf(var0));
         param0.setBlock(param2, var1, 2);
         if (var0 == 7) {
-            var1.tick(param0, param2, param0.random);
+            var1.randomTick(param0, param2, param0.random);
         }
 
     }

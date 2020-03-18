@@ -17,31 +17,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
 
 public class AxeItem extends DiggerItem {
-    private static final Set<Block> DIGGABLES = Sets.newHashSet(
-        Blocks.OAK_PLANKS,
-        Blocks.SPRUCE_PLANKS,
-        Blocks.BIRCH_PLANKS,
-        Blocks.JUNGLE_PLANKS,
-        Blocks.ACACIA_PLANKS,
-        Blocks.DARK_OAK_PLANKS,
-        Blocks.BOOKSHELF,
-        Blocks.OAK_WOOD,
-        Blocks.SPRUCE_WOOD,
-        Blocks.BIRCH_WOOD,
-        Blocks.JUNGLE_WOOD,
-        Blocks.ACACIA_WOOD,
-        Blocks.DARK_OAK_WOOD,
-        Blocks.OAK_LOG,
-        Blocks.SPRUCE_LOG,
-        Blocks.BIRCH_LOG,
-        Blocks.JUNGLE_LOG,
-        Blocks.ACACIA_LOG,
-        Blocks.DARK_OAK_LOG,
-        Blocks.CHEST,
-        Blocks.PUMPKIN,
-        Blocks.CARVED_PUMPKIN,
-        Blocks.JACK_O_LANTERN,
-        Blocks.MELON,
+    private static final Set<Material> DIGGABLE_MATERIALS = Sets.newHashSet(
+        Material.WOOD, Material.NETHER_WOOD, Material.PLANT, Material.REPLACEABLE_PLANT, Material.BAMBOO, Material.VEGETABLE
+    );
+    private static final Set<Block> OTHER_DIGGABLE_BLOCKS = Sets.newHashSet(
         Blocks.LADDER,
         Blocks.SCAFFOLDING,
         Blocks.OAK_BUTTON,
@@ -50,36 +29,8 @@ public class AxeItem extends DiggerItem {
         Blocks.JUNGLE_BUTTON,
         Blocks.DARK_OAK_BUTTON,
         Blocks.ACACIA_BUTTON,
-        Blocks.OAK_PRESSURE_PLATE,
-        Blocks.SPRUCE_PRESSURE_PLATE,
-        Blocks.BIRCH_PRESSURE_PLATE,
-        Blocks.JUNGLE_PRESSURE_PLATE,
-        Blocks.DARK_OAK_PRESSURE_PLATE,
-        Blocks.ACACIA_PRESSURE_PLATE,
-        Blocks.CRIMSON_PLANKS,
-        Blocks.CRIMSON_STEM,
-        Blocks.CRIMSON_HYPHAE,
         Blocks.CRIMSON_BUTTON,
-        Blocks.CRIMSON_PRESSURE_PLATE,
-        Blocks.CRIMSON_FENCE,
-        Blocks.CRIMSON_FENCE_GATE,
-        Blocks.CRIMSON_STAIRS,
-        Blocks.CRIMSON_DOOR,
-        Blocks.CRIMSON_TRAPDOOR,
-        Blocks.CRIMSON_SIGN,
-        Blocks.CRIMSON_SLAB,
-        Blocks.WARPED_PLANKS,
-        Blocks.WARPED_STEM,
-        Blocks.WARPED_HYPHAE,
-        Blocks.WARPED_BUTTON,
-        Blocks.WARPED_PRESSURE_PLATE,
-        Blocks.WARPED_FENCE,
-        Blocks.WARPED_FENCE_GATE,
-        Blocks.WARPED_STAIRS,
-        Blocks.WARPED_DOOR,
-        Blocks.WARPED_TRAPDOOR,
-        Blocks.WARPED_SIGN,
-        Blocks.WARPED_SLAB
+        Blocks.WARPED_BUTTON
     );
     protected static final Map<Block, Block> STRIPABLES = new Builder<Block, Block>()
         .put(Blocks.OAK_WOOD, Blocks.STRIPPED_OAK_WOOD)
@@ -101,15 +52,13 @@ public class AxeItem extends DiggerItem {
         .build();
 
     protected AxeItem(Tier param0, float param1, float param2, Item.Properties param3) {
-        super(param1, param2, param0, DIGGABLES, param3);
+        super(param1, param2, param0, OTHER_DIGGABLE_BLOCKS, param3);
     }
 
     @Override
     public float getDestroySpeed(ItemStack param0, BlockState param1) {
         Material var0 = param1.getMaterial();
-        return var0 != Material.WOOD && var0 != Material.PLANT && var0 != Material.REPLACEABLE_PLANT && var0 != Material.BAMBOO
-            ? super.getDestroySpeed(param0, param1)
-            : this.speed;
+        return DIGGABLE_MATERIALS.contains(var0) ? this.speed : super.getDestroySpeed(param0, param1);
     }
 
     @Override

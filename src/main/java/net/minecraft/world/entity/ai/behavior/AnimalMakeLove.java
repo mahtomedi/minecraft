@@ -11,9 +11,10 @@ import net.minecraft.world.entity.animal.Animal;
 
 public class AnimalMakeLove extends Behavior<Animal> {
     private final EntityType<? extends Animal> partnerType;
+    private final float speedModifier;
     private long spawnChildAtTime;
 
-    public AnimalMakeLove(EntityType<? extends Animal> param0) {
+    public AnimalMakeLove(EntityType<? extends Animal> param0, float param1) {
         super(
             ImmutableMap.of(
                 MemoryModuleType.VISIBLE_LIVING_ENTITIES,
@@ -28,6 +29,7 @@ public class AnimalMakeLove extends Behavior<Animal> {
             325
         );
         this.partnerType = param0;
+        this.speedModifier = param1;
     }
 
     protected boolean checkExtraStartConditions(ServerLevel param0, Animal param1) {
@@ -38,7 +40,7 @@ public class AnimalMakeLove extends Behavior<Animal> {
         Animal var0 = this.findValidBreedPartner(param1).get();
         param1.getBrain().setMemory(MemoryModuleType.BREED_TARGET, var0);
         var0.getBrain().setMemory(MemoryModuleType.BREED_TARGET, param1);
-        BehaviorUtils.lockGazeAndWalkToEachOther(param1, var0);
+        BehaviorUtils.lockGazeAndWalkToEachOther(param1, var0, this.speedModifier);
         int var1 = 275 + param1.getRandom().nextInt(50);
         this.spawnChildAtTime = param2 + (long)var1;
     }
@@ -54,7 +56,7 @@ public class AnimalMakeLove extends Behavior<Animal> {
 
     protected void tick(ServerLevel param0, Animal param1, long param2) {
         Animal var0 = this.getBreedTarget(param1);
-        BehaviorUtils.lockGazeAndWalkToEachOther(param1, var0);
+        BehaviorUtils.lockGazeAndWalkToEachOther(param1, var0, this.speedModifier);
         if (param1.closerThan(var0, 3.0)) {
             if (param2 >= this.spawnChildAtTime) {
                 param1.spawnChildFromBreeding(param0, var0);

@@ -118,6 +118,7 @@ public class Bat extends AmbientCreature {
         BlockPos var0 = this.blockPosition();
         BlockPos var1 = var0.above();
         if (this.isResting()) {
+            boolean var2 = this.isSilent();
             if (this.level.getBlockState(var1).isRedstoneConductor(this.level, var0)) {
                 if (this.random.nextInt(200) == 0) {
                     this.yHeadRot = (float)this.random.nextInt(360);
@@ -125,11 +126,15 @@ public class Bat extends AmbientCreature {
 
                 if (this.level.getNearestPlayer(BAT_RESTING_TARGETING, this) != null) {
                     this.setResting(false);
-                    this.level.levelEvent(null, 1025, var0, 0);
+                    if (!var2) {
+                        this.level.levelEvent(null, 1025, var0, 0);
+                    }
                 }
             } else {
                 this.setResting(false);
-                this.level.levelEvent(null, 1025, var0, 0);
+                if (!var2) {
+                    this.level.levelEvent(null, 1025, var0, 0);
+                }
             }
         } else {
             if (this.targetPosition != null && (!this.level.isEmptyBlock(this.targetPosition) || this.targetPosition.getY() < 1)) {
@@ -144,18 +149,18 @@ public class Bat extends AmbientCreature {
                 );
             }
 
-            double var2 = (double)this.targetPosition.getX() + 0.5 - this.getX();
-            double var3 = (double)this.targetPosition.getY() + 0.1 - this.getY();
-            double var4 = (double)this.targetPosition.getZ() + 0.5 - this.getZ();
-            Vec3 var5 = this.getDeltaMovement();
-            Vec3 var6 = var5.add(
-                (Math.signum(var2) * 0.5 - var5.x) * 0.1F, (Math.signum(var3) * 0.7F - var5.y) * 0.1F, (Math.signum(var4) * 0.5 - var5.z) * 0.1F
+            double var3 = (double)this.targetPosition.getX() + 0.5 - this.getX();
+            double var4 = (double)this.targetPosition.getY() + 0.1 - this.getY();
+            double var5 = (double)this.targetPosition.getZ() + 0.5 - this.getZ();
+            Vec3 var6 = this.getDeltaMovement();
+            Vec3 var7 = var6.add(
+                (Math.signum(var3) * 0.5 - var6.x) * 0.1F, (Math.signum(var4) * 0.7F - var6.y) * 0.1F, (Math.signum(var5) * 0.5 - var6.z) * 0.1F
             );
-            this.setDeltaMovement(var6);
-            float var7 = (float)(Mth.atan2(var6.z, var6.x) * 180.0F / (float)Math.PI) - 90.0F;
-            float var8 = Mth.wrapDegrees(var7 - this.yRot);
+            this.setDeltaMovement(var7);
+            float var8 = (float)(Mth.atan2(var7.z, var7.x) * 180.0F / (float)Math.PI) - 90.0F;
+            float var9 = Mth.wrapDegrees(var8 - this.yRot);
             this.zza = 0.5F;
-            this.yRot += var8;
+            this.yRot += var9;
             if (this.random.nextInt(100) == 0 && this.level.getBlockState(var1).isRedstoneConductor(this.level, var1)) {
                 this.setResting(true);
             }

@@ -184,29 +184,29 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
 
     private void registerBrainGoals(Brain<Villager> param0) {
         VillagerProfession var0 = this.getVillagerData().getProfession();
-        float var1 = (float)this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getValue();
+        float var1 = 0.5F;
         if (this.isBaby()) {
             param0.setSchedule(Schedule.VILLAGER_BABY);
-            param0.addActivity(Activity.PLAY, VillagerGoalPackages.getPlayPackage(var1));
+            param0.addActivity(Activity.PLAY, VillagerGoalPackages.getPlayPackage(0.5F));
         } else {
             param0.setSchedule(Schedule.VILLAGER_DEFAULT);
             param0.addActivityWithConditions(
-                Activity.WORK, VillagerGoalPackages.getWorkPackage(var0, var1), ImmutableSet.of(Pair.of(MemoryModuleType.JOB_SITE, MemoryStatus.VALUE_PRESENT))
+                Activity.WORK, VillagerGoalPackages.getWorkPackage(var0, 0.5F), ImmutableSet.of(Pair.of(MemoryModuleType.JOB_SITE, MemoryStatus.VALUE_PRESENT))
             );
         }
 
-        param0.addActivity(Activity.CORE, VillagerGoalPackages.getCorePackage(var0, var1));
+        param0.addActivity(Activity.CORE, VillagerGoalPackages.getCorePackage(var0, 0.5F));
         param0.addActivityWithConditions(
             Activity.MEET,
-            VillagerGoalPackages.getMeetPackage(var0, var1),
+            VillagerGoalPackages.getMeetPackage(var0, 0.5F),
             ImmutableSet.of(Pair.of(MemoryModuleType.MEETING_POINT, MemoryStatus.VALUE_PRESENT))
         );
-        param0.addActivity(Activity.REST, VillagerGoalPackages.getRestPackage(var0, var1));
-        param0.addActivity(Activity.IDLE, VillagerGoalPackages.getIdlePackage(var0, var1));
-        param0.addActivity(Activity.PANIC, VillagerGoalPackages.getPanicPackage(var0, var1));
-        param0.addActivity(Activity.PRE_RAID, VillagerGoalPackages.getPreRaidPackage(var0, var1));
-        param0.addActivity(Activity.RAID, VillagerGoalPackages.getRaidPackage(var0, var1));
-        param0.addActivity(Activity.HIDE, VillagerGoalPackages.getHidePackage(var0, var1));
+        param0.addActivity(Activity.REST, VillagerGoalPackages.getRestPackage(var0, 0.5F));
+        param0.addActivity(Activity.IDLE, VillagerGoalPackages.getIdlePackage(var0, 0.5F));
+        param0.addActivity(Activity.PANIC, VillagerGoalPackages.getPanicPackage(var0, 0.5F));
+        param0.addActivity(Activity.PRE_RAID, VillagerGoalPackages.getPreRaidPackage(var0, 0.5F));
+        param0.addActivity(Activity.RAID, VillagerGoalPackages.getRaidPackage(var0, 0.5F));
+        param0.addActivity(Activity.HIDE, VillagerGoalPackages.getHidePackage(var0, 0.5F));
         param0.setCoreActivities(ImmutableSet.of(Activity.CORE));
         param0.setDefaultActivity(Activity.IDLE);
         param0.setActiveActivityIfPossible(Activity.IDLE);

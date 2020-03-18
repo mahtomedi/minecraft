@@ -36,7 +36,7 @@ public class VillagerMakeLove extends Behavior<Villager> {
 
     protected void start(ServerLevel param0, Villager param1, long param2) {
         AgableMob var0 = param1.getBrain().getMemory(MemoryModuleType.BREED_TARGET).get();
-        BehaviorUtils.lockGazeAndWalkToEachOther(param1, var0);
+        BehaviorUtils.lockGazeAndWalkToEachOther(param1, var0, 0.5F);
         param0.broadcastEntityEvent(var0, (byte)18);
         param0.broadcastEntityEvent(param1, (byte)18);
         int var1 = 275 + param1.getRandom().nextInt(50);
@@ -46,7 +46,7 @@ public class VillagerMakeLove extends Behavior<Villager> {
     protected void tick(ServerLevel param0, Villager param1, long param2) {
         Villager var0 = (Villager)param1.getBrain().getMemory(MemoryModuleType.BREED_TARGET).get();
         if (!(param1.distanceToSqr(var0) > 5.0)) {
-            BehaviorUtils.lockGazeAndWalkToEachOther(param1, var0);
+            BehaviorUtils.lockGazeAndWalkToEachOther(param1, var0, 0.5F);
             if (param2 >= this.birthTimestamp) {
                 param1.eatAndDigestFood();
                 var0.eatAndDigestFood();

@@ -156,17 +156,20 @@ public class Witch extends Raider implements RangedAttackMob {
                     this.setItemSlot(EquipmentSlot.MAINHAND, PotionUtils.setPotion(new ItemStack(Items.POTION), var3));
                     this.usingTime = this.getMainHandItem().getUseDuration();
                     this.setUsingItem(true);
-                    this.level
-                        .playSound(
-                            null,
-                            this.getX(),
-                            this.getY(),
-                            this.getZ(),
-                            SoundEvents.WITCH_DRINK,
-                            this.getSoundSource(),
-                            1.0F,
-                            0.8F + this.random.nextFloat() * 0.4F
-                        );
+                    if (!this.isSilent()) {
+                        this.level
+                            .playSound(
+                                null,
+                                this.getX(),
+                                this.getY(),
+                                this.getZ(),
+                                SoundEvents.WITCH_DRINK,
+                                this.getSoundSource(),
+                                1.0F,
+                                0.8F + this.random.nextFloat() * 0.4F
+                            );
+                    }
+
                     AttributeInstance var4 = this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
                     var4.removeModifier(SPEED_MODIFIER_DRINKING);
                     var4.addModifier(SPEED_MODIFIER_DRINKING);
@@ -251,10 +254,20 @@ public class Witch extends Raider implements RangedAttackMob {
             var6.setItem(PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), var5));
             var6.xRot -= -20.0F;
             var6.shoot(var1, var2 + (double)(var4 * 0.2F), var3, 0.75F, 8.0F);
-            this.level
-                .playSound(
-                    null, this.getX(), this.getY(), this.getZ(), SoundEvents.WITCH_THROW, this.getSoundSource(), 1.0F, 0.8F + this.random.nextFloat() * 0.4F
-                );
+            if (!this.isSilent()) {
+                this.level
+                    .playSound(
+                        null,
+                        this.getX(),
+                        this.getY(),
+                        this.getZ(),
+                        SoundEvents.WITCH_THROW,
+                        this.getSoundSource(),
+                        1.0F,
+                        0.8F + this.random.nextFloat() * 0.4F
+                    );
+            }
+
             this.level.addFreshEntity(var6);
         }
     }

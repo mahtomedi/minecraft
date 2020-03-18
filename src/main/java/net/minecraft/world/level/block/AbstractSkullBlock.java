@@ -3,13 +3,14 @@ package net.minecraft.world.level.block;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class AbstractSkullBlock extends BaseEntityBlock {
     private final SkullBlock.Type type;
 
-    public AbstractSkullBlock(SkullBlock.Type param0, Block.Properties param1) {
+    public AbstractSkullBlock(SkullBlock.Type param0, BlockBehaviour.Properties param1) {
         super(param1);
         this.type = param0;
     }

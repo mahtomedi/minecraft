@@ -6,6 +6,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -24,7 +25,7 @@ public class NetherWartBlock extends BushBlock {
         Block.box(0.0, 0.0, 0.0, 16.0, 14.0, 16.0)
     };
 
-    protected NetherWartBlock(Block.Properties param0) {
+    protected NetherWartBlock(BlockBehaviour.Properties param0) {
         super(param0);
         this.registerDefaultState(this.stateDefinition.any().setValue(AGE, Integer.valueOf(0)));
     }
@@ -40,14 +41,18 @@ public class NetherWartBlock extends BushBlock {
     }
 
     @Override
-    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public boolean isRandomlyTicking(BlockState param0) {
+        return param0.getValue(AGE) < 3;
+    }
+
+    @Override
+    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         int var0 = param0.getValue(AGE);
         if (var0 < 3 && param3.nextInt(10) == 0) {
             param0 = param0.setValue(AGE, Integer.valueOf(var0 + 1));
             param1.setBlock(param2, param0, 2);
         }
 
-        super.tick(param0, param1, param2, param3);
     }
 
     @OnlyIn(Dist.CLIENT)

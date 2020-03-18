@@ -8,7 +8,9 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 
 public class Mount<E extends LivingEntity> extends Behavior<E> {
-    public Mount() {
+    private final float speedModifier;
+
+    public Mount(float param0) {
         super(
             ImmutableMap.of(
                 MemoryModuleType.LOOK_TARGET,
@@ -19,6 +21,7 @@ public class Mount<E extends LivingEntity> extends Behavior<E> {
                 MemoryStatus.VALUE_PRESENT
             )
         );
+        this.speedModifier = param0;
     }
 
     @Override
@@ -31,7 +34,7 @@ public class Mount<E extends LivingEntity> extends Behavior<E> {
         if (this.isCloseEnoughToStartRiding(param1)) {
             param1.startRiding(this.getRidableEntity(param1));
         } else {
-            BehaviorUtils.setWalkAndLookTargetMemories(param1, this.getRidableEntity(param1), 1);
+            BehaviorUtils.setWalkAndLookTargetMemories(param1, this.getRidableEntity(param1), this.speedModifier, 1);
         }
 
     }

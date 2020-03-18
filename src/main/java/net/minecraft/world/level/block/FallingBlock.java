@@ -8,27 +8,28 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.item.FallingBlockEntity;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class FallingBlock extends Block {
-    public FallingBlock(Block.Properties param0) {
+    public FallingBlock(BlockBehaviour.Properties param0) {
         super(param0);
     }
 
     @Override
     public void onPlace(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
-        param1.getBlockTicks().scheduleTick(param2, this, this.getTickDelay(param1));
+        param1.getBlockTicks().scheduleTick(param2, this, this.getDelayAfterPlace());
     }
 
     @Override
     public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
-        param3.getBlockTicks().scheduleTick(param4, this, this.getTickDelay(param3));
+        param3.getBlockTicks().scheduleTick(param4, this, this.getDelayAfterPlace());
         return super.updateShape(param0, param1, param2, param3, param4, param5);
     }
 
@@ -46,8 +47,7 @@ public class FallingBlock extends Block {
     protected void falling(FallingBlockEntity param0) {
     }
 
-    @Override
-    public int getTickDelay(LevelReader param0) {
+    protected int getDelayAfterPlace() {
         return 2;
     }
 
@@ -56,10 +56,10 @@ public class FallingBlock extends Block {
         return param0.isAir() || param0.is(BlockTags.FIRE) || var0.isLiquid() || var0.isReplaceable();
     }
 
-    public void onLand(Level param0, BlockPos param1, BlockState param2, BlockState param3) {
+    public void onLand(Level param0, BlockPos param1, BlockState param2, BlockState param3, FallingBlockEntity param4) {
     }
 
-    public void onBroken(Level param0, BlockPos param1) {
+    public void onBroken(Level param0, BlockPos param1, FallingBlockEntity param2) {
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -78,7 +78,7 @@ public class FallingBlock extends Block {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public int getDustColor(BlockState param0) {
+    public int getDustColor(BlockState param0, BlockGetter param1, BlockPos param2) {
         return -16777216;
     }
 }

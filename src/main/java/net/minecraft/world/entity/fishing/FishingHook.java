@@ -32,6 +32,7 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootContext;
@@ -53,6 +54,7 @@ public class FishingHook extends Entity {
     private int timeUntilLured;
     private int timeUntilHooked;
     private float fishAngle;
+    private boolean openWater = true;
     public Entity hookedIn;
     private FishingHook.FishHookState currentState = FishingHook.FishHookState.FLYING;
     private final int luck;
@@ -186,6 +188,7 @@ public class FishingHook extends Entity {
                     }
 
                     this.setDeltaMovement(var3.x * 0.9, var3.y - var4 * (double)this.random.nextFloat() * 0.2, var3.z * 0.9);
+                    this.openWater = this.openWater && this.calculateOpenWater(var1);
                     if (!this.level.isClientSide && var0 > 0.0F) {
                         this.catchingFish(var1);
                     }
@@ -381,6 +384,27 @@ public class FishingHook extends Entity {
 
     }
 
+    private boolean calculateOpenWater(BlockPos param0) {
+        return BlockPos.betweenClosedStream(param0.offset(-2, -1, -2), param0.offset(2, 2, 2)).allMatch(this::validOpenWaterBlockAt);
+    }
+
+    private boolean validOpenWaterBlockAt(BlockPos param0x) {
+        BlockState var0 = this.level.getBlockState(param0x);
+        if (var0.isAir()) {
+            return true;
+        } else {
+            FluidState var1 = var0.getFluidState();
+            return var1.is(FluidTags.WATER)
+                && var1.isSource()
+                && var0.getBlock() != Blocks.BUBBLE_COLUMN
+                && var0.getCollisionShape(this.level, param0x).isEmpty();
+        }
+    }
+
+    public boolean isOpenWaterFishing() {
+        return this.openWater;
+    }
+
     @Override
     public void addAdditionalSaveData(CompoundTag param0) {
     }
@@ -401,6 +425,7 @@ public class FishingHook extends Entity {
                 LootContext.Builder var1 = new LootContext.Builder((ServerLevel)this.level)
                     .withParameter(LootContextParams.BLOCK_POS, this.blockPosition())
                     .withParameter(LootContextParams.TOOL, param0)
+                    .withParameter(LootContextParams.THIS_ENTITY, this)
                     .withRandom(this.random)
                     .withLuck((float)this.luck + this.owner.getLuck());
                 LootTable var2 = this.level.getServer().getLootTables().get(BuiltInLootTables.FISHING);

@@ -69,7 +69,6 @@ import net.minecraft.world.entity.boss.EnderDragonPart;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.fishing.FishingHook;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.SharedMonsterAttributes;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.entity.vehicle.Boat;
@@ -92,10 +91,9 @@ import net.minecraft.world.level.BaseCommandBlock;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.RespawnAnchorBlock;
 import net.minecraft.world.level.block.entity.CommandBlockEntity;
 import net.minecraft.world.level.block.entity.JigsawBlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
@@ -145,8 +143,6 @@ public abstract class Player extends LivingEntity {
     public double zCloak;
     private int sleepCounter;
     protected boolean wasUnderwater;
-    private BlockPos respawnPosition;
-    private boolean respawnForced;
     public final Abilities abilities = new Abilities();
     public int experienceLevel;
     public int totalExperience;
@@ -565,9 +561,28 @@ public abstract class Player extends LivingEntity {
     }
 
     private void playShoulderEntityAmbientSound(@Nullable CompoundTag param0) {
-        if (param0 != null && !param0.contains("Silent") || !param0.getBoolean("Silent")) {
+        if (param0 != null && (!param0.contains("Silent") || !param0.getBoolean("Silent")) && this.level.random.nextInt(200) == 0) {
             String var0 = param0.getString("id");
-            EntityType.byString(var0).filter(param0x -> param0x == EntityType.PARROT).ifPresent(param0x -> Parrot.playAmbientSound(this.level, this));
+            EntityType.byString(var0)
+                .filter(param0x -> param0x == EntityType.PARROT)
+                .ifPresent(
+                    param0x -> {
+                        if (!Parrot.imitateNearbyMobs(this.level, this)) {
+                            this.level
+                                .playSound(
+                                    null,
+                                    this.getX(),
+                                    this.getY(),
+                                    this.getZ(),
+                                    Parrot.getAmbient(this.level, this.level.random),
+                                    this.getSoundSource(),
+                                    1.0F,
+                                    Parrot.getPitch(this.level.random)
+                                );
+                        }
+        
+                    }
+                );
         }
 
     }
@@ -770,11 +785,6 @@ public abstract class Player extends LivingEntity {
         }
 
         this.setScore(param0.getInt("Score"));
-        if (param0.contains("SpawnX", 99) && param0.contains("SpawnY", 99) && param0.contains("SpawnZ", 99)) {
-            this.respawnPosition = new BlockPos(param0.getInt("SpawnX"), param0.getInt("SpawnY"), param0.getInt("SpawnZ"));
-            this.respawnForced = param0.getBoolean("SpawnForced");
-        }
-
         this.foodData.readAdditionalSaveData(param0);
         this.abilities.loadSaveData(param0);
         if (param0.contains("EnderItems", 9)) {
@@ -803,13 +813,6 @@ public abstract class Player extends LivingEntity {
         param0.putInt("XpTotal", this.totalExperience);
         param0.putInt("XpSeed", this.enchantmentSeed);
         param0.putInt("Score", this.getScore());
-        if (this.respawnPosition != null) {
-            param0.putInt("SpawnX", this.respawnPosition.getX());
-            param0.putInt("SpawnY", this.respawnPosition.getY());
-            param0.putInt("SpawnZ", this.respawnPosition.getZ());
-            param0.putBoolean("SpawnForced", this.respawnForced);
-        }
-
         this.foodData.addAdditionalSaveData(param0);
         this.abilities.addSaveData(param0);
         param0.put("EnderItems", this.enderChestInventory.createTag());
@@ -1305,73 +1308,9 @@ public abstract class Player extends LivingEntity {
     }
 
     public Either<Player.BedSleepingProblem, Unit> startSleepInBed(BlockPos param0) {
-        Direction var0 = this.level.getBlockState(param0).getValue(HorizontalDirectionalBlock.FACING);
-        if (!this.level.isClientSide) {
-            if (this.isSleeping() || !this.isAlive()) {
-                return Either.left(Player.BedSleepingProblem.OTHER_PROBLEM);
-            }
-
-            if (!this.level.dimension.isNaturalDimension()) {
-                return Either.left(Player.BedSleepingProblem.NOT_POSSIBLE_HERE);
-            }
-
-            if (!this.bedInRange(param0, var0)) {
-                return Either.left(Player.BedSleepingProblem.TOO_FAR_AWAY);
-            }
-
-            if (this.bedBlocked(param0, var0)) {
-                return Either.left(Player.BedSleepingProblem.OBSTRUCTED);
-            }
-
-            this.setRespawnPosition(param0, false, true);
-            if (this.level.isDay()) {
-                return Either.left(Player.BedSleepingProblem.NOT_POSSIBLE_NOW);
-            }
-
-            if (!this.isCreative()) {
-                double var1 = 8.0;
-                double var2 = 5.0;
-                Vec3 var3 = Vec3.atBottomCenterOf(param0);
-                List<Monster> var4 = this.level
-                    .getEntitiesOfClass(
-                        Monster.class,
-                        new AABB(var3.x() - 8.0, var3.y() - 5.0, var3.z() - 8.0, var3.x() + 8.0, var3.y() + 5.0, var3.z() + 8.0),
-                        param0x -> param0x.isPreventingPlayerRest(this)
-                    );
-                if (!var4.isEmpty()) {
-                    return Either.left(Player.BedSleepingProblem.NOT_SAFE);
-                }
-            }
-        }
-
         this.startSleeping(param0);
         this.sleepCounter = 0;
-        if (this.level instanceof ServerLevel) {
-            ((ServerLevel)this.level).updateSleepingPlayerList();
-        }
-
         return Either.right(Unit.INSTANCE);
-    }
-
-    @Override
-    public void startSleeping(BlockPos param0) {
-        this.resetStat(Stats.CUSTOM.get(Stats.TIME_SINCE_REST));
-        this.setRespawnPosition(param0, false, true);
-        super.startSleeping(param0);
-    }
-
-    private boolean bedInRange(BlockPos param0, Direction param1) {
-        return this.isReachableBedBlock(param0) || this.isReachableBedBlock(param0.relative(param1.getOpposite()));
-    }
-
-    private boolean isReachableBedBlock(BlockPos param0) {
-        Vec3 var0 = Vec3.atBottomCenterOf(param0);
-        return Math.abs(this.getX() - var0.x()) <= 3.0 && Math.abs(this.getY() - var0.y()) <= 2.0 && Math.abs(this.getZ() - var0.z()) <= 3.0;
-    }
-
-    private boolean bedBlocked(BlockPos param0, Direction param1) {
-        BlockPos var0 = param0.above();
-        return !this.freeAt(var0) || !this.freeAt(var0.relative(param1.getOpposite()));
     }
 
     public void stopSleepInBed(boolean param0, boolean param1) {
@@ -1388,20 +1327,22 @@ public abstract class Player extends LivingEntity {
         this.stopSleepInBed(true, true);
     }
 
-    public static Optional<Vec3> checkBedValidRespawnPosition(LevelReader param0, BlockPos param1, boolean param2) {
-        Block var0 = param0.getBlockState(param1).getBlock();
-        if (!(var0 instanceof BedBlock)) {
-            if (!param2) {
-                return Optional.empty();
-            } else {
-                boolean var1 = var0.isPossibleToRespawnInThis();
-                boolean var2 = param0.getBlockState(param1.above()).getBlock().isPossibleToRespawnInThis();
-                return var1 && var2
-                    ? Optional.of(new Vec3((double)param1.getX() + 0.5, (double)param1.getY() + 0.1, (double)param1.getZ() + 0.5))
-                    : Optional.empty();
-            }
-        } else {
+    public static Optional<Vec3> findRespawnPositionAndUseSpawnBlock(ServerLevel param0, BlockPos param1, boolean param2) {
+        BlockState var0 = param0.getBlockState(param1);
+        Block var1 = var0.getBlock();
+        if (var1 instanceof RespawnAnchorBlock && var0.getValue(RespawnAnchorBlock.CHARGE) > 0) {
+            param0.setBlock(param1, var0.setValue(RespawnAnchorBlock.CHARGE, Integer.valueOf(var0.getValue(RespawnAnchorBlock.CHARGE) - 1)), 3);
+            return RespawnAnchorBlock.findStandUpPosition(param0, param1);
+        } else if (var1 instanceof BedBlock) {
             return BedBlock.findStandUpPosition(EntityType.PLAYER, param0, param1, 0);
+        } else if (!param2) {
+            return Optional.empty();
+        } else {
+            boolean var2 = var1.isPossibleToRespawnInThis();
+            boolean var3 = param0.getBlockState(param1.above()).getBlock().isPossibleToRespawnInThis();
+            return var2 && var3
+                ? Optional.of(new Vec3((double)param1.getX() + 0.5, (double)param1.getY() + 0.1, (double)param1.getZ() + 0.5))
+                : Optional.empty();
         }
     }
 
@@ -1414,29 +1355,6 @@ public abstract class Player extends LivingEntity {
     }
 
     public void displayClientMessage(Component param0, boolean param1) {
-    }
-
-    public BlockPos getRespawnPosition() {
-        return this.respawnPosition;
-    }
-
-    public boolean isRespawnForced() {
-        return this.respawnForced;
-    }
-
-    public void setRespawnPosition(BlockPos param0, boolean param1, boolean param2) {
-        if (param0 != null) {
-            if (param2 && !param0.equals(this.respawnPosition)) {
-                this.sendMessage(new TranslatableComponent("block.minecraft.bed.set_spawn"));
-            }
-
-            this.respawnPosition = param0;
-            this.respawnForced = param1;
-        } else {
-            this.respawnPosition = null;
-            this.respawnForced = false;
-        }
-
     }
 
     public void awardStat(ResourceLocation param0) {

@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -13,7 +14,7 @@ public abstract class GrowingPlantBlock extends Block {
     protected final boolean scheduleFluidTicks;
     protected final VoxelShape shape;
 
-    protected GrowingPlantBlock(Block.Properties param0, Direction param1, VoxelShape param2, boolean param3) {
+    protected GrowingPlantBlock(BlockBehaviour.Properties param0, Direction param1, VoxelShape param2, boolean param3) {
         super(param0);
         this.growthDirection = param1;
         this.shape = param2;

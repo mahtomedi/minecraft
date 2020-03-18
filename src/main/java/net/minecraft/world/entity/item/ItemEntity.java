@@ -5,7 +5,6 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.Packet;
@@ -251,11 +250,11 @@ public class ItemEntity extends Entity {
         param0.putShort("Age", (short)this.age);
         param0.putShort("PickupDelay", (short)this.pickupDelay);
         if (this.getThrower() != null) {
-            param0.put("Thrower", NbtUtils.createUUIDTag(this.getThrower()));
+            param0.putUUID("Thrower", this.getThrower());
         }
 
         if (this.getOwner() != null) {
-            param0.put("Owner", NbtUtils.createUUIDTag(this.getOwner()));
+            param0.putUUID("Owner", this.getOwner());
         }
 
         if (!this.getItem().isEmpty()) {
@@ -272,12 +271,12 @@ public class ItemEntity extends Entity {
             this.pickupDelay = param0.getShort("PickupDelay");
         }
 
-        if (param0.contains("Owner", 10)) {
-            this.owner = NbtUtils.loadUUIDTag(param0.getCompound("Owner"));
+        if (param0.hasUUID("Owner")) {
+            this.owner = param0.getUUID("Owner");
         }
 
-        if (param0.contains("Thrower", 10)) {
-            this.thrower = NbtUtils.loadUUIDTag(param0.getCompound("Thrower"));
+        if (param0.hasUUID("Thrower")) {
+            this.thrower = param0.getUUID("Thrower");
         }
 
         CompoundTag var0 = param0.getCompound("Item");

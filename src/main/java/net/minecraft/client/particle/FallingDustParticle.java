@@ -79,15 +79,16 @@ public class FallingDustParticle extends TextureSheetParticle {
             if (!var0.isAir() && var0.getRenderShape() == RenderShape.INVISIBLE) {
                 return null;
             } else {
-                int var1 = Minecraft.getInstance().getBlockColors().getColor(var0, param1, new BlockPos(param2, param3, param4));
+                BlockPos var1 = new BlockPos(param2, param3, param4);
+                int var2 = Minecraft.getInstance().getBlockColors().getColor(var0, param1, var1);
                 if (var0.getBlock() instanceof FallingBlock) {
-                    var1 = ((FallingBlock)var0.getBlock()).getDustColor(var0);
+                    var2 = ((FallingBlock)var0.getBlock()).getDustColor(var0, param1, var1);
                 }
 
-                float var2 = (float)(var1 >> 16 & 0xFF) / 255.0F;
-                float var3 = (float)(var1 >> 8 & 0xFF) / 255.0F;
-                float var4 = (float)(var1 & 0xFF) / 255.0F;
-                return new FallingDustParticle(param1, param2, param3, param4, var2, var3, var4, this.sprite);
+                float var3 = (float)(var2 >> 16 & 0xFF) / 255.0F;
+                float var4 = (float)(var2 >> 8 & 0xFF) / 255.0F;
+                float var5 = (float)(var2 & 0xFF) / 255.0F;
+                return new FallingDustParticle(param1, param2, param3, param4, var3, var4, var5, this.sprite);
             }
         }
     }

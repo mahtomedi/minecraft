@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -86,9 +87,9 @@ public class Path {
         return this.getPos(param0, this.index);
     }
 
-    public Vec3 currentPos() {
+    public Vec3i currentPos() {
         Node var0 = this.nodes.get(this.index);
-        return new Vec3((double)var0.x, (double)var0.y, (double)var0.z);
+        return new Vec3i(var0.x, var0.y, var0.z);
     }
 
     public boolean sameAs(@Nullable Path param0) {

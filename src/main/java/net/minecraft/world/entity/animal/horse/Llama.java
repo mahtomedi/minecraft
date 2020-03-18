@@ -383,17 +383,20 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
         double var3 = param0.getZ() - this.getZ();
         float var4 = Mth.sqrt(var1 * var1 + var3 * var3) * 0.2F;
         var0.shoot(var1, var2 + (double)var4, var3, 1.5F, 10.0F);
-        this.level
-            .playSound(
-                null,
-                this.getX(),
-                this.getY(),
-                this.getZ(),
-                SoundEvents.LLAMA_SPIT,
-                this.getSoundSource(),
-                1.0F,
-                1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.2F
-            );
+        if (!this.isSilent()) {
+            this.level
+                .playSound(
+                    null,
+                    this.getX(),
+                    this.getY(),
+                    this.getZ(),
+                    SoundEvents.LLAMA_SPIT,
+                    this.getSoundSource(),
+                    1.0F,
+                    1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.2F
+                );
+        }
+
         this.level.addFreshEntity(var0);
         this.didSpit = true;
     }

@@ -2,9 +2,10 @@ package net.minecraft.world.level.block;
 
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 
 public class StoneButtonBlock extends ButtonBlock {
-    protected StoneButtonBlock(Block.Properties param0) {
+    protected StoneButtonBlock(BlockBehaviour.Properties param0) {
         super(false, param0);
     }
 

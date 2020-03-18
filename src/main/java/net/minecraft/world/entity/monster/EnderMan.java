@@ -256,7 +256,7 @@ public class EnderMan extends Monster {
         boolean var3 = var1.getFluidState().is(FluidTags.WATER);
         if (var2 && !var3) {
             boolean var4 = this.randomTeleport(param0, param1, param2, true);
-            if (var4) {
+            if (var4 && !this.isSilent()) {
                 this.level.playSound(null, this.xo, this.yo, this.zo, SoundEvents.ENDERMAN_TELEPORT, this.getSoundSource(), 1.0F, 1.0F);
                 this.playSound(SoundEvents.ENDERMAN_TELEPORT, 1.0F, 1.0F);
             }

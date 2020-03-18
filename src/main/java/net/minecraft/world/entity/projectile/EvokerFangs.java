@@ -60,8 +60,8 @@ public class EvokerFangs extends Entity {
     @Override
     protected void readAdditionalSaveData(CompoundTag param0) {
         this.warmupDelayTicks = param0.getInt("Warmup");
-        if (param0.hasUUID("OwnerUUID")) {
-            this.ownerUUID = param0.getUUID("OwnerUUID");
+        if (param0.hasUUID("Owner")) {
+            this.ownerUUID = param0.getUUID("Owner");
         }
 
     }
@@ -70,7 +70,7 @@ public class EvokerFangs extends Entity {
     protected void addAdditionalSaveData(CompoundTag param0) {
         param0.putInt("Warmup", this.warmupDelayTicks);
         if (this.ownerUUID != null) {
-            param0.putUUID("OwnerUUID", this.ownerUUID);
+            param0.putUUID("Owner", this.ownerUUID);
         }
 
     }

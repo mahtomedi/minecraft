@@ -1,7 +1,9 @@
 package net.minecraft.world.level.block;
 
+import net.minecraft.world.level.block.state.BlockBehaviour;
+
 public abstract class StemGrownBlock extends Block {
-    public StemGrownBlock(Block.Properties param0) {
+    public StemGrownBlock(BlockBehaviour.Properties param0) {
         super(param0);
     }
 

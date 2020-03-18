@@ -15,9 +15,9 @@ import net.minecraft.world.level.BaseCommandBlock;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.CommandBlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -32,7 +32,7 @@ public class CommandBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING = DirectionalBlock.FACING;
     public static final BooleanProperty CONDITIONAL = BlockStateProperties.CONDITIONAL;
 
-    public CommandBlock(Block.Properties param0) {
+    public CommandBlock(BlockBehaviour.Properties param0) {
         super(param0);
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(CONDITIONAL, Boolean.valueOf(false)));
     }
@@ -56,7 +56,7 @@ public class CommandBlock extends BaseEntityBlock {
                 if (!var3 && !var1.isAutomatic() && var1.getMode() != CommandBlockEntity.Mode.SEQUENCE) {
                     if (var2) {
                         var1.markConditionMet();
-                        param1.getBlockTicks().scheduleTick(param2, this, this.getTickDelay(param1));
+                        param1.getBlockTicks().scheduleTick(param2, this, 1);
                     }
 
                 }
@@ -82,7 +82,7 @@ public class CommandBlock extends BaseEntityBlock {
                 }
 
                 if (var1.isPowered() || var1.isAutomatic()) {
-                    param1.getBlockTicks().scheduleTick(param2, this, this.getTickDelay(param1));
+                    param1.getBlockTicks().scheduleTick(param2, this, 1);
                 }
             } else if (var4 == CommandBlockEntity.Mode.REDSTONE) {
                 if (var5) {
@@ -105,11 +105,6 @@ public class CommandBlock extends BaseEntityBlock {
         }
 
         executeChain(param1, param2, param0.getValue(FACING));
-    }
-
-    @Override
-    public int getTickDelay(LevelReader param0) {
-        return 1;
     }
 
     @Override

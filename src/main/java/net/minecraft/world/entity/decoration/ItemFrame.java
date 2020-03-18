@@ -153,7 +153,7 @@ public class ItemFrame extends HangingEntity {
     @Override
     public boolean hurt(DamageSource param0, float param1) {
         if (this.fixed) {
-            return false;
+            return param0 != DamageSource.OUT_OF_WORLD && !param0.isCreativePlayer() ? false : super.hurt(param0, param1);
         } else if (this.isInvulnerableTo(param0)) {
             return false;
         } else if (!param0.isExplosion() && !this.getItem().isEmpty()) {
@@ -198,34 +198,36 @@ public class ItemFrame extends HangingEntity {
     }
 
     private void dropItem(@Nullable Entity param0, boolean param1) {
-        if (!this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
-            if (param0 == null) {
-                this.removeFramedMap(this.getItem());
-            }
+        if (!this.fixed) {
+            if (!this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
+                if (param0 == null) {
+                    this.removeFramedMap(this.getItem());
+                }
 
-        } else {
-            ItemStack var0 = this.getItem();
-            this.setItem(ItemStack.EMPTY);
-            if (param0 instanceof Player) {
-                Player var1 = (Player)param0;
-                if (var1.abilities.instabuild) {
+            } else {
+                ItemStack var0 = this.getItem();
+                this.setItem(ItemStack.EMPTY);
+                if (param0 instanceof Player) {
+                    Player var1 = (Player)param0;
+                    if (var1.abilities.instabuild) {
+                        this.removeFramedMap(var0);
+                        return;
+                    }
+                }
+
+                if (param1) {
+                    this.spawnAtLocation(Items.ITEM_FRAME);
+                }
+
+                if (!var0.isEmpty()) {
+                    var0 = var0.copy();
                     this.removeFramedMap(var0);
-                    return;
+                    if (this.random.nextFloat() < this.dropChance) {
+                        this.spawnAtLocation(var0);
+                    }
                 }
-            }
 
-            if (param1) {
-                this.spawnAtLocation(Items.ITEM_FRAME);
             }
-
-            if (!var0.isEmpty()) {
-                var0 = var0.copy();
-                this.removeFramedMap(var0);
-                if (this.random.nextFloat() < this.dropChance) {
-                    this.spawnAtLocation(var0);
-                }
-            }
-
         }
     }
 

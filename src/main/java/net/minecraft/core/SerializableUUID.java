@@ -2,6 +2,7 @@ package net.minecraft.core;
 
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
+import java.util.Arrays;
 import java.util.UUID;
 import net.minecraft.util.Serializable;
 
@@ -18,16 +19,34 @@ public final class SerializableUUID implements Serializable {
 
     @Override
     public <T> T serialize(DynamicOps<T> param0) {
-        return param0.createString(this.value.toString());
+        return param0.createIntList(Arrays.stream(uuidToIntArray(this.value)));
     }
 
     public static SerializableUUID of(Dynamic<?> param0) {
-        String var0 = param0.asString().orElseThrow(() -> new IllegalArgumentException("Could not parse UUID"));
-        return new SerializableUUID(UUID.fromString(var0));
+        int[] var0 = param0.asIntStream().toArray();
+        if (var0.length != 4) {
+            throw new IllegalArgumentException("Could not read UUID. Expected int-array of length 4, got " + var0.length + ".");
+        } else {
+            return new SerializableUUID(uuidFromIntArray(var0));
+        }
     }
 
     @Override
     public String toString() {
         return this.value.toString();
+    }
+
+    public static UUID uuidFromIntArray(int[] param0) {
+        return new UUID((long)param0[0] << 32 | (long)param0[1] & 4294967295L, (long)param0[2] << 32 | (long)param0[3] & 4294967295L);
+    }
+
+    public static int[] uuidToIntArray(UUID param0) {
+        long var0 = param0.getMostSignificantBits();
+        long var1 = param0.getLeastSignificantBits();
+        return leastMostToIntArray(var0, var1);
+    }
+
+    public static int[] leastMostToIntArray(long param0, long param1) {
+        return new int[]{(int)(param0 >> 32), (int)param0, (int)(param1 >> 32), (int)param1};
     }
 }

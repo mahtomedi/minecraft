@@ -14,6 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -26,7 +27,7 @@ public class FlowerPotBlock extends Block {
     protected static final VoxelShape SHAPE = Block.box(5.0, 0.0, 5.0, 11.0, 6.0, 11.0);
     private final Block content;
 
-    public FlowerPotBlock(Block param0, Block.Properties param1) {
+    public FlowerPotBlock(Block param0, BlockBehaviour.Properties param1) {
         super(param1);
         this.content = param0;
         POTTED_BY_CONTENT.put(param0, this);

@@ -144,6 +144,7 @@ import net.minecraft.network.protocol.game.ClientboundSetCameraPacket;
 import net.minecraft.network.protocol.game.ClientboundSetCarriedItemPacket;
 import net.minecraft.network.protocol.game.ClientboundSetChunkCacheCenterPacket;
 import net.minecraft.network.protocol.game.ClientboundSetChunkCacheRadiusPacket;
+import net.minecraft.network.protocol.game.ClientboundSetDefaultSpawnPositionPacket;
 import net.minecraft.network.protocol.game.ClientboundSetDisplayObjectivePacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityLinkPacket;
@@ -155,7 +156,6 @@ import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket;
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket;
 import net.minecraft.network.protocol.game.ClientboundSetScorePacket;
-import net.minecraft.network.protocol.game.ClientboundSetSpawnPositionPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitlesPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundEntityPacket;
@@ -924,7 +924,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
                     var9 = new BeeFlyingSoundInstance((Bee)var5);
                 }
 
-                this.minecraft.getSoundManager().play(var9);
+                this.minecraft.getSoundManager().queueTickingSound(var9);
             }
         } else {
             LOGGER.warn("Skipping Entity with id {}", param0.getType());
@@ -940,9 +940,8 @@ public class ClientPacketListener implements ClientGamePacketListener {
     }
 
     @Override
-    public void handleSetSpawn(ClientboundSetSpawnPositionPacket param0) {
+    public void handleSetSpawn(ClientboundSetDefaultSpawnPositionPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        this.minecraft.player.setRespawnPosition(param0.getPos(), true, false);
         this.minecraft.level.getLevelData().setSpawn(param0.getPos());
     }
 
@@ -1053,7 +1052,6 @@ public class ClientPacketListener implements ClientGamePacketListener {
             this.minecraft.setScreen(new ReceivingLevelScreen());
         }
 
-        this.level.validateSpawn();
         this.level.removeAllPendingEntityRemovals();
         String var4 = var1.getServerBrand();
         this.minecraft.cameraEntity = null;
@@ -1326,7 +1324,9 @@ public class ClientPacketListener implements ClientGamePacketListener {
             this.level.playSound(var0, var0.getX(), var0.getY(), var0.getZ(), SoundEvents.PUFFER_FISH_STING, SoundSource.NEUTRAL, 1.0F, 1.0F);
         } else if (var1 == 10) {
             this.level.addParticle(ParticleTypes.ELDER_GUARDIAN, var0.getX(), var0.getY(), var0.getZ(), 0.0, 0.0, 0.0);
-            this.level.playSound(var0, var0.getX(), var0.getY(), var0.getZ(), SoundEvents.ELDER_GUARDIAN_CURSE, SoundSource.HOSTILE, 1.0F, 1.0F);
+            if (var3 == 1) {
+                this.level.playSound(var0, var0.getX(), var0.getY(), var0.getZ(), SoundEvents.ELDER_GUARDIAN_CURSE, SoundSource.HOSTILE, 1.0F, 1.0F);
+            }
         } else if (var1 == 11) {
             this.minecraft.player.setShowDeathScreen(var2 == 0.0F);
         }
@@ -1507,7 +1507,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
                     param0.effectShowsIcon()
                 );
                 var2.setNoCounter(param0.isSuperLongDuration());
-                ((LivingEntity)var0).addEffect(var2);
+                ((LivingEntity)var0).forceAddEffect(var2);
             }
         }
     }

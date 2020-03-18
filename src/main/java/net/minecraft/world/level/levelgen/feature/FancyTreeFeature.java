@@ -11,7 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.LevelSimulatedRW;
-import net.minecraft.world.level.block.LogBlock;
+import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.levelgen.feature.configurations.SmallTreeConfiguration;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
@@ -91,7 +91,9 @@ public class FancyTreeFeature extends AbstractTreeFeature<SmallTreeConfiguration
             for(int var5 = 0; var5 <= var1; ++var5) {
                 BlockPos var6 = param2.offset((double)(0.5F + (float)var5 * var2), (double)(0.5F + (float)var5 * var3), (double)(0.5F + (float)var5 * var4));
                 if (param4) {
-                    this.setBlock(param0, var6, param7.trunkProvider.getState(param1, var6).setValue(LogBlock.AXIS, this.getLogAxis(param2, var6)), param6);
+                    this.setBlock(
+                        param0, var6, param7.trunkProvider.getState(param1, var6).setValue(RotatedPillarBlock.AXIS, this.getLogAxis(param2, var6)), param6
+                    );
                     param5.add(var6);
                 } else if (!isFree(param0, var6)) {
                     return var5;

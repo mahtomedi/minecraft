@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import javax.annotation.Nullable;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.util.StringUtil;
@@ -238,18 +239,19 @@ public class OldUsersConverter {
         }
     }
 
-    public static String convertMobOwnerIfNecessary(final MinecraftServer param0, String param1) {
+    @Nullable
+    public static UUID convertMobOwnerIfNecessary(final MinecraftServer param0, String param1) {
         if (!StringUtil.isNullOrEmpty(param1) && param1.length() <= 16) {
-            GameProfile var0 = param0.getProfileCache().get(param1);
-            if (var0 != null && var0.getId() != null) {
-                return var0.getId().toString();
+            GameProfile var1 = param0.getProfileCache().get(param1);
+            if (var1 != null && var1.getId() != null) {
+                return var1.getId();
             } else if (!param0.isSingleplayer() && param0.usesAuthentication()) {
-                final List<GameProfile> var1 = Lists.newArrayList();
-                ProfileLookupCallback var2 = new ProfileLookupCallback() {
+                final List<GameProfile> var2 = Lists.newArrayList();
+                ProfileLookupCallback var3 = new ProfileLookupCallback() {
                     @Override
                     public void onProfileLookupSucceeded(GameProfile param0x) {
                         param0.getProfileCache().add(param0);
-                        var1.add(param0);
+                        var2.add(param0);
                     }
 
                     @Override
@@ -257,13 +259,17 @@ public class OldUsersConverter {
                         OldUsersConverter.LOGGER.warn("Could not lookup user whitelist entry for {}", param0.getName(), param1);
                     }
                 };
-                lookupPlayers(param0, Lists.newArrayList(param1), var2);
-                return !var1.isEmpty() && var1.get(0).getId() != null ? var1.get(0).getId().toString() : "";
+                lookupPlayers(param0, Lists.newArrayList(param1), var3);
+                return !var2.isEmpty() && var2.get(0).getId() != null ? var2.get(0).getId() : null;
             } else {
-                return Player.createPlayerUUID(new GameProfile(null, param1)).toString();
+                return Player.createPlayerUUID(new GameProfile(null, param1));
             }
         } else {
-            return param1;
+            try {
+                return UUID.fromString(param1);
+            } catch (IllegalArgumentException var5) {
+                return null;
+            }
         }
     }
 

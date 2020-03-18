@@ -247,7 +247,10 @@ public class Zombie extends Monster {
 
     protected void doUnderWaterConversion() {
         this.convertTo(EntityType.DROWNED);
-        this.level.levelEvent(null, 1040, this.blockPosition(), 0);
+        if (!this.isSilent()) {
+            this.level.levelEvent(null, 1040, this.blockPosition(), 0);
+        }
+
     }
 
     protected void convertTo(EntityType<? extends Zombie> param0) {
@@ -451,7 +454,9 @@ public class Zombie extends Monster {
 
             var1.setInvulnerable(this.isInvulnerable());
             this.level.addFreshEntity(var1);
-            this.level.levelEvent(null, 1026, this.blockPosition(), 0);
+            if (!this.isSilent()) {
+                this.level.levelEvent(null, 1026, this.blockPosition(), 0);
+            }
         }
 
     }
@@ -586,11 +591,11 @@ public class Zombie extends Monster {
         }
     }
 
-    public class ZombieGroupData implements SpawnGroupData {
+    public static class ZombieGroupData implements SpawnGroupData {
         public final boolean isBaby;
 
-        private ZombieGroupData(boolean param1) {
-            this.isBaby = param1;
+        public ZombieGroupData(boolean param0) {
+            this.isBaby = param0;
         }
     }
 }

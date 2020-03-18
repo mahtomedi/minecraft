@@ -1,6 +1,5 @@
 package net.minecraft.world.level.biome;
 
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.configurations.DecoratorConfiguration;
@@ -24,7 +23,7 @@ public final class TheVoidBiome extends Biome {
                         .waterColor(4159204)
                         .waterFogColor(329011)
                         .fogColor(12638463)
-                        .ambientMoodSound(SoundEvents.AMBIENT_CAVE)
+                        .ambientMoodSound(AmbientMoodSettings.LEGACY_CAVE_SETTINGS)
                         .build()
                 )
                 .parent(null)

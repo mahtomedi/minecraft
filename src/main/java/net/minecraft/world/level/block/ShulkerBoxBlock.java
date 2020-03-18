@@ -31,6 +31,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
@@ -50,7 +51,7 @@ public class ShulkerBoxBlock extends BaseEntityBlock {
     @Nullable
     private final DyeColor color;
 
-    public ShulkerBoxBlock(@Nullable DyeColor param0, Block.Properties param1) {
+    public ShulkerBoxBlock(@Nullable DyeColor param0, BlockBehaviour.Properties param1) {
         super(param1);
         this.color = param0;
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.UP));
@@ -59,11 +60,6 @@ public class ShulkerBoxBlock extends BaseEntityBlock {
     @Override
     public BlockEntity newBlockEntity(BlockGetter param0) {
         return new ShulkerBoxBlockEntity(this.color);
-    }
-
-    @Override
-    public boolean isSuffocating(BlockState param0, BlockGetter param1, BlockPos param2) {
-        return true;
     }
 
     @Override

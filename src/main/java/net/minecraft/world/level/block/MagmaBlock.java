@@ -10,19 +10,15 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class MagmaBlock extends Block {
-    public MagmaBlock(Block.Properties param0) {
+    public MagmaBlock(BlockBehaviour.Properties param0) {
         super(param0);
     }
 
@@ -35,12 +31,6 @@ public class MagmaBlock extends Block {
         super.stepOn(param0, param1, param2);
     }
 
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public boolean emissiveRendering(BlockState param0) {
-        return true;
-    }
-
     @Override
     public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         BubbleColumnBlock.growColumn(param1, param2.above(), true);
@@ -49,7 +39,7 @@ public class MagmaBlock extends Block {
     @Override
     public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
         if (param1 == Direction.UP && param2.getBlock() == Blocks.WATER) {
-            param3.getBlockTicks().scheduleTick(param4, this, this.getTickDelay(param3));
+            param3.getBlockTicks().scheduleTick(param4, this, 20);
         }
 
         return super.updateShape(param0, param1, param2, param3, param4, param5);
@@ -70,22 +60,7 @@ public class MagmaBlock extends Block {
     }
 
     @Override
-    public int getTickDelay(LevelReader param0) {
-        return 20;
-    }
-
-    @Override
     public void onPlace(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
-        param1.getBlockTicks().scheduleTick(param2, this, this.getTickDelay(param1));
-    }
-
-    @Override
-    public boolean isValidSpawn(BlockState param0, BlockGetter param1, BlockPos param2, EntityType<?> param3) {
-        return param3.fireImmune();
-    }
-
-    @Override
-    public boolean hasPostProcess(BlockState param0, BlockGetter param1, BlockPos param2) {
-        return true;
+        param1.getBlockTicks().scheduleTick(param2, this, 20);
     }
 }

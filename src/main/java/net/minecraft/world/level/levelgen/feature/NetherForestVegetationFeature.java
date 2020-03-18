@@ -20,22 +20,28 @@ public class NetherForestVegetationFeature extends Feature<BlockPileConfiguratio
     public boolean place(
         LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, BlockPileConfiguration param4
     ) {
-        for(Block var0 = param0.getBlockState(param3.below()).getBlock();
-            !var0.is(BlockTags.NYLIUM) && param3.getY() > 0;
-            var0 = param0.getBlockState(param3).getBlock()
+        return place(param0, param2, param3, param4, 8, 4);
+    }
+
+    public static boolean place(LevelAccessor param0, Random param1, BlockPos param2, BlockPileConfiguration param3, int param4, int param5) {
+        for(Block var0 = param0.getBlockState(param2.below()).getBlock();
+            !var0.is(BlockTags.NYLIUM) && param2.getY() > 0;
+            var0 = param0.getBlockState(param2).getBlock()
         ) {
-            param3 = param3.below();
+            param2 = param2.below();
         }
 
-        int var1 = param3.getY();
+        int var1 = param2.getY();
         if (var1 >= 1 && var1 + 1 < 256) {
             int var2 = 0;
 
-            for(int var3 = 0; var3 < 64; ++var3) {
-                BlockPos var4 = param3.offset(
-                    param2.nextInt(8) - param2.nextInt(8), param2.nextInt(4) - param2.nextInt(4), param2.nextInt(8) - param2.nextInt(8)
+            for(int var3 = 0; var3 < param4 * param4; ++var3) {
+                BlockPos var4 = param2.offset(
+                    param1.nextInt(param4) - param1.nextInt(param4),
+                    param1.nextInt(param5) - param1.nextInt(param5),
+                    param1.nextInt(param4) - param1.nextInt(param4)
                 );
-                BlockState var5 = param4.stateProvider.getState(param2, var4);
+                BlockState var5 = param3.stateProvider.getState(param1, var4);
                 if (param0.isEmptyBlock(var4) && var4.getY() > 0 && var5.canSurvive(param0, var4)) {
                     param0.setBlock(var4, var5, 2);
                     ++var2;

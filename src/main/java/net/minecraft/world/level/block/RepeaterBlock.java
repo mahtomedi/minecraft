@@ -11,6 +11,7 @@ import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -24,7 +25,7 @@ public class RepeaterBlock extends DiodeBlock {
     public static final BooleanProperty LOCKED = BlockStateProperties.LOCKED;
     public static final IntegerProperty DELAY = BlockStateProperties.DELAY;
 
-    protected RepeaterBlock(Block.Properties param0) {
+    protected RepeaterBlock(BlockBehaviour.Properties param0) {
         super(param0);
         this.registerDefaultState(
             this.stateDefinition

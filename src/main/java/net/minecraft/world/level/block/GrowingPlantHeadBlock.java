@@ -7,6 +7,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -18,7 +19,7 @@ public abstract class GrowingPlantHeadBlock extends GrowingPlantBlock implements
     public static final IntegerProperty AGE = BlockStateProperties.AGE_25;
     private final double growPerTickProbability;
 
-    protected GrowingPlantHeadBlock(Block.Properties param0, Direction param1, VoxelShape param2, boolean param3, double param4) {
+    protected GrowingPlantHeadBlock(BlockBehaviour.Properties param0, Direction param1, VoxelShape param2, boolean param3, double param4) {
         super(param0, param1, param2, param3);
         this.growPerTickProbability = param4;
         this.registerDefaultState(this.stateDefinition.any().setValue(AGE, Integer.valueOf(0)));
@@ -32,15 +33,24 @@ public abstract class GrowingPlantHeadBlock extends GrowingPlantBlock implements
     public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         if (!param0.canSurvive(param1, param2)) {
             param1.destroyBlock(param2, true);
-        } else {
-            if (param0.getValue(AGE) < 25 && param3.nextDouble() < this.growPerTickProbability) {
-                BlockPos var0 = param2.relative(this.growthDirection);
-                if (this.canGrowInto(param1.getBlockState(var0))) {
-                    param1.setBlockAndUpdate(var0, param0.cycle(AGE));
-                }
-            }
-
         }
+
+    }
+
+    @Override
+    public boolean isRandomlyTicking(BlockState param0) {
+        return param0.getValue(AGE) < 25;
+    }
+
+    @Override
+    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+        if (param0.getValue(AGE) < 25 && param3.nextDouble() < this.growPerTickProbability) {
+            BlockPos var0 = param2.relative(this.growthDirection);
+            if (this.canGrowInto(param1.getBlockState(var0))) {
+                param1.setBlockAndUpdate(var0, param0.cycle(AGE));
+            }
+        }
+
     }
 
     @Override

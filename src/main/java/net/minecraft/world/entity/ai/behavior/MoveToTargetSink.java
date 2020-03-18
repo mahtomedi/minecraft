@@ -21,7 +21,7 @@ public class MoveToTargetSink extends Behavior<Mob> {
     private Path path;
     @Nullable
     private BlockPos lastTargetPos;
-    private float speed;
+    private float speedModifier;
     private int remainingDelay;
 
     public MoveToTargetSink(int param0) {
@@ -69,7 +69,7 @@ public class MoveToTargetSink extends Behavior<Mob> {
 
     protected void start(ServerLevel param0, Mob param1, long param2) {
         param1.getBrain().setMemory(MemoryModuleType.PATH, this.path);
-        param1.getNavigation().moveTo(this.path, (double)this.speed);
+        param1.getNavigation().moveTo(this.path, (double)this.speedModifier);
         this.remainingDelay = param0.getRandom().nextInt(10);
     }
 
@@ -97,7 +97,7 @@ public class MoveToTargetSink extends Behavior<Mob> {
     private boolean tryComputePath(Mob param0, WalkTarget param1, long param2) {
         BlockPos var0 = param1.getTarget().getPos();
         this.path = param0.getNavigation().createPath(var0, 0);
-        this.speed = param1.getSpeed();
+        this.speedModifier = param1.getSpeedModifier();
         Brain<?> var1 = param0.getBrain();
         if (this.reachedTarget(param0, param1)) {
             var1.eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);

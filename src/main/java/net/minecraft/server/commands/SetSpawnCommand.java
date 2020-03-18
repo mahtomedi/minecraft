@@ -10,6 +10,7 @@ import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.dimension.DimensionType;
 
 public class SetSpawnCommand {
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
@@ -45,20 +46,23 @@ public class SetSpawnCommand {
     }
 
     private static int setSpawn(CommandSourceStack param0, Collection<ServerPlayer> param1, BlockPos param2) {
-        for(ServerPlayer var0 : param1) {
-            var0.setRespawnPosition(param2, true, false);
+        DimensionType var0 = param0.getLevel().getDimension().getType();
+
+        for(ServerPlayer var1 : param1) {
+            var1.setRespawnPosition(var0, param2, true, false);
         }
 
+        String var2 = DimensionType.getName(var0).toString();
         if (param1.size() == 1) {
             param0.sendSuccess(
                 new TranslatableComponent(
-                    "commands.spawnpoint.success.single", param2.getX(), param2.getY(), param2.getZ(), param1.iterator().next().getDisplayName()
+                    "commands.spawnpoint.success.single", param2.getX(), param2.getY(), param2.getZ(), var2, param1.iterator().next().getDisplayName()
                 ),
                 true
             );
         } else {
             param0.sendSuccess(
-                new TranslatableComponent("commands.spawnpoint.success.multiple", param2.getX(), param2.getY(), param2.getZ(), param1.size()), true
+                new TranslatableComponent("commands.spawnpoint.success.multiple", param2.getX(), param2.getY(), param2.getZ(), var2, param1.size()), true
             );
         }
 

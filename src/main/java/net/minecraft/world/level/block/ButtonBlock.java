@@ -16,7 +16,7 @@ import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.AttachFace;
@@ -46,7 +46,7 @@ public abstract class ButtonBlock extends FaceAttachedHorizontalDirectionalBlock
     protected static final VoxelShape PRESSED_EAST_AABB = Block.box(0.0, 6.0, 5.0, 1.0, 10.0, 11.0);
     private final boolean sensitive;
 
-    protected ButtonBlock(boolean param0, Block.Properties param1) {
+    protected ButtonBlock(boolean param0, BlockBehaviour.Properties param1) {
         super(param1);
         this.registerDefaultState(
             this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(POWERED, Boolean.valueOf(false)).setValue(FACE, AttachFace.WALL)
@@ -54,8 +54,7 @@ public abstract class ButtonBlock extends FaceAttachedHorizontalDirectionalBlock
         this.sensitive = param0;
     }
 
-    @Override
-    public int getTickDelay(LevelReader param0) {
+    private int getPressDuration() {
         return this.sensitive ? 30 : 20;
     }
 
@@ -106,7 +105,7 @@ public abstract class ButtonBlock extends FaceAttachedHorizontalDirectionalBlock
     public void press(BlockState param0, Level param1, BlockPos param2) {
         param1.setBlock(param2, param0.setValue(POWERED, Boolean.valueOf(true)), 3);
         this.updateNeighbours(param0, param1, param2);
-        param1.getBlockTicks().scheduleTick(param2, this, this.getTickDelay(param1));
+        param1.getBlockTicks().scheduleTick(param2, this, this.getPressDuration());
     }
 
     protected void playSound(@Nullable Player param0, LevelAccessor param1, BlockPos param2, boolean param3) {
@@ -173,7 +172,7 @@ public abstract class ButtonBlock extends FaceAttachedHorizontalDirectionalBlock
         }
 
         if (var1) {
-            param1.getBlockTicks().scheduleTick(new BlockPos(param2), this, this.getTickDelay(param1));
+            param1.getBlockTicks().scheduleTick(new BlockPos(param2), this, this.getPressDuration());
         }
 
     }

@@ -373,11 +373,11 @@ public class Fox extends Animal {
 
         for(UUID var2 : var0) {
             if (var2 != null) {
-                var1.add(NbtUtils.createUUIDTag(var2));
+                var1.add(NbtUtils.createUUID(var2));
             }
         }
 
-        param0.put("TrustedUUIDs", var1);
+        param0.put("Trusted", var1);
         param0.putBoolean("Sleeping", this.isSleeping());
         param0.putString("Type", this.getFoxType().getName());
         param0.putBoolean("Sitting", this.isSitting());
@@ -387,10 +387,10 @@ public class Fox extends Animal {
     @Override
     public void readAdditionalSaveData(CompoundTag param0) {
         super.readAdditionalSaveData(param0);
-        ListTag var0 = param0.getList("TrustedUUIDs", 10);
+        ListTag var0 = param0.getList("Trusted", 11);
 
         for(int var1 = 0; var1 < var0.size(); ++var1) {
-            this.addTrustedUUID(NbtUtils.loadUUIDTag(var0.getCompound(var1)));
+            this.addTrustedUUID(NbtUtils.loadUUID(var0.get(var1)));
         }
 
         this.setSleeping(param0.getBoolean("Sleeping"));

@@ -128,19 +128,36 @@ public class BoneMealItem extends Item {
 
         BlockState var0 = param0.getBlockState(param1);
         if (!var0.isAir()) {
-            for(int var1 = 0; var1 < param2; ++var1) {
-                double var2 = random.nextGaussian() * 0.02;
-                double var3 = random.nextGaussian() * 0.02;
-                double var4 = random.nextGaussian() * 0.02;
-                param0.addParticle(
-                    ParticleTypes.HAPPY_VILLAGER,
-                    (double)((float)param1.getX() + random.nextFloat()),
-                    (double)param1.getY() + (double)random.nextFloat() * var0.getShape(param0, param1).max(Direction.Axis.Y),
-                    (double)((float)param1.getZ() + random.nextFloat()),
-                    var2,
-                    var3,
-                    var4
-                );
+            double var1 = 0.5;
+            double var2;
+            if (!var0.getFluidState().isEmpty()) {
+                param2 *= 3;
+                var2 = 1.0;
+                var1 = 3.0;
+            } else if (var0.isSolidRender(param0, param1)) {
+                param1 = param1.above();
+                param2 *= 3;
+                var1 = 3.0;
+                var2 = 1.0;
+            } else {
+                var2 = var0.getShape(param0, param1).max(Direction.Axis.Y);
+            }
+
+            param0.addParticle(
+                ParticleTypes.HAPPY_VILLAGER, (double)param1.getX() + 0.5, (double)param1.getY() + 0.5, (double)param1.getZ() + 0.5, 0.0, 0.0, 0.0
+            );
+
+            for(int var5 = 0; var5 < param2; ++var5) {
+                double var6 = random.nextGaussian() * 0.02;
+                double var7 = random.nextGaussian() * 0.02;
+                double var8 = random.nextGaussian() * 0.02;
+                double var9 = 0.5 - var1;
+                double var10 = (double)param1.getX() + var9 + random.nextDouble() * var1 * 2.0;
+                double var11 = (double)param1.getY() + random.nextDouble() * var2;
+                double var12 = (double)param1.getZ() + var9 + random.nextDouble() * var1 * 2.0;
+                if (!param0.getBlockState(new BlockPos(var10, var11, var12).below()).isAir()) {
+                    param0.addParticle(ParticleTypes.HAPPY_VILLAGER, var10, var11, var12, var6, var7, var8);
+                }
             }
 
         }

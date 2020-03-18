@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
@@ -36,7 +37,7 @@ public class MovingPistonBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING = PistonHeadBlock.FACING;
     public static final EnumProperty<PistonType> TYPE = PistonHeadBlock.TYPE;
 
-    public MovingPistonBlock(Block.Properties param0) {
+    public MovingPistonBlock(BlockBehaviour.Properties param0) {
         super(param0);
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(TYPE, PistonType.DEFAULT));
     }
@@ -70,16 +71,6 @@ public class MovingPistonBlock extends BaseEntityBlock {
             param0.removeBlock(var0, false);
         }
 
-    }
-
-    @Override
-    public boolean isRedstoneConductor(BlockState param0, BlockGetter param1, BlockPos param2) {
-        return false;
-    }
-
-    @Override
-    public boolean isSuffocating(BlockState param0, BlockGetter param1, BlockPos param2) {
-        return false;
     }
 
     @Override

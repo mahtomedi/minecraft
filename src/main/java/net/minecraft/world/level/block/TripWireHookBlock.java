@@ -15,6 +15,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -32,7 +33,7 @@ public class TripWireHookBlock extends Block {
     protected static final VoxelShape WEST_AABB = Block.box(10.0, 0.0, 5.0, 16.0, 10.0, 11.0);
     protected static final VoxelShape EAST_AABB = Block.box(0.0, 0.0, 5.0, 6.0, 10.0, 11.0);
 
-    public TripWireHookBlock(Block.Properties param0) {
+    public TripWireHookBlock(BlockBehaviour.Properties param0) {
         super(param0);
         this.registerDefaultState(
             this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(POWERED, Boolean.valueOf(false)).setValue(ATTACHED, Boolean.valueOf(false))
@@ -127,7 +128,7 @@ public class TripWireHookBlock extends Block {
                 var4 |= var10 && var11;
                 var6[var7] = var9;
                 if (var7 == param5) {
-                    param0.getBlockTicks().scheduleTick(param1, this, this.getTickDelay(param0));
+                    param0.getBlockTicks().scheduleTick(param1, this, 10);
                     var3 &= var10;
                 }
             }

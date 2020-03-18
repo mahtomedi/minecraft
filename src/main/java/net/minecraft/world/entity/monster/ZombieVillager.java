@@ -245,7 +245,10 @@ public class ZombieVillager extends Zombie implements VillagerDataHolder {
         }
 
         var0.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 200, 0));
-        param0.levelEvent(null, 1027, this.blockPosition(), 0);
+        if (!this.isSilent()) {
+            param0.levelEvent(null, 1027, this.blockPosition(), 0);
+        }
+
     }
 
     private int getConversionProgress() {

@@ -60,6 +60,7 @@ import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -112,11 +113,6 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         return null;
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public void validateSpawn() {
-        this.setSpawnPos(new BlockPos(8, 64, 8));
-    }
-
     public BlockState getTopBlockState(BlockPos param0) {
         BlockPos var0 = new BlockPos(param0.getX(), this.getSeaLevel(), param0.getZ());
 
@@ -149,6 +145,36 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
 
     public static boolean isOutsideBuildHeight(int param0) {
         return param0 < 0 || param0 >= 256;
+    }
+
+    public double getRelativeFloorHeight(BlockPos param0) {
+        VoxelShape var0 = this.getBlockState(param0).getCollisionShape(this, param0);
+        if (var0.isEmpty()) {
+            BlockPos var1 = param0.below();
+            VoxelShape var2 = this.getBlockState(var1).getCollisionShape(this, var1);
+            double var3 = var2.max(Direction.Axis.Y);
+            return var3 >= 1.0 ? var3 - 1.0 : Double.NEGATIVE_INFINITY;
+        } else {
+            return var0.max(Direction.Axis.Y);
+        }
+    }
+
+    public double getRelativeCeilingHeight(BlockPos param0, double param1) {
+        BlockPos.MutableBlockPos var0 = param0.mutable();
+        int var1 = Mth.ceil(param1);
+        int var2 = 0;
+
+        while(var2 < var1) {
+            VoxelShape var3 = this.getBlockState(var0).getCollisionShape(this, var0);
+            if (!var3.isEmpty()) {
+                return (double)var2 + var3.min(Direction.Axis.Y);
+            }
+
+            ++var2;
+            var0.move(Direction.UP);
+        }
+
+        return Double.POSITIVE_INFINITY;
     }
 
     public LevelChunk getChunkAt(BlockPos param0) {
@@ -997,7 +1023,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         return var0;
     }
 
-    public void setSpawnPos(BlockPos param0) {
+    public void setDefaultSpawnPos(BlockPos param0) {
         this.levelData.setSpawn(param0);
     }
 

@@ -9,6 +9,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BannerBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -16,7 +17,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public abstract class AbstractBannerBlock extends BaseEntityBlock {
     private final DyeColor color;
 
-    protected AbstractBannerBlock(DyeColor param0, Block.Properties param1) {
+    protected AbstractBannerBlock(DyeColor param0, BlockBehaviour.Properties param1) {
         super(param1);
         this.color = param0;
     }

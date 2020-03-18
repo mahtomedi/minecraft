@@ -8,6 +8,7 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -20,7 +21,7 @@ public class SugarCaneBlock extends Block {
     public static final IntegerProperty AGE = BlockStateProperties.AGE_15;
     protected static final VoxelShape SHAPE = Block.box(2.0, 0.0, 2.0, 14.0, 16.0, 14.0);
 
-    protected SugarCaneBlock(Block.Properties param0) {
+    protected SugarCaneBlock(BlockBehaviour.Properties param0) {
         super(param0);
         this.registerDefaultState(this.stateDefinition.any().setValue(AGE, Integer.valueOf(0)));
     }
@@ -34,7 +35,13 @@ public class SugarCaneBlock extends Block {
     public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         if (!param0.canSurvive(param1, param2)) {
             param1.destroyBlock(param2, true);
-        } else if (param1.isEmptyBlock(param2.above())) {
+        }
+
+    }
+
+    @Override
+    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+        if (param1.isEmptyBlock(param2.above())) {
             int var0 = 1;
 
             while(param1.getBlockState(param2.below(var0)).getBlock() == this) {

@@ -13,11 +13,12 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.DispenserBlockEntity;
 import net.minecraft.world.level.block.entity.DropperBlockEntity;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 
 public class DropperBlock extends DispenserBlock {
     private static final DispenseItemBehavior DISPENSE_BEHAVIOUR = new DefaultDispenseItemBehavior();
 
-    public DropperBlock(Block.Properties param0) {
+    public DropperBlock(BlockBehaviour.Properties param0) {
         super(param0);
     }
 

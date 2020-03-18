@@ -8,17 +8,16 @@ import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class GrassPathBlock extends Block {
     protected static final VoxelShape SHAPE = FarmBlock.SHAPE;
 
-    protected GrassPathBlock(Block.Properties param0) {
+    protected GrassPathBlock(BlockBehaviour.Properties param0) {
         super(param0);
     }
 
@@ -62,11 +61,5 @@ public class GrassPathBlock extends Block {
     @Override
     public boolean isPathfindable(BlockState param0, BlockGetter param1, BlockPos param2, PathComputationType param3) {
         return false;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public boolean isViewBlocking(BlockState param0, BlockGetter param1, BlockPos param2) {
-        return true;
     }
 }

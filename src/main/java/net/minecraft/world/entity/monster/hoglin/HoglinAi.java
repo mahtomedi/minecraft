@@ -55,47 +55,45 @@ public class HoglinAi {
     }
 
     private static void initIdleActivity(Hoglin param0, Brain<Hoglin> param1) {
-        float var0 = param0.getMovementSpeed();
         param1.addActivity(
             Activity.IDLE,
             10,
             ImmutableList.of(
                 new BecomePassiveIfMemoryPresent(MemoryModuleType.NEAREST_REPELLENT, 200),
-                new AnimalMakeLove(EntityType.HOGLIN),
-                SetWalkTargetAwayFrom.pos(MemoryModuleType.NEAREST_REPELLENT, var0 * 1.8F, 8, true),
+                new AnimalMakeLove(EntityType.HOGLIN, 0.6F),
+                SetWalkTargetAwayFrom.pos(MemoryModuleType.NEAREST_REPELLENT, 1.0F, 8, true),
                 new StartAttacking<Hoglin>(HoglinAi::findNearestValidAttackTarget),
-                new RunIf<Hoglin>(Hoglin::isAdult, SetWalkTargetAwayFrom.entity(MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLIN, var0, 8, false)),
+                new RunIf<Hoglin>(Hoglin::isAdult, SetWalkTargetAwayFrom.entity(MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLIN, 0.4F, 8, false)),
                 new RunSometimes<LivingEntity>(new SetEntityLookTarget(8.0F), IntRange.of(30, 60)),
-                createIdleMovementBehaviors(var0)
+                createIdleMovementBehaviors()
             )
         );
     }
 
     private static void initFightActivity(Hoglin param0, Brain<Hoglin> param1) {
-        float var0 = param0.getMovementSpeed();
         param1.addActivityAndRemoveMemoryWhenStopped(
             Activity.FIGHT,
             10,
             ImmutableList.of(
                 new BecomePassiveIfMemoryPresent(MemoryModuleType.NEAREST_REPELLENT, 200),
-                new AnimalMakeLove(EntityType.HOGLIN),
-                new SetWalkTargetFromAttackTargetIfTargetOutOfReach(var0 * 1.8F),
+                new AnimalMakeLove(EntityType.HOGLIN, 0.6F),
+                new SetWalkTargetFromAttackTargetIfTargetOutOfReach(1.0F),
                 new RunIf<>(Hoglin::isAdult, new MeleeAttack(40)),
                 new RunIf<>(AgableMob::isBaby, new MeleeAttack(15)),
-                new StopAttackingIfTargetInvalid()
+                new StopAttackingIfTargetInvalid(),
+                new EraseMemoryIf(HoglinAi::isBreeding, MemoryModuleType.ATTACK_TARGET)
             ),
             MemoryModuleType.ATTACK_TARGET
         );
     }
 
     private static void initRetreatActivity(Hoglin param0, Brain<Hoglin> param1) {
-        float var0 = param0.getMovementSpeed() * 2.0F;
         param1.addActivityAndRemoveMemoryWhenStopped(
             Activity.AVOID,
             10,
             ImmutableList.of(
-                SetWalkTargetAwayFrom.entity(MemoryModuleType.AVOID_TARGET, var0, 15, false),
-                createIdleMovementBehaviors(param0.getMovementSpeed()),
+                SetWalkTargetAwayFrom.entity(MemoryModuleType.AVOID_TARGET, 1.0F, 15, false),
+                createIdleMovementBehaviors(),
                 new RunSometimes<LivingEntity>(new SetEntityLookTarget(8.0F), IntRange.of(30, 60)),
                 new EraseMemoryIf<Hoglin>(HoglinAi::wantsToStopFleeing, MemoryModuleType.AVOID_TARGET)
             ),
@@ -103,9 +101,9 @@ public class HoglinAi {
         );
     }
 
-    private static RunOne<Hoglin> createIdleMovementBehaviors(float param0) {
+    private static RunOne<Hoglin> createIdleMovementBehaviors() {
         return new RunOne<>(
-            ImmutableList.of(Pair.of(new RandomStroll(param0), 2), Pair.of(new SetWalkTargetFromLookTarget(param0, 3), 2), Pair.of(new DoNothing(30, 60), 1))
+            ImmutableList.of(Pair.of(new RandomStroll(0.4F), 2), Pair.of(new SetWalkTargetFromLookTarget(0.4F, 3), 2), Pair.of(new DoNothing(30, 60), 1))
         );
     }
 
@@ -198,8 +196,10 @@ public class HoglinAi {
     }
 
     private static void setAttackTarget(Hoglin param0, LivingEntity param1) {
-        param0.getBrain().eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
-        param0.getBrain().setMemoryWithExpiry(MemoryModuleType.ATTACK_TARGET, param1, 200L);
+        Brain<Hoglin> var0 = param0.getBrain();
+        var0.eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
+        var0.eraseMemory(MemoryModuleType.BREED_TARGET);
+        var0.setMemoryWithExpiry(MemoryModuleType.ATTACK_TARGET, param1, 200L);
     }
 
     private static void broadcastAttackTarget(Hoglin param0, LivingEntity param1) {
@@ -234,8 +234,8 @@ public class HoglinAi {
         return param0.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_ADULT_HOGLINS).orElse(ImmutableList.of());
     }
 
-    private static boolean isBreeding(Hoglin param0) {
-        return param0.getBrain().hasMemoryValue(MemoryModuleType.BREED_TARGET);
+    private static boolean isBreeding(Hoglin param0x) {
+        return param0x.getBrain().hasMemoryValue(MemoryModuleType.BREED_TARGET);
     }
 
     protected static boolean isPacified(Hoglin param0) {

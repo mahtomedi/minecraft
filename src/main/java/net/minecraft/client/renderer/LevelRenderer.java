@@ -2807,8 +2807,12 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                     }
                 }
 
-                this.level
-                    .playLocalSound(param2, SoundEvents.DRAGON_FIREBALL_EXPLODE, SoundSource.HOSTILE, 1.0F, this.level.random.nextFloat() * 0.1F + 0.9F, false);
+                if (param3 == 1) {
+                    this.level
+                        .playLocalSound(
+                            param2, SoundEvents.DRAGON_FIREBALL_EXPLODE, SoundSource.HOSTILE, 1.0F, this.level.random.nextFloat() * 0.1F + 0.9F, false
+                        );
+                }
                 break;
             case 2008:
                 this.level
@@ -2902,7 +2906,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
     }
 
     public static int getLightColor(BlockAndTintGetter param0, BlockState param1, BlockPos param2) {
-        if (param1.emissiveRendering()) {
+        if (param1.emissiveRendering(param0, param2)) {
             return 15728880;
         } else {
             int var0 = param0.getBrightness(LightLayer.SKY, param2);

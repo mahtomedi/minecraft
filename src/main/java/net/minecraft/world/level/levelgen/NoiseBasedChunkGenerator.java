@@ -5,13 +5,17 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectListIterator;
 import java.util.Random;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
+import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -157,6 +161,17 @@ public abstract class NoiseBasedChunkGenerator<T extends ChunkGeneratorSettings>
 
     @Override
     public int getBaseHeight(int param0, int param1, Heightmap.Types param2) {
+        return this.iterateNoiseColumn(param0, param1, null, param2.isOpaque());
+    }
+
+    @Override
+    public BlockGetter getBaseColumn(int param0, int param1) {
+        BlockState[] var0 = new BlockState[this.chunkCountY * this.chunkHeight];
+        this.iterateNoiseColumn(param0, param1, var0, null);
+        return new NoiseColumn(var0);
+    }
+
+    private int iterateNoiseColumn(int param0, int param1, @Nullable BlockState[] param2, @Nullable Predicate<BlockState> param3) {
         int var0 = Math.floorDiv(param0, this.chunkWidth);
         int var1 = Math.floorDiv(param1, this.chunkWidth);
         int var2 = Math.floorMod(param0, this.chunkWidth);
@@ -169,38 +184,46 @@ public abstract class NoiseBasedChunkGenerator<T extends ChunkGeneratorSettings>
             this.makeAndFillNoiseColumn(var0 + 1, var1),
             this.makeAndFillNoiseColumn(var0 + 1, var1 + 1)
         };
-        int var7 = this.getSeaLevel();
 
-        for(int var8 = this.chunkCountY - 1; var8 >= 0; --var8) {
-            double var9 = var6[0][var8];
-            double var10 = var6[1][var8];
-            double var11 = var6[2][var8];
-            double var12 = var6[3][var8];
-            double var13 = var6[0][var8 + 1];
-            double var14 = var6[1][var8 + 1];
-            double var15 = var6[2][var8 + 1];
-            double var16 = var6[3][var8 + 1];
+        for(int var7 = this.chunkCountY - 1; var7 >= 0; --var7) {
+            double var8 = var6[0][var7];
+            double var9 = var6[1][var7];
+            double var10 = var6[2][var7];
+            double var11 = var6[3][var7];
+            double var12 = var6[0][var7 + 1];
+            double var13 = var6[1][var7 + 1];
+            double var14 = var6[2][var7 + 1];
+            double var15 = var6[3][var7 + 1];
 
-            for(int var17 = this.chunkHeight - 1; var17 >= 0; --var17) {
-                double var18 = (double)var17 / (double)this.chunkHeight;
-                double var19 = Mth.lerp3(var18, var4, var5, var9, var13, var11, var15, var10, var14, var12, var16);
-                int var20 = var8 * this.chunkHeight + var17;
-                if (var19 > 0.0 || var20 < var7) {
-                    BlockState var21;
-                    if (var19 > 0.0) {
-                        var21 = this.defaultBlock;
-                    } else {
-                        var21 = this.defaultFluid;
-                    }
+            for(int var16 = this.chunkHeight - 1; var16 >= 0; --var16) {
+                double var17 = (double)var16 / (double)this.chunkHeight;
+                double var18 = Mth.lerp3(var17, var4, var5, var8, var12, var10, var14, var9, var13, var11, var15);
+                int var19 = var7 * this.chunkHeight + var16;
+                BlockState var20 = this.generateBaseState(var18, var19);
+                if (param2 != null) {
+                    param2[var19] = var20;
+                }
 
-                    if (param2.isOpaque().test(var21)) {
-                        return var20 + 1;
-                    }
+                if (param3 != null && param3.test(var20)) {
+                    return var19 + 1;
                 }
             }
         }
 
         return 0;
+    }
+
+    protected BlockState generateBaseState(double param0, int param1) {
+        BlockState var0;
+        if (param0 > 0.0) {
+            var0 = this.defaultBlock;
+        } else if (param1 < this.getSeaLevel()) {
+            var0 = this.defaultFluid;
+        } else {
+            var0 = AIR;
+        }
+
+        return var0;
     }
 
     protected abstract void fillNoiseColumn(double[] var1, int var2, int var3);
@@ -277,43 +300,42 @@ public abstract class NoiseBasedChunkGenerator<T extends ChunkGeneratorSettings>
 
     @Override
     public void fillFromNoise(LevelAccessor param0, ChunkAccess param1) {
-        int var0 = this.getSeaLevel();
-        ObjectList<StructurePiece> var1 = new ObjectArrayList<>(10);
-        ObjectList<JigsawJunction> var2 = new ObjectArrayList<>(32);
-        ChunkPos var3 = param1.getPos();
-        int var4 = var3.x;
-        int var5 = var3.z;
+        ObjectList<StructurePiece> var0 = new ObjectArrayList<>(10);
+        ObjectList<JigsawJunction> var1 = new ObjectArrayList<>(32);
+        ChunkPos var2 = param1.getPos();
+        int var3 = var2.x;
+        int var4 = var2.z;
+        int var5 = var3 << 4;
         int var6 = var4 << 4;
-        int var7 = var5 << 4;
 
-        for(StructureFeature<?> var8 : Feature.NOISE_AFFECTING_FEATURES) {
-            String var9 = var8.getFeatureName();
-            LongIterator var10 = param1.getReferencesForFeature(var9).iterator();
+        for(StructureFeature<?> var7 : Feature.NOISE_AFFECTING_FEATURES) {
+            String var8 = var7.getFeatureName();
+            LongIterator var9 = param1.getReferencesForFeature(var8).iterator();
 
-            while(var10.hasNext()) {
-                long var11 = var10.nextLong();
-                ChunkPos var12 = new ChunkPos(var11);
-                ChunkAccess var13 = param0.getChunk(var12.x, var12.z);
-                StructureStart var14 = var13.getStartForFeature(var9);
-                if (var14 != null && var14.isValid()) {
-                    for(StructurePiece var15 : var14.getPieces()) {
-                        if (var15.isCloseToChunk(var3, 12)) {
-                            if (var15 instanceof PoolElementStructurePiece) {
-                                PoolElementStructurePiece var16 = (PoolElementStructurePiece)var15;
-                                StructureTemplatePool.Projection var17 = var16.getElement().getProjection();
-                                if (var17 == StructureTemplatePool.Projection.RIGID) {
-                                    var1.add(var16);
+            while(var9.hasNext()) {
+                long var10 = var9.nextLong();
+                ChunkPos var11 = new ChunkPos(var10);
+                ChunkAccess var12 = param0.getChunk(var11.x, var11.z);
+                StructureStart var13 = var12.getStartForFeature(var8);
+                if (var13 != null && var13.isValid()) {
+                    for(StructurePiece var14 : var13.getPieces()) {
+                        if (var14.isCloseToChunk(var2, 12)) {
+                            if (var14 instanceof PoolElementStructurePiece) {
+                                PoolElementStructurePiece var15 = (PoolElementStructurePiece)var14;
+                                StructureTemplatePool.Projection var16 = var15.getElement().getProjection();
+                                if (var16 == StructureTemplatePool.Projection.RIGID) {
+                                    var0.add(var15);
                                 }
 
-                                for(JigsawJunction var18 : var16.getJunctions()) {
-                                    int var19 = var18.getSourceX();
-                                    int var20 = var18.getSourceZ();
-                                    if (var19 > var6 - 12 && var20 > var7 - 12 && var19 < var6 + 15 + 12 && var20 < var7 + 15 + 12) {
-                                        var2.add(var18);
+                                for(JigsawJunction var17 : var15.getJunctions()) {
+                                    int var18 = var17.getSourceX();
+                                    int var19 = var17.getSourceZ();
+                                    if (var18 > var5 - 12 && var19 > var6 - 12 && var18 < var5 + 15 + 12 && var19 < var6 + 15 + 12) {
+                                        var1.add(var17);
                                     }
                                 }
                             } else {
-                                var1.add(var15);
+                                var0.add(var14);
                             }
                         }
                     }
@@ -321,126 +343,118 @@ public abstract class NoiseBasedChunkGenerator<T extends ChunkGeneratorSettings>
             }
         }
 
-        double[][][] var21 = new double[2][this.chunkCountZ + 1][this.chunkCountY + 1];
+        double[][][] var20 = new double[2][this.chunkCountZ + 1][this.chunkCountY + 1];
 
-        for(int var22 = 0; var22 < this.chunkCountZ + 1; ++var22) {
-            var21[0][var22] = new double[this.chunkCountY + 1];
-            this.fillNoiseColumn(var21[0][var22], var4 * this.chunkCountX, var5 * this.chunkCountZ + var22);
-            var21[1][var22] = new double[this.chunkCountY + 1];
+        for(int var21 = 0; var21 < this.chunkCountZ + 1; ++var21) {
+            var20[0][var21] = new double[this.chunkCountY + 1];
+            this.fillNoiseColumn(var20[0][var21], var3 * this.chunkCountX, var4 * this.chunkCountZ + var21);
+            var20[1][var21] = new double[this.chunkCountY + 1];
         }
 
-        ProtoChunk var23 = (ProtoChunk)param1;
-        Heightmap var24 = var23.getOrCreateHeightmapUnprimed(Heightmap.Types.OCEAN_FLOOR_WG);
-        Heightmap var25 = var23.getOrCreateHeightmapUnprimed(Heightmap.Types.WORLD_SURFACE_WG);
-        BlockPos.MutableBlockPos var26 = new BlockPos.MutableBlockPos();
-        ObjectListIterator<StructurePiece> var27 = var1.iterator();
-        ObjectListIterator<JigsawJunction> var28 = var2.iterator();
+        ProtoChunk var22 = (ProtoChunk)param1;
+        Heightmap var23 = var22.getOrCreateHeightmapUnprimed(Heightmap.Types.OCEAN_FLOOR_WG);
+        Heightmap var24 = var22.getOrCreateHeightmapUnprimed(Heightmap.Types.WORLD_SURFACE_WG);
+        BlockPos.MutableBlockPos var25 = new BlockPos.MutableBlockPos();
+        ObjectListIterator<StructurePiece> var26 = var0.iterator();
+        ObjectListIterator<JigsawJunction> var27 = var1.iterator();
 
-        for(int var29 = 0; var29 < this.chunkCountX; ++var29) {
-            for(int var30 = 0; var30 < this.chunkCountZ + 1; ++var30) {
-                this.fillNoiseColumn(var21[1][var30], var4 * this.chunkCountX + var29 + 1, var5 * this.chunkCountZ + var30);
+        for(int var28 = 0; var28 < this.chunkCountX; ++var28) {
+            for(int var29 = 0; var29 < this.chunkCountZ + 1; ++var29) {
+                this.fillNoiseColumn(var20[1][var29], var3 * this.chunkCountX + var28 + 1, var4 * this.chunkCountZ + var29);
             }
 
-            for(int var31 = 0; var31 < this.chunkCountZ; ++var31) {
-                LevelChunkSection var32 = var23.getOrCreateSection(15);
-                var32.acquire();
+            for(int var30 = 0; var30 < this.chunkCountZ; ++var30) {
+                LevelChunkSection var31 = var22.getOrCreateSection(15);
+                var31.acquire();
 
-                for(int var33 = this.chunkCountY - 1; var33 >= 0; --var33) {
-                    double var34 = var21[0][var31][var33];
-                    double var35 = var21[0][var31 + 1][var33];
-                    double var36 = var21[1][var31][var33];
-                    double var37 = var21[1][var31 + 1][var33];
-                    double var38 = var21[0][var31][var33 + 1];
-                    double var39 = var21[0][var31 + 1][var33 + 1];
-                    double var40 = var21[1][var31][var33 + 1];
-                    double var41 = var21[1][var31 + 1][var33 + 1];
+                for(int var32 = this.chunkCountY - 1; var32 >= 0; --var32) {
+                    double var33 = var20[0][var30][var32];
+                    double var34 = var20[0][var30 + 1][var32];
+                    double var35 = var20[1][var30][var32];
+                    double var36 = var20[1][var30 + 1][var32];
+                    double var37 = var20[0][var30][var32 + 1];
+                    double var38 = var20[0][var30 + 1][var32 + 1];
+                    double var39 = var20[1][var30][var32 + 1];
+                    double var40 = var20[1][var30 + 1][var32 + 1];
 
-                    for(int var42 = this.chunkHeight - 1; var42 >= 0; --var42) {
-                        int var43 = var33 * this.chunkHeight + var42;
-                        int var44 = var43 & 15;
-                        int var45 = var43 >> 4;
-                        if (var32.bottomBlockY() >> 4 != var45) {
-                            var32.release();
-                            var32 = var23.getOrCreateSection(var45);
-                            var32.acquire();
+                    for(int var41 = this.chunkHeight - 1; var41 >= 0; --var41) {
+                        int var42 = var32 * this.chunkHeight + var41;
+                        int var43 = var42 & 15;
+                        int var44 = var42 >> 4;
+                        if (var31.bottomBlockY() >> 4 != var44) {
+                            var31.release();
+                            var31 = var22.getOrCreateSection(var44);
+                            var31.acquire();
                         }
 
-                        double var46 = (double)var42 / (double)this.chunkHeight;
-                        double var47 = Mth.lerp(var46, var34, var38);
-                        double var48 = Mth.lerp(var46, var36, var40);
-                        double var49 = Mth.lerp(var46, var35, var39);
-                        double var50 = Mth.lerp(var46, var37, var41);
+                        double var45 = (double)var41 / (double)this.chunkHeight;
+                        double var46 = Mth.lerp(var45, var33, var37);
+                        double var47 = Mth.lerp(var45, var35, var39);
+                        double var48 = Mth.lerp(var45, var34, var38);
+                        double var49 = Mth.lerp(var45, var36, var40);
 
-                        for(int var51 = 0; var51 < this.chunkWidth; ++var51) {
-                            int var52 = var6 + var29 * this.chunkWidth + var51;
-                            int var53 = var52 & 15;
-                            double var54 = (double)var51 / (double)this.chunkWidth;
-                            double var55 = Mth.lerp(var54, var47, var48);
-                            double var56 = Mth.lerp(var54, var49, var50);
+                        for(int var50 = 0; var50 < this.chunkWidth; ++var50) {
+                            int var51 = var5 + var28 * this.chunkWidth + var50;
+                            int var52 = var51 & 15;
+                            double var53 = (double)var50 / (double)this.chunkWidth;
+                            double var54 = Mth.lerp(var53, var46, var47);
+                            double var55 = Mth.lerp(var53, var48, var49);
 
-                            for(int var57 = 0; var57 < this.chunkWidth; ++var57) {
-                                int var58 = var7 + var31 * this.chunkWidth + var57;
-                                int var59 = var58 & 15;
-                                double var60 = (double)var57 / (double)this.chunkWidth;
-                                double var61 = Mth.lerp(var60, var55, var56);
-                                double var62 = Mth.clamp(var61 / 200.0, -1.0, 1.0);
+                            for(int var56 = 0; var56 < this.chunkWidth; ++var56) {
+                                int var57 = var6 + var30 * this.chunkWidth + var56;
+                                int var58 = var57 & 15;
+                                double var59 = (double)var56 / (double)this.chunkWidth;
+                                double var60 = Mth.lerp(var59, var54, var55);
+                                double var61 = Mth.clamp(var60 / 200.0, -1.0, 1.0);
 
+                                int var64;
                                 int var65;
                                 int var66;
-                                int var67;
-                                for(var62 = var62 / 2.0 - var62 * var62 * var62 / 24.0; var27.hasNext(); var62 += getContribution(var65, var66, var67) * 0.8) {
-                                    StructurePiece var63 = var27.next();
-                                    BoundingBox var64 = var63.getBoundingBox();
-                                    var65 = Math.max(0, Math.max(var64.x0 - var52, var52 - var64.x1));
-                                    var66 = var43
+                                for(var61 = var61 / 2.0 - var61 * var61 * var61 / 24.0; var26.hasNext(); var61 += getContribution(var64, var65, var66) * 0.8) {
+                                    StructurePiece var62 = var26.next();
+                                    BoundingBox var63 = var62.getBoundingBox();
+                                    var64 = Math.max(0, Math.max(var63.x0 - var51, var51 - var63.x1));
+                                    var65 = var42
                                         - (
-                                            var64.y0
-                                                + (var63 instanceof PoolElementStructurePiece ? ((PoolElementStructurePiece)var63).getGroundLevelDelta() : 0)
+                                            var63.y0
+                                                + (var62 instanceof PoolElementStructurePiece ? ((PoolElementStructurePiece)var62).getGroundLevelDelta() : 0)
                                         );
-                                    var67 = Math.max(0, Math.max(var64.z0 - var58, var58 - var64.z1));
+                                    var66 = Math.max(0, Math.max(var63.z0 - var57, var57 - var63.z1));
+                                }
+
+                                var26.back(var0.size());
+
+                                while(var27.hasNext()) {
+                                    JigsawJunction var67 = var27.next();
+                                    int var68 = var51 - var67.getSourceX();
+                                    var64 = var42 - var67.getSourceGroundY();
+                                    var65 = var57 - var67.getSourceZ();
+                                    var61 += getContribution(var68, var64, var65) * 0.4;
                                 }
 
                                 var27.back(var1.size());
-
-                                while(var28.hasNext()) {
-                                    JigsawJunction var68 = var28.next();
-                                    int var69 = var52 - var68.getSourceX();
-                                    var65 = var43 - var68.getSourceGroundY();
-                                    var66 = var58 - var68.getSourceZ();
-                                    var62 += getContribution(var69, var65, var66) * 0.4;
-                                }
-
-                                var28.back(var2.size());
-                                BlockState var72;
-                                if (var62 > 0.0) {
-                                    var72 = this.defaultBlock;
-                                } else if (var43 < var0) {
-                                    var72 = this.defaultFluid;
-                                } else {
-                                    var72 = AIR;
-                                }
-
-                                if (var72 != AIR) {
-                                    if (var72.getLightEmission() != 0) {
-                                        var26.set(var52, var43, var58);
-                                        var23.addLight(var26);
+                                BlockState var71 = this.generateBaseState(var61, var42);
+                                if (var71 != AIR) {
+                                    if (var71.getLightEmission() != 0) {
+                                        var25.set(var51, var42, var57);
+                                        var22.addLight(var25);
                                     }
 
-                                    var32.setBlockState(var53, var44, var59, var72, false);
-                                    var24.update(var53, var43, var59, var72);
-                                    var25.update(var53, var43, var59, var72);
+                                    var31.setBlockState(var52, var43, var58, var71, false);
+                                    var23.update(var52, var42, var58, var71);
+                                    var24.update(var52, var42, var58, var71);
                                 }
                             }
                         }
                     }
                 }
 
-                var32.release();
+                var31.release();
             }
 
-            double[][] var75 = var21[0];
-            var21[0] = var21[1];
-            var21[1] = var75;
+            double[][] var72 = var20[0];
+            var20[0] = var20[1];
+            var20[1] = var72;
         }
 
     }

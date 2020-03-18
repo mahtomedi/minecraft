@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.Dynamic;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.List;
@@ -105,6 +106,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 public abstract class LivingEntity extends Entity {
     private static final UUID SPEED_MODIFIER_SPRINTING_UUID = UUID.fromString("662A6B8D-DA3E-4C1C-8813-96EA6097278D");
+    private static final UUID SPEED_MODIFIER_SOUL_SPEED_UUID = UUID.fromString("87f46a96-686f-4796-b035-22e16ee9e038");
     private static final AttributeModifier SPEED_MODIFIER_SPRINTING = new AttributeModifier(
             SPEED_MODIFIER_SPRINTING_UUID, "Sprinting speed boost", 0.3F, AttributeModifier.Operation.MULTIPLY_TOTAL
         )
@@ -389,7 +391,8 @@ public abstract class LivingEntity extends Entity {
     @Override
     public void updateSprintingState() {
         super.updateSprintingState();
-        if (EnchantmentHelper.hasSoulSpeed(this)
+        if (!this.isSpectator()
+            && EnchantmentHelper.hasSoulSpeed(this)
             && this.getBlockStateOn().is(BlockTags.SOUL_SPEED_BLOCKS)
             && this.getDeltaMovement().x != 0.0
             && this.getDeltaMovement().z != 0.0
@@ -404,21 +407,21 @@ public abstract class LivingEntity extends Entity {
         this.level
             .addParticle(
                 ParticleTypes.SOUL,
-                this.getX() + ((double)this.random.nextFloat() - 0.5) * (double)this.getBbWidth(),
+                this.getX() + (this.random.nextDouble() - 0.5) * (double)this.getBbWidth(),
                 this.getY() + 0.1,
-                this.getZ() + ((double)this.random.nextFloat() - 0.5) * (double)this.getBbWidth(),
+                this.getZ() + (this.random.nextDouble() - 0.5) * (double)this.getBbWidth(),
                 var0.x * -0.2,
                 0.1,
                 var0.z * -0.2
             );
-        float var1 = this.random.nextFloat() * 0.4F + (this.random.nextFloat() > 0.9F ? 0.6F : 0.0F);
+        float var1 = this.random.nextFloat() * 0.4F + this.random.nextFloat() > 0.9F ? 0.6F : 0.0F;
         this.playSound(SoundEvents.SOUL_ESCAPE, var1, 0.6F + this.random.nextFloat() * 0.4F);
     }
 
     @Override
     protected float getBlockSpeedFactor() {
         int var0 = EnchantmentHelper.getEnchantmentLevel(Enchantments.SOUL_SPEED, this);
-        return this.getBlockStateOn().is(BlockTags.SOUL_SPEED_BLOCKS) && var0 > 0 ? 0.9F + (float)var0 * 0.125F : super.getBlockSpeedFactor();
+        return this.getBlockStateOn().is(BlockTags.SOUL_SPEED_BLOCKS) && var0 > 0 ? 1.0F : super.getBlockSpeedFactor();
     }
 
     protected void onChangedBlock(BlockPos param0) {
@@ -427,10 +430,28 @@ public abstract class LivingEntity extends Entity {
             FrostWalkerEnchantment.onEntityMoved(this, this.level, param0, var0);
         }
 
-        if (this.getBlockStateOn().is(BlockTags.SOUL_SPEED_BLOCKS) && EnchantmentHelper.hasSoulSpeed(this) && this.getRandom().nextFloat() < 0.04F) {
-            ItemStack var1 = this.getItemBySlot(EquipmentSlot.FEET);
-            ServerPlayer var2 = this instanceof ServerPlayer ? (ServerPlayer)this : null;
-            var1.hurt(1, this.getRandom(), var2);
+        if (!this.getBlockStateOn().isAir()) {
+            AttributeInstance var1 = this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
+            if (var1.getModifier(SPEED_MODIFIER_SOUL_SPEED_UUID) != null) {
+                var1.removeModifier(SPEED_MODIFIER_SOUL_SPEED_UUID);
+            }
+
+            int var2 = EnchantmentHelper.getEnchantmentLevel(Enchantments.SOUL_SPEED, this);
+            if (var2 > 0 && this.getBlockStateOn().is(BlockTags.SOUL_SPEED_BLOCKS)) {
+                var1.addModifier(
+                    new AttributeModifier(
+                            SPEED_MODIFIER_SOUL_SPEED_UUID,
+                            "Soul speed boost",
+                            (double)(0.03F * (1.0F + (float)var2 * 0.35F)),
+                            AttributeModifier.Operation.ADDITION
+                        )
+                        .setSerialize(false)
+                );
+                if (this.getRandom().nextFloat() < 0.04F) {
+                    ItemStack var3 = this.getItemBySlot(EquipmentSlot.FEET);
+                    var3.hurtAndBreak(1, this, param0x -> param0x.broadcastBreakEvent(EquipmentSlot.FEET));
+                }
+            }
         }
 
     }
@@ -809,6 +830,19 @@ public abstract class LivingEntity extends Entity {
         }
 
         return true;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public void forceAddEffect(MobEffectInstance param0) {
+        if (this.canBeAffected(param0)) {
+            MobEffectInstance var0 = this.activeEffects.put(param0.getEffect(), param0);
+            if (var0 == null) {
+                this.onEffectAdded(param0);
+            } else {
+                this.onEffectUpdated(param0, true);
+            }
+
+        }
     }
 
     public boolean isInvertedHealAndHarm() {
@@ -1792,14 +1826,14 @@ public abstract class LivingEntity extends Entity {
     }
 
     private void dismountVehicle(Entity param0) {
-        Vec3 var0;
-        if (this.level.getBlockState(param0.blockPosition()).getBlock().is(BlockTags.PORTALS)) {
-            var0 = new Vec3(param0.getX(), param0.getY() + (double)param0.getBbHeight(), param0.getZ());
+        Vec3 var1;
+        if (!this.removed && !this.level.getBlockState(param0.blockPosition()).getBlock().is(BlockTags.PORTALS)) {
+            var1 = param0.getDismountLocationForPassenger(this);
         } else {
-            var0 = param0.getDismountLocationForPassenger(this);
+            var1 = new Vec3(param0.getX(), param0.getY() + (double)param0.getBbHeight(), param0.getZ());
         }
 
-        this.setPos(var0.x, var0.y, var0.z);
+        this.setPos(var1.x, var1.y, var1.z);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -2810,6 +2844,10 @@ public abstract class LivingEntity extends Entity {
 
     public ImmutableList<Pose> getDismountPoses() {
         return ImmutableList.of(Pose.STANDING);
+    }
+
+    public Pose getShortestDismountPose() {
+        return this.getDismountPoses().stream().min(Comparator.comparing(param0 -> this.getDimensions(param0).height)).orElse(Pose.STANDING);
     }
 
     public AABB getLocalBoundsForPose(Pose param0) {

@@ -118,39 +118,17 @@ public class CompoundTag implements Tag {
         this.tags.put(param0, LongTag.valueOf(param1));
     }
 
-    public void putUUIDAsArray(String param0, UUID param1) {
-        this.tags.put(param0, NbtUtils.createUUIDArray(param1));
+    public void putUUID(String param0, UUID param1) {
+        this.tags.put(param0, NbtUtils.createUUID(param1));
     }
 
-    public UUID getUUIDFromArray(String param0) {
-        return NbtUtils.loadUUIDArray(this.get(param0));
+    public UUID getUUID(String param0) {
+        return NbtUtils.loadUUID(this.get(param0));
     }
 
-    public boolean hasUUIDArray(String param0) {
+    public boolean hasUUID(String param0) {
         Tag var0 = this.get(param0);
         return var0 != null && var0.getType() == IntArrayTag.TYPE && ((IntArrayTag)var0).getAsIntArray().length == 4;
-    }
-
-    @Deprecated
-    public void putUUID(String param0, UUID param1) {
-        this.putLong(param0 + "Most", param1.getMostSignificantBits());
-        this.putLong(param0 + "Least", param1.getLeastSignificantBits());
-    }
-
-    @Deprecated
-    public UUID getUUID(String param0) {
-        return new UUID(this.getLong(param0 + "Most"), this.getLong(param0 + "Least"));
-    }
-
-    @Deprecated
-    public boolean hasUUID(String param0) {
-        return this.contains(param0 + "Most", 99) && this.contains(param0 + "Least", 99);
-    }
-
-    @Deprecated
-    public void removeUUID(String param0) {
-        this.remove(param0 + "Most");
-        this.remove(param0 + "Least");
     }
 
     public void putFloat(String param0, float param1) {

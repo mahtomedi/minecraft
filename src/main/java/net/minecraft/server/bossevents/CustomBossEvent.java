@@ -148,7 +148,7 @@ public class CustomBossEvent extends ServerBossEvent {
         ListTag var1 = new ListTag();
 
         for(UUID var2 : this.players) {
-            var1.add(NbtUtils.createUUIDTag(var2));
+            var1.add(NbtUtils.createUUID(var2));
         }
 
         var0.put("Players", var1);
@@ -165,10 +165,10 @@ public class CustomBossEvent extends ServerBossEvent {
         var0.setDarkenScreen(param0.getBoolean("DarkenScreen"));
         var0.setPlayBossMusic(param0.getBoolean("PlayBossMusic"));
         var0.setCreateWorldFog(param0.getBoolean("CreateWorldFog"));
-        ListTag var1 = param0.getList("Players", 10);
+        ListTag var1 = param0.getList("Players", 11);
 
         for(int var2 = 0; var2 < var1.size(); ++var2) {
-            var0.addOfflinePlayer(NbtUtils.loadUUIDTag(var1.getCompound(var2)));
+            var0.addOfflinePlayer(NbtUtils.loadUUID(var1.get(var2)));
         }
 
         return var0;

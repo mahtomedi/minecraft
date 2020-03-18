@@ -82,7 +82,7 @@ public class Camera {
                 this.position.y - (double)this.forwards.y() * param0 + (double)var2,
                 this.position.z - (double)this.forwards.z() * param0 + (double)var3
             );
-            HitResult var6 = this.level.clip(new ClipContext(var4, var5, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this.entity));
+            HitResult var6 = this.level.clip(new ClipContext(var4, var5, ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, this.entity));
             if (var6.getType() != HitResult.Type.MISS) {
                 double var7 = var6.getLocation().distanceTo(this.position);
                 if (var7 < param0) {

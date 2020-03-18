@@ -14,6 +14,7 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -39,7 +40,7 @@ public class FireBlock extends BaseFireBlock {
     private final Object2IntMap<Block> flameOdds = new Object2IntOpenHashMap<>();
     private final Object2IntMap<Block> burnOdds = new Object2IntOpenHashMap<>();
 
-    public FireBlock(Block.Properties param0) {
+    public FireBlock(BlockBehaviour.Properties param0) {
         super(param0, 1.0F);
         this.registerDefaultState(
             this.stateDefinition
@@ -115,11 +116,6 @@ public class FireBlock extends BaseFireBlock {
     }
 
     @Override
-    public int getTickDelay(LevelReader param0) {
-        return 30;
-    }
-
-    @Override
     public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         if (param1.getGameRules().getBoolean(GameRules.RULE_DOFIRETICK)) {
             if (!param0.canSurvive(param1, param2)) {
@@ -139,7 +135,7 @@ public class FireBlock extends BaseFireBlock {
                 }
 
                 if (!var1) {
-                    param1.getBlockTicks().scheduleTick(param2, this, this.getTickDelay(param1) + param3.nextInt(10));
+                    param1.getBlockTicks().scheduleTick(param2, this, getFireTickDelay(param1.random));
                     if (!this.isValidFireLocation(param1, param2)) {
                         BlockPos var4 = param2.below();
                         if (!param1.getBlockState(var4).isFaceSturdy(param1, var4, Direction.UP) || var2 > 3) {
@@ -273,7 +269,11 @@ public class FireBlock extends BaseFireBlock {
     @Override
     public void onPlace(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
         super.onPlace(param0, param1, param2, param3, param4);
-        param1.getBlockTicks().scheduleTick(param2, this, this.getTickDelay(param1) + param1.random.nextInt(10));
+        param1.getBlockTicks().scheduleTick(param2, this, getFireTickDelay(param1.random));
+    }
+
+    private static int getFireTickDelay(Random param0) {
+        return 30 + param0.nextInt(10);
     }
 
     @Override

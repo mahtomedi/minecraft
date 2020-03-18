@@ -83,8 +83,8 @@ public class EndDragonFight {
     public EndDragonFight(ServerLevel param0, CompoundTag param1) {
         this.level = param0;
         if (param1.contains("DragonKilled", 99)) {
-            if (param1.hasUUID("DragonUUID")) {
-                this.dragonUUID = param1.getUUID("DragonUUID");
+            if (param1.hasUUID("Dragon")) {
+                this.dragonUUID = param1.getUUID("Dragon");
             }
 
             this.dragonKilled = param1.getBoolean("DragonKilled");
@@ -125,7 +125,7 @@ public class EndDragonFight {
     public CompoundTag saveData() {
         CompoundTag var0 = new CompoundTag();
         if (this.dragonUUID != null) {
-            var0.putUUID("DragonUUID", this.dragonUUID);
+            var0.putUUID("Dragon", this.dragonUUID);
         }
 
         var0.putBoolean("DragonKilled", this.dragonKilled);

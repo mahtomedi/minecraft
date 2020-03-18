@@ -13,6 +13,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -33,7 +34,7 @@ public class TripWireBlock extends Block {
     protected static final VoxelShape NOT_ATTACHED_AABB = Block.box(0.0, 0.0, 0.0, 16.0, 8.0, 16.0);
     private final TripWireHookBlock hook;
 
-    public TripWireBlock(TripWireHookBlock param0, Block.Properties param1) {
+    public TripWireBlock(TripWireHookBlock param0, BlockBehaviour.Properties param1) {
         super(param1);
         this.registerDefaultState(
             this.stateDefinition
@@ -152,7 +153,7 @@ public class TripWireBlock extends Block {
         }
 
         if (var2) {
-            param0.getBlockTicks().scheduleTick(new BlockPos(param1), this, this.getTickDelay(param0));
+            param0.getBlockTicks().scheduleTick(new BlockPos(param1), this, 10);
         }
 
     }

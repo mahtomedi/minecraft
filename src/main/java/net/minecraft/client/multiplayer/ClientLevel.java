@@ -95,7 +95,7 @@ public class ClientLevel extends Level {
         super(new LevelData(param1, "MpServer"), param2, (param1x, param2x) -> new ClientChunkCache((ClientLevel)param1x, param3), param4, true);
         this.connection = param0;
         this.levelRenderer = param5;
-        this.setSpawnPos(new BlockPos(8, 64, 8));
+        this.setDefaultSpawnPos(new BlockPos(8, 64, 8));
         this.updateSkyBrightness();
         this.prepareWeather();
     }

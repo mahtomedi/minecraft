@@ -7,6 +7,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.biome.BiomeDefaultFeatures;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
@@ -17,7 +18,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 public class MushroomBlock extends BushBlock implements BonemealableBlock {
     protected static final VoxelShape SHAPE = Block.box(5.0, 0.0, 5.0, 11.0, 6.0, 11.0);
 
-    public MushroomBlock(Block.Properties param0) {
+    public MushroomBlock(BlockBehaviour.Properties param0) {
         super(param0);
     }
 
@@ -27,7 +28,7 @@ public class MushroomBlock extends BushBlock implements BonemealableBlock {
     }
 
     @Override
-    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         if (param3.nextInt(25) == 0) {
             int var0 = 5;
             int var1 = 4;
@@ -109,10 +110,5 @@ public class MushroomBlock extends BushBlock implements BonemealableBlock {
     @Override
     public void performBonemeal(ServerLevel param0, Random param1, BlockPos param2, BlockState param3) {
         this.growMushroom(param0, param2, param3, param1);
-    }
-
-    @Override
-    public boolean hasPostProcess(BlockState param0, BlockGetter param1, BlockPos param2) {
-        return true;
     }
 }

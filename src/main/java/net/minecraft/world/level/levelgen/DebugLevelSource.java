@@ -7,7 +7,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.block.Blocks;
@@ -68,6 +70,11 @@ public class DebugLevelSource extends ChunkGenerator<DebugGeneratorSettings> {
     @Override
     public int getBaseHeight(int param0, int param1, Heightmap.Types param2) {
         return 0;
+    }
+
+    @Override
+    public BlockGetter getBaseColumn(int param0, int param1) {
+        return new NoiseColumn(new BlockState[0]);
     }
 
     public static BlockState getBlockStateFor(int param0, int param1) {

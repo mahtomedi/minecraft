@@ -219,15 +219,13 @@ public class FireworkRocketEntity extends Projectile implements ItemSupplier {
 
     @Override
     protected void onHitBlock(BlockHitResult param0) {
-        super.onHitBlock(param0);
-        if (this.collision) {
-            BlockPos var0 = new BlockPos(param0.getBlockPos());
-            this.level.getBlockState(var0).entityInside(this.level, var0, this);
-            if (this.hasExplosion()) {
-                this.explode();
-            }
+        BlockPos var0 = new BlockPos(param0.getBlockPos());
+        this.level.getBlockState(var0).entityInside(this.level, var0, this);
+        if (this.hasExplosion()) {
+            this.explode();
         }
 
+        super.onHitBlock(param0);
     }
 
     private boolean hasExplosion() {

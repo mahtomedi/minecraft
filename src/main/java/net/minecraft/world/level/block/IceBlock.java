@@ -4,21 +4,20 @@ import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.PushReaction;
 
 public class IceBlock extends HalfTransparentBlock {
-    public IceBlock(Block.Properties param0) {
+    public IceBlock(BlockBehaviour.Properties param0) {
         super(param0);
     }
 
@@ -40,7 +39,7 @@ public class IceBlock extends HalfTransparentBlock {
     }
 
     @Override
-    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         if (param1.getBrightness(LightLayer.BLOCK, param2) > 11 - param0.getLightBlock(param1, param2)) {
             this.melt(param0, param1, param2);
         }
@@ -59,10 +58,5 @@ public class IceBlock extends HalfTransparentBlock {
     @Override
     public PushReaction getPistonPushReaction(BlockState param0) {
         return PushReaction.NORMAL;
-    }
-
-    @Override
-    public boolean isValidSpawn(BlockState param0, BlockGetter param1, BlockPos param2, EntityType<?> param3) {
-        return param3 == EntityType.POLAR_BEAR;
     }
 }

@@ -7,12 +7,13 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class WetSpongeBlock extends Block {
-    protected WetSpongeBlock(Block.Properties param0) {
+    protected WetSpongeBlock(BlockBehaviour.Properties param0) {
         super(param0);
     }
 

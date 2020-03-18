@@ -6,11 +6,13 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.lighting.LayerLightEngine;
+import net.minecraft.world.level.material.Fluids;
 
 public abstract class SpreadingSnowyDirtBlock extends SnowyDirtBlock {
-    protected SpreadingSnowyDirtBlock(Block.Properties param0) {
+    protected SpreadingSnowyDirtBlock(BlockBehaviour.Properties param0) {
         super(param0);
     }
 
@@ -19,6 +21,8 @@ public abstract class SpreadingSnowyDirtBlock extends SnowyDirtBlock {
         BlockState var1 = param1.getBlockState(var0);
         if (var1.getBlock() == Blocks.SNOW && var1.getValue(SnowLayerBlock.LAYERS) == 1) {
             return true;
+        } else if (var1.getFluidState().getType() != Fluids.EMPTY) {
+            return false;
         } else {
             int var2 = LayerLightEngine.getLightBlockInto(param1, param0, param2, var1, var0, Direction.UP, var1.getLightBlock(param1, var0));
             return var2 < param1.getMaxLightLevel();
@@ -31,7 +35,7 @@ public abstract class SpreadingSnowyDirtBlock extends SnowyDirtBlock {
     }
 
     @Override
-    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         if (!canBeGrass(param0, param1, param2)) {
             param1.setBlockAndUpdate(param2, Blocks.DIRT.defaultBlockState());
         } else {

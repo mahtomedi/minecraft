@@ -18,6 +18,7 @@ import net.minecraft.world.level.LevelSimulatedReader;
 import net.minecraft.world.level.LevelWriter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -50,7 +51,7 @@ public abstract class AbstractTreeFeature<T extends TreeConfiguration> extends F
     }
 
     public static boolean isAir(LevelSimulatedReader param0, BlockPos param1) {
-        return param0.isStateAtPosition(param1, BlockState::isAir);
+        return param0.isStateAtPosition(param1, BlockBehaviour.BlockStateBase::isAir);
     }
 
     protected static boolean isDirt(LevelSimulatedReader param0, BlockPos param1) {

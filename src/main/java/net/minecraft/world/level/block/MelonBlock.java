@@ -1,7 +1,9 @@
 package net.minecraft.world.level.block;
 
+import net.minecraft.world.level.block.state.BlockBehaviour;
+
 public class MelonBlock extends StemGrownBlock {
-    protected MelonBlock(Block.Properties param0) {
+    protected MelonBlock(BlockBehaviour.Properties param0) {
         super(param0);
     }
 

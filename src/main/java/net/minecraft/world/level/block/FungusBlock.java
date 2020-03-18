@@ -7,6 +7,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.HugeFungusConfiguration;
@@ -17,7 +18,7 @@ public class FungusBlock extends BushBlock implements BonemealableBlock {
     protected static final VoxelShape SHAPE = Block.box(4.0, 0.0, 4.0, 12.0, 9.0, 12.0);
     private final Supplier<ConfiguredFeature<HugeFungusConfiguration, ?>> feature;
 
-    protected FungusBlock(Block.Properties param0, Supplier<ConfiguredFeature<HugeFungusConfiguration, ?>> param1) {
+    protected FungusBlock(BlockBehaviour.Properties param0, Supplier<ConfiguredFeature<HugeFungusConfiguration, ?>> param1) {
         super(param0);
         this.feature = param1;
     }

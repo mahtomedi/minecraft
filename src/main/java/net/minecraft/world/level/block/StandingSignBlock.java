@@ -6,6 +6,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -17,7 +18,7 @@ import net.minecraft.world.level.material.Fluids;
 public class StandingSignBlock extends SignBlock {
     public static final IntegerProperty ROTATION = BlockStateProperties.ROTATION_16;
 
-    public StandingSignBlock(Block.Properties param0, WoodType param1) {
+    public StandingSignBlock(BlockBehaviour.Properties param0, WoodType param1) {
         super(param0, param1);
         this.registerDefaultState(this.stateDefinition.any().setValue(ROTATION, Integer.valueOf(0)).setValue(WATERLOGGED, Boolean.valueOf(false)));
     }

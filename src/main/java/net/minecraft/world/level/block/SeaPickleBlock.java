@@ -12,6 +12,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -30,14 +31,9 @@ public class SeaPickleBlock extends BushBlock implements BonemealableBlock, Simp
     protected static final VoxelShape THREE_AABB = Block.box(2.0, 0.0, 2.0, 14.0, 6.0, 14.0);
     protected static final VoxelShape FOUR_AABB = Block.box(2.0, 0.0, 2.0, 14.0, 7.0, 14.0);
 
-    protected SeaPickleBlock(Block.Properties param0) {
+    protected SeaPickleBlock(BlockBehaviour.Properties param0) {
         super(param0);
         this.registerDefaultState(this.stateDefinition.any().setValue(PICKLES, Integer.valueOf(1)).setValue(WATERLOGGED, Boolean.valueOf(true)));
-    }
-
-    @Override
-    public int getLightEmission(BlockState param0) {
-        return this.isDead(param0) ? 0 : super.getLightEmission(param0) + 3 * param0.getValue(PICKLES);
     }
 
     @Nullable
@@ -53,7 +49,7 @@ public class SeaPickleBlock extends BushBlock implements BonemealableBlock, Simp
         }
     }
 
-    private boolean isDead(BlockState param0) {
+    public static boolean isDead(BlockState param0) {
         return !param0.getValue(WATERLOGGED);
     }
 
@@ -123,7 +119,7 @@ public class SeaPickleBlock extends BushBlock implements BonemealableBlock, Simp
 
     @Override
     public void performBonemeal(ServerLevel param0, Random param1, BlockPos param2, BlockState param3) {
-        if (!this.isDead(param3) && param0.getBlockState(param2.below()).is(BlockTags.CORAL_BLOCKS)) {
+        if (!isDead(param3) && param0.getBlockState(param2.below()).is(BlockTags.CORAL_BLOCKS)) {
             int var0 = 5;
             int var1 = 1;
             int var2 = 2;

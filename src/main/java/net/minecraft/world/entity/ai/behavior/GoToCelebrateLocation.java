@@ -10,8 +10,9 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 
 public class GoToCelebrateLocation<E extends Mob> extends Behavior<E> {
     private final int closeEnoughDist;
+    private final float speedModifier;
 
-    public GoToCelebrateLocation(int param0) {
+    public GoToCelebrateLocation(int param0, float param1) {
         super(
             ImmutableMap.of(
                 MemoryModuleType.CELEBRATE_LOCATION,
@@ -25,13 +26,14 @@ public class GoToCelebrateLocation<E extends Mob> extends Behavior<E> {
             )
         );
         this.closeEnoughDist = param0;
+        this.speedModifier = param1;
     }
 
     protected void start(ServerLevel param0, Mob param1, long param2) {
         BlockPos var0 = getCelebrateLocation(param1);
         boolean var1 = var0.closerThan(param1.blockPosition(), (double)this.closeEnoughDist);
         if (!var1) {
-            BehaviorUtils.setWalkAndLookTargetMemories(param1, getNearbyPos(param1, var0), this.closeEnoughDist);
+            BehaviorUtils.setWalkAndLookTargetMemories(param1, getNearbyPos(param1, var0), this.speedModifier, this.closeEnoughDist);
         }
 
     }

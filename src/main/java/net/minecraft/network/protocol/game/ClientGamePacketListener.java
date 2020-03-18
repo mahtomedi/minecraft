@@ -111,7 +111,7 @@ public interface ClientGamePacketListener extends PacketListener {
 
     void handleSetScore(ClientboundSetScorePacket var1);
 
-    void handleSetSpawn(ClientboundSetSpawnPositionPacket var1);
+    void handleSetSpawn(ClientboundSetDefaultSpawnPositionPacket var1);
 
     void handleSetTime(ClientboundSetTimePacket var1);
 

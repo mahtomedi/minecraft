@@ -3740,6 +3740,31 @@ public class BlockModelGenerators {
         this.blockStateOutput.accept(createSimpleBlock(param1, var1));
     }
 
+    private void createRespawnAnchor() {
+        ResourceLocation var0 = TextureMapping.getBlockTexture(Blocks.RESPAWN_ANCHOR, "_bottom");
+        ResourceLocation var1 = TextureMapping.getBlockTexture(Blocks.RESPAWN_ANCHOR, "_top_off");
+        ResourceLocation var2 = TextureMapping.getBlockTexture(Blocks.RESPAWN_ANCHOR, "_top");
+        ResourceLocation[] var3 = new ResourceLocation[5];
+
+        for(int var4 = 0; var4 < 5; ++var4) {
+            TextureMapping var5 = new TextureMapping()
+                .put(TextureSlot.BOTTOM, var0)
+                .put(TextureSlot.TOP, var4 == 0 ? var1 : var2)
+                .put(TextureSlot.SIDE, TextureMapping.getBlockTexture(Blocks.RESPAWN_ANCHOR, "_side" + var4));
+            var3[var4] = ModelTemplates.CUBE_BOTTOM_TOP.createWithSuffix(Blocks.RESPAWN_ANCHOR, "_" + var4, var5, this.modelOutput);
+        }
+
+        this.blockStateOutput
+            .accept(
+                MultiVariantGenerator.multiVariant(Blocks.RESPAWN_ANCHOR)
+                    .with(
+                        PropertyDispatch.property(BlockStateProperties.RESPAWN_ANCHOR_CHARGES)
+                            .generate(param1 -> Variant.variant().with(VariantProperties.MODEL, var3[param1]))
+                    )
+            );
+        this.delegateItemModel(Items.RESPAWN_ANCHOR, var3[0]);
+    }
+
     public void run() {
         this.createNonTemplateModelBlock(Blocks.AIR);
         this.createNonTemplateModelBlock(Blocks.CAVE_AIR, Blocks.AIR);
@@ -3876,6 +3901,7 @@ public class BlockModelGenerators {
         this.createLantern(Blocks.LANTERN);
         this.createLantern(Blocks.SOUL_FIRE_LANTERN);
         this.createAxisAlignedPillarBlock(Blocks.BASALT, TexturedModel.COLUMN);
+        this.createAxisAlignedPillarBlock(Blocks.POLISHED_BASALT, TexturedModel.COLUMN);
         this.createAxisAlignedPillarBlock(Blocks.BONE_BLOCK, TexturedModel.COLUMN);
         this.createRotatedVariantBlock(Blocks.DIRT);
         this.createRotatedVariantBlock(Blocks.SAND);
@@ -4402,6 +4428,7 @@ public class BlockModelGenerators {
         this.createFurnace(Blocks.BLAST_FURNACE, TexturedModel.ORIENTABLE_ONLY_TOP);
         this.createFurnace(Blocks.SMOKER, TexturedModel.ORIENTABLE);
         this.createRedstoneWire();
+        this.createRespawnAnchor();
         this.copyModel(Blocks.CHISELED_STONE_BRICKS, Blocks.INFESTED_CHISELED_STONE_BRICKS);
         this.copyModel(Blocks.COBBLESTONE, Blocks.INFESTED_COBBLESTONE);
         this.copyModel(Blocks.CRACKED_STONE_BRICKS, Blocks.INFESTED_CRACKED_STONE_BRICKS);

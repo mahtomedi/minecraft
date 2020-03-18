@@ -7,6 +7,7 @@ import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.block.state.properties.RailShape;
@@ -27,7 +28,7 @@ public abstract class BaseRailBlock extends Block {
         return param0.is(BlockTags.RAILS);
     }
 
-    protected BaseRailBlock(boolean param0, Block.Properties param1) {
+    protected BaseRailBlock(boolean param0, BlockBehaviour.Properties param1) {
         super(param1);
         this.isStraight = param0;
     }

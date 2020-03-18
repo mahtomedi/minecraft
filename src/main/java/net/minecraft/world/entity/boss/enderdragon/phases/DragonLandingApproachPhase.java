@@ -2,6 +2,7 @@ package net.minecraft.world.entity.boss.enderdragon.phases;
 
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.player.Player;
@@ -75,15 +76,15 @@ public class DragonLandingApproachPhase extends AbstractDragonPhaseInstance {
 
     private void navigateToNextPathNode() {
         if (this.currentPath != null && !this.currentPath.isDone()) {
-            Vec3 var0 = this.currentPath.currentPos();
+            Vec3i var0 = this.currentPath.currentPos();
             this.currentPath.next();
-            double var1 = var0.x;
-            double var2 = var0.z;
+            double var1 = (double)var0.getX();
+            double var2 = (double)var0.getZ();
 
             double var3;
             do {
-                var3 = var0.y + (double)(this.dragon.getRandom().nextFloat() * 20.0F);
-            } while(var3 < var0.y);
+                var3 = (double)((float)var0.getY() + this.dragon.getRandom().nextFloat() * 20.0F);
+            } while(var3 < (double)var0.getY());
 
             this.targetLocation = new Vec3(var1, var3, var2);
         }

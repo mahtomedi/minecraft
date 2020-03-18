@@ -93,7 +93,7 @@ public class GiveGiftToHero extends Behavior<Villager> {
                 this.giftGivenDuringThisRun = true;
             }
         } else {
-            BehaviorUtils.setWalkAndLookTargetMemories(param1, var0, 5);
+            BehaviorUtils.setWalkAndLookTargetMemories(param1, var0, 0.5F, 5);
         }
 
     }

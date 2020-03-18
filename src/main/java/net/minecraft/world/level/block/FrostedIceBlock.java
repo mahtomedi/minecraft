@@ -8,6 +8,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -18,9 +19,14 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class FrostedIceBlock extends IceBlock {
     public static final IntegerProperty AGE = BlockStateProperties.AGE_3;
 
-    public FrostedIceBlock(Block.Properties param0) {
+    public FrostedIceBlock(BlockBehaviour.Properties param0) {
         super(param0);
         this.registerDefaultState(this.stateDefinition.any().setValue(AGE, Integer.valueOf(0)));
+    }
+
+    @Override
+    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+        this.tick(param0, param1, param2, param3);
     }
 
     @Override
