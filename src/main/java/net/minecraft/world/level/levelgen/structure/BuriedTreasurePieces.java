@@ -30,7 +30,7 @@ public class BuriedTreasurePieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
             int var0 = param0.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, this.boundingBox.x0, this.boundingBox.z0);
             BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos(this.boundingBox.x0, var0, this.boundingBox.z0);
 

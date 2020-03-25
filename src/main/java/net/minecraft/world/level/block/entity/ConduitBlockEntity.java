@@ -49,10 +49,10 @@ public class ConduitBlockEntity extends BlockEntity implements TickableBlockEnti
     }
 
     @Override
-    public void load(CompoundTag param0) {
-        super.load(param0);
-        if (param0.hasUUID("Target")) {
-            this.destroyTargetUUID = param0.getUUID("Target");
+    public void load(BlockState param0, CompoundTag param1) {
+        super.load(param0, param1);
+        if (param1.hasUUID("Target")) {
+            this.destroyTargetUUID = param1.getUUID("Target");
         } else {
             this.destroyTargetUUID = null;
         }

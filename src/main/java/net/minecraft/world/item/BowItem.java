@@ -21,7 +21,7 @@ public class BowItem extends ProjectileWeaponItem {
             if (param2 == null) {
                 return 0.0F;
             } else {
-                return param2.getUseItem().getItem() != Items.BOW ? 0.0F : (float)(param0x.getUseDuration() - param2.getUseItemRemainingTicks()) / 20.0F;
+                return param2.getUseItem() != param0x ? 0.0F : (float)(param0x.getUseDuration() - param2.getUseItemRemainingTicks()) / 20.0F;
             }
         });
         this.addProperty(

@@ -15,6 +15,8 @@ import net.minecraft.world.entity.AgableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.ItemBasedSteering;
+import net.minecraft.world.entity.ItemSteerableMount;
 import net.minecraft.world.entity.ai.goal.BreedGoal;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.FollowParentGoal;
@@ -34,13 +36,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-public class Pig extends Animal {
+public class Pig extends Animal implements ItemSteerableMount {
     private static final EntityDataAccessor<Boolean> DATA_SADDLE_ID = SynchedEntityData.defineId(Pig.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> DATA_BOOST_TIME = SynchedEntityData.defineId(Pig.class, EntityDataSerializers.INT);
     private static final Ingredient FOOD_ITEMS = Ingredient.of(Items.CARROT, Items.POTATO, Items.BEETROOT);
-    private boolean boosting;
-    private int boostTime;
-    private int boostTimeTotal;
+    private final ItemBasedSteering steering = new ItemBasedSteering(this.entityData, DATA_BOOST_TIME, DATA_SADDLE_ID);
 
     public Pig(EntityType<? extends Pig> param0, Level param1) {
         super(param0, param1);
@@ -86,9 +86,7 @@ public class Pig extends Animal {
     @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> param0) {
         if (DATA_BOOST_TIME.equals(param0) && this.level.isClientSide) {
-            this.boosting = true;
-            this.boostTime = 0;
-            this.boostTimeTotal = this.entityData.get(DATA_BOOST_TIME);
+            this.steering.onSynced();
         }
 
         super.onSyncedDataUpdated(param0);
@@ -104,13 +102,13 @@ public class Pig extends Animal {
     @Override
     public void addAdditionalSaveData(CompoundTag param0) {
         super.addAdditionalSaveData(param0);
-        param0.putBoolean("Saddle", this.hasSaddle());
+        this.steering.addAdditionalSaveData(param0);
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag param0) {
         super.readAdditionalSaveData(param0);
-        this.setSaddle(param0.getBoolean("Saddle"));
+        this.steering.readAdditionalSaveData(param0);
     }
 
     @Override
@@ -135,23 +133,7 @@ public class Pig extends Animal {
 
     @Override
     public boolean mobInteract(Player param0, InteractionHand param1) {
-        if (super.mobInteract(param0, param1)) {
-            return true;
-        } else {
-            ItemStack var0 = param0.getItemInHand(param1);
-            if (var0.getItem() == Items.NAME_TAG) {
-                var0.interactEnemy(param0, this, param1);
-                return true;
-            } else if (this.hasSaddle() && !this.isVehicle()) {
-                if (!this.level.isClientSide) {
-                    param0.startRiding(this);
-                }
-
-                return true;
-            } else {
-                return var0.getItem() == Items.SADDLE && var0.interactEnemy(param0, this, param1);
-            }
-        }
+        return !super.mobInteract(param0, param1) ? this.mobInteract(this, param0, param1, true) : true;
     }
 
     @Override
@@ -163,17 +145,14 @@ public class Pig extends Animal {
 
     }
 
+    @Override
     public boolean hasSaddle() {
-        return this.entityData.get(DATA_SADDLE_ID);
+        return this.steering.hasSaddle();
     }
 
+    @Override
     public void setSaddle(boolean param0) {
-        if (param0) {
-            this.entityData.set(DATA_SADDLE_ID, true);
-        } else {
-            this.entityData.set(DATA_SADDLE_ID, false);
-        }
-
+        this.steering.setSaddle(param0);
     }
 
     @Override
@@ -194,62 +173,34 @@ public class Pig extends Animal {
 
     @Override
     public void travel(Vec3 param0) {
-        if (this.isAlive()) {
-            Entity var0 = this.getPassengers().isEmpty() ? null : this.getPassengers().get(0);
-            if (this.isVehicle() && this.canBeControlledByRider()) {
-                this.yRot = var0.yRot;
-                this.yRotO = this.yRot;
-                this.xRot = var0.xRot * 0.5F;
-                this.setRot(this.yRot, this.xRot);
-                this.yBodyRot = this.yRot;
-                this.yHeadRot = this.yRot;
-                this.maxUpStep = 1.0F;
-                this.flyingSpeed = this.getSpeed() * 0.1F;
-                if (this.boosting && this.boostTime++ > this.boostTimeTotal) {
-                    this.boosting = false;
-                }
-
-                if (this.isControlledByLocalInstance()) {
-                    float var1 = (float)this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getValue() * 0.225F;
-                    if (this.boosting) {
-                        var1 += var1 * 1.15F * Mth.sin((float)this.boostTime / (float)this.boostTimeTotal * (float) Math.PI);
-                    }
-
-                    this.setSpeed(var1);
-                    super.travel(new Vec3(0.0, 0.0, 1.0));
-                    this.lerpSteps = 0;
-                } else {
-                    this.setDeltaMovement(Vec3.ZERO);
-                }
-
-                this.animationSpeedOld = this.animationSpeed;
-                double var2 = this.getX() - this.xo;
-                double var3 = this.getZ() - this.zo;
-                float var4 = Mth.sqrt(var2 * var2 + var3 * var3) * 4.0F;
-                if (var4 > 1.0F) {
-                    var4 = 1.0F;
-                }
-
-                this.animationSpeed += (var4 - this.animationSpeed) * 0.4F;
-                this.animationPosition += this.animationSpeed;
-            } else {
-                this.maxUpStep = 0.5F;
-                this.flyingSpeed = 0.02F;
-                super.travel(param0);
+        if (this.travel(this, this.steering, param0)) {
+            this.animationSpeedOld = this.animationSpeed;
+            double var0 = this.getX() - this.xo;
+            double var1 = this.getZ() - this.zo;
+            float var2 = Mth.sqrt(var0 * var0 + var1 * var1) * 4.0F;
+            if (var2 > 1.0F) {
+                var2 = 1.0F;
             }
+
+            this.animationSpeed += (var2 - this.animationSpeed) * 0.4F;
+            this.animationPosition += this.animationSpeed;
         }
+
     }
 
+    @Override
+    public float getSteeringSpeed() {
+        return (float)this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getValue() * 0.225F;
+    }
+
+    @Override
+    public void travelWithInput(Vec3 param0) {
+        super.travel(param0);
+    }
+
+    @Override
     public boolean boost() {
-        if (this.boosting) {
-            return false;
-        } else {
-            this.boosting = true;
-            this.boostTime = 0;
-            this.boostTimeTotal = this.getRandom().nextInt(841) + 140;
-            this.getEntityData().set(DATA_BOOST_TIME, this.boostTimeTotal);
-            return true;
-        }
+        return this.steering.boost(this.getRandom());
     }
 
     public Pig getBreedOffspring(AgableMob param0) {

@@ -28,20 +28,21 @@ public class RuleProcessor extends StructureProcessor {
     public StructureTemplate.StructureBlockInfo processBlock(
         LevelReader param0,
         BlockPos param1,
-        StructureTemplate.StructureBlockInfo param2,
+        BlockPos param2,
         StructureTemplate.StructureBlockInfo param3,
-        StructurePlaceSettings param4
+        StructureTemplate.StructureBlockInfo param4,
+        StructurePlaceSettings param5
     ) {
-        Random var0 = new Random(Mth.getSeed(param3.pos));
-        BlockState var1 = param0.getBlockState(param3.pos);
+        Random var0 = new Random(Mth.getSeed(param4.pos));
+        BlockState var1 = param0.getBlockState(param4.pos);
 
         for(ProcessorRule var2 : this.rules) {
-            if (var2.test(param3.state, var1, var0)) {
-                return new StructureTemplate.StructureBlockInfo(param3.pos, var2.getOutputState(), var2.getOutputTag());
+            if (var2.test(param4.state, var1, param3.pos, param4.pos, param2, var0)) {
+                return new StructureTemplate.StructureBlockInfo(param4.pos, var2.getOutputState(), var2.getOutputTag());
             }
         }
 
-        return param3;
+        return param4;
     }
 
     @Override

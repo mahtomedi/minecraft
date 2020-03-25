@@ -3,13 +3,18 @@ package net.minecraft.world.item;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.animal.Pig;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ItemSteerableMount;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
-public class CarrotOnAStickItem extends Item {
-    public CarrotOnAStickItem(Item.Properties param0) {
+public class FoodOnAStickItem<T extends Entity & ItemSteerableMount> extends Item {
+    private final EntityType<T> canInteractWith;
+
+    public FoodOnAStickItem(Item.Properties param0, EntityType<T> param1) {
         super(param0);
+        this.canInteractWith = param1;
     }
 
     @Override
@@ -18,15 +23,16 @@ public class CarrotOnAStickItem extends Item {
         if (param0.isClientSide) {
             return InteractionResultHolder.pass(var0);
         } else {
-            if (param1.isPassenger() && param1.getVehicle() instanceof Pig) {
-                Pig var1 = (Pig)param1.getVehicle();
-                if (var1.boost()) {
+            Entity var1 = param1.getVehicle();
+            if (param1.isPassenger() && var1 instanceof ItemSteerableMount && var1.getType() == this.canInteractWith) {
+                ItemSteerableMount var2 = (ItemSteerableMount)var1;
+                if (var2.boost()) {
                     var0.hurtAndBreak(7, param1, param1x -> param1x.broadcastBreakEvent(param2));
                     param1.swing(param2, true);
                     if (var0.isEmpty()) {
-                        ItemStack var2 = new ItemStack(Items.FISHING_ROD);
-                        var2.setTag(var0.getTag());
-                        return InteractionResultHolder.consume(var2);
+                        ItemStack var3 = new ItemStack(Items.FISHING_ROD);
+                        var3.setTag(var0.getTag());
+                        return InteractionResultHolder.consume(var3);
                     }
 
                     return InteractionResultHolder.consume(var0);

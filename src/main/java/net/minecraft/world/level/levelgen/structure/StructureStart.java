@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.level.ChunkPos;
@@ -53,16 +54,21 @@ public abstract class StructureStart {
 
     public void postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
         synchronized(this.pieces) {
-            Iterator<StructurePiece> var0 = this.pieces.iterator();
+            if (!this.pieces.isEmpty()) {
+                BoundingBox var0 = this.pieces.get(0).boundingBox;
+                Vec3i var1 = var0.getCenter();
+                BlockPos var2 = new BlockPos(var1.getX(), var0.y0, var1.getZ());
+                Iterator<StructurePiece> var3 = this.pieces.iterator();
 
-            while(var0.hasNext()) {
-                StructurePiece var1 = var0.next();
-                if (var1.getBoundingBox().intersects(param3) && !var1.postProcess(param0, param1, param2, param3, param4)) {
-                    var0.remove();
+                while(var3.hasNext()) {
+                    StructurePiece var4 = var3.next();
+                    if (var4.getBoundingBox().intersects(param3) && !var4.postProcess(param0, param1, param2, param3, param4, var2)) {
+                        var3.remove();
+                    }
                 }
-            }
 
-            this.calculateBoundingBox();
+                this.calculateBoundingBox();
+            }
         }
     }
 

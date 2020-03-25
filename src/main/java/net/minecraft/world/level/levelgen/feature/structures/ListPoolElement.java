@@ -64,10 +64,17 @@ public class ListPoolElement extends StructurePoolElement {
 
     @Override
     public boolean place(
-        StructureManager param0, LevelAccessor param1, ChunkGenerator<?> param2, BlockPos param3, Rotation param4, BoundingBox param5, Random param6
+        StructureManager param0,
+        LevelAccessor param1,
+        ChunkGenerator<?> param2,
+        BlockPos param3,
+        BlockPos param4,
+        Rotation param5,
+        BoundingBox param6,
+        Random param7
     ) {
         for(StructurePoolElement var0 : this.elements) {
-            if (!var0.place(param0, param1, param2, param3, param4, param5, param6)) {
+            if (!var0.place(param0, param1, param2, param3, param4, param5, param6, param7)) {
                 return false;
             }
         }

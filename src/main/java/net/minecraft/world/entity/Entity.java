@@ -83,6 +83,7 @@ import net.minecraft.world.level.block.NetherPortalBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.pattern.BlockPattern;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -2580,42 +2581,57 @@ public abstract class Entity implements CommandSource, Nameable {
                 {var0.getStepX(), var0.getStepZ()}
             };
             BlockPos var3 = this.blockPosition();
-            ImmutableList<Pose> var4 = param0.getDismountPoses();
+            BlockPos.MutableBlockPos var4 = new BlockPos.MutableBlockPos();
+            ImmutableList<Pose> var5 = param0.getDismountPoses();
 
-            for(Pose var5 : var4) {
-                double var6 = (double)param0.getDimensions(var5).height;
+            for(Pose var6 : var5) {
+                EntityDimensions var7 = param0.getDimensions(var6);
+                float var8 = Math.min(var7.width, 1.0F) / 2.0F;
+                float var9 = 0.5F - var8;
+                float var10 = 0.5F + var8;
 
-                for(int var7 : POSE_DISMOUNT_HEIGHTS.get(var5)) {
-                    for(int[] var8 : var2) {
-                        BlockPos var9 = var3.offset(var8[0], var7, var8[1]);
-                        double var10 = this.level.getRelativeFloorHeight(var9);
-                        if (!Double.isInfinite(var10) && !(var10 >= 1.0)) {
-                            double var11 = (double)var9.getY() + var10;
-                            AABB var12 = new AABB(
-                                (double)var9.getX(), var11, (double)var9.getZ(), (double)var9.getX() + 1.0, var11 + var6, (double)var9.getZ() + 1.0
+                for(int var11 : POSE_DISMOUNT_HEIGHTS.get(var6)) {
+                    for(int[] var12 : var2) {
+                        var4.set(var3.getX() + var12[0], var3.getY() + var11, var3.getZ() + var12[1]);
+                        double var13 = this.level.getRelativeFloorHeight(var4, param0x -> {
+                            if (param0x.is(BlockTags.CLIMBABLE)) {
+                                return true;
+                            } else {
+                                return param0x.getBlock() instanceof TrapDoorBlock && param0x.getValue(TrapDoorBlock.OPEN);
+                            }
+                        });
+                        if (!Double.isInfinite(var13) && !(var13 >= 1.0)) {
+                            double var14 = (double)var4.getY() + var13;
+                            AABB var15 = new AABB(
+                                (double)((float)var4.getX() + var9),
+                                var14,
+                                (double)((float)var4.getZ() + var9),
+                                (double)((float)var4.getX() + var10),
+                                var14 + (double)var7.height,
+                                (double)((float)var4.getZ() + var10)
                             );
-                            if (this.level.getBlockCollisions(param0, var12).allMatch(VoxelShape::isEmpty)) {
-                                param0.setPose(var5);
-                                return new Vec3((double)var9.getX() + 0.5, (double)var9.getY() + var10, (double)var9.getZ() + 0.5);
+                            if (this.level.getBlockCollisions(param0, var15).allMatch(VoxelShape::isEmpty)) {
+                                param0.setPose(var6);
+                                return Vec3.upFromBottomCenterOf(var4, var13);
                             }
                         }
                     }
                 }
             }
 
-            double var13 = this.getBoundingBox().maxY;
-            BlockPos var14 = new BlockPos((double)var3.getX(), var13, (double)var3.getZ());
+            double var16 = this.getBoundingBox().maxY;
+            var4.set((double)var3.getX(), var16, (double)var3.getZ());
 
-            for(Pose var15 : var4) {
-                double var16 = (double)param0.getDimensions(var15).height;
-                double var17 = (double)var14.getY() + this.level.getRelativeCeilingHeight(var14, var13 - (double)var14.getY() + var16);
-                if (var13 + var16 <= var17) {
-                    param0.setPose(var15);
+            for(Pose var17 : var5) {
+                double var18 = (double)param0.getDimensions(var17).height;
+                double var19 = (double)var4.getY() + this.level.getRelativeCeilingHeight(var4, var16 - (double)var4.getY() + var18);
+                if (var16 + var18 <= var19) {
+                    param0.setPose(var17);
                     break;
                 }
             }
 
-            return new Vec3(this.getX(), var13, this.getZ());
+            return new Vec3(this.getX(), var16, this.getZ());
         }
     }
 

@@ -79,9 +79,9 @@ public class NetherFossilPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
             param3.expand(this.template.getBoundingBox(this.placeSettings, this.templatePosition));
-            return super.postProcess(param0, param1, param2, param3, param4);
+            return super.postProcess(param0, param1, param2, param3, param4, param5);
         }
     }
 }

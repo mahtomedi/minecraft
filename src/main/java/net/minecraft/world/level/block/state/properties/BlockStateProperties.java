@@ -1,6 +1,7 @@
 package net.minecraft.world.level.block.state.properties;
 
 import net.minecraft.core.Direction;
+import net.minecraft.core.FrontAndTop;
 
 public class BlockStateProperties {
     public static final BooleanProperty ATTACHED = BooleanProperty.create("attached");
@@ -46,6 +47,7 @@ public class BlockStateProperties {
     );
     public static final DirectionProperty FACING_HOPPER = DirectionProperty.create("facing", param0 -> param0 != Direction.UP);
     public static final DirectionProperty HORIZONTAL_FACING = DirectionProperty.create("facing", Direction.Plane.HORIZONTAL);
+    public static final EnumProperty<FrontAndTop> ORIENTATION = EnumProperty.create("orientation", FrontAndTop.class);
     public static final EnumProperty<AttachFace> ATTACH_FACE = EnumProperty.create("face", AttachFace.class);
     public static final EnumProperty<BellAttachType> BELL_ATTACHMENT = EnumProperty.create("attachment", BellAttachType.class);
     public static final EnumProperty<WallSide> EAST_WALL = EnumProperty.create("east", WallSide.class);

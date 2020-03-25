@@ -27,6 +27,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -159,13 +160,8 @@ public abstract class AbstractArrow extends Projectile {
         }
 
         if (this.inGround && !var0) {
-            if (this.lastState != var4 && this.level.noCollision(this.getBoundingBox().inflate(0.06))) {
-                this.inGround = false;
-                this.setDeltaMovement(
-                    var1.multiply((double)(this.random.nextFloat() * 0.2F), (double)(this.random.nextFloat() * 0.2F), (double)(this.random.nextFloat() * 0.2F))
-                );
-                this.life = 0;
-                this.flightTime = 0;
+            if (this.lastState != var4 && this.shouldFall()) {
+                this.startFalling();
             } else if (!this.level.isClientSide) {
                 this.tickDespawn();
             }
@@ -277,6 +273,29 @@ public abstract class AbstractArrow extends Projectile {
             this.setPos(var18, var19, var20);
             this.checkInsideBlocks();
         }
+    }
+
+    private boolean shouldFall() {
+        return this.inGround && this.level.noCollision(new AABB(this.position(), this.position()).inflate(0.06));
+    }
+
+    private void startFalling() {
+        this.inGround = false;
+        Vec3 var0 = this.getDeltaMovement();
+        this.setDeltaMovement(
+            var0.multiply((double)(this.random.nextFloat() * 0.2F), (double)(this.random.nextFloat() * 0.2F), (double)(this.random.nextFloat() * 0.2F))
+        );
+        this.life = 0;
+        this.flightTime = 0;
+    }
+
+    @Override
+    public void move(MoverType param0, Vec3 param1) {
+        super.move(param0, param1);
+        if (param0 != MoverType.SELF && this.shouldFall()) {
+            this.startFalling();
+        }
+
     }
 
     protected void tickDespawn() {

@@ -121,29 +121,25 @@ public class LiquidBlock extends Block implements BucketPickup {
 
     }
 
-    public boolean shouldSpreadLiquid(Level param0, BlockPos param1, BlockState param2) {
+    private boolean shouldSpreadLiquid(Level param0, BlockPos param1, BlockState param2) {
         if (this.fluid.is(FluidTags.LAVA)) {
-            boolean var0 = false;
+            boolean var0 = param0.getBlockState(param1.below()).getBlock() == Blocks.SOUL_SOIL;
 
             for(Direction var1 : Direction.values()) {
-                if (var1 != Direction.DOWN && param0.getFluidState(param1.relative(var1)).is(FluidTags.WATER)) {
-                    var0 = true;
-                    break;
-                }
-            }
+                if (var1 != Direction.DOWN) {
+                    BlockPos var2 = param1.relative(var1);
+                    if (param0.getFluidState(var2).is(FluidTags.WATER)) {
+                        Block var3 = param0.getFluidState(param1).isSource() ? Blocks.OBSIDIAN : Blocks.COBBLESTONE;
+                        param0.setBlockAndUpdate(param1, var3.defaultBlockState());
+                        this.fizz(param0, param1);
+                        return false;
+                    }
 
-            if (var0) {
-                FluidState var2 = param0.getFluidState(param1);
-                if (var2.isSource()) {
-                    param0.setBlockAndUpdate(param1, Blocks.OBSIDIAN.defaultBlockState());
-                    this.fizz(param0, param1);
-                    return false;
-                }
-
-                if (var2.getHeight(param0, param1) >= 0.44444445F) {
-                    param0.setBlockAndUpdate(param1, Blocks.COBBLESTONE.defaultBlockState());
-                    this.fizz(param0, param1);
-                    return false;
+                    if (var0 && param0.getBlockState(var2).getBlock() == Blocks.BLUE_ICE) {
+                        param0.setBlockAndUpdate(param1, Blocks.BASALT.defaultBlockState());
+                        this.fizz(param0, param1);
+                        return false;
+                    }
                 }
             }
         }

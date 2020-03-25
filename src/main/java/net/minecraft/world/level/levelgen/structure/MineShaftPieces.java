@@ -318,7 +318,7 @@ public class MineShaftPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
             if (this.edgesLiquid(param0, param3)) {
                 return false;
             } else {
@@ -582,7 +582,7 @@ public class MineShaftPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
             if (this.edgesLiquid(param0, param3)) {
                 return false;
             } else {
@@ -876,7 +876,7 @@ public class MineShaftPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
             if (this.edgesLiquid(param0, param3)) {
                 return false;
             } else {
@@ -1017,7 +1017,7 @@ public class MineShaftPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
             if (this.edgesLiquid(param0, param3)) {
                 return false;
             } else {

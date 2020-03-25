@@ -133,12 +133,12 @@ public class JigsawPlacement {
 
             label123:
             for(StructureTemplate.StructureBlockInfo var8 : var0.getShuffledJigsawBlocks(this.structureManager, var1, var2, this.random)) {
-                Direction var9 = var8.state.getValue(JigsawBlock.FACING);
+                Direction var9 = JigsawBlock.getFrontFacing(var8.state);
                 BlockPos var10 = var8.pos;
                 BlockPos var11 = var10.relative(var9);
                 int var12 = var10.getY() - var7;
                 int var13 = -1;
-                StructureTemplatePool var14 = JigsawPlacement.POOLS.getPool(new ResourceLocation(var8.nbt.getString("target_pool")));
+                StructureTemplatePool var14 = JigsawPlacement.POOLS.getPool(new ResourceLocation(var8.nbt.getString("pool")));
                 StructureTemplatePool var15 = JigsawPlacement.POOLS.getPool(var14.getFallback());
                 if (var14 != StructureTemplatePool.INVALID && (var14.size() != 0 || var14 == StructureTemplatePool.EMPTY)) {
                     boolean var16 = var6.isInside(var11);
@@ -177,10 +177,10 @@ public class JigsawPlacement {
                                 var26 = 0;
                             } else {
                                 var26 = var24.stream().mapToInt(param1x -> {
-                                    if (!var25.isInside(param1x.pos.relative(param1x.state.getValue(JigsawBlock.FACING)))) {
+                                    if (!var25.isInside(param1x.pos.relative(JigsawBlock.getFrontFacing(param1x.state)))) {
                                         return 0;
                                     } else {
-                                        ResourceLocation var0x = new ResourceLocation(param1x.nbt.getString("target_pool"));
+                                        ResourceLocation var0x = new ResourceLocation(param1x.nbt.getString("pool"));
                                         StructureTemplatePool var1x = JigsawPlacement.POOLS.getPool(var0x);
                                         StructureTemplatePool var2x = JigsawPlacement.POOLS.getPool(var1x.getFallback());
                                         return Math.max(var1x.getMaxSize(this.structureManager), var2x.getMaxSize(this.structureManager));
@@ -197,7 +197,7 @@ public class JigsawPlacement {
                                     StructureTemplatePool.Projection var33 = var22.getProjection();
                                     boolean var34 = var33 == StructureTemplatePool.Projection.RIGID;
                                     int var35 = var29.getY();
-                                    int var36 = var12 - var35 + var8.state.getValue(JigsawBlock.FACING).getStepY();
+                                    int var36 = var12 - var35 + JigsawBlock.getFrontFacing(var8.state).getStepY();
                                     int var37;
                                     if (var4 && var34) {
                                         var37 = var7 + var36;
@@ -254,7 +254,7 @@ public class JigsawPlacement {
                         }
                     }
                 } else {
-                    JigsawPlacement.LOGGER.warn("Empty or none existent pool: {}", var8.nbt.getString("target_pool"));
+                    JigsawPlacement.LOGGER.warn("Empty or none existent pool: {}", var8.nbt.getString("pool"));
                 }
             }
 

@@ -7,6 +7,8 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap.Entry;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
+import net.minecraft.SharedConstants;
+import net.minecraft.Util;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -31,6 +33,7 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.AbstractFurnaceBlock;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 
 public abstract class AbstractFurnaceBlockEntity
     extends BaseContainerBlockEntity
@@ -159,15 +162,32 @@ public abstract class AbstractFurnaceBlockEntity
         return var0;
     }
 
+    private static boolean isNeverAFurnaceFuel(Item param0) {
+        return ItemTags.NON_FLAMMABLE_WOOD.contains(param0);
+    }
+
     private static void add(Map<Item, Integer> param0, Tag<Item> param1, int param2) {
         for(Item var0 : param1.getValues()) {
-            param0.put(var0, param2);
+            if (!isNeverAFurnaceFuel(var0)) {
+                param0.put(var0, param2);
+            }
         }
 
     }
 
     private static void add(Map<Item, Integer> param0, ItemLike param1, int param2) {
-        param0.put(param1.asItem(), param2);
+        Item var0 = param1.asItem();
+        if (isNeverAFurnaceFuel(var0)) {
+            if (SharedConstants.IS_RUNNING_IN_IDE) {
+                throw (IllegalStateException)Util.pauseInIde(
+                    new IllegalStateException(
+                        "A developer tried to explicitly make fire resistant item " + var0.getName(null).getString() + " a furnace fuel. That will not work!"
+                    )
+                );
+            }
+        } else {
+            param0.put(var0, param2);
+        }
     }
 
     private boolean isLit() {
@@ -175,15 +195,15 @@ public abstract class AbstractFurnaceBlockEntity
     }
 
     @Override
-    public void load(CompoundTag param0) {
-        super.load(param0);
+    public void load(BlockState param0, CompoundTag param1) {
+        super.load(param0, param1);
         this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
-        ContainerHelper.loadAllItems(param0, this.items);
-        this.litTime = param0.getShort("BurnTime");
-        this.cookingProgress = param0.getShort("CookTime");
-        this.cookingTotalTime = param0.getShort("CookTimeTotal");
+        ContainerHelper.loadAllItems(param1, this.items);
+        this.litTime = param1.getShort("BurnTime");
+        this.cookingProgress = param1.getShort("CookTime");
+        this.cookingTotalTime = param1.getShort("CookTimeTotal");
         this.litDuration = this.getBurnDuration(this.items.get(1));
-        CompoundTag var0 = param0.getCompound("RecipesUsed");
+        CompoundTag var0 = param1.getCompound("RecipesUsed");
 
         for(String var1 : var0.getAllKeys()) {
             this.recipesUsed.put(new ResourceLocation(var1), var0.getInt(var1));

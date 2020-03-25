@@ -301,7 +301,7 @@ public class CloneCommands {
                             var28.tag.putInt("x", var28.pos.getX());
                             var28.tag.putInt("y", var28.pos.getY());
                             var28.tag.putInt("z", var28.pos.getZ());
-                            var29.load(var28.tag);
+                            var29.load(var28.state, var28.tag);
                             var29.setChanged();
                         }
 

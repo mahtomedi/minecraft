@@ -35,6 +35,10 @@ public class Vec3 implements Position {
         return new Vec3((double)param0.getX() + 0.5, (double)param0.getY(), (double)param0.getZ() + 0.5);
     }
 
+    public static Vec3 upFromBottomCenterOf(Vec3i param0, double param1) {
+        return new Vec3((double)param0.getX() + 0.5, (double)param0.getY() + param1, (double)param0.getZ() + 0.5);
+    }
+
     public Vec3(double param0, double param1, double param2) {
         this.x = param0;
         this.y = param1;

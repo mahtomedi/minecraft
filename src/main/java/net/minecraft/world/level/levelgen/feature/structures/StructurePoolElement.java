@@ -31,7 +31,7 @@ public abstract class StructurePoolElement {
     public abstract BoundingBox getBoundingBox(StructureManager var1, BlockPos var2, Rotation var3);
 
     public abstract boolean place(
-        StructureManager var1, LevelAccessor var2, ChunkGenerator<?> var3, BlockPos var4, Rotation var5, BoundingBox var6, Random var7
+        StructureManager var1, LevelAccessor var2, ChunkGenerator<?> var3, BlockPos var4, BlockPos var5, Rotation var6, BoundingBox var7, Random var8
     );
 
     public abstract StructurePoolElementType getType();

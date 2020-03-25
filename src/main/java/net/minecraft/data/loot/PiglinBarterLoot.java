@@ -28,12 +28,12 @@ public class PiglinBarterLoot implements Consumer<BiConsumer<ResourceLocation, L
                         .add(LootItem.lootTableItem(Items.NETHERITE_HOE).setWeight(1))
                         .add(
                             LootItem.lootTableItem(Items.BOOK)
-                                .setWeight(1)
+                                .setWeight(5)
                                 .apply(new EnchantRandomlyFunction.Builder().withEnchantment(Enchantments.SOUL_SPEED))
                         )
                         .add(
                             LootItem.lootTableItem(Items.IRON_BOOTS)
-                                .setWeight(5)
+                                .setWeight(8)
                                 .apply(new EnchantRandomlyFunction.Builder().withEnchantment(Enchantments.SOUL_SPEED))
                         )
                         .add(

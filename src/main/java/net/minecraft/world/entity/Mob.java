@@ -48,6 +48,7 @@ import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.BowItem;
+import net.minecraft.world.item.DiggerItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -129,9 +130,20 @@ public abstract class Mob extends LivingEntity {
         return new GroundPathNavigation(this, param0);
     }
 
+    protected boolean shouldPassengersInheritMalus() {
+        return false;
+    }
+
     public float getPathfindingMalus(BlockPathTypes param0) {
-        Float var0 = this.pathfindingMalus.get(param0);
-        return var0 == null ? param0.getMalus() : var0;
+        Mob var0;
+        if (this.getVehicle() instanceof Mob && ((Mob)this.getVehicle()).shouldPassengersInheritMalus()) {
+            var0 = (Mob)this.getVehicle();
+        } else {
+            var0 = this;
+        }
+
+        Float var2 = var0.pathfindingMalus.get(param0);
+        return var2 == null ? param0.getMalus() : var2;
     }
 
     public void setPathfindingMalus(BlockPathTypes param0, float param1) {
@@ -512,7 +524,7 @@ public abstract class Mob extends LivingEntity {
     public boolean equipItemIfPossible(ItemStack param0) {
         EquipmentSlot var0 = getEquipmentSlotForItem(param0);
         ItemStack var1 = this.getItemBySlot(var0);
-        boolean var2 = this.canReplaceCurrentItem(param0, var1, var0);
+        boolean var2 = this.canReplaceCurrentItem(param0, var1);
         if (var2 && this.canHoldItem(param0)) {
             double var3 = (double)this.getEquipmentDropChance(var0);
             if (!var1.isEmpty() && (double)Math.max(this.random.nextFloat() - 0.1F, 0.0F) < var3) {
@@ -543,37 +555,70 @@ public abstract class Mob extends LivingEntity {
 
     }
 
-    protected boolean canReplaceCurrentItem(ItemStack param0, ItemStack param1, EquipmentSlot param2) {
+    protected boolean canReplaceCurrentItem(ItemStack param0, ItemStack param1) {
         if (param1.isEmpty()) {
             return true;
-        } else if (param2.getType() == EquipmentSlot.Type.HAND) {
-            if (param0.getItem() instanceof SwordItem && !(param1.getItem() instanceof SwordItem)) {
+        } else if (param0.getItem() instanceof SwordItem) {
+            if (!(param1.getItem() instanceof SwordItem)) {
                 return true;
-            } else if (param0.getItem() instanceof SwordItem) {
+            } else {
                 SwordItem var0 = (SwordItem)param0.getItem();
                 SwordItem var1 = (SwordItem)param1.getItem();
                 if (var0.getDamage() != var1.getDamage()) {
                     return var0.getDamage() > var1.getDamage();
                 } else {
-                    return param0.getDamageValue() < param1.getDamageValue() || param0.hasTag() && !param1.hasTag();
+                    return this.canReplaceEqualItem(param0, param1);
                 }
-            } else if (param0.getItem() instanceof BowItem && param1.getItem() instanceof BowItem) {
-                return param0.hasTag() && !param1.hasTag();
+            }
+        } else if (param0.getItem() instanceof BowItem && param1.getItem() instanceof BowItem) {
+            return this.canReplaceEqualItem(param0, param1);
+        } else if (param0.getItem() instanceof ArmorItem) {
+            if (!(param1.getItem() instanceof ArmorItem)) {
+                return true;
+            } else if (EnchantmentHelper.hasBindingCurse(param1)) {
+                return false;
+            } else {
+                ArmorItem var2 = (ArmorItem)param0.getItem();
+                ArmorItem var3 = (ArmorItem)param1.getItem();
+                if (var2.getDefense() != var3.getDefense()) {
+                    return var2.getDefense() > var3.getDefense();
+                } else if (var2.getToughness() != var3.getToughness()) {
+                    return var2.getToughness() > var3.getToughness();
+                } else {
+                    return this.canReplaceEqualItem(param0, param1);
+                }
+            }
+        } else {
+            if (param0.getItem() instanceof DiggerItem) {
+                if (param1.getItem() instanceof BlockItem) {
+                    return true;
+                }
+
+                if (param1.getItem() instanceof DiggerItem) {
+                    DiggerItem var4 = (DiggerItem)param0.getItem();
+                    DiggerItem var5 = (DiggerItem)param1.getItem();
+                    if (var4.getAttackDamage() != var5.getAttackDamage()) {
+                        return var4.getAttackDamage() > var5.getAttackDamage();
+                    }
+
+                    return this.canReplaceEqualItem(param0, param1);
+                }
+            }
+
+            return false;
+        }
+    }
+
+    private boolean canReplaceEqualItem(ItemStack param0, ItemStack param1) {
+        if (param0.getDamageValue() >= param1.getDamageValue() && (!param0.hasTag() || param1.hasTag())) {
+            if (param0.hasTag() && param1.hasTag()) {
+                return param0.getTag().getAllKeys().stream().anyMatch(param0x -> !param0x.equals("Damage"))
+                    && !param1.getTag().getAllKeys().stream().anyMatch(param0x -> !param0x.equals("Damage"));
             } else {
                 return false;
             }
-        } else if (param0.getItem() instanceof ArmorItem && !(param1.getItem() instanceof ArmorItem)) {
-            return true;
-        } else if (param0.getItem() instanceof ArmorItem && param1.getItem() instanceof ArmorItem && !EnchantmentHelper.hasBindingCurse(param1)) {
-            ArmorItem var2 = (ArmorItem)param0.getItem();
-            ArmorItem var3 = (ArmorItem)param1.getItem();
-            if (var2.getDefense() != var3.getDefense()) {
-                return var2.getDefense() > var3.getDefense();
-            } else {
-                return param0.getDamageValue() < param1.getDamageValue() || param0.hasTag() && !param1.hasTag();
-            }
         } else {
-            return false;
+            return true;
         }
     }
 

@@ -629,9 +629,11 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
             BlockEntity var2 = this.player.level.getBlockEntity(var0);
             if (var2 instanceof JigsawBlockEntity) {
                 JigsawBlockEntity var3 = (JigsawBlockEntity)var2;
-                var3.setAttachementType(param0.getAttachementType());
-                var3.setTargetPool(param0.getTargetPool());
+                var3.setName(param0.getName());
+                var3.setTarget(param0.getTarget());
+                var3.setPool(param0.getPool());
                 var3.setFinalState(param0.getFinalState());
+                var3.setJoint(param0.getJoint());
                 var3.setChanged();
                 this.player.level.sendBlockUpdated(var0, var1, var1, 3);
             }
@@ -823,7 +825,6 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
                             }
 
                             this.player.absMoveTo(var5, var6, var7, var8, var9);
-                            this.player.checkMovementStatistics(this.player.getX() - var1, this.player.getY() - var2, this.player.getZ() - var3);
                             if (!this.player.noPhysics && !this.player.isSleeping()) {
                                 boolean var20 = this.isPlayerCollidingWithAnything(var0);
                                 if (var17 && (var19 || !var20)) {
@@ -842,6 +843,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
                             this.player.getLevel().getChunkSource().move(this.player);
                             this.player.doCheckFallDamage(this.player.getY() - var4, param0.isOnGround());
                             this.player.setOnGround(param0.isOnGround());
+                            this.player.checkMovementStatistics(this.player.getX() - var1, this.player.getY() - var2, this.player.getZ() - var3);
                             this.lastGoodX = this.player.getX();
                             this.lastGoodY = this.player.getY();
                             this.lastGoodZ = this.player.getZ();
@@ -890,6 +892,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
                     ItemStack var2 = this.player.getItemInHand(InteractionHand.OFF_HAND);
                     this.player.setItemInHand(InteractionHand.OFF_HAND, this.player.getItemInHand(InteractionHand.MAIN_HAND));
                     this.player.setItemInHand(InteractionHand.MAIN_HAND, var2);
+                    this.player.stopUsingItem();
                 }
 
                 return;
@@ -1034,6 +1037,10 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
     public void handleSetCarriedItem(ServerboundSetCarriedItemPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
         if (param0.getSlot() >= 0 && param0.getSlot() < Inventory.getSelectionSize()) {
+            if (this.player.inventory.selected != param0.getSlot() && this.player.getUsedItemHand() == InteractionHand.MAIN_HAND) {
+                this.player.stopUsingItem();
+            }
+
             this.player.inventory.selected = param0.getSlot();
             this.player.resetLastActionTime();
         } else {

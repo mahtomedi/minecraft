@@ -57,9 +57,9 @@ public class BlockDataAccessor implements DataAccessor {
         param0.putInt("x", this.pos.getX());
         param0.putInt("y", this.pos.getY());
         param0.putInt("z", this.pos.getZ());
-        this.entity.load(param0);
-        this.entity.setChanged();
         BlockState var0 = this.entity.getLevel().getBlockState(this.pos);
+        this.entity.load(var0, param0);
+        this.entity.setChanged();
         this.entity.getLevel().sendBlockUpdated(this.pos, var0, var0, 3);
     }
 

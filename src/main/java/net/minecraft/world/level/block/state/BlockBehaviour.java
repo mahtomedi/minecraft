@@ -344,8 +344,8 @@ public abstract class BlockBehaviour {
 
     protected abstract Block asBlock();
 
-    public Function<BlockState, MaterialColor> materialColor() {
-        return this.properties.materialColor;
+    public MaterialColor defaultMaterialColor() {
+        return this.properties.materialColor.apply(this.asBlock().defaultBlockState());
     }
 
     public abstract static class BlockStateBase extends AbstractStateHolder<Block, BlockState> implements StateHolder<BlockState> {
@@ -353,7 +353,7 @@ public abstract class BlockBehaviour {
         private final boolean useShapeForLightOcclusion;
         private final boolean isAir;
         private final Material material;
-        private final Function<BlockState, MaterialColor> materialColor;
+        private final MaterialColor materialColor;
         private final float destroySpeed;
         private final boolean canOcclude;
         private final BlockBehaviour.StatePredicate isRedstoneConductor;
@@ -371,7 +371,7 @@ public abstract class BlockBehaviour {
             this.useShapeForLightOcclusion = param0.useShapeForLightOcclusion(this.asState());
             this.isAir = var0.isAir;
             this.material = var0.material;
-            this.materialColor = var0.materialColor;
+            this.materialColor = var0.materialColor.apply(this.asState());
             this.destroySpeed = var0.destroyTime;
             this.canOcclude = var0.canOcclude;
             this.isRedstoneConductor = var0.isRedstoneConductor;
@@ -435,7 +435,7 @@ public abstract class BlockBehaviour {
         }
 
         public MaterialColor getMapColor(BlockGetter param0, BlockPos param1) {
-            return this.materialColor.apply(this.asState());
+            return this.materialColor;
         }
 
         public BlockState rotate(Rotation param0) {

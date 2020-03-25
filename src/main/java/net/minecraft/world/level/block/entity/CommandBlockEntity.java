@@ -76,12 +76,12 @@ public class CommandBlockEntity extends BlockEntity {
     }
 
     @Override
-    public void load(CompoundTag param0) {
-        super.load(param0);
-        this.commandBlock.load(param0);
-        this.powered = param0.getBoolean("powered");
-        this.conditionMet = param0.getBoolean("conditionMet");
-        this.setAutomatic(param0.getBoolean("auto"));
+    public void load(BlockState param0, CompoundTag param1) {
+        super.load(param0, param1);
+        this.commandBlock.load(param1);
+        this.powered = param1.getBoolean("powered");
+        this.conditionMet = param1.getBoolean("conditionMet");
+        this.setAutomatic(param1.getBoolean("auto"));
     }
 
     @Nullable

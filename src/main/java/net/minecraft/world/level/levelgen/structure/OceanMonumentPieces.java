@@ -348,7 +348,7 @@ public class OceanMonumentPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
             int var0 = Math.max(param0.getSeaLevel(), 64) - this.boundingBox.y0;
             this.generateWaterBox(param0, param3, 0, 0, 0, 58, var0, 58);
             this.generateWing(false, 0, param0, param2, param3);
@@ -395,7 +395,7 @@ public class OceanMonumentPieces {
 
             for(OceanMonumentPieces.OceanMonumentPiece var8 : this.childPieces) {
                 if (var8.getBoundingBox().intersects(param3)) {
-                    var8.postProcess(param0, param1, param2, param3, param4);
+                    var8.postProcess(param0, param1, param2, param3, param4, param5);
                 }
             }
 
@@ -744,7 +744,7 @@ public class OceanMonumentPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
             this.generateBoxOnFillOnly(param0, param3, 1, 8, 0, 14, 8, 14, BASE_GRAY);
             int var0 = 7;
             BlockState var1 = BASE_LIGHT;
@@ -823,7 +823,7 @@ public class OceanMonumentPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
             OceanMonumentPieces.RoomDefinition var0 = this.roomDefinition.connections[Direction.EAST.get3DDataValue()];
             OceanMonumentPieces.RoomDefinition var1 = this.roomDefinition;
             if (this.roomDefinition.index / 25 > 0) {
@@ -894,7 +894,7 @@ public class OceanMonumentPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
             OceanMonumentPieces.RoomDefinition var0 = this.roomDefinition.connections[Direction.EAST.get3DDataValue()];
             OceanMonumentPieces.RoomDefinition var1 = this.roomDefinition;
             OceanMonumentPieces.RoomDefinition var2 = var1.connections[Direction.UP.get3DDataValue()];
@@ -1009,7 +1009,7 @@ public class OceanMonumentPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
             if (this.roomDefinition.index / 25 > 0) {
                 this.generateDefaultFloor(param0, param3, 0, 0, this.roomDefinition.hasOpening[Direction.DOWN.get3DDataValue()]);
             }
@@ -1044,14 +1044,14 @@ public class OceanMonumentPieces {
                     this.generateBox(param0, param3, 0, var2 + 1, var3, 7, var2 + 1, var3, BASE_GRAY, BASE_GRAY, false);
                 }
 
-                int var11 = 7;
+                int var12 = 7;
                 if (var1.hasOpening[Direction.NORTH.get3DDataValue()]) {
-                    this.generateBox(param0, param3, 2, var2, var11, 2, var2 + 2, var11, BASE_LIGHT, BASE_LIGHT, false);
-                    this.generateBox(param0, param3, 5, var2, var11, 5, var2 + 2, var11, BASE_LIGHT, BASE_LIGHT, false);
-                    this.generateBox(param0, param3, 3, var2 + 2, var11, 4, var2 + 2, var11, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, 2, var2, var12, 2, var2 + 2, var12, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, 5, var2, var12, 5, var2 + 2, var12, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, 3, var2 + 2, var12, 4, var2 + 2, var12, BASE_LIGHT, BASE_LIGHT, false);
                 } else {
-                    this.generateBox(param0, param3, 0, var2, var11, 7, var2 + 2, var11, BASE_LIGHT, BASE_LIGHT, false);
-                    this.generateBox(param0, param3, 0, var2 + 1, var11, 7, var2 + 1, var11, BASE_GRAY, BASE_GRAY, false);
+                    this.generateBox(param0, param3, 0, var2, var12, 7, var2 + 2, var12, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, 0, var2 + 1, var12, 7, var2 + 1, var12, BASE_GRAY, BASE_GRAY, false);
                 }
 
                 int var4 = 0;
@@ -1064,14 +1064,14 @@ public class OceanMonumentPieces {
                     this.generateBox(param0, param3, var4, var2 + 1, 0, var4, var2 + 1, 7, BASE_GRAY, BASE_GRAY, false);
                 }
 
-                int var12 = 7;
+                int var13 = 7;
                 if (var1.hasOpening[Direction.EAST.get3DDataValue()]) {
-                    this.generateBox(param0, param3, var12, var2, 2, var12, var2 + 2, 2, BASE_LIGHT, BASE_LIGHT, false);
-                    this.generateBox(param0, param3, var12, var2, 5, var12, var2 + 2, 5, BASE_LIGHT, BASE_LIGHT, false);
-                    this.generateBox(param0, param3, var12, var2 + 2, 3, var12, var2 + 2, 4, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, var13, var2, 2, var13, var2 + 2, 2, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, var13, var2, 5, var13, var2 + 2, 5, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, var13, var2 + 2, 3, var13, var2 + 2, 4, BASE_LIGHT, BASE_LIGHT, false);
                 } else {
-                    this.generateBox(param0, param3, var12, var2, 0, var12, var2 + 2, 7, BASE_LIGHT, BASE_LIGHT, false);
-                    this.generateBox(param0, param3, var12, var2 + 1, 0, var12, var2 + 1, 7, BASE_GRAY, BASE_GRAY, false);
+                    this.generateBox(param0, param3, var13, var2, 0, var13, var2 + 2, 7, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, var13, var2 + 1, 0, var13, var2 + 1, 7, BASE_GRAY, BASE_GRAY, false);
                 }
 
                 var1 = var0;
@@ -1091,7 +1091,7 @@ public class OceanMonumentPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
             OceanMonumentPieces.RoomDefinition var0 = this.roomDefinition.connections[Direction.NORTH.get3DDataValue()];
             OceanMonumentPieces.RoomDefinition var1 = this.roomDefinition;
             OceanMonumentPieces.RoomDefinition var2 = var0.connections[Direction.UP.get3DDataValue()];
@@ -1204,7 +1204,7 @@ public class OceanMonumentPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
             OceanMonumentPieces.RoomDefinition var0 = this.roomDefinition.connections[Direction.NORTH.get3DDataValue()];
             OceanMonumentPieces.RoomDefinition var1 = this.roomDefinition;
             if (this.roomDefinition.index / 25 > 0) {
@@ -1294,7 +1294,7 @@ public class OceanMonumentPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
             this.generateBox(param0, param3, 0, 3, 0, 2, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
             this.generateBox(param0, param3, 5, 3, 0, 7, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
             this.generateBox(param0, param3, 0, 2, 0, 1, 2, 7, BASE_LIGHT, BASE_LIGHT, false);
@@ -1330,7 +1330,7 @@ public class OceanMonumentPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
             this.generateBox(param0, param3, 2, -1, 2, 11, -1, 11, BASE_LIGHT, BASE_LIGHT, false);
             this.generateBox(param0, param3, 0, -1, 0, 1, -1, 11, BASE_GRAY, BASE_GRAY, false);
             this.generateBox(param0, param3, 12, -1, 0, 13, -1, 11, BASE_GRAY, BASE_GRAY, false);
@@ -1536,7 +1536,7 @@ public class OceanMonumentPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
             if (this.roomDefinition.index / 25 > 0) {
                 this.generateDefaultFloor(param0, param3, 0, 0, this.roomDefinition.hasOpening[Direction.DOWN.get3DDataValue()]);
             }
@@ -1704,7 +1704,7 @@ public class OceanMonumentPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
             if (this.roomDefinition.index / 25 > 0) {
                 this.generateDefaultFloor(param0, param3, 0, 0, this.roomDefinition.hasOpening[Direction.DOWN.get3DDataValue()]);
             }
@@ -1760,7 +1760,7 @@ public class OceanMonumentPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
             if (this.mainDesign == 0) {
                 for(int var0 = 0; var0 < 4; ++var0) {
                     this.generateBox(param0, param3, 10 - var0, 3 - var0, 20 - var0, 12 + var0, 3 - var0, 20, BASE_LIGHT, BASE_LIGHT, false);
@@ -1824,24 +1824,24 @@ public class OceanMonumentPieces {
                 }
 
                 this.generateBox(param0, param3, 7, 3, 7, 15, 3, 14, BASE_LIGHT, BASE_LIGHT, false);
-                int var12 = 10;
+                int var13 = 10;
 
                 for(int var6 = 0; var6 < 2; ++var6) {
-                    this.generateBox(param0, param3, var12, 0, 10, var12, 6, 10, BASE_LIGHT, BASE_LIGHT, false);
-                    this.generateBox(param0, param3, var12, 0, 12, var12, 6, 12, BASE_LIGHT, BASE_LIGHT, false);
-                    this.placeBlock(param0, LAMP_BLOCK, var12, 0, 10, param3);
-                    this.placeBlock(param0, LAMP_BLOCK, var12, 0, 12, param3);
-                    this.placeBlock(param0, LAMP_BLOCK, var12, 4, 10, param3);
-                    this.placeBlock(param0, LAMP_BLOCK, var12, 4, 12, param3);
-                    var12 = 12;
+                    this.generateBox(param0, param3, var13, 0, 10, var13, 6, 10, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, var13, 0, 12, var13, 6, 12, BASE_LIGHT, BASE_LIGHT, false);
+                    this.placeBlock(param0, LAMP_BLOCK, var13, 0, 10, param3);
+                    this.placeBlock(param0, LAMP_BLOCK, var13, 0, 12, param3);
+                    this.placeBlock(param0, LAMP_BLOCK, var13, 4, 10, param3);
+                    this.placeBlock(param0, LAMP_BLOCK, var13, 4, 12, param3);
+                    var13 = 12;
                 }
 
-                var12 = 8;
+                var13 = 8;
 
                 for(int var7 = 0; var7 < 2; ++var7) {
-                    this.generateBox(param0, param3, var12, 0, 7, var12, 2, 7, BASE_LIGHT, BASE_LIGHT, false);
-                    this.generateBox(param0, param3, var12, 0, 14, var12, 2, 14, BASE_LIGHT, BASE_LIGHT, false);
-                    var12 = 14;
+                    this.generateBox(param0, param3, var13, 0, 7, var13, 2, 7, BASE_LIGHT, BASE_LIGHT, false);
+                    this.generateBox(param0, param3, var13, 0, 14, var13, 2, 14, BASE_LIGHT, BASE_LIGHT, false);
+                    var13 = 14;
                 }
 
                 this.generateBox(param0, param3, 8, 3, 8, 8, 3, 13, BASE_BLACK, BASE_BLACK, false);

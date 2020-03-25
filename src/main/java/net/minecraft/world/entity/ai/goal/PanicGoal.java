@@ -16,6 +16,7 @@ public class PanicGoal extends Goal {
     protected double posX;
     protected double posY;
     protected double posZ;
+    protected boolean isRunning;
 
     public PanicGoal(PathfinderMob param0, double param1) {
         this.mob = param0;
@@ -54,9 +55,19 @@ public class PanicGoal extends Goal {
         }
     }
 
+    public boolean isRunning() {
+        return this.isRunning;
+    }
+
     @Override
     public void start() {
         this.mob.getNavigation().moveTo(this.posX, this.posY, this.posZ, this.speedModifier);
+        this.isRunning = true;
+    }
+
+    @Override
+    public void stop() {
+        this.isRunning = false;
     }
 
     @Override

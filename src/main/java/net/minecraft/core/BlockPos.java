@@ -9,7 +9,6 @@ import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Serializable;
@@ -214,23 +213,26 @@ public class BlockPos extends Vec3i implements Serializable {
 
     public static Iterable<BlockPos> withinManhattan(BlockPos param0, int param1, int param2, int param3) {
         int var0 = param1 + param2 + param3;
+        int var1 = param0.getX();
+        int var2 = param0.getY();
+        int var3 = param0.getZ();
         return () -> new AbstractIterator<BlockPos>() {
+                private final BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
                 private int currentDepth;
                 private int maxX;
                 private int maxY;
                 private int x;
                 private int y;
-                @Nullable
-                private BlockPos pendingBlockPos;
+                private boolean zMirror;
 
                 protected BlockPos computeNext() {
-                    if (this.pendingBlockPos != null) {
-                        BlockPos var0 = this.pendingBlockPos;
-                        this.pendingBlockPos = null;
-                        return var0;
+                    if (this.zMirror) {
+                        this.zMirror = false;
+                        this.cursor.setZ(var3 - (this.cursor.getZ() - var3));
+                        return this.cursor;
                     } else {
-                        BlockPos var1;
-                        for(var1 = null; var1 == null; ++this.y) {
+                        BlockPos var0;
+                        for(var0 = null; var0 == null; ++this.y) {
                             if (this.y > this.maxY) {
                                 ++this.x;
                                 if (this.x > this.maxX) {
@@ -247,19 +249,16 @@ public class BlockPos extends Vec3i implements Serializable {
                                 this.y = -this.maxY;
                             }
 
-                            int var2 = this.x;
-                            int var3 = this.y;
-                            int var4 = this.currentDepth - Math.abs(var2) - Math.abs(var3);
-                            if (var4 <= param3) {
-                                if (var4 != 0) {
-                                    this.pendingBlockPos = param0.offset(var2, var3, -var4);
-                                }
-
-                                var1 = param0.offset(var2, var3, var4);
+                            int var1 = this.x;
+                            int var2 = this.y;
+                            int var3 = this.currentDepth - Math.abs(var1) - Math.abs(var2);
+                            if (var3 <= param3) {
+                                this.zMirror = var3 != 0;
+                                var0 = this.cursor.set(var1 + var1, var2 + var2, var3 + var3);
                             }
                         }
 
-                        return var1;
+                        return var0;
                     }
                 }
             };
@@ -309,6 +308,7 @@ public class BlockPos extends Vec3i implements Serializable {
         int var2 = param5 - param2 + 1;
         int var3 = var0 * var1 * var2;
         return () -> new AbstractIterator<BlockPos>() {
+                private final BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
                 private int index;
 
                 protected BlockPos computeNext() {
@@ -320,7 +320,7 @@ public class BlockPos extends Vec3i implements Serializable {
                         int var2 = var1 % var1;
                         int var3 = var1 / var1;
                         ++this.index;
-                        return new BlockPos(param0 + var0, param1 + var2, param2 + var3);
+                        return this.cursor.set(param0 + var0, param1 + var2, param2 + var3);
                     }
                 }
             };

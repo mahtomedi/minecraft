@@ -24,14 +24,14 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class ShulkerBullet extends Entity {
-    private Entity owner;
+public class ShulkerBullet extends Projectile {
     private Entity finalTarget;
     @Nullable
     private Direction currentMoveDirection;
@@ -39,8 +39,6 @@ public class ShulkerBullet extends Entity {
     private double targetDeltaX;
     private double targetDeltaY;
     private double targetDeltaZ;
-    @Nullable
-    private UUID ownerId;
     @Nullable
     private UUID targetId;
 
@@ -58,7 +56,7 @@ public class ShulkerBullet extends Entity {
 
     public ShulkerBullet(Level param0, LivingEntity param1, Entity param2, Direction.Axis param3) {
         this(EntityType.SHULKER_BULLET, param0);
-        this.owner = param1;
+        this.setOwner(param1);
         BlockPos var0 = param1.blockPosition();
         double var1 = (double)var0.getX() + 0.5;
         double var2 = (double)var0.getY() + 0.5;
@@ -76,10 +74,7 @@ public class ShulkerBullet extends Entity {
 
     @Override
     protected void addAdditionalSaveData(CompoundTag param0) {
-        if (this.owner != null) {
-            param0.putUUID("Owner", this.owner.getUUID());
-        }
-
+        super.addAdditionalSaveData(param0);
         if (this.finalTarget != null) {
             param0.putUUID("Target", this.finalTarget.getUUID());
         }
@@ -96,16 +91,13 @@ public class ShulkerBullet extends Entity {
 
     @Override
     protected void readAdditionalSaveData(CompoundTag param0) {
+        super.readAdditionalSaveData(param0);
         this.flightSteps = param0.getInt("Steps");
         this.targetDeltaX = param0.getDouble("TXD");
         this.targetDeltaY = param0.getDouble("TYD");
         this.targetDeltaZ = param0.getDouble("TZD");
         if (param0.contains("Dir", 99)) {
             this.currentMoveDirection = Direction.from3DDataValue(param0.getInt("Dir"));
-        }
-
-        if (param0.hasUUID("Owner")) {
-            this.ownerId = param0.getUUID("Owner");
         }
 
         if (param0.hasUUID("Target")) {
@@ -215,13 +207,6 @@ public class ShulkerBullet extends Entity {
                 }
             }
 
-            if (this.owner == null && this.ownerId != null) {
-                this.owner = ((ServerLevel)this.level).getEntity(this.ownerId);
-                if (this.owner == null) {
-                    this.ownerId = null;
-                }
-            }
-
             if (this.finalTarget == null || !this.finalTarget.isAlive() || this.finalTarget instanceof Player && ((Player)this.finalTarget).isSpectator()) {
                 if (!this.isNoGravity()) {
                     this.setDeltaMovement(this.getDeltaMovement().add(0.0, -0.04, 0.0));
@@ -234,7 +219,7 @@ public class ShulkerBullet extends Entity {
                 this.setDeltaMovement(var0.add((this.targetDeltaX - var0.x) * 0.2, (this.targetDeltaY - var0.y) * 0.2, (this.targetDeltaZ - var0.z) * 0.2));
             }
 
-            HitResult var1 = ProjectileUtil.forwardsRaycast(this, true, false, this.owner, ClipContext.Block.COLLIDER);
+            HitResult var1 = ProjectileUtil.forwardsRaycast(this, true, false, this.getOwner(), ClipContext.Block.COLLIDER);
             if (var1.getType() != HitResult.Type.MISS) {
                 this.onHit(var1);
             }
@@ -287,22 +272,32 @@ public class ShulkerBullet extends Entity {
         return 1.0F;
     }
 
-    protected void onHit(HitResult param0) {
-        if (param0.getType() == HitResult.Type.ENTITY) {
-            Entity var0 = ((EntityHitResult)param0).getEntity();
-            LivingEntity var1 = this.owner instanceof LivingEntity ? (LivingEntity)this.owner : null;
-            boolean var2 = var0.hurt(DamageSource.indirectMobAttack(this, var1).setProjectile(), 4.0F);
-            if (var2) {
-                this.doEnchantDamageEffects(var1, var0);
-                if (var0 instanceof LivingEntity) {
-                    ((LivingEntity)var0).addEffect(new MobEffectInstance(MobEffects.LEVITATION, 200));
-                }
+    @Override
+    protected void onHitEntity(EntityHitResult param0) {
+        super.onHitEntity(param0);
+        Entity var0 = param0.getEntity();
+        Entity var1 = this.getOwner();
+        LivingEntity var2 = var1 instanceof LivingEntity ? (LivingEntity)var1 : null;
+        boolean var3 = var0.hurt(DamageSource.indirectMobAttack(this, var2).setProjectile(), 4.0F);
+        if (var3) {
+            this.doEnchantDamageEffects(var2, var0);
+            if (var0 instanceof LivingEntity) {
+                ((LivingEntity)var0).addEffect(new MobEffectInstance(MobEffects.LEVITATION, 200));
             }
-        } else {
-            ((ServerLevel)this.level).sendParticles(ParticleTypes.EXPLOSION, this.getX(), this.getY(), this.getZ(), 2, 0.2, 0.2, 0.2, 0.0);
-            this.playSound(SoundEvents.SHULKER_BULLET_HIT, 1.0F, 1.0F);
         }
 
+    }
+
+    @Override
+    protected void onHitBlock(BlockHitResult param0) {
+        super.onHitBlock(param0);
+        ((ServerLevel)this.level).sendParticles(ParticleTypes.EXPLOSION, this.getX(), this.getY(), this.getZ(), 2, 0.2, 0.2, 0.2, 0.0);
+        this.playSound(SoundEvents.SHULKER_BULLET_HIT, 1.0F, 1.0F);
+    }
+
+    @Override
+    protected void onHit(HitResult param0) {
+        super.onHit(param0);
         this.remove();
     }
 

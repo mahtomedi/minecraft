@@ -7,7 +7,7 @@ public class TickNextTickData<T> {
     private static long counter;
     private final T type;
     public final BlockPos pos;
-    public final long delay;
+    public final long triggerTick;
     public final TickPriority priority;
     private final long c;
 
@@ -19,7 +19,7 @@ public class TickNextTickData<T> {
         this.c = (long)(counter++);
         this.pos = param0.immutable();
         this.type = param1;
-        this.delay = param2;
+        this.triggerTick = param2;
         this.priority = param3;
     }
 
@@ -39,14 +39,14 @@ public class TickNextTickData<T> {
     }
 
     public static <T> Comparator<TickNextTickData<T>> createTimeComparator() {
-        return Comparator.<TickNextTickData<T>>comparingLong(param0 -> param0.delay)
+        return Comparator.<TickNextTickData<T>>comparingLong(param0 -> param0.triggerTick)
             .thenComparing(param0 -> param0.priority)
             .thenComparingLong(param0 -> param0.c);
     }
 
     @Override
     public String toString() {
-        return this.type + ": " + this.pos + ", " + this.delay + ", " + this.priority + ", " + this.c;
+        return this.type + ": " + this.pos + ", " + this.triggerTick + ", " + this.priority + ", " + this.c;
     }
 
     public T getType() {

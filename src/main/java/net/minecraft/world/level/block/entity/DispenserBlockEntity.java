@@ -10,6 +10,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.DispenserMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class DispenserBlockEntity extends RandomizableContainerBlockEntity {
     private static final Random RANDOM = new Random();
@@ -59,11 +60,11 @@ public class DispenserBlockEntity extends RandomizableContainerBlockEntity {
     }
 
     @Override
-    public void load(CompoundTag param0) {
-        super.load(param0);
+    public void load(BlockState param0, CompoundTag param1) {
+        super.load(param0, param1);
         this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
-        if (!this.tryLoadLootTable(param0)) {
-            ContainerHelper.loadAllItems(param0, this.items);
+        if (!this.tryLoadLootTable(param1)) {
+            ContainerHelper.loadAllItems(param1, this.items);
         }
 
     }

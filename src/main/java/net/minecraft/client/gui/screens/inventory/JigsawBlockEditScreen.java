@@ -8,6 +8,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.protocol.game.ServerboundSetJigsawBlockPacket;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.JigsawBlock;
 import net.minecraft.world.level.block.entity.JigsawBlockEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -15,10 +16,13 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class JigsawBlockEditScreen extends Screen {
     private final JigsawBlockEntity jigsawEntity;
-    private EditBox attachementTypeEdit;
-    private EditBox targetPoolEdit;
+    private EditBox nameEdit;
+    private EditBox targetEdit;
+    private EditBox poolEdit;
     private EditBox finalStateEdit;
+    private Button jointButton;
     private Button doneButton;
+    private JigsawBlockEntity.JointType joint;
 
     public JigsawBlockEditScreen(JigsawBlockEntity param0) {
         super(NarratorChatListener.NO_TITLE);
@@ -27,8 +31,9 @@ public class JigsawBlockEditScreen extends Screen {
 
     @Override
     public void tick() {
-        this.attachementTypeEdit.tick();
-        this.targetPoolEdit.tick();
+        this.nameEdit.tick();
+        this.targetEdit.tick();
+        this.poolEdit.tick();
         this.finalStateEdit.tick();
     }
 
@@ -47,9 +52,11 @@ public class JigsawBlockEditScreen extends Screen {
             .send(
                 new ServerboundSetJigsawBlockPacket(
                     this.jigsawEntity.getBlockPos(),
-                    new ResourceLocation(this.attachementTypeEdit.getValue()),
-                    new ResourceLocation(this.targetPoolEdit.getValue()),
-                    this.finalStateEdit.getValue()
+                    new ResourceLocation(this.nameEdit.getValue()),
+                    new ResourceLocation(this.targetEdit.getValue()),
+                    new ResourceLocation(this.poolEdit.getValue()),
+                    this.finalStateEdit.getValue(),
+                    this.joint
                 )
             );
     }
@@ -64,38 +71,64 @@ public class JigsawBlockEditScreen extends Screen {
         this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
         this.doneButton = this.addButton(new Button(this.width / 2 - 4 - 150, 210, 150, 20, I18n.get("gui.done"), param0 -> this.onDone()));
         this.addButton(new Button(this.width / 2 + 4, 210, 150, 20, I18n.get("gui.cancel"), param0 -> this.onCancel()));
-        this.targetPoolEdit = new EditBox(this.font, this.width / 2 - 152, 40, 300, 20, I18n.get("jigsaw_block.target_pool"));
-        this.targetPoolEdit.setMaxLength(128);
-        this.targetPoolEdit.setValue(this.jigsawEntity.getTargetPool().toString());
-        this.targetPoolEdit.setResponder(param0 -> this.updateValidity());
-        this.children.add(this.targetPoolEdit);
-        this.attachementTypeEdit = new EditBox(this.font, this.width / 2 - 152, 80, 300, 20, I18n.get("jigsaw_block.attachement_type"));
-        this.attachementTypeEdit.setMaxLength(128);
-        this.attachementTypeEdit.setValue(this.jigsawEntity.getAttachementType().toString());
-        this.attachementTypeEdit.setResponder(param0 -> this.updateValidity());
-        this.children.add(this.attachementTypeEdit);
-        this.finalStateEdit = new EditBox(this.font, this.width / 2 - 152, 120, 300, 20, I18n.get("jigsaw_block.final_state"));
+        this.poolEdit = new EditBox(this.font, this.width / 2 - 152, 20, 300, 20, I18n.get("jigsaw_block.pool"));
+        this.poolEdit.setMaxLength(128);
+        this.poolEdit.setValue(this.jigsawEntity.getPool().toString());
+        this.poolEdit.setResponder(param0 -> this.updateValidity());
+        this.children.add(this.poolEdit);
+        this.nameEdit = new EditBox(this.font, this.width / 2 - 152, 60, 300, 20, I18n.get("jigsaw_block.name"));
+        this.nameEdit.setMaxLength(128);
+        this.nameEdit.setValue(this.jigsawEntity.getName().toString());
+        this.nameEdit.setResponder(param0 -> this.updateValidity());
+        this.children.add(this.nameEdit);
+        this.targetEdit = new EditBox(this.font, this.width / 2 - 152, 100, 300, 20, I18n.get("jigsaw_block.target"));
+        this.targetEdit.setMaxLength(128);
+        this.targetEdit.setValue(this.jigsawEntity.getTarget().toString());
+        this.targetEdit.setResponder(param0 -> this.updateValidity());
+        this.children.add(this.targetEdit);
+        this.finalStateEdit = new EditBox(this.font, this.width / 2 - 152, 140, 300, 20, I18n.get("jigsaw_block.final_state"));
         this.finalStateEdit.setMaxLength(256);
         this.finalStateEdit.setValue(this.jigsawEntity.getFinalState());
         this.children.add(this.finalStateEdit);
-        this.setInitialFocus(this.targetPoolEdit);
+        this.joint = this.jigsawEntity.getJoint();
+        int var0 = this.font.width(I18n.get("jigsaw_block.joint_label")) + 10;
+        this.jointButton = this.addButton(new Button(this.width / 2 - 152 + var0, 170, 300 - var0, 20, this.getJointText(), param0 -> {
+            JigsawBlockEntity.JointType[] var0x = JigsawBlockEntity.JointType.values();
+            int var1x = (this.joint.ordinal() + 1) % var0x.length;
+            this.joint = var0x[var1x];
+            param0.setMessage(this.getJointText());
+        }));
+        boolean var1 = JigsawBlock.getFrontFacing(this.jigsawEntity.getBlockState()).getAxis().isVertical();
+        this.jointButton.active = var1;
+        this.jointButton.visible = var1;
+        this.setInitialFocus(this.poolEdit);
         this.updateValidity();
     }
 
-    protected void updateValidity() {
-        this.doneButton.active = ResourceLocation.isValidResourceLocation(this.attachementTypeEdit.getValue())
-            & ResourceLocation.isValidResourceLocation(this.targetPoolEdit.getValue());
+    private void updateValidity() {
+        this.doneButton.active = ResourceLocation.isValidResourceLocation(this.nameEdit.getValue())
+            && ResourceLocation.isValidResourceLocation(this.targetEdit.getValue())
+            && ResourceLocation.isValidResourceLocation(this.poolEdit.getValue());
     }
 
     @Override
     public void resize(Minecraft param0, int param1, int param2) {
-        String var0 = this.attachementTypeEdit.getValue();
-        String var1 = this.targetPoolEdit.getValue();
-        String var2 = this.finalStateEdit.getValue();
+        String var0 = this.nameEdit.getValue();
+        String var1 = this.targetEdit.getValue();
+        String var2 = this.poolEdit.getValue();
+        String var3 = this.finalStateEdit.getValue();
+        JigsawBlockEntity.JointType var4 = this.joint;
         this.init(param0, param1, param2);
-        this.attachementTypeEdit.setValue(var0);
-        this.targetPoolEdit.setValue(var1);
-        this.finalStateEdit.setValue(var2);
+        this.nameEdit.setValue(var0);
+        this.targetEdit.setValue(var1);
+        this.poolEdit.setValue(var2);
+        this.finalStateEdit.setValue(var3);
+        this.joint = var4;
+        this.jointButton.setMessage(this.getJointText());
+    }
+
+    private String getJointText() {
+        return I18n.get("jigsaw_block.joint." + this.joint.getSerializedName());
     }
 
     @Override
@@ -118,12 +151,18 @@ public class JigsawBlockEditScreen extends Screen {
     @Override
     public void render(int param0, int param1, float param2) {
         this.renderBackground();
-        this.drawString(this.font, I18n.get("jigsaw_block.target_pool"), this.width / 2 - 153, 30, 10526880);
-        this.targetPoolEdit.render(param0, param1, param2);
-        this.drawString(this.font, I18n.get("jigsaw_block.attachement_type"), this.width / 2 - 153, 70, 10526880);
-        this.attachementTypeEdit.render(param0, param1, param2);
-        this.drawString(this.font, I18n.get("jigsaw_block.final_state"), this.width / 2 - 153, 110, 10526880);
+        this.drawString(this.font, I18n.get("jigsaw_block.pool"), this.width / 2 - 153, 10, 10526880);
+        this.poolEdit.render(param0, param1, param2);
+        this.drawString(this.font, I18n.get("jigsaw_block.name"), this.width / 2 - 153, 50, 10526880);
+        this.nameEdit.render(param0, param1, param2);
+        this.drawString(this.font, I18n.get("jigsaw_block.target"), this.width / 2 - 153, 90, 10526880);
+        this.targetEdit.render(param0, param1, param2);
+        this.drawString(this.font, I18n.get("jigsaw_block.final_state"), this.width / 2 - 153, 130, 10526880);
         this.finalStateEdit.render(param0, param1, param2);
+        if (JigsawBlock.getFrontFacing(this.jigsawEntity.getBlockState()).getAxis().isVertical()) {
+            this.drawString(this.font, I18n.get("jigsaw_block.joint_label"), this.width / 2 - 153, 176, 16777215);
+        }
+
         super.render(param0, param1, param2);
     }
 }

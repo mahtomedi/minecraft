@@ -51,10 +51,10 @@ public abstract class TemplateStructurePiece extends StructurePiece {
     }
 
     @Override
-    public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+    public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
         this.placeSettings.setBoundingBox(param3);
         this.boundingBox = this.template.getBoundingBox(this.placeSettings, this.templatePosition);
-        if (this.template.placeInWorld(param0, this.templatePosition, this.placeSettings, 2)) {
+        if (this.template.placeInWorld(param0, this.templatePosition, param5, this.placeSettings, 2)) {
             for(StructureTemplate.StructureBlockInfo var1 : this.template.filterBlocks(this.templatePosition, this.placeSettings, Blocks.STRUCTURE_BLOCK)) {
                 if (var1.nbt != null) {
                     StructureMode var2 = StructureMode.valueOf(var1.nbt.getString("mode"));
@@ -78,7 +78,7 @@ public abstract class TemplateStructurePiece extends StructurePiece {
                         } else {
                             LOGGER.error("Error while parsing blockstate {} in jigsaw block @ {}", var5, var4.pos);
                         }
-                    } catch (CommandSyntaxException var14) {
+                    } catch (CommandSyntaxException var15) {
                         LOGGER.error("Error while parsing blockstate {} in jigsaw block @ {}", var5, var4.pos);
                     }
 

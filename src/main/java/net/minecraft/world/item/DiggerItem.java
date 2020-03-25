@@ -61,4 +61,8 @@ public class DiggerItem extends TieredItem {
 
         return var0;
     }
+
+    public float getAttackDamage() {
+        return this.attackDamageBaseline;
+    }
 }

@@ -1327,20 +1327,24 @@ public abstract class Player extends LivingEntity {
         this.stopSleepInBed(true, true);
     }
 
-    public static Optional<Vec3> findRespawnPositionAndUseSpawnBlock(ServerLevel param0, BlockPos param1, boolean param2) {
+    public static Optional<Vec3> findRespawnPositionAndUseSpawnBlock(ServerLevel param0, BlockPos param1, boolean param2, boolean param3) {
         BlockState var0 = param0.getBlockState(param1);
         Block var1 = var0.getBlock();
         if (var1 instanceof RespawnAnchorBlock && var0.getValue(RespawnAnchorBlock.CHARGE) > 0) {
-            param0.setBlock(param1, var0.setValue(RespawnAnchorBlock.CHARGE, Integer.valueOf(var0.getValue(RespawnAnchorBlock.CHARGE) - 1)), 3);
-            return RespawnAnchorBlock.findStandUpPosition(param0, param1);
+            Optional<Vec3> var2 = RespawnAnchorBlock.findStandUpPosition(EntityType.PLAYER, param0, param1);
+            if (!param3 && var2.isPresent()) {
+                param0.setBlock(param1, var0.setValue(RespawnAnchorBlock.CHARGE, Integer.valueOf(var0.getValue(RespawnAnchorBlock.CHARGE) - 1)), 3);
+            }
+
+            return var2;
         } else if (var1 instanceof BedBlock) {
             return BedBlock.findStandUpPosition(EntityType.PLAYER, param0, param1, 0);
         } else if (!param2) {
             return Optional.empty();
         } else {
-            boolean var2 = var1.isPossibleToRespawnInThis();
-            boolean var3 = param0.getBlockState(param1.above()).getBlock().isPossibleToRespawnInThis();
-            return var2 && var3
+            boolean var3 = var1.isPossibleToRespawnInThis();
+            boolean var4 = param0.getBlockState(param1.above()).getBlock().isPossibleToRespawnInThis();
+            return var3 && var4
                 ? Optional.of(new Vec3((double)param1.getX() + 0.5, (double)param1.getY() + 0.1, (double)param1.getZ() + 0.5))
                 : Optional.empty();
         }

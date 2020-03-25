@@ -232,9 +232,9 @@ public class ShulkerBoxBlockEntity extends RandomizableContainerBlockEntity impl
     }
 
     @Override
-    public void load(CompoundTag param0) {
-        super.load(param0);
-        this.loadFromTag(param0);
+    public void load(BlockState param0, CompoundTag param1) {
+        super.load(param0, param1);
+        this.loadFromTag(param1);
     }
 
     @Override

@@ -438,27 +438,14 @@ public abstract class PlayerList {
 
         ServerLevel var6 = this.server.getLevel(param0.dimension);
         this.updatePlayerGameMode(var4, param0, var6);
+        boolean var7 = false;
         if (var0 != null) {
-            Optional<Vec3> var7 = Player.findRespawnPositionAndUseSpawnBlock(this.server.getLevel(param0.dimension), var0, var1);
-            if (var7.isPresent()) {
-                Vec3 var8 = var7.get();
-                var4.moveTo(var8.x, var8.y, var8.z, 0.0F, 0.0F);
+            Optional<Vec3> var8 = Player.findRespawnPositionAndUseSpawnBlock(this.server.getLevel(param0.dimension), var0, var1, param1);
+            if (var8.isPresent()) {
+                Vec3 var9 = var8.get();
+                var4.moveTo(var9.x, var9.y, var9.z, 0.0F, 0.0F);
                 var4.setRespawnPosition(param0.dimension, var0, var1, false);
-                BlockState var9 = var6.getBlockState(var0);
-                if (var9.getBlock() instanceof RespawnAnchorBlock) {
-                    var4.connection
-                        .send(
-                            new ClientboundSoundPacket(
-                                SoundEvents.RESPAWN_ANCHOR_DEPLETE,
-                                SoundSource.BLOCKS,
-                                (double)var0.getX(),
-                                (double)var0.getY(),
-                                (double)var0.getZ(),
-                                1.0F,
-                                1.0F
-                            )
-                        );
-                }
+                var7 = !param1;
             } else {
                 var4.connection.send(new ClientboundGameEventPacket(0, 0.0F));
                 var4.dimension = DimensionType.OVERWORLD;
@@ -489,6 +476,16 @@ public abstract class PlayerList {
         this.playersByUUID.put(var4.getUUID(), var4);
         var4.initMenu();
         var4.setHealth(var4.getHealth());
+        BlockState var11 = var6.getBlockState(var0);
+        if (var7 && var11.getBlock() instanceof RespawnAnchorBlock) {
+            var4.connection
+                .send(
+                    new ClientboundSoundPacket(
+                        SoundEvents.RESPAWN_ANCHOR_DEPLETE, SoundSource.BLOCKS, (double)var0.getX(), (double)var0.getY(), (double)var0.getZ(), 1.0F, 1.0F
+                    )
+                );
+        }
+
         return var4;
     }
 

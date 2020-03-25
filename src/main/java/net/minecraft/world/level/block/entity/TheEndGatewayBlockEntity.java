@@ -57,14 +57,14 @@ public class TheEndGatewayBlockEntity extends TheEndPortalBlockEntity implements
     }
 
     @Override
-    public void load(CompoundTag param0) {
-        super.load(param0);
-        this.age = param0.getLong("Age");
-        if (param0.contains("ExitPortal", 10)) {
-            this.exitPortal = NbtUtils.readBlockPos(param0.getCompound("ExitPortal"));
+    public void load(BlockState param0, CompoundTag param1) {
+        super.load(param0, param1);
+        this.age = param1.getLong("Age");
+        if (param1.contains("ExitPortal", 10)) {
+            this.exitPortal = NbtUtils.readBlockPos(param1.getCompound("ExitPortal"));
         }
 
-        this.exactTeleport = param0.getBoolean("ExactTeleport");
+        this.exactTeleport = param1.getBoolean("ExactTeleport");
     }
 
     @OnlyIn(Dist.CLIENT)

@@ -90,17 +90,24 @@ public class SinglePoolElement extends StructurePoolElement {
 
     @Override
     public boolean place(
-        StructureManager param0, LevelAccessor param1, ChunkGenerator<?> param2, BlockPos param3, Rotation param4, BoundingBox param5, Random param6
+        StructureManager param0,
+        LevelAccessor param1,
+        ChunkGenerator<?> param2,
+        BlockPos param3,
+        BlockPos param4,
+        Rotation param5,
+        BoundingBox param6,
+        Random param7
     ) {
         StructureTemplate var0 = param0.getOrCreate(this.location);
-        StructurePlaceSettings var1 = this.getSettings(param4, param5);
-        if (!var0.placeInWorld(param1, param3, var1, 18)) {
+        StructurePlaceSettings var1 = this.getSettings(param5, param6);
+        if (!var0.placeInWorld(param1, param3, param4, var1, 18)) {
             return false;
         } else {
             for(StructureTemplate.StructureBlockInfo var3 : StructureTemplate.processBlockInfos(
-                param1, param3, var1, this.getDataMarkers(param0, param3, param4, false)
+                param1, param3, param4, var1, this.getDataMarkers(param0, param3, param5, false)
             )) {
-                this.handleDataMarker(param1, var3, param3, param4, param6, param5);
+                this.handleDataMarker(param1, var3, param3, param5, param7, param6);
             }
 
             return true;

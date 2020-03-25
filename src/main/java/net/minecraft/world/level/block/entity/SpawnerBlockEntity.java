@@ -43,9 +43,9 @@ public class SpawnerBlockEntity extends BlockEntity implements TickableBlockEnti
     }
 
     @Override
-    public void load(CompoundTag param0) {
-        super.load(param0);
-        this.spawner.load(param0);
+    public void load(BlockState param0, CompoundTag param1) {
+        super.load(param0, param1);
+        this.spawner.load(param1);
     }
 
     @Override

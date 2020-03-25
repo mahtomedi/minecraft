@@ -232,7 +232,7 @@ public class StrongholdPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
             this.generateBox(param0, param3, 0, 0, 0, 4, 4, 6, true, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
             this.generateSmallDoor(param0, param2, param3, this.entryDoor, 1, 1, 0);
             this.generateSmallDoor(param0, param2, param3, StrongholdPieces.StrongholdPiece.SmallDoorType.OPENING, 1, 1, 6);
@@ -297,7 +297,7 @@ public class StrongholdPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
             for(int var0 = 0; var0 < this.steps; ++var0) {
                 this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 0, 0, var0, param3);
                 this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 1, 0, var0, param3);
@@ -397,7 +397,7 @@ public class StrongholdPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
             this.generateBox(param0, param3, 0, 0, 0, 9, 8, 10, true, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
             this.generateSmallDoor(param0, param2, param3, this.entryDoor, 4, 3, 0);
             if (this.leftLow) {
@@ -492,7 +492,7 @@ public class StrongholdPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
             this.generateBox(param0, param3, 0, 0, 0, 4, 4, 4, true, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
             this.generateSmallDoor(param0, param2, param3, this.entryDoor, 1, 1, 0);
             Direction var0 = this.getOrientation();
@@ -543,7 +543,7 @@ public class StrongholdPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
             int var0 = 11;
             if (!this.isTall) {
                 var0 = 6;
@@ -765,7 +765,7 @@ public class StrongholdPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
             this.generateBox(param0, param3, 0, 0, 0, 10, 7, 15, false, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
             this.generateSmallDoor(param0, param2, param3, StrongholdPieces.StrongholdPiece.SmallDoorType.GRATES, 4, 1, 0);
             int var0 = 6;
@@ -889,7 +889,7 @@ public class StrongholdPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
             this.generateBox(param0, param3, 0, 0, 0, 8, 4, 10, true, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
             this.generateSmallDoor(param0, param2, param3, this.entryDoor, 1, 1, 0);
             this.generateBox(param0, param3, 1, 1, 10, 3, 3, 10, CAVE_AIR, CAVE_AIR, false);
@@ -1027,7 +1027,7 @@ public class StrongholdPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
             this.generateBox(param0, param3, 0, 0, 0, 4, 4, 4, true, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
             this.generateSmallDoor(param0, param2, param3, this.entryDoor, 1, 1, 0);
             Direction var0 = this.getOrientation();
@@ -1080,7 +1080,7 @@ public class StrongholdPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
             this.generateBox(param0, param3, 0, 0, 0, 10, 6, 10, true, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
             this.generateSmallDoor(param0, param2, param3, this.entryDoor, 4, 1, 0);
             this.generateBox(param0, param3, 4, 1, 10, 6, 3, 10, CAVE_AIR, CAVE_AIR, false);
@@ -1252,7 +1252,7 @@ public class StrongholdPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
             this.generateBox(param0, param3, 0, 0, 0, 4, 10, 4, true, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
             this.generateSmallDoor(param0, param2, param3, this.entryDoor, 1, 7, 0);
             this.generateSmallDoor(param0, param2, param3, StrongholdPieces.StrongholdPiece.SmallDoorType.OPENING, 1, 1, 4);
@@ -1341,7 +1341,7 @@ public class StrongholdPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
             this.generateBox(param0, param3, 0, 0, 0, 4, 4, 6, true, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
             this.generateSmallDoor(param0, param2, param3, this.entryDoor, 1, 1, 0);
             this.generateSmallDoor(param0, param2, param3, StrongholdPieces.StrongholdPiece.SmallDoorType.OPENING, 1, 1, 6);
@@ -1390,7 +1390,7 @@ public class StrongholdPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
             this.generateBox(param0, param3, 0, 0, 0, 4, 10, 7, true, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
             this.generateSmallDoor(param0, param2, param3, this.entryDoor, 1, 7, 0);
             this.generateSmallDoor(param0, param2, param3, StrongholdPieces.StrongholdPiece.SmallDoorType.OPENING, 1, 1, 7);

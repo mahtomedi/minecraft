@@ -159,7 +159,7 @@ public class BlockItem extends Item {
                     var3.putInt("y", param2.getY());
                     var3.putInt("z", param2.getZ());
                     if (!var3.equals(var4)) {
-                        var2.load(var3);
+                        var2.load(param0.getBlockState(param2), var3);
                         var2.setChanged();
                         return true;
                     }

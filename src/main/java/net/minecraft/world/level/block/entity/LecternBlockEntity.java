@@ -22,6 +22,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.WrittenBookItem;
 import net.minecraft.world.level.block.LecternBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
@@ -208,16 +209,16 @@ public class LecternBlockEntity extends BlockEntity implements Clearable, MenuPr
     }
 
     @Override
-    public void load(CompoundTag param0) {
-        super.load(param0);
-        if (param0.contains("Book", 10)) {
-            this.book = this.resolveBook(ItemStack.of(param0.getCompound("Book")), null);
+    public void load(BlockState param0, CompoundTag param1) {
+        super.load(param0, param1);
+        if (param1.contains("Book", 10)) {
+            this.book = this.resolveBook(ItemStack.of(param1.getCompound("Book")), null);
         } else {
             this.book = ItemStack.EMPTY;
         }
 
         this.pageCount = WrittenBookItem.getPageCount(this.book);
-        this.page = Mth.clamp(param0.getInt("Page"), 0, this.pageCount - 1);
+        this.page = Mth.clamp(param1.getInt("Page"), 0, this.pageCount - 1);
     }
 
     @Override

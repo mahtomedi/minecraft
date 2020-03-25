@@ -283,15 +283,15 @@ public class BeaconBlockEntity extends BlockEntity implements MenuProvider, Tick
     }
 
     @Override
-    public void load(CompoundTag param0) {
-        super.load(param0);
-        this.primaryPower = getValidEffectById(param0.getInt("Primary"));
-        this.secondaryPower = getValidEffectById(param0.getInt("Secondary"));
-        if (param0.contains("CustomName", 8)) {
-            this.name = Component.Serializer.fromJson(param0.getString("CustomName"));
+    public void load(BlockState param0, CompoundTag param1) {
+        super.load(param0, param1);
+        this.primaryPower = getValidEffectById(param1.getInt("Primary"));
+        this.secondaryPower = getValidEffectById(param1.getInt("Secondary"));
+        if (param1.contains("CustomName", 8)) {
+            this.name = Component.Serializer.fromJson(param1.getString("CustomName"));
         }
 
-        this.lockKey = LockCode.fromTag(param0);
+        this.lockKey = LockCode.fromTag(param1);
     }
 
     @Override

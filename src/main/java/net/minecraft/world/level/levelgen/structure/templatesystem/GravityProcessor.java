@@ -28,13 +28,14 @@ public class GravityProcessor extends StructureProcessor {
     public StructureTemplate.StructureBlockInfo processBlock(
         LevelReader param0,
         BlockPos param1,
-        StructureTemplate.StructureBlockInfo param2,
+        BlockPos param2,
         StructureTemplate.StructureBlockInfo param3,
-        StructurePlaceSettings param4
+        StructureTemplate.StructureBlockInfo param4,
+        StructurePlaceSettings param5
     ) {
-        int var0 = param0.getHeight(this.heightmap, param3.pos.getX(), param3.pos.getZ()) + this.offset;
-        int var1 = param2.pos.getY();
-        return new StructureTemplate.StructureBlockInfo(new BlockPos(param3.pos.getX(), var0 + var1, param3.pos.getZ()), param3.state, param3.nbt);
+        int var0 = param0.getHeight(this.heightmap, param4.pos.getX(), param4.pos.getZ()) + this.offset;
+        int var1 = param3.pos.getY();
+        return new StructureTemplate.StructureBlockInfo(new BlockPos(param4.pos.getX(), var0 + var1, param4.pos.getZ()), param4.state, param4.nbt);
     }
 
     @Override

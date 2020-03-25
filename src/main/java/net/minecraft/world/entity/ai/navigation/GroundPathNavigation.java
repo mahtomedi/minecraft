@@ -190,15 +190,7 @@ public class GroundPathNavigation extends PathNavigation {
                     if (!(var4 * param7 + var5 * param8 < 0.0)) {
                         BlockPathTypes var6 = this.nodeEvaluator
                             .getBlockPathType(this.level, var2, param1 - 1, var3, this.mob, param3, param4, param5, true, true);
-                        if (var6 == BlockPathTypes.WATER) {
-                            return false;
-                        }
-
-                        if (var6 == BlockPathTypes.LAVA) {
-                            return false;
-                        }
-
-                        if (var6 == BlockPathTypes.OPEN) {
+                        if (!this.hasValidPathType(var6)) {
                             return false;
                         }
 
@@ -216,6 +208,16 @@ public class GroundPathNavigation extends PathNavigation {
             }
 
             return true;
+        }
+    }
+
+    protected boolean hasValidPathType(BlockPathTypes param0) {
+        if (param0 == BlockPathTypes.WATER) {
+            return false;
+        } else if (param0 == BlockPathTypes.LAVA) {
+            return false;
+        } else {
+            return param0 != BlockPathTypes.OPEN;
         }
     }
 

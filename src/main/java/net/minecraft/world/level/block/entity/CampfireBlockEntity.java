@@ -20,6 +20,7 @@ import net.minecraft.world.item.crafting.CampfireCookingRecipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.CampfireBlock;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class CampfireBlockEntity extends BlockEntity implements Clearable, TickableBlockEntity {
     private final NonNullList<ItemStack> items = NonNullList.withSize(4, ItemStack.EMPTY);
@@ -116,17 +117,17 @@ public class CampfireBlockEntity extends BlockEntity implements Clearable, Ticka
     }
 
     @Override
-    public void load(CompoundTag param0) {
-        super.load(param0);
+    public void load(BlockState param0, CompoundTag param1) {
+        super.load(param0, param1);
         this.items.clear();
-        ContainerHelper.loadAllItems(param0, this.items);
-        if (param0.contains("CookingTimes", 11)) {
-            int[] var0 = param0.getIntArray("CookingTimes");
+        ContainerHelper.loadAllItems(param1, this.items);
+        if (param1.contains("CookingTimes", 11)) {
+            int[] var0 = param1.getIntArray("CookingTimes");
             System.arraycopy(var0, 0, this.cookingProgress, 0, Math.min(this.cookingTime.length, var0.length));
         }
 
-        if (param0.contains("CookingTotalTimes", 11)) {
-            int[] var1 = param0.getIntArray("CookingTotalTimes");
+        if (param1.contains("CookingTotalTimes", 11)) {
+            int[] var1 = param1.getIntArray("CookingTotalTimes");
             System.arraycopy(var1, 0, this.cookingTime, 0, Math.min(this.cookingTime.length, var1.length));
         }
 

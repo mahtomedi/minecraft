@@ -89,14 +89,17 @@ public abstract class GrowingPlantHeadBlock extends GrowingPlantBlock implements
     public void performBonemeal(ServerLevel param0, Random param1, BlockPos param2, BlockState param3) {
         BlockPos var0 = param2.relative(this.growthDirection);
         int var1 = Math.min(param3.getValue(AGE) + 1, 25);
+        int var2 = this.getBlocksToGrowWhenBonemealed(param1);
 
-        for(double var2 = 1.0; this.canGrowInto(param0.getBlockState(var0)) && param1.nextDouble() < var2; var2 *= 0.94) {
+        for(int var3 = 0; var3 < var2 && this.canGrowInto(param0.getBlockState(var0)); ++var3) {
             param0.setBlockAndUpdate(var0, param3.setValue(AGE, Integer.valueOf(var1)));
             var0 = var0.relative(this.growthDirection);
             var1 = Math.min(var1 + 1, 25);
         }
 
     }
+
+    protected abstract int getBlocksToGrowWhenBonemealed(Random var1);
 
     protected abstract boolean canGrowInto(BlockState var1);
 

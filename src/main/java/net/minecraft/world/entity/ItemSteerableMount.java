@@ -1,0 +1,77 @@
+package net.minecraft.world.entity;
+
+import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.Vec3;
+
+public interface ItemSteerableMount {
+    boolean boost();
+
+    void setSaddle(boolean var1);
+
+    boolean hasSaddle();
+
+    void travelWithInput(Vec3 var1);
+
+    float getSteeringSpeed();
+
+    default boolean travel(Mob param0, ItemBasedSteering param1, Vec3 param2) {
+        if (!param0.isAlive()) {
+            return false;
+        } else {
+            Entity var0 = param0.getPassengers().isEmpty() ? null : param0.getPassengers().get(0);
+            if (param0.isVehicle() && param0.canBeControlledByRider() && var0 instanceof Player) {
+                param0.yRot = var0.yRot;
+                param0.yRotO = param0.yRot;
+                param0.xRot = var0.xRot * 0.5F;
+                param0.setRot(param0.yRot, param0.xRot);
+                param0.yBodyRot = param0.yRot;
+                param0.yHeadRot = param0.yRot;
+                param0.maxUpStep = 1.0F;
+                param0.flyingSpeed = param0.getSpeed() * 0.1F;
+                if (param1.boosting && param1.boostTime++ > param1.boostTimeTotal) {
+                    param1.boosting = false;
+                }
+
+                if (param0.isControlledByLocalInstance()) {
+                    float var1 = this.getSteeringSpeed();
+                    if (param1.boosting) {
+                        var1 += var1 * 1.15F * Mth.sin((float)param1.boostTime / (float)param1.boostTimeTotal * (float) Math.PI);
+                    }
+
+                    param0.setSpeed(var1);
+                    this.travelWithInput(new Vec3(0.0, 0.0, 1.0));
+                    param0.lerpSteps = 0;
+                } else {
+                    param0.setDeltaMovement(Vec3.ZERO);
+                }
+
+                return true;
+            } else {
+                param0.maxUpStep = 0.5F;
+                param0.flyingSpeed = 0.02F;
+                this.travelWithInput(param2);
+                return false;
+            }
+        }
+    }
+
+    default boolean mobInteract(Mob param0, Player param1, InteractionHand param2, boolean param3) {
+        ItemStack var0 = param1.getItemInHand(param2);
+        if (var0.getItem() == Items.NAME_TAG) {
+            var0.interactEnemy(param1, param0, param2);
+            return true;
+        } else if (!this.hasSaddle() || param0.isVehicle() || !param3 && param0.isBaby()) {
+            return var0.getItem() == Items.SADDLE && var0.interactEnemy(param1, param0, param2);
+        } else {
+            if (!param0.level.isClientSide) {
+                param1.startRiding(param0);
+            }
+
+            return true;
+        }
+    }
+}

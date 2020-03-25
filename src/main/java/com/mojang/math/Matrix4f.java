@@ -4,7 +4,6 @@ import java.nio.FloatBuffer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
 public final class Matrix4f {
     protected float m00;
     protected float m01;
@@ -118,6 +117,7 @@ public final class Matrix4f {
         return 31 * var0 + (this.m33 != 0.0F ? Float.floatToIntBits(this.m33) : 0);
     }
 
+    @OnlyIn(Dist.CLIENT)
     private static int bufferIndex(int param0, int param1) {
         return param1 * 4 + param0;
     }
@@ -161,6 +161,7 @@ public final class Matrix4f {
         return var0.toString();
     }
 
+    @OnlyIn(Dist.CLIENT)
     public void store(FloatBuffer param0) {
         param0.put(bufferIndex(0, 0), this.m00);
         param0.put(bufferIndex(0, 1), this.m01);
@@ -180,6 +181,7 @@ public final class Matrix4f {
         param0.put(bufferIndex(3, 3), this.m33);
     }
 
+    @OnlyIn(Dist.CLIENT)
     public void setIdentity() {
         this.m00 = 1.0F;
         this.m01 = 0.0F;
@@ -199,6 +201,7 @@ public final class Matrix4f {
         this.m33 = 1.0F;
     }
 
+    @OnlyIn(Dist.CLIENT)
     public float adjugateAndDet() {
         float var0 = this.m00 * this.m11 - this.m01 * this.m10;
         float var1 = this.m00 * this.m12 - this.m02 * this.m10;
@@ -247,6 +250,7 @@ public final class Matrix4f {
         return var0 * var11 - var1 * var10 + var2 * var9 + var3 * var8 - var4 * var7 + var5 * var6;
     }
 
+    @OnlyIn(Dist.CLIENT)
     public void transpose() {
         float var0 = this.m10;
         this.m10 = this.m01;
@@ -268,6 +272,7 @@ public final class Matrix4f {
         this.m23 = var0;
     }
 
+    @OnlyIn(Dist.CLIENT)
     public boolean invert() {
         float var0 = this.adjugateAndDet();
         if (Math.abs(var0) > 1.0E-6F) {
@@ -278,6 +283,7 @@ public final class Matrix4f {
         }
     }
 
+    @OnlyIn(Dist.CLIENT)
     public void multiply(Matrix4f param0) {
         float var0 = this.m00 * param0.m00 + this.m01 * param0.m10 + this.m02 * param0.m20 + this.m03 * param0.m30;
         float var1 = this.m00 * param0.m01 + this.m01 * param0.m11 + this.m02 * param0.m21 + this.m03 * param0.m31;
@@ -313,10 +319,12 @@ public final class Matrix4f {
         this.m33 = var15;
     }
 
+    @OnlyIn(Dist.CLIENT)
     public void multiply(Quaternion param0) {
         this.multiply(new Matrix4f(param0));
     }
 
+    @OnlyIn(Dist.CLIENT)
     public void multiply(float param0) {
         this.m00 *= param0;
         this.m01 *= param0;
@@ -336,6 +344,7 @@ public final class Matrix4f {
         this.m33 *= param0;
     }
 
+    @OnlyIn(Dist.CLIENT)
     public static Matrix4f perspective(double param0, float param1, float param2, float param3) {
         float var0 = (float)(1.0 / Math.tan(param0 * (float) (Math.PI / 180.0) / 2.0));
         Matrix4f var1 = new Matrix4f();
@@ -347,6 +356,7 @@ public final class Matrix4f {
         return var1;
     }
 
+    @OnlyIn(Dist.CLIENT)
     public static Matrix4f orthographic(float param0, float param1, float param2, float param3) {
         Matrix4f var0 = new Matrix4f();
         var0.m00 = 2.0F / param0;
@@ -360,16 +370,19 @@ public final class Matrix4f {
         return var0;
     }
 
+    @OnlyIn(Dist.CLIENT)
     public void translate(Vector3f param0) {
         this.m03 += param0.x();
         this.m13 += param0.y();
         this.m23 += param0.z();
     }
 
+    @OnlyIn(Dist.CLIENT)
     public Matrix4f copy() {
         return new Matrix4f(this);
     }
 
+    @OnlyIn(Dist.CLIENT)
     public static Matrix4f createScaleMatrix(float param0, float param1, float param2) {
         Matrix4f var0 = new Matrix4f();
         var0.m00 = param0;
@@ -379,6 +392,7 @@ public final class Matrix4f {
         return var0;
     }
 
+    @OnlyIn(Dist.CLIENT)
     public static Matrix4f createTranslateMatrix(float param0, float param1, float param2) {
         Matrix4f var0 = new Matrix4f();
         var0.m00 = 1.0F;

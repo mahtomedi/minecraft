@@ -750,7 +750,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
             BlockPos var5 = new BlockPos(var4.getInt("x"), var4.getInt("y"), var4.getInt("z"));
             BlockEntity var6 = this.level.getBlockEntity(var5);
             if (var6 != null) {
-                var6.load(var4);
+                var6.load(this.level.getBlockState(var5), var4);
             }
         }
 
@@ -1190,29 +1190,28 @@ public class ClientPacketListener implements ClientGamePacketListener {
     @Override
     public void handleBlockEntityData(ClientboundBlockEntityDataPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        if (this.minecraft.level.hasChunkAt(param0.getPos())) {
-            BlockEntity var0 = this.minecraft.level.getBlockEntity(param0.getPos());
-            int var1 = param0.getType();
-            boolean var2 = var1 == 2 && var0 instanceof CommandBlockEntity;
-            if (var1 == 1 && var0 instanceof SpawnerBlockEntity
-                || var2
-                || var1 == 3 && var0 instanceof BeaconBlockEntity
-                || var1 == 4 && var0 instanceof SkullBlockEntity
-                || var1 == 6 && var0 instanceof BannerBlockEntity
-                || var1 == 7 && var0 instanceof StructureBlockEntity
-                || var1 == 8 && var0 instanceof TheEndGatewayBlockEntity
-                || var1 == 9 && var0 instanceof SignBlockEntity
-                || var1 == 11 && var0 instanceof BedBlockEntity
-                || var1 == 5 && var0 instanceof ConduitBlockEntity
-                || var1 == 12 && var0 instanceof JigsawBlockEntity
-                || var1 == 13 && var0 instanceof CampfireBlockEntity
-                || var1 == 14 && var0 instanceof BeehiveBlockEntity) {
-                var0.load(param0.getTag());
-            }
+        BlockPos var0 = param0.getPos();
+        BlockEntity var1 = this.minecraft.level.getBlockEntity(var0);
+        int var2 = param0.getType();
+        boolean var3 = var2 == 2 && var1 instanceof CommandBlockEntity;
+        if (var2 == 1 && var1 instanceof SpawnerBlockEntity
+            || var3
+            || var2 == 3 && var1 instanceof BeaconBlockEntity
+            || var2 == 4 && var1 instanceof SkullBlockEntity
+            || var2 == 6 && var1 instanceof BannerBlockEntity
+            || var2 == 7 && var1 instanceof StructureBlockEntity
+            || var2 == 8 && var1 instanceof TheEndGatewayBlockEntity
+            || var2 == 9 && var1 instanceof SignBlockEntity
+            || var2 == 11 && var1 instanceof BedBlockEntity
+            || var2 == 5 && var1 instanceof ConduitBlockEntity
+            || var2 == 12 && var1 instanceof JigsawBlockEntity
+            || var2 == 13 && var1 instanceof CampfireBlockEntity
+            || var2 == 14 && var1 instanceof BeehiveBlockEntity) {
+            var1.load(this.minecraft.level.getBlockState(var0), param0.getTag());
+        }
 
-            if (var2 && this.minecraft.screen instanceof CommandBlockEditScreen) {
-                ((CommandBlockEditScreen)this.minecraft.screen).updateGui();
-            }
+        if (var3 && this.minecraft.screen instanceof CommandBlockEditScreen) {
+            ((CommandBlockEditScreen)this.minecraft.screen).updateGui();
         }
 
     }

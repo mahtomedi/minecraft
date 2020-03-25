@@ -45,8 +45,8 @@ public abstract class BlockEntity {
         return this.level != null;
     }
 
-    public void load(CompoundTag param0) {
-        this.worldPosition = new BlockPos(param0.getInt("x"), param0.getInt("y"), param0.getInt("z"));
+    public void load(BlockState param0, CompoundTag param1) {
+        this.worldPosition = new BlockPos(param1.getInt("x"), param1.getInt("y"), param1.getInt("z"));
     }
 
     public CompoundTag save(CompoundTag param0) {
@@ -67,21 +67,21 @@ public abstract class BlockEntity {
     }
 
     @Nullable
-    public static BlockEntity loadStatic(CompoundTag param0) {
-        String var0 = param0.getString("id");
-        return Registry.BLOCK_ENTITY_TYPE.getOptional(new ResourceLocation(var0)).map(param1 -> {
+    public static BlockEntity loadStatic(BlockState param0, CompoundTag param1) {
+        String var0 = param1.getString("id");
+        return Registry.BLOCK_ENTITY_TYPE.getOptional(new ResourceLocation(var0)).map(param1x -> {
             try {
-                return param1.create();
+                return param1x.create();
             } catch (Throwable var3) {
                 LOGGER.error("Failed to create block entity {}", var0, var3);
                 return null;
             }
-        }).map(param2 -> {
+        }).map(param3 -> {
             try {
-                param2.load(param0);
-                return param2;
-            } catch (Throwable var4) {
-                LOGGER.error("Failed to load data for block entity {}", var0, var4);
+                param3.load(param0, param1);
+                return param3;
+            } catch (Throwable var5) {
+                LOGGER.error("Failed to load data for block entity {}", var0, var5);
                 return null;
             }
         }).orElseGet(() -> {

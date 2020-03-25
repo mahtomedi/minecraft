@@ -585,6 +585,13 @@ public class RecipeProvider implements DataProvider {
             .pattern(" X")
             .unlockedBy("has_carrot", has(Items.CARROT))
             .save(param0);
+        ShapedRecipeBuilder.shaped(Items.WARPED_FUNGUS_ON_A_STICK)
+            .define('#', Items.FISHING_ROD)
+            .define('X', Items.WARPED_FUNGUS)
+            .pattern("# ")
+            .pattern(" X")
+            .unlockedBy("has_warped_fungus", has(Items.WARPED_FUNGUS))
+            .save(param0);
         ShapedRecipeBuilder.shaped(Blocks.CAULDRON)
             .define('#', Items.IRON_INGOT)
             .pattern("# #")
@@ -1633,6 +1640,12 @@ public class RecipeProvider implements DataProvider {
             .pattern("#R#")
             .unlockedBy("has_redstone", has(Items.REDSTONE))
             .save(param0);
+        ShapedRecipeBuilder.shaped(Blocks.POLISHED_BASALT, 4)
+            .define('S', Blocks.BASALT)
+            .pattern("SS")
+            .pattern("SS")
+            .unlockedBy("has_basalt", has(Blocks.BASALT))
+            .save(param0);
         ShapedRecipeBuilder.shaped(Blocks.POLISHED_GRANITE, 4)
             .define('S', Blocks.GRANITE)
             .pattern("SS")
@@ -2536,6 +2549,14 @@ public class RecipeProvider implements DataProvider {
             .pattern("###")
             .unlockedBy("has_stone", has(Blocks.STONE))
             .save(param0);
+        ShapedRecipeBuilder.shaped(Blocks.LODESTONE)
+            .define('S', Items.CHISELED_STONE_BRICKS)
+            .define('#', Items.NETHERITE_INGOT)
+            .pattern("SSS")
+            .pattern("S#S")
+            .pattern("SSS")
+            .unlockedBy("has_netherite_ingot", has(Items.NETHERITE_INGOT))
+            .save(param0);
         ShapedRecipeBuilder.shaped(Blocks.NETHERITE_BLOCK)
             .define('#', Items.NETHERITE_INGOT)
             .pattern("###")
@@ -2581,7 +2602,9 @@ public class RecipeProvider implements DataProvider {
         SimpleCookingRecipeBuilder.smelting(Ingredient.of(Items.CLAY_BALL), Items.BRICK, 0.3F, 200)
             .unlockedBy("has_clay_ball", has(Items.CLAY_BALL))
             .save(param0);
-        SimpleCookingRecipeBuilder.smelting(Ingredient.of(ItemTags.LOGS), Items.CHARCOAL, 0.15F, 200).unlockedBy("has_log", has(ItemTags.LOGS)).save(param0);
+        SimpleCookingRecipeBuilder.smelting(Ingredient.of(ItemTags.LOGS_THAT_BURN), Items.CHARCOAL, 0.15F, 200)
+            .unlockedBy("has_log", has(ItemTags.LOGS_THAT_BURN))
+            .save(param0);
         SimpleCookingRecipeBuilder.smelting(Ingredient.of(Items.CHORUS_FRUIT), Items.POPPED_CHORUS_FRUIT, 0.1F, 200)
             .unlockedBy("has_chorus_fruit", has(Items.CHORUS_FRUIT))
             .save(param0);
@@ -2779,9 +2802,6 @@ public class RecipeProvider implements DataProvider {
             .save(param0);
         SimpleCookingRecipeBuilder.smelting(Ingredient.of(Blocks.ANCIENT_DEBRIS), Items.NETHERITE_SCRAP, 2.0F, 200)
             .unlockedBy("has_ancient_debris", has(Blocks.ANCIENT_DEBRIS))
-            .save(param0);
-        SimpleCookingRecipeBuilder.smelting(Ingredient.of(Blocks.BASALT), Blocks.POLISHED_BASALT.asItem(), 0.1F, 200)
-            .unlockedBy("has_basalt", has(Blocks.BASALT))
             .save(param0);
         SimpleCookingRecipeBuilder.blasting(Ingredient.of(Blocks.IRON_ORE.asItem()), Items.IRON_INGOT, 0.7F, 100)
             .unlockedBy("has_iron_ore", has(Blocks.IRON_ORE.asItem()))
@@ -3053,6 +3073,9 @@ public class RecipeProvider implements DataProvider {
         SingleItemRecipeBuilder.stonecutting(Ingredient.of(Blocks.POLISHED_ANDESITE), Blocks.POLISHED_ANDESITE_STAIRS)
             .unlocks("has_polished_andesite", has(Blocks.POLISHED_ANDESITE))
             .save(param0, "polished_andesite_stairs_from_polished_andesite_stonecutting");
+        SingleItemRecipeBuilder.stonecutting(Ingredient.of(Blocks.BASALT), Blocks.POLISHED_BASALT)
+            .unlocks("has_basalt", has(Blocks.BASALT))
+            .save(param0, "polished_basalt_from_basalt_stonecutting");
         SingleItemRecipeBuilder.stonecutting(Ingredient.of(Blocks.GRANITE), Blocks.GRANITE_SLAB, 2)
             .unlocks("has_granite", has(Blocks.GRANITE))
             .save(param0, "granite_slab_from_granite_stonecutting");

@@ -101,7 +101,7 @@ public class IglooPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
             StructurePlaceSettings var0 = new StructurePlaceSettings()
                 .setRotation(this.rotation)
                 .setMirror(Mirror.NONE)
@@ -112,7 +112,7 @@ public class IglooPieces {
             int var3 = param0.getHeight(Heightmap.Types.WORLD_SURFACE_WG, var2.getX(), var2.getZ());
             BlockPos var4 = this.templatePosition;
             this.templatePosition = this.templatePosition.offset(0, var3 - 90 - 1, 0);
-            boolean var5 = super.postProcess(param0, param1, param2, param3, param4);
+            boolean var5 = super.postProcess(param0, param1, param2, param3, param4, param5);
             if (this.templateLocation.equals(IglooPieces.STRUCTURE_LOCATION_IGLOO)) {
                 BlockPos var6 = this.templatePosition.offset(StructureTemplate.calculateRelativePosition(var0, new BlockPos(3, 0, 5)));
                 BlockState var7 = param0.getBlockState(var6.below());

@@ -306,14 +306,14 @@ public class PistonMovingBlockEntity extends BlockEntity implements TickableBloc
     }
 
     @Override
-    public void load(CompoundTag param0) {
-        super.load(param0);
-        this.movedState = NbtUtils.readBlockState(param0.getCompound("blockState"));
-        this.direction = Direction.from3DDataValue(param0.getInt("facing"));
-        this.progress = param0.getFloat("progress");
+    public void load(BlockState param0, CompoundTag param1) {
+        super.load(param0, param1);
+        this.movedState = NbtUtils.readBlockState(param1.getCompound("blockState"));
+        this.direction = Direction.from3DDataValue(param1.getInt("facing"));
+        this.progress = param1.getFloat("progress");
         this.progressO = this.progress;
-        this.extending = param0.getBoolean("extending");
-        this.isSourcePiston = param0.getBoolean("source");
+        this.extending = param1.getBoolean("extending");
+        this.isSourcePiston = param1.getBoolean("source");
     }
 
     @Override

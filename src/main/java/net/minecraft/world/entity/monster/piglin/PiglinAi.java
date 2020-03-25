@@ -543,6 +543,10 @@ public class PiglinAi {
         return param0.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLINS).orElse(ImmutableList.of());
     }
 
+    private static List<Piglin> getAdultPiglins(Piglin param0) {
+        return param0.getBrain().getMemory(MemoryModuleType.NEAREST_ADULT_PIGLINS).orElse(ImmutableList.of());
+    }
+
     public static boolean isWearingGold(LivingEntity param0) {
         for(ItemStack var1 : param0.getArmorSlots()) {
             Item var2 = var1.getItem();
@@ -567,7 +571,7 @@ public class PiglinAi {
     }
 
     protected static void broadcastAngerTarget(Piglin param0, LivingEntity param1) {
-        getVisibleAdultPiglins(param0).forEach(param1x -> setAngerTargetIfCloserThanCurrent(param1x, param1));
+        getAdultPiglins(param0).forEach(param1x -> setAngerTargetIfCloserThanCurrent(param1x, param1));
     }
 
     protected static void broadcastDontKillAnyMoreHoglinsForAWhile(Piglin param0) {

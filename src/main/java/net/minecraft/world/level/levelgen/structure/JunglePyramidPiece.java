@@ -1,6 +1,7 @@
 package net.minecraft.world.level.levelgen.structure;
 
 import java.util.Random;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.ChunkPos;
@@ -51,7 +52,7 @@ public class JunglePyramidPiece extends ScatteredFeaturePiece {
     }
 
     @Override
-    public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+    public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
         if (!this.updateAverageGroundHeight(param0, param3, 0)) {
             return false;
         } else {

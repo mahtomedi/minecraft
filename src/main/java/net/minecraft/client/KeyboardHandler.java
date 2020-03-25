@@ -257,8 +257,7 @@ public class KeyboardHandler {
     private void copyCreateEntityCommand(ResourceLocation param0, Vec3 param1, @Nullable CompoundTag param2) {
         String var1;
         if (param2 != null) {
-            param2.remove("UUIDMost");
-            param2.remove("UUIDLeast");
+            param2.remove("UUID");
             param2.remove("Pos");
             param2.remove("Dimension");
             String var0 = param2.getPrettyDisplay().getString();

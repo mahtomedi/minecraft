@@ -1,5 +1,6 @@
 package net.minecraft.world.level.block;
 
+import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -44,6 +45,11 @@ public class KelpBlock extends GrowingPlantHeadBlock implements LiquidBlockConta
     @Override
     public boolean placeLiquid(LevelAccessor param0, BlockPos param1, BlockState param2, FluidState param3) {
         return false;
+    }
+
+    @Override
+    protected int getBlocksToGrowWhenBonemealed(Random param0) {
+        return 1;
     }
 
     @Nullable

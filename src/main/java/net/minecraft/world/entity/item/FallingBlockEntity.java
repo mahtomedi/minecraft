@@ -167,7 +167,7 @@ public class FallingBlockEntity extends Entity {
                                                 }
                                             }
 
-                                            var11.load(var12);
+                                            var11.load(this.blockState, var12);
                                             var11.setChanged();
                                         }
                                     }

@@ -12,6 +12,7 @@ import net.minecraft.server.players.GameProfileCache;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -47,12 +48,12 @@ public class SkullBlockEntity extends BlockEntity implements TickableBlockEntity
     }
 
     @Override
-    public void load(CompoundTag param0) {
-        super.load(param0);
-        if (param0.contains("SkullOwner", 10)) {
-            this.setOwner(NbtUtils.readGameProfile(param0.getCompound("SkullOwner")));
-        } else if (param0.contains("ExtraType", 8)) {
-            String var0 = param0.getString("ExtraType");
+    public void load(BlockState param0, CompoundTag param1) {
+        super.load(param0, param1);
+        if (param1.contains("SkullOwner", 10)) {
+            this.setOwner(NbtUtils.readGameProfile(param1.getCompound("SkullOwner")));
+        } else if (param1.contains("ExtraType", 8)) {
+            String var0 = param1.getString("ExtraType");
             if (!StringUtil.isNullOrEmpty(var0)) {
                 this.setOwner(new GameProfile(null, var0));
             }

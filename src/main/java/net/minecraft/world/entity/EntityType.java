@@ -88,6 +88,7 @@ import net.minecraft.world.entity.monster.Skeleton;
 import net.minecraft.world.entity.monster.Slime;
 import net.minecraft.world.entity.monster.Spider;
 import net.minecraft.world.entity.monster.Stray;
+import net.minecraft.world.entity.monster.Strider;
 import net.minecraft.world.entity.monster.Vex;
 import net.minecraft.world.entity.monster.Vindicator;
 import net.minecraft.world.entity.monster.Witch;
@@ -366,6 +367,9 @@ public class EntityType<T extends Entity> {
     public static final EntityType<Ravager> RAVAGER = register("ravager", EntityType.Builder.<Ravager>of(Ravager::new, MobCategory.MONSTER).sized(1.95F, 2.2F));
     public static final EntityType<Hoglin> HOGLIN = register("hoglin", EntityType.Builder.<Hoglin>of(Hoglin::new, MobCategory.MONSTER).sized(1.3964844F, 1.4F));
     public static final EntityType<Piglin> PIGLIN = register("piglin", EntityType.Builder.<Piglin>of(Piglin::new, MobCategory.MONSTER).sized(0.6F, 1.95F));
+    public static final EntityType<Strider> STRIDER = register(
+        "strider", EntityType.Builder.<Strider>of(Strider::new, MobCategory.CREATURE).fireImmune().sized(0.9F, 1.7F)
+    );
     public static final EntityType<LightningBolt> LIGHTNING_BOLT = register(
         "lightning_bolt", EntityType.Builder.<LightningBolt>createNothing(MobCategory.MISC).noSave().sized(0.0F, 0.0F)
     );

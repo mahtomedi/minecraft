@@ -22,24 +22,25 @@ public class JigsawReplacementProcessor extends StructureProcessor {
     public StructureTemplate.StructureBlockInfo processBlock(
         LevelReader param0,
         BlockPos param1,
-        StructureTemplate.StructureBlockInfo param2,
+        BlockPos param2,
         StructureTemplate.StructureBlockInfo param3,
-        StructurePlaceSettings param4
+        StructureTemplate.StructureBlockInfo param4,
+        StructurePlaceSettings param5
     ) {
-        Block var0 = param3.state.getBlock();
+        Block var0 = param4.state.getBlock();
         if (var0 != Blocks.JIGSAW) {
-            return param3;
+            return param4;
         } else {
-            String var1 = param3.nbt.getString("final_state");
+            String var1 = param4.nbt.getString("final_state");
             BlockStateParser var2 = new BlockStateParser(new StringReader(var1), false);
 
             try {
                 var2.parse(true);
-            } catch (CommandSyntaxException var10) {
-                throw new RuntimeException(var10);
+            } catch (CommandSyntaxException var11) {
+                throw new RuntimeException(var11);
             }
 
-            return var2.getState().getBlock() == Blocks.STRUCTURE_VOID ? null : new StructureTemplate.StructureBlockInfo(param3.pos, var2.getState(), null);
+            return var2.getState().getBlock() == Blocks.STRUCTURE_VOID ? null : new StructureTemplate.StructureBlockInfo(param4.pos, var2.getState(), null);
         }
     }
 

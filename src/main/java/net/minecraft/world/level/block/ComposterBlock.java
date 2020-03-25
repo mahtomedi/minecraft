@@ -41,7 +41,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class ComposterBlock extends Block implements WorldlyContainerHolder {
     public static final IntegerProperty LEVEL = BlockStateProperties.LEVEL_COMPOSTER;
     public static final Object2FloatMap<ItemLike> COMPOSTABLES = new Object2FloatOpenHashMap<>();
-    public static final VoxelShape OUTER_SHAPE = Shapes.block();
+    private static final VoxelShape OUTER_SHAPE = Shapes.block();
     private static final VoxelShape[] SHAPES = Util.make(new VoxelShape[9], param0 -> {
         for(int var0 = 0; var0 < 8; ++var0) {
             param0[var0] = Shapes.join(OUTER_SHAPE, Block.box(2.0, (double)Math.max(2, 1 + var0 * 2), 2.0, 14.0, 16.0, 14.0), BooleanOp.ONLY_FIRST);
@@ -200,8 +200,8 @@ public class ComposterBlock extends Block implements WorldlyContainerHolder {
         ItemStack var1 = param3.getItemInHand(param4);
         if (var0 < 8 && COMPOSTABLES.containsKey(var1.getItem())) {
             if (var0 < 7 && !param1.isClientSide) {
-                boolean var2 = addItem(param0, param1, param2, var1);
-                param1.levelEvent(1500, param2, var2 ? 1 : 0);
+                BlockState var2 = addItem(param0, param1, param2, var1);
+                param1.levelEvent(1500, param2, param0 != var2 ? 1 : 0);
                 if (!param3.abilities.instabuild) {
                     var1.shrink(1);
                 }
@@ -209,43 +209,63 @@ public class ComposterBlock extends Block implements WorldlyContainerHolder {
 
             return InteractionResult.SUCCESS;
         } else if (var0 == 8) {
-            if (!param1.isClientSide) {
-                float var3 = 0.7F;
-                double var4 = (double)(param1.random.nextFloat() * 0.7F) + 0.15F;
-                double var5 = (double)(param1.random.nextFloat() * 0.7F) + 0.060000002F + 0.6;
-                double var6 = (double)(param1.random.nextFloat() * 0.7F) + 0.15F;
-                ItemEntity var7 = new ItemEntity(
-                    param1, (double)param2.getX() + var4, (double)param2.getY() + var5, (double)param2.getZ() + var6, new ItemStack(Items.BONE_MEAL)
-                );
-                var7.setDefaultPickUpDelay();
-                param1.addFreshEntity(var7);
-            }
-
-            empty(param0, param1, param2);
-            param1.playSound(null, param2, SoundEvents.COMPOSTER_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
+            extractProduce(param0, param1, param2);
             return InteractionResult.SUCCESS;
         } else {
             return InteractionResult.PASS;
         }
     }
 
-    private static void empty(BlockState param0, LevelAccessor param1, BlockPos param2) {
-        param1.setBlock(param2, param0.setValue(LEVEL, Integer.valueOf(0)), 3);
+    public static BlockState insertItem(BlockState param0, ServerLevel param1, ItemStack param2, BlockPos param3) {
+        int var0 = param0.getValue(LEVEL);
+        if (var0 < 7 && COMPOSTABLES.containsKey(param2.getItem())) {
+            BlockState var1 = addItem(param0, param1, param3, param2);
+            param2.shrink(1);
+            param1.levelEvent(1500, param3, param0 != var1 ? 1 : 0);
+            return var1;
+        } else {
+            return param0;
+        }
     }
 
-    private static boolean addItem(BlockState param0, LevelAccessor param1, BlockPos param2, ItemStack param3) {
+    public static BlockState extractProduce(BlockState param0, Level param1, BlockPos param2) {
+        if (!param1.isClientSide) {
+            float var0 = 0.7F;
+            double var1 = (double)(param1.random.nextFloat() * 0.7F) + 0.15F;
+            double var2 = (double)(param1.random.nextFloat() * 0.7F) + 0.060000002F + 0.6;
+            double var3 = (double)(param1.random.nextFloat() * 0.7F) + 0.15F;
+            ItemEntity var4 = new ItemEntity(
+                param1, (double)param2.getX() + var1, (double)param2.getY() + var2, (double)param2.getZ() + var3, new ItemStack(Items.BONE_MEAL)
+            );
+            var4.setDefaultPickUpDelay();
+            param1.addFreshEntity(var4);
+        }
+
+        BlockState var5 = empty(param0, param1, param2);
+        param1.playSound(null, param2, SoundEvents.COMPOSTER_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
+        return var5;
+    }
+
+    private static BlockState empty(BlockState param0, LevelAccessor param1, BlockPos param2) {
+        BlockState var0 = param0.setValue(LEVEL, Integer.valueOf(0));
+        param1.setBlock(param2, var0, 3);
+        return var0;
+    }
+
+    private static BlockState addItem(BlockState param0, LevelAccessor param1, BlockPos param2, ItemStack param3) {
         int var0 = param0.getValue(LEVEL);
         float var1 = COMPOSTABLES.getFloat(param3.getItem());
         if ((var0 != 0 || !(var1 > 0.0F)) && !(param1.getRandom().nextDouble() < (double)var1)) {
-            return false;
+            return param0;
         } else {
             int var2 = var0 + 1;
-            param1.setBlock(param2, param0.setValue(LEVEL, Integer.valueOf(var2)), 3);
+            BlockState var3 = param0.setValue(LEVEL, Integer.valueOf(var2));
+            param1.setBlock(param2, var3, 3);
             if (var2 == 7) {
                 param1.getBlockTicks().scheduleTick(param2, param0.getBlock(), 20);
             }
 
-            return true;
+            return var3;
         }
     }
 
@@ -347,7 +367,8 @@ public class ComposterBlock extends Block implements WorldlyContainerHolder {
             ItemStack var0 = this.getItem(0);
             if (!var0.isEmpty()) {
                 this.changed = true;
-                this.level.levelEvent(1500, this.pos, ComposterBlock.addItem(this.state, this.level, this.pos, var0) ? 1 : 0);
+                BlockState var1 = ComposterBlock.addItem(this.state, this.level, this.pos, var0);
+                this.level.levelEvent(1500, this.pos, var1 != this.state ? 1 : 0);
                 this.removeItemNoUpdate(0);
             }
 

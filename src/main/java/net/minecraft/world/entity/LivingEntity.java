@@ -1827,7 +1827,7 @@ public abstract class LivingEntity extends Entity {
 
     private void dismountVehicle(Entity param0) {
         Vec3 var1;
-        if (!this.removed && !this.level.getBlockState(param0.blockPosition()).getBlock().is(BlockTags.PORTALS)) {
+        if (!param0.removed && !this.level.getBlockState(param0.blockPosition()).getBlock().is(BlockTags.PORTALS)) {
             var1 = param0.getDismountLocationForPassenger(this);
         } else {
             var1 = new Vec3(param0.getX(), param0.getY() + (double)param0.getBbHeight(), param0.getZ());
@@ -1873,6 +1873,10 @@ public abstract class LivingEntity extends Entity {
 
     protected float getWaterSlowDown() {
         return 0.8F;
+    }
+
+    public boolean canFloatInLava() {
+        return false;
     }
 
     public void travel(Vec3 param0) {
@@ -1933,14 +1937,7 @@ public abstract class LivingEntity extends Entity {
                         BlockPos var25 = this.getBlockPosBelowThatAffectsMyMovement();
                         float var26 = this.level.getBlockState(var25).getBlock().getFriction();
                         float var27 = this.onGround ? var26 * 0.91F : 0.91F;
-                        this.moveRelative(this.getFrictionInfluencedSpeed(var26), param0);
-                        this.setDeltaMovement(this.handleOnClimbable(this.getDeltaMovement()));
-                        this.move(MoverType.SELF, this.getDeltaMovement());
-                        Vec3 var28 = this.getDeltaMovement();
-                        if ((this.horizontalCollision || this.jumping) && this.onClimbable()) {
-                            var28 = new Vec3(var28.x, 0.2, var28.z);
-                        }
-
+                        Vec3 var28 = this.handleRelativeFrictionAndCalculateMovement(param0, var26);
                         double var29 = var28.y;
                         if (this.hasEffect(MobEffects.LEVITATION)) {
                             var29 += (0.05 * (double)(this.getEffect(MobEffects.LEVITATION).getAmplifier() + 1) - var28.y) * 0.2;
@@ -1956,6 +1953,16 @@ public abstract class LivingEntity extends Entity {
                         }
 
                         this.setDeltaMovement(var28.x * (double)var27, var29 * 0.98F, var28.z * (double)var27);
+                    }
+                } else if (this.canFloatInLava()) {
+                    float var8 = 0.6F;
+                    float var9 = 0.54600006F;
+                    Vec3 var10 = this.handleRelativeFrictionAndCalculateMovement(param0, 0.54600006F);
+                    var10 = var10.multiply(1.0, 0.8F, 1.0);
+                    var10 = this.getFluidFallingAdjustedMovement(var0, var1, var10);
+                    this.setDeltaMovement(var10.x * 0.54600006F, var10.y, var10.z * 0.54600006F);
+                    if (this.horizontalCollision && this.isFree(var10.x, var10.y + 0.6F - this.getY() + this.yo, var10.z)) {
+                        this.setDeltaMovement(var10.x, 0.3F, var10.z);
                     }
                 } else {
                     double var11 = this.getY();
@@ -2001,21 +2008,10 @@ public abstract class LivingEntity extends Entity {
                 }
 
                 this.setDeltaMovement(var6.multiply((double)var3, 0.8F, (double)var3));
-                if (!this.isNoGravity() && !this.isSprinting()) {
-                    Vec3 var7 = this.getDeltaMovement();
-                    double var8;
-                    if (var1 && Math.abs(var7.y - 0.005) >= 0.003 && Math.abs(var7.y - var0 / 16.0) < 0.003) {
-                        var8 = -0.003;
-                    } else {
-                        var8 = var7.y - var0 / 16.0;
-                    }
-
-                    this.setDeltaMovement(var7.x, var8, var7.z);
-                }
-
-                Vec3 var10 = this.getDeltaMovement();
-                if (this.horizontalCollision && this.isFree(var10.x, var10.y + 0.6F - this.getY() + var2, var10.z)) {
-                    this.setDeltaMovement(var10.x, 0.3F, var10.z);
+                Vec3 var7 = this.getFluidFallingAdjustedMovement(var0, var1, this.getDeltaMovement());
+                this.setDeltaMovement(var7);
+                if (this.horizontalCollision && this.isFree(var7.x, var7.y + 0.6F - this.getY() + var2, var7.z)) {
+                    this.setDeltaMovement(var7.x, 0.3F, var7.z);
                 }
             }
         }
@@ -2031,6 +2027,33 @@ public abstract class LivingEntity extends Entity {
 
         this.animationSpeed += (var33 - this.animationSpeed) * 0.4F;
         this.animationPosition += this.animationSpeed;
+    }
+
+    public Vec3 handleRelativeFrictionAndCalculateMovement(Vec3 param0, float param1) {
+        this.moveRelative(this.getFrictionInfluencedSpeed(param1), param0);
+        this.setDeltaMovement(this.handleOnClimbable(this.getDeltaMovement()));
+        this.move(MoverType.SELF, this.getDeltaMovement());
+        Vec3 var0 = this.getDeltaMovement();
+        if ((this.horizontalCollision || this.jumping) && this.onClimbable()) {
+            var0 = new Vec3(var0.x, 0.2, var0.z);
+        }
+
+        return var0;
+    }
+
+    public Vec3 getFluidFallingAdjustedMovement(double param0, boolean param1, Vec3 param2) {
+        if (!this.isNoGravity() && !this.isSprinting()) {
+            double var0;
+            if (param1 && Math.abs(param2.y - 0.005) >= 0.003 && Math.abs(param2.y - param0 / 16.0) < 0.003) {
+                var0 = -0.003;
+            } else {
+                var0 = param2.y - param0 / 16.0;
+            }
+
+            return new Vec3(param2.x, var0, param2.z);
+        } else {
+            return param2;
+        }
     }
 
     private Vec3 handleOnClimbable(Vec3 param0) {
@@ -2577,6 +2600,7 @@ public abstract class LivingEntity extends Entity {
     private void updatingUsingItem() {
         if (this.isUsingItem()) {
             if (ItemStack.isSameIgnoreDurability(this.getItemInHand(this.getUsedItemHand()), this.useItem)) {
+                this.useItem = this.getItemInHand(this.getUsedItemHand());
                 this.useItem.onUseTick(this.level, this, this.getUseItemRemainingTicks());
                 if (this.shouldTriggerItemUseEffects()) {
                     this.triggerItemUseEffects(this.useItem, 5);

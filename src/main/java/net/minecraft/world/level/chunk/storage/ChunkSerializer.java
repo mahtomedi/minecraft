@@ -315,7 +315,7 @@ public class ChunkSerializer {
         if (var26 instanceof ProtoTickList) {
             var2.put("ToBeTicked", ((ProtoTickList)var26).save());
         } else if (var26 instanceof ChunkTickList) {
-            var2.put("TileTicks", ((ChunkTickList)var26).save(param0.getGameTime()));
+            var2.put("TileTicks", ((ChunkTickList)var26).save());
         } else {
             var2.put("TileTicks", param0.getBlockTicks().save(var0));
         }
@@ -324,7 +324,7 @@ public class ChunkSerializer {
         if (var27 instanceof ProtoTickList) {
             var2.put("LiquidsToBeTicked", ((ProtoTickList)var27).save());
         } else if (var27 instanceof ChunkTickList) {
-            var2.put("LiquidTicks", ((ChunkTickList)var27).save(param0.getGameTime()));
+            var2.put("LiquidTicks", ((ChunkTickList)var27).save());
         } else {
             var2.put("LiquidTicks", param0.getLiquidTicks().save(var0));
         }
@@ -375,9 +375,10 @@ public class ChunkSerializer {
             if (var7) {
                 param1.setBlockEntityNbt(var6);
             } else {
-                BlockEntity var8 = BlockEntity.loadStatic(var6);
-                if (var8 != null) {
-                    param1.addBlockEntity(var8);
+                BlockPos var8 = new BlockPos(var6.getInt("x"), var6.getInt("y"), var6.getInt("z"));
+                BlockEntity var9 = BlockEntity.loadStatic(param1.getBlockState(var8), var6);
+                if (var9 != null) {
+                    param1.addBlockEntity(var9);
                 }
             }
         }

@@ -24,12 +24,13 @@ public class BlockRotProcessor extends StructureProcessor {
     public StructureTemplate.StructureBlockInfo processBlock(
         LevelReader param0,
         BlockPos param1,
-        StructureTemplate.StructureBlockInfo param2,
+        BlockPos param2,
         StructureTemplate.StructureBlockInfo param3,
-        StructurePlaceSettings param4
+        StructureTemplate.StructureBlockInfo param4,
+        StructurePlaceSettings param5
     ) {
-        Random var0 = param4.getRandom(param3.pos);
-        return !(this.integrity >= 1.0F) && !(var0.nextFloat() <= this.integrity) ? null : param3;
+        Random var0 = param5.getRandom(param4.pos);
+        return !(this.integrity >= 1.0F) && !(var0.nextFloat() <= this.integrity) ? null : param4;
     }
 
     @Override

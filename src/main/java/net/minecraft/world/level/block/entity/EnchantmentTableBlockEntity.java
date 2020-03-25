@@ -8,6 +8,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Nameable;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class EnchantmentTableBlockEntity extends BlockEntity implements Nameable, TickableBlockEntity {
     public int time;
@@ -38,10 +39,10 @@ public class EnchantmentTableBlockEntity extends BlockEntity implements Nameable
     }
 
     @Override
-    public void load(CompoundTag param0) {
-        super.load(param0);
-        if (param0.contains("CustomName", 8)) {
-            this.name = Component.Serializer.fromJson(param0.getString("CustomName"));
+    public void load(BlockState param0, CompoundTag param1) {
+        super.load(param0, param1);
+        if (param1.contains("CustomName", 8)) {
+            this.name = Component.Serializer.fromJson(param1.getString("CustomName"));
         }
 
     }

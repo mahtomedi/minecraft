@@ -65,9 +65,6 @@ public interface LevelAccessor extends EntityGetter, LevelReader, LevelSimulated
     default void blockUpdated(BlockPos param0, Block param1) {
     }
 
-    @OnlyIn(Dist.CLIENT)
-    BlockPos getSharedSpawnPos();
-
     void playSound(@Nullable Player var1, BlockPos var2, SoundEvent var3, SoundSource var4, float var5, float var6);
 
     void addParticle(ParticleOptions var1, double var2, double var4, double var6, double var8, double var10, double var12);

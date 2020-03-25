@@ -41,14 +41,14 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
     }
 
     @Override
-    public void load(CompoundTag param0) {
-        super.load(param0);
+    public void load(BlockState param0, CompoundTag param1) {
+        super.load(param0, param1);
         this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
-        if (!this.tryLoadLootTable(param0)) {
-            ContainerHelper.loadAllItems(param0, this.items);
+        if (!this.tryLoadLootTable(param1)) {
+            ContainerHelper.loadAllItems(param1, this.items);
         }
 
-        this.cooldownTime = param0.getInt("TransferCooldown");
+        this.cooldownTime = param1.getInt("TransferCooldown");
     }
 
     @Override

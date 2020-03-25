@@ -6,7 +6,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.tuple.Triple;
 
-@OnlyIn(Dist.CLIENT)
 public final class Matrix3f {
     private static final float G = 3.0F + 2.0F * (float)Math.sqrt(2.0);
     private static final float CS = (float)Math.cos(Math.PI / 8);
@@ -50,6 +49,7 @@ public final class Matrix3f {
         this.m12 = 2.0F * (var8 - var10);
     }
 
+    @OnlyIn(Dist.CLIENT)
     public static Matrix3f createScaleMatrix(float param0, float param1, float param2) {
         Matrix3f var0 = new Matrix3f();
         var0.m00 = param0;
@@ -82,6 +82,7 @@ public final class Matrix3f {
         this.m22 = param0.m22;
     }
 
+    @OnlyIn(Dist.CLIENT)
     private static Pair<Float, Float> approxGivensQuat(float param0, float param1, float param2) {
         float var0 = 2.0F * (param0 - param2);
         if (G * param1 * param1 < var0 * var0) {
@@ -92,6 +93,7 @@ public final class Matrix3f {
         }
     }
 
+    @OnlyIn(Dist.CLIENT)
     private static Pair<Float, Float> qrGivensQuat(float param0, float param1) {
         float var0 = (float)Math.hypot((double)param0, (double)param1);
         float var1 = var0 > 1.0E-6F ? param1 : 0.0F;
@@ -108,6 +110,7 @@ public final class Matrix3f {
         return Pair.of(var1, var2);
     }
 
+    @OnlyIn(Dist.CLIENT)
     private static Quaternion stepJacobi(Matrix3f param0) {
         Matrix3f var0 = new Matrix3f();
         Quaternion var1 = Quaternion.ONE.copy();
@@ -177,6 +180,7 @@ public final class Matrix3f {
         return var1;
     }
 
+    @OnlyIn(Dist.CLIENT)
     public void transpose() {
         float var0 = this.m01;
         this.m01 = this.m10;
@@ -189,6 +193,7 @@ public final class Matrix3f {
         this.m21 = var0;
     }
 
+    @OnlyIn(Dist.CLIENT)
     public Triple<Quaternion, Vector3f, Quaternion> svdDecompose() {
         Quaternion var0 = Quaternion.ONE.copy();
         Quaternion var1 = Quaternion.ONE.copy();
@@ -294,6 +299,7 @@ public final class Matrix3f {
         return 31 * var0 + (this.m22 != 0.0F ? Float.floatToIntBits(this.m22) : 0);
     }
 
+    @OnlyIn(Dist.CLIENT)
     public void load(Matrix3f param0) {
         this.m00 = param0.m00;
         this.m01 = param0.m01;
@@ -331,6 +337,7 @@ public final class Matrix3f {
         return var0.toString();
     }
 
+    @OnlyIn(Dist.CLIENT)
     public void setIdentity() {
         this.m00 = 1.0F;
         this.m01 = 0.0F;
@@ -343,6 +350,7 @@ public final class Matrix3f {
         this.m22 = 1.0F;
     }
 
+    @OnlyIn(Dist.CLIENT)
     public float adjugateAndDet() {
         float var0 = this.m11 * this.m22 - this.m12 * this.m21;
         float var1 = -(this.m10 * this.m22 - this.m12 * this.m20);
@@ -366,6 +374,7 @@ public final class Matrix3f {
         return var9;
     }
 
+    @OnlyIn(Dist.CLIENT)
     public boolean invert() {
         float var0 = this.adjugateAndDet();
         if (Math.abs(var0) > 1.0E-6F) {
@@ -374,6 +383,33 @@ public final class Matrix3f {
         } else {
             return false;
         }
+    }
+
+    public void set(int param0, int param1, float param2) {
+        if (param0 == 0) {
+            if (param1 == 0) {
+                this.m00 = param2;
+            } else if (param1 == 1) {
+                this.m01 = param2;
+            } else {
+                this.m02 = param2;
+            }
+        } else if (param0 == 1) {
+            if (param1 == 0) {
+                this.m10 = param2;
+            } else if (param1 == 1) {
+                this.m11 = param2;
+            } else {
+                this.m12 = param2;
+            }
+        } else if (param1 == 0) {
+            this.m20 = param2;
+        } else if (param1 == 1) {
+            this.m21 = param2;
+        } else {
+            this.m22 = param2;
+        }
+
     }
 
     public void mul(Matrix3f param0) {
@@ -397,10 +433,12 @@ public final class Matrix3f {
         this.m22 = var8;
     }
 
+    @OnlyIn(Dist.CLIENT)
     public void mul(Quaternion param0) {
         this.mul(new Matrix3f(param0));
     }
 
+    @OnlyIn(Dist.CLIENT)
     public void mul(float param0) {
         this.m00 *= param0;
         this.m01 *= param0;
@@ -413,6 +451,7 @@ public final class Matrix3f {
         this.m22 *= param0;
     }
 
+    @OnlyIn(Dist.CLIENT)
     public Matrix3f copy() {
         return new Matrix3f(this);
     }

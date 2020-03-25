@@ -740,27 +740,28 @@ public class LevelChunk implements ChunkAccess {
 
     @Nullable
     private BlockEntity promotePendingBlockEntity(BlockPos param0, CompoundTag param1) {
-        BlockEntity var1;
+        BlockState var0 = this.getBlockState(param0);
+        BlockEntity var2;
         if ("DUMMY".equals(param1.getString("id"))) {
-            Block var0 = this.getBlockState(param0).getBlock();
-            if (var0 instanceof EntityBlock) {
-                var1 = ((EntityBlock)var0).newBlockEntity(this.level);
+            Block var1 = var0.getBlock();
+            if (var1 instanceof EntityBlock) {
+                var2 = ((EntityBlock)var1).newBlockEntity(this.level);
             } else {
-                var1 = null;
-                LOGGER.warn("Tried to load a DUMMY block entity @ {} but found not block entity block {} at location", param0, this.getBlockState(param0));
+                var2 = null;
+                LOGGER.warn("Tried to load a DUMMY block entity @ {} but found not block entity block {} at location", param0, var0);
             }
         } else {
-            var1 = BlockEntity.loadStatic(param1);
+            var2 = BlockEntity.loadStatic(var0, param1);
         }
 
-        if (var1 != null) {
-            var1.setLevelAndPosition(this.level, param0);
-            this.addBlockEntity(var1);
+        if (var2 != null) {
+            var2.setLevelAndPosition(this.level, param0);
+            this.addBlockEntity(var2);
         } else {
-            LOGGER.warn("Tried to load a block entity for block {} but failed at location {}", this.getBlockState(param0), param0);
+            LOGGER.warn("Tried to load a block entity for block {} but failed at location {}", var0, param0);
         }
 
-        return var1;
+        return var2;
     }
 
     @Override
@@ -778,7 +779,7 @@ public class LevelChunk implements ChunkAccess {
             ((ProtoTickList)this.blockTicks).copyOut(this.level.getBlockTicks(), param0 -> this.getBlockState(param0).getBlock());
             this.blockTicks = EmptyTickList.empty();
         } else if (this.blockTicks instanceof ChunkTickList) {
-            this.level.getBlockTicks().addAll(((ChunkTickList)this.blockTicks).ticks());
+            ((ChunkTickList)this.blockTicks).copyOut(this.level.getBlockTicks());
             this.blockTicks = EmptyTickList.empty();
         }
 
@@ -786,7 +787,7 @@ public class LevelChunk implements ChunkAccess {
             ((ProtoTickList)this.liquidTicks).copyOut(this.level.getLiquidTicks(), param0 -> this.getFluidState(param0).getType());
             this.liquidTicks = EmptyTickList.empty();
         } else if (this.liquidTicks instanceof ChunkTickList) {
-            this.level.getLiquidTicks().addAll(((ChunkTickList)this.liquidTicks).ticks());
+            ((ChunkTickList)this.liquidTicks).copyOut(this.level.getLiquidTicks());
             this.liquidTicks = EmptyTickList.empty();
         }
 
@@ -794,12 +795,16 @@ public class LevelChunk implements ChunkAccess {
 
     public void packTicks(ServerLevel param0) {
         if (this.blockTicks == EmptyTickList.empty()) {
-            this.blockTicks = new ChunkTickList<>(Registry.BLOCK::getKey, param0.getBlockTicks().fetchTicksInChunk(this.chunkPos, true, false));
+            this.blockTicks = new ChunkTickList<>(
+                Registry.BLOCK::getKey, param0.getBlockTicks().fetchTicksInChunk(this.chunkPos, true, false), param0.getGameTime()
+            );
             this.setUnsaved(true);
         }
 
         if (this.liquidTicks == EmptyTickList.empty()) {
-            this.liquidTicks = new ChunkTickList<>(Registry.FLUID::getKey, param0.getLiquidTicks().fetchTicksInChunk(this.chunkPos, true, false));
+            this.liquidTicks = new ChunkTickList<>(
+                Registry.FLUID::getKey, param0.getLiquidTicks().fetchTicksInChunk(this.chunkPos, true, false), param0.getGameTime()
+            );
             this.setUnsaved(true);
         }
 

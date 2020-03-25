@@ -248,10 +248,10 @@ public class BeehiveBlockEntity extends BlockEntity implements TickableBlockEnti
     }
 
     @Override
-    public void load(CompoundTag param0) {
-        super.load(param0);
+    public void load(BlockState param0, CompoundTag param1) {
+        super.load(param0, param1);
         this.stored.clear();
-        ListTag var0 = param0.getList("Bees", 10);
+        ListTag var0 = param1.getList("Bees", 10);
 
         for(int var1 = 0; var1 < var0.size(); ++var1) {
             CompoundTag var2 = var0.getCompound(var1);
@@ -262,8 +262,8 @@ public class BeehiveBlockEntity extends BlockEntity implements TickableBlockEnti
         }
 
         this.savedFlowerPos = null;
-        if (param0.contains("FlowerPos")) {
-            this.savedFlowerPos = NbtUtils.readBlockPos(param0.getCompound("FlowerPos"));
+        if (param1.contains("FlowerPos")) {
+            this.savedFlowerPos = NbtUtils.readBlockPos(param1.getCompound("FlowerPos"));
         }
 
     }

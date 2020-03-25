@@ -1,10 +1,8 @@
 package net.minecraft.server.level;
 
 import java.util.function.Function;
-import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.TickList;
-import net.minecraft.world.level.TickNextTickData;
 import net.minecraft.world.level.TickPriority;
 
 public class WorldGenTickList<T> implements TickList<T> {
@@ -27,10 +25,5 @@ public class WorldGenTickList<T> implements TickList<T> {
     @Override
     public boolean willTickThisTick(BlockPos param0, T param1) {
         return false;
-    }
-
-    @Override
-    public void addAll(Stream<TickNextTickData<T>> param0) {
-        param0.forEach(param0x -> this.index.apply(param0x.pos).addAll(Stream.of(param0x)));
     }
 }

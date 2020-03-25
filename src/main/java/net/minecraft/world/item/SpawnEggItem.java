@@ -156,17 +156,21 @@ public class SpawnEggItem extends Item {
                 return Optional.empty();
             } else {
                 var0.setBaby(true);
-                var0.moveTo(param3.x(), param3.y(), param3.z(), 0.0F, 0.0F);
-                param2.addFreshEntity(var0);
-                if (param4.hasCustomHoverName()) {
-                    var0.setCustomName(param4.getHoverName());
-                }
+                if (!var0.isBaby()) {
+                    return Optional.empty();
+                } else {
+                    var0.moveTo(param3.x(), param3.y(), param3.z(), 0.0F, 0.0F);
+                    param2.addFreshEntity(var0);
+                    if (param4.hasCustomHoverName()) {
+                        var0.setCustomName(param4.getHoverName());
+                    }
 
-                if (!param0.abilities.instabuild) {
-                    param4.shrink(1);
-                }
+                    if (!param0.abilities.instabuild) {
+                        param4.shrink(1);
+                    }
 
-                return Optional.of(var0);
+                    return Optional.of(var0);
+                }
             }
         }
     }

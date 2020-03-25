@@ -359,10 +359,6 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
             var0.resetUses();
         }
 
-        if (this.getVillagerData().getProfession() == VillagerProfession.FARMER) {
-            this.makeBread();
-        }
-
         this.lastRestockGameTime = this.level.getGameTime();
         ++this.numberOfRestocksToday;
     }
@@ -799,21 +795,6 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
     private int countFoodPointsInInventory() {
         SimpleContainer var0 = this.getInventory();
         return FOOD_POINTS.entrySet().stream().mapToInt(param1 -> var0.countItem(param1.getKey()) * param1.getValue()).sum();
-    }
-
-    private void makeBread() {
-        SimpleContainer var0 = this.getInventory();
-        int var1 = var0.countItem(Items.WHEAT);
-        int var2 = var1 / 3;
-        if (var2 != 0) {
-            int var3 = var2 * 3;
-            var0.removeItemType(Items.WHEAT, var3);
-            ItemStack var4 = var0.addItem(new ItemStack(Items.BREAD, var2));
-            if (!var4.isEmpty()) {
-                this.spawnAtLocation(var4, 0.5F);
-            }
-
-        }
     }
 
     public boolean hasFarmSeeds() {

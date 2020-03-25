@@ -24,7 +24,10 @@ public class SoulParticle extends RisingParticle {
     @Override
     public void tick() {
         super.tick();
-        this.setSpriteFromAge(this.sprites);
+        if (!this.removed) {
+            this.setSpriteFromAge(this.sprites);
+        }
+
     }
 
     @OnlyIn(Dist.CLIENT)

@@ -36,17 +36,25 @@ public class VillagerGoalPackages {
     }
 
     public static ImmutableList<Pair<Integer, ? extends Behavior<? super Villager>>> getWorkPackage(VillagerProfession param0, float param1) {
+        WorkAtPoi var0;
+        if (param0 == VillagerProfession.FARMER) {
+            var0 = new WorkAtComposter();
+        } else {
+            var0 = new WorkAtPoi();
+        }
+
         return ImmutableList.of(
             getMinimalLookBehavior(),
             Pair.of(
                 5,
                 new RunOne<>(
                     ImmutableList.of(
-                        Pair.of(new WorkAtPoi(), 7),
+                        Pair.of(var0, 7),
                         Pair.of(new StrollAroundPoi(MemoryModuleType.JOB_SITE, 4), 2),
                         Pair.of(new StrollToPoi(MemoryModuleType.JOB_SITE, 1, 10), 5),
                         Pair.of(new StrollToPoiList(MemoryModuleType.SECONDARY_JOB_SITE, param1, 1, 6, MemoryModuleType.JOB_SITE), 5),
-                        Pair.of(new HarvestFarmland(), param0 == VillagerProfession.FARMER ? 2 : 5)
+                        Pair.of(new HarvestFarmland(), param0 == VillagerProfession.FARMER ? 2 : 5),
+                        Pair.of(new UseBonemeal(), param0 == VillagerProfession.FARMER ? 4 : 7)
                     )
                 )
             ),

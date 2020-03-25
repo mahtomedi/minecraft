@@ -57,9 +57,13 @@ public class FenceBlock extends CrossCollisionBlock {
 
     public boolean connectsTo(BlockState param0, boolean param1, Direction param2) {
         Block var0 = param0.getBlock();
-        boolean var1 = var0.is(BlockTags.FENCES) && param0.getMaterial() == this.material;
+        boolean var1 = this.isSameFence(var0);
         boolean var2 = var0 instanceof FenceGateBlock && FenceGateBlock.connectsToDirection(param0, param2);
         return !isExceptionForConnection(var0) && param1 || var1 || var2;
+    }
+
+    private boolean isSameFence(Block param0) {
+        return param0.is(BlockTags.FENCES) && param0.is(BlockTags.WOODEN_FENCES) == this.defaultBlockState().is(BlockTags.WOODEN_FENCES);
     }
 
     @Override

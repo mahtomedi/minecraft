@@ -4,7 +4,6 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.mojang.datafixers.DataFixUtils;
-import com.mojang.datafixers.Dynamic;
 import it.unimi.dsi.fastutil.Hash.Strategy;
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +22,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -263,17 +261,6 @@ public class Util {
 
     public static Runnable name(Runnable param0, Supplier<String> param1) {
         return param0;
-    }
-
-    public static Optional<UUID> readUUID(String param0, Dynamic<?> param1) {
-        return param1.get(param0 + "Most")
-            .asNumber()
-            .flatMap(param2 -> param1.get(param0 + "Least").asNumber().map(param1x -> new UUID(param2.longValue(), param1x.longValue())));
-    }
-
-    public static <T> Dynamic<T> writeUUID(String param0, UUID param1, Dynamic<T> param2) {
-        return param2.set(param0 + "Most", param2.createLong(param1.getMostSignificantBits()))
-            .set(param0 + "Least", param2.createLong(param1.getLeastSignificantBits()));
     }
 
     public static <T extends Throwable> T pauseInIde(T param0) {

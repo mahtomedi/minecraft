@@ -13,7 +13,6 @@ import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
@@ -29,7 +28,6 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 public class ServerTickList<T> implements TickList<T> {
     protected final Predicate<T> ignore;
     private final Function<T, ResourceLocation> toId;
-    private final Function<ResourceLocation, T> fromId;
     private final Set<TickNextTickData<T>> tickNextTickSet = Sets.newHashSet();
     private final TreeSet<TickNextTickData<T>> tickNextTickList = Sets.newTreeSet(TickNextTickData.createTimeComparator());
     private final ServerLevel level;
@@ -37,18 +35,11 @@ public class ServerTickList<T> implements TickList<T> {
     private final List<TickNextTickData<T>> alreadyTicked = Lists.newArrayList();
     private final Consumer<TickNextTickData<T>> ticker;
 
-    public ServerTickList(
-        ServerLevel param0,
-        Predicate<T> param1,
-        Function<T, ResourceLocation> param2,
-        Function<ResourceLocation, T> param3,
-        Consumer<TickNextTickData<T>> param4
-    ) {
+    public ServerTickList(ServerLevel param0, Predicate<T> param1, Function<T, ResourceLocation> param2, Consumer<TickNextTickData<T>> param3) {
         this.ignore = param1;
         this.toId = param2;
-        this.fromId = param3;
         this.level = param0;
-        this.ticker = param4;
+        this.ticker = param3;
     }
 
     public void tick() {
@@ -66,7 +57,7 @@ public class ServerTickList<T> implements TickList<T> {
 
             while(var0 > 0 && var2.hasNext()) {
                 TickNextTickData<T> var3 = var2.next();
-                if (var3.delay > this.level.getGameTime()) {
+                if (var3.triggerTick > this.level.getGameTime()) {
                     break;
                 }
 
@@ -106,11 +97,6 @@ public class ServerTickList<T> implements TickList<T> {
     @Override
     public boolean willTickThisTick(BlockPos param0, T param1) {
         return this.currentlyTicking.contains(new TickNextTickData(param0, param1));
-    }
-
-    @Override
-    public void addAll(Stream<TickNextTickData<T>> param0) {
-        param0.forEach(this::addTickData);
     }
 
     public List<TickNextTickData<T>> fetchTicksInChunk(ChunkPos param0, boolean param1, boolean param2) {
@@ -165,7 +151,7 @@ public class ServerTickList<T> implements TickList<T> {
             if (param0.isInside(var1.pos)) {
                 BlockPos var2 = var1.pos.offset(param1);
                 T var3 = var1.getType();
-                this.addTickData(new TickNextTickData<>(var2, var3, var1.delay, var1.priority));
+                this.addTickData(new TickNextTickData<>(var2, var3, var1.triggerTick, var1.priority));
             }
         }
 
@@ -176,7 +162,7 @@ public class ServerTickList<T> implements TickList<T> {
         return saveTickList(this.toId, var0, this.level.getGameTime());
     }
 
-    public static <T> ListTag saveTickList(Function<T, ResourceLocation> param0, Iterable<TickNextTickData<T>> param1, long param2) {
+    private static <T> ListTag saveTickList(Function<T, ResourceLocation> param0, Iterable<TickNextTickData<T>> param1, long param2) {
         ListTag var0 = new ListTag();
 
         for(TickNextTickData<T> var1 : param1) {
@@ -185,7 +171,7 @@ public class ServerTickList<T> implements TickList<T> {
             var2.putInt("x", var1.pos.getX());
             var2.putInt("y", var1.pos.getY());
             var2.putInt("z", var1.pos.getZ());
-            var2.putInt("t", (int)(var1.delay - param2));
+            var2.putInt("t", (int)(var1.triggerTick - param2));
             var2.putInt("p", var1.priority.getValue());
             var0.add(var2);
         }
@@ -206,10 +192,10 @@ public class ServerTickList<T> implements TickList<T> {
 
     }
 
-    private void addTickData(TickNextTickData<T> param0x) {
-        if (!this.tickNextTickSet.contains(param0x)) {
-            this.tickNextTickSet.add(param0x);
-            this.tickNextTickList.add(param0x);
+    private void addTickData(TickNextTickData<T> param0) {
+        if (!this.tickNextTickSet.contains(param0)) {
+            this.tickNextTickSet.add(param0);
+            this.tickNextTickList.add(param0);
         }
 
     }

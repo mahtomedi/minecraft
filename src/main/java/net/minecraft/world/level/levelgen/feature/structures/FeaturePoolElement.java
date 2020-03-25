@@ -8,12 +8,14 @@ import java.util.List;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.FrontAndTop;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.JigsawBlock;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.entity.JigsawBlockEntity;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -29,7 +31,7 @@ public class FeaturePoolElement extends StructurePoolElement {
         this(param0, StructureTemplatePool.Projection.RIGID);
     }
 
-    public FeaturePoolElement(ConfiguredFeature<?, ?> param0, StructureTemplatePool.Projection param1) {
+    private FeaturePoolElement(ConfiguredFeature<?, ?> param0, StructureTemplatePool.Projection param1) {
         super(param1);
         this.feature = param0;
         this.defaultJigsawNBT = this.fillDefaultJigsawNBT();
@@ -41,11 +43,13 @@ public class FeaturePoolElement extends StructurePoolElement {
         this.defaultJigsawNBT = this.fillDefaultJigsawNBT();
     }
 
-    public CompoundTag fillDefaultJigsawNBT() {
+    private CompoundTag fillDefaultJigsawNBT() {
         CompoundTag var0 = new CompoundTag();
-        var0.putString("target_pool", "minecraft:empty");
-        var0.putString("attachement_type", "minecraft:bottom");
+        var0.putString("name", "minecraft:bottom");
         var0.putString("final_state", "minecraft:air");
+        var0.putString("pool", "minecraft:empty");
+        var0.putString("target", "minecraft:empty");
+        var0.putString("joint", JigsawBlockEntity.JointType.ROLLABLE.getSerializedName());
         return var0;
     }
 
@@ -58,7 +62,9 @@ public class FeaturePoolElement extends StructurePoolElement {
         List<StructureTemplate.StructureBlockInfo> var0 = Lists.newArrayList();
         var0.add(
             new StructureTemplate.StructureBlockInfo(
-                param1, Blocks.JIGSAW.defaultBlockState().setValue(JigsawBlock.FACING, Direction.DOWN), this.defaultJigsawNBT
+                param1,
+                Blocks.JIGSAW.defaultBlockState().setValue(JigsawBlock.ORIENTATION, FrontAndTop.fromFrontAndTop(Direction.DOWN, Direction.SOUTH)),
+                this.defaultJigsawNBT
             )
         );
         return var0;
@@ -74,9 +80,16 @@ public class FeaturePoolElement extends StructurePoolElement {
 
     @Override
     public boolean place(
-        StructureManager param0, LevelAccessor param1, ChunkGenerator<?> param2, BlockPos param3, Rotation param4, BoundingBox param5, Random param6
+        StructureManager param0,
+        LevelAccessor param1,
+        ChunkGenerator<?> param2,
+        BlockPos param3,
+        BlockPos param4,
+        Rotation param5,
+        BoundingBox param6,
+        Random param7
     ) {
-        return this.feature.place(param1, param2, param6, param3);
+        return this.feature.place(param1, param2, param7, param3);
     }
 
     @Override

@@ -32,7 +32,14 @@ public class EmptyPoolElement extends StructurePoolElement {
 
     @Override
     public boolean place(
-        StructureManager param0, LevelAccessor param1, ChunkGenerator<?> param2, BlockPos param3, Rotation param4, BoundingBox param5, Random param6
+        StructureManager param0,
+        LevelAccessor param1,
+        ChunkGenerator<?> param2,
+        BlockPos param3,
+        BlockPos param4,
+        Rotation param5,
+        BoundingBox param6,
+        Random param7
     ) {
         return true;
     }

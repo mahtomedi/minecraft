@@ -55,39 +55,51 @@ public class WalkNodeEvaluator extends NodeEvaluator {
             }
 
             --var0;
+        } else if (this.mob.isInLava() && this.mob.canFloatInLava()) {
+            var0 = Mth.floor(this.mob.getY());
+            BlockPos.MutableBlockPos var4 = new BlockPos.MutableBlockPos(this.mob.getX(), (double)var0, this.mob.getZ());
+
+            for(BlockState var5 = this.level.getBlockState(var4);
+                var5.getBlock() == Blocks.LAVA || var5.getFluidState() == Fluids.LAVA.getSource(false);
+                var5 = this.level.getBlockState(var4)
+            ) {
+                var4.set(this.mob.getX(), (double)(++var0), this.mob.getZ());
+            }
+
+            --var0;
         } else if (this.mob.isOnGround()) {
             var0 = Mth.floor(this.mob.getY() + 0.5);
         } else {
-            BlockPos var4 = this.mob.blockPosition();
+            BlockPos var7 = this.mob.blockPosition();
 
             while(
-                (this.level.getBlockState(var4).isAir() || this.level.getBlockState(var4).isPathfindable(this.level, var4, PathComputationType.LAND))
-                    && var4.getY() > 0
+                (this.level.getBlockState(var7).isAir() || this.level.getBlockState(var7).isPathfindable(this.level, var7, PathComputationType.LAND))
+                    && var7.getY() > 0
             ) {
-                var4 = var4.below();
+                var7 = var7.below();
             }
 
-            var0 = var4.above().getY();
+            var0 = var7.above().getY();
         }
 
-        BlockPos var6 = this.mob.blockPosition();
-        BlockPathTypes var7 = this.getBlockPathType(this.mob, var6.getX(), var0, var6.getZ());
-        if (this.mob.getPathfindingMalus(var7) < 0.0F) {
-            Set<BlockPos> var8 = Sets.newHashSet();
-            var8.add(new BlockPos(this.mob.getBoundingBox().minX, (double)var0, this.mob.getBoundingBox().minZ));
-            var8.add(new BlockPos(this.mob.getBoundingBox().minX, (double)var0, this.mob.getBoundingBox().maxZ));
-            var8.add(new BlockPos(this.mob.getBoundingBox().maxX, (double)var0, this.mob.getBoundingBox().minZ));
-            var8.add(new BlockPos(this.mob.getBoundingBox().maxX, (double)var0, this.mob.getBoundingBox().maxZ));
+        BlockPos var9 = this.mob.blockPosition();
+        BlockPathTypes var10 = this.getBlockPathType(this.mob, var9.getX(), var0, var9.getZ());
+        if (this.mob.getPathfindingMalus(var10) < 0.0F) {
+            Set<BlockPos> var11 = Sets.newHashSet();
+            var11.add(new BlockPos(this.mob.getBoundingBox().minX, (double)var0, this.mob.getBoundingBox().minZ));
+            var11.add(new BlockPos(this.mob.getBoundingBox().minX, (double)var0, this.mob.getBoundingBox().maxZ));
+            var11.add(new BlockPos(this.mob.getBoundingBox().maxX, (double)var0, this.mob.getBoundingBox().minZ));
+            var11.add(new BlockPos(this.mob.getBoundingBox().maxX, (double)var0, this.mob.getBoundingBox().maxZ));
 
-            for(BlockPos var9 : var8) {
-                BlockPathTypes var10 = this.getBlockPathType(this.mob, var9);
-                if (this.mob.getPathfindingMalus(var10) >= 0.0F) {
-                    return this.getNode(var9.getX(), var9.getY(), var9.getZ());
+            for(BlockPos var12 : var11) {
+                BlockPathTypes var13 = this.getBlockPathType(this.mob, var12);
+                if (this.mob.getPathfindingMalus(var13) >= 0.0F) {
+                    return this.getNode(var12.getX(), var12.getY(), var12.getZ());
                 }
             }
         }
 
-        return this.getNode(var6.getX(), var0, var6.getZ());
+        return this.getNode(var9.getX(), var0, var9.getZ());
     }
 
     @Override

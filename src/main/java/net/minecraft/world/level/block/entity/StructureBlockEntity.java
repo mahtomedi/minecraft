@@ -77,49 +77,49 @@ public class StructureBlockEntity extends BlockEntity {
     }
 
     @Override
-    public void load(CompoundTag param0) {
-        super.load(param0);
-        this.setStructureName(param0.getString("name"));
-        this.author = param0.getString("author");
-        this.metaData = param0.getString("metadata");
-        int var0 = Mth.clamp(param0.getInt("posX"), -32, 32);
-        int var1 = Mth.clamp(param0.getInt("posY"), -32, 32);
-        int var2 = Mth.clamp(param0.getInt("posZ"), -32, 32);
+    public void load(BlockState param0, CompoundTag param1) {
+        super.load(param0, param1);
+        this.setStructureName(param1.getString("name"));
+        this.author = param1.getString("author");
+        this.metaData = param1.getString("metadata");
+        int var0 = Mth.clamp(param1.getInt("posX"), -32, 32);
+        int var1 = Mth.clamp(param1.getInt("posY"), -32, 32);
+        int var2 = Mth.clamp(param1.getInt("posZ"), -32, 32);
         this.structurePos = new BlockPos(var0, var1, var2);
-        int var3 = Mth.clamp(param0.getInt("sizeX"), 0, 32);
-        int var4 = Mth.clamp(param0.getInt("sizeY"), 0, 32);
-        int var5 = Mth.clamp(param0.getInt("sizeZ"), 0, 32);
+        int var3 = Mth.clamp(param1.getInt("sizeX"), 0, 32);
+        int var4 = Mth.clamp(param1.getInt("sizeY"), 0, 32);
+        int var5 = Mth.clamp(param1.getInt("sizeZ"), 0, 32);
         this.structureSize = new BlockPos(var3, var4, var5);
 
         try {
-            this.rotation = Rotation.valueOf(param0.getString("rotation"));
-        } catch (IllegalArgumentException var11) {
+            this.rotation = Rotation.valueOf(param1.getString("rotation"));
+        } catch (IllegalArgumentException var12) {
             this.rotation = Rotation.NONE;
         }
 
         try {
-            this.mirror = Mirror.valueOf(param0.getString("mirror"));
-        } catch (IllegalArgumentException var10) {
+            this.mirror = Mirror.valueOf(param1.getString("mirror"));
+        } catch (IllegalArgumentException var11) {
             this.mirror = Mirror.NONE;
         }
 
         try {
-            this.mode = StructureMode.valueOf(param0.getString("mode"));
-        } catch (IllegalArgumentException var9) {
+            this.mode = StructureMode.valueOf(param1.getString("mode"));
+        } catch (IllegalArgumentException var10) {
             this.mode = StructureMode.DATA;
         }
 
-        this.ignoreEntities = param0.getBoolean("ignoreEntities");
-        this.powered = param0.getBoolean("powered");
-        this.showAir = param0.getBoolean("showair");
-        this.showBoundingBox = param0.getBoolean("showboundingbox");
-        if (param0.contains("integrity")) {
-            this.integrity = param0.getFloat("integrity");
+        this.ignoreEntities = param1.getBoolean("ignoreEntities");
+        this.powered = param1.getBoolean("powered");
+        this.showAir = param1.getBoolean("showair");
+        this.showBoundingBox = param1.getBoolean("showboundingbox");
+        if (param1.contains("integrity")) {
+            this.integrity = param1.getFloat("integrity");
         } else {
             this.integrity = 1.0F;
         }
 
-        this.seed = param0.getLong("seed");
+        this.seed = param1.getLong("seed");
         this.updateBlockState();
     }
 

@@ -31,11 +31,12 @@ public class BlockIgnoreProcessor extends StructureProcessor {
     public StructureTemplate.StructureBlockInfo processBlock(
         LevelReader param0,
         BlockPos param1,
-        StructureTemplate.StructureBlockInfo param2,
+        BlockPos param2,
         StructureTemplate.StructureBlockInfo param3,
-        StructurePlaceSettings param4
+        StructureTemplate.StructureBlockInfo param4,
+        StructurePlaceSettings param5
     ) {
-        return this.toIgnore.contains(param3.state.getBlock()) ? null : param3;
+        return this.toIgnore.contains(param4.state.getBlock()) ? null : param4;
     }
 
     @Override

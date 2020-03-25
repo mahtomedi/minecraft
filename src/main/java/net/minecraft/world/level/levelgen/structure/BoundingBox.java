@@ -5,8 +5,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.IntArrayTag;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class BoundingBox {
     public int x0;
@@ -164,7 +162,6 @@ public class BoundingBox {
         return this.z1 - this.z0 + 1;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Vec3i getCenter() {
         return new BlockPos(this.x0 + (this.x1 - this.x0 + 1) / 2, this.y0 + (this.y1 - this.y0 + 1) / 2, this.z0 + (this.z1 - this.z0 + 1) / 2);
     }

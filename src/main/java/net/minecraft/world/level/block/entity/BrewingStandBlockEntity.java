@@ -192,12 +192,12 @@ public class BrewingStandBlockEntity extends BaseContainerBlockEntity implements
     }
 
     @Override
-    public void load(CompoundTag param0) {
-        super.load(param0);
+    public void load(BlockState param0, CompoundTag param1) {
+        super.load(param0, param1);
         this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
-        ContainerHelper.loadAllItems(param0, this.items);
-        this.brewTime = param0.getShort("BrewTime");
-        this.fuel = param0.getByte("Fuel");
+        ContainerHelper.loadAllItems(param1, this.items);
+        this.brewTime = param1.getShort("BrewTime");
+        this.fuel = param1.getByte("Fuel");
     }
 
     @Override
