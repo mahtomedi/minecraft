@@ -116,27 +116,27 @@
   "complianceLevel": 0,
   "downloads": {
     "client": {
-      "sha1": "dbabcec822dc4cd7fff60793facab0f346d1b734",
-      "size": 16122767,
-      "url": "https://launcher.mojang.com/v1/objects/dbabcec822dc4cd7fff60793facab0f346d1b734/client.jar"
+      "sha1": "e4f75e82519fe859932d22c9c05b762cd544af11",
+      "size": 16122584,
+      "url": "https://launcher.mojang.com/v1/objects/e4f75e82519fe859932d22c9c05b762cd544af11/client.jar"
     },
     "client_mappings": {
-      "sha1": "aeb8b29220c46a0620dd671c0148c383a6caeea1",
+      "sha1": "025c7fac1d3a510a8548f44ec47fa63dd5e7bef5",
       "size": 5217191,
-      "url": "https://launcher.mojang.com/v1/objects/aeb8b29220c46a0620dd671c0148c383a6caeea1/client.txt"
+      "url": "https://launcher.mojang.com/v1/objects/025c7fac1d3a510a8548f44ec47fa63dd5e7bef5/client.txt"
     },
     "server": {
-      "sha1": "16f18c21286a3f566d3d0431d13aa133bebe6eff",
-      "size": 36603022,
-      "url": "https://launcher.mojang.com/v1/objects/16f18c21286a3f566d3d0431d13aa133bebe6eff/server.jar"
+      "sha1": "0e00cff8df2532a1ae252e773552c2fd6c68de80",
+      "size": 36603016,
+      "url": "https://launcher.mojang.com/v1/objects/0e00cff8df2532a1ae252e773552c2fd6c68de80/server.jar"
     },
     "server_mappings": {
-      "sha1": "56e0a1cac850bcbe64e429619fcfcddb0180acd3",
+      "sha1": "a05fa86bac8bf9722f8d7295ea4997823f3b3c21",
       "size": 4029713,
-      "url": "https://launcher.mojang.com/v1/objects/56e0a1cac850bcbe64e429619fcfcddb0180acd3/server.txt"
+      "url": "https://launcher.mojang.com/v1/objects/a05fa86bac8bf9722f8d7295ea4997823f3b3c21/server.txt"
     }
   },
-  "id": "20w13a",
+  "id": "20w13b",
   "javaVersion": {
     "component": "jre-legacy",
     "majorVersion": 8
@@ -1548,7 +1548,7 @@
   },
   "mainClass": "net.minecraft.client.main.Main",
   "minimumLauncherVersion": 21,
-  "releaseTime": "2020-03-25T17:05:33+00:00",
-  "time": "2020-03-25T17:05:33+00:00",
+  "releaseTime": "2020-03-26T13:00:34+00:00",
+  "time": "2020-03-26T13:00:34+00:00",
   "type": "snapshot"
 }

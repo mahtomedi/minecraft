@@ -63,7 +63,6 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.RespawnAnchorBlock;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.border.BorderChangeListener;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -418,67 +417,67 @@ public abstract class PlayerList {
         param0.getLevel().removePlayerImmediately(param0);
         BlockPos var0 = param0.getRespawnPosition();
         boolean var1 = param0.isRespawnForced();
-        param0.dimension = param0.getRespawnDimension();
-        ServerPlayerGameMode var2;
-        if (this.server.isDemo()) {
-            var2 = new DemoMode(this.server.getLevel(param0.dimension));
-        } else {
-            var2 = new ServerPlayerGameMode(this.server.getLevel(param0.dimension));
-        }
-
-        ServerPlayer var4 = new ServerPlayer(this.server, this.server.getLevel(param0.dimension), param0.getGameProfile(), var2);
-        var4.connection = param0.connection;
-        var4.restoreFrom(param0, param1);
-        var4.setId(param0.getId());
-        var4.setMainArm(param0.getMainArm());
-
-        for(String var5 : param0.getTags()) {
-            var4.addTag(var5);
-        }
-
-        ServerLevel var6 = this.server.getLevel(param0.dimension);
-        this.updatePlayerGameMode(var4, param0, var6);
-        boolean var7 = false;
+        Optional<Vec3> var2;
         if (var0 != null) {
-            Optional<Vec3> var8 = Player.findRespawnPositionAndUseSpawnBlock(this.server.getLevel(param0.dimension), var0, var1, param1);
-            if (var8.isPresent()) {
-                Vec3 var9 = var8.get();
-                var4.moveTo(var9.x, var9.y, var9.z, 0.0F, 0.0F);
-                var4.setRespawnPosition(param0.dimension, var0, var1, false);
-                var7 = !param1;
-            } else {
-                var4.connection.send(new ClientboundGameEventPacket(0, 0.0F));
-                var4.dimension = DimensionType.OVERWORLD;
-                var6 = this.server.getLevel(DimensionType.OVERWORLD);
-                var4.level = var6;
-            }
+            var2 = Player.findRespawnPositionAndUseSpawnBlock(this.server.getLevel(param0.getRespawnDimension()), var0, var1, param1);
+        } else {
+            var2 = Optional.empty();
         }
 
-        while(!var6.noCollision(var4) && var4.getY() < 256.0) {
-            var4.setPos(var4.getX(), var4.getY() + 1.0, var4.getZ());
+        param0.dimension = var2.isPresent() ? param0.getRespawnDimension() : DimensionType.OVERWORLD;
+        ServerPlayerGameMode var4;
+        if (this.server.isDemo()) {
+            var4 = new DemoMode(this.server.getLevel(param0.dimension));
+        } else {
+            var4 = new ServerPlayerGameMode(this.server.getLevel(param0.dimension));
         }
 
-        LevelData var10 = var4.level.getLevelData();
-        var4.connection
+        ServerPlayer var6 = new ServerPlayer(this.server, this.server.getLevel(param0.dimension), param0.getGameProfile(), var4);
+        var6.connection = param0.connection;
+        var6.restoreFrom(param0, param1);
+        var6.setId(param0.getId());
+        var6.setMainArm(param0.getMainArm());
+
+        for(String var7 : param0.getTags()) {
+            var6.addTag(var7);
+        }
+
+        ServerLevel var8 = this.server.getLevel(param0.dimension);
+        this.updatePlayerGameMode(var6, param0, var8);
+        boolean var9 = false;
+        if (var2.isPresent()) {
+            Vec3 var10 = var2.get();
+            var6.moveTo(var10.x, var10.y, var10.z, 0.0F, 0.0F);
+            var6.setRespawnPosition(param0.dimension, var0, var1, false);
+            var9 = !param1 && var8.getBlockState(var0).getBlock() instanceof RespawnAnchorBlock;
+        } else if (var0 != null) {
+            var6.connection.send(new ClientboundGameEventPacket(0, 0.0F));
+        }
+
+        while(!var8.noCollision(var6) && var6.getY() < 256.0) {
+            var6.setPos(var6.getX(), var6.getY() + 1.0, var6.getZ());
+        }
+
+        LevelData var11 = var6.level.getLevelData();
+        var6.connection
             .send(
                 new ClientboundRespawnPacket(
-                    var4.dimension, LevelData.obfuscateSeed(var10.getSeed()), var10.getGeneratorType(), var4.gameMode.getGameModeForPlayer()
+                    var6.dimension, LevelData.obfuscateSeed(var11.getSeed()), var11.getGeneratorType(), var6.gameMode.getGameModeForPlayer()
                 )
             );
-        var4.connection.teleport(var4.getX(), var4.getY(), var4.getZ(), var4.yRot, var4.xRot);
-        var4.connection.send(new ClientboundSetDefaultSpawnPositionPacket(var6.getSharedSpawnPos()));
-        var4.connection.send(new ClientboundChangeDifficultyPacket(var10.getDifficulty(), var10.isDifficultyLocked()));
-        var4.connection.send(new ClientboundSetExperiencePacket(var4.experienceProgress, var4.totalExperience, var4.experienceLevel));
-        this.sendLevelInfo(var4, var6);
-        this.sendPlayerPermissionLevel(var4);
-        var6.addRespawnedPlayer(var4);
-        this.players.add(var4);
-        this.playersByUUID.put(var4.getUUID(), var4);
-        var4.initMenu();
-        var4.setHealth(var4.getHealth());
-        BlockState var11 = var6.getBlockState(var0);
-        if (var7 && var11.getBlock() instanceof RespawnAnchorBlock) {
-            var4.connection
+        var6.connection.teleport(var6.getX(), var6.getY(), var6.getZ(), var6.yRot, var6.xRot);
+        var6.connection.send(new ClientboundSetDefaultSpawnPositionPacket(var8.getSharedSpawnPos()));
+        var6.connection.send(new ClientboundChangeDifficultyPacket(var11.getDifficulty(), var11.isDifficultyLocked()));
+        var6.connection.send(new ClientboundSetExperiencePacket(var6.experienceProgress, var6.totalExperience, var6.experienceLevel));
+        this.sendLevelInfo(var6, var8);
+        this.sendPlayerPermissionLevel(var6);
+        var8.addRespawnedPlayer(var6);
+        this.players.add(var6);
+        this.playersByUUID.put(var6.getUUID(), var6);
+        var6.initMenu();
+        var6.setHealth(var6.getHealth());
+        if (var9) {
+            var6.connection
                 .send(
                     new ClientboundSoundPacket(
                         SoundEvents.RESPAWN_ANCHOR_DEPLETE, SoundSource.BLOCKS, (double)var0.getX(), (double)var0.getY(), (double)var0.getZ(), 1.0F, 1.0F
@@ -486,7 +485,7 @@ public abstract class PlayerList {
                 );
         }
 
-        return var4;
+        return var6;
     }
 
     public void sendPlayerPermissionLevel(ServerPlayer param0) {

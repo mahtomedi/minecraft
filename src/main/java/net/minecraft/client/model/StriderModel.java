@@ -79,7 +79,7 @@ public class StriderModel<T extends Strider> extends ListModel<T> {
         this.body.y -= 2.0F * Mth.cos(param1 * 1.5F) * 2.0F * param2;
         this.leftLeg.xRot = Mth.sin(param1 * 1.5F * 0.5F) * 2.0F * param2;
         this.rightLeg.xRot = Mth.sin(param1 * 1.5F * 0.5F + (float) Math.PI) * 2.0F * param2;
-        this.leftLeg.zRot = ((float) (Math.PI / 18)) * Mth.cos(param1 * 1.5F * 0.5F) * param2;
+        this.leftLeg.zRot = (float) (Math.PI / 18) * Mth.cos(param1 * 1.5F * 0.5F) * param2;
         this.rightLeg.zRot = (float) (Math.PI / 18) * Mth.cos(param1 * 1.5F * 0.5F + (float) Math.PI) * param2;
         this.leftLeg.y = 8.0F + 2.0F * Mth.sin(param1 * 1.5F * 0.5F + (float) Math.PI) * 2.0F * param2;
         this.rightLeg.y = 8.0F + 2.0F * Mth.sin(param1 * 1.5F * 0.5F) * 2.0F * param2;
