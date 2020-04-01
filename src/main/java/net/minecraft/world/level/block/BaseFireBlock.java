@@ -3,6 +3,7 @@ package net.minecraft.world.level.block;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -149,8 +150,10 @@ public abstract class BaseFireBlock extends Block {
     @Override
     public void onPlace(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
         if (param3.getBlock() != param0.getBlock()) {
-            if (param1.dimension.getType() != DimensionType.OVERWORLD && param1.dimension.getType() != DimensionType.NETHER
-                || !NetherPortalBlock.trySpawnPortal(param1, param2)) {
+            if (param1.dimension.getType() != DimensionType.OVERWORLD
+                    && param1.dimension.getType() != DimensionType.NETHER
+                    && !Registry.DIMENSION_TYPE.getKey(param1.dimension.getType()).getNamespace().equals("_generated")
+                || !NetherPortalBlock.trySpawnPortal(param1, param2, Blocks.NETHER_PORTAL)) {
                 if (!param0.canSurvive(param1, param2)) {
                     param1.removeBlock(param2, false);
                 }

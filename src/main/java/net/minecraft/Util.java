@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -36,8 +37,10 @@ import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.Bootstrap;
 import net.minecraft.util.Mth;
@@ -147,6 +150,26 @@ public class Util {
     @OnlyIn(Dist.CLIENT)
     public static void throwAsRuntime(Throwable param0) {
         throw param0 instanceof RuntimeException ? (RuntimeException)param0 : new RuntimeException(param0);
+    }
+
+    public static <T> Stream<T> randomObjectStream(Random param0, int param1, Registry<T> param2) {
+        return randomObjectStream(param0, 0, param1, param2);
+    }
+
+    public static <T> Stream<T> randomObjectStream(Random param0, int param1, int param2, Registry<T> param3) {
+        return IntStream.range(0, param1 + param0.nextInt(param2)).mapToObj(param2x -> param3.getRandom(param0)).distinct();
+    }
+
+    public static <T> Stream<T> randomObjectStream(Random param0, int param1, int param2, List<T> param3) {
+        return IntStream.range(0, param1 + param0.nextInt(param2)).mapToObj(param2x -> randomObject(param0, param3)).distinct();
+    }
+
+    public static <T> T randomObject(Random param0, List<T> param1) {
+        return param1.get(param0.nextInt(param1.size()));
+    }
+
+    public static <T> T randomObject(Random param0, T[] param1) {
+        return param1[param0.nextInt(param1.length)];
     }
 
     public static Util.OS getPlatform() {
@@ -286,6 +309,11 @@ public class Util {
         } else {
             return param0.getMessage() != null ? param0.getMessage() : param0.toString();
         }
+    }
+
+    public static <T extends Enum<T>> T randomEnum(Class<T> param0, Random param1) {
+        T[] var0 = param0.getEnumConstants();
+        return var0[param1.nextInt(var0.length)];
     }
 
     static enum IdentityStrategy implements Strategy<Object> {

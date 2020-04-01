@@ -92,6 +92,11 @@ public class SnowLayerBlock extends Block {
     }
 
     @Override
+    public boolean isUnstable() {
+        return true;
+    }
+
+    @Override
     public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
         return !param0.canSurvive(param3, param4) ? Blocks.AIR.defaultBlockState() : super.updateShape(param0, param1, param2, param3, param4, param5);
     }

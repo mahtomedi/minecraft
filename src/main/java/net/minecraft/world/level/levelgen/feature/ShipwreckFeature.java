@@ -1,6 +1,7 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.datafixers.Dynamic;
+import java.util.Random;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.biome.Biome;
@@ -13,8 +14,8 @@ import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 
 public class ShipwreckFeature extends RandomScatteredFeature<ShipwreckConfiguration> {
-    public ShipwreckFeature(Function<Dynamic<?>, ? extends ShipwreckConfiguration> param0) {
-        super(param0);
+    public ShipwreckFeature(Function<Dynamic<?>, ? extends ShipwreckConfiguration> param0, Function<Random, ? extends ShipwreckConfiguration> param1) {
+        super(param0, param1);
     }
 
     @Override

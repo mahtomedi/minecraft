@@ -10,8 +10,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 
 public class CoralMushroomFeature extends CoralFeature {
-    public CoralMushroomFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0) {
-        super(param0);
+    public CoralMushroomFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0, Function<Random, ? extends NoneFeatureConfiguration> param1) {
+        super(param0, param1);
     }
 
     @Override

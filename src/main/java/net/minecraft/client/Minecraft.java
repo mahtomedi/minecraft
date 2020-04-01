@@ -61,6 +61,7 @@ import net.minecraft.client.gui.screens.GenericDirtMessageScreen;
 import net.minecraft.client.gui.screens.InBedChatScreen;
 import net.minecraft.client.gui.screens.LevelLoadingScreen;
 import net.minecraft.client.gui.screens.LoadingOverlay;
+import net.minecraft.client.gui.screens.LogoOverlay;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.OutOfMemoryScreen;
 import net.minecraft.client.gui.screens.Overlay;
@@ -458,13 +459,13 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             if (var1 != null) {
                 this.setScreen(new ConnectScreen(new TitleScreen(), this, var1, var2));
             } else {
-                this.setScreen(new TitleScreen(true));
+                this.setScreen(new TitleScreen());
             }
 
             LoadingOverlay.registerTextures(this);
             List<Pack> var11 = this.resourcePackRepository.getSelected().stream().map(UnopenedPack::open).collect(Collectors.toList());
             this.setOverlay(
-                new LoadingOverlay(
+                new LogoOverlay(
                     this,
                     this.resourceManager.createFullReload(Util.backgroundExecutor(), this, RESOURCE_RELOAD_INITIAL_TASK, var11),
                     param1 -> Util.ifElse(param1, this::rollbackResourcePacks, () -> {
@@ -473,8 +474,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                                 this.selfTest();
                             }
         
-                        }),
-                    false
+                        })
                 )
             );
         }
@@ -1407,7 +1407,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             this.gameRenderer.shutdownEffect();
         }
 
-        if (!this.pause) {
+        if (!this.pause && !(this.overlay instanceof LogoOverlay)) {
             this.musicManager.tick();
         }
 

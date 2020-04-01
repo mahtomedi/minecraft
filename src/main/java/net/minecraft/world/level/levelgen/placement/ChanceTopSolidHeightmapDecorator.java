@@ -11,8 +11,10 @@ import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.Heightmap;
 
 public class ChanceTopSolidHeightmapDecorator extends FeatureDecorator<ChanceDecoratorConfiguration> {
-    public ChanceTopSolidHeightmapDecorator(Function<Dynamic<?>, ? extends ChanceDecoratorConfiguration> param0) {
-        super(param0);
+    public ChanceTopSolidHeightmapDecorator(
+        Function<Dynamic<?>, ? extends ChanceDecoratorConfiguration> param0, Function<Random, ? extends ChanceDecoratorConfiguration> param1
+    ) {
+        super(param0, param1);
     }
 
     public Stream<BlockPos> getPositions(

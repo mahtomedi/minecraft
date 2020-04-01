@@ -1,22 +1,22 @@
 {
   "variants": {
     "face=ceiling,facing=east": {
-      "model": "minecraft:block/grindstone",
       "x": 180,
+      "model": "minecraft:block/grindstone",
       "y": 270
     },
     "face=ceiling,facing=north": {
-      "model": "minecraft:block/grindstone",
       "x": 180,
+      "model": "minecraft:block/grindstone",
       "y": 180
     },
     "face=ceiling,facing=south": {
-      "model": "minecraft:block/grindstone",
-      "x": 180
+      "x": 180,
+      "model": "minecraft:block/grindstone"
     },
     "face=ceiling,facing=west": {
-      "model": "minecraft:block/grindstone",
       "x": 180,
+      "model": "minecraft:block/grindstone",
       "y": 90
     },
     "face=floor,facing=east": {
@@ -35,22 +35,22 @@
       "y": 270
     },
     "face=wall,facing=east": {
-      "model": "minecraft:block/grindstone",
       "x": 90,
+      "model": "minecraft:block/grindstone",
       "y": 90
     },
     "face=wall,facing=north": {
-      "model": "minecraft:block/grindstone",
-      "x": 90
+      "x": 90,
+      "model": "minecraft:block/grindstone"
     },
     "face=wall,facing=south": {
-      "model": "minecraft:block/grindstone",
       "x": 90,
+      "model": "minecraft:block/grindstone",
       "y": 180
     },
     "face=wall,facing=west": {
-      "model": "minecraft:block/grindstone",
       "x": 90,
+      "model": "minecraft:block/grindstone",
       "y": 270
     }
   }

@@ -4,6 +4,10 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
+import net.minecraft.Util;
+import net.minecraft.core.Registry;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.WeightedConfiguredFeature;
 
@@ -27,5 +31,14 @@ public class RandomFeatureConfiguration implements FeatureConfiguration {
         List<WeightedConfiguredFeature<?>> var0 = param0.get("features").asList(WeightedConfiguredFeature::deserialize);
         ConfiguredFeature<?, ?> var1 = ConfiguredFeature.deserialize(param0.get("default").orElseEmptyMap());
         return new RandomFeatureConfiguration(var0, var1);
+    }
+
+    public static RandomFeatureConfiguration random(Random param0) {
+        return new RandomFeatureConfiguration(
+            Util.randomObjectStream(param0, 10, Registry.FEATURE)
+                .map(param1 -> new WeightedConfiguredFeature<>(param1.random(param0), param0.nextFloat()))
+                .collect(Collectors.toList()),
+            Registry.FEATURE.getRandom(param0).random(param0)
+        );
     }
 }

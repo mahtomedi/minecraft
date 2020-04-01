@@ -1,8 +1,13 @@
 package net.minecraft.world.level.block;
 
+import com.google.common.collect.Lists;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
@@ -47,6 +52,35 @@ public class NoteBlock extends Block {
         return param1 == Direction.DOWN
             ? param0.setValue(INSTRUMENT, NoteBlockInstrument.byState(param2))
             : super.updateShape(param0, param1, param2, param3, param4, param5);
+    }
+
+    @Override
+    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+        if (param1.random.nextInt(10) == 0) {
+            this.tick(param0, param1, param2, param3);
+        }
+
+    }
+
+    @Override
+    public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+        this.playNote(param1, param2);
+        if (param1.random.nextInt(5) != 0) {
+            List<Direction> var0 = Lists.newArrayList(Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST);
+            Collections.shuffle(var0, param1.random);
+
+            for(Direction var1 : var0) {
+                BlockPos var2 = param2.relative(var1);
+                if (param1.isLoaded(var2)) {
+                    BlockState var3 = param1.getBlockState(var2);
+                    if (var3.getBlock() == this) {
+                        param1.getBlockTicks().scheduleTick(var2, this, 1 + param1.random.nextInt(6));
+                        break;
+                    }
+                }
+            }
+        }
+
     }
 
     @Override

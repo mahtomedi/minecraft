@@ -43,8 +43,8 @@ public class FossilFeature extends Feature<NoneFeatureConfiguration> {
         SPINE_1_COAL, SPINE_2_COAL, SPINE_3_COAL, SPINE_4_COAL, SKULL_1_COAL, SKULL_2_COAL, SKULL_3_COAL, SKULL_4_COAL
     };
 
-    public FossilFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0) {
-        super(param0);
+    public FossilFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0, Function<Random, ? extends NoneFeatureConfiguration> param1) {
+        super(param0, param1);
     }
 
     public boolean place(

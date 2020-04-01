@@ -104,11 +104,6 @@ public class TheEndDimension extends Dimension {
     }
 
     @Override
-    public DimensionType getType() {
-        return DimensionType.THE_END;
-    }
-
-    @Override
     public void saveData() {
         CompoundTag var0 = new CompoundTag();
         if (this.dragonFight != null) {
@@ -129,5 +124,11 @@ public class TheEndDimension extends Dimension {
     @Nullable
     public EndDragonFight getDragonFight() {
         return this.dragonFight;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public boolean isEndSky() {
+        return true;
     }
 }

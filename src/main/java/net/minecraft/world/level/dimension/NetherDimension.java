@@ -1,10 +1,13 @@
 package net.minecraft.world.level.dimension;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSourceType;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.MultiNoiseBiomeSourceSettings;
@@ -37,7 +40,18 @@ public class NetherDimension extends Dimension {
         var0.setDefaultFluid(Blocks.LAVA.defaultBlockState());
         MultiNoiseBiomeSourceSettings var1 = BiomeSourceType.MULTI_NOISE
             .createSettings(this.level.getSeed())
-            .setBiomes(ImmutableSet.of(Biomes.NETHER_WASTES, Biomes.SOUL_SAND_VALLEY, Biomes.CRIMSON_FOREST, Biomes.WARPED_FOREST));
+            .setBiomes(
+                ImmutableMap.of(
+                    Biomes.NETHER_WASTES,
+                    ImmutableList.of(new Biome.ClimateParameters(0.0F, 0.0F, 0.0F, -0.5F, 1.0F)),
+                    Biomes.SOUL_SAND_VALLEY,
+                    ImmutableList.of(new Biome.ClimateParameters(0.0F, 0.0F, 0.0F, 0.5F, 1.0F)),
+                    Biomes.CRIMSON_FOREST,
+                    ImmutableList.of(new Biome.ClimateParameters(0.0F, -0.5F, 0.0F, 0.0F, 1.0F)),
+                    Biomes.WARPED_FOREST,
+                    ImmutableList.of(new Biome.ClimateParameters(0.0F, 0.5F, 0.0F, 0.0F, 1.0F))
+                )
+            );
         return ChunkGeneratorType.CAVES.create(this.level, BiomeSourceType.MULTI_NOISE.create(var1), var0);
     }
 
@@ -75,6 +89,28 @@ public class NetherDimension extends Dimension {
     }
 
     @Override
+    public float getBlockShade(Direction param0, boolean param1) {
+        if (!param1) {
+            return 0.9F;
+        } else {
+            switch(param0) {
+                case DOWN:
+                    return 0.9F;
+                case UP:
+                    return 0.9F;
+                case NORTH:
+                case SOUTH:
+                    return 0.8F;
+                case WEST:
+                case EAST:
+                    return 0.6F;
+                default:
+                    return 1.0F;
+            }
+        }
+    }
+
+    @Override
     public WorldBorder createWorldBorder() {
         return new WorldBorder() {
             @Override
@@ -87,10 +123,5 @@ public class NetherDimension extends Dimension {
                 return super.getCenterZ() / 8.0;
             }
         };
-    }
-
-    @Override
-    public DimensionType getType() {
-        return DimensionType.NETHER;
     }
 }

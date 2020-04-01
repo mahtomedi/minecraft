@@ -14,8 +14,10 @@ import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.feature.configurations.HugeMushroomFeatureConfiguration;
 
 public abstract class AbstractHugeMushroomFeature extends Feature<HugeMushroomFeatureConfiguration> {
-    public AbstractHugeMushroomFeature(Function<Dynamic<?>, ? extends HugeMushroomFeatureConfiguration> param0) {
-        super(param0);
+    public AbstractHugeMushroomFeature(
+        Function<Dynamic<?>, ? extends HugeMushroomFeatureConfiguration> param0, Function<Random, ? extends HugeMushroomFeatureConfiguration> param1
+    ) {
+        super(param0, param1);
     }
 
     protected void placeTrunk(

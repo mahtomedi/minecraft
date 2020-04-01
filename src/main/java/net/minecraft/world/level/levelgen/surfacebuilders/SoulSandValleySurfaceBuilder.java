@@ -24,8 +24,10 @@ public class SoulSandValleySurfaceBuilder extends SurfaceBuilder<SurfaceBuilderB
     private PerlinNoise soulSoilNoiseCeiling;
     private PerlinNoise gravelNoise;
 
-    public SoulSandValleySurfaceBuilder(Function<Dynamic<?>, ? extends SurfaceBuilderBaseConfiguration> param0) {
-        super(param0);
+    public SoulSandValleySurfaceBuilder(
+        Function<Dynamic<?>, ? extends SurfaceBuilderBaseConfiguration> param0, Function<Random, ? extends SurfaceBuilderBaseConfiguration> param1
+    ) {
+        super(param0, param1);
     }
 
     public void apply(

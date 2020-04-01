@@ -13,6 +13,7 @@ public class PerlinNoise implements SurfaceNoise {
     private final ImprovedNoise[] noiseLevels;
     private final double highestFreqValueFactor;
     private final double highestFreqInputFactor;
+    private final List<Integer> octaves;
 
     public PerlinNoise(WorldgenRandom param0, IntStream param1) {
         this(param0, param1.boxed().collect(ImmutableList.toImmutableList()));
@@ -26,6 +27,7 @@ public class PerlinNoise implements SurfaceNoise {
         if (param1.isEmpty()) {
             throw new IllegalArgumentException("Need some octaves!");
         } else {
+            this.octaves = ImmutableList.copyOf(param1);
             int var0 = -param1.firstInt();
             int var1 = param1.lastInt();
             int var2 = var0 + var1 + 1;
@@ -99,5 +101,9 @@ public class PerlinNoise implements SurfaceNoise {
     @Override
     public double getSurfaceNoiseValue(double param0, double param1, double param2, double param3) {
         return this.getValue(param0, param1, 0.0, param2, param3, false);
+    }
+
+    public List<Integer> getOctaves() {
+        return this.octaves;
     }
 }

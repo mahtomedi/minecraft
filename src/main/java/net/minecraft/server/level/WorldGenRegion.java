@@ -31,6 +31,7 @@ import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.EmptyLevelChunk;
 import net.minecraft.world.level.dimension.Dimension;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -60,6 +61,8 @@ public class WorldGenRegion implements LevelAccessor {
     private final TickList<Block> blockTicks = new WorldGenTickList<>(param0x -> this.getChunk(param0x).getBlockTicks());
     private final TickList<Fluid> liquidTicks = new WorldGenTickList<>(param0x -> this.getChunk(param0x).getLiquidTicks());
     private final BiomeManager biomeManager;
+    private final ChunkPos firstPos;
+    private final ChunkPos lastPos;
 
     public WorldGenRegion(ServerLevel param0, List<ChunkAccess> param1) {
         int var0 = Mth.floor(Math.sqrt((double)param1.size()));
@@ -79,6 +82,8 @@ public class WorldGenRegion implements LevelAccessor {
             this.random = param0.getRandom();
             this.dimension = param0.getDimension();
             this.biomeManager = new BiomeManager(this, LevelData.obfuscateSeed(this.seed), this.dimension.getType().getBiomeZoomer());
+            this.firstPos = param1.get(0).getPos();
+            this.lastPos = param1.get(param1.size() - 1).getPos();
         }
     }
 
@@ -98,45 +103,29 @@ public class WorldGenRegion implements LevelAccessor {
     @Nullable
     @Override
     public ChunkAccess getChunk(int param0, int param1, ChunkStatus param2, boolean param3) {
-        ChunkAccess var3;
         if (this.hasChunk(param0, param1)) {
-            ChunkPos var0 = this.cache.get(0).getPos();
-            int var1 = param0 - var0.x;
-            int var2 = param1 - var0.z;
-            var3 = this.cache.get(var1 + var2 * this.size);
-            if (var3.getStatus().isOrAfter(param2)) {
-                return var3;
+            int var0 = param0 - this.firstPos.x;
+            int var1 = param1 - this.firstPos.z;
+            ChunkAccess var2 = this.cache.get(var0 + var1 * this.size);
+            if (var2.getStatus().isOrAfter(param2)) {
+                return var2;
             }
         } else {
-            var3 = null;
+            ChunkAccess var3 = null;
         }
 
         if (!param3) {
             return null;
         } else {
-            ChunkAccess var5 = this.cache.get(0);
-            ChunkAccess var6 = this.cache.get(this.cache.size() - 1);
             LOGGER.error("Requested chunk : {} {}", param0, param1);
-            LOGGER.error("Region bounds : {} {} | {} {}", var5.getPos().x, var5.getPos().z, var6.getPos().x, var6.getPos().z);
-            if (var3 != null) {
-                throw (RuntimeException)Util.pauseInIde(
-                    new RuntimeException(
-                        String.format("Chunk is not of correct status. Expecting %s, got %s | %s %s", param2, var3.getStatus(), param0, param1)
-                    )
-                );
-            } else {
-                throw (RuntimeException)Util.pauseInIde(
-                    new RuntimeException(String.format("We are asking a region for a chunk out of bound | %s %s", param0, param1))
-                );
-            }
+            LOGGER.error("Region bounds : {} {} | {} {}", this.firstPos.x, this.firstPos.z, this.lastPos.x, this.lastPos.z);
+            return new EmptyLevelChunk(this.level, new ChunkPos(param0, param1));
         }
     }
 
     @Override
     public boolean hasChunk(int param0, int param1) {
-        ChunkAccess var0 = this.cache.get(0);
-        ChunkAccess var1 = this.cache.get(this.cache.size() - 1);
-        return param0 >= var0.getPos().x && param0 <= var1.getPos().x && param1 >= var0.getPos().z && param1 <= var1.getPos().z;
+        return param0 >= this.firstPos.x && param0 <= this.lastPos.x && param1 >= this.firstPos.z && param1 <= this.lastPos.z;
     }
 
     @Override

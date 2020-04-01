@@ -3,6 +3,7 @@ package net.minecraft.world.level.levelgen.placement;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
+import java.util.Random;
 import net.minecraft.world.level.levelgen.feature.configurations.DecoratorConfiguration;
 
 public class ChanceDecoratorConfiguration implements DecoratorConfiguration {
@@ -20,5 +21,9 @@ public class ChanceDecoratorConfiguration implements DecoratorConfiguration {
     public static ChanceDecoratorConfiguration deserialize(Dynamic<?> param0) {
         int var0 = param0.get("chance").asInt(0);
         return new ChanceDecoratorConfiguration(var0);
+    }
+
+    public static ChanceDecoratorConfiguration random(Random param0) {
+        return new ChanceDecoratorConfiguration(param0.nextInt(40) + 10);
     }
 }

@@ -12,8 +12,8 @@ import net.minecraft.world.level.levelgen.feature.configurations.SmallTreeConfig
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public abstract class AbstractSmallTreeFeature<T extends SmallTreeConfiguration> extends AbstractTreeFeature<T> {
-    public AbstractSmallTreeFeature(Function<Dynamic<?>, ? extends T> param0) {
-        super(param0);
+    public AbstractSmallTreeFeature(Function<Dynamic<?>, ? extends T> param0, Function<Random, ? extends T> param1) {
+        super(param0, param1);
     }
 
     protected void placeTrunk(

@@ -3,6 +3,7 @@ package net.minecraft.world.level.levelgen.feature.configurations;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
+import java.util.Random;
 
 public class FeatureRadiusConfiguration implements FeatureConfiguration {
     public final int radius;
@@ -19,5 +20,9 @@ public class FeatureRadiusConfiguration implements FeatureConfiguration {
     public static <T> FeatureRadiusConfiguration deserialize(Dynamic<T> param0) {
         int var0 = param0.get("radius").asInt(0);
         return new FeatureRadiusConfiguration(var0);
+    }
+
+    public static FeatureRadiusConfiguration random(Random param0) {
+        return new FeatureRadiusConfiguration(param0.nextInt(20) + 1);
     }
 }

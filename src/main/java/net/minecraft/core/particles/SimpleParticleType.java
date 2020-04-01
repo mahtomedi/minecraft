@@ -17,7 +17,7 @@ public class SimpleParticleType extends ParticleType<SimpleParticleType> impleme
     };
 
     protected SimpleParticleType(boolean param0) {
-        super(param0, DESERIALIZER);
+        super(param0, DESERIALIZER, (param0x, param1) -> (SimpleParticleType)param1);
     }
 
     @Override

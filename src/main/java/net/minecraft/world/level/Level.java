@@ -65,6 +65,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -92,6 +93,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     protected boolean updatingBlockEntities;
     private final WorldBorder worldBorder;
     private final BiomeManager biomeManager;
+    private static final ThreadLocal<MutableInt> depth = ThreadLocal.withInitial(MutableInt::new);
 
     protected Level(LevelData param0, DimensionType param1, BiFunction<Level, Dimension, ChunkSource> param2, Supplier<ProfilerFiller> param3, boolean param4) {
         this.profiler = param3;
@@ -209,54 +211,68 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         } else if (!this.isClientSide && this.levelData.getGeneratorType() == LevelType.DEBUG_ALL_BLOCK_STATES) {
             return false;
         } else {
-            LevelChunk var0 = this.getChunkAt(param0);
-            Block var1 = param1.getBlock();
-            BlockState var2 = var0.setBlockState(param0, param1, (param2 & 64) != 0);
-            if (var2 == null) {
+            MutableInt var0 = depth.get();
+            if (var0.getValue() > 64) {
                 return false;
             } else {
-                BlockState var3 = this.getBlockState(param0);
-                if (var3 != var2
-                    && (
-                        var3.getLightBlock(this, param0) != var2.getLightBlock(this, param0)
-                            || var3.getLightEmission() != var2.getLightEmission()
-                            || var3.useShapeForLightOcclusion()
-                            || var2.useShapeForLightOcclusion()
-                    )) {
-                    this.getProfiler().push("queueCheckLight");
-                    this.getChunkSource().getLightEngine().checkBlock(param0);
-                    this.getProfiler().pop();
-                }
+                var0.increment();
 
-                if (var3 == param1) {
-                    if (var2 != var3) {
-                        this.setBlocksDirty(param0, var2, var3);
+                int var5;
+                try {
+                    LevelChunk var1 = this.getChunkAt(param0);
+                    Block var2 = param1.getBlock();
+                    BlockState var3 = var1.setBlockState(param0, param1, (param2 & 64) != 0);
+                    if (var3 == null) {
+                        return false;
                     }
 
-                    if ((param2 & 2) != 0
-                        && (!this.isClientSide || (param2 & 4) == 0)
-                        && (this.isClientSide || var0.getFullStatus() != null && var0.getFullStatus().isOrAfter(ChunkHolder.FullChunkStatus.TICKING))) {
-                        this.sendBlockUpdated(param0, var2, param1, param2);
+                    BlockState var4 = this.getBlockState(param0);
+                    if (var4 != var3
+                        && (
+                            var4.getLightBlock(this, param0) != var3.getLightBlock(this, param0)
+                                || var4.getLightEmission() != var3.getLightEmission()
+                                || var4.useShapeForLightOcclusion()
+                                || var3.useShapeForLightOcclusion()
+                        )) {
+                        this.getProfiler().push("queueCheckLight");
+                        this.getChunkSource().getLightEngine().checkBlock(param0);
+                        this.getProfiler().pop();
                     }
 
-                    if ((param2 & 1) != 0) {
-                        this.blockUpdated(param0, var2.getBlock());
-                        if (!this.isClientSide && param1.hasAnalogOutputSignal()) {
-                            this.updateNeighbourForOutputSignal(param0, var1);
+                    if (var4 == param1) {
+                        if (var3 != var4) {
+                            this.setBlocksDirty(param0, var3, var4);
                         }
+
+                        if ((param2 & 2) != 0
+                            && (!this.isClientSide || (param2 & 4) == 0)
+                            && (this.isClientSide || var1.getFullStatus() != null && var1.getFullStatus().isOrAfter(ChunkHolder.FullChunkStatus.TICKING))) {
+                            this.sendBlockUpdated(param0, var3, param1, param2);
+                        }
+
+                        if ((param2 & 1) != 0) {
+                            this.blockUpdated(param0, var3.getBlock());
+                            if (!this.isClientSide && param1.hasAnalogOutputSignal()) {
+                                this.updateNeighbourForOutputSignal(param0, var2);
+                            }
+                        }
+
+                        if ((param2 & 16) == 0) {
+                            var5 = param2 & -2;
+                            var3.updateIndirectNeighbourShapes(this, param0, var5);
+                            param1.updateNeighbourShapes(this, param0, var5);
+                            param1.updateIndirectNeighbourShapes(this, param0, var5);
+                        }
+
+                        this.onBlockStateChange(param0, var3, var4);
                     }
 
-                    if ((param2 & 16) == 0) {
-                        int var4 = param2 & -2;
-                        var2.updateIndirectNeighbourShapes(this, param0, var4);
-                        param1.updateNeighbourShapes(this, param0, var4);
-                        param1.updateIndirectNeighbourShapes(this, param0, var4);
-                    }
-
-                    this.onBlockStateChange(param0, var2, var3);
+                    var5 = 1;
+                } finally {
+                    var0.decrement();
                 }
 
-                return true;
+                return (boolean)var5;
             }
         }
     }
@@ -445,22 +461,26 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     }
 
     public boolean addBlockEntity(BlockEntity param0) {
-        if (this.updatingBlockEntities) {
-            LOGGER.error("Adding block entity while ticking: {} @ {}", () -> Registry.BLOCK_ENTITY_TYPE.getKey(param0.getType()), param0::getBlockPos);
-        }
+        if (param0 == null) {
+            return false;
+        } else {
+            if (this.updatingBlockEntities) {
+                LOGGER.error("Adding block entity while ticking: {} @ {}", () -> Registry.BLOCK_ENTITY_TYPE.getKey(param0.getType()), param0::getBlockPos);
+            }
 
-        boolean var0 = this.blockEntityList.add(param0);
-        if (var0 && param0 instanceof TickableBlockEntity) {
-            this.tickableBlockEntities.add(param0);
-        }
+            boolean var0 = this.blockEntityList.add(param0);
+            if (var0 && param0 instanceof TickableBlockEntity) {
+                this.tickableBlockEntities.add(param0);
+            }
 
-        if (this.isClientSide) {
-            BlockPos var1 = param0.getBlockPos();
-            BlockState var2 = this.getBlockState(var1);
-            this.sendBlockUpdated(var1, var2, var2, 2);
-        }
+            if (this.isClientSide) {
+                BlockPos var1 = param0.getBlockPos();
+                BlockState var2 = this.getBlockState(var1);
+                this.sendBlockUpdated(var1, var2, var2, 2);
+            }
 
-        return var0;
+            return var0;
+        }
     }
 
     public void addAllPendingBlockEntities(Collection<BlockEntity> param0) {
@@ -488,32 +508,34 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
 
         while(var1.hasNext()) {
             BlockEntity var2 = var1.next();
-            if (!var2.isRemoved() && var2.hasLevel()) {
-                BlockPos var3 = var2.getBlockPos();
-                if (this.chunkSource.isTickingChunk(var3) && this.getWorldBorder().isWithinBounds(var3)) {
-                    try {
-                        var0.push(() -> String.valueOf(BlockEntityType.getKey(var2.getType())));
-                        if (var2.getType().isValid(this.getBlockState(var3).getBlock())) {
-                            ((TickableBlockEntity)var2).tick();
-                        } else {
-                            var2.logInvalidState();
-                        }
+            if (var2 != null) {
+                if (!var2.isRemoved() && var2.hasLevel()) {
+                    BlockPos var3 = var2.getBlockPos();
+                    if (this.chunkSource.isTickingChunk(var3) && this.getWorldBorder().isWithinBounds(var3)) {
+                        try {
+                            var0.push(() -> String.valueOf(BlockEntityType.getKey(var2.getType())));
+                            if (var2.getType().isValid(this.getBlockState(var3).getBlock())) {
+                                ((TickableBlockEntity)var2).tick();
+                            } else {
+                                var2.logInvalidState();
+                            }
 
-                        var0.pop();
-                    } catch (Throwable var81) {
-                        CrashReport var5 = CrashReport.forThrowable(var81, "Ticking block entity");
-                        CrashReportCategory var6 = var5.addCategory("Block entity being ticked");
-                        var2.fillCrashReportCategory(var6);
-                        throw new ReportedException(var5);
+                            var0.pop();
+                        } catch (Throwable var81) {
+                            CrashReport var5 = CrashReport.forThrowable(var81, "Ticking block entity");
+                            CrashReportCategory var6 = var5.addCategory("Block entity being ticked");
+                            var2.fillCrashReportCategory(var6);
+                            throw new ReportedException(var5);
+                        }
                     }
                 }
-            }
 
-            if (var2.isRemoved()) {
-                var1.remove();
-                this.blockEntityList.remove(var2);
-                if (this.hasChunkAt(var2.getBlockPos())) {
-                    this.getChunkAt(var2.getBlockPos()).removeBlockEntity(var2.getBlockPos());
+                if (var2.isRemoved()) {
+                    var1.remove();
+                    this.blockEntityList.remove(var2);
+                    if (this.hasChunkAt(var2.getBlockPos())) {
+                        this.getChunkAt(var2.getBlockPos()).removeBlockEntity(var2.getBlockPos());
+                    }
                 }
             }
         }

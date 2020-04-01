@@ -190,6 +190,7 @@ import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagManager;
+import net.minecraft.util.BookAccess;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleContainer;
@@ -737,7 +738,9 @@ public class ClientPacketListener implements ClientGamePacketListener {
         int var1 = param0.getZ();
         LevelChunk var2 = this.level
             .getChunkSource()
-            .replaceWithPacketData(var0, var1, param0.getBiomes(), param0.getReadBuffer(), param0.getHeightmaps(), param0.getAvailableSections());
+            .replaceWithPacketData(
+                var0, var1, param0.getBiomes(), param0.getReadBuffer(), param0.getHeightmaps(), param0.getAvailableSections(), param0.isFullChunk()
+            );
         if (var2 != null && param0.isFullChunk()) {
             this.level.reAddEntitiesToChunk(var2);
         }
@@ -1824,7 +1827,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         ItemStack var0 = this.minecraft.player.getItemInHand(param0.getHand());
         if (var0.getItem() == Items.WRITTEN_BOOK) {
-            this.minecraft.setScreen(new BookViewScreen(new BookViewScreen.WrittenBookAccess(var0)));
+            this.minecraft.setScreen(new BookViewScreen(new BookAccess.WrittenBookAccess(var0)));
         }
 
     }

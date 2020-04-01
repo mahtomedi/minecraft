@@ -33,10 +33,12 @@ import net.minecraft.world.level.chunk.storage.SectionStorage;
 public class PoiManager extends SectionStorage<PoiSection> {
     private final PoiManager.DistanceTracker distanceTracker;
     private final LongSet loadedChunks = new LongOpenHashSet();
+    private final Runnable sync;
 
-    public PoiManager(File param0, DataFixer param1) {
+    public PoiManager(File param0, DataFixer param1, Runnable param2) {
         super(param0, PoiSection::new, PoiSection::new, param1, DataFixTypes.POI_CHUNK);
         this.distanceTracker = new PoiManager.DistanceTracker();
+        this.sync = param2;
     }
 
     public void add(BlockPos param0, PoiType param1) {
@@ -187,7 +189,16 @@ public class PoiManager extends SectionStorage<PoiSection> {
             .filter(param0x -> !param0x.getSecond().map(PoiSection::isValid).orElse(false))
             .map(param0x -> param0x.getFirst().chunk())
             .filter(param0x -> this.loadedChunks.add(param0x.toLong()))
-            .forEach(param1x -> param0.getChunk(param1x.x, param1x.z, ChunkStatus.EMPTY));
+            .forEach(param1x -> {
+                if (param0.getDimension().getType().requirePortalGen()) {
+                    param0.getChunk(param1x.x, param1x.z, ChunkStatus.FEATURES);
+                    param0.getChunk(param1x.x, param1x.z);
+                    this.sync.run();
+                } else {
+                    param0.getChunk(param1x.x, param1x.z, ChunkStatus.EMPTY);
+                }
+    
+            });
     }
 
     final class DistanceTracker extends SectionTracker {

@@ -1,12 +1,12 @@
 {
   "variants": {
     "facing=down,powered=false": {
-      "model": "minecraft:block/observer",
-      "x": 90
+      "x": 90,
+      "model": "minecraft:block/observer"
     },
     "facing=down,powered=true": {
-      "model": "minecraft:block/observer_on",
-      "x": 90
+      "x": 90,
+      "model": "minecraft:block/observer_on"
     },
     "facing=east,powered=false": {
       "model": "minecraft:block/observer",
@@ -31,12 +31,12 @@
       "y": 180
     },
     "facing=up,powered=false": {
-      "model": "minecraft:block/observer",
-      "x": 270
+      "x": 270,
+      "model": "minecraft:block/observer"
     },
     "facing=up,powered=true": {
-      "model": "minecraft:block/observer_on",
-      "x": 270
+      "x": 270,
+      "model": "minecraft:block/observer_on"
     },
     "facing=west,powered=false": {
       "model": "minecraft:block/observer",

@@ -178,6 +178,11 @@ public class RedStoneWireBlock extends Block {
     }
 
     @Override
+    public boolean isUnstable() {
+        return true;
+    }
+
+    @Override
     public boolean canSurvive(BlockState param0, LevelReader param1, BlockPos param2) {
         BlockPos var0 = param2.below();
         BlockState var1 = param1.getBlockState(var0);

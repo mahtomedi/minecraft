@@ -4,6 +4,10 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
+import net.minecraft.Util;
+import net.minecraft.core.Registry;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 
 public class RandomRandomFeatureConfiguration implements FeatureConfiguration {
@@ -34,5 +38,11 @@ public class RandomRandomFeatureConfiguration implements FeatureConfiguration {
         List<ConfiguredFeature<?, ?>> var0 = param0.get("features").asList(ConfiguredFeature::deserialize);
         int var1 = param0.get("count").asInt(0);
         return new RandomRandomFeatureConfiguration(var0, var1);
+    }
+
+    public static RandomRandomFeatureConfiguration random(Random param0) {
+        return new RandomRandomFeatureConfiguration(
+            Util.randomObjectStream(param0, 1, 10, Registry.FEATURE).map(param1 -> param1.random(param0)).collect(Collectors.toList()), param0.nextInt(5) + 3
+        );
     }
 }

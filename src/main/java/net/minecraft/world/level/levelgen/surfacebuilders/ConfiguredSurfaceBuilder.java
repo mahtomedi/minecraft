@@ -1,6 +1,10 @@
 package net.minecraft.world.level.levelgen.surfacebuilders;
 
+import com.google.common.collect.ImmutableMap;
+import com.mojang.datafixers.Dynamic;
+import com.mojang.datafixers.types.DynamicOps;
 import java.util.Random;
+import net.minecraft.core.Registry;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -12,6 +16,20 @@ public class ConfiguredSurfaceBuilder<SC extends SurfaceBuilderConfiguration> {
     public ConfiguredSurfaceBuilder(SurfaceBuilder<SC> param0, SC param1) {
         this.surfaceBuilder = param0;
         this.config = param1;
+    }
+
+    public <T> Dynamic<T> serialize(DynamicOps<T> param0) {
+        return new Dynamic<>(
+            param0,
+            param0.createMap(
+                ImmutableMap.of(
+                    param0.createString("name"),
+                    param0.createString(Registry.SURFACE_BUILDER.getKey(this.surfaceBuilder).toString()),
+                    param0.createString("config"),
+                    this.config.serialize(param0).getValue()
+                )
+            )
+        );
     }
 
     public void apply(

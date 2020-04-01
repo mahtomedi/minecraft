@@ -49,6 +49,11 @@ public abstract class BaseRailBlock extends Block {
     }
 
     @Override
+    public boolean isUnstable() {
+        return true;
+    }
+
+    @Override
     public void onPlace(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
         if (param3.getBlock() != param0.getBlock()) {
             this.updateState(param0, param1, param2, param4);

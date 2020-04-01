@@ -474,50 +474,95 @@ public class FishingHook extends Entity {
 
     public int retrieve(ItemStack param0) {
         if (!this.level.isClientSide && this.owner != null) {
-            int var0 = 0;
+            if (this.nibble > 0 && this.random.nextInt(5) == 0) {
+                EntityType[] var0 = new EntityType[]{
+                    EntityType.SALMON,
+                    EntityType.COD,
+                    EntityType.SALMON,
+                    EntityType.COD,
+                    EntityType.SALMON,
+                    EntityType.COD,
+                    EntityType.SALMON,
+                    EntityType.COD,
+                    EntityType.SALMON,
+                    EntityType.COD,
+                    EntityType.SALMON,
+                    EntityType.COD,
+                    EntityType.SALMON,
+                    EntityType.COD,
+                    EntityType.TROPICAL_FISH,
+                    EntityType.SQUID,
+                    EntityType.PUFFERFISH,
+                    EntityType.PUFFERFISH,
+                    EntityType.GUARDIAN,
+                    EntityType.BOAT,
+                    EntityType.TROPICAL_FISH,
+                    EntityType.SQUID,
+                    EntityType.PUFFERFISH,
+                    EntityType.PUFFERFISH,
+                    EntityType.GUARDIAN,
+                    EntityType.BOAT,
+                    EntityType.ELDER_GUARDIAN
+                };
+                Entity var1 = var0[this.random.nextInt(var0.length)].create(this.level, null, null, null, this.blockPosition(), null, false, false);
+                if (var1 != null) {
+                    this.setPos(this.getX(), this.getY() + 1.0, this.getZ());
+                    var1.setPos(this.getX(), this.getY(), this.getZ());
+                    var1.yRot = 0.0F;
+                    if (this.owner != null) {
+                        var1.xRot = (this.owner.xRot + 180.0F) % 180.0F;
+                    }
+
+                    var1.setPos(this.getX(), this.getY(), this.getZ());
+                    this.level.addFreshEntity(var1);
+                    this.hookedIn = var1;
+                }
+            }
+
+            int var2 = 0;
             if (this.hookedIn != null) {
                 this.bringInHookedEntity();
                 CriteriaTriggers.FISHING_ROD_HOOKED.trigger((ServerPlayer)this.owner, param0, this, Collections.emptyList());
                 this.level.broadcastEntityEvent(this, (byte)31);
-                var0 = this.hookedIn instanceof ItemEntity ? 3 : 5;
+                var2 = this.hookedIn instanceof ItemEntity ? 3 : 5;
             } else if (this.nibble > 0) {
-                LootContext.Builder var1 = new LootContext.Builder((ServerLevel)this.level)
+                LootContext.Builder var3 = new LootContext.Builder((ServerLevel)this.level)
                     .withParameter(LootContextParams.BLOCK_POS, this.blockPosition())
                     .withParameter(LootContextParams.TOOL, param0)
                     .withParameter(LootContextParams.THIS_ENTITY, this)
                     .withRandom(this.random)
                     .withLuck((float)this.luck + this.owner.getLuck());
-                LootTable var2 = this.level.getServer().getLootTables().get(BuiltInLootTables.FISHING);
-                List<ItemStack> var3 = var2.getRandomItems(var1.create(LootContextParamSets.FISHING));
-                CriteriaTriggers.FISHING_ROD_HOOKED.trigger((ServerPlayer)this.owner, param0, this, var3);
+                LootTable var4 = this.level.getServer().getLootTables().get(BuiltInLootTables.FISHING);
+                List<ItemStack> var5 = var4.getRandomItems(var3.create(LootContextParamSets.FISHING));
+                CriteriaTriggers.FISHING_ROD_HOOKED.trigger((ServerPlayer)this.owner, param0, this, var5);
 
-                for(ItemStack var4 : var3) {
-                    ItemEntity var5 = new ItemEntity(this.level, this.getX(), this.getY(), this.getZ(), var4);
-                    double var6 = this.owner.getX() - this.getX();
-                    double var7 = this.owner.getY() - this.getY();
-                    double var8 = this.owner.getZ() - this.getZ();
-                    double var9 = 0.1;
-                    var5.setDeltaMovement(var6 * 0.1, var7 * 0.1 + Math.sqrt(Math.sqrt(var6 * var6 + var7 * var7 + var8 * var8)) * 0.08, var8 * 0.1);
-                    this.level.addFreshEntity(var5);
+                for(ItemStack var6 : var5) {
+                    ItemEntity var7 = new ItemEntity(this.level, this.getX(), this.getY(), this.getZ(), var6);
+                    double var8 = this.owner.getX() - this.getX();
+                    double var9 = this.owner.getY() - this.getY();
+                    double var10 = this.owner.getZ() - this.getZ();
+                    double var11 = 0.1;
+                    var7.setDeltaMovement(var8 * 0.1, var9 * 0.1 + Math.sqrt(Math.sqrt(var8 * var8 + var9 * var9 + var10 * var10)) * 0.08, var10 * 0.1);
+                    this.level.addFreshEntity(var7);
                     this.owner
                         .level
                         .addFreshEntity(
                             new ExperienceOrb(this.owner.level, this.owner.getX(), this.owner.getY() + 0.5, this.owner.getZ() + 0.5, this.random.nextInt(6) + 1)
                         );
-                    if (var4.getItem().is(ItemTags.FISHES)) {
+                    if (var6.getItem().is(ItemTags.FISHES)) {
                         this.owner.awardStat(Stats.FISH_CAUGHT, 1);
                     }
                 }
 
-                var0 = 1;
+                var2 = 1;
             }
 
             if (this.onGround) {
-                var0 = 2;
+                var2 = 2;
             }
 
             this.remove();
-            return var0;
+            return var2;
         } else {
             return 0;
         }
@@ -535,7 +580,10 @@ public class FishingHook extends Entity {
 
     protected void bringInHookedEntity() {
         if (this.owner != null) {
-            Vec3 var0 = new Vec3(this.owner.getX() - this.getX(), this.owner.getY() - this.getY(), this.owner.getZ() - this.getZ()).scale(0.1);
+            Vec3 var0 = new Vec3(
+                    this.owner.getX() - this.getX(), this.owner.getY() - this.getY() + (double)this.owner.getEyeHeight() + 1.0, this.owner.getZ() - this.getZ()
+                )
+                .scale(0.15);
             this.hookedIn.setDeltaMovement(this.hookedIn.getDeltaMovement().add(var0));
         }
     }

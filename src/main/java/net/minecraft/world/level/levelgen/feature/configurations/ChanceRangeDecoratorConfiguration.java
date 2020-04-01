@@ -3,6 +3,7 @@ package net.minecraft.world.level.levelgen.feature.configurations;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
+import java.util.Random;
 
 public class ChanceRangeDecoratorConfiguration implements DecoratorConfiguration {
     public final float chance;
@@ -42,5 +43,11 @@ public class ChanceRangeDecoratorConfiguration implements DecoratorConfiguration
         int var2 = param0.get("top_offset").asInt(0);
         int var3 = param0.get("top").asInt(0);
         return new ChanceRangeDecoratorConfiguration(var0, var1, var2, var3);
+    }
+
+    public static ChanceRangeDecoratorConfiguration random(Random param0) {
+        int var0 = param0.nextInt(11);
+        int var1 = param0.nextInt(11);
+        return new ChanceRangeDecoratorConfiguration(param0.nextFloat(), var0, var1, var0 + var1 + param0.nextInt(70));
     }
 }

@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.Tesselator;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -130,6 +131,10 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
 
     }
 
+    private static String getTranslationKey(Stat<ResourceLocation> param0) {
+        return "stat." + param0.getValue().toString().replace(':', '.');
+    }
+
     private int getColumnX(int param0) {
         return 115 + 40 * param0;
     }
@@ -151,9 +156,11 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
     class GeneralStatisticsList extends ObjectSelectionList<StatsScreen.GeneralStatisticsList.Entry> {
         public GeneralStatisticsList(Minecraft param0) {
             super(param0, StatsScreen.this.width, StatsScreen.this.height, 32, StatsScreen.this.height - 64, 10);
+            ObjectArrayList<Stat<ResourceLocation>> param1 = new ObjectArrayList<>(Stats.CUSTOM.iterator());
+            param1.sort(Comparator.comparing(param0x -> I18n.get(StatsScreen.getTranslationKey(param0x))));
 
-            for(Stat<ResourceLocation> param1 : Stats.CUSTOM) {
-                this.addEntry(new StatsScreen.GeneralStatisticsList.Entry(param1));
+            for(Stat<ResourceLocation> var0 : param1) {
+                this.addEntry(new StatsScreen.GeneralStatisticsList.Entry(var0));
             }
 
         }
@@ -173,7 +180,7 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
 
             @Override
             public void render(int param0, int param1, int param2, int param3, int param4, int param5, int param6, boolean param7, float param8) {
-                Component var0 = new TranslatableComponent("stat." + this.stat.getValue().toString().replace(':', '.')).withStyle(ChatFormatting.GRAY);
+                Component var0 = new TranslatableComponent(StatsScreen.getTranslationKey(this.stat)).withStyle(ChatFormatting.GRAY);
                 GeneralStatisticsList.this.drawString(StatsScreen.this.font, var0.getString(), param2 + 2, param1 + 1, param0 % 2 == 0 ? 16777215 : 9474192);
                 String var1 = this.stat.format(StatsScreen.this.stats.getValue(this.stat));
                 GeneralStatisticsList.this.drawString(

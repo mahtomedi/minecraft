@@ -10,8 +10,8 @@
         "north": "true"
       },
       "apply": {
-        "model": "minecraft:block/acacia_fence_side",
-        "uvlock": true
+        "uvlock": true,
+        "model": "minecraft:block/acacia_fence_side"
       }
     },
     {
@@ -19,9 +19,9 @@
         "east": "true"
       },
       "apply": {
+        "uvlock": true,
         "y": 90,
-        "model": "minecraft:block/acacia_fence_side",
-        "uvlock": true
+        "model": "minecraft:block/acacia_fence_side"
       }
     },
     {
@@ -29,9 +29,9 @@
         "south": "true"
       },
       "apply": {
+        "uvlock": true,
         "y": 180,
-        "model": "minecraft:block/acacia_fence_side",
-        "uvlock": true
+        "model": "minecraft:block/acacia_fence_side"
       }
     },
     {
@@ -39,9 +39,9 @@
         "west": "true"
       },
       "apply": {
+        "uvlock": true,
         "y": 270,
-        "model": "minecraft:block/acacia_fence_side",
-        "uvlock": true
+        "model": "minecraft:block/acacia_fence_side"
       }
     }
   ]

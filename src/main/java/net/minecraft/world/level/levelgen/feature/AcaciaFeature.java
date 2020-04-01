@@ -12,8 +12,8 @@ import net.minecraft.world.level.levelgen.feature.configurations.SmallTreeConfig
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public class AcaciaFeature extends AbstractSmallTreeFeature<SmallTreeConfiguration> {
-    public AcaciaFeature(Function<Dynamic<?>, ? extends SmallTreeConfiguration> param0) {
-        super(param0);
+    public AcaciaFeature(Function<Dynamic<?>, ? extends SmallTreeConfiguration> param0, Function<Random, ? extends SmallTreeConfiguration> param1) {
+        super(param0, param1);
     }
 
     public boolean doPlace(

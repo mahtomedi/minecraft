@@ -303,6 +303,10 @@ public class Block extends BlockBehaviour implements ItemLike {
     public void wasExploded(Level param0, BlockPos param1, Explosion param2) {
     }
 
+    public boolean isUnstable() {
+        return false;
+    }
+
     public void stepOn(Level param0, BlockPos param1, Entity param2) {
     }
 

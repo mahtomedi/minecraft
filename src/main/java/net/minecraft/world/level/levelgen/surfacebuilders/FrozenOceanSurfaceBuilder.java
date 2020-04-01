@@ -24,8 +24,10 @@ public class FrozenOceanSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBase
     private PerlinSimplexNoise icebergRoofNoise;
     private long seed;
 
-    public FrozenOceanSurfaceBuilder(Function<Dynamic<?>, ? extends SurfaceBuilderBaseConfiguration> param0) {
-        super(param0);
+    public FrozenOceanSurfaceBuilder(
+        Function<Dynamic<?>, ? extends SurfaceBuilderBaseConfiguration> param0, Function<Random, ? extends SurfaceBuilderBaseConfiguration> param1
+    ) {
+        super(param0, param1);
     }
 
     public void apply(

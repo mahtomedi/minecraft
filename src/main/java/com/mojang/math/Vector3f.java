@@ -75,6 +75,13 @@ public final class Vector3f {
     }
 
     @OnlyIn(Dist.CLIENT)
+    public void mul(Vector3f param0) {
+        this.x *= param0.x;
+        this.y *= param0.y;
+        this.z *= param0.z;
+    }
+
+    @OnlyIn(Dist.CLIENT)
     public void mul(float param0, float param1, float param2) {
         this.x *= param0;
         this.y *= param1;

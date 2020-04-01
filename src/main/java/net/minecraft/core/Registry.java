@@ -3,7 +3,9 @@ package net.minecraft.core;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
+import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -38,6 +40,7 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeGenerator;
 import net.minecraft.world.level.biome.BiomeSourceType;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Block;
@@ -45,6 +48,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.chunk.ChunkGeneratorType;
 import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.dimension.DimensionGenerator;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.carver.WorldCarver;
 import net.minecraft.world.level.levelgen.feature.Feature;
@@ -85,7 +89,7 @@ public abstract class Registry<T> implements IdMap<T> {
     public static final Registry<SurfaceBuilder<?>> SURFACE_BUILDER = registerSimple("surface_builder", () -> SurfaceBuilder.DEFAULT);
     public static final Registry<Feature<?>> FEATURE = registerSimple("feature", () -> Feature.ORE);
     public static final Registry<FeatureDecorator<?>> DECORATOR = registerSimple("decorator", () -> FeatureDecorator.NOPE);
-    public static final Registry<Biome> BIOME = registerSimple("biome", () -> Biomes.DEFAULT);
+    public static final Registry<Biome> BIOME = registerGenerating("biome", () -> Biomes.DEFAULT, BiomeGenerator::magicize);
     public static final Registry<BlockStateProviderType<?>> BLOCKSTATE_PROVIDER_TYPES = registerSimple(
         "block_state_provider_type", () -> BlockStateProviderType.SIMPLE_STATE_PROVIDER
     );
@@ -96,7 +100,9 @@ public abstract class Registry<T> implements IdMap<T> {
     public static final Registry<BiomeSourceType<?, ?>> BIOME_SOURCE_TYPE = registerSimple("biome_source_type", () -> BiomeSourceType.VANILLA_LAYERED);
     public static final Registry<BlockEntityType<?>> BLOCK_ENTITY_TYPE = registerSimple("block_entity_type", () -> BlockEntityType.FURNACE);
     public static final Registry<ChunkGeneratorType<?, ?>> CHUNK_GENERATOR_TYPE = registerSimple("chunk_generator_type", () -> ChunkGeneratorType.FLAT);
-    public static final Registry<DimensionType> DIMENSION_TYPE = registerSimple("dimension_type", () -> DimensionType.OVERWORLD);
+    public static final Registry<DimensionType> DIMENSION_TYPE = registerGenerating(
+        "dimension_type", () -> DimensionType.OVERWORLD, DimensionGenerator::perform
+    );
     public static final DefaultedRegistry<Motive> MOTIVE = registerDefaulted("motive", "kebab", () -> Motive.KEBAB);
     public static final Registry<ResourceLocation> CUSTOM_STAT = registerSimple("custom_stat", () -> Stats.JUMP);
     public static final DefaultedRegistry<ChunkStatus> CHUNK_STATUS = registerDefaulted("chunk_status", "empty", () -> ChunkStatus.EMPTY);
@@ -132,6 +138,10 @@ public abstract class Registry<T> implements IdMap<T> {
         return internalRegister(param0, new DefaultedRegistry<>(param1), param2);
     }
 
+    private static <T> Registry<T> registerGenerating(String param0, Supplier<T> param1, IntFunction<T> param2) {
+        return internalRegister(param0, new GeneratingRegistry<>(param2), param1);
+    }
+
     private static <T, R extends WritableRegistry<T>> R internalRegister(String param0, R param1, Supplier<T> param2) {
         ResourceLocation var0 = new ResourceLocation(param0);
         LOADERS.put(var0, param2);
@@ -149,6 +159,9 @@ public abstract class Registry<T> implements IdMap<T> {
     public abstract Optional<T> getOptional(@Nullable ResourceLocation var1);
 
     public abstract Set<ResourceLocation> keySet();
+
+    @Nullable
+    public abstract T getRandom(Random var1);
 
     public Stream<T> stream() {
         return StreamSupport.stream(this.spliterator(), false);

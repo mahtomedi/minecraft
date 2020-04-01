@@ -13,8 +13,8 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.configurations.RandomPatchConfiguration;
 
 public class RandomPatchFeature extends Feature<RandomPatchConfiguration> {
-    public RandomPatchFeature(Function<Dynamic<?>, ? extends RandomPatchConfiguration> param0) {
-        super(param0);
+    public RandomPatchFeature(Function<Dynamic<?>, ? extends RandomPatchConfiguration> param0, Function<Random, ? extends RandomPatchConfiguration> param1) {
+        super(param0, param1);
     }
 
     public boolean place(

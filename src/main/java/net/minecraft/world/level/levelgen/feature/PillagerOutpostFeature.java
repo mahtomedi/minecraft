@@ -20,8 +20,8 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureMana
 public class PillagerOutpostFeature extends RandomScatteredFeature<NoneFeatureConfiguration> {
     private static final List<Biome.SpawnerData> OUTPOST_ENEMIES = Lists.newArrayList(new Biome.SpawnerData(EntityType.PILLAGER, 1, 1, 1));
 
-    public PillagerOutpostFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0) {
-        super(param0);
+    public PillagerOutpostFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0, Function<Random, ? extends NoneFeatureConfiguration> param1) {
+        super(param0, param1);
     }
 
     @Override

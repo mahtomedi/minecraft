@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableMap.Builder;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 import java.util.List;
+import java.util.Random;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacer;
@@ -95,6 +96,48 @@ public class SmallTreeConfiguration extends TreeConfiguration {
             param0.get("foliage_height_random").asInt(0),
             param0.get("max_water_depth").asInt(0),
             param0.get("ignore_vines").asBoolean(false)
+        );
+    }
+
+    public static SmallTreeConfiguration random(Random param0) {
+        TreeConfiguration var0 = TreeConfiguration.random(param0);
+        return new SmallTreeConfiguration(
+            var0.trunkProvider,
+            var0.leavesProvider,
+            Registry.FOLIAGE_PLACER_TYPES.getRandom(param0).random(param0),
+            var0.decorators,
+            var0.baseHeight,
+            param0.nextInt(10) + 1,
+            param0.nextInt(10) + 1,
+            Math.max(2, var0.baseHeight - param0.nextInt(20)),
+            param0.nextInt(5),
+            param0.nextInt(10) + 1,
+            param0.nextInt(10) + 1,
+            param0.nextInt(10) + 1,
+            param0.nextInt(10) + 1,
+            param0.nextInt(10),
+            param0.nextBoolean()
+        );
+    }
+
+    public static SmallTreeConfiguration fancyRandom(Random param0) {
+        SmallTreeConfiguration var0 = random(param0);
+        return new SmallTreeConfiguration(
+            BlockStateProvider.random(param0, BlockStateProvider.ROTATABLE_BLOCKS),
+            var0.leavesProvider,
+            var0.foliagePlacer,
+            var0.decorators,
+            var0.baseHeight,
+            var0.heightRandA,
+            var0.heightRandB,
+            var0.trunkHeight,
+            var0.trunkHeightRandom,
+            var0.trunkTopOffset,
+            var0.trunkTopOffsetRandom,
+            var0.foliageHeight,
+            var0.foliageHeightRandom,
+            var0.maxWaterDepth,
+            var0.ignoreVines
         );
     }
 

@@ -31,6 +31,11 @@ public class BushBlock extends Block {
     }
 
     @Override
+    public boolean isUnstable() {
+        return true;
+    }
+
+    @Override
     public boolean propagatesSkylightDown(BlockState param0, BlockGetter param1, BlockPos param2) {
         return param0.getFluidState().isEmpty();
     }

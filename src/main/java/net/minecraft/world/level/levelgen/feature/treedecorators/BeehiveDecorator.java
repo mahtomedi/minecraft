@@ -78,4 +78,8 @@ public class BeehiveDecorator extends TreeDecorator {
             )
             .getValue();
     }
+
+    public static BeehiveDecorator random(Random param0) {
+        return new BeehiveDecorator(param0.nextFloat() / 3.0F);
+    }
 }

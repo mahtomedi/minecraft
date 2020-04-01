@@ -10,8 +10,10 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 
 public class LakeLavaPlacementDecorator extends FeatureDecorator<ChanceDecoratorConfiguration> {
-    public LakeLavaPlacementDecorator(Function<Dynamic<?>, ? extends ChanceDecoratorConfiguration> param0) {
-        super(param0);
+    public LakeLavaPlacementDecorator(
+        Function<Dynamic<?>, ? extends ChanceDecoratorConfiguration> param0, Function<Random, ? extends ChanceDecoratorConfiguration> param1
+    ) {
+        super(param0, param1);
     }
 
     public Stream<BlockPos> getPositions(

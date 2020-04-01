@@ -10,8 +10,8 @@ import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.feature.configurations.ReplaceBlockConfiguration;
 
 public class ReplaceBlockFeature extends Feature<ReplaceBlockConfiguration> {
-    public ReplaceBlockFeature(Function<Dynamic<?>, ? extends ReplaceBlockConfiguration> param0) {
-        super(param0);
+    public ReplaceBlockFeature(Function<Dynamic<?>, ? extends ReplaceBlockConfiguration> param0, Function<Random, ? extends ReplaceBlockConfiguration> param1) {
+        super(param0, param1);
     }
 
     public boolean place(

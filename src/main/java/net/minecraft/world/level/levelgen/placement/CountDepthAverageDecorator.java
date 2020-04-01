@@ -8,8 +8,10 @@ import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
 
 public class CountDepthAverageDecorator extends SimpleFeatureDecorator<DepthAverageConfigation> {
-    public CountDepthAverageDecorator(Function<Dynamic<?>, ? extends DepthAverageConfigation> param0) {
-        super(param0);
+    public CountDepthAverageDecorator(
+        Function<Dynamic<?>, ? extends DepthAverageConfigation> param0, Function<Random, ? extends DepthAverageConfigation> param1
+    ) {
+        super(param0, param1);
     }
 
     public Stream<BlockPos> place(Random param0, DepthAverageConfigation param1, BlockPos param2) {

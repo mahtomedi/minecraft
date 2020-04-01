@@ -43,6 +43,11 @@ public class KelpBlock extends GrowingPlantHeadBlock implements LiquidBlockConta
     }
 
     @Override
+    public boolean isUnstable() {
+        return true;
+    }
+
+    @Override
     public boolean placeLiquid(LevelAccessor param0, BlockPos param1, BlockState param2, FluidState param3) {
         return false;
     }

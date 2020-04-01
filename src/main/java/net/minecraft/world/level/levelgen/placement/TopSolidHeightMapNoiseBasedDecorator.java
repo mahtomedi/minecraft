@@ -12,8 +12,11 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 
 public class TopSolidHeightMapNoiseBasedDecorator extends FeatureDecorator<NoiseCountFactorDecoratorConfiguration> {
-    public TopSolidHeightMapNoiseBasedDecorator(Function<Dynamic<?>, ? extends NoiseCountFactorDecoratorConfiguration> param0) {
-        super(param0);
+    public TopSolidHeightMapNoiseBasedDecorator(
+        Function<Dynamic<?>, ? extends NoiseCountFactorDecoratorConfiguration> param0,
+        Function<Random, ? extends NoiseCountFactorDecoratorConfiguration> param1
+    ) {
+        super(param0, param1);
     }
 
     public Stream<BlockPos> getPositions(

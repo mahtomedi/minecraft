@@ -3,6 +3,7 @@ package net.minecraft.world.level.levelgen.placement;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
+import java.util.Random;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.configurations.DecoratorConfiguration;
 
@@ -44,5 +45,14 @@ public class NoiseCountFactorDecoratorConfiguration implements DecoratorConfigur
         double var2 = param0.get("noise_offset").asDouble(0.0);
         Heightmap.Types var3 = Heightmap.Types.getFromKey(param0.get("heightmap").asString("OCEAN_FLOOR_WG"));
         return new NoiseCountFactorDecoratorConfiguration(var0, var1, var2, var3);
+    }
+
+    public static NoiseCountFactorDecoratorConfiguration random(Random param0) {
+        return new NoiseCountFactorDecoratorConfiguration(
+            param0.nextInt(80),
+            (double)param0.nextInt(80),
+            (double)(param0.nextFloat() / 4.0F),
+            param0.nextBoolean() ? Heightmap.Types.WORLD_SURFACE_WG : Heightmap.Types.OCEAN_FLOOR_WG
+        );
     }
 }

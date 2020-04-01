@@ -1,6 +1,7 @@
 package net.minecraft.server;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.authlib.GameProfile;
@@ -995,11 +996,14 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     }
 
     public ServerLevel getLevel(DimensionType param0) {
-        return this.levels.get(param0);
+        return this.levels.computeIfAbsent(param0, param1 -> {
+            ServerLevel var0 = this.getLevel(DimensionType.OVERWORLD);
+            return new DerivedServerLevel(var0, this, this.executor, var0.getLevelStorage(), param0, ChunkProgressListener.NULL);
+        });
     }
 
     public Iterable<ServerLevel> getAllLevels() {
-        return this.levels.values();
+        return ImmutableList.copyOf(this.levels.values());
     }
 
     public String getServerVersion() {

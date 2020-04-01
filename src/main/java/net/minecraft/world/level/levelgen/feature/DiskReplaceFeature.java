@@ -12,8 +12,8 @@ import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.feature.configurations.DiskConfiguration;
 
 public class DiskReplaceFeature extends Feature<DiskConfiguration> {
-    public DiskReplaceFeature(Function<Dynamic<?>, ? extends DiskConfiguration> param0) {
-        super(param0);
+    public DiskReplaceFeature(Function<Dynamic<?>, ? extends DiskConfiguration> param0, Function<Random, ? extends DiskConfiguration> param1) {
+        super(param0, param1);
     }
 
     public boolean place(

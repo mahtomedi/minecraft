@@ -10,8 +10,8 @@ import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConfiguration;
 
 public class SimpleBlockFeature extends Feature<SimpleBlockConfiguration> {
-    public SimpleBlockFeature(Function<Dynamic<?>, ? extends SimpleBlockConfiguration> param0) {
-        super(param0);
+    public SimpleBlockFeature(Function<Dynamic<?>, ? extends SimpleBlockConfiguration> param0, Function<Random, ? extends SimpleBlockConfiguration> param1) {
+        super(param0, param1);
     }
 
     public boolean place(

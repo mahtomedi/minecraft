@@ -10,8 +10,10 @@ import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.feature.configurations.SimpleRandomFeatureConfiguration;
 
 public class SimpleRandomSelectorFeature extends Feature<SimpleRandomFeatureConfiguration> {
-    public SimpleRandomSelectorFeature(Function<Dynamic<?>, ? extends SimpleRandomFeatureConfiguration> param0) {
-        super(param0);
+    public SimpleRandomSelectorFeature(
+        Function<Dynamic<?>, ? extends SimpleRandomFeatureConfiguration> param0, Function<Random, ? extends SimpleRandomFeatureConfiguration> param1
+    ) {
+        super(param0, param1);
     }
 
     public boolean place(

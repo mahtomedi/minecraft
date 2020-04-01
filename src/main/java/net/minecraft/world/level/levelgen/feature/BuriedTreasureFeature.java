@@ -15,8 +15,10 @@ import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 
 public class BuriedTreasureFeature extends StructureFeature<BuriedTreasureConfiguration> {
-    public BuriedTreasureFeature(Function<Dynamic<?>, ? extends BuriedTreasureConfiguration> param0) {
-        super(param0);
+    public BuriedTreasureFeature(
+        Function<Dynamic<?>, ? extends BuriedTreasureConfiguration> param0, Function<Random, ? extends BuriedTreasureConfiguration> param1
+    ) {
+        super(param0, param1);
     }
 
     @Override

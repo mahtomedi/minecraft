@@ -70,4 +70,8 @@ public class CocoaDecorator extends TreeDecorator {
             )
             .getValue();
     }
+
+    public static CocoaDecorator random(Random param0) {
+        return new CocoaDecorator(param0.nextFloat() / 2.0F);
+    }
 }

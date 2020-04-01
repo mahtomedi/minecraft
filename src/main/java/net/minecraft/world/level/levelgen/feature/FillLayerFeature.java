@@ -10,8 +10,8 @@ import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.feature.configurations.LayerConfiguration;
 
 public class FillLayerFeature extends Feature<LayerConfiguration> {
-    public FillLayerFeature(Function<Dynamic<?>, ? extends LayerConfiguration> param0) {
-        super(param0);
+    public FillLayerFeature(Function<Dynamic<?>, ? extends LayerConfiguration> param0, Function<Random, ? extends LayerConfiguration> param1) {
+        super(param0, param1);
     }
 
     public boolean place(

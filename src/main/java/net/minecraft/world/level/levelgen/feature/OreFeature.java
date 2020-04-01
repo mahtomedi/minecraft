@@ -13,8 +13,8 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
 
 public class OreFeature extends Feature<OreConfiguration> {
-    public OreFeature(Function<Dynamic<?>, ? extends OreConfiguration> param0) {
-        super(param0);
+    public OreFeature(Function<Dynamic<?>, ? extends OreConfiguration> param0, Function<Random, ? extends OreConfiguration> param1) {
+        super(param0, param1);
     }
 
     public boolean place(LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, OreConfiguration param4) {

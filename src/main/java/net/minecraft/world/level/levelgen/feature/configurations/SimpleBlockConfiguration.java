@@ -5,6 +5,11 @@ import com.google.common.collect.Lists;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
+import net.minecraft.Util;
+import net.minecraft.core.Registry;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -54,5 +59,14 @@ public class SimpleBlockConfiguration implements FeatureConfiguration {
         List<BlockState> var2 = param0.get("place_in").asList(BlockState::deserialize);
         List<BlockState> var3 = param0.get("place_under").asList(BlockState::deserialize);
         return new SimpleBlockConfiguration(var0, var1, var2, var3);
+    }
+
+    public static SimpleBlockConfiguration random(Random param0) {
+        return new SimpleBlockConfiguration(
+            Registry.BLOCK.getRandom(param0).defaultBlockState(),
+            Util.randomObjectStream(param0, 20, Registry.BLOCK).map(Block::defaultBlockState).collect(Collectors.toList()),
+            Util.randomObjectStream(param0, 20, Registry.BLOCK).map(Block::defaultBlockState).collect(Collectors.toList()),
+            Util.randomObjectStream(param0, 20, Registry.BLOCK).map(Block::defaultBlockState).collect(Collectors.toList())
+        );
     }
 }

@@ -35,7 +35,7 @@ public class PineFoliagePlacer extends FoliagePlacer {
 
     @Override
     public int foliageRadius(Random param0, int param1, int param2, SmallTreeConfiguration param3) {
-        return this.radius + param0.nextInt(this.radiusRandom + 1) + param0.nextInt(param2 - param1 + 1);
+        return this.radius + param0.nextInt(this.radiusRandom + 1) + param0.nextInt(Math.max(1, param2 - param1 + 1));
     }
 
     @Override
@@ -46,5 +46,9 @@ public class PineFoliagePlacer extends FoliagePlacer {
     @Override
     public int getTreeRadiusForHeight(int param0, int param1, int param2, int param3) {
         return param3 <= 1 ? 0 : 2;
+    }
+
+    public static PineFoliagePlacer random(Random param0) {
+        return new PineFoliagePlacer(param0.nextInt(10) + 1, param0.nextInt(5) + 1);
     }
 }

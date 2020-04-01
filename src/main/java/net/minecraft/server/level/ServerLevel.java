@@ -1327,11 +1327,11 @@ public class ServerLevel extends Level {
         Optional<PoiType> var1 = PoiType.forState(param2);
         if (!Objects.equals(var0, var1)) {
             BlockPos var2 = param0.immutable();
-            var0.ifPresent(param1x -> this.getServer().execute(() -> {
+            var0.ifPresent(param1x -> this.getChunkSource().execute(() -> {
                     this.getPoiManager().remove(var2);
                     DebugPackets.sendPoiRemovedPacket(this, var2);
                 }));
-            var1.ifPresent(param1x -> this.getServer().execute(() -> {
+            var1.ifPresent(param1x -> this.getChunkSource().execute(() -> {
                     this.getPoiManager().add(var2, param1x);
                     DebugPackets.sendPoiAddedPacket(this, var2);
                 }));

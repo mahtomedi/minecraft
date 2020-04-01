@@ -103,7 +103,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.dimension.Dimension;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
@@ -1482,19 +1482,20 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
     }
 
     public void renderSky(PoseStack param0, float param1) {
-        if (this.minecraft.level.dimension.getType() == DimensionType.THE_END) {
+        Dimension var0 = this.minecraft.level.dimension;
+        if (var0.isEndSky()) {
             this.renderEndSky(param0);
-        } else if (this.minecraft.level.dimension.isNaturalDimension()) {
+        } else if (var0.isNaturalDimension()) {
             RenderSystem.disableTexture();
-            Vec3 var0 = this.level.getSkyColor(this.minecraft.gameRenderer.getMainCamera().getBlockPosition(), param1);
-            float var1 = (float)var0.x;
-            float var2 = (float)var0.y;
-            float var3 = (float)var0.z;
+            Vec3 var1 = this.level.getSkyColor(this.minecraft.gameRenderer.getMainCamera().getBlockPosition(), param1);
+            float var2 = (float)var1.x;
+            float var3 = (float)var1.y;
+            float var4 = (float)var1.z;
             FogRenderer.levelFogColor();
-            BufferBuilder var4 = Tesselator.getInstance().getBuilder();
+            BufferBuilder var5 = Tesselator.getInstance().getBuilder();
             RenderSystem.depthMask(false);
             RenderSystem.enableFog();
-            RenderSystem.color3f(var1, var2, var3);
+            RenderSystem.color3f(var2, var3, var4);
             this.skyBuffer.bind();
             this.skyFormat.setupBufferState(0L);
             this.skyBuffer.draw(param0.last().pose(), 7);
@@ -1504,32 +1505,32 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             RenderSystem.disableAlphaTest();
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
-            float[] var5 = this.level.dimension.getSunriseColor(this.level.getTimeOfDay(param1), param1);
-            if (var5 != null) {
+            float[] var6 = this.level.dimension.getSunriseColor(this.level.getTimeOfDay(param1), param1);
+            if (var6 != null) {
                 RenderSystem.disableTexture();
                 RenderSystem.shadeModel(7425);
                 param0.pushPose();
                 param0.mulPose(Vector3f.XP.rotationDegrees(90.0F));
-                float var6 = Mth.sin(this.level.getSunAngle(param1)) < 0.0F ? 180.0F : 0.0F;
-                param0.mulPose(Vector3f.ZP.rotationDegrees(var6));
+                float var7 = Mth.sin(this.level.getSunAngle(param1)) < 0.0F ? 180.0F : 0.0F;
+                param0.mulPose(Vector3f.ZP.rotationDegrees(var7));
                 param0.mulPose(Vector3f.ZP.rotationDegrees(90.0F));
-                float var7 = var5[0];
-                float var8 = var5[1];
-                float var9 = var5[2];
-                Matrix4f var10 = param0.last().pose();
-                var4.begin(6, DefaultVertexFormat.POSITION_COLOR);
-                var4.vertex(var10, 0.0F, 100.0F, 0.0F).color(var7, var8, var9, var5[3]).endVertex();
-                int var11 = 16;
+                float var8 = var6[0];
+                float var9 = var6[1];
+                float var10 = var6[2];
+                Matrix4f var11 = param0.last().pose();
+                var5.begin(6, DefaultVertexFormat.POSITION_COLOR);
+                var5.vertex(var11, 0.0F, 100.0F, 0.0F).color(var8, var9, var10, var6[3]).endVertex();
+                int var12 = 16;
 
-                for(int var12 = 0; var12 <= 16; ++var12) {
-                    float var13 = (float)var12 * (float) (Math.PI * 2) / 16.0F;
-                    float var14 = Mth.sin(var13);
-                    float var15 = Mth.cos(var13);
-                    var4.vertex(var10, var14 * 120.0F, var15 * 120.0F, -var15 * 40.0F * var5[3]).color(var5[0], var5[1], var5[2], 0.0F).endVertex();
+                for(int var13 = 0; var13 <= 16; ++var13) {
+                    float var14 = (float)var13 * (float) (Math.PI * 2) / 16.0F;
+                    float var15 = Mth.sin(var14);
+                    float var16 = Mth.cos(var14);
+                    var5.vertex(var11, var15 * 120.0F, var16 * 120.0F, -var16 * 40.0F * var6[3]).color(var6[0], var6[1], var6[2], 0.0F).endVertex();
                 }
 
-                var4.end();
-                BufferUploader.end(var4);
+                var5.end();
+                BufferUploader.end(var5);
                 param0.popPose();
                 RenderSystem.shadeModel(7424);
             }
@@ -1539,40 +1540,42 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                 GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO
             );
             param0.pushPose();
-            float var16 = 1.0F - this.level.getRainLevel(param1);
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, var16);
+            float var17 = 1.0F - this.level.getRainLevel(param1);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, var17);
             param0.mulPose(Vector3f.YP.rotationDegrees(-90.0F));
             param0.mulPose(Vector3f.XP.rotationDegrees(this.level.getTimeOfDay(param1) * 360.0F));
-            Matrix4f var17 = param0.last().pose();
-            float var18 = 30.0F;
+            Matrix4f var18 = param0.last().pose();
+            float var19 = var0.getSunSize();
+            Vector3f var20 = var0.getSunTint();
             this.textureManager.bind(SUN_LOCATION);
-            var4.begin(7, DefaultVertexFormat.POSITION_TEX);
-            var4.vertex(var17, -var18, 100.0F, -var18).uv(0.0F, 0.0F).endVertex();
-            var4.vertex(var17, var18, 100.0F, -var18).uv(1.0F, 0.0F).endVertex();
-            var4.vertex(var17, var18, 100.0F, var18).uv(1.0F, 1.0F).endVertex();
-            var4.vertex(var17, -var18, 100.0F, var18).uv(0.0F, 1.0F).endVertex();
-            var4.end();
-            BufferUploader.end(var4);
-            var18 = 20.0F;
+            var5.begin(7, DefaultVertexFormat.POSITION_COLOR_TEX);
+            var5.vertex(var18, -var19, 100.0F, -var19).color(var20.x(), var20.y(), var20.z(), 1.0F).uv(0.0F, 0.0F).endVertex();
+            var5.vertex(var18, var19, 100.0F, -var19).color(var20.x(), var20.y(), var20.z(), 1.0F).uv(1.0F, 0.0F).endVertex();
+            var5.vertex(var18, var19, 100.0F, var19).color(var20.x(), var20.y(), var20.z(), 1.0F).uv(1.0F, 1.0F).endVertex();
+            var5.vertex(var18, -var19, 100.0F, var19).color(var20.x(), var20.y(), var20.z(), 1.0F).uv(0.0F, 1.0F).endVertex();
+            var5.end();
+            BufferUploader.end(var5);
+            var19 = var0.getMoonSize();
+            Vector3f var21 = var0.getMoonTint();
             this.textureManager.bind(MOON_LOCATION);
-            int var19 = this.level.getMoonPhase();
-            int var20 = var19 % 4;
-            int var21 = var19 / 4 % 2;
-            float var22 = (float)(var20 + 0) / 4.0F;
-            float var23 = (float)(var21 + 0) / 2.0F;
-            float var24 = (float)(var20 + 1) / 4.0F;
-            float var25 = (float)(var21 + 1) / 2.0F;
-            var4.begin(7, DefaultVertexFormat.POSITION_TEX);
-            var4.vertex(var17, -var18, -100.0F, var18).uv(var24, var25).endVertex();
-            var4.vertex(var17, var18, -100.0F, var18).uv(var22, var25).endVertex();
-            var4.vertex(var17, var18, -100.0F, -var18).uv(var22, var23).endVertex();
-            var4.vertex(var17, -var18, -100.0F, -var18).uv(var24, var23).endVertex();
-            var4.end();
-            BufferUploader.end(var4);
+            int var22 = this.level.getMoonPhase();
+            int var23 = var22 % 4;
+            int var24 = var22 / 4 % 2;
+            float var25 = (float)(var23 + 0) / 4.0F;
+            float var26 = (float)(var24 + 0) / 2.0F;
+            float var27 = (float)(var23 + 1) / 4.0F;
+            float var28 = (float)(var24 + 1) / 2.0F;
+            var5.begin(7, DefaultVertexFormat.POSITION_COLOR_TEX);
+            var5.vertex(var18, -var19, -100.0F, var19).color(var21.x(), var21.y(), var21.z(), 1.0F).uv(var27, var28).endVertex();
+            var5.vertex(var18, var19, -100.0F, var19).color(var21.x(), var21.y(), var21.z(), 1.0F).uv(var25, var28).endVertex();
+            var5.vertex(var18, var19, -100.0F, -var19).color(var21.x(), var21.y(), var21.z(), 1.0F).uv(var25, var26).endVertex();
+            var5.vertex(var18, -var19, -100.0F, -var19).color(var21.x(), var21.y(), var21.z(), 1.0F).uv(var27, var26).endVertex();
+            var5.end();
+            BufferUploader.end(var5);
             RenderSystem.disableTexture();
-            float var26 = this.level.getStarBrightness(param1) * var16;
-            if (var26 > 0.0F) {
-                RenderSystem.color4f(var26, var26, var26, var26);
+            float var29 = this.level.getStarBrightness(param1) * var17;
+            if (var29 > 0.0F) {
+                RenderSystem.color4f(var29, var29, var29, var29);
                 this.starBuffer.bind();
                 this.skyFormat.setupBufferState(0L);
                 this.starBuffer.draw(param0.last().pose(), 7);
@@ -1587,8 +1590,8 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             param0.popPose();
             RenderSystem.disableTexture();
             RenderSystem.color3f(0.0F, 0.0F, 0.0F);
-            double var27 = this.minecraft.player.getEyePosition(param1).y - this.level.getHorizonHeight();
-            if (var27 < 0.0) {
+            double var30 = this.minecraft.player.getEyePosition(param1).y - this.level.getHorizonHeight();
+            if (var30 < 0.0) {
                 param0.pushPose();
                 param0.translate(0.0, 12.0, 0.0);
                 this.darkBuffer.bind();
@@ -1600,9 +1603,9 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             }
 
             if (this.level.dimension.hasGround()) {
-                RenderSystem.color3f(var1 * 0.2F + 0.04F, var2 * 0.2F + 0.04F, var3 * 0.6F + 0.1F);
+                RenderSystem.color3f(var2 * 0.2F + 0.04F, var3 * 0.2F + 0.04F, var4 * 0.6F + 0.1F);
             } else {
-                RenderSystem.color3f(var1, var2, var3);
+                RenderSystem.color3f(var2, var3, var4);
             }
 
             RenderSystem.enableTexture();

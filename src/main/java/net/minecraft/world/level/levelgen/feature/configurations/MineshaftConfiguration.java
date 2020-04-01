@@ -3,6 +3,8 @@ package net.minecraft.world.level.levelgen.feature.configurations;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
+import java.util.Random;
+import net.minecraft.Util;
 import net.minecraft.world.level.levelgen.feature.MineshaftFeature;
 
 public class MineshaftConfiguration implements FeatureConfiguration {
@@ -33,5 +35,9 @@ public class MineshaftConfiguration implements FeatureConfiguration {
         float var0 = param0.get("probability").asFloat(0.0F);
         MineshaftFeature.Type var1 = MineshaftFeature.Type.byName(param0.get("type").asString(""));
         return new MineshaftConfiguration((double)var0, var1);
+    }
+
+    public static MineshaftConfiguration random(Random param0) {
+        return new MineshaftConfiguration((double)(param0.nextFloat() / 2.0F), Util.randomEnum(MineshaftFeature.Type.class, param0));
     }
 }

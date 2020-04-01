@@ -1,6 +1,9 @@
 package net.minecraft.world.level.biome;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.mojang.datafixers.Dynamic;
+import com.mojang.datafixers.types.DynamicOps;
 import java.util.Set;
 import net.minecraft.world.level.newbiome.layer.Layer;
 import net.minecraft.world.level.newbiome.layer.Layers;
@@ -84,5 +87,15 @@ public class OverworldBiomeSource extends BiomeSource {
     @Override
     public Biome getNoiseBiome(int param0, int param1, int param2) {
         return this.noiseBiomeLayer.get(param0, param2);
+    }
+
+    @Override
+    public BiomeSourceType<?, ?> getType() {
+        return BiomeSourceType.VANILLA_LAYERED;
+    }
+
+    @Override
+    public <T> Dynamic<T> serialize(DynamicOps<T> param0) {
+        return new Dynamic<>(param0, param0.createMap(ImmutableMap.of()));
     }
 }

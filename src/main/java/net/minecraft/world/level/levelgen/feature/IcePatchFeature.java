@@ -14,8 +14,8 @@ import net.minecraft.world.level.levelgen.feature.configurations.FeatureRadiusCo
 public class IcePatchFeature extends Feature<FeatureRadiusConfiguration> {
     private final Block block = Blocks.PACKED_ICE;
 
-    public IcePatchFeature(Function<Dynamic<?>, ? extends FeatureRadiusConfiguration> param0) {
-        super(param0);
+    public IcePatchFeature(Function<Dynamic<?>, ? extends FeatureRadiusConfiguration> param0, Function<Random, ? extends FeatureRadiusConfiguration> param1) {
+        super(param0, param1);
     }
 
     public boolean place(

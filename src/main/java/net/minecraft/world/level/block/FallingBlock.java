@@ -47,6 +47,11 @@ public class FallingBlock extends Block {
     protected void falling(FallingBlockEntity param0) {
     }
 
+    @Override
+    public boolean isUnstable() {
+        return true;
+    }
+
     protected int getDelayAfterPlace() {
         return 2;
     }

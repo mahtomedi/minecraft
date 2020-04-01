@@ -15,8 +15,10 @@ public class VoidStartPlatformFeature extends Feature<NoneFeatureConfiguration> 
     private static final BlockPos PLATFORM_ORIGIN = new BlockPos(8, 3, 8);
     private static final ChunkPos PLATFORM_ORIGIN_CHUNK = new ChunkPos(PLATFORM_ORIGIN);
 
-    public VoidStartPlatformFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0) {
-        super(param0);
+    public VoidStartPlatformFeature(
+        Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0, Function<Random, ? extends NoneFeatureConfiguration> param1
+    ) {
+        super(param0, param1);
     }
 
     private static int checkerboardDistance(int param0, int param1, int param2, int param3) {

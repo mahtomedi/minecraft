@@ -1,11 +1,21 @@
 package net.minecraft.world.level.dimension;
 
+import com.google.common.collect.ImmutableMap;
+import com.mojang.datafixers.Dynamic;
+import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.math.Vector3f;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelType;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.phys.Vec3;
@@ -14,12 +24,14 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class Dimension {
     public static final float[] MOON_BRIGHTNESS_PER_PHASE = new float[]{1.0F, 0.75F, 0.5F, 0.25F, 0.0F, 0.25F, 0.5F, 0.75F};
+    public static final Vector3f NO_CHANGE = new Vector3f(1.0F, 1.0F, 1.0F);
     protected final Level level;
     private final DimensionType type;
     protected boolean ultraWarm;
     protected boolean hasCeiling;
     protected final float[] brightnessRamp = new float[16];
     private final float[] sunriseCol = new float[4];
+    private static final Vector3f ONES = new Vector3f(1.0F, 1.0F, 1.0F);
 
     public Dimension(Level param0, DimensionType param1, float param2) {
         this.level = param0;
@@ -123,5 +135,85 @@ public abstract class Dimension {
     @OnlyIn(Dist.CLIENT)
     public abstract boolean isFoggyAt(int var1, int var2);
 
-    public abstract DimensionType getType();
+    @OnlyIn(Dist.CLIENT)
+    public void modifyLightmapColor(int param0, int param1, Vector3f param2) {
+    }
+
+    public float getBlockShade(Direction param0, boolean param1) {
+        if (!param1) {
+            return 1.0F;
+        } else {
+            switch(param0) {
+                case DOWN:
+                    return 0.5F;
+                case UP:
+                    return 1.0F;
+                case NORTH:
+                case SOUTH:
+                    return 0.8F;
+                case WEST:
+                case EAST:
+                    return 0.6F;
+                default:
+                    return 1.0F;
+            }
+        }
+    }
+
+    public final DimensionType getType() {
+        return this.type;
+    }
+
+    public <T> Dynamic<T> serialize(DynamicOps<T> param0) {
+        return new Dynamic<>(
+            param0,
+            param0.createMap(
+                ImmutableMap.of(
+                    param0.createString("type"),
+                    param0.createString(Registry.DIMENSION_TYPE.getKey(this.getType()).toString()),
+                    param0.createString("generator"),
+                    this.createRandomLevelGenerator().serialize(param0).getValue()
+                )
+            )
+        );
+    }
+
+    public Stream<Biome> getKnownBiomes() {
+        return this.createRandomLevelGenerator().getBiomeSource().getKnownBiomes();
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public Vector3f getExtraTint(BlockState param0, BlockPos param1) {
+        return NO_CHANGE;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public <T extends LivingEntity> Vector3f getEntityExtraTint(T param0) {
+        return NO_CHANGE;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public boolean isEndSky() {
+        return false;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public float getSunSize() {
+        return 30.0F;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public float getMoonSize() {
+        return 20.0F;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public Vector3f getSunTint() {
+        return ONES;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public Vector3f getMoonTint() {
+        return ONES;
+    }
 }

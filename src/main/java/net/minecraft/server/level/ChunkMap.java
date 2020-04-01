@@ -145,7 +145,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         );
         this.distanceManager = new ChunkMap.DistanceManager(param4, param5);
         this.overworldDataStorage = param9;
-        this.poiManager = new PoiManager(new File(this.storageFolder, "poi"), param2);
+        this.poiManager = new PoiManager(new File(this.storageFolder, "poi"), param2, param5::runAllTasks);
         this.setViewDistance(param10);
     }
 

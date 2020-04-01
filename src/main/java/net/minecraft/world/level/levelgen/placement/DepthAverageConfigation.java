@@ -3,6 +3,7 @@ package net.minecraft.world.level.levelgen.placement;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
+import java.util.Random;
 import net.minecraft.world.level.levelgen.feature.configurations.DecoratorConfiguration;
 
 public class DepthAverageConfigation implements DecoratorConfiguration {
@@ -38,5 +39,9 @@ public class DepthAverageConfigation implements DecoratorConfiguration {
         int var1 = param0.get("baseline").asInt(0);
         int var2 = param0.get("spread").asInt(0);
         return new DepthAverageConfigation(var0, var1, var2);
+    }
+
+    public static DepthAverageConfigation random(Random param0) {
+        return new DepthAverageConfigation(param0.nextInt(10) + 1, param0.nextInt(16), param0.nextInt(16) + 1);
     }
 }

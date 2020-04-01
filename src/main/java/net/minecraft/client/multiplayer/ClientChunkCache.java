@@ -84,7 +84,7 @@ public class ClientChunkCache extends ChunkSource {
 
     @Nullable
     public LevelChunk replaceWithPacketData(
-        int param0, int param1, @Nullable ChunkBiomeContainer param2, FriendlyByteBuf param3, CompoundTag param4, int param5
+        int param0, int param1, @Nullable ChunkBiomeContainer param2, FriendlyByteBuf param3, CompoundTag param4, int param5, boolean param6
     ) {
         if (!this.storage.inRange(param0, param1)) {
             LOGGER.warn("Ignoring chunk since it's not in the view range: {}, {}", param0, param1);
@@ -92,7 +92,9 @@ public class ClientChunkCache extends ChunkSource {
         } else {
             int var0 = this.storage.getIndex(param0, param1);
             LevelChunk var1 = this.storage.chunks.get(var0);
-            if (!isValidChunk(var1, param0, param1)) {
+            if (!param6 && isValidChunk(var1, param0, param1)) {
+                var1.replaceWithPacketData(param2, param3, param4, param5);
+            } else {
                 if (param2 == null) {
                     LOGGER.warn("Ignoring chunk since we don't have complete data: {}, {}", param0, param1);
                     return null;
@@ -101,8 +103,6 @@ public class ClientChunkCache extends ChunkSource {
                 var1 = new LevelChunk(this.level, new ChunkPos(param0, param1), param2);
                 var1.replaceWithPacketData(param2, param3, param4, param5);
                 this.storage.replace(var0, var1);
-            } else {
-                var1.replaceWithPacketData(param2, param3, param4, param5);
             }
 
             LevelChunkSection[] var2 = var1.getSections();

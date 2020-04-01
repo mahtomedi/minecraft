@@ -26,8 +26,10 @@ public class BambooFeature extends Feature<ProbabilityFeatureConfiguration> {
     private static final BlockState BAMBOO_TOP_LARGE = BAMBOO_TRUNK.setValue(BambooBlock.LEAVES, BambooLeaves.LARGE);
     private static final BlockState BAMBOO_TOP_SMALL = BAMBOO_TRUNK.setValue(BambooBlock.LEAVES, BambooLeaves.SMALL);
 
-    public BambooFeature(Function<Dynamic<?>, ? extends ProbabilityFeatureConfiguration> param0) {
-        super(param0);
+    public BambooFeature(
+        Function<Dynamic<?>, ? extends ProbabilityFeatureConfiguration> param0, Function<Random, ? extends ProbabilityFeatureConfiguration> param1
+    ) {
+        super(param0, param1);
     }
 
     public boolean place(

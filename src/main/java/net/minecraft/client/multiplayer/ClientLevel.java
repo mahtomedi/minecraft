@@ -361,9 +361,9 @@ public class ClientLevel extends Level {
                                 (double)((float)param6.getX() + this.random.nextFloat()),
                                 (double)((float)param6.getY() + this.random.nextFloat()),
                                 (double)((float)param6.getZ() + this.random.nextFloat()),
-                                param1x.getXVelocity(this.random),
-                                param1x.getYVelocity(this.random),
-                                param1x.getZVelocity(this.random)
+                                param1x.getXVelocity() * this.random.nextGaussian(),
+                                param1x.getYVelocity() * this.random.nextGaussian(),
+                                param1x.getZVelocity() * this.random.nextGaussian()
                             );
                         }
         
@@ -732,25 +732,7 @@ public class ClientLevel extends Level {
 
     @Override
     public float getShade(Direction param0, boolean param1) {
-        boolean var0 = this.dimension.getType() == DimensionType.NETHER;
-        if (!param1) {
-            return var0 ? 0.9F : 1.0F;
-        } else {
-            switch(param0) {
-                case DOWN:
-                    return var0 ? 0.9F : 0.5F;
-                case UP:
-                    return var0 ? 0.9F : 1.0F;
-                case NORTH:
-                case SOUTH:
-                    return 0.8F;
-                case WEST:
-                case EAST:
-                    return 0.6F;
-                default:
-                    return 1.0F;
-            }
-        }
+        return this.dimension.getBlockShade(param0, param1);
     }
 
     @Override

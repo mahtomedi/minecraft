@@ -1,12 +1,14 @@
 package net.minecraft.core.particles;
 
+import java.util.Random;
+import java.util.function.BiFunction;
 import net.minecraft.core.Registry;
 
 public class ParticleTypes {
     public static final SimpleParticleType AMBIENT_ENTITY_EFFECT = register("ambient_entity_effect", false);
     public static final SimpleParticleType ANGRY_VILLAGER = register("angry_villager", false);
     public static final SimpleParticleType BARRIER = register("barrier", false);
-    public static final ParticleType<BlockParticleOption> BLOCK = register("block", BlockParticleOption.DESERIALIZER);
+    public static final ParticleType<BlockParticleOption> BLOCK = register("block", BlockParticleOption.DESERIALIZER, BlockParticleOption.RANDOM_PROVIDER);
     public static final SimpleParticleType BUBBLE = register("bubble", false);
     public static final SimpleParticleType CLOUD = register("cloud", false);
     public static final SimpleParticleType CRIT = register("crit", false);
@@ -17,7 +19,7 @@ public class ParticleTypes {
     public static final SimpleParticleType LANDING_LAVA = register("landing_lava", false);
     public static final SimpleParticleType DRIPPING_WATER = register("dripping_water", false);
     public static final SimpleParticleType FALLING_WATER = register("falling_water", false);
-    public static final ParticleType<DustParticleOptions> DUST = register("dust", DustParticleOptions.DESERIALIZER);
+    public static final ParticleType<DustParticleOptions> DUST = register("dust", DustParticleOptions.DESERIALIZER, DustParticleOptions.RANDOM_PROVIDER);
     public static final SimpleParticleType EFFECT = register("effect", false);
     public static final SimpleParticleType ELDER_GUARDIAN = register("elder_guardian", true);
     public static final SimpleParticleType ENCHANTED_HIT = register("enchanted_hit", false);
@@ -26,7 +28,9 @@ public class ParticleTypes {
     public static final SimpleParticleType ENTITY_EFFECT = register("entity_effect", false);
     public static final SimpleParticleType EXPLOSION_EMITTER = register("explosion_emitter", true);
     public static final SimpleParticleType EXPLOSION = register("explosion", true);
-    public static final ParticleType<BlockParticleOption> FALLING_DUST = register("falling_dust", BlockParticleOption.DESERIALIZER);
+    public static final ParticleType<BlockParticleOption> FALLING_DUST = register(
+        "falling_dust", BlockParticleOption.DESERIALIZER, BlockParticleOption.RANDOM_PROVIDER
+    );
     public static final SimpleParticleType FIREWORK = register("firework", false);
     public static final SimpleParticleType FISHING = register("fishing", false);
     public static final SimpleParticleType FLAME = register("flame", false);
@@ -37,7 +41,7 @@ public class ParticleTypes {
     public static final SimpleParticleType COMPOSTER = register("composter", false);
     public static final SimpleParticleType HEART = register("heart", false);
     public static final SimpleParticleType INSTANT_EFFECT = register("instant_effect", false);
-    public static final ParticleType<ItemParticleOption> ITEM = register("item", ItemParticleOption.DESERIALIZER);
+    public static final ParticleType<ItemParticleOption> ITEM = register("item", ItemParticleOption.DESERIALIZER, ItemParticleOption.RANDOM_PROVIDER);
     public static final SimpleParticleType ITEM_SLIME = register("item_slime", false);
     public static final SimpleParticleType ITEM_SNOWBALL = register("item_snowball", false);
     public static final SimpleParticleType LARGE_SMOKE = register("large_smoke", false);
@@ -79,7 +83,9 @@ public class ParticleTypes {
         return Registry.register(Registry.PARTICLE_TYPE, param0, new SimpleParticleType(param1));
     }
 
-    private static <T extends ParticleOptions> ParticleType<T> register(String param0, ParticleOptions.Deserializer<T> param1) {
-        return Registry.register(Registry.PARTICLE_TYPE, param0, new ParticleType<>(false, param1));
+    private static <T extends ParticleOptions> ParticleType<T> register(
+        String param0, ParticleOptions.Deserializer<T> param1, BiFunction<Random, ParticleType<T>, T> param2
+    ) {
+        return Registry.register(Registry.PARTICLE_TYPE, param0, new ParticleType<>(false, param1, param2));
     }
 }

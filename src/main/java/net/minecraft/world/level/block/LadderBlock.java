@@ -58,6 +58,11 @@ public class LadderBlock extends Block implements SimpleWaterloggedBlock {
     }
 
     @Override
+    public boolean isUnstable() {
+        return true;
+    }
+
+    @Override
     public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
         if (param1.getOpposite() == param0.getValue(FACING) && !param0.canSurvive(param3, param4)) {
             return Blocks.AIR.defaultBlockState();

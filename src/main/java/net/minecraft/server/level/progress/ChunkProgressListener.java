@@ -5,6 +5,20 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkStatus;
 
 public interface ChunkProgressListener {
+    ChunkProgressListener NULL = new ChunkProgressListener() {
+        @Override
+        public void updateSpawnPos(ChunkPos param0) {
+        }
+
+        @Override
+        public void onStatusChange(ChunkPos param0, @Nullable ChunkStatus param1) {
+        }
+
+        @Override
+        public void stop() {
+        }
+    };
+
     void updateSpawnPos(ChunkPos var1);
 
     void onStatusChange(ChunkPos var1, @Nullable ChunkStatus var2);

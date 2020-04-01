@@ -3,6 +3,7 @@ package net.minecraft.world.level.levelgen.feature;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.Dynamic;
 import java.util.List;
+import java.util.Random;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.EntityType;
@@ -20,8 +21,8 @@ public class SwamplandHutFeature extends RandomScatteredFeature<NoneFeatureConfi
     private static final List<Biome.SpawnerData> SWAMPHUT_ENEMIES = Lists.newArrayList(new Biome.SpawnerData(EntityType.WITCH, 1, 1, 1));
     private static final List<Biome.SpawnerData> SWAMPHUT_ANIMALS = Lists.newArrayList(new Biome.SpawnerData(EntityType.CAT, 1, 1, 1));
 
-    public SwamplandHutFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0) {
-        super(param0);
+    public SwamplandHutFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0, Function<Random, ? extends NoneFeatureConfiguration> param1) {
+        super(param0, param1);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package net.minecraft.world.level;
 
+import com.mojang.math.Vector3f;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -177,5 +178,11 @@ public interface LevelReader extends BlockAndTintGetter, CollisionGetter, BiomeM
         } else {
             return false;
         }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    default Vector3f getExtraTint(BlockState param0, BlockPos param1) {
+        return this.getDimension().getExtraTint(param0, param1);
     }
 }

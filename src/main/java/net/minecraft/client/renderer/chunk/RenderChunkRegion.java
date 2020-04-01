@@ -1,5 +1,6 @@
 package net.minecraft.client.renderer.chunk;
 
+import com.mojang.math.Vector3f;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -119,7 +120,7 @@ public class RenderChunkRegion implements BlockAndTintGetter {
     @Nullable
     @Override
     public BlockEntity getBlockEntity(BlockPos param0) {
-        return this.getBlockEntity(param0, LevelChunk.EntityCreationType.IMMEDIATE);
+        return this.getBlockEntity(param0, LevelChunk.EntityCreationType.CHECK);
     }
 
     @Nullable
@@ -132,5 +133,10 @@ public class RenderChunkRegion implements BlockAndTintGetter {
     @Override
     public int getBlockTint(BlockPos param0, ColorResolver param1) {
         return this.level.getBlockTint(param0, param1);
+    }
+
+    @Override
+    public Vector3f getExtraTint(BlockState param0, BlockPos param1) {
+        return this.level.getExtraTint(param0, param1);
     }
 }

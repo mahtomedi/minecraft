@@ -11,6 +11,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -90,20 +91,25 @@ public abstract class ThrowableProjectile extends Projectile {
         Predicate<Entity> var4 = param1 -> !param1.isSpectator() && param1.isPickable() && (this.leftOwner || !this.isEntityOrVehicle(param1, var1));
         HitResult var5 = ProjectileUtil.getHitResult(this, var0, var4, ClipContext.Block.OUTLINE, true);
         if (var5.getType() != HitResult.Type.MISS) {
-            if (var5.getType() == HitResult.Type.BLOCK && this.level.getBlockState(((BlockHitResult)var5).getBlockPos()).getBlock() == Blocks.NETHER_PORTAL) {
-                this.handleInsidePortal(((BlockHitResult)var5).getBlockPos());
+            if (var5.getType() == HitResult.Type.BLOCK) {
+                Block var6 = this.level.getBlockState(((BlockHitResult)var5).getBlockPos()).getBlock();
+                if (var6 != Blocks.NETHER_PORTAL && var6 != Blocks.NEITHER_PORTAL) {
+                    this.onHit(var5);
+                } else {
+                    this.handleInsidePortal(((BlockHitResult)var5).getBlockPos(), var6);
+                }
             } else {
                 this.onHit(var5);
             }
         }
 
-        Vec3 var6 = this.getDeltaMovement();
-        double var7 = this.getX() + var6.x;
-        double var8 = this.getY() + var6.y;
-        double var9 = this.getZ() + var6.z;
-        float var10 = Mth.sqrt(getHorizontalDistanceSqr(var6));
-        this.yRot = (float)(Mth.atan2(var6.x, var6.z) * 180.0F / (float)Math.PI);
-        this.xRot = (float)(Mth.atan2(var6.y, (double)var10) * 180.0F / (float)Math.PI);
+        Vec3 var7 = this.getDeltaMovement();
+        double var8 = this.getX() + var7.x;
+        double var9 = this.getY() + var7.y;
+        double var10 = this.getZ() + var7.z;
+        float var11 = Mth.sqrt(getHorizontalDistanceSqr(var7));
+        this.yRot = (float)(Mth.atan2(var7.x, var7.z) * 180.0F / (float)Math.PI);
+        this.xRot = (float)(Mth.atan2(var7.y, (double)var11) * 180.0F / (float)Math.PI);
 
         while(this.xRot - this.xRotO < -180.0F) {
             this.xRotO -= 360.0F;
@@ -123,25 +129,25 @@ public abstract class ThrowableProjectile extends Projectile {
 
         this.xRot = Mth.lerp(0.2F, this.xRotO, this.xRot);
         this.yRot = Mth.lerp(0.2F, this.yRotO, this.yRot);
-        float var13;
+        float var14;
         if (this.isInWater()) {
-            for(int var11 = 0; var11 < 4; ++var11) {
-                float var12 = 0.25F;
-                this.level.addParticle(ParticleTypes.BUBBLE, var7 - var6.x * 0.25, var8 - var6.y * 0.25, var9 - var6.z * 0.25, var6.x, var6.y, var6.z);
+            for(int var12 = 0; var12 < 4; ++var12) {
+                float var13 = 0.25F;
+                this.level.addParticle(ParticleTypes.BUBBLE, var8 - var7.x * 0.25, var9 - var7.y * 0.25, var10 - var7.z * 0.25, var7.x, var7.y, var7.z);
             }
 
-            var13 = 0.8F;
+            var14 = 0.8F;
         } else {
-            var13 = 0.99F;
+            var14 = 0.99F;
         }
 
-        this.setDeltaMovement(var6.scale((double)var13));
+        this.setDeltaMovement(var7.scale((double)var14));
         if (!this.isNoGravity()) {
-            Vec3 var15 = this.getDeltaMovement();
-            this.setDeltaMovement(var15.x, var15.y - (double)this.getGravity(), var15.z);
+            Vec3 var16 = this.getDeltaMovement();
+            this.setDeltaMovement(var16.x, var16.y - (double)this.getGravity(), var16.z);
         }
 
-        this.setPos(var7, var8, var9);
+        this.setPos(var8, var9, var10);
     }
 
     private boolean isEntityOrVehicle(Entity param0, Entity param1) {
