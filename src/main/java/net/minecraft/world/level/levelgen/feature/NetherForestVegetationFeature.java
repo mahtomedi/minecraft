@@ -6,6 +6,7 @@ import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -13,16 +14,19 @@ import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.feature.configurations.BlockPileConfiguration;
 
 public class NetherForestVegetationFeature extends Feature<BlockPileConfiguration> {
-    public NetherForestVegetationFeature(
-        Function<Dynamic<?>, ? extends BlockPileConfiguration> param0, Function<Random, ? extends BlockPileConfiguration> param1
-    ) {
-        super(param0, param1);
+    public NetherForestVegetationFeature(Function<Dynamic<?>, ? extends BlockPileConfiguration> param0) {
+        super(param0);
     }
 
     public boolean place(
-        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, BlockPileConfiguration param4
+        LevelAccessor param0,
+        StructureFeatureManager param1,
+        ChunkGenerator<? extends ChunkGeneratorSettings> param2,
+        Random param3,
+        BlockPos param4,
+        BlockPileConfiguration param5
     ) {
-        return place(param0, param2, param3, param4, 8, 4);
+        return place(param0, param3, param4, param5, 8, 4);
     }
 
     public static boolean place(LevelAccessor param0, Random param1, BlockPos param2, BlockPileConfiguration param3, int param4, int param5) {

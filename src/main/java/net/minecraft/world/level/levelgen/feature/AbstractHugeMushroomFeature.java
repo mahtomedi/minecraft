@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -14,10 +15,8 @@ import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.feature.configurations.HugeMushroomFeatureConfiguration;
 
 public abstract class AbstractHugeMushroomFeature extends Feature<HugeMushroomFeatureConfiguration> {
-    public AbstractHugeMushroomFeature(
-        Function<Dynamic<?>, ? extends HugeMushroomFeatureConfiguration> param0, Function<Random, ? extends HugeMushroomFeatureConfiguration> param1
-    ) {
-        super(param0, param1);
+    public AbstractHugeMushroomFeature(Function<Dynamic<?>, ? extends HugeMushroomFeatureConfiguration> param0) {
+        super(param0);
     }
 
     protected void placeTrunk(
@@ -71,15 +70,20 @@ public abstract class AbstractHugeMushroomFeature extends Feature<HugeMushroomFe
     }
 
     public boolean place(
-        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, HugeMushroomFeatureConfiguration param4
+        LevelAccessor param0,
+        StructureFeatureManager param1,
+        ChunkGenerator<? extends ChunkGeneratorSettings> param2,
+        Random param3,
+        BlockPos param4,
+        HugeMushroomFeatureConfiguration param5
     ) {
-        int var0 = this.getTreeHeight(param2);
+        int var0 = this.getTreeHeight(param3);
         BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos();
-        if (!this.isValidPosition(param0, param3, var0, var1, param4)) {
+        if (!this.isValidPosition(param0, param4, var0, var1, param5)) {
             return false;
         } else {
-            this.makeCap(param0, param2, param3, var0, var1, param4);
-            this.placeTrunk(param0, param2, param3, param4, var0, var1);
+            this.makeCap(param0, param3, param4, var0, var1, param5);
+            this.placeTrunk(param0, param3, param4, param5, var0, var1);
             return true;
         }
     }

@@ -8,6 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.feature.configurations.DecoratedFeatureConfiguration;
@@ -54,8 +55,10 @@ public class ConfiguredFeature<FC extends FeatureConfiguration, F extends Featur
         );
     }
 
-    public boolean place(LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3) {
-        return this.feature.place(param0, param1, param2, param3, this.config);
+    public boolean place(
+        LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<? extends ChunkGeneratorSettings> param2, Random param3, BlockPos param4
+    ) {
+        return this.feature.place(param0, param1, param2, param3, param4, this.config);
     }
 
     public static <T> ConfiguredFeature<?, ?> deserialize(Dynamic<T> param0) {

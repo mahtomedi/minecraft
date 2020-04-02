@@ -31,7 +31,6 @@ import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.ChunkStatus;
-import net.minecraft.world.level.chunk.EmptyLevelChunk;
 import net.minecraft.world.level.dimension.Dimension;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -103,15 +102,16 @@ public class WorldGenRegion implements LevelAccessor {
     @Nullable
     @Override
     public ChunkAccess getChunk(int param0, int param1, ChunkStatus param2, boolean param3) {
+        ChunkAccess var2;
         if (this.hasChunk(param0, param1)) {
             int var0 = param0 - this.firstPos.x;
             int var1 = param1 - this.firstPos.z;
-            ChunkAccess var2 = this.cache.get(var0 + var1 * this.size);
+            var2 = this.cache.get(var0 + var1 * this.size);
             if (var2.getStatus().isOrAfter(param2)) {
                 return var2;
             }
         } else {
-            ChunkAccess var3 = null;
+            var2 = null;
         }
 
         if (!param3) {
@@ -119,7 +119,17 @@ public class WorldGenRegion implements LevelAccessor {
         } else {
             LOGGER.error("Requested chunk : {} {}", param0, param1);
             LOGGER.error("Region bounds : {} {} | {} {}", this.firstPos.x, this.firstPos.z, this.lastPos.x, this.lastPos.z);
-            return new EmptyLevelChunk(this.level, new ChunkPos(param0, param1));
+            if (var2 != null) {
+                throw (RuntimeException)Util.pauseInIde(
+                    new RuntimeException(
+                        String.format("Chunk is not of correct status. Expecting %s, got %s | %s %s", param2, var2.getStatus(), param0, param1)
+                    )
+                );
+            } else {
+                throw (RuntimeException)Util.pauseInIde(
+                    new RuntimeException(String.format("We are asking a region for a chunk out of bound | %s %s", param0, param1))
+                );
+            }
         }
     }
 

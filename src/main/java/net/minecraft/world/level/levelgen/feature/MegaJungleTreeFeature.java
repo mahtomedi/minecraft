@@ -12,8 +12,8 @@ import net.minecraft.world.level.levelgen.feature.configurations.TreeConfigurati
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public class MegaJungleTreeFeature extends MegaTreeFeature<MegaTreeConfiguration> {
-    public MegaJungleTreeFeature(Function<Dynamic<?>, ? extends MegaTreeConfiguration> param0, Function<Random, ? extends MegaTreeConfiguration> param1) {
-        super(param0, param1);
+    public MegaJungleTreeFeature(Function<Dynamic<?>, ? extends MegaTreeConfiguration> param0) {
+        super(param0);
     }
 
     public boolean doPlace(
@@ -34,7 +34,7 @@ public class MegaJungleTreeFeature extends MegaTreeFeature<MegaTreeConfiguration
                     var3 = param2.getX() + (int)(1.5F + Mth.cos(var2) * (float)var5);
                     var4 = param2.getZ() + (int)(1.5F + Mth.sin(var2) * (float)var5);
                     BlockPos var6 = new BlockPos(var3, var1 - 3 + var5 / 2, var4);
-                    this.placeLog(param0, param1, var6, param3, param5, param6);
+                    placeLog(param0, param1, var6, param3, param5, param6);
                 }
 
                 int var7 = 1 + param1.nextInt(2);

@@ -28,6 +28,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
@@ -54,9 +56,8 @@ import net.minecraft.world.phys.Vec3;
 public class EnderMan extends Monster {
     private static final UUID SPEED_MODIFIER_ATTACKING_UUID = UUID.fromString("020E0DFB-87AE-4653-9556-831010E291A0");
     private static final AttributeModifier SPEED_MODIFIER_ATTACKING = new AttributeModifier(
-            SPEED_MODIFIER_ATTACKING_UUID, "Attacking speed boost", 0.15F, AttributeModifier.Operation.ADDITION
-        )
-        .setSerialize(false);
+        SPEED_MODIFIER_ATTACKING_UUID, "Attacking speed boost", 0.15F, AttributeModifier.Operation.ADDITION
+    );
     private static final EntityDataAccessor<Optional<BlockState>> DATA_CARRY_STATE = SynchedEntityData.defineId(
         EnderMan.class, EntityDataSerializers.BLOCK_STATE
     );
@@ -87,19 +88,18 @@ public class EnderMan extends Monster {
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Endermite.class, 10, true, false, ENDERMITE_SELECTOR));
     }
 
-    @Override
-    protected void registerAttributes() {
-        super.registerAttributes();
-        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(40.0);
-        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.3F);
-        this.getAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(7.0);
-        this.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(64.0);
+    public static AttributeSupplier.Builder createAttributes() {
+        return Monster.createMonsterAttributes()
+            .add(Attributes.MAX_HEALTH, 40.0)
+            .add(Attributes.MOVEMENT_SPEED, 0.3F)
+            .add(Attributes.ATTACK_DAMAGE, 7.0)
+            .add(Attributes.FOLLOW_RANGE, 64.0);
     }
 
     @Override
     public void setTarget(@Nullable LivingEntity param0) {
         super.setTarget(param0);
-        AttributeInstance var0 = this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
+        AttributeInstance var0 = this.getAttribute(Attributes.MOVEMENT_SPEED);
         if (param0 == null) {
             this.targetChangeTime = 0;
             this.entityData.set(DATA_CREEPY, false);
@@ -109,7 +109,7 @@ public class EnderMan extends Monster {
             this.targetChangeTime = this.tickCount;
             this.entityData.set(DATA_CREEPY, true);
             if (!var0.hasModifier(SPEED_MODIFIER_ATTACKING)) {
-                var0.addModifier(SPEED_MODIFIER_ATTACKING);
+                var0.addTransientModifier(SPEED_MODIFIER_ATTACKING);
             }
         }
 

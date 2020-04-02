@@ -6,6 +6,7 @@ import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -15,22 +16,27 @@ import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConf
 import net.minecraft.world.level.material.Material;
 
 public class BlueIceFeature extends Feature<NoneFeatureConfiguration> {
-    public BlueIceFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0, Function<Random, ? extends NoneFeatureConfiguration> param1) {
-        super(param0, param1);
+    public BlueIceFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0) {
+        super(param0);
     }
 
     public boolean place(
-        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, NoneFeatureConfiguration param4
+        LevelAccessor param0,
+        StructureFeatureManager param1,
+        ChunkGenerator<? extends ChunkGeneratorSettings> param2,
+        Random param3,
+        BlockPos param4,
+        NoneFeatureConfiguration param5
     ) {
-        if (param3.getY() > param0.getSeaLevel() - 1) {
+        if (param4.getY() > param0.getSeaLevel() - 1) {
             return false;
-        } else if (param0.getBlockState(param3).getBlock() != Blocks.WATER && param0.getBlockState(param3.below()).getBlock() != Blocks.WATER) {
+        } else if (param0.getBlockState(param4).getBlock() != Blocks.WATER && param0.getBlockState(param4.below()).getBlock() != Blocks.WATER) {
             return false;
         } else {
             boolean var0 = false;
 
             for(Direction var1 : Direction.values()) {
-                if (var1 != Direction.DOWN && param0.getBlockState(param3.relative(var1)).getBlock() == Blocks.PACKED_ICE) {
+                if (var1 != Direction.DOWN && param0.getBlockState(param4.relative(var1)).getBlock() == Blocks.PACKED_ICE) {
                     var0 = true;
                     break;
                 }
@@ -39,17 +45,17 @@ public class BlueIceFeature extends Feature<NoneFeatureConfiguration> {
             if (!var0) {
                 return false;
             } else {
-                param0.setBlock(param3, Blocks.BLUE_ICE.defaultBlockState(), 2);
+                param0.setBlock(param4, Blocks.BLUE_ICE.defaultBlockState(), 2);
 
                 for(int var2 = 0; var2 < 200; ++var2) {
-                    int var3 = param2.nextInt(5) - param2.nextInt(6);
+                    int var3 = param3.nextInt(5) - param3.nextInt(6);
                     int var4 = 3;
                     if (var3 < 2) {
                         var4 += var3 / 2;
                     }
 
                     if (var4 >= 1) {
-                        BlockPos var5 = param3.offset(param2.nextInt(var4) - param2.nextInt(var4), var3, param2.nextInt(var4) - param2.nextInt(var4));
+                        BlockPos var5 = param4.offset(param3.nextInt(var4) - param3.nextInt(var4), var3, param3.nextInt(var4) - param3.nextInt(var4));
                         BlockState var6 = param0.getBlockState(var5);
                         Block var7 = var6.getBlock();
                         if (var6.getMaterial() == Material.AIR || var7 == Blocks.WATER || var7 == Blocks.PACKED_ICE || var7 == Blocks.ICE) {

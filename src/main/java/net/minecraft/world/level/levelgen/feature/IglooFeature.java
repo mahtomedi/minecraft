@@ -1,7 +1,6 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.datafixers.Dynamic;
-import java.util.Random;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.biome.Biome;
@@ -14,8 +13,8 @@ import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 
 public class IglooFeature extends RandomScatteredFeature<NoneFeatureConfiguration> {
-    public IglooFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0, Function<Random, ? extends NoneFeatureConfiguration> param1) {
-        super(param0, param1);
+    public IglooFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0) {
+        super(param0);
     }
 
     @Override

@@ -6,37 +6,43 @@ import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.feature.configurations.DiskConfiguration;
 
 public class DiskReplaceFeature extends Feature<DiskConfiguration> {
-    public DiskReplaceFeature(Function<Dynamic<?>, ? extends DiskConfiguration> param0, Function<Random, ? extends DiskConfiguration> param1) {
-        super(param0, param1);
+    public DiskReplaceFeature(Function<Dynamic<?>, ? extends DiskConfiguration> param0) {
+        super(param0);
     }
 
     public boolean place(
-        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, DiskConfiguration param4
+        LevelAccessor param0,
+        StructureFeatureManager param1,
+        ChunkGenerator<? extends ChunkGeneratorSettings> param2,
+        Random param3,
+        BlockPos param4,
+        DiskConfiguration param5
     ) {
-        if (!param0.getFluidState(param3).is(FluidTags.WATER)) {
+        if (!param0.getFluidState(param4).is(FluidTags.WATER)) {
             return false;
         } else {
             int var0 = 0;
-            int var1 = param2.nextInt(param4.radius - 2) + 2;
+            int var1 = param3.nextInt(param5.radius - 2) + 2;
 
-            for(int var2 = param3.getX() - var1; var2 <= param3.getX() + var1; ++var2) {
-                for(int var3 = param3.getZ() - var1; var3 <= param3.getZ() + var1; ++var3) {
-                    int var4 = var2 - param3.getX();
-                    int var5 = var3 - param3.getZ();
+            for(int var2 = param4.getX() - var1; var2 <= param4.getX() + var1; ++var2) {
+                for(int var3 = param4.getZ() - var1; var3 <= param4.getZ() + var1; ++var3) {
+                    int var4 = var2 - param4.getX();
+                    int var5 = var3 - param4.getZ();
                     if (var4 * var4 + var5 * var5 <= var1 * var1) {
-                        for(int var6 = param3.getY() - param4.ySize; var6 <= param3.getY() + param4.ySize; ++var6) {
+                        for(int var6 = param4.getY() - param5.ySize; var6 <= param4.getY() + param5.ySize; ++var6) {
                             BlockPos var7 = new BlockPos(var2, var6, var3);
                             BlockState var8 = param0.getBlockState(var7);
 
-                            for(BlockState var9 : param4.targets) {
+                            for(BlockState var9 : param5.targets) {
                                 if (var9.getBlock() == var8.getBlock()) {
-                                    param0.setBlock(var7, param4.state, 2);
+                                    param0.setBlock(var7, param5.state, 2);
                                     ++var0;
                                     break;
                                 }

@@ -1,8 +1,8 @@
 {
   "variants": {
     "facing=down": {
-      "x": 180,
-      "model": "minecraft:block/dispenser_vertical"
+      "model": "minecraft:block/dispenser_vertical",
+      "x": 180
     },
     "facing=east": {
       "model": "minecraft:block/dispenser",

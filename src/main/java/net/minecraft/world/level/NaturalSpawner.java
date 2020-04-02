@@ -42,58 +42,59 @@ public final class NaturalSpawner {
     }
 
     public static void spawnCategoryForPosition(MobCategory param0, ServerLevel param1, ChunkAccess param2, BlockPos param3) {
-        ChunkGenerator<?> var0 = param1.getChunkSource().getGenerator();
-        int var1 = param3.getY();
-        BlockState var2 = param2.getBlockState(param3);
-        if (!var2.isRedstoneConductor(param2, param3)) {
-            BlockPos.MutableBlockPos var3 = new BlockPos.MutableBlockPos();
-            int var4 = 0;
+        StructureFeatureManager var0 = param1.structureFeatureManager();
+        ChunkGenerator<?> var1 = param1.getChunkSource().getGenerator();
+        int var2 = param3.getY();
+        BlockState var3 = param2.getBlockState(param3);
+        if (!var3.isRedstoneConductor(param2, param3)) {
+            BlockPos.MutableBlockPos var4 = new BlockPos.MutableBlockPos();
+            int var5 = 0;
 
-            for(int var5 = 0; var5 < 3; ++var5) {
-                int var6 = param3.getX();
-                int var7 = param3.getZ();
-                int var8 = 6;
-                Biome.SpawnerData var9 = null;
-                SpawnGroupData var10 = null;
-                int var11 = Mth.ceil(Math.random() * 4.0);
-                int var12 = 0;
+            for(int var6 = 0; var6 < 3; ++var6) {
+                int var7 = param3.getX();
+                int var8 = param3.getZ();
+                int var9 = 6;
+                Biome.SpawnerData var10 = null;
+                SpawnGroupData var11 = null;
+                int var12 = Mth.ceil(Math.random() * 4.0);
+                int var13 = 0;
 
-                for(int var13 = 0; var13 < var11; ++var13) {
-                    var6 += param1.random.nextInt(6) - param1.random.nextInt(6);
+                for(int var14 = 0; var14 < var12; ++var14) {
                     var7 += param1.random.nextInt(6) - param1.random.nextInt(6);
-                    var3.set(var6, var1, var7);
-                    float var14 = (float)var6 + 0.5F;
+                    var8 += param1.random.nextInt(6) - param1.random.nextInt(6);
+                    var4.set(var7, var2, var8);
                     float var15 = (float)var7 + 0.5F;
-                    Player var16 = param1.getNearestPlayer((double)var14, (double)var1, (double)var15, -1.0, false);
-                    if (var16 != null) {
-                        double var17 = var16.distanceToSqr((double)var14, (double)var1, (double)var15);
-                        if (isRightDistanceToPlayerAndSpawnPoint(param1, param2, var3, var17)) {
-                            if (var9 == null) {
-                                var9 = getRandomSpawnMobAt(var0, param0, param1.random, var3);
-                                if (var9 == null) {
+                    float var16 = (float)var8 + 0.5F;
+                    Player var17 = param1.getNearestPlayer((double)var15, (double)var2, (double)var16, -1.0, false);
+                    if (var17 != null) {
+                        double var18 = var17.distanceToSqr((double)var15, (double)var2, (double)var16);
+                        if (isRightDistanceToPlayerAndSpawnPoint(param1, param2, var4, var18)) {
+                            if (var10 == null) {
+                                var10 = getRandomSpawnMobAt(var0, var1, param0, param1.random, var4);
+                                if (var10 == null) {
                                     break;
                                 }
 
-                                var11 = var9.minCount + param1.random.nextInt(1 + var9.maxCount - var9.minCount);
+                                var12 = var10.minCount + param1.random.nextInt(1 + var10.maxCount - var10.minCount);
                             }
 
-                            if (isValidSpawnPostitionForType(param1, var0, var9, var3, var17)) {
-                                Mob var18 = getMobForSpawn(param1, var9.type);
-                                if (var18 == null) {
+                            if (isValidSpawnPostitionForType(param1, param0, var0, var1, var10, var4, var18)) {
+                                Mob var19 = getMobForSpawn(param1, var10.type);
+                                if (var19 == null) {
                                     return;
                                 }
 
-                                var18.moveTo((double)var14, (double)var1, (double)var15, param1.random.nextFloat() * 360.0F, 0.0F);
-                                if (isValidPositionForMob(param1, var18, var17)) {
-                                    var10 = var18.finalizeSpawn(param1, param1.getCurrentDifficultyAt(var18.blockPosition()), MobSpawnType.NATURAL, var10, null);
-                                    ++var4;
-                                    ++var12;
-                                    param1.addFreshEntity(var18);
-                                    if (var4 >= var18.getMaxSpawnClusterSize()) {
+                                var19.moveTo((double)var15, (double)var2, (double)var16, param1.random.nextFloat() * 360.0F, 0.0F);
+                                if (isValidPositionForMob(param1, var19, var18)) {
+                                    var11 = var19.finalizeSpawn(param1, param1.getCurrentDifficultyAt(var19.blockPosition()), MobSpawnType.NATURAL, var11, null);
+                                    ++var5;
+                                    ++var13;
+                                    param1.addFreshEntity(var19);
+                                    if (var5 >= var19.getMaxSpawnClusterSize()) {
                                         return;
                                     }
 
-                                    if (var18.isMaxGroupSizeReached(var12)) {
+                                    if (var19.isMaxGroupSizeReached(var13)) {
                                         break;
                                     }
                                 }
@@ -119,21 +120,27 @@ public final class NaturalSpawner {
     }
 
     private static boolean isValidSpawnPostitionForType(
-        ServerLevel param0, ChunkGenerator<?> param1, Biome.SpawnerData param2, BlockPos.MutableBlockPos param3, double param4
+        ServerLevel param0,
+        MobCategory param1,
+        StructureFeatureManager param2,
+        ChunkGenerator<?> param3,
+        Biome.SpawnerData param4,
+        BlockPos.MutableBlockPos param5,
+        double param6
     ) {
-        EntityType<?> var0 = param2.type;
+        EntityType<?> var0 = param4.type;
         if (var0.getCategory() == MobCategory.MISC) {
             return false;
-        } else if (!var0.canSpawnFarFromPlayer() && param4 > (double)(var0.getInstantDespawnDistance() * var0.getInstantDespawnDistance())) {
+        } else if (!var0.canSpawnFarFromPlayer() && param6 > (double)(var0.getInstantDespawnDistance() * var0.getInstantDespawnDistance())) {
             return false;
-        } else if (var0.canSummon() && canSpawnMobAt(param1, var0.getCategory(), param2, param3)) {
+        } else if (var0.canSummon() && canSpawnMobAt(param2, param3, param1, param4, param5)) {
             SpawnPlacements.Type var1 = SpawnPlacements.getPlacementType(var0);
-            if (!isSpawnPositionOk(var1, param0, param3, var0)) {
+            if (!isSpawnPositionOk(var1, param0, param5, var0)) {
                 return false;
-            } else if (!SpawnPlacements.checkSpawnRules(var0, param0, MobSpawnType.NATURAL, param3, param0.random)) {
+            } else if (!SpawnPlacements.checkSpawnRules(var0, param0, MobSpawnType.NATURAL, param5, param0.random)) {
                 return false;
             } else {
-                return param0.noCollision(var0.getAABB((double)((float)param3.getX() + 0.5F), (double)param3.getY(), (double)((float)param3.getZ() + 0.5F)));
+                return param0.noCollision(var0.getAABB((double)((float)param5.getX() + 0.5F), (double)param5.getY(), (double)((float)param5.getZ() + 0.5F)));
             }
         } else {
             return false;
@@ -164,14 +171,17 @@ public final class NaturalSpawner {
     }
 
     @Nullable
-    private static Biome.SpawnerData getRandomSpawnMobAt(ChunkGenerator<?> param0, MobCategory param1, Random param2, BlockPos param3) {
-        List<Biome.SpawnerData> var0 = param0.getMobsAt(param1, param3);
-        return var0.isEmpty() ? null : WeighedRandom.getRandomItem(param2, var0);
+    private static Biome.SpawnerData getRandomSpawnMobAt(
+        StructureFeatureManager param0, ChunkGenerator<?> param1, MobCategory param2, Random param3, BlockPos param4
+    ) {
+        List<Biome.SpawnerData> var0 = param1.getMobsAt(param0, param2, param4);
+        return var0.isEmpty() ? null : WeighedRandom.getRandomItem(param3, var0);
     }
 
-    private static boolean canSpawnMobAt(ChunkGenerator<?> param0, MobCategory param1, Biome.SpawnerData param2, BlockPos param3) {
-        List<Biome.SpawnerData> var0 = param0.getMobsAt(param1, param3);
-        return var0.isEmpty() ? false : var0.contains(param2);
+    private static boolean canSpawnMobAt(
+        StructureFeatureManager param0, ChunkGenerator<?> param1, MobCategory param2, Biome.SpawnerData param3, BlockPos param4
+    ) {
+        return param1.getMobsAt(param0, param2, param4).contains(param3);
     }
 
     private static BlockPos getRandomPosWithin(Level param0, LevelChunk param1) {

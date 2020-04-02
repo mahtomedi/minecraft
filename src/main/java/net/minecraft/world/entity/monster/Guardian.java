@@ -23,6 +23,8 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.LookControl;
 import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -46,11 +48,11 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class Guardian extends Monster {
     private static final EntityDataAccessor<Boolean> DATA_ID_MOVING = SynchedEntityData.defineId(Guardian.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> DATA_ID_ATTACK_TARGET = SynchedEntityData.defineId(Guardian.class, EntityDataSerializers.INT);
-    protected float clientSideTailAnimation;
-    protected float clientSideTailAnimationO;
-    protected float clientSideTailAnimationSpeed;
-    protected float clientSideSpikesAnimation;
-    protected float clientSideSpikesAnimationO;
+    private float clientSideTailAnimation;
+    private float clientSideTailAnimationO;
+    private float clientSideTailAnimationSpeed;
+    private float clientSideSpikesAnimation;
+    private float clientSideSpikesAnimationO;
     private LivingEntity clientSideCachedAttackTarget;
     private int clientSideAttackTime;
     private boolean clientSideTouchedGround;
@@ -80,13 +82,12 @@ public class Guardian extends Monster {
         this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false, new Guardian.GuardianAttackSelector(this)));
     }
 
-    @Override
-    protected void registerAttributes() {
-        super.registerAttributes();
-        this.getAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(6.0);
-        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.5);
-        this.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(16.0);
-        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(30.0);
+    public static AttributeSupplier.Builder createAttributes() {
+        return Monster.createMonsterAttributes()
+            .add(Attributes.ATTACK_DAMAGE, 6.0)
+            .add(Attributes.MOVEMENT_SPEED, 0.5)
+            .add(Attributes.FOLLOW_RANGE, 16.0)
+            .add(Attributes.MAX_HEALTH, 30.0);
     }
 
     @Override
@@ -426,7 +427,7 @@ public class Guardian extends Monster {
                     }
 
                     var0.hurt(DamageSource.indirectMagic(this.guardian, this.guardian), var1);
-                    var0.hurt(DamageSource.mobAttack(this.guardian), (float)this.guardian.getAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getValue());
+                    var0.hurt(DamageSource.mobAttack(this.guardian), (float)this.guardian.getAttributeValue(Attributes.ATTACK_DAMAGE));
                     this.guardian.setTarget(null);
                 }
 
@@ -466,7 +467,7 @@ public class Guardian extends Monster {
                 float var5 = (float)(Mth.atan2(var0.z, var0.x) * 180.0F / (float)Math.PI) - 90.0F;
                 this.guardian.yRot = this.rotlerp(this.guardian.yRot, var5, 90.0F);
                 this.guardian.yBodyRot = this.guardian.yRot;
-                float var6 = (float)(this.speedModifier * this.guardian.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getValue());
+                float var6 = (float)(this.speedModifier * this.guardian.getAttributeValue(Attributes.MOVEMENT_SPEED));
                 float var7 = Mth.lerp(0.125F, this.guardian.getSpeed(), var6);
                 this.guardian.setSpeed(var7);
                 double var8 = Math.sin((double)(this.guardian.tickCount + this.guardian.getId()) * 0.5) * 0.05;

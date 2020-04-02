@@ -14,8 +14,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.BaseAttributeMap;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -154,7 +154,7 @@ public class MobEffect {
         return this.attributeModifiers;
     }
 
-    public void removeAttributeModifiers(LivingEntity param0, BaseAttributeMap param1, int param2) {
+    public void removeAttributeModifiers(LivingEntity param0, AttributeMap param1, int param2) {
         for(Entry<Attribute, AttributeModifier> var0 : this.attributeModifiers.entrySet()) {
             AttributeInstance var1 = param1.getInstance(var0.getKey());
             if (var1 != null) {
@@ -164,13 +164,13 @@ public class MobEffect {
 
     }
 
-    public void addAttributeModifiers(LivingEntity param0, BaseAttributeMap param1, int param2) {
+    public void addAttributeModifiers(LivingEntity param0, AttributeMap param1, int param2) {
         for(Entry<Attribute, AttributeModifier> var0 : this.attributeModifiers.entrySet()) {
             AttributeInstance var1 = param1.getInstance(var0.getKey());
             if (var1 != null) {
                 AttributeModifier var2 = var0.getValue();
                 var1.removeModifier(var2);
-                var1.addModifier(
+                var1.addPermanentModifier(
                     new AttributeModifier(
                         var2.getId(), this.getDescriptionId() + " " + param2, this.getAttributeModifierValue(param2, var2), var2.getOperation()
                     )

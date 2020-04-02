@@ -1,12 +1,10 @@
 package net.minecraft.world.level.storage;
 
 import com.google.common.collect.Lists;
-import com.mojang.datafixers.DataFixer;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -31,12 +29,12 @@ import org.apache.logging.log4j.Logger;
 public class McRegionUpgrader {
     private static final Logger LOGGER = LogManager.getLogger();
 
-    static boolean convertLevel(Path param0, DataFixer param1, String param2, ProgressListener param3) {
-        param3.progressStagePercentage(0);
+    static boolean convertLevel(LevelStorageSource.LevelStorageAccess param0, ProgressListener param1) {
+        param1.progressStagePercentage(0);
         List<File> var0 = Lists.newArrayList();
         List<File> var1 = Lists.newArrayList();
         List<File> var2 = Lists.newArrayList();
-        File var3 = new File(param0.toFile(), param2);
+        File var3 = param0.getLevelPath().toFile();
         File var4 = DimensionType.NETHER.getStorageFolder(var3);
         File var5 = DimensionType.THE_END.getStorageFolder(var3);
         LOGGER.info("Scanning folders...");
@@ -51,7 +49,7 @@ public class McRegionUpgrader {
 
         int var6 = var0.size() + var1.size() + var2.size();
         LOGGER.info("Total conversion count is {}", var6);
-        LevelData var7 = LevelStorageSource.getDataTagFor(param0, param1, param2);
+        LevelData var7 = param0.getDataTag();
         long var8 = var7 != null ? var7.getSeed() : 0L;
         BiomeSourceType<FixedBiomeSourceSettings, FixedBiomeSource> var9 = BiomeSourceType.FIXED;
         BiomeSourceType<OverworldBiomeSourceSettings, OverworldBiomeSource> var10 = BiomeSourceType.VANILLA_LAYERED;
@@ -62,31 +60,30 @@ public class McRegionUpgrader {
             var11 = var10.create(var10.createSettings(var8));
         }
 
-        convertRegions(new File(var3, "region"), var0, var11, 0, var6, param3);
-        convertRegions(new File(var4, "region"), var1, var9.create(var9.createSettings(var8).setBiome(Biomes.NETHER_WASTES)), var0.size(), var6, param3);
-        convertRegions(new File(var5, "region"), var2, var9.create(var9.createSettings(var8).setBiome(Biomes.THE_END)), var0.size() + var1.size(), var6, param3);
+        convertRegions(new File(var3, "region"), var0, var11, 0, var6, param1);
+        convertRegions(new File(var4, "region"), var1, var9.create(var9.createSettings(var8).setBiome(Biomes.NETHER_WASTES)), var0.size(), var6, param1);
+        convertRegions(new File(var5, "region"), var2, var9.create(var9.createSettings(var8).setBiome(Biomes.THE_END)), var0.size() + var1.size(), var6, param1);
         var7.setVersion(19133);
         if (var7.getGeneratorType() == LevelType.NORMAL_1_1) {
             var7.setGeneratorProvider(LevelType.NORMAL.getDefaultProvider());
         }
 
-        makeMcrLevelDatBackup(param0, param2);
-        LevelStorage var13 = LevelStorageSource.selectLevel(param0, param1, param2, null);
+        makeMcrLevelDatBackup(var3);
+        LevelStorage var13 = param0.selectLevel(null);
         var13.saveLevelData(var7);
         return true;
     }
 
-    private static void makeMcrLevelDatBackup(Path param0, String param1) {
-        File var0 = new File(param0.toFile(), param1);
-        if (!var0.exists()) {
+    private static void makeMcrLevelDatBackup(File param0) {
+        if (!param0.exists()) {
             LOGGER.warn("Unable to create level.dat_mcr backup");
         } else {
-            File var1 = new File(var0, "level.dat");
-            if (!var1.exists()) {
+            File var0 = new File(param0, "level.dat");
+            if (!var0.exists()) {
                 LOGGER.warn("Unable to create level.dat_mcr backup");
             } else {
-                File var2 = new File(var0, "level.dat_mcr");
-                if (!var1.renameTo(var2)) {
+                File var1 = new File(param0, "level.dat_mcr");
+                if (!var0.renameTo(var1)) {
                     LOGGER.warn("Unable to create level.dat_mcr backup");
                 }
 
@@ -108,8 +105,8 @@ public class McRegionUpgrader {
         String var0 = param1.getName();
 
         try (
-            RegionFile var1 = new RegionFile(param1, param0);
-            RegionFile var2 = new RegionFile(new File(param0, var0.substring(0, var0.length() - ".mcr".length()) + ".mca"), param0);
+            RegionFile var1 = new RegionFile(param1, param0, true);
+            RegionFile var2 = new RegionFile(new File(param0, var0.substring(0, var0.length() - ".mcr".length()) + ".mca"), param0, true);
         ) {
             for(int var3 = 0; var3 < 32; ++var3) {
                 for(int var4 = 0; var4 < 32; ++var4) {

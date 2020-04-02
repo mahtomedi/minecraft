@@ -13,6 +13,7 @@ import net.minecraft.Util;
 import net.minecraft.util.datafix.fixes.AddNewChoices;
 import net.minecraft.util.datafix.fixes.AdvancementsFix;
 import net.minecraft.util.datafix.fixes.AdvancementsRenameFix;
+import net.minecraft.util.datafix.fixes.AttributesRename;
 import net.minecraft.util.datafix.fixes.BedBlockEntityInjecter;
 import net.minecraft.util.datafix.fixes.BedItemColorFix;
 import net.minecraft.util.datafix.fixes.BeehivePoiRenameFix;
@@ -627,6 +628,8 @@ public class DataFixers {
         Schema var110 = param0.addSchema(2519, V2519::new);
         param0.addFixer(new AddNewChoices(var110, "Added Strider", References.ENTITY));
         Schema var111 = param0.addSchema(2522, V2522::new);
-        param0.addFixer(new AddNewChoices(var111, "Add funkiest of the portals", References.BLOCK_ENTITY));
+        param0.addFixer(new AddNewChoices(var111, "Added Zoglin", References.ENTITY));
+        Schema var112 = param0.addSchema(2523, SAME_NAMESPACED);
+        param0.addFixer(new AttributesRename(var112));
     }
 }

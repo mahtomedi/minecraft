@@ -1,27 +1,24 @@
 package net.minecraft.world.level.levelgen.feature;
 
-import com.google.common.collect.Lists;
 import com.mojang.datafixers.Dynamic;
-import it.unimi.dsi.fastutil.longs.LongIterator;
-import java.util.List;
 import java.util.Random;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.ChunkStatus;
-import net.minecraft.world.level.chunk.FeatureAccess;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,8 +26,8 @@ import org.apache.logging.log4j.Logger;
 public abstract class StructureFeature<C extends FeatureConfiguration> extends Feature<C> {
     private static final Logger LOGGER = LogManager.getLogger();
 
-    public StructureFeature(Function<Dynamic<?>, ? extends C> param0, Function<Random, ? extends C> param1) {
-        super(param0, param1);
+    public StructureFeature(Function<Dynamic<?>, ? extends C> param0) {
+        super(param0);
     }
 
     @Override
@@ -38,98 +35,80 @@ public abstract class StructureFeature<C extends FeatureConfiguration> extends F
         return new ConfiguredFeature<>(this, param0);
     }
 
-    public ConfiguredFeature<C, ? extends StructureFeature<C>> random2(Random param0) {
-        return new ConfiguredFeature<>(this, this.randomConfigurationFactory.apply(param0));
-    }
-
     @Override
-    public boolean place(LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, C param4) {
+    public boolean place(
+        LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<? extends ChunkGeneratorSettings> param2, Random param3, BlockPos param4, C param5
+    ) {
         if (!param0.getLevelData().isGenerateMapFeatures()) {
             return false;
         } else {
-            int var0 = param3.getX() >> 4;
-            int var1 = param3.getZ() >> 4;
+            int var0 = param4.getX() >> 4;
+            int var1 = param4.getZ() >> 4;
             int var2 = var0 << 4;
             int var3 = var1 << 4;
-            boolean var4 = false;
-
-            for(Long var5 : param0.getChunk(var0, var1).getReferencesForFeature(this.getFeatureName())) {
-                ChunkPos var6 = new ChunkPos(var5);
-                StructureStart var7 = param0.getChunk(var6.x, var6.z).getStartForFeature(this.getFeatureName());
-                if (var7 != null && var7 != StructureStart.INVALID_START) {
-                    var7.postProcess(param0, param1, param2, new BoundingBox(var2, var3, var2 + 15, var3 + 15), new ChunkPos(var0, var1));
-                    var4 = true;
-                }
-            }
-
-            return var4;
+            return param1.startsForFeature(SectionPos.of(param4), this, param0).map(param8 -> {
+                param8.postProcess(param0, param1, param2, param3, new BoundingBox(var2, var3, var2 + 15, var3 + 15), new ChunkPos(var0, var1));
+                return null;
+            }).count() != 0L;
         }
     }
 
-    protected StructureStart getStructureAt(LevelAccessor param0, BlockPos param1, boolean param2) {
-        for(StructureStart var1 : this.dereferenceStructureStarts(param0, param1.getX() >> 4, param1.getZ() >> 4)) {
-            if (var1.isValid() && var1.getBoundingBox().isInside(param1)) {
-                if (!param2) {
-                    return var1;
-                }
-
-                for(StructurePiece var2 : var1.getPieces()) {
-                    if (var2.getBoundingBox().isInside(param1)) {
-                        return var1;
-                    }
-                }
-            }
-        }
-
-        return StructureStart.INVALID_START;
+    protected StructureStart getStructureAt(LevelAccessor param0, StructureFeatureManager param1, BlockPos param2, boolean param3) {
+        return param1.startsForFeature(SectionPos.of(param2), this, param0)
+            .filter(param1x -> param1x.getBoundingBox().isInside(param2))
+            .filter(param2x -> !param3 || param2x.getPieces().stream().anyMatch(param1x -> param1x.getBoundingBox().isInside(param2)))
+            .findFirst()
+            .orElse(StructureStart.INVALID_START);
     }
 
-    public boolean isInsideBoundingFeature(LevelAccessor param0, BlockPos param1) {
-        return this.getStructureAt(param0, param1, false).isValid();
+    public boolean isInsideBoundingFeature(LevelAccessor param0, StructureFeatureManager param1, BlockPos param2) {
+        return this.getStructureAt(param0, param1, param2, false).isValid();
     }
 
-    public boolean isInsideFeature(LevelAccessor param0, BlockPos param1) {
-        return this.getStructureAt(param0, param1, true).isValid();
+    public boolean isInsideFeature(LevelAccessor param0, StructureFeatureManager param1, BlockPos param2) {
+        return this.getStructureAt(param0, param1, param2, true).isValid();
     }
 
     @Nullable
     public BlockPos getNearestGeneratedFeature(
-        Level param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, BlockPos param2, int param3, boolean param4
+        ServerLevel param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, BlockPos param2, int param3, boolean param4
     ) {
         if (!param1.getBiomeSource().canGenerateStructure(this)) {
             return null;
         } else {
-            int var0 = param2.getX() >> 4;
-            int var1 = param2.getZ() >> 4;
-            int var2 = 0;
+            StructureFeatureManager var0 = param0.structureFeatureManager();
+            int var1 = param2.getX() >> 4;
+            int var2 = param2.getZ() >> 4;
+            int var3 = 0;
 
-            for(WorldgenRandom var3 = new WorldgenRandom(); var2 <= param3; ++var2) {
-                for(int var4 = -var2; var4 <= var2; ++var4) {
-                    boolean var5 = var4 == -var2 || var4 == var2;
+            for(WorldgenRandom var4 = new WorldgenRandom(); var3 <= param3; ++var3) {
+                for(int var5 = -var3; var5 <= var3; ++var5) {
+                    boolean var6 = var5 == -var3 || var5 == var3;
 
-                    for(int var6 = -var2; var6 <= var2; ++var6) {
-                        boolean var7 = var6 == -var2 || var6 == var2;
-                        if (var5 || var7) {
-                            ChunkPos var8 = this.getPotentialFeatureChunkFromLocationWithOffset(param1, var3, var0, var1, var4, var6);
-                            StructureStart var9 = param0.getChunk(var8.x, var8.z, ChunkStatus.STRUCTURE_STARTS).getStartForFeature(this.getFeatureName());
-                            if (var9 != null && var9.isValid()) {
-                                if (param4 && var9.canBeReferenced()) {
-                                    var9.addReference();
-                                    return var9.getLocatePos();
+                    for(int var7 = -var3; var7 <= var3; ++var7) {
+                        boolean var8 = var7 == -var3 || var7 == var3;
+                        if (var6 || var8) {
+                            ChunkPos var9 = this.getPotentialFeatureChunkFromLocationWithOffset(param1, var4, var1, var2, var5, var7);
+                            ChunkAccess var10 = param0.getChunk(var9.x, var9.z, ChunkStatus.STRUCTURE_STARTS);
+                            StructureStart var11 = var0.getStartForFeature(SectionPos.of(var10.getPos(), 0), this, var10);
+                            if (var11 != null && var11.isValid()) {
+                                if (param4 && var11.canBeReferenced()) {
+                                    var11.addReference();
+                                    return var11.getLocatePos();
                                 }
 
                                 if (!param4) {
-                                    return var9.getLocatePos();
+                                    return var11.getLocatePos();
                                 }
                             }
 
-                            if (var2 == 0) {
+                            if (var3 == 0) {
                                 break;
                             }
                         }
                     }
 
-                    if (var2 == 0) {
+                    if (var3 == 0) {
                         break;
                     }
                 }
@@ -137,23 +116,6 @@ public abstract class StructureFeature<C extends FeatureConfiguration> extends F
 
             return null;
         }
-    }
-
-    private List<StructureStart> dereferenceStructureStarts(LevelAccessor param0, int param1, int param2) {
-        List<StructureStart> var0 = Lists.newArrayList();
-        ChunkAccess var1 = param0.getChunk(param1, param2, ChunkStatus.STRUCTURE_REFERENCES);
-        LongIterator var2 = var1.getReferencesForFeature(this.getFeatureName()).iterator();
-
-        while(var2.hasNext()) {
-            long var3 = var2.nextLong();
-            FeatureAccess var4 = param0.getChunk(ChunkPos.getX(var3), ChunkPos.getZ(var3), ChunkStatus.STRUCTURE_STARTS);
-            StructureStart var5 = var4.getStartForFeature(this.getFeatureName());
-            if (var5 != null) {
-                var0.add(var5);
-            }
-        }
-
-        return var0;
     }
 
     protected ChunkPos getPotentialFeatureChunkFromLocationWithOffset(ChunkGenerator<?> param0, Random param1, int param2, int param3, int param4, int param5) {

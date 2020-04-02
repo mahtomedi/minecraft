@@ -4,10 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
-import java.util.Random;
 import java.util.Set;
-import java.util.stream.Collectors;
-import net.minecraft.Util;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
@@ -57,16 +54,6 @@ public class SpringConfiguration implements FeatureConfiguration {
             param0.get("rock_count").asInt(4),
             param0.get("hole_count").asInt(1),
             ImmutableSet.copyOf(param0.get("valid_blocks").asList(param0x -> Registry.BLOCK.get(new ResourceLocation(param0x.asString("minecraft:air")))))
-        );
-    }
-
-    public static SpringConfiguration random(Random param0) {
-        return new SpringConfiguration(
-            Registry.FLUID.getRandom(param0).defaultFluidState(),
-            param0.nextInt(5) == 0,
-            param0.nextInt(5),
-            param0.nextInt(5),
-            Util.randomObjectStream(param0, 10, Registry.BLOCK).collect(Collectors.toSet())
         );
     }
 }

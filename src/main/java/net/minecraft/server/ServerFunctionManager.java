@@ -41,7 +41,7 @@ public class ServerFunctionManager implements ResourceManagerReloadListener {
     private boolean isInFunction;
     private final ArrayDeque<ServerFunctionManager.QueuedCommand> commandQueue = new ArrayDeque<>();
     private final List<ServerFunctionManager.QueuedCommand> nestedCalls = Lists.newArrayList();
-    private final TagCollection<CommandFunction> tags = new TagCollection<>(this::get, "tags/functions", true, "function");
+    private final TagCollection<CommandFunction> tags = new TagCollection<>(this::get, "tags/functions", "function");
     private final List<CommandFunction> ticking = Lists.newArrayList();
     private boolean postReload;
 

@@ -16,6 +16,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelSimulatedRW;
 import net.minecraft.world.level.LevelSimulatedReader;
 import net.minecraft.world.level.LevelWriter;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -31,8 +32,8 @@ import net.minecraft.world.phys.shapes.BitSetDiscreteVoxelShape;
 import net.minecraft.world.phys.shapes.DiscreteVoxelShape;
 
 public abstract class AbstractTreeFeature<T extends TreeConfiguration> extends Feature<T> {
-    public AbstractTreeFeature(Function<Dynamic<?>, ? extends T> param0, Function<Random, ? extends T> param1) {
-        super(param0, param1);
+    public AbstractTreeFeature(Function<Dynamic<?>, ? extends T> param0) {
+        super(param0);
     }
 
     protected static boolean isFree(LevelSimulatedReader param0, BlockPos param1) {
@@ -98,11 +99,11 @@ public abstract class AbstractTreeFeature<T extends TreeConfiguration> extends F
 
     }
 
-    protected boolean placeLog(LevelSimulatedRW param0, Random param1, BlockPos param2, Set<BlockPos> param3, BoundingBox param4, TreeConfiguration param5) {
+    public static boolean placeLog(LevelSimulatedRW param0, Random param1, BlockPos param2, Set<BlockPos> param3, BoundingBox param4, TreeConfiguration param5) {
         if (!isAirOrLeaves(param0, param2) && !isReplaceablePlant(param0, param2) && !isBlockWater(param0, param2)) {
             return false;
         } else {
-            this.setBlock(param0, param2, param5.trunkProvider.getState(param1, param2), param4);
+            setBlock(param0, param2, param5.trunkProvider.getState(param1, param2), param4);
             param3.add(param2.immutable());
             return true;
         }
@@ -112,7 +113,7 @@ public abstract class AbstractTreeFeature<T extends TreeConfiguration> extends F
         if (!isAirOrLeaves(param0, param2) && !isReplaceablePlant(param0, param2) && !isBlockWater(param0, param2)) {
             return false;
         } else {
-            this.setBlock(param0, param2, param5.leavesProvider.getState(param1, param2), param4);
+            setBlock(param0, param2, param5.leavesProvider.getState(param1, param2), param4);
             param3.add(param2.immutable());
             return true;
         }
@@ -120,31 +121,33 @@ public abstract class AbstractTreeFeature<T extends TreeConfiguration> extends F
 
     @Override
     protected void setBlock(LevelWriter param0, BlockPos param1, BlockState param2) {
-        this.setBlockKnownShape(param0, param1, param2);
+        setBlockKnownShape(param0, param1, param2);
     }
 
-    protected final void setBlock(LevelWriter param0, BlockPos param1, BlockState param2, BoundingBox param3) {
-        this.setBlockKnownShape(param0, param1, param2);
+    protected static final void setBlock(LevelWriter param0, BlockPos param1, BlockState param2, BoundingBox param3) {
+        setBlockKnownShape(param0, param1, param2);
         param3.expand(new BoundingBox(param1, param1));
     }
 
-    private void setBlockKnownShape(LevelWriter param0, BlockPos param1, BlockState param2) {
+    private static void setBlockKnownShape(LevelWriter param0, BlockPos param1, BlockState param2) {
         param0.setBlock(param1, param2, 19);
     }
 
-    public final boolean place(LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, T param4) {
+    public final boolean place(
+        LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<? extends ChunkGeneratorSettings> param2, Random param3, BlockPos param4, T param5
+    ) {
         Set<BlockPos> var0 = Sets.newHashSet();
         Set<BlockPos> var1 = Sets.newHashSet();
         Set<BlockPos> var2 = Sets.newHashSet();
         BoundingBox var3 = BoundingBox.getUnknownBox();
-        boolean var4 = this.doPlace(param0, param2, param3, var0, var1, var3, param4);
+        boolean var4 = this.doPlace(param0, param3, param4, var0, var1, var3, param5);
         if (var3.x0 <= var3.x1 && var4 && !var0.isEmpty()) {
-            if (!param4.decorators.isEmpty()) {
+            if (!param5.decorators.isEmpty()) {
                 List<BlockPos> var5 = Lists.newArrayList(var0);
                 List<BlockPos> var6 = Lists.newArrayList(var1);
                 var5.sort(Comparator.comparingInt(Vec3i::getY));
                 var6.sort(Comparator.comparingInt(Vec3i::getY));
-                param4.decorators.forEach(param6 -> param6.place(param0, param2, var5, var6, var2, var3));
+                param5.decorators.forEach(param6 -> param6.place(param0, param3, var5, var6, var2, var3));
             }
 
             DiscreteVoxelShape var7 = this.updateLeaves(param0, var3, var0, var2);
@@ -183,7 +186,7 @@ public abstract class AbstractTreeFeature<T extends TreeConfiguration> extends F
                     BlockState var8 = param0.getBlockState(var4);
                     if (var8.hasProperty(BlockStateProperties.DISTANCE)) {
                         var0.get(0).add(var4.immutable());
-                        this.setBlockKnownShape(param0, var4, var8.setValue(BlockStateProperties.DISTANCE, Integer.valueOf(1)));
+                        setBlockKnownShape(param0, var4, var8.setValue(BlockStateProperties.DISTANCE, Integer.valueOf(1)));
                         if (param1.isInside(var4)) {
                             var1.setFull(var4.getX() - param1.x0, var4.getY() - param1.y0, var4.getZ() - param1.z0, true, true);
                         }
@@ -209,7 +212,7 @@ public abstract class AbstractTreeFeature<T extends TreeConfiguration> extends F
                             int var15 = var14.getValue(BlockStateProperties.DISTANCE);
                             if (var15 > var9 + 1) {
                                 BlockState var16 = var14.setValue(BlockStateProperties.DISTANCE, Integer.valueOf(var9 + 1));
-                                this.setBlockKnownShape(param0, var4, var16);
+                                setBlockKnownShape(param0, var4, var16);
                                 if (param1.isInside(var4)) {
                                     var1.setFull(var4.getX() - param1.x0, var4.getY() - param1.y0, var4.getZ() - param1.z0, true, true);
                                 }

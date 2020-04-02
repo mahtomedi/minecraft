@@ -1,10 +1,9 @@
 package net.minecraft.world.level;
 
 import com.google.common.collect.Streams;
-import java.util.Collections;
-import java.util.Set;
 import java.util.Spliterators.AbstractSpliterator;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
@@ -41,26 +40,26 @@ public interface CollisionGetter extends BlockGetter {
     }
 
     default boolean noCollision(AABB param0) {
-        return this.noCollision(null, param0, Collections.emptySet());
+        return this.noCollision(null, param0, param0x -> true);
     }
 
     default boolean noCollision(Entity param0) {
-        return this.noCollision(param0, param0.getBoundingBox(), Collections.emptySet());
+        return this.noCollision(param0, param0.getBoundingBox(), param0x -> true);
     }
 
     default boolean noCollision(Entity param0, AABB param1) {
-        return this.noCollision(param0, param1, Collections.emptySet());
+        return this.noCollision(param0, param1, param0x -> true);
     }
 
-    default boolean noCollision(@Nullable Entity param0, AABB param1, Set<Entity> param2) {
+    default boolean noCollision(@Nullable Entity param0, AABB param1, Predicate<Entity> param2) {
         return this.getCollisions(param0, param1, param2).allMatch(VoxelShape::isEmpty);
     }
 
-    default Stream<VoxelShape> getEntityCollisions(@Nullable Entity param0, AABB param1, Set<Entity> param2) {
+    default Stream<VoxelShape> getEntityCollisions(@Nullable Entity param0, AABB param1, Predicate<Entity> param2) {
         return Stream.empty();
     }
 
-    default Stream<VoxelShape> getCollisions(@Nullable Entity param0, AABB param1, Set<Entity> param2) {
+    default Stream<VoxelShape> getCollisions(@Nullable Entity param0, AABB param1, Predicate<Entity> param2) {
         return Streams.concat(this.getBlockCollisions(param0, param1), this.getEntityCollisions(param0, param1, param2));
     }
 

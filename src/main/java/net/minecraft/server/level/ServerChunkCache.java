@@ -71,8 +71,9 @@ public class ServerChunkCache extends ChunkSource {
         Executor param4,
         ChunkGenerator<?> param5,
         int param6,
-        ChunkProgressListener param7,
-        Supplier<DimensionDataStorage> param8
+        boolean param7,
+        ChunkProgressListener param8,
+        Supplier<DimensionDataStorage> param9
     ) {
         this.level = param0;
         this.mainThreadProcessor = new ServerChunkCache.MainThreadExecutor(param0);
@@ -82,7 +83,9 @@ public class ServerChunkCache extends ChunkSource {
         File var1 = new File(var0, "data");
         var1.mkdirs();
         this.dataStorage = new DimensionDataStorage(var1, param2);
-        this.chunkMap = new ChunkMap(param0, param1, param2, param3, param4, this.mainThreadProcessor, this, this.getGenerator(), param7, param8, param6);
+        this.chunkMap = new ChunkMap(
+            param0, param1, param2, param3, param4, this.mainThreadProcessor, this, this.getGenerator(), param8, param9, param6, param7
+        );
         this.lightEngine = this.chunkMap.getLightEngine();
         this.distanceManager = this.chunkMap.getDistanceManager();
         this.clearCache();
@@ -501,10 +504,6 @@ public class ServerChunkCache extends ChunkSource {
 
     public PoiManager getPoiManager() {
         return this.chunkMap.getPoiManager();
-    }
-
-    public void execute(Runnable param0) {
-        this.mainThreadProcessor.tell(param0);
     }
 
     final class MainThreadExecutor extends BlockableEventLoop<Runnable> {

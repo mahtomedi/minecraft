@@ -2,7 +2,7 @@ package net.minecraft.world.entity.ai.control;
 
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.monster.SharedMonsterAttributes;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 
 public class FlyingMoveControl extends MoveControl {
     private final int maxTurn;
@@ -33,9 +33,9 @@ public class FlyingMoveControl extends MoveControl {
             this.mob.yRot = this.rotlerp(this.mob.yRot, var4, 90.0F);
             float var5;
             if (this.mob.isOnGround()) {
-                var5 = (float)(this.speedModifier * this.mob.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getValue());
+                var5 = (float)(this.speedModifier * this.mob.getAttributeValue(Attributes.MOVEMENT_SPEED));
             } else {
-                var5 = (float)(this.speedModifier * this.mob.getAttribute(SharedMonsterAttributes.FLYING_SPEED).getValue());
+                var5 = (float)(this.speedModifier * this.mob.getAttributeValue(Attributes.FLYING_SPEED));
             }
 
             this.mob.setSpeed(var5);

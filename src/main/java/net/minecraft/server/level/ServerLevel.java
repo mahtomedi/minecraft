@@ -99,11 +99,11 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.ForcedChunksSavedData;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelConflictException;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.LevelType;
 import net.minecraft.world.level.PortalForcer;
 import net.minecraft.world.level.ServerTickList;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.TickNextTickData;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
@@ -166,6 +166,7 @@ public class ServerLevel extends Level {
     private boolean handlingTick;
     @Nullable
     private final WanderingTraderSpawner wanderingTraderSpawner;
+    private final StructureFeatureManager structureFeatureManager = new StructureFeatureManager();
 
     public ServerLevel(MinecraftServer param0, Executor param1, LevelStorage param2, LevelData param3, DimensionType param4, ChunkProgressListener param5) {
         super(
@@ -179,6 +180,7 @@ public class ServerLevel extends Level {
                     param1,
                     param5x.createRandomLevelGenerator(),
                     param0.getPlayerList().getViewDistance(),
+                    param0.forceSynchronousWrites(),
                     param5,
                     () -> param0.getLevel(DimensionType.OVERWORLD).getDataStorage()
                 ),
@@ -202,6 +204,10 @@ public class ServerLevel extends Level {
     @Override
     public Biome getUncachedNoiseBiome(int param0, int param1, int param2) {
         return this.getChunkSource().getGenerator().getBiomeSource().getNoiseBiome(param0, param1, param2);
+    }
+
+    public StructureFeatureManager structureFeatureManager() {
+        return this.structureFeatureManager;
     }
 
     public void tick(BooleanSupplier param0) {
@@ -697,6 +703,7 @@ public class ServerLevel extends Level {
         ConfiguredFeature<?, ?> var0 = Feature.BONUS_CHEST.configured(FeatureConfiguration.NONE);
         var0.place(
             this,
+            this.structureFeatureManager(),
             this.getChunkSource().getGenerator(),
             this.random,
             new BlockPos(this.levelData.getXSpawn(), this.levelData.getYSpawn(), this.levelData.getZSpawn())
@@ -708,7 +715,7 @@ public class ServerLevel extends Level {
         return this.dimension.getDimensionSpecificSpawn();
     }
 
-    public void save(@Nullable ProgressListener param0, boolean param1, boolean param2) throws LevelConflictException {
+    public void save(@Nullable ProgressListener param0, boolean param1, boolean param2) {
         ServerChunkCache var0 = this.getChunkSource();
         if (!param2) {
             if (param0 != null) {
@@ -724,8 +731,7 @@ public class ServerLevel extends Level {
         }
     }
 
-    protected void saveLevelData() throws LevelConflictException {
-        this.checkSession();
+    protected void saveLevelData() {
         this.dimension.saveData();
         this.getChunkSource().getDataStorage().save();
     }
@@ -1252,10 +1258,6 @@ public class ServerLevel extends Level {
         return this.noSave;
     }
 
-    public void checkSession() throws LevelConflictException {
-        this.levelStorage.checkSession();
-    }
-
     public LevelStorage getLevelStorage() {
         return this.levelStorage;
     }
@@ -1327,11 +1329,11 @@ public class ServerLevel extends Level {
         Optional<PoiType> var1 = PoiType.forState(param2);
         if (!Objects.equals(var0, var1)) {
             BlockPos var2 = param0.immutable();
-            var0.ifPresent(param1x -> this.getChunkSource().execute(() -> {
+            var0.ifPresent(param1x -> this.getServer().execute(() -> {
                     this.getPoiManager().remove(var2);
                     DebugPackets.sendPoiRemovedPacket(this, var2);
                 }));
-            var1.ifPresent(param1x -> this.getChunkSource().execute(() -> {
+            var1.ifPresent(param1x -> this.getServer().execute(() -> {
                     this.getPoiManager().add(var2, param1x);
                     DebugPackets.sendPoiAddedPacket(this, var2);
                 }));

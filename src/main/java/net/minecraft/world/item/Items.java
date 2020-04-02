@@ -1177,6 +1177,9 @@ public class Items {
     public static final Item WOLF_SPAWN_EGG = registerItem(
         "wolf_spawn_egg", new SpawnEggItem(EntityType.WOLF, 14144467, 13545366, new Item.Properties().tab(CreativeModeTab.TAB_MISC))
     );
+    public static final Item ZOGLIN_SPAWN_EGG = registerItem(
+        "zoglin_spawn_egg", new SpawnEggItem(EntityType.ZOGLIN, 13004373, 15132390, new Item.Properties().tab(CreativeModeTab.TAB_MISC))
+    );
     public static final Item ZOMBIE_SPAWN_EGG = registerItem(
         "zombie_spawn_egg", new SpawnEggItem(EntityType.ZOMBIE, 44975, 7969893, new Item.Properties().tab(CreativeModeTab.TAB_MISC))
     );
@@ -1243,10 +1246,11 @@ public class Items {
         )
     );
     public static final Item CARROT_ON_A_STICK = registerItem(
-        "carrot_on_a_stick", new FoodOnAStickItem<>(new Item.Properties().durability(25).tab(CreativeModeTab.TAB_TRANSPORTATION), EntityType.PIG)
+        "carrot_on_a_stick", new FoodOnAStickItem<>(new Item.Properties().durability(25).tab(CreativeModeTab.TAB_TRANSPORTATION), EntityType.PIG, 7)
     );
     public static final Item WARPED_FUNGUS_ON_A_STICK = registerItem(
-        "warped_fungus_on_a_stick", new FoodOnAStickItem<>(new Item.Properties().durability(25).tab(CreativeModeTab.TAB_TRANSPORTATION), EntityType.STRIDER)
+        "warped_fungus_on_a_stick",
+        new FoodOnAStickItem<>(new Item.Properties().durability(100).tab(CreativeModeTab.TAB_TRANSPORTATION), EntityType.STRIDER, 1)
     );
     public static final Item NETHER_STAR = registerItem(
         "nether_star", new SimpleFoiledItem(new Item.Properties().tab(CreativeModeTab.TAB_MATERIALS).rarity(Rarity.UNCOMMON))
@@ -1505,9 +1509,6 @@ public class Items {
     public static final Item NETHERITE_BLOCK = registerBlock(
         new BlockItem(Blocks.NETHERITE_BLOCK, new Item.Properties().tab(CreativeModeTab.TAB_BUILDING_BLOCKS).fireResistant())
     );
-    public static final Item NETHERITE_STAIRS = registerBlock(
-        new BlockItem(Blocks.NETHERITE_STAIRS, new Item.Properties().tab(CreativeModeTab.TAB_BUILDING_BLOCKS).fireResistant())
-    );
     public static final Item ANCIENT_DEBRIS = registerBlock(
         new BlockItem(Blocks.ANCIENT_DEBRIS, new Item.Properties().tab(CreativeModeTab.TAB_BUILDING_BLOCKS).fireResistant())
     );
@@ -1519,11 +1520,7 @@ public class Items {
     );
     public static final Item TARGET = registerBlock(Blocks.TARGET, CreativeModeTab.TAB_REDSTONE);
     public static final Item CRYING_OBSIDIAN = registerBlock(Blocks.CRYING_OBSIDIAN, CreativeModeTab.TAB_BUILDING_BLOCKS);
-    public static final Item BOOK_BOX = registerBlock(Blocks.BOOK_BOX, CreativeModeTab.TAB_BUILDING_BLOCKS);
     public static final Item RESPAWN_ANCHOR = registerBlock(Blocks.RESPAWN_ANCHOR, CreativeModeTab.TAB_DECORATIONS);
-    public static final Item FOOTPRINT = registerItem("footprint", new Item(new Item.Properties()));
-    public static final Item CURSOR = registerBlock(Blocks.CURSOR, CreativeModeTab.TAB_DECORATIONS);
-    public static final Item AN_ITEM = registerItem("fine_item", new Item(new Item.Properties()));
 
     private static Item registerBlock(Block param0) {
         return registerBlock(new BlockItem(param0, new Item.Properties()));

@@ -95,7 +95,7 @@ public abstract class BlockableEventLoop<R extends Runnable> implements Processo
         this.pendingRunnables.clear();
     }
 
-    public void runAllTasks() {
+    protected void runAllTasks() {
         while(this.pollTask()) {
         }
 

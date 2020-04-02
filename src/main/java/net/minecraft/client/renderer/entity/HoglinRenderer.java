@@ -7,14 +7,18 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class HoglinRenderer extends MobRenderer<Hoglin, HoglinModel> {
-    private static final ResourceLocation TEXTURE_LOCATION = new ResourceLocation("textures/entity/hoglin/hoglin.png");
+public class HoglinRenderer extends MobRenderer<Hoglin, HoglinModel<Hoglin>> {
+    private static final ResourceLocation HOGLIN_LOCATION = new ResourceLocation("textures/entity/hoglin/hoglin.png");
 
     public HoglinRenderer(EntityRenderDispatcher param0) {
-        super(param0, new HoglinModel(), 0.7F);
+        super(param0, new HoglinModel<>(), 0.7F);
     }
 
     public ResourceLocation getTextureLocation(Hoglin param0) {
-        return TEXTURE_LOCATION;
+        return HOGLIN_LOCATION;
+    }
+
+    protected boolean isShaking(Hoglin param0) {
+        return param0.isConverting();
     }
 }

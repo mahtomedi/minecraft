@@ -78,11 +78,6 @@ public class BaseCoralPlantTypeBlock extends Block implements SimpleWaterloggedB
     }
 
     @Override
-    public boolean isUnstable() {
-        return true;
-    }
-
-    @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> param0) {
         param0.add(WATERLOGGED);
     }

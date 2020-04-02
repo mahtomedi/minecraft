@@ -11,6 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -21,18 +22,23 @@ import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConf
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 
 public class BonusChestFeature extends Feature<NoneFeatureConfiguration> {
-    public BonusChestFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0, Function<Random, ? extends NoneFeatureConfiguration> param1) {
-        super(param0, param1);
+    public BonusChestFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0) {
+        super(param0);
     }
 
     public boolean place(
-        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, NoneFeatureConfiguration param4
+        LevelAccessor param0,
+        StructureFeatureManager param1,
+        ChunkGenerator<? extends ChunkGeneratorSettings> param2,
+        Random param3,
+        BlockPos param4,
+        NoneFeatureConfiguration param5
     ) {
-        ChunkPos var0 = new ChunkPos(param3);
+        ChunkPos var0 = new ChunkPos(param4);
         List<Integer> var1 = IntStream.rangeClosed(var0.getMinBlockX(), var0.getMaxBlockX()).boxed().collect(Collectors.toList());
-        Collections.shuffle(var1, param2);
+        Collections.shuffle(var1, param3);
         List<Integer> var2 = IntStream.rangeClosed(var0.getMinBlockZ(), var0.getMaxBlockZ()).boxed().collect(Collectors.toList());
-        Collections.shuffle(var2, param2);
+        Collections.shuffle(var2, param3);
         BlockPos.MutableBlockPos var3 = new BlockPos.MutableBlockPos();
 
         for(Integer var4 : var1) {
@@ -41,7 +47,7 @@ public class BonusChestFeature extends Feature<NoneFeatureConfiguration> {
                 BlockPos var6 = param0.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, var3);
                 if (param0.isEmptyBlock(var6) || param0.getBlockState(var6).getCollisionShape(param0, var6).isEmpty()) {
                     param0.setBlock(var6, Blocks.CHEST.defaultBlockState(), 2);
-                    RandomizableContainerBlockEntity.setLootTable(param0, param2, var6, BuiltInLootTables.SPAWN_BONUS_CHEST);
+                    RandomizableContainerBlockEntity.setLootTable(param0, param3, var6, BuiltInLootTables.SPAWN_BONUS_CHEST);
                     BlockState var7 = Blocks.TORCH.defaultBlockState();
 
                     for(Direction var8 : Direction.Plane.HORIZONTAL) {

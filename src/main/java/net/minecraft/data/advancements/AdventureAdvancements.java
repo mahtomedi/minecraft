@@ -5,7 +5,6 @@ import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.FrameType;
 import net.minecraft.advancements.RequirementsStrategy;
-import net.minecraft.advancements.critereon.ChangeDimensionTrigger;
 import net.minecraft.advancements.critereon.ChanneledLightningTrigger;
 import net.minecraft.advancements.critereon.DamagePredicate;
 import net.minecraft.advancements.critereon.DamageSourcePredicate;
@@ -18,7 +17,6 @@ import net.minecraft.advancements.critereon.LocationPredicate;
 import net.minecraft.advancements.critereon.LocationTrigger;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.advancements.critereon.PlayerHurtEntityTrigger;
-import net.minecraft.advancements.critereon.PlayerPredicate;
 import net.minecraft.advancements.critereon.ShotCrossbowTrigger;
 import net.minecraft.advancements.critereon.SlideDownBlockTrigger;
 import net.minecraft.advancements.critereon.SummonedEntityTrigger;
@@ -28,7 +26,6 @@ import net.minecraft.advancements.critereon.UsedTotemTrigger;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.stats.Stats;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.raid.Raid;
@@ -83,33 +80,39 @@ public class AdventureAdvancements implements Consumer<Consumer<Advancement>> {
         Biomes.BAMBOO_JUNGLE_HILLS
     };
     private static final EntityType<?>[] MOBS_TO_KILL = new EntityType[]{
-        EntityType.CAVE_SPIDER,
-        EntityType.SPIDER,
-        EntityType.ZOMBIFIED_PIGLIN,
-        EntityType.ENDERMAN,
         EntityType.BLAZE,
+        EntityType.CAVE_SPIDER,
         EntityType.CREEPER,
+        EntityType.DROWNED,
+        EntityType.ELDER_GUARDIAN,
+        EntityType.ENDER_DRAGON,
+        EntityType.ENDERMAN,
+        EntityType.ENDERMITE,
         EntityType.EVOKER,
         EntityType.GHAST,
         EntityType.GUARDIAN,
+        EntityType.HOGLIN,
         EntityType.HUSK,
         EntityType.MAGMA_CUBE,
+        EntityType.PHANTOM,
+        EntityType.PIGLIN,
+        EntityType.PILLAGER,
+        EntityType.RAVAGER,
         EntityType.SHULKER,
         EntityType.SILVERFISH,
         EntityType.SKELETON,
         EntityType.SLIME,
+        EntityType.SPIDER,
         EntityType.STRAY,
+        EntityType.VEX,
         EntityType.VINDICATOR,
         EntityType.WITCH,
         EntityType.WITHER_SKELETON,
-        EntityType.ZOMBIE,
+        EntityType.WITHER,
+        EntityType.ZOGLIN,
         EntityType.ZOMBIE_VILLAGER,
-        EntityType.PHANTOM,
-        EntityType.DROWNED,
-        EntityType.PILLAGER,
-        EntityType.RAVAGER,
-        EntityType.HOGLIN,
-        EntityType.PIGLIN
+        EntityType.ZOMBIE,
+        EntityType.ZOMBIFIED_PIGLIN
     };
 
     public void accept(Consumer<Advancement> param0) {
@@ -429,27 +432,6 @@ public class AdventureAdvancements implements Consumer<Consumer<Advancement>> {
             )
             .addCriterion("bullseye", TargetBlockTrigger.TriggerInstance.targetHit(MinMaxBounds.Ints.exactly(15)))
             .save(param0, "adventure/bullseye");
-        Advancement var20 = Advancement.Builder.advancement()
-            .parent(var0)
-            .display(
-                Items.FLINT_AND_STEEL,
-                new TranslatableComponent("advancements.adventure.almost_there.title"),
-                new TranslatableComponent("advancements.adventure.almost_there.description"),
-                null,
-                FrameType.CHALLENGE,
-                true,
-                true,
-                false
-            )
-            .addCriterion(
-                "count",
-                ChangeDimensionTrigger.TriggerInstance.changedDimension(
-                    EntityPredicate.Builder.entity()
-                        .player(new PlayerPredicate.Builder().addStat(Stats.CUSTOM.get(Stats.CHANGE_DIMENSION), MinMaxBounds.Ints.exactly(1000000000)).build())
-                        .build()
-                )
-            )
-            .save(param0, "adventure/almost_there");
     }
 
     private Advancement.Builder addMobsToKill(Advancement.Builder param0) {

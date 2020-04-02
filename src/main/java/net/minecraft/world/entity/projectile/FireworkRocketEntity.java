@@ -12,7 +12,6 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -141,44 +140,18 @@ public class FireworkRocketEntity extends Projectile implements ItemSupplier {
                 this.setDeltaMovement(this.getDeltaMovement().multiply(1.15, 1.0, 1.15).add(0.0, 0.04, 0.0));
             }
 
-            this.move(MoverType.SELF, this.getDeltaMovement());
+            Vec3 var4 = this.getDeltaMovement();
+            this.move(MoverType.SELF, var4);
+            this.setDeltaMovement(var4);
         }
 
-        Vec3 var4 = this.getDeltaMovement();
-        HitResult var5 = ProjectileUtil.getHitResult(
-            this,
-            this.getBoundingBox().expandTowards(var4).inflate(1.0),
-            param0 -> !param0.isSpectator() && param0.isAlive() && param0.isPickable(),
-            ClipContext.Block.COLLIDER,
-            true
-        );
+        HitResult var5 = ProjectileUtil.getHitResult(this, this::canHitEntity, ClipContext.Block.COLLIDER);
         if (!this.noPhysics) {
             this.onHit(var5);
             this.hasImpulse = true;
         }
 
-        float var6 = Mth.sqrt(getHorizontalDistanceSqr(var4));
-        this.yRot = (float)(Mth.atan2(var4.x, var4.z) * 180.0F / (float)Math.PI);
-        this.xRot = (float)(Mth.atan2(var4.y, (double)var6) * 180.0F / (float)Math.PI);
-
-        while(this.xRot - this.xRotO < -180.0F) {
-            this.xRotO -= 360.0F;
-        }
-
-        while(this.xRot - this.xRotO >= 180.0F) {
-            this.xRotO += 360.0F;
-        }
-
-        while(this.yRot - this.yRotO < -180.0F) {
-            this.yRotO -= 360.0F;
-        }
-
-        while(this.yRot - this.yRotO >= 180.0F) {
-            this.yRotO += 360.0F;
-        }
-
-        this.xRot = Mth.lerp(0.2F, this.xRotO, this.xRot);
-        this.yRot = Mth.lerp(0.2F, this.yRotO, this.yRot);
+        this.updateRotation();
         if (this.life == 0 && !this.isSilent()) {
             this.level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.FIREWORK_ROCKET_LAUNCH, SoundSource.AMBIENT, 3.0F, 1.0F);
         }
@@ -221,7 +194,7 @@ public class FireworkRocketEntity extends Projectile implements ItemSupplier {
     protected void onHitBlock(BlockHitResult param0) {
         BlockPos var0 = new BlockPos(param0.getBlockPos());
         this.level.getBlockState(var0).entityInside(this.level, var0, this);
-        if (this.hasExplosion()) {
+        if (!this.level.isClientSide() && this.hasExplosion()) {
             this.explode();
         }
 

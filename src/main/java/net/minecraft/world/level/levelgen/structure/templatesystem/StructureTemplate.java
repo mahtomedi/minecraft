@@ -307,12 +307,12 @@ public class StructureTemplate {
             BlockState var3x = param0.getBlockState(var1x);
             BlockState var4x = var2x.updateShape(param5x, var3x, param0, var0x, var1x);
             if (var2x != var4x) {
-                param0.setBlock(var0x, var4x, param1 & -2 | 16);
+                param0.setBlock(var0x, var4x, param1 & -2);
             }
 
             BlockState var5x = var3x.updateShape(param5x.getOpposite(), var4x, param0, var1x, var0x);
             if (var3x != var5x) {
-                param0.setBlock(var1x, var5x, param1 & -2 | 16);
+                param0.setBlock(var1x, var5x, param1 & -2);
             }
 
         });

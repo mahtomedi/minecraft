@@ -3,18 +3,18 @@ package net.minecraft.world.level.block.grower;
 import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
-import net.minecraft.world.level.levelgen.feature.configurations.MegaTreeConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
 
 public abstract class AbstractMegaTreeGrower extends AbstractTreeGrower {
     @Override
-    public boolean growTree(LevelAccessor param0, ChunkGenerator<?> param1, BlockPos param2, BlockState param3, Random param4) {
+    public boolean growTree(ServerLevel param0, ChunkGenerator<?> param1, BlockPos param2, BlockState param3, Random param4) {
         for(int var0 = 0; var0 >= -1; --var0) {
             for(int var1 = 0; var1 >= -1; --var1) {
                 if (isTwoByTwoSapling(param3, param0, param2, var0, var1)) {
@@ -27,10 +27,10 @@ public abstract class AbstractMegaTreeGrower extends AbstractTreeGrower {
     }
 
     @Nullable
-    protected abstract ConfiguredFeature<MegaTreeConfiguration, ?> getConfiguredMegaFeature(Random var1);
+    protected abstract ConfiguredFeature<? extends TreeConfiguration, ?> getConfiguredMegaFeature(Random var1);
 
-    public boolean placeMega(LevelAccessor param0, ChunkGenerator<?> param1, BlockPos param2, BlockState param3, Random param4, int param5, int param6) {
-        ConfiguredFeature<MegaTreeConfiguration, ?> var0 = this.getConfiguredMegaFeature(param4);
+    public boolean placeMega(ServerLevel param0, ChunkGenerator<?> param1, BlockPos param2, BlockState param3, Random param4, int param5, int param6) {
+        ConfiguredFeature<? extends TreeConfiguration, ?> var0 = this.getConfiguredMegaFeature(param4);
         if (var0 == null) {
             return false;
         } else {
@@ -39,7 +39,7 @@ public abstract class AbstractMegaTreeGrower extends AbstractTreeGrower {
             param0.setBlock(param2.offset(param5 + 1, 0, param6), var1, 4);
             param0.setBlock(param2.offset(param5, 0, param6 + 1), var1, 4);
             param0.setBlock(param2.offset(param5 + 1, 0, param6 + 1), var1, 4);
-            if (var0.place(param0, param1, param4, param2.offset(param5, 0, param6))) {
+            if (var0.place(param0, param0.structureFeatureManager(), param1, param4, param2.offset(param5, 0, param6))) {
                 return true;
             } else {
                 param0.setBlock(param2.offset(param5, 0, param6), param3, 4);

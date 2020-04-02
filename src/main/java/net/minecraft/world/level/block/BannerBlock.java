@@ -37,11 +37,6 @@ public class BannerBlock extends AbstractBannerBlock {
     }
 
     @Override
-    public boolean isUnstable() {
-        return true;
-    }
-
-    @Override
     public VoxelShape getShape(BlockState param0, BlockGetter param1, BlockPos param2, CollisionContext param3) {
         return SHAPE;
     }

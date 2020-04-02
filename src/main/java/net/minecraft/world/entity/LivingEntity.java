@@ -58,15 +58,16 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.BaseAttributeMap;
-import net.minecraft.world.entity.ai.attributes.ModifiableAttributeMap;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.attributes.DefaultAttributes;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.animal.FlyingAnimal;
 import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.monster.SharedMonsterAttributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.food.FoodProperties;
@@ -108,9 +109,8 @@ public abstract class LivingEntity extends Entity {
     private static final UUID SPEED_MODIFIER_SPRINTING_UUID = UUID.fromString("662A6B8D-DA3E-4C1C-8813-96EA6097278D");
     private static final UUID SPEED_MODIFIER_SOUL_SPEED_UUID = UUID.fromString("87f46a96-686f-4796-b035-22e16ee9e038");
     private static final AttributeModifier SPEED_MODIFIER_SPRINTING = new AttributeModifier(
-            SPEED_MODIFIER_SPRINTING_UUID, "Sprinting speed boost", 0.3F, AttributeModifier.Operation.MULTIPLY_TOTAL
-        )
-        .setSerialize(false);
+        SPEED_MODIFIER_SPRINTING_UUID, "Sprinting speed boost", 0.3F, AttributeModifier.Operation.MULTIPLY_TOTAL
+    );
     protected static final EntityDataAccessor<Byte> DATA_LIVING_ENTITY_FLAGS = SynchedEntityData.defineId(LivingEntity.class, EntityDataSerializers.BYTE);
     private static final EntityDataAccessor<Float> DATA_HEALTH_ID = SynchedEntityData.defineId(LivingEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Integer> DATA_EFFECT_COLOR_ID = SynchedEntityData.defineId(LivingEntity.class, EntityDataSerializers.INT);
@@ -121,7 +121,7 @@ public abstract class LivingEntity extends Entity {
         LivingEntity.class, EntityDataSerializers.OPTIONAL_BLOCK_POS
     );
     protected static final EntityDimensions SLEEPING_DIMENSIONS = EntityDimensions.fixed(0.2F, 0.2F);
-    private BaseAttributeMap attributes;
+    private final AttributeMap attributes;
     private final CombatTracker combatTracker = new CombatTracker(this);
     private final Map<MobEffect, MobEffectInstance> activeEffects = Maps.newHashMap();
     private final NonNullList<ItemStack> lastHandItemStacks = NonNullList.withSize(2, ItemStack.EMPTY);
@@ -195,7 +195,7 @@ public abstract class LivingEntity extends Entity {
 
     protected LivingEntity(EntityType<? extends LivingEntity> param0, Level param1) {
         super(param0, param1);
-        this.registerAttributes();
+        this.attributes = new AttributeMap(DefaultAttributes.getSupplier(param0));
         this.setHealth(this.getMaxHealth());
         this.blocksBuilding = true;
         this.rotA = (float)((Math.random() + 1.0) * 0.01F);
@@ -235,12 +235,13 @@ public abstract class LivingEntity extends Entity {
         this.entityData.define(SLEEPING_POS_ID, Optional.empty());
     }
 
-    protected void registerAttributes() {
-        this.getAttributes().registerAttribute(SharedMonsterAttributes.MAX_HEALTH);
-        this.getAttributes().registerAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE);
-        this.getAttributes().registerAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
-        this.getAttributes().registerAttribute(SharedMonsterAttributes.ARMOR);
-        this.getAttributes().registerAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS);
+    public static AttributeSupplier.Builder createLivingAttributes() {
+        return AttributeSupplier.builder()
+            .add(Attributes.MAX_HEALTH)
+            .add(Attributes.KNOCKBACK_RESISTANCE)
+            .add(Attributes.MOVEMENT_SPEED)
+            .add(Attributes.ARMOR)
+            .add(Attributes.ARMOR_TOUGHNESS);
     }
 
     @Override
@@ -431,21 +432,20 @@ public abstract class LivingEntity extends Entity {
         }
 
         if (!this.getBlockStateOn().isAir()) {
-            AttributeInstance var1 = this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
+            AttributeInstance var1 = this.getAttribute(Attributes.MOVEMENT_SPEED);
             if (var1.getModifier(SPEED_MODIFIER_SOUL_SPEED_UUID) != null) {
                 var1.removeModifier(SPEED_MODIFIER_SOUL_SPEED_UUID);
             }
 
             int var2 = EnchantmentHelper.getEnchantmentLevel(Enchantments.SOUL_SPEED, this);
             if (var2 > 0 && this.getBlockStateOn().is(BlockTags.SOUL_SPEED_BLOCKS)) {
-                var1.addModifier(
+                var1.addTransientModifier(
                     new AttributeModifier(
-                            SPEED_MODIFIER_SOUL_SPEED_UUID,
-                            "Soul speed boost",
-                            (double)(0.03F * (1.0F + (float)var2 * 0.35F)),
-                            AttributeModifier.Operation.ADDITION
-                        )
-                        .setSerialize(false)
+                        SPEED_MODIFIER_SOUL_SPEED_UUID,
+                        "Soul speed boost",
+                        (double)(0.03F * (1.0F + (float)var2 * 0.35F)),
+                        AttributeModifier.Operation.ADDITION
+                    )
                 );
                 if (this.getRandom().nextFloat() < 0.04F) {
                     ItemStack var3 = this.getItemBySlot(EquipmentSlot.FEET);
@@ -571,7 +571,7 @@ public abstract class LivingEntity extends Entity {
         param0.putInt("HurtByTimestamp", this.lastHurtByMobTimestamp);
         param0.putShort("DeathTime", (short)this.deathTime);
         param0.putFloat("AbsorptionAmount", this.getAbsorptionAmount());
-        param0.put("Attributes", SharedMonsterAttributes.saveAttributes(this.getAttributes()));
+        param0.put("Attributes", this.getAttributes().save());
         if (!this.activeEffects.isEmpty()) {
             ListTag var0 = new ListTag();
 
@@ -595,7 +595,7 @@ public abstract class LivingEntity extends Entity {
     public void readAdditionalSaveData(CompoundTag param0) {
         this.setAbsorptionAmount(param0.getFloat("AbsorptionAmount"));
         if (param0.contains("Attributes", 9) && this.level != null && !this.level.isClientSide) {
-            SharedMonsterAttributes.loadAttributes(this.getAttributes(), param0.getList("Attributes", 10));
+            this.getAttributes().load(param0.getList("Attributes", 10));
         }
 
         if (param0.contains("ActiveEffects", 9)) {
@@ -1286,7 +1286,7 @@ public abstract class LivingEntity extends Entity {
     }
 
     public void knockback(float param0, double param1, double param2) {
-        param0 = (float)((double)param0 * (1.0 - this.getAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).getValue()));
+        param0 = (float)((double)param0 * (1.0 - this.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE)));
         if (!(param0 <= 0.0F)) {
             this.hasImpulse = true;
             Vec3 var0 = this.getDeltaMovement();
@@ -1412,8 +1412,7 @@ public abstract class LivingEntity extends Entity {
     }
 
     public int getArmorValue() {
-        AttributeInstance var0 = this.getAttribute(SharedMonsterAttributes.ARMOR);
-        return Mth.floor(var0.getValue());
+        return Mth.floor(this.getAttributeValue(Attributes.ARMOR));
     }
 
     protected void hurtArmor(DamageSource param0, float param1) {
@@ -1425,9 +1424,7 @@ public abstract class LivingEntity extends Entity {
     protected float getDamageAfterArmorAbsorb(DamageSource param0, float param1) {
         if (!param0.isBypassArmor()) {
             this.hurtArmor(param0, param1);
-            param1 = CombatRules.getDamageAfterAbsorb(
-                param1, (float)this.getArmorValue(), (float)this.getAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS).getValue()
-            );
+            param1 = CombatRules.getDamageAfterAbsorb(param1, (float)this.getArmorValue(), (float)this.getAttributeValue(Attributes.ARMOR_TOUGHNESS));
         }
 
         return param1;
@@ -1502,7 +1499,7 @@ public abstract class LivingEntity extends Entity {
     }
 
     public final float getMaxHealth() {
-        return (float)this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).getValue();
+        return (float)this.getAttributeValue(Attributes.MAX_HEALTH);
     }
 
     public final int getArrowCount() {
@@ -1706,15 +1703,20 @@ public abstract class LivingEntity extends Entity {
         this.attackAnim = (float)this.swingTime / (float)var0;
     }
 
+    @Nullable
     public AttributeInstance getAttribute(Attribute param0) {
         return this.getAttributes().getInstance(param0);
     }
 
-    public BaseAttributeMap getAttributes() {
-        if (this.attributes == null) {
-            this.attributes = new ModifiableAttributeMap();
-        }
+    public double getAttributeValue(Attribute param0) {
+        return this.getAttributes().getValue(param0);
+    }
 
+    public double getAttributeBaseValue(Attribute param0) {
+        return this.getAttributes().getBaseValue(param0);
+    }
+
+    public AttributeMap getAttributes() {
         return this.attributes;
     }
 
@@ -1792,13 +1794,13 @@ public abstract class LivingEntity extends Entity {
     @Override
     public void setSprinting(boolean param0) {
         super.setSprinting(param0);
-        AttributeInstance var0 = this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
+        AttributeInstance var0 = this.getAttribute(Attributes.MOVEMENT_SPEED);
         if (var0.getModifier(SPEED_MODIFIER_SPRINTING_UUID) != null) {
             var0.removeModifier(SPEED_MODIFIER_SPRINTING);
         }
 
         if (param0) {
-            var0.addModifier(SPEED_MODIFIER_SPRINTING);
+            var0.addTransientModifier(SPEED_MODIFIER_SPRINTING);
         }
 
     }
@@ -2141,7 +2143,7 @@ public abstract class LivingEntity extends Entity {
                     }
 
                     if (!var6.isEmpty()) {
-                        this.getAttributes().addAttributeModifiers(var6.getAttributeModifiers(var2));
+                        this.getAttributes().addTransientAttributeModifiers(var6.getAttributeModifiers(var2));
                     }
 
                     switch(var2.getType()) {
@@ -2547,7 +2549,7 @@ public abstract class LivingEntity extends Entity {
 
     @Override
     protected void markHurt() {
-        this.hurtMarked = this.random.nextDouble() >= this.getAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).getValue();
+        this.hurtMarked = this.random.nextDouble() >= this.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE);
     }
 
     @Override

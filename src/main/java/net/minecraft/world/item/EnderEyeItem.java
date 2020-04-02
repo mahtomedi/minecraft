@@ -72,7 +72,7 @@ public class EnderEyeItem extends Item {
                 BlockPos var2 = ((ServerLevel)param0)
                     .getChunkSource()
                     .getGenerator()
-                    .findNearestMapFeature(param0, "Stronghold", param1.blockPosition(), 100, false);
+                    .findNearestMapFeature((ServerLevel)param0, "Stronghold", param1.blockPosition(), 100, false);
                 if (var2 != null) {
                     EyeOfEnder var3 = new EyeOfEnder(param0, param1.getX(), param1.getY(0.5), param1.getZ());
                     var3.setItem(var0);

@@ -102,8 +102,4 @@ public class DimensionType implements Serializable {
     public <T> T serialize(DynamicOps<T> param0) {
         return param0.createString(Registry.DIMENSION_TYPE.getKey(this).toString());
     }
-
-    public boolean requirePortalGen() {
-        return false;
-    }
 }

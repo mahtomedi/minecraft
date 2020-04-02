@@ -64,11 +64,6 @@ public class MushroomBlock extends BushBlock implements BonemealableBlock {
     }
 
     @Override
-    public boolean isUnstable() {
-        return true;
-    }
-
-    @Override
     public boolean canSurvive(BlockState param0, LevelReader param1, BlockPos param2) {
         BlockPos var0 = param2.below();
         BlockState var1 = param1.getBlockState(var0);
@@ -94,7 +89,7 @@ public class MushroomBlock extends BushBlock implements BonemealableBlock {
             var0 = Feature.HUGE_RED_MUSHROOM.configured(BiomeDefaultFeatures.HUGE_RED_MUSHROOM_CONFIG);
         }
 
-        if (var0.place(param0, param0.getChunkSource().getGenerator(), param3, param1)) {
+        if (var0.place(param0, param0.structureFeatureManager(), param0.getChunkSource().getGenerator(), param3, param1)) {
             return true;
         } else {
             param0.setBlock(param1, param2, 3);

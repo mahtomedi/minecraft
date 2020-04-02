@@ -36,18 +36,17 @@ public abstract class EntityTypePredicate {
             String var0 = GsonHelper.convertToString(param0, "type");
             if (var0.startsWith("#")) {
                 ResourceLocation var1 = new ResourceLocation(var0.substring(1));
-                Tag<EntityType<?>> var2 = EntityTypeTags.getAllTags().getTagOrEmpty(var1);
-                return new EntityTypePredicate.TagPredicate(var2);
+                return new EntityTypePredicate.TagPredicate(EntityTypeTags.getAllTags().getTagOrEmpty(var1));
             } else {
-                ResourceLocation var3 = new ResourceLocation(var0);
-                EntityType<?> var4 = Registry.ENTITY_TYPE
-                    .getOptional(var3)
+                ResourceLocation var2 = new ResourceLocation(var0);
+                EntityType<?> var3 = Registry.ENTITY_TYPE
+                    .getOptional(var2)
                     .orElseThrow(
                         () -> new JsonSyntaxException(
-                                "Unknown entity type '" + var3 + "', valid types are: " + COMMA_JOINER.join(Registry.ENTITY_TYPE.keySet())
+                                "Unknown entity type '" + var2 + "', valid types are: " + COMMA_JOINER.join(Registry.ENTITY_TYPE.keySet())
                             )
                     );
-                return new EntityTypePredicate.TypePredicate(var4);
+                return new EntityTypePredicate.TypePredicate(var3);
             }
         } else {
             return ANY;
@@ -76,7 +75,7 @@ public abstract class EntityTypePredicate {
 
         @Override
         public JsonElement serializeToJson() {
-            return new JsonPrimitive("#" + this.tag.getId().toString());
+            return new JsonPrimitive("#" + EntityTypeTags.getAllTags().getIdOrThrow(this.tag));
         }
     }
 

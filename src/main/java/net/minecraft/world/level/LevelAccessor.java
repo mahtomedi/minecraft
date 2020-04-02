@@ -1,7 +1,7 @@
 package net.minecraft.world.level;
 
 import java.util.Random;
-import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -80,7 +80,7 @@ public interface LevelAccessor extends EntityGetter, LevelReader, LevelSimulated
     }
 
     @Override
-    default Stream<VoxelShape> getEntityCollisions(@Nullable Entity param0, AABB param1, Set<Entity> param2) {
+    default Stream<VoxelShape> getEntityCollisions(@Nullable Entity param0, AABB param1, Predicate<Entity> param2) {
         return EntityGetter.super.getEntityCollisions(param0, param1, param2);
     }
 

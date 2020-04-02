@@ -6,6 +6,7 @@ import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.VineBlock;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -15,18 +16,23 @@ import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConf
 public class VinesFeature extends Feature<NoneFeatureConfiguration> {
     private static final Direction[] DIRECTIONS = Direction.values();
 
-    public VinesFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0, Function<Random, ? extends NoneFeatureConfiguration> param1) {
-        super(param0, param1);
+    public VinesFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0) {
+        super(param0);
     }
 
     public boolean place(
-        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, NoneFeatureConfiguration param4
+        LevelAccessor param0,
+        StructureFeatureManager param1,
+        ChunkGenerator<? extends ChunkGeneratorSettings> param2,
+        Random param3,
+        BlockPos param4,
+        NoneFeatureConfiguration param5
     ) {
-        BlockPos.MutableBlockPos var0 = param3.mutable();
+        BlockPos.MutableBlockPos var0 = param4.mutable();
 
-        for(int var1 = param3.getY(); var1 < 256; ++var1) {
-            var0.set(param3);
-            var0.move(param2.nextInt(4) - param2.nextInt(4), 0, param2.nextInt(4) - param2.nextInt(4));
+        for(int var1 = param4.getY(); var1 < 256; ++var1) {
+            var0.set(param4);
+            var0.move(param3.nextInt(4) - param3.nextInt(4), 0, param3.nextInt(4) - param3.nextInt(4));
             var0.setY(var1);
             if (param0.isEmptyBlock(var0)) {
                 for(Direction var2 : DIRECTIONS) {

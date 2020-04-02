@@ -107,19 +107,20 @@ public abstract class LivingEntityRenderer<T extends LivingEntity, M extends Ent
 
         this.model.prepareMobModel(param0, var10, var9, param2);
         this.model.setupAnim(param0, var10, var9, var8, var2, var5);
-        boolean var11 = this.isBodyVisible(param0);
-        boolean var12 = !var11 && !param0.isInvisibleTo(Minecraft.getInstance().player);
-        RenderType var13 = this.getRenderType(param0, var11, var12);
-        if (var13 != null) {
-            VertexConsumer var14 = param4.getBuffer(var13);
-            int var15 = getOverlayCoords(param0, this.getWhiteOverlayProgress(param0, param2));
-            Vector3f var16 = param0.level.getDimension().getEntityExtraTint(param0);
-            this.model.renderToBuffer(param3, var14, param5, var15, var16.x(), var16.y(), var16.z(), var12 ? 0.15F : 1.0F);
+        Minecraft var11 = Minecraft.getInstance();
+        boolean var12 = this.isBodyVisible(param0);
+        boolean var13 = !var12 && !param0.isInvisibleTo(var11.player);
+        boolean var14 = var11.shouldEntityAppearGlowing(param0);
+        RenderType var15 = this.getRenderType(param0, var12, var13, var14);
+        if (var15 != null) {
+            VertexConsumer var16 = param4.getBuffer(var15);
+            int var17 = getOverlayCoords(param0, this.getWhiteOverlayProgress(param0, param2));
+            this.model.renderToBuffer(param3, var16, param5, var17, 1.0F, 1.0F, 1.0F, var13 ? 0.15F : 1.0F);
         }
 
         if (!param0.isSpectator()) {
-            for(RenderLayer<T, M> var17 : this.layers) {
-                var17.render(param3, param4, param5, param0, var10, var9, param2, var8, var2, var5);
+            for(RenderLayer<T, M> var18 : this.layers) {
+                var18.render(param3, param4, param5, param0, var10, var9, param2, var8, var2, var5);
             }
         }
 
@@ -128,14 +129,14 @@ public abstract class LivingEntityRenderer<T extends LivingEntity, M extends Ent
     }
 
     @Nullable
-    protected RenderType getRenderType(T param0, boolean param1, boolean param2) {
+    protected RenderType getRenderType(T param0, boolean param1, boolean param2, boolean param3) {
         ResourceLocation var0 = this.getTextureLocation(param0);
         if (param2) {
             return RenderType.entityTranslucent(var0);
         } else if (param1) {
             return this.model.renderType(var0);
         } else {
-            return param0.isGlowing() ? RenderType.outline(var0) : null;
+            return param3 ? RenderType.outline(var0) : null;
         }
     }
 

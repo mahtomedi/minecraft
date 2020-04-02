@@ -18,6 +18,8 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.ZombieAttackGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
@@ -33,9 +35,8 @@ import net.minecraft.world.level.pathfinder.BlockPathTypes;
 public class ZombifiedPiglin extends Zombie {
     private static final UUID SPEED_MODIFIER_ATTACKING_UUID = UUID.fromString("49455A49-7EC5-45BA-B886-3B90B23A1718");
     private static final AttributeModifier SPEED_MODIFIER_ATTACKING = new AttributeModifier(
-            SPEED_MODIFIER_ATTACKING_UUID, "Attacking speed boost", 0.05, AttributeModifier.Operation.ADDITION
-        )
-        .setSerialize(false);
+        SPEED_MODIFIER_ATTACKING_UUID, "Attacking speed boost", 0.05, AttributeModifier.Operation.ADDITION
+    );
     private int angerTime;
     private int playAngrySoundIn;
     private UUID lastHurtByUUID;
@@ -62,12 +63,11 @@ public class ZombifiedPiglin extends Zombie {
         this.targetSelector.addGoal(2, new ZombifiedPiglin.ZombifiedPiglinAngerTargetGoal(this));
     }
 
-    @Override
-    protected void registerAttributes() {
-        super.registerAttributes();
-        this.getAttribute(SPAWN_REINFORCEMENTS_CHANCE).setBaseValue(0.0);
-        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.23F);
-        this.getAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(5.0);
+    public static AttributeSupplier.Builder createAttributes() {
+        return Zombie.createAttributes()
+            .add(Attributes.SPAWN_REINFORCEMENTS_CHANCE, 0.0)
+            .add(Attributes.MOVEMENT_SPEED, 0.23F)
+            .add(Attributes.ATTACK_DAMAGE, 5.0);
     }
 
     @Override
@@ -77,11 +77,11 @@ public class ZombifiedPiglin extends Zombie {
 
     @Override
     protected void customServerAiStep() {
-        AttributeInstance var0 = this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
+        AttributeInstance var0 = this.getAttribute(Attributes.MOVEMENT_SPEED);
         LivingEntity var1 = this.getLastHurtByMob();
         if (this.isAngry()) {
             if (!this.isBaby() && !var0.hasModifier(SPEED_MODIFIER_ATTACKING)) {
-                var0.addModifier(SPEED_MODIFIER_ATTACKING);
+                var0.addTransientModifier(SPEED_MODIFIER_ATTACKING);
             }
 
             --this.angerTime;
@@ -203,6 +203,11 @@ public class ZombifiedPiglin extends Zombie {
     @Override
     protected ItemStack getSkull() {
         return ItemStack.EMPTY;
+    }
+
+    @Override
+    protected void randomizeReinforcementsChance() {
+        this.getAttribute(Attributes.SPAWN_REINFORCEMENTS_CHANCE).setBaseValue(0.0);
     }
 
     @Override

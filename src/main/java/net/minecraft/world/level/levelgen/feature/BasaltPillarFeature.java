@@ -8,22 +8,28 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 
 public class BasaltPillarFeature extends Feature<NoneFeatureConfiguration> {
-    public BasaltPillarFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0, Function<Random, ? extends NoneFeatureConfiguration> param1) {
-        super(param0, param1);
+    public BasaltPillarFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0) {
+        super(param0);
     }
 
     public boolean place(
-        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, NoneFeatureConfiguration param4
+        LevelAccessor param0,
+        StructureFeatureManager param1,
+        ChunkGenerator<? extends ChunkGeneratorSettings> param2,
+        Random param3,
+        BlockPos param4,
+        NoneFeatureConfiguration param5
     ) {
-        if (param0.isEmptyBlock(param3) && !param0.isEmptyBlock(param3.above())) {
-            BlockPos.MutableBlockPos var0 = param3.mutable();
-            BlockPos.MutableBlockPos var1 = param3.mutable();
+        if (param0.isEmptyBlock(param4) && !param0.isEmptyBlock(param4.above())) {
+            BlockPos.MutableBlockPos var0 = param4.mutable();
+            BlockPos.MutableBlockPos var1 = param4.mutable();
             boolean var2 = true;
             boolean var3 = true;
             boolean var4 = true;
@@ -35,24 +41,24 @@ public class BasaltPillarFeature extends Feature<NoneFeatureConfiguration> {
                 }
 
                 param0.setBlock(var0, Blocks.BASALT.defaultBlockState(), 2);
-                var2 = var2 && this.placeHangOff(param0, param2, var1.setWithOffset(var0, Direction.NORTH));
-                var3 = var3 && this.placeHangOff(param0, param2, var1.setWithOffset(var0, Direction.SOUTH));
-                var4 = var4 && this.placeHangOff(param0, param2, var1.setWithOffset(var0, Direction.WEST));
-                var5 = var5 && this.placeHangOff(param0, param2, var1.setWithOffset(var0, Direction.EAST));
+                var2 = var2 && this.placeHangOff(param0, param3, var1.setWithOffset(var0, Direction.NORTH));
+                var3 = var3 && this.placeHangOff(param0, param3, var1.setWithOffset(var0, Direction.SOUTH));
+                var4 = var4 && this.placeHangOff(param0, param3, var1.setWithOffset(var0, Direction.WEST));
+                var5 = var5 && this.placeHangOff(param0, param3, var1.setWithOffset(var0, Direction.EAST));
                 var0.move(Direction.DOWN);
             }
 
             var0.move(Direction.UP);
-            this.placeBaseHangOff(param0, param2, var1.setWithOffset(var0, Direction.NORTH));
-            this.placeBaseHangOff(param0, param2, var1.setWithOffset(var0, Direction.SOUTH));
-            this.placeBaseHangOff(param0, param2, var1.setWithOffset(var0, Direction.WEST));
-            this.placeBaseHangOff(param0, param2, var1.setWithOffset(var0, Direction.EAST));
+            this.placeBaseHangOff(param0, param3, var1.setWithOffset(var0, Direction.NORTH));
+            this.placeBaseHangOff(param0, param3, var1.setWithOffset(var0, Direction.SOUTH));
+            this.placeBaseHangOff(param0, param3, var1.setWithOffset(var0, Direction.WEST));
+            this.placeBaseHangOff(param0, param3, var1.setWithOffset(var0, Direction.EAST));
             BlockPos.MutableBlockPos var6 = new BlockPos.MutableBlockPos();
 
             for(int var7 = -3; var7 < 4; ++var7) {
                 for(int var8 = -3; var8 < 4; ++var8) {
                     int var9 = Mth.abs(var7) * Mth.abs(var8);
-                    if (param2.nextInt(10) < 10 - var9) {
+                    if (param3.nextInt(10) < 10 - var9) {
                         var6.set(var0.offset(var7, 0, var8));
                         int var10 = 3;
 

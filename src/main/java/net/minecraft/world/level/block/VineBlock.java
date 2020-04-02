@@ -80,11 +80,6 @@ public class VineBlock extends Block {
         return this.hasFaces(this.getUpdatedState(param0, param1, param2));
     }
 
-    @Override
-    public boolean isUnstable() {
-        return true;
-    }
-
     private boolean hasFaces(BlockState param0) {
         return this.countFaces(param0) > 0;
     }

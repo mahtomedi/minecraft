@@ -160,7 +160,7 @@ public class ItemPredicate {
             }
 
             if (this.tag != null) {
-                var0.addProperty("tag", this.tag.getId().toString());
+                var0.addProperty("tag", ItemTags.getAllTags().getIdOrThrow(this.tag).toString());
             }
 
             var0.add("count", this.count.serializeToJson());

@@ -14,9 +14,9 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelType;
 import net.minecraft.world.level.NaturalSpawner;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
-import net.minecraft.world.level.chunk.ChunkGeneratorType;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 
@@ -137,26 +137,26 @@ public class OverworldLevelSource extends NoiseBasedChunkGenerator<OverworldGene
     }
 
     @Override
-    public List<Biome.SpawnerData> getMobsAt(MobCategory param0, BlockPos param1) {
-        if (Feature.SWAMP_HUT.isSwamphut(this.level, param1)) {
-            if (param0 == MobCategory.MONSTER) {
+    public List<Biome.SpawnerData> getMobsAt(StructureFeatureManager param0, MobCategory param1, BlockPos param2) {
+        if (Feature.SWAMP_HUT.isSwamphut(this.level, param0, param2)) {
+            if (param1 == MobCategory.MONSTER) {
                 return Feature.SWAMP_HUT.getSpecialEnemies();
             }
 
-            if (param0 == MobCategory.CREATURE) {
+            if (param1 == MobCategory.CREATURE) {
                 return Feature.SWAMP_HUT.getSpecialAnimals();
             }
-        } else if (param0 == MobCategory.MONSTER) {
-            if (Feature.PILLAGER_OUTPOST.isInsideBoundingFeature(this.level, param1)) {
+        } else if (param1 == MobCategory.MONSTER) {
+            if (Feature.PILLAGER_OUTPOST.isInsideBoundingFeature(this.level, param0, param2)) {
                 return Feature.PILLAGER_OUTPOST.getSpecialEnemies();
             }
 
-            if (Feature.OCEAN_MONUMENT.isInsideBoundingFeature(this.level, param1)) {
+            if (Feature.OCEAN_MONUMENT.isInsideBoundingFeature(this.level, param0, param2)) {
                 return Feature.OCEAN_MONUMENT.getSpecialEnemies();
             }
         }
 
-        return super.getMobsAt(param0, param1);
+        return super.getMobsAt(param0, param1, param2);
     }
 
     @Override
@@ -175,10 +175,5 @@ public class OverworldLevelSource extends NoiseBasedChunkGenerator<OverworldGene
     @Override
     public int getSeaLevel() {
         return 63;
-    }
-
-    @Override
-    public ChunkGeneratorType<?, ?> getType() {
-        return ChunkGeneratorType.SURFACE;
     }
 }

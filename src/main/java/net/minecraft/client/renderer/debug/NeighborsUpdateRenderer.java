@@ -69,7 +69,9 @@ public class NeighborsUpdateRenderer implements DebugRenderer.SimpleDebugRendere
                             .deflate(0.0025 * (double)var10)
                             .move((double)var12.getX(), (double)var12.getY(), (double)var12.getZ())
                             .move(-param2, -param3, -param4);
-                        LevelRenderer.renderLineBox(var5, var14.minX, var14.minY, var14.minZ, var14.maxX, var14.maxY, var14.maxZ, 1.0F, 1.0F, 1.0F, 1.0F);
+                        LevelRenderer.renderLineBox(
+                            param0, var5, var14.minX, var14.minY, var14.minZ, var14.maxX, var14.maxY, var14.maxZ, 1.0F, 1.0F, 1.0F, 1.0F
+                        );
                         var4.put(var12, var13);
                     }
                 }

@@ -4,6 +4,7 @@ import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.WallTorchBlock;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -15,25 +16,30 @@ public class EndPodiumFeature extends Feature<NoneFeatureConfiguration> {
     private final boolean active;
 
     public EndPodiumFeature(boolean param0) {
-        super(NoneFeatureConfiguration::deserialize, NoneFeatureConfiguration::random);
+        super(NoneFeatureConfiguration::deserialize);
         this.active = param0;
     }
 
     public boolean place(
-        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, NoneFeatureConfiguration param4
+        LevelAccessor param0,
+        StructureFeatureManager param1,
+        ChunkGenerator<? extends ChunkGeneratorSettings> param2,
+        Random param3,
+        BlockPos param4,
+        NoneFeatureConfiguration param5
     ) {
         for(BlockPos var0 : BlockPos.betweenClosed(
-            new BlockPos(param3.getX() - 4, param3.getY() - 1, param3.getZ() - 4), new BlockPos(param3.getX() + 4, param3.getY() + 32, param3.getZ() + 4)
+            new BlockPos(param4.getX() - 4, param4.getY() - 1, param4.getZ() - 4), new BlockPos(param4.getX() + 4, param4.getY() + 32, param4.getZ() + 4)
         )) {
-            boolean var1 = var0.closerThan(param3, 2.5);
-            if (var1 || var0.closerThan(param3, 3.5)) {
-                if (var0.getY() < param3.getY()) {
+            boolean var1 = var0.closerThan(param4, 2.5);
+            if (var1 || var0.closerThan(param4, 3.5)) {
+                if (var0.getY() < param4.getY()) {
                     if (var1) {
                         this.setBlock(param0, var0, Blocks.BEDROCK.defaultBlockState());
-                    } else if (var0.getY() < param3.getY()) {
+                    } else if (var0.getY() < param4.getY()) {
                         this.setBlock(param0, var0, Blocks.END_STONE.defaultBlockState());
                     }
-                } else if (var0.getY() > param3.getY()) {
+                } else if (var0.getY() > param4.getY()) {
                     this.setBlock(param0, var0, Blocks.AIR.defaultBlockState());
                 } else if (!var1) {
                     this.setBlock(param0, var0, Blocks.BEDROCK.defaultBlockState());
@@ -46,10 +52,10 @@ public class EndPodiumFeature extends Feature<NoneFeatureConfiguration> {
         }
 
         for(int var2 = 0; var2 < 4; ++var2) {
-            this.setBlock(param0, param3.above(var2), Blocks.BEDROCK.defaultBlockState());
+            this.setBlock(param0, param4.above(var2), Blocks.BEDROCK.defaultBlockState());
         }
 
-        BlockPos var3 = param3.above(2);
+        BlockPos var3 = param4.above(2);
 
         for(Direction var4 : Direction.Plane.HORIZONTAL) {
             this.setBlock(param0, var3.relative(var4), Blocks.WALL_TORCH.defaultBlockState().setValue(WallTorchBlock.FACING, var4));

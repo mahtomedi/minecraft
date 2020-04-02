@@ -8,6 +8,7 @@ import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.block.Blocks;
@@ -23,8 +24,8 @@ import net.minecraft.world.level.levelgen.structure.WoodlandMansionPieces;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 
 public class WoodlandMansionFeature extends StructureFeature<NoneFeatureConfiguration> {
-    public WoodlandMansionFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0, Function<Random, ? extends NoneFeatureConfiguration> param1) {
-        super(param0, param1);
+    public WoodlandMansionFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0) {
+        super(param0);
     }
 
     @Override
@@ -112,12 +113,14 @@ public class WoodlandMansionFeature extends StructureFeature<NoneFeatureConfigur
         }
 
         @Override
-        public void postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
-            super.postProcess(param0, param1, param2, param3, param4);
+        public void postProcess(
+            LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<?> param2, Random param3, BoundingBox param4, ChunkPos param5
+        ) {
+            super.postProcess(param0, param1, param2, param3, param4, param5);
             int var0 = this.boundingBox.y0;
 
-            for(int var1 = param3.x0; var1 <= param3.x1; ++var1) {
-                for(int var2 = param3.z0; var2 <= param3.z1; ++var2) {
+            for(int var1 = param4.x0; var1 <= param4.x1; ++var1) {
+                for(int var2 = param4.z0; var2 <= param4.z1; ++var2) {
                     BlockPos var3 = new BlockPos(var1, var0, var2);
                     if (!param0.isEmptyBlock(var3) && this.boundingBox.isInside(var3)) {
                         boolean var4 = false;

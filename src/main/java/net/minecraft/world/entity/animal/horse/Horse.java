@@ -18,8 +18,8 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.monster.SharedMonsterAttributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.HorseArmorItem;
 import net.minecraft.world.item.ItemStack;
@@ -58,6 +58,13 @@ public class Horse extends AbstractHorse {
 
     public Horse(EntityType<? extends Horse> param0, Level param1) {
         super(param0, param1);
+    }
+
+    @Override
+    protected void randomizeAttributes() {
+        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue((double)this.generateRandomMaxHealth());
+        this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(this.generateRandomSpeed());
+        this.getAttribute(Attributes.JUMP_STRENGTH).setBaseValue(this.generateRandomJumpStrength());
     }
 
     @Override
@@ -150,14 +157,13 @@ public class Horse extends AbstractHorse {
     private void setArmorEquipment(ItemStack param0) {
         this.setArmor(param0);
         if (!this.level.isClientSide) {
-            this.getAttribute(SharedMonsterAttributes.ARMOR).removeModifier(ARMOR_MODIFIER_UUID);
+            this.getAttribute(Attributes.ARMOR).removeModifier(ARMOR_MODIFIER_UUID);
             if (this.isArmor(param0)) {
                 int var0 = ((HorseArmorItem)param0.getItem()).getProtection();
                 if (var0 != 0) {
-                    this.getAttribute(SharedMonsterAttributes.ARMOR)
-                        .addModifier(
+                    this.getAttribute(Attributes.ARMOR)
+                        .addTransientModifier(
                             new AttributeModifier(ARMOR_MODIFIER_UUID, "Horse armor bonus", (double)var0, AttributeModifier.Operation.ADDITION)
-                                .setSerialize(false)
                         );
                 }
             }
@@ -183,14 +189,6 @@ public class Horse extends AbstractHorse {
             this.playSound(SoundEvents.HORSE_BREATHE, param0.getVolume() * 0.6F, param0.getPitch());
         }
 
-    }
-
-    @Override
-    protected void registerAttributes() {
-        super.registerAttributes();
-        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue((double)this.generateRandomMaxHealth());
-        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(this.generateRandomSpeed());
-        this.getAttribute(JUMP_STRENGTH).setBaseValue(this.generateRandomJumpStrength());
     }
 
     @Override

@@ -1,14 +1,9 @@
 package net.minecraft.world.level.biome;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.common.collect.ImmutableMap.Builder;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
-import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.longs.Long2FloatLinkedOpenHashMap;
 import java.util.Arrays;
 import java.util.List;
@@ -36,6 +31,7 @@ import net.minecraft.world.level.GrassColor;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -95,6 +91,7 @@ public abstract class Biome {
             var0x.defaultReturnValue(Float.NaN);
             return var0x;
         }));
+    private final List<Biome.ClimateParameters> optimalParameters;
 
     @Nullable
     public static Biome getMutatedVariant(Biome param0) {
@@ -103,10 +100,6 @@ public abstract class Biome {
 
     public static <C extends CarverConfiguration> ConfiguredWorldCarver<C> makeCarver(WorldCarver<C> param0, C param1) {
         return new ConfiguredWorldCarver<>(param0, param1);
-    }
-
-    public static <C extends CarverConfiguration> ConfiguredWorldCarver<C> makeRandomCarver(WorldCarver<C> param0, Random param1) {
-        return new ConfiguredWorldCarver<>(param0, param0.randomConfig(param1));
     }
 
     protected Biome(Biome.BiomeBuilder param0) {
@@ -127,6 +120,7 @@ public abstract class Biome {
             this.downfall = param0.downfall;
             this.skyColor = this.calculateSkyColor();
             this.parent = param0.parent;
+            this.optimalParameters = (List<Biome.ClimateParameters>)(param0.optimalParameters != null ? param0.optimalParameters : ImmutableList.of());
             this.specialEffects = param0.specialEffects;
 
             for(GenerationStep.Decoration var0 : GenerationStep.Decoration.values()) {
@@ -288,21 +282,22 @@ public abstract class Biome {
 
     public void generate(
         GenerationStep.Decoration param0,
-        ChunkGenerator<? extends ChunkGeneratorSettings> param1,
-        LevelAccessor param2,
-        long param3,
-        WorldgenRandom param4,
-        BlockPos param5
+        StructureFeatureManager param1,
+        ChunkGenerator<? extends ChunkGeneratorSettings> param2,
+        LevelAccessor param3,
+        long param4,
+        WorldgenRandom param5,
+        BlockPos param6
     ) {
         int var0 = 0;
 
         for(ConfiguredFeature<?, ?> var1 : this.features.get(param0)) {
-            param4.setFeatureSeed(param3, var0, param0.ordinal());
+            param5.setFeatureSeed(param4, var0, param0.ordinal());
 
             try {
-                var1.place(param2, param1, param4, param5);
-            } catch (Exception var13) {
-                CrashReport var3 = CrashReport.forThrowable(var13, "Feature placement");
+                var1.place(param3, param1, param2, param5, param6);
+            } catch (Exception var14) {
+                CrashReport var3 = CrashReport.forThrowable(var14, "Feature placement");
                 var3.addCategory("Feature").setDetail("Id", Registry.FEATURE.getKey(var1.feature)).setDetail("Description", () -> var1.feature.toString());
                 throw new ReportedException(var3);
             }
@@ -422,95 +417,13 @@ public abstract class Biome {
         return this.surfaceBuilder.getSurfaceBuilderConfiguration();
     }
 
+    public float getFitness(Biome.ClimateParameters param0) {
+        return this.optimalParameters.stream().map(param1 -> param1.fitness(param0)).min(Float::compare).orElse(Float.POSITIVE_INFINITY);
+    }
+
     @Nullable
     public String getParent() {
         return this.parent;
-    }
-
-    public <T> Dynamic<T> serialize(DynamicOps<T> param0) {
-        T var0 = param0.createMap(
-            this.carvers
-                .entrySet()
-                .stream()
-                .map(
-                    param1 -> Pair.of(
-                            param0.createString(param1.getKey().getName()),
-                            param0.createList(param1.getValue().stream().map(param1x -> param1x.serialize(param0).getValue()))
-                        )
-                )
-                .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond))
-        );
-        T var1 = param0.createMap(
-            this.features
-                .entrySet()
-                .stream()
-                .map(
-                    param1 -> Pair.of(
-                            param0.createString(param1.getKey().getName()),
-                            param0.createList(param1.getValue().stream().map(param1x -> param1x.serialize(param0).getValue()))
-                        )
-                )
-                .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond))
-        );
-        T var2 = param0.createMap(
-            this.validFeatureStarts
-                .entrySet()
-                .stream()
-                .map(
-                    param1 -> Pair.of(param0.createString(Registry.FEATURE.getKey(param1.getKey()).toString()), param1.getValue().serialize(param0).getValue())
-                )
-                .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond))
-        );
-        T var3 = param0.createMap(
-            this.spawners
-                .entrySet()
-                .stream()
-                .map(
-                    param1 -> Pair.of(
-                            param0.createString(param1.getKey().getName()),
-                            param0.createList(param1.getValue().stream().map(param1x -> param1x.serialize(param0).getValue()))
-                        )
-                )
-                .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond))
-        );
-        return new Dynamic<>(
-            param0,
-            param0.createMap(
-                new Builder<T, T>()
-                    .put(param0.createString("precipitation"), param0.createString(this.precipitation.getName()))
-                    .put(param0.createString("category"), param0.createString(this.biomeCategory.getName()))
-                    .put(param0.createString("depth"), param0.createFloat(this.depth))
-                    .put(param0.createString("scale"), param0.createFloat(this.scale))
-                    .put(param0.createString("temperature"), param0.createFloat(this.temperature))
-                    .put(param0.createString("downfall"), param0.createFloat(this.downfall))
-                    .put(param0.createString("surface_builder"), this.surfaceBuilder.serialize(param0).getValue())
-                    .put(param0.createString("carvers"), var0)
-                    .put(param0.createString("features"), var1)
-                    .put(param0.createString("starts"), var2)
-                    .put(param0.createString("spawners"), var3)
-                    .build()
-            )
-        );
-    }
-
-    public static Biome.BiomeBuilder random(Random param0) {
-        SurfaceBuilder<? extends SurfaceBuilderConfiguration> var0 = param0.nextInt(5) != 0
-            ? SurfaceBuilder.DEFAULT
-            : (SurfaceBuilder)Registry.SURFACE_BUILDER.getRandom(param0);
-        return surfaceBuilderCap(new Biome.BiomeBuilder(), var0, param0)
-            .precipitation(Util.randomEnum(Biome.Precipitation.class, param0))
-            .biomeCategory(Util.randomEnum(Biome.BiomeCategory.class, param0))
-            .depth(param0.nextFloat() * 2.0F - 1.0F)
-            .scale(param0.nextFloat())
-            .temperature(param0.nextFloat() * 3.0F)
-            .downfall(param0.nextFloat() * 2.0F)
-            .specialEffects(BiomeSpecialEffects.random(param0));
-    }
-
-    private static <T extends SurfaceBuilderConfiguration> Biome.BiomeBuilder surfaceBuilderCap(
-        Biome.BiomeBuilder param0, SurfaceBuilder<T> param1, Random param2
-    ) {
-        return param0.surfaceBuilder(param1, param1.createRandomSettings(param2));
     }
 
     public static class BiomeBuilder {
@@ -530,6 +443,8 @@ public abstract class Biome {
         private Float downfall;
         @Nullable
         private String parent;
+        @Nullable
+        private List<Biome.ClimateParameters> optimalParameters;
         @Nullable
         private BiomeSpecialEffects specialEffects;
 
@@ -575,6 +490,11 @@ public abstract class Biome {
 
         public Biome.BiomeBuilder parent(@Nullable String param0) {
             this.parent = param0;
+            return this;
+        }
+
+        public Biome.BiomeBuilder optimalParameters(List<Biome.ClimateParameters> param0) {
+            this.optimalParameters = param0;
             return this;
         }
 
@@ -710,46 +630,6 @@ public abstract class Biome {
                 + (this.weirdness - param0.weirdness) * (this.weirdness - param0.weirdness)
                 - (this.weight - param0.weight) * (this.weight - param0.weight);
         }
-
-        public static Biome.ClimateParameters random(Random param0) {
-            return new Biome.ClimateParameters(
-                param0.nextFloat() * 2.0F - 1.0F,
-                param0.nextFloat() * 2.0F - 1.0F,
-                param0.nextFloat() * 2.0F - 1.0F,
-                param0.nextFloat() * 2.0F - 1.0F,
-                param0.nextFloat() / 2.0F + 0.5F
-            );
-        }
-
-        public static List<Biome.ClimateParameters> randomList(Random param0) {
-            List<Biome.ClimateParameters> var0 = Lists.newArrayList();
-
-            do {
-                var0.add(random(param0));
-            } while(param0.nextBoolean());
-
-            return var0;
-        }
-
-        public <T> Dynamic<T> serialize(DynamicOps<T> param0) {
-            return new Dynamic<>(
-                param0,
-                param0.createMap(
-                    ImmutableMap.of(
-                        param0.createString("temperature"),
-                        param0.createFloat(this.temperature),
-                        param0.createString("humidity"),
-                        param0.createFloat(this.humidity),
-                        param0.createString("altitude"),
-                        param0.createFloat(this.altitude),
-                        param0.createString("weirdness"),
-                        param0.createFloat(this.weirdness),
-                        param0.createString("weight"),
-                        param0.createFloat(this.weight)
-                    )
-                )
-            );
-        }
     }
 
     public static enum Precipitation {
@@ -785,24 +665,6 @@ public abstract class Biome {
         @Override
         public String toString() {
             return EntityType.getKey(this.type) + "*(" + this.minCount + "-" + this.maxCount + "):" + this.weight;
-        }
-
-        public <T> Dynamic<T> serialize(DynamicOps<T> param0) {
-            return new Dynamic<>(
-                param0,
-                param0.createMap(
-                    ImmutableMap.of(
-                        param0.createString("weight"),
-                        param0.createInt(this.weight),
-                        param0.createString("minCount"),
-                        param0.createInt(this.minCount),
-                        param0.createString("maxCount"),
-                        param0.createInt(this.maxCount),
-                        param0.createString("type"),
-                        param0.createString(Registry.ENTITY_TYPE.getKey(this.type).toString())
-                    )
-                )
-            );
         }
     }
 }

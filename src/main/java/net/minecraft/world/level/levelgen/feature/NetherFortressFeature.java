@@ -25,8 +25,8 @@ public class NetherFortressFeature extends StructureFeature<NoneFeatureConfigura
         new Biome.SpawnerData(EntityType.MAGMA_CUBE, 3, 4, 4)
     );
 
-    public NetherFortressFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0, Function<Random, ? extends NoneFeatureConfiguration> param1) {
-        super(param0, param1);
+    public NetherFortressFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0) {
+        super(param0);
     }
 
     @Override

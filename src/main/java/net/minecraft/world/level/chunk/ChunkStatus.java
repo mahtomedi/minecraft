@@ -39,10 +39,17 @@ public class ChunkStatus {
         }
     );
     public static final ChunkStatus STRUCTURE_STARTS = register(
-        "structure_starts", EMPTY, 0, PRE_FEATURES, ChunkStatus.ChunkType.PROTOCHUNK, (param0, param1, param2, param3, param4, param5, param6, param7) -> {
+        "structure_starts",
+        EMPTY,
+        0,
+        PRE_FEATURES,
+        ChunkStatus.ChunkType.PROTOCHUNK,
+        (param0, param1, param2, param3, param4, param5, param6, param7) -> {
             if (!param7.getStatus().isOrAfter(param0)) {
                 if (param1.getLevelData().isGenerateMapFeatures()) {
-                    param2.createStructures(param1.getBiomeManager().withDifferentSource(param2.getBiomeSource()), param7, param2, param3);
+                    param2.createStructures(
+                        param1.structureFeatureManager(), param1.getBiomeManager().withDifferentSource(param2.getBiomeSource()), param7, param2, param3
+                    );
                 }
     
                 if (param7 instanceof ProtoChunk) {
@@ -59,7 +66,7 @@ public class ChunkStatus {
         8,
         PRE_FEATURES,
         ChunkStatus.ChunkType.PROTOCHUNK,
-        (param0, param1, param2, param3) -> param1.createReferences(new WorldGenRegion(param0, param2), param3)
+        (param0, param1, param2, param3) -> param1.createReferences(new WorldGenRegion(param0, param2), param0.structureFeatureManager(), param3)
     );
     public static final ChunkStatus BIOMES = registerSimple(
         "biomes", STRUCTURE_REFERENCES, 0, PRE_FEATURES, ChunkStatus.ChunkType.PROTOCHUNK, (param0, param1, param2, param3) -> param1.createBiomes(param3)
@@ -70,7 +77,7 @@ public class ChunkStatus {
         8,
         PRE_FEATURES,
         ChunkStatus.ChunkType.PROTOCHUNK,
-        (param0, param1, param2, param3) -> param1.fillFromNoise(new WorldGenRegion(param0, param2), param3)
+        (param0, param1, param2, param3) -> param1.fillFromNoise(new WorldGenRegion(param0, param2), param0.structureFeatureManager(), param3)
     );
     public static final ChunkStatus SURFACE = registerSimple(
         "surface",
@@ -116,7 +123,7 @@ public class ChunkStatus {
                         Heightmap.Types.MOTION_BLOCKING, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Heightmap.Types.OCEAN_FLOOR, Heightmap.Types.WORLD_SURFACE
                     )
                 );
-                param2.applyBiomeDecoration(new WorldGenRegion(param1, param6));
+                param2.applyBiomeDecoration(new WorldGenRegion(param1, param6), param1.structureFeatureManager());
                 var0.setStatus(param0);
             }
     

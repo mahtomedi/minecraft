@@ -12,6 +12,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.util.Deserializer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
@@ -73,8 +74,10 @@ public abstract class PoolElementStructurePiece extends StructurePiece {
     }
 
     @Override
-    public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
-        return this.element.place(this.structureManager, param0, param1, this.position, param5, this.rotation, param3, param2);
+    public boolean postProcess(
+        LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<?> param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
+    ) {
+        return this.element.place(this.structureManager, param0, param1, param2, this.position, param6, this.rotation, param4, param3);
     }
 
     @Override

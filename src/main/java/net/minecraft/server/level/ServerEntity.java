@@ -25,7 +25,6 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
-import net.minecraft.world.entity.ai.attributes.ModifiableAttributeMap;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
@@ -215,10 +214,9 @@ public class ServerEntity {
 
         boolean var1 = this.trackDelta;
         if (this.entity instanceof LivingEntity) {
-            ModifiableAttributeMap var2 = (ModifiableAttributeMap)((LivingEntity)this.entity).getAttributes();
-            Collection<AttributeInstance> var3 = var2.getSyncableAttributes();
-            if (!var3.isEmpty()) {
-                param0.accept(new ClientboundUpdateAttributesPacket(this.entity.getId(), var3));
+            Collection<AttributeInstance> var2 = ((LivingEntity)this.entity).getAttributes().getSyncableAttributes();
+            if (!var2.isEmpty()) {
+                param0.accept(new ClientboundUpdateAttributesPacket(this.entity.getId(), var2));
             }
 
             if (((LivingEntity)this.entity).isFallFlying()) {
@@ -232,19 +230,19 @@ public class ServerEntity {
         }
 
         if (this.entity instanceof LivingEntity) {
-            for(EquipmentSlot var4 : EquipmentSlot.values()) {
-                ItemStack var5 = ((LivingEntity)this.entity).getItemBySlot(var4);
-                if (!var5.isEmpty()) {
-                    param0.accept(new ClientboundSetEquippedItemPacket(this.entity.getId(), var4, var5));
+            for(EquipmentSlot var3 : EquipmentSlot.values()) {
+                ItemStack var4 = ((LivingEntity)this.entity).getItemBySlot(var3);
+                if (!var4.isEmpty()) {
+                    param0.accept(new ClientboundSetEquippedItemPacket(this.entity.getId(), var3, var4));
                 }
             }
         }
 
         if (this.entity instanceof LivingEntity) {
-            LivingEntity var6 = (LivingEntity)this.entity;
+            LivingEntity var5 = (LivingEntity)this.entity;
 
-            for(MobEffectInstance var7 : var6.getActiveEffects()) {
-                param0.accept(new ClientboundUpdateMobEffectPacket(this.entity.getId(), var7));
+            for(MobEffectInstance var6 : var5.getActiveEffects()) {
+                param0.accept(new ClientboundUpdateMobEffectPacket(this.entity.getId(), var6));
             }
         }
 
@@ -257,9 +255,9 @@ public class ServerEntity {
         }
 
         if (this.entity instanceof Mob) {
-            Mob var8 = (Mob)this.entity;
-            if (var8.isLeashed()) {
-                param0.accept(new ClientboundSetEntityLinkPacket(var8, var8.getLeashHolder()));
+            Mob var7 = (Mob)this.entity;
+            if (var7.isLeashed()) {
+                param0.accept(new ClientboundSetEntityLinkPacket(var7, var7.getLeashHolder()));
             }
         }
 
@@ -272,13 +270,12 @@ public class ServerEntity {
         }
 
         if (this.entity instanceof LivingEntity) {
-            ModifiableAttributeMap var1 = (ModifiableAttributeMap)((LivingEntity)this.entity).getAttributes();
-            Set<AttributeInstance> var2 = var1.getDirtyAttributes();
-            if (!var2.isEmpty()) {
-                this.broadcastAndSend(new ClientboundUpdateAttributesPacket(this.entity.getId(), var2));
+            Set<AttributeInstance> var1 = ((LivingEntity)this.entity).getAttributes().getDirtyAttributes();
+            if (!var1.isEmpty()) {
+                this.broadcastAndSend(new ClientboundUpdateAttributesPacket(this.entity.getId(), var1));
             }
 
-            var2.clear();
+            var1.clear();
         }
 
     }

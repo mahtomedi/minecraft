@@ -16,23 +16,8 @@ import net.minecraft.world.level.levelgen.feature.configurations.SmallTreeConfig
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public class FancyTreeFeature extends AbstractTreeFeature<SmallTreeConfiguration> {
-    public FancyTreeFeature(Function<Dynamic<?>, ? extends SmallTreeConfiguration> param0, Function<Random, ? extends SmallTreeConfiguration> param1) {
-        super(param0, param1);
-    }
-
-    private void crossSection(
-        LevelSimulatedRW param0, Random param1, BlockPos param2, float param3, Set<BlockPos> param4, BoundingBox param5, SmallTreeConfiguration param6
-    ) {
-        int var0 = (int)((double)param3 + 0.618);
-
-        for(int var1 = -var0; var1 <= var0; ++var1) {
-            for(int var2 = -var0; var2 <= var0; ++var2) {
-                if (Math.pow((double)Math.abs(var1) + 0.5, 2.0) + Math.pow((double)Math.abs(var2) + 0.5, 2.0) <= (double)(param3 * param3)) {
-                    this.placeLeaf(param0, param1, param2.offset(var1, 0, var2), param4, param5, param6);
-                }
-            }
-        }
-
+    public FancyTreeFeature(Function<Dynamic<?>, ? extends SmallTreeConfiguration> param0) {
+        super(param0);
     }
 
     private float treeShape(int param0, int param1) {
@@ -60,15 +45,6 @@ public class FancyTreeFeature extends AbstractTreeFeature<SmallTreeConfiguration
         }
     }
 
-    private void foliageCluster(
-        LevelSimulatedRW param0, Random param1, BlockPos param2, Set<BlockPos> param3, BoundingBox param4, SmallTreeConfiguration param5
-    ) {
-        for(int var0 = 0; var0 < 5; ++var0) {
-            this.crossSection(param0, param1, param2.above(var0), this.foliageShape(var0), param3, param4, param5);
-        }
-
-    }
-
     private int makeLimb(
         LevelSimulatedRW param0,
         Random param1,
@@ -91,9 +67,7 @@ public class FancyTreeFeature extends AbstractTreeFeature<SmallTreeConfiguration
             for(int var5 = 0; var5 <= var1; ++var5) {
                 BlockPos var6 = param2.offset((double)(0.5F + (float)var5 * var2), (double)(0.5F + (float)var5 * var3), (double)(0.5F + (float)var5 * var4));
                 if (param4) {
-                    this.setBlock(
-                        param0, var6, param7.trunkProvider.getState(param1, var6).setValue(RotatedPillarBlock.AXIS, this.getLogAxis(param2, var6)), param6
-                    );
+                    setBlock(param0, var6, param7.trunkProvider.getState(param1, var6).setValue(RotatedPillarBlock.AXIS, this.getLogAxis(param2, var6)), param6);
                     param5.add(var6);
                 } else if (!isFree(param0, var6)) {
                     return var5;
@@ -143,7 +117,18 @@ public class FancyTreeFeature extends AbstractTreeFeature<SmallTreeConfiguration
     ) {
         for(FancyTreeFeature.FoliageCoords var0 : param4) {
             if (this.trimBranches(param2, var0.getBranchBase() - param3.getY())) {
-                this.foliageCluster(param0, param1, var0, param5, param6, param7);
+                for(int var1 = 0; var1 < 5; ++var1) {
+                    float var2 = this.foliageShape(var1);
+                    int var3 = (int)((double)var2 + 0.618);
+
+                    for(int var4 = -var3; var4 <= var3; ++var4) {
+                        for(int var5 = -var3; var5 <= var3; ++var5) {
+                            if (Math.pow((double)Math.abs(var4) + 0.5, 2.0) + Math.pow((double)Math.abs(var5) + 0.5, 2.0) <= (double)(var2 * var2)) {
+                                this.placeLeaf(param0, param1, var0.above(var1).offset(var4, 0, var5), param5, param6, param7);
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -188,17 +173,9 @@ public class FancyTreeFeature extends AbstractTreeFeature<SmallTreeConfiguration
             return false;
         } else {
             this.setDirtAt(param0, param2.below());
-            int var2 = (int)((double)var1 * 0.618);
-            if (var2 >= var1) {
-                var2 = var1 - 1;
-            }
-
+            int var2 = Mth.floor((double)var1 * 0.618);
             double var3 = 1.0;
-            int var4 = (int)(1.382 + Math.pow(1.0 * (double)var1 / 13.0, 2.0));
-            if (var4 < 1) {
-                var4 = 1;
-            }
-
+            int var4 = Math.min(1, Mth.floor(1.382 + Math.pow(1.0 * (double)var1 / 13.0, 2.0)));
             int var5 = param2.getY() + var2;
             int var6 = var1 - 5;
             List<FancyTreeFeature.FoliageCoords> var7 = Lists.newArrayList();

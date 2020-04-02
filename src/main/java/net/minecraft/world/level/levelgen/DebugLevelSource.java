@@ -10,13 +10,13 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.NoiseColumn;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.chunk.ChunkGeneratorType;
 
 public class DebugLevelSource extends ChunkGenerator<DebugGeneratorSettings> {
     private static final List<BlockState> ALL_BLOCKS = StreamSupport.stream(Registry.BLOCK.spliterator(), false)
@@ -45,7 +45,7 @@ public class DebugLevelSource extends ChunkGenerator<DebugGeneratorSettings> {
     }
 
     @Override
-    public void applyBiomeDecoration(WorldGenRegion param0) {
+    public void applyBiomeDecoration(WorldGenRegion param0, StructureFeatureManager param1) {
         BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
         int var1 = param0.getCenterX();
         int var2 = param0.getCenterZ();
@@ -65,7 +65,7 @@ public class DebugLevelSource extends ChunkGenerator<DebugGeneratorSettings> {
     }
 
     @Override
-    public void fillFromNoise(LevelAccessor param0, ChunkAccess param1) {
+    public void fillFromNoise(LevelAccessor param0, StructureFeatureManager param1, ChunkAccess param2) {
     }
 
     @Override
@@ -92,10 +92,5 @@ public class DebugLevelSource extends ChunkGenerator<DebugGeneratorSettings> {
         }
 
         return var0;
-    }
-
-    @Override
-    public ChunkGeneratorType<?, ?> getType() {
-        return ChunkGeneratorType.DEBUG;
     }
 }

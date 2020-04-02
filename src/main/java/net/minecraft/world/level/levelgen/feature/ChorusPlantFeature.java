@@ -5,6 +5,7 @@ import java.util.Random;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ChorusFlowerBlock;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -12,15 +13,20 @@ import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 
 public class ChorusPlantFeature extends Feature<NoneFeatureConfiguration> {
-    public ChorusPlantFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0, Function<Random, ? extends NoneFeatureConfiguration> param1) {
-        super(param0, param1);
+    public ChorusPlantFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0) {
+        super(param0);
     }
 
     public boolean place(
-        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, NoneFeatureConfiguration param4
+        LevelAccessor param0,
+        StructureFeatureManager param1,
+        ChunkGenerator<? extends ChunkGeneratorSettings> param2,
+        Random param3,
+        BlockPos param4,
+        NoneFeatureConfiguration param5
     ) {
-        if (param0.isEmptyBlock(param3.above()) && param0.getBlockState(param3).getBlock() == Blocks.END_STONE) {
-            ChorusFlowerBlock.generatePlant(param0, param3.above(), param2, 8);
+        if (param0.isEmptyBlock(param4.above()) && param0.getBlockState(param4).getBlock() == Blocks.END_STONE) {
+            ChorusFlowerBlock.generatePlant(param0, param4.above(), param3, 8);
             return true;
         } else {
             return false;

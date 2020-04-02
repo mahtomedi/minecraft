@@ -14,7 +14,6 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.RandomValueBounds;
 import net.minecraft.world.level.storage.loot.entries.EmptyLootItem;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.functions.AddBookContents;
 import net.minecraft.world.level.storage.loot.functions.EnchantRandomlyFunction;
 import net.minecraft.world.level.storage.loot.functions.EnchantWithLevelsFunction;
 import net.minecraft.world.level.storage.loot.functions.ExplorationMapFunction;
@@ -248,14 +247,6 @@ public class ChestLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
                                 .setWeight(3)
                                 .apply(EnchantWithLevelsFunction.enchantWithLevels(RandomValueBounds.between(20.0F, 39.0F)).allowTreasure())
                         )
-                )
-        );
-        param0.accept(
-            BuiltInLootTables.FLEET_ORDERS,
-            LootTable.lootTable()
-                .withPool(
-                    LootPool.lootPool()
-                        .add(LootItem.lootTableItem(Items.WRITTEN_BOOK).apply(AddBookContents.addContents(AddBookContents.ContentProvider.ORDERS)))
                 )
         );
         param0.accept(

@@ -10,6 +10,7 @@ import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.monster.Witch;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -40,47 +41,49 @@ public class SwamplandHutPiece extends ScatteredFeaturePiece {
     }
 
     @Override
-    public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
-        if (!this.updateAverageGroundHeight(param0, param3, 0)) {
+    public boolean postProcess(
+        LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<?> param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
+    ) {
+        if (!this.updateAverageGroundHeight(param0, param4, 0)) {
             return false;
         } else {
-            this.generateBox(param0, param3, 1, 1, 1, 5, 1, 7, Blocks.SPRUCE_PLANKS.defaultBlockState(), Blocks.SPRUCE_PLANKS.defaultBlockState(), false);
-            this.generateBox(param0, param3, 1, 4, 2, 5, 4, 7, Blocks.SPRUCE_PLANKS.defaultBlockState(), Blocks.SPRUCE_PLANKS.defaultBlockState(), false);
-            this.generateBox(param0, param3, 2, 1, 0, 4, 1, 0, Blocks.SPRUCE_PLANKS.defaultBlockState(), Blocks.SPRUCE_PLANKS.defaultBlockState(), false);
-            this.generateBox(param0, param3, 2, 2, 2, 3, 3, 2, Blocks.SPRUCE_PLANKS.defaultBlockState(), Blocks.SPRUCE_PLANKS.defaultBlockState(), false);
-            this.generateBox(param0, param3, 1, 2, 3, 1, 3, 6, Blocks.SPRUCE_PLANKS.defaultBlockState(), Blocks.SPRUCE_PLANKS.defaultBlockState(), false);
-            this.generateBox(param0, param3, 5, 2, 3, 5, 3, 6, Blocks.SPRUCE_PLANKS.defaultBlockState(), Blocks.SPRUCE_PLANKS.defaultBlockState(), false);
-            this.generateBox(param0, param3, 2, 2, 7, 4, 3, 7, Blocks.SPRUCE_PLANKS.defaultBlockState(), Blocks.SPRUCE_PLANKS.defaultBlockState(), false);
-            this.generateBox(param0, param3, 1, 0, 2, 1, 3, 2, Blocks.OAK_LOG.defaultBlockState(), Blocks.OAK_LOG.defaultBlockState(), false);
-            this.generateBox(param0, param3, 5, 0, 2, 5, 3, 2, Blocks.OAK_LOG.defaultBlockState(), Blocks.OAK_LOG.defaultBlockState(), false);
-            this.generateBox(param0, param3, 1, 0, 7, 1, 3, 7, Blocks.OAK_LOG.defaultBlockState(), Blocks.OAK_LOG.defaultBlockState(), false);
-            this.generateBox(param0, param3, 5, 0, 7, 5, 3, 7, Blocks.OAK_LOG.defaultBlockState(), Blocks.OAK_LOG.defaultBlockState(), false);
-            this.placeBlock(param0, Blocks.OAK_FENCE.defaultBlockState(), 2, 3, 2, param3);
-            this.placeBlock(param0, Blocks.OAK_FENCE.defaultBlockState(), 3, 3, 7, param3);
-            this.placeBlock(param0, Blocks.AIR.defaultBlockState(), 1, 3, 4, param3);
-            this.placeBlock(param0, Blocks.AIR.defaultBlockState(), 5, 3, 4, param3);
-            this.placeBlock(param0, Blocks.AIR.defaultBlockState(), 5, 3, 5, param3);
-            this.placeBlock(param0, Blocks.POTTED_RED_MUSHROOM.defaultBlockState(), 1, 3, 5, param3);
-            this.placeBlock(param0, Blocks.CRAFTING_TABLE.defaultBlockState(), 3, 2, 6, param3);
-            this.placeBlock(param0, Blocks.CAULDRON.defaultBlockState(), 4, 2, 6, param3);
-            this.placeBlock(param0, Blocks.OAK_FENCE.defaultBlockState(), 1, 2, 1, param3);
-            this.placeBlock(param0, Blocks.OAK_FENCE.defaultBlockState(), 5, 2, 1, param3);
+            this.generateBox(param0, param4, 1, 1, 1, 5, 1, 7, Blocks.SPRUCE_PLANKS.defaultBlockState(), Blocks.SPRUCE_PLANKS.defaultBlockState(), false);
+            this.generateBox(param0, param4, 1, 4, 2, 5, 4, 7, Blocks.SPRUCE_PLANKS.defaultBlockState(), Blocks.SPRUCE_PLANKS.defaultBlockState(), false);
+            this.generateBox(param0, param4, 2, 1, 0, 4, 1, 0, Blocks.SPRUCE_PLANKS.defaultBlockState(), Blocks.SPRUCE_PLANKS.defaultBlockState(), false);
+            this.generateBox(param0, param4, 2, 2, 2, 3, 3, 2, Blocks.SPRUCE_PLANKS.defaultBlockState(), Blocks.SPRUCE_PLANKS.defaultBlockState(), false);
+            this.generateBox(param0, param4, 1, 2, 3, 1, 3, 6, Blocks.SPRUCE_PLANKS.defaultBlockState(), Blocks.SPRUCE_PLANKS.defaultBlockState(), false);
+            this.generateBox(param0, param4, 5, 2, 3, 5, 3, 6, Blocks.SPRUCE_PLANKS.defaultBlockState(), Blocks.SPRUCE_PLANKS.defaultBlockState(), false);
+            this.generateBox(param0, param4, 2, 2, 7, 4, 3, 7, Blocks.SPRUCE_PLANKS.defaultBlockState(), Blocks.SPRUCE_PLANKS.defaultBlockState(), false);
+            this.generateBox(param0, param4, 1, 0, 2, 1, 3, 2, Blocks.OAK_LOG.defaultBlockState(), Blocks.OAK_LOG.defaultBlockState(), false);
+            this.generateBox(param0, param4, 5, 0, 2, 5, 3, 2, Blocks.OAK_LOG.defaultBlockState(), Blocks.OAK_LOG.defaultBlockState(), false);
+            this.generateBox(param0, param4, 1, 0, 7, 1, 3, 7, Blocks.OAK_LOG.defaultBlockState(), Blocks.OAK_LOG.defaultBlockState(), false);
+            this.generateBox(param0, param4, 5, 0, 7, 5, 3, 7, Blocks.OAK_LOG.defaultBlockState(), Blocks.OAK_LOG.defaultBlockState(), false);
+            this.placeBlock(param0, Blocks.OAK_FENCE.defaultBlockState(), 2, 3, 2, param4);
+            this.placeBlock(param0, Blocks.OAK_FENCE.defaultBlockState(), 3, 3, 7, param4);
+            this.placeBlock(param0, Blocks.AIR.defaultBlockState(), 1, 3, 4, param4);
+            this.placeBlock(param0, Blocks.AIR.defaultBlockState(), 5, 3, 4, param4);
+            this.placeBlock(param0, Blocks.AIR.defaultBlockState(), 5, 3, 5, param4);
+            this.placeBlock(param0, Blocks.POTTED_RED_MUSHROOM.defaultBlockState(), 1, 3, 5, param4);
+            this.placeBlock(param0, Blocks.CRAFTING_TABLE.defaultBlockState(), 3, 2, 6, param4);
+            this.placeBlock(param0, Blocks.CAULDRON.defaultBlockState(), 4, 2, 6, param4);
+            this.placeBlock(param0, Blocks.OAK_FENCE.defaultBlockState(), 1, 2, 1, param4);
+            this.placeBlock(param0, Blocks.OAK_FENCE.defaultBlockState(), 5, 2, 1, param4);
             BlockState var0 = Blocks.SPRUCE_STAIRS.defaultBlockState().setValue(StairBlock.FACING, Direction.NORTH);
             BlockState var1 = Blocks.SPRUCE_STAIRS.defaultBlockState().setValue(StairBlock.FACING, Direction.EAST);
             BlockState var2 = Blocks.SPRUCE_STAIRS.defaultBlockState().setValue(StairBlock.FACING, Direction.WEST);
             BlockState var3 = Blocks.SPRUCE_STAIRS.defaultBlockState().setValue(StairBlock.FACING, Direction.SOUTH);
-            this.generateBox(param0, param3, 0, 4, 1, 6, 4, 1, var0, var0, false);
-            this.generateBox(param0, param3, 0, 4, 2, 0, 4, 7, var1, var1, false);
-            this.generateBox(param0, param3, 6, 4, 2, 6, 4, 7, var2, var2, false);
-            this.generateBox(param0, param3, 0, 4, 8, 6, 4, 8, var3, var3, false);
-            this.placeBlock(param0, var0.setValue(StairBlock.SHAPE, StairsShape.OUTER_RIGHT), 0, 4, 1, param3);
-            this.placeBlock(param0, var0.setValue(StairBlock.SHAPE, StairsShape.OUTER_LEFT), 6, 4, 1, param3);
-            this.placeBlock(param0, var3.setValue(StairBlock.SHAPE, StairsShape.OUTER_LEFT), 0, 4, 8, param3);
-            this.placeBlock(param0, var3.setValue(StairBlock.SHAPE, StairsShape.OUTER_RIGHT), 6, 4, 8, param3);
+            this.generateBox(param0, param4, 0, 4, 1, 6, 4, 1, var0, var0, false);
+            this.generateBox(param0, param4, 0, 4, 2, 0, 4, 7, var1, var1, false);
+            this.generateBox(param0, param4, 6, 4, 2, 6, 4, 7, var2, var2, false);
+            this.generateBox(param0, param4, 0, 4, 8, 6, 4, 8, var3, var3, false);
+            this.placeBlock(param0, var0.setValue(StairBlock.SHAPE, StairsShape.OUTER_RIGHT), 0, 4, 1, param4);
+            this.placeBlock(param0, var0.setValue(StairBlock.SHAPE, StairsShape.OUTER_LEFT), 6, 4, 1, param4);
+            this.placeBlock(param0, var3.setValue(StairBlock.SHAPE, StairsShape.OUTER_LEFT), 0, 4, 8, param4);
+            this.placeBlock(param0, var3.setValue(StairBlock.SHAPE, StairsShape.OUTER_RIGHT), 6, 4, 8, param4);
 
             for(int var4 = 2; var4 <= 7; var4 += 5) {
                 for(int var5 = 1; var5 <= 5; var5 += 4) {
-                    this.fillColumnDown(param0, Blocks.OAK_LOG.defaultBlockState(), var5, -1, var4, param3);
+                    this.fillColumnDown(param0, Blocks.OAK_LOG.defaultBlockState(), var5, -1, var4, param4);
                 }
             }
 
@@ -88,7 +91,7 @@ public class SwamplandHutPiece extends ScatteredFeaturePiece {
                 int var6 = this.getWorldX(2, 5);
                 int var7 = this.getWorldY(2);
                 int var8 = this.getWorldZ(2, 5);
-                if (param3.isInside(new BlockPos(var6, var7, var8))) {
+                if (param4.isInside(new BlockPos(var6, var7, var8))) {
                     this.spawnedWitch = true;
                     Witch var9 = EntityType.WITCH.create(param0.getLevel());
                     var9.setPersistenceRequired();
@@ -98,7 +101,7 @@ public class SwamplandHutPiece extends ScatteredFeaturePiece {
                 }
             }
 
-            this.spawnCat(param0, param3);
+            this.spawnCat(param0, param4);
             return true;
         }
     }

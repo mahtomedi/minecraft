@@ -11,6 +11,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
@@ -52,7 +53,7 @@ public abstract class StructureStart {
         return this.pieces;
     }
 
-    public void postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4) {
+    public void postProcess(LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<?> param2, Random param3, BoundingBox param4, ChunkPos param5) {
         synchronized(this.pieces) {
             if (!this.pieces.isEmpty()) {
                 BoundingBox var0 = this.pieces.get(0).boundingBox;
@@ -62,7 +63,7 @@ public abstract class StructureStart {
 
                 while(var3.hasNext()) {
                     StructurePiece var4 = var3.next();
-                    if (var4.getBoundingBox().intersects(param3) && !var4.postProcess(param0, param1, param2, param3, param4, var2)) {
+                    if (var4.getBoundingBox().intersects(param4) && !var4.postProcess(param0, param1, param2, param3, param4, param5, var2)) {
                         var3.remove();
                     }
                 }

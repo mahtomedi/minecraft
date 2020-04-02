@@ -219,7 +219,6 @@ public class ItemBlockRenderTypes {
         RenderType var2 = RenderType.translucent();
         param0.put(Blocks.ICE, var2);
         param0.put(Blocks.NETHER_PORTAL, var2);
-        param0.put(Blocks.NEITHER_PORTAL, var2);
         param0.put(Blocks.WHITE_STAINED_GLASS, var2);
         param0.put(Blocks.ORANGE_STAINED_GLASS, var2);
         param0.put(Blocks.MAGENTA_STAINED_GLASS, var2);

@@ -23,29 +23,39 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
-import net.minecraft.util.Serializable;
+import net.minecraft.util.Serializer;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class SectionStorage<R extends Serializable> implements AutoCloseable {
+public class SectionStorage<R> implements AutoCloseable {
     private static final Logger LOGGER = LogManager.getLogger();
     private final IOWorker worker;
     private final Long2ObjectMap<Optional<R>> storage = new Long2ObjectOpenHashMap<>();
     private final LongLinkedOpenHashSet dirty = new LongLinkedOpenHashSet();
+    private final Serializer<R> serializer;
     private final BiFunction<Runnable, Dynamic<?>, R> deserializer;
     private final Function<Runnable, R> factory;
     private final DataFixer fixerUpper;
     private final DataFixTypes type;
 
-    public SectionStorage(File param0, BiFunction<Runnable, Dynamic<?>, R> param1, Function<Runnable, R> param2, DataFixer param3, DataFixTypes param4) {
-        this.deserializer = param1;
-        this.factory = param2;
-        this.fixerUpper = param3;
-        this.type = param4;
-        this.worker = new IOWorker(new RegionFileStorage(param0), param0.getName());
+    public SectionStorage(
+        File param0,
+        Serializer<R> param1,
+        BiFunction<Runnable, Dynamic<?>, R> param2,
+        Function<Runnable, R> param3,
+        DataFixer param4,
+        DataFixTypes param5,
+        boolean param6
+    ) {
+        this.serializer = param1;
+        this.deserializer = param2;
+        this.factory = param3;
+        this.fixerUpper = param4;
+        this.type = param5;
+        this.worker = new IOWorker(new RegionFileStorage(param0, param6), param0.getName());
     }
 
     protected void tick(BooleanSupplier param0) {
@@ -158,7 +168,7 @@ public class SectionStorage<R extends Serializable> implements AutoCloseable {
             this.dirty.remove(var2);
             Optional<R> var3 = this.storage.get(var2);
             if (var3 != null && var3.isPresent()) {
-                var0.put(param1.createString(Integer.toString(var1)), var3.get().serialize(param1));
+                var0.put(param1.createString(Integer.toString(var1)), this.serializer.serialize(var3.get(), param1));
             }
         }
 

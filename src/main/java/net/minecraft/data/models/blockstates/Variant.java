@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 public class Variant implements Supplier<JsonElement> {
-    private final Map<VariantProperty<?>, VariantProperty<?>.Value> values = Maps.newHashMap();
+    private final Map<VariantProperty<?>, VariantProperty<?>.Value> values = Maps.newLinkedHashMap();
 
     public <T> Variant with(VariantProperty<T> param0, T param1) {
         VariantProperty<?>.Value var0 = this.values.put(param0, param0.withValue(param1));

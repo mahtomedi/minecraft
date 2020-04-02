@@ -1,17 +1,11 @@
 package net.minecraft.world.level.levelgen.feature.configurations;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
-import java.util.List;
-import java.util.Random;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.HugeMushroomBlock;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProviderType;
 
@@ -19,11 +13,6 @@ public class HugeMushroomFeatureConfiguration implements FeatureConfiguration {
     public final BlockStateProvider capProvider;
     public final BlockStateProvider stemProvider;
     public final int foliageRadius;
-    private static final List<BlockState> CAPS = Registry.BLOCK
-        .stream()
-        .map(Block::defaultBlockState)
-        .filter(param0 -> param0.hasProperty(HugeMushroomBlock.UP) && param0.hasProperty(HugeMushroomBlock.NORTH))
-        .collect(ImmutableList.toImmutableList());
 
     public HugeMushroomFeatureConfiguration(BlockStateProvider param0, BlockStateProvider param1, int param2) {
         this.capProvider = param0;
@@ -50,9 +39,5 @@ public class HugeMushroomFeatureConfiguration implements FeatureConfiguration {
             var1.deserialize(param0.get("stem_provider").orElseEmptyMap()),
             param0.get("foliage_radius").asInt(2)
         );
-    }
-
-    public static HugeMushroomFeatureConfiguration random(Random param0) {
-        return new HugeMushroomFeatureConfiguration(BlockStateProvider.random(param0, CAPS), BlockStateProvider.random(param0), param0.nextInt(15));
     }
 }

@@ -10,6 +10,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ButtonBlock;
 import net.minecraft.world.level.block.DoorBlock;
@@ -232,23 +233,25 @@ public class StrongholdPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
-            this.generateBox(param0, param3, 0, 0, 0, 4, 4, 6, true, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
-            this.generateSmallDoor(param0, param2, param3, this.entryDoor, 1, 1, 0);
-            this.generateSmallDoor(param0, param2, param3, StrongholdPieces.StrongholdPiece.SmallDoorType.OPENING, 1, 1, 6);
-            this.generateBox(param0, param3, 3, 1, 2, 3, 1, 4, Blocks.STONE_BRICKS.defaultBlockState(), Blocks.STONE_BRICKS.defaultBlockState(), false);
-            this.placeBlock(param0, Blocks.STONE_BRICK_SLAB.defaultBlockState(), 3, 1, 1, param3);
-            this.placeBlock(param0, Blocks.STONE_BRICK_SLAB.defaultBlockState(), 3, 1, 5, param3);
-            this.placeBlock(param0, Blocks.STONE_BRICK_SLAB.defaultBlockState(), 3, 2, 2, param3);
-            this.placeBlock(param0, Blocks.STONE_BRICK_SLAB.defaultBlockState(), 3, 2, 4, param3);
+        public boolean postProcess(
+            LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<?> param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
+        ) {
+            this.generateBox(param0, param4, 0, 0, 0, 4, 4, 6, true, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
+            this.generateSmallDoor(param0, param3, param4, this.entryDoor, 1, 1, 0);
+            this.generateSmallDoor(param0, param3, param4, StrongholdPieces.StrongholdPiece.SmallDoorType.OPENING, 1, 1, 6);
+            this.generateBox(param0, param4, 3, 1, 2, 3, 1, 4, Blocks.STONE_BRICKS.defaultBlockState(), Blocks.STONE_BRICKS.defaultBlockState(), false);
+            this.placeBlock(param0, Blocks.STONE_BRICK_SLAB.defaultBlockState(), 3, 1, 1, param4);
+            this.placeBlock(param0, Blocks.STONE_BRICK_SLAB.defaultBlockState(), 3, 1, 5, param4);
+            this.placeBlock(param0, Blocks.STONE_BRICK_SLAB.defaultBlockState(), 3, 2, 2, param4);
+            this.placeBlock(param0, Blocks.STONE_BRICK_SLAB.defaultBlockState(), 3, 2, 4, param4);
 
             for(int var0 = 2; var0 <= 4; ++var0) {
-                this.placeBlock(param0, Blocks.STONE_BRICK_SLAB.defaultBlockState(), 2, 1, var0, param3);
+                this.placeBlock(param0, Blocks.STONE_BRICK_SLAB.defaultBlockState(), 2, 1, var0, param4);
             }
 
-            if (!this.hasPlacedChest && param3.isInside(new BlockPos(this.getWorldX(3, 3), this.getWorldY(2), this.getWorldZ(3, 3)))) {
+            if (!this.hasPlacedChest && param4.isInside(new BlockPos(this.getWorldX(3, 3), this.getWorldY(2), this.getWorldZ(3, 3)))) {
                 this.hasPlacedChest = true;
-                this.createChest(param0, param3, param2, 3, 2, 3, BuiltInLootTables.STRONGHOLD_CORRIDOR);
+                this.createChest(param0, param4, param3, 3, 2, 3, BuiltInLootTables.STRONGHOLD_CORRIDOR);
             }
 
             return true;
@@ -297,27 +300,29 @@ public class StrongholdPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
+        public boolean postProcess(
+            LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<?> param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
+        ) {
             for(int var0 = 0; var0 < this.steps; ++var0) {
-                this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 0, 0, var0, param3);
-                this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 1, 0, var0, param3);
-                this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 2, 0, var0, param3);
-                this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 3, 0, var0, param3);
-                this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 4, 0, var0, param3);
+                this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 0, 0, var0, param4);
+                this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 1, 0, var0, param4);
+                this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 2, 0, var0, param4);
+                this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 3, 0, var0, param4);
+                this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 4, 0, var0, param4);
 
                 for(int var1 = 1; var1 <= 3; ++var1) {
-                    this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 0, var1, var0, param3);
-                    this.placeBlock(param0, Blocks.CAVE_AIR.defaultBlockState(), 1, var1, var0, param3);
-                    this.placeBlock(param0, Blocks.CAVE_AIR.defaultBlockState(), 2, var1, var0, param3);
-                    this.placeBlock(param0, Blocks.CAVE_AIR.defaultBlockState(), 3, var1, var0, param3);
-                    this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 4, var1, var0, param3);
+                    this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 0, var1, var0, param4);
+                    this.placeBlock(param0, Blocks.CAVE_AIR.defaultBlockState(), 1, var1, var0, param4);
+                    this.placeBlock(param0, Blocks.CAVE_AIR.defaultBlockState(), 2, var1, var0, param4);
+                    this.placeBlock(param0, Blocks.CAVE_AIR.defaultBlockState(), 3, var1, var0, param4);
+                    this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 4, var1, var0, param4);
                 }
 
-                this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 0, 4, var0, param3);
-                this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 1, 4, var0, param3);
-                this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 2, 4, var0, param3);
-                this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 3, 4, var0, param3);
-                this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 4, 4, var0, param3);
+                this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 0, 4, var0, param4);
+                this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 1, 4, var0, param4);
+                this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 2, 4, var0, param4);
+                this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 3, 4, var0, param4);
+                this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 4, 4, var0, param4);
             }
 
             return true;
@@ -397,53 +402,55 @@ public class StrongholdPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
-            this.generateBox(param0, param3, 0, 0, 0, 9, 8, 10, true, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
-            this.generateSmallDoor(param0, param2, param3, this.entryDoor, 4, 3, 0);
+        public boolean postProcess(
+            LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<?> param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
+        ) {
+            this.generateBox(param0, param4, 0, 0, 0, 9, 8, 10, true, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
+            this.generateSmallDoor(param0, param3, param4, this.entryDoor, 4, 3, 0);
             if (this.leftLow) {
-                this.generateBox(param0, param3, 0, 3, 1, 0, 5, 3, CAVE_AIR, CAVE_AIR, false);
+                this.generateBox(param0, param4, 0, 3, 1, 0, 5, 3, CAVE_AIR, CAVE_AIR, false);
             }
 
             if (this.rightLow) {
-                this.generateBox(param0, param3, 9, 3, 1, 9, 5, 3, CAVE_AIR, CAVE_AIR, false);
+                this.generateBox(param0, param4, 9, 3, 1, 9, 5, 3, CAVE_AIR, CAVE_AIR, false);
             }
 
             if (this.leftHigh) {
-                this.generateBox(param0, param3, 0, 5, 7, 0, 7, 9, CAVE_AIR, CAVE_AIR, false);
+                this.generateBox(param0, param4, 0, 5, 7, 0, 7, 9, CAVE_AIR, CAVE_AIR, false);
             }
 
             if (this.rightHigh) {
-                this.generateBox(param0, param3, 9, 5, 7, 9, 7, 9, CAVE_AIR, CAVE_AIR, false);
+                this.generateBox(param0, param4, 9, 5, 7, 9, 7, 9, CAVE_AIR, CAVE_AIR, false);
             }
 
-            this.generateBox(param0, param3, 5, 1, 10, 7, 3, 10, CAVE_AIR, CAVE_AIR, false);
-            this.generateBox(param0, param3, 1, 2, 1, 8, 2, 6, false, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
-            this.generateBox(param0, param3, 4, 1, 5, 4, 4, 9, false, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
-            this.generateBox(param0, param3, 8, 1, 5, 8, 4, 9, false, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
-            this.generateBox(param0, param3, 1, 4, 7, 3, 4, 9, false, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
-            this.generateBox(param0, param3, 1, 3, 5, 3, 3, 6, false, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
+            this.generateBox(param0, param4, 5, 1, 10, 7, 3, 10, CAVE_AIR, CAVE_AIR, false);
+            this.generateBox(param0, param4, 1, 2, 1, 8, 2, 6, false, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
+            this.generateBox(param0, param4, 4, 1, 5, 4, 4, 9, false, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
+            this.generateBox(param0, param4, 8, 1, 5, 8, 4, 9, false, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
+            this.generateBox(param0, param4, 1, 4, 7, 3, 4, 9, false, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
+            this.generateBox(param0, param4, 1, 3, 5, 3, 3, 6, false, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
             this.generateBox(
-                param0, param3, 1, 3, 4, 3, 3, 4, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), false
+                param0, param4, 1, 3, 4, 3, 3, 4, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), false
             );
             this.generateBox(
-                param0, param3, 1, 4, 6, 3, 4, 6, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), false
+                param0, param4, 1, 4, 6, 3, 4, 6, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), false
             );
-            this.generateBox(param0, param3, 5, 1, 7, 7, 1, 8, false, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
+            this.generateBox(param0, param4, 5, 1, 7, 7, 1, 8, false, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
             this.generateBox(
-                param0, param3, 5, 1, 9, 7, 1, 9, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), false
-            );
-            this.generateBox(
-                param0, param3, 5, 2, 7, 7, 2, 7, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), false
+                param0, param4, 5, 1, 9, 7, 1, 9, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), false
             );
             this.generateBox(
-                param0, param3, 4, 5, 7, 4, 5, 9, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), false
+                param0, param4, 5, 2, 7, 7, 2, 7, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), false
             );
             this.generateBox(
-                param0, param3, 8, 5, 7, 8, 5, 9, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), false
+                param0, param4, 4, 5, 7, 4, 5, 9, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), false
+            );
+            this.generateBox(
+                param0, param4, 8, 5, 7, 8, 5, 9, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), false
             );
             this.generateBox(
                 param0,
-                param3,
+                param4,
                 5,
                 5,
                 7,
@@ -454,7 +461,7 @@ public class StrongholdPieces {
                 Blocks.SMOOTH_STONE_SLAB.defaultBlockState().setValue(SlabBlock.TYPE, SlabType.DOUBLE),
                 false
             );
-            this.placeBlock(param0, Blocks.WALL_TORCH.defaultBlockState().setValue(WallTorchBlock.FACING, Direction.SOUTH), 6, 5, 6, param3);
+            this.placeBlock(param0, Blocks.WALL_TORCH.defaultBlockState().setValue(WallTorchBlock.FACING, Direction.SOUTH), 6, 5, 6, param4);
             return true;
         }
     }
@@ -492,14 +499,16 @@ public class StrongholdPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
-            this.generateBox(param0, param3, 0, 0, 0, 4, 4, 4, true, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
-            this.generateSmallDoor(param0, param2, param3, this.entryDoor, 1, 1, 0);
+        public boolean postProcess(
+            LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<?> param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
+        ) {
+            this.generateBox(param0, param4, 0, 0, 0, 4, 4, 4, true, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
+            this.generateSmallDoor(param0, param3, param4, this.entryDoor, 1, 1, 0);
             Direction var0 = this.getOrientation();
             if (var0 != Direction.NORTH && var0 != Direction.EAST) {
-                this.generateBox(param0, param3, 4, 1, 1, 4, 3, 3, CAVE_AIR, CAVE_AIR, false);
+                this.generateBox(param0, param4, 4, 1, 1, 4, 3, 3, CAVE_AIR, CAVE_AIR, false);
             } else {
-                this.generateBox(param0, param3, 0, 1, 1, 0, 3, 3, CAVE_AIR, CAVE_AIR, false);
+                this.generateBox(param0, param4, 0, 1, 1, 0, 3, 3, CAVE_AIR, CAVE_AIR, false);
             }
 
             return true;
@@ -543,16 +552,18 @@ public class StrongholdPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
+        public boolean postProcess(
+            LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<?> param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
+        ) {
             int var0 = 11;
             if (!this.isTall) {
                 var0 = 6;
             }
 
-            this.generateBox(param0, param3, 0, 0, 0, 13, var0 - 1, 14, true, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
-            this.generateSmallDoor(param0, param2, param3, this.entryDoor, 4, 1, 0);
+            this.generateBox(param0, param4, 0, 0, 0, 13, var0 - 1, 14, true, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
+            this.generateSmallDoor(param0, param3, param4, this.entryDoor, 4, 1, 0);
             this.generateMaybeBox(
-                param0, param3, param2, 0.07F, 2, 1, 1, 11, 4, 13, Blocks.COBWEB.defaultBlockState(), Blocks.COBWEB.defaultBlockState(), false, false
+                param0, param4, param3, 0.07F, 2, 1, 1, 11, 4, 13, Blocks.COBWEB.defaultBlockState(), Blocks.COBWEB.defaultBlockState(), false, false
             );
             int var1 = 1;
             int var2 = 12;
@@ -560,51 +571,51 @@ public class StrongholdPieces {
             for(int var3 = 1; var3 <= 13; ++var3) {
                 if ((var3 - 1) % 4 == 0) {
                     this.generateBox(
-                        param0, param3, 1, 1, var3, 1, 4, var3, Blocks.OAK_PLANKS.defaultBlockState(), Blocks.OAK_PLANKS.defaultBlockState(), false
+                        param0, param4, 1, 1, var3, 1, 4, var3, Blocks.OAK_PLANKS.defaultBlockState(), Blocks.OAK_PLANKS.defaultBlockState(), false
                     );
                     this.generateBox(
-                        param0, param3, 12, 1, var3, 12, 4, var3, Blocks.OAK_PLANKS.defaultBlockState(), Blocks.OAK_PLANKS.defaultBlockState(), false
+                        param0, param4, 12, 1, var3, 12, 4, var3, Blocks.OAK_PLANKS.defaultBlockState(), Blocks.OAK_PLANKS.defaultBlockState(), false
                     );
-                    this.placeBlock(param0, Blocks.WALL_TORCH.defaultBlockState().setValue(WallTorchBlock.FACING, Direction.EAST), 2, 3, var3, param3);
-                    this.placeBlock(param0, Blocks.WALL_TORCH.defaultBlockState().setValue(WallTorchBlock.FACING, Direction.WEST), 11, 3, var3, param3);
+                    this.placeBlock(param0, Blocks.WALL_TORCH.defaultBlockState().setValue(WallTorchBlock.FACING, Direction.EAST), 2, 3, var3, param4);
+                    this.placeBlock(param0, Blocks.WALL_TORCH.defaultBlockState().setValue(WallTorchBlock.FACING, Direction.WEST), 11, 3, var3, param4);
                     if (this.isTall) {
                         this.generateBox(
-                            param0, param3, 1, 6, var3, 1, 9, var3, Blocks.OAK_PLANKS.defaultBlockState(), Blocks.OAK_PLANKS.defaultBlockState(), false
+                            param0, param4, 1, 6, var3, 1, 9, var3, Blocks.OAK_PLANKS.defaultBlockState(), Blocks.OAK_PLANKS.defaultBlockState(), false
                         );
                         this.generateBox(
-                            param0, param3, 12, 6, var3, 12, 9, var3, Blocks.OAK_PLANKS.defaultBlockState(), Blocks.OAK_PLANKS.defaultBlockState(), false
+                            param0, param4, 12, 6, var3, 12, 9, var3, Blocks.OAK_PLANKS.defaultBlockState(), Blocks.OAK_PLANKS.defaultBlockState(), false
                         );
                     }
                 } else {
-                    this.generateBox(param0, param3, 1, 1, var3, 1, 4, var3, Blocks.BOOKSHELF.defaultBlockState(), Blocks.BOOKSHELF.defaultBlockState(), false);
+                    this.generateBox(param0, param4, 1, 1, var3, 1, 4, var3, Blocks.BOOKSHELF.defaultBlockState(), Blocks.BOOKSHELF.defaultBlockState(), false);
                     this.generateBox(
-                        param0, param3, 12, 1, var3, 12, 4, var3, Blocks.BOOKSHELF.defaultBlockState(), Blocks.BOOKSHELF.defaultBlockState(), false
+                        param0, param4, 12, 1, var3, 12, 4, var3, Blocks.BOOKSHELF.defaultBlockState(), Blocks.BOOKSHELF.defaultBlockState(), false
                     );
                     if (this.isTall) {
                         this.generateBox(
-                            param0, param3, 1, 6, var3, 1, 9, var3, Blocks.BOOKSHELF.defaultBlockState(), Blocks.BOOKSHELF.defaultBlockState(), false
+                            param0, param4, 1, 6, var3, 1, 9, var3, Blocks.BOOKSHELF.defaultBlockState(), Blocks.BOOKSHELF.defaultBlockState(), false
                         );
                         this.generateBox(
-                            param0, param3, 12, 6, var3, 12, 9, var3, Blocks.BOOKSHELF.defaultBlockState(), Blocks.BOOKSHELF.defaultBlockState(), false
+                            param0, param4, 12, 6, var3, 12, 9, var3, Blocks.BOOKSHELF.defaultBlockState(), Blocks.BOOKSHELF.defaultBlockState(), false
                         );
                     }
                 }
             }
 
             for(int var4 = 3; var4 < 12; var4 += 2) {
-                this.generateBox(param0, param3, 3, 1, var4, 4, 3, var4, Blocks.BOOKSHELF.defaultBlockState(), Blocks.BOOKSHELF.defaultBlockState(), false);
-                this.generateBox(param0, param3, 6, 1, var4, 7, 3, var4, Blocks.BOOKSHELF.defaultBlockState(), Blocks.BOOKSHELF.defaultBlockState(), false);
-                this.generateBox(param0, param3, 9, 1, var4, 10, 3, var4, Blocks.BOOKSHELF.defaultBlockState(), Blocks.BOOKSHELF.defaultBlockState(), false);
+                this.generateBox(param0, param4, 3, 1, var4, 4, 3, var4, Blocks.BOOKSHELF.defaultBlockState(), Blocks.BOOKSHELF.defaultBlockState(), false);
+                this.generateBox(param0, param4, 6, 1, var4, 7, 3, var4, Blocks.BOOKSHELF.defaultBlockState(), Blocks.BOOKSHELF.defaultBlockState(), false);
+                this.generateBox(param0, param4, 9, 1, var4, 10, 3, var4, Blocks.BOOKSHELF.defaultBlockState(), Blocks.BOOKSHELF.defaultBlockState(), false);
             }
 
             if (this.isTall) {
-                this.generateBox(param0, param3, 1, 5, 1, 3, 5, 13, Blocks.OAK_PLANKS.defaultBlockState(), Blocks.OAK_PLANKS.defaultBlockState(), false);
-                this.generateBox(param0, param3, 10, 5, 1, 12, 5, 13, Blocks.OAK_PLANKS.defaultBlockState(), Blocks.OAK_PLANKS.defaultBlockState(), false);
-                this.generateBox(param0, param3, 4, 5, 1, 9, 5, 2, Blocks.OAK_PLANKS.defaultBlockState(), Blocks.OAK_PLANKS.defaultBlockState(), false);
-                this.generateBox(param0, param3, 4, 5, 12, 9, 5, 13, Blocks.OAK_PLANKS.defaultBlockState(), Blocks.OAK_PLANKS.defaultBlockState(), false);
-                this.placeBlock(param0, Blocks.OAK_PLANKS.defaultBlockState(), 9, 5, 11, param3);
-                this.placeBlock(param0, Blocks.OAK_PLANKS.defaultBlockState(), 8, 5, 11, param3);
-                this.placeBlock(param0, Blocks.OAK_PLANKS.defaultBlockState(), 9, 5, 10, param3);
+                this.generateBox(param0, param4, 1, 5, 1, 3, 5, 13, Blocks.OAK_PLANKS.defaultBlockState(), Blocks.OAK_PLANKS.defaultBlockState(), false);
+                this.generateBox(param0, param4, 10, 5, 1, 12, 5, 13, Blocks.OAK_PLANKS.defaultBlockState(), Blocks.OAK_PLANKS.defaultBlockState(), false);
+                this.generateBox(param0, param4, 4, 5, 1, 9, 5, 2, Blocks.OAK_PLANKS.defaultBlockState(), Blocks.OAK_PLANKS.defaultBlockState(), false);
+                this.generateBox(param0, param4, 4, 5, 12, 9, 5, 13, Blocks.OAK_PLANKS.defaultBlockState(), Blocks.OAK_PLANKS.defaultBlockState(), false);
+                this.placeBlock(param0, Blocks.OAK_PLANKS.defaultBlockState(), 9, 5, 11, param4);
+                this.placeBlock(param0, Blocks.OAK_PLANKS.defaultBlockState(), 8, 5, 11, param4);
+                this.placeBlock(param0, Blocks.OAK_PLANKS.defaultBlockState(), 9, 5, 10, param4);
                 BlockState var5 = Blocks.OAK_FENCE
                     .defaultBlockState()
                     .setValue(FenceBlock.WEST, Boolean.valueOf(true))
@@ -613,17 +624,17 @@ public class StrongholdPieces {
                     .defaultBlockState()
                     .setValue(FenceBlock.NORTH, Boolean.valueOf(true))
                     .setValue(FenceBlock.SOUTH, Boolean.valueOf(true));
-                this.generateBox(param0, param3, 3, 6, 3, 3, 6, 11, var6, var6, false);
-                this.generateBox(param0, param3, 10, 6, 3, 10, 6, 9, var6, var6, false);
-                this.generateBox(param0, param3, 4, 6, 2, 9, 6, 2, var5, var5, false);
-                this.generateBox(param0, param3, 4, 6, 12, 7, 6, 12, var5, var5, false);
+                this.generateBox(param0, param4, 3, 6, 3, 3, 6, 11, var6, var6, false);
+                this.generateBox(param0, param4, 10, 6, 3, 10, 6, 9, var6, var6, false);
+                this.generateBox(param0, param4, 4, 6, 2, 9, 6, 2, var5, var5, false);
+                this.generateBox(param0, param4, 4, 6, 12, 7, 6, 12, var5, var5, false);
                 this.placeBlock(
                     param0,
                     Blocks.OAK_FENCE.defaultBlockState().setValue(FenceBlock.NORTH, Boolean.valueOf(true)).setValue(FenceBlock.EAST, Boolean.valueOf(true)),
                     3,
                     6,
                     2,
-                    param3
+                    param4
                 );
                 this.placeBlock(
                     param0,
@@ -631,7 +642,7 @@ public class StrongholdPieces {
                     3,
                     6,
                     12,
-                    param3
+                    param4
                 );
                 this.placeBlock(
                     param0,
@@ -639,7 +650,7 @@ public class StrongholdPieces {
                     10,
                     6,
                     2,
-                    param3
+                    param4
                 );
 
                 for(int var7 = 0; var7 <= 2; ++var7) {
@@ -649,7 +660,7 @@ public class StrongholdPieces {
                         8 + var7,
                         6,
                         12 - var7,
-                        param3
+                        param4
                     );
                     if (var7 != 2) {
                         this.placeBlock(
@@ -661,49 +672,49 @@ public class StrongholdPieces {
                             8 + var7,
                             6,
                             11 - var7,
-                            param3
+                            param4
                         );
                     }
                 }
 
                 BlockState var8 = Blocks.LADDER.defaultBlockState().setValue(LadderBlock.FACING, Direction.SOUTH);
-                this.placeBlock(param0, var8, 10, 1, 13, param3);
-                this.placeBlock(param0, var8, 10, 2, 13, param3);
-                this.placeBlock(param0, var8, 10, 3, 13, param3);
-                this.placeBlock(param0, var8, 10, 4, 13, param3);
-                this.placeBlock(param0, var8, 10, 5, 13, param3);
-                this.placeBlock(param0, var8, 10, 6, 13, param3);
-                this.placeBlock(param0, var8, 10, 7, 13, param3);
+                this.placeBlock(param0, var8, 10, 1, 13, param4);
+                this.placeBlock(param0, var8, 10, 2, 13, param4);
+                this.placeBlock(param0, var8, 10, 3, 13, param4);
+                this.placeBlock(param0, var8, 10, 4, 13, param4);
+                this.placeBlock(param0, var8, 10, 5, 13, param4);
+                this.placeBlock(param0, var8, 10, 6, 13, param4);
+                this.placeBlock(param0, var8, 10, 7, 13, param4);
                 int var9 = 7;
                 int var10 = 7;
                 BlockState var11 = Blocks.OAK_FENCE.defaultBlockState().setValue(FenceBlock.EAST, Boolean.valueOf(true));
-                this.placeBlock(param0, var11, 6, 9, 7, param3);
+                this.placeBlock(param0, var11, 6, 9, 7, param4);
                 BlockState var12 = Blocks.OAK_FENCE.defaultBlockState().setValue(FenceBlock.WEST, Boolean.valueOf(true));
-                this.placeBlock(param0, var12, 7, 9, 7, param3);
-                this.placeBlock(param0, var11, 6, 8, 7, param3);
-                this.placeBlock(param0, var12, 7, 8, 7, param3);
+                this.placeBlock(param0, var12, 7, 9, 7, param4);
+                this.placeBlock(param0, var11, 6, 8, 7, param4);
+                this.placeBlock(param0, var12, 7, 8, 7, param4);
                 BlockState var13 = var6.setValue(FenceBlock.WEST, Boolean.valueOf(true)).setValue(FenceBlock.EAST, Boolean.valueOf(true));
-                this.placeBlock(param0, var13, 6, 7, 7, param3);
-                this.placeBlock(param0, var13, 7, 7, 7, param3);
-                this.placeBlock(param0, var11, 5, 7, 7, param3);
-                this.placeBlock(param0, var12, 8, 7, 7, param3);
-                this.placeBlock(param0, var11.setValue(FenceBlock.NORTH, Boolean.valueOf(true)), 6, 7, 6, param3);
-                this.placeBlock(param0, var11.setValue(FenceBlock.SOUTH, Boolean.valueOf(true)), 6, 7, 8, param3);
-                this.placeBlock(param0, var12.setValue(FenceBlock.NORTH, Boolean.valueOf(true)), 7, 7, 6, param3);
-                this.placeBlock(param0, var12.setValue(FenceBlock.SOUTH, Boolean.valueOf(true)), 7, 7, 8, param3);
+                this.placeBlock(param0, var13, 6, 7, 7, param4);
+                this.placeBlock(param0, var13, 7, 7, 7, param4);
+                this.placeBlock(param0, var11, 5, 7, 7, param4);
+                this.placeBlock(param0, var12, 8, 7, 7, param4);
+                this.placeBlock(param0, var11.setValue(FenceBlock.NORTH, Boolean.valueOf(true)), 6, 7, 6, param4);
+                this.placeBlock(param0, var11.setValue(FenceBlock.SOUTH, Boolean.valueOf(true)), 6, 7, 8, param4);
+                this.placeBlock(param0, var12.setValue(FenceBlock.NORTH, Boolean.valueOf(true)), 7, 7, 6, param4);
+                this.placeBlock(param0, var12.setValue(FenceBlock.SOUTH, Boolean.valueOf(true)), 7, 7, 8, param4);
                 BlockState var14 = Blocks.TORCH.defaultBlockState();
-                this.placeBlock(param0, var14, 5, 8, 7, param3);
-                this.placeBlock(param0, var14, 8, 8, 7, param3);
-                this.placeBlock(param0, var14, 6, 8, 6, param3);
-                this.placeBlock(param0, var14, 6, 8, 8, param3);
-                this.placeBlock(param0, var14, 7, 8, 6, param3);
-                this.placeBlock(param0, var14, 7, 8, 8, param3);
+                this.placeBlock(param0, var14, 5, 8, 7, param4);
+                this.placeBlock(param0, var14, 8, 8, 7, param4);
+                this.placeBlock(param0, var14, 6, 8, 6, param4);
+                this.placeBlock(param0, var14, 6, 8, 8, param4);
+                this.placeBlock(param0, var14, 7, 8, 6, param4);
+                this.placeBlock(param0, var14, 7, 8, 8, param4);
             }
 
-            this.createChest(param0, param3, param2, 3, 3, 5, BuiltInLootTables.STRONGHOLD_LIBRARY);
+            this.createChest(param0, param4, param3, 3, 3, 5, BuiltInLootTables.STRONGHOLD_LIBRARY);
             if (this.isTall) {
-                this.placeBlock(param0, CAVE_AIR, 12, 9, 1, param3);
-                this.createChest(param0, param3, param2, 12, 8, 1, BuiltInLootTables.STRONGHOLD_LIBRARY);
+                this.placeBlock(param0, CAVE_AIR, 12, 9, 1, param4);
+                this.createChest(param0, param4, param3, 12, 8, 1, BuiltInLootTables.STRONGHOLD_LIBRARY);
             }
 
             return true;
@@ -765,20 +776,22 @@ public class StrongholdPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
-            this.generateBox(param0, param3, 0, 0, 0, 10, 7, 15, false, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
-            this.generateSmallDoor(param0, param2, param3, StrongholdPieces.StrongholdPiece.SmallDoorType.GRATES, 4, 1, 0);
+        public boolean postProcess(
+            LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<?> param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
+        ) {
+            this.generateBox(param0, param4, 0, 0, 0, 10, 7, 15, false, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
+            this.generateSmallDoor(param0, param3, param4, StrongholdPieces.StrongholdPiece.SmallDoorType.GRATES, 4, 1, 0);
             int var0 = 6;
-            this.generateBox(param0, param3, 1, var0, 1, 1, var0, 14, false, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
-            this.generateBox(param0, param3, 9, var0, 1, 9, var0, 14, false, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
-            this.generateBox(param0, param3, 2, var0, 1, 8, var0, 2, false, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
-            this.generateBox(param0, param3, 2, var0, 14, 8, var0, 14, false, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
-            this.generateBox(param0, param3, 1, 1, 1, 2, 1, 4, false, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
-            this.generateBox(param0, param3, 8, 1, 1, 9, 1, 4, false, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
-            this.generateBox(param0, param3, 1, 1, 1, 1, 1, 3, Blocks.LAVA.defaultBlockState(), Blocks.LAVA.defaultBlockState(), false);
-            this.generateBox(param0, param3, 9, 1, 1, 9, 1, 3, Blocks.LAVA.defaultBlockState(), Blocks.LAVA.defaultBlockState(), false);
-            this.generateBox(param0, param3, 3, 1, 8, 7, 1, 12, false, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
-            this.generateBox(param0, param3, 4, 1, 9, 6, 1, 11, Blocks.LAVA.defaultBlockState(), Blocks.LAVA.defaultBlockState(), false);
+            this.generateBox(param0, param4, 1, var0, 1, 1, var0, 14, false, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
+            this.generateBox(param0, param4, 9, var0, 1, 9, var0, 14, false, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
+            this.generateBox(param0, param4, 2, var0, 1, 8, var0, 2, false, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
+            this.generateBox(param0, param4, 2, var0, 14, 8, var0, 14, false, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
+            this.generateBox(param0, param4, 1, 1, 1, 2, 1, 4, false, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
+            this.generateBox(param0, param4, 8, 1, 1, 9, 1, 4, false, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
+            this.generateBox(param0, param4, 1, 1, 1, 1, 1, 3, Blocks.LAVA.defaultBlockState(), Blocks.LAVA.defaultBlockState(), false);
+            this.generateBox(param0, param4, 9, 1, 1, 9, 1, 3, Blocks.LAVA.defaultBlockState(), Blocks.LAVA.defaultBlockState(), false);
+            this.generateBox(param0, param4, 3, 1, 8, 7, 1, 12, false, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
+            this.generateBox(param0, param4, 4, 1, 9, 6, 1, 11, Blocks.LAVA.defaultBlockState(), Blocks.LAVA.defaultBlockState(), false);
             BlockState var1 = Blocks.IRON_BARS
                 .defaultBlockState()
                 .setValue(IronBarsBlock.NORTH, Boolean.valueOf(true))
@@ -789,23 +802,23 @@ public class StrongholdPieces {
                 .setValue(IronBarsBlock.EAST, Boolean.valueOf(true));
 
             for(int var3 = 3; var3 < 14; var3 += 2) {
-                this.generateBox(param0, param3, 0, 3, var3, 0, 4, var3, var1, var1, false);
-                this.generateBox(param0, param3, 10, 3, var3, 10, 4, var3, var1, var1, false);
+                this.generateBox(param0, param4, 0, 3, var3, 0, 4, var3, var1, var1, false);
+                this.generateBox(param0, param4, 10, 3, var3, 10, 4, var3, var1, var1, false);
             }
 
             for(int var4 = 2; var4 < 9; var4 += 2) {
-                this.generateBox(param0, param3, var4, 3, 15, var4, 4, 15, var2, var2, false);
+                this.generateBox(param0, param4, var4, 3, 15, var4, 4, 15, var2, var2, false);
             }
 
             BlockState var5 = Blocks.STONE_BRICK_STAIRS.defaultBlockState().setValue(StairBlock.FACING, Direction.NORTH);
-            this.generateBox(param0, param3, 4, 1, 5, 6, 1, 7, false, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
-            this.generateBox(param0, param3, 4, 2, 6, 6, 2, 7, false, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
-            this.generateBox(param0, param3, 4, 3, 7, 6, 3, 7, false, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
+            this.generateBox(param0, param4, 4, 1, 5, 6, 1, 7, false, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
+            this.generateBox(param0, param4, 4, 2, 6, 6, 2, 7, false, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
+            this.generateBox(param0, param4, 4, 3, 7, 6, 3, 7, false, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
 
             for(int var6 = 4; var6 <= 6; ++var6) {
-                this.placeBlock(param0, var5, var6, 1, 4, param3);
-                this.placeBlock(param0, var5, var6, 2, 5, param3);
-                this.placeBlock(param0, var5, var6, 3, 6, param3);
+                this.placeBlock(param0, var5, var6, 1, 4, param4);
+                this.placeBlock(param0, var5, var6, 2, 5, param4);
+                this.placeBlock(param0, var5, var6, 3, 6, param4);
             }
 
             BlockState var7 = Blocks.END_PORTAL_FRAME.defaultBlockState().setValue(EndPortalFrameBlock.FACING, Direction.NORTH);
@@ -816,39 +829,39 @@ public class StrongholdPieces {
             boolean[] var12 = new boolean[12];
 
             for(int var13 = 0; var13 < var12.length; ++var13) {
-                var12[var13] = param2.nextFloat() > 0.9F;
+                var12[var13] = param3.nextFloat() > 0.9F;
                 var11 &= var12[var13];
             }
 
-            this.placeBlock(param0, var7.setValue(EndPortalFrameBlock.HAS_EYE, Boolean.valueOf(var12[0])), 4, 3, 8, param3);
-            this.placeBlock(param0, var7.setValue(EndPortalFrameBlock.HAS_EYE, Boolean.valueOf(var12[1])), 5, 3, 8, param3);
-            this.placeBlock(param0, var7.setValue(EndPortalFrameBlock.HAS_EYE, Boolean.valueOf(var12[2])), 6, 3, 8, param3);
-            this.placeBlock(param0, var8.setValue(EndPortalFrameBlock.HAS_EYE, Boolean.valueOf(var12[3])), 4, 3, 12, param3);
-            this.placeBlock(param0, var8.setValue(EndPortalFrameBlock.HAS_EYE, Boolean.valueOf(var12[4])), 5, 3, 12, param3);
-            this.placeBlock(param0, var8.setValue(EndPortalFrameBlock.HAS_EYE, Boolean.valueOf(var12[5])), 6, 3, 12, param3);
-            this.placeBlock(param0, var9.setValue(EndPortalFrameBlock.HAS_EYE, Boolean.valueOf(var12[6])), 3, 3, 9, param3);
-            this.placeBlock(param0, var9.setValue(EndPortalFrameBlock.HAS_EYE, Boolean.valueOf(var12[7])), 3, 3, 10, param3);
-            this.placeBlock(param0, var9.setValue(EndPortalFrameBlock.HAS_EYE, Boolean.valueOf(var12[8])), 3, 3, 11, param3);
-            this.placeBlock(param0, var10.setValue(EndPortalFrameBlock.HAS_EYE, Boolean.valueOf(var12[9])), 7, 3, 9, param3);
-            this.placeBlock(param0, var10.setValue(EndPortalFrameBlock.HAS_EYE, Boolean.valueOf(var12[10])), 7, 3, 10, param3);
-            this.placeBlock(param0, var10.setValue(EndPortalFrameBlock.HAS_EYE, Boolean.valueOf(var12[11])), 7, 3, 11, param3);
+            this.placeBlock(param0, var7.setValue(EndPortalFrameBlock.HAS_EYE, Boolean.valueOf(var12[0])), 4, 3, 8, param4);
+            this.placeBlock(param0, var7.setValue(EndPortalFrameBlock.HAS_EYE, Boolean.valueOf(var12[1])), 5, 3, 8, param4);
+            this.placeBlock(param0, var7.setValue(EndPortalFrameBlock.HAS_EYE, Boolean.valueOf(var12[2])), 6, 3, 8, param4);
+            this.placeBlock(param0, var8.setValue(EndPortalFrameBlock.HAS_EYE, Boolean.valueOf(var12[3])), 4, 3, 12, param4);
+            this.placeBlock(param0, var8.setValue(EndPortalFrameBlock.HAS_EYE, Boolean.valueOf(var12[4])), 5, 3, 12, param4);
+            this.placeBlock(param0, var8.setValue(EndPortalFrameBlock.HAS_EYE, Boolean.valueOf(var12[5])), 6, 3, 12, param4);
+            this.placeBlock(param0, var9.setValue(EndPortalFrameBlock.HAS_EYE, Boolean.valueOf(var12[6])), 3, 3, 9, param4);
+            this.placeBlock(param0, var9.setValue(EndPortalFrameBlock.HAS_EYE, Boolean.valueOf(var12[7])), 3, 3, 10, param4);
+            this.placeBlock(param0, var9.setValue(EndPortalFrameBlock.HAS_EYE, Boolean.valueOf(var12[8])), 3, 3, 11, param4);
+            this.placeBlock(param0, var10.setValue(EndPortalFrameBlock.HAS_EYE, Boolean.valueOf(var12[9])), 7, 3, 9, param4);
+            this.placeBlock(param0, var10.setValue(EndPortalFrameBlock.HAS_EYE, Boolean.valueOf(var12[10])), 7, 3, 10, param4);
+            this.placeBlock(param0, var10.setValue(EndPortalFrameBlock.HAS_EYE, Boolean.valueOf(var12[11])), 7, 3, 11, param4);
             if (var11) {
                 BlockState var14 = Blocks.END_PORTAL.defaultBlockState();
-                this.placeBlock(param0, var14, 4, 3, 9, param3);
-                this.placeBlock(param0, var14, 5, 3, 9, param3);
-                this.placeBlock(param0, var14, 6, 3, 9, param3);
-                this.placeBlock(param0, var14, 4, 3, 10, param3);
-                this.placeBlock(param0, var14, 5, 3, 10, param3);
-                this.placeBlock(param0, var14, 6, 3, 10, param3);
-                this.placeBlock(param0, var14, 4, 3, 11, param3);
-                this.placeBlock(param0, var14, 5, 3, 11, param3);
-                this.placeBlock(param0, var14, 6, 3, 11, param3);
+                this.placeBlock(param0, var14, 4, 3, 9, param4);
+                this.placeBlock(param0, var14, 5, 3, 9, param4);
+                this.placeBlock(param0, var14, 6, 3, 9, param4);
+                this.placeBlock(param0, var14, 4, 3, 10, param4);
+                this.placeBlock(param0, var14, 5, 3, 10, param4);
+                this.placeBlock(param0, var14, 6, 3, 10, param4);
+                this.placeBlock(param0, var14, 4, 3, 11, param4);
+                this.placeBlock(param0, var14, 5, 3, 11, param4);
+                this.placeBlock(param0, var14, 6, 3, 11, param4);
             }
 
             if (!this.hasPlacedSpawner) {
                 var0 = this.getWorldY(3);
                 BlockPos var15 = new BlockPos(this.getWorldX(5, 6), var0, this.getWorldZ(5, 6));
-                if (param3.isInside(var15)) {
+                if (param4.isInside(var15)) {
                     this.hasPlacedSpawner = true;
                     param0.setBlock(var15, Blocks.SPAWNER.defaultBlockState(), 2);
                     BlockEntity var16 = param0.getBlockEntity(var15);
@@ -889,14 +902,16 @@ public class StrongholdPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
-            this.generateBox(param0, param3, 0, 0, 0, 8, 4, 10, true, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
-            this.generateSmallDoor(param0, param2, param3, this.entryDoor, 1, 1, 0);
-            this.generateBox(param0, param3, 1, 1, 10, 3, 3, 10, CAVE_AIR, CAVE_AIR, false);
-            this.generateBox(param0, param3, 4, 1, 1, 4, 3, 1, false, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
-            this.generateBox(param0, param3, 4, 1, 3, 4, 3, 3, false, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
-            this.generateBox(param0, param3, 4, 1, 7, 4, 3, 7, false, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
-            this.generateBox(param0, param3, 4, 1, 9, 4, 3, 9, false, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
+        public boolean postProcess(
+            LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<?> param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
+        ) {
+            this.generateBox(param0, param4, 0, 0, 0, 8, 4, 10, true, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
+            this.generateSmallDoor(param0, param3, param4, this.entryDoor, 1, 1, 0);
+            this.generateBox(param0, param4, 1, 1, 10, 3, 3, 10, CAVE_AIR, CAVE_AIR, false);
+            this.generateBox(param0, param4, 4, 1, 1, 4, 3, 1, false, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
+            this.generateBox(param0, param4, 4, 1, 3, 4, 3, 3, false, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
+            this.generateBox(param0, param4, 4, 1, 7, 4, 3, 7, false, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
+            this.generateBox(param0, param4, 4, 1, 9, 4, 3, 9, false, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
 
             for(int var0 = 1; var0 <= 3; ++var0) {
                 this.placeBlock(
@@ -908,7 +923,7 @@ public class StrongholdPieces {
                     4,
                     var0,
                     4,
-                    param3
+                    param4
                 );
                 this.placeBlock(
                     param0,
@@ -920,7 +935,7 @@ public class StrongholdPieces {
                     4,
                     var0,
                     5,
-                    param3
+                    param4
                 );
                 this.placeBlock(
                     param0,
@@ -931,7 +946,7 @@ public class StrongholdPieces {
                     4,
                     var0,
                     6,
-                    param3
+                    param4
                 );
                 this.placeBlock(
                     param0,
@@ -942,7 +957,7 @@ public class StrongholdPieces {
                     5,
                     var0,
                     5,
-                    param3
+                    param4
                 );
                 this.placeBlock(
                     param0,
@@ -953,7 +968,7 @@ public class StrongholdPieces {
                     6,
                     var0,
                     5,
-                    param3
+                    param4
                 );
                 this.placeBlock(
                     param0,
@@ -964,7 +979,7 @@ public class StrongholdPieces {
                     7,
                     var0,
                     5,
-                    param3
+                    param4
                 );
             }
 
@@ -974,7 +989,7 @@ public class StrongholdPieces {
                 4,
                 3,
                 2,
-                param3
+                param4
             );
             this.placeBlock(
                 param0,
@@ -982,14 +997,14 @@ public class StrongholdPieces {
                 4,
                 3,
                 8,
-                param3
+                param4
             );
             BlockState var1 = Blocks.IRON_DOOR.defaultBlockState().setValue(DoorBlock.FACING, Direction.WEST);
             BlockState var2 = Blocks.IRON_DOOR.defaultBlockState().setValue(DoorBlock.FACING, Direction.WEST).setValue(DoorBlock.HALF, DoubleBlockHalf.UPPER);
-            this.placeBlock(param0, var1, 4, 1, 2, param3);
-            this.placeBlock(param0, var2, 4, 2, 2, param3);
-            this.placeBlock(param0, var1, 4, 1, 8, param3);
-            this.placeBlock(param0, var2, 4, 2, 8, param3);
+            this.placeBlock(param0, var1, 4, 1, 2, param4);
+            this.placeBlock(param0, var2, 4, 2, 2, param4);
+            this.placeBlock(param0, var1, 4, 1, 8, param4);
+            this.placeBlock(param0, var2, 4, 2, 8, param4);
             return true;
         }
     }
@@ -1027,14 +1042,16 @@ public class StrongholdPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
-            this.generateBox(param0, param3, 0, 0, 0, 4, 4, 4, true, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
-            this.generateSmallDoor(param0, param2, param3, this.entryDoor, 1, 1, 0);
+        public boolean postProcess(
+            LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<?> param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
+        ) {
+            this.generateBox(param0, param4, 0, 0, 0, 4, 4, 4, true, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
+            this.generateSmallDoor(param0, param3, param4, this.entryDoor, 1, 1, 0);
             Direction var0 = this.getOrientation();
             if (var0 != Direction.NORTH && var0 != Direction.EAST) {
-                this.generateBox(param0, param3, 0, 1, 1, 0, 3, 3, CAVE_AIR, CAVE_AIR, false);
+                this.generateBox(param0, param4, 0, 1, 1, 0, 3, 3, CAVE_AIR, CAVE_AIR, false);
             } else {
-                this.generateBox(param0, param3, 4, 1, 1, 4, 3, 3, CAVE_AIR, CAVE_AIR, false);
+                this.generateBox(param0, param4, 4, 1, 1, 4, 3, 3, CAVE_AIR, CAVE_AIR, false);
             }
 
             return true;
@@ -1080,90 +1097,92 @@ public class StrongholdPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
-            this.generateBox(param0, param3, 0, 0, 0, 10, 6, 10, true, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
-            this.generateSmallDoor(param0, param2, param3, this.entryDoor, 4, 1, 0);
-            this.generateBox(param0, param3, 4, 1, 10, 6, 3, 10, CAVE_AIR, CAVE_AIR, false);
-            this.generateBox(param0, param3, 0, 1, 4, 0, 3, 6, CAVE_AIR, CAVE_AIR, false);
-            this.generateBox(param0, param3, 10, 1, 4, 10, 3, 6, CAVE_AIR, CAVE_AIR, false);
+        public boolean postProcess(
+            LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<?> param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
+        ) {
+            this.generateBox(param0, param4, 0, 0, 0, 10, 6, 10, true, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
+            this.generateSmallDoor(param0, param3, param4, this.entryDoor, 4, 1, 0);
+            this.generateBox(param0, param4, 4, 1, 10, 6, 3, 10, CAVE_AIR, CAVE_AIR, false);
+            this.generateBox(param0, param4, 0, 1, 4, 0, 3, 6, CAVE_AIR, CAVE_AIR, false);
+            this.generateBox(param0, param4, 10, 1, 4, 10, 3, 6, CAVE_AIR, CAVE_AIR, false);
             switch(this.type) {
                 case 0:
-                    this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 5, 1, 5, param3);
-                    this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 5, 2, 5, param3);
-                    this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 5, 3, 5, param3);
-                    this.placeBlock(param0, Blocks.WALL_TORCH.defaultBlockState().setValue(WallTorchBlock.FACING, Direction.WEST), 4, 3, 5, param3);
-                    this.placeBlock(param0, Blocks.WALL_TORCH.defaultBlockState().setValue(WallTorchBlock.FACING, Direction.EAST), 6, 3, 5, param3);
-                    this.placeBlock(param0, Blocks.WALL_TORCH.defaultBlockState().setValue(WallTorchBlock.FACING, Direction.SOUTH), 5, 3, 4, param3);
-                    this.placeBlock(param0, Blocks.WALL_TORCH.defaultBlockState().setValue(WallTorchBlock.FACING, Direction.NORTH), 5, 3, 6, param3);
-                    this.placeBlock(param0, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), 4, 1, 4, param3);
-                    this.placeBlock(param0, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), 4, 1, 5, param3);
-                    this.placeBlock(param0, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), 4, 1, 6, param3);
-                    this.placeBlock(param0, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), 6, 1, 4, param3);
-                    this.placeBlock(param0, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), 6, 1, 5, param3);
-                    this.placeBlock(param0, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), 6, 1, 6, param3);
-                    this.placeBlock(param0, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), 5, 1, 4, param3);
-                    this.placeBlock(param0, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), 5, 1, 6, param3);
+                    this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 5, 1, 5, param4);
+                    this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 5, 2, 5, param4);
+                    this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 5, 3, 5, param4);
+                    this.placeBlock(param0, Blocks.WALL_TORCH.defaultBlockState().setValue(WallTorchBlock.FACING, Direction.WEST), 4, 3, 5, param4);
+                    this.placeBlock(param0, Blocks.WALL_TORCH.defaultBlockState().setValue(WallTorchBlock.FACING, Direction.EAST), 6, 3, 5, param4);
+                    this.placeBlock(param0, Blocks.WALL_TORCH.defaultBlockState().setValue(WallTorchBlock.FACING, Direction.SOUTH), 5, 3, 4, param4);
+                    this.placeBlock(param0, Blocks.WALL_TORCH.defaultBlockState().setValue(WallTorchBlock.FACING, Direction.NORTH), 5, 3, 6, param4);
+                    this.placeBlock(param0, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), 4, 1, 4, param4);
+                    this.placeBlock(param0, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), 4, 1, 5, param4);
+                    this.placeBlock(param0, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), 4, 1, 6, param4);
+                    this.placeBlock(param0, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), 6, 1, 4, param4);
+                    this.placeBlock(param0, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), 6, 1, 5, param4);
+                    this.placeBlock(param0, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), 6, 1, 6, param4);
+                    this.placeBlock(param0, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), 5, 1, 4, param4);
+                    this.placeBlock(param0, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), 5, 1, 6, param4);
                     break;
                 case 1:
                     for(int var0 = 0; var0 < 5; ++var0) {
-                        this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 3, 1, 3 + var0, param3);
-                        this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 7, 1, 3 + var0, param3);
-                        this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 3 + var0, 1, 3, param3);
-                        this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 3 + var0, 1, 7, param3);
+                        this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 3, 1, 3 + var0, param4);
+                        this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 7, 1, 3 + var0, param4);
+                        this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 3 + var0, 1, 3, param4);
+                        this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 3 + var0, 1, 7, param4);
                     }
 
-                    this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 5, 1, 5, param3);
-                    this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 5, 2, 5, param3);
-                    this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 5, 3, 5, param3);
-                    this.placeBlock(param0, Blocks.WATER.defaultBlockState(), 5, 4, 5, param3);
+                    this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 5, 1, 5, param4);
+                    this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 5, 2, 5, param4);
+                    this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 5, 3, 5, param4);
+                    this.placeBlock(param0, Blocks.WATER.defaultBlockState(), 5, 4, 5, param4);
                     break;
                 case 2:
                     for(int var1 = 1; var1 <= 9; ++var1) {
-                        this.placeBlock(param0, Blocks.COBBLESTONE.defaultBlockState(), 1, 3, var1, param3);
-                        this.placeBlock(param0, Blocks.COBBLESTONE.defaultBlockState(), 9, 3, var1, param3);
+                        this.placeBlock(param0, Blocks.COBBLESTONE.defaultBlockState(), 1, 3, var1, param4);
+                        this.placeBlock(param0, Blocks.COBBLESTONE.defaultBlockState(), 9, 3, var1, param4);
                     }
 
                     for(int var2 = 1; var2 <= 9; ++var2) {
-                        this.placeBlock(param0, Blocks.COBBLESTONE.defaultBlockState(), var2, 3, 1, param3);
-                        this.placeBlock(param0, Blocks.COBBLESTONE.defaultBlockState(), var2, 3, 9, param3);
+                        this.placeBlock(param0, Blocks.COBBLESTONE.defaultBlockState(), var2, 3, 1, param4);
+                        this.placeBlock(param0, Blocks.COBBLESTONE.defaultBlockState(), var2, 3, 9, param4);
                     }
 
-                    this.placeBlock(param0, Blocks.COBBLESTONE.defaultBlockState(), 5, 1, 4, param3);
-                    this.placeBlock(param0, Blocks.COBBLESTONE.defaultBlockState(), 5, 1, 6, param3);
-                    this.placeBlock(param0, Blocks.COBBLESTONE.defaultBlockState(), 5, 3, 4, param3);
-                    this.placeBlock(param0, Blocks.COBBLESTONE.defaultBlockState(), 5, 3, 6, param3);
-                    this.placeBlock(param0, Blocks.COBBLESTONE.defaultBlockState(), 4, 1, 5, param3);
-                    this.placeBlock(param0, Blocks.COBBLESTONE.defaultBlockState(), 6, 1, 5, param3);
-                    this.placeBlock(param0, Blocks.COBBLESTONE.defaultBlockState(), 4, 3, 5, param3);
-                    this.placeBlock(param0, Blocks.COBBLESTONE.defaultBlockState(), 6, 3, 5, param3);
+                    this.placeBlock(param0, Blocks.COBBLESTONE.defaultBlockState(), 5, 1, 4, param4);
+                    this.placeBlock(param0, Blocks.COBBLESTONE.defaultBlockState(), 5, 1, 6, param4);
+                    this.placeBlock(param0, Blocks.COBBLESTONE.defaultBlockState(), 5, 3, 4, param4);
+                    this.placeBlock(param0, Blocks.COBBLESTONE.defaultBlockState(), 5, 3, 6, param4);
+                    this.placeBlock(param0, Blocks.COBBLESTONE.defaultBlockState(), 4, 1, 5, param4);
+                    this.placeBlock(param0, Blocks.COBBLESTONE.defaultBlockState(), 6, 1, 5, param4);
+                    this.placeBlock(param0, Blocks.COBBLESTONE.defaultBlockState(), 4, 3, 5, param4);
+                    this.placeBlock(param0, Blocks.COBBLESTONE.defaultBlockState(), 6, 3, 5, param4);
 
                     for(int var3 = 1; var3 <= 3; ++var3) {
-                        this.placeBlock(param0, Blocks.COBBLESTONE.defaultBlockState(), 4, var3, 4, param3);
-                        this.placeBlock(param0, Blocks.COBBLESTONE.defaultBlockState(), 6, var3, 4, param3);
-                        this.placeBlock(param0, Blocks.COBBLESTONE.defaultBlockState(), 4, var3, 6, param3);
-                        this.placeBlock(param0, Blocks.COBBLESTONE.defaultBlockState(), 6, var3, 6, param3);
+                        this.placeBlock(param0, Blocks.COBBLESTONE.defaultBlockState(), 4, var3, 4, param4);
+                        this.placeBlock(param0, Blocks.COBBLESTONE.defaultBlockState(), 6, var3, 4, param4);
+                        this.placeBlock(param0, Blocks.COBBLESTONE.defaultBlockState(), 4, var3, 6, param4);
+                        this.placeBlock(param0, Blocks.COBBLESTONE.defaultBlockState(), 6, var3, 6, param4);
                     }
 
-                    this.placeBlock(param0, Blocks.TORCH.defaultBlockState(), 5, 3, 5, param3);
+                    this.placeBlock(param0, Blocks.TORCH.defaultBlockState(), 5, 3, 5, param4);
 
                     for(int var4 = 2; var4 <= 8; ++var4) {
-                        this.placeBlock(param0, Blocks.OAK_PLANKS.defaultBlockState(), 2, 3, var4, param3);
-                        this.placeBlock(param0, Blocks.OAK_PLANKS.defaultBlockState(), 3, 3, var4, param3);
+                        this.placeBlock(param0, Blocks.OAK_PLANKS.defaultBlockState(), 2, 3, var4, param4);
+                        this.placeBlock(param0, Blocks.OAK_PLANKS.defaultBlockState(), 3, 3, var4, param4);
                         if (var4 <= 3 || var4 >= 7) {
-                            this.placeBlock(param0, Blocks.OAK_PLANKS.defaultBlockState(), 4, 3, var4, param3);
-                            this.placeBlock(param0, Blocks.OAK_PLANKS.defaultBlockState(), 5, 3, var4, param3);
-                            this.placeBlock(param0, Blocks.OAK_PLANKS.defaultBlockState(), 6, 3, var4, param3);
+                            this.placeBlock(param0, Blocks.OAK_PLANKS.defaultBlockState(), 4, 3, var4, param4);
+                            this.placeBlock(param0, Blocks.OAK_PLANKS.defaultBlockState(), 5, 3, var4, param4);
+                            this.placeBlock(param0, Blocks.OAK_PLANKS.defaultBlockState(), 6, 3, var4, param4);
                         }
 
-                        this.placeBlock(param0, Blocks.OAK_PLANKS.defaultBlockState(), 7, 3, var4, param3);
-                        this.placeBlock(param0, Blocks.OAK_PLANKS.defaultBlockState(), 8, 3, var4, param3);
+                        this.placeBlock(param0, Blocks.OAK_PLANKS.defaultBlockState(), 7, 3, var4, param4);
+                        this.placeBlock(param0, Blocks.OAK_PLANKS.defaultBlockState(), 8, 3, var4, param4);
                     }
 
                     BlockState var5 = Blocks.LADDER.defaultBlockState().setValue(LadderBlock.FACING, Direction.WEST);
-                    this.placeBlock(param0, var5, 9, 1, 3, param3);
-                    this.placeBlock(param0, var5, 9, 2, 3, param3);
-                    this.placeBlock(param0, var5, 9, 3, 3, param3);
-                    this.createChest(param0, param3, param2, 3, 4, 8, BuiltInLootTables.STRONGHOLD_CROSSING);
+                    this.placeBlock(param0, var5, 9, 1, 3, param4);
+                    this.placeBlock(param0, var5, 9, 2, 3, param4);
+                    this.placeBlock(param0, var5, 9, 3, 3, param4);
+                    this.createChest(param0, param4, param3, 3, 4, 8, BuiltInLootTables.STRONGHOLD_CROSSING);
             }
 
             return true;
@@ -1252,27 +1271,29 @@ public class StrongholdPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
-            this.generateBox(param0, param3, 0, 0, 0, 4, 10, 4, true, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
-            this.generateSmallDoor(param0, param2, param3, this.entryDoor, 1, 7, 0);
-            this.generateSmallDoor(param0, param2, param3, StrongholdPieces.StrongholdPiece.SmallDoorType.OPENING, 1, 1, 4);
-            this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 2, 6, 1, param3);
-            this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 1, 5, 1, param3);
-            this.placeBlock(param0, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), 1, 6, 1, param3);
-            this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 1, 5, 2, param3);
-            this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 1, 4, 3, param3);
-            this.placeBlock(param0, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), 1, 5, 3, param3);
-            this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 2, 4, 3, param3);
-            this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 3, 3, 3, param3);
-            this.placeBlock(param0, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), 3, 4, 3, param3);
-            this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 3, 3, 2, param3);
-            this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 3, 2, 1, param3);
-            this.placeBlock(param0, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), 3, 3, 1, param3);
-            this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 2, 2, 1, param3);
-            this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 1, 1, 1, param3);
-            this.placeBlock(param0, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), 1, 2, 1, param3);
-            this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 1, 1, 2, param3);
-            this.placeBlock(param0, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), 1, 1, 3, param3);
+        public boolean postProcess(
+            LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<?> param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
+        ) {
+            this.generateBox(param0, param4, 0, 0, 0, 4, 10, 4, true, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
+            this.generateSmallDoor(param0, param3, param4, this.entryDoor, 1, 7, 0);
+            this.generateSmallDoor(param0, param3, param4, StrongholdPieces.StrongholdPiece.SmallDoorType.OPENING, 1, 1, 4);
+            this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 2, 6, 1, param4);
+            this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 1, 5, 1, param4);
+            this.placeBlock(param0, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), 1, 6, 1, param4);
+            this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 1, 5, 2, param4);
+            this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 1, 4, 3, param4);
+            this.placeBlock(param0, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), 1, 5, 3, param4);
+            this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 2, 4, 3, param4);
+            this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 3, 3, 3, param4);
+            this.placeBlock(param0, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), 3, 4, 3, param4);
+            this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 3, 3, 2, param4);
+            this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 3, 2, 1, param4);
+            this.placeBlock(param0, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), 3, 3, 1, param4);
+            this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 2, 2, 1, param4);
+            this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 1, 1, 1, param4);
+            this.placeBlock(param0, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), 1, 2, 1, param4);
+            this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 1, 1, 2, param4);
+            this.placeBlock(param0, Blocks.SMOOTH_STONE_SLAB.defaultBlockState(), 1, 1, 3, param4);
             return true;
         }
     }
@@ -1341,22 +1362,24 @@ public class StrongholdPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
-            this.generateBox(param0, param3, 0, 0, 0, 4, 4, 6, true, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
-            this.generateSmallDoor(param0, param2, param3, this.entryDoor, 1, 1, 0);
-            this.generateSmallDoor(param0, param2, param3, StrongholdPieces.StrongholdPiece.SmallDoorType.OPENING, 1, 1, 6);
+        public boolean postProcess(
+            LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<?> param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
+        ) {
+            this.generateBox(param0, param4, 0, 0, 0, 4, 4, 6, true, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
+            this.generateSmallDoor(param0, param3, param4, this.entryDoor, 1, 1, 0);
+            this.generateSmallDoor(param0, param3, param4, StrongholdPieces.StrongholdPiece.SmallDoorType.OPENING, 1, 1, 6);
             BlockState var0 = Blocks.WALL_TORCH.defaultBlockState().setValue(WallTorchBlock.FACING, Direction.EAST);
             BlockState var1 = Blocks.WALL_TORCH.defaultBlockState().setValue(WallTorchBlock.FACING, Direction.WEST);
-            this.maybeGenerateBlock(param0, param3, param2, 0.1F, 1, 2, 1, var0);
-            this.maybeGenerateBlock(param0, param3, param2, 0.1F, 3, 2, 1, var1);
-            this.maybeGenerateBlock(param0, param3, param2, 0.1F, 1, 2, 5, var0);
-            this.maybeGenerateBlock(param0, param3, param2, 0.1F, 3, 2, 5, var1);
+            this.maybeGenerateBlock(param0, param4, param3, 0.1F, 1, 2, 1, var0);
+            this.maybeGenerateBlock(param0, param4, param3, 0.1F, 3, 2, 1, var1);
+            this.maybeGenerateBlock(param0, param4, param3, 0.1F, 1, 2, 5, var0);
+            this.maybeGenerateBlock(param0, param4, param3, 0.1F, 3, 2, 5, var1);
             if (this.leftChild) {
-                this.generateBox(param0, param3, 0, 1, 2, 0, 3, 4, CAVE_AIR, CAVE_AIR, false);
+                this.generateBox(param0, param4, 0, 1, 2, 0, 3, 4, CAVE_AIR, CAVE_AIR, false);
             }
 
             if (this.rightChild) {
-                this.generateBox(param0, param3, 4, 1, 2, 4, 3, 4, CAVE_AIR, CAVE_AIR, false);
+                this.generateBox(param0, param4, 4, 1, 2, 4, 3, 4, CAVE_AIR, CAVE_AIR, false);
             }
 
             return true;
@@ -1390,20 +1413,22 @@ public class StrongholdPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
-            this.generateBox(param0, param3, 0, 0, 0, 4, 10, 7, true, param2, StrongholdPieces.SMOOTH_STONE_SELECTOR);
-            this.generateSmallDoor(param0, param2, param3, this.entryDoor, 1, 7, 0);
-            this.generateSmallDoor(param0, param2, param3, StrongholdPieces.StrongholdPiece.SmallDoorType.OPENING, 1, 1, 7);
+        public boolean postProcess(
+            LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<?> param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
+        ) {
+            this.generateBox(param0, param4, 0, 0, 0, 4, 10, 7, true, param3, StrongholdPieces.SMOOTH_STONE_SELECTOR);
+            this.generateSmallDoor(param0, param3, param4, this.entryDoor, 1, 7, 0);
+            this.generateSmallDoor(param0, param3, param4, StrongholdPieces.StrongholdPiece.SmallDoorType.OPENING, 1, 1, 7);
             BlockState var0 = Blocks.COBBLESTONE_STAIRS.defaultBlockState().setValue(StairBlock.FACING, Direction.SOUTH);
 
             for(int var1 = 0; var1 < 6; ++var1) {
-                this.placeBlock(param0, var0, 1, 6 - var1, 1 + var1, param3);
-                this.placeBlock(param0, var0, 2, 6 - var1, 1 + var1, param3);
-                this.placeBlock(param0, var0, 3, 6 - var1, 1 + var1, param3);
+                this.placeBlock(param0, var0, 1, 6 - var1, 1 + var1, param4);
+                this.placeBlock(param0, var0, 2, 6 - var1, 1 + var1, param4);
+                this.placeBlock(param0, var0, 3, 6 - var1, 1 + var1, param4);
                 if (var1 < 5) {
-                    this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 1, 5 - var1, 1 + var1, param3);
-                    this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 2, 5 - var1, 1 + var1, param3);
-                    this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 3, 5 - var1, 1 + var1, param3);
+                    this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 1, 5 - var1, 1 + var1, param4);
+                    this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 2, 5 - var1, 1 + var1, param4);
+                    this.placeBlock(param0, Blocks.STONE_BRICKS.defaultBlockState(), 3, 5 - var1, 1 + var1, param4);
                 }
             }
 

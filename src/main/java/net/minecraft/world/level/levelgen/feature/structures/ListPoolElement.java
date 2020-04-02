@@ -10,6 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.util.Deserializer;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -66,15 +67,16 @@ public class ListPoolElement extends StructurePoolElement {
     public boolean place(
         StructureManager param0,
         LevelAccessor param1,
-        ChunkGenerator<?> param2,
-        BlockPos param3,
+        StructureFeatureManager param2,
+        ChunkGenerator<?> param3,
         BlockPos param4,
-        Rotation param5,
-        BoundingBox param6,
-        Random param7
+        BlockPos param5,
+        Rotation param6,
+        BoundingBox param7,
+        Random param8
     ) {
         for(StructurePoolElement var0 : this.elements) {
-            if (!var0.place(param0, param1, param2, param3, param4, param5, param6, param7)) {
+            if (!var0.place(param0, param1, param2, param3, param4, param5, param6, param7, param8)) {
                 return false;
             }
         }

@@ -48,9 +48,9 @@ public class ArmorStandRenderer extends LivingEntityRenderer<ArmorStand, ArmorSt
     }
 
     @Nullable
-    protected RenderType getRenderType(ArmorStand param0, boolean param1, boolean param2) {
+    protected RenderType getRenderType(ArmorStand param0, boolean param1, boolean param2, boolean param3) {
         if (!param0.isMarker()) {
-            return super.getRenderType(param0, param1, param2);
+            return super.getRenderType(param0, param1, param2, param3);
         } else {
             ResourceLocation var0 = this.getTextureLocation(param0);
             if (param2) {

@@ -34,11 +34,11 @@ public class RegionFile implements AutoCloseable {
     private final IntBuffer timestamps;
     private final RegionBitmap usedSectors = new RegionBitmap();
 
-    public RegionFile(File param0, File param1) throws IOException {
-        this(param0.toPath(), param1.toPath(), RegionFileVersion.VERSION_DEFLATE);
+    public RegionFile(File param0, File param1, boolean param2) throws IOException {
+        this(param0.toPath(), param1.toPath(), RegionFileVersion.VERSION_DEFLATE, param2);
     }
 
-    public RegionFile(Path param0, Path param1, RegionFileVersion param2) throws IOException {
+    public RegionFile(Path param0, Path param1, RegionFileVersion param2, boolean param3) throws IOException {
         this.version = param2;
         if (!Files.isDirectory(param1)) {
             throw new IllegalArgumentException("Expected directory, got " + param1.toAbsolutePath());
@@ -48,7 +48,12 @@ public class RegionFile implements AutoCloseable {
             ((Buffer)this.offsets).limit(1024);
             ((Buffer)this.header).position(4096);
             this.timestamps = this.header.asIntBuffer();
-            this.file = FileChannel.open(param0, StandardOpenOption.CREATE, StandardOpenOption.READ, StandardOpenOption.WRITE);
+            if (param3) {
+                this.file = FileChannel.open(param0, StandardOpenOption.CREATE, StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.DSYNC);
+            } else {
+                this.file = FileChannel.open(param0, StandardOpenOption.CREATE, StandardOpenOption.READ, StandardOpenOption.WRITE);
+            }
+
             this.usedSectors.force(0, 2);
             ((Buffer)this.header).position(0);
             int var0 = this.file.read(this.header, 0L);
@@ -220,6 +225,10 @@ public class RegionFile implements AutoCloseable {
         return new DataOutputStream(new BufferedOutputStream(this.version.wrap(new RegionFile.ChunkBuffer(param0))));
     }
 
+    public void flush() throws IOException {
+        this.file.force(true);
+    }
+
     protected synchronized void write(ChunkPos param0, ByteBuffer param1) throws IOException {
         int var0 = getOffsetIndex(param0);
         int var1 = this.offsets.get(var0);
@@ -296,13 +305,9 @@ public class RegionFile implements AutoCloseable {
             this.padToFullSector();
         } finally {
             try {
-                this.writeHeader();
+                this.file.force(true);
             } finally {
-                try {
-                    this.file.force(true);
-                } finally {
-                    this.file.close();
-                }
+                this.file.close();
             }
         }
 

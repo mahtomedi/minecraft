@@ -12,10 +12,8 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneDecoratorConfiguration;
 
 public class EndGatewayPlacementDecorator extends FeatureDecorator<NoneDecoratorConfiguration> {
-    public EndGatewayPlacementDecorator(
-        Function<Dynamic<?>, ? extends NoneDecoratorConfiguration> param0, Function<Random, ? extends NoneDecoratorConfiguration> param1
-    ) {
-        super(param0, param1);
+    public EndGatewayPlacementDecorator(Function<Dynamic<?>, ? extends NoneDecoratorConfiguration> param0) {
+        super(param0);
     }
 
     public Stream<BlockPos> getPositions(

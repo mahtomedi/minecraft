@@ -62,14 +62,15 @@ import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Parrot;
 import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.boss.EnderDragonPart;
 import net.minecraft.world.entity.decoration.ArmorStand;
-import net.minecraft.world.entity.fishing.FishingHook;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.monster.SharedMonsterAttributes;
+import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.food.FoodData;
@@ -182,13 +183,12 @@ public abstract class Player extends LivingEntity {
         }
     }
 
-    @Override
-    protected void registerAttributes() {
-        super.registerAttributes();
-        this.getAttributes().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(1.0);
-        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.1F);
-        this.getAttributes().registerAttribute(SharedMonsterAttributes.ATTACK_SPEED);
-        this.getAttributes().registerAttribute(SharedMonsterAttributes.LUCK);
+    public static AttributeSupplier.Builder createAttributes() {
+        return LivingEntity.createLivingAttributes()
+            .add(Attributes.ATTACK_DAMAGE, 1.0)
+            .add(Attributes.MOVEMENT_SPEED, 0.1F)
+            .add(Attributes.ATTACK_SPEED)
+            .add(Attributes.LUCK);
     }
 
     @Override
@@ -515,7 +515,7 @@ public abstract class Player extends LivingEntity {
         this.inventory.tick();
         this.oBob = this.bob;
         super.aiStep();
-        AttributeInstance var0 = this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
+        AttributeInstance var0 = this.getAttribute(Attributes.MOVEMENT_SPEED);
         if (!this.level.isClientSide) {
             var0.setBaseValue((double)this.abilities.getWalkingSpeed());
         }
@@ -1075,7 +1075,7 @@ public abstract class Player extends LivingEntity {
     public void attack(Entity param0) {
         if (param0.isAttackable()) {
             if (!param0.skipAttackInteraction(this)) {
-                float var0 = (float)this.getAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getValue();
+                float var0 = (float)this.getAttributeValue(Attributes.ATTACK_DAMAGE);
                 float var1;
                 if (param0 instanceof LivingEntity) {
                     var1 = EnchantmentHelper.getDamageBonus(this.getMainHandItem(), ((LivingEntity)param0).getMobType());
@@ -1451,7 +1451,7 @@ public abstract class Player extends LivingEntity {
 
     @Override
     public float getSpeed() {
-        return (float)this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getValue();
+        return (float)this.getAttributeValue(Attributes.MOVEMENT_SPEED);
     }
 
     public void checkMovementStatistics(double param0, double param1, double param2) {
@@ -1978,7 +1978,7 @@ public abstract class Player extends LivingEntity {
     }
 
     public float getCurrentItemAttackStrengthDelay() {
-        return (float)(1.0 / this.getAttribute(SharedMonsterAttributes.ATTACK_SPEED).getValue() * 20.0);
+        return (float)(1.0 / this.getAttributeValue(Attributes.ATTACK_SPEED) * 20.0);
     }
 
     public float getAttackStrengthScale(float param0) {
@@ -1999,7 +1999,7 @@ public abstract class Player extends LivingEntity {
     }
 
     public float getLuck() {
-        return (float)this.getAttribute(SharedMonsterAttributes.LUCK).getValue();
+        return (float)this.getAttributeValue(Attributes.LUCK);
     }
 
     public boolean canUseGameMasterBlocks() {

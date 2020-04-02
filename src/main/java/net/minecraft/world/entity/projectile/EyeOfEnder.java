@@ -120,27 +120,8 @@ public class EyeOfEnder extends Entity implements ItemSupplier {
         double var2 = this.getY() + var0.y;
         double var3 = this.getZ() + var0.z;
         float var4 = Mth.sqrt(getHorizontalDistanceSqr(var0));
-        this.yRot = (float)(Mth.atan2(var0.x, var0.z) * 180.0F / (float)Math.PI);
-        this.xRot = (float)(Mth.atan2(var0.y, (double)var4) * 180.0F / (float)Math.PI);
-
-        while(this.xRot - this.xRotO < -180.0F) {
-            this.xRotO -= 360.0F;
-        }
-
-        while(this.xRot - this.xRotO >= 180.0F) {
-            this.xRotO += 360.0F;
-        }
-
-        while(this.yRot - this.yRotO < -180.0F) {
-            this.yRotO -= 360.0F;
-        }
-
-        while(this.yRot - this.yRotO >= 180.0F) {
-            this.yRotO += 360.0F;
-        }
-
-        this.xRot = Mth.lerp(0.2F, this.xRotO, this.xRot);
-        this.yRot = Mth.lerp(0.2F, this.yRotO, this.yRot);
+        this.xRot = Projectile.lerpRotation(this.xRotO, (float)(Mth.atan2(var0.y, (double)var4) * 180.0F / (float)Math.PI));
+        this.yRot = Projectile.lerpRotation(this.yRotO, (float)(Mth.atan2(var0.x, var0.z) * 180.0F / (float)Math.PI));
         if (!this.level.isClientSide) {
             double var5 = this.tx - var1;
             double var6 = this.tz - var3;

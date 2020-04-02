@@ -1,7 +1,6 @@
 package net.minecraft.server;
 
 import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.authlib.GameProfile;
@@ -115,11 +114,9 @@ import net.minecraft.world.level.ForcedChunksSavedData;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelConflictException;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.LevelType;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.ChunkGeneratorProvider;
 import net.minecraft.world.level.saveddata.SaveDataDirtyRunnable;
@@ -147,9 +144,8 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             (long)"North Carolina".hashCode(), GameType.SURVIVAL, true, false, LevelType.NORMAL.getDefaultProvider()
         )
         .enableStartingBonusItems();
-    private final LevelStorageSource storageSource;
+    protected final LevelStorageSource.LevelStorageAccess storageSource;
     private final Snooper snooper = new Snooper("server", this, Util.getMillis());
-    private final File universe;
     private final List<Runnable> tickables = Lists.newArrayList();
     private ContinuousProfiler continousProfiler = new ContinuousProfiler(Util.timeSource, this::getTickCount);
     private ProfilerFiller profiler = InactiveProfiler.INSTANCE;
@@ -181,9 +177,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     private KeyPair keyPair;
     @Nullable
     private String singleplayerName;
-    private final String levelIdName;
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     private String levelName;
     private boolean isDemo;
     private boolean levelHasStartingBonusChest;
@@ -195,8 +189,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     private Component startupState;
     private boolean delayProfilerStart;
     private boolean forceGameType;
-    @Nullable
-    private final YggdrasilAuthenticationService authenticationService;
     private final MinecraftSessionService sessionService;
     private final GameProfileRepository profileRepository;
     private final GameProfileCache profileCache;
@@ -234,28 +226,24 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     private String serverId;
 
     public MinecraftServer(
-        File param0,
+        LevelStorageSource.LevelStorageAccess param0,
         Proxy param1,
         DataFixer param2,
         Commands param3,
-        YggdrasilAuthenticationService param4,
-        MinecraftSessionService param5,
-        GameProfileRepository param6,
-        GameProfileCache param7,
-        ChunkProgressListenerFactory param8,
-        String param9
+        MinecraftSessionService param4,
+        GameProfileRepository param5,
+        GameProfileCache param6,
+        ChunkProgressListenerFactory param7
     ) {
         super("Server");
         this.proxy = param1;
         this.commands = param3;
-        this.authenticationService = param4;
-        this.sessionService = param5;
-        this.profileRepository = param6;
-        this.profileCache = param7;
-        this.universe = param0;
+        this.sessionService = param4;
+        this.profileRepository = param5;
+        this.profileCache = param6;
         this.connection = new ServerConnectionListener(this);
-        this.progressListenerFactory = param8;
-        this.storageSource = new LevelStorageSource(param0.toPath(), param0.toPath().resolve("../backups"), param2);
+        this.progressListenerFactory = param7;
+        this.storageSource = param0;
         this.fixerUpper = param2;
         this.resources.registerReloadListener(this.tags);
         this.resources.registerReloadListener(this.predicateManager);
@@ -264,7 +252,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         this.resources.registerReloadListener(this.functions);
         this.resources.registerReloadListener(this.advancements);
         this.executor = Util.backgroundExecutor();
-        this.levelIdName = param9;
     }
 
     private void readScoreboard(DimensionDataStorage param0) {
@@ -275,11 +262,11 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
     protected abstract boolean initServer() throws IOException;
 
-    protected void ensureLevelConversion(String param0) {
-        if (this.getStorageSource().requiresConversion(param0)) {
+    protected void ensureLevelConversion() {
+        if (this.storageSource.requiresConversion()) {
             LOGGER.info("Converting map!");
             this.setServerStartupState(new TranslatableComponent("menu.convertingLevel"));
-            this.getStorageSource().convertLevel(param0, new ProgressListener() {
+            this.storageSource.convertLevel(new ProgressListener() {
                 private long timeStamp = Util.getMillis();
 
                 @Override
@@ -313,9 +300,9 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
         if (this.forceUpgrade) {
             LOGGER.info("Forcing world upgrade!");
-            LevelData var0 = this.getStorageSource().getDataTagFor(this.getLevelIdName());
+            LevelData var0 = this.storageSource.getDataTag();
             if (var0 != null) {
-                WorldUpgrader var1 = new WorldUpgrader(this.getLevelIdName(), this.getStorageSource(), var0, this.eraseCache);
+                WorldUpgrader var1 = new WorldUpgrader(this.storageSource, var0, this.eraseCache);
                 Component var2 = null;
 
                 while(!var1.isFinished()) {
@@ -336,7 +323,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
                     } else {
                         try {
                             Thread.sleep(1000L);
-                        } catch (InterruptedException var8) {
+                        } catch (InterruptedException var7) {
                         }
                     }
                 }
@@ -349,26 +336,26 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         this.startupState = param0;
     }
 
-    protected void loadLevel(String param0, String param1, long param2, ChunkGeneratorProvider param3) {
-        this.ensureLevelConversion(param0);
+    protected void loadLevel(String param0, long param1, ChunkGeneratorProvider param2) {
+        this.ensureLevelConversion();
         this.setServerStartupState(new TranslatableComponent("menu.loadingLevel"));
-        LevelStorage var0 = this.getStorageSource().selectLevel(param0, this);
-        this.detectBundledResources(this.getLevelIdName(), var0);
+        LevelStorage var0 = this.storageSource.selectLevel(this);
+        this.detectBundledResources(this.storageSource.getLevelId(), var0);
         LevelData var1 = var0.prepareLevel();
         LevelSettings var2;
         if (var1 == null) {
             if (this.isDemo()) {
                 var2 = DEMO_SETTINGS;
             } else {
-                var2 = new LevelSettings(param2, this.getDefaultGameType(), this.canGenerateStructures(), this.isHardcore(), param3);
+                var2 = new LevelSettings(param1, this.getDefaultGameType(), this.canGenerateStructures(), this.isHardcore(), param2);
                 if (this.levelHasStartingBonusChest) {
                     var2.enableStartingBonusItems();
                 }
             }
 
-            var1 = new LevelData(var2, param1);
+            var1 = new LevelData(var2, param0);
         } else {
-            var1.setLevelName(param1);
+            var1.setLevelName(param0);
             var2 = new LevelSettings(var1);
         }
 
@@ -535,20 +522,15 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
                 LOGGER.info("Saving chunks for level '{}'/{}", var1.getLevelData().getLevelName(), DimensionType.getName(var1.dimension.getType()));
             }
 
-            try {
-                var1.save(null, param1, var1.noSave && !param2);
-            } catch (LevelConflictException var8) {
-                LOGGER.warn(var8.getMessage());
-            }
-
+            var1.save(null, param1, var1.noSave && !param2);
             var0 = true;
         }
 
-        ServerLevel var3 = this.getLevel(DimensionType.OVERWORLD);
-        LevelData var4 = var3.getLevelData();
-        var3.getWorldBorder().saveWorldBorderData(var4);
-        var4.setCustomBossEvents(this.getCustomBossEvents().save());
-        var3.getLevelStorage().saveLevelData(var4, this.getPlayerList().getSingleplayerData());
+        ServerLevel var2 = this.getLevel(DimensionType.OVERWORLD);
+        LevelData var3 = var2.getLevelData();
+        var2.getWorldBorder().saveWorldBorderData(var3);
+        var3.setCustomBossEvents(this.getCustomBossEvents().save());
+        var2.getLevelStorage().saveLevelData(var3, this.getPlayerList().getSingleplayerData());
         return var0;
     }
 
@@ -583,14 +565,20 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             if (var1 != null) {
                 try {
                     var1.close();
-                } catch (IOException var4) {
-                    LOGGER.error("Exception closing the level", (Throwable)var4);
+                } catch (IOException var5) {
+                    LOGGER.error("Exception closing the level", (Throwable)var5);
                 }
             }
         }
 
         if (this.snooper.isStarted()) {
             this.snooper.interrupt();
+        }
+
+        try {
+            this.storageSource.close();
+        } catch (IOException var4) {
+            LOGGER.error("Failed to unlock level {}", this.levelName, var4);
         }
 
     }
@@ -739,7 +727,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     public void updateStatusIcon(ServerStatus param0) {
         File var0 = this.getFile("server-icon.png");
         if (!var0.exists()) {
-            var0 = this.getStorageSource().getFile(this.getLevelIdName(), "icon.png");
+            var0 = this.storageSource.getIconFile();
         }
 
         if (var0.isFile()) {
@@ -769,7 +757,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
     @OnlyIn(Dist.CLIENT)
     public File getWorldScreenshotFile() {
-        return this.getStorageSource().getFile(this.getLevelIdName(), "icon.png");
+        return this.storageSource.getIconFile();
     }
 
     public File getServerDirectory() {
@@ -926,38 +914,38 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             CrashReport.preload();
             Bootstrap.bootStrap();
             Bootstrap.validate();
-            String var19 = var14.valueOf(var9);
+            File var19 = new File(var14.valueOf(var9));
             YggdrasilAuthenticationService var20 = new YggdrasilAuthenticationService(Proxy.NO_PROXY, UUID.randomUUID().toString());
             MinecraftSessionService var21 = var20.createMinecraftSessionService();
             GameProfileRepository var22 = var20.createProfileRepository();
             GameProfileCache var23 = new GameProfileCache(var22, new File(var19, USERID_CACHE_FILE.getName()));
             String var24 = Optional.ofNullable(var14.valueOf(var10)).orElse(var16.getProperties().levelName);
-            final DedicatedServer var25 = new DedicatedServer(
-                new File(var19), var16, DataFixers.getDataFixer(), var20, var21, var22, var23, LoggerChunkProgressListener::new, var24
-            );
-            var25.setSingleplayerName(var14.valueOf(var8));
-            var25.setPort(var14.valueOf(var11));
-            var25.setDemo(var14.has(var3));
-            var25.setBonusChest(var14.has(var4));
-            var25.forceUpgrade(var14.has(var5));
-            var25.eraseCache(var14.has(var6));
-            var25.setId(var14.valueOf(var12));
-            boolean var26 = !var14.has(var1) && !var14.valuesOf(var13).contains("nogui");
-            if (var26 && !GraphicsEnvironment.isHeadless()) {
-                var25.showGui();
+            LevelStorageSource var25 = LevelStorageSource.createDefault(var19.toPath());
+            LevelStorageSource.LevelStorageAccess var26 = var25.createAccess(var24);
+            final DedicatedServer var27 = new DedicatedServer(var26, var16, DataFixers.getDataFixer(), var21, var22, var23, LoggerChunkProgressListener::new);
+            var27.setSingleplayerName(var14.valueOf(var8));
+            var27.setPort(var14.valueOf(var11));
+            var27.setDemo(var14.has(var3));
+            var27.setBonusChest(var14.has(var4));
+            var27.forceUpgrade(var14.has(var5));
+            var27.eraseCache(var14.has(var6));
+            var27.setId(var14.valueOf(var12));
+            boolean var28 = !var14.has(var1) && !var14.valuesOf(var13).contains("nogui");
+            if (var28 && !GraphicsEnvironment.isHeadless()) {
+                var27.showGui();
             }
 
-            var25.forkAndRun();
-            Thread var27 = new Thread("Server Shutdown Thread") {
+            var27.forkAndRun();
+            Thread var29 = new Thread("Server Shutdown Thread") {
                 @Override
                 public void run() {
-                    var25.halt(true);
+                    var27.halt(true);
                 }
             };
-            var27.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
-            Runtime.getRuntime().addShutdownHook(var27);
-        } catch (Exception var29) {
-            LOGGER.fatal("Failed to start the minecraft server", (Throwable)var29);
+            var29.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
+            Runtime.getRuntime().addShutdownHook(var29);
+        } catch (Exception var31) {
+            LOGGER.fatal("Failed to start the minecraft server", (Throwable)var31);
         }
 
     }
@@ -996,14 +984,11 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     }
 
     public ServerLevel getLevel(DimensionType param0) {
-        return this.levels.computeIfAbsent(param0, param1 -> {
-            ServerLevel var0 = this.getLevel(DimensionType.OVERWORLD);
-            return new DerivedServerLevel(var0, this, this.executor, var0.getLevelStorage(), param0, ChunkProgressListener.NULL);
-        });
+        return this.levels.get(param0);
     }
 
     public Iterable<ServerLevel> getAllLevels() {
-        return ImmutableList.copyOf(this.levels.values());
+        return this.levels.values();
     }
 
     public String getServerVersion() {
@@ -1074,10 +1059,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
     public abstract Optional<String> getModdedStatus();
 
-    public boolean isInitialized() {
-        return this.universe != null;
-    }
-
     @Override
     public void sendMessage(Component param0) {
         LOGGER.info(param0.getString());
@@ -1105,10 +1086,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
     public boolean isSingleplayer() {
         return this.singleplayerName != null;
-    }
-
-    public String getLevelIdName() {
-        return this.levelIdName;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -1173,10 +1150,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
     public void setBonusChest(boolean param0) {
         this.levelHasStartingBonusChest = param0;
-    }
-
-    public LevelStorageSource getStorageSource() {
-        return this.storageSource;
     }
 
     public String getResourcePack() {
@@ -1683,7 +1656,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     }
 
     private void refreshRegistries() {
-        Block.BLOCK_STATE_REGISTRY.forEach(BlockBehaviour.BlockStateBase::initCache);
+        Blocks.rebuildCache();
     }
 
     private void startProfilerTick(@Nullable SingleTickProfiler param0) {
@@ -1715,5 +1688,13 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         ProfileResults var0 = this.continousProfiler.getResults();
         this.continousProfiler.disable();
         return var0;
+    }
+
+    public Path getWorldPath() {
+        return this.storageSource.getLevelPath();
+    }
+
+    public boolean forceSynchronousWrites() {
+        return true;
     }
 }

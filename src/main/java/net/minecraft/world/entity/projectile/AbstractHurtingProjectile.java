@@ -19,7 +19,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class AbstractHurtingProjectile extends Projectile {
-    private int flightTime;
     public double xPower;
     public double yPower;
     public double zPower;
@@ -83,8 +82,7 @@ public abstract class AbstractHurtingProjectile extends Projectile {
                 this.setSecondsOnFire(1);
             }
 
-            ++this.flightTime;
-            HitResult var1 = ProjectileUtil.forwardsRaycast(this, true, this.flightTime >= 25, var0, ClipContext.Block.COLLIDER);
+            HitResult var1 = ProjectileUtil.getHitResult(this, this::canHitEntity, ClipContext.Block.COLLIDER);
             if (var1.getType() != HitResult.Type.MISS) {
                 this.onHit(var1);
             }
@@ -110,6 +108,11 @@ public abstract class AbstractHurtingProjectile extends Projectile {
         } else {
             this.remove();
         }
+    }
+
+    @Override
+    protected boolean canHitEntity(Entity param0) {
+        return super.canHitEntity(param0) && !param0.noPhysics;
     }
 
     protected boolean shouldBurn() {

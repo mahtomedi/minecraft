@@ -3,11 +3,11 @@ package net.minecraft.world.level.levelgen.feature;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.Dynamic;
 import java.util.List;
-import java.util.Random;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
@@ -21,8 +21,8 @@ public class SwamplandHutFeature extends RandomScatteredFeature<NoneFeatureConfi
     private static final List<Biome.SpawnerData> SWAMPHUT_ENEMIES = Lists.newArrayList(new Biome.SpawnerData(EntityType.WITCH, 1, 1, 1));
     private static final List<Biome.SpawnerData> SWAMPHUT_ANIMALS = Lists.newArrayList(new Biome.SpawnerData(EntityType.CAT, 1, 1, 1));
 
-    public SwamplandHutFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0, Function<Random, ? extends NoneFeatureConfiguration> param1) {
-        super(param0, param1);
+    public SwamplandHutFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0) {
+        super(param0);
     }
 
     @Override
@@ -55,9 +55,9 @@ public class SwamplandHutFeature extends RandomScatteredFeature<NoneFeatureConfi
         return SWAMPHUT_ANIMALS;
     }
 
-    public boolean isSwamphut(LevelAccessor param0, BlockPos param1) {
-        StructureStart var0 = this.getStructureAt(param0, param1, true);
-        if (var0 != StructureStart.INVALID_START && var0 instanceof SwamplandHutFeature.FeatureStart && !var0.getPieces().isEmpty()) {
+    public boolean isSwamphut(LevelAccessor param0, StructureFeatureManager param1, BlockPos param2) {
+        StructureStart var0 = this.getStructureAt(param0, param1, param2, true);
+        if (var0.isValid() && var0 instanceof SwamplandHutFeature.FeatureStart) {
             StructurePiece var1 = var0.getPieces().get(0);
             return var1 instanceof SwamplandHutPiece;
         } else {

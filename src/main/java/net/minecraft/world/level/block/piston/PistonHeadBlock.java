@@ -103,13 +103,17 @@ public class PistonHeadBlock extends DirectionalBlock {
         }
     }
 
+    private boolean isFittingBase(BlockState param0, BlockState param1) {
+        Block var0 = param0.getValue(TYPE) == PistonType.DEFAULT ? Blocks.PISTON : Blocks.STICKY_PISTON;
+        return param1.getBlock() == var0 && param1.getValue(PistonBaseBlock.EXTENDED) && param1.getValue(FACING) == param0.getValue(FACING);
+    }
+
     @Override
     public void playerWillDestroy(Level param0, BlockPos param1, BlockState param2, Player param3) {
         if (!param0.isClientSide && param3.abilities.instabuild) {
             BlockPos var0 = param1.relative(param2.getValue(FACING).getOpposite());
-            Block var1 = param0.getBlockState(var0).getBlock();
-            if (var1 == Blocks.PISTON || var1 == Blocks.STICKY_PISTON) {
-                param0.removeBlock(var0, false);
+            if (this.isFittingBase(param2, param0.getBlockState(var0))) {
+                param0.destroyBlock(var0, false);
             }
         }
 
@@ -120,12 +124,9 @@ public class PistonHeadBlock extends DirectionalBlock {
     public void onRemove(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
         if (param0.getBlock() != param3.getBlock()) {
             super.onRemove(param0, param1, param2, param3, param4);
-            Direction var0 = param0.getValue(FACING).getOpposite();
-            param2 = param2.relative(var0);
-            BlockState var1 = param1.getBlockState(param2);
-            if ((var1.getBlock() == Blocks.PISTON || var1.getBlock() == Blocks.STICKY_PISTON) && var1.getValue(PistonBaseBlock.EXTENDED)) {
-                dropResources(var1, param1, param2);
-                param1.removeBlock(param2, false);
+            BlockPos var0 = param2.relative(param0.getValue(FACING).getOpposite());
+            if (this.isFittingBase(param0, param1.getBlockState(var0))) {
+                param1.destroyBlock(var0, true);
             }
 
         }
@@ -140,8 +141,8 @@ public class PistonHeadBlock extends DirectionalBlock {
 
     @Override
     public boolean canSurvive(BlockState param0, LevelReader param1, BlockPos param2) {
-        Block var0 = param1.getBlockState(param2.relative(param0.getValue(FACING).getOpposite())).getBlock();
-        return var0 == Blocks.PISTON || var0 == Blocks.STICKY_PISTON || var0 == Blocks.MOVING_PISTON;
+        BlockState var0 = param1.getBlockState(param2.relative(param0.getValue(FACING).getOpposite()));
+        return this.isFittingBase(param0, var0) || var0.getBlock() == Blocks.MOVING_PISTON && var0.getValue(FACING) == param0.getValue(FACING);
     }
 
     @Override

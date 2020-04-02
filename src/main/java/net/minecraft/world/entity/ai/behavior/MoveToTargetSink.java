@@ -42,7 +42,7 @@ public class MoveToTargetSink extends Behavior<Mob> {
         Brain<?> var0 = param1.getBrain();
         WalkTarget var1 = var0.getMemory(MemoryModuleType.WALK_TARGET).get();
         if (!this.reachedTarget(param1, var1) && this.tryComputePath(param1, var1, param0.getGameTime())) {
-            this.lastTargetPos = var1.getTarget().getPos();
+            this.lastTargetPos = var1.getTarget().currentBlockPosition();
             return true;
         } else {
             var0.eraseMemory(MemoryModuleType.WALK_TARGET);
@@ -85,8 +85,8 @@ public class MoveToTargetSink extends Behavior<Mob> {
 
             if (var0 != null && this.lastTargetPos != null) {
                 WalkTarget var2 = var1.getMemory(MemoryModuleType.WALK_TARGET).get();
-                if (var2.getTarget().getPos().distSqr(this.lastTargetPos) > 4.0 && this.tryComputePath(param1, var2, param0.getGameTime())) {
-                    this.lastTargetPos = var2.getTarget().getPos();
+                if (var2.getTarget().currentBlockPosition().distSqr(this.lastTargetPos) > 4.0 && this.tryComputePath(param1, var2, param0.getGameTime())) {
+                    this.lastTargetPos = var2.getTarget().currentBlockPosition();
                     this.start(param0, param1, param2);
                 }
 
@@ -95,7 +95,7 @@ public class MoveToTargetSink extends Behavior<Mob> {
     }
 
     private boolean tryComputePath(Mob param0, WalkTarget param1, long param2) {
-        BlockPos var0 = param1.getTarget().getPos();
+        BlockPos var0 = param1.getTarget().currentBlockPosition();
         this.path = param0.getNavigation().createPath(var0, 0);
         this.speedModifier = param1.getSpeedModifier();
         Brain<?> var1 = param0.getBrain();
@@ -124,6 +124,6 @@ public class MoveToTargetSink extends Behavior<Mob> {
     }
 
     private boolean reachedTarget(Mob param0, WalkTarget param1) {
-        return param1.getTarget().getPos().distManhattan(param0.blockPosition()) <= param1.getCloseEnoughDist();
+        return param1.getTarget().currentBlockPosition().distManhattan(param0.blockPosition()) <= param1.getCloseEnoughDist();
     }
 }

@@ -1,9 +1,8 @@
 package net.minecraft.world.level.biome;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import java.util.List;
-import java.util.Map;
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 public class MultiNoiseBiomeSourceSettings implements BiomeSourceSettings {
@@ -12,18 +11,18 @@ public class MultiNoiseBiomeSourceSettings implements BiomeSourceSettings {
     private ImmutableList<Integer> humidityOctaves = IntStream.rangeClosed(-8, -1).boxed().collect(ImmutableList.toImmutableList());
     private ImmutableList<Integer> altitudeOctaves = IntStream.rangeClosed(-9, -1).boxed().collect(ImmutableList.toImmutableList());
     private ImmutableList<Integer> weirdnessOctaves = IntStream.rangeClosed(-8, -1).boxed().collect(ImmutableList.toImmutableList());
-    private Map<Biome, List<Biome.ClimateParameters>> biomes = ImmutableMap.of();
+    private Set<Biome> biomes = ImmutableSet.of();
 
     public MultiNoiseBiomeSourceSettings(long param0) {
         this.seed = param0;
     }
 
-    public MultiNoiseBiomeSourceSettings setBiomes(Map<Biome, List<Biome.ClimateParameters>> param0) {
+    public MultiNoiseBiomeSourceSettings setBiomes(Set<Biome> param0) {
         this.biomes = param0;
         return this;
     }
 
-    public Map<Biome, List<Biome.ClimateParameters>> getBiomes() {
+    public Set<Biome> getBiomes() {
         return this.biomes;
     }
 

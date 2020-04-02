@@ -96,7 +96,7 @@ public class BlockPredicate {
             }
 
             if (this.tag != null) {
-                var0.addProperty("tag", this.tag.getId().toString());
+                var0.addProperty("tag", BlockTags.getAllTags().getIdOrThrow(this.tag).toString());
             }
 
             var0.add("nbt", this.nbt.serializeToJson());

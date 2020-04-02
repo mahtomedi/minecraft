@@ -18,7 +18,7 @@ public class DefaultClientResourcePack extends VanillaPack {
     private final AssetIndex assetIndex;
 
     public DefaultClientResourcePack(AssetIndex param0) {
-        super("minecraft", "realms", "nothingtoseeheremovealong");
+        super("minecraft", "realms");
         this.assetIndex = param0;
     }
 

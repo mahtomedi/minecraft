@@ -67,7 +67,7 @@ public class TargetBlock extends Block {
             var5 = Math.max(var2, var3);
         }
 
-        return Mth.ceil(15.0 * Mth.clamp((0.5 - var5) / 0.5, 0.0, 1.0));
+        return Math.max(1, Mth.ceil(15.0 * Mth.clamp((0.5 - var5) / 0.5, 0.0, 1.0)));
     }
 
     private static void setOutputPower(LevelAccessor param0, BlockState param1, int param2, BlockPos param3, int param4) {

@@ -10,6 +10,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.animal.Sheep;
@@ -195,15 +196,10 @@ public interface DispenseItemBehavior {
             @Override
             public ItemStack execute(BlockSource param0, ItemStack param1) {
                 Direction var0 = param0.getBlockState().getValue(DispenserBlock.FACING);
-                double var1 = (double)var0.getStepX();
-                double var2 = (double)var0.getStepY();
-                double var3 = (double)var0.getStepZ();
-                double var4 = param0.x() + var1;
-                double var5 = (double)((float)param0.getPos().getY() + 0.2F);
-                double var6 = param0.z() + var3;
-                FireworkRocketEntity var7 = new FireworkRocketEntity(param0.getLevel(), param1, var4, var5, var6, true);
-                var7.shoot(var1, var2, var3, 0.5F, 1.0F);
-                param0.getLevel().addFreshEntity(var7);
+                FireworkRocketEntity var1 = new FireworkRocketEntity(param0.getLevel(), param1, param0.x(), param0.y(), param0.x(), true);
+                DispenseItemBehavior.setEntityPokingOutOfBlock(param0, var1, var0);
+                var1.shoot((double)var0.getStepX(), (double)var0.getStepY(), (double)var0.getStepZ(), 0.5F, 1.0F);
+                param0.getLevel().addFreshEntity(var1);
                 param1.shrink(1);
                 return param1;
             }
@@ -517,5 +513,13 @@ public interface DispenseItemBehavior {
                 return param1;
             }
         });
+    }
+
+    static void setEntityPokingOutOfBlock(BlockSource param0, Entity param1, Direction param2) {
+        param1.setPos(
+            param0.x() + (double)param2.getStepX() * (0.5000099999997474 - (double)param1.getBbWidth() / 2.0),
+            param0.y() + (double)param2.getStepY() * (0.5000099999997474 - (double)param1.getBbHeight() / 2.0) - (double)param1.getBbHeight() / 2.0,
+            param0.z() + (double)param2.getStepZ() * (0.5000099999997474 - (double)param1.getBbWidth() / 2.0)
+        );
     }
 }

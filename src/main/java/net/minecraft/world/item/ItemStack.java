@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
@@ -19,6 +20,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.commands.arguments.blocks.BlockPredicateArgument;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
@@ -46,9 +48,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobType;
+import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.decoration.ItemFrame;
-import net.minecraft.world.entity.monster.SharedMonsterAttributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.enchantment.DigDurabilityEnchantment;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -67,7 +70,9 @@ import org.apache.logging.log4j.Logger;
 public final class ItemStack {
     private static final Logger LOGGER = LogManager.getLogger();
     public static final ItemStack EMPTY = new ItemStack((Item)null);
-    public static final DecimalFormat ATTRIBUTE_MODIFIER_FORMAT = getAttributeDecimalFormat();
+    public static final DecimalFormat ATTRIBUTE_MODIFIER_FORMAT = Util.make(
+        new DecimalFormat("#.##"), param0 -> param0.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ROOT))
+    );
     private int count;
     private int popTime;
     @Deprecated
@@ -79,12 +84,6 @@ public final class ItemStack {
     private boolean cachedBreakBlockResult;
     private BlockInWorld cachedPlaceBlock;
     private boolean cachedPlaceBlockResult;
-
-    private static DecimalFormat getAttributeDecimalFormat() {
-        DecimalFormat var0 = new DecimalFormat("#.##");
-        var0.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ROOT));
-        return var0;
-    }
 
     public ItemStack(ItemLike param0) {
         this(param0, 1);
@@ -562,7 +561,7 @@ public final class ItemStack {
                             if (var7 != null) {
                                 var0.add(ComponentUtils.mergeStyles(var7, new Style().setColor(ChatFormatting.DARK_PURPLE).setItalic(true)));
                             }
-                        } catch (JsonParseException var191) {
+                        } catch (JsonParseException var19) {
                             var3.remove("Lore");
                         }
                     }
@@ -571,36 +570,35 @@ public final class ItemStack {
         }
 
         for(EquipmentSlot var9 : EquipmentSlot.values()) {
-            Multimap<String, AttributeModifier> var10 = this.getAttributeModifiers(var9);
+            Multimap<Attribute, AttributeModifier> var10 = this.getAttributeModifiers(var9);
             if (!var10.isEmpty() && (var2 & 2) == 0) {
                 var0.add(new TextComponent(""));
                 var0.add(new TranslatableComponent("item.modifiers." + var9.getName()).withStyle(ChatFormatting.GRAY));
 
-                for(Entry<String, AttributeModifier> var11 : var10.entries()) {
+                for(Entry<Attribute, AttributeModifier> var11 : var10.entries()) {
                     AttributeModifier var12 = var11.getValue();
                     double var13 = var12.getAmount();
                     boolean var14 = false;
                     if (param0 != null) {
                         if (var12.getId() == Item.BASE_ATTACK_DAMAGE_UUID) {
-                            var13 += param0.getAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getBaseValue();
+                            var13 += param0.getAttributeBaseValue(Attributes.ATTACK_DAMAGE);
                             var13 += (double)EnchantmentHelper.getDamageBonus(this, MobType.UNDEFINED);
                             var14 = true;
                         } else if (var12.getId() == Item.BASE_ATTACK_SPEED_UUID) {
-                            var13 += param0.getAttribute(SharedMonsterAttributes.ATTACK_SPEED).getBaseValue();
+                            var13 += param0.getAttributeBaseValue(Attributes.ATTACK_SPEED);
                             var14 = true;
-                        } else if (var11.getKey().equals(SharedMonsterAttributes.KNOCKBACK_RESISTANCE.getName())) {
-                            var13 += param0.getAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).getBaseValue();
-                            var13 *= 10.0;
                         }
                     }
 
-                    double var16;
-                    if (var12.getOperation() != AttributeModifier.Operation.MULTIPLY_BASE && var12.getOperation() != AttributeModifier.Operation.MULTIPLY_TOTAL
+                    double var15;
+                    if (var12.getOperation() == AttributeModifier.Operation.MULTIPLY_BASE || var12.getOperation() == AttributeModifier.Operation.MULTIPLY_TOTAL
                         )
                      {
-                        var16 = var13;
+                        var15 = var13 * 100.0;
+                    } else if (var11.getKey().equals(Attributes.KNOCKBACK_RESISTANCE)) {
+                        var15 = var13 * 10.0;
                     } else {
-                        var16 = var13 * 100.0;
+                        var15 = var13;
                     }
 
                     if (var14) {
@@ -609,8 +607,8 @@ public final class ItemStack {
                                 .append(
                                     new TranslatableComponent(
                                         "attribute.modifier.equals." + var12.getOperation().toValue(),
-                                        ATTRIBUTE_MODIFIER_FORMAT.format(var16),
-                                        new TranslatableComponent("attribute.name." + (String)var11.getKey())
+                                        ATTRIBUTE_MODIFIER_FORMAT.format(var15),
+                                        new TranslatableComponent(var11.getKey().getDescriptionId())
                                     )
                                 )
                                 .withStyle(ChatFormatting.DARK_GREEN)
@@ -619,18 +617,18 @@ public final class ItemStack {
                         var0.add(
                             new TranslatableComponent(
                                     "attribute.modifier.plus." + var12.getOperation().toValue(),
-                                    ATTRIBUTE_MODIFIER_FORMAT.format(var16),
-                                    new TranslatableComponent("attribute.name." + (String)var11.getKey())
+                                    ATTRIBUTE_MODIFIER_FORMAT.format(var15),
+                                    new TranslatableComponent(var11.getKey().getDescriptionId())
                                 )
                                 .withStyle(ChatFormatting.BLUE)
                         );
                     } else if (var13 < 0.0) {
-                        var16 *= -1.0;
+                        var15 *= -1.0;
                         var0.add(
                             new TranslatableComponent(
                                     "attribute.modifier.take." + var12.getOperation().toValue(),
-                                    ATTRIBUTE_MODIFIER_FORMAT.format(var16),
-                                    new TranslatableComponent("attribute.name." + (String)var11.getKey())
+                                    ATTRIBUTE_MODIFIER_FORMAT.format(var15),
+                                    new TranslatableComponent(var11.getKey().getDescriptionId())
                                 )
                                 .withStyle(ChatFormatting.RED)
                         );
@@ -644,25 +642,25 @@ public final class ItemStack {
         }
 
         if (this.hasTag() && this.tag.contains("CanDestroy", 9) && (var2 & 8) == 0) {
-            ListTag var17 = this.tag.getList("CanDestroy", 8);
-            if (!var17.isEmpty()) {
+            ListTag var18 = this.tag.getList("CanDestroy", 8);
+            if (!var18.isEmpty()) {
                 var0.add(new TextComponent(""));
                 var0.add(new TranslatableComponent("item.canBreak").withStyle(ChatFormatting.GRAY));
 
-                for(int var18 = 0; var18 < var17.size(); ++var18) {
-                    var0.addAll(expandBlockState(var17.getString(var18)));
+                for(int var19 = 0; var19 < var18.size(); ++var19) {
+                    var0.addAll(expandBlockState(var18.getString(var19)));
                 }
             }
         }
 
         if (this.hasTag() && this.tag.contains("CanPlaceOn", 9) && (var2 & 16) == 0) {
-            ListTag var19 = this.tag.getList("CanPlaceOn", 8);
-            if (!var19.isEmpty()) {
+            ListTag var20 = this.tag.getList("CanPlaceOn", 8);
+            if (!var20.isEmpty()) {
                 var0.add(new TextComponent(""));
                 var0.add(new TranslatableComponent("item.canPlace").withStyle(ChatFormatting.GRAY));
 
-                for(int var20 = 0; var20 < var19.size(); ++var20) {
-                    var0.addAll(expandBlockState(var19.getString(var20)));
+                for(int var21 = 0; var21 < var20.size(); ++var21) {
+                    var0.addAll(expandBlockState(var20.getString(var21)));
                 }
             }
         }
@@ -781,39 +779,40 @@ public final class ItemStack {
         this.getOrCreateTag().putInt("RepairCost", param0);
     }
 
-    public Multimap<String, AttributeModifier> getAttributeModifiers(EquipmentSlot param0) {
-        Multimap<String, AttributeModifier> var0;
+    public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot param0) {
+        Multimap<Attribute, AttributeModifier> var0;
         if (this.hasTag() && this.tag.contains("AttributeModifiers", 9)) {
             var0 = HashMultimap.create();
             ListTag var1 = this.tag.getList("AttributeModifiers", 10);
 
             for(int var2 = 0; var2 < var1.size(); ++var2) {
                 CompoundTag var3 = var1.getCompound(var2);
-                AttributeModifier var4 = SharedMonsterAttributes.loadAttributeModifier(var3);
-                if (var4 != null
-                    && (!var3.contains("Slot", 8) || var3.getString("Slot").equals(param0.getName()))
-                    && var4.getId().getLeastSignificantBits() != 0L
-                    && var4.getId().getMostSignificantBits() != 0L) {
-                    var0.put(var3.getString("AttributeName"), var4);
+                if (!var3.contains("Slot", 8) || var3.getString("Slot").equals(param0.getName())) {
+                    Optional<Attribute> var4 = Registry.ATTRIBUTES.getOptional(ResourceLocation.tryParse(var3.getString("AttributeName")));
+                    if (var4.isPresent()) {
+                        AttributeModifier var5 = AttributeModifier.load(var3);
+                        if (var5 != null && var5.getId().getLeastSignificantBits() != 0L && var5.getId().getMostSignificantBits() != 0L) {
+                            var0.put(var4.get(), var5);
+                        }
+                    }
                 }
             }
         } else {
             var0 = this.getItem().getDefaultAttributeModifiers(param0);
         }
 
-        var0.values().forEach(param0x -> param0x.setSerialize(false));
         return var0;
     }
 
-    public void addAttributeModifier(String param0, AttributeModifier param1, @Nullable EquipmentSlot param2) {
+    public void addAttributeModifier(Attribute param0, AttributeModifier param1, @Nullable EquipmentSlot param2) {
         this.getOrCreateTag();
         if (!this.tag.contains("AttributeModifiers", 9)) {
             this.tag.put("AttributeModifiers", new ListTag());
         }
 
         ListTag var0 = this.tag.getList("AttributeModifiers", 10);
-        CompoundTag var1 = SharedMonsterAttributes.saveAttributeModifier(param1);
-        var1.putString("AttributeName", param0);
+        CompoundTag var1 = param1.save();
+        var1.putString("AttributeName", Registry.ATTRIBUTES.getKey(param0).toString());
         if (param2 != null) {
             var1.putString("Slot", param2.getName());
         }

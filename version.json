@@ -1,10 +1,10 @@
 {
-    "id": "20w14infinite",
-    "name": "20w14~",
+    "id": "20w14a",
+    "name": "20w14a",
     "release_target": "1.16",
-    "world_version": 2522,
-    "protocol_version": 709,
+    "world_version": 2524,
+    "protocol_version": 710,
     "pack_version": 5,
-    "build_time": "2020-04-01T12:45:14+00:00",
+    "build_time": "2020-04-02T14:26:18+00:00",
     "stable": false
 }

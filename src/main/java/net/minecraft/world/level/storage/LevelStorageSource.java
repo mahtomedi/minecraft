@@ -28,8 +28,10 @@ import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.DirectoryLock;
 import net.minecraft.util.ProgressListener;
 import net.minecraft.util.datafix.DataFixTypes;
+import net.minecraft.util.datafix.DataFixers;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.StringUtils;
@@ -68,6 +70,10 @@ public class LevelStorageSource {
         this.backupDir = param1;
     }
 
+    public static LevelStorageSource createDefault(Path param0) {
+        return new LevelStorageSource(param0, param0.resolve("../backups"), DataFixers.getDataFixer());
+    }
+
     @OnlyIn(Dist.CLIENT)
     public List<LevelSummary> getLevelList() throws LevelStorageException {
         if (!Files.isDirectory(this.baseDir)) {
@@ -79,16 +85,26 @@ public class LevelStorageSource {
             for(File var2 : var1) {
                 if (var2.isDirectory()) {
                     String var3 = var2.getName();
-                    LevelData var4 = this.getDataTagFor(var3);
-                    if (var4 != null && (var4.getVersion() == 19132 || var4.getVersion() == 19133)) {
-                        boolean var5 = var4.getVersion() != this.getStorageVersion();
-                        String var6 = var4.getLevelName();
-                        if (StringUtils.isEmpty(var6)) {
-                            var6 = var3;
+
+                    boolean var4;
+                    try {
+                        var4 = DirectoryLock.isLocked(var2.toPath());
+                    } catch (Exception var15) {
+                        LOGGER.warn("Failed to read {} lock", var2, var15);
+                        continue;
+                    }
+
+                    LevelData var7 = this.getLevelData(var2);
+                    if (var7 != null && (var7.getVersion() == 19132 || var7.getVersion() == 19133)) {
+                        boolean var8 = var7.getVersion() != this.getStorageVersion();
+                        String var9 = var7.getLevelName();
+                        if (StringUtils.isEmpty(var9)) {
+                            var9 = var3;
                         }
 
-                        long var7 = 0L;
-                        var0.add(new LevelSummary(var4, var3, var6, 0L, var5));
+                        long var10 = 0L;
+                        File var11 = new File(var2, "icon.png");
+                        var0.add(new LevelSummary(var7, var3, var9, 0L, var8, var4, var11));
                     }
                 }
             }
@@ -101,44 +117,21 @@ public class LevelStorageSource {
         return 19133;
     }
 
-    public LevelStorage selectLevel(String param0, @Nullable MinecraftServer param1) {
-        return selectLevel(this.baseDir, this.fixerUpper, param0, param1);
-    }
-
-    protected static LevelStorage selectLevel(Path param0, DataFixer param1, String param2, @Nullable MinecraftServer param3) {
-        return new LevelStorage(param0.toFile(), param2, param3, param1);
-    }
-
-    public boolean requiresConversion(String param0) {
-        LevelData var0 = this.getDataTagFor(param0);
-        return var0 != null && var0.getVersion() != this.getStorageVersion();
-    }
-
-    public boolean convertLevel(String param0, ProgressListener param1) {
-        return McRegionUpgrader.convertLevel(this.baseDir, this.fixerUpper, param0, param1);
-    }
-
     @Nullable
-    public LevelData getDataTagFor(String param0) {
-        return getDataTagFor(this.baseDir, this.fixerUpper, param0);
-    }
-
-    @Nullable
-    protected static LevelData getDataTagFor(Path param0, DataFixer param1, String param2) {
-        File var0 = new File(param0.toFile(), param2);
-        if (!var0.exists()) {
+    private LevelData getLevelData(File param0) {
+        if (!param0.exists()) {
             return null;
         } else {
-            File var1 = new File(var0, "special_level.dat");
-            if (var1.exists()) {
-                LevelData var2 = getLevelData(var1, param1);
-                if (var2 != null) {
-                    return var2;
+            File var0 = new File(param0, "level.dat");
+            if (var0.exists()) {
+                LevelData var1 = getLevelData(var0, this.fixerUpper);
+                if (var1 != null) {
+                    return var1;
                 }
             }
 
-            var1 = new File(var0, "special_level.dat_old");
-            return var1.exists() ? getLevelData(var1, param1) : null;
+            var0 = new File(param0, "level.dat_old");
+            return var0.exists() ? getLevelData(var0, this.fixerUpper) : null;
         }
     }
 
@@ -158,25 +151,6 @@ public class LevelStorageSource {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void renameLevel(String param0, String param1) {
-        File var0 = new File(this.baseDir.toFile(), param0);
-        if (var0.exists()) {
-            File var1 = new File(var0, "special_level.dat");
-            if (var1.exists()) {
-                try {
-                    CompoundTag var2 = NbtIo.readCompressed(new FileInputStream(var1));
-                    CompoundTag var3 = var2.getCompound("Data");
-                    var3.putString("LevelName", param1);
-                    NbtIo.writeCompressed(var2, new FileOutputStream(var1));
-                } catch (Exception var7) {
-                    var7.printStackTrace();
-                }
-            }
-
-        }
-    }
-
-    @OnlyIn(Dist.CLIENT)
     public boolean isNewLevelIdAcceptable(String param0) {
         try {
             Path var0 = this.baseDir.resolve(param0);
@@ -189,51 +163,6 @@ public class LevelStorageSource {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public boolean deleteLevel(String param0) {
-        File var0 = new File(this.baseDir.toFile(), param0);
-        if (!var0.exists()) {
-            return true;
-        } else {
-            LOGGER.info("Deleting level {}", param0);
-
-            for(int var1 = 1; var1 <= 5; ++var1) {
-                LOGGER.info("Attempt {}...", var1);
-                if (deleteRecursive(var0.listFiles())) {
-                    break;
-                }
-
-                LOGGER.warn("Unsuccessful in deleting contents.");
-                if (var1 < 5) {
-                    try {
-                        Thread.sleep(500L);
-                    } catch (InterruptedException var5) {
-                    }
-                }
-            }
-
-            return var0.delete();
-        }
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    private static boolean deleteRecursive(File[] param0) {
-        for(File var0 : param0) {
-            LOGGER.debug("Deleting {}", var0);
-            if (var0.isDirectory() && !deleteRecursive(var0.listFiles())) {
-                LOGGER.warn("Couldn't delete directory {}", var0);
-                return false;
-            }
-
-            if (!var0.delete()) {
-                LOGGER.warn("Couldn't delete file {}", var0);
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    @OnlyIn(Dist.CLIENT)
     public boolean levelExists(String param0) {
         return Files.isDirectory(this.baseDir.resolve(param0));
     }
@@ -243,48 +172,171 @@ public class LevelStorageSource {
         return this.baseDir;
     }
 
-    public File getFile(String param0, String param1) {
-        return this.baseDir.resolve(param0).resolve(param1).toFile();
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    private Path getLevelPath(String param0) {
-        return this.baseDir.resolve(param0);
-    }
-
     @OnlyIn(Dist.CLIENT)
     public Path getBackupPath() {
         return this.backupDir;
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public long makeWorldBackup(String param0) throws IOException {
-        final Path var0 = this.getLevelPath(param0);
-        String var1 = LocalDateTime.now().format(FORMATTER) + "_" + param0;
-        Path var2 = this.getBackupPath();
+    public LevelStorageSource.LevelStorageAccess createAccess(String param0) throws IOException {
+        return new LevelStorageSource.LevelStorageAccess(param0);
+    }
 
-        try {
-            Files.createDirectories(Files.exists(var2) ? var2.toRealPath() : var2);
-        } catch (IOException var18) {
-            throw new RuntimeException(var18);
+    public class LevelStorageAccess implements AutoCloseable {
+        private final DirectoryLock lock;
+        private final Path levelPath;
+        private final String levelId;
+
+        public LevelStorageAccess(String param1) throws IOException {
+            this.levelId = param1;
+            this.levelPath = LevelStorageSource.this.baseDir.resolve(param1);
+            this.lock = DirectoryLock.create(this.levelPath);
         }
 
-        Path var4 = var2.resolve(FileUtil.findAvailableName(var2, var1, ".zip"));
+        public String getLevelId() {
+            return this.levelId;
+        }
 
-        try (final ZipOutputStream var5 = new ZipOutputStream(new BufferedOutputStream(Files.newOutputStream(var4)))) {
-            final Path var6 = Paths.get(param0);
-            Files.walkFileTree(var0, new SimpleFileVisitor<Path>() {
-                public FileVisitResult visitFile(Path param0, BasicFileAttributes param1) throws IOException {
-                    String var0 = var6.resolve(var0.relativize(param0)).toString().replace('\\', '/');
-                    ZipEntry var1 = new ZipEntry(var0);
-                    var5.putNextEntry(var1);
-                    com.google.common.io.Files.asByteSource(param0.toFile()).copyTo(var5);
-                    var5.closeEntry();
-                    return FileVisitResult.CONTINUE;
+        public Path getLevelPath() {
+            return this.levelPath;
+        }
+
+        private void checkLock() {
+            if (!this.lock.isValid()) {
+                throw new IllegalStateException("Lock is no longer valid");
+            }
+        }
+
+        public LevelStorage selectLevel(@Nullable MinecraftServer param0) {
+            this.checkLock();
+            return new LevelStorage(LevelStorageSource.this.baseDir.toFile(), this.levelId, param0, LevelStorageSource.this.fixerUpper);
+        }
+
+        public boolean requiresConversion() {
+            LevelData var0 = this.getDataTag();
+            return var0 != null && var0.getVersion() != LevelStorageSource.this.getStorageVersion();
+        }
+
+        public boolean convertLevel(ProgressListener param0) {
+            this.checkLock();
+            return McRegionUpgrader.convertLevel(this, param0);
+        }
+
+        @Nullable
+        public LevelData getDataTag() {
+            this.checkLock();
+            return LevelStorageSource.this.getLevelData(this.levelPath.toFile());
+        }
+
+        public File getIconFile() {
+            this.checkLock();
+            return this.levelPath.resolve("icon.png").toFile();
+        }
+
+        @OnlyIn(Dist.CLIENT)
+        public void deleteLevel() throws IOException {
+            this.checkLock();
+            final Path var0 = this.levelPath.resolve("session.lock");
+
+            for(int var1 = 1; var1 <= 5; ++var1) {
+                LevelStorageSource.LOGGER.info("Attempt {}...", var1);
+
+                try {
+                    Files.walkFileTree(this.levelPath, new SimpleFileVisitor<Path>() {
+                        public FileVisitResult visitFile(Path param0, BasicFileAttributes param1) throws IOException {
+                            if (!param0.equals(var0)) {
+                                LevelStorageSource.LOGGER.debug("Deleting {}", param0);
+                                Files.delete(param0);
+                            }
+
+                            return FileVisitResult.CONTINUE;
+                        }
+
+                        public FileVisitResult postVisitDirectory(Path param0, IOException param1) throws IOException {
+                            if (param1 != null) {
+                                throw param1;
+                            } else {
+                                if (param0.equals(LevelStorageAccess.this.levelPath)) {
+                                    LevelStorageAccess.this.lock.close();
+                                    Files.deleteIfExists(var0);
+                                }
+
+                                Files.delete(param0);
+                                return FileVisitResult.CONTINUE;
+                            }
+                        }
+                    });
+                    break;
+                } catch (IOException var6) {
+                    if (var1 >= 5) {
+                        throw var6;
+                    }
+
+                    LevelStorageSource.LOGGER.warn("Failed to delete {}", this.levelPath, var6);
+
+                    try {
+                        Thread.sleep(500L);
+                    } catch (InterruptedException var5) {
+                    }
                 }
-            });
+            }
+
         }
 
-        return Files.size(var4);
+        @OnlyIn(Dist.CLIENT)
+        public void renameLevel(String param0) throws IOException {
+            this.checkLock();
+            File var0 = new File(LevelStorageSource.this.baseDir.toFile(), this.levelId);
+            if (var0.exists()) {
+                File var1 = new File(var0, "level.dat");
+                if (var1.exists()) {
+                    CompoundTag var2 = NbtIo.readCompressed(new FileInputStream(var1));
+                    CompoundTag var3 = var2.getCompound("Data");
+                    var3.putString("LevelName", param0);
+                    NbtIo.writeCompressed(var2, new FileOutputStream(var1));
+                }
+
+            }
+        }
+
+        @OnlyIn(Dist.CLIENT)
+        public long makeWorldBackup() throws IOException {
+            this.checkLock();
+            final Path var0 = this.getLevelPath();
+            String var1 = LocalDateTime.now().format(LevelStorageSource.FORMATTER) + "_" + this.levelId;
+            Path var2 = LevelStorageSource.this.getBackupPath();
+
+            try {
+                Files.createDirectories(Files.exists(var2) ? var2.toRealPath() : var2);
+            } catch (IOException var17) {
+                throw new RuntimeException(var17);
+            }
+
+            Path var4 = var2.resolve(FileUtil.findAvailableName(var2, var1, ".zip"));
+
+            try (final ZipOutputStream var5 = new ZipOutputStream(new BufferedOutputStream(Files.newOutputStream(var4)))) {
+                final Path var6 = Paths.get(this.levelId);
+                Files.walkFileTree(var0, new SimpleFileVisitor<Path>() {
+                    public FileVisitResult visitFile(Path param0, BasicFileAttributes param1) throws IOException {
+                        if (param0.endsWith("session.lock")) {
+                            return FileVisitResult.CONTINUE;
+                        } else {
+                            String var0 = var6.resolve(var0.relativize(param0)).toString().replace('\\', '/');
+                            ZipEntry var1 = new ZipEntry(var0);
+                            var5.putNextEntry(var1);
+                            com.google.common.io.Files.asByteSource(param0.toFile()).copyTo(var5);
+                            var5.closeEntry();
+                            return FileVisitResult.CONTINUE;
+                        }
+                    }
+                });
+            }
+
+            return Files.size(var4);
+        }
+
+        @Override
+        public void close() throws IOException {
+            this.lock.close();
+        }
     }
 }

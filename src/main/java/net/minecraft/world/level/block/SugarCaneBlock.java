@@ -71,11 +71,6 @@ public class SugarCaneBlock extends Block {
     }
 
     @Override
-    public boolean isUnstable() {
-        return true;
-    }
-
-    @Override
     public boolean canSurvive(BlockState param0, LevelReader param1, BlockPos param2) {
         Block var0 = param1.getBlockState(param2.below()).getBlock();
         if (var0 == this) {

@@ -96,7 +96,6 @@ public class LootItemFunctions {
         register(new FillPlayerHead.Serializer());
         register(new CopyNbtFunction.Serializer());
         register(new CopyBlockState.Serializer());
-        register(new AddBookContents.Serializer());
     }
 
     public static class Serializer implements JsonDeserializer<LootItemFunction>, JsonSerializer<LootItemFunction> {

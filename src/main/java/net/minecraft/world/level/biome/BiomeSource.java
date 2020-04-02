@@ -3,13 +3,10 @@ package net.minecraft.world.level.biome;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
@@ -118,13 +115,5 @@ public abstract class BiomeSource implements BiomeManager.NoiseBiomeSource {
         }
 
         return this.surfaceBlocks;
-    }
-
-    public abstract BiomeSourceType<?, ?> getType();
-
-    public abstract <T> Dynamic<T> serialize(DynamicOps<T> var1);
-
-    public Stream<Biome> getKnownBiomes() {
-        return this.possibleBiomes.stream();
     }
 }

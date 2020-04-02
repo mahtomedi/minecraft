@@ -1,6 +1,8 @@
 package net.minecraft.world.item;
 
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.ImmutableMultimap.Builder;
 import java.util.List;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -13,8 +15,9 @@ import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.monster.SharedMonsterAttributes;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DispenserBlock;
@@ -34,10 +37,11 @@ public class ArmorItem extends Item {
         }
     };
     protected final EquipmentSlot slot;
-    protected final int defense;
-    protected final float toughness;
+    private final int defense;
+    private final float toughness;
     protected final float knockbackResistance;
     protected final ArmorMaterial material;
+    private final Multimap<Attribute, AttributeModifier> defaultModifiers;
 
     public static boolean dispenseArmor(BlockSource param0, ItemStack param1) {
         BlockPos var0 = param0.getPos().relative(param0.getBlockState().getValue(DispenserBlock.FACING));
@@ -67,6 +71,18 @@ public class ArmorItem extends Item {
         this.toughness = param0.getToughness();
         this.knockbackResistance = param0.getKnockbackResistance();
         DispenserBlock.registerBehavior(this, DISPENSE_ITEM_BEHAVIOR);
+        Builder<Attribute, AttributeModifier> var0 = ImmutableMultimap.builder();
+        UUID var1 = ARMOR_MODIFIER_UUID_PER_SLOT[param1.getIndex()];
+        var0.put(Attributes.ARMOR, new AttributeModifier(var1, "Armor modifier", (double)this.defense, AttributeModifier.Operation.ADDITION));
+        var0.put(Attributes.ARMOR_TOUGHNESS, new AttributeModifier(var1, "Armor toughness", (double)this.toughness, AttributeModifier.Operation.ADDITION));
+        if (param0 == ArmorMaterials.NETHERITE) {
+            var0.put(
+                Attributes.KNOCKBACK_RESISTANCE,
+                new AttributeModifier(var1, "Armor knockback resistance", (double)this.knockbackResistance, AttributeModifier.Operation.ADDITION)
+            );
+        }
+
+        this.defaultModifiers = var0.build();
     }
 
     public EquipmentSlot getSlot() {
@@ -102,35 +118,8 @@ public class ArmorItem extends Item {
     }
 
     @Override
-    public Multimap<String, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot param0) {
-        Multimap<String, AttributeModifier> var0 = super.getDefaultAttributeModifiers(param0);
-        if (param0 == this.slot) {
-            var0.put(
-                SharedMonsterAttributes.ARMOR.getName(),
-                new AttributeModifier(
-                    ARMOR_MODIFIER_UUID_PER_SLOT[param0.getIndex()], "Armor modifier", (double)this.defense, AttributeModifier.Operation.ADDITION
-                )
-            );
-            var0.put(
-                SharedMonsterAttributes.ARMOR_TOUGHNESS.getName(),
-                new AttributeModifier(
-                    ARMOR_MODIFIER_UUID_PER_SLOT[param0.getIndex()], "Armor toughness", (double)this.toughness, AttributeModifier.Operation.ADDITION
-                )
-            );
-            if (this.material == ArmorMaterials.NETHERITE) {
-                var0.put(
-                    SharedMonsterAttributes.KNOCKBACK_RESISTANCE.getName(),
-                    new AttributeModifier(
-                        ARMOR_MODIFIER_UUID_PER_SLOT[param0.getIndex()],
-                        "Armor knockback resistance",
-                        (double)this.knockbackResistance,
-                        AttributeModifier.Operation.ADDITION
-                    )
-                );
-            }
-        }
-
-        return var0;
+    public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot param0) {
+        return param0 == this.slot ? this.defaultModifiers : super.getDefaultAttributeModifiers(param0);
     }
 
     public int getDefense() {

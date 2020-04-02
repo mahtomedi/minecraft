@@ -3,8 +3,6 @@ package net.minecraft.world.level.levelgen.feature.configurations;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
-import java.util.Random;
-import net.minecraft.core.Registry;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -36,9 +34,5 @@ public class ReplaceBlockConfiguration implements FeatureConfiguration {
         BlockState var0 = param0.get("target").map(BlockState::deserialize).orElse(Blocks.AIR.defaultBlockState());
         BlockState var1 = param0.get("state").map(BlockState::deserialize).orElse(Blocks.AIR.defaultBlockState());
         return new ReplaceBlockConfiguration(var0, var1);
-    }
-
-    public static ReplaceBlockConfiguration random(Random param0) {
-        return new ReplaceBlockConfiguration(Registry.BLOCK.getRandom(param0).defaultBlockState(), Registry.BLOCK.getRandom(param0).defaultBlockState());
     }
 }

@@ -1,19 +1,13 @@
 package net.minecraft.world.entity.projectile;
 
-import java.util.function.Predicate;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
-import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -21,13 +15,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class ThrowableProjectile extends Projectile {
-    private int xBlock = -1;
-    private int yBlock = -1;
-    private int zBlock = -1;
-    protected boolean inGround;
-    private int shakeTime;
-    private boolean leftOwner;
-
     protected ThrowableProjectile(EntityType<? extends ThrowableProjectile> param0, Level param1) {
         super(param0, param1);
     }
@@ -57,125 +44,43 @@ public abstract class ThrowableProjectile extends Projectile {
     @Override
     public void tick() {
         super.tick();
-        if (this.shakeTime > 0) {
-            --this.shakeTime;
-        }
-
-        if (this.inGround) {
-            this.inGround = false;
-            this.setDeltaMovement(
-                this.getDeltaMovement()
-                    .multiply((double)(this.random.nextFloat() * 0.2F), (double)(this.random.nextFloat() * 0.2F), (double)(this.random.nextFloat() * 0.2F))
-            );
-        }
-
-        AABB var0 = this.getBoundingBox().expandTowards(this.getDeltaMovement()).inflate(1.0);
-        Entity var1 = this.getOwner();
-        if (var1 == null) {
-            this.leftOwner = true;
-        } else if (!this.leftOwner) {
-            boolean var2 = false;
-
-            for(Entity var3 : this.level.getEntities(this, var0, param0 -> !param0.isSpectator() && param0.isPickable())) {
-                if (this.isEntityOrVehicle(var3, var1)) {
-                    var2 = true;
-                    break;
-                }
-            }
-
-            if (!var2) {
-                this.leftOwner = true;
-            }
-        }
-
-        Predicate<Entity> var4 = param1 -> !param1.isSpectator() && param1.isPickable() && (this.leftOwner || !this.isEntityOrVehicle(param1, var1));
-        HitResult var5 = ProjectileUtil.getHitResult(this, var0, var4, ClipContext.Block.OUTLINE, true);
-        if (var5.getType() != HitResult.Type.MISS) {
-            if (var5.getType() == HitResult.Type.BLOCK) {
-                Block var6 = this.level.getBlockState(((BlockHitResult)var5).getBlockPos()).getBlock();
-                if (var6 != Blocks.NETHER_PORTAL && var6 != Blocks.NEITHER_PORTAL) {
-                    this.onHit(var5);
-                } else {
-                    this.handleInsidePortal(((BlockHitResult)var5).getBlockPos(), var6);
-                }
+        HitResult var0 = ProjectileUtil.getHitResult(this, this::canHitEntity, ClipContext.Block.OUTLINE);
+        if (var0.getType() != HitResult.Type.MISS) {
+            if (var0.getType() == HitResult.Type.BLOCK && this.level.getBlockState(((BlockHitResult)var0).getBlockPos()).getBlock() == Blocks.NETHER_PORTAL) {
+                this.handleInsidePortal(((BlockHitResult)var0).getBlockPos());
             } else {
-                this.onHit(var5);
+                this.onHit(var0);
             }
         }
 
-        Vec3 var7 = this.getDeltaMovement();
-        double var8 = this.getX() + var7.x;
-        double var9 = this.getY() + var7.y;
-        double var10 = this.getZ() + var7.z;
-        float var11 = Mth.sqrt(getHorizontalDistanceSqr(var7));
-        this.yRot = (float)(Mth.atan2(var7.x, var7.z) * 180.0F / (float)Math.PI);
-        this.xRot = (float)(Mth.atan2(var7.y, (double)var11) * 180.0F / (float)Math.PI);
-
-        while(this.xRot - this.xRotO < -180.0F) {
-            this.xRotO -= 360.0F;
-        }
-
-        while(this.xRot - this.xRotO >= 180.0F) {
-            this.xRotO += 360.0F;
-        }
-
-        while(this.yRot - this.yRotO < -180.0F) {
-            this.yRotO -= 360.0F;
-        }
-
-        while(this.yRot - this.yRotO >= 180.0F) {
-            this.yRotO += 360.0F;
-        }
-
-        this.xRot = Mth.lerp(0.2F, this.xRotO, this.xRot);
-        this.yRot = Mth.lerp(0.2F, this.yRotO, this.yRot);
-        float var14;
+        Vec3 var1 = this.getDeltaMovement();
+        double var2 = this.getX() + var1.x;
+        double var3 = this.getY() + var1.y;
+        double var4 = this.getZ() + var1.z;
+        this.updateRotation();
+        float var7;
         if (this.isInWater()) {
-            for(int var12 = 0; var12 < 4; ++var12) {
-                float var13 = 0.25F;
-                this.level.addParticle(ParticleTypes.BUBBLE, var8 - var7.x * 0.25, var9 - var7.y * 0.25, var10 - var7.z * 0.25, var7.x, var7.y, var7.z);
+            for(int var5 = 0; var5 < 4; ++var5) {
+                float var6 = 0.25F;
+                this.level.addParticle(ParticleTypes.BUBBLE, var2 - var1.x * 0.25, var3 - var1.y * 0.25, var4 - var1.z * 0.25, var1.x, var1.y, var1.z);
             }
 
-            var14 = 0.8F;
+            var7 = 0.8F;
         } else {
-            var14 = 0.99F;
+            var7 = 0.99F;
         }
 
-        this.setDeltaMovement(var7.scale((double)var14));
+        this.setDeltaMovement(var1.scale((double)var7));
         if (!this.isNoGravity()) {
-            Vec3 var16 = this.getDeltaMovement();
-            this.setDeltaMovement(var16.x, var16.y - (double)this.getGravity(), var16.z);
+            Vec3 var9 = this.getDeltaMovement();
+            this.setDeltaMovement(var9.x, var9.y - (double)this.getGravity(), var9.z);
         }
 
-        this.setPos(var8, var9, var10);
-    }
-
-    private boolean isEntityOrVehicle(Entity param0, Entity param1) {
-        return param0 == param1 || param0.getPassengers().contains(param1);
+        this.setPos(var2, var3, var4);
     }
 
     protected float getGravity() {
         return 0.03F;
-    }
-
-    @Override
-    public void addAdditionalSaveData(CompoundTag param0) {
-        super.addAdditionalSaveData(param0);
-        param0.putInt("xTile", this.xBlock);
-        param0.putInt("yTile", this.yBlock);
-        param0.putInt("zTile", this.zBlock);
-        param0.putByte("shake", (byte)this.shakeTime);
-        param0.putBoolean("inGround", this.inGround);
-    }
-
-    @Override
-    public void readAdditionalSaveData(CompoundTag param0) {
-        super.readAdditionalSaveData(param0);
-        this.xBlock = param0.getInt("xTile");
-        this.yBlock = param0.getInt("yTile");
-        this.zBlock = param0.getInt("zTile");
-        this.shakeTime = param0.getByte("shake") & 255;
-        this.inGround = param0.getBoolean("inGround");
     }
 
     @Override

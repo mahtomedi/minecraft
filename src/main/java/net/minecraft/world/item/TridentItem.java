@@ -1,6 +1,8 @@
 package net.minecraft.world.item;
 
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.ImmutableMultimap.Builder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -13,8 +15,9 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.monster.SharedMonsterAttributes;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.ThrownTrident;
@@ -24,12 +27,18 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 public class TridentItem extends Item {
+    private final Multimap<Attribute, AttributeModifier> defaultModifiers;
+
     public TridentItem(Item.Properties param0) {
         super(param0);
         this.addProperty(
             new ResourceLocation("throwing"),
             (param0x, param1, param2) -> param2 != null && param2.isUsingItem() && param2.getUseItem() == param0x ? 1.0F : 0.0F
         );
+        Builder<Attribute, AttributeModifier> var0 = ImmutableMultimap.builder();
+        var0.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(BASE_ATTACK_DAMAGE_UUID, "Tool modifier", 8.0, AttributeModifier.Operation.ADDITION));
+        var0.put(Attributes.ATTACK_SPEED, new AttributeModifier(BASE_ATTACK_SPEED_UUID, "Tool modifier", -2.9F, AttributeModifier.Operation.ADDITION));
+        this.defaultModifiers = var0.build();
     }
 
     @Override
@@ -137,20 +146,8 @@ public class TridentItem extends Item {
     }
 
     @Override
-    public Multimap<String, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot param0) {
-        Multimap<String, AttributeModifier> var0 = super.getDefaultAttributeModifiers(param0);
-        if (param0 == EquipmentSlot.MAINHAND) {
-            var0.put(
-                SharedMonsterAttributes.ATTACK_DAMAGE.getName(),
-                new AttributeModifier(BASE_ATTACK_DAMAGE_UUID, "Tool modifier", 8.0, AttributeModifier.Operation.ADDITION)
-            );
-            var0.put(
-                SharedMonsterAttributes.ATTACK_SPEED.getName(),
-                new AttributeModifier(BASE_ATTACK_SPEED_UUID, "Tool modifier", -2.9F, AttributeModifier.Operation.ADDITION)
-            );
-        }
-
-        return var0;
+    public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot param0) {
+        return param0 == EquipmentSlot.MAINHAND ? this.defaultModifiers : super.getDefaultAttributeModifiers(param0);
     }
 
     @Override

@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.TicketType;
 import net.minecraft.util.Mth;
@@ -59,9 +58,8 @@ public class PortalForcer {
         return var2.<BlockPattern.PortalInfo>map(param4x -> {
             BlockPos var0x = param4x.getPos();
             this.level.getChunkSource().addRegionTicket(TicketType.PORTAL, new ChunkPos(var0x), 3, var0x);
-            BlockState var1x = this.level.getBlockState(var0x);
-            BlockPattern.BlockPatternMatch var2x = NetherPortalBlock.getPortalShape(this.level, var0x, var1x.getBlock());
-            return var2x.getPortalOutput(param2, var0x, param4, param1, param3);
+            BlockPattern.BlockPatternMatch var1x = NetherPortalBlock.getPortalShape(this.level, var0x);
+            return var1x.getPortalOutput(param2, var0x, param4, param1, param3);
         }).orElse(null);
     }
 
@@ -219,11 +217,6 @@ public class PortalForcer {
             for(int var59 = 0; var59 < 3; ++var59) {
                 var10.set(var43 + var58 * var46, var44 + var59, var45 + var58 * var47);
                 this.level.setBlock(var10, var57, 18);
-                Optional<PoiType> var60 = PoiType.forState(this.level.getBlockState(var10));
-                var60.ifPresent(param1 -> {
-                    this.level.getPoiManager().add(var10, param1);
-                    DebugPackets.sendPoiAddedPacket(this.level, var10);
-                });
             }
         }
 

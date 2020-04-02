@@ -10,10 +10,8 @@ import net.minecraft.world.level.levelgen.placement.FrequencyDecoratorConfigurat
 import net.minecraft.world.level.levelgen.placement.SimpleFeatureDecorator;
 
 public class LightGemChanceDecorator extends SimpleFeatureDecorator<FrequencyDecoratorConfiguration> {
-    public LightGemChanceDecorator(
-        Function<Dynamic<?>, ? extends FrequencyDecoratorConfiguration> param0, Function<Random, ? extends FrequencyDecoratorConfiguration> param1
-    ) {
-        super(param0, param1);
+    public LightGemChanceDecorator(Function<Dynamic<?>, ? extends FrequencyDecoratorConfiguration> param0) {
+        super(param0);
     }
 
     public Stream<BlockPos> place(Random param0, FrequencyDecoratorConfiguration param1, BlockPos param2) {

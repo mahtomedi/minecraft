@@ -35,9 +35,8 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.PlayerRideableJumping;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.SpawnGroupData;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
-import net.minecraft.world.entity.ai.attributes.RangedAttribute;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.BreedGoal;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.FollowParentGoal;
@@ -48,7 +47,6 @@ import net.minecraft.world.entity.ai.goal.RunAroundLikeCrazyGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.monster.SharedMonsterAttributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -73,9 +71,6 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
         .allowSameTeam()
         .allowUnseeable()
         .selector(PARENT_HORSE_SELECTOR);
-    protected static final Attribute JUMP_STRENGTH = new RangedAttribute(null, "horse.jumpStrength", 0.7, 0.0, 2.0)
-        .importLegacyName("Jump Strength")
-        .setSyncable(true);
     private static final EntityDataAccessor<Byte> DATA_ID_FLAGS = SynchedEntityData.defineId(AbstractHorse.class, EntityDataSerializers.BYTE);
     private static final EntityDataAccessor<Optional<UUID>> DATA_ID_OWNER_UUID = SynchedEntityData.defineId(
         AbstractHorse.class, EntityDataSerializers.OPTIONAL_UUID
@@ -210,12 +205,6 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
     }
 
     @Override
-    public boolean hurt(DamageSource param0, float param1) {
-        Entity var0 = param0.getEntity();
-        return this.isVehicle() && var0 != null && this.hasIndirectPassenger(var0) ? false : super.hurt(param0, param1);
-    }
-
-    @Override
     public boolean isPushable() {
         return !this.isVehicle();
     }
@@ -305,7 +294,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
     }
 
     public double getCustomJump() {
-        return this.getAttribute(JUMP_STRENGTH).getValue();
+        return this.getAttributeValue(Attributes.JUMP_STRENGTH);
     }
 
     @Nullable
@@ -377,12 +366,8 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
         this.playSound(SoundEvents.HORSE_GALLOP, param0.getVolume() * 0.15F, param0.getPitch());
     }
 
-    @Override
-    protected void registerAttributes() {
-        super.registerAttributes();
-        this.getAttributes().registerAttribute(JUMP_STRENGTH);
-        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(53.0);
-        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.225F);
+    public static AttributeSupplier.Builder createBaseHorseAttributes() {
+        return Mob.createMobAttributes().add(Attributes.JUMP_STRENGTH).add(Attributes.MAX_HEALTH, 53.0).add(Attributes.MOVEMENT_SPEED, 0.225F);
     }
 
     @Override
@@ -729,7 +714,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
 
                 this.flyingSpeed = this.getSpeed() * 0.1F;
                 if (this.isControlledByLocalInstance()) {
-                    this.setSpeed((float)this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getValue());
+                    this.setSpeed((float)this.getAttributeValue(Attributes.MOVEMENT_SPEED));
                     super.travel(new Vec3((double)var1, param0.y, (double)var2));
                 } else if (var0 instanceof Player) {
                     this.setDeltaMovement(Vec3.ZERO);
@@ -797,15 +782,10 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
             this.setOwnerUUID(var0);
         }
 
-        AttributeInstance var3 = this.getAttributes().getInstance("Speed");
-        if (var3 != null) {
-            this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(var3.getBaseValue() * 0.25);
-        }
-
         if (param0.contains("SaddleItem", 10)) {
-            ItemStack var4 = ItemStack.of(param0.getCompound("SaddleItem"));
-            if (var4.getItem() == Items.SADDLE) {
-                this.inventory.setItem(0, var4);
+            ItemStack var3 = ItemStack.of(param0.getCompound("SaddleItem"));
+            if (var3.getItem() == Items.SADDLE) {
+                this.inventory.setItem(0, var3);
             }
         }
 
@@ -828,16 +808,18 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
     }
 
     protected void setOffspringAttributes(AgableMob param0, AbstractHorse param1) {
-        double var0 = this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).getBaseValue()
-            + param0.getAttribute(SharedMonsterAttributes.MAX_HEALTH).getBaseValue()
+        double var0 = this.getAttributeBaseValue(Attributes.MAX_HEALTH)
+            + param0.getAttributeBaseValue(Attributes.MAX_HEALTH)
             + (double)this.generateRandomMaxHealth();
-        param1.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(var0 / 3.0);
-        double var1 = this.getAttribute(JUMP_STRENGTH).getBaseValue() + param0.getAttribute(JUMP_STRENGTH).getBaseValue() + this.generateRandomJumpStrength();
-        param1.getAttribute(JUMP_STRENGTH).setBaseValue(var1 / 3.0);
-        double var2 = this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getBaseValue()
-            + param0.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getBaseValue()
+        param1.getAttribute(Attributes.MAX_HEALTH).setBaseValue(var0 / 3.0);
+        double var1 = this.getAttributeBaseValue(Attributes.JUMP_STRENGTH)
+            + param0.getAttributeBaseValue(Attributes.JUMP_STRENGTH)
+            + this.generateRandomJumpStrength();
+        param1.getAttribute(Attributes.JUMP_STRENGTH).setBaseValue(var1 / 3.0);
+        double var2 = this.getAttributeBaseValue(Attributes.MOVEMENT_SPEED)
+            + param0.getAttributeBaseValue(Attributes.MOVEMENT_SPEED)
             + this.generateRandomSpeed();
-        param1.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(var2 / 3.0);
+        param1.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(var2 / 3.0);
     }
 
     @Override
@@ -1037,6 +1019,9 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
         return new Vec3(this.getX(), this.getY(), this.getZ());
     }
 
+    protected void randomizeAttributes() {
+    }
+
     @Nullable
     @Override
     public SpawnGroupData finalizeSpawn(
@@ -1047,6 +1032,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
             ((AgableMob.AgableMobGroupData)param3).setBabySpawnChance(0.2F);
         }
 
+        this.randomizeAttributes();
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
 }

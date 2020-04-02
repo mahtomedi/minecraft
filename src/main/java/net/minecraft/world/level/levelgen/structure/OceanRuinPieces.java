@@ -15,6 +15,7 @@ import net.minecraft.world.entity.monster.Drowned;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.Mirror;
@@ -264,7 +265,9 @@ public class OceanRuinPieces {
         }
 
         @Override
-        public boolean postProcess(LevelAccessor param0, ChunkGenerator<?> param1, Random param2, BoundingBox param3, ChunkPos param4, BlockPos param5) {
+        public boolean postProcess(
+            LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<?> param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
+        ) {
             this.placeSettings.clearProcessors().addProcessor(new BlockRotProcessor(this.integrity)).addProcessor(BlockIgnoreProcessor.STRUCTURE_AND_AIR);
             int var0 = param0.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, this.templatePosition.getX(), this.templatePosition.getZ());
             this.templatePosition = new BlockPos(this.templatePosition.getX(), var0, this.templatePosition.getZ());
@@ -275,7 +278,7 @@ public class OceanRuinPieces {
             this.templatePosition = new BlockPos(
                 this.templatePosition.getX(), this.getHeight(this.templatePosition, param0, var1), this.templatePosition.getZ()
             );
-            return super.postProcess(param0, param1, param2, param3, param4, param5);
+            return super.postProcess(param0, param1, param2, param3, param4, param5, param6);
         }
 
         private int getHeight(BlockPos param0, BlockGetter param1, BlockPos param2) {

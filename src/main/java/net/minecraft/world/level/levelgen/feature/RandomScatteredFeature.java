@@ -11,8 +11,8 @@ import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 
 public abstract class RandomScatteredFeature<C extends FeatureConfiguration> extends StructureFeature<C> {
-    public RandomScatteredFeature(Function<Dynamic<?>, ? extends C> param0, Function<Random, ? extends C> param1) {
-        super(param0, param1);
+    public RandomScatteredFeature(Function<Dynamic<?>, ? extends C> param0) {
+        super(param0);
     }
 
     @Override

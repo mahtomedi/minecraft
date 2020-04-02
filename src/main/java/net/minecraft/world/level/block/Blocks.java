@@ -210,7 +210,7 @@ public class Blocks {
         "cut_sandstone", new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SAND).strength(0.8F))
     );
     public static final Block NOTE_BLOCK = register(
-        "note_block", new NoteBlock(BlockBehaviour.Properties.of(Material.WOOD).sound(SoundType.WOOD).strength(0.8F).randomTicks())
+        "note_block", new NoteBlock(BlockBehaviour.Properties.of(Material.WOOD).sound(SoundType.WOOD).strength(0.8F))
     );
     public static final Block WHITE_BED = register("white_bed", bed(DyeColor.WHITE));
     public static final Block ORANGE_BED = register("orange_bed", bed(DyeColor.ORANGE));
@@ -714,12 +714,6 @@ public class Blocks {
                 .sound(SoundType.GLASS)
                 .lightLevel(param0 -> 11)
                 .noDrops()
-        )
-    );
-    public static final Block NEITHER_PORTAL = register(
-        "neither_portal",
-        new NeitherPortalBlock(
-            BlockBehaviour.Properties.of(Material.PORTAL).noCollission().strength(-1.0F).sound(SoundType.GLASS).lightLevel(param0 -> 11).noDrops()
         )
     );
     public static final Block CARVED_PUMPKIN = register(
@@ -1298,17 +1292,6 @@ public class Blocks {
     public static final Block BARRIER = register(
         "barrier",
         new BarrierBlock(BlockBehaviour.Properties.of(Material.BARRIER).strength(-1.0F, 3600000.8F).noDrops().noOcclusion().isValidSpawn(Blocks::never))
-    );
-    public static final Block ZONE = register(
-        "zone",
-        new ZoneBlock(
-            BlockBehaviour.Properties.of(Material.BARRIER)
-                .strength(-1.0F, 3600000.8F)
-                .noDrops()
-                .noOcclusion()
-                .isValidSpawn(Blocks::never)
-                .isViewBlocking(Blocks::always)
-        )
     );
     public static final Block IRON_TRAPDOOR = register(
         "iron_trapdoor", new TrapDoorBlock(BlockBehaviour.Properties.of(Material.METAL).strength(5.0F).sound(SoundType.METAL).noOcclusion())
@@ -2632,9 +2615,6 @@ public class Blocks {
         "netherite_block",
         new Block(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_BLACK).strength(50.0F, 1200.0F).sound(SoundType.NETHERITE_BLOCK))
     );
-    public static final Block NETHERITE_STAIRS = register(
-        "netherite_stairs", new StairBlock(NETHERITE_BLOCK.defaultBlockState(), BlockBehaviour.Properties.copy(NETHERITE_BLOCK))
-    );
     public static final Block ANCIENT_DEBRIS = register(
         "ancient_debris",
         new Block(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_BLACK).strength(30.0F, 1200.0F).sound(SoundType.ANCIENT_DEBRIS))
@@ -2667,13 +2647,6 @@ public class Blocks {
     public static final Block LODESTONE = register(
         "lodestone", new Block(BlockBehaviour.Properties.of(Material.HEAVY_METAL).strength(3.5F).sound(SoundType.LODESTONE))
     );
-    public static final Block ANT = register(
-        "ant", new AntBlock(BlockBehaviour.Properties.of(Material.HEAVY_METAL).sound(SoundType.WET_GRASS).strength(-1.0F, 3600000.0F).noDrops())
-    );
-    public static final Block BOOK_BOX = register(
-        "book_box", new BookBoxBlock(BlockBehaviour.Properties.of(Material.WOOD).strength(1.5F).sound(SoundType.WOOD))
-    );
-    public static final Block CURSOR = register("cursor", new Block(BlockBehaviour.Properties.of(Material.STONE, DyeColor.GREEN).strength(1.8F)));
 
     private static ToIntFunction<BlockState> litBlockEmission(int param0) {
         return param1 -> param1.getValue(BlockStateProperties.LIT) ? param0 : 0;
@@ -2766,10 +2739,13 @@ public class Blocks {
         return Registry.register(Registry.BLOCK, param0, param1);
     }
 
+    public static void rebuildCache() {
+        Block.BLOCK_STATE_REGISTRY.forEach(BlockBehaviour.BlockStateBase::initCache);
+    }
+
     static {
         for(Block var0 : Registry.BLOCK) {
             for(BlockState var1 : var0.getStateDefinition().getPossibleStates()) {
-                var1.initCache();
                 Block.BLOCK_STATE_REGISTRY.add(var1);
             }
 

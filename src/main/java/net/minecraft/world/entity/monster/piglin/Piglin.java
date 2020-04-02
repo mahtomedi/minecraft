@@ -33,6 +33,8 @@ import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.ai.sensing.Sensor;
@@ -40,7 +42,6 @@ import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.CrossbowAttackMob;
 import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.entity.monster.SharedMonsterAttributes;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.monster.ZombifiedPiglin;
 import net.minecraft.world.entity.player.Player;
@@ -70,6 +71,7 @@ public class Piglin extends Monster implements CrossbowAttackMob {
     );
     private int timeInOverworld = 0;
     private final SimpleContainer inventory = new SimpleContainer(8);
+    private boolean cannotHunt = false;
     private static int createCounter = 0;
     private static int dieCounter = 0;
     private static int killedByHoglinCounter = 0;
@@ -109,8 +111,8 @@ public class Piglin extends Monster implements CrossbowAttackMob {
         MemoryModuleType.HUNTED_RECENTLY,
         MemoryModuleType.NEAREST_VISIBLE_BABY_HOGLIN,
         MemoryModuleType.NEAREST_VISIBLE_BABY_PIGLIN,
-        MemoryModuleType.NEAREST_VISIBLE_ZOMBIFIED_PIGLIN,
         MemoryModuleType.NEAREST_VISIBLE_WITHER_SKELETON,
+        MemoryModuleType.NEAREST_VISIBLE_ZOMBIFIED,
         MemoryModuleType.RIDE_TARGET,
         MemoryModuleType.VISIBLE_ADULT_PIGLIN_COUNT,
         MemoryModuleType.VISIBLE_ADULT_HOGLIN_COUNT,
@@ -148,6 +150,10 @@ public class Piglin extends Monster implements CrossbowAttackMob {
             param0.putBoolean("IsImmuneToZombification", true);
         }
 
+        if (this.cannotHunt) {
+            param0.putBoolean("CannotHunt", true);
+        }
+
         param0.putInt("TimeInOverworld", this.timeInOverworld);
         param0.put("Inventory", this.inventory.createTag());
     }
@@ -157,6 +163,7 @@ public class Piglin extends Monster implements CrossbowAttackMob {
         super.readAdditionalSaveData(param0);
         this.setBaby(param0.getBoolean("IsBaby"));
         this.setImmuneToZombification(param0.getBoolean("IsImmuneToZombification"));
+        this.setCannotHunt(param0.getBoolean("CannotHunt"));
         this.timeInOverworld = param0.getInt("TimeInOverworld");
         this.inventory.fromTag(param0.getList("Inventory", 10));
     }
@@ -188,12 +195,8 @@ public class Piglin extends Monster implements CrossbowAttackMob {
 
     }
 
-    @Override
-    protected void registerAttributes() {
-        super.registerAttributes();
-        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(16.0);
-        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.35F);
-        this.getAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(5.0);
+    public static AttributeSupplier.Builder createAttributes() {
+        return Monster.createMonsterAttributes().add(Attributes.MAX_HEALTH, 16.0).add(Attributes.MOVEMENT_SPEED, 0.35F).add(Attributes.ATTACK_DAMAGE, 5.0);
     }
 
     public static boolean checkPiglinSpawnRules(EntityType<Piglin> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
@@ -271,10 +274,10 @@ public class Piglin extends Monster implements CrossbowAttackMob {
     public void setBaby(boolean param0) {
         this.getEntityData().set(DATA_BABY_ID, param0);
         if (!this.level.isClientSide) {
-            AttributeInstance var0 = this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
+            AttributeInstance var0 = this.getAttribute(Attributes.MOVEMENT_SPEED);
             var0.removeModifier(SPEED_MODIFIER_BABY);
             if (param0) {
-                var0.addModifier(SPEED_MODIFIER_BABY);
+                var0.addTransientModifier(SPEED_MODIFIER_BABY);
             }
         }
 
@@ -295,6 +298,14 @@ public class Piglin extends Monster implements CrossbowAttackMob {
 
     private boolean isImmuneToZombification() {
         return this.getEntityData().get(DATA_IMMUNE_TO_ZOMBIFICATION);
+    }
+
+    private void setCannotHunt(boolean param0) {
+        this.cannotHunt = param0;
+    }
+
+    public boolean canHunt() {
+        return !this.cannotHunt;
     }
 
     public boolean isConverting() {

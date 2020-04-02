@@ -6,8 +6,9 @@ import com.google.gson.JsonObject;
 import java.util.Collection;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.fishing.FishingHook;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.item.ItemStack;
 
 public class FishingRodHookedTrigger extends SimpleCriterionTrigger<FishingRodHookedTrigger.TriggerInstance> {
@@ -48,31 +49,34 @@ public class FishingRodHookedTrigger extends SimpleCriterionTrigger<FishingRodHo
         public boolean matches(ServerPlayer param0, ItemStack param1, FishingHook param2, Collection<ItemStack> param3) {
             if (!this.rod.matches(param1)) {
                 return false;
-            } else if (!this.entity.matches(param0, param2.hookedIn)) {
-                return false;
             } else {
-                if (this.item != ItemPredicate.ANY) {
-                    boolean var0 = false;
-                    if (param2.hookedIn instanceof ItemEntity) {
-                        ItemEntity var1 = (ItemEntity)param2.hookedIn;
-                        if (this.item.matches(var1.getItem())) {
-                            var0 = true;
+                Entity var0 = param2.getHookedIn();
+                if (!this.entity.matches(param0, var0)) {
+                    return false;
+                } else {
+                    if (this.item != ItemPredicate.ANY) {
+                        boolean var1 = false;
+                        if (var0 instanceof ItemEntity) {
+                            ItemEntity var2 = (ItemEntity)var0;
+                            if (this.item.matches(var2.getItem())) {
+                                var1 = true;
+                            }
+                        }
+
+                        for(ItemStack var3 : param3) {
+                            if (this.item.matches(var3)) {
+                                var1 = true;
+                                break;
+                            }
+                        }
+
+                        if (!var1) {
+                            return false;
                         }
                     }
 
-                    for(ItemStack var2 : param3) {
-                        if (this.item.matches(var2)) {
-                            var0 = true;
-                            break;
-                        }
-                    }
-
-                    if (!var0) {
-                        return false;
-                    }
+                    return true;
                 }
-
-                return true;
             }
         }
 

@@ -8,8 +8,8 @@ import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -27,8 +27,8 @@ public class StrongholdFeature extends StructureFeature<NoneFeatureConfiguration
     private final List<StructureStart> discoveredStarts = Lists.newArrayList();
     private long currentSeed;
 
-    public StrongholdFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0, Function<Random, ? extends NoneFeatureConfiguration> param1) {
-        super(param0, param1);
+    public StrongholdFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0) {
+        super(param0);
     }
 
     @Override
@@ -75,7 +75,7 @@ public class StrongholdFeature extends StructureFeature<NoneFeatureConfiguration
     @Nullable
     @Override
     public BlockPos getNearestGeneratedFeature(
-        Level param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, BlockPos param2, int param3, boolean param4
+        ServerLevel param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, BlockPos param2, int param3, boolean param4
     ) {
         if (!param1.getBiomeSource().canGenerateStructure(this)) {
             return null;

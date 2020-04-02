@@ -24,6 +24,7 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -169,7 +170,11 @@ public class LiquidBlock extends Block implements BucketPickup {
     @Override
     public void entityInside(BlockState param0, Level param1, BlockPos param2, Entity param3) {
         if (this.fluid.is(FluidTags.LAVA)) {
-            param3.setInLava();
+            float var0 = (float)param2.getY() + param0.getFluidState().getHeight(param1, param2);
+            AABB var1 = param3.getBoundingBox();
+            if (var1.minY < (double)var0 || (double)var0 > var1.maxY) {
+                param3.setInLava();
+            }
         }
 
     }

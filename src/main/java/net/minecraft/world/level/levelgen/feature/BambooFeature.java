@@ -6,6 +6,7 @@ import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.block.BambooBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -26,28 +27,31 @@ public class BambooFeature extends Feature<ProbabilityFeatureConfiguration> {
     private static final BlockState BAMBOO_TOP_LARGE = BAMBOO_TRUNK.setValue(BambooBlock.LEAVES, BambooLeaves.LARGE);
     private static final BlockState BAMBOO_TOP_SMALL = BAMBOO_TRUNK.setValue(BambooBlock.LEAVES, BambooLeaves.SMALL);
 
-    public BambooFeature(
-        Function<Dynamic<?>, ? extends ProbabilityFeatureConfiguration> param0, Function<Random, ? extends ProbabilityFeatureConfiguration> param1
-    ) {
-        super(param0, param1);
+    public BambooFeature(Function<Dynamic<?>, ? extends ProbabilityFeatureConfiguration> param0) {
+        super(param0);
     }
 
     public boolean place(
-        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, ProbabilityFeatureConfiguration param4
+        LevelAccessor param0,
+        StructureFeatureManager param1,
+        ChunkGenerator<? extends ChunkGeneratorSettings> param2,
+        Random param3,
+        BlockPos param4,
+        ProbabilityFeatureConfiguration param5
     ) {
         int var0 = 0;
-        BlockPos.MutableBlockPos var1 = param3.mutable();
-        BlockPos.MutableBlockPos var2 = param3.mutable();
+        BlockPos.MutableBlockPos var1 = param4.mutable();
+        BlockPos.MutableBlockPos var2 = param4.mutable();
         if (param0.isEmptyBlock(var1)) {
             if (Blocks.BAMBOO.defaultBlockState().canSurvive(param0, var1)) {
-                int var3 = param2.nextInt(12) + 5;
-                if (param2.nextFloat() < param4.probability) {
-                    int var4 = param2.nextInt(4) + 1;
+                int var3 = param3.nextInt(12) + 5;
+                if (param3.nextFloat() < param5.probability) {
+                    int var4 = param3.nextInt(4) + 1;
 
-                    for(int var5 = param3.getX() - var4; var5 <= param3.getX() + var4; ++var5) {
-                        for(int var6 = param3.getZ() - var4; var6 <= param3.getZ() + var4; ++var6) {
-                            int var7 = var5 - param3.getX();
-                            int var8 = var6 - param3.getZ();
+                    for(int var5 = param4.getX() - var4; var5 <= param4.getX() + var4; ++var5) {
+                        for(int var6 = param4.getZ() - var4; var6 <= param4.getZ() + var4; ++var6) {
+                            int var7 = var5 - param4.getX();
+                            int var8 = var6 - param4.getZ();
                             if (var7 * var7 + var8 * var8 <= var4 * var4) {
                                 var2.set(var5, param0.getHeight(Heightmap.Types.WORLD_SURFACE, var5, var6) - 1, var6);
                                 if (isDirt(param0.getBlockState(var2).getBlock())) {
@@ -63,7 +67,7 @@ public class BambooFeature extends Feature<ProbabilityFeatureConfiguration> {
                     var1.move(Direction.UP, 1);
                 }
 
-                if (var1.getY() - param3.getY() >= 3) {
+                if (var1.getY() - param4.getY() >= 3) {
                     param0.setBlock(var1, BAMBOO_FINAL_LARGE, 2);
                     param0.setBlock(var1.move(Direction.DOWN, 1), BAMBOO_TOP_LARGE, 2);
                     param0.setBlock(var1.move(Direction.DOWN, 1), BAMBOO_TOP_SMALL, 2);

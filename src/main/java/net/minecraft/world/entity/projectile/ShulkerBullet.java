@@ -219,7 +219,7 @@ public class ShulkerBullet extends Projectile {
                 this.setDeltaMovement(var0.add((this.targetDeltaX - var0.x) * 0.2, (this.targetDeltaY - var0.y) * 0.2, (this.targetDeltaZ - var0.z) * 0.2));
             }
 
-            HitResult var1 = ProjectileUtil.forwardsRaycast(this, true, false, this.getOwner(), ClipContext.Block.COLLIDER);
+            HitResult var1 = ProjectileUtil.getHitResult(this, this::canHitEntity, ClipContext.Block.COLLIDER);
             if (var1.getType() != HitResult.Type.MISS) {
                 this.onHit(var1);
             }
@@ -254,6 +254,11 @@ public class ShulkerBullet extends Projectile {
             }
         }
 
+    }
+
+    @Override
+    protected boolean canHitEntity(Entity param0) {
+        return super.canHitEntity(param0) && !param0.noPhysics;
     }
 
     @Override

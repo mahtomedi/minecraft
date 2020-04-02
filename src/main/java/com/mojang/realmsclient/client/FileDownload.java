@@ -13,6 +13,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Path;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -254,8 +255,8 @@ public class FileDownload {
                     }
                 }
             }
-        } catch (Exception var38) {
-            LOGGER.error("Error getting level list", (Throwable)var38);
+        } catch (Exception var128) {
+            LOGGER.error("Error getting level list", (Throwable)var128);
             this.error = true;
             return;
         }
@@ -297,8 +298,8 @@ public class FileDownload {
                     }
                 }
             }
-        } catch (Exception var36) {
-            LOGGER.error("Error extracting world", (Throwable)var36);
+        } catch (Exception var126) {
+            LOGGER.error("Error extracting world", (Throwable)var126);
             this.error = true;
         } finally {
             if (var9 != null) {
@@ -309,9 +310,14 @@ public class FileDownload {
                 param1.delete();
             }
 
-            param2.renameLevel(var8, var8.trim());
-            File var20 = new File(var10, var8 + File.separator + "level.dat");
-            deletePlayerTag(var20);
+            try (LevelStorageSource.LevelStorageAccess var21 = param2.createAccess(var8)) {
+                var21.renameLevel(var8.trim());
+                Path var22 = var21.getLevelPath().resolve("level.dat");
+                deletePlayerTag(var22.toFile());
+            } catch (IOException var124) {
+                LOGGER.error("Failed to rename unpacked realms level {}", var8, var124);
+            }
+
             this.resourcePackPath = new File(var10, var8 + File.separator + "resources.zip");
         }
 

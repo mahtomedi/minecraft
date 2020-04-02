@@ -12,8 +12,8 @@ import net.minecraft.world.level.levelgen.feature.configurations.MegaTreeConfigu
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public class DarkOakFeature extends AbstractTreeFeature<MegaTreeConfiguration> {
-    public DarkOakFeature(Function<Dynamic<?>, ? extends MegaTreeConfiguration> param0, Function<Random, ? extends MegaTreeConfiguration> param1) {
-        super(param0, param1);
+    public DarkOakFeature(Function<Dynamic<?>, ? extends MegaTreeConfiguration> param0) {
+        super(param0);
     }
 
     public boolean doPlace(
@@ -51,10 +51,10 @@ public class DarkOakFeature extends AbstractTreeFeature<MegaTreeConfiguration> {
                     int var12 = var2 + var11;
                     BlockPos var13 = new BlockPos(var8, var12, var9);
                     if (isAirOrLeaves(param0, var13)) {
-                        this.placeLog(param0, param1, var13, param3, param5, param6);
-                        this.placeLog(param0, param1, var13.east(), param3, param5, param6);
-                        this.placeLog(param0, param1, var13.south(), param3, param5, param6);
-                        this.placeLog(param0, param1, var13.east().south(), param3, param5, param6);
+                        placeLog(param0, param1, var13, param3, param5, param6);
+                        placeLog(param0, param1, var13.east(), param3, param5, param6);
+                        placeLog(param0, param1, var13.south(), param3, param5, param6);
+                        placeLog(param0, param1, var13.east().south(), param3, param5, param6);
                     }
                 }
 
@@ -100,7 +100,7 @@ public class DarkOakFeature extends AbstractTreeFeature<MegaTreeConfiguration> {
                             int var21 = param1.nextInt(3) + 2;
 
                             for(int var22 = 0; var22 < var21; ++var22) {
-                                this.placeLog(param0, param1, new BlockPos(var1 + var19, var10 - var22 - 1, var3 + var20), param3, param5, param6);
+                                placeLog(param0, param1, new BlockPos(var1 + var19, var10 - var22 - 1, var3 + var20), param3, param5, param6);
                             }
 
                             for(int var23 = -1; var23 <= 1; ++var23) {

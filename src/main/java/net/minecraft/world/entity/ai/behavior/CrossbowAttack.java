@@ -80,7 +80,7 @@ public class CrossbowAttack<E extends Mob & CrossbowAttackMob, T extends LivingE
     }
 
     private void lookAtTarget(Mob param0, LivingEntity param1) {
-        param0.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new EntityPosWrapper(param1));
+        param0.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(param1));
     }
 
     private static LivingEntity getAttackTarget(LivingEntity param0) {

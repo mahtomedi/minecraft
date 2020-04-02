@@ -48,6 +48,6 @@ public class FungusBlock extends BushBlock implements BonemealableBlock {
 
     @Override
     public void performBonemeal(ServerLevel param0, Random param1, BlockPos param2, BlockState param3) {
-        this.feature.get().place(param0, param0.getChunkSource().getGenerator(), param1, param2);
+        this.feature.get().place(param0, param0.structureFeatureManager(), param0.getChunkSource().getGenerator(), param1, param2);
     }
 }

@@ -332,7 +332,7 @@ public class Mth {
         return createInsecureUUID(RANDOM);
     }
 
-    public static double pct(double param0, double param1, double param2) {
+    public static double inverseLerp(double param0, double param1, double param2) {
         return (param0 - param1) / (param2 - param1);
     }
 

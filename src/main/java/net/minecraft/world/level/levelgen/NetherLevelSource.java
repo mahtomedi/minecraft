@@ -4,10 +4,10 @@ import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.chunk.ChunkGeneratorType;
 import net.minecraft.world.level.levelgen.feature.Feature;
 
 public class NetherLevelSource extends NoiseBasedChunkGenerator<NetherGeneratorSettings> {
@@ -58,19 +58,19 @@ public class NetherLevelSource extends NoiseBasedChunkGenerator<NetherGeneratorS
     }
 
     @Override
-    public List<Biome.SpawnerData> getMobsAt(MobCategory param0, BlockPos param1) {
-        if (param0 == MobCategory.MONSTER) {
-            if (Feature.NETHER_BRIDGE.isInsideFeature(this.level, param1)) {
+    public List<Biome.SpawnerData> getMobsAt(StructureFeatureManager param0, MobCategory param1, BlockPos param2) {
+        if (param1 == MobCategory.MONSTER) {
+            if (Feature.NETHER_BRIDGE.isInsideFeature(this.level, param0, param2)) {
                 return Feature.NETHER_BRIDGE.getSpecialEnemies();
             }
 
-            if (Feature.NETHER_BRIDGE.isInsideBoundingFeature(this.level, param1)
-                && this.level.getBlockState(param1.below()).getBlock() == Blocks.NETHER_BRICKS) {
+            if (Feature.NETHER_BRIDGE.isInsideBoundingFeature(this.level, param0, param2)
+                && this.level.getBlockState(param2.below()).getBlock() == Blocks.NETHER_BRICKS) {
                 return Feature.NETHER_BRIDGE.getSpecialEnemies();
             }
         }
 
-        return super.getMobsAt(param0, param1);
+        return super.getMobsAt(param0, param1, param2);
     }
 
     @Override
@@ -91,10 +91,5 @@ public class NetherLevelSource extends NoiseBasedChunkGenerator<NetherGeneratorS
     @Override
     public int getBaseHeight(int param0, int param1, Heightmap.Types param2) {
         return this.getGenDepth() / 2;
-    }
-
-    @Override
-    public ChunkGeneratorType<?, ?> getType() {
-        return ChunkGeneratorType.CAVES;
     }
 }

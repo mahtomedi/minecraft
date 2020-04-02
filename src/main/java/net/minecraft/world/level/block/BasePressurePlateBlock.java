@@ -53,11 +53,6 @@ public abstract class BasePressurePlateBlock extends Block {
     }
 
     @Override
-    public boolean isUnstable() {
-        return true;
-    }
-
-    @Override
     public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         int var0 = this.getSignalForState(param0);
         if (var0 > 0) {

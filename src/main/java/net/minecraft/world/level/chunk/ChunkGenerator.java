@@ -1,8 +1,5 @@
 package net.minecraft.world.level.chunk;
 
-import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
 import java.util.BitSet;
 import java.util.List;
 import java.util.ListIterator;
@@ -13,14 +10,15 @@ import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.SectionPos;
 import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.biome.BiomeSource;
@@ -88,12 +86,12 @@ public abstract class ChunkGenerator<C extends ChunkGeneratorSettings> {
     }
 
     @Nullable
-    public BlockPos findNearestMapFeature(Level param0, String param1, BlockPos param2, int param3, boolean param4) {
+    public BlockPos findNearestMapFeature(ServerLevel param0, String param1, BlockPos param2, int param3, boolean param4) {
         StructureFeature<?> var0 = Feature.STRUCTURES_REGISTRY.get(param1.toLowerCase(Locale.ROOT));
         return var0 != null ? var0.getNearestGeneratedFeature(param0, this, param2, param3, param4) : null;
     }
 
-    public void applyBiomeDecoration(WorldGenRegion param0) {
+    public void applyBiomeDecoration(WorldGenRegion param0, StructureFeatureManager param1) {
         int var0 = param0.getCenterX();
         int var1 = param0.getCenterZ();
         int var2 = var0 * 16;
@@ -105,9 +103,9 @@ public abstract class ChunkGenerator<C extends ChunkGeneratorSettings> {
 
         for(GenerationStep.Decoration var8 : GenerationStep.Decoration.values()) {
             try {
-                var5.generate(var8, this, param0, var7, var6, var4);
-            } catch (Exception var17) {
-                CrashReport var10 = CrashReport.forThrowable(var17, "Biome decoration");
+                var5.generate(var8, param1, this, param0, var7, var6, var4);
+            } catch (Exception var18) {
+                CrashReport var10 = CrashReport.forThrowable(var18, "Biome decoration");
                 var10.addCategory("Generation")
                     .setDetail("CenterX", var0)
                     .setDetail("CenterZ", var1)
@@ -155,47 +153,48 @@ public abstract class ChunkGenerator<C extends ChunkGeneratorSettings> {
         return 256;
     }
 
-    public List<Biome.SpawnerData> getMobsAt(MobCategory param0, BlockPos param1) {
-        return this.level.getBiome(param1).getMobs(param0);
+    public List<Biome.SpawnerData> getMobsAt(StructureFeatureManager param0, MobCategory param1, BlockPos param2) {
+        return this.level.getBiome(param2).getMobs(param1);
     }
 
-    public void createStructures(BiomeManager param0, ChunkAccess param1, ChunkGenerator<?> param2, StructureManager param3) {
+    public void createStructures(StructureFeatureManager param0, BiomeManager param1, ChunkAccess param2, ChunkGenerator<?> param3, StructureManager param4) {
         for(StructureFeature<?> var0 : Feature.STRUCTURES_REGISTRY.values()) {
-            if (param2.getBiomeSource().canGenerateStructure(var0)) {
-                StructureStart var1 = param1.getStartForFeature(var0.getFeatureName());
+            if (param3.getBiomeSource().canGenerateStructure(var0)) {
+                StructureStart var1 = param0.getStartForFeature(SectionPos.of(param2.getPos(), 0), var0, param2);
                 int var2 = var1 != null ? var1.getReferences() : 0;
                 WorldgenRandom var3 = new WorldgenRandom();
-                ChunkPos var4 = param1.getPos();
+                ChunkPos var4 = param2.getPos();
                 StructureStart var5 = StructureStart.INVALID_START;
-                Biome var6 = param0.getBiome(new BlockPos(var4.getMinBlockX() + 9, 0, var4.getMinBlockZ() + 9));
-                if (var0.isFeatureChunk(param0, param2, var3, var4.x, var4.z, var6)) {
-                    StructureStart var7 = var0.getStartFactory().create(var0, var4.x, var4.z, BoundingBox.getUnknownBox(), var2, param2.getSeed());
-                    var7.generatePieces(this, param3, var4.x, var4.z, var6);
+                Biome var6 = param1.getBiome(new BlockPos(var4.getMinBlockX() + 9, 0, var4.getMinBlockZ() + 9));
+                if (var0.isFeatureChunk(param1, param3, var3, var4.x, var4.z, var6)) {
+                    StructureStart var7 = var0.getStartFactory().create(var0, var4.x, var4.z, BoundingBox.getUnknownBox(), var2, param3.getSeed());
+                    var7.generatePieces(this, param4, var4.x, var4.z, var6);
                     var5 = var7.isValid() ? var7 : StructureStart.INVALID_START;
                 }
 
-                param1.setStartForFeature(var0.getFeatureName(), var5);
+                param0.setStartForFeature(SectionPos.of(param2.getPos(), 0), var0, var5, param2);
             }
         }
 
     }
 
-    public void createReferences(LevelAccessor param0, ChunkAccess param1) {
+    public void createReferences(LevelAccessor param0, StructureFeatureManager param1, ChunkAccess param2) {
         int var0 = 8;
-        int var1 = param1.getPos().x;
-        int var2 = param1.getPos().z;
+        int var1 = param2.getPos().x;
+        int var2 = param2.getPos().z;
         int var3 = var1 << 4;
         int var4 = var2 << 4;
+        SectionPos var5 = SectionPos.of(param2.getPos(), 0);
 
-        for(int var5 = var1 - 8; var5 <= var1 + 8; ++var5) {
-            for(int var6 = var2 - 8; var6 <= var2 + 8; ++var6) {
-                long var7 = ChunkPos.asLong(var5, var6);
+        for(int var6 = var1 - 8; var6 <= var1 + 8; ++var6) {
+            for(int var7 = var2 - 8; var7 <= var2 + 8; ++var7) {
+                long var8 = ChunkPos.asLong(var6, var7);
 
-                for(Entry<String, StructureStart> var8 : param0.getChunk(var5, var6).getAllStarts().entrySet()) {
-                    StructureStart var9 = var8.getValue();
-                    if (var9 != StructureStart.INVALID_START && var9.getBoundingBox().intersects(var3, var4, var3 + 15, var4 + 15)) {
-                        param1.addReferenceForFeature(var8.getKey(), var7);
-                        DebugPackets.sendStructurePacket(param0, var9);
+                for(Entry<String, StructureStart> var9 : param0.getChunk(var6, var7).getAllStarts().entrySet()) {
+                    StructureStart var10 = var9.getValue();
+                    if (var10 != StructureStart.INVALID_START && var10.getBoundingBox().intersects(var3, var4, var3 + 15, var4 + 15)) {
+                        param1.addReferenceForFeature(var5, var10.getFeature(), var8, param2);
+                        DebugPackets.sendStructurePacket(param0, var10);
                     }
                 }
             }
@@ -203,7 +202,7 @@ public abstract class ChunkGenerator<C extends ChunkGeneratorSettings> {
 
     }
 
-    public abstract void fillFromNoise(LevelAccessor var1, ChunkAccess var2);
+    public abstract void fillFromNoise(LevelAccessor var1, StructureFeatureManager var2, ChunkAccess var3);
 
     public int getSeaLevel() {
         return 63;
@@ -219,26 +218,5 @@ public abstract class ChunkGenerator<C extends ChunkGeneratorSettings> {
 
     public int getFirstOccupiedHeight(int param0, int param1, Heightmap.Types param2) {
         return this.getBaseHeight(param0, param1, param2) - 1;
-    }
-
-    public abstract ChunkGeneratorType<?, ?> getType();
-
-    public <T> Dynamic<T> serialize(DynamicOps<T> param0) {
-        BiomeSource var0 = this.getBiomeSource();
-        Dynamic<T> var1 = var0.serialize(param0);
-        var1 = var1.merge(var1.createString("type"), var1.createString(Registry.BIOME_SOURCE_TYPE.getKey(var0.getType()).toString()));
-        return new Dynamic<>(
-            param0,
-            param0.createMap(
-                ImmutableMap.of(
-                    param0.createString("type"),
-                    param0.createString(Registry.CHUNK_GENERATOR_TYPE.getKey(this.getType()).toString()),
-                    param0.createString("settings"),
-                    this.getSettings().serialize(param0).getValue(),
-                    param0.createString("biome_source"),
-                    var1.getValue()
-                )
-            )
-        );
     }
 }

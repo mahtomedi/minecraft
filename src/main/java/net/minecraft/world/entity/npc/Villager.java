@@ -45,10 +45,13 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.ReputationEventHandler;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.Brain;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.behavior.VillagerGoalPackages;
 import net.minecraft.world.entity.ai.gossip.GossipContainer;
 import net.minecraft.world.entity.ai.gossip.GossipType;
@@ -63,7 +66,6 @@ import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.global.LightningBolt;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.monster.SharedMonsterAttributes;
 import net.minecraft.world.entity.monster.Witch;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raid;
@@ -222,11 +224,8 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
 
     }
 
-    @Override
-    protected void registerAttributes() {
-        super.registerAttributes();
-        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.5);
-        this.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(48.0);
+    public static AttributeSupplier.Builder createAttributes() {
+        return Mob.createMobAttributes().add(Attributes.MOVEMENT_SPEED, 0.5).add(Attributes.FOLLOW_RANGE, 48.0);
     }
 
     @Override
@@ -758,22 +757,12 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
                 return;
             }
 
-            int var6 = var2.countItem(var1);
-            if (var6 == 256) {
-                return;
-            }
-
-            if (var6 > 256) {
-                var2.removeItemType(var1, var6 - 256);
-                return;
-            }
-
             this.take(param0, var0.getCount());
-            ItemStack var7 = var2.addItem(var0);
-            if (var7.isEmpty()) {
+            ItemStack var6 = var2.addItem(var0);
+            if (var6.isEmpty()) {
                 param0.remove();
             } else {
-                var0.setCount(var7.getCount());
+                var0.setCount(var6.getCount());
             }
         }
 

@@ -40,25 +40,27 @@ public class ItemColors {
             } else {
                 CompoundTag var0x = param0x.getTagElement("Explosion");
                 int[] var1x = var0x != null && var0x.contains("Colors", 11) ? var0x.getIntArray("Colors") : null;
-                if (var1x == null) {
-                    return 9079434;
-                } else if (var1x.length == 1) {
-                    return var1x[0];
-                } else {
-                    int var2 = 0;
-                    int var3x = 0;
-                    int var4 = 0;
+                if (var1x != null && var1x.length != 0) {
+                    if (var1x.length == 1) {
+                        return var1x[0];
+                    } else {
+                        int var2 = 0;
+                        int var3x = 0;
+                        int var4 = 0;
 
-                    for(int var5 : var1x) {
-                        var2 += (var5 & 0xFF0000) >> 16;
-                        var3x += (var5 & 0xFF00) >> 8;
-                        var4 += (var5 & 0xFF) >> 0;
+                        for(int var5 : var1x) {
+                            var2 += (var5 & 0xFF0000) >> 16;
+                            var3x += (var5 & 0xFF00) >> 8;
+                            var4 += (var5 & 0xFF) >> 0;
+                        }
+
+                        var2 /= var1x.length;
+                        var3x /= var1x.length;
+                        var4 /= var1x.length;
+                        return var2 << 16 | var3x << 8 | var4;
                     }
-
-                    var2 /= var1x.length;
-                    var3x /= var1x.length;
-                    var4 /= var1x.length;
-                    return var2 << 16 | var3x << 8 | var4;
+                } else {
+                    return 9079434;
                 }
             }
         }, Items.FIREWORK_STAR);

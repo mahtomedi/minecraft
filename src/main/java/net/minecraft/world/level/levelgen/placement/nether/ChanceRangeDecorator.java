@@ -9,10 +9,8 @@ import net.minecraft.world.level.levelgen.feature.configurations.ChanceRangeDeco
 import net.minecraft.world.level.levelgen.placement.SimpleFeatureDecorator;
 
 public class ChanceRangeDecorator extends SimpleFeatureDecorator<ChanceRangeDecoratorConfiguration> {
-    public ChanceRangeDecorator(
-        Function<Dynamic<?>, ? extends ChanceRangeDecoratorConfiguration> param0, Function<Random, ? extends ChanceRangeDecoratorConfiguration> param1
-    ) {
-        super(param0, param1);
+    public ChanceRangeDecorator(Function<Dynamic<?>, ? extends ChanceRangeDecoratorConfiguration> param0) {
+        super(param0);
     }
 
     public Stream<BlockPos> place(Random param0, ChanceRangeDecoratorConfiguration param1, BlockPos param2) {

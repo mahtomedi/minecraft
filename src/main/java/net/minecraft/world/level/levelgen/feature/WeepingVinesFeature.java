@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.GrowingPlantHeadBlock;
@@ -17,22 +18,27 @@ import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConf
 public class WeepingVinesFeature extends Feature<NoneFeatureConfiguration> {
     private static final Direction[] DIRECTIONS = Direction.values();
 
-    public WeepingVinesFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0, Function<Random, ? extends NoneFeatureConfiguration> param1) {
-        super(param0, param1);
+    public WeepingVinesFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0) {
+        super(param0);
     }
 
     public boolean place(
-        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, NoneFeatureConfiguration param4
+        LevelAccessor param0,
+        StructureFeatureManager param1,
+        ChunkGenerator<? extends ChunkGeneratorSettings> param2,
+        Random param3,
+        BlockPos param4,
+        NoneFeatureConfiguration param5
     ) {
-        if (!param0.isEmptyBlock(param3)) {
+        if (!param0.isEmptyBlock(param4)) {
             return false;
         } else {
-            Block var0 = param0.getBlockState(param3.above()).getBlock();
+            Block var0 = param0.getBlockState(param4.above()).getBlock();
             if (var0 != Blocks.NETHERRACK && var0 != Blocks.NETHER_WART_BLOCK) {
                 return false;
             } else {
-                this.placeRoofNetherWart(param0, param2, param3);
-                this.placeRoofWeepingVines(param0, param2, param3);
+                this.placeRoofNetherWart(param0, param3, param4);
+                this.placeRoofWeepingVines(param0, param3, param4);
                 return true;
             }
         }

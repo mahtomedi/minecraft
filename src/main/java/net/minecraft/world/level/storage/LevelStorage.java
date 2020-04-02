@@ -1,21 +1,16 @@
 package net.minecraft.world.level.storage;
 
 import com.mojang.datafixers.DataFixer;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import javax.annotation.Nullable;
-import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.LevelConflictException;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,7 +19,6 @@ public class LevelStorage implements PlayerIO {
     private static final Logger LOGGER = LogManager.getLogger();
     private final File worldDir;
     private final File playerDir;
-    private final long sessionId = Util.getMillis();
     private final String levelId;
     private final StructureManager structureManager;
     protected final DataFixer fixerUpper;
@@ -42,7 +36,6 @@ public class LevelStorage implements PlayerIO {
             this.structureManager = null;
         }
 
-        this.initiateSession();
     }
 
     public void saveLevelData(LevelData param0, @Nullable CompoundTag param1) {
@@ -52,9 +45,9 @@ public class LevelStorage implements PlayerIO {
         var1.put("Data", var0);
 
         try {
-            File var2 = new File(this.worldDir, "special_level.dat_new");
-            File var3 = new File(this.worldDir, "special_level.dat_old");
-            File var4 = new File(this.worldDir, "special_level.dat");
+            File var2 = new File(this.worldDir, "level.dat_new");
+            File var3 = new File(this.worldDir, "level.dat_old");
+            File var4 = new File(this.worldDir, "level.dat");
             NbtIo.writeCompressed(var1, new FileOutputStream(var2));
             if (var3.exists()) {
                 var3.delete();
@@ -75,48 +68,13 @@ public class LevelStorage implements PlayerIO {
 
     }
 
-    private void initiateSession() {
-        try {
-            File var0 = new File(this.worldDir, "session.lock");
-            DataOutputStream var1 = new DataOutputStream(new FileOutputStream(var0));
-
-            try {
-                var1.writeLong(this.sessionId);
-            } finally {
-                var1.close();
-            }
-
-        } catch (IOException var7) {
-            var7.printStackTrace();
-            throw new RuntimeException("Failed to check session lock, aborting");
-        }
-    }
-
     public File getFolder() {
         return this.worldDir;
     }
 
-    public void checkSession() throws LevelConflictException {
-        try {
-            File var0 = new File(this.worldDir, "session.lock");
-            DataInputStream var1 = new DataInputStream(new FileInputStream(var0));
-
-            try {
-                if (var1.readLong() != this.sessionId) {
-                    throw new LevelConflictException("The save is being accessed from another location, aborting");
-                }
-            } finally {
-                var1.close();
-            }
-
-        } catch (IOException var7) {
-            throw new LevelConflictException("Failed to check session lock, aborting");
-        }
-    }
-
     @Nullable
     public LevelData prepareLevel() {
-        File var0 = new File(this.worldDir, "special_level.dat");
+        File var0 = new File(this.worldDir, "level.dat");
         if (var0.exists()) {
             LevelData var1 = LevelStorageSource.getLevelData(var0, this.fixerUpper);
             if (var1 != null) {
@@ -124,7 +82,7 @@ public class LevelStorage implements PlayerIO {
             }
         }
 
-        var0 = new File(this.worldDir, "special_level.dat_old");
+        var0 = new File(this.worldDir, "level.dat_old");
         return var0.exists() ? LevelStorageSource.getLevelData(var0, this.fixerUpper) : null;
     }
 

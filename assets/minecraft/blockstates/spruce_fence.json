@@ -10,8 +10,8 @@
         "north": "true"
       },
       "apply": {
-        "uvlock": true,
-        "model": "minecraft:block/spruce_fence_side"
+        "model": "minecraft:block/spruce_fence_side",
+        "uvlock": true
       }
     },
     {
@@ -19,9 +19,9 @@
         "east": "true"
       },
       "apply": {
-        "uvlock": true,
+        "model": "minecraft:block/spruce_fence_side",
         "y": 90,
-        "model": "minecraft:block/spruce_fence_side"
+        "uvlock": true
       }
     },
     {
@@ -29,9 +29,9 @@
         "south": "true"
       },
       "apply": {
-        "uvlock": true,
+        "model": "minecraft:block/spruce_fence_side",
         "y": 180,
-        "model": "minecraft:block/spruce_fence_side"
+        "uvlock": true
       }
     },
     {
@@ -39,9 +39,9 @@
         "west": "true"
       },
       "apply": {
-        "uvlock": true,
+        "model": "minecraft:block/spruce_fence_side",
         "y": 270,
-        "model": "minecraft:block/spruce_fence_side"
+        "uvlock": true
       }
     }
   ]

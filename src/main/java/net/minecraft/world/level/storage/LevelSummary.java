@@ -1,5 +1,6 @@
 package net.minecraft.world.level.storage;
 
+import java.io.File;
 import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
@@ -24,10 +25,14 @@ public class LevelSummary implements Comparable<LevelSummary> {
     private final int worldVersion;
     private final boolean snapshot;
     private final LevelType generatorType;
+    private final boolean locked;
+    private final File icon;
 
-    public LevelSummary(LevelData param0, String param1, String param2, long param3, boolean param4) {
+    public LevelSummary(LevelData param0, String param1, String param2, long param3, boolean param4, boolean param5, File param6) {
         this.levelId = param1;
         this.levelName = param2;
+        this.locked = param5;
+        this.icon = param6;
         this.lastPlayed = param0.getLastPlayed();
         this.sizeOnDisk = param3;
         this.gameMode = param0.getGameType();
@@ -46,6 +51,10 @@ public class LevelSummary implements Comparable<LevelSummary> {
 
     public String getLevelName() {
         return this.levelName;
+    }
+
+    public File getIcon() {
+        return this.icon;
     }
 
     public boolean isRequiresConversion() {
@@ -96,5 +105,9 @@ public class LevelSummary implements Comparable<LevelSummary> {
 
     public boolean shouldBackup() {
         return this.worldVersion < SharedConstants.getCurrentVersion().getWorldVersion();
+    }
+
+    public boolean isLocked() {
+        return this.locked;
     }
 }

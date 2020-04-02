@@ -98,11 +98,6 @@ public class CactusBlock extends Block {
     }
 
     @Override
-    public boolean isUnstable() {
-        return true;
-    }
-
-    @Override
     public void entityInside(BlockState param0, Level param1, BlockPos param2, Entity param3) {
         param3.hurt(DamageSource.CACTUS, 1.0F);
     }

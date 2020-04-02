@@ -33,6 +33,9 @@ public class TagMatchTest extends RuleTest {
 
     @Override
     protected <T> Dynamic<T> getDynamic(DynamicOps<T> param0) {
-        return new Dynamic<>(param0, param0.createMap(ImmutableMap.of(param0.createString("tag"), param0.createString(this.tag.getId().toString()))));
+        return new Dynamic<>(
+            param0,
+            param0.createMap(ImmutableMap.of(param0.createString("tag"), param0.createString(BlockTags.getAllTags().getIdOrThrow(this.tag).toString())))
+        );
     }
 }

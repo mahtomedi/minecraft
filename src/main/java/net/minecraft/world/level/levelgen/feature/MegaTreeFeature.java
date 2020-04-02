@@ -12,8 +12,8 @@ import net.minecraft.world.level.levelgen.feature.configurations.TreeConfigurati
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public abstract class MegaTreeFeature<T extends TreeConfiguration> extends AbstractTreeFeature<T> {
-    public MegaTreeFeature(Function<Dynamic<?>, ? extends T> param0, Function<Random, ? extends T> param1) {
-        super(param0, param1);
+    public MegaTreeFeature(Function<Dynamic<?>, ? extends T> param0) {
+        super(param0);
     }
 
     protected int calcTreeHeigth(Random param0, MegaTreeConfiguration param1) {
@@ -108,23 +108,23 @@ public abstract class MegaTreeFeature<T extends TreeConfiguration> extends Abstr
         for(int var1 = 0; var1 < param3; ++var1) {
             var0.setWithOffset(param2, 0, var1, 0);
             if (isFree(param0, var0)) {
-                this.placeLog(param0, param1, var0, param4, param5, param6);
+                placeLog(param0, param1, var0, param4, param5, param6);
             }
 
             if (var1 < param3 - 1) {
                 var0.setWithOffset(param2, 1, var1, 0);
                 if (isFree(param0, var0)) {
-                    this.placeLog(param0, param1, var0, param4, param5, param6);
+                    placeLog(param0, param1, var0, param4, param5, param6);
                 }
 
                 var0.setWithOffset(param2, 1, var1, 1);
                 if (isFree(param0, var0)) {
-                    this.placeLog(param0, param1, var0, param4, param5, param6);
+                    placeLog(param0, param1, var0, param4, param5, param6);
                 }
 
                 var0.setWithOffset(param2, 0, var1, 1);
                 if (isFree(param0, var0)) {
-                    this.placeLog(param0, param1, var0, param4, param5, param6);
+                    placeLog(param0, param1, var0, param4, param5, param6);
                 }
             }
         }

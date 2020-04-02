@@ -2,7 +2,10 @@ package net.minecraft.client.gui.components.toasts;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import javax.annotation.Nullable;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -50,14 +53,36 @@ public class SystemToast implements Toast {
         return this.id;
     }
 
+    public static void add(ToastComponent param0, SystemToast.SystemToastIds param1, Component param2, @Nullable Component param3) {
+        param0.addToast(new SystemToast(param1, param2, param3));
+    }
+
     public static void addOrUpdate(ToastComponent param0, SystemToast.SystemToastIds param1, Component param2, @Nullable Component param3) {
         SystemToast var0 = param0.getToast(SystemToast.class, param1);
         if (var0 == null) {
-            param0.addToast(new SystemToast(param1, param2, param3));
+            add(param0, param1, param2, param3);
         } else {
             var0.reset(param2, param3);
         }
 
+    }
+
+    public static void onWorldAccessFailure(Minecraft param0, String param1) {
+        add(
+            param0.getToasts(),
+            SystemToast.SystemToastIds.WORLD_ACCESS_FAILURE,
+            new TranslatableComponent("selectWorld.access_failure"),
+            new TextComponent(param1)
+        );
+    }
+
+    public static void onWorldDeleteFailure(Minecraft param0, String param1) {
+        add(
+            param0.getToasts(),
+            SystemToast.SystemToastIds.WORLD_ACCESS_FAILURE,
+            new TranslatableComponent("selectWorld.delete_failure"),
+            new TextComponent(param1)
+        );
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -65,6 +90,7 @@ public class SystemToast implements Toast {
         TUTORIAL_HINT,
         NARRATOR_TOGGLE,
         WORLD_BACKUP,
-        PACK_LOAD_FAILURE;
+        PACK_LOAD_FAILURE,
+        WORLD_ACCESS_FAILURE;
     }
 }

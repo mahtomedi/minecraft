@@ -36,7 +36,6 @@ import net.minecraft.server.commands.CloneCommands;
 import net.minecraft.server.commands.DataPackCommand;
 import net.minecraft.server.commands.DeOpCommands;
 import net.minecraft.server.commands.DebugCommand;
-import net.minecraft.server.commands.DebugDimension;
 import net.minecraft.server.commands.DefaultGameModeCommands;
 import net.minecraft.server.commands.DifficultyCommand;
 import net.minecraft.server.commands.EffectCommands;
@@ -91,7 +90,6 @@ import net.minecraft.server.commands.TellRawCommand;
 import net.minecraft.server.commands.TimeCommand;
 import net.minecraft.server.commands.TitleCommand;
 import net.minecraft.server.commands.TriggerCommand;
-import net.minecraft.server.commands.WarpCommand;
 import net.minecraft.server.commands.WeatherCommand;
 import net.minecraft.server.commands.WhitelistCommand;
 import net.minecraft.server.commands.WorldBorderCommand;
@@ -113,7 +111,6 @@ public class Commands {
         DataCommands.register(this.dispatcher);
         DataPackCommand.register(this.dispatcher);
         DebugCommand.register(this.dispatcher);
-        DebugDimension.register(this.dispatcher);
         DefaultGameModeCommands.register(this.dispatcher);
         DifficultyCommand.register(this.dispatcher);
         EffectCommands.register(this.dispatcher);
@@ -159,7 +156,6 @@ public class Commands {
         TimeCommand.register(this.dispatcher);
         TitleCommand.register(this.dispatcher);
         TriggerCommand.register(this.dispatcher);
-        WarpCommand.register(this.dispatcher);
         WeatherCommand.register(this.dispatcher);
         WorldBorderCommand.register(this.dispatcher);
         if (SharedConstants.IS_RUNNING_IN_IDE) {

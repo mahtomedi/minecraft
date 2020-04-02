@@ -63,7 +63,7 @@ public class TagEntry extends LootPoolSingletonContainer {
 
         public void serialize(JsonObject param0, TagEntry param1, JsonSerializationContext param2) {
             super.serialize(param0, param1, param2);
-            param0.addProperty("name", param1.tag.getId().toString());
+            param0.addProperty("name", ItemTags.getAllTags().getIdOrThrow(param1.tag).toString());
             param0.addProperty("expand", param1.expand);
         }
 

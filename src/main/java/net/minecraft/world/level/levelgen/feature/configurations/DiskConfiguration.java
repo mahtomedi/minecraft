@@ -4,11 +4,6 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 import java.util.List;
-import java.util.Random;
-import java.util.stream.Collectors;
-import net.minecraft.Util;
-import net.minecraft.core.Registry;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -50,14 +45,5 @@ public class DiskConfiguration implements FeatureConfiguration {
         int var2 = param0.get("y_size").asInt(0);
         List<BlockState> var3 = param0.get("targets").asList(BlockState::deserialize);
         return new DiskConfiguration(var0, var1, var2, var3);
-    }
-
-    public static DiskConfiguration random(Random param0) {
-        return new DiskConfiguration(
-            Registry.BLOCK.getRandom(param0).defaultBlockState(),
-            param0.nextInt(20) + 2,
-            param0.nextInt(20) + 2,
-            Util.randomObjectStream(param0, 30, Registry.BLOCK).map(Block::defaultBlockState).collect(Collectors.toList())
-        );
     }
 }

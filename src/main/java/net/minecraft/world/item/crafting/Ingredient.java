@@ -31,14 +31,13 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public final class Ingredient implements Predicate<ItemStack> {
-    private static final Predicate<? super Ingredient.Value> NON_ALL_EMPTY = param0 -> !param0.getItems().stream().allMatch(ItemStack::isEmpty);
     public static final Ingredient EMPTY = new Ingredient(Stream.empty());
     private final Ingredient.Value[] values;
     private ItemStack[] itemStacks;
     private IntList stackingIds;
 
     private Ingredient(Stream<? extends Ingredient.Value> param0) {
-        this.values = param0.filter(NON_ALL_EMPTY).toArray(param0x -> new Ingredient.Value[param0x]);
+        this.values = param0.toArray(param0x -> new Ingredient.Value[param0x]);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -57,18 +56,19 @@ public final class Ingredient implements Predicate<ItemStack> {
     public boolean test(@Nullable ItemStack param0) {
         if (param0 == null) {
             return false;
-        } else if (this.values.length == 0) {
-            return param0.isEmpty();
         } else {
             this.dissolve();
-
-            for(ItemStack var0 : this.itemStacks) {
-                if (var0.getItem() == param0.getItem()) {
-                    return true;
+            if (this.itemStacks.length == 0) {
+                return param0.isEmpty();
+            } else {
+                for(ItemStack var0 : this.itemStacks) {
+                    if (var0.getItem() == param0.getItem()) {
+                        return true;
+                    }
                 }
-            }
 
-            return false;
+                return false;
+            }
         }
     }
 
@@ -121,12 +121,16 @@ public final class Ingredient implements Predicate<ItemStack> {
     }
 
     public static Ingredient of(ItemLike... param0) {
-        return fromValues(Arrays.stream(param0).map(param0x -> new Ingredient.ItemValue(new ItemStack(param0x))));
+        return of(Arrays.stream(param0).map(ItemStack::new));
     }
 
     @OnlyIn(Dist.CLIENT)
     public static Ingredient of(ItemStack... param0) {
-        return fromValues(Arrays.stream(param0).map(param0x -> new Ingredient.ItemValue(param0x)));
+        return of(Arrays.stream(param0));
+    }
+
+    public static Ingredient of(Stream<ItemStack> param0) {
+        return fromValues(param0.filter(param0x -> !param0x.isEmpty()).map(param0x -> new Ingredient.ItemValue(param0x)));
     }
 
     public static Ingredient of(Tag<Item> param0) {
@@ -157,7 +161,7 @@ public final class Ingredient implements Predicate<ItemStack> {
         }
     }
 
-    public static Ingredient.Value valueFromJson(JsonObject param0) {
+    private static Ingredient.Value valueFromJson(JsonObject param0) {
         if (param0.has("item") && param0.has("tag")) {
             throw new JsonParseException("An ingredient entry is either a tag or an item, not both");
         } else if (param0.has("item")) {
@@ -218,7 +222,7 @@ public final class Ingredient implements Predicate<ItemStack> {
         @Override
         public JsonObject serialize() {
             JsonObject var0 = new JsonObject();
-            var0.addProperty("tag", this.tag.getId().toString());
+            var0.addProperty("tag", ItemTags.getAllTags().getIdOrThrow(this.tag).toString());
             return var0;
         }
     }

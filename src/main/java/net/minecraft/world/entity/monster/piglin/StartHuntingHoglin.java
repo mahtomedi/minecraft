@@ -11,7 +11,7 @@ public class StartHuntingHoglin<E extends Piglin> extends Behavior<E> {
     public StartHuntingHoglin() {
         super(
             ImmutableMap.of(
-                MemoryModuleType.NEAREST_VISIBLE_ADULT_HOGLIN,
+                MemoryModuleType.NEAREST_VISIBLE_HUNTABLE_HOGLIN,
                 MemoryStatus.VALUE_PRESENT,
                 MemoryModuleType.ANGRY_AT,
                 MemoryStatus.VALUE_ABSENT,
@@ -28,7 +28,7 @@ public class StartHuntingHoglin<E extends Piglin> extends Behavior<E> {
     }
 
     protected void start(ServerLevel param0, E param1, long param2) {
-        Hoglin var0 = param1.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_ADULT_HOGLIN).get();
+        Hoglin var0 = param1.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_HUNTABLE_HOGLIN).get();
         PiglinAi.setAngerTarget(param1, var0);
         PiglinAi.dontKillAnyMoreHoglinsForAWhile(param1);
         PiglinAi.broadcastAngerTarget(param1, var0);

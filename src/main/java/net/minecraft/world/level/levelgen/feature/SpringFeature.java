@@ -5,74 +5,80 @@ import java.util.Random;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.feature.configurations.SpringConfiguration;
 
 public class SpringFeature extends Feature<SpringConfiguration> {
-    public SpringFeature(Function<Dynamic<?>, ? extends SpringConfiguration> param0, Function<Random, ? extends SpringConfiguration> param1) {
-        super(param0, param1);
+    public SpringFeature(Function<Dynamic<?>, ? extends SpringConfiguration> param0) {
+        super(param0);
     }
 
     public boolean place(
-        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, SpringConfiguration param4
+        LevelAccessor param0,
+        StructureFeatureManager param1,
+        ChunkGenerator<? extends ChunkGeneratorSettings> param2,
+        Random param3,
+        BlockPos param4,
+        SpringConfiguration param5
     ) {
-        if (!param4.validBlocks.contains(param0.getBlockState(param3.above()).getBlock())) {
+        if (!param5.validBlocks.contains(param0.getBlockState(param4.above()).getBlock())) {
             return false;
-        } else if (param4.requiresBlockBelow && !param4.validBlocks.contains(param0.getBlockState(param3.below()).getBlock())) {
+        } else if (param5.requiresBlockBelow && !param5.validBlocks.contains(param0.getBlockState(param4.below()).getBlock())) {
             return false;
         } else {
-            BlockState var0 = param0.getBlockState(param3);
-            if (!var0.isAir() && !param4.validBlocks.contains(var0.getBlock())) {
+            BlockState var0 = param0.getBlockState(param4);
+            if (!var0.isAir() && !param5.validBlocks.contains(var0.getBlock())) {
                 return false;
             } else {
                 int var1 = 0;
                 int var2 = 0;
-                if (param4.validBlocks.contains(param0.getBlockState(param3.west()).getBlock())) {
+                if (param5.validBlocks.contains(param0.getBlockState(param4.west()).getBlock())) {
                     ++var2;
                 }
 
-                if (param4.validBlocks.contains(param0.getBlockState(param3.east()).getBlock())) {
+                if (param5.validBlocks.contains(param0.getBlockState(param4.east()).getBlock())) {
                     ++var2;
                 }
 
-                if (param4.validBlocks.contains(param0.getBlockState(param3.north()).getBlock())) {
+                if (param5.validBlocks.contains(param0.getBlockState(param4.north()).getBlock())) {
                     ++var2;
                 }
 
-                if (param4.validBlocks.contains(param0.getBlockState(param3.south()).getBlock())) {
+                if (param5.validBlocks.contains(param0.getBlockState(param4.south()).getBlock())) {
                     ++var2;
                 }
 
-                if (param4.validBlocks.contains(param0.getBlockState(param3.below()).getBlock())) {
+                if (param5.validBlocks.contains(param0.getBlockState(param4.below()).getBlock())) {
                     ++var2;
                 }
 
                 int var3 = 0;
-                if (param0.isEmptyBlock(param3.west())) {
+                if (param0.isEmptyBlock(param4.west())) {
                     ++var3;
                 }
 
-                if (param0.isEmptyBlock(param3.east())) {
+                if (param0.isEmptyBlock(param4.east())) {
                     ++var3;
                 }
 
-                if (param0.isEmptyBlock(param3.north())) {
+                if (param0.isEmptyBlock(param4.north())) {
                     ++var3;
                 }
 
-                if (param0.isEmptyBlock(param3.south())) {
+                if (param0.isEmptyBlock(param4.south())) {
                     ++var3;
                 }
 
-                if (param0.isEmptyBlock(param3.below())) {
+                if (param0.isEmptyBlock(param4.below())) {
                     ++var3;
                 }
 
-                if (var2 == param4.rockCount && var3 == param4.holeCount) {
-                    param0.setBlock(param3, param4.state.createLegacyBlock(), 2);
-                    param0.getLiquidTicks().scheduleTick(param3, param4.state.getType(), 0);
+                if (var2 == param5.rockCount && var3 == param5.holeCount) {
+                    param0.setBlock(param4, param5.state.createLegacyBlock(), 2);
+                    param0.getLiquidTicks().scheduleTick(param4, param5.state.getType(), 0);
                     ++var1;
                 }
 

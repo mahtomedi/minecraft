@@ -18,24 +18,38 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class Projectile extends Entity {
     private UUID ownerUUID;
+    private int ownerNetworkId;
+    private boolean leftOwner;
 
     Projectile(EntityType<? extends Projectile> param0, Level param1) {
         super(param0, param1);
     }
 
     public void setOwner(@Nullable Entity param0) {
-        this.ownerUUID = param0 == null ? null : param0.getUUID();
+        if (param0 != null) {
+            this.ownerUUID = param0.getUUID();
+            this.ownerNetworkId = param0.getId();
+        }
+
     }
 
     @Nullable
     public Entity getOwner() {
-        return this.ownerUUID != null && this.level instanceof ServerLevel ? ((ServerLevel)this.level).getEntity(this.ownerUUID) : null;
+        if (this.ownerUUID != null && this.level instanceof ServerLevel) {
+            return ((ServerLevel)this.level).getEntity(this.ownerUUID);
+        } else {
+            return this.ownerNetworkId != 0 ? this.level.getEntity(this.ownerNetworkId) : null;
+        }
     }
 
     @Override
     protected void addAdditionalSaveData(CompoundTag param0) {
         if (this.ownerUUID != null) {
             param0.putUUID("Owner", this.ownerUUID);
+        }
+
+        if (this.leftOwner) {
+            param0.putBoolean("LeftOwner", true);
         }
 
     }
@@ -46,6 +60,29 @@ public abstract class Projectile extends Entity {
             this.ownerUUID = param0.getUUID("Owner");
         }
 
+        this.leftOwner = param0.getBoolean("LeftOwner");
+    }
+
+    @Override
+    public void tick() {
+        if (!this.leftOwner) {
+            this.leftOwner = this.checkLeftOwner();
+        }
+
+        super.tick();
+    }
+
+    private boolean checkLeftOwner() {
+        Entity var0 = this.getOwner();
+        if (var0 != null) {
+            for(Entity var1 : this.level.getEntities(this, this.getBoundingBox().inflate(1.0), param0 -> !param0.isSpectator() && param0.isPickable())) {
+                if (var1.getRootVehicle() == var0.getRootVehicle()) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     public void shoot(double param0, double param1, double param2, float param3, float param4) {
@@ -105,5 +142,33 @@ public abstract class Projectile extends Entity {
             this.moveTo(this.getX(), this.getY(), this.getZ(), this.yRot, this.xRot);
         }
 
+    }
+
+    protected boolean canHitEntity(Entity param0) {
+        if (!param0.isSpectator() && param0.isAlive() && param0.isPickable()) {
+            Entity var0 = this.getOwner();
+            return var0 == null || this.leftOwner || !var0.isPassengerOfSameVehicle(param0);
+        } else {
+            return false;
+        }
+    }
+
+    protected void updateRotation() {
+        Vec3 var0 = this.getDeltaMovement();
+        float var1 = Mth.sqrt(getHorizontalDistanceSqr(var0));
+        this.xRot = lerpRotation(this.xRotO, (float)(Mth.atan2(var0.y, (double)var1) * 180.0F / (float)Math.PI));
+        this.yRot = lerpRotation(this.yRotO, (float)(Mth.atan2(var0.x, var0.z) * 180.0F / (float)Math.PI));
+    }
+
+    protected static float lerpRotation(float param0, float param1) {
+        while(param1 - param0 < -180.0F) {
+            param0 -= 360.0F;
+        }
+
+        while(param1 - param0 >= 180.0F) {
+            param0 += 360.0F;
+        }
+
+        return Mth.lerp(0.2F, param0, param1);
     }
 }

@@ -238,7 +238,7 @@ public enum Direction implements StringRepresentable {
     }
 
     public static Direction getRandomFace(Random param0) {
-        return values()[param0.nextInt(values().length)];
+        return VALUES[param0.nextInt(VALUES.length)];
     }
 
     public static Direction getNearest(double param0, double param1, double param2) {
@@ -271,7 +271,7 @@ public enum Direction implements StringRepresentable {
     }
 
     public static Direction get(Direction.AxisDirection param0, Direction.Axis param1) {
-        for(Direction var0 : values()) {
+        for(Direction var0 : VALUES) {
             if (var0.getAxisDirection() == param0 && var0.getAxis() == param1) {
                 return var0;
             }
@@ -319,7 +319,8 @@ public enum Direction implements StringRepresentable {
             }
         };
 
-        private static final Map<String, Direction.Axis> BY_NAME = Arrays.stream(values()).collect(Collectors.toMap(Direction.Axis::getName, param0 -> param0));
+        private static final Direction.Axis[] VALUES = values();
+        private static final Map<String, Direction.Axis> BY_NAME = Arrays.stream(VALUES).collect(Collectors.toMap(Direction.Axis::getName, param0 -> param0));
         private final String name;
 
         private Axis(String param0) {
@@ -349,7 +350,7 @@ public enum Direction implements StringRepresentable {
         }
 
         public static Direction.Axis getRandomAxis(Random param0) {
-            return values()[param0.nextInt(values().length)];
+            return VALUES[param0.nextInt(VALUES.length)];
         }
 
         public boolean test(@Nullable Direction param0) {

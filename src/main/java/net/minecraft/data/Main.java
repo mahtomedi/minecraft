@@ -67,8 +67,9 @@ public class Main {
 
         if (param3) {
             var0.addProvider(new FluidTagsProvider(var0));
-            var0.addProvider(new BlockTagsProvider(var0));
-            var0.addProvider(new ItemTagsProvider(var0));
+            BlockTagsProvider var1 = new BlockTagsProvider(var0);
+            var0.addProvider(var1);
+            var0.addProvider(new ItemTagsProvider(var0, var1));
             var0.addProvider(new EntityTypeTagsProvider(var0));
             var0.addProvider(new RecipeProvider(var0));
             var0.addProvider(new AdvancementProvider(var0));

@@ -3,6 +3,7 @@ package net.minecraft.world.item;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
@@ -49,21 +50,23 @@ public class CompassItem extends Item {
                     CompoundTag var2 = param0.getOrCreateTag();
                     boolean var3 = CompassItem.hasLodestoneData(var2);
                     BlockPos var4 = var3 ? CompassItem.this.getLodestonePosition(param1, var2) : CompassItem.this.getSpawnPosition(param1);
-                    double var7;
+                    double var9;
                     if (var4 != null) {
                         double var5 = var0 ? (double)var1.yRot : CompassItem.getFrameRotation((ItemFrame)var1);
                         var5 = Mth.positiveModulo(var5 / 360.0, 1.0);
-                        double var6 = CompassItem.getAngleTo(Vec3.atCenterOf(var4), var1) / (float) (Math.PI * 2);
-                        var7 = 0.5 - (var5 - 0.25 - var6);
+                        boolean var6 = !var0 && var1.getDirection().getAxis().isVertical();
+                        boolean var7 = var6 && var1.getDirection() == Direction.UP;
+                        double var8 = CompassItem.getAngleTo(Vec3.atCenterOf(var4), var1) / (float) (Math.PI * 2) * (double)(var7 ? -1 : 1);
+                        var9 = 0.5 - (var5 - 0.25 - var8) * (double)(var6 ? -1 : 1);
                     } else {
-                        var7 = Math.random();
+                        var9 = Math.random();
                     }
 
-                    if (var0 && !var3) {
-                        var7 = this.wobble(param1, var7);
+                    if (var0) {
+                        var9 = this.wobble(param1, var9);
                     }
 
-                    return Mth.positiveModulo((float)var7, 1.0F);
+                    return Mth.positiveModulo((float)var9, 1.0F);
                 }
             }
 
@@ -93,7 +96,7 @@ public class CompassItem extends Item {
 
     @Override
     public boolean isFoil(ItemStack param0) {
-        return isLodestoneCompass(param0);
+        return isLodestoneCompass(param0) || super.isFoil(param0);
     }
 
     private static Optional<DimensionType> getLodestoneDimension(CompoundTag param0) {
@@ -124,7 +127,8 @@ public class CompassItem extends Item {
 
     @OnlyIn(Dist.CLIENT)
     private static double getFrameRotation(ItemFrame param0) {
-        return (double)Mth.wrapDegrees(180 + param0.getDirection().get2DDataValue() * 90);
+        Direction var0 = param0.getDirection();
+        return var0.getAxis().isVertical() ? 0.0 : (double)Mth.wrapDegrees(180 + param0.getDirection().get2DDataValue() * 90);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -137,6 +141,10 @@ public class CompassItem extends Item {
         if (!param1.isClientSide) {
             CompoundTag var0 = param0.getOrCreateTag();
             if (hasLodestoneData(var0)) {
+                if (var0.contains("LodestoneTracked") && !var0.getBoolean("LodestoneTracked")) {
+                    return;
+                }
+
                 Optional<DimensionType> var1 = getLodestoneDimension(var0);
                 if (var1.isPresent()
                     && var1.get().equals(param1.dimension.getType())
@@ -155,13 +163,15 @@ public class CompassItem extends Item {
     public InteractionResult useOn(UseOnContext param0) {
         BlockPos var0 = param0.hitResult.getBlockPos();
         if (param0.level.getBlockState(var0).getBlock() == Blocks.LODESTONE) {
-            param0.level.playSound(null, var0, SoundEvents.LODESTONE_COMPASS_LOCK, SoundSource.NEUTRAL, 1.0F, 1.0F);
+            param0.level.playSound(null, var0, SoundEvents.LODESTONE_COMPASS_LOCK, SoundSource.PLAYERS, 1.0F, 1.0F);
             CompoundTag var1 = param0.itemStack.getOrCreateTag();
             var1.put("LodestonePos", NbtUtils.writeBlockPos(var0));
             var1.putString("LodestoneDimension", DimensionType.getName(param0.level.dimension.getType()).toString());
+            var1.putBoolean("LodestoneTracked", true);
+            return InteractionResult.SUCCESS;
+        } else {
+            return super.useOn(param0);
         }
-
-        return super.useOn(param0);
     }
 
     @Override

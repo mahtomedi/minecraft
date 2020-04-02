@@ -6,6 +6,7 @@ import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SnowyDirtBlock;
@@ -16,20 +17,25 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 
 public class SnowAndFreezeFeature extends Feature<NoneFeatureConfiguration> {
-    public SnowAndFreezeFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0, Function<Random, ? extends NoneFeatureConfiguration> param1) {
-        super(param0, param1);
+    public SnowAndFreezeFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0) {
+        super(param0);
     }
 
     public boolean place(
-        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, NoneFeatureConfiguration param4
+        LevelAccessor param0,
+        StructureFeatureManager param1,
+        ChunkGenerator<? extends ChunkGeneratorSettings> param2,
+        Random param3,
+        BlockPos param4,
+        NoneFeatureConfiguration param5
     ) {
         BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
         BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos();
 
         for(int var2 = 0; var2 < 16; ++var2) {
             for(int var3 = 0; var3 < 16; ++var3) {
-                int var4 = param3.getX() + var2;
-                int var5 = param3.getZ() + var3;
+                int var4 = param4.getX() + var2;
+                int var5 = param4.getZ() + var3;
                 int var6 = param0.getHeight(Heightmap.Types.MOTION_BLOCKING, var4, var5);
                 var0.set(var4, var6, var5);
                 var1.set(var0).move(Direction.DOWN, 1);

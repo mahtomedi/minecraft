@@ -5,11 +5,8 @@ import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Random;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import net.minecraft.Util;
-import net.minecraft.core.Registry;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -50,12 +47,6 @@ public class OreConfiguration implements FeatureConfiguration {
         return new OreConfiguration(var1, var2, var0);
     }
 
-    public static OreConfiguration random(Random param0) {
-        return new OreConfiguration(
-            Util.randomEnum(OreConfiguration.Predicates.class, param0), Registry.BLOCK.getRandom(param0).defaultBlockState(), param0.nextInt(15)
-        );
-    }
-
     public static enum Predicates {
         NATURAL_STONE("natural_stone", param0 -> {
             if (param0 == null) {
@@ -65,8 +56,7 @@ public class OreConfiguration implements FeatureConfiguration {
                 return var0 == Blocks.STONE || var0 == Blocks.GRANITE || var0 == Blocks.DIORITE || var0 == Blocks.ANDESITE;
             }
         }),
-        NETHERRACK("netherrack", new BlockPredicate(Blocks.NETHERRACK)),
-        ANY("any", param0 -> true);
+        NETHERRACK("netherrack", new BlockPredicate(Blocks.NETHERRACK));
 
         private static final Map<String, OreConfiguration.Predicates> BY_NAME = Arrays.stream(values())
             .collect(Collectors.toMap(OreConfiguration.Predicates::getName, param0 -> param0));

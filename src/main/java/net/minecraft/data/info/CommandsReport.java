@@ -23,6 +23,7 @@ import net.minecraft.server.dedicated.DedicatedServerSettings;
 import net.minecraft.server.level.progress.LoggerChunkProgressListener;
 import net.minecraft.server.players.GameProfileCache;
 import net.minecraft.util.datafix.DataFixers;
+import net.minecraft.world.level.storage.LevelStorageSource;
 
 public class CommandsReport implements DataProvider {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
@@ -40,12 +41,11 @@ public class CommandsReport implements DataProvider {
         File var3 = new File(this.generator.getOutputFolder().toFile(), "tmp");
         GameProfileCache var4 = new GameProfileCache(var2, new File(var3, MinecraftServer.USERID_CACHE_FILE.getName()));
         DedicatedServerSettings var5 = new DedicatedServerSettings(Paths.get("server.properties"));
-        MinecraftServer var6 = new DedicatedServer(
-            var3, var5, DataFixers.getDataFixer(), var0, var1, var2, var4, LoggerChunkProgressListener::new, var5.getProperties().levelName
-        );
-        Path var7 = this.generator.getOutputFolder().resolve("reports/commands.json");
-        CommandDispatcher<CommandSourceStack> var8 = var6.getCommands().getDispatcher();
-        DataProvider.save(GSON, param0, ArgumentTypes.serializeNodeToJson(var8, var8.getRoot()), var7);
+        LevelStorageSource.LevelStorageAccess var6 = LevelStorageSource.createDefault(var3.toPath()).createAccess("world");
+        MinecraftServer var7 = new DedicatedServer(var6, var5, DataFixers.getDataFixer(), var1, var2, var4, LoggerChunkProgressListener::new);
+        Path var8 = this.generator.getOutputFolder().resolve("reports/commands.json");
+        CommandDispatcher<CommandSourceStack> var9 = var7.getCommands().getDispatcher();
+        DataProvider.save(GSON, param0, ArgumentTypes.serializeNodeToJson(var9, var9.getRoot()), var8);
     }
 
     @Override

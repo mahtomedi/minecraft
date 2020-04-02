@@ -1,26 +1,23 @@
 package net.minecraft.data.tags;
 
-import com.google.common.collect.Lists;
 import java.nio.file.Path;
-import java.util.List;
+import java.util.function.Function;
 import net.minecraft.core.Registry;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.Tag;
-import net.minecraft.tags.TagCollection;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class ItemTagsProvider extends TagsProvider<Item> {
-    private static final Logger LOGGER = LogManager.getLogger();
+    private final Function<ResourceLocation, Tag.Builder> blockTags;
 
-    public ItemTagsProvider(DataGenerator param0) {
+    public ItemTagsProvider(DataGenerator param0, BlockTagsProvider param1) {
         super(param0, Registry.ITEM);
+        this.blockTags = param1::tag;
     }
 
     @Override
@@ -63,7 +60,6 @@ public class ItemTagsProvider extends TagsProvider<Item> {
         this.copy(BlockTags.TALL_FLOWERS, ItemTags.TALL_FLOWERS);
         this.copy(BlockTags.FLOWERS, ItemTags.FLOWERS);
         this.copy(BlockTags.GOLD_ORES, ItemTags.GOLD_ORES);
-        this.copy(BlockTags.NON_FLAMMABLE_WOOD, ItemTags.NON_FLAMMABLE_WOOD);
         this.tag(ItemTags.BANNERS)
             .add(
                 Items.WHITE_BANNER,
@@ -106,37 +102,43 @@ public class ItemTagsProvider extends TagsProvider<Item> {
         this.tag(ItemTags.LECTERN_BOOKS).add(Items.WRITTEN_BOOK, Items.WRITABLE_BOOK);
         this.tag(ItemTags.BEACON_PAYMENT_ITEMS).add(Items.NETHERITE_INGOT, Items.EMERALD, Items.DIAMOND, Items.GOLD_INGOT, Items.IRON_INGOT);
         this.tag(ItemTags.PIGLIN_REPELLENTS).add(Items.SOUL_FIRE_TORCH).add(Items.SOUL_FIRE_LANTERN);
+        this.tag(ItemTags.NON_FLAMMABLE_WOOD)
+            .add(
+                Items.WARPED_STEM,
+                Items.STRIPPED_WARPED_STEM,
+                Items.WARPED_HYPHAE,
+                Items.STRIPPED_WARPED_HYPHAE,
+                Items.CRIMSON_STEM,
+                Items.STRIPPED_CRIMSON_STEM,
+                Items.CRIMSON_HYPHAE,
+                Items.STRIPPED_CRIMSON_HYPHAE,
+                Items.CRIMSON_PLANKS,
+                Items.WARPED_PLANKS,
+                Items.CRIMSON_SLAB,
+                Items.WARPED_SLAB,
+                Items.CRIMSON_PRESSURE_PLATE,
+                Items.WARPED_PRESSURE_PLATE,
+                Items.CRIMSON_FENCE,
+                Items.WARPED_FENCE,
+                Items.CRIMSON_TRAPDOOR,
+                Items.WARPED_TRAPDOOR,
+                Items.CRIMSON_FENCE_GATE,
+                Items.WARPED_FENCE_GATE,
+                Items.CRIMSON_STAIRS,
+                Items.WARPED_STAIRS,
+                Items.CRIMSON_BUTTON,
+                Items.WARPED_BUTTON,
+                Items.CRIMSON_DOOR,
+                Items.WARPED_DOOR,
+                Items.CRIMSON_SIGN,
+                Items.WARPED_SIGN
+            );
     }
 
-    protected void copy(Tag<Block> param0, Tag<Item> param1) {
-        Tag.Builder<Item> var0 = this.tag(param1);
-
-        for(Tag.Entry<Block> var1 : param0.getSource()) {
-            Tag.Entry<Item> var2 = this.copy(var1);
-            var0.add(var2);
-        }
-
-    }
-
-    private Tag.Entry<Item> copy(Tag.Entry<Block> param0) {
-        if (param0 instanceof Tag.TagEntry) {
-            return new Tag.TagEntry<>(((Tag.TagEntry)param0).getId());
-        } else if (param0 instanceof Tag.ValuesEntry) {
-            List<Item> var0 = Lists.newArrayList();
-
-            for(Block var1 : ((Tag.ValuesEntry)param0).getValues()) {
-                Item var2 = var1.asItem();
-                if (var2 == Items.AIR) {
-                    LOGGER.warn("Itemless block copied to item tag: {}", Registry.BLOCK.getKey(var1));
-                } else {
-                    var0.add(var2);
-                }
-            }
-
-            return new Tag.ValuesEntry<>(var0);
-        } else {
-            throw new UnsupportedOperationException("Unknown tag entry " + param0);
-        }
+    protected void copy(Tag.Named<Block> param0, Tag.Named<Item> param1) {
+        Tag.Builder var0 = this.tag(param1);
+        Tag.Builder var1 = this.blockTags.apply(param0.getName());
+        var1.getEntries().forEach(var0::add);
     }
 
     @Override
@@ -147,10 +149,5 @@ public class ItemTagsProvider extends TagsProvider<Item> {
     @Override
     public String getName() {
         return "Item Tags";
-    }
-
-    @Override
-    protected void useTags(TagCollection<Item> param0) {
-        ItemTags.reset(param0);
     }
 }

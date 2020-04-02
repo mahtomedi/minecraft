@@ -3,8 +3,6 @@ package net.minecraft.core.particles;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import java.util.Locale;
-import java.util.Random;
-import java.util.function.BiFunction;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Mth;
@@ -34,9 +32,6 @@ public class DustParticleOptions implements ParticleOptions {
     private final float g;
     private final float b;
     private final float scale;
-    public static final BiFunction<Random, ParticleType<DustParticleOptions>, DustParticleOptions> RANDOM_PROVIDER = (param0, param1) -> new DustParticleOptions(
-            param0.nextFloat(), param0.nextFloat(), param0.nextFloat(), param0.nextFloat() * 2.0F
-        );
 
     public DustParticleOptions(float param0, float param1, float param2, float param3) {
         this.r = param0;

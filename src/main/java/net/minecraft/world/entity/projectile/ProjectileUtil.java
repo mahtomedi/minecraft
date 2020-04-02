@@ -1,11 +1,8 @@
 package net.minecraft.world.entity.projectile;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
-import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -17,7 +14,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -25,53 +21,22 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public final class ProjectileUtil {
-    public static HitResult forwardsRaycast(Entity param0, boolean param1, boolean param2, @Nullable Entity param3, ClipContext.Block param4) {
-        return forwardsRaycast(
-            param0,
-            param1,
-            param2,
-            param3,
-            param4,
-            true,
-            param2x -> !param2x.isSpectator() && param2x.isPickable() && (param2 || !param2x.is(param3)) && !param2x.noPhysics,
-            param0.getBoundingBox().expandTowards(param0.getDeltaMovement()).inflate(1.0)
-        );
-    }
-
-    public static HitResult getHitResult(Entity param0, AABB param1, Predicate<Entity> param2, ClipContext.Block param3, boolean param4) {
-        return forwardsRaycast(param0, param4, false, null, param3, false, param2, param1);
-    }
-
-    @Nullable
-    public static EntityHitResult getHitResult(Level param0, Entity param1, Vec3 param2, Vec3 param3, AABB param4, Predicate<Entity> param5) {
-        return getHitResult(param0, param1, param2, param3, param4, param5, Double.MAX_VALUE);
-    }
-
-    private static HitResult forwardsRaycast(
-        Entity param0, boolean param1, boolean param2, @Nullable Entity param3, ClipContext.Block param4, boolean param5, Predicate<Entity> param6, AABB param7
-    ) {
+    public static HitResult getHitResult(Entity param0, Predicate<Entity> param1, ClipContext.Block param2) {
         Vec3 var0 = param0.getDeltaMovement();
         Level var1 = param0.level;
         Vec3 var2 = param0.position();
-        if (param5
-            && !var1.noCollision(param0, param0.getBoundingBox(), (Set<Entity>)(!param2 && param3 != null ? getIgnoredEntities(param3) : ImmutableSet.of()))) {
-            return new BlockHitResult(var2, Direction.getNearest(var0.x, var0.y, var0.z), param0.blockPosition(), false);
-        } else {
-            Vec3 var3 = var2.add(var0);
-            HitResult var4 = var1.clip(new ClipContext(var2, var3, param4, ClipContext.Fluid.NONE, param0));
-            if (param1) {
-                if (var4.getType() != HitResult.Type.MISS) {
-                    var3 = var4.getLocation();
-                }
-
-                HitResult var5 = getHitResult(var1, param0, var2, var3, param7, param6);
-                if (var5 != null) {
-                    var4 = var5;
-                }
-            }
-
-            return var4;
+        Vec3 var3 = var2.add(var0);
+        HitResult var4 = var1.clip(new ClipContext(var2, var3, param2, ClipContext.Fluid.NONE, param0));
+        if (var4.getType() != HitResult.Type.MISS) {
+            var3 = var4.getLocation();
         }
+
+        HitResult var5 = getEntityHitResult(var1, param0, var2, var3, param0.getBoundingBox().expandTowards(param0.getDeltaMovement()).inflate(1.0), param1);
+        if (var5 != null) {
+            var4 = var5;
+        }
+
+        return var4;
     }
 
     @Nullable
@@ -113,8 +78,8 @@ public final class ProjectileUtil {
     }
 
     @Nullable
-    public static EntityHitResult getHitResult(Level param0, Entity param1, Vec3 param2, Vec3 param3, AABB param4, Predicate<Entity> param5, double param6) {
-        double var0 = param6;
+    public static EntityHitResult getEntityHitResult(Level param0, Entity param1, Vec3 param2, Vec3 param3, AABB param4, Predicate<Entity> param5) {
+        double var0 = Double.MAX_VALUE;
         Entity var1 = null;
 
         for(Entity var2 : param0.getEntities(param1, param4, param5)) {
@@ -130,11 +95,6 @@ public final class ProjectileUtil {
         }
 
         return var1 == null ? null : new EntityHitResult(var1);
-    }
-
-    private static Set<Entity> getIgnoredEntities(Entity param0) {
-        Entity var0 = param0.getVehicle();
-        return var0 != null ? ImmutableSet.of(param0, var0) : ImmutableSet.of(param0);
     }
 
     public static final void rotateTowardsMovement(Entity param0, float param1) {

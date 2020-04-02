@@ -12,8 +12,7 @@ import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringUtil;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
-import net.minecraft.world.entity.monster.SharedMonsterAttributes;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
@@ -116,22 +115,21 @@ public abstract class AbstractClientPlayer extends Player {
             var0 *= 1.1F;
         }
 
-        AttributeInstance var1 = this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
-        var0 = (float)((double)var0 * ((var1.getValue() / (double)this.abilities.getWalkingSpeed() + 1.0) / 2.0));
+        var0 = (float)((double)var0 * ((this.getAttributeValue(Attributes.MOVEMENT_SPEED) / (double)this.abilities.getWalkingSpeed() + 1.0) / 2.0));
         if (this.abilities.getWalkingSpeed() == 0.0F || Float.isNaN(var0) || Float.isInfinite(var0)) {
             var0 = 1.0F;
         }
 
         if (this.isUsingItem() && this.getUseItem().getItem() == Items.BOW) {
-            int var2 = this.getTicksUsingItem();
-            float var3 = (float)var2 / 20.0F;
-            if (var3 > 1.0F) {
-                var3 = 1.0F;
+            int var1 = this.getTicksUsingItem();
+            float var2 = (float)var1 / 20.0F;
+            if (var2 > 1.0F) {
+                var2 = 1.0F;
             } else {
-                var3 *= var3;
+                var2 *= var2;
             }
 
-            var0 *= 1.0F - var3 * 0.15F;
+            var0 *= 1.0F - var2 * 0.15F;
         }
 
         return var0;

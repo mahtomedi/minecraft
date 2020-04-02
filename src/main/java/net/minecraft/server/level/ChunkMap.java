@@ -9,6 +9,8 @@ import com.mojang.datafixers.DataFixer;
 import com.mojang.datafixers.util.Either;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2ByteMap;
+import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -65,7 +67,6 @@ import net.minecraft.world.entity.global.LightningBolt;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameRules;
-import net.minecraft.world.level.LevelConflictException;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.ChunkStatus;
@@ -111,6 +112,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
     private final File storageFolder;
     private final PlayerMap playerMap = new PlayerMap();
     private final Int2ObjectMap<ChunkMap.TrackedEntity> entityMap = new Int2ObjectOpenHashMap<>();
+    private final Long2ByteMap chunkTypeCache = new Long2ByteOpenHashMap();
     private final Queue<Runnable> unloadQueue = Queues.newConcurrentLinkedQueue();
     private int viewDistance;
 
@@ -125,9 +127,10 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         ChunkGenerator<?> param7,
         ChunkProgressListener param8,
         Supplier<DimensionDataStorage> param9,
-        int param10
+        int param10,
+        boolean param11
     ) {
-        super(new File(param0.getDimension().getType().getStorageFolder(param1), "region"), param2);
+        super(new File(param0.getDimension().getType().getStorageFolder(param1), "region"), param2, param11);
         this.structureManager = param3;
         this.storageFolder = param0.getDimension().getType().getStorageFolder(param1);
         this.level = param0;
@@ -145,7 +148,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         );
         this.distanceManager = new ChunkMap.DistanceManager(param4, param5);
         this.overworldDataStorage = param9;
-        this.poiManager = new PoiManager(new File(this.storageFolder, "poi"), param2, param5::runAllTasks);
+        this.poiManager = new PoiManager(new File(this.storageFolder, "poi"), param2, param11);
         this.setViewDistance(param10);
     }
 
@@ -495,6 +498,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
                     if (var1) {
                         ChunkAccess var2 = ChunkSerializer.read(this.level, this.structureManager, this.poiManager, param0, var0);
                         var2.setLastSaveTime(this.level.getGameTime());
+                        this.markPosition(param0, var2.getStatus().getChunkType());
                         return Either.left(var2);
                     }
 
@@ -503,6 +507,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
             } catch (ReportedException var51) {
                 Throwable var4 = var51.getCause();
                 if (!(var4 instanceof IOException)) {
+                    this.markPositionReplaceable(param0);
                     throw var51;
                 }
 
@@ -511,8 +516,17 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
                 LOGGER.error("Couldn't load chunk {}", param0, var6);
             }
 
+            this.markPositionReplaceable(param0);
             return Either.left(new ProtoChunk(param0, UpgradeData.EMPTY));
         }, this.mainThreadExecutor);
+    }
+
+    private void markPositionReplaceable(ChunkPos param0) {
+        this.chunkTypeCache.put(param0.toLong(), (byte)-1);
+    }
+
+    private byte markPosition(ChunkPos param0, ChunkStatus.ChunkType param1) {
+        return this.chunkTypeCache.put(param0.toLong(), (byte)(param1 == ChunkStatus.ChunkType.PROTOCHUNK ? -1 : 1));
     }
 
     private CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> scheduleChunkGeneration(ChunkHolder param0, ChunkStatus param1) {
@@ -648,38 +662,54 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         if (!param0x.isUnsaved()) {
             return false;
         } else {
-            try {
-                this.level.checkSession();
-            } catch (LevelConflictException var6) {
-                LOGGER.error("Couldn't save chunk; already in use by another instance of Minecraft?", (Throwable)var6);
-                return false;
-            }
-
             param0x.setLastSaveTime(this.level.getGameTime());
             param0x.setUnsaved(false);
-            ChunkPos var1x = param0x.getPos();
+            ChunkPos var0x = param0x.getPos();
 
             try {
-                ChunkStatus var2 = param0x.getStatus();
-                if (var2.getChunkType() != ChunkStatus.ChunkType.LEVELCHUNK) {
-                    CompoundTag var3 = this.readChunk(var1x);
-                    if (var3 != null && ChunkSerializer.getChunkTypeFromTag(var3) == ChunkStatus.ChunkType.LEVELCHUNK) {
+                ChunkStatus var1x = param0x.getStatus();
+                if (var1x.getChunkType() != ChunkStatus.ChunkType.LEVELCHUNK) {
+                    if (this.isExistingChunkFull(var0x)) {
                         return false;
                     }
 
-                    if (var2 == ChunkStatus.EMPTY && param0x.getAllStarts().values().stream().noneMatch(StructureStart::isValid)) {
+                    if (var1x == ChunkStatus.EMPTY && param0x.getAllStarts().values().stream().noneMatch(StructureStart::isValid)) {
                         return false;
                     }
                 }
 
                 this.level.getProfiler().incrementCounter("chunkSave");
-                CompoundTag var4 = ChunkSerializer.write(this.level, param0x);
-                this.write(var1x, var4);
+                CompoundTag var2 = ChunkSerializer.write(this.level, param0x);
+                this.write(var0x, var2);
+                this.markPosition(var0x, var1x.getChunkType());
                 return true;
-            } catch (Exception var51) {
-                LOGGER.error("Failed to save chunk {},{}", var1x.x, var1x.z, var51);
+            } catch (Exception var5) {
+                LOGGER.error("Failed to save chunk {},{}", var0x.x, var0x.z, var5);
                 return false;
             }
+        }
+    }
+
+    private boolean isExistingChunkFull(ChunkPos param0) {
+        byte var0 = this.chunkTypeCache.get(param0.toLong());
+        if (var0 != 0) {
+            return var0 == 1;
+        } else {
+            CompoundTag var1;
+            try {
+                var1 = this.readChunk(param0);
+                if (var1 == null) {
+                    this.markPositionReplaceable(param0);
+                    return false;
+                }
+            } catch (Exception var5) {
+                LOGGER.error("Failed to read chunk {}", param0, var5);
+                this.markPositionReplaceable(param0);
+                return false;
+            }
+
+            ChunkStatus.ChunkType var4 = ChunkSerializer.getChunkTypeFromTag(var1);
+            return this.markPosition(param0, var4) == 1;
         }
     }
 

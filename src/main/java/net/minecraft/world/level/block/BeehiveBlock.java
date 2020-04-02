@@ -50,7 +50,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class BeehiveBlock extends BaseEntityBlock {
-    public static final Direction[] SPAWN_DIRECTIONS = new Direction[]{Direction.WEST, Direction.EAST, Direction.SOUTH};
+    private static final Direction[] SPAWN_DIRECTIONS = new Direction[]{Direction.WEST, Direction.EAST, Direction.SOUTH};
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     public static final IntegerProperty HONEY_LEVEL = BlockStateProperties.LEVEL_HONEY;
 
@@ -311,5 +311,9 @@ public class BeehiveBlock extends BaseEntityBlock {
         }
 
         return super.updateShape(param0, param1, param2, param3, param4, param5);
+    }
+
+    public static Direction getRandomOffset(Random param0) {
+        return SPAWN_DIRECTIONS[param0.nextInt(SPAWN_DIRECTIONS.length)];
     }
 }

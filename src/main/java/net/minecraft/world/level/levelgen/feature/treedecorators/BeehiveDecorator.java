@@ -36,7 +36,7 @@ public class BeehiveDecorator extends TreeDecorator {
     @Override
     public void place(LevelAccessor param0, Random param1, List<BlockPos> param2, List<BlockPos> param3, Set<BlockPos> param4, BoundingBox param5) {
         if (!(param1.nextFloat() >= this.probability)) {
-            Direction var0 = BeehiveBlock.SPAWN_DIRECTIONS[param1.nextInt(BeehiveBlock.SPAWN_DIRECTIONS.length)];
+            Direction var0 = BeehiveBlock.getRandomOffset(param1);
             int var1 = !param3.isEmpty()
                 ? Math.max(param3.get(0).getY() - 1, param2.get(0).getY())
                 : Math.min(param2.get(0).getY() + 1 + param1.nextInt(3), param2.get(param2.size() - 1).getY());
@@ -77,9 +77,5 @@ public class BeehiveDecorator extends TreeDecorator {
                 )
             )
             .getValue();
-    }
-
-    public static BeehiveDecorator random(Random param0) {
-        return new BeehiveDecorator(param0.nextFloat() / 3.0F);
     }
 }

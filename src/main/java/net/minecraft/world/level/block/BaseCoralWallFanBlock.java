@@ -75,11 +75,6 @@ public class BaseCoralWallFanBlock extends BaseCoralFanBlock {
         return var2.isFaceSturdy(param1, var1, var0);
     }
 
-    @Override
-    public boolean isUnstable() {
-        return true;
-    }
-
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext param0) {

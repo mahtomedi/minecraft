@@ -266,11 +266,6 @@ public class PlayerPredicate {
         private final Object2BooleanMap<ResourceLocation> recipes = new Object2BooleanOpenHashMap<>();
         private final Map<ResourceLocation, PlayerPredicate.AdvancementPredicate> advancements = Maps.newHashMap();
 
-        public PlayerPredicate.Builder addStat(Stat<?> param0, MinMaxBounds.Ints param1) {
-            this.stats.put(param0, param1);
-            return this;
-        }
-
         public PlayerPredicate build() {
             return new PlayerPredicate(this.level, this.gameType, this.stats, this.recipes, this.advancements);
         }

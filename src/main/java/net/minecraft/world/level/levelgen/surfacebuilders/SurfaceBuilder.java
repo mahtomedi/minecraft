@@ -48,61 +48,55 @@ public abstract class SurfaceBuilder<C extends SurfaceBuilderConfiguration> {
     );
     public static final SurfaceBuilderBaseConfiguration CONFIG_WARPED_FOREST = new SurfaceBuilderBaseConfiguration(WARPED_NYLIUM, NETHERRACK, WARPED_WART_BLOCK);
     public static final SurfaceBuilder<SurfaceBuilderBaseConfiguration> DEFAULT = register(
-        "default", new DefaultSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize, SurfaceBuilderBaseConfiguration::random)
+        "default", new DefaultSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize)
     );
     public static final SurfaceBuilder<SurfaceBuilderBaseConfiguration> MOUNTAIN = register(
-        "mountain", new MountainSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize, SurfaceBuilderBaseConfiguration::random)
+        "mountain", new MountainSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize)
     );
     public static final SurfaceBuilder<SurfaceBuilderBaseConfiguration> SHATTERED_SAVANNA = register(
-        "shattered_savanna", new ShatteredSavanaSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize, SurfaceBuilderBaseConfiguration::random)
+        "shattered_savanna", new ShatteredSavanaSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize)
     );
     public static final SurfaceBuilder<SurfaceBuilderBaseConfiguration> GRAVELLY_MOUNTAIN = register(
-        "gravelly_mountain", new GravellyMountainSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize, SurfaceBuilderBaseConfiguration::random)
+        "gravelly_mountain", new GravellyMountainSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize)
     );
     public static final SurfaceBuilder<SurfaceBuilderBaseConfiguration> GIANT_TREE_TAIGA = register(
-        "giant_tree_taiga", new GiantTreeTaigaSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize, SurfaceBuilderBaseConfiguration::random)
+        "giant_tree_taiga", new GiantTreeTaigaSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize)
     );
     public static final SurfaceBuilder<SurfaceBuilderBaseConfiguration> SWAMP = register(
-        "swamp", new SwampSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize, SurfaceBuilderBaseConfiguration::random)
+        "swamp", new SwampSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize)
     );
     public static final SurfaceBuilder<SurfaceBuilderBaseConfiguration> BADLANDS = register(
-        "badlands", new BadlandsSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize, SurfaceBuilderBaseConfiguration::random)
+        "badlands", new BadlandsSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize)
     );
     public static final SurfaceBuilder<SurfaceBuilderBaseConfiguration> WOODED_BADLANDS = register(
-        "wooded_badlands", new WoodedBadlandsSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize, SurfaceBuilderBaseConfiguration::random)
+        "wooded_badlands", new WoodedBadlandsSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize)
     );
     public static final SurfaceBuilder<SurfaceBuilderBaseConfiguration> ERODED_BADLANDS = register(
-        "eroded_badlands", new ErodedBadlandsSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize, SurfaceBuilderBaseConfiguration::random)
+        "eroded_badlands", new ErodedBadlandsSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize)
     );
     public static final SurfaceBuilder<SurfaceBuilderBaseConfiguration> FROZEN_OCEAN = register(
-        "frozen_ocean", new FrozenOceanSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize, SurfaceBuilderBaseConfiguration::random)
+        "frozen_ocean", new FrozenOceanSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize)
     );
     public static final SurfaceBuilder<SurfaceBuilderBaseConfiguration> NETHER = register(
-        "nether", new NetherSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize, SurfaceBuilderBaseConfiguration::random)
+        "nether", new NetherSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize)
     );
     public static final SurfaceBuilder<SurfaceBuilderBaseConfiguration> NETHER_FOREST = register(
-        "nether_forest", new NetherForestSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize, SurfaceBuilderBaseConfiguration::random)
+        "nether_forest", new NetherForestSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize)
     );
     public static final SurfaceBuilder<SurfaceBuilderBaseConfiguration> SOUL_SAND_VALLEY = register(
-        "soul_sand_valley", new SoulSandValleySurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize, SurfaceBuilderBaseConfiguration::random)
+        "soul_sand_valley", new SoulSandValleySurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize)
     );
     public static final SurfaceBuilder<SurfaceBuilderBaseConfiguration> NOPE = register(
-        "nope", new NopeSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize, SurfaceBuilderBaseConfiguration::random)
+        "nope", new NopeSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize)
     );
     private final Function<Dynamic<?>, ? extends C> configurationFactory;
-    private final Function<Random, ? extends C> randomFactory;
 
     private static <C extends SurfaceBuilderConfiguration, F extends SurfaceBuilder<C>> F register(String param0, F param1) {
         return Registry.register(Registry.SURFACE_BUILDER, param0, param1);
     }
 
-    public SurfaceBuilder(Function<Dynamic<?>, ? extends C> param0, Function<Random, ? extends C> param1) {
+    public SurfaceBuilder(Function<Dynamic<?>, ? extends C> param0) {
         this.configurationFactory = param0;
-        this.randomFactory = param1;
-    }
-
-    public C createRandomSettings(Random param0) {
-        return this.randomFactory.apply(param0);
     }
 
     public abstract void apply(

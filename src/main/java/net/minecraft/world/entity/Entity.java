@@ -2,7 +2,6 @@ package net.minecraft.world.entity;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -27,7 +26,6 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -80,13 +78,11 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FenceGateBlock;
 import net.minecraft.world.level.block.HoneyBlock;
 import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.PortalBlock;
+import net.minecraft.world.level.block.NetherPortalBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.TrapDoorBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.NeitherPortalEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.pattern.BlockPattern;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -187,7 +183,6 @@ public abstract class Entity implements CommandSource, Nameable {
     public int changingDimensionDelay;
     protected boolean isInsidePortal;
     protected int portalTime;
-    private int portalDimension = 0;
     public DimensionType dimension;
     protected BlockPos portalEntranceBlock;
     protected Vec3 portalEntranceOffset;
@@ -674,7 +669,7 @@ public abstract class Entity implements CommandSource, Nameable {
         CollisionContext var1 = CollisionContext.of(this);
         VoxelShape var2 = this.level.getWorldBorder().getCollisionShape();
         Stream<VoxelShape> var3 = Shapes.joinIsNotEmpty(var2, Shapes.create(var0.deflate(1.0E-7)), BooleanOp.AND) ? Stream.empty() : Stream.of(var2);
-        Stream<VoxelShape> var4 = this.level.getEntityCollisions(this, var0.expandTowards(param0), ImmutableSet.of());
+        Stream<VoxelShape> var4 = this.level.getEntityCollisions(this, var0.expandTowards(param0), param0x -> true);
         RewindableStream<VoxelShape> var5 = new RewindableStream<>(Stream.concat(var4, var3));
         Vec3 var6 = param0.lengthSqr() == 0.0 ? param0 : collideBoundingBoxHeuristically(this, param0, var0, this.level, var1, var5);
         boolean var7 = param0.x != var6.x;
@@ -1707,32 +1702,33 @@ public abstract class Entity implements CommandSource, Nameable {
         return Vec3.directionFromRotation(this.getRotationVector());
     }
 
-    public void handleInsidePortal(BlockPos param0, Block param1) {
+    public void handleInsidePortal(BlockPos param0) {
         if (this.changingDimensionDelay > 0) {
             this.changingDimensionDelay = this.getDimensionChangingDelay();
         } else {
             if (!this.level.isClientSide && !param0.equals(this.portalEntranceBlock)) {
                 this.portalEntranceBlock = new BlockPos(param0);
-                BlockPattern.BlockPatternMatch var0 = PortalBlock.getPortalShape(this.level, this.portalEntranceBlock, param1);
+                BlockPattern.BlockPatternMatch var0 = NetherPortalBlock.getPortalShape(this.level, this.portalEntranceBlock);
                 double var1 = var0.getForwards().getAxis() == Direction.Axis.X ? (double)var0.getFrontTopLeft().getZ() : (double)var0.getFrontTopLeft().getX();
-                double var2 = Math.abs(
-                    Mth.pct(
-                        (var0.getForwards().getAxis() == Direction.Axis.X ? this.getZ() : this.getX())
-                            - (double)(var0.getForwards().getClockWise().getAxisDirection() == Direction.AxisDirection.NEGATIVE ? 1 : 0),
-                        var1,
-                        var1 - (double)var0.getWidth()
-                    )
+                double var2 = Mth.clamp(
+                    Math.abs(
+                        Mth.inverseLerp(
+                            (var0.getForwards().getAxis() == Direction.Axis.X ? this.getZ() : this.getX())
+                                - (double)(var0.getForwards().getClockWise().getAxisDirection() == Direction.AxisDirection.NEGATIVE ? 1 : 0),
+                            var1,
+                            var1 - (double)var0.getWidth()
+                        )
+                    ),
+                    0.0,
+                    1.0
                 );
-                double var3 = Mth.pct(this.getY() - 1.0, (double)var0.getFrontTopLeft().getY(), (double)(var0.getFrontTopLeft().getY() - var0.getHeight()));
+                double var3 = Mth.clamp(
+                    Mth.inverseLerp(this.getY() - 1.0, (double)var0.getFrontTopLeft().getY(), (double)(var0.getFrontTopLeft().getY() - var0.getHeight())),
+                    0.0,
+                    1.0
+                );
                 this.portalEntranceOffset = new Vec3(var2, var3, 0.0);
                 this.portalEntranceForwards = var0.getForwards();
-                this.portalDimension = 0;
-                if (param1 == Blocks.NEITHER_PORTAL) {
-                    BlockEntity var4 = this.level.getBlockEntity(param0);
-                    if (var4 instanceof NeitherPortalEntity) {
-                        this.portalDimension = ((NeitherPortalEntity)var4).getDimension();
-                    }
-                }
             }
 
             this.isInsidePortal = true;
@@ -1747,19 +1743,7 @@ public abstract class Entity implements CommandSource, Nameable {
                     this.level.getProfiler().push("portal");
                     this.portalTime = var0;
                     this.changingDimensionDelay = this.getDimensionChangingDelay();
-                    if (this.portalDimension != 0) {
-                        DimensionType var1 = Registry.DIMENSION_TYPE.byId(this.portalDimension);
-                        this.changeDimension(var1);
-                        this.portalDimension = 0;
-                    } else {
-                        boolean var2 = Registry.DIMENSION_TYPE.getKey(this.level.dimension.getType()).getNamespace().equals("_generated");
-                        if (var2) {
-                            this.changeDimension(DimensionType.OVERWORLD);
-                        } else {
-                            this.changeDimension(this.level.dimension.getType() == DimensionType.NETHER ? DimensionType.OVERWORLD : DimensionType.NETHER);
-                        }
-                    }
-
+                    this.changeDimension(this.level.dimension.getType() == DimensionType.NETHER ? DimensionType.OVERWORLD : DimensionType.NETHER);
                     this.level.getProfiler().pop();
                 }
 
@@ -2424,7 +2408,7 @@ public abstract class Entity implements CommandSource, Nameable {
         return false;
     }
 
-    protected void doEnchantDamageEffects(LivingEntity param0, Entity param1) {
+    public void doEnchantDamageEffects(LivingEntity param0, Entity param1) {
         if (param1 instanceof LivingEntity) {
             EnchantmentHelper.doPostHurtEffects((LivingEntity)param1, param0);
         }
@@ -2549,6 +2533,7 @@ public abstract class Entity implements CommandSource, Nameable {
         return this.getRootVehicle() == param0.getRootVehicle();
     }
 
+    @OnlyIn(Dist.CLIENT)
     public boolean hasIndirectPassenger(Entity param0) {
         for(Entity var0 : this.getPassengers()) {
             if (var0.equals(param0)) {

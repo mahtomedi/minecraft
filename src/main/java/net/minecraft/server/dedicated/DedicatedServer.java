@@ -6,12 +6,10 @@ import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
-import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.JsonOps;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
@@ -59,6 +57,7 @@ import net.minecraft.world.level.LevelType;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.ChunkGeneratorProvider;
+import net.minecraft.world.level.storage.LevelStorageSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -75,17 +74,15 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
     private MinecraftServerGui gui;
 
     public DedicatedServer(
-        File param0,
+        LevelStorageSource.LevelStorageAccess param0,
         DedicatedServerSettings param1,
         DataFixer param2,
-        YggdrasilAuthenticationService param3,
-        MinecraftSessionService param4,
-        GameProfileRepository param5,
-        GameProfileCache param6,
-        ChunkProgressListenerFactory param7,
-        String param8
+        MinecraftSessionService param3,
+        GameProfileRepository param4,
+        GameProfileCache param5,
+        ChunkProgressListenerFactory param6
     ) {
-        super(param0, Proxy.NO_PROXY, param2, new Commands(true), param3, param4, param5, param6, param7, param8);
+        super(param0, Proxy.NO_PROXY, param2, new Commands(true), param3, param4, param5, param6);
         this.settings = param1;
         this.rconConsoleSource = new RconConsoleSource(this);
         new Thread("Server Infinisleeper") {
@@ -216,7 +213,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
             LOGGER.info("Preparing level \"{}\"", this.getLevelIdName());
             JsonObject var11 = !var6.isEmpty() ? GsonHelper.parse(var6) : new JsonObject();
             ChunkGeneratorProvider var12 = var10.createProvider(new Dynamic<>(JsonOps.INSTANCE, var11));
-            this.loadLevel(this.getLevelIdName(), this.getLevelIdName(), var7, var12);
+            this.loadLevel(this.storageSource.getLevelId(), var7, var12);
             long var13 = Util.getNanos() - var4;
             String var14 = String.format(Locale.ROOT, "%.3fs", (double)var13 / 1.0E9);
             LOGGER.info("Done ({})! For help, type \"help\"", var14);
@@ -584,5 +581,15 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
     @Override
     public boolean isSingleplayerOwner(GameProfile param0) {
         return false;
+    }
+
+    @Override
+    public String getLevelIdName() {
+        return this.storageSource.getLevelId();
+    }
+
+    @Override
+    public boolean forceSynchronousWrites() {
+        return this.settings.getProperties().syncChunkWrites;
     }
 }

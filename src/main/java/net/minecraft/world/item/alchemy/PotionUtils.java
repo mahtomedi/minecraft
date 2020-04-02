@@ -1,6 +1,7 @@
 package net.minecraft.world.item.alchemy;
 
 import com.google.common.collect.Lists;
+import com.mojang.datafixers.util.Pair;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +15,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Tuple;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffectUtil;
@@ -151,7 +151,7 @@ public class PotionUtils {
     @OnlyIn(Dist.CLIENT)
     public static void addPotionTooltip(ItemStack param0, List<Component> param1, float param2) {
         List<MobEffectInstance> var0 = getMobEffects(param0);
-        List<Tuple<String, AttributeModifier>> var1 = Lists.newArrayList();
+        List<Pair<Attribute, AttributeModifier>> var1 = Lists.newArrayList();
         if (var0.isEmpty()) {
             param1.add(new TranslatableComponent("effect.none").withStyle(ChatFormatting.GRAY));
         } else {
@@ -165,7 +165,7 @@ public class PotionUtils {
                         AttributeModifier var8 = new AttributeModifier(
                             var7.getName(), var4.getAttributeModifierValue(var2.getAmplifier(), var7), var7.getOperation()
                         );
-                        var1.add(new Tuple<>(var6.getKey().getName(), var8));
+                        var1.add(new Pair<>(var6.getKey(), var8));
                     }
                 }
 
@@ -185,8 +185,8 @@ public class PotionUtils {
             param1.add(new TextComponent(""));
             param1.add(new TranslatableComponent("potion.whenDrank").withStyle(ChatFormatting.DARK_PURPLE));
 
-            for(Tuple<String, AttributeModifier> var9 : var1) {
-                AttributeModifier var10 = var9.getB();
+            for(Pair<Attribute, AttributeModifier> var9 : var1) {
+                AttributeModifier var10 = var9.getSecond();
                 double var11 = var10.getAmount();
                 double var13;
                 if (var10.getOperation() != AttributeModifier.Operation.MULTIPLY_BASE && var10.getOperation() != AttributeModifier.Operation.MULTIPLY_TOTAL) {
@@ -200,7 +200,7 @@ public class PotionUtils {
                         new TranslatableComponent(
                                 "attribute.modifier.plus." + var10.getOperation().toValue(),
                                 ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(var13),
-                                new TranslatableComponent("attribute.name." + (String)var9.getA())
+                                new TranslatableComponent(var9.getFirst().getDescriptionId())
                             )
                             .withStyle(ChatFormatting.BLUE)
                     );
@@ -210,7 +210,7 @@ public class PotionUtils {
                         new TranslatableComponent(
                                 "attribute.modifier.take." + var10.getOperation().toValue(),
                                 ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(var13),
-                                new TranslatableComponent("attribute.name." + (String)var9.getA())
+                                new TranslatableComponent(var9.getFirst().getDescriptionId())
                             )
                             .withStyle(ChatFormatting.RED)
                     );

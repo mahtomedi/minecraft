@@ -238,7 +238,7 @@ public class TeleportCommand {
         return param1.size();
     }
 
-    public static void performTeleport(
+    private static void performTeleport(
         CommandSourceStack param0,
         Entity param1,
         ServerLevel param2,

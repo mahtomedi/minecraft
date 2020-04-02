@@ -10,7 +10,7 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.feature.configurations.ProbabilityFeatureConfiguration;
 
-public class CaveWorldCarver extends ProbabilityCarverBase {
+public class CaveWorldCarver extends WorldCarver<ProbabilityFeatureConfiguration> {
     public CaveWorldCarver(Function<Dynamic<?>, ? extends ProbabilityFeatureConfiguration> param0, int param1) {
         super(param0, param1);
     }

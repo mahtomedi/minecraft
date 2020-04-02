@@ -38,9 +38,4 @@ public class WoolCarpetBlock extends Block {
     public boolean canSurvive(BlockState param0, LevelReader param1, BlockPos param2) {
         return !param1.isEmptyBlock(param2.below());
     }
-
-    @Override
-    public boolean isUnstable() {
-        return true;
-    }
 }

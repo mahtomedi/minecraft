@@ -12,10 +12,8 @@ import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.Heightmap;
 
 public class ForestRockPlacementDecorator extends FeatureDecorator<FrequencyDecoratorConfiguration> {
-    public ForestRockPlacementDecorator(
-        Function<Dynamic<?>, ? extends FrequencyDecoratorConfiguration> param0, Function<Random, ? extends FrequencyDecoratorConfiguration> param1
-    ) {
-        super(param0, param1);
+    public ForestRockPlacementDecorator(Function<Dynamic<?>, ? extends FrequencyDecoratorConfiguration> param0) {
+        super(param0);
     }
 
     public Stream<BlockPos> getPositions(

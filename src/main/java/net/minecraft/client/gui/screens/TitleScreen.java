@@ -3,6 +3,7 @@ package net.minecraft.client.gui.screens;
 import com.google.common.util.concurrent.Runnables;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import java.io.IOException;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -12,6 +13,7 @@ import net.minecraft.Util;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.SafetyScreen;
 import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
@@ -28,9 +30,12 @@ import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class TitleScreen extends Screen {
+    private static final Logger LOGGER = LogManager.getLogger();
     public static final CubeMap CUBE_MAP = new CubeMap(new ResourceLocation("textures/gui/title/background/panorama"));
     private static final ResourceLocation PANORAMA_OVERLAY = new ResourceLocation("textures/gui/title/background/panorama_overlay.png");
     private static final ResourceLocation ACCESSIBILITY_TEXTURE = new ResourceLocation("textures/gui/accessibility.png");
@@ -196,27 +201,38 @@ public class TitleScreen extends Screen {
                 I18n.get("menu.resetdemo"),
                 param0x -> {
                     LevelStorageSource var0x = this.minecraft.getLevelSource();
-                    LevelData var1x = var0x.getDataTagFor("Demo_World");
-                    if (var1x != null) {
-                        this.minecraft
-                            .setScreen(
-                                new ConfirmScreen(
-                                    this::confirmDemo,
-                                    new TranslatableComponent("selectWorld.deleteQuestion"),
-                                    new TranslatableComponent("selectWorld.deleteWarning", var1x.getLevelName()),
-                                    I18n.get("selectWorld.deleteButton"),
-                                    I18n.get("gui.cancel")
-                                )
-                            );
+        
+                    try (LevelStorageSource.LevelStorageAccess var3x = var0x.createAccess("Demo_World")) {
+                        LevelData var2x = var3x.getDataTag();
+                        if (var2x != null) {
+                            this.minecraft
+                                .setScreen(
+                                    new ConfirmScreen(
+                                        this::confirmDemo,
+                                        new TranslatableComponent("selectWorld.deleteQuestion"),
+                                        new TranslatableComponent("selectWorld.deleteWarning", var2x.getLevelName()),
+                                        I18n.get("selectWorld.deleteButton"),
+                                        I18n.get("gui.cancel")
+                                    )
+                                );
+                        }
+                    } catch (IOException var16x) {
+                        SystemToast.onWorldAccessFailure(this.minecraft, "Demo_World");
+                        LOGGER.warn("Failed to access demo world", (Throwable)var16x);
                     }
         
                 }
             )
         );
-        LevelStorageSource var0 = this.minecraft.getLevelSource();
-        LevelData var1 = var0.getDataTagFor("Demo_World");
-        if (var1 == null) {
-            this.resetDemoButton.active = false;
+
+        try (LevelStorageSource.LevelStorageAccess var0 = this.minecraft.getLevelSource().createAccess("Demo_World")) {
+            LevelData var1 = var0.getDataTag();
+            if (var1 == null) {
+                this.resetDemoButton.active = false;
+            }
+        } catch (IOException var16) {
+            SystemToast.onWorldAccessFailure(this.minecraft, "Demo_World");
+            LOGGER.warn("Failed to read demo world data", (Throwable)var16);
         }
 
     }
@@ -329,8 +345,12 @@ public class TitleScreen extends Screen {
 
     private void confirmDemo(boolean param0) {
         if (param0) {
-            LevelStorageSource var0 = this.minecraft.getLevelSource();
-            var0.deleteLevel("Demo_World");
+            try (LevelStorageSource.LevelStorageAccess var0 = this.minecraft.getLevelSource().createAccess("Demo_World")) {
+                var0.deleteLevel();
+            } catch (IOException var15) {
+                SystemToast.onWorldDeleteFailure(this.minecraft, "Demo_World");
+                LOGGER.warn("Failed to delete demo world", (Throwable)var15);
+            }
         }
 
         this.minecraft.setScreen(this);

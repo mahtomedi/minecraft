@@ -75,8 +75,8 @@ public class InteractWith<E extends LivingEntity, T extends LivingEntity> extend
                         .findFirst()
                         .ifPresent(param1x -> {
                             var0.setMemory(this.memory, (T)param1x);
-                            var0.setMemory(MemoryModuleType.LOOK_TARGET, new EntityPosWrapper(param1x));
-                            var0.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(new EntityPosWrapper(param1x), this.speedModifier, this.maxDist));
+                            var0.setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(param1x));
+                            var0.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(new EntityTracker(param1x), this.speedModifier, this.maxDist));
                         })
             );
     }

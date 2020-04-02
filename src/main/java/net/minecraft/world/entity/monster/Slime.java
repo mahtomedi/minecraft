@@ -27,6 +27,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
@@ -71,19 +72,13 @@ public class Slime extends Mob implements Enemy {
         this.entityData.define(ID_SIZE, 1);
     }
 
-    @Override
-    protected void registerAttributes() {
-        super.registerAttributes();
-        this.getAttributes().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE);
-    }
-
     protected void setSize(int param0, boolean param1) {
         this.entityData.set(ID_SIZE, param0);
         this.reapplyPosition();
         this.refreshDimensions();
-        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue((double)(param0 * param0));
-        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue((double)(0.2F + 0.1F * (float)param0));
-        this.getAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue((double)param0);
+        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue((double)(param0 * param0));
+        this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue((double)(0.2F + 0.1F * (float)param0));
+        this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue((double)param0);
         if (param1) {
             this.setHealth(this.getMaxHealth());
         }
@@ -259,7 +254,7 @@ public class Slime extends Mob implements Enemy {
     }
 
     protected float getAttackDamage() {
-        return (float)this.getAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getValue();
+        return (float)this.getAttributeValue(Attributes.ATTACK_DAMAGE);
     }
 
     @Override
@@ -480,7 +475,7 @@ public class Slime extends Mob implements Enemy {
             } else {
                 this.operation = MoveControl.Operation.WAIT;
                 if (this.mob.isOnGround()) {
-                    this.mob.setSpeed((float)(this.speedModifier * this.mob.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getValue()));
+                    this.mob.setSpeed((float)(this.speedModifier * this.mob.getAttributeValue(Attributes.MOVEMENT_SPEED)));
                     if (this.jumpDelay-- <= 0) {
                         this.jumpDelay = this.slime.getJumpDelay();
                         if (this.isAggressive) {
@@ -497,7 +492,7 @@ public class Slime extends Mob implements Enemy {
                         this.mob.setSpeed(0.0F);
                     }
                 } else {
-                    this.mob.setSpeed((float)(this.speedModifier * this.mob.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getValue()));
+                    this.mob.setSpeed((float)(this.speedModifier * this.mob.getAttributeValue(Attributes.MOVEMENT_SPEED)));
                 }
 
             }

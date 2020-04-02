@@ -11,8 +11,8 @@ import net.minecraft.world.level.levelgen.feature.configurations.TreeConfigurati
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public class GroundBushFeature extends AbstractTreeFeature<TreeConfiguration> {
-    public GroundBushFeature(Function<Dynamic<?>, ? extends TreeConfiguration> param0, Function<Random, ? extends TreeConfiguration> param1) {
-        super(param0, param1);
+    public GroundBushFeature(Function<Dynamic<?>, ? extends TreeConfiguration> param0) {
+        super(param0);
     }
 
     @Override
@@ -22,7 +22,7 @@ public class GroundBushFeature extends AbstractTreeFeature<TreeConfiguration> {
         param2 = param0.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, param2).below();
         if (isGrassOrDirt(param0, param2)) {
             param2 = param2.above();
-            this.placeLog(param0, param1, param2, param3, param5, param6);
+            placeLog(param0, param1, param2, param3, param5, param6);
 
             for(int var0 = 0; var0 <= 2; ++var0) {
                 int var1 = 2 - var0;

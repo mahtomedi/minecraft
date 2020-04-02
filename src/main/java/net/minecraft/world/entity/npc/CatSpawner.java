@@ -43,7 +43,7 @@ public class CatSpawner {
                                 return this.spawnInVillage(param0, var4);
                             }
 
-                            if (Feature.SWAMP_HUT.isInsideFeature(param0, var4)) {
+                            if (Feature.SWAMP_HUT.isInsideFeature(param0, param0.structureFeatureManager(), var4)) {
                                 return this.spawnInHut(param0, var4);
                             }
                         }

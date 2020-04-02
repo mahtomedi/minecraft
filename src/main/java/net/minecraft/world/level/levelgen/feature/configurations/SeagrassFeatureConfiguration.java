@@ -3,7 +3,6 @@ package net.minecraft.world.level.levelgen.feature.configurations;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
-import java.util.Random;
 
 public class SeagrassFeatureConfiguration implements FeatureConfiguration {
     public final int count;
@@ -33,9 +32,5 @@ public class SeagrassFeatureConfiguration implements FeatureConfiguration {
         int var0 = param0.get("count").asInt(0);
         double var1 = param0.get("tall_seagrass_probability").asDouble(0.0);
         return new SeagrassFeatureConfiguration(var0, var1);
-    }
-
-    public static SeagrassFeatureConfiguration random(Random param0) {
-        return new SeagrassFeatureConfiguration(param0.nextInt(20), param0.nextDouble() / 2.0);
     }
 }

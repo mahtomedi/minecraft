@@ -11,10 +11,12 @@ import net.minecraft.world.level.Level;
 
 public class FoodOnAStickItem<T extends Entity & ItemSteerableMount> extends Item {
     private final EntityType<T> canInteractWith;
+    private final int consumeItemDamage;
 
-    public FoodOnAStickItem(Item.Properties param0, EntityType<T> param1) {
+    public FoodOnAStickItem(Item.Properties param0, EntityType<T> param1, int param2) {
         super(param0);
         this.canInteractWith = param1;
+        this.consumeItemDamage = param2;
     }
 
     @Override
@@ -27,7 +29,7 @@ public class FoodOnAStickItem<T extends Entity & ItemSteerableMount> extends Ite
             if (param1.isPassenger() && var1 instanceof ItemSteerableMount && var1.getType() == this.canInteractWith) {
                 ItemSteerableMount var2 = (ItemSteerableMount)var1;
                 if (var2.boost()) {
-                    var0.hurtAndBreak(7, param1, param1x -> param1x.broadcastBreakEvent(param2));
+                    var0.hurtAndBreak(this.consumeItemDamage, param1, param1x -> param1x.broadcastBreakEvent(param2));
                     param1.swing(param2, true);
                     if (var0.isEmpty()) {
                         ItemStack var3 = new ItemStack(Items.FISHING_ROD);

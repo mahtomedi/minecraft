@@ -12,8 +12,7 @@ import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
-import net.minecraft.world.entity.monster.SharedMonsterAttributes;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.PathNavigationRegion;
 import net.minecraft.world.level.block.Block;
@@ -32,7 +31,6 @@ public abstract class PathNavigation {
     @Nullable
     protected Path path;
     protected double speedModifier;
-    private final AttributeInstance followRange;
     protected int tick;
     protected int lastStuckCheck;
     protected Vec3 lastStuckCheckPos = Vec3.ZERO;
@@ -52,8 +50,7 @@ public abstract class PathNavigation {
     public PathNavigation(Mob param0, Level param1) {
         this.mob = param0;
         this.level = param1;
-        this.followRange = param0.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE);
-        int var0 = Mth.floor(this.followRange.getValue() * 16.0);
+        int var0 = Mth.floor(param0.getAttributeValue(Attributes.FOLLOW_RANGE) * 16.0);
         this.pathFinder = this.createPathFinder(var0);
     }
 
@@ -125,7 +122,7 @@ public abstract class PathNavigation {
             return this.path;
         } else {
             this.level.getProfiler().push("pathfind");
-            float var0 = (float)this.followRange.getValue();
+            float var0 = (float)this.mob.getAttributeValue(Attributes.FOLLOW_RANGE);
             BlockPos var1 = param2 ? this.mob.blockPosition().above() : this.mob.blockPosition();
             int var2 = (int)(var0 + (float)param1);
             PathNavigationRegion var3 = new PathNavigationRegion(this.level, var1.offset(-var2, -var2, -var2), var1.offset(var2, var2, var2));

@@ -8,6 +8,7 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.datafixers.util.Either;
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.commands.CommandFunction;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -86,30 +87,31 @@ public class ScheduleCommand {
         );
     }
 
-    private static int schedule(CommandSourceStack param0, Either<CommandFunction, Tag<CommandFunction>> param1, int param2, boolean param3) throws CommandSyntaxException {
+    private static int schedule(
+        CommandSourceStack param0, Pair<ResourceLocation, Either<CommandFunction, Tag<CommandFunction>>> param1, int param2, boolean param3
+    ) throws CommandSyntaxException {
         if (param2 == 0) {
             throw ERROR_SAME_TICK.create();
         } else {
             long var0 = param0.getLevel().getGameTime() + (long)param2;
-            TimerQueue<MinecraftServer> var1 = param0.getLevel().getLevelData().getScheduledEvents();
-            param1.ifLeft(param5 -> {
-                ResourceLocation var0x = param5.getId();
-                String var1x = var0x.toString();
+            ResourceLocation var1 = param1.getFirst();
+            TimerQueue<MinecraftServer> var2 = param0.getLevel().getLevelData().getScheduledEvents();
+            param1.getSecond().ifLeft(param6 -> {
+                String var0x = var1.toString();
                 if (param3) {
-                    var1.remove(var1x);
+                    var2.remove(var0x);
                 }
 
-                var1.schedule(var1x, var0, new FunctionCallback(var0x));
-                param0.sendSuccess(new TranslatableComponent("commands.schedule.created.function", var0x, param2, var0), true);
-            }).ifRight(param5 -> {
-                ResourceLocation var0x = param5.getId();
-                String var1x = "#" + var0x.toString();
+                var2.schedule(var0x, var0, new FunctionCallback(var1));
+                param0.sendSuccess(new TranslatableComponent("commands.schedule.created.function", var1, param2, var0), true);
+            }).ifRight(param6 -> {
+                String var0x = "#" + var1.toString();
                 if (param3) {
-                    var1.remove(var1x);
+                    var2.remove(var0x);
                 }
 
-                var1.schedule(var1x, var0, new FunctionTagCallback(var0x));
-                param0.sendSuccess(new TranslatableComponent("commands.schedule.created.tag", var0x, param2, var0), true);
+                var2.schedule(var0x, var0, new FunctionTagCallback(var1));
+                param0.sendSuccess(new TranslatableComponent("commands.schedule.created.tag", var1, param2, var0), true);
             });
             return (int)Math.floorMod(var0, 2147483647L);
         }

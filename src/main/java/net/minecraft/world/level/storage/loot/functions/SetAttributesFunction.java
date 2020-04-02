@@ -13,9 +13,11 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 import javax.annotation.Nullable;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
@@ -49,7 +51,7 @@ public class SetAttributesFunction extends LootItemConditionalFunction {
 
     static class Modifier {
         private final String name;
-        private final String attribute;
+        private final Attribute attribute;
         private final AttributeModifier.Operation operation;
         private final RandomValueBounds amount;
         @Nullable
@@ -57,7 +59,7 @@ public class SetAttributesFunction extends LootItemConditionalFunction {
         private final EquipmentSlot[] slots;
 
         private Modifier(
-            String param0, String param1, AttributeModifier.Operation param2, RandomValueBounds param3, EquipmentSlot[] param4, @Nullable UUID param5
+            String param0, Attribute param1, AttributeModifier.Operation param2, RandomValueBounds param3, EquipmentSlot[] param4, @Nullable UUID param5
         ) {
             this.name = param0;
             this.attribute = param1;
@@ -70,7 +72,7 @@ public class SetAttributesFunction extends LootItemConditionalFunction {
         public JsonObject serialize(JsonSerializationContext param0) {
             JsonObject var0 = new JsonObject();
             var0.addProperty("name", this.name);
-            var0.addProperty("attribute", this.attribute);
+            var0.addProperty("attribute", Registry.ATTRIBUTES.getKey(this.attribute).toString());
             var0.addProperty("operation", operationToString(this.operation));
             var0.add("amount", param0.serialize(this.amount));
             if (this.id != null) {
@@ -94,7 +96,7 @@ public class SetAttributesFunction extends LootItemConditionalFunction {
 
         public static SetAttributesFunction.Modifier deserialize(JsonObject param0, JsonDeserializationContext param1) {
             String var0 = GsonHelper.getAsString(param0, "name");
-            String var1 = GsonHelper.getAsString(param0, "attribute");
+            Attribute var1 = Registry.ATTRIBUTES.get(new ResourceLocation(GsonHelper.getAsString(param0, "attribute")));
             AttributeModifier.Operation var2 = operationFromString(GsonHelper.getAsString(param0, "operation"));
             RandomValueBounds var3 = GsonHelper.getAsObject(param0, "amount", param1, RandomValueBounds.class);
             UUID var4 = null;

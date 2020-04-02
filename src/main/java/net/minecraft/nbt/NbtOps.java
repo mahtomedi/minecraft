@@ -165,23 +165,20 @@ public class NbtOps implements DynamicOps<Tag> {
             return param1;
         } else if (param1 instanceof EndTag) {
             return param0;
+        } else if (param0 instanceof CompoundTag && param1 instanceof CompoundTag) {
+            CompoundTag var0 = (CompoundTag)param0;
+            CompoundTag var1 = (CompoundTag)param1;
+            CompoundTag var2 = new CompoundTag();
+            var0.getAllKeys().forEach(param2 -> var2.put(param2, var0.get(param2)));
+            var1.getAllKeys().forEach(param2 -> var2.put(param2, var1.get(param2)));
+            return var2;
+        } else if (param0 instanceof CollectionTag && param1 instanceof CollectionTag) {
+            ListTag var3 = new ListTag();
+            var3.addAll((CollectionTag)param0);
+            var3.addAll((CollectionTag)param1);
+            return var3;
         } else {
-            if (param0 instanceof CompoundTag && param1 instanceof CompoundTag) {
-                CompoundTag var0 = (CompoundTag)param0;
-                CompoundTag var1 = (CompoundTag)param1;
-                CompoundTag var2 = new CompoundTag();
-                var0.getAllKeys().forEach(param2 -> var2.put(param2, var0.get(param2)));
-                var1.getAllKeys().forEach(param2 -> var2.put(param2, var1.get(param2)));
-            }
-
-            if (param0 instanceof CollectionTag && param1 instanceof CollectionTag) {
-                ListTag var3 = new ListTag();
-                var3.addAll((CollectionTag)param0);
-                var3.addAll((CollectionTag)param1);
-                return var3;
-            } else {
-                throw new IllegalArgumentException("Could not merge " + param0 + " and " + param1);
-            }
+            throw new IllegalArgumentException("Could not merge " + param0 + " and " + param1);
         }
     }
 

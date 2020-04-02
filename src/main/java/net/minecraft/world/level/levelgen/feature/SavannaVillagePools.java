@@ -282,7 +282,7 @@ public class SavannaVillagePools {
                 new StructureTemplatePool(
                     new ResourceLocation("village/savanna/trees"),
                     new ResourceLocation("empty"),
-                    ImmutableList.of(new Pair<>(new FeaturePoolElement(Feature.ACACIA_TREE.configured(BiomeDefaultFeatures.ACACIA_TREE_CONFIG)), 1)),
+                    ImmutableList.of(new Pair<>(new FeaturePoolElement(Feature.NORMAL_TREE.configured(BiomeDefaultFeatures.ACACIA_TREE_CONFIG)), 1)),
                     StructureTemplatePool.Projection.RIGID
                 )
             );
@@ -293,7 +293,7 @@ public class SavannaVillagePools {
                     new ResourceLocation("empty"),
                     ImmutableList.of(
                         new Pair<>(new SinglePoolElement("village/savanna/savanna_lamp_post_01"), 4),
-                        new Pair<>(new FeaturePoolElement(Feature.ACACIA_TREE.configured(BiomeDefaultFeatures.ACACIA_TREE_CONFIG)), 4),
+                        new Pair<>(new FeaturePoolElement(Feature.NORMAL_TREE.configured(BiomeDefaultFeatures.ACACIA_TREE_CONFIG)), 4),
                         new Pair<>(new FeaturePoolElement(Feature.BLOCK_PILE.configured(BiomeDefaultFeatures.HAY_PILE_CONFIG)), 4),
                         new Pair<>(new FeaturePoolElement(Feature.BLOCK_PILE.configured(BiomeDefaultFeatures.MELON_PILE_CONFIG)), 1),
                         Pair.of(EmptyPoolElement.INSTANCE, 4)
@@ -308,7 +308,7 @@ public class SavannaVillagePools {
                     new ResourceLocation("empty"),
                     ImmutableList.of(
                         new Pair<>(new SinglePoolElement("village/savanna/savanna_lamp_post_01", var0), 4),
-                        new Pair<>(new FeaturePoolElement(Feature.ACACIA_TREE.configured(BiomeDefaultFeatures.ACACIA_TREE_CONFIG)), 4),
+                        new Pair<>(new FeaturePoolElement(Feature.NORMAL_TREE.configured(BiomeDefaultFeatures.ACACIA_TREE_CONFIG)), 4),
                         new Pair<>(new FeaturePoolElement(Feature.BLOCK_PILE.configured(BiomeDefaultFeatures.HAY_PILE_CONFIG)), 4),
                         new Pair<>(new FeaturePoolElement(Feature.BLOCK_PILE.configured(BiomeDefaultFeatures.MELON_PILE_CONFIG)), 1),
                         Pair.of(EmptyPoolElement.INSTANCE, 4)

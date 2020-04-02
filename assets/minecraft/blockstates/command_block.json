@@ -1,8 +1,8 @@
 {
   "variants": {
     "conditional=false,facing=down": {
-      "x": 90,
-      "model": "minecraft:block/command_block"
+      "model": "minecraft:block/command_block",
+      "x": 90
     },
     "conditional=false,facing=east": {
       "model": "minecraft:block/command_block",
@@ -16,16 +16,16 @@
       "y": 180
     },
     "conditional=false,facing=up": {
-      "x": 270,
-      "model": "minecraft:block/command_block"
+      "model": "minecraft:block/command_block",
+      "x": 270
     },
     "conditional=false,facing=west": {
       "model": "minecraft:block/command_block",
       "y": 270
     },
     "conditional=true,facing=down": {
-      "x": 90,
-      "model": "minecraft:block/command_block_conditional"
+      "model": "minecraft:block/command_block_conditional",
+      "x": 90
     },
     "conditional=true,facing=east": {
       "model": "minecraft:block/command_block_conditional",
@@ -39,8 +39,8 @@
       "y": 180
     },
     "conditional=true,facing=up": {
-      "x": 270,
-      "model": "minecraft:block/command_block_conditional"
+      "model": "minecraft:block/command_block_conditional",
+      "x": 270
     },
     "conditional=true,facing=west": {
       "model": "minecraft:block/command_block_conditional",

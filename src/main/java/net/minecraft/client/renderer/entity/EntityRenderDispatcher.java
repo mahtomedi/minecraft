@@ -172,6 +172,7 @@ public class EntityRenderDispatcher {
         this.register(EntityType.WITHER_SKELETON, new WitherSkeletonRenderer(this));
         this.register(EntityType.WITHER_SKULL, new WitherSkullRenderer(this));
         this.register(EntityType.WOLF, new WolfRenderer(this));
+        this.register(EntityType.ZOGLIN, new ZoglinRenderer(this));
         this.register(EntityType.ZOMBIE_HORSE, new UndeadHorseRenderer(this));
         this.register(EntityType.ZOMBIE, new ZombieRenderer(this));
         this.register(EntityType.ZOMBIFIED_PIGLIN, new PiglinRenderer(this, true));
@@ -282,9 +283,9 @@ public class EntityRenderDispatcher {
         float var0 = param2.getBbWidth() / 2.0F;
         this.renderBox(param0, param1, param2, 1.0F, 1.0F, 1.0F);
         if (param2 instanceof EnderDragon) {
-            double var1 = param2.getX() - Mth.lerp((double)param3, param2.xOld, param2.getX());
-            double var2 = param2.getY() - Mth.lerp((double)param3, param2.yOld, param2.getY());
-            double var3 = param2.getZ() - Mth.lerp((double)param3, param2.zOld, param2.getZ());
+            double var1 = -Mth.lerp((double)param3, param2.xOld, param2.getX());
+            double var2 = -Mth.lerp((double)param3, param2.yOld, param2.getY());
+            double var3 = -Mth.lerp((double)param3, param2.zOld, param2.getZ());
 
             for(EnderDragonPart var4 : ((EnderDragon)param2).getSubEntities()) {
                 param0.pushPose();

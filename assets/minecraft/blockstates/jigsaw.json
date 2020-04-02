@@ -1,22 +1,22 @@
 {
   "variants": {
     "orientation=down_east": {
-      "x": 90,
       "model": "minecraft:block/jigsaw",
+      "x": 90,
       "y": 90
     },
     "orientation=down_north": {
-      "x": 90,
-      "model": "minecraft:block/jigsaw"
+      "model": "minecraft:block/jigsaw",
+      "x": 90
     },
     "orientation=down_south": {
-      "x": 90,
       "model": "minecraft:block/jigsaw",
+      "x": 90,
       "y": 180
     },
     "orientation=down_west": {
-      "x": 90,
       "model": "minecraft:block/jigsaw",
+      "x": 90,
       "y": 270
     },
     "orientation=east_up": {
@@ -31,22 +31,22 @@
       "y": 180
     },
     "orientation=up_east": {
-      "x": 270,
       "model": "minecraft:block/jigsaw",
+      "x": 270,
       "y": 270
     },
     "orientation=up_north": {
-      "x": 270,
       "model": "minecraft:block/jigsaw",
+      "x": 270,
       "y": 180
     },
     "orientation=up_south": {
-      "x": 270,
-      "model": "minecraft:block/jigsaw"
+      "model": "minecraft:block/jigsaw",
+      "x": 270
     },
     "orientation=up_west": {
-      "x": 270,
       "model": "minecraft:block/jigsaw",
+      "x": 270,
       "y": 90
     },
     "orientation=west_up": {

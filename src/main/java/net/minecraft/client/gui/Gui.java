@@ -51,8 +51,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
-import net.minecraft.world.entity.monster.SharedMonsterAttributes;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodData;
 import net.minecraft.world.item.ItemStack;
@@ -729,149 +728,148 @@ public class Gui extends GuiComponent {
             this.random.setSeed((long)(this.tickCount * 312871));
             FoodData var5 = var0.getFoodData();
             int var6 = var5.getFoodLevel();
-            AttributeInstance var7 = var0.getAttribute(SharedMonsterAttributes.MAX_HEALTH);
-            int var8 = this.screenWidth / 2 - 91;
-            int var9 = this.screenWidth / 2 + 91;
-            int var10 = this.screenHeight - 39;
-            float var11 = (float)var7.getValue();
-            int var12 = Mth.ceil(var0.getAbsorptionAmount());
-            int var13 = Mth.ceil((var11 + (float)var12) / 2.0F / 10.0F);
-            int var14 = Math.max(10 - (var13 - 2), 3);
-            int var15 = var10 - (var13 - 1) * var14 - 10;
-            int var16 = var10 - 10;
-            int var17 = var12;
-            int var18 = var0.getArmorValue();
-            int var19 = -1;
+            int var7 = this.screenWidth / 2 - 91;
+            int var8 = this.screenWidth / 2 + 91;
+            int var9 = this.screenHeight - 39;
+            float var10 = (float)var0.getAttributeValue(Attributes.MAX_HEALTH);
+            int var11 = Mth.ceil(var0.getAbsorptionAmount());
+            int var12 = Mth.ceil((var10 + (float)var11) / 2.0F / 10.0F);
+            int var13 = Math.max(10 - (var12 - 2), 3);
+            int var14 = var9 - (var12 - 1) * var13 - 10;
+            int var15 = var9 - 10;
+            int var16 = var11;
+            int var17 = var0.getArmorValue();
+            int var18 = -1;
             if (var0.hasEffect(MobEffects.REGENERATION)) {
-                var19 = this.tickCount % Mth.ceil(var11 + 5.0F);
+                var18 = this.tickCount % Mth.ceil(var10 + 5.0F);
             }
 
             this.minecraft.getProfiler().push("armor");
 
-            for(int var20 = 0; var20 < 10; ++var20) {
-                if (var18 > 0) {
-                    int var21 = var8 + var20 * 8;
-                    if (var20 * 2 + 1 < var18) {
-                        this.blit(var21, var15, 34, 9, 9, 9);
+            for(int var19 = 0; var19 < 10; ++var19) {
+                if (var17 > 0) {
+                    int var20 = var7 + var19 * 8;
+                    if (var19 * 2 + 1 < var17) {
+                        this.blit(var20, var14, 34, 9, 9, 9);
                     }
 
-                    if (var20 * 2 + 1 == var18) {
-                        this.blit(var21, var15, 25, 9, 9, 9);
+                    if (var19 * 2 + 1 == var17) {
+                        this.blit(var20, var14, 25, 9, 9, 9);
                     }
 
-                    if (var20 * 2 + 1 > var18) {
-                        this.blit(var21, var15, 16, 9, 9, 9);
+                    if (var19 * 2 + 1 > var17) {
+                        this.blit(var20, var14, 16, 9, 9, 9);
                     }
                 }
             }
 
             this.minecraft.getProfiler().popPush("health");
 
-            for(int var22 = Mth.ceil((var11 + (float)var12) / 2.0F) - 1; var22 >= 0; --var22) {
-                int var23 = 16;
+            for(int var21 = Mth.ceil((var10 + (float)var11) / 2.0F) - 1; var21 >= 0; --var21) {
+                int var22 = 16;
                 if (var0.hasEffect(MobEffects.POISON)) {
-                    var23 += 36;
+                    var22 += 36;
                 } else if (var0.hasEffect(MobEffects.WITHER)) {
-                    var23 += 72;
+                    var22 += 72;
                 }
 
-                int var24 = 0;
+                int var23 = 0;
                 if (var2) {
-                    var24 = 1;
+                    var23 = 1;
                 }
 
-                int var25 = Mth.ceil((float)(var22 + 1) / 10.0F) - 1;
-                int var26 = var8 + var22 % 10 * 8;
-                int var27 = var10 - var25 * var14;
+                int var24 = Mth.ceil((float)(var21 + 1) / 10.0F) - 1;
+                int var25 = var7 + var21 % 10 * 8;
+                int var26 = var9 - var24 * var13;
                 if (var1 <= 4) {
-                    var27 += this.random.nextInt(2);
+                    var26 += this.random.nextInt(2);
                 }
 
-                if (var17 <= 0 && var22 == var19) {
-                    var27 -= 2;
+                if (var16 <= 0 && var21 == var18) {
+                    var26 -= 2;
                 }
 
-                int var28 = 0;
+                int var27 = 0;
                 if (var0.level.getLevelData().isHardcore()) {
-                    var28 = 5;
+                    var27 = 5;
                 }
 
-                this.blit(var26, var27, 16 + var24 * 9, 9 * var28, 9, 9);
+                this.blit(var25, var26, 16 + var23 * 9, 9 * var27, 9, 9);
                 if (var2) {
-                    if (var22 * 2 + 1 < var4) {
-                        this.blit(var26, var27, var23 + 54, 9 * var28, 9, 9);
+                    if (var21 * 2 + 1 < var4) {
+                        this.blit(var25, var26, var22 + 54, 9 * var27, 9, 9);
                     }
 
-                    if (var22 * 2 + 1 == var4) {
-                        this.blit(var26, var27, var23 + 63, 9 * var28, 9, 9);
+                    if (var21 * 2 + 1 == var4) {
+                        this.blit(var25, var26, var22 + 63, 9 * var27, 9, 9);
                     }
                 }
 
-                if (var17 > 0) {
-                    if (var17 == var12 && var12 % 2 == 1) {
-                        this.blit(var26, var27, var23 + 153, 9 * var28, 9, 9);
-                        --var17;
+                if (var16 > 0) {
+                    if (var16 == var11 && var11 % 2 == 1) {
+                        this.blit(var25, var26, var22 + 153, 9 * var27, 9, 9);
+                        --var16;
                     } else {
-                        this.blit(var26, var27, var23 + 144, 9 * var28, 9, 9);
-                        var17 -= 2;
+                        this.blit(var25, var26, var22 + 144, 9 * var27, 9, 9);
+                        var16 -= 2;
                     }
                 } else {
-                    if (var22 * 2 + 1 < var1) {
-                        this.blit(var26, var27, var23 + 36, 9 * var28, 9, 9);
+                    if (var21 * 2 + 1 < var1) {
+                        this.blit(var25, var26, var22 + 36, 9 * var27, 9, 9);
                     }
 
-                    if (var22 * 2 + 1 == var1) {
-                        this.blit(var26, var27, var23 + 45, 9 * var28, 9, 9);
+                    if (var21 * 2 + 1 == var1) {
+                        this.blit(var25, var26, var22 + 45, 9 * var27, 9, 9);
                     }
                 }
             }
 
-            LivingEntity var29 = this.getPlayerVehicleWithHealth();
-            int var30 = this.getVehicleMaxHearts(var29);
-            if (var30 == 0) {
+            LivingEntity var28 = this.getPlayerVehicleWithHealth();
+            int var29 = this.getVehicleMaxHearts(var28);
+            if (var29 == 0) {
                 this.minecraft.getProfiler().popPush("food");
 
-                for(int var31 = 0; var31 < 10; ++var31) {
-                    int var32 = var10;
-                    int var33 = 16;
-                    int var34 = 0;
+                for(int var30 = 0; var30 < 10; ++var30) {
+                    int var31 = var9;
+                    int var32 = 16;
+                    int var33 = 0;
                     if (var0.hasEffect(MobEffects.HUNGER)) {
-                        var33 += 36;
-                        var34 = 13;
+                        var32 += 36;
+                        var33 = 13;
                     }
 
                     if (var0.getFoodData().getSaturationLevel() <= 0.0F && this.tickCount % (var6 * 3 + 1) == 0) {
-                        var32 = var10 + (this.random.nextInt(3) - 1);
+                        var31 = var9 + (this.random.nextInt(3) - 1);
                     }
 
-                    int var35 = var9 - var31 * 8 - 9;
-                    this.blit(var35, var32, 16 + var34 * 9, 27, 9, 9);
-                    if (var31 * 2 + 1 < var6) {
-                        this.blit(var35, var32, var33 + 36, 27, 9, 9);
+                    int var34 = var8 - var30 * 8 - 9;
+                    this.blit(var34, var31, 16 + var33 * 9, 27, 9, 9);
+                    if (var30 * 2 + 1 < var6) {
+                        this.blit(var34, var31, var32 + 36, 27, 9, 9);
                     }
 
-                    if (var31 * 2 + 1 == var6) {
-                        this.blit(var35, var32, var33 + 45, 27, 9, 9);
+                    if (var30 * 2 + 1 == var6) {
+                        this.blit(var34, var31, var32 + 45, 27, 9, 9);
                     }
                 }
 
-                var16 -= 10;
+                var15 -= 10;
             }
 
             this.minecraft.getProfiler().popPush("air");
-            int var36 = var0.getAirSupply();
-            int var37 = var0.getMaxAirSupply();
-            if (var0.isUnderLiquid(FluidTags.WATER) || var36 < var37) {
-                int var38 = this.getVisibleVehicleHeartRows(var30) - 1;
-                var16 -= var38 * 10;
-                int var39 = Mth.ceil((double)(var36 - 2) * 10.0 / (double)var37);
-                int var40 = Mth.ceil((double)var36 * 10.0 / (double)var37) - var39;
+            int var35 = var0.getAirSupply();
+            int var36 = var0.getMaxAirSupply();
+            if (var0.isUnderLiquid(FluidTags.WATER) || var35 < var36) {
+                int var37 = this.getVisibleVehicleHeartRows(var29) - 1;
+                var15 -= var37 * 10;
+                int var38 = Mth.ceil((double)(var35 - 2) * 10.0 / (double)var36);
+                int var39 = Mth.ceil((double)var35 * 10.0 / (double)var36) - var38;
 
-                for(int var41 = 0; var41 < var39 + var40; ++var41) {
-                    if (var41 < var39) {
-                        this.blit(var9 - var41 * 8 - 9, var16, 16, 18, 9, 9);
+                for(int var40 = 0; var40 < var38 + var39; ++var40) {
+                    if (var40 < var38) {
+                        this.blit(var8 - var40 * 8 - 9, var15, 16, 18, 9, 9);
                     } else {
-                        this.blit(var9 - var41 * 8 - 9, var16, 25, 18, 9, 9);
+                        this.blit(var8 - var40 * 8 - 9, var15, 25, 18, 9, 9);
                     }
                 }
             }

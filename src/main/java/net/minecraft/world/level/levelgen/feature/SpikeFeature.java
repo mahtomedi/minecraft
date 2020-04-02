@@ -20,6 +20,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.IronBarsBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -33,8 +34,8 @@ public class SpikeFeature extends Feature<SpikeConfiguration> {
         .expireAfterWrite(5L, TimeUnit.MINUTES)
         .build(new SpikeFeature.SpikeCacheLoader());
 
-    public SpikeFeature(Function<Dynamic<?>, ? extends SpikeConfiguration> param0, Function<Random, ? extends SpikeConfiguration> param1) {
-        super(param0, param1);
+    public SpikeFeature(Function<Dynamic<?>, ? extends SpikeConfiguration> param0) {
+        super(param0);
     }
 
     public static List<SpikeFeature.EndSpike> getSpikesForLevel(LevelAccessor param0) {
@@ -44,16 +45,21 @@ public class SpikeFeature extends Feature<SpikeConfiguration> {
     }
 
     public boolean place(
-        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, SpikeConfiguration param4
+        LevelAccessor param0,
+        StructureFeatureManager param1,
+        ChunkGenerator<? extends ChunkGeneratorSettings> param2,
+        Random param3,
+        BlockPos param4,
+        SpikeConfiguration param5
     ) {
-        List<SpikeFeature.EndSpike> var0 = param4.getSpikes();
+        List<SpikeFeature.EndSpike> var0 = param5.getSpikes();
         if (var0.isEmpty()) {
             var0 = getSpikesForLevel(param0);
         }
 
         for(SpikeFeature.EndSpike var1 : var0) {
-            if (var1.isCenterWithinChunk(param3)) {
-                this.placeSpike(param0, param2, param4, var1);
+            if (var1.isCenterWithinChunk(param4)) {
+                this.placeSpike(param0, param3, param5, var1);
             }
         }
 

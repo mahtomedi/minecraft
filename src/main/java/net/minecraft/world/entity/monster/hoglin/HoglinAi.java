@@ -40,22 +40,22 @@ public class HoglinAi {
 
     protected static Brain<?> makeBrain(Hoglin param0, Dynamic<?> param1) {
         Brain<Hoglin> var0 = new Brain<>(Hoglin.MEMORY_TYPES, Hoglin.SENSOR_TYPES, param1);
-        initCoreActivity(param0, var0);
-        initIdleActivity(param0, var0);
-        initFightActivity(param0, var0);
-        initRetreatActivity(param0, var0);
+        initCoreActivity(var0);
+        initIdleActivity(var0);
+        initFightActivity(var0);
+        initRetreatActivity(var0);
         var0.setCoreActivities(ImmutableSet.of(Activity.CORE));
         var0.setDefaultActivity(Activity.IDLE);
         var0.useDefaultActivity();
         return var0;
     }
 
-    private static void initCoreActivity(Hoglin param0, Brain<Hoglin> param1) {
-        param1.addActivity(Activity.CORE, 0, ImmutableList.of(new LookAtTargetSink(45, 90), new MoveToTargetSink(200)));
+    private static void initCoreActivity(Brain<Hoglin> param0) {
+        param0.addActivity(Activity.CORE, 0, ImmutableList.of(new LookAtTargetSink(45, 90), new MoveToTargetSink(200)));
     }
 
-    private static void initIdleActivity(Hoglin param0, Brain<Hoglin> param1) {
-        param1.addActivity(
+    private static void initIdleActivity(Brain<Hoglin> param0) {
+        param0.addActivity(
             Activity.IDLE,
             10,
             ImmutableList.of(
@@ -70,8 +70,8 @@ public class HoglinAi {
         );
     }
 
-    private static void initFightActivity(Hoglin param0, Brain<Hoglin> param1) {
-        param1.addActivityAndRemoveMemoryWhenStopped(
+    private static void initFightActivity(Brain<Hoglin> param0) {
+        param0.addActivityAndRemoveMemoryWhenStopped(
             Activity.FIGHT,
             10,
             ImmutableList.of(
@@ -87,8 +87,8 @@ public class HoglinAi {
         );
     }
 
-    private static void initRetreatActivity(Hoglin param0, Brain<Hoglin> param1) {
-        param1.addActivityAndRemoveMemoryWhenStopped(
+    private static void initRetreatActivity(Brain<Hoglin> param0) {
+        param0.addActivityAndRemoveMemoryWhenStopped(
             Activity.AVOID,
             10,
             ImmutableList.of(
@@ -214,7 +214,7 @@ public class HoglinAi {
 
     private static void playActivitySound(Hoglin param0) {
         param0.getBrain().getActiveNonCoreActivity().ifPresent(param1 -> {
-            if (param1 == Activity.AVOID) {
+            if (param1 == Activity.AVOID || param0.isConverting()) {
                 param0.playRetreatSound();
             } else if (param1 == Activity.FIGHT) {
                 param0.playAngrySound();

@@ -8,14 +8,17 @@ import java.io.IOException;
 import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
+import net.minecraft.util.ExceptionCollector;
 import net.minecraft.world.level.ChunkPos;
 
 public final class RegionFileStorage implements AutoCloseable {
     private final Long2ObjectLinkedOpenHashMap<RegionFile> regionCache = new Long2ObjectLinkedOpenHashMap<>();
     private final File folder;
+    private final boolean sync;
 
-    RegionFileStorage(File param0) {
+    RegionFileStorage(File param0, boolean param1) {
         this.folder = param0;
+        this.sync = param1;
     }
 
     private RegionFile getRegionFile(ChunkPos param0) throws IOException {
@@ -33,7 +36,7 @@ public final class RegionFileStorage implements AutoCloseable {
             }
 
             File var2 = new File(this.folder, "r." + param0.getRegionX() + "." + param0.getRegionZ() + ".mca");
-            RegionFile var3 = new RegionFile(var2, this.folder);
+            RegionFile var3 = new RegionFile(var2, this.folder, this.sync);
             this.regionCache.putAndMoveToFirst(var0, var3);
             return var3;
         }
@@ -66,8 +69,22 @@ public final class RegionFileStorage implements AutoCloseable {
 
     @Override
     public void close() throws IOException {
+        ExceptionCollector<IOException> var0 = new ExceptionCollector<>();
+
+        for(RegionFile var1 : this.regionCache.values()) {
+            try {
+                var1.close();
+            } catch (IOException var5) {
+                var0.add(var5);
+            }
+        }
+
+        var0.throwIfPresent();
+    }
+
+    public void flush() throws IOException {
         for(RegionFile var0 : this.regionCache.values()) {
-            var0.close();
+            var0.flush();
         }
 
     }

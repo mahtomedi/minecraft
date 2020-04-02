@@ -1,27 +1,47 @@
 package net.minecraft.client.gui.screens.inventory;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ComponentRenderUtils;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.BookAccess;
 import net.minecraft.util.Mth;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.WrittenBookItem;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class BookViewScreen extends Screen {
+    public static final BookViewScreen.BookAccess EMPTY_ACCESS = new BookViewScreen.BookAccess() {
+        @Override
+        public int getPageCount() {
+            return 0;
+        }
+
+        @Override
+        public Component getPageRaw(int param0) {
+            return new TextComponent("");
+        }
+    };
     public static final ResourceLocation BOOK_LOCATION = new ResourceLocation("textures/gui/book.png");
-    private BookAccess bookAccess;
+    private BookViewScreen.BookAccess bookAccess;
     private int currentPage;
     private List<Component> cachedPageComponents = Collections.emptyList();
     private int cachedPage = -1;
@@ -29,21 +49,21 @@ public class BookViewScreen extends Screen {
     private PageButton backButton;
     private final boolean playTurnSound;
 
-    public BookViewScreen(BookAccess param0) {
+    public BookViewScreen(BookViewScreen.BookAccess param0) {
         this(param0, true);
     }
 
     public BookViewScreen() {
-        this(BookAccess.EMPTY_ACCESS, false);
+        this(EMPTY_ACCESS, false);
     }
 
-    private BookViewScreen(BookAccess param0, boolean param1) {
+    private BookViewScreen(BookViewScreen.BookAccess param0, boolean param1) {
         super(NarratorChatListener.NO_TITLE);
         this.bookAccess = param0;
         this.playTurnSound = param1;
     }
 
-    public void setBookAccess(BookAccess param0) {
+    public void setBookAccess(BookViewScreen.BookAccess param0) {
         this.bookAccess = param0;
         this.currentPage = Mth.clamp(this.currentPage, 0, param0.getPageCount());
         this.updateButtonVisibility();
@@ -231,6 +251,97 @@ public class BookViewScreen extends Screen {
             } else {
                 return null;
             }
+        }
+    }
+
+    public static List<String> convertPages(CompoundTag param0) {
+        ListTag var0 = param0.getList("pages", 8).copy();
+        Builder<String> var1 = ImmutableList.builder();
+
+        for(int var2 = 0; var2 < var0.size(); ++var2) {
+            var1.add(var0.getString(var2));
+        }
+
+        return var1.build();
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public interface BookAccess {
+        int getPageCount();
+
+        Component getPageRaw(int var1);
+
+        default Component getPage(int param0) {
+            return (Component)(param0 >= 0 && param0 < this.getPageCount() ? this.getPageRaw(param0) : new TextComponent(""));
+        }
+
+        static BookViewScreen.BookAccess fromItem(ItemStack param0) {
+            Item var0 = param0.getItem();
+            if (var0 == Items.WRITTEN_BOOK) {
+                return new BookViewScreen.WrittenBookAccess(param0);
+            } else {
+                return (BookViewScreen.BookAccess)(var0 == Items.WRITABLE_BOOK ? new BookViewScreen.WritableBookAccess(param0) : BookViewScreen.EMPTY_ACCESS);
+            }
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static class WritableBookAccess implements BookViewScreen.BookAccess {
+        private final List<String> pages;
+
+        public WritableBookAccess(ItemStack param0) {
+            this.pages = readPages(param0);
+        }
+
+        private static List<String> readPages(ItemStack param0) {
+            CompoundTag var0 = param0.getTag();
+            return (List<String>)(var0 != null ? BookViewScreen.convertPages(var0) : ImmutableList.of());
+        }
+
+        @Override
+        public int getPageCount() {
+            return this.pages.size();
+        }
+
+        @Override
+        public Component getPageRaw(int param0) {
+            return new TextComponent(this.pages.get(param0));
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static class WrittenBookAccess implements BookViewScreen.BookAccess {
+        private final List<String> pages;
+
+        public WrittenBookAccess(ItemStack param0) {
+            this.pages = readPages(param0);
+        }
+
+        private static List<String> readPages(ItemStack param0) {
+            CompoundTag var0 = param0.getTag();
+            return (List<String>)(var0 != null && WrittenBookItem.makeSureTagIsValid(var0)
+                ? BookViewScreen.convertPages(var0)
+                : ImmutableList.of(new TranslatableComponent("book.invalid.tag").withStyle(ChatFormatting.DARK_RED).getColoredString()));
+        }
+
+        @Override
+        public int getPageCount() {
+            return this.pages.size();
+        }
+
+        @Override
+        public Component getPageRaw(int param0) {
+            String var0 = this.pages.get(param0);
+
+            try {
+                Component var1 = Component.Serializer.fromJson(var0);
+                if (var1 != null) {
+                    return var1;
+                }
+            } catch (Exception var4) {
+            }
+
+            return new TextComponent(var0);
         }
     }
 }

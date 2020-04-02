@@ -77,8 +77,4 @@ public class LeaveVineDecorator extends TreeDecorator {
             )
             .getValue();
     }
-
-    public static LeaveVineDecorator random(Random param0) {
-        return new LeaveVineDecorator();
-    }
 }

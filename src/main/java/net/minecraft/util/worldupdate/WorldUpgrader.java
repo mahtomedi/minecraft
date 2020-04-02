@@ -53,11 +53,11 @@ public class WorldUpgrader {
     private static final Pattern REGEX = Pattern.compile("^r\\.(-?[0-9]+)\\.(-?[0-9]+)\\.mca$");
     private final DimensionDataStorage overworldDataStorage;
 
-    public WorldUpgrader(String param0, LevelStorageSource param1, LevelData param2, boolean param3) {
-        this.levelName = param2.getLevelName();
-        this.eraseCache = param3;
-        this.levelStorage = param1.selectLevel(param0, null);
-        this.levelStorage.saveLevelData(param2);
+    public WorldUpgrader(LevelStorageSource.LevelStorageAccess param0, LevelData param1, boolean param2) {
+        this.levelName = param1.getLevelName();
+        this.eraseCache = param2;
+        this.levelStorage = param0.selectLevel(null);
+        this.levelStorage.saveLevelData(param1);
         this.overworldDataStorage = new DimensionDataStorage(
             new File(DimensionType.OVERWORLD.getStorageFolder(this.levelStorage.getFolder()), "data"), this.levelStorage.getFixerUpper()
         );
@@ -101,7 +101,7 @@ public class WorldUpgrader {
 
             for(DimensionType var7 : DimensionType.getAllTypes()) {
                 File var8 = var7.getStorageFolder(var0);
-                var6.put(var7, new ChunkStorage(new File(var8, "region"), this.levelStorage.getFixerUpper()));
+                var6.put(var7, new ChunkStorage(new File(var8, "region"), this.levelStorage.getFixerUpper(), true));
             }
 
             ImmutableMap<DimensionType, ChunkStorage> var9 = var6.build();
@@ -206,7 +206,7 @@ public class WorldUpgrader {
                     int var6 = Integer.parseInt(var5.group(1)) << 5;
                     int var7 = Integer.parseInt(var5.group(2)) << 5;
 
-                    try (RegionFile var8 = new RegionFile(var4, var1)) {
+                    try (RegionFile var8 = new RegionFile(var4, var1, true)) {
                         for(int var9 = 0; var9 < 32; ++var9) {
                             for(int var10 = 0; var10 < 32; ++var10) {
                                 ChunkPos var11 = new ChunkPos(var9 + var6, var10 + var7);

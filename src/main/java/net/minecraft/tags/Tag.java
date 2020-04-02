@@ -1,240 +1,219 @@
 package net.minecraft.tags;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
-import javax.annotation.Nullable;
-import net.minecraft.Util;
+import java.util.stream.Stream;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 
-public class Tag<T> {
-    private final ResourceLocation id;
-    private final Set<T> values;
-    private final Collection<Tag.Entry<T>> source;
+public interface Tag<T> {
+    boolean contains(T var1);
 
-    public Tag(ResourceLocation param0) {
-        this.id = param0;
-        this.values = Collections.emptySet();
-        this.source = Collections.emptyList();
-    }
+    List<T> getValues();
 
-    public Tag(ResourceLocation param0, Collection<Tag.Entry<T>> param1, boolean param2) {
-        this.id = param0;
-        this.values = (Set<T>)(param2 ? Sets.newLinkedHashSet() : Sets.newHashSet());
-        this.source = param1;
-
-        for(Tag.Entry<T> var0 : param1) {
-            var0.build(this.values);
-        }
-
-    }
-
-    public JsonObject serializeToJson(Function<T, ResourceLocation> param0) {
-        JsonObject var0 = new JsonObject();
-        JsonArray var1 = new JsonArray();
-
-        for(Tag.Entry<T> var2 : this.source) {
-            var2.serializeTo(var1, param0);
-        }
-
-        var0.addProperty("replace", false);
-        var0.add("values", var1);
-        return var0;
-    }
-
-    public boolean contains(T param0) {
-        return this.values.contains(param0);
-    }
-
-    public Collection<T> getValues() {
-        return this.values;
-    }
-
-    public Collection<Tag.Entry<T>> getSource() {
-        return this.source;
-    }
-
-    public T getRandomElement(Random param0) {
-        List<T> var0 = Lists.newArrayList(this.getValues());
+    default T getRandomElement(Random param0) {
+        List<T> var0 = this.getValues();
         return var0.get(param0.nextInt(var0.size()));
     }
 
-    public ResourceLocation getId() {
-        return this.id;
+    static <T> Tag<T> fromSet(final Set<T> param0) {
+        final ImmutableList<T> var0 = ImmutableList.copyOf(param0);
+        return new Tag<T>() {
+            @Override
+            public boolean contains(T param0x) {
+                return param0.contains(param0);
+            }
+
+            @Override
+            public List<T> getValues() {
+                return var0;
+            }
+        };
     }
 
-    public static class Builder<T> {
-        private final Set<Tag.Entry<T>> values = Sets.newLinkedHashSet();
-        private boolean ordered;
+    public static class Builder {
+        private final Set<Tag.Entry> entries = Sets.newLinkedHashSet();
 
-        public static <T> Tag.Builder<T> tag() {
-            return new Tag.Builder<>();
+        public static Tag.Builder tag() {
+            return new Tag.Builder();
         }
 
-        public Tag.Builder<T> add(Tag.Entry<T> param0) {
-            this.values.add(param0);
+        public Tag.Builder add(Tag.Entry param0) {
+            this.entries.add(param0);
             return this;
         }
 
-        public Tag.Builder<T> add(T param0) {
-            this.values.add(new Tag.ValuesEntry<>(Collections.singleton(param0)));
-            return this;
+        public Tag.Builder addElement(ResourceLocation param0) {
+            return this.add(new Tag.ElementEntry(param0));
         }
 
-        @SafeVarargs
-        public final Tag.Builder<T> add(T... param0) {
-            this.values.add(new Tag.ValuesEntry<>(Lists.newArrayList(param0)));
-            return this;
+        public Tag.Builder addTag(ResourceLocation param0) {
+            return this.add(new Tag.TagEntry(param0));
         }
 
-        public Tag.Builder<T> addTag(Tag<T> param0) {
-            this.values.add(new Tag.TagEntry<>(param0));
-            return this;
-        }
+        public <T> Optional<Tag<T>> build(Function<ResourceLocation, Tag<T>> param0, Function<ResourceLocation, T> param1) {
+            ImmutableSet.Builder<T> var0 = ImmutableSet.builder();
 
-        public Tag.Builder<T> keepOrder(boolean param0) {
-            this.ordered = param0;
-            return this;
-        }
-
-        public boolean canBuild(Function<ResourceLocation, Tag<T>> param0) {
-            for(Tag.Entry<T> var0 : this.values) {
-                if (!var0.canBuild(param0)) {
-                    return false;
+            for(Tag.Entry var1 : this.entries) {
+                if (!var1.build(param0, param1, var0::add)) {
+                    return Optional.empty();
                 }
             }
 
-            return true;
+            return Optional.of(Tag.fromSet(var0.build()));
         }
 
-        public Tag<T> build(ResourceLocation param0) {
-            return new Tag<>(param0, this.values, this.ordered);
+        public Stream<Tag.Entry> getEntries() {
+            return this.entries.stream();
         }
 
-        public Tag.Builder<T> addFromJson(Function<ResourceLocation, Optional<T>> param0, JsonObject param1) {
-            JsonArray var0 = GsonHelper.getAsJsonArray(param1, "values");
-            List<Tag.Entry<T>> var1 = Lists.newArrayList();
+        public <T> Stream<Tag.Entry> getUnresolvedEntries(Function<ResourceLocation, Tag<T>> param0, Function<ResourceLocation, T> param1) {
+            return this.getEntries().filter(param2 -> !param2.build(param0, param1, param0x -> {
+                }));
+        }
+
+        public Tag.Builder addFromJson(JsonObject param0) {
+            JsonArray var0 = GsonHelper.getAsJsonArray(param0, "values");
+            List<Tag.Entry> var1 = Lists.newArrayList();
 
             for(JsonElement var2 : var0) {
                 String var3 = GsonHelper.convertToString(var2, "value");
                 if (var3.startsWith("#")) {
-                    var1.add(new Tag.TagEntry<>(new ResourceLocation(var3.substring(1))));
+                    var1.add(new Tag.TagEntry(new ResourceLocation(var3.substring(1))));
                 } else {
-                    ResourceLocation var4 = new ResourceLocation(var3);
-                    var1.add(
-                        new Tag.ValuesEntry<>(
-                            Collections.singleton(param0.apply(var4).orElseThrow(() -> new JsonParseException("Unknown value '" + var4 + "'")))
-                        )
-                    );
+                    var1.add(new Tag.ElementEntry(new ResourceLocation(var3)));
                 }
             }
 
-            if (GsonHelper.getAsBoolean(param1, "replace", false)) {
-                this.values.clear();
+            if (GsonHelper.getAsBoolean(param0, "replace", false)) {
+                this.entries.clear();
             }
 
-            this.values.addAll(var1);
+            this.entries.addAll(var1);
             return this;
         }
+
+        public JsonObject serializeToJson() {
+            JsonObject var0 = new JsonObject();
+            JsonArray var1 = new JsonArray();
+
+            for(Tag.Entry var2 : this.entries) {
+                var2.serializeTo(var1);
+            }
+
+            var0.addProperty("replace", false);
+            var0.add("values", var1);
+            return var0;
+        }
     }
 
-    public interface Entry<T> {
-        default boolean canBuild(Function<ResourceLocation, Tag<T>> param0) {
-            return true;
+    public static class ElementEntry implements Tag.Entry {
+        private final ResourceLocation id;
+
+        public ElementEntry(ResourceLocation param0) {
+            this.id = param0;
         }
 
-        void build(Collection<T> var1);
+        @Override
+        public <T> boolean build(Function<ResourceLocation, Tag<T>> param0, Function<ResourceLocation, T> param1, Consumer<T> param2) {
+            T var0 = param1.apply(this.id);
+            if (var0 == null) {
+                return false;
+            } else {
+                param2.accept(var0);
+                return true;
+            }
+        }
 
-        void serializeTo(JsonArray var1, Function<T, ResourceLocation> var2);
+        @Override
+        public void serializeTo(JsonArray param0) {
+            param0.add(this.id.toString());
+        }
+
+        @Override
+        public String toString() {
+            return this.id.toString();
+        }
     }
 
-    public static class TagEntry<T> implements Tag.Entry<T> {
-        @Nullable
+    public interface Entry {
+        <T> boolean build(Function<ResourceLocation, Tag<T>> var1, Function<ResourceLocation, T> var2, Consumer<T> var3);
+
+        void serializeTo(JsonArray var1);
+    }
+
+    public interface Named<T> extends Tag<T> {
+        ResourceLocation getName();
+    }
+
+    public static class TagEntry implements Tag.Entry {
         private final ResourceLocation id;
-        @Nullable
-        private Tag<T> tag;
 
         public TagEntry(ResourceLocation param0) {
             this.id = param0;
         }
 
-        public TagEntry(Tag<T> param0) {
-            this.id = param0.getId();
-            this.tag = param0;
-        }
-
         @Override
-        public boolean canBuild(Function<ResourceLocation, Tag<T>> param0) {
-            if (this.tag == null) {
-                this.tag = param0.apply(this.id);
-            }
-
-            return this.tag != null;
-        }
-
-        @Override
-        public void build(Collection<T> param0) {
-            if (this.tag == null) {
-                throw (IllegalStateException)Util.pauseInIde(new IllegalStateException("Cannot build unresolved tag entry"));
+        public <T> boolean build(Function<ResourceLocation, Tag<T>> param0, Function<ResourceLocation, T> param1, Consumer<T> param2) {
+            Tag<T> var0 = param0.apply(this.id);
+            if (var0 == null) {
+                return false;
             } else {
-                param0.addAll(this.tag.getValues());
-            }
-        }
-
-        public ResourceLocation getId() {
-            if (this.tag != null) {
-                return this.tag.getId();
-            } else if (this.id != null) {
-                return this.id;
-            } else {
-                throw new IllegalStateException("Cannot serialize an anonymous tag to json!");
+                var0.getValues().forEach(param2);
+                return true;
             }
         }
 
         @Override
-        public void serializeTo(JsonArray param0, Function<T, ResourceLocation> param1) {
-            param0.add("#" + this.getId());
+        public void serializeTo(JsonArray param0) {
+            param0.add("#" + this.id);
+        }
+
+        @Override
+        public String toString() {
+            return "#" + this.id;
         }
     }
 
-    public static class ValuesEntry<T> implements Tag.Entry<T> {
-        private final Collection<T> values;
+    public static class TypedBuilder<T> extends Tag.Builder {
+        private final Function<T, ResourceLocation> elementLookup;
 
-        public ValuesEntry(Collection<T> param0) {
-            this.values = param0;
+        public TypedBuilder(Function<T, ResourceLocation> param0) {
+            this.elementLookup = param0;
         }
 
-        @Override
-        public void build(Collection<T> param0) {
-            param0.addAll(this.values);
+        public Tag.TypedBuilder<T> add(T param0) {
+            this.addElement(this.elementLookup.apply(param0));
+            return this;
         }
 
-        @Override
-        public void serializeTo(JsonArray param0, Function<T, ResourceLocation> param1) {
-            for(T var0 : this.values) {
-                ResourceLocation var1 = param1.apply(var0);
-                if (var1 == null) {
-                    throw new IllegalStateException("Unable to serialize an anonymous value to json!");
-                }
-
-                param0.add(var1.toString());
-            }
-
+        public Tag.TypedBuilder<T> add(Collection<T> param0) {
+            param0.stream().map(this.elementLookup).forEach(this::addElement);
+            return this;
         }
 
-        public Collection<T> getValues() {
-            return this.values;
+        @SafeVarargs
+        public final Tag.TypedBuilder<T> add(T... param0) {
+            this.add(Arrays.asList(param0));
+            return this;
+        }
+
+        public Tag.TypedBuilder<T> addTag(Tag.Named<T> param0) {
+            this.addTag(param0.getName());
+            return this;
         }
     }
 }

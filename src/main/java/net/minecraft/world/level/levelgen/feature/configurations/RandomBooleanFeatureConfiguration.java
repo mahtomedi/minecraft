@@ -3,8 +3,6 @@ package net.minecraft.world.level.levelgen.feature.configurations;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
-import java.util.Random;
-import net.minecraft.core.Registry;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 
 public class RandomBooleanFeatureConfiguration implements FeatureConfiguration {
@@ -35,9 +33,5 @@ public class RandomBooleanFeatureConfiguration implements FeatureConfiguration {
         ConfiguredFeature<?, ?> var0 = ConfiguredFeature.deserialize(param0.get("feature_true").orElseEmptyMap());
         ConfiguredFeature<?, ?> var1 = ConfiguredFeature.deserialize(param0.get("feature_false").orElseEmptyMap());
         return new RandomBooleanFeatureConfiguration(var0, var1);
-    }
-
-    public static RandomBooleanFeatureConfiguration random(Random param0) {
-        return new RandomBooleanFeatureConfiguration(Registry.FEATURE.getRandom(param0).random(param0), Registry.FEATURE.getRandom(param0).random(param0));
     }
 }

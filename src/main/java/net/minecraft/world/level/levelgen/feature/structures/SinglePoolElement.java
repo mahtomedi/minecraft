@@ -13,6 +13,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Deserializer;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.properties.StructureMode;
@@ -92,22 +93,23 @@ public class SinglePoolElement extends StructurePoolElement {
     public boolean place(
         StructureManager param0,
         LevelAccessor param1,
-        ChunkGenerator<?> param2,
-        BlockPos param3,
+        StructureFeatureManager param2,
+        ChunkGenerator<?> param3,
         BlockPos param4,
-        Rotation param5,
-        BoundingBox param6,
-        Random param7
+        BlockPos param5,
+        Rotation param6,
+        BoundingBox param7,
+        Random param8
     ) {
         StructureTemplate var0 = param0.getOrCreate(this.location);
-        StructurePlaceSettings var1 = this.getSettings(param5, param6);
-        if (!var0.placeInWorld(param1, param3, param4, var1, 18)) {
+        StructurePlaceSettings var1 = this.getSettings(param6, param7);
+        if (!var0.placeInWorld(param1, param4, param5, var1, 18)) {
             return false;
         } else {
             for(StructureTemplate.StructureBlockInfo var3 : StructureTemplate.processBlockInfos(
-                param1, param3, param4, var1, this.getDataMarkers(param0, param3, param5, false)
+                param1, param4, param5, var1, this.getDataMarkers(param0, param4, param6, false)
             )) {
-                this.handleDataMarker(param1, var3, param3, param5, param7, param6);
+                this.handleDataMarker(param1, var3, param4, param6, param8, param7);
             }
 
             return true;

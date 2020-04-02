@@ -8,6 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -16,43 +17,48 @@ import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.material.Material;
 
 public class HugeFungusFeature extends Feature<HugeFungusConfiguration> {
-    public HugeFungusFeature(Function<Dynamic<?>, ? extends HugeFungusConfiguration> param0, Function<Random, ? extends HugeFungusConfiguration> param1) {
-        super(param0, param1);
+    public HugeFungusFeature(Function<Dynamic<?>, ? extends HugeFungusConfiguration> param0) {
+        super(param0);
     }
 
     public boolean place(
-        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, HugeFungusConfiguration param4
+        LevelAccessor param0,
+        StructureFeatureManager param1,
+        ChunkGenerator<? extends ChunkGeneratorSettings> param2,
+        Random param3,
+        BlockPos param4,
+        HugeFungusConfiguration param5
     ) {
-        Block var0 = param4.validBaseState.getBlock();
+        Block var0 = param5.validBaseState.getBlock();
         BlockPos var1 = null;
-        if (param4.planted) {
-            Block var2 = param0.getBlockState(param3.below()).getBlock();
+        if (param5.planted) {
+            Block var2 = param0.getBlockState(param4.below()).getBlock();
             if (var2 == var0) {
-                var1 = param3;
+                var1 = param4;
             }
         } else {
-            var1 = findOnNyliumPosition(param0, param3, var0);
+            var1 = findOnNyliumPosition(param0, param4, var0);
         }
 
         if (var1 == null) {
             return false;
         } else {
-            int var3 = Mth.nextInt(param2, 4, 13);
-            if (param2.nextInt(12) == 0) {
+            int var3 = Mth.nextInt(param3, 4, 13);
+            if (param3.nextInt(12) == 0) {
                 var3 *= 2;
             }
 
-            if (!param4.planted) {
+            if (!param5.planted) {
                 int var4 = param0.getHeight();
                 if (var1.getY() + var3 + 1 >= var4) {
                     return false;
                 }
             }
 
-            boolean var5 = !param4.planted && param2.nextFloat() < 0.06F;
-            param0.setBlock(param3, Blocks.AIR.defaultBlockState(), 4);
-            this.placeHat(param0, param2, param4, var1, var3, var5);
-            this.placeStem(param0, param2, param4, var1, var3, var5);
+            boolean var5 = !param5.planted && param3.nextFloat() < 0.06F;
+            param0.setBlock(param4, Blocks.AIR.defaultBlockState(), 4);
+            this.placeHat(param0, param3, param5, var1, var3, var5);
+            this.placeStem(param0, param3, param5, var1, var3, var5);
             return true;
         }
     }

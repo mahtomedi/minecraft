@@ -42,11 +42,6 @@ public class TorchBlock extends Block {
         return canSupportCenter(param1, param2.below(), Direction.UP);
     }
 
-    @Override
-    public boolean isUnstable() {
-        return true;
-    }
-
     @OnlyIn(Dist.CLIENT)
     @Override
     public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {

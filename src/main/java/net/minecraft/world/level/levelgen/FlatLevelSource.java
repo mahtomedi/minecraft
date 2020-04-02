@@ -10,9 +10,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.entity.npc.CatSpawner;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.NoiseColumn;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.biome.BiomeSource;
@@ -21,7 +21,6 @@ import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.chunk.ChunkGeneratorType;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
@@ -123,18 +122,18 @@ public class FlatLevelSource extends ChunkGenerator<FlatLevelGeneratorSettings> 
     }
 
     @Override
-    public void fillFromNoise(LevelAccessor param0, ChunkAccess param1) {
+    public void fillFromNoise(LevelAccessor param0, StructureFeatureManager param1, ChunkAccess param2) {
         BlockState[] var0 = this.settings.getLayers();
         BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos();
-        Heightmap var2 = param1.getOrCreateHeightmapUnprimed(Heightmap.Types.OCEAN_FLOOR_WG);
-        Heightmap var3 = param1.getOrCreateHeightmapUnprimed(Heightmap.Types.WORLD_SURFACE_WG);
+        Heightmap var2 = param2.getOrCreateHeightmapUnprimed(Heightmap.Types.OCEAN_FLOOR_WG);
+        Heightmap var3 = param2.getOrCreateHeightmapUnprimed(Heightmap.Types.WORLD_SURFACE_WG);
 
         for(int var4 = 0; var4 < var0.length; ++var4) {
             BlockState var5 = var0[var4];
             if (var5 != null) {
                 for(int var6 = 0; var6 < 16; ++var6) {
                     for(int var7 = 0; var7 < 16; ++var7) {
-                        param1.setBlockState(var1.set(var6, var4, var7), var5, false);
+                        param2.setBlockState(var1.set(var6, var4, var7), var5, false);
                         var2.update(var6, var4, var7, var5);
                         var3.update(var6, var4, var7, var5);
                     }
@@ -182,15 +181,10 @@ public class FlatLevelSource extends ChunkGenerator<FlatLevelGeneratorSettings> 
 
     @Nullable
     @Override
-    public BlockPos findNearestMapFeature(Level param0, String param1, BlockPos param2, int param3, boolean param4) {
+    public BlockPos findNearestMapFeature(ServerLevel param0, String param1, BlockPos param2, int param3, boolean param4) {
         return !this.settings.getStructuresOptions().keySet().contains(param1.toLowerCase(Locale.ROOT))
             ? null
             : super.findNearestMapFeature(param0, param1, param2, param3, param4);
-    }
-
-    @Override
-    public ChunkGeneratorType<?, ?> getType() {
-        return ChunkGeneratorType.FLAT;
     }
 
     class FlatLevelBiomeWrapper extends Biome {

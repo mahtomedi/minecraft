@@ -38,11 +38,6 @@ public abstract class DiodeBlock extends HorizontalDirectionalBlock {
     }
 
     @Override
-    public boolean isUnstable() {
-        return true;
-    }
-
-    @Override
     public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
         if (!this.isLocked(param1, param2, param0)) {
             boolean var0 = param0.getValue(POWERED);

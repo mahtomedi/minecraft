@@ -2,8 +2,6 @@ package net.minecraft.core.particles;
 
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import java.util.Random;
-import java.util.function.BiFunction;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
@@ -25,9 +23,6 @@ public class BlockParticleOption implements ParticleOptions {
     };
     private final ParticleType<BlockParticleOption> type;
     private final BlockState state;
-    public static final BiFunction<Random, ParticleType<BlockParticleOption>, BlockParticleOption> RANDOM_PROVIDER = (param0, param1) -> new BlockParticleOption(
-            param1, Registry.BLOCK.getRandom(param0).defaultBlockState()
-        );
 
     public BlockParticleOption(ParticleType<BlockParticleOption> param0, BlockState param1) {
         this.type = param0;

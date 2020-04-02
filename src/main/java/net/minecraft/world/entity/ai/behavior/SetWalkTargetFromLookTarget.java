@@ -21,7 +21,7 @@ public class SetWalkTargetFromLookTarget extends Behavior<LivingEntity> {
     @Override
     protected void start(ServerLevel param0, LivingEntity param1, long param2) {
         Brain<?> var0 = param1.getBrain();
-        PositionWrapper var1 = var0.getMemory(MemoryModuleType.LOOK_TARGET).get();
+        PositionTracker var1 = var0.getMemory(MemoryModuleType.LOOK_TARGET).get();
         var0.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(var1, this.speedModifier, this.closeEnoughDistance));
     }
 }

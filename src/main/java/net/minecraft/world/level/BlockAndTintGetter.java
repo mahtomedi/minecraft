@@ -1,9 +1,7 @@
 package net.minecraft.world.level;
 
-import com.mojang.math.Vector3f;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -28,7 +26,4 @@ public interface BlockAndTintGetter extends BlockGetter {
     default boolean canSeeSky(BlockPos param0) {
         return this.getBrightness(LightLayer.SKY, param0) >= this.getMaxLightLevel();
     }
-
-    @OnlyIn(Dist.CLIENT)
-    Vector3f getExtraTint(BlockState var1, BlockPos var2);
 }

@@ -6,6 +6,7 @@ import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
@@ -15,10 +16,8 @@ public class VoidStartPlatformFeature extends Feature<NoneFeatureConfiguration> 
     private static final BlockPos PLATFORM_ORIGIN = new BlockPos(8, 3, 8);
     private static final ChunkPos PLATFORM_ORIGIN_CHUNK = new ChunkPos(PLATFORM_ORIGIN);
 
-    public VoidStartPlatformFeature(
-        Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0, Function<Random, ? extends NoneFeatureConfiguration> param1
-    ) {
-        super(param0, param1);
+    public VoidStartPlatformFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0) {
+        super(param0);
     }
 
     private static int checkerboardDistance(int param0, int param1, int param2, int param3) {
@@ -26,9 +25,14 @@ public class VoidStartPlatformFeature extends Feature<NoneFeatureConfiguration> 
     }
 
     public boolean place(
-        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, BlockPos param3, NoneFeatureConfiguration param4
+        LevelAccessor param0,
+        StructureFeatureManager param1,
+        ChunkGenerator<? extends ChunkGeneratorSettings> param2,
+        Random param3,
+        BlockPos param4,
+        NoneFeatureConfiguration param5
     ) {
-        ChunkPos var0 = new ChunkPos(param3);
+        ChunkPos var0 = new ChunkPos(param4);
         if (checkerboardDistance(var0.x, var0.z, PLATFORM_ORIGIN_CHUNK.x, PLATFORM_ORIGIN_CHUNK.z) > 1) {
             return true;
         } else {
