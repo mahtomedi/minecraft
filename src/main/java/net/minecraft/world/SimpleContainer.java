@@ -93,6 +93,19 @@ public class SimpleContainer implements Container, StackedContentsCompatible {
         }
     }
 
+    public boolean canAddItem(ItemStack param0) {
+        boolean var0 = false;
+
+        for(ItemStack var1 : this.items) {
+            if (var1.isEmpty() || this.isSameItem(var1, param0) && var1.getCount() < var1.getMaxStackSize()) {
+                var0 = true;
+                break;
+            }
+        }
+
+        return var0;
+    }
+
     @Override
     public ItemStack removeItemNoUpdate(int param0) {
         ItemStack var0 = this.items.get(param0);

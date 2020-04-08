@@ -5,6 +5,7 @@ import com.mojang.math.OctahedralGroup;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import net.minecraft.Util;
 import net.minecraft.core.Direction;
 
 public enum Rotation {
@@ -94,8 +95,7 @@ public enum Rotation {
     }
 
     public static Rotation getRandom(Random param0) {
-        Rotation[] var0 = values();
-        return var0[param0.nextInt(var0.length)];
+        return Util.getRandom(values(), param0);
     }
 
     public static List<Rotation> getShuffled(Random param0) {

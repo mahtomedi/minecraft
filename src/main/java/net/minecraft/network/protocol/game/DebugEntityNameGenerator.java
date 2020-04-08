@@ -2,6 +2,7 @@ package net.minecraft.network.protocol.game;
 
 import java.util.Random;
 import java.util.UUID;
+import net.minecraft.Util;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -81,7 +82,7 @@ public class DebugEntityNameGenerator {
     }
 
     private static String getRandomString(Random param0, String[] param1) {
-        return param1[param0.nextInt(param1.length)];
+        return Util.getRandom(param1, param0);
     }
 
     private static Random getRandom(UUID param0) {

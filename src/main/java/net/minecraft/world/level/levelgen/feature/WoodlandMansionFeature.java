@@ -84,7 +84,7 @@ public class WoodlandMansionFeature extends StructureFeature<NoneFeatureConfigur
 
         @Override
         public void generatePieces(ChunkGenerator<?> param0, StructureManager param1, int param2, int param3, Biome param4) {
-            Rotation var0 = Rotation.values()[this.random.nextInt(Rotation.values().length)];
+            Rotation var0 = Rotation.getRandom(this.random);
             int var1 = 5;
             int var2 = 5;
             if (var0 == Rotation.CLOCKWISE_90) {

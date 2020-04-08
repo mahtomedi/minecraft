@@ -9,12 +9,12 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.ItemSteerableMount;
+import net.minecraft.world.entity.Saddleable;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class SaddleLayer<T extends Entity & ItemSteerableMount, M extends EntityModel<T>> extends RenderLayer<T, M> {
+public class SaddleLayer<T extends Entity & Saddleable, M extends EntityModel<T>> extends RenderLayer<T, M> {
     private final ResourceLocation textureLocation;
     private final M model;
 
@@ -28,7 +28,7 @@ public class SaddleLayer<T extends Entity & ItemSteerableMount, M extends Entity
     public void render(
         PoseStack param0, MultiBufferSource param1, int param2, T param3, float param4, float param5, float param6, float param7, float param8, float param9
     ) {
-        if (param3.hasSaddle()) {
+        if (param3.isSaddled()) {
             this.getParentModel().copyPropertiesTo(this.model);
             this.model.prepareMobModel(param3, param4, param5, param6);
             this.model.setupAnim(param3, param4, param5, param7, param8, param9);

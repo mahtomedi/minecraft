@@ -2,6 +2,7 @@ package net.minecraft.client.gui.screens;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.chat.NarratorChatListener;
+import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.components.CommandSuggestions;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.resources.language.I18n;
@@ -130,8 +131,13 @@ public class ChatScreen extends Screen {
             return true;
         } else {
             if (param2 == 0) {
-                Component var0 = this.minecraft.gui.getChat().getClickedComponentAt(param0, param1);
-                if (var0 != null && this.handleComponentClicked(var0)) {
+                ChatComponent var0 = this.minecraft.gui.getChat();
+                if (var0.handleChatQueueClicked(param0, param1)) {
+                    return true;
+                }
+
+                Component var1 = var0.getClickedComponentAt(param0, param1);
+                if (var1 != null && this.handleComponentClicked(var1)) {
                     return true;
                 }
             }

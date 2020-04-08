@@ -216,48 +216,6 @@ public final class NativeImage implements AutoCloseable {
         }
     }
 
-    public void blendPixel(int param0, int param1, int param2) {
-        if (this.format != NativeImage.Format.RGBA) {
-            throw new UnsupportedOperationException("Can only call blendPixel with RGBA format");
-        } else {
-            int var0 = this.getPixelRGBA(param0, param1);
-            float var1 = (float)getA(param2) / 255.0F;
-            float var2 = (float)getB(param2) / 255.0F;
-            float var3 = (float)getG(param2) / 255.0F;
-            float var4 = (float)getR(param2) / 255.0F;
-            float var5 = (float)getA(var0) / 255.0F;
-            float var6 = (float)getB(var0) / 255.0F;
-            float var7 = (float)getG(var0) / 255.0F;
-            float var8 = (float)getR(var0) / 255.0F;
-            float var10 = 1.0F - var1;
-            float var11 = var1 * var1 + var5 * var10;
-            float var12 = var2 * var1 + var6 * var10;
-            float var13 = var3 * var1 + var7 * var10;
-            float var14 = var4 * var1 + var8 * var10;
-            if (var11 > 1.0F) {
-                var11 = 1.0F;
-            }
-
-            if (var12 > 1.0F) {
-                var12 = 1.0F;
-            }
-
-            if (var13 > 1.0F) {
-                var13 = 1.0F;
-            }
-
-            if (var14 > 1.0F) {
-                var14 = 1.0F;
-            }
-
-            int var15 = (int)(var11 * 255.0F);
-            int var16 = (int)(var12 * 255.0F);
-            int var17 = (int)(var13 * 255.0F);
-            int var18 = (int)(var14 * 255.0F);
-            this.setPixelRGBA(param0, param1, combine(var15, var16, var17, var18));
-        }
-    }
-
     @Deprecated
     public int[] makePixelArray() {
         if (this.format != NativeImage.Format.RGBA) {

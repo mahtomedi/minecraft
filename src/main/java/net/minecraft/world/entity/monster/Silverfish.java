@@ -149,7 +149,7 @@ public class Silverfish extends Monster {
             } else {
                 Random var0 = this.mob.getRandom();
                 if (this.mob.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) && var0.nextInt(10) == 0) {
-                    this.selectedDirection = Direction.getRandomFace(var0);
+                    this.selectedDirection = Direction.getRandom(var0);
                     BlockPos var1 = new BlockPos(this.mob.getX(), this.mob.getY() + 0.5, this.mob.getZ()).relative(this.selectedDirection);
                     BlockState var2 = this.mob.level.getBlockState(var1);
                     if (InfestedBlock.isCompatibleHostBlock(var2)) {

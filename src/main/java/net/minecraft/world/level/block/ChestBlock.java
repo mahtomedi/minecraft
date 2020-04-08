@@ -370,10 +370,4 @@ public class ChestBlock extends AbstractChestBlock<ChestBlockEntity> implements 
     public boolean isPathfindable(BlockState param0, BlockGetter param1, BlockPos param2, PathComputationType param3) {
         return false;
     }
-
-    @Override
-    public void playerWillDestroy(Level param0, BlockPos param1, BlockState param2, Player param3) {
-        super.playerWillDestroy(param0, param1, param2, param3);
-        PiglinAi.angerNearbyPiglinsThatSee(param3);
-    }
 }

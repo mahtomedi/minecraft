@@ -3,6 +3,7 @@ package net.minecraft.world.level.block;
 import java.util.List;
 import java.util.Random;
 import javax.annotation.Nullable;
+import net.minecraft.Util;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -314,6 +315,6 @@ public class BeehiveBlock extends BaseEntityBlock {
     }
 
     public static Direction getRandomOffset(Random param0) {
-        return SPAWN_DIRECTIONS[param0.nextInt(SPAWN_DIRECTIONS.length)];
+        return Util.getRandom(SPAWN_DIRECTIONS, param0);
     }
 }

@@ -2,6 +2,7 @@ package net.minecraft.client.gui.screens.inventory;
 
 import java.util.List;
 import java.util.Random;
+import net.minecraft.Util;
 import net.minecraft.client.gui.Font;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -30,7 +31,7 @@ public class EnchantmentNames {
                 var1 = var1 + " ";
             }
 
-            var1 = var1 + this.words[this.random.nextInt(this.words.length)];
+            var1 = var1 + (String)Util.getRandom(this.words, this.random);
         }
 
         List<String> var3 = param0.split(var1, param1);

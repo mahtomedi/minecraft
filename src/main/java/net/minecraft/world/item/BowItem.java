@@ -14,7 +14,7 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 
-public class BowItem extends ProjectileWeaponItem {
+public class BowItem extends ProjectileWeaponItem implements Vanishable {
     public BowItem(Item.Properties param0) {
         super(param0);
         this.addProperty(new ResourceLocation("pull"), (param0x, param1, param2) -> {

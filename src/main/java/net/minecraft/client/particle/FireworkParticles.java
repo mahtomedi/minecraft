@@ -2,6 +2,7 @@ package net.minecraft.client.particle;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import javax.annotation.Nullable;
+import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.particles.ParticleTypes;
@@ -326,7 +327,7 @@ public class FireworkParticles {
             int var1 = this.random.nextInt(param6.length);
             var0.setColor(param6[var1]);
             if (param7.length > 0) {
-                var0.setFadeColor(param7[this.random.nextInt(param7.length)]);
+                var0.setFadeColor(Util.getRandom(param7, this.random));
             }
 
         }

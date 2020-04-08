@@ -3,6 +3,7 @@ package net.minecraft.world.level.pathfinder;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.BlockGetter;
@@ -238,44 +239,45 @@ public class TurtleNodeEvaluator extends WalkNodeEvaluator {
 
     @Override
     public BlockPathTypes getBlockPathType(BlockGetter param0, int param1, int param2, int param3) {
-        BlockPathTypes var0 = getBlockPathTypeRaw(param0, param1, param2, param3);
-        if (var0 == BlockPathTypes.WATER) {
-            for(Direction var1 : Direction.values()) {
-                BlockPathTypes var2 = getBlockPathTypeRaw(param0, param1 + var1.getStepX(), param2 + var1.getStepY(), param3 + var1.getStepZ());
-                if (var2 == BlockPathTypes.BLOCKED) {
+        BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
+        BlockPathTypes var1 = getBlockPathTypeRaw(param0, var0.set(param1, param2, param3));
+        if (var1 == BlockPathTypes.WATER) {
+            for(Direction var2 : Direction.values()) {
+                BlockPathTypes var3 = getBlockPathTypeRaw(param0, var0.set(param1, param2, param3).move(var2));
+                if (var3 == BlockPathTypes.BLOCKED) {
                     return BlockPathTypes.WATER_BORDER;
                 }
             }
 
             return BlockPathTypes.WATER;
         } else {
-            if (var0 == BlockPathTypes.OPEN && param2 >= 1) {
-                Block var3 = param0.getBlockState(new BlockPos(param1, param2 - 1, param3)).getBlock();
-                BlockPathTypes var4 = getBlockPathTypeRaw(param0, param1, param2 - 1, param3);
-                if (var4 != BlockPathTypes.WALKABLE && var4 != BlockPathTypes.OPEN && var4 != BlockPathTypes.LAVA) {
-                    var0 = BlockPathTypes.WALKABLE;
+            if (var1 == BlockPathTypes.OPEN && param2 >= 1) {
+                Block var4 = param0.getBlockState(new BlockPos(param1, param2 - 1, param3)).getBlock();
+                BlockPathTypes var5 = getBlockPathTypeRaw(param0, var0.set(param1, param2 - 1, param3));
+                if (var5 != BlockPathTypes.WALKABLE && var5 != BlockPathTypes.OPEN && var5 != BlockPathTypes.LAVA) {
+                    var1 = BlockPathTypes.WALKABLE;
                 } else {
-                    var0 = BlockPathTypes.OPEN;
+                    var1 = BlockPathTypes.OPEN;
                 }
 
-                if (var4 == BlockPathTypes.DAMAGE_FIRE || var3 == Blocks.MAGMA_BLOCK || var3 == Blocks.CAMPFIRE) {
-                    var0 = BlockPathTypes.DAMAGE_FIRE;
+                if (var5 == BlockPathTypes.DAMAGE_FIRE || var4 == Blocks.MAGMA_BLOCK || var4.is(BlockTags.CAMPFIRES)) {
+                    var1 = BlockPathTypes.DAMAGE_FIRE;
                 }
 
-                if (var4 == BlockPathTypes.DAMAGE_CACTUS) {
-                    var0 = BlockPathTypes.DAMAGE_CACTUS;
+                if (var5 == BlockPathTypes.DAMAGE_CACTUS) {
+                    var1 = BlockPathTypes.DAMAGE_CACTUS;
                 }
 
-                if (var4 == BlockPathTypes.DAMAGE_OTHER) {
-                    var0 = BlockPathTypes.DAMAGE_OTHER;
+                if (var5 == BlockPathTypes.DAMAGE_OTHER) {
+                    var1 = BlockPathTypes.DAMAGE_OTHER;
                 }
             }
 
-            if (var0 == BlockPathTypes.WALKABLE) {
-                var0 = checkNeighbourBlocks(param0, param1, param2, param3, var0);
+            if (var1 == BlockPathTypes.WALKABLE) {
+                var1 = checkNeighbourBlocks(param0, var0.set(param1, param2, param3), var1);
             }
 
-            return var0;
+            return var1;
         }
     }
 }

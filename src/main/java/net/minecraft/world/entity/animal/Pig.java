@@ -8,6 +8,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
@@ -16,8 +17,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ItemBasedSteering;
-import net.minecraft.world.entity.ItemSteerableMount;
+import net.minecraft.world.entity.ItemSteerable;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.Saddleable;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.BreedGoal;
@@ -38,7 +40,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-public class Pig extends Animal implements ItemSteerableMount {
+public class Pig extends Animal implements ItemSteerable, Saddleable {
     private static final EntityDataAccessor<Boolean> DATA_SADDLE_ID = SynchedEntityData.defineId(Pig.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> DATA_BOOST_TIME = SynchedEntityData.defineId(Pig.class, EntityDataSerializers.INT);
     private static final Ingredient FOOD_ITEMS = Ingredient.of(Items.CARROT, Items.POTATO, Items.BEETROOT);
@@ -132,26 +134,51 @@ public class Pig extends Animal implements ItemSteerableMount {
 
     @Override
     public boolean mobInteract(Player param0, InteractionHand param1) {
-        return !super.mobInteract(param0, param1) ? this.mobInteract(this, param0, param1, true) : true;
+        if (super.mobInteract(param0, param1)) {
+            return true;
+        } else {
+            ItemStack var0 = param0.getItemInHand(param1);
+            if (var0.getItem() == Items.NAME_TAG) {
+                var0.interactEnemy(param0, this, param1);
+                return true;
+            } else if (this.isSaddled() && !this.isVehicle()) {
+                if (!this.level.isClientSide) {
+                    param0.startRiding(this);
+                }
+
+                return true;
+            } else {
+                return var0.getItem() == Items.SADDLE && var0.interactEnemy(param0, this, param1);
+            }
+        }
+    }
+
+    @Override
+    public boolean isSaddleable() {
+        return this.isAlive() && !this.isBaby();
     }
 
     @Override
     protected void dropEquipment() {
         super.dropEquipment();
-        if (this.hasSaddle()) {
+        if (this.isSaddled()) {
             this.spawnAtLocation(Items.SADDLE);
         }
 
     }
 
     @Override
-    public boolean hasSaddle() {
+    public boolean isSaddled() {
         return this.steering.hasSaddle();
     }
 
     @Override
-    public void setSaddle(boolean param0) {
-        this.steering.setSaddle(param0);
+    public void equipSaddle(@Nullable SoundSource param0) {
+        this.steering.setSaddle(true);
+        if (param0 != null) {
+            this.level.playSound(null, this, SoundEvents.PIG_SADDLE, param0, 0.5F, 1.0F);
+        }
+
     }
 
     @Override

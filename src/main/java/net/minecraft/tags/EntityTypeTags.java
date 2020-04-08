@@ -1,6 +1,8 @@
 package net.minecraft.tags;
 
 import net.minecraft.world.entity.EntityType;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class EntityTypeTags {
     private static final StaticTagHelper<EntityType<?>> HELPER = new StaticTagHelper<>();
@@ -16,6 +18,11 @@ public class EntityTypeTags {
 
     public static void reset(TagCollection<EntityType<?>> param0) {
         HELPER.reset(param0);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static void resetToEmpty() {
+        HELPER.resetToEmpty();
     }
 
     public static TagCollection<EntityType<?>> getAllTags() {

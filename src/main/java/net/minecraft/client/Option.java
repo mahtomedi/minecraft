@@ -66,6 +66,21 @@ public abstract class Option {
         double var0 = param1.toPct(param1.get(param0));
         return param1.getCaption() + ChatComponent.getWidth(var0) + "px";
     });
+    public static final ProgressOption CHAT_LINE_SPACING = new ProgressOption(
+        "options.chat.line_spacing",
+        0.0,
+        1.0,
+        0.0F,
+        param0 -> param0.chatLineSpacing,
+        (param0, param1) -> param0.chatLineSpacing = param1,
+        (param0, param1) -> param1.getCaption() + (int)(param1.toPct(param1.get(param0)) * 100.0) + "%"
+    );
+    public static final ProgressOption CHAT_DELAY = new ProgressOption(
+        "options.chat.delay_instant", 0.0, 6.0, 0.1F, param0 -> param0.chatDelay, (param0, param1) -> param0.chatDelay = param1, (param0, param1) -> {
+            double var0 = param1.get(param0);
+            return var0 <= 0.0 ? I18n.get("options.chat.delay_none") : I18n.get("options.chat.delay", String.format("%.1f", var0));
+        }
+    );
     public static final ProgressOption FOV = new ProgressOption(
         "options.fov", 30.0, 110.0, 1.0F, param0 -> param0.fov, (param0, param1) -> param0.fov = param1, (param0, param1) -> {
             double var0 = param1.get(param0);

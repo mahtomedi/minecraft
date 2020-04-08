@@ -16,6 +16,11 @@ public class StandardChatListener implements ChatListener {
 
     @Override
     public void handle(ChatType param0, Component param1) {
-        this.minecraft.gui.getChat().addMessage(param1);
+        if (param0 != ChatType.CHAT) {
+            this.minecraft.gui.getChat().addMessage(param1);
+        } else {
+            this.minecraft.gui.getChat().enqueueMessage(param1);
+        }
+
     }
 }

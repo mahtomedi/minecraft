@@ -3,6 +3,7 @@ package net.minecraft.world.level.levelgen.feature;
 import com.mojang.datafixers.Dynamic;
 import java.util.Random;
 import java.util.function.Function;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.EntityType;
@@ -135,6 +136,6 @@ public class MonsterRoomFeature extends Feature<NoneFeatureConfiguration> {
     }
 
     private EntityType<?> randomEntityId(Random param0) {
-        return MOBS[param0.nextInt(MOBS.length)];
+        return Util.getRandom(MOBS, param0);
     }
 }

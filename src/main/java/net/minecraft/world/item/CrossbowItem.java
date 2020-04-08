@@ -35,7 +35,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class CrossbowItem extends ProjectileWeaponItem {
+public class CrossbowItem extends ProjectileWeaponItem implements Vanishable {
     private boolean startSoundPlayed = false;
     private boolean midLoadSoundPlayed = false;
 

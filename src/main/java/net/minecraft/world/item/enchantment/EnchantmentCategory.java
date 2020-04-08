@@ -1,20 +1,17 @@
 package net.minecraft.world.item.enchantment;
 
-import java.util.stream.Stream;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.DiggerItem;
-import net.minecraft.world.item.ElytraItem;
 import net.minecraft.world.item.FishingRodItem;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.TridentItem;
-import net.minecraft.world.level.block.AbstractSkullBlock;
+import net.minecraft.world.item.Vanishable;
+import net.minecraft.world.item.Wearable;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.CarvedPumpkinBlock;
 
 public enum EnchantmentCategory {
     ARMOR {
@@ -86,8 +83,7 @@ public enum EnchantmentCategory {
     WEARABLE {
         @Override
         public boolean canEnchant(Item param0) {
-            Block var0 = Block.byItem(param0);
-            return param0 instanceof ArmorItem || param0 instanceof ElytraItem || var0 instanceof AbstractSkullBlock || var0 instanceof CarvedPumpkinBlock;
+            return param0 instanceof Wearable || Block.byItem(param0) instanceof Wearable;
         }
     },
     CROSSBOW {
@@ -99,9 +95,7 @@ public enum EnchantmentCategory {
     VANISHABLE {
         @Override
         public boolean canEnchant(Item param0) {
-            return Stream.of(EnchantmentCategory.values())
-                .filter(param0x -> param0x != VANISHABLE)
-                .anyMatch(param1 -> param1.canEnchant(param0) || param0 == Items.COMPASS);
+            return param0 instanceof Vanishable || Block.byItem(param0) instanceof Vanishable || BREAKABLE.canEnchant(param0);
         }
     };
 

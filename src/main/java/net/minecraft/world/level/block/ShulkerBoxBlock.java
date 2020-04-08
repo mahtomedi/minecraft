@@ -126,7 +126,6 @@ public class ShulkerBoxBlock extends BaseEntityBlock {
             }
         }
 
-        PiglinAi.angerNearbyPiglinsThatSee(param3);
         super.playerWillDestroy(param0, param1, param2, param3);
     }
 

@@ -33,12 +33,20 @@ public interface EntityGetter {
     }
 
     default boolean isUnobstructed(@Nullable Entity param0, VoxelShape param1) {
-        return param1.isEmpty()
-            ? true
-            : this.getEntities(param0, param1.bounds())
-                .stream()
-                .filter(param1x -> !param1x.removed && param1x.blocksBuilding && (param0 == null || !param1x.isPassengerOfSameVehicle(param0)))
-                .noneMatch(param1x -> Shapes.joinIsNotEmpty(param1, Shapes.create(param1x.getBoundingBox()), BooleanOp.AND));
+        if (param1.isEmpty()) {
+            return true;
+        } else {
+            for(Entity var0 : this.getEntities(param0, param1.bounds())) {
+                if (!var0.removed
+                    && var0.blocksBuilding
+                    && (param0 == null || !var0.isPassengerOfSameVehicle(param0))
+                    && Shapes.joinIsNotEmpty(param1, Shapes.create(var0.getBoundingBox()), BooleanOp.AND)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
     }
 
     default <T extends Entity> List<T> getEntitiesOfClass(Class<? extends T> param0, AABB param1) {

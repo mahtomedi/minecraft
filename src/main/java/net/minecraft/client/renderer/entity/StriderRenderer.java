@@ -11,6 +11,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class StriderRenderer extends MobRenderer<Strider, StriderModel<Strider>> {
     private static final ResourceLocation STRIDER_LOCATION = new ResourceLocation("textures/entity/strider/strider.png");
+    private static final ResourceLocation COLD_LOCATION = new ResourceLocation("textures/entity/strider/strider_cold.png");
 
     public StriderRenderer(EntityRenderDispatcher param0) {
         super(param0, new StriderModel<>(), 0.5F);
@@ -18,7 +19,7 @@ public class StriderRenderer extends MobRenderer<Strider, StriderModel<Strider>>
     }
 
     public ResourceLocation getTextureLocation(Strider param0) {
-        return STRIDER_LOCATION;
+        return param0.isSuffocating() ? COLD_LOCATION : STRIDER_LOCATION;
     }
 
     protected void scale(Strider param0, PoseStack param1, float param2) {

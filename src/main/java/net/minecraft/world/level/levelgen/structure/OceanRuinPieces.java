@@ -3,6 +3,7 @@ package net.minecraft.world.level.levelgen.structure;
 import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Random;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -102,11 +103,11 @@ public class OceanRuinPieces {
     };
 
     private static ResourceLocation getSmallWarmRuin(Random param0) {
-        return WARM_RUINS[param0.nextInt(WARM_RUINS.length)];
+        return Util.getRandom(WARM_RUINS, param0);
     }
 
     private static ResourceLocation getBigWarmRuin(Random param0) {
-        return BIG_WARM_RUINS[param0.nextInt(BIG_WARM_RUINS.length)];
+        return Util.getRandom(BIG_WARM_RUINS, param0);
     }
 
     public static void addPieces(
@@ -138,7 +139,7 @@ public class OceanRuinPieces {
                 BlockPos var9 = var5.remove(var8);
                 int var10 = var9.getX();
                 int var11 = var9.getZ();
-                Rotation var12 = Rotation.values()[param1.nextInt(Rotation.values().length)];
+                Rotation var12 = Rotation.getRandom(param1);
                 BlockPos var13 = StructureTemplate.transform(new BlockPos(5, 0, 6), Mirror.NONE, var12, BlockPos.ZERO).offset(var10, 0, var11);
                 BoundingBox var14 = BoundingBox.createProper(var10, 0, var11, var13.getX(), 0, var13.getZ());
                 if (!var14.intersects(var3)) {

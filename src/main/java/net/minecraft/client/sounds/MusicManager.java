@@ -26,7 +26,7 @@ public class MusicManager {
     public void tick() {
         MusicManager.Music var0 = this.minecraft.getSituationalMusic();
         if (this.currentMusic != null) {
-            if (!var0.getEvent().getLocation().equals(this.currentMusic.getLocation())) {
+            if (!var0.getEvent().getLocation().equals(this.currentMusic.getLocation()) && var0.overridesCurrent) {
                 this.minecraft.getSoundManager().stop(this.currentMusic);
                 this.nextSongDelay = Mth.nextInt(this.random, 0, var0.getMinDelay() / 2);
             }
@@ -69,7 +69,11 @@ public class MusicManager {
         GAME(SoundEvents.MUSIC_GAME, 12000, 24000),
         CREATIVE(SoundEvents.MUSIC_CREATIVE, 1200, 3600),
         CREDITS(SoundEvents.MUSIC_CREDITS, 0, 0),
-        NETHER(SoundEvents.MUSIC_NETHER, 1200, 3600),
+        BASALT_DELTAS(SoundEvents.MUSIC_BIOME_BASALT_DELTAS, 1200, 3600, false),
+        NETHER_WASTES(SoundEvents.MUSIC_BIOME_NETHER_WASTES, 1200, 3600, false),
+        SOUL_SAND_VALLEY(SoundEvents.MUSIC_BIOME_SOUL_SAND_VALLEY, 1200, 3600, false),
+        CRIMSON_FOREST(SoundEvents.MUSIC_BIOME_CRIMSON_FOREST, 1200, 3600, false),
+        WARPED_FOREST(SoundEvents.MUSIC_BIOME_WARPED_FOREST, 1200, 3600, false),
         END_BOSS(SoundEvents.MUSIC_DRAGON, 0, 0),
         END(SoundEvents.MUSIC_END, 6000, 24000),
         UNDER_WATER(SoundEvents.MUSIC_UNDER_WATER, 12000, 24000);
@@ -77,11 +81,17 @@ public class MusicManager {
         private final SoundEvent event;
         private final int minDelay;
         private final int maxDelay;
+        private final boolean overridesCurrent;
 
         private Music(SoundEvent param0, int param1, int param2) {
+            this(param0, param1, param2, true);
+        }
+
+        private Music(SoundEvent param0, int param1, int param2, boolean param3) {
             this.event = param0;
             this.minDelay = param1;
             this.maxDelay = param2;
+            this.overridesCurrent = param3;
         }
 
         public SoundEvent getEvent() {

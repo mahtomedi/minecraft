@@ -2,6 +2,7 @@ package net.minecraft.world.entity.animal;
 
 import java.util.Locale;
 import javax.annotation.Nullable;
+import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -230,7 +231,7 @@ public class TropicalFish extends AbstractSchoolingFish {
                 var3 = var0.baseColor;
                 var4 = var0.patternColor;
             } else if ((double)this.random.nextFloat() < 0.9) {
-                int var5 = COMMON_VARIANTS[this.random.nextInt(COMMON_VARIANTS.length)];
+                int var5 = Util.getRandom(COMMON_VARIANTS, this.random);
                 var1 = var5 & 0xFF;
                 var2 = (var5 & 0xFF00) >> 8;
                 var3 = (var5 & 0xFF0000) >> 16;

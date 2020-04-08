@@ -126,10 +126,4 @@ public class BarrelBlock extends BaseEntityBlock {
     public BlockState getStateForPlacement(BlockPlaceContext param0) {
         return this.defaultBlockState().setValue(FACING, param0.getNearestLookingDirection().getOpposite());
     }
-
-    @Override
-    public void playerWillDestroy(Level param0, BlockPos param1, BlockState param2, Player param3) {
-        super.playerWillDestroy(param0, param1, param2, param3);
-        PiglinAi.angerNearbyPiglinsThatSee(param3);
-    }
 }

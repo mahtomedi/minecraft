@@ -133,7 +133,7 @@ public class RandomPos {
                     }
 
                     if (param5 || !param0.level.getFluidState(var13).is(FluidTags.WATER)) {
-                        BlockPathTypes var14 = WalkNodeEvaluator.getBlockPathTypeStatic(param0.level, var13.getX(), var13.getY(), var13.getZ());
+                        BlockPathTypes var14 = WalkNodeEvaluator.getBlockPathTypeStatic(param0.level, var13.mutable());
                         if (param0.getPathfindingMalus(var14) == 0.0F) {
                             double var15 = param7.applyAsDouble(var13);
                             if (var15 > var5) {

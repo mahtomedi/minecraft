@@ -55,7 +55,7 @@ public class ShipwreckFeature extends RandomScatteredFeature<ShipwreckConfigurat
         @Override
         public void generatePieces(ChunkGenerator<?> param0, StructureManager param1, int param2, int param3, Biome param4) {
             ShipwreckConfiguration var0 = param0.getStructureConfiguration(param4, Feature.SHIPWRECK);
-            Rotation var1 = Rotation.values()[this.random.nextInt(Rotation.values().length)];
+            Rotation var1 = Rotation.getRandom(this.random);
             BlockPos var2 = new BlockPos(param2 * 16, 90, param3 * 16);
             ShipwreckPieces.addPieces(param1, var2, var1, this.pieces, this.random, var0);
             this.calculateBoundingBox();

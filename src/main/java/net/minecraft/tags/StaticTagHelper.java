@@ -3,11 +3,15 @@ package net.minecraft.tags;
 import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class StaticTagHelper<T> {
-    private TagCollection<T> source = new TagCollection<>(param0 -> Optional.empty(), "", "");
+    private final TagCollection<T> empty = new TagCollection<>(param0 -> Optional.empty(), "", "");
+    private TagCollection<T> source = this.empty;
     private final List<StaticTagHelper.Wrapper<T>> wrappers = Lists.newArrayList();
 
     public Tag.Named<T> bind(String param0) {
@@ -16,9 +20,16 @@ public class StaticTagHelper<T> {
         return var0;
     }
 
+    @OnlyIn(Dist.CLIENT)
+    public void resetToEmpty() {
+        this.source = this.empty;
+        Tag<T> var0 = this.empty.getEmptyTag();
+        this.wrappers.forEach(param1 -> param1.rebind(param1x -> var0));
+    }
+
     public void reset(TagCollection<T> param0) {
         this.source = param0;
-        this.wrappers.forEach(param1 -> param1.rebind(param0));
+        this.wrappers.forEach(param1 -> param1.rebind(param0::getTag));
     }
 
     public TagCollection<T> getAllTags() {
@@ -47,8 +58,8 @@ public class StaticTagHelper<T> {
             }
         }
 
-        void rebind(TagCollection<T> param0) {
-            this.tag = param0.getTag(this.name);
+        void rebind(Function<ResourceLocation, Tag<T>> param0) {
+            this.tag = param0.apply(this.name);
         }
 
         @Override

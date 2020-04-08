@@ -20,8 +20,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public abstract class Enchantment {
     private final EquipmentSlot[] slots;
     private final Enchantment.Rarity rarity;
-    @Nullable
-    public EnchantmentCategory category;
+    public final EnchantmentCategory category;
     @Nullable
     protected String descriptionId;
 

@@ -13,11 +13,11 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 
 public class ItemTagsProvider extends TagsProvider<Item> {
-    private final Function<ResourceLocation, Tag.Builder> blockTags;
+    private final Function<Tag.Named<Block>, Tag.Builder> blockTags;
 
     public ItemTagsProvider(DataGenerator param0, BlockTagsProvider param1) {
         super(param0, Registry.ITEM);
-        this.blockTags = param1::tag;
+        this.blockTags = param1::getOrCreateRawBuilder;
     }
 
     @Override
@@ -60,6 +60,7 @@ public class ItemTagsProvider extends TagsProvider<Item> {
         this.copy(BlockTags.TALL_FLOWERS, ItemTags.TALL_FLOWERS);
         this.copy(BlockTags.FLOWERS, ItemTags.FLOWERS);
         this.copy(BlockTags.GOLD_ORES, ItemTags.GOLD_ORES);
+        this.copy(BlockTags.SOUL_FIRE_BASE_BLOCKS, ItemTags.SOUL_FIRE_BASE_BLOCKS);
         this.tag(ItemTags.BANNERS)
             .add(
                 Items.WHITE_BANNER,
@@ -133,11 +134,13 @@ public class ItemTagsProvider extends TagsProvider<Item> {
                 Items.CRIMSON_SIGN,
                 Items.WARPED_SIGN
             );
+        this.tag(ItemTags.STONE_TOOL_MATERIALS).add(Items.COBBLESTONE, Items.BLACKSTONE);
+        this.tag(ItemTags.FURNACE_MATERIALS).add(Items.COBBLESTONE, Items.BLACKSTONE);
     }
 
     protected void copy(Tag.Named<Block> param0, Tag.Named<Item> param1) {
-        Tag.Builder var0 = this.tag(param1);
-        Tag.Builder var1 = this.blockTags.apply(param0.getName());
+        Tag.Builder var0 = this.getOrCreateRawBuilder(param1);
+        Tag.Builder var1 = this.blockTags.apply(param0);
         var1.getEntries().forEach(var0::add);
     }
 

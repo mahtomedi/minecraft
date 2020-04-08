@@ -212,7 +212,7 @@ public abstract class Animal extends AgableMob {
             param1.setAge(6000);
             this.resetLove();
             param1.resetLove();
-            var0.setAge(-24000);
+            var0.setBaby(true);
             var0.moveTo(this.getX(), this.getY(), this.getZ(), 0.0F, 0.0F);
             param0.addFreshEntity(var0);
             param0.broadcastEntityEvent(this, (byte)18);

@@ -5,19 +5,18 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.common.collect.ImmutableMap.Builder;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 import com.mojang.datafixers.util.Pair;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Map.Entry;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
@@ -34,7 +33,6 @@ import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.entity.schedule.Schedule;
-import org.apache.commons.lang3.mutable.MutableInt;
 
 public class Brain<E extends LivingEntity> implements Serializable {
     private final Map<MemoryModuleType<?>, Optional<? extends ExpirableValue<?>>> memories = Maps.newHashMap();
@@ -49,19 +47,22 @@ public class Brain<E extends LivingEntity> implements Serializable {
     private long lastScheduleUpdate = -9999L;
 
     public <T> Brain(Collection<MemoryModuleType<?>> param0, Collection<SensorType<? extends Sensor<? super E>>> param1, Dynamic<T> param2) {
-        param0.forEach(param0x -> {
-        });
-        param1.forEach(param0x -> {
-        });
-        this.sensors.values().forEach(param0x -> {
-            for(MemoryModuleType<?> var0x : param0x.requires()) {
-                this.memories.put(var0x, Optional.empty());
+        for(MemoryModuleType<?> var0 : param0) {
+            this.memories.put(var0, Optional.empty());
+        }
+
+        for(SensorType<? extends Sensor<? super E>> var1 : param1) {
+            this.sensors.put(var1, var1.create());
+        }
+
+        for(Sensor<? super E> var2 : this.sensors.values()) {
+            for(MemoryModuleType<?> var3 : var2.requires()) {
+                this.memories.put(var3, Optional.empty());
             }
+        }
 
-        });
-
-        for(Entry<Dynamic<T>, Dynamic<T>> var0 : param2.get("memories").asMap(Function.identity(), Function.identity()).entrySet()) {
-            this.readMemory(Registry.MEMORY_MODULE_TYPE.get(new ResourceLocation(var0.getKey().asString(""))), var0.getValue());
+        for(Entry<Dynamic<T>, Dynamic<T>> var4 : param2.get("memories").asMap(Function.identity(), Function.identity()).entrySet()) {
+            this.readMemory(Registry.MEMORY_MODULE_TYPE.get(new ResourceLocation(var4.getKey().asString(""))), var4.getValue());
         }
 
     }
@@ -130,13 +131,20 @@ public class Brain<E extends LivingEntity> implements Serializable {
     }
 
     @Deprecated
-    public Stream<Behavior<? super E>> getRunningBehaviorsStream() {
-        return this.availableBehaviorsByPriority
-            .values()
-            .stream()
-            .flatMap(param0 -> param0.values().stream())
-            .flatMap(Collection::stream)
-            .filter(param0 -> param0.getStatus() == Behavior.Status.RUNNING);
+    public List<Behavior<? super E>> getRunningBehaviors() {
+        List<Behavior<? super E>> var0 = new ObjectArrayList<>();
+
+        for(Map<Activity, Set<Behavior<? super E>>> var1 : this.availableBehaviorsByPriority.values()) {
+            for(Set<Behavior<? super E>> var2 : var1.values()) {
+                for(Behavior<? super E> var3 : var2) {
+                    if (var3.getStatus() == Behavior.Status.RUNNING) {
+                        var0.add(var3);
+                    }
+                }
+            }
+        }
+
+        return var0;
     }
 
     public void useDefaultActivity() {
@@ -144,7 +152,13 @@ public class Brain<E extends LivingEntity> implements Serializable {
     }
 
     public Optional<Activity> getActiveNonCoreActivity() {
-        return this.activeActivities.stream().filter(param0 -> !this.coreActivities.contains(param0)).findFirst();
+        for(Activity var0 : this.activeActivities) {
+            if (!this.coreActivities.contains(var0)) {
+                return Optional.of(var0);
+            }
+        }
+
+        return Optional.empty();
     }
 
     public void setActiveActivityIfPossible(Activity param0) {
@@ -166,13 +180,17 @@ public class Brain<E extends LivingEntity> implements Serializable {
     }
 
     private void eraseMemoriesForOtherActivitesThan(Activity param0) {
-        this.activeActivities
-            .stream()
-            .filter(param1 -> param1 != param0)
-            .map(this.activityMemoriesToEraseWhenStopped::get)
-            .filter(Objects::nonNull)
-            .flatMap(Collection::stream)
-            .forEach(this::eraseMemory);
+        for(Activity var0 : this.activeActivities) {
+            if (var0 != param0) {
+                Set<MemoryModuleType<?>> var1 = this.activityMemoriesToEraseWhenStopped.get(var0);
+                if (var1 != null) {
+                    for(MemoryModuleType<?> var2 : var1) {
+                        this.eraseMemory(var2);
+                    }
+                }
+            }
+        }
+
     }
 
     public void updateActivityFromSchedule(long param0, long param1) {
@@ -187,7 +205,13 @@ public class Brain<E extends LivingEntity> implements Serializable {
     }
 
     public void setActiveActivityToFirstValid(List<Activity> param0) {
-        param0.stream().filter(this::activityRequirementsAreMet).findFirst().ifPresent(this::setActiveActivity);
+        for(Activity var0 : param0) {
+            if (this.activityRequirementsAreMet(var0)) {
+                this.setActiveActivity(var0);
+                break;
+            }
+        }
+
     }
 
     public void setDefaultActivity(Activity param0) {
@@ -227,12 +251,13 @@ public class Brain<E extends LivingEntity> implements Serializable {
             this.activityMemoriesToEraseWhenStopped.put(param0, param3);
         }
 
-        param1.forEach(
-            param1x -> this.availableBehaviorsByPriority
-                    .computeIfAbsent(param1x.getFirst(), param0x -> Maps.newHashMap())
-                    .computeIfAbsent(param0, param0x -> Sets.newLinkedHashSet())
-                    .add(param1x.getSecond())
-        );
+        for(Pair<Integer, ? extends Behavior<? super E>> var0 : param1) {
+            this.availableBehaviorsByPriority
+                .computeIfAbsent(var0.getFirst(), param0x -> Maps.newHashMap())
+                .computeIfAbsent(param0, param0x -> Sets.newLinkedHashSet())
+                .add(var0.getSecond());
+        }
+
     }
 
     public boolean isActive(Activity param0) {
@@ -241,85 +266,125 @@ public class Brain<E extends LivingEntity> implements Serializable {
 
     public Brain<E> copyWithoutBehaviors() {
         Brain<E> var0 = new Brain<>(this.memories.keySet(), this.sensors.keySet(), new Dynamic<>(NbtOps.INSTANCE, new CompoundTag()));
-        this.memories.forEach((param1, param2) -> param2.ifPresent(param2x -> {
-            }));
+
+        for(Entry<MemoryModuleType<?>, Optional<? extends ExpirableValue<?>>> var1 : this.memories.entrySet()) {
+            MemoryModuleType<?> var2 = var1.getKey();
+            if (var1.getValue().isPresent()) {
+                var0.memories.put(var2, var1.getValue());
+            }
+        }
+
         return var0;
     }
 
     public void tick(ServerLevel param0, E param1) {
-        this.memories.forEach(this::tickMemoryAndRemoveIfExpired);
-        this.sensors.values().forEach(param2 -> param2.tick(param0, param1));
+        this.forgetOutdatedMemories();
+        this.tickSensors(param0, param1);
         this.startEachNonRunningBehavior(param0, param1);
         this.tickEachRunningBehavior(param0, param1);
     }
 
+    private void tickSensors(ServerLevel param0, E param1) {
+        for(Sensor<? super E> var0 : this.sensors.values()) {
+            var0.tick(param0, param1);
+        }
+
+    }
+
+    private void forgetOutdatedMemories() {
+        for(Entry<MemoryModuleType<?>, Optional<? extends ExpirableValue<?>>> var0 : this.memories.entrySet()) {
+            if (var0.getValue().isPresent()) {
+                ExpirableValue<?> var1 = var0.getValue().get();
+                var1.tick();
+                if (var1.hasExpired()) {
+                    this.eraseMemory(var0.getKey());
+                }
+            }
+        }
+
+    }
+
     public void stopAll(ServerLevel param0, E param1) {
         long var0 = param1.level.getGameTime();
-        this.getRunningBehaviorsStream().forEach(param3 -> param3.doStop(param0, param1, var0));
+
+        for(Behavior<? super E> var1 : this.getRunningBehaviors()) {
+            var1.doStop(param0, param1, var0);
+        }
+
     }
 
     @Override
     public <T> T serialize(DynamicOps<T> param0) {
-        T var0 = param0.createMap(
-            this.memories
-                .entrySet()
-                .stream()
-                .filter(param0x -> param0x.getKey().getDeserializer().isPresent() && param0x.getValue().isPresent())
-                .map(
-                    param1 -> Pair.of(
-                            param0.createString(Registry.MEMORY_MODULE_TYPE.getKey(param1.getKey()).toString()),
-                            ((ExpirableValue)param1.getValue().get()).serialize(param0)
-                        )
-                )
-                .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond))
-        );
-        return param0.createMap(ImmutableMap.of(param0.createString("memories"), var0));
+        Builder<T, T> var0 = ImmutableMap.builder();
+
+        for(Entry<MemoryModuleType<?>, Optional<? extends ExpirableValue<?>>> var1 : this.memories.entrySet()) {
+            MemoryModuleType<?> var2 = var1.getKey();
+            if (var1.getValue().isPresent() && var2.getDeserializer().isPresent()) {
+                ExpirableValue<?> var3 = var1.getValue().get();
+                T var4 = param0.createString(Registry.MEMORY_MODULE_TYPE.getKey(var2).toString());
+                T var5 = var3.serialize(param0);
+                var0.put(var4, var5);
+            }
+        }
+
+        return param0.createMap(ImmutableMap.of(param0.createString("memories"), param0.createMap(var0.build())));
     }
 
     private void startEachNonRunningBehavior(ServerLevel param0, E param1) {
         long var0 = param0.getGameTime();
-        this.availableBehaviorsByPriority
-            .values()
-            .stream()
-            .flatMap(param0x -> param0x.entrySet().stream())
-            .filter(param0x -> this.activeActivities.contains(param0x.getKey()))
-            .map(Entry::getValue)
-            .flatMap(Collection::stream)
-            .filter(param0x -> param0x.getStatus() == Behavior.Status.STOPPED)
-            .forEach(param3 -> param3.tryStart(param0, param1, var0));
+
+        for(Map<Activity, Set<Behavior<? super E>>> var1 : this.availableBehaviorsByPriority.values()) {
+            for(Entry<Activity, Set<Behavior<? super E>>> var2 : var1.entrySet()) {
+                Activity var3 = var2.getKey();
+                if (this.activeActivities.contains(var3)) {
+                    for(Behavior<? super E> var5 : var2.getValue()) {
+                        if (var5.getStatus() == Behavior.Status.STOPPED) {
+                            var5.tryStart(param0, param1, var0);
+                        }
+                    }
+                }
+            }
+        }
+
     }
 
     private void tickEachRunningBehavior(ServerLevel param0, E param1) {
         long var0 = param0.getGameTime();
-        this.getRunningBehaviorsStream().forEach(param3 -> param3.tickOrStop(param0, param1, var0));
+
+        for(Behavior<? super E> var1 : this.getRunningBehaviors()) {
+            var1.tickOrStop(param0, param1, var0);
+        }
+
     }
 
-    private void tickMemoryAndRemoveIfExpired(MemoryModuleType<?> param0x, Optional<? extends ExpirableValue<?>> param1x) {
-        param1x.ifPresent(param1xx -> {
-            param1xx.tick();
-            if (param1xx.hasExpired()) {
-                this.eraseMemory(param0x);
+    private boolean activityRequirementsAreMet(Activity param0) {
+        if (!this.activityRequirements.containsKey(param0)) {
+            return false;
+        } else {
+            for(Pair<MemoryModuleType<?>, MemoryStatus> var0 : this.activityRequirements.get(param0)) {
+                MemoryModuleType<?> var1 = var0.getFirst();
+                MemoryStatus var2 = var0.getSecond();
+                if (!this.checkMemory(var1, var2)) {
+                    return false;
+                }
             }
 
-        });
-    }
-
-    private boolean activityRequirementsAreMet(Activity param0x) {
-        return this.activityRequirements.containsKey(param0x) && this.activityRequirements.get(param0x).stream().allMatch(param0xx -> {
-            MemoryModuleType<?> var0 = param0xx.getFirst();
-            MemoryStatus var1x = param0xx.getSecond();
-            return this.checkMemory(var0, var1x);
-        });
+            return true;
+        }
     }
 
     private boolean isEmptyCollection(Object param0) {
         return param0 instanceof Collection && ((Collection)param0).isEmpty();
     }
 
-    private ImmutableList<? extends Pair<Integer, ? extends Behavior<? super E>>> createPriorityPairs(
-        int param0, ImmutableList<? extends Behavior<? super E>> param1
-    ) {
-        MutableInt var0 = new MutableInt(param0);
-        return param1.stream().map(param1x -> Pair.of(var0.incrementAndGet(), param1x)).collect(ImmutableList.toImmutableList());
+    ImmutableList<? extends Pair<Integer, ? extends Behavior<? super E>>> createPriorityPairs(int param0, ImmutableList<? extends Behavior<? super E>> param1) {
+        int var0 = param0;
+        com.google.common.collect.ImmutableList.Builder<Pair<Integer, ? extends Behavior<? super E>>> var1 = ImmutableList.builder();
+
+        for(Behavior<? super E> var2 : param1) {
+            var1.add(Pair.of(var0++, var2));
+        }
+
+        return var1.build();
     }
 }

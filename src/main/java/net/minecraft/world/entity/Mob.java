@@ -571,10 +571,10 @@ public abstract class Mob extends LivingEntity {
         } else if (param0.getItem() instanceof BowItem && param1.getItem() instanceof BowItem) {
             return this.canReplaceEqualItem(param0, param1);
         } else if (param0.getItem() instanceof ArmorItem) {
-            if (!(param1.getItem() instanceof ArmorItem)) {
-                return true;
-            } else if (EnchantmentHelper.hasBindingCurse(param1)) {
+            if (EnchantmentHelper.hasBindingCurse(param1)) {
                 return false;
+            } else if (!(param1.getItem() instanceof ArmorItem)) {
+                return true;
             } else {
                 ArmorItem var2 = (ArmorItem)param0.getItem();
                 ArmorItem var3 = (ArmorItem)param1.getItem();
@@ -1064,7 +1064,7 @@ public abstract class Mob extends LivingEntity {
         Item var1 = var0.getItem();
         if (!this.level.isClientSide && var1 instanceof SpawnEggItem) {
             SpawnEggItem var2 = (SpawnEggItem)var1;
-            Optional<Mob> var3 = var2.spawnOffspringFromSpawnEgg(param0, this.getType(), this.level, this.position(), var0);
+            Optional<Mob> var3 = var2.spawnOffspringFromSpawnEgg(param0, this, this.getType(), this.level, this.position(), var0);
             var3.ifPresent(param1x -> this.onOffspringSpawnedFromEgg(param0, param1x));
         }
 

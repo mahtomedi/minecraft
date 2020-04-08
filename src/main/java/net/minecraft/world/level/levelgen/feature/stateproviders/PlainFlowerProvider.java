@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap.Builder;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 import java.util.Random;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.world.level.biome.Biome;
@@ -34,9 +35,9 @@ public class PlainFlowerProvider extends BlockStateProvider {
     public BlockState getState(Random param0, BlockPos param1) {
         double var0 = Biome.BIOME_INFO_NOISE.getValue((double)param1.getX() / 200.0, (double)param1.getZ() / 200.0, false);
         if (var0 < -0.8) {
-            return LOW_NOISE_FLOWERS[param0.nextInt(LOW_NOISE_FLOWERS.length)];
+            return Util.getRandom(LOW_NOISE_FLOWERS, param0);
         } else {
-            return param0.nextInt(3) > 0 ? HIGH_NOISE_FLOWERS[param0.nextInt(HIGH_NOISE_FLOWERS.length)] : Blocks.DANDELION.defaultBlockState();
+            return param0.nextInt(3) > 0 ? Util.getRandom(HIGH_NOISE_FLOWERS, param0) : Blocks.DANDELION.defaultBlockState();
         }
     }
 

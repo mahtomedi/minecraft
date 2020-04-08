@@ -55,8 +55,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.dimension.DimensionType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -127,6 +126,8 @@ public class Piglin extends Monster implements CrossbowAttackMob {
         this.setCanPickUpLoot(true);
         ((GroundPathNavigation)this.getNavigation()).setCanOpenDoors(true);
         this.xpReward = 5;
+        this.setPathfindingMalus(BlockPathTypes.DANGER_FIRE, 16.0F);
+        this.setPathfindingMalus(BlockPathTypes.DAMAGE_FIRE, -1.0F);
     }
 
     @Override
@@ -176,6 +177,10 @@ public class Piglin extends Monster implements CrossbowAttackMob {
 
     protected ItemStack addToInventory(ItemStack param0) {
         return this.inventory.addItem(param0);
+    }
+
+    protected boolean canAddToInventory(ItemStack param0) {
+        return this.inventory.canAddItem(param0);
     }
 
     @Override
@@ -260,8 +265,10 @@ public class Piglin extends Monster implements CrossbowAttackMob {
     public boolean mobInteract(Player param0, InteractionHand param1) {
         if (super.mobInteract(param0, param1)) {
             return true;
+        } else if (!this.level.isClientSide) {
+            return PiglinAi.mobInteract(this, param0, param1);
         } else {
-            return this.level.isClientSide ? false : PiglinAi.mobInteract(this, param0, param1);
+            return PiglinAi.canAdmire(this, param0.getItemInHand(param1)) && this.getArmPose() != Piglin.PiglinArmPose.ADMIRING_ITEM;
         }
     }
 
@@ -384,7 +391,6 @@ public class Piglin extends Monster implements CrossbowAttackMob {
         return (double)this.random.nextFloat() < 0.5 ? new ItemStack(Items.CROSSBOW) : new ItemStack(Items.GOLDEN_SWORD);
     }
 
-    @OnlyIn(Dist.CLIENT)
     private boolean isChargingCrossbow() {
         return this.entityData.get(DATA_IS_CHARGING_CROSSBOW);
     }
@@ -399,7 +405,6 @@ public class Piglin extends Monster implements CrossbowAttackMob {
         this.noActionTime = 0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Piglin.PiglinArmPose getArmPose() {
         if (this.swinging) {
             return Piglin.PiglinArmPose.DEFAULT;
@@ -446,7 +451,7 @@ public class Piglin extends Monster implements CrossbowAttackMob {
     }
 
     protected void holdInOffHand(ItemStack param0) {
-        if (param0.getItem() == Items.GOLD_INGOT) {
+        if (param0.getItem() == PiglinAi.BARTERING_ITEM) {
             this.setItemSlot(EquipmentSlot.OFFHAND, param0);
             this.setGuaranteedDrop(EquipmentSlot.OFFHAND);
         } else {
@@ -552,7 +557,6 @@ public class Piglin extends Monster implements CrossbowAttackMob {
         DebugPackets.sendEntityBrain(this);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static enum PiglinArmPose {
         CROSSBOW_HOLD,
         CROSSBOW_CHARGE,

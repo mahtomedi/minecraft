@@ -24,7 +24,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class CompassItem extends Item {
+public class CompassItem extends Item implements Vanishable {
     public CompassItem(Item.Properties param0) {
         super(param0);
         this.addProperty(new ResourceLocation("angle"), new ItemPropertyFunction() {
@@ -114,7 +114,7 @@ public class CompassItem extends Item {
     @OnlyIn(Dist.CLIENT)
     private BlockPos getLodestonePosition(Level param0, CompoundTag param1) {
         boolean var0 = param1.contains("LodestonePos");
-        boolean var1 = param1.contains("LodestonePos");
+        boolean var1 = param1.contains("LodestoneDimension");
         if (var0 && var1) {
             Optional<DimensionType> var2 = getLodestoneDimension(param1);
             if (var2.isPresent() && param0.dimension.getType().equals(var2.get())) {

@@ -62,6 +62,11 @@ public class TagCollection<T> {
         return this.tags.getOrDefault(param0, this.empty);
     }
 
+    @OnlyIn(Dist.CLIENT)
+    public Tag<T> getEmptyTag() {
+        return this.empty;
+    }
+
     @Nullable
     public ResourceLocation getId(Tag<T> param0) {
         return param0 instanceof Tag.Named ? ((Tag.Named)param0).getName() : this.tags.inverse().get(param0);
@@ -120,7 +125,7 @@ public class TagCollection<T> {
                                         var4.getSourceName()
                                     );
                                 } else {
-                                    var0.computeIfAbsent(var3, param0x -> Tag.Builder.tag()).addFromJson(var7);
+                                    var0.computeIfAbsent(var3, param0x -> Tag.Builder.tag()).addFromJson(var7, var4.getSourceName());
                                 }
                             } catch (RuntimeException | IOException var57) {
                                 LOGGER.error("Couldn't read {} tag list {} from {} in data pack {}", this.name, var3, var1x, var4.getSourceName(), var57);

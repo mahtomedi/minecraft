@@ -2,6 +2,7 @@ package net.minecraft.world.level.levelgen.structure;
 
 import java.util.List;
 import java.util.Random;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -62,9 +63,7 @@ public class ShipwreckPieces {
     public static void addPieces(
         StructureManager param0, BlockPos param1, Rotation param2, List<StructurePiece> param3, Random param4, ShipwreckConfiguration param5
     ) {
-        ResourceLocation var0 = param5.isBeached
-            ? STRUCTURE_LOCATION_BEACHED[param4.nextInt(STRUCTURE_LOCATION_BEACHED.length)]
-            : STRUCTURE_LOCATION_OCEAN[param4.nextInt(STRUCTURE_LOCATION_OCEAN.length)];
+        ResourceLocation var0 = Util.getRandom(param5.isBeached ? STRUCTURE_LOCATION_BEACHED : STRUCTURE_LOCATION_OCEAN, param4);
         param3.add(new ShipwreckPieces.ShipwreckPiece(param0, var0, param1, param2, param5.isBeached));
     }
 

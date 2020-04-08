@@ -5,6 +5,7 @@ import java.util.EnumSet;
 import java.util.Set;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.BlockGetter;
@@ -255,32 +256,33 @@ public class FlyNodeEvaluator extends WalkNodeEvaluator {
 
     @Override
     public BlockPathTypes getBlockPathType(BlockGetter param0, int param1, int param2, int param3) {
-        BlockPathTypes var0 = getBlockPathTypeRaw(param0, param1, param2, param3);
-        if (var0 == BlockPathTypes.OPEN && param2 >= 1) {
-            Block var1 = param0.getBlockState(new BlockPos(param1, param2 - 1, param3)).getBlock();
-            BlockPathTypes var2 = getBlockPathTypeRaw(param0, param1, param2 - 1, param3);
-            if (var2 == BlockPathTypes.DAMAGE_FIRE || var1 == Blocks.MAGMA_BLOCK || var2 == BlockPathTypes.LAVA || var1 == Blocks.CAMPFIRE) {
-                var0 = BlockPathTypes.DAMAGE_FIRE;
-            } else if (var2 == BlockPathTypes.DAMAGE_CACTUS) {
-                var0 = BlockPathTypes.DAMAGE_CACTUS;
-            } else if (var2 == BlockPathTypes.DAMAGE_OTHER) {
-                var0 = BlockPathTypes.DAMAGE_OTHER;
-            } else if (var2 == BlockPathTypes.COCOA) {
-                var0 = BlockPathTypes.COCOA;
-            } else if (var2 == BlockPathTypes.FENCE) {
-                var0 = BlockPathTypes.FENCE;
+        BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
+        BlockPathTypes var1 = getBlockPathTypeRaw(param0, var0.set(param1, param2, param3));
+        if (var1 == BlockPathTypes.OPEN && param2 >= 1) {
+            Block var2 = param0.getBlockState(var0.set(param1, param2 - 1, param3)).getBlock();
+            BlockPathTypes var3 = getBlockPathTypeRaw(param0, var0.set(param1, param2 - 1, param3));
+            if (var3 == BlockPathTypes.DAMAGE_FIRE || var2 == Blocks.MAGMA_BLOCK || var3 == BlockPathTypes.LAVA || var2.is(BlockTags.CAMPFIRES)) {
+                var1 = BlockPathTypes.DAMAGE_FIRE;
+            } else if (var3 == BlockPathTypes.DAMAGE_CACTUS) {
+                var1 = BlockPathTypes.DAMAGE_CACTUS;
+            } else if (var3 == BlockPathTypes.DAMAGE_OTHER) {
+                var1 = BlockPathTypes.DAMAGE_OTHER;
+            } else if (var3 == BlockPathTypes.COCOA) {
+                var1 = BlockPathTypes.COCOA;
+            } else if (var3 == BlockPathTypes.FENCE) {
+                var1 = BlockPathTypes.FENCE;
             } else {
-                var0 = var2 != BlockPathTypes.WALKABLE && var2 != BlockPathTypes.OPEN && var2 != BlockPathTypes.WATER
+                var1 = var3 != BlockPathTypes.WALKABLE && var3 != BlockPathTypes.OPEN && var3 != BlockPathTypes.WATER
                     ? BlockPathTypes.WALKABLE
                     : BlockPathTypes.OPEN;
             }
         }
 
-        if (var0 == BlockPathTypes.WALKABLE || var0 == BlockPathTypes.OPEN) {
-            var0 = checkNeighbourBlocks(param0, param1, param2, param3, var0);
+        if (var1 == BlockPathTypes.WALKABLE || var1 == BlockPathTypes.OPEN) {
+            var1 = checkNeighbourBlocks(param0, var0.set(param1, param2, param3), var1);
         }
 
-        return var0;
+        return var1;
     }
 
     private BlockPathTypes getBlockPathType(Mob param0, BlockPos param1) {

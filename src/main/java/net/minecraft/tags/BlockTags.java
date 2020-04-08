@@ -1,6 +1,8 @@
 package net.minecraft.tags;
 
 import net.minecraft.world.level.block.Block;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class BlockTags {
     private static final StaticTagHelper<Block> HELPER = new StaticTagHelper<>();
@@ -77,6 +79,8 @@ public class BlockTags {
     public static final Tag.Named<Block> HOGLIN_REPELLENTS = bind("hoglin_repellents");
     public static final Tag.Named<Block> SOUL_FIRE_BASE_BLOCKS = bind("soul_fire_base_blocks");
     public static final Tag.Named<Block> STRIDER_WARM_BLOCKS = bind("strider_warm_blocks");
+    public static final Tag.Named<Block> CAMPFIRES = bind("campfires");
+    public static final Tag.Named<Block> GUARDED_BY_PIGLINS = bind("guarded_by_piglins");
 
     private static Tag.Named<Block> bind(String param0) {
         return HELPER.bind(param0);
@@ -84,6 +88,11 @@ public class BlockTags {
 
     public static void reset(TagCollection<Block> param0) {
         HELPER.reset(param0);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static void resetToEmpty() {
+        HELPER.resetToEmpty();
     }
 
     public static TagCollection<Block> getAllTags() {

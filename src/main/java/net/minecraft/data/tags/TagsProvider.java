@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import net.minecraft.core.Registry;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
@@ -29,7 +30,7 @@ public abstract class TagsProvider<T> implements DataProvider {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     protected final DataGenerator generator;
     protected final Registry<T> registry;
-    protected final Map<ResourceLocation, Tag.TypedBuilder<T>> builders = Maps.newLinkedHashMap();
+    private final Map<ResourceLocation, Tag.Builder> builders = Maps.newLinkedHashMap();
 
     protected TagsProvider(DataGenerator param0, Registry<T> param1) {
         this.generator = param0;
@@ -48,7 +49,7 @@ public abstract class TagsProvider<T> implements DataProvider {
         this.builders
             .forEach(
                 (param3, param4) -> {
-                    List<Tag.Entry> var0x = param4.getUnresolvedEntries(var1, var2).collect(Collectors.toList());
+                    List<Tag.BuilderEntry> var0x = param4.getUnresolvedEntries(var1, var2).collect(Collectors.toList());
                     if (!var0x.isEmpty()) {
                         throw new IllegalArgumentException(
                             String.format(
@@ -84,11 +85,40 @@ public abstract class TagsProvider<T> implements DataProvider {
 
     protected abstract Path getPath(ResourceLocation var1);
 
-    protected Tag.TypedBuilder<T> tag(Tag.Named<T> param0) {
-        return this.tag(param0.getName());
+    protected TagsProvider.TagAppender<T> tag(Tag.Named<T> param0) {
+        Tag.Builder var0 = this.getOrCreateRawBuilder(param0);
+        return new TagsProvider.TagAppender<>(var0, this.registry, "vanilla");
     }
 
-    protected Tag.TypedBuilder<T> tag(ResourceLocation param0) {
-        return this.builders.computeIfAbsent(param0, param0x -> new Tag.TypedBuilder<>(this.registry::getKey));
+    protected Tag.Builder getOrCreateRawBuilder(Tag.Named<T> param0) {
+        return this.builders.computeIfAbsent(param0.getName(), param0x -> new Tag.Builder());
+    }
+
+    public static class TagAppender<T> {
+        private final Tag.Builder builder;
+        private final Registry<T> registry;
+        private final String source;
+
+        private TagAppender(Tag.Builder param0, Registry<T> param1, String param2) {
+            this.builder = param0;
+            this.registry = param1;
+            this.source = param2;
+        }
+
+        public TagsProvider.TagAppender<T> add(T param0) {
+            this.builder.addElement(this.registry.getKey(param0), this.source);
+            return this;
+        }
+
+        public TagsProvider.TagAppender<T> addTag(Tag.Named<T> param0) {
+            this.builder.addTag(param0.getName(), this.source);
+            return this;
+        }
+
+        @SafeVarargs
+        public final TagsProvider.TagAppender<T> add(T... param0) {
+            Stream.<T>of(param0).map(this.registry::getKey).forEach(param0x -> this.builder.addElement(param0x, this.source));
+            return this;
+        }
     }
 }

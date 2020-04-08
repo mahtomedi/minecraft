@@ -57,39 +57,38 @@ public class FossilFeature extends Feature<NoneFeatureConfiguration> {
         NoneFeatureConfiguration param5
     ) {
         Random var0 = param0.getRandom();
-        Rotation[] var1 = Rotation.values();
-        Rotation var2 = var1[var0.nextInt(var1.length)];
-        int var3 = var0.nextInt(fossils.length);
-        StructureManager var4 = ((ServerLevel)param0.getLevel()).getLevelStorage().getStructureManager();
-        StructureTemplate var5 = var4.getOrCreate(fossils[var3]);
-        StructureTemplate var6 = var4.getOrCreate(fossilsCoal[var3]);
-        ChunkPos var7 = new ChunkPos(param4);
-        BoundingBox var8 = new BoundingBox(var7.getMinBlockX(), 0, var7.getMinBlockZ(), var7.getMaxBlockX(), 256, var7.getMaxBlockZ());
-        StructurePlaceSettings var9 = new StructurePlaceSettings()
-            .setRotation(var2)
-            .setBoundingBox(var8)
+        Rotation var1 = Rotation.getRandom(var0);
+        int var2 = var0.nextInt(fossils.length);
+        StructureManager var3 = ((ServerLevel)param0.getLevel()).getLevelStorage().getStructureManager();
+        StructureTemplate var4 = var3.getOrCreate(fossils[var2]);
+        StructureTemplate var5 = var3.getOrCreate(fossilsCoal[var2]);
+        ChunkPos var6 = new ChunkPos(param4);
+        BoundingBox var7 = new BoundingBox(var6.getMinBlockX(), 0, var6.getMinBlockZ(), var6.getMaxBlockX(), 256, var6.getMaxBlockZ());
+        StructurePlaceSettings var8 = new StructurePlaceSettings()
+            .setRotation(var1)
+            .setBoundingBox(var7)
             .setRandom(var0)
             .addProcessor(BlockIgnoreProcessor.STRUCTURE_AND_AIR);
-        BlockPos var10 = var5.getSize(var2);
-        int var11 = var0.nextInt(16 - var10.getX());
-        int var12 = var0.nextInt(16 - var10.getZ());
-        int var13 = 256;
+        BlockPos var9 = var4.getSize(var1);
+        int var10 = var0.nextInt(16 - var9.getX());
+        int var11 = var0.nextInt(16 - var9.getZ());
+        int var12 = 256;
 
-        for(int var14 = 0; var14 < var10.getX(); ++var14) {
-            for(int var15 = 0; var15 < var10.getZ(); ++var15) {
-                var13 = Math.min(var13, param0.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, param4.getX() + var14 + var11, param4.getZ() + var15 + var12));
+        for(int var13 = 0; var13 < var9.getX(); ++var13) {
+            for(int var14 = 0; var14 < var9.getZ(); ++var14) {
+                var12 = Math.min(var12, param0.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, param4.getX() + var13 + var10, param4.getZ() + var14 + var11));
             }
         }
 
-        int var16 = Math.max(var13 - 15 - var0.nextInt(10), 10);
-        BlockPos var17 = var5.getZeroPositionWithTransform(param4.offset(var11, var16, var12), Mirror.NONE, var2);
-        BlockRotProcessor var18 = new BlockRotProcessor(0.9F);
-        var9.clearProcessors().addProcessor(var18);
-        var5.placeInWorld(param0, var17, var17, var9, 4);
-        var9.popProcessor(var18);
-        BlockRotProcessor var19 = new BlockRotProcessor(0.1F);
-        var9.clearProcessors().addProcessor(var19);
-        var6.placeInWorld(param0, var17, var17, var9, 4);
+        int var15 = Math.max(var12 - 15 - var0.nextInt(10), 10);
+        BlockPos var16 = var4.getZeroPositionWithTransform(param4.offset(var10, var15, var11), Mirror.NONE, var1);
+        BlockRotProcessor var17 = new BlockRotProcessor(0.9F);
+        var8.clearProcessors().addProcessor(var17);
+        var4.placeInWorld(param0, var16, var16, var8, 4);
+        var8.popProcessor(var17);
+        BlockRotProcessor var18 = new BlockRotProcessor(0.1F);
+        var8.clearProcessors().addProcessor(var18);
+        var5.placeInWorld(param0, var16, var16, var8, 4);
         return true;
     }
 }

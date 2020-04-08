@@ -184,6 +184,7 @@ public class AttributeInstance {
                 if (var2 != null) {
                     this.modifierById.put(var2.getId(), var2);
                     this.getModifiers(var2.getOperation()).add(var2);
+                    this.permanentModifiers.add(var2);
                 }
             }
         }

@@ -18,10 +18,11 @@ public class PlayerUUIDFix extends AbstractUUIDFix {
             param0 -> {
                 OpticFinder<?> var0 = param0.getType().findField("RootVehicle");
                 return param0.updateTyped(
-                    var0,
-                    var0.type(),
-                    param0x -> param0x.update(DSL.remainderFinder(), param0xx -> replaceUUIDLeastMost(param0xx, "Attach", "Attach").orElse(param0xx))
-                );
+                        var0,
+                        var0.type(),
+                        param0x -> param0x.update(DSL.remainderFinder(), param0xx -> replaceUUIDLeastMost(param0xx, "Attach", "Attach").orElse(param0xx))
+                    )
+                    .update(DSL.remainderFinder(), param0x -> EntityUUIDFix.updateEntityUUID(EntityUUIDFix.updateLivingEntity(param0x)));
             }
         );
     }

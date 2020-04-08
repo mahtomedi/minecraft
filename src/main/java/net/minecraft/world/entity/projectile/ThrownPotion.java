@@ -23,8 +23,6 @@ import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -186,10 +184,9 @@ public class ThrownPotion extends ThrowableItemProjectile implements ItemSupplie
 
     private void dowseFire(BlockPos param0, Direction param1) {
         BlockState var0 = this.level.getBlockState(param0);
-        Block var1 = var0.getBlock();
         if (var0.is(BlockTags.FIRE)) {
             this.level.removeBlock(param0, false);
-        } else if (var1 == Blocks.CAMPFIRE && var0.getValue(CampfireBlock.LIT)) {
+        } else if (CampfireBlock.isLitCampfire(var0)) {
             this.level.levelEvent(null, 1009, param0, 0);
             this.level.setBlockAndUpdate(param0, var0.setValue(CampfireBlock.LIT, Boolean.valueOf(false)));
         }

@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Function;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.LevelAccessor;
@@ -39,7 +40,7 @@ public class CoralClawFeature extends CoralFeature {
                 } else {
                     var5.move(Direction.UP);
                     Direction[] var9 = new Direction[]{var4, Direction.UP};
-                    var7 = var9[param1.nextInt(var9.length)];
+                    var7 = Util.getRandom(var9, param1);
                     var8 = param1.nextInt(3) + 3;
                 }
 

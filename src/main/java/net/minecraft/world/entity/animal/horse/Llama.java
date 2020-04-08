@@ -104,7 +104,7 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
             this.inventory.setItem(1, ItemStack.of(param0.getCompound("DecorItem")));
         }
 
-        this.updateEquipment();
+        this.updateContainerEquipment();
     }
 
     @Override
@@ -297,8 +297,13 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
     }
 
     @Override
-    public boolean wearsArmor() {
+    public boolean canWearArmor() {
         return true;
+    }
+
+    @Override
+    public boolean isWearingArmor() {
+        return !this.inventory.getItem(1).isEmpty();
     }
 
     @Override
@@ -308,7 +313,7 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
     }
 
     @Override
-    public boolean canBeSaddled() {
+    public boolean isSaddleable() {
         return false;
     }
 
@@ -324,9 +329,9 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
     }
 
     @Override
-    protected void updateEquipment() {
+    protected void updateContainerEquipment() {
         if (!this.level.isClientSide) {
-            super.updateEquipment();
+            super.updateContainerEquipment();
             this.setSwag(getDyeColor(this.inventory.getItem(1)));
         }
     }

@@ -203,17 +203,22 @@ public abstract class AbstractFish extends WaterAnimal {
             }
 
             if (this.operation == MoveControl.Operation.MOVE_TO && !this.fish.getNavigation().isDone()) {
-                double var0 = this.wantedX - this.fish.getX();
-                double var1 = this.wantedY - this.fish.getY();
-                double var2 = this.wantedZ - this.fish.getZ();
-                double var3 = (double)Mth.sqrt(var0 * var0 + var1 * var1 + var2 * var2);
-                var1 /= var3;
-                float var4 = (float)(Mth.atan2(var2, var0) * 180.0F / (float)Math.PI) - 90.0F;
-                this.fish.yRot = this.rotlerp(this.fish.yRot, var4, 90.0F);
-                this.fish.yBodyRot = this.fish.yRot;
-                float var5 = (float)(this.speedModifier * this.fish.getAttributeValue(Attributes.MOVEMENT_SPEED));
-                this.fish.setSpeed(Mth.lerp(0.125F, this.fish.getSpeed(), var5));
-                this.fish.setDeltaMovement(this.fish.getDeltaMovement().add(0.0, (double)this.fish.getSpeed() * var1 * 0.1, 0.0));
+                float var0 = (float)(this.speedModifier * this.fish.getAttributeValue(Attributes.MOVEMENT_SPEED));
+                this.fish.setSpeed(Mth.lerp(0.125F, this.fish.getSpeed(), var0));
+                double var1 = this.wantedX - this.fish.getX();
+                double var2 = this.wantedY - this.fish.getY();
+                double var3 = this.wantedZ - this.fish.getZ();
+                if (var2 != 0.0) {
+                    double var4 = (double)Mth.sqrt(var1 * var1 + var2 * var2 + var3 * var3);
+                    this.fish.setDeltaMovement(this.fish.getDeltaMovement().add(0.0, (double)this.fish.getSpeed() * (var2 / var4) * 0.1, 0.0));
+                }
+
+                if (var1 != 0.0 || var3 != 0.0) {
+                    float var5 = (float)(Mth.atan2(var3, var1) * 180.0F / (float)Math.PI) - 90.0F;
+                    this.fish.yRot = this.rotlerp(this.fish.yRot, var5, 90.0F);
+                    this.fish.yBodyRot = this.fish.yRot;
+                }
+
             } else {
                 this.fish.setSpeed(0.0F);
             }

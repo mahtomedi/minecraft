@@ -13,6 +13,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.AgableMob;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
@@ -147,11 +148,17 @@ public class SpawnEggItem extends Item {
         return this.defaultType;
     }
 
-    public Optional<Mob> spawnOffspringFromSpawnEgg(Player param0, EntityType<? extends Mob> param1, Level param2, Vec3 param3, ItemStack param4) {
-        if (!this.spawnsEntity(param4.getTag(), param1)) {
+    public Optional<Mob> spawnOffspringFromSpawnEgg(Player param0, Mob param1, EntityType<? extends Mob> param2, Level param3, Vec3 param4, ItemStack param5) {
+        if (!this.spawnsEntity(param5.getTag(), param2)) {
             return Optional.empty();
         } else {
-            Mob var0 = param1.create(param2);
+            Mob var0;
+            if (param1 instanceof AgableMob) {
+                var0 = ((AgableMob)param1).getBreedOffspring((AgableMob)param1);
+            } else {
+                var0 = param2.create(param3);
+            }
+
             if (var0 == null) {
                 return Optional.empty();
             } else {
@@ -159,14 +166,14 @@ public class SpawnEggItem extends Item {
                 if (!var0.isBaby()) {
                     return Optional.empty();
                 } else {
-                    var0.moveTo(param3.x(), param3.y(), param3.z(), 0.0F, 0.0F);
-                    param2.addFreshEntity(var0);
-                    if (param4.hasCustomHoverName()) {
-                        var0.setCustomName(param4.getHoverName());
+                    var0.moveTo(param4.x(), param4.y(), param4.z(), 0.0F, 0.0F);
+                    param3.addFreshEntity(var0);
+                    if (param5.hasCustomHoverName()) {
+                        var0.setCustomName(param5.getHoverName());
                     }
 
                     if (!param0.abilities.instabuild) {
-                        param4.shrink(1);
+                        param5.shrink(1);
                     }
 
                     return Optional.of(var0);

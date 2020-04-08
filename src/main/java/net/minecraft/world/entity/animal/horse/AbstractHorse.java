@@ -17,6 +17,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.OldUsersConverter;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerListener;
@@ -28,12 +29,14 @@ import net.minecraft.world.entity.AgableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.PlayerRideableJumping;
 import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.Saddleable;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -63,7 +66,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public abstract class AbstractHorse extends Animal implements ContainerListener, PlayerRideableJumping {
+public abstract class AbstractHorse extends Animal implements ContainerListener, PlayerRideableJumping, Saddleable {
     private static final Predicate<LivingEntity> PARENT_HORSE_SELECTOR = param0 -> param0 instanceof AbstractHorse && ((AbstractHorse)param0).isBred();
     private static final TargetingConditions MOMMY_TARGETING = new TargetingConditions()
         .range(16.0)
@@ -186,8 +189,23 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
         this.setFlag(8, param0);
     }
 
-    public void setSaddled(boolean param0) {
-        this.setFlag(4, param0);
+    @Override
+    public boolean isSaddleable() {
+        return this.isAlive() && !this.isBaby() && this.isTamed();
+    }
+
+    @Override
+    public void equipSaddle(@Nullable SoundSource param0) {
+        this.inventory.setItem(0, new ItemStack(Items.SADDLE));
+        if (param0 != null) {
+            this.level.playSound(null, this, SoundEvents.HORSE_SADDLE, param0, 0.5F, 1.0F);
+        }
+
+    }
+
+    @Override
+    public boolean isSaddled() {
+        return this.getFlag(4);
     }
 
     public int getTemper() {
@@ -274,19 +292,19 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
         }
 
         this.inventory.addListener(this);
-        this.updateEquipment();
+        this.updateContainerEquipment();
     }
 
-    protected void updateEquipment() {
+    protected void updateContainerEquipment() {
         if (!this.level.isClientSide) {
-            this.setSaddled(!this.inventory.getItem(0).isEmpty() && this.canBeSaddled());
+            this.setFlag(4, !this.inventory.getItem(0).isEmpty() && this.isSaddleable());
         }
     }
 
     @Override
     public void containerChanged(Container param0) {
         boolean var0 = this.isSaddled();
-        this.updateEquipment();
+        this.updateContainerEquipment();
         if (this.tickCount > 20 && !var0 && this.isSaddled()) {
             this.playSound(SoundEvents.HORSE_SADDLE, 0.5F, 1.0F);
         }
@@ -321,14 +339,6 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
         }
 
         return null;
-    }
-
-    public boolean canBeSaddled() {
-        return true;
-    }
-
-    public boolean isSaddled() {
-        return this.getFlag(4);
     }
 
     @Nullable
@@ -789,7 +799,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
             }
         }
 
-        this.updateEquipment();
+        this.updateContainerEquipment();
     }
 
     @Override
@@ -950,8 +960,12 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
         return param1.height * 0.95F;
     }
 
-    public boolean wearsArmor() {
+    public boolean canWearArmor() {
         return false;
+    }
+
+    public boolean isWearingArmor() {
+        return !this.getItemBySlot(EquipmentSlot.CHEST).isEmpty();
     }
 
     public boolean isArmor(ItemStack param0) {
@@ -964,9 +978,9 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
         if (var0 >= 0 && var0 < 2 && var0 < this.inventory.getContainerSize()) {
             if (var0 == 0 && param1.getItem() != Items.SADDLE) {
                 return false;
-            } else if (var0 != 1 || this.wearsArmor() && this.isArmor(param1)) {
+            } else if (var0 != 1 || this.canWearArmor() && this.isArmor(param1)) {
                 this.inventory.setItem(var0, param1);
-                this.updateEquipment();
+                this.updateContainerEquipment();
                 return true;
             } else {
                 return false;

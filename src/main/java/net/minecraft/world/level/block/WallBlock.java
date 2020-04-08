@@ -35,11 +35,11 @@ public class WallBlock extends Block implements SimpleWaterloggedBlock {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     private final Map<BlockState, VoxelShape> shapeByIndex;
     private final Map<BlockState, VoxelShape> collisionShapeByIndex;
-    private static final VoxelShape POST_TEST = Block.box(4.0, 0.0, 4.0, 12.0, 16.0, 12.0);
-    private static final VoxelShape NORTH_TEST = Block.box(5.0, 0.0, 0.0, 11.0, 16.0, 11.0);
-    private static final VoxelShape SOUTH_TEST = Block.box(5.0, 0.0, 5.0, 11.0, 16.0, 16.0);
-    private static final VoxelShape WEST_TEST = Block.box(0.0, 0.0, 5.0, 11.0, 16.0, 11.0);
-    private static final VoxelShape EAST_TEST = Block.box(5.0, 0.0, 5.0, 16.0, 16.0, 11.0);
+    private static final VoxelShape POST_TEST = Block.box(7.0, 0.0, 7.0, 9.0, 16.0, 9.0);
+    private static final VoxelShape NORTH_TEST = Block.box(7.0, 0.0, 0.0, 9.0, 16.0, 9.0);
+    private static final VoxelShape SOUTH_TEST = Block.box(7.0, 0.0, 7.0, 9.0, 16.0, 16.0);
+    private static final VoxelShape WEST_TEST = Block.box(0.0, 0.0, 7.0, 9.0, 16.0, 9.0);
+    private static final VoxelShape EAST_TEST = Block.box(7.0, 0.0, 7.0, 16.0, 16.0, 9.0);
 
     public WallBlock(BlockBehaviour.Properties param0) {
         super(param0);
@@ -129,8 +129,8 @@ public class WallBlock extends Block implements SimpleWaterloggedBlock {
 
     private boolean connectsTo(BlockState param0, boolean param1, Direction param2) {
         Block var0 = param0.getBlock();
-        boolean var1 = var0.is(BlockTags.WALLS) || var0 instanceof FenceGateBlock && FenceGateBlock.connectsToDirection(param0, param2);
-        return !isExceptionForConnection(var0) && param1 || var1;
+        boolean var1 = var0 instanceof FenceGateBlock && FenceGateBlock.connectsToDirection(param0, param2);
+        return param0.is(BlockTags.WALLS) || !isExceptionForConnection(var0) && param1 || var0 instanceof IronBarsBlock || var1;
     }
 
     @Override
@@ -200,9 +200,35 @@ public class WallBlock extends Block implements SimpleWaterloggedBlock {
         LevelReader param0, BlockState param1, BlockPos param2, BlockState param3, boolean param4, boolean param5, boolean param6, boolean param7
     ) {
         VoxelShape var0 = param3.getCollisionShape(param0, param2).getFaceShape(Direction.DOWN);
-        boolean var1 = (!param4 || param5 || !param6 || param7) && (param4 || !param5 || param6 || !param7);
-        boolean var2 = var1 || param3.getBlock().is(BlockTags.WALL_POST_OVERRIDE) || isCovered(var0, POST_TEST);
-        return this.updateSides(param1.setValue(UP, Boolean.valueOf(var2)), param4, param5, param6, param7, var0);
+        BlockState var1 = this.updateSides(param1, param4, param5, param6, param7, var0);
+        return var1.setValue(UP, Boolean.valueOf(this.shouldRaisePost(var1, param3, var0)));
+    }
+
+    private boolean shouldRaisePost(BlockState param0, BlockState param1, VoxelShape param2) {
+        boolean var0 = param1.getBlock() instanceof WallBlock && param1.getValue(UP);
+        if (var0) {
+            return true;
+        } else {
+            WallSide var1 = param0.getValue(NORTH_WALL);
+            WallSide var2 = param0.getValue(SOUTH_WALL);
+            WallSide var3 = param0.getValue(EAST_WALL);
+            WallSide var4 = param0.getValue(WEST_WALL);
+            boolean var5 = var2 == WallSide.NONE;
+            boolean var6 = var4 == WallSide.NONE;
+            boolean var7 = var3 == WallSide.NONE;
+            boolean var8 = var1 == WallSide.NONE;
+            boolean var9 = var8 && var5 && var6 && var7 || var8 != var5 || var6 != var7;
+            if (var9) {
+                return true;
+            } else {
+                boolean var10 = var1 == WallSide.TALL && var2 == WallSide.TALL || var3 == WallSide.TALL && var4 == WallSide.TALL;
+                if (var10) {
+                    return false;
+                } else {
+                    return param1.getBlock().is(BlockTags.WALL_POST_OVERRIDE) || isCovered(param2, POST_TEST);
+                }
+            }
+        }
     }
 
     private BlockState updateSides(BlockState param0, boolean param1, boolean param2, boolean param3, boolean param4, VoxelShape param5) {

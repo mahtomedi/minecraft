@@ -343,6 +343,13 @@ public class ClientPacketListener implements ClientGamePacketListener {
     public void handleLogin(ClientboundLoginPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         this.minecraft.gameMode = new MultiPlayerGameMode(this.minecraft, this);
+        if (!this.connection.isMemoryConnection()) {
+            BlockTags.resetToEmpty();
+            ItemTags.resetToEmpty();
+            FluidTags.resetToEmpty();
+            EntityTypeTags.resetToEmpty();
+        }
+
         this.serverChunkRadius = param0.getChunkRadius();
         this.level = new ClientLevel(
             this,
@@ -1033,8 +1040,8 @@ public class ClientPacketListener implements ClientGamePacketListener {
         DimensionType var0 = param0.getDimension();
         LocalPlayer var1 = this.minecraft.player;
         int var2 = var1.getId();
+        this.started = false;
         if (var0 != var1.dimension) {
-            this.started = false;
             Scoreboard var3 = this.level.getScoreboard();
             this.level = new ClientLevel(
                 this,

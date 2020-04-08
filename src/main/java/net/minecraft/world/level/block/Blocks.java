@@ -9,7 +9,9 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity;
 import net.minecraft.world.level.block.grower.AcaciaTreeGrower;
 import net.minecraft.world.level.block.grower.BirchTreeGrower;
 import net.minecraft.world.level.block.grower.DarkOakTreeGrower;
@@ -195,6 +197,7 @@ public class Blocks {
                 .isValidSpawn(Blocks::never)
                 .isRedstoneConductor(Blocks::never)
                 .isSuffocating(Blocks::never)
+                .isViewBlocking(Blocks::never)
         )
     );
     public static final Block LAPIS_ORE = register("lapis_ore", new OreBlock(BlockBehaviour.Properties.of(Material.STONE).strength(3.0F, 3.0F)));
@@ -313,6 +316,7 @@ public class Blocks {
                 .noOcclusion()
                 .isRedstoneConductor(Blocks::never)
                 .isSuffocating(Blocks::never)
+                .isViewBlocking(Blocks::never)
         )
     );
     public static final Block DANDELION = register(
@@ -384,7 +388,7 @@ public class Blocks {
         )
     );
     public static final Block GOLD_BLOCK = register(
-        "gold_block", new GoldBlock(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.GOLD).strength(3.0F, 6.0F).sound(SoundType.METAL))
+        "gold_block", new Block(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.GOLD).strength(3.0F, 6.0F).sound(SoundType.METAL))
     );
     public static final Block IRON_BLOCK = register(
         "iron_block", new Block(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.METAL).strength(5.0F, 6.0F).sound(SoundType.METAL))
@@ -2397,10 +2401,22 @@ public class Blocks {
     public static final Block CAMPFIRE = register(
         "campfire",
         new CampfireBlock(
+            true,
             BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.PODZOL)
                 .strength(2.0F)
                 .sound(SoundType.WOOD)
                 .lightLevel(litBlockEmission(15))
+                .noOcclusion()
+        )
+    );
+    public static final Block SOUL_CAMPFIRE = register(
+        "soul_campfire",
+        new CampfireBlock(
+            false,
+            BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.PODZOL)
+                .strength(2.0F)
+                .sound(SoundType.WOOD)
+                .lightLevel(litBlockEmission(10))
                 .noOcclusion()
         )
     );
@@ -2647,6 +2663,62 @@ public class Blocks {
     public static final Block LODESTONE = register(
         "lodestone", new Block(BlockBehaviour.Properties.of(Material.HEAVY_METAL).strength(3.5F).sound(SoundType.LODESTONE))
     );
+    public static final Block BLACKSTONE = register(
+        "blackstone", new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.COLOR_BLACK).strength(1.5F, 6.0F))
+    );
+    public static final Block BLACKSTONE_STAIRS = register(
+        "blackstone_stairs", new StairBlock(BLACKSTONE.defaultBlockState(), BlockBehaviour.Properties.copy(BLACKSTONE))
+    );
+    public static final Block BLACKSTONE_WALL = register("blackstone_wall", new WallBlock(BlockBehaviour.Properties.copy(BLACKSTONE)));
+    public static final Block BLACKSTONE_SLAB = register("blackstone_slab", new SlabBlock(BlockBehaviour.Properties.copy(BLACKSTONE).strength(2.0F, 6.0F)));
+    public static final Block POLISHED_BLACKSTONE = register("polished_blackstone", new Block(BlockBehaviour.Properties.copy(BLACKSTONE).strength(2.0F, 6.0F)));
+    public static final Block POLISHED_BLACKSTONE_BRICKS = register(
+        "polished_blackstone_bricks", new Block(BlockBehaviour.Properties.copy(POLISHED_BLACKSTONE).strength(1.5F, 6.0F))
+    );
+    public static final Block CRACKED_POLISHED_BLACKSTONE_BRICKS = register(
+        "cracked_polished_blackstone_bricks", new Block(BlockBehaviour.Properties.copy(POLISHED_BLACKSTONE_BRICKS))
+    );
+    public static final Block CHISELED_POLISHED_BLACKSTONE = register(
+        "chiseled_polished_blackstone", new Block(BlockBehaviour.Properties.copy(POLISHED_BLACKSTONE).strength(1.5F, 6.0F))
+    );
+    public static final Block POLISHED_BLACKSTONE_BRICK_SLAB = register(
+        "polished_blackstone_brick_slab", new SlabBlock(BlockBehaviour.Properties.copy(POLISHED_BLACKSTONE_BRICKS).strength(2.0F, 6.0F))
+    );
+    public static final Block POLISHED_BLACKSTONE_BRICK_STAIRS = register(
+        "polished_blackstone_brick_stairs",
+        new StairBlock(POLISHED_BLACKSTONE_BRICKS.defaultBlockState(), BlockBehaviour.Properties.copy(POLISHED_BLACKSTONE_BRICKS))
+    );
+    public static final Block POLISHED_BLACKSTONE_BRICK_WALL = register(
+        "polished_blackstone_brick_wall", new WallBlock(BlockBehaviour.Properties.copy(POLISHED_BLACKSTONE_BRICKS))
+    );
+    public static final Block GILDED_BLACKSTONE = register("gilded_blackstone", new Block(BlockBehaviour.Properties.copy(BLACKSTONE)));
+    public static final Block POLISHED_BLACKSTONE_STAIRS = register(
+        "polished_blackstone_stairs", new StairBlock(POLISHED_BLACKSTONE.defaultBlockState(), BlockBehaviour.Properties.copy(POLISHED_BLACKSTONE))
+    );
+    public static final Block POLISHED_BLACKSTONE_SLAB = register(
+        "polished_blackstone_slab", new SlabBlock(BlockBehaviour.Properties.copy(POLISHED_BLACKSTONE))
+    );
+    public static final Block POLISHED_BLACKSTONE_PRESSURE_PLATE = register(
+        "polished_blackstone_pressure_plate",
+        new PressurePlateBlock(
+            PressurePlateBlock.Sensitivity.MOBS, BlockBehaviour.Properties.of(Material.STONE, MaterialColor.COLOR_BLACK).noCollission().strength(0.5F)
+        )
+    );
+    public static final Block POLISHED_BLACKSTONE_BUTTON = register(
+        "polished_blackstone_button", new StoneButtonBlock(BlockBehaviour.Properties.of(Material.DECORATION).noCollission().strength(0.5F))
+    );
+    public static final Block POLISHED_BLACKSTONE_WALL = register(
+        "polished_blackstone_wall", new WallBlock(BlockBehaviour.Properties.copy(POLISHED_BLACKSTONE))
+    );
+    public static final Block CHISELED_NETHER_BRICKS = register(
+        "chiseled_nether_bricks",
+        new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.NETHER).strength(2.0F, 6.0F).sound(SoundType.NETHER_BRICKS))
+    );
+    public static final Block CRACKED_NETHER_BRICKS = register(
+        "cracked_nether_bricks",
+        new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.NETHER).strength(2.0F, 6.0F).sound(SoundType.NETHER_BRICKS))
+    );
+    public static final Block QUARTZ_BRICKS = register("quartz_bricks", new Block(BlockBehaviour.Properties.copy(QUARTZ_BLOCK)));
 
     private static ToIntFunction<BlockState> litBlockEmission(int param0) {
         return param1 -> param1.getValue(BlockStateProperties.LIT) ? param0 : 0;
@@ -2706,6 +2778,7 @@ public class Blocks {
                 .isValidSpawn(Blocks::never)
                 .isRedstoneConductor(Blocks::never)
                 .isSuffocating(Blocks::never)
+                .isViewBlocking(Blocks::never)
         );
     }
 
@@ -2718,20 +2791,27 @@ public class Blocks {
                 .noOcclusion()
                 .isValidSpawn(Blocks::ocelotOrParrot)
                 .isSuffocating(Blocks::never)
+                .isViewBlocking(Blocks::never)
         );
     }
 
     private static ShulkerBoxBlock shulkerBox(DyeColor param0, BlockBehaviour.Properties param1) {
-        return new ShulkerBoxBlock(param0, param1.strength(2.0F).dynamicShape().noOcclusion().isSuffocating(Blocks::always));
+        BlockBehaviour.StatePredicate var0 = (param0x, param1x, param2) -> {
+            BlockEntity var0x = param1x.getBlockEntity(param2);
+            if (!(var0x instanceof ShulkerBoxBlockEntity)) {
+                return true;
+            } else {
+                ShulkerBoxBlockEntity var1x = (ShulkerBoxBlockEntity)var0x;
+                return var1x.isClosed();
+            }
+        };
+        return new ShulkerBoxBlock(param0, param1.strength(2.0F).dynamicShape().noOcclusion().isSuffocating(var0).isViewBlocking(var0));
     }
 
     private static PistonBaseBlock pistonBase(boolean param0) {
+        BlockBehaviour.StatePredicate var0 = (param0x, param1, param2) -> !param0x.getValue(PistonBaseBlock.EXTENDED);
         return new PistonBaseBlock(
-            param0,
-            BlockBehaviour.Properties.of(Material.PISTON)
-                .strength(1.5F)
-                .isRedstoneConductor(Blocks::never)
-                .isSuffocating((param0x, param1, param2) -> !param0x.getValue(PistonBaseBlock.EXTENDED))
+            param0, BlockBehaviour.Properties.of(Material.PISTON).strength(1.5F).isRedstoneConductor(Blocks::never).isSuffocating(var0).isViewBlocking(var0)
         );
     }
 

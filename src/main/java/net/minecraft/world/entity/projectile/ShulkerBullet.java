@@ -155,10 +155,10 @@ public class ShulkerBullet extends Projectile {
                 }
             }
 
-            var6 = Direction.getRandomFace(this.random);
+            var6 = Direction.getRandom(this.random);
             if (var8.isEmpty()) {
                 for(int var9 = 5; !this.level.isEmptyBlock(var7.relative(var6)) && var9 > 0; --var9) {
-                    var6 = Direction.getRandomFace(this.random);
+                    var6 = Direction.getRandom(this.random);
                 }
             } else {
                 var6 = var8.get(this.random.nextInt(var8.size()));

@@ -4,6 +4,7 @@ import com.google.common.collect.AbstractIterator;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Spliterator.OfInt;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
@@ -211,6 +212,26 @@ public class BlockPos extends Vec3i implements Serializable {
         return new BlockPos.MutableBlockPos(this.getX(), this.getY(), this.getZ());
     }
 
+    public static Iterable<BlockPos> randomBetweenClosed(Random param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7) {
+        int var0 = param5 - param2 + 1;
+        int var1 = param6 - param3 + 1;
+        int var2 = param7 - param4 + 1;
+        return () -> new AbstractIterator<BlockPos>() {
+                final BlockPos.MutableBlockPos nextPos = new BlockPos.MutableBlockPos();
+                int counter = param1;
+
+                protected BlockPos computeNext() {
+                    if (this.counter <= 0) {
+                        return this.endOfData();
+                    } else {
+                        BlockPos var0 = this.nextPos.set(param2 + param0.nextInt(var0), param3 + param0.nextInt(var1), param4 + param0.nextInt(var2));
+                        --this.counter;
+                        return var0;
+                    }
+                }
+            };
+    }
+
     public static Iterable<BlockPos> withinManhattan(BlockPos param0, int param1, int param2, int param3) {
         int var0 = param1 + param2 + param3;
         int var1 = param0.getX();
@@ -404,6 +425,19 @@ public class BlockPos extends Vec3i implements Serializable {
 
         public BlockPos.MutableBlockPos move(int param0, int param1, int param2) {
             return this.set(this.getX() + param0, this.getY() + param1, this.getZ() + param2);
+        }
+
+        public BlockPos.MutableBlockPos clamp(Direction.Axis param0, int param1, int param2) {
+            switch(param0) {
+                case X:
+                    return this.set(Mth.clamp(this.getX(), param1, param2), this.getY(), this.getZ());
+                case Y:
+                    return this.set(this.getX(), Mth.clamp(this.getY(), param1, param2), this.getZ());
+                case Z:
+                    return this.set(this.getX(), this.getY(), Mth.clamp(this.getZ(), param1, param2));
+                default:
+                    throw new IllegalStateException("Unable to clamp axis " + param0);
+            }
         }
 
         @Override

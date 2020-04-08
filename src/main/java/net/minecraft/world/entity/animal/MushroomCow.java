@@ -8,14 +8,17 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.AgableMob;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.Shearable;
 import net.minecraft.world.entity.global.LightningBolt;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -33,7 +36,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.tuple.Pair;
 
-public class MushroomCow extends Cow {
+public class MushroomCow extends Cow implements Shearable {
     private static final EntityDataAccessor<String> DATA_TYPE = SynchedEntityData.defineId(MushroomCow.class, EntityDataSerializers.STRING);
     private MobEffect effect;
     private int effectDuration;
@@ -101,42 +104,17 @@ public class MushroomCow extends Cow {
 
             this.playSound(var4, 1.0F, 1.0F);
             return true;
-        } else if (var0.getItem() == Items.SHEARS && !this.isBaby()) {
-            this.level.addParticle(ParticleTypes.EXPLOSION, this.getX(), this.getY(0.5), this.getZ(), 0.0, 0.0, 0.0);
+        } else if (var0.getItem() == Items.SHEARS && this.readyForShearing()) {
+            this.shear(SoundSource.PLAYERS);
             if (!this.level.isClientSide) {
-                this.remove();
-                Cow var6 = EntityType.COW.create(this.level);
-                var6.moveTo(this.getX(), this.getY(), this.getZ(), this.yRot, this.xRot);
-                var6.setHealth(this.getHealth());
-                var6.yBodyRot = this.yBodyRot;
-                if (this.hasCustomName()) {
-                    var6.setCustomName(this.getCustomName());
-                    var6.setCustomNameVisible(this.isCustomNameVisible());
-                }
-
-                if (this.isPersistenceRequired()) {
-                    var6.setPersistenceRequired();
-                }
-
-                var6.setInvulnerable(this.isInvulnerable());
-                this.level.addFreshEntity(var6);
-
-                for(int var7 = 0; var7 < 5; ++var7) {
-                    this.level
-                        .addFreshEntity(
-                            new ItemEntity(this.level, this.getX(), this.getY(1.0), this.getZ(), new ItemStack(this.getMushroomType().blockState.getBlock()))
-                        );
-                }
-
                 var0.hurtAndBreak(1, param0, param1x -> param1x.broadcastBreakEvent(param1));
-                this.playSound(SoundEvents.MOOSHROOM_SHEAR, 1.0F, 1.0F);
             }
 
             return true;
         } else {
             if (this.getMushroomType() == MushroomCow.MushroomType.BROWN && var0.getItem().is(ItemTags.SMALL_FLOWERS)) {
                 if (this.effect != null) {
-                    for(int var8 = 0; var8 < 2; ++var8) {
+                    for(int var6 = 0; var6 < 2; ++var6) {
                         this.level
                             .addParticle(
                                 ParticleTypes.SMOKE,
@@ -149,12 +127,12 @@ public class MushroomCow extends Cow {
                             );
                     }
                 } else {
-                    Pair<MobEffect, Integer> var9 = this.getEffectFromItemStack(var0);
+                    Pair<MobEffect, Integer> var7 = this.getEffectFromItemStack(var0);
                     if (!param0.abilities.instabuild) {
                         var0.shrink(1);
                     }
 
-                    for(int var10 = 0; var10 < 4; ++var10) {
+                    for(int var8 = 0; var8 < 4; ++var8) {
                         this.level
                             .addParticle(
                                 ParticleTypes.EFFECT,
@@ -167,14 +145,51 @@ public class MushroomCow extends Cow {
                             );
                     }
 
-                    this.effect = var9.getLeft();
-                    this.effectDuration = var9.getRight();
+                    this.effect = var7.getLeft();
+                    this.effectDuration = var7.getRight();
                     this.playSound(SoundEvents.MOOSHROOM_EAT, 2.0F, 1.0F);
                 }
             }
 
             return super.mobInteract(param0, param1);
         }
+    }
+
+    @Override
+    public void shear(SoundSource param0) {
+        this.level.playSound(null, this, SoundEvents.MOOSHROOM_SHEAR, param0, 1.0F, 1.0F);
+        if (!this.level.isClientSide()) {
+            ((ServerLevel)this.level).sendParticles(ParticleTypes.EXPLOSION, this.getX(), this.getY(0.5), this.getZ(), 1, 0.0, 0.0, 0.0, 0.0);
+            this.remove();
+            Cow var0 = EntityType.COW.create(this.level);
+            var0.moveTo(this.getX(), this.getY(), this.getZ(), this.yRot, this.xRot);
+            var0.setHealth(this.getHealth());
+            var0.yBodyRot = this.yBodyRot;
+            if (this.hasCustomName()) {
+                var0.setCustomName(this.getCustomName());
+                var0.setCustomNameVisible(this.isCustomNameVisible());
+            }
+
+            if (this.isPersistenceRequired()) {
+                var0.setPersistenceRequired();
+            }
+
+            var0.setInvulnerable(this.isInvulnerable());
+            this.level.addFreshEntity(var0);
+
+            for(int var1 = 0; var1 < 5; ++var1) {
+                this.level
+                    .addFreshEntity(
+                        new ItemEntity(this.level, this.getX(), this.getY(1.0), this.getZ(), new ItemStack(this.getMushroomType().blockState.getBlock()))
+                    );
+            }
+        }
+
+    }
+
+    @Override
+    public boolean readyForShearing() {
+        return this.isAlive() && !this.isBaby();
     }
 
     @Override

@@ -202,6 +202,7 @@ public class ItemBlockRenderTypes {
         param0.put(Blocks.LANTERN, var1);
         param0.put(Blocks.SOUL_FIRE_LANTERN, var1);
         param0.put(Blocks.CAMPFIRE, var1);
+        param0.put(Blocks.SOUL_CAMPFIRE, var1);
         param0.put(Blocks.SWEET_BERRY_BUSH, var1);
         param0.put(Blocks.WEEPING_VINES, var1);
         param0.put(Blocks.WEEPING_VINES_PLANT, var1);

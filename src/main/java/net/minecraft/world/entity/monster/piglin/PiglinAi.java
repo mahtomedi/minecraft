@@ -72,6 +72,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 
 public class PiglinAi {
+    public static final Item BARTERING_ITEM = Items.GOLD_INGOT;
     private static final IntRange RANDOM_STROLL_INTERVAL_WHEN_ADMIRING = IntRange.of(10, 20);
     private static final IntRange TIME_BETWEEN_HUNTS = TimeUtil.rangeOfSeconds(30, 120);
     private static final IntRange RIDE_START_INTERVAL = TimeUtil.rangeOfSeconds(10, 40);
@@ -91,7 +92,8 @@ public class PiglinAi {
         Items.BELL,
         Items.GLISTERING_MELON_SLICE,
         Items.CLOCK,
-        Items.NETHER_GOLD_ORE
+        Items.NETHER_GOLD_ORE,
+        Items.GILDED_BLACKSTONE
     );
 
     protected static Brain<?> makeBrain(Piglin param0, Dynamic<?> param1) {
@@ -398,16 +400,21 @@ public class PiglinAi {
 
     protected static boolean wantsToPickup(Piglin param0, ItemStack param1) {
         Item var0 = param1.getItem();
-        if (var0 == Items.GOLD_NUGGET) {
-            return true;
-        } else if (var0.is(ItemTags.PIGLIN_REPELLENTS)) {
+        if (var0.is(ItemTags.PIGLIN_REPELLENTS)) {
             return false;
         } else if (isAdmiringDisabled(param0) && param0.getBrain().hasMemoryValue(MemoryModuleType.ATTACK_TARGET)) {
             return false;
-        } else if (isFood(var0)) {
-            return !hasEatenRecently(param0);
         } else {
-            return isLovedItem(var0) ? isNotHoldingLovedItemInOffHand(param0) : param0.canReplaceCurrentItem(param1);
+            boolean var1 = param0.canAddToInventory(param1);
+            if (var0 == Items.GOLD_NUGGET) {
+                return var1;
+            } else if (isFood(var0)) {
+                return !hasEatenRecently(param0) && var1;
+            } else if (!isLovedItem(var0)) {
+                return param0.canReplaceCurrentItem(param1);
+            } else {
+                return isNotHoldingLovedItemInOffHand(param0) && var1;
+            }
         }
     }
 
@@ -459,15 +466,18 @@ public class PiglinAi {
 
     public static boolean mobInteract(Piglin param0, Player param1, InteractionHand param2) {
         ItemStack var0 = param1.getItemInHand(param2);
-        Item var1 = var0.getItem();
-        if (!isAdmiringItem(param0) && param0.isAdult() && isBarterCurrency(var1) && !isAdmiringDisabled(param0)) {
-            ItemStack var2 = var0.split(1);
-            param0.holdInOffHand(var2);
+        if (canAdmire(param0, var0)) {
+            ItemStack var1 = var0.split(1);
+            param0.holdInOffHand(var1);
             admireGoldItem(param0);
             return true;
         } else {
             return false;
         }
+    }
+
+    public static boolean canAdmire(Piglin param0, ItemStack param1) {
+        return !isAdmiringDisabled(param0) && !isAdmiringItem(param0) && param0.isAdult() && isBarterCurrency(param1.getItem());
     }
 
     protected static void wasHurtBy(Piglin param0, LivingEntity param1) {
@@ -675,7 +685,7 @@ public class PiglinAi {
     }
 
     private static boolean isBarterCurrency(Item param0) {
-        return param0 == Items.GOLD_INGOT;
+        return param0 == BARTERING_ITEM;
     }
 
     private static boolean isFood(Item param0) {

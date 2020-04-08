@@ -25,45 +25,45 @@ public class EntityUUIDFix extends AbstractUUIDFix {
     @Override
     protected TypeRewriteRule makeRule() {
         return this.fixTypeEverywhereTyped("EntityUUIDFixes", this.getInputSchema().getType(this.typeReference), param0 -> {
-            param0 = param0.update(DSL.remainderFinder(), this::updateEntityUUID);
+            param0 = param0.update(DSL.remainderFinder(), EntityUUIDFix::updateEntityUUID);
 
             for(String var0 : ABSTRACT_HORSES) {
-                param0 = this.updateNamedChoice(param0, var0, this::updateAnimalOwner);
+                param0 = this.updateNamedChoice(param0, var0, EntityUUIDFix::updateAnimalOwner);
             }
 
             for(String var1 : TAMEABLE_ANIMALS) {
-                param0 = this.updateNamedChoice(param0, var1, this::updateAnimalOwner);
+                param0 = this.updateNamedChoice(param0, var1, EntityUUIDFix::updateAnimalOwner);
             }
 
             for(String var2 : ANIMALS) {
-                param0 = this.updateNamedChoice(param0, var2, this::updateAnimal);
+                param0 = this.updateNamedChoice(param0, var2, EntityUUIDFix::updateAnimal);
             }
 
             for(String var3 : MOBS) {
-                param0 = this.updateNamedChoice(param0, var3, this::updateMob);
+                param0 = this.updateNamedChoice(param0, var3, EntityUUIDFix::updateMob);
             }
 
             for(String var4 : LIVING_ENTITIES) {
-                param0 = this.updateNamedChoice(param0, var4, this::updateLivingEntity);
+                param0 = this.updateNamedChoice(param0, var4, EntityUUIDFix::updateLivingEntity);
             }
 
             for(String var5 : PROJECTILES) {
-                param0 = this.updateNamedChoice(param0, var5, this::updateProjectile);
+                param0 = this.updateNamedChoice(param0, var5, EntityUUIDFix::updateProjectile);
             }
 
-            param0 = this.updateNamedChoice(param0, "minecraft:bee", this::updateHurtBy);
-            param0 = this.updateNamedChoice(param0, "minecraft:zombified_piglin", this::updateHurtBy);
-            param0 = this.updateNamedChoice(param0, "minecraft:fox", this::updateFox);
-            param0 = this.updateNamedChoice(param0, "minecraft:item", this::updateItem);
-            param0 = this.updateNamedChoice(param0, "minecraft:shulker_bullet", this::updateShulkerBullet);
-            param0 = this.updateNamedChoice(param0, "minecraft:area_effect_cloud", this::updateAreaEffectCloud);
-            param0 = this.updateNamedChoice(param0, "minecraft:zombie_villager", this::updateZombieVillager);
-            param0 = this.updateNamedChoice(param0, "minecraft:evoker_fangs", this::updateEvokerFangs);
-            return this.updateNamedChoice(param0, "minecraft:piglin", this::updatePiglin);
+            param0 = this.updateNamedChoice(param0, "minecraft:bee", EntityUUIDFix::updateHurtBy);
+            param0 = this.updateNamedChoice(param0, "minecraft:zombified_piglin", EntityUUIDFix::updateHurtBy);
+            param0 = this.updateNamedChoice(param0, "minecraft:fox", EntityUUIDFix::updateFox);
+            param0 = this.updateNamedChoice(param0, "minecraft:item", EntityUUIDFix::updateItem);
+            param0 = this.updateNamedChoice(param0, "minecraft:shulker_bullet", EntityUUIDFix::updateShulkerBullet);
+            param0 = this.updateNamedChoice(param0, "minecraft:area_effect_cloud", EntityUUIDFix::updateAreaEffectCloud);
+            param0 = this.updateNamedChoice(param0, "minecraft:zombie_villager", EntityUUIDFix::updateZombieVillager);
+            param0 = this.updateNamedChoice(param0, "minecraft:evoker_fangs", EntityUUIDFix::updateEvokerFangs);
+            return this.updateNamedChoice(param0, "minecraft:piglin", EntityUUIDFix::updatePiglin);
         });
     }
 
-    private Dynamic<?> updatePiglin(Dynamic<?> param0) {
+    private static Dynamic<?> updatePiglin(Dynamic<?> param0) {
         return param0.update(
             "Brain",
             param0x -> param0x.update(
@@ -75,29 +75,29 @@ public class EntityUUIDFix extends AbstractUUIDFix {
         );
     }
 
-    private Dynamic<?> updateEvokerFangs(Dynamic<?> param0) {
+    private static Dynamic<?> updateEvokerFangs(Dynamic<?> param0) {
         return replaceUUIDLeastMost(param0, "OwnerUUID", "Owner").orElse(param0);
     }
 
-    private Dynamic<?> updateZombieVillager(Dynamic<?> param0) {
+    private static Dynamic<?> updateZombieVillager(Dynamic<?> param0) {
         return replaceUUIDLeastMost(param0, "ConversionPlayer", "ConversionPlayer").orElse(param0);
     }
 
-    private Dynamic<?> updateAreaEffectCloud(Dynamic<?> param0) {
+    private static Dynamic<?> updateAreaEffectCloud(Dynamic<?> param0) {
         return replaceUUIDLeastMost(param0, "OwnerUUID", "Owner").orElse(param0);
     }
 
-    private Dynamic<?> updateShulkerBullet(Dynamic<?> param0) {
+    private static Dynamic<?> updateShulkerBullet(Dynamic<?> param0) {
         param0 = replaceUUIDMLTag(param0, "Owner", "Owner").orElse(param0);
         return replaceUUIDMLTag(param0, "Target", "Target").orElse(param0);
     }
 
-    private Dynamic<?> updateItem(Dynamic<?> param0) {
+    private static Dynamic<?> updateItem(Dynamic<?> param0) {
         param0 = replaceUUIDMLTag(param0, "Owner", "Owner").orElse(param0);
         return replaceUUIDMLTag(param0, "Thrower", "Thrower").orElse(param0);
     }
 
-    private Dynamic<?> updateFox(Dynamic<?> param0) {
+    private static Dynamic<?> updateFox(Dynamic<?> param0) {
         Optional<Dynamic<?>> var0 = param0.get("TrustedUUIDs")
             .map(param1 -> param0.createList(param1.asStream().map(param0x -> createUUIDFromML(param0x).orElseGet((Supplier<? extends Dynamic<?>>)(() -> {
                         LOGGER.warn("Trusted contained invalid data.");
@@ -106,25 +106,25 @@ public class EntityUUIDFix extends AbstractUUIDFix {
         return DataFixUtils.orElse(var0.map(param1 -> param0.remove("TrustedUUIDs").set("Trusted", param1)), param0);
     }
 
-    private Dynamic<?> updateHurtBy(Dynamic<?> param0) {
+    private static Dynamic<?> updateHurtBy(Dynamic<?> param0) {
         return replaceUUIDString(param0, "HurtBy", "HurtBy").orElse(param0);
     }
 
-    private Dynamic<?> updateAnimalOwner(Dynamic<?> param0) {
-        Dynamic<?> var0 = this.updateAnimal(param0);
+    private static Dynamic<?> updateAnimalOwner(Dynamic<?> param0) {
+        Dynamic<?> var0 = updateAnimal(param0);
         return replaceUUIDString(var0, "OwnerUUID", "Owner").orElse(var0);
     }
 
-    private Dynamic<?> updateAnimal(Dynamic<?> param0) {
-        Dynamic<?> var0 = this.updateMob(param0);
+    private static Dynamic<?> updateAnimal(Dynamic<?> param0) {
+        Dynamic<?> var0 = updateMob(param0);
         return replaceUUIDLeastMost(var0, "LoveCause", "LoveCause").orElse(var0);
     }
 
-    private Dynamic<?> updateMob(Dynamic<?> param0) {
-        return this.updateLivingEntity(param0).update("Leash", param0x -> replaceUUIDLeastMost(param0x, "UUID", "UUID").orElse(param0x));
+    private static Dynamic<?> updateMob(Dynamic<?> param0) {
+        return updateLivingEntity(param0).update("Leash", param0x -> replaceUUIDLeastMost(param0x, "UUID", "UUID").orElse(param0x));
     }
 
-    private Dynamic<?> updateLivingEntity(Dynamic<?> param0) {
+    public static Dynamic<?> updateLivingEntity(Dynamic<?> param0) {
         return param0.update(
             "Attributes",
             param1 -> param0.createList(
@@ -141,11 +141,11 @@ public class EntityUUIDFix extends AbstractUUIDFix {
         );
     }
 
-    private Dynamic<?> updateProjectile(Dynamic<?> param0) {
+    private static Dynamic<?> updateProjectile(Dynamic<?> param0) {
         return DataFixUtils.orElse(param0.get("OwnerUUID").map(param1 -> param0.remove("OwnerUUID").set("Owner", param1)), param0);
     }
 
-    private Dynamic<?> updateEntityUUID(Dynamic<?> param0) {
+    public static Dynamic<?> updateEntityUUID(Dynamic<?> param0) {
         return replaceUUIDLeastMost(param0, "UUID", "UUID").orElse(param0);
     }
 

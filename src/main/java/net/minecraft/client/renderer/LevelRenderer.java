@@ -396,9 +396,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                     float var16 = (float)var15.max(Direction.Axis.Y, (double)var11, (double)var12);
                     float var17 = var14.getHeight(var2, var9);
                     float var18 = Math.max(var16, var17);
-                    ParticleOptions var19 = !var14.is(FluidTags.LAVA)
-                            && var13.getBlock() != Blocks.MAGMA_BLOCK
-                            && (var13.getBlock() != Blocks.CAMPFIRE || !var13.getValue(CampfireBlock.LIT))
+                    ParticleOptions var19 = !var14.is(FluidTags.LAVA) && var13.getBlock() != Blocks.MAGMA_BLOCK && !CampfireBlock.isLitCampfire(var13)
                         ? ParticleTypes.RAIN
                         : ParticleTypes.SMOKE;
                     this.minecraft

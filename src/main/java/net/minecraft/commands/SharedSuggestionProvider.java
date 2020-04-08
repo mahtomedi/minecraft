@@ -49,10 +49,10 @@ public interface SharedSuggestionProvider {
             ResourceLocation var2 = param2.apply(var1);
             if (var0) {
                 String var3 = var2.toString();
-                if (var3.startsWith(param1)) {
+                if (matches(param1, var3)) {
                     param3.accept(var1);
                 }
-            } else if (var2.getNamespace().startsWith(param1) || var2.getNamespace().equals("minecraft") && var2.getPath().startsWith(param1)) {
+            } else if (matches(param1, var2.getNamespace()) || var2.getNamespace().equals("minecraft") && matches(param1, var2.getPath())) {
                 param3.accept(var1);
             }
         }
@@ -169,7 +169,7 @@ public interface SharedSuggestionProvider {
         String var0 = param1.getRemaining().toLowerCase(Locale.ROOT);
 
         for(String var1 : param0) {
-            if (var1.toLowerCase(Locale.ROOT).startsWith(var0)) {
+            if (matches(var0, var1.toLowerCase(Locale.ROOT))) {
                 param1.suggest(var1);
             }
         }
@@ -179,7 +179,7 @@ public interface SharedSuggestionProvider {
 
     static CompletableFuture<Suggestions> suggest(Stream<String> param0, SuggestionsBuilder param1) {
         String var0 = param1.getRemaining().toLowerCase(Locale.ROOT);
-        param0.filter(param1x -> param1x.toLowerCase(Locale.ROOT).startsWith(var0)).forEach(param1::suggest);
+        param0.filter(param1x -> matches(var0, param1x.toLowerCase(Locale.ROOT))).forEach(param1::suggest);
         return param1.buildFuture();
     }
 
@@ -187,12 +187,23 @@ public interface SharedSuggestionProvider {
         String var0 = param1.getRemaining().toLowerCase(Locale.ROOT);
 
         for(String var1 : param0) {
-            if (var1.toLowerCase(Locale.ROOT).startsWith(var0)) {
+            if (matches(var0, var1.toLowerCase(Locale.ROOT))) {
                 param1.suggest(var1);
             }
         }
 
         return param1.buildFuture();
+    }
+
+    static boolean matches(String param0, String param1) {
+        for(int var0 = 0; !param1.startsWith(param0, var0); ++var0) {
+            var0 = param1.indexOf(95, var0);
+            if (var0 < 0) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public static class TextCoordinates {

@@ -6,6 +6,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.LevelAccessor;
@@ -54,7 +55,7 @@ public class FlintAndSteelItem extends Item {
     }
 
     public static boolean canLightCampFire(BlockState param0) {
-        return param0.getBlock() == Blocks.CAMPFIRE && !param0.getValue(BlockStateProperties.WATERLOGGED) && !param0.getValue(BlockStateProperties.LIT);
+        return param0.getBlock().is(BlockTags.CAMPFIRES) && !param0.getValue(BlockStateProperties.WATERLOGGED) && !param0.getValue(BlockStateProperties.LIT);
     }
 
     public static boolean canUse(BlockState param0, LevelAccessor param1, BlockPos param2) {

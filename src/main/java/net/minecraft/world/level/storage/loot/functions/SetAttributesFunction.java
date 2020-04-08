@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 import javax.annotation.Nullable;
+import net.minecraft.Util;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -42,7 +43,7 @@ public class SetAttributesFunction extends LootItemConditionalFunction {
                 var2 = UUID.randomUUID();
             }
 
-            EquipmentSlot var3 = var1.slots[var0.nextInt(var1.slots.length)];
+            EquipmentSlot var3 = Util.getRandom(var1.slots, var0);
             param0.addAttributeModifier(var1.attribute, new AttributeModifier(var2, var1.name, (double)var1.amount.getFloat(var0), var1.operation), var3);
         }
 

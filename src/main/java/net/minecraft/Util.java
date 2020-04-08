@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -286,6 +287,14 @@ public class Util {
         } else {
             return param0.getMessage() != null ? param0.getMessage() : param0.toString();
         }
+    }
+
+    public static <T> T getRandom(T[] param0, Random param1) {
+        return param0[param1.nextInt(param0.length)];
+    }
+
+    public static int getRandom(int[] param0, Random param1) {
+        return param0[param1.nextInt(param0.length)];
     }
 
     static enum IdentityStrategy implements Strategy<Object> {

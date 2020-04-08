@@ -45,6 +45,7 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
@@ -87,6 +88,8 @@ public class Hoglin extends Animal implements Enemy, HoglinBase {
     public Hoglin(EntityType<? extends Hoglin> param0, Level param1) {
         super(param0, param1);
         this.xpReward = 5;
+        this.setPathfindingMalus(BlockPathTypes.DANGER_FIRE, 16.0F);
+        this.setPathfindingMalus(BlockPathTypes.DAMAGE_FIRE, -1.0F);
     }
 
     @Override
@@ -186,6 +189,18 @@ public class Hoglin extends Animal implements Enemy, HoglinBase {
         super.aiStep();
     }
 
+    @Override
+    protected void ageBoundaryReached() {
+        if (this.isBaby()) {
+            this.xpReward = 3;
+            this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(0.5);
+        } else {
+            this.xpReward = 5;
+            this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(6.0);
+        }
+
+    }
+
     public static boolean checkHoglinSpawnRules(EntityType<Hoglin> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
         return param1.getBlockState(param3.below()).getBlock() != Blocks.NETHER_WART_BLOCK;
     }
@@ -197,8 +212,6 @@ public class Hoglin extends Animal implements Enemy, HoglinBase {
     ) {
         if (param0.getRandom().nextFloat() < 0.2F) {
             this.setBaby(true);
-            this.xpReward = 3;
-            this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(0.5);
         }
 
         return super.finalizeSpawn(param0, param1, param2, param3, param4);

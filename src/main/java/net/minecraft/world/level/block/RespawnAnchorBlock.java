@@ -52,17 +52,20 @@ public class RespawnAnchorBlock extends Block {
         } else if (param0.getValue(CHARGE) == 0) {
             return InteractionResult.PASS;
         } else if (param1.dimension.getType() != DimensionType.NETHER) {
-            param1.removeBlock(param2, false);
-            param1.explode(
-                null,
-                DamageSource.badRespawnPointExplosion(),
-                (double)param2.getX() + 0.5,
-                (double)param2.getY() + 0.5,
-                (double)param2.getZ() + 0.5,
-                5.0F,
-                true,
-                Explosion.BlockInteraction.DESTROY
-            );
+            if (!param1.isClientSide) {
+                param1.removeBlock(param2, false);
+                param1.explode(
+                    null,
+                    DamageSource.badRespawnPointExplosion(),
+                    (double)param2.getX() + 0.5,
+                    (double)param2.getY() + 0.5,
+                    (double)param2.getZ() + 0.5,
+                    5.0F,
+                    true,
+                    Explosion.BlockInteraction.DESTROY
+                );
+            }
+
             return InteractionResult.SUCCESS;
         } else {
             if (!param1.isClientSide) {

@@ -1,7 +1,6 @@
 package net.minecraft.world.level.levelgen.structure.templatesystem;
 
 import com.google.common.collect.Lists;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import javax.annotation.Nullable;
@@ -153,9 +152,13 @@ public class StructurePlaceSettings {
         return this.keepLiquids;
     }
 
-    public List<StructureTemplate.StructureBlockInfo> getRandomPalette(List<List<StructureTemplate.StructureBlockInfo>> param0, @Nullable BlockPos param1) {
+    public StructureTemplate.Palette getRandomPalette(List<StructureTemplate.Palette> param0, @Nullable BlockPos param1) {
         int var0 = param0.size();
-        return var0 > 0 ? param0.get(this.getRandom(param1).nextInt(var0)) : Collections.emptyList();
+        if (var0 == 0) {
+            throw new IllegalStateException("No palettes");
+        } else {
+            return param0.get(this.getRandom(param1).nextInt(var0));
+        }
     }
 
     @Nullable

@@ -24,13 +24,13 @@ public class HorseInventoryMenu extends AbstractContainerMenu {
         this.addSlot(new Slot(param2, 0, 8, 18) {
             @Override
             public boolean mayPlace(ItemStack param0) {
-                return param0.getItem() == Items.SADDLE && !this.hasItem() && param3.canBeSaddled();
+                return param0.getItem() == Items.SADDLE && !this.hasItem() && param3.isSaddleable();
             }
 
             @OnlyIn(Dist.CLIENT)
             @Override
             public boolean isActive() {
-                return param3.canBeSaddled();
+                return param3.isSaddleable();
             }
         });
         this.addSlot(new Slot(param2, 1, 8, 36) {
@@ -42,7 +42,7 @@ public class HorseInventoryMenu extends AbstractContainerMenu {
             @OnlyIn(Dist.CLIENT)
             @Override
             public boolean isActive() {
-                return param3.wearsArmor();
+                return param3.canWearArmor();
             }
 
             @Override

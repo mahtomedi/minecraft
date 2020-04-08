@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import javax.annotation.Nullable;
+import net.minecraft.Util;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.CrudeIncrementalIntIdentityHashBiMap;
 import net.minecraftforge.api.distmarker.Dist;
@@ -101,7 +102,7 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
             this.randomCache = var0.toArray(new Object[var0.size()]);
         }
 
-        return (T)this.randomCache[param0.nextInt(this.randomCache.length)];
+        return Util.getRandom((T[])this.randomCache, param0);
     }
 
     @OnlyIn(Dist.CLIENT)

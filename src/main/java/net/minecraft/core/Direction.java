@@ -16,6 +16,7 @@ import java.util.Random;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import net.minecraft.Util;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.Entity;
@@ -237,8 +238,8 @@ public enum Direction implements StringRepresentable {
         return (float)((this.data2d & 3) * 90);
     }
 
-    public static Direction getRandomFace(Random param0) {
-        return VALUES[param0.nextInt(VALUES.length)];
+    public static Direction getRandom(Random param0) {
+        return Util.getRandom(VALUES, param0);
     }
 
     public static Direction getNearest(double param0, double param1, double param2) {
@@ -349,8 +350,8 @@ public enum Direction implements StringRepresentable {
             return this.name;
         }
 
-        public static Direction.Axis getRandomAxis(Random param0) {
-            return VALUES[param0.nextInt(VALUES.length)];
+        public static Direction.Axis getRandom(Random param0) {
+            return Util.getRandom(VALUES, param0);
         }
 
         public boolean test(@Nullable Direction param0) {
@@ -418,7 +419,7 @@ public enum Direction implements StringRepresentable {
         }
 
         public Direction getRandomDirection(Random param0) {
-            return this.faces[param0.nextInt(this.faces.length)];
+            return Util.getRandom(this.faces, param0);
         }
 
         public boolean test(@Nullable Direction param0) {

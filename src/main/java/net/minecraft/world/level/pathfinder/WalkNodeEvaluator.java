@@ -1,8 +1,6 @@
 package net.minecraft.world.level.pathfinder;
 
-import com.google.common.collect.Sets;
 import java.util.EnumSet;
-import java.util.Set;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -15,6 +13,7 @@ import net.minecraft.world.level.PathNavigationRegion;
 import net.minecraft.world.level.block.BaseRailBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.FenceGateBlock;
 import net.minecraft.world.level.block.LeavesBlock;
@@ -42,33 +41,31 @@ public class WalkNodeEvaluator extends NodeEvaluator {
 
     @Override
     public Node getStart() {
-        int var0;
+        BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
+        int var1;
         if (this.canFloat() && this.mob.isInWater()) {
-            var0 = Mth.floor(this.mob.getY());
-            BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos(this.mob.getX(), (double)var0, this.mob.getZ());
+            var1 = Mth.floor(this.mob.getY());
+            BlockState var2 = this.level.getBlockState(var0.set(this.mob.getX(), (double)var1, this.mob.getZ()));
 
-            for(BlockState var2 = this.level.getBlockState(var1);
-                var2.getBlock() == Blocks.WATER || var2.getFluidState() == Fluids.WATER.getSource(false);
-                var2 = this.level.getBlockState(var1)
-            ) {
-                var1.set(this.mob.getX(), (double)(++var0), this.mob.getZ());
+            while(var2.getBlock() == Blocks.WATER || var2.getFluidState() == Fluids.WATER.getSource(false)) {
+                var2 = this.level.getBlockState(var0.set(this.mob.getX(), (double)(++var1), this.mob.getZ()));
             }
 
-            --var0;
+            --var1;
         } else if (this.mob.isInLava() && this.mob.canFloatInLava()) {
-            var0 = Mth.floor(this.mob.getY());
-            BlockPos.MutableBlockPos var4 = new BlockPos.MutableBlockPos(this.mob.getX(), (double)var0, this.mob.getZ());
+            var1 = Mth.floor(this.mob.getY());
+            BlockPos.MutableBlockPos var4 = new BlockPos.MutableBlockPos(this.mob.getX(), (double)var1, this.mob.getZ());
 
             for(BlockState var5 = this.level.getBlockState(var4);
                 var5.getBlock() == Blocks.LAVA || var5.getFluidState() == Fluids.LAVA.getSource(false);
                 var5 = this.level.getBlockState(var4)
             ) {
-                var4.set(this.mob.getX(), (double)(++var0), this.mob.getZ());
+                var4.set(this.mob.getX(), (double)(++var1), this.mob.getZ());
             }
 
-            --var0;
+            --var1;
         } else if (this.mob.isOnGround()) {
-            var0 = Mth.floor(this.mob.getY() + 0.5);
+            var1 = Mth.floor(this.mob.getY() + 0.5);
         } else {
             BlockPos var7 = this.mob.blockPosition();
 
@@ -79,27 +76,27 @@ public class WalkNodeEvaluator extends NodeEvaluator {
                 var7 = var7.below();
             }
 
-            var0 = var7.above().getY();
+            var1 = var7.above().getY();
         }
 
         BlockPos var9 = this.mob.blockPosition();
-        BlockPathTypes var10 = this.getBlockPathType(this.mob, var9.getX(), var0, var9.getZ());
+        BlockPathTypes var10 = this.getBlockPathType(this.mob, var9.getX(), var1, var9.getZ());
         if (this.mob.getPathfindingMalus(var10) < 0.0F) {
-            Set<BlockPos> var11 = Sets.newHashSet();
-            var11.add(new BlockPos(this.mob.getBoundingBox().minX, (double)var0, this.mob.getBoundingBox().minZ));
-            var11.add(new BlockPos(this.mob.getBoundingBox().minX, (double)var0, this.mob.getBoundingBox().maxZ));
-            var11.add(new BlockPos(this.mob.getBoundingBox().maxX, (double)var0, this.mob.getBoundingBox().minZ));
-            var11.add(new BlockPos(this.mob.getBoundingBox().maxX, (double)var0, this.mob.getBoundingBox().maxZ));
-
-            for(BlockPos var12 : var11) {
-                BlockPathTypes var13 = this.getBlockPathType(this.mob, var12);
-                if (this.mob.getPathfindingMalus(var13) >= 0.0F) {
-                    return this.getNode(var12.getX(), var12.getY(), var12.getZ());
-                }
+            AABB var11 = this.mob.getBoundingBox();
+            if (this.hasPositiveMalus(var0.set(var11.minX, (double)var1, var11.minZ))
+                || this.hasPositiveMalus(var0.set(var11.minX, (double)var1, var11.maxZ))
+                || this.hasPositiveMalus(var0.set(var11.maxX, (double)var1, var11.minZ))
+                || this.hasPositiveMalus(var0.set(var11.maxX, (double)var1, var11.maxZ))) {
+                return this.getNode(var0);
             }
         }
 
-        return this.getNode(var9.getX(), var0, var9.getZ());
+        return this.getNode(var9.getX(), var1, var9.getZ());
+    }
+
+    private boolean hasPositiveMalus(BlockPos param0) {
+        BlockPathTypes var0 = this.getBlockPathType(this.mob, param0);
+        return this.mob.getPathfindingMalus(var0) >= 0.0F;
     }
 
     @Override
@@ -186,8 +183,8 @@ public class WalkNodeEvaluator extends NodeEvaluator {
     @Nullable
     private Node getLandNode(int param0, int param1, int param2, int param3, double param4, Direction param5) {
         Node var0 = null;
-        BlockPos var1 = new BlockPos(param0, param1, param2);
-        double var2 = getFloorLevel(this.level, var1);
+        BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos();
+        double var2 = getFloorLevel(this.level, var1.set(param0, param1, param2));
         if (var2 - param4 > 1.125) {
             return null;
         } else {
@@ -210,10 +207,10 @@ public class WalkNodeEvaluator extends NodeEvaluator {
                         double var7 = (double)(param2 - param5.getStepZ()) + 0.5;
                         AABB var8 = new AABB(
                             var6 - var5,
-                            getFloorLevel(this.level, new BlockPos(var6, (double)(param1 + 1), var7)) + 0.001,
+                            getFloorLevel(this.level, var1.set(var6, (double)(param1 + 1), var7)) + 0.001,
                             var7 - var5,
                             var6 + var5,
-                            (double)this.mob.getBbHeight() + getFloorLevel(this.level, new BlockPos(var0.x, var0.y, var0.z)) - 0.002,
+                            (double)this.mob.getBbHeight() + getFloorLevel(this.level, var1.set((double)var0.x, (double)var0.y, (double)var0.z)) - 0.002,
                             var7 + var5
                         );
                         if (!this.level.noCollision(this.mob, var8)) {
@@ -398,104 +395,114 @@ public class WalkNodeEvaluator extends NodeEvaluator {
 
     @Override
     public BlockPathTypes getBlockPathType(BlockGetter param0, int param1, int param2, int param3) {
-        return getBlockPathTypeStatic(param0, param1, param2, param3);
+        return getBlockPathTypeStatic(param0, new BlockPos.MutableBlockPos(param1, param2, param3));
     }
 
-    public static BlockPathTypes getBlockPathTypeStatic(BlockGetter param0, int param1, int param2, int param3) {
-        BlockPathTypes var0 = getBlockPathTypeRaw(param0, param1, param2, param3);
-        if (var0 == BlockPathTypes.OPEN && param2 >= 1) {
-            Block var1 = param0.getBlockState(new BlockPos(param1, param2 - 1, param3)).getBlock();
-            BlockPathTypes var2 = getBlockPathTypeRaw(param0, param1, param2 - 1, param3);
-            var0 = var2 != BlockPathTypes.WALKABLE && var2 != BlockPathTypes.OPEN && var2 != BlockPathTypes.WATER && var2 != BlockPathTypes.LAVA
+    public static BlockPathTypes getBlockPathTypeStatic(BlockGetter param0, BlockPos.MutableBlockPos param1) {
+        int var0 = param1.getX();
+        int var1 = param1.getY();
+        int var2 = param1.getZ();
+        BlockPathTypes var3 = getBlockPathTypeRaw(param0, param1);
+        if (var3 == BlockPathTypes.OPEN && var1 >= 1) {
+            BlockPathTypes var4 = getBlockPathTypeRaw(param0, param1.set(var0, var1 - 1, var2));
+            var3 = var4 != BlockPathTypes.WALKABLE && var4 != BlockPathTypes.OPEN && var4 != BlockPathTypes.WATER && var4 != BlockPathTypes.LAVA
                 ? BlockPathTypes.WALKABLE
                 : BlockPathTypes.OPEN;
-            if (var2 == BlockPathTypes.DAMAGE_FIRE || var1 == Blocks.MAGMA_BLOCK || var1 == Blocks.CAMPFIRE) {
-                var0 = BlockPathTypes.DAMAGE_FIRE;
+            if (var4 == BlockPathTypes.DAMAGE_FIRE) {
+                var3 = BlockPathTypes.DAMAGE_FIRE;
             }
 
-            if (var2 == BlockPathTypes.DAMAGE_CACTUS) {
-                var0 = BlockPathTypes.DAMAGE_CACTUS;
+            if (var4 == BlockPathTypes.DAMAGE_CACTUS) {
+                var3 = BlockPathTypes.DAMAGE_CACTUS;
             }
 
-            if (var2 == BlockPathTypes.DAMAGE_OTHER) {
-                var0 = BlockPathTypes.DAMAGE_OTHER;
+            if (var4 == BlockPathTypes.DAMAGE_OTHER) {
+                var3 = BlockPathTypes.DAMAGE_OTHER;
             }
 
-            if (var2 == BlockPathTypes.STICKY_HONEY) {
-                var0 = BlockPathTypes.STICKY_HONEY;
+            if (var4 == BlockPathTypes.STICKY_HONEY) {
+                var3 = BlockPathTypes.STICKY_HONEY;
             }
         }
 
-        if (var0 == BlockPathTypes.WALKABLE) {
-            var0 = checkNeighbourBlocks(param0, param1, param2, param3, var0);
+        if (var3 == BlockPathTypes.WALKABLE) {
+            var3 = checkNeighbourBlocks(param0, param1.set(var0, var1, var2), var3);
         }
 
-        return var0;
+        return var3;
     }
 
-    public static BlockPathTypes checkNeighbourBlocks(BlockGetter param0, int param1, int param2, int param3, BlockPathTypes param4) {
-        BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
+    public static BlockPathTypes checkNeighbourBlocks(BlockGetter param0, BlockPos.MutableBlockPos param1, BlockPathTypes param2) {
+        int var0 = param1.getX();
+        int var1 = param1.getY();
+        int var2 = param1.getZ();
 
-        for(int var1 = -1; var1 <= 1; ++var1) {
-            for(int var2 = -1; var2 <= 1; ++var2) {
-                for(int var3 = -1; var3 <= 1; ++var3) {
-                    if (var1 != 0 || var3 != 0) {
-                        Block var4 = param0.getBlockState(var0.set(var1 + param1, var2 + param2, var3 + param3)).getBlock();
-                        if (var4 == Blocks.CACTUS) {
-                            param4 = BlockPathTypes.DANGER_CACTUS;
-                        } else if (var4.is(BlockTags.FIRE) || var4 == Blocks.LAVA) {
-                            param4 = BlockPathTypes.DANGER_FIRE;
-                        } else if (var4 == Blocks.SWEET_BERRY_BUSH) {
-                            param4 = BlockPathTypes.DANGER_OTHER;
+        for(int var3 = -1; var3 <= 1; ++var3) {
+            for(int var4 = -1; var4 <= 1; ++var4) {
+                for(int var5 = -1; var5 <= 1; ++var5) {
+                    if (var3 != 0 || var5 != 0) {
+                        param1.set(var3 + var0, var4 + var1, var5 + var2);
+                        BlockState var6 = param0.getBlockState(param1);
+                        Block var7 = var6.getBlock();
+                        if (var7 == Blocks.CACTUS) {
+                            param2 = BlockPathTypes.DANGER_CACTUS;
+                        } else if (var7 == Blocks.SWEET_BERRY_BUSH) {
+                            param2 = BlockPathTypes.DANGER_OTHER;
+                        } else if (isBurningBlock(var6)) {
+                            param2 = BlockPathTypes.DANGER_FIRE;
                         }
                     }
                 }
             }
         }
 
-        return param4;
+        return param2;
     }
 
-    protected static BlockPathTypes getBlockPathTypeRaw(BlockGetter param0, int param1, int param2, int param3) {
-        BlockPos var0 = new BlockPos(param1, param2, param3);
-        BlockState var1 = param0.getBlockState(var0);
-        Block var2 = var1.getBlock();
-        Material var3 = var1.getMaterial();
-        if (var1.isAir()) {
+    protected static BlockPathTypes getBlockPathTypeRaw(BlockGetter param0, BlockPos param1) {
+        BlockState var0 = param0.getBlockState(param1);
+        Block var1 = var0.getBlock();
+        Material var2 = var0.getMaterial();
+        if (var0.isAir()) {
             return BlockPathTypes.OPEN;
-        } else if (var2.is(BlockTags.TRAPDOORS) || var2 == Blocks.LILY_PAD) {
+        } else if (var1.is(BlockTags.TRAPDOORS) || var1 == Blocks.LILY_PAD) {
             return BlockPathTypes.TRAPDOOR;
-        } else if (var1.is(BlockTags.FIRE)) {
-            return BlockPathTypes.DAMAGE_FIRE;
-        } else if (var2 == Blocks.CACTUS) {
+        } else if (var1 == Blocks.CACTUS) {
             return BlockPathTypes.DAMAGE_CACTUS;
-        } else if (var2 == Blocks.SWEET_BERRY_BUSH) {
+        } else if (var1 == Blocks.SWEET_BERRY_BUSH) {
             return BlockPathTypes.DAMAGE_OTHER;
-        } else if (var2 == Blocks.HONEY_BLOCK) {
+        } else if (var1 == Blocks.HONEY_BLOCK) {
             return BlockPathTypes.STICKY_HONEY;
-        } else if (var2 == Blocks.COCOA) {
+        } else if (var1 == Blocks.COCOA) {
             return BlockPathTypes.COCOA;
-        } else if (DoorBlock.isWoodenDoor(var1) && !var1.getValue(DoorBlock.OPEN)) {
+        } else if (isBurningBlock(var0)) {
+            return BlockPathTypes.DAMAGE_FIRE;
+        } else if (DoorBlock.isWoodenDoor(var0) && !var0.getValue(DoorBlock.OPEN)) {
             return BlockPathTypes.DOOR_WOOD_CLOSED;
-        } else if (var2 instanceof DoorBlock && var3 == Material.METAL && !var1.getValue(DoorBlock.OPEN)) {
+        } else if (var1 instanceof DoorBlock && var2 == Material.METAL && !var0.getValue(DoorBlock.OPEN)) {
             return BlockPathTypes.DOOR_IRON_CLOSED;
-        } else if (var2 instanceof DoorBlock && var1.getValue(DoorBlock.OPEN)) {
+        } else if (var1 instanceof DoorBlock && var0.getValue(DoorBlock.OPEN)) {
             return BlockPathTypes.DOOR_OPEN;
-        } else if (var2 instanceof BaseRailBlock) {
+        } else if (var1 instanceof BaseRailBlock) {
             return BlockPathTypes.RAIL;
-        } else if (var2 instanceof LeavesBlock) {
+        } else if (var1 instanceof LeavesBlock) {
             return BlockPathTypes.LEAVES;
-        } else if (!var2.is(BlockTags.FENCES) && !var2.is(BlockTags.WALLS) && (!(var2 instanceof FenceGateBlock) || var1.getValue(FenceGateBlock.OPEN))) {
-            FluidState var4 = param0.getFluidState(var0);
-            if (var4.is(FluidTags.WATER)) {
+        } else if (!var1.is(BlockTags.FENCES) && !var1.is(BlockTags.WALLS) && (!(var1 instanceof FenceGateBlock) || var0.getValue(FenceGateBlock.OPEN))) {
+            FluidState var3 = param0.getFluidState(param1);
+            if (var3.is(FluidTags.WATER)) {
                 return BlockPathTypes.WATER;
-            } else if (var4.is(FluidTags.LAVA)) {
+            } else if (var3.is(FluidTags.LAVA)) {
                 return BlockPathTypes.LAVA;
             } else {
-                return var1.isPathfindable(param0, var0, PathComputationType.LAND) ? BlockPathTypes.OPEN : BlockPathTypes.BLOCKED;
+                return var0.isPathfindable(param0, param1, PathComputationType.LAND) ? BlockPathTypes.OPEN : BlockPathTypes.BLOCKED;
             }
         } else {
             return BlockPathTypes.FENCE;
         }
+    }
+
+    private static boolean isBurningBlock(BlockState param0) {
+        Block var0 = param0.getBlock();
+        return var0.is(BlockTags.FIRE) || var0 == Blocks.LAVA || var0 == Blocks.MAGMA_BLOCK || CampfireBlock.isLitCampfire(param0);
     }
 }
