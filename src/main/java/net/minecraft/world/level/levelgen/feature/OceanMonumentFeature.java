@@ -13,6 +13,8 @@ import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -28,43 +30,42 @@ public class OceanMonumentFeature extends StructureFeature<NoneFeatureConfigurat
     }
 
     @Override
-    protected ChunkPos getPotentialFeatureChunkFromLocationWithOffset(ChunkGenerator<?> param0, Random param1, int param2, int param3, int param4, int param5) {
-        int var0 = param0.getSettings().getMonumentsSpacing();
-        int var1 = param0.getSettings().getMonumentsSeparation();
-        int var2 = param2 + var0 * param4;
-        int var3 = param3 + var0 * param5;
-        int var4 = var2 < 0 ? var2 - var0 + 1 : var2;
-        int var5 = var3 < 0 ? var3 - var0 + 1 : var3;
-        int var6 = var4 / var0;
-        int var7 = var5 / var0;
-        ((WorldgenRandom)param1).setLargeFeatureWithSalt(param0.getSeed(), var6, var7, 10387313);
-        var6 *= var0;
-        var7 *= var0;
-        var6 += (param1.nextInt(var0 - var1) + param1.nextInt(var0 - var1)) / 2;
-        var7 += (param1.nextInt(var0 - var1) + param1.nextInt(var0 - var1)) / 2;
-        return new ChunkPos(var6, var7);
+    protected int getSpacing(DimensionType param0, ChunkGeneratorSettings param1) {
+        return param1.getMonumentsSpacing();
     }
 
     @Override
-    public boolean isFeatureChunk(BiomeManager param0, ChunkGenerator<?> param1, Random param2, int param3, int param4, Biome param5) {
-        ChunkPos var0 = this.getPotentialFeatureChunkFromLocationWithOffset(param1, param2, param3, param4, 0, 0);
-        if (param3 == var0.x && param4 == var0.z) {
-            for(Biome var2 : param1.getBiomeSource().getBiomesWithin(param3 * 16 + 9, param1.getSeaLevel(), param4 * 16 + 9, 16)) {
-                if (!param1.isBiomeValidStartForStructure(var2, this)) {
-                    return false;
-                }
-            }
+    protected int getSeparation(DimensionType param0, ChunkGeneratorSettings param1) {
+        return param1.getMonumentsSeparation();
+    }
 
-            for(Biome var4 : param1.getBiomeSource().getBiomesWithin(param3 * 16 + 9, param1.getSeaLevel(), param4 * 16 + 9, 29)) {
-                if (var4.getBiomeCategory() != Biome.BiomeCategory.OCEAN && var4.getBiomeCategory() != Biome.BiomeCategory.RIVER) {
-                    return false;
-                }
-            }
+    @Override
+    protected int getRandomSalt(ChunkGeneratorSettings param0) {
+        return 10387313;
+    }
 
-            return true;
-        } else {
-            return false;
+    @Override
+    protected boolean linearSeparation() {
+        return false;
+    }
+
+    @Override
+    protected boolean isFeatureChunk(
+        BiomeManager param0, ChunkGenerator<?> param1, WorldgenRandom param2, int param3, int param4, Biome param5, ChunkPos param6
+    ) {
+        for(Biome var1 : param1.getBiomeSource().getBiomesWithin(param3 * 16 + 9, param1.getSeaLevel(), param4 * 16 + 9, 16)) {
+            if (!param1.isBiomeValidStartForStructure(var1, this)) {
+                return false;
+            }
         }
+
+        for(Biome var3 : param1.getBiomeSource().getBiomesWithin(param3 * 16 + 9, param1.getSeaLevel(), param4 * 16 + 9, 29)) {
+            if (var3.getBiomeCategory() != Biome.BiomeCategory.OCEAN && var3.getBiomeCategory() != Biome.BiomeCategory.RIVER) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     @Override

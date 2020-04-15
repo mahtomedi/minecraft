@@ -40,7 +40,8 @@ public abstract class StructurePoolElement {
         BlockPos var6,
         Rotation var7,
         BoundingBox var8,
-        Random var9
+        Random var9,
+        boolean var10
     );
 
     public abstract StructurePoolElementType getType();

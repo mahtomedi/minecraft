@@ -89,7 +89,8 @@ public class FeaturePoolElement extends StructurePoolElement {
         BlockPos param5,
         Rotation param6,
         BoundingBox param7,
-        Random param8
+        Random param8,
+        boolean param9
     ) {
         return this.feature.place(param1, param2, param3, param8, param4);
     }

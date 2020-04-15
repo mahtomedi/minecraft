@@ -236,24 +236,23 @@ public class ChatComponent extends GuiComponent {
     @Nullable
     public Component getClickedComponentAt(double param0, double param1) {
         if (this.isChatFocused() && !this.minecraft.options.hideGui && this.isChatVisible()) {
-            double var0 = this.getScale() * (this.minecraft.options.chatLineSpacing + 1.0);
-            double var1 = param0 - 2.0;
-            double var2 = (double)this.minecraft.getWindow().getGuiScaledHeight() - param1 - 40.0;
-            var1 = (double)Mth.floor(var1 / var0);
-            var2 = (double)Mth.floor(var2 / var0);
-            if (!(var1 < 0.0) && !(var2 < 0.0)) {
-                int var3 = Math.min(this.getLinesPerPage(), this.trimmedMessages.size());
-                if (var1 <= (double)Mth.floor((double)this.getWidth() / this.getScale()) && var2 < (double)(9 * var3 + var3)) {
-                    int var4 = (int)(var2 / 9.0 + (double)this.chatScrollbarPos);
-                    if (var4 >= 0 && var4 < this.trimmedMessages.size()) {
-                        GuiMessage var5 = this.trimmedMessages.get(var4);
-                        int var6 = 0;
+            double var0 = param0 - 2.0;
+            double var1 = (double)this.minecraft.getWindow().getGuiScaledHeight() - param1 - 40.0;
+            var0 = (double)Mth.floor(var0 / this.getScale());
+            var1 = (double)Mth.floor(var1 / (this.getScale() * (this.minecraft.options.chatLineSpacing + 1.0)));
+            if (!(var0 < 0.0) && !(var1 < 0.0)) {
+                int var2 = Math.min(this.getLinesPerPage(), this.trimmedMessages.size());
+                if (var0 <= (double)Mth.floor((double)this.getWidth() / this.getScale()) && var1 < (double)(9 * var2 + var2)) {
+                    int var3 = (int)(var1 / 9.0 + (double)this.chatScrollbarPos);
+                    if (var3 >= 0 && var3 < this.trimmedMessages.size()) {
+                        GuiMessage var4 = this.trimmedMessages.get(var3);
+                        int var5 = 0;
 
-                        for(Component var7 : var5.getMessage()) {
-                            if (var7 instanceof TextComponent) {
-                                var6 += this.minecraft.font.width(ComponentRenderUtils.stripColor(((TextComponent)var7).getText(), false));
-                                if ((double)var6 > var1) {
-                                    return var7;
+                        for(Component var6 : var4.getMessage()) {
+                            if (var6 instanceof TextComponent) {
+                                var5 += this.minecraft.font.width(ComponentRenderUtils.stripColor(((TextComponent)var6).getText(), false));
+                                if ((double)var5 > var0) {
+                                    return var6;
                                 }
                             }
                         }

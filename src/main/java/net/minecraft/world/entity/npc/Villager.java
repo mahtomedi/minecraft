@@ -760,7 +760,9 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
 
     @Override
     public boolean wantsToPickUp(ItemStack param0) {
-        return WANTED_ITEMS.contains(param0.getItem()) || this.getVillagerData().getProfession().getRequestedItems().contains(param0.getItem());
+        Item var0 = param0.getItem();
+        return (WANTED_ITEMS.contains(var0) || this.getVillagerData().getProfession().getRequestedItems().contains(var0))
+            && this.getInventory().canAddItem(param0);
     }
 
     public boolean hasExcessFood() {
@@ -777,8 +779,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
     }
 
     public boolean hasFarmSeeds() {
-        SimpleContainer var0 = this.getInventory();
-        return var0.hasAnyOf(ImmutableSet.of(Items.WHEAT_SEEDS, Items.POTATO, Items.CARROT, Items.BEETROOT_SEEDS));
+        return this.getInventory().hasAnyOf(ImmutableSet.of(Items.WHEAT_SEEDS, Items.POTATO, Items.CARROT, Items.BEETROOT_SEEDS));
     }
 
     @Override

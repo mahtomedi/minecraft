@@ -102,16 +102,8 @@ public abstract class BlockEntity {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public double distanceToSqr(double param0, double param1, double param2) {
-        double var0 = (double)this.worldPosition.getX() + 0.5 - param0;
-        double var1 = (double)this.worldPosition.getY() + 0.5 - param1;
-        double var2 = (double)this.worldPosition.getZ() + 0.5 - param2;
-        return var0 * var0 + var1 * var1 + var2 * var2;
-    }
-
-    @OnlyIn(Dist.CLIENT)
     public double getViewDistance() {
-        return 4096.0;
+        return 64.0;
     }
 
     public BlockPos getBlockPos() {

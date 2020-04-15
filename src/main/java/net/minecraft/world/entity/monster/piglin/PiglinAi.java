@@ -72,7 +72,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 
 public class PiglinAi {
-    public static final Item BARTERING_ITEM = Items.GOLD_INGOT;
+    protected static final Item BARTERING_ITEM = Items.GOLD_INGOT;
     private static final IntRange RANDOM_STROLL_INTERVAL_WHEN_ADMIRING = IntRange.of(10, 20);
     private static final IntRange TIME_BETWEEN_HUNTS = TimeUtil.rangeOfSeconds(30, 120);
     private static final IntRange RIDE_START_INTERVAL = TimeUtil.rangeOfSeconds(10, 40);
@@ -98,13 +98,13 @@ public class PiglinAi {
 
     protected static Brain<?> makeBrain(Piglin param0, Dynamic<?> param1) {
         Brain<Piglin> var0 = new Brain<>(Piglin.MEMORY_TYPES, Piglin.SENSOR_TYPES, param1);
-        initCoreActivity(param0, var0);
-        initIdleActivity(param0, var0);
-        initAdmireItemActivity(param0, var0);
+        initCoreActivity(var0);
+        initIdleActivity(var0);
+        initAdmireItemActivity(var0);
         initFightActivity(param0, var0);
-        initCelebrateActivity(param0, var0);
-        initRetreatActivity(param0, var0);
-        initRideHoglinActivity(param0, var0);
+        initCelebrateActivity(var0);
+        initRetreatActivity(var0);
+        initRideHoglinActivity(var0);
         var0.setCoreActivities(ImmutableSet.of(Activity.CORE));
         var0.setDefaultActivity(Activity.IDLE);
         var0.useDefaultActivity();
@@ -116,8 +116,8 @@ public class PiglinAi {
         param0.getBrain().setMemoryWithExpiry(MemoryModuleType.HUNTED_RECENTLY, SerializableBoolean.of(true), (long)var0);
     }
 
-    private static void initCoreActivity(Piglin param0, Brain<Piglin> param1) {
-        param1.addActivity(
+    private static void initCoreActivity(Brain<Piglin> param0) {
+        param0.addActivity(
             Activity.CORE,
             0,
             ImmutableList.of(
@@ -132,8 +132,8 @@ public class PiglinAi {
         );
     }
 
-    private static void initIdleActivity(Piglin param0, Brain<Piglin> param1) {
-        param1.addActivity(
+    private static void initIdleActivity(Brain<Piglin> param0) {
+        param0.addActivity(
             Activity.IDLE,
             10,
             ImmutableList.of(
@@ -166,8 +166,8 @@ public class PiglinAi {
         );
     }
 
-    private static void initCelebrateActivity(Piglin param0, Brain<Piglin> param1) {
-        param1.addActivityAndRemoveMemoryWhenStopped(
+    private static void initCelebrateActivity(Brain<Piglin> param0) {
+        param0.addActivityAndRemoveMemoryWhenStopped(
             Activity.CELEBRATE,
             10,
             ImmutableList.of(
@@ -188,8 +188,8 @@ public class PiglinAi {
         );
     }
 
-    private static void initAdmireItemActivity(Piglin param0, Brain<Piglin> param1) {
-        param1.addActivityAndRemoveMemoryWhenStopped(
+    private static void initAdmireItemActivity(Brain<Piglin> param0) {
+        param0.addActivityAndRemoveMemoryWhenStopped(
             Activity.ADMIRE_ITEM,
             10,
             ImmutableList.of(
@@ -201,8 +201,8 @@ public class PiglinAi {
         );
     }
 
-    private static void initRetreatActivity(Piglin param0, Brain<Piglin> param1) {
-        param1.addActivityAndRemoveMemoryWhenStopped(
+    private static void initRetreatActivity(Brain<Piglin> param0) {
+        param0.addActivityAndRemoveMemoryWhenStopped(
             Activity.AVOID,
             10,
             ImmutableList.of(
@@ -215,8 +215,8 @@ public class PiglinAi {
         );
     }
 
-    private static void initRideHoglinActivity(Piglin param0, Brain<Piglin> param1) {
-        param1.addActivityAndRemoveMemoryWhenStopped(
+    private static void initRideHoglinActivity(Brain<Piglin> param0) {
+        param0.addActivityAndRemoveMemoryWhenStopped(
             Activity.RIDE,
             10,
             ImmutableList.of(
@@ -424,11 +424,11 @@ public class PiglinAi {
             || param0 instanceof ArmorItem && ((ArmorItem)param0).getMaterial() == ArmorMaterials.GOLD;
     }
 
-    private static boolean wantsToStopRiding(Piglin param0x, Entity param1x) {
-        if (!(param1x instanceof Mob)) {
+    private static boolean wantsToStopRiding(Piglin param0x, Entity param1) {
+        if (!(param1 instanceof Mob)) {
             return false;
         } else {
-            Mob var0 = (Mob)param1x;
+            Mob var0 = (Mob)param1;
             return !var0.isBaby()
                 || !var0.isAlive()
                 || wasHurtRecently(param0x)
@@ -476,7 +476,7 @@ public class PiglinAi {
         }
     }
 
-    public static boolean canAdmire(Piglin param0, ItemStack param1) {
+    protected static boolean canAdmire(Piglin param0, ItemStack param1) {
         return !isAdmiringDisabled(param0) && !isAdmiringItem(param0) && param0.isAdult() && isBarterCurrency(param1.getItem());
     }
 

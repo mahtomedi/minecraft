@@ -9,6 +9,8 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
@@ -23,34 +25,30 @@ public class EndCityFeature extends StructureFeature<NoneFeatureConfiguration> {
     }
 
     @Override
-    protected ChunkPos getPotentialFeatureChunkFromLocationWithOffset(ChunkGenerator<?> param0, Random param1, int param2, int param3, int param4, int param5) {
-        int var0 = param0.getSettings().getEndCitySpacing();
-        int var1 = param0.getSettings().getEndCitySeparation();
-        int var2 = param2 + var0 * param4;
-        int var3 = param3 + var0 * param5;
-        int var4 = var2 < 0 ? var2 - var0 + 1 : var2;
-        int var5 = var3 < 0 ? var3 - var0 + 1 : var3;
-        int var6 = var4 / var0;
-        int var7 = var5 / var0;
-        ((WorldgenRandom)param1).setLargeFeatureWithSalt(param0.getSeed(), var6, var7, 10387313);
-        var6 *= var0;
-        var7 *= var0;
-        var6 += (param1.nextInt(var0 - var1) + param1.nextInt(var0 - var1)) / 2;
-        var7 += (param1.nextInt(var0 - var1) + param1.nextInt(var0 - var1)) / 2;
-        return new ChunkPos(var6, var7);
+    protected int getSpacing(DimensionType param0, ChunkGeneratorSettings param1) {
+        return param1.getEndCitySpacing();
     }
 
     @Override
-    public boolean isFeatureChunk(BiomeManager param0, ChunkGenerator<?> param1, Random param2, int param3, int param4, Biome param5) {
-        ChunkPos var0 = this.getPotentialFeatureChunkFromLocationWithOffset(param1, param2, param3, param4, 0, 0);
-        if (param3 != var0.x || param4 != var0.z) {
-            return false;
-        } else if (!param1.isBiomeValidStartForStructure(param5, this)) {
-            return false;
-        } else {
-            int var1 = getYPositionForFeature(param3, param4, param1);
-            return var1 >= 60;
-        }
+    protected int getSeparation(DimensionType param0, ChunkGeneratorSettings param1) {
+        return param1.getEndCitySeparation();
+    }
+
+    @Override
+    protected int getRandomSalt(ChunkGeneratorSettings param0) {
+        return 10387313;
+    }
+
+    @Override
+    protected boolean linearSeparation() {
+        return false;
+    }
+
+    @Override
+    protected boolean isFeatureChunk(
+        BiomeManager param0, ChunkGenerator<?> param1, WorldgenRandom param2, int param3, int param4, Biome param5, ChunkPos param6
+    ) {
+        return getYPositionForFeature(param3, param4, param1) >= 60;
     }
 
     @Override

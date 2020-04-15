@@ -281,65 +281,72 @@ public class SoundEngine {
                     }
 
                 } else {
-                    if (!this.listeners.isEmpty()) {
-                        for(SoundEventListener var2x : this.listeners) {
-                            var2x.onPlaySound(param0, var0x);
+                    Sound var2x = param0.getSound();
+                    if (var2x == SoundManager.EMPTY_SOUND) {
+                        if (ONLY_WARN_ONCE.add(var1x)) {
+                            LOGGER.warn(MARKER, "Unable to play empty soundEvent: {}", var1x);
                         }
-                    }
 
-                    if (this.listener.getGain() <= 0.0F) {
-                        LOGGER.debug(MARKER, "Skipped playing soundEvent: {}, master volume was zero", var1x);
                     } else {
-                        Sound var3x = param0.getSound();
-                        if (var3x == SoundManager.EMPTY_SOUND) {
-                            if (ONLY_WARN_ONCE.add(var1x)) {
-                                LOGGER.warn(MARKER, "Unable to play empty soundEvent: {}", var1x);
+                        float var3x = param0.getVolume();
+                        float var4x = Math.max(var3x, 1.0F) * (float)var2x.getAttenuationDistance();
+                        SoundSource var5x = param0.getSource();
+                        float var6x = this.calculateVolume(param0);
+                        float var7x = this.calculatePitch(param0);
+                        SoundInstance.Attenuation var8x = param0.getAttenuation();
+                        boolean var9x = param0.isRelative();
+                        if (var6x == 0.0F && !param0.canStartSilent()) {
+                            LOGGER.debug(MARKER, "Skipped playing sound {}, volume was zero.", var2x.getLocation());
+                        } else {
+                            Vec3 var10x = new Vec3((double)param0.getX(), (double)param0.getY(), (double)param0.getZ());
+                            if (!this.listeners.isEmpty()) {
+                                boolean var11x = var9x
+                                    || var8x == SoundInstance.Attenuation.NONE
+                                    || this.listener.getListenerPosition().distanceToSqr(var10x) < (double)(var4x * var4x);
+                                if (var11x) {
+                                    for(SoundEventListener var12x : this.listeners) {
+                                        var12x.onPlaySound(param0, var0x);
+                                    }
+                                } else {
+                                    LOGGER.debug(MARKER, "Did not notify listeners of soundEvent: {}, it is too far away to hear", var1x);
+                                }
                             }
 
-                        } else {
-                            float var4x = param0.getVolume();
-                            float var5x = Math.max(var4x, 1.0F) * (float)var3x.getAttenuationDistance();
-                            SoundSource var6x = param0.getSource();
-                            float var7x = this.calculateVolume(param0);
-                            float var8x = this.calculatePitch(param0);
-                            SoundInstance.Attenuation var9x = param0.getAttenuation();
-                            boolean var10x = param0.isRelative();
-                            if (var7x == 0.0F && !param0.canStartSilent()) {
-                                LOGGER.debug(MARKER, "Skipped playing sound {}, volume was zero.", var3x.getLocation());
+                            if (this.listener.getGain() <= 0.0F) {
+                                LOGGER.debug(MARKER, "Skipped playing soundEvent: {}, master volume was zero", var1x);
                             } else {
-                                boolean var11x = shouldLoopAutomatically(param0);
-                                boolean var12x = var3x.shouldStream();
-                                Vec3 var13x = new Vec3((double)param0.getX(), (double)param0.getY(), (double)param0.getZ());
-                                CompletableFuture<ChannelAccess.ChannelHandle> var14 = this.channelAccess
-                                    .createHandle(var3x.shouldStream() ? Library.Pool.STREAMING : Library.Pool.STATIC);
-                                ChannelAccess.ChannelHandle var15 = var14.join();
-                                if (var15 == null) {
+                                boolean var13x = shouldLoopAutomatically(param0);
+                                boolean var14 = var2x.shouldStream();
+                                CompletableFuture<ChannelAccess.ChannelHandle> var15 = this.channelAccess
+                                    .createHandle(var2x.shouldStream() ? Library.Pool.STREAMING : Library.Pool.STATIC);
+                                ChannelAccess.ChannelHandle var16 = var15.join();
+                                if (var16 == null) {
                                     LOGGER.warn("Failed to create new sound handle");
                                 } else {
-                                    LOGGER.debug(MARKER, "Playing sound {} for event {}", var3x.getLocation(), var1x);
+                                    LOGGER.debug(MARKER, "Playing sound {} for event {}", var2x.getLocation(), var1x);
                                     this.soundDeleteTime.put(param0, this.tickCount + 20);
-                                    this.instanceToChannel.put(param0, var15);
-                                    this.instanceBySource.put(var6x, param0);
-                                    var15.execute(param8 -> {
-                                        param8.setPitch(var8x);
-                                        param8.setVolume(var7x);
-                                        if (var9x == SoundInstance.Attenuation.LINEAR) {
-                                            param8.linearAttenuation(var5x);
+                                    this.instanceToChannel.put(param0, var16);
+                                    this.instanceBySource.put(var5x, param0);
+                                    var16.execute(param8 -> {
+                                        param8.setPitch(var7x);
+                                        param8.setVolume(var6x);
+                                        if (var8x == SoundInstance.Attenuation.LINEAR) {
+                                            param8.linearAttenuation(var4x);
                                         } else {
                                             param8.disableAttenuation();
                                         }
 
-                                        param8.setLooping(var11x && !var12x);
-                                        param8.setSelfPosition(var13x);
-                                        param8.setRelative(var10x);
+                                        param8.setLooping(var13x && !var14);
+                                        param8.setSelfPosition(var10x);
+                                        param8.setRelative(var9x);
                                     });
-                                    if (!var12x) {
-                                        this.soundBuffers.getCompleteBuffer(var3x.getPath()).thenAccept(param1 -> var15.execute(param1x -> {
+                                    if (!var14) {
+                                        this.soundBuffers.getCompleteBuffer(var2x.getPath()).thenAccept(param1 -> var16.execute(param1x -> {
                                                 param1x.attachStaticBuffer(param1);
                                                 param1x.play();
                                             }));
                                     } else {
-                                        this.soundBuffers.getStream(var3x.getPath(), var11x).thenAccept(param1 -> var15.execute(param1x -> {
+                                        this.soundBuffers.getStream(var2x.getPath(), var13x).thenAccept(param1 -> var16.execute(param1x -> {
                                                 param1x.attachBufferStream(param1);
                                                 param1x.play();
                                             }));

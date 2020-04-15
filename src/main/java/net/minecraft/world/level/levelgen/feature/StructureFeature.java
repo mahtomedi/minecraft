@@ -15,6 +15,7 @@ import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
@@ -77,38 +78,41 @@ public abstract class StructureFeature<C extends FeatureConfiguration> extends F
             return null;
         } else {
             StructureFeatureManager var0 = param0.structureFeatureManager();
-            int var1 = param2.getX() >> 4;
-            int var2 = param2.getZ() >> 4;
-            int var3 = 0;
+            int var1 = this.getSpacing(param1.getDimensionType(), param1.getSettings());
+            int var2 = param2.getX() >> 4;
+            int var3 = param2.getZ() >> 4;
+            int var4 = 0;
 
-            for(WorldgenRandom var4 = new WorldgenRandom(); var3 <= param3; ++var3) {
-                for(int var5 = -var3; var5 <= var3; ++var5) {
-                    boolean var6 = var5 == -var3 || var5 == var3;
+            for(WorldgenRandom var5 = new WorldgenRandom(); var4 <= param3; ++var4) {
+                for(int var6 = -var4; var6 <= var4; ++var6) {
+                    boolean var7 = var6 == -var4 || var6 == var4;
 
-                    for(int var7 = -var3; var7 <= var3; ++var7) {
-                        boolean var8 = var7 == -var3 || var7 == var3;
-                        if (var6 || var8) {
-                            ChunkPos var9 = this.getPotentialFeatureChunkFromLocationWithOffset(param1, var4, var1, var2, var5, var7);
-                            ChunkAccess var10 = param0.getChunk(var9.x, var9.z, ChunkStatus.STRUCTURE_STARTS);
-                            StructureStart var11 = var0.getStartForFeature(SectionPos.of(var10.getPos(), 0), this, var10);
-                            if (var11 != null && var11.isValid()) {
-                                if (param4 && var11.canBeReferenced()) {
-                                    var11.addReference();
-                                    return var11.getLocatePos();
+                    for(int var8 = -var4; var8 <= var4; ++var8) {
+                        boolean var9 = var8 == -var4 || var8 == var4;
+                        if (var7 || var9) {
+                            int var10 = var2 + var1 * var6;
+                            int var11 = var3 + var1 * var8;
+                            ChunkPos var12 = this.getPotentialFeatureChunk(param1, var5, var10, var11);
+                            ChunkAccess var13 = param0.getChunk(var12.x, var12.z, ChunkStatus.STRUCTURE_STARTS);
+                            StructureStart var14 = var0.getStartForFeature(SectionPos.of(var13.getPos(), 0), this, var13);
+                            if (var14 != null && var14.isValid()) {
+                                if (param4 && var14.canBeReferenced()) {
+                                    var14.addReference();
+                                    return var14.getLocatePos();
                                 }
 
                                 if (!param4) {
-                                    return var11.getLocatePos();
+                                    return var14.getLocatePos();
                                 }
                             }
 
-                            if (var3 == 0) {
+                            if (var4 == 0) {
                                 break;
                             }
                         }
                     }
 
-                    if (var3 == 0) {
+                    if (var4 == 0) {
                         break;
                     }
                 }
@@ -118,11 +122,56 @@ public abstract class StructureFeature<C extends FeatureConfiguration> extends F
         }
     }
 
-    protected ChunkPos getPotentialFeatureChunkFromLocationWithOffset(ChunkGenerator<?> param0, Random param1, int param2, int param3, int param4, int param5) {
-        return new ChunkPos(param2 + param4, param3 + param5);
+    protected int getSpacing(DimensionType param0, ChunkGeneratorSettings param1) {
+        return 1;
     }
 
-    public abstract boolean isFeatureChunk(BiomeManager var1, ChunkGenerator<?> var2, Random var3, int var4, int var5, Biome var6);
+    protected int getSeparation(DimensionType param0, ChunkGeneratorSettings param1) {
+        return 0;
+    }
+
+    protected int getRandomSalt(ChunkGeneratorSettings param0) {
+        return 0;
+    }
+
+    protected boolean linearSeparation() {
+        return true;
+    }
+
+    public final ChunkPos getPotentialFeatureChunk(ChunkGenerator<?> param0, WorldgenRandom param1, int param2, int param3) {
+        ChunkGeneratorSettings var0 = param0.getSettings();
+        DimensionType var1 = param0.getDimensionType();
+        int var2 = this.getSpacing(var1, var0);
+        int var3 = this.getSeparation(var1, var0);
+        int var4 = Math.floorDiv(param2, var2);
+        int var5 = Math.floorDiv(param3, var2);
+        param1.setLargeFeatureWithSalt(param0.getSeed(), var4, var5, this.getRandomSalt(var0));
+        int var6;
+        int var7;
+        if (this.linearSeparation()) {
+            var6 = param1.nextInt(var2 - var3);
+            var7 = param1.nextInt(var2 - var3);
+        } else {
+            var6 = (param1.nextInt(var2 - var3) + param1.nextInt(var2 - var3)) / 2;
+            var7 = (param1.nextInt(var2 - var3) + param1.nextInt(var2 - var3)) / 2;
+        }
+
+        return new ChunkPos(var4 * var2 + var6, var5 * var2 + var7);
+    }
+
+    public boolean featureChunk(BiomeManager param0, ChunkGenerator<?> param1, WorldgenRandom param2, int param3, int param4, Biome param5) {
+        ChunkPos var0 = this.getPotentialFeatureChunk(param1, param2, param3, param4);
+        return param3 == var0.x
+            && param4 == var0.z
+            && param1.isBiomeValidStartForStructure(param5, this)
+            && this.isFeatureChunk(param0, param1, param2, param3, param4, param5, var0);
+    }
+
+    protected boolean isFeatureChunk(
+        BiomeManager param0, ChunkGenerator<?> param1, WorldgenRandom param2, int param3, int param4, Biome param5, ChunkPos param6
+    ) {
+        return true;
+    }
 
     public abstract StructureFeature.StructureStartFactory getStartFactory();
 

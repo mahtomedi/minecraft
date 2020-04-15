@@ -25,6 +25,7 @@ public class LocateCommand {
                 .then(Commands.literal("Mineshaft").executes(param0x -> locate(param0x.getSource(), "Mineshaft")))
                 .then(Commands.literal("Mansion").executes(param0x -> locate(param0x.getSource(), "Mansion")))
                 .then(Commands.literal("Igloo").executes(param0x -> locate(param0x.getSource(), "Igloo")))
+                .then(Commands.literal("Ruined_Portal").executes(param0x -> locate(param0x.getSource(), "Ruined_Portal")))
                 .then(Commands.literal("Desert_Pyramid").executes(param0x -> locate(param0x.getSource(), "Desert_Pyramid")))
                 .then(Commands.literal("Jungle_Pyramid").executes(param0x -> locate(param0x.getSource(), "Jungle_Pyramid")))
                 .then(Commands.literal("Swamp_Hut").executes(param0x -> locate(param0x.getSource(), "Swamp_Hut")))
@@ -37,6 +38,7 @@ public class LocateCommand {
                 .then(Commands.literal("Shipwreck").executes(param0x -> locate(param0x.getSource(), "Shipwreck")))
                 .then(Commands.literal("Village").executes(param0x -> locate(param0x.getSource(), "Village")))
                 .then(Commands.literal("Nether_Fossil").executes(param0x -> locate(param0x.getSource(), "Nether_Fossil")))
+                .then(Commands.literal("Bastion_Remnant").executes(param0x -> locate(param0x.getSource(), "Bastion_Remnant")))
         );
     }
 

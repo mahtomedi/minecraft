@@ -2110,22 +2110,6 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         );
     }
 
-    public static void renderLineBox(
-        VertexConsumer param0,
-        double param1,
-        double param2,
-        double param3,
-        double param4,
-        double param5,
-        double param6,
-        float param7,
-        float param8,
-        float param9,
-        float param10
-    ) {
-        renderLineBox(new PoseStack(), param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param7, param8, param9);
-    }
-
     public static void renderLineBox(PoseStack param0, VertexConsumer param1, AABB param2, float param3, float param4, float param5, float param6) {
         renderLineBox(
             param0,

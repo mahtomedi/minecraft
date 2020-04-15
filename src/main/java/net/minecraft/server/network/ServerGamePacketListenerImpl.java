@@ -61,6 +61,7 @@ import net.minecraft.network.protocol.game.ServerboundCustomPayloadPacket;
 import net.minecraft.network.protocol.game.ServerboundEditBookPacket;
 import net.minecraft.network.protocol.game.ServerboundEntityTagQuery;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
+import net.minecraft.network.protocol.game.ServerboundJigsawGeneratePacket;
 import net.minecraft.network.protocol.game.ServerboundKeepAlivePacket;
 import net.minecraft.network.protocol.game.ServerboundLockDifficultyPacket;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
@@ -642,6 +643,20 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
     }
 
     @Override
+    public void handleJigsawGenerate(ServerboundJigsawGeneratePacket param0) {
+        PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
+        if (this.player.canUseGameMasterBlocks()) {
+            BlockPos var0 = param0.getPos();
+            BlockEntity var1 = this.player.level.getBlockEntity(var0);
+            if (var1 instanceof JigsawBlockEntity) {
+                JigsawBlockEntity var2 = (JigsawBlockEntity)var1;
+                var2.generate(this.server.getLevel(this.player.dimension), param0.levels());
+            }
+
+        }
+    }
+
+    @Override
     public void handleSelectTrade(ServerboundSelectTradePacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
         int var0 = param0.getItem();
@@ -1171,7 +1186,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
                 } else if (param0.getAction() == ServerboundInteractPacket.Action.ATTACK) {
                     if (var1 instanceof ItemEntity || var1 instanceof ExperienceOrb || var1 instanceof AbstractArrow || var1 == this.player) {
                         this.disconnect(new TranslatableComponent("multiplayer.disconnect.invalid_entity_attacked"));
-                        this.server.warn("Player " + this.player.getName().getString() + " tried to attack an invalid entity");
+                        LOGGER.warn("Player {} tried to attack an invalid entity", this.player.getName().getString());
                         return;
                     }
 
@@ -1348,7 +1363,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
 
             SignBlockEntity var4 = (SignBlockEntity)var3;
             if (!var4.isEditable() || var4.getPlayerWhoMayEdit() != this.player) {
-                this.server.warn("Player " + this.player.getName().getString() + " just tried to change non-editable sign");
+                LOGGER.warn("Player {} just tried to change non-editable sign", this.player.getName().getString());
                 return;
             }
 

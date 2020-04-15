@@ -28,9 +28,7 @@ public class JigsawReplacementProcessor extends StructureProcessor {
         StructurePlaceSettings param5
     ) {
         Block var0 = param4.state.getBlock();
-        if (var0 != Blocks.JIGSAW) {
-            return param4;
-        } else {
+        if (var0 == Blocks.JIGSAW) {
             String var1 = param4.nbt.getString("final_state");
             BlockStateParser var2 = new BlockStateParser(new StringReader(var1), false);
 
@@ -41,6 +39,8 @@ public class JigsawReplacementProcessor extends StructureProcessor {
             }
 
             return var2.getState().getBlock() == Blocks.STRUCTURE_VOID ? null : new StructureTemplate.StructureBlockInfo(param4.pos, var2.getState(), null);
+        } else {
+            return param4;
         }
     }
 

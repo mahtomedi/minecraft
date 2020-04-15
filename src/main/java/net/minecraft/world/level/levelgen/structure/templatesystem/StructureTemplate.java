@@ -23,6 +23,8 @@ import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.Clearable;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.decoration.Painting;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -293,7 +295,9 @@ public class StructureTemplate {
                 }
 
                 if (!param3.isIgnoreEntities()) {
-                    this.placeEntities(param0, param1, param3.getMirror(), param3.getRotation(), param3.getRotationPivot(), var1);
+                    this.placeEntities(
+                        param0, param1, param3.getMirror(), param3.getRotation(), param3.getRotationPivot(), var1, param3.shouldFinalizeEntities()
+                    );
                 }
 
                 return true;
@@ -344,7 +348,9 @@ public class StructureTemplate {
         return var0;
     }
 
-    private void placeEntities(LevelAccessor param0, BlockPos param1, Mirror param2, Rotation param3, BlockPos param4, @Nullable BoundingBox param5) {
+    private void placeEntities(
+        LevelAccessor param0, BlockPos param1, Mirror param2, Rotation param3, BlockPos param4, @Nullable BoundingBox param5, boolean param6
+    ) {
         for(StructureTemplate.StructureEntityInfo var0 : this.entityInfoList) {
             BlockPos var1 = transform(var0.blockPos, param2, param3, param4).offset(param1);
             if (param5 == null || param5.isInside(var1)) {
@@ -357,11 +363,15 @@ public class StructureTemplate {
                 var5.add(DoubleTag.valueOf(var4.z));
                 var2.put("Pos", var5);
                 var2.remove("UUID");
-                createEntityIgnoreException(param0, var2).ifPresent(param4x -> {
-                    float var0x = param4x.mirror(param2);
-                    var0x += param4x.yRot - param4x.rotate(param3);
-                    param4x.moveTo(var4.x, var4.y, var4.z, var0x, param4x.xRot);
-                    param0.addFreshEntity(param4x);
+                createEntityIgnoreException(param0, var2).ifPresent(param6x -> {
+                    float var0x = param6x.mirror(param2);
+                    var0x += param6x.yRot - param6x.rotate(param3);
+                    param6x.moveTo(var4.x, var4.y, var4.z, var0x, param6x.xRot);
+                    if (param6 && param6x instanceof Mob) {
+                        ((Mob)param6x).finalizeSpawn(param0, param0.getCurrentDifficultyAt(new BlockPos(var4)), MobSpawnType.STRUCTURE, null, var2);
+                    }
+
+                    param0.addFreshEntity(param6x);
                 });
             }
         }
@@ -474,41 +484,42 @@ public class StructureTemplate {
     }
 
     public BoundingBox getBoundingBox(StructurePlaceSettings param0, BlockPos param1) {
-        Rotation var0 = param0.getRotation();
-        BlockPos var1 = param0.getRotationPivot();
-        BlockPos var2 = this.getSize(var0);
-        Mirror var3 = param0.getMirror();
-        int var4 = var1.getX();
-        int var5 = var1.getZ();
-        int var6 = var2.getX() - 1;
-        int var7 = var2.getY() - 1;
-        int var8 = var2.getZ() - 1;
-        BoundingBox var9 = new BoundingBox(0, 0, 0, 0, 0, 0);
-        switch(var0) {
+        return this.getBoundingBox(param1, param0.getRotation(), param0.getRotationPivot(), param0.getMirror());
+    }
+
+    public BoundingBox getBoundingBox(BlockPos param0, Rotation param1, BlockPos param2, Mirror param3) {
+        BlockPos var0 = this.getSize(param1);
+        int var1 = param2.getX();
+        int var2 = param2.getZ();
+        int var3 = var0.getX() - 1;
+        int var4 = var0.getY() - 1;
+        int var5 = var0.getZ() - 1;
+        BoundingBox var6 = new BoundingBox(0, 0, 0, 0, 0, 0);
+        switch(param1) {
             case COUNTERCLOCKWISE_90:
-                var9 = new BoundingBox(var4 - var5, 0, var4 + var5 - var8, var4 - var5 + var6, var7, var4 + var5);
+                var6 = new BoundingBox(var1 - var2, 0, var1 + var2 - var5, var1 - var2 + var3, var4, var1 + var2);
                 break;
             case CLOCKWISE_90:
-                var9 = new BoundingBox(var4 + var5 - var6, 0, var5 - var4, var4 + var5, var7, var5 - var4 + var8);
+                var6 = new BoundingBox(var1 + var2 - var3, 0, var2 - var1, var1 + var2, var4, var2 - var1 + var5);
                 break;
             case CLOCKWISE_180:
-                var9 = new BoundingBox(var4 + var4 - var6, 0, var5 + var5 - var8, var4 + var4, var7, var5 + var5);
+                var6 = new BoundingBox(var1 + var1 - var3, 0, var2 + var2 - var5, var1 + var1, var4, var2 + var2);
                 break;
             case NONE:
-                var9 = new BoundingBox(0, 0, 0, var6, var7, var8);
+                var6 = new BoundingBox(0, 0, 0, var3, var4, var5);
         }
 
-        switch(var3) {
+        switch(param3) {
             case LEFT_RIGHT:
-                this.mirrorAABB(var0, var8, var6, var9, Direction.NORTH, Direction.SOUTH);
+                this.mirrorAABB(param1, var5, var3, var6, Direction.NORTH, Direction.SOUTH);
                 break;
             case FRONT_BACK:
-                this.mirrorAABB(var0, var6, var8, var9, Direction.WEST, Direction.EAST);
+                this.mirrorAABB(param1, var3, var5, var6, Direction.WEST, Direction.EAST);
             case NONE:
         }
 
-        var9.move(param1.getX(), param1.getY(), param1.getZ());
-        return var9;
+        var6.move(param0.getX(), param0.getY(), param0.getZ());
+        return var6;
     }
 
     private void mirrorAABB(Rotation param0, int param1, int param2, BoundingBox param3, Direction param4, Direction param5) {

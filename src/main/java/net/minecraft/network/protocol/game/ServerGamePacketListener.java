@@ -85,6 +85,8 @@ public interface ServerGamePacketListener extends PacketListener {
 
     void handleSetJigsawBlock(ServerboundSetJigsawBlockPacket var1);
 
+    void handleJigsawGenerate(ServerboundJigsawGeneratePacket var1);
+
     void handleChangeDifficulty(ServerboundChangeDifficultyPacket var1);
 
     void handleLockDifficulty(ServerboundLockDifficultyPacket var1);

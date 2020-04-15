@@ -97,42 +97,47 @@ public class SetAttributesFunction extends LootItemConditionalFunction {
 
         public static SetAttributesFunction.Modifier deserialize(JsonObject param0, JsonDeserializationContext param1) {
             String var0 = GsonHelper.getAsString(param0, "name");
-            Attribute var1 = Registry.ATTRIBUTES.get(new ResourceLocation(GsonHelper.getAsString(param0, "attribute")));
-            AttributeModifier.Operation var2 = operationFromString(GsonHelper.getAsString(param0, "operation"));
-            RandomValueBounds var3 = GsonHelper.getAsObject(param0, "amount", param1, RandomValueBounds.class);
-            UUID var4 = null;
-            EquipmentSlot[] var5;
-            if (GsonHelper.isStringValue(param0, "slot")) {
-                var5 = new EquipmentSlot[]{EquipmentSlot.byName(GsonHelper.getAsString(param0, "slot"))};
+            ResourceLocation var1 = new ResourceLocation(GsonHelper.getAsString(param0, "attribute"));
+            Attribute var2 = Registry.ATTRIBUTES.get(var1);
+            if (var2 == null) {
+                throw new JsonSyntaxException("Unknown attribute: " + var1);
             } else {
-                if (!GsonHelper.isArrayNode(param0, "slot")) {
-                    throw new JsonSyntaxException("Invalid or missing attribute modifier slot; must be either string or array of strings.");
+                AttributeModifier.Operation var3 = operationFromString(GsonHelper.getAsString(param0, "operation"));
+                RandomValueBounds var4 = GsonHelper.getAsObject(param0, "amount", param1, RandomValueBounds.class);
+                UUID var5 = null;
+                EquipmentSlot[] var6;
+                if (GsonHelper.isStringValue(param0, "slot")) {
+                    var6 = new EquipmentSlot[]{EquipmentSlot.byName(GsonHelper.getAsString(param0, "slot"))};
+                } else {
+                    if (!GsonHelper.isArrayNode(param0, "slot")) {
+                        throw new JsonSyntaxException("Invalid or missing attribute modifier slot; must be either string or array of strings.");
+                    }
+
+                    JsonArray var7 = GsonHelper.getAsJsonArray(param0, "slot");
+                    var6 = new EquipmentSlot[var7.size()];
+                    int var9 = 0;
+
+                    for(JsonElement var10 : var7) {
+                        var6[var9++] = EquipmentSlot.byName(GsonHelper.convertToString(var10, "slot"));
+                    }
+
+                    if (var6.length == 0) {
+                        throw new JsonSyntaxException("Invalid attribute modifier slot; must contain at least one entry.");
+                    }
                 }
 
-                JsonArray var6 = GsonHelper.getAsJsonArray(param0, "slot");
-                var5 = new EquipmentSlot[var6.size()];
-                int var8 = 0;
+                if (param0.has("id")) {
+                    String var12 = GsonHelper.getAsString(param0, "id");
 
-                for(JsonElement var9 : var6) {
-                    var5[var8++] = EquipmentSlot.byName(GsonHelper.convertToString(var9, "slot"));
+                    try {
+                        var5 = UUID.fromString(var12);
+                    } catch (IllegalArgumentException var131) {
+                        throw new JsonSyntaxException("Invalid attribute modifier id '" + var12 + "' (must be UUID format, with dashes)");
+                    }
                 }
 
-                if (var5.length == 0) {
-                    throw new JsonSyntaxException("Invalid attribute modifier slot; must contain at least one entry.");
-                }
+                return new SetAttributesFunction.Modifier(var0, var2, var3, var4, var6, var5);
             }
-
-            if (param0.has("id")) {
-                String var11 = GsonHelper.getAsString(param0, "id");
-
-                try {
-                    var4 = UUID.fromString(var11);
-                } catch (IllegalArgumentException var121) {
-                    throw new JsonSyntaxException("Invalid attribute modifier id '" + var11 + "' (must be UUID format, with dashes)");
-                }
-            }
-
-            return new SetAttributesFunction.Modifier(var0, var1, var2, var3, var5, var4);
         }
 
         private static String operationToString(AttributeModifier.Operation param0) {

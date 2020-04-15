@@ -224,9 +224,11 @@ public class ProtoChunk implements ChunkAccess {
 
     @Override
     public void addEntity(Entity param0) {
-        CompoundTag var0 = new CompoundTag();
-        param0.save(var0);
-        this.addEntity(var0);
+        if (!param0.isPassenger()) {
+            CompoundTag var0 = new CompoundTag();
+            param0.save(var0);
+            this.addEntity(var0);
+        }
     }
 
     public List<CompoundTag> getEntities() {

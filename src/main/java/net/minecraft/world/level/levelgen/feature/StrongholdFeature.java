@@ -14,6 +14,7 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
+import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.StrongholdPieces;
@@ -32,7 +33,15 @@ public class StrongholdFeature extends StructureFeature<NoneFeatureConfiguration
     }
 
     @Override
-    public boolean isFeatureChunk(BiomeManager param0, ChunkGenerator<?> param1, Random param2, int param3, int param4, Biome param5) {
+    public boolean featureChunk(BiomeManager param0, ChunkGenerator<?> param1, WorldgenRandom param2, int param3, int param4, Biome param5) {
+        ChunkPos var0 = this.getPotentialFeatureChunk(param1, param2, param3, param4);
+        return this.isFeatureChunk(param0, param1, param2, param3, param4, param5, var0);
+    }
+
+    @Override
+    protected boolean isFeatureChunk(
+        BiomeManager param0, ChunkGenerator<?> param1, WorldgenRandom param2, int param3, int param4, Biome param5, ChunkPos param6
+    ) {
         if (this.currentSeed != param1.getSeed()) {
             this.reset();
         }

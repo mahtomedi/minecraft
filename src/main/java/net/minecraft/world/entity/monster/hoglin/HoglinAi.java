@@ -38,8 +38,8 @@ import net.minecraft.world.entity.schedule.Activity;
 public class HoglinAi {
     private static final IntRange RETREAT_DURATION = TimeUtil.rangeOfSeconds(5, 20);
 
-    protected static Brain<?> makeBrain(Hoglin param0, Dynamic<?> param1) {
-        Brain<Hoglin> var0 = new Brain<>(Hoglin.MEMORY_TYPES, Hoglin.SENSOR_TYPES, param1);
+    protected static Brain<?> makeBrain(Dynamic<?> param0) {
+        Brain<Hoglin> var0 = new Brain<>(Hoglin.MEMORY_TYPES, Hoglin.SENSOR_TYPES, param0);
         initCoreActivity(var0);
         initIdleActivity(var0);
         initFightActivity(var0);

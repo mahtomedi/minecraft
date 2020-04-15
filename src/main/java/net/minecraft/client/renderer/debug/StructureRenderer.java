@@ -40,6 +40,7 @@ public class StructureRenderer implements DebugRenderer.SimpleDebugRenderer {
             for(BoundingBox var5 : this.postMainBoxes.get(var2).values()) {
                 if (var3.closerThan(var5.getCenter(), 500.0)) {
                     LevelRenderer.renderLineBox(
+                        param0,
                         var4,
                         (double)var5.x0 - param2,
                         (double)var5.y0 - param3,
@@ -47,6 +48,9 @@ public class StructureRenderer implements DebugRenderer.SimpleDebugRenderer {
                         (double)(var5.x1 + 1) - param2,
                         (double)(var5.y1 + 1) - param3,
                         (double)(var5.z1 + 1) - param4,
+                        1.0F,
+                        1.0F,
+                        1.0F,
                         1.0F,
                         1.0F,
                         1.0F,
@@ -64,6 +68,7 @@ public class StructureRenderer implements DebugRenderer.SimpleDebugRenderer {
                 if (var3.closerThan(var8.getCenter(), 500.0)) {
                     if (var9) {
                         LevelRenderer.renderLineBox(
+                            param0,
                             var4,
                             (double)var8.x0 - param2,
                             (double)var8.y0 - param3,
@@ -74,10 +79,14 @@ public class StructureRenderer implements DebugRenderer.SimpleDebugRenderer {
                             0.0F,
                             1.0F,
                             0.0F,
-                            1.0F
+                            1.0F,
+                            0.0F,
+                            1.0F,
+                            0.0F
                         );
                     } else {
                         LevelRenderer.renderLineBox(
+                            param0,
                             var4,
                             (double)var8.x0 - param2,
                             (double)var8.y0 - param3,
@@ -88,6 +97,9 @@ public class StructureRenderer implements DebugRenderer.SimpleDebugRenderer {
                             0.0F,
                             0.0F,
                             1.0F,
+                            1.0F,
+                            0.0F,
+                            0.0F,
                             1.0F
                         );
                     }

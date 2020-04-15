@@ -28,6 +28,7 @@ public class StructurePlaceSettings {
     private int palette;
     private final List<StructureProcessor> processors = Lists.newArrayList();
     private boolean knownShape;
+    private boolean finalizeEntities;
 
     public StructurePlaceSettings copy() {
         StructurePlaceSettings var0 = new StructurePlaceSettings();
@@ -42,6 +43,7 @@ public class StructurePlaceSettings {
         var0.palette = this.palette;
         var0.processors.addAll(this.processors);
         var0.knownShape = this.knownShape;
+        var0.finalizeEntities = this.finalizeEntities;
         return var0;
     }
 
@@ -170,5 +172,14 @@ public class StructurePlaceSettings {
             int var1 = param0.z * 16;
             return new BoundingBox(var0, 0, var1, var0 + 16 - 1, 255, var1 + 16 - 1);
         }
+    }
+
+    public StructurePlaceSettings setFinalizeEntities(boolean param0) {
+        this.finalizeEntities = param0;
+        return this;
+    }
+
+    public boolean shouldFinalizeEntities() {
+        return this.finalizeEntities;
     }
 }

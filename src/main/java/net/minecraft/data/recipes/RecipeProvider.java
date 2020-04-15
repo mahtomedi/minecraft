@@ -2686,6 +2686,15 @@ public class RecipeProvider implements DataProvider {
             .pattern("##")
             .unlockedBy("has_polished_blackstone", has(Blocks.POLISHED_BLACKSTONE))
             .save(param0);
+        ShapedRecipeBuilder.shaped(Blocks.CHAIN)
+            .define('I', Items.IRON_INGOT)
+            .define('N', Items.IRON_NUGGET)
+            .pattern("N")
+            .pattern("I")
+            .pattern("N")
+            .unlockedBy("has_iron_nugget", has(Items.IRON_NUGGET))
+            .unlockedBy("has_iron_ingot", has(Items.IRON_INGOT))
+            .save(param0);
         SpecialRecipeBuilder.special(RecipeSerializer.ARMOR_DYE).save(param0, "armor_dye");
         SpecialRecipeBuilder.special(RecipeSerializer.BANNER_DUPLICATE).save(param0, "banner_duplicate");
         SpecialRecipeBuilder.special(RecipeSerializer.BOOK_CLONING).save(param0, "book_cloning");

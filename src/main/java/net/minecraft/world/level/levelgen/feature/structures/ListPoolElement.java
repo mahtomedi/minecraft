@@ -73,10 +73,11 @@ public class ListPoolElement extends StructurePoolElement {
         BlockPos param5,
         Rotation param6,
         BoundingBox param7,
-        Random param8
+        Random param8,
+        boolean param9
     ) {
         for(StructurePoolElement var0 : this.elements) {
-            if (!var0.place(param0, param1, param2, param3, param4, param5, param6, param7, param8)) {
+            if (!var0.place(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9)) {
                 return false;
             }
         }

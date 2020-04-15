@@ -975,14 +975,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         return new File(this.getServerDirectory(), param0);
     }
 
-    public void info(String param0) {
-        LOGGER.info(param0);
-    }
-
-    public void warn(String param0) {
-        LOGGER.warn(param0);
-    }
-
     public ServerLevel getLevel(DimensionType param0) {
         return this.levels.get(param0);
     }
@@ -1005,21 +997,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
     public String[] getPlayerNames() {
         return this.playerList.getPlayerNamesArray();
-    }
-
-    public boolean isDebugging() {
-        return false;
-    }
-
-    public void error(String param0) {
-        LOGGER.error(param0);
-    }
-
-    public void debug(String param0) {
-        if (this.isDebugging()) {
-            LOGGER.info(param0);
-        }
-
     }
 
     public String getServerModName() {

@@ -1,9 +1,9 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.datafixers.Dynamic;
-import java.util.Random;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -20,14 +20,12 @@ public class BuriedTreasureFeature extends StructureFeature<BuriedTreasureConfig
     }
 
     @Override
-    public boolean isFeatureChunk(BiomeManager param0, ChunkGenerator<?> param1, Random param2, int param3, int param4, Biome param5) {
-        if (param1.isBiomeValidStartForStructure(param5, this)) {
-            ((WorldgenRandom)param2).setLargeFeatureWithSalt(param1.getSeed(), param3, param4, 10387320);
-            BuriedTreasureConfiguration var0 = param1.getStructureConfiguration(param5, this);
-            return param2.nextFloat() < var0.probability;
-        } else {
-            return false;
-        }
+    protected boolean isFeatureChunk(
+        BiomeManager param0, ChunkGenerator<?> param1, WorldgenRandom param2, int param3, int param4, Biome param5, ChunkPos param6
+    ) {
+        param2.setLargeFeatureWithSalt(param1.getSeed(), param3, param4, 10387320);
+        BuriedTreasureConfiguration var0 = param1.getStructureConfiguration(param5, this);
+        return param2.nextFloat() < var0.probability;
     }
 
     @Override

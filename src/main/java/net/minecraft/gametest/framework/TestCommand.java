@@ -129,7 +129,7 @@ public class TestCommand {
     }
 
     private static int createNewStructure(CommandSourceStack param0, String param1, int param2, int param3, int param4) {
-        if (param2 <= 32 && param3 <= 32 && param4 <= 32) {
+        if (param2 <= 48 && param3 <= 48 && param4 <= 48) {
             ServerLevel var0 = param0.getLevel();
             BlockPos var1 = new BlockPos(param0.getPosition());
             BlockPos var2 = new BlockPos(var1.getX(), param0.getLevel().getHeightmapPos(Heightmap.Types.WORLD_SURFACE, var1).getY(), var1.getZ() + 3);
@@ -147,7 +147,7 @@ public class TestCommand {
             StructureUtils.addCommandBlockAndButtonToStartTest(var2.offset(1, 0, -1), var0);
             return 0;
         } else {
-            throw new IllegalArgumentException("The structure must be less than 32 blocks big in each axis");
+            throw new IllegalArgumentException("The structure must be less than 48 blocks big in each axis");
         }
     }
 

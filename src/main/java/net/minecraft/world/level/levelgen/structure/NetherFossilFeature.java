@@ -10,6 +10,8 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.feature.RandomScatteredFeature;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
@@ -21,7 +23,7 @@ public class NetherFossilFeature extends RandomScatteredFeature<NoneFeatureConfi
     }
 
     @Override
-    protected int getRandomSalt() {
+    protected int getRandomSalt(ChunkGeneratorSettings param0) {
         return 14357921;
     }
 
@@ -36,12 +38,12 @@ public class NetherFossilFeature extends RandomScatteredFeature<NoneFeatureConfi
     }
 
     @Override
-    protected int getSpacing(ChunkGenerator<?> param0) {
+    protected int getSpacing(DimensionType param0, ChunkGeneratorSettings param1) {
         return 2;
     }
 
     @Override
-    protected int getSeparation(ChunkGenerator<?> param0) {
+    protected int getSeparation(DimensionType param0, ChunkGeneratorSettings param1) {
         return 1;
     }
 

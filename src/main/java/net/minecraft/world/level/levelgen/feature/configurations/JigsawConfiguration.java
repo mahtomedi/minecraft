@@ -5,11 +5,11 @@ import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 import net.minecraft.resources.ResourceLocation;
 
-public class VillageConfiguration implements FeatureConfiguration {
+public class JigsawConfiguration implements FeatureConfiguration {
     public final ResourceLocation startPool;
     public final int size;
 
-    public VillageConfiguration(String param0, int param1) {
+    public JigsawConfiguration(String param0, int param1) {
         this.startPool = new ResourceLocation(param0);
         this.size = param1;
     }
@@ -26,9 +26,17 @@ public class VillageConfiguration implements FeatureConfiguration {
         );
     }
 
-    public static <T> VillageConfiguration deserialize(Dynamic<T> param0) {
+    public static <T> JigsawConfiguration deserialize(Dynamic<T> param0) {
         String var0 = param0.get("start_pool").asString("");
         int var1 = param0.get("size").asInt(6);
-        return new VillageConfiguration(var0, var1);
+        return new JigsawConfiguration(var0, var1);
+    }
+
+    public int getSize() {
+        return this.size;
+    }
+
+    public String getStartPool() {
+        return this.startPool.toString();
     }
 }

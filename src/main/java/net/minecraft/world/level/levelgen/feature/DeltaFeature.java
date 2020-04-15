@@ -38,7 +38,7 @@ public class DeltaFeature extends Feature<DeltaFeatureConfiguration> {
         BlockPos param4,
         DeltaFeatureConfiguration param5
     ) {
-        BlockPos var0 = findDeltaLevel(param0, param4.mutable().clamp(Direction.Axis.Y, 1, param0.getMaxBuildHeight() - 1), Integer.MAX_VALUE);
+        BlockPos var0 = findDeltaLevel(param0, param4.mutable().clamp(Direction.Axis.Y, 1, param0.getMaxBuildHeight() - 1));
         if (var0 == null) {
             return false;
         } else {
@@ -56,7 +56,7 @@ public class DeltaFeature extends Feature<DeltaFeatureConfiguration> {
                     break;
                 }
 
-                if (param0.getBlockState(var9).getBlock() != param5.contents.getBlock() && isClear(param0, var9, param5)) {
+                if (isClear(param0, var9, param5)) {
                     if (var5) {
                         var1 = true;
                         this.setBlock(param0, var9, param5.rim);
@@ -64,6 +64,7 @@ public class DeltaFeature extends Feature<DeltaFeatureConfiguration> {
 
                     BlockPos var10 = var9.offset(var3, 0, var4);
                     if (isClear(param0, var10, param5)) {
+                        var1 = true;
                         this.setBlock(param0, var10, param5.contents);
                     }
                 }
@@ -89,9 +90,8 @@ public class DeltaFeature extends Feature<DeltaFeatureConfiguration> {
     }
 
     @Nullable
-    private static BlockPos findDeltaLevel(LevelAccessor param0, BlockPos.MutableBlockPos param1, int param2) {
-        for(; param1.getY() > 1 && param2 > 0; param1.move(Direction.DOWN)) {
-            --param2;
+    private static BlockPos findDeltaLevel(LevelAccessor param0, BlockPos.MutableBlockPos param1) {
+        for(; param1.getY() > 1; param1.move(Direction.DOWN)) {
             if (param0.getBlockState(param1).isAir()) {
                 BlockState var0 = param0.getBlockState(param1.move(Direction.DOWN));
                 param1.move(Direction.UP);

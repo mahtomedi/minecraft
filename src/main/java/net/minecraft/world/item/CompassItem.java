@@ -27,63 +27,51 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class CompassItem extends Item implements Vanishable {
     public CompassItem(Item.Properties param0) {
         super(param0);
-        this.addProperty(new ResourceLocation("angle"), new ItemPropertyFunction() {
-            @OnlyIn(Dist.CLIENT)
-            private double rotation;
-            @OnlyIn(Dist.CLIENT)
-            private double rota;
-            @OnlyIn(Dist.CLIENT)
-            private long lastUpdateTick;
-
-            @OnlyIn(Dist.CLIENT)
-            @Override
-            public float call(ItemStack param0, @Nullable Level param1, @Nullable LivingEntity param2) {
-                if (param2 == null && !param0.isFramed()) {
-                    return 0.0F;
-                } else {
-                    boolean var0 = param2 != null;
-                    Entity var1 = (Entity)(var0 ? param2 : param0.getFrame());
-                    if (param1 == null) {
-                        param1 = var1.level;
-                    }
-
-                    CompoundTag var2 = param0.getOrCreateTag();
-                    boolean var3 = CompassItem.hasLodestoneData(var2);
-                    BlockPos var4 = var3 ? CompassItem.this.getLodestonePosition(param1, var2) : CompassItem.this.getSpawnPosition(param1);
-                    double var9;
-                    if (var4 != null) {
-                        double var5 = var0 ? (double)var1.yRot : CompassItem.getFrameRotation((ItemFrame)var1);
-                        var5 = Mth.positiveModulo(var5 / 360.0, 1.0);
-                        boolean var6 = !var0 && var1.getDirection().getAxis().isVertical();
-                        boolean var7 = var6 && var1.getDirection() == Direction.UP;
-                        double var8 = CompassItem.getAngleTo(Vec3.atCenterOf(var4), var1) / (float) (Math.PI * 2) * (double)(var7 ? -1 : 1);
-                        var9 = 0.5 - (var5 - 0.25 - var8) * (double)(var6 ? -1 : 1);
+        this.addProperty(
+            new ResourceLocation("angle"),
+            new ItemPropertyFunction() {
+                private final CompassItem.CompassWobble wobble = new CompassItem.CompassWobble();
+                private final CompassItem.CompassWobble wobbleRandom = new CompassItem.CompassWobble();
+    
+                @OnlyIn(Dist.CLIENT)
+                @Override
+                public float call(ItemStack param0, @Nullable Level param1, @Nullable LivingEntity param2) {
+                    if (param2 == null && !param0.isFramed()) {
+                        return 0.0F;
                     } else {
-                        var9 = Math.random();
+                        boolean var0 = param2 != null;
+                        Entity var1 = (Entity)(var0 ? param2 : param0.getFrame());
+                        if (param1 == null) {
+                            param1 = var1.level;
+                        }
+    
+                        CompoundTag var2 = param0.getOrCreateTag();
+                        BlockPos var3 = CompassItem.hasLodestoneData(var2)
+                            ? CompassItem.this.getLodestonePosition(param1, var2)
+                            : CompassItem.this.getSpawnPosition(param1);
+                        double var9;
+                        if (var3 != null) {
+                            double var4 = var0 ? (double)var1.yRot : CompassItem.getFrameRotation((ItemFrame)var1);
+                            var4 = Mth.positiveModulo(var4 / 360.0, 1.0);
+                            double var5 = 0.5 - (var4 - 0.25);
+                            boolean var6 = !var0 && var1.getDirection().getAxis().isVertical();
+                            boolean var7 = var6 && var1.getDirection() == Direction.UP;
+                            double var8 = CompassItem.getAngleTo(Vec3.atCenterOf(var3), var1) / (float) (Math.PI * 2) * (double)(var7 ? -1 : 1);
+                            var9 = 0.5 - (var4 - 0.25 - var8) * (double)(var6 ? -1 : 1);
+                            if (var0) {
+                                this.wobble.update(param1, var5);
+                                var9 -= var5 - this.wobble.getRotation();
+                            }
+                        } else {
+                            this.wobbleRandom.update(param1, Math.random());
+                            var9 = this.wobbleRandom.getRotation();
+                        }
+    
+                        return Mth.positiveModulo((float)var9, 1.0F);
                     }
-
-                    if (var0) {
-                        var9 = this.wobble(param1, var9);
-                    }
-
-                    return Mth.positiveModulo((float)var9, 1.0F);
                 }
             }
-
-            @OnlyIn(Dist.CLIENT)
-            private double wobble(Level param0, double param1) {
-                if (param0.getGameTime() != this.lastUpdateTick) {
-                    this.lastUpdateTick = param0.getGameTime();
-                    double var0 = param1 - this.rotation;
-                    var0 = Mth.positiveModulo(var0 + 0.5, 1.0) - 0.5;
-                    this.rota += var0 * 0.1;
-                    this.rota *= 0.8;
-                    this.rotation = Mth.positiveModulo(this.rotation + this.rota, 1.0);
-                }
-
-                return this.rotation;
-            }
-        });
+        );
     }
 
     private static boolean hasLodestoneData(CompoundTag param0) {
@@ -128,7 +116,9 @@ public class CompassItem extends Item implements Vanishable {
     @OnlyIn(Dist.CLIENT)
     private static double getFrameRotation(ItemFrame param0) {
         Direction var0 = param0.getDirection();
-        return var0.getAxis().isVertical() ? 0.0 : (double)Mth.wrapDegrees(180 + param0.getDirection().get2DDataValue() * 90);
+        return var0.getAxis().isVertical()
+            ? (double)Mth.wrapDegrees(param0.getRotation() * -45)
+            : (double)Mth.wrapDegrees(180 + param0.getDirection().get2DDataValue() * 90 + param0.getRotation() * 45);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -177,5 +167,35 @@ public class CompassItem extends Item implements Vanishable {
     @Override
     public String getDescriptionId(ItemStack param0) {
         return isLodestoneCompass(param0) ? "item.minecraft.lodestone_compass" : super.getDescriptionId(param0);
+    }
+
+    static class CompassWobble {
+        @OnlyIn(Dist.CLIENT)
+        private double rotation;
+        @OnlyIn(Dist.CLIENT)
+        private double deltaRotation;
+        @OnlyIn(Dist.CLIENT)
+        private long lastUpdateTick;
+
+        private CompassWobble() {
+        }
+
+        @OnlyIn(Dist.CLIENT)
+        public double getRotation() {
+            return this.rotation;
+        }
+
+        @OnlyIn(Dist.CLIENT)
+        private void update(Level param0, double param1) {
+            if (param0.getGameTime() != this.lastUpdateTick) {
+                this.lastUpdateTick = param0.getGameTime();
+                double var0 = param1 - this.rotation;
+                var0 = Mth.positiveModulo(var0 + 0.5, 1.0) - 0.5;
+                this.deltaRotation += var0 * 0.1;
+                this.deltaRotation *= 0.8;
+                this.rotation = Mth.positiveModulo(this.rotation + this.deltaRotation, 1.0);
+            }
+
+        }
     }
 }

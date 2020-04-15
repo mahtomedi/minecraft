@@ -6,6 +6,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.feature.configurations.ShipwreckConfiguration;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.ShipwreckPieces;
@@ -33,18 +35,18 @@ public class ShipwreckFeature extends RandomScatteredFeature<ShipwreckConfigurat
     }
 
     @Override
-    protected int getRandomSalt() {
+    protected int getRandomSalt(ChunkGeneratorSettings param0) {
         return 165745295;
     }
 
     @Override
-    protected int getSpacing(ChunkGenerator<?> param0) {
-        return param0.getSettings().getShipwreckSpacing();
+    protected int getSpacing(DimensionType param0, ChunkGeneratorSettings param1) {
+        return param1.getShipwreckSpacing();
     }
 
     @Override
-    protected int getSeparation(ChunkGenerator<?> param0) {
-        return param0.getSettings().getShipwreckSeparation();
+    protected int getSeparation(DimensionType param0, ChunkGeneratorSettings param1) {
+        return param1.getShipwreckSeparation();
     }
 
     public static class FeatureStart extends StructureStart {

@@ -33,6 +33,10 @@ public class BoundingBox {
         return new BoundingBox(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
     }
 
+    public static BoundingBox infinite() {
+        return new BoundingBox(Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
+    }
+
     public static BoundingBox orientBox(
         int param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, Direction param9
     ) {

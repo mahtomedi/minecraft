@@ -27,7 +27,6 @@ public class HarvestFarmland extends Behavior<Villager> {
     @Nullable
     private BlockPos aboveFarmlandPos;
     private boolean canPlantStuff;
-    private boolean wantsToReapStuff;
     private long nextOkStartTime;
     private int timeWorkedSoFar;
     private final List<BlockPos> validFarmlandAroundVillager = Lists.newArrayList();
@@ -52,34 +51,22 @@ public class HarvestFarmland extends Behavior<Villager> {
             return false;
         } else {
             this.canPlantStuff = param1.hasFarmSeeds();
-            this.wantsToReapStuff = false;
-            SimpleContainer var0 = param1.getInventory();
-            int var1 = var0.getContainerSize();
-
-            for(int var2 = 0; var2 < var1; ++var2) {
-                ItemStack var3 = var0.getItem(var2);
-                if (var3.isEmpty()) {
-                    this.wantsToReapStuff = true;
-                    break;
-                }
-            }
-
-            BlockPos.MutableBlockPos var4 = param1.blockPosition().mutable();
+            BlockPos.MutableBlockPos var0 = param1.blockPosition().mutable();
             this.validFarmlandAroundVillager.clear();
 
-            for(int var5 = -1; var5 <= 1; ++var5) {
-                for(int var6 = -1; var6 <= 1; ++var6) {
-                    for(int var7 = -1; var7 <= 1; ++var7) {
-                        var4.set(param1.getX() + (double)var5, param1.getY() + (double)var6, param1.getZ() + (double)var7);
-                        if (this.validPos(var4, param0)) {
-                            this.validFarmlandAroundVillager.add(new BlockPos(var4));
+            for(int var1 = -1; var1 <= 1; ++var1) {
+                for(int var2 = -1; var2 <= 1; ++var2) {
+                    for(int var3 = -1; var3 <= 1; ++var3) {
+                        var0.set(param1.getX() + (double)var1, param1.getY() + (double)var2, param1.getZ() + (double)var3);
+                        if (this.validPos(var0, param0)) {
+                            this.validFarmlandAroundVillager.add(new BlockPos(var0));
                         }
                     }
                 }
             }
 
             this.aboveFarmlandPos = this.getValidFarmland(param0);
-            return (this.canPlantStuff || this.wantsToReapStuff) && this.aboveFarmlandPos != null;
+            return this.canPlantStuff && this.aboveFarmlandPos != null;
         }
     }
 
@@ -94,8 +81,7 @@ public class HarvestFarmland extends Behavior<Villager> {
         BlockState var0 = param1.getBlockState(param0);
         Block var1 = var0.getBlock();
         Block var2 = param1.getBlockState(param0.below()).getBlock();
-        return var1 instanceof CropBlock && ((CropBlock)var1).isMaxAge(var0) && this.wantsToReapStuff
-            || var0.isAir() && var2 instanceof FarmBlock && this.canPlantStuff;
+        return var1 instanceof CropBlock && ((CropBlock)var1).isMaxAge(var0) || var0.isAir() && var2 instanceof FarmBlock && this.canPlantStuff;
     }
 
     protected void start(ServerLevel param0, Villager param1, long param2) {
@@ -119,7 +105,7 @@ public class HarvestFarmland extends Behavior<Villager> {
                 BlockState var0 = param0.getBlockState(this.aboveFarmlandPos);
                 Block var1 = var0.getBlock();
                 Block var2 = param0.getBlockState(this.aboveFarmlandPos.below()).getBlock();
-                if (var1 instanceof CropBlock && ((CropBlock)var1).isMaxAge(var0) && this.wantsToReapStuff) {
+                if (var1 instanceof CropBlock && ((CropBlock)var1).isMaxAge(var0)) {
                     param0.destroyBlock(this.aboveFarmlandPos, true, param1);
                 }
 

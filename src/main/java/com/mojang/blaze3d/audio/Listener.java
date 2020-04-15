@@ -9,9 +9,15 @@ import org.lwjgl.openal.AL10;
 @OnlyIn(Dist.CLIENT)
 public class Listener {
     private float gain = 1.0F;
+    private Vec3 position = Vec3.ZERO;
 
     public void setListenerPosition(Vec3 param0) {
+        this.position = param0;
         AL10.alListener3f(4100, (float)param0.x, (float)param0.y, (float)param0.z);
+    }
+
+    public Vec3 getListenerPosition() {
+        return this.position;
     }
 
     public void setListenerOrientation(Vector3f param0, Vector3f param1) {

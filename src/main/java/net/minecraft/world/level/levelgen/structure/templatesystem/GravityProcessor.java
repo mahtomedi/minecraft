@@ -5,6 +5,7 @@ import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.types.DynamicOps;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.levelgen.Heightmap;
 
@@ -33,9 +34,22 @@ public class GravityProcessor extends StructureProcessor {
         StructureTemplate.StructureBlockInfo param4,
         StructurePlaceSettings param5
     ) {
-        int var0 = param0.getHeight(this.heightmap, param4.pos.getX(), param4.pos.getZ()) + this.offset;
-        int var1 = param3.pos.getY();
-        return new StructureTemplate.StructureBlockInfo(new BlockPos(param4.pos.getX(), var0 + var1, param4.pos.getZ()), param4.state, param4.nbt);
+        Heightmap.Types var0;
+        if (param0 instanceof ServerLevel) {
+            if (this.heightmap == Heightmap.Types.WORLD_SURFACE_WG) {
+                var0 = Heightmap.Types.WORLD_SURFACE;
+            } else if (this.heightmap == Heightmap.Types.OCEAN_FLOOR_WG) {
+                var0 = Heightmap.Types.OCEAN_FLOOR;
+            } else {
+                var0 = this.heightmap;
+            }
+        } else {
+            var0 = this.heightmap;
+        }
+
+        int var4 = param0.getHeight(var0, param4.pos.getX(), param4.pos.getZ()) + this.offset;
+        int var5 = param3.pos.getY();
+        return new StructureTemplate.StructureBlockInfo(new BlockPos(param4.pos.getX(), var4 + var5, param4.pos.getZ()), param4.state, param4.nbt);
     }
 
     @Override

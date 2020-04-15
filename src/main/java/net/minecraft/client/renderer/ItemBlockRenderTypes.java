@@ -25,6 +25,7 @@ public class ItemBlockRenderTypes {
         param0.put(Blocks.GLASS_PANE, var0);
         param0.put(Blocks.TRIPWIRE_HOOK, var0);
         param0.put(Blocks.HOPPER, var0);
+        param0.put(Blocks.CHAIN, var0);
         param0.put(Blocks.JUNGLE_LEAVES, var0);
         param0.put(Blocks.OAK_LEAVES, var0);
         param0.put(Blocks.SPRUCE_LEAVES, var0);

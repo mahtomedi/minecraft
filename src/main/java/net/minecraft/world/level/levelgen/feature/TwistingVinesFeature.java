@@ -6,6 +6,7 @@ import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.block.Block;
@@ -45,12 +46,7 @@ public class TwistingVinesFeature extends Feature<NoneFeatureConfiguration> {
 
         for(int var1 = 0; var1 < param3 * param3; ++var1) {
             var0.set(param2).move(Mth.nextInt(param1, -param3, param3), Mth.nextInt(param1, -param4, param4), Mth.nextInt(param1, -param3, param3));
-
-            while(param0.getBlockState(var0.below()).isAir()) {
-                var0.move(0, -1, 0);
-            }
-
-            if (!isInvalidPlacementLocation(param0, var0)) {
+            if (findFirstAirBlockAboveGround(param0, var0) && !isInvalidPlacementLocation(param0, var0)) {
                 int var2 = Mth.nextInt(param1, 1, param5);
                 if (param1.nextInt(6) == 0) {
                     var2 *= 2;
@@ -66,6 +62,18 @@ public class TwistingVinesFeature extends Feature<NoneFeatureConfiguration> {
             }
         }
 
+    }
+
+    private static boolean findFirstAirBlockAboveGround(LevelAccessor param0, BlockPos.MutableBlockPos param1) {
+        do {
+            param1.move(0, -1, 0);
+            if (Level.isOutsideBuildHeight(param1)) {
+                return false;
+            }
+        } while(param0.getBlockState(param1).isAir());
+
+        param1.move(0, 1, 0);
+        return true;
     }
 
     public static void placeWeepingVinesColumn(LevelAccessor param0, Random param1, BlockPos.MutableBlockPos param2, int param3, int param4, int param5) {

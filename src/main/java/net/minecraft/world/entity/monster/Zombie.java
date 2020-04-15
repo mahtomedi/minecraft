@@ -498,8 +498,8 @@ public class Zombie extends Monster {
                     var4.moveTo(this.getX(), this.getY(), this.getZ(), this.yRot, 0.0F);
                     var4.finalizeSpawn(param0, param1, MobSpawnType.JOCKEY, null, null);
                     var4.setChickenJockey(true);
-                    param0.addFreshEntity(var4);
                     this.startRiding(var4);
+                    param0.addFreshEntity(var4);
                 }
             }
 

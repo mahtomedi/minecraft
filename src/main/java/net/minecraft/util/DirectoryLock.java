@@ -17,7 +17,10 @@ public class DirectoryLock implements AutoCloseable {
 
     public static DirectoryLock create(Path param0) throws IOException {
         Path var0 = param0.resolve("session.lock");
-        Files.createDirectories(param0);
+        if (!Files.isDirectory(param0)) {
+            Files.createDirectories(param0);
+        }
+
         FileChannel var1 = FileChannel.open(var0, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.DELETE_ON_CLOSE);
 
         try {

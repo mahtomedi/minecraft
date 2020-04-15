@@ -3,7 +3,6 @@ package net.minecraft.world.level.levelgen.feature;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.Dynamic;
 import java.util.List;
-import java.util.Random;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.EntityType;
@@ -11,6 +10,8 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
+import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.BeardedStructureStart;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -40,32 +41,27 @@ public class PillagerOutpostFeature extends RandomScatteredFeature<NoneFeatureCo
     }
 
     @Override
-    public boolean isFeatureChunk(BiomeManager param0, ChunkGenerator<?> param1, Random param2, int param3, int param4, Biome param5) {
-        ChunkPos var0 = this.getPotentialFeatureChunkFromLocationWithOffset(param1, param2, param3, param4, 0, 0);
-        if (param3 == var0.x && param4 == var0.z) {
-            int var1 = param3 >> 4;
-            int var2 = param4 >> 4;
-            param2.setSeed((long)(var1 ^ var2 << 4) ^ param1.getSeed());
-            param2.nextInt();
-            if (param2.nextInt(5) != 0) {
-                return false;
-            }
-
-            if (param1.isBiomeValidStartForStructure(param5, this)) {
-                for(int var3 = param3 - 10; var3 <= param3 + 10; ++var3) {
-                    for(int var4 = param4 - 10; var4 <= param4 + 10; ++var4) {
-                        if (Feature.VILLAGE
-                            .isFeatureChunk(param0, param1, param2, var3, var4, param0.getBiome(new BlockPos((var3 << 4) + 9, 0, (var4 << 4) + 9)))) {
-                            return false;
-                        }
+    protected boolean isFeatureChunk(
+        BiomeManager param0, ChunkGenerator<?> param1, WorldgenRandom param2, int param3, int param4, Biome param5, ChunkPos param6
+    ) {
+        int var0 = param3 >> 4;
+        int var1 = param4 >> 4;
+        param2.setSeed((long)(var0 ^ var1 << 4) ^ param1.getSeed());
+        param2.nextInt();
+        if (param2.nextInt(5) != 0) {
+            return false;
+        } else {
+            for(int var2 = param3 - 10; var2 <= param3 + 10; ++var2) {
+                for(int var3 = param4 - 10; var3 <= param4 + 10; ++var3) {
+                    Biome var4 = param0.getBiome(new BlockPos((var2 << 4) + 9, 0, (var3 << 4) + 9));
+                    if (Feature.VILLAGE.featureChunk(param0, param1, param2, var2, var3, var4)) {
+                        return false;
                     }
                 }
-
-                return true;
             }
-        }
 
-        return false;
+            return true;
+        }
     }
 
     @Override
@@ -74,7 +70,7 @@ public class PillagerOutpostFeature extends RandomScatteredFeature<NoneFeatureCo
     }
 
     @Override
-    protected int getRandomSalt() {
+    protected int getRandomSalt(ChunkGeneratorSettings param0) {
         return 165745296;
     }
 
@@ -85,7 +81,7 @@ public class PillagerOutpostFeature extends RandomScatteredFeature<NoneFeatureCo
 
         @Override
         public void generatePieces(ChunkGenerator<?> param0, StructureManager param1, int param2, int param3, Biome param4) {
-            BlockPos var0 = new BlockPos(param2 * 16, 90, param3 * 16);
+            BlockPos var0 = new BlockPos(param2 * 16, 0, param3 * 16);
             PillagerOutpostPieces.addPieces(param0, param1, var0, this.pieces, this.random);
             this.calculateBoundingBox();
         }

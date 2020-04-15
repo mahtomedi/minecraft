@@ -41,7 +41,8 @@ public class EmptyPoolElement extends StructurePoolElement {
         BlockPos param5,
         Rotation param6,
         BoundingBox param7,
-        Random param8
+        Random param8,
+        boolean param9
     ) {
         return true;
     }

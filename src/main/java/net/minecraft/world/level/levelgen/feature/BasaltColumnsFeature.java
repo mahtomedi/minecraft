@@ -35,7 +35,7 @@ public class BasaltColumnsFeature extends Feature<ColumnFeatureConfiguration> {
         } else {
             int var2 = calculateHeight(param3, param5);
             boolean var3 = param3.nextFloat() < 0.9F;
-            int var4 = var3 ? 5 : 8;
+            int var4 = Math.min(var2, var3 ? 5 : 8);
             int var5 = var3 ? 50 : 15;
             boolean var6 = false;
 

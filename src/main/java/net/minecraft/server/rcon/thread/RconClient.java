@@ -17,9 +17,11 @@ public class RconClient extends GenericThread {
     private Socket client;
     private final byte[] buf = new byte[1460];
     private final String rconPassword;
+    private final ServerInterface serverInterface;
 
     RconClient(ServerInterface param0, String param1, Socket param2) {
-        super(param0, "RCON Client");
+        super("RCON Client " + param2.getInetAddress());
+        this.serverInterface = param0;
         this.client = param2;
 
         try {
@@ -29,7 +31,6 @@ public class RconClient extends GenericThread {
         }
 
         this.rconPassword = param1;
-        this.info("Rcon connection from: " + param2.getInetAddress());
     }
 
     @Override
@@ -95,6 +96,8 @@ public class RconClient extends GenericThread {
                 return;
             } finally {
                 this.closeSocket();
+                LOGGER.info("Thread {} shutting down", this.name);
+                this.running = false;
             }
 
             return;
@@ -132,8 +135,9 @@ public class RconClient extends GenericThread {
 
     @Override
     public void stop() {
-        super.stop();
+        this.running = false;
         this.closeSocket();
+        super.stop();
     }
 
     private void closeSocket() {
@@ -141,7 +145,7 @@ public class RconClient extends GenericThread {
             try {
                 this.client.close();
             } catch (IOException var2) {
-                this.warn("IO: " + var2.getMessage());
+                LOGGER.warn("Failed to close socket", (Throwable)var2);
             }
 
             this.client = null;
