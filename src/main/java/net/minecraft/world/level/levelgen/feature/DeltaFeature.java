@@ -1,5 +1,6 @@
 package net.minecraft.world.level.levelgen.feature;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.Dynamic;
 import java.util.Random;
 import java.util.function.Function;
@@ -16,6 +17,9 @@ import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.feature.configurations.DeltaFeatureConfiguration;
 
 public class DeltaFeature extends Feature<DeltaFeatureConfiguration> {
+    private static final ImmutableList<Block> CANNOT_REPLACE = ImmutableList.of(
+        Blocks.BEDROCK, Blocks.NETHER_BRICKS, Blocks.NETHER_BRICK_FENCE, Blocks.NETHER_BRICK_STAIRS, Blocks.NETHER_WART, Blocks.CHEST, Blocks.SPAWNER
+    );
     private static final Direction[] DIRECTIONS = Direction.values();
 
     private static int calculateRadius(Random param0, DeltaFeatureConfiguration param1) {
@@ -75,12 +79,15 @@ public class DeltaFeature extends Feature<DeltaFeatureConfiguration> {
     }
 
     private static boolean isClear(LevelAccessor param0, BlockPos param1, DeltaFeatureConfiguration param2) {
-        if (param0.getBlockState(param1).getBlock() == param2.contents.getBlock()) {
+        Block var0 = param0.getBlockState(param1).getBlock();
+        if (var0 == param2.contents.getBlock()) {
+            return false;
+        } else if (CANNOT_REPLACE.contains(var0)) {
             return false;
         } else {
-            for(Direction var0 : DIRECTIONS) {
-                boolean var1 = param0.getBlockState(param1.relative(var0)).isAir();
-                if (var1 && var0 != Direction.UP || !var1 && var0 == Direction.UP) {
+            for(Direction var1 : DIRECTIONS) {
+                boolean var2 = param0.getBlockState(param1.relative(var1)).isAir();
+                if (var2 && var1 != Direction.UP || !var2 && var1 == Direction.UP) {
                     return false;
                 }
             }

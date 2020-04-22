@@ -6,6 +6,8 @@ import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.LazyLoadedValue;
 import net.minecraft.world.level.levelgen.ChunkGeneratorProvider;
 import net.minecraftforge.api.distmarker.Dist;
@@ -32,7 +34,9 @@ public class LevelType {
     private final LazyLoadedValue<ChunkGeneratorProvider> defaultProvider;
     private boolean selectable;
     private boolean replacement;
+    private final Component description;
     private boolean hasHelpText;
+    private final Component helpText;
     private boolean hasCustomOptions;
 
     private LevelType(int param0, String param1, BiFunction<LevelType, Dynamic<?>, ChunkGeneratorProvider> param2) {
@@ -52,6 +56,8 @@ public class LevelType {
         this.selectable = true;
         this.id = param0;
         LEVEL_TYPES[param0] = this;
+        this.description = new TranslatableComponent("generator." + param1);
+        this.helpText = new TranslatableComponent("generator." + param1 + ".info");
     }
 
     public String getName() {
@@ -63,13 +69,13 @@ public class LevelType {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public String getDescriptionId() {
-        return "generator." + this.generatorName;
+    public Component getDescription() {
+        return this.description;
     }
 
     @OnlyIn(Dist.CLIENT)
-    public String getHelpTextId() {
-        return this.getDescriptionId() + ".info";
+    public Component getHelpText() {
+        return this.helpText;
     }
 
     public int getVersion() {

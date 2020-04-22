@@ -9,8 +9,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.Registry;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.storage.loot.PredicateManager;
@@ -26,6 +28,9 @@ public class ResourceLocationArgument implements ArgumentType<ResourceLocation> 
     );
     private static final DynamicCommandExceptionType ERROR_UNKNOWN_PREDICATE = new DynamicCommandExceptionType(
         param0 -> new TranslatableComponent("predicate.unknown", param0)
+    );
+    private static final DynamicCommandExceptionType ERROR_UNKNOWN_ATTRIBUTE = new DynamicCommandExceptionType(
+        param0 -> new TranslatableComponent("attribute.unknown", param0)
     );
 
     public static ResourceLocationArgument id() {
@@ -57,6 +62,11 @@ public class ResourceLocationArgument implements ArgumentType<ResourceLocation> 
         } else {
             return var2;
         }
+    }
+
+    public static Attribute getAttribute(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
+        ResourceLocation var0 = param0.getArgument(param1, ResourceLocation.class);
+        return Registry.ATTRIBUTES.getOptional(var0).orElseThrow(() -> ERROR_UNKNOWN_ATTRIBUTE.create(var0));
     }
 
     public static ResourceLocation getId(CommandContext<CommandSourceStack> param0, String param1) {

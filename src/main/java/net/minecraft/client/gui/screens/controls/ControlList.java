@@ -1,6 +1,7 @@
 package net.minecraft.client.gui.screens.controls;
 
 import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -10,7 +11,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.ArrayUtils;
@@ -31,15 +35,16 @@ public class ControlList extends ContainerObjectSelectionList<ControlList.Entry>
             String var3 = var2.getCategory();
             if (!var3.equals(var1)) {
                 var1 = var3;
-                this.addEntry(new ControlList.CategoryEntry(var3));
+                this.addEntry(new ControlList.CategoryEntry(new TranslatableComponent(var3)));
             }
 
-            int var4 = param1.font.width(I18n.get(var2.getName()));
-            if (var4 > this.maxNameWidth) {
-                this.maxNameWidth = var4;
+            Component var4 = new TranslatableComponent(var2.getName());
+            int var5 = param1.font.width(var4);
+            if (var5 > this.maxNameWidth) {
+                this.maxNameWidth = var5;
             }
 
-            this.addEntry(new ControlList.KeyEntry(var2));
+            this.addEntry(new ControlList.KeyEntry(var2, var4));
         }
 
     }
@@ -56,19 +61,19 @@ public class ControlList extends ContainerObjectSelectionList<ControlList.Entry>
 
     @OnlyIn(Dist.CLIENT)
     public class CategoryEntry extends ControlList.Entry {
-        private final String name;
+        private final Component name;
         private final int width;
 
-        public CategoryEntry(String param1) {
-            this.name = I18n.get(param1);
+        public CategoryEntry(Component param1) {
+            this.name = param1;
             this.width = ControlList.this.minecraft.font.width(this.name);
         }
 
         @Override
-        public void render(int param0, int param1, int param2, int param3, int param4, int param5, int param6, boolean param7, float param8) {
+        public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
             ControlList.this.minecraft
                 .font
-                .draw(this.name, (float)(ControlList.this.minecraft.screen.width / 2 - this.width / 2), (float)(param1 + param4 - 9 - 1), 16777215);
+                .draw(param0, this.name, (float)(ControlList.this.minecraft.screen.width / 2 - this.width / 2), (float)(param2 + param5 - 9 - 1), 16777215);
         }
 
         @Override
@@ -89,44 +94,44 @@ public class ControlList extends ContainerObjectSelectionList<ControlList.Entry>
     @OnlyIn(Dist.CLIENT)
     public class KeyEntry extends ControlList.Entry {
         private final KeyMapping key;
-        private final String name;
+        private final Component name;
         private final Button changeButton;
         private final Button resetButton;
 
-        private KeyEntry(final KeyMapping param1) {
+        private KeyEntry(final KeyMapping param1, final Component param2) {
             this.key = param1;
-            this.name = I18n.get(param1.getName());
-            this.changeButton = new Button(0, 0, 75, 20, this.name, param1x -> ControlList.this.controlsScreen.selectedKey = param1) {
+            this.name = param2;
+            this.changeButton = new Button(0, 0, 75, 20, param2, param1x -> ControlList.this.controlsScreen.selectedKey = param1) {
                 @Override
-                protected String getNarrationMessage() {
+                protected MutableComponent createNarrationMessage() {
                     return param1.isUnbound()
-                        ? I18n.get("narrator.controls.unbound", KeyEntry.this.name)
-                        : I18n.get("narrator.controls.bound", KeyEntry.this.name, super.getNarrationMessage());
+                        ? new TranslatableComponent("narrator.controls.unbound", param2)
+                        : new TranslatableComponent("narrator.controls.bound", param2, super.createNarrationMessage());
                 }
             };
-            this.resetButton = new Button(0, 0, 50, 20, I18n.get("controls.reset"), param1x -> {
+            this.resetButton = new Button(0, 0, 50, 20, new TranslatableComponent("controls.reset"), param1x -> {
                 ControlList.this.minecraft.options.setKey(param1, param1.getDefaultKey());
                 KeyMapping.resetMapping();
             }) {
                 @Override
-                protected String getNarrationMessage() {
-                    return I18n.get("narrator.controls.reset", KeyEntry.this.name);
+                protected MutableComponent createNarrationMessage() {
+                    return new TranslatableComponent("narrator.controls.reset", param2);
                 }
             };
         }
 
         @Override
-        public void render(int param0, int param1, int param2, int param3, int param4, int param5, int param6, boolean param7, float param8) {
+        public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
             boolean var0 = ControlList.this.controlsScreen.selectedKey == this.key;
             ControlList.this.minecraft
                 .font
-                .draw(this.name, (float)(param2 + 90 - ControlList.this.maxNameWidth), (float)(param1 + param4 / 2 - 9 / 2), 16777215);
-            this.resetButton.x = param2 + 190;
-            this.resetButton.y = param1;
+                .draw(param0, this.name, (float)(param3 + 90 - ControlList.this.maxNameWidth), (float)(param2 + param5 / 2 - 9 / 2), 16777215);
+            this.resetButton.x = param3 + 190;
+            this.resetButton.y = param2;
             this.resetButton.active = !this.key.isDefault();
-            this.resetButton.render(param5, param6, param8);
-            this.changeButton.x = param2 + 105;
-            this.changeButton.y = param1;
+            this.resetButton.render(param0, param6, param7, param9);
+            this.changeButton.x = param3 + 105;
+            this.changeButton.y = param2;
             this.changeButton.setMessage(this.key.getTranslatedKeyMessage());
             boolean var1 = false;
             if (!this.key.isUnbound()) {
@@ -140,12 +145,17 @@ public class ControlList extends ContainerObjectSelectionList<ControlList.Entry>
 
             if (var0) {
                 this.changeButton
-                    .setMessage(ChatFormatting.WHITE + "> " + ChatFormatting.YELLOW + this.changeButton.getMessage() + ChatFormatting.WHITE + " <");
+                    .setMessage(
+                        new TextComponent("> ")
+                            .append(this.changeButton.getMessage().mutableCopy().withStyle(ChatFormatting.YELLOW))
+                            .append(" <")
+                            .withStyle(ChatFormatting.YELLOW)
+                    );
             } else if (var1) {
-                this.changeButton.setMessage(ChatFormatting.RED + this.changeButton.getMessage());
+                this.changeButton.setMessage(this.changeButton.getMessage().mutableCopy().withStyle(ChatFormatting.RED));
             }
 
-            this.changeButton.render(param5, param6, param8);
+            this.changeButton.render(param0, param6, param7, param9);
         }
 
         @Override

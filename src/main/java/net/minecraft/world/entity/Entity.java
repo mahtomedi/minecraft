@@ -35,7 +35,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -384,7 +384,10 @@ public abstract class Entity implements CommandSource, Nameable {
         this.xRotO = this.xRot;
         this.yRotO = this.yRot;
         this.handleNetherPortal();
-        this.updateSprintingState();
+        if (this.canSpawnSprintParticle()) {
+            this.spawnSprintParticle();
+        }
+
         this.updateInWaterStateAndDoFluidPushing();
         this.updateUnderWaterState();
         this.updateSwimming();
@@ -576,7 +579,8 @@ public abstract class Entity implements CommandSource, Nameable {
                 throw new ReportedException(var13);
             }
 
-            this.setDeltaMovement(this.getDeltaMovement().multiply((double)this.getBlockSpeedFactor(), 1.0, (double)this.getBlockSpeedFactor()));
+            float var15 = this.getBlockSpeedFactor();
+            this.setDeltaMovement(this.getDeltaMovement().multiply((double)var15, 1.0, (double)var15));
             if (!this.level.containsFireBlock(this.getBoundingBox().deflate(0.001)) && this.remainingFireTicks <= 0) {
                 this.remainingFireTicks = -this.getFireImmuneTicks();
             }
@@ -1027,14 +1031,11 @@ public abstract class Entity implements CommandSource, Nameable {
         return this.level.getBlockState(this.getOnPos());
     }
 
-    public void updateSprintingState() {
-        if (this.isSprinting() && !this.isInWater()) {
-            this.doSprintParticleEffect();
-        }
-
+    public boolean canSpawnSprintParticle() {
+        return this.isSprinting() && !this.isInWater() && !this.isSpectator() && !this.isCrouching() && !this.isInLava() && this.isAlive();
     }
 
-    protected void doSprintParticleEffect() {
+    protected void spawnSprintParticle() {
         int var0 = Mth.floor(this.getX());
         int var1 = Mth.floor(this.getY() - 0.2F);
         int var2 = Mth.floor(this.getZ());
@@ -1616,6 +1617,7 @@ public abstract class Entity implements CommandSource, Nameable {
                 this.stopRiding();
             }
 
+            this.setPose(Pose.STANDING);
             this.vehicle = param0;
             this.vehicle.addPassenger(this);
             return true;
@@ -2011,20 +2013,20 @@ public abstract class Entity implements CommandSource, Nameable {
         this.stuckSpeedMultiplier = param1;
     }
 
-    private static void removeAction(Component param0) {
-        param0.withStyle(param0x -> param0x.setClickEvent(null)).getSiblings().forEach(Entity::removeAction);
+    private static Component removeAction(Component param0) {
+        MutableComponent var0 = param0.mutableCopy().withStyle(param0x -> param0x.withClickEvent(null));
+
+        for(Component var1 : param0.getSiblings()) {
+            var0.append(removeAction(var1));
+        }
+
+        return var0;
     }
 
     @Override
     public Component getName() {
         Component var0 = this.getCustomName();
-        if (var0 != null) {
-            Component var1 = var0.deepCopy();
-            removeAction(var1);
-            return var1;
-        } else {
-            return this.getTypeName();
-        }
+        return var0 != null ? removeAction(var0) : this.getTypeName();
     }
 
     protected Component getTypeName() {
@@ -2242,7 +2244,7 @@ public abstract class Entity implements CommandSource, Nameable {
     @Override
     public Component getDisplayName() {
         return PlayerTeam.formatNameForTeam(this.getTeam(), this.getName())
-            .withStyle(param0 -> param0.setHoverEvent(this.createHoverEvent()).setInsertion(this.getStringUUID()));
+            .withStyle(param0 -> param0.withHoverEvent(this.createHoverEvent()).withInsertion(this.getStringUUID()));
     }
 
     public void setCustomName(@Nullable Component param0) {
@@ -2334,15 +2336,7 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     protected HoverEvent createHoverEvent() {
-        CompoundTag var0 = new CompoundTag();
-        ResourceLocation var1 = EntityType.getKey(this.getType());
-        var0.putString("id", this.getStringUUID());
-        if (var1 != null) {
-            var0.putString("type", var1.toString());
-        }
-
-        var0.putString("name", Component.Serializer.toJson(this.getName()));
-        return new HoverEvent(HoverEvent.Action.SHOW_ENTITY, new TextComponent(var0.toString()));
+        return new HoverEvent(HoverEvent.Action.SHOW_ENTITY, new HoverEvent.EntityTooltipInfo(this.getType(), this.getUUID(), this.getName()));
     }
 
     public boolean broadcastToPlayer(ServerPlayer param0) {

@@ -279,6 +279,10 @@ public abstract class LivingEntity extends Entity {
             this.getSleepingPos().ifPresent(this::setPosToBed);
         }
 
+        if (this.canSpawnSoulSpeedParticle()) {
+            this.spawnSoulSpeedParticle();
+        }
+
         super.baseTick();
         this.level.getProfiler().push("livingEntityBaseTick");
         boolean var0 = this instanceof Player;
@@ -389,21 +393,16 @@ public abstract class LivingEntity extends Entity {
         this.level.getProfiler().pop();
     }
 
-    @Override
-    public void updateSprintingState() {
-        super.updateSprintingState();
-        if (!this.isSpectator()
-            && EnchantmentHelper.hasSoulSpeed(this)
-            && this.getBlockStateOn().is(BlockTags.SOUL_SPEED_BLOCKS)
+    public boolean canSpawnSoulSpeedParticle() {
+        return this.tickCount % 5 == 0
             && this.getDeltaMovement().x != 0.0
             && this.getDeltaMovement().z != 0.0
-            && this.tickCount % 5 == 0) {
-            this.doSoulSpeedParticles();
-        }
-
+            && !this.isSpectator()
+            && EnchantmentHelper.hasSoulSpeed(this)
+            && this.onSoulSpeedBlock();
     }
 
-    protected void doSoulSpeedParticles() {
+    protected void spawnSoulSpeedParticle() {
         Vec3 var0 = this.getDeltaMovement();
         this.level
             .addParticle(
@@ -419,10 +418,13 @@ public abstract class LivingEntity extends Entity {
         this.playSound(SoundEvents.SOUL_ESCAPE, var1, 0.6F + this.random.nextFloat() * 0.4F);
     }
 
+    protected boolean onSoulSpeedBlock() {
+        return this.getBlockStateOn().is(BlockTags.SOUL_SPEED_BLOCKS);
+    }
+
     @Override
     protected float getBlockSpeedFactor() {
-        int var0 = EnchantmentHelper.getEnchantmentLevel(Enchantments.SOUL_SPEED, this);
-        return this.getBlockStateOn().is(BlockTags.SOUL_SPEED_BLOCKS) && var0 > 0 ? 1.0F : super.getBlockSpeedFactor();
+        return this.onSoulSpeedBlock() && EnchantmentHelper.getEnchantmentLevel(Enchantments.SOUL_SPEED, this) > 0 ? 1.0F : super.getBlockSpeedFactor();
     }
 
     protected void onChangedBlock(BlockPos param0) {
@@ -438,7 +440,7 @@ public abstract class LivingEntity extends Entity {
             }
 
             int var2 = EnchantmentHelper.getEnchantmentLevel(Enchantments.SOUL_SPEED, this);
-            if (var2 > 0 && this.getBlockStateOn().is(BlockTags.SOUL_SPEED_BLOCKS)) {
+            if (var2 > 0 && this.onSoulSpeedBlock()) {
                 var1.addTransientModifier(
                     new AttributeModifier(
                         SPEED_MODIFIER_SOUL_SPEED_UUID,
@@ -1968,7 +1970,7 @@ public abstract class LivingEntity extends Entity {
                     var10 = this.getFluidFallingAdjustedMovement(var0, var1, var10);
                     this.setDeltaMovement(var10.x * 0.54600006F, var10.y, var10.z * 0.54600006F);
                     if (this.horizontalCollision && this.isFree(var10.x, var10.y + 0.6F - this.getY() + this.yo, var10.z)) {
-                        this.setDeltaMovement(var10.x, 0.3F, var10.z);
+                        this.setDeltaMovement(var10.x * 0.54600006F, 0.3F, var10.z * 0.54600006F);
                     }
                 } else {
                     double var11 = this.getY();

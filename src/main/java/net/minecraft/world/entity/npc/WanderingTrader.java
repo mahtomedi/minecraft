@@ -102,11 +102,7 @@ public class WanderingTrader extends AbstractVillager {
     @Override
     public boolean mobInteract(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
-        boolean var1 = var0.getItem() == Items.NAME_TAG;
-        if (var1) {
-            var0.interactEnemy(param0, this, param1);
-            return true;
-        } else if (var0.getItem() != Items.VILLAGER_SPAWN_EGG && this.isAlive() && !this.isTrading() && !this.isBaby()) {
+        if (var0.getItem() != Items.VILLAGER_SPAWN_EGG && this.isAlive() && !this.isTrading() && !this.isBaby()) {
             if (param1 == InteractionHand.MAIN_HAND) {
                 param0.awardStat(Stats.TALKED_TO_VILLAGER);
             }

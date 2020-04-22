@@ -72,7 +72,7 @@ public class ClearInventoryCommands {
 
         if (var0 == 0) {
             if (param1.size() == 1) {
-                throw ERROR_SINGLE.create(param1.iterator().next().getName().getColoredString());
+                throw ERROR_SINGLE.create(param1.iterator().next().getName());
             } else {
                 throw ERROR_MULTIPLE.create(param1.size());
             }

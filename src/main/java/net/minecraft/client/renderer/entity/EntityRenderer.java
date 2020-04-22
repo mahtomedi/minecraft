@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.LightLayer;
@@ -57,7 +58,7 @@ public abstract class EntityRenderer<T extends Entity> {
 
     public void render(T param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {
         if (this.shouldShowName(param0)) {
-            this.renderNameTag(param0, param0.getDisplayName().getColoredString(), param3, param4, param5);
+            this.renderNameTag(param0, param0.getDisplayName(), param3, param4, param5);
         }
     }
 
@@ -71,12 +72,12 @@ public abstract class EntityRenderer<T extends Entity> {
         return this.entityRenderDispatcher.getFont();
     }
 
-    protected void renderNameTag(T param0, String param1, PoseStack param2, MultiBufferSource param3, int param4) {
+    protected void renderNameTag(T param0, Component param1, PoseStack param2, MultiBufferSource param3, int param4) {
         double var0 = this.entityRenderDispatcher.distanceToSqr(param0);
         if (!(var0 > 4096.0)) {
             boolean var1 = !param0.isDiscrete();
             float var2 = param0.getBbHeight() + 0.5F;
-            int var3 = "deadmau5".equals(param1) ? -10 : 0;
+            int var3 = "deadmau5".equals(param1.getString()) ? -10 : 0;
             param2.pushPose();
             param2.translate(0.0, (double)var2, 0.0);
             param2.mulPose(this.entityRenderDispatcher.cameraOrientation());

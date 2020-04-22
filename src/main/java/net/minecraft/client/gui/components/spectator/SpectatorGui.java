@@ -1,6 +1,7 @@
 package net.minecraft.client.gui.components.spectator;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
@@ -8,6 +9,7 @@ import net.minecraft.client.gui.spectator.SpectatorMenu;
 import net.minecraft.client.gui.spectator.SpectatorMenuItem;
 import net.minecraft.client.gui.spectator.SpectatorMenuListener;
 import net.minecraft.client.gui.spectator.categories.SpectatorPage;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
@@ -40,7 +42,7 @@ public class SpectatorGui extends GuiComponent implements SpectatorMenuListener 
         return Mth.clamp((float)var0 / 2000.0F, 0.0F, 1.0F);
     }
 
-    public void renderHotbar(float param0) {
+    public void renderHotbar(PoseStack param0, float param1) {
         if (this.menu != null) {
             float var0 = this.getHotbarAlpha();
             if (var0 <= 0.0F) {
@@ -51,61 +53,65 @@ public class SpectatorGui extends GuiComponent implements SpectatorMenuListener 
                 this.setBlitOffset(-90);
                 int var3 = Mth.floor((float)this.minecraft.getWindow().getGuiScaledHeight() - 22.0F * var0);
                 SpectatorPage var4 = this.menu.getCurrentPage();
-                this.renderPage(var0, var1, var3, var4);
+                this.renderPage(param0, var0, var1, var3, var4);
                 this.setBlitOffset(var2);
             }
         }
     }
 
-    protected void renderPage(float param0, int param1, int param2, SpectatorPage param3) {
+    protected void renderPage(PoseStack param0, float param1, int param2, int param3, SpectatorPage param4) {
         RenderSystem.enableRescaleNormal();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, param0);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, param1);
         this.minecraft.getTextureManager().bind(WIDGETS_LOCATION);
-        this.blit(param1 - 91, param2, 0, 0, 182, 22);
-        if (param3.getSelectedSlot() >= 0) {
-            this.blit(param1 - 91 - 1 + param3.getSelectedSlot() * 20, param2 - 1, 0, 22, 24, 22);
+        this.blit(param0, param2 - 91, param3, 0, 0, 182, 22);
+        if (param4.getSelectedSlot() >= 0) {
+            this.blit(param0, param2 - 91 - 1 + param4.getSelectedSlot() * 20, param3 - 1, 0, 22, 24, 22);
         }
 
         for(int var0 = 0; var0 < 9; ++var0) {
-            this.renderSlot(var0, this.minecraft.getWindow().getGuiScaledWidth() / 2 - 90 + var0 * 20 + 2, (float)(param2 + 3), param0, param3.getItem(var0));
+            this.renderSlot(
+                param0, var0, this.minecraft.getWindow().getGuiScaledWidth() / 2 - 90 + var0 * 20 + 2, (float)(param3 + 3), param1, param4.getItem(var0)
+            );
         }
 
         RenderSystem.disableRescaleNormal();
         RenderSystem.disableBlend();
     }
 
-    private void renderSlot(int param0, int param1, float param2, float param3, SpectatorMenuItem param4) {
+    private void renderSlot(PoseStack param0, int param1, int param2, float param3, float param4, SpectatorMenuItem param5) {
         this.minecraft.getTextureManager().bind(SPECTATOR_LOCATION);
-        if (param4 != SpectatorMenu.EMPTY_SLOT) {
-            int var0 = (int)(param3 * 255.0F);
+        if (param5 != SpectatorMenu.EMPTY_SLOT) {
+            int var0 = (int)(param4 * 255.0F);
             RenderSystem.pushMatrix();
-            RenderSystem.translatef((float)param1, param2, 0.0F);
-            float var1 = param4.isEnabled() ? 1.0F : 0.25F;
-            RenderSystem.color4f(var1, var1, var1, param3);
-            param4.renderIcon(var1, var0);
+            RenderSystem.translatef((float)param2, param3, 0.0F);
+            float var1 = param5.isEnabled() ? 1.0F : 0.25F;
+            RenderSystem.color4f(var1, var1, var1, param4);
+            param5.renderIcon(param0, var1, var0);
             RenderSystem.popMatrix();
-            String var2 = String.valueOf(this.minecraft.options.keyHotbarSlots[param0].getTranslatedKeyMessage());
-            if (var0 > 3 && param4.isEnabled()) {
-                this.minecraft.font.drawShadow(var2, (float)(param1 + 19 - 2 - this.minecraft.font.width(var2)), param2 + 6.0F + 3.0F, 16777215 + (var0 << 24));
+            if (var0 > 3 && param5.isEnabled()) {
+                Component var2 = this.minecraft.options.keyHotbarSlots[param1].getTranslatedKeyMessage();
+                this.minecraft
+                    .font
+                    .drawShadow(param0, var2, (float)(param2 + 19 - 2 - this.minecraft.font.width(var2)), param3 + 6.0F + 3.0F, 16777215 + (var0 << 24));
             }
         }
 
     }
 
-    public void renderTooltip() {
+    public void renderTooltip(PoseStack param0) {
         int var0 = (int)(this.getHotbarAlpha() * 255.0F);
         if (var0 > 3 && this.menu != null) {
             SpectatorMenuItem var1 = this.menu.getSelectedItem();
-            String var2 = var1 == SpectatorMenu.EMPTY_SLOT ? this.menu.getSelectedCategory().getPrompt().getColoredString() : var1.getName().getColoredString();
+            Component var2 = var1 == SpectatorMenu.EMPTY_SLOT ? this.menu.getSelectedCategory().getPrompt() : var1.getName();
             if (var2 != null) {
                 int var3 = (this.minecraft.getWindow().getGuiScaledWidth() - this.minecraft.font.width(var2)) / 2;
                 int var4 = this.minecraft.getWindow().getGuiScaledHeight() - 35;
                 RenderSystem.pushMatrix();
                 RenderSystem.enableBlend();
                 RenderSystem.defaultBlendFunc();
-                this.minecraft.font.drawShadow(var2, (float)var3, (float)var4, 16777215 + (var0 << 24));
+                this.minecraft.font.drawShadow(param0, var2, (float)var3, (float)var4, 16777215 + (var0 << 24));
                 RenderSystem.disableBlend();
                 RenderSystem.popMatrix();
             }

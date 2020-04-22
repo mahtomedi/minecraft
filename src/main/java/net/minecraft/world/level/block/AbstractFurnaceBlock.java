@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 
 public abstract class AbstractFurnaceBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
@@ -64,6 +65,7 @@ public abstract class AbstractFurnaceBlock extends BaseEntityBlock {
             BlockEntity var0 = param1.getBlockEntity(param2);
             if (var0 instanceof AbstractFurnaceBlockEntity) {
                 Containers.dropContents(param1, param2, (AbstractFurnaceBlockEntity)var0);
+                ((AbstractFurnaceBlockEntity)var0).getRecipesToAwardAndPopExperience(param1, Vec3.atCenterOf(param2));
                 param1.updateNeighbourForOutputSignal(param2, this);
             }
 

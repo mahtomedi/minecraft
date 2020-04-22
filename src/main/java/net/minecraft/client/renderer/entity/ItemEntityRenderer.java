@@ -55,7 +55,7 @@ public class ItemEntityRenderer extends EntityRenderer<ItemEntity> {
         float var6 = Mth.sin(((float)param0.getAge() + param2) / 10.0F + param0.bobOffs) * 0.1F + 0.1F;
         float var7 = var2.getTransforms().getTransform(ItemTransforms.TransformType.GROUND).scale.y();
         param3.translate(0.0, (double)(var6 + 0.25F * var7), 0.0);
-        float var8 = ((float)param0.getAge() + param2) / 20.0F + param0.bobOffs;
+        float var8 = param0.getSpin(param2);
         param3.mulPose(Vector3f.YP.rotation(var8));
         float var9 = var2.getTransforms().ground.scale.x();
         float var10 = var2.getTransforms().ground.scale.y();

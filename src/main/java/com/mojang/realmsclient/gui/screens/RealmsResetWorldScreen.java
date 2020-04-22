@@ -1,6 +1,7 @@
 package com.mojang.realmsclient.gui.screens;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.dto.RealmsServer;
 import com.mojang.realmsclient.dto.WorldTemplate;
@@ -12,7 +13,9 @@ import javax.annotation.Nullable;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.realms.RealmsLabel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -27,9 +30,9 @@ public class RealmsResetWorldScreen extends RealmsScreenWithCallback {
     private final RealmsServer serverData;
     private RealmsLabel titleLabel;
     private RealmsLabel subtitleLabel;
-    private String title = I18n.get("mco.reset.world.title");
-    private String subtitle = I18n.get("mco.reset.world.warning");
-    private String buttonTitle = I18n.get("gui.cancel");
+    private Component title = new TranslatableComponent("mco.reset.world.title");
+    private Component subtitle = new TranslatableComponent("mco.reset.world.warning");
+    private Component buttonTitle = CommonComponents.GUI_CANCEL;
     private int subtitleColor = 16711680;
     private static final ResourceLocation SLOT_FRAME_LOCATION = new ResourceLocation("realms", "textures/gui/realms/slot_frame.png");
     private static final ResourceLocation UPLOAD_LOCATION = new ResourceLocation("realms", "textures/gui/realms/upload.png");
@@ -57,7 +60,9 @@ public class RealmsResetWorldScreen extends RealmsScreenWithCallback {
         this.callback = param3;
     }
 
-    public RealmsResetWorldScreen(Screen param0, RealmsServer param1, String param2, String param3, int param4, String param5, Runnable param6, Runnable param7) {
+    public RealmsResetWorldScreen(
+        Screen param0, RealmsServer param1, Component param2, Component param3, int param4, Component param5, Runnable param6, Runnable param7
+    ) {
         this(param0, param1, param6, param7);
         this.title = param2;
         this.subtitle = param3;
@@ -104,42 +109,60 @@ public class RealmsResetWorldScreen extends RealmsScreenWithCallback {
             new RealmsResetWorldScreen.FrameButton(
                 this.frame(1),
                 row(0) + 10,
-                I18n.get("mco.reset.world.generate"),
+                new TranslatableComponent("mco.reset.world.generate"),
                 NEW_WORLD_LOCATION,
                 param0 -> this.minecraft.setScreen(new RealmsResetNormalWorldScreen(this, this.title))
             )
         );
-        this.addButton(new RealmsResetWorldScreen.FrameButton(this.frame(2), row(0) + 10, I18n.get("mco.reset.world.upload"), UPLOAD_LOCATION, param0 -> {
-            Screen var0 = new RealmsSelectFileToUploadScreen(this.serverData.id, this.slot != -1 ? this.slot : this.serverData.activeSlot, this, this.callback);
-            this.minecraft.setScreen(var0);
-        }));
         this.addButton(
-            new RealmsResetWorldScreen.FrameButton(this.frame(3), row(0) + 10, I18n.get("mco.reset.world.template"), SURVIVAL_SPAWN_LOCATION, param0 -> {
-                RealmsSelectWorldTemplateScreen var0 = new RealmsSelectWorldTemplateScreen(this, RealmsServer.WorldType.NORMAL, this.templates);
-                var0.setTitle(I18n.get("mco.reset.world.template"));
-                this.minecraft.setScreen(var0);
-            })
+            new RealmsResetWorldScreen.FrameButton(
+                this.frame(2),
+                row(0) + 10,
+                new TranslatableComponent("mco.reset.world.upload"),
+                UPLOAD_LOCATION,
+                param0 -> {
+                    Screen var0 = new RealmsSelectFileToUploadScreen(
+                        this.serverData.id, this.slot != -1 ? this.slot : this.serverData.activeSlot, this, this.callback
+                    );
+                    this.minecraft.setScreen(var0);
+                }
+            )
         );
         this.addButton(
-            new RealmsResetWorldScreen.FrameButton(this.frame(1), row(6) + 20, I18n.get("mco.reset.world.adventure"), ADVENTURE_MAP_LOCATION, param0 -> {
-                RealmsSelectWorldTemplateScreen var0 = new RealmsSelectWorldTemplateScreen(this, RealmsServer.WorldType.ADVENTUREMAP, this.adventuremaps);
-                var0.setTitle(I18n.get("mco.reset.world.adventure"));
-                this.minecraft.setScreen(var0);
-            })
+            new RealmsResetWorldScreen.FrameButton(
+                this.frame(3), row(0) + 10, new TranslatableComponent("mco.reset.world.template"), SURVIVAL_SPAWN_LOCATION, param0 -> {
+                    RealmsSelectWorldTemplateScreen var0 = new RealmsSelectWorldTemplateScreen(this, RealmsServer.WorldType.NORMAL, this.templates);
+                    var0.setTitle(new TranslatableComponent("mco.reset.world.template"));
+                    this.minecraft.setScreen(var0);
+                }
+            )
         );
         this.addButton(
-            new RealmsResetWorldScreen.FrameButton(this.frame(2), row(6) + 20, I18n.get("mco.reset.world.experience"), EXPERIENCE_LOCATION, param0 -> {
-                RealmsSelectWorldTemplateScreen var0 = new RealmsSelectWorldTemplateScreen(this, RealmsServer.WorldType.EXPERIENCE, this.experiences);
-                var0.setTitle(I18n.get("mco.reset.world.experience"));
-                this.minecraft.setScreen(var0);
-            })
+            new RealmsResetWorldScreen.FrameButton(
+                this.frame(1), row(6) + 20, new TranslatableComponent("mco.reset.world.adventure"), ADVENTURE_MAP_LOCATION, param0 -> {
+                    RealmsSelectWorldTemplateScreen var0 = new RealmsSelectWorldTemplateScreen(this, RealmsServer.WorldType.ADVENTUREMAP, this.adventuremaps);
+                    var0.setTitle(new TranslatableComponent("mco.reset.world.adventure"));
+                    this.minecraft.setScreen(var0);
+                }
+            )
         );
         this.addButton(
-            new RealmsResetWorldScreen.FrameButton(this.frame(3), row(6) + 20, I18n.get("mco.reset.world.inspiration"), INSPIRATION_LOCATION, param0 -> {
-                RealmsSelectWorldTemplateScreen var0 = new RealmsSelectWorldTemplateScreen(this, RealmsServer.WorldType.INSPIRATION, this.inspirations);
-                var0.setTitle(I18n.get("mco.reset.world.inspiration"));
-                this.minecraft.setScreen(var0);
-            })
+            new RealmsResetWorldScreen.FrameButton(
+                this.frame(2), row(6) + 20, new TranslatableComponent("mco.reset.world.experience"), EXPERIENCE_LOCATION, param0 -> {
+                    RealmsSelectWorldTemplateScreen var0 = new RealmsSelectWorldTemplateScreen(this, RealmsServer.WorldType.EXPERIENCE, this.experiences);
+                    var0.setTitle(new TranslatableComponent("mco.reset.world.experience"));
+                    this.minecraft.setScreen(var0);
+                }
+            )
+        );
+        this.addButton(
+            new RealmsResetWorldScreen.FrameButton(
+                this.frame(3), row(6) + 20, new TranslatableComponent("mco.reset.world.inspiration"), INSPIRATION_LOCATION, param0 -> {
+                    RealmsSelectWorldTemplateScreen var0 = new RealmsSelectWorldTemplateScreen(this, RealmsServer.WorldType.INSPIRATION, this.inspirations);
+                    var0.setTitle(new TranslatableComponent("mco.reset.world.inspiration"));
+                    this.minecraft.setScreen(var0);
+                }
+            )
         );
         this.narrateLabels();
     }
@@ -164,32 +187,32 @@ public class RealmsResetWorldScreen extends RealmsScreenWithCallback {
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
-        this.renderBackground();
-        this.titleLabel.render(this);
-        this.subtitleLabel.render(this);
-        super.render(param0, param1, param2);
+    public void render(PoseStack param0, int param1, int param2, float param3) {
+        this.renderBackground(param0);
+        this.titleLabel.render(this, param0);
+        this.subtitleLabel.render(this, param0);
+        super.render(param0, param1, param2, param3);
     }
 
-    private void drawFrame(int param0, int param1, String param2, ResourceLocation param3, boolean param4, boolean param5) {
-        this.minecraft.getTextureManager().bind(param3);
-        if (param4) {
+    private void drawFrame(PoseStack param0, int param1, int param2, Component param3, ResourceLocation param4, boolean param5, boolean param6) {
+        this.minecraft.getTextureManager().bind(param4);
+        if (param5) {
             RenderSystem.color4f(0.56F, 0.56F, 0.56F, 1.0F);
         } else {
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         }
 
-        GuiComponent.blit(param0 + 2, param1 + 14, 0.0F, 0.0F, 56, 56, 56, 56);
+        GuiComponent.blit(param0, param1 + 2, param2 + 14, 0.0F, 0.0F, 56, 56, 56, 56);
         this.minecraft.getTextureManager().bind(SLOT_FRAME_LOCATION);
-        if (param4) {
+        if (param5) {
             RenderSystem.color4f(0.56F, 0.56F, 0.56F, 1.0F);
         } else {
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         }
 
-        GuiComponent.blit(param0, param1 + 12, 0.0F, 0.0F, 60, 60, 60, 60);
-        int var0 = param4 ? 10526880 : 16777215;
-        this.drawCenteredString(this.font, param2, param0 + 30, param1, var0);
+        GuiComponent.blit(param0, param1, param2 + 12, 0.0F, 0.0F, 60, 60, 60, 60);
+        int var0 = param5 ? 10526880 : 16777215;
+        this.drawCenteredString(param0, this.font, param3, param1 + 30, param2, var0);
     }
 
     @Override
@@ -275,15 +298,15 @@ public class RealmsResetWorldScreen extends RealmsScreenWithCallback {
     class FrameButton extends Button {
         private final ResourceLocation image;
 
-        public FrameButton(int param0, int param1, String param2, ResourceLocation param3, Button.OnPress param4) {
+        public FrameButton(int param0, int param1, Component param2, ResourceLocation param3, Button.OnPress param4) {
             super(param0, param1, 60, 72, param2, param4);
             this.image = param3;
         }
 
         @Override
-        public void renderButton(int param0, int param1, float param2) {
+        public void renderButton(PoseStack param0, int param1, int param2, float param3) {
             RealmsResetWorldScreen.this.drawFrame(
-                this.x, this.y, this.getMessage(), this.image, this.isHovered(), this.isMouseOver((double)param0, (double)param1)
+                param0, this.x, this.y, this.getMessage(), this.image, this.isHovered(), this.isMouseOver((double)param1, (double)param2)
             );
         }
     }

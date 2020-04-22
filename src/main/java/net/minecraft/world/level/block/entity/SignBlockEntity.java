@@ -1,7 +1,7 @@
 package net.minecraft.world.level.block.entity;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import javax.annotation.Nullable;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
@@ -23,10 +23,10 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class SignBlockEntity extends BlockEntity {
-    public final Component[] messages = new Component[]{new TextComponent(""), new TextComponent(""), new TextComponent(""), new TextComponent("")};
+    private final Component[] messages = new Component[]{TextComponent.EMPTY, TextComponent.EMPTY, TextComponent.EMPTY, TextComponent.EMPTY};
     private boolean isEditable = true;
     private Player playerWhoMayEdit;
-    private final String[] renderMessages = new String[4];
+    private final Component[] renderMessages = new Component[4];
     private DyeColor color = DyeColor.BLACK;
 
     public SignBlockEntity() {
@@ -82,7 +82,7 @@ public class SignBlockEntity extends BlockEntity {
 
     @Nullable
     @OnlyIn(Dist.CLIENT)
-    public String getRenderMessage(int param0, Function<Component, String> param1) {
+    public Component getRenderMessage(int param0, UnaryOperator<Component> param1) {
         if (this.renderMessages[param0] == null && this.messages[param0] != null) {
             this.renderMessages[param0] = param1.apply(this.messages[param0]);
         }

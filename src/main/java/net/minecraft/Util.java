@@ -297,6 +297,44 @@ public class Util {
         return param0[param1.nextInt(param0.length)];
     }
 
+    public static void safeReplaceFile(File param0, File param1, File param2) {
+        if (param2.exists()) {
+            param2.delete();
+        }
+
+        param0.renameTo(param2);
+        if (param0.exists()) {
+            param0.delete();
+        }
+
+        param1.renameTo(param0);
+        if (param1.exists()) {
+            param1.delete();
+        }
+
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static int offsetByCodepoints(String param0, int param1, int param2) {
+        int var0 = param0.length();
+        if (param2 >= 0) {
+            for(int var1 = 0; param1 < var0 && var1 < param2; ++var1) {
+                if (Character.isHighSurrogate(param0.charAt(param1++)) && param1 < var0 && Character.isLowSurrogate(param0.charAt(param1))) {
+                    ++param1;
+                }
+            }
+        } else {
+            for(int var2 = param2; param1 > 0 && var2 < 0; ++var2) {
+                --param1;
+                if (Character.isLowSurrogate(param0.charAt(param1)) && param1 > 0 && Character.isHighSurrogate(param0.charAt(param1 - 1))) {
+                    --param1;
+                }
+            }
+        }
+
+        return param1;
+    }
+
     static enum IdentityStrategy implements Strategy<Object> {
         INSTANCE;
 

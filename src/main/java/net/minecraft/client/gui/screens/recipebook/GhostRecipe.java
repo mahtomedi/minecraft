@@ -2,6 +2,7 @@ package net.minecraft.client.gui.screens.recipebook;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
@@ -48,29 +49,29 @@ public class GhostRecipe {
         this.recipe = param0;
     }
 
-    public void render(Minecraft param0, int param1, int param2, boolean param3, float param4) {
+    public void render(PoseStack param0, Minecraft param1, int param2, int param3, boolean param4, float param5) {
         if (!Screen.hasControlDown()) {
-            this.time += param4;
+            this.time += param5;
         }
 
         for(int var0 = 0; var0 < this.ingredients.size(); ++var0) {
             GhostRecipe.GhostIngredient var1 = this.ingredients.get(var0);
-            int var2 = var1.getX() + param1;
-            int var3 = var1.getY() + param2;
-            if (var0 == 0 && param3) {
-                GuiComponent.fill(var2 - 4, var3 - 4, var2 + 20, var3 + 20, 822018048);
+            int var2 = var1.getX() + param2;
+            int var3 = var1.getY() + param3;
+            if (var0 == 0 && param4) {
+                GuiComponent.fill(param0, var2 - 4, var3 - 4, var2 + 20, var3 + 20, 822018048);
             } else {
-                GuiComponent.fill(var2, var3, var2 + 16, var3 + 16, 822018048);
+                GuiComponent.fill(param0, var2, var3, var2 + 16, var3 + 16, 822018048);
             }
 
             ItemStack var4 = var1.getItem();
-            ItemRenderer var5 = param0.getItemRenderer();
-            var5.renderAndDecorateItem(param0.player, var4, var2, var3);
+            ItemRenderer var5 = param1.getItemRenderer();
+            var5.renderAndDecorateItem(param1.player, var4, var2, var3);
             RenderSystem.depthFunc(516);
-            GuiComponent.fill(var2, var3, var2 + 16, var3 + 16, 822083583);
+            GuiComponent.fill(param0, var2, var3, var2 + 16, var3 + 16, 822083583);
             RenderSystem.depthFunc(515);
             if (var0 == 0) {
-                var5.renderGuiItemDecorations(param0.font, var4, var2, var3);
+                var5.renderGuiItemDecorations(param1.font, var4, var2, var3);
             }
         }
 

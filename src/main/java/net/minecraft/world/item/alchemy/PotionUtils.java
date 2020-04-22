@@ -12,6 +12,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -156,7 +157,7 @@ public class PotionUtils {
             param1.add(new TranslatableComponent("effect.none").withStyle(ChatFormatting.GRAY));
         } else {
             for(MobEffectInstance var2 : var0) {
-                Component var3 = new TranslatableComponent(var2.getDescriptionId());
+                MutableComponent var3 = new TranslatableComponent(var2.getDescriptionId());
                 MobEffect var4 = var2.getEffect();
                 Map<Attribute, AttributeModifier> var5 = var4.getAttributeModifiers();
                 if (!var5.isEmpty()) {
@@ -182,7 +183,7 @@ public class PotionUtils {
         }
 
         if (!var1.isEmpty()) {
-            param1.add(new TextComponent(""));
+            param1.add(TextComponent.EMPTY);
             param1.add(new TranslatableComponent("potion.whenDrank").withStyle(ChatFormatting.DARK_PURPLE));
 
             for(Pair<Attribute, AttributeModifier> var9 : var1) {

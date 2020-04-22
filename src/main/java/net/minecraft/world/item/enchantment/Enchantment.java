@@ -7,6 +7,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -98,7 +99,7 @@ public abstract class Enchantment {
     }
 
     public Component getFullname(int param0) {
-        Component var0 = new TranslatableComponent(this.getDescriptionId());
+        MutableComponent var0 = new TranslatableComponent(this.getDescriptionId());
         if (this.isCurse()) {
             var0.withStyle(ChatFormatting.RED);
         } else {

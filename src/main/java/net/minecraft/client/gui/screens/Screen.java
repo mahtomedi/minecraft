@@ -2,14 +2,12 @@ package net.minecraft.client.gui.screens;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.google.gson.JsonSyntaxException;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.math.Matrix4f;
 import java.io.File;
 import java.net.URI;
@@ -19,7 +17,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import javax.annotation.Nullable;
-import net.minecraft.ChatFormatting;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
@@ -32,9 +29,6 @@ import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
@@ -74,9 +68,9 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
+    public void render(PoseStack param0, int param1, int param2, float param3) {
         for(int var0 = 0; var0 < this.buttons.size(); ++var0) {
-            this.buttons.get(var0).render(param0, param1, param2);
+            this.buttons.get(var0).render(param0, param1, param2, param3);
         }
 
     }
@@ -116,45 +110,38 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
         return param0;
     }
 
-    protected void renderTooltip(ItemStack param0, int param1, int param2) {
-        this.renderTooltip(this.getTooltipFromItem(param0), param1, param2);
+    protected void renderTooltip(PoseStack param0, ItemStack param1, int param2, int param3) {
+        this.renderTooltip(param0, this.getTooltipFromItem(param1), param2, param3);
     }
 
-    public List<String> getTooltipFromItem(ItemStack param0) {
-        List<Component> var0 = param0.getTooltipLines(
+    public List<Component> getTooltipFromItem(ItemStack param0) {
+        return param0.getTooltipLines(
             this.minecraft.player, this.minecraft.options.advancedItemTooltips ? TooltipFlag.Default.ADVANCED : TooltipFlag.Default.NORMAL
         );
-        List<String> var1 = Lists.newArrayList();
-
-        for(Component var2 : var0) {
-            var1.add(var2.getColoredString());
-        }
-
-        return var1;
     }
 
-    public void renderTooltip(String param0, int param1, int param2) {
-        this.renderTooltip(Arrays.asList(param0), param1, param2);
+    public void renderTooltip(PoseStack param0, Component param1, int param2, int param3) {
+        this.renderTooltip(param0, Arrays.asList(param1), param2, param3);
     }
 
-    public void renderTooltip(List<String> param0, int param1, int param2) {
-        if (!param0.isEmpty()) {
+    public void renderTooltip(PoseStack param0, List<Component> param1, int param2, int param3) {
+        if (!param1.isEmpty()) {
             RenderSystem.disableRescaleNormal();
             RenderSystem.disableDepthTest();
             int var0 = 0;
 
-            for(String var1 : param0) {
+            for(Component var1 : param1) {
                 int var2 = this.font.width(var1);
                 if (var2 > var0) {
                     var0 = var2;
                 }
             }
 
-            int var3 = param1 + 12;
-            int var4 = param2 - 12;
+            int var3 = param2 + 12;
+            int var4 = param3 - 12;
             int var6 = 8;
-            if (param0.size() > 1) {
-                var6 += 2 + (param0.size() - 1) * 10;
+            if (param1.size() > 1) {
+                var6 += 2 + (param1.size() - 1) * 10;
             }
 
             if (var3 + var0 > this.width) {
@@ -168,36 +155,35 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
             this.setBlitOffset(300);
             this.itemRenderer.blitOffset = 300.0F;
             int var7 = -267386864;
-            this.fillGradient(var3 - 3, var4 - 4, var3 + var0 + 3, var4 - 3, -267386864, -267386864);
-            this.fillGradient(var3 - 3, var4 + var6 + 3, var3 + var0 + 3, var4 + var6 + 4, -267386864, -267386864);
-            this.fillGradient(var3 - 3, var4 - 3, var3 + var0 + 3, var4 + var6 + 3, -267386864, -267386864);
-            this.fillGradient(var3 - 4, var4 - 3, var3 - 3, var4 + var6 + 3, -267386864, -267386864);
-            this.fillGradient(var3 + var0 + 3, var4 - 3, var3 + var0 + 4, var4 + var6 + 3, -267386864, -267386864);
+            this.fillGradient(param0, var3 - 3, var4 - 4, var3 + var0 + 3, var4 - 3, -267386864, -267386864);
+            this.fillGradient(param0, var3 - 3, var4 + var6 + 3, var3 + var0 + 3, var4 + var6 + 4, -267386864, -267386864);
+            this.fillGradient(param0, var3 - 3, var4 - 3, var3 + var0 + 3, var4 + var6 + 3, -267386864, -267386864);
+            this.fillGradient(param0, var3 - 4, var4 - 3, var3 - 3, var4 + var6 + 3, -267386864, -267386864);
+            this.fillGradient(param0, var3 + var0 + 3, var4 - 3, var3 + var0 + 4, var4 + var6 + 3, -267386864, -267386864);
             int var8 = 1347420415;
             int var9 = 1344798847;
-            this.fillGradient(var3 - 3, var4 - 3 + 1, var3 - 3 + 1, var4 + var6 + 3 - 1, 1347420415, 1344798847);
-            this.fillGradient(var3 + var0 + 2, var4 - 3 + 1, var3 + var0 + 3, var4 + var6 + 3 - 1, 1347420415, 1344798847);
-            this.fillGradient(var3 - 3, var4 - 3, var3 + var0 + 3, var4 - 3 + 1, 1347420415, 1347420415);
-            this.fillGradient(var3 - 3, var4 + var6 + 2, var3 + var0 + 3, var4 + var6 + 3, 1344798847, 1344798847);
-            PoseStack var10 = new PoseStack();
-            MultiBufferSource.BufferSource var11 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-            var10.translate(0.0, 0.0, (double)this.itemRenderer.blitOffset);
-            Matrix4f var12 = var10.last().pose();
+            this.fillGradient(param0, var3 - 3, var4 - 3 + 1, var3 - 3 + 1, var4 + var6 + 3 - 1, 1347420415, 1344798847);
+            this.fillGradient(param0, var3 + var0 + 2, var4 - 3 + 1, var3 + var0 + 3, var4 + var6 + 3 - 1, 1347420415, 1344798847);
+            this.fillGradient(param0, var3 - 3, var4 - 3, var3 + var0 + 3, var4 - 3 + 1, 1347420415, 1347420415);
+            this.fillGradient(param0, var3 - 3, var4 + var6 + 2, var3 + var0 + 3, var4 + var6 + 3, 1344798847, 1344798847);
+            MultiBufferSource.BufferSource var10 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
+            param0.translate(0.0, 0.0, (double)this.itemRenderer.blitOffset);
+            Matrix4f var11 = param0.last().pose();
 
-            for(int var13 = 0; var13 < param0.size(); ++var13) {
-                String var14 = param0.get(var13);
-                if (var14 != null) {
-                    this.font.drawInBatch(var14, (float)var3, (float)var4, -1, true, var12, var11, false, 0, 15728880);
+            for(int var12 = 0; var12 < param1.size(); ++var12) {
+                Component var13 = param1.get(var12);
+                if (var13 != null) {
+                    this.font.drawInBatch(var13, (float)var3, (float)var4, -1, true, var11, var10, false, 0, 15728880);
                 }
 
-                if (var13 == 0) {
+                if (var12 == 0) {
                     var4 += 2;
                 }
 
                 var4 += 10;
             }
 
-            var11.endBatch();
+            var10.endBatch();
             this.setBlitOffset(0);
             this.itemRenderer.blitOffset = 0.0F;
             RenderSystem.enableDepthTest();
@@ -205,48 +191,24 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
         }
     }
 
-    protected void renderComponentHoverEffect(Component param0, int param1, int param2) {
-        if (param0 != null && param0.getStyle().getHoverEvent() != null) {
-            HoverEvent var0 = param0.getStyle().getHoverEvent();
-            if (var0.getAction() == HoverEvent.Action.SHOW_ITEM) {
-                ItemStack var1 = ItemStack.EMPTY;
-
-                try {
-                    Tag var2 = TagParser.parseTag(var0.getValue().getString());
-                    if (var2 instanceof CompoundTag) {
-                        var1 = ItemStack.of((CompoundTag)var2);
+    protected void renderComponentHoverEffect(PoseStack param0, @Nullable Component param1, int param2, int param3) {
+        if (param1 != null && param1.getStyle().getHoverEvent() != null) {
+            HoverEvent var0 = param1.getStyle().getHoverEvent();
+            HoverEvent.ItemStackInfo var1 = var0.getValue(HoverEvent.Action.SHOW_ITEM);
+            if (var1 != null) {
+                this.renderTooltip(param0, var1.getItemStack(), param2, param3);
+            } else {
+                HoverEvent.EntityTooltipInfo var2 = var0.getValue(HoverEvent.Action.SHOW_ENTITY);
+                if (var2 != null) {
+                    if (this.minecraft.options.advancedItemTooltips) {
+                        this.renderTooltip(param0, var2.getTooltipLines(), param2, param3);
                     }
-                } catch (CommandSyntaxException var10) {
-                }
-
-                if (var1.isEmpty()) {
-                    this.renderTooltip(ChatFormatting.RED + "Invalid Item!", param1, param2);
                 } else {
-                    this.renderTooltip(var1, param1, param2);
-                }
-            } else if (var0.getAction() == HoverEvent.Action.SHOW_ENTITY) {
-                if (this.minecraft.options.advancedItemTooltips) {
-                    try {
-                        CompoundTag var3 = TagParser.parseTag(var0.getValue().getString());
-                        List<String> var4 = Lists.newArrayList();
-                        Component var5 = Component.Serializer.fromJson(var3.getString("name"));
-                        if (var5 != null) {
-                            var4.add(var5.getColoredString());
-                        }
-
-                        if (var3.contains("type", 8)) {
-                            String var6 = var3.getString("type");
-                            var4.add("Type: " + var6);
-                        }
-
-                        var4.add(var3.getString("id"));
-                        this.renderTooltip(var4, param1, param2);
-                    } catch (CommandSyntaxException | JsonSyntaxException var9) {
-                        this.renderTooltip(ChatFormatting.RED + "Invalid Entity!", param1, param2);
+                    Component var3 = var0.getValue(HoverEvent.Action.SHOW_TEXT);
+                    if (var3 != null) {
+                        this.renderTooltip(param0, this.minecraft.font.split(var3, Math.max(this.width / 2, 200)), param2, param3);
                     }
                 }
-            } else if (var0.getAction() == HoverEvent.Action.SHOW_TEXT) {
-                this.renderTooltip(this.minecraft.font.split(var0.getValue().getColoredString(), Math.max(this.width / 2, 200)), param1, param2);
             }
 
         }
@@ -348,15 +310,15 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
     public void removed() {
     }
 
-    public void renderBackground() {
-        this.renderBackground(0);
+    public void renderBackground(PoseStack param0) {
+        this.renderBackground(param0, 0);
     }
 
-    public void renderBackground(int param0) {
+    public void renderBackground(PoseStack param0, int param1) {
         if (this.minecraft.level != null) {
-            this.fillGradient(0, 0, this.width, this.height, -1072689136, -804253680);
+            this.fillGradient(param0, 0, 0, this.width, this.height, -1072689136, -804253680);
         } else {
-            this.renderDirtBackground(param0);
+            this.renderDirtBackground(param1);
         }
 
     }

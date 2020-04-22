@@ -6,6 +6,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -69,7 +70,7 @@ public class FishBucketItem extends BucketItem {
                 }
 
                 param2.add(new TranslatableComponent(TropicalFish.getFishTypeName(var1)).withStyle(var2));
-                Component var6 = new TranslatableComponent(var3);
+                MutableComponent var6 = new TranslatableComponent(var3);
                 if (!var3.equals(var4)) {
                     var6.append(", ").append(new TranslatableComponent(var4));
                 }

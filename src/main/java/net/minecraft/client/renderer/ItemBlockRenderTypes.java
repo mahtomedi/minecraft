@@ -81,8 +81,8 @@ public class ItemBlockRenderTypes {
         param0.put(Blocks.RED_MUSHROOM, var1);
         param0.put(Blocks.TORCH, var1);
         param0.put(Blocks.WALL_TORCH, var1);
-        param0.put(Blocks.SOUL_FIRE_TORCH, var1);
-        param0.put(Blocks.SOUL_FIRE_WALL_TORCH, var1);
+        param0.put(Blocks.SOUL_TORCH, var1);
+        param0.put(Blocks.SOUL_WALL_TORCH, var1);
         param0.put(Blocks.FIRE, var1);
         param0.put(Blocks.SOUL_FIRE, var1);
         param0.put(Blocks.SPAWNER, var1);
@@ -201,7 +201,7 @@ public class ItemBlockRenderTypes {
         param0.put(Blocks.SCAFFOLDING, var1);
         param0.put(Blocks.STONECUTTER, var1);
         param0.put(Blocks.LANTERN, var1);
-        param0.put(Blocks.SOUL_FIRE_LANTERN, var1);
+        param0.put(Blocks.SOUL_LANTERN, var1);
         param0.put(Blocks.CAMPFIRE, var1);
         param0.put(Blocks.SOUL_CAMPFIRE, var1);
         param0.put(Blocks.SWEET_BERRY_BUSH, var1);

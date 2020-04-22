@@ -1,10 +1,13 @@
 package net.minecraft.realms;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
+import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -13,7 +16,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class DisconnectedRealmsScreen extends RealmsScreen {
     private final String title;
     private final Component reason;
-    private List<String> lines;
+    @Nullable
+    private List<Component> lines;
     private final Screen parent;
     private int textHeight;
 
@@ -29,16 +33,11 @@ public class DisconnectedRealmsScreen extends RealmsScreen {
         var0.setConnectedToRealms(false);
         var0.getClientPackSource().clearServerPack();
         NarrationHelper.now(this.title + ": " + this.reason.getString());
-        this.lines = this.font.split(this.reason.getColoredString(), this.width - 50);
+        this.lines = this.font.split(this.reason, this.width - 50);
         this.textHeight = this.lines.size() * 9;
         this.addButton(
             new Button(
-                this.width / 2 - 100,
-                this.height / 2 + this.textHeight / 2 + 9,
-                200,
-                20,
-                I18n.get("gui.back"),
-                param0 -> Minecraft.getInstance().setScreen(this.parent)
+                this.width / 2 - 100, this.height / 2 + this.textHeight / 2 + 9, 200, 20, CommonComponents.GUI_BACK, param1 -> var0.setScreen(this.parent)
             )
         );
     }
@@ -54,17 +53,17 @@ public class DisconnectedRealmsScreen extends RealmsScreen {
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
-        this.renderBackground();
-        this.drawCenteredString(this.font, this.title, this.width / 2, this.height / 2 - this.textHeight / 2 - 9 * 2, 11184810);
+    public void render(PoseStack param0, int param1, int param2, float param3) {
+        this.renderBackground(param0);
+        this.drawCenteredString(param0, this.font, this.title, this.width / 2, this.height / 2 - this.textHeight / 2 - 9 * 2, 11184810);
         int var0 = this.height / 2 - this.textHeight / 2;
         if (this.lines != null) {
-            for(String var1 : this.lines) {
-                this.drawCenteredString(this.font, var1, this.width / 2, var0, 16777215);
+            for(Component var1 : this.lines) {
+                this.drawCenteredString(param0, this.font, var1, this.width / 2, var0, 16777215);
                 var0 += 9;
             }
         }
 
-        super.render(param0, param1, param2);
+        super.render(param0, param1, param2, param3);
     }
 }

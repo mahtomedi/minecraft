@@ -256,7 +256,7 @@ public class SnowyVillagePools {
                 new StructureTemplatePool(
                     new ResourceLocation("village/snowy/trees"),
                     new ResourceLocation("empty"),
-                    ImmutableList.of(new Pair<>(new FeaturePoolElement(Feature.NORMAL_TREE.configured(BiomeDefaultFeatures.SPRUCE_TREE_CONFIG)), 1)),
+                    ImmutableList.of(new Pair<>(new FeaturePoolElement(Feature.TREE.configured(BiomeDefaultFeatures.SPRUCE_TREE_CONFIG)), 1)),
                     StructureTemplatePool.Projection.RIGID
                 )
             );
@@ -269,7 +269,7 @@ public class SnowyVillagePools {
                         new Pair<>(new LegacySinglePoolElement("village/snowy/snowy_lamp_post_01"), 4),
                         new Pair<>(new LegacySinglePoolElement("village/snowy/snowy_lamp_post_02"), 4),
                         new Pair<>(new LegacySinglePoolElement("village/snowy/snowy_lamp_post_03"), 1),
-                        new Pair<>(new FeaturePoolElement(Feature.NORMAL_TREE.configured(BiomeDefaultFeatures.SPRUCE_TREE_CONFIG)), 4),
+                        new Pair<>(new FeaturePoolElement(Feature.TREE.configured(BiomeDefaultFeatures.SPRUCE_TREE_CONFIG)), 4),
                         new Pair<>(new FeaturePoolElement(Feature.BLOCK_PILE.configured(BiomeDefaultFeatures.SNOW_PILE_CONFIG)), 4),
                         new Pair<>(new FeaturePoolElement(Feature.BLOCK_PILE.configured(BiomeDefaultFeatures.ICE_PILE_CONFIG)), 1),
                         Pair.of(EmptyPoolElement.INSTANCE, 9)
@@ -286,7 +286,7 @@ public class SnowyVillagePools {
                         new Pair<>(new LegacySinglePoolElement("village/snowy/snowy_lamp_post_01", var0), 1),
                         new Pair<>(new LegacySinglePoolElement("village/snowy/snowy_lamp_post_02", var0), 1),
                         new Pair<>(new LegacySinglePoolElement("village/snowy/snowy_lamp_post_03", var0), 1),
-                        new Pair<>(new FeaturePoolElement(Feature.NORMAL_TREE.configured(BiomeDefaultFeatures.SPRUCE_TREE_CONFIG)), 4),
+                        new Pair<>(new FeaturePoolElement(Feature.TREE.configured(BiomeDefaultFeatures.SPRUCE_TREE_CONFIG)), 4),
                         new Pair<>(new FeaturePoolElement(Feature.BLOCK_PILE.configured(BiomeDefaultFeatures.SNOW_PILE_CONFIG)), 4),
                         new Pair<>(new FeaturePoolElement(Feature.BLOCK_PILE.configured(BiomeDefaultFeatures.ICE_PILE_CONFIG)), 4),
                         Pair.of(EmptyPoolElement.INSTANCE, 7)

@@ -2,6 +2,7 @@ package net.minecraft.client.gui.spectator.categories;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
 import java.util.Random;
 import net.minecraft.client.Minecraft;
@@ -55,9 +56,9 @@ public class TeleportToTeamMenuCategory implements SpectatorMenuCategory, Specta
     }
 
     @Override
-    public void renderIcon(float param0, int param1) {
+    public void renderIcon(PoseStack param0, float param1, int param2) {
         Minecraft.getInstance().getTextureManager().bind(SpectatorGui.SPECTATOR_LOCATION);
-        GuiComponent.blit(0, 0, 16.0F, 0.0F, 16, 16, 256, 256);
+        GuiComponent.blit(param0, 0, 0, 16.0F, 0.0F, 16, 16, 256, 256);
     }
 
     @Override
@@ -109,19 +110,19 @@ public class TeleportToTeamMenuCategory implements SpectatorMenuCategory, Specta
         }
 
         @Override
-        public void renderIcon(float param0, int param1) {
+        public void renderIcon(PoseStack param0, float param1, int param2) {
             Integer var0 = this.team.getColor().getColor();
             if (var0 != null) {
                 float var1 = (float)(var0 >> 16 & 0xFF) / 255.0F;
                 float var2 = (float)(var0 >> 8 & 0xFF) / 255.0F;
                 float var3 = (float)(var0 & 0xFF) / 255.0F;
-                GuiComponent.fill(1, 1, 15, 15, Mth.color(var1 * param0, var2 * param0, var3 * param0) | param1 << 24);
+                GuiComponent.fill(param0, 1, 1, 15, 15, Mth.color(var1 * param1, var2 * param1, var3 * param1) | param2 << 24);
             }
 
             Minecraft.getInstance().getTextureManager().bind(this.location);
-            RenderSystem.color4f(param0, param0, param0, (float)param1 / 255.0F);
-            GuiComponent.blit(2, 2, 12, 12, 8.0F, 8.0F, 8, 8, 64, 64);
-            GuiComponent.blit(2, 2, 12, 12, 40.0F, 8.0F, 8, 8, 64, 64);
+            RenderSystem.color4f(param1, param1, param1, (float)param2 / 255.0F);
+            GuiComponent.blit(param0, 2, 2, 12, 12, 8.0F, 8.0F, 8, 8, 64, 64);
+            GuiComponent.blit(param0, 2, 2, 12, 12, 40.0F, 8.0F, 8, 8, 64, 64);
         }
 
         @Override

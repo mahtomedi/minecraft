@@ -13,27 +13,46 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.world.entity.Entity;
 
 public class ComponentUtils {
-    public static Component mergeStyles(Component param0, Style param1) {
+    public static MutableComponent mergeStyles(MutableComponent param0, Style param1) {
         if (param1.isEmpty()) {
             return param0;
         } else {
-            return param0.getStyle().isEmpty() ? param0.setStyle(param1.copy()) : new TextComponent("").append(param0).setStyle(param1.copy());
+            Style var0 = param0.getStyle();
+            if (var0.isEmpty()) {
+                return param0.setStyle(param1);
+            } else {
+                return var0.equals(param1) ? param0 : new TextComponent("").append(param0).setStyle(param1);
+            }
         }
     }
 
-    public static Component updateForEntity(@Nullable CommandSourceStack param0, Component param1, @Nullable Entity param2, int param3) throws CommandSyntaxException {
+    public static MutableComponent updateForEntity(@Nullable CommandSourceStack param0, Component param1, @Nullable Entity param2, int param3) throws CommandSyntaxException {
         if (param3 > 100) {
-            return param1;
+            return param1.mutableCopy();
         } else {
-            ++param3;
-            Component var0 = param1 instanceof ContextAwareComponent ? ((ContextAwareComponent)param1).resolve(param0, param2, param3) : param1.copy();
+            MutableComponent var0 = param1 instanceof ContextAwareComponent
+                ? ((ContextAwareComponent)param1).resolve(param0, param2, param3 + 1)
+                : param1.toMutable();
 
             for(Component var1 : param1.getSiblings()) {
-                var0.append(updateForEntity(param0, var1, param2, param3));
+                var0.append(updateForEntity(param0, var1, param2, param3 + 1));
             }
 
-            return mergeStyles(var0, param1.getStyle());
+            return mergeStyles(var0, resolveStyle(param0, param1.getStyle(), param2, param3));
         }
+    }
+
+    private static Style resolveStyle(@Nullable CommandSourceStack param0, Style param1, @Nullable Entity param2, int param3) throws CommandSyntaxException {
+        HoverEvent var0 = param1.getHoverEvent();
+        if (var0 != null) {
+            Component var1 = var0.getValue(HoverEvent.Action.SHOW_TEXT);
+            if (var1 != null) {
+                HoverEvent var2 = new HoverEvent(HoverEvent.Action.SHOW_TEXT, updateForEntity(param0, var1, param2, param3 + 1));
+                return param1.withHoverEvent(var2);
+            }
+        }
+
+        return param1;
     }
 
     public static Component getDisplayName(GameProfile param0) {
@@ -50,7 +69,7 @@ public class ComponentUtils {
 
     public static <T extends Comparable<T>> Component formatAndSortList(Collection<T> param0, Function<T, Component> param1) {
         if (param0.isEmpty()) {
-            return new TextComponent("");
+            return TextComponent.EMPTY;
         } else if (param0.size() == 1) {
             return param1.apply(param0.iterator().next());
         } else {
@@ -60,13 +79,13 @@ public class ComponentUtils {
         }
     }
 
-    public static <T> Component formatList(Collection<T> param0, Function<T, Component> param1) {
+    public static <T> MutableComponent formatList(Collection<T> param0, Function<T, Component> param1) {
         if (param0.isEmpty()) {
             return new TextComponent("");
         } else if (param0.size() == 1) {
-            return param1.apply(param0.iterator().next());
+            return param1.apply(param0.iterator().next()).mutableCopy();
         } else {
-            Component var0 = new TextComponent("");
+            MutableComponent var0 = new TextComponent("");
             boolean var1 = true;
 
             for(T var2 : param0) {
@@ -82,7 +101,7 @@ public class ComponentUtils {
         }
     }
 
-    public static Component wrapInSquareBrackets(Component param0) {
+    public static MutableComponent wrapInSquareBrackets(Component param0) {
         return new TextComponent("[").append(param0).append("]");
     }
 

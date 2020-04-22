@@ -238,6 +238,7 @@ public class Zoglin extends Monster implements Enemy, HoglinBase {
     @Override
     public void setBaby(boolean param0) {
         this.getEntityData().set(DATA_BABY_ID, param0);
+        this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(0.5);
     }
 
     @Override

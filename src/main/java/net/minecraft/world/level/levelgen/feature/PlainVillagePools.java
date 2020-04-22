@@ -345,7 +345,7 @@ public class PlainVillagePools {
                 new StructureTemplatePool(
                     new ResourceLocation("village/plains/trees"),
                     new ResourceLocation("empty"),
-                    ImmutableList.of(new Pair<>(new FeaturePoolElement(Feature.NORMAL_TREE.configured(BiomeDefaultFeatures.NORMAL_TREE_CONFIG)), 1)),
+                    ImmutableList.of(new Pair<>(new FeaturePoolElement(Feature.TREE.configured(BiomeDefaultFeatures.NORMAL_TREE_CONFIG)), 1)),
                     StructureTemplatePool.Projection.RIGID
                 )
             );
@@ -356,7 +356,7 @@ public class PlainVillagePools {
                     new ResourceLocation("empty"),
                     ImmutableList.of(
                         new Pair<>(new LegacySinglePoolElement("village/plains/plains_lamp_1"), 2),
-                        new Pair<>(new FeaturePoolElement(Feature.NORMAL_TREE.configured(BiomeDefaultFeatures.NORMAL_TREE_CONFIG)), 1),
+                        new Pair<>(new FeaturePoolElement(Feature.TREE.configured(BiomeDefaultFeatures.NORMAL_TREE_CONFIG)), 1),
                         new Pair<>(new FeaturePoolElement(Feature.FLOWER.configured(BiomeDefaultFeatures.PLAIN_FLOWER_CONFIG)), 1),
                         new Pair<>(new FeaturePoolElement(Feature.BLOCK_PILE.configured(BiomeDefaultFeatures.HAY_PILE_CONFIG)), 1),
                         Pair.of(EmptyPoolElement.INSTANCE, 2)
@@ -371,7 +371,7 @@ public class PlainVillagePools {
                     new ResourceLocation("empty"),
                     ImmutableList.of(
                         new Pair<>(new LegacySinglePoolElement("village/plains/plains_lamp_1", var0), 1),
-                        new Pair<>(new FeaturePoolElement(Feature.NORMAL_TREE.configured(BiomeDefaultFeatures.NORMAL_TREE_CONFIG)), 1),
+                        new Pair<>(new FeaturePoolElement(Feature.TREE.configured(BiomeDefaultFeatures.NORMAL_TREE_CONFIG)), 1),
                         new Pair<>(new FeaturePoolElement(Feature.FLOWER.configured(BiomeDefaultFeatures.PLAIN_FLOWER_CONFIG)), 1),
                         new Pair<>(new FeaturePoolElement(Feature.BLOCK_PILE.configured(BiomeDefaultFeatures.HAY_PILE_CONFIG)), 1),
                         Pair.of(EmptyPoolElement.INSTANCE, 2)

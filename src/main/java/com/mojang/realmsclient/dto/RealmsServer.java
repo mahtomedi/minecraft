@@ -1,5 +1,6 @@
 package com.mojang.realmsclient.dto;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -65,7 +66,7 @@ public class RealmsServer extends ValueObject {
     }
 
     public void updateServerPing(RealmsServerPlayerList param0) {
-        StringBuilder var0 = new StringBuilder();
+        List<String> var0 = Lists.newArrayList();
         int var1 = 0;
 
         for(String var2 : param0.players) {
@@ -79,17 +80,13 @@ public class RealmsServer extends ValueObject {
                     continue;
                 }
 
-                if (var0.length() > 0) {
-                    var0.append("\n");
-                }
-
-                var0.append(var3);
+                var0.add(var3);
                 ++var1;
             }
         }
 
         this.serverPing.nrOfPlayers = String.valueOf(var1);
-        this.serverPing.playerList = var0.toString();
+        this.serverPing.playerList = Joiner.on('\n').join(var0);
     }
 
     public static RealmsServer parse(JsonObject param0) {

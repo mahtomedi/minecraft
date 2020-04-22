@@ -1,6 +1,6 @@
 package net.minecraft.world.level.storage;
 
-import javax.annotation.Nullable;
+import java.util.UUID;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -9,27 +9,25 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LevelType;
+import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.ChunkGeneratorProvider;
 import net.minecraft.world.level.timers.TimerQueue;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class DerivedLevelData extends LevelData {
+public class DerivedLevelData implements LevelData {
+    private final DimensionType dimensionType;
+    private final WorldData worldData;
     private final LevelData wrapped;
 
-    public DerivedLevelData(LevelData param0) {
-        this.wrapped = param0;
-    }
-
-    @Override
-    public CompoundTag createTag(@Nullable CompoundTag param0) {
-        return this.wrapped.createTag(param0);
+    public DerivedLevelData(DimensionType param0, WorldData param1, LevelData param2) {
+        this.dimensionType = param0;
+        this.worldData = param1;
+        this.wrapped = param2;
     }
 
     @Override
     public long getSeed() {
-        return this.wrapped.getSeed();
+        return this.worldData.getSeed();
     }
 
     @Override
@@ -58,24 +56,17 @@ public class DerivedLevelData extends LevelData {
     }
 
     @Override
-    public CompoundTag getLoadedPlayerTag() {
-        return this.wrapped.getLoadedPlayerTag();
-    }
-
-    @Override
     public String getLevelName() {
-        return this.wrapped.getLevelName();
+        return this.worldData.getLevelName();
     }
 
     @Override
-    public int getVersion() {
-        return this.wrapped.getVersion();
+    public int getClearWeatherTime() {
+        return this.wrapped.getClearWeatherTime();
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
-    public long getLastPlayed() {
-        return this.wrapped.getLastPlayed();
+    public void setClearWeatherTime(int param0) {
     }
 
     @Override
@@ -100,7 +91,19 @@ public class DerivedLevelData extends LevelData {
 
     @Override
     public GameType getGameType() {
-        return this.wrapped.getGameType();
+        return this.worldData.getGameType();
+    }
+
+    @Override
+    public void setXSpawn(int param0) {
+    }
+
+    @Override
+    public void setYSpawn(int param0) {
+    }
+
+    @Override
+    public void setZSpawn(int param0) {
     }
 
     @Override
@@ -113,14 +116,6 @@ public class DerivedLevelData extends LevelData {
 
     @Override
     public void setSpawn(BlockPos param0) {
-    }
-
-    @Override
-    public void setLevelName(String param0) {
-    }
-
-    @Override
-    public void setVersion(int param0) {
     }
 
     @Override
@@ -140,13 +135,17 @@ public class DerivedLevelData extends LevelData {
     }
 
     @Override
-    public boolean isGenerateMapFeatures() {
-        return this.wrapped.isGenerateMapFeatures();
+    public boolean shouldGenerateMapFeatures() {
+        return this.wrapped.shouldGenerateMapFeatures();
+    }
+
+    @Override
+    public void setGameType(GameType param0) {
     }
 
     @Override
     public boolean isHardcore() {
-        return this.wrapped.isHardcore();
+        return false;
     }
 
     @Override
@@ -155,16 +154,13 @@ public class DerivedLevelData extends LevelData {
     }
 
     @Override
-    public void setGeneratorProvider(ChunkGeneratorProvider param0) {
+    public ChunkGeneratorProvider getGeneratorProvider() {
+        return this.wrapped.getGeneratorProvider();
     }
 
     @Override
     public boolean getAllowCommands() {
-        return this.wrapped.getAllowCommands();
-    }
-
-    @Override
-    public void setAllowCommands(boolean param0) {
+        return this.worldData.getAllowCommands();
     }
 
     @Override
@@ -178,25 +174,26 @@ public class DerivedLevelData extends LevelData {
 
     @Override
     public GameRules getGameRules() {
-        return this.wrapped.getGameRules();
+        return this.worldData.getGameRules();
+    }
+
+    @Override
+    public WorldBorder.Settings getWorldBorder() {
+        return this.wrapped.getWorldBorder();
+    }
+
+    @Override
+    public void setWorldBorder(WorldBorder.Settings param0) {
     }
 
     @Override
     public Difficulty getDifficulty() {
-        return this.wrapped.getDifficulty();
-    }
-
-    @Override
-    public void setDifficulty(Difficulty param0) {
+        return this.worldData.getDifficulty();
     }
 
     @Override
     public boolean isDifficultyLocked() {
-        return this.wrapped.isDifficultyLocked();
-    }
-
-    @Override
-    public void setDifficultyLocked(boolean param0) {
+        return this.worldData.isDifficultyLocked();
     }
 
     @Override
@@ -205,13 +202,35 @@ public class DerivedLevelData extends LevelData {
     }
 
     @Override
-    public void setDimensionData(DimensionType param0, CompoundTag param1) {
-        this.wrapped.setDimensionData(param0, param1);
+    public void setDimensionData(CompoundTag param0) {
+        this.worldData.setDimensionData(this.dimensionType, param0);
     }
 
     @Override
-    public CompoundTag getDimensionData(DimensionType param0) {
-        return this.wrapped.getDimensionData(param0);
+    public CompoundTag getDimensionData() {
+        return this.worldData.getDimensionData(this.dimensionType);
+    }
+
+    @Override
+    public int getWanderingTraderSpawnDelay() {
+        return 0;
+    }
+
+    @Override
+    public void setWanderingTraderSpawnDelay(int param0) {
+    }
+
+    @Override
+    public int getWanderingTraderSpawnChance() {
+        return 0;
+    }
+
+    @Override
+    public void setWanderingTraderSpawnChance(int param0) {
+    }
+
+    @Override
+    public void setWanderingTraderId(UUID param0) {
     }
 
     @Override

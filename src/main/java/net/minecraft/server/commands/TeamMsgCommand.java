@@ -5,7 +5,6 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import java.util.List;
-import java.util.function.Consumer;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.MessageArgument;
@@ -19,6 +18,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.scores.PlayerTeam;
 
 public class TeamMsgCommand {
+    private static final Style SUGGEST_STYLE = Style.EMPTY
+        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslatableComponent("chat.type.team.hover")))
+        .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/teammsg "));
     private static final SimpleCommandExceptionType ERROR_NOT_ON_TEAM = new SimpleCommandExceptionType(
         new TranslatableComponent("commands.teammsg.failed.noteam")
     );
@@ -40,27 +42,18 @@ public class TeamMsgCommand {
         if (var1 == null) {
             throw ERROR_NOT_ON_TEAM.create();
         } else {
-            Consumer<Style> var2 = param0x -> param0x.setHoverEvent(
-                        new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslatableComponent("chat.type.team.hover"))
-                    )
-                    .setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/teammsg "));
-            Component var3 = var1.getFormattedDisplayName().withStyle(var2);
+            Component var2 = var1.getFormattedDisplayName().withStyle(SUGGEST_STYLE);
+            List<ServerPlayer> var3 = param0.getServer().getPlayerList().getPlayers();
 
-            for(Component var4 : var3.getSiblings()) {
-                var4.withStyle(var2);
-            }
-
-            List<ServerPlayer> var5 = param0.getServer().getPlayerList().getPlayers();
-
-            for(ServerPlayer var6 : var5) {
-                if (var6 == var0) {
-                    var6.sendMessage(new TranslatableComponent("chat.type.team.sent", var3, param0.getDisplayName(), param1.deepCopy()));
-                } else if (var6.getTeam() == var1) {
-                    var6.sendMessage(new TranslatableComponent("chat.type.team.text", var3, param0.getDisplayName(), param1.deepCopy()));
+            for(ServerPlayer var4 : var3) {
+                if (var4 == var0) {
+                    var4.sendMessage(new TranslatableComponent("chat.type.team.sent", var2, param0.getDisplayName(), param1));
+                } else if (var4.getTeam() == var1) {
+                    var4.sendMessage(new TranslatableComponent("chat.type.team.text", var2, param0.getDisplayName(), param1));
                 }
             }
 
-            return var5.size();
+            return var3.size();
         }
     }
 }

@@ -1,29 +1,35 @@
 package net.minecraft.world.level;
 
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.level.levelgen.ChunkGeneratorProvider;
-import net.minecraft.world.level.storage.LevelData;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public final class LevelSettings {
+    private final String levelName;
     private final long seed;
     private final GameType gameType;
     private final boolean generateMapFeatures;
     private final boolean hardcore;
     private final ChunkGeneratorProvider generatorProvider;
+    private final Difficulty difficulty;
     private boolean allowCommands;
     private boolean startingBonusItems;
+    private final GameRules gameRules;
 
-    public LevelSettings(long param0, GameType param1, boolean param2, boolean param3, ChunkGeneratorProvider param4) {
-        this.seed = param0;
-        this.gameType = param1;
-        this.generateMapFeatures = param2;
-        this.hardcore = param3;
-        this.generatorProvider = param4;
+    public LevelSettings(String param0, long param1, GameType param2, boolean param3, boolean param4, Difficulty param5, ChunkGeneratorProvider param6) {
+        this(param0, param1, param2, param3, param4, param5, param6, new GameRules());
     }
 
-    public LevelSettings(LevelData param0) {
-        this(param0.getSeed(), param0.getGameType(), param0.isGenerateMapFeatures(), param0.isHardcore(), param0.getGeneratorProvider());
+    public LevelSettings(
+        String param0, long param1, GameType param2, boolean param3, boolean param4, Difficulty param5, ChunkGeneratorProvider param6, GameRules param7
+    ) {
+        this.levelName = param0;
+        this.seed = param1;
+        this.gameType = param2;
+        this.generateMapFeatures = param3;
+        this.hardcore = param4;
+        this.generatorProvider = param6;
+        this.difficulty = param5;
+        this.gameRules = param7;
     }
 
     public LevelSettings enableStartingBonusItems() {
@@ -31,7 +37,6 @@ public final class LevelSettings {
         return this;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public LevelSettings enableSinglePlayerCommands() {
         this.allowCommands = true;
         return this;
@@ -53,7 +58,7 @@ public final class LevelSettings {
         return this.hardcore;
     }
 
-    public boolean isGenerateMapFeatures() {
+    public boolean shouldGenerateMapFeatures() {
         return this.generateMapFeatures;
     }
 
@@ -63,5 +68,17 @@ public final class LevelSettings {
 
     public boolean getAllowCommands() {
         return this.allowCommands;
+    }
+
+    public String getLevelName() {
+        return this.levelName;
+    }
+
+    public Difficulty getDifficulty() {
+        return this.difficulty;
+    }
+
+    public GameRules getGameRules() {
+        return this.gameRules;
     }
 }

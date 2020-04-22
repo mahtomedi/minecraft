@@ -488,13 +488,15 @@ public class WalkNodeEvaluator extends NodeEvaluator {
         } else if (var1 instanceof LeavesBlock) {
             return BlockPathTypes.LEAVES;
         } else if (!var1.is(BlockTags.FENCES) && !var1.is(BlockTags.WALLS) && (!(var1 instanceof FenceGateBlock) || var0.getValue(FenceGateBlock.OPEN))) {
-            FluidState var3 = param0.getFluidState(param1);
-            if (var3.is(FluidTags.WATER)) {
-                return BlockPathTypes.WATER;
-            } else if (var3.is(FluidTags.LAVA)) {
-                return BlockPathTypes.LAVA;
+            if (!var0.isPathfindable(param0, param1, PathComputationType.LAND)) {
+                return BlockPathTypes.BLOCKED;
             } else {
-                return var0.isPathfindable(param0, param1, PathComputationType.LAND) ? BlockPathTypes.OPEN : BlockPathTypes.BLOCKED;
+                FluidState var3 = param0.getFluidState(param1);
+                if (var3.is(FluidTags.WATER)) {
+                    return BlockPathTypes.WATER;
+                } else {
+                    return var3.is(FluidTags.LAVA) ? BlockPathTypes.LAVA : BlockPathTypes.OPEN;
+                }
             }
         } else {
             return BlockPathTypes.FENCE;

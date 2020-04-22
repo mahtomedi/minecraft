@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.RateLimiter;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.realmsclient.client.Ping;
 import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.dto.PingResult;
@@ -25,6 +26,7 @@ import com.mojang.realmsclient.gui.screens.RealmsPendingInvitesScreen;
 import com.mojang.realmsclient.util.RealmsPersistence;
 import com.mojang.realmsclient.util.RealmsTextureManager;
 import com.mojang.realmsclient.util.task.GetServerDetailsTask;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -40,6 +42,10 @@ import net.minecraft.client.gui.components.TickableWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.realms.NarrationHelper;
 import net.minecraft.realms.RealmsObjectSelectionList;
 import net.minecraft.realms.RealmsScreen;
@@ -90,7 +96,7 @@ public class RealmsMainScreen extends RealmsScreen {
     private Button renewButton;
     private Button configureButton;
     private Button leaveButton;
-    private String toolTip;
+    private List<Component> toolTip;
     private List<RealmsServer> realmsServers = Lists.newArrayList();
     private volatile int numberOfPendingInvites;
     private int animTick;
@@ -108,7 +114,7 @@ public class RealmsMainScreen extends RealmsScreen {
     private List<KeyCombo> keyCombos;
     private int clicks;
     private ReentrantLock connectLock = new ReentrantLock();
-    private boolean expiredHover;
+    private RealmsMainScreen.HoveredElement hoveredElement;
     private Button showPopupButton;
     private Button pendingInvitesButton;
     private Button newsButton;
@@ -215,24 +221,26 @@ public class RealmsMainScreen extends RealmsScreen {
                 this.height - 32,
                 90,
                 20,
-                I18n.get("mco.selectServer.configure"),
+                new TranslatableComponent("mco.selectServer.configure"),
                 param0 -> this.configureClicked(this.findServer(this.selectedServerId))
             )
         );
-        this.playButton = this.addButton(new Button(this.width / 2 - 93, this.height - 32, 90, 20, I18n.get("mco.selectServer.play"), param0 -> {
-            RealmsServer var0x = this.findServer(this.selectedServerId);
-            if (var0x != null) {
-                this.play(var0x, this);
-            }
-        }));
-        this.backButton = this.addButton(new Button(this.width / 2 + 4, this.height - 32, 90, 20, I18n.get("gui.back"), param0 -> {
+        this.playButton = this.addButton(
+            new Button(this.width / 2 - 93, this.height - 32, 90, 20, new TranslatableComponent("mco.selectServer.play"), param0 -> {
+                RealmsServer var0x = this.findServer(this.selectedServerId);
+                if (var0x != null) {
+                    this.play(var0x, this);
+                }
+            })
+        );
+        this.backButton = this.addButton(new Button(this.width / 2 + 4, this.height - 32, 90, 20, CommonComponents.GUI_BACK, param0 -> {
             if (!this.justClosedPopup) {
                 this.minecraft.setScreen(this.lastScreen);
             }
 
         }));
         this.renewButton = this.addButton(
-            new Button(this.width / 2 + 100, this.height - 32, 90, 20, I18n.get("mco.selectServer.expiredRenew"), param0 -> this.onRenew())
+            new Button(this.width / 2 + 100, this.height - 32, 90, 20, new TranslatableComponent("mco.selectServer.expiredRenew"), param0 -> this.onRenew())
         );
         this.leaveButton = this.addButton(
             new Button(
@@ -240,7 +248,7 @@ public class RealmsMainScreen extends RealmsScreen {
                 this.height - 32,
                 90,
                 20,
-                I18n.get("mco.selectServer.leave"),
+                new TranslatableComponent("mco.selectServer.leave"),
                 param0 -> this.leaveClicked(this.findServer(this.selectedServerId))
             )
         );
@@ -249,7 +257,7 @@ public class RealmsMainScreen extends RealmsScreen {
         this.showPopupButton = this.addButton(new RealmsMainScreen.ShowPopupButton());
         this.closeButton = this.addButton(new RealmsMainScreen.CloseButton());
         this.createTrialButton = this.addButton(
-            new Button(this.width / 2 + 52, this.popupY0() + 137 - 20, 98, 20, I18n.get("mco.selectServer.trial"), param0 -> {
+            new Button(this.width / 2 + 52, this.popupY0() + 137 - 20, 98, 20, new TranslatableComponent("mco.selectServer.trial"), param0 -> {
                 if (this.trialsAvailable && !this.createdTrial) {
                     Util.getPlatform().openUri("https://aka.ms/startjavarealmstrial");
                     this.minecraft.setScreen(this.lastScreen);
@@ -262,7 +270,7 @@ public class RealmsMainScreen extends RealmsScreen {
                 this.popupY0() + 160 - 20,
                 98,
                 20,
-                I18n.get("mco.selectServer.buy"),
+                new TranslatableComponent("mco.selectServer.buy"),
                 param0 -> Util.getPlatform().openUri("https://aka.ms/BuyJavaRealms")
             )
         );
@@ -484,8 +492,8 @@ public class RealmsMainScreen extends RealmsScreen {
                             RealmsMainScreen.LOGGER.error("Couldn't connect to realms", (Throwable)var3);
                             if (var3.httpResultCode == 401) {
                                 RealmsMainScreen.realmsGenericErrorScreen = new RealmsGenericErrorScreen(
-                                    I18n.get("mco.error.invalid.session.title"),
-                                    I18n.get("mco.error.invalid.session.message"),
+                                    new TranslatableComponent("mco.error.invalid.session.title"),
+                                    new TranslatableComponent("mco.error.invalid.session.message"),
                                     RealmsMainScreen.this.lastScreen
                                 );
                                 RealmsMainScreen.this.minecraft
@@ -606,8 +614,8 @@ public class RealmsMainScreen extends RealmsScreen {
     private void leaveClicked(@Nullable RealmsServer param0) {
         if (param0 != null && !this.minecraft.getUser().getUuid().equals(param0.ownerUUID)) {
             this.saveListScrollPosition();
-            String var0 = I18n.get("mco.configure.world.leave.question.line1");
-            String var1 = I18n.get("mco.configure.world.leave.question.line2");
+            Component var0 = new TranslatableComponent("mco.configure.world.leave.question.line1");
+            Component var1 = new TranslatableComponent("mco.configure.world.leave.question.line2");
             this.minecraft.setScreen(new RealmsLongConfirmationScreen(this::leaveServer, RealmsLongConfirmationScreen.Type.Info, var0, var1, true));
         }
 
@@ -696,22 +704,22 @@ public class RealmsMainScreen extends RealmsScreen {
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
-        this.expiredHover = false;
+    public void render(PoseStack param0, int param1, int param2, float param3) {
+        this.hoveredElement = RealmsMainScreen.HoveredElement.NONE;
         this.toolTip = null;
-        this.renderBackground();
-        this.realmSelectionList.render(param0, param1, param2);
-        this.drawRealmsLogo(this.width / 2 - 50, 7);
+        this.renderBackground(param0);
+        this.realmSelectionList.render(param0, param1, param2, param3);
+        this.drawRealmsLogo(param0, this.width / 2 - 50, 7);
         if (RealmsClient.currentEnvironment == RealmsClient.Environment.STAGE) {
-            this.renderStage();
+            this.renderStage(param0);
         }
 
         if (RealmsClient.currentEnvironment == RealmsClient.Environment.LOCAL) {
-            this.renderLocal();
+            this.renderLocal(param0);
         }
 
         if (this.shouldShowPopup()) {
-            this.drawPopup(param0, param1);
+            this.drawPopup(param0, param1, param2);
         } else {
             if (this.showingPopup) {
                 this.updateButtonStates(null);
@@ -726,9 +734,9 @@ public class RealmsMainScreen extends RealmsScreen {
             this.showingPopup = false;
         }
 
-        super.render(param0, param1, param2);
+        super.render(param0, param1, param2, param3);
         if (this.toolTip != null) {
-            this.renderMousehoverTooltip(this.toolTip, param0, param1);
+            this.renderMousehoverTooltip(param0, this.toolTip, param1, param2);
         }
 
         if (this.trialsAvailable && !this.createdTrial && this.shouldShowPopup()) {
@@ -742,6 +750,7 @@ public class RealmsMainScreen extends RealmsScreen {
             }
 
             GuiComponent.blit(
+                param0,
                 this.createTrialButton.x + this.createTrialButton.getWidth() - 8 - 4,
                 this.createTrialButton.y + this.createTrialButton.getHeight() / 2 - 4,
                 0.0F,
@@ -755,12 +764,12 @@ public class RealmsMainScreen extends RealmsScreen {
 
     }
 
-    private void drawRealmsLogo(int param0, int param1) {
+    private void drawRealmsLogo(PoseStack param0, int param1, int param2) {
         this.minecraft.getTextureManager().bind(LOGO_LOCATION);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.pushMatrix();
         RenderSystem.scalef(0.5F, 0.5F, 0.5F);
-        GuiComponent.blit(param0 * 2, param1 * 2 - 5, 0.0F, 0.0F, 200, 50, 200, 50);
+        GuiComponent.blit(param0, param1 * 2, param2 * 2 - 5, 0.0F, 0.0F, 200, 50, 200, 50);
         RenderSystem.popMatrix();
     }
 
@@ -781,11 +790,11 @@ public class RealmsMainScreen extends RealmsScreen {
         return param0 < (double)(var0 - 5) || param0 > (double)(var0 + 315) || param1 < (double)(var1 - 5) || param1 > (double)(var1 + 171);
     }
 
-    private void drawPopup(int param0, int param1) {
+    private void drawPopup(PoseStack param0, int param1, int param2) {
         int var0 = this.popupX0();
         int var1 = this.popupY0();
-        String var2 = I18n.get("mco.selectServer.popup");
-        List<String> var3 = this.font.split(var2, 100);
+        Component var2 = new TranslatableComponent("mco.selectServer.popup");
+        List<Component> var3 = this.font.split(var2, 100);
         if (!this.showingPopup) {
             this.carouselIndex = 0;
             this.carouselTick = 0;
@@ -798,7 +807,7 @@ public class RealmsMainScreen extends RealmsScreen {
                 }
             }
 
-            NarrationHelper.now(var2);
+            NarrationHelper.now(var2.getString());
         }
 
         if (this.hasFetchedServers) {
@@ -810,15 +819,15 @@ public class RealmsMainScreen extends RealmsScreen {
         this.minecraft.getTextureManager().bind(DARKEN_LOCATION);
         int var5 = 0;
         int var6 = 32;
-        GuiComponent.blit(0, 32, 0.0F, 0.0F, this.width, this.height - 40 - 32, 310, 166);
+        GuiComponent.blit(param0, 0, 32, 0.0F, 0.0F, this.width, this.height - 40 - 32, 310, 166);
         RenderSystem.disableBlend();
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.minecraft.getTextureManager().bind(POPUP_LOCATION);
-        GuiComponent.blit(var0, var1, 0.0F, 0.0F, 310, 166, 310, 166);
+        GuiComponent.blit(param0, var0, var1, 0.0F, 0.0F, 310, 166, 310, 166);
         if (!teaserImages.isEmpty()) {
             this.minecraft.getTextureManager().bind(teaserImages.get(this.carouselIndex));
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            GuiComponent.blit(var0 + 7, var1 + 7, 0.0F, 0.0F, 195, 152, 195, 152);
+            GuiComponent.blit(param0, var0 + 7, var1 + 7, 0.0F, 0.0F, 195, 152, 195, 152);
             if (this.carouselTick % 95 < 5) {
                 if (!this.hasSwitchedCarouselImage) {
                     this.carouselIndex = (this.carouselIndex + 1) % teaserImages.size();
@@ -831,10 +840,10 @@ public class RealmsMainScreen extends RealmsScreen {
 
         int var7 = 0;
 
-        for(String var8 : var3) {
+        for(Component var8 : var3) {
             ++var7;
             int var9 = var1 + 10 * var7 - 3;
-            this.font.draw(var8, (float)(this.width / 2 + 52), (float)var9, 5000268);
+            this.font.draw(param0, var8, (float)(this.width / 2 + 52), (float)var9, 5000268);
         }
 
     }
@@ -847,44 +856,44 @@ public class RealmsMainScreen extends RealmsScreen {
         return this.height / 2 - 80;
     }
 
-    private void drawInvitationPendingIcon(int param0, int param1, int param2, int param3, boolean param4, boolean param5) {
+    private void drawInvitationPendingIcon(PoseStack param0, int param1, int param2, int param3, int param4, boolean param5, boolean param6) {
         int var0 = this.numberOfPendingInvites;
-        boolean var1 = this.inPendingInvitationArea((double)param0, (double)param1);
-        boolean var2 = param5 && param4;
+        boolean var1 = this.inPendingInvitationArea((double)param1, (double)param2);
+        boolean var2 = param6 && param5;
         if (var2) {
             float var3 = 0.25F + (1.0F + Mth.sin((float)this.animTick * 0.5F)) * 0.25F;
             int var4 = 0xFF000000 | (int)(var3 * 64.0F) << 16 | (int)(var3 * 64.0F) << 8 | (int)(var3 * 64.0F) << 0;
-            this.fillGradient(param2 - 2, param3 - 2, param2 + 18, param3 + 18, var4, var4);
+            this.fillGradient(param0, param3 - 2, param4 - 2, param3 + 18, param4 + 18, var4, var4);
             var4 = 0xFF000000 | (int)(var3 * 255.0F) << 16 | (int)(var3 * 255.0F) << 8 | (int)(var3 * 255.0F) << 0;
-            this.fillGradient(param2 - 2, param3 - 2, param2 + 18, param3 - 1, var4, var4);
-            this.fillGradient(param2 - 2, param3 - 2, param2 - 1, param3 + 18, var4, var4);
-            this.fillGradient(param2 + 17, param3 - 2, param2 + 18, param3 + 18, var4, var4);
-            this.fillGradient(param2 - 2, param3 + 17, param2 + 18, param3 + 18, var4, var4);
+            this.fillGradient(param0, param3 - 2, param4 - 2, param3 + 18, param4 - 1, var4, var4);
+            this.fillGradient(param0, param3 - 2, param4 - 2, param3 - 1, param4 + 18, var4, var4);
+            this.fillGradient(param0, param3 + 17, param4 - 2, param3 + 18, param4 + 18, var4, var4);
+            this.fillGradient(param0, param3 - 2, param4 + 17, param3 + 18, param4 + 18, var4, var4);
         }
 
         this.minecraft.getTextureManager().bind(INVITE_ICON_LOCATION);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        boolean var5 = param5 && param4;
+        boolean var5 = param6 && param5;
         float var6 = var5 ? 16.0F : 0.0F;
-        GuiComponent.blit(param2, param3 - 6, var6, 0.0F, 15, 25, 31, 25);
-        boolean var7 = param5 && var0 != 0;
+        GuiComponent.blit(param0, param3, param4 - 6, var6, 0.0F, 15, 25, 31, 25);
+        boolean var7 = param6 && var0 != 0;
         if (var7) {
             int var8 = (Math.min(var0, 6) - 1) * 8;
             int var9 = (int)(Math.max(0.0F, Math.max(Mth.sin((float)(10 + this.animTick) * 0.57F), Mth.cos((float)this.animTick * 0.35F))) * -6.0F);
             this.minecraft.getTextureManager().bind(INVITATION_ICONS_LOCATION);
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             float var10 = var1 ? 8.0F : 0.0F;
-            GuiComponent.blit(param2 + 4, param3 + 4 + var9, (float)var8, var10, 8, 8, 48, 16);
+            GuiComponent.blit(param0, param3 + 4, param4 + 4 + var9, (float)var8, var10, 8, 8, 48, 16);
         }
 
-        int var11 = param0 + 12;
-        boolean var13 = param5 && var1;
+        int var11 = param1 + 12;
+        boolean var13 = param6 && var1;
         if (var13) {
             String var14 = var0 == 0 ? "mco.invites.nopending" : "mco.invites.pending";
             String var15 = I18n.get(var14);
             int var16 = this.font.width(var15);
-            this.fillGradient(var11 - 3, param1 - 3, var11 + var16 + 3, param1 + 8 + 3, -1073741824, -1073741824);
-            this.font.drawShadow(var15, (float)var11, (float)param1, -1);
+            this.fillGradient(param0, var11 - 3, param2 - 3, var11 + var16 + 3, param2 + 8 + 3, -1073741824, -1073741824);
+            this.font.drawShadow(param0, var15, (float)var11, (float)param2, -1);
         }
 
     }
@@ -932,89 +941,89 @@ public class RealmsMainScreen extends RealmsScreen {
         return this.isSelfOwnedServer(param0) && !param0.expired;
     }
 
-    private void drawExpired(int param0, int param1, int param2, int param3) {
+    private void drawExpired(PoseStack param0, int param1, int param2, int param3, int param4) {
         this.minecraft.getTextureManager().bind(EXPIRED_ICON_LOCATION);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GuiComponent.blit(param0, param1, 0.0F, 0.0F, 10, 28, 10, 28);
-        if (param2 >= param0
-            && param2 <= param0 + 9
-            && param3 >= param1
-            && param3 <= param1 + 27
-            && param3 < this.height - 40
-            && param3 > 32
+        GuiComponent.blit(param0, param1, param2, 0.0F, 0.0F, 10, 28, 10, 28);
+        if (param3 >= param1
+            && param3 <= param1 + 9
+            && param4 >= param2
+            && param4 <= param2 + 27
+            && param4 < this.height - 40
+            && param4 > 32
             && !this.shouldShowPopup()) {
-            this.toolTip = I18n.get("mco.selectServer.expired");
+            this.setTooltip(new TranslatableComponent("mco.selectServer.expired"));
         }
 
     }
 
-    private void drawExpiring(int param0, int param1, int param2, int param3, int param4) {
+    private void drawExpiring(PoseStack param0, int param1, int param2, int param3, int param4, int param5) {
         this.minecraft.getTextureManager().bind(EXPIRES_SOON_ICON_LOCATION);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         if (this.animTick % 20 < 10) {
-            GuiComponent.blit(param0, param1, 0.0F, 0.0F, 10, 28, 20, 28);
+            GuiComponent.blit(param0, param1, param2, 0.0F, 0.0F, 10, 28, 20, 28);
         } else {
-            GuiComponent.blit(param0, param1, 10.0F, 0.0F, 10, 28, 20, 28);
+            GuiComponent.blit(param0, param1, param2, 10.0F, 0.0F, 10, 28, 20, 28);
         }
 
-        if (param2 >= param0
-            && param2 <= param0 + 9
-            && param3 >= param1
-            && param3 <= param1 + 27
-            && param3 < this.height - 40
-            && param3 > 32
+        if (param3 >= param1
+            && param3 <= param1 + 9
+            && param4 >= param2
+            && param4 <= param2 + 27
+            && param4 < this.height - 40
+            && param4 > 32
             && !this.shouldShowPopup()) {
-            if (param4 <= 0) {
-                this.toolTip = I18n.get("mco.selectServer.expires.soon");
-            } else if (param4 == 1) {
-                this.toolTip = I18n.get("mco.selectServer.expires.day");
+            if (param5 <= 0) {
+                this.setTooltip(new TranslatableComponent("mco.selectServer.expires.soon"));
+            } else if (param5 == 1) {
+                this.setTooltip(new TranslatableComponent("mco.selectServer.expires.day"));
             } else {
-                this.toolTip = I18n.get("mco.selectServer.expires.days", param4);
+                this.setTooltip(new TranslatableComponent("mco.selectServer.expires.days", param5));
             }
         }
 
     }
 
-    private void drawOpen(int param0, int param1, int param2, int param3) {
+    private void drawOpen(PoseStack param0, int param1, int param2, int param3, int param4) {
         this.minecraft.getTextureManager().bind(ON_ICON_LOCATION);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GuiComponent.blit(param0, param1, 0.0F, 0.0F, 10, 28, 10, 28);
-        if (param2 >= param0
-            && param2 <= param0 + 9
-            && param3 >= param1
-            && param3 <= param1 + 27
-            && param3 < this.height - 40
-            && param3 > 32
+        GuiComponent.blit(param0, param1, param2, 0.0F, 0.0F, 10, 28, 10, 28);
+        if (param3 >= param1
+            && param3 <= param1 + 9
+            && param4 >= param2
+            && param4 <= param2 + 27
+            && param4 < this.height - 40
+            && param4 > 32
             && !this.shouldShowPopup()) {
-            this.toolTip = I18n.get("mco.selectServer.open");
+            this.setTooltip(new TranslatableComponent("mco.selectServer.open"));
         }
 
     }
 
-    private void drawClose(int param0, int param1, int param2, int param3) {
+    private void drawClose(PoseStack param0, int param1, int param2, int param3, int param4) {
         this.minecraft.getTextureManager().bind(OFF_ICON_LOCATION);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GuiComponent.blit(param0, param1, 0.0F, 0.0F, 10, 28, 10, 28);
-        if (param2 >= param0
-            && param2 <= param0 + 9
-            && param3 >= param1
-            && param3 <= param1 + 27
-            && param3 < this.height - 40
-            && param3 > 32
+        GuiComponent.blit(param0, param1, param2, 0.0F, 0.0F, 10, 28, 10, 28);
+        if (param3 >= param1
+            && param3 <= param1 + 9
+            && param4 >= param2
+            && param4 <= param2 + 27
+            && param4 < this.height - 40
+            && param4 > 32
             && !this.shouldShowPopup()) {
-            this.toolTip = I18n.get("mco.selectServer.closed");
+            this.setTooltip(new TranslatableComponent("mco.selectServer.closed"));
         }
 
     }
 
-    private void drawLeave(int param0, int param1, int param2, int param3) {
+    private void drawLeave(PoseStack param0, int param1, int param2, int param3, int param4) {
         boolean var0 = false;
-        if (param2 >= param0
-            && param2 <= param0 + 28
-            && param3 >= param1
+        if (param3 >= param1
             && param3 <= param1 + 28
-            && param3 < this.height - 40
-            && param3 > 32
+            && param4 >= param2
+            && param4 <= param2 + 28
+            && param4 < this.height - 40
+            && param4 > 32
             && !this.shouldShowPopup()) {
             var0 = true;
         }
@@ -1022,21 +1031,22 @@ public class RealmsMainScreen extends RealmsScreen {
         this.minecraft.getTextureManager().bind(LEAVE_ICON_LOCATION);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         float var1 = var0 ? 28.0F : 0.0F;
-        GuiComponent.blit(param0, param1, var1, 0.0F, 28, 28, 56, 28);
+        GuiComponent.blit(param0, param1, param2, var1, 0.0F, 28, 28, 56, 28);
         if (var0) {
-            this.toolTip = I18n.get("mco.selectServer.leave");
+            this.setTooltip(new TranslatableComponent("mco.selectServer.leave"));
+            this.hoveredElement = RealmsMainScreen.HoveredElement.LEAVE;
         }
 
     }
 
-    private void drawConfigure(int param0, int param1, int param2, int param3) {
+    private void drawConfigure(PoseStack param0, int param1, int param2, int param3, int param4) {
         boolean var0 = false;
-        if (param2 >= param0
-            && param2 <= param0 + 28
-            && param3 >= param1
+        if (param3 >= param1
             && param3 <= param1 + 28
-            && param3 < this.height - 40
-            && param3 > 32
+            && param4 >= param2
+            && param4 <= param2 + 28
+            && param4 < this.height - 40
+            && param4 > 32
             && !this.shouldShowPopup()) {
             var0 = true;
         }
@@ -1044,105 +1054,106 @@ public class RealmsMainScreen extends RealmsScreen {
         this.minecraft.getTextureManager().bind(CONFIGURE_LOCATION);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         float var1 = var0 ? 28.0F : 0.0F;
-        GuiComponent.blit(param0, param1, var1, 0.0F, 28, 28, 56, 28);
+        GuiComponent.blit(param0, param1, param2, var1, 0.0F, 28, 28, 56, 28);
         if (var0) {
-            this.toolTip = I18n.get("mco.selectServer.configure");
+            this.setTooltip(new TranslatableComponent("mco.selectServer.configure"));
+            this.hoveredElement = RealmsMainScreen.HoveredElement.CONFIGURE;
         }
 
     }
 
-    protected void renderMousehoverTooltip(String param0, int param1, int param2) {
-        if (param0 != null) {
+    protected void renderMousehoverTooltip(PoseStack param0, List<Component> param1, int param2, int param3) {
+        if (!param1.isEmpty()) {
             int var0 = 0;
             int var1 = 0;
 
-            for(String var2 : param0.split("\n")) {
+            for(Component var2 : param1) {
                 int var3 = this.font.width(var2);
                 if (var3 > var1) {
                     var1 = var3;
                 }
             }
 
-            int var4 = param1 - var1 - 5;
-            int var5 = param2;
+            int var4 = param2 - var1 - 5;
+            int var5 = param3;
             if (var4 < 0) {
-                var4 = param1 + 12;
+                var4 = param2 + 12;
             }
 
-            for(String var6 : param0.split("\n")) {
+            for(Component var6 : param1) {
                 int var7 = var5 - (var0 == 0 ? 3 : 0) + var0;
-                this.fillGradient(var4 - 3, var7, var4 + var1 + 3, var5 + 8 + 3 + var0, -1073741824, -1073741824);
-                this.font.drawShadow(var6, (float)var4, (float)(var5 + var0), 16777215);
+                this.fillGradient(param0, var4 - 3, var7, var4 + var1 + 3, var5 + 8 + 3 + var0, -1073741824, -1073741824);
+                this.font.drawShadow(param0, var6, (float)var4, (float)(var5 + var0), 16777215);
                 var0 += 10;
             }
 
         }
     }
 
-    private void renderMoreInfo(int param0, int param1, int param2, int param3, boolean param4) {
+    private void renderMoreInfo(PoseStack param0, int param1, int param2, int param3, int param4, boolean param5) {
         boolean var0 = false;
-        if (param0 >= param2 && param0 <= param2 + 20 && param1 >= param3 && param1 <= param3 + 20) {
+        if (param1 >= param3 && param1 <= param3 + 20 && param2 >= param4 && param2 <= param4 + 20) {
             var0 = true;
         }
 
         this.minecraft.getTextureManager().bind(QUESTIONMARK_LOCATION);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        float var1 = param4 ? 20.0F : 0.0F;
-        GuiComponent.blit(param2, param3, var1, 0.0F, 20, 20, 40, 20);
+        float var1 = param5 ? 20.0F : 0.0F;
+        GuiComponent.blit(param0, param3, param4, var1, 0.0F, 20, 20, 40, 20);
         if (var0) {
-            this.toolTip = I18n.get("mco.selectServer.info");
+            this.setTooltip(new TranslatableComponent("mco.selectServer.info"));
         }
 
     }
 
-    private void renderNews(int param0, int param1, boolean param2, int param3, int param4, boolean param5, boolean param6) {
+    private void renderNews(PoseStack param0, int param1, int param2, boolean param3, int param4, int param5, boolean param6, boolean param7) {
         boolean var0 = false;
-        if (param0 >= param3 && param0 <= param3 + 20 && param1 >= param4 && param1 <= param4 + 20) {
+        if (param1 >= param4 && param1 <= param4 + 20 && param2 >= param5 && param2 <= param5 + 20) {
             var0 = true;
         }
 
         this.minecraft.getTextureManager().bind(NEWS_LOCATION);
-        if (param6) {
+        if (param7) {
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         } else {
             RenderSystem.color4f(0.5F, 0.5F, 0.5F, 1.0F);
         }
 
-        boolean var1 = param6 && param5;
+        boolean var1 = param7 && param6;
         float var2 = var1 ? 20.0F : 0.0F;
-        GuiComponent.blit(param3, param4, var2, 0.0F, 20, 20, 40, 20);
-        if (var0 && param6) {
-            this.toolTip = I18n.get("mco.news");
+        GuiComponent.blit(param0, param4, param5, var2, 0.0F, 20, 20, 40, 20);
+        if (var0 && param7) {
+            this.setTooltip(new TranslatableComponent("mco.news"));
         }
 
-        if (param2 && param6) {
+        if (param3 && param7) {
             int var3 = var0 ? 0 : (int)(Math.max(0.0F, Math.max(Mth.sin((float)(10 + this.animTick) * 0.57F), Mth.cos((float)this.animTick * 0.35F))) * -6.0F);
             this.minecraft.getTextureManager().bind(INVITATION_ICONS_LOCATION);
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            GuiComponent.blit(param3 + 10, param4 + 2 + var3, 40.0F, 0.0F, 8, 8, 48, 16);
+            GuiComponent.blit(param0, param4 + 10, param5 + 2 + var3, 40.0F, 0.0F, 8, 8, 48, 16);
         }
 
     }
 
-    private void renderLocal() {
+    private void renderLocal(PoseStack param0) {
         String var0 = "LOCAL!";
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.pushMatrix();
         RenderSystem.translatef((float)(this.width / 2 - 25), 20.0F, 0.0F);
         RenderSystem.rotatef(-20.0F, 0.0F, 0.0F, 1.0F);
         RenderSystem.scalef(1.5F, 1.5F, 1.5F);
-        this.font.draw("LOCAL!", 0.0F, 0.0F, 8388479);
+        this.font.draw(param0, "LOCAL!", 0.0F, 0.0F, 8388479);
         RenderSystem.popMatrix();
     }
 
-    private void renderStage() {
+    private void renderStage(PoseStack param0) {
         String var0 = "STAGE!";
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.pushMatrix();
         RenderSystem.translatef((float)(this.width / 2 - 25), 20.0F, 0.0F);
         RenderSystem.rotatef(-20.0F, 0.0F, 0.0F, 1.0F);
         RenderSystem.scalef(1.5F, 1.5F, 1.5F);
-        this.font.draw("STAGE!", 0.0F, 0.0F, -256);
+        this.font.draw(param0, "STAGE!", 0.0F, 0.0F, -256);
         RenderSystem.popMatrix();
     }
 
@@ -1153,6 +1164,10 @@ public class RealmsMainScreen extends RealmsScreen {
     public static void updateTeaserImages(ResourceManager param0) {
         Collection<ResourceLocation> var0 = param0.listResources("textures/gui/images", param0x -> param0x.endsWith(".png"));
         teaserImages = var0.stream().filter(param0x -> param0x.getNamespace().equals("realms")).collect(ImmutableList.toImmutableList());
+    }
+
+    private void setTooltip(Component... param0) {
+        this.toolTip = Arrays.asList(param0);
     }
 
     private void pendingButtonPress(Button param0) {
@@ -1167,19 +1182,19 @@ public class RealmsMainScreen extends RealmsScreen {
                 RealmsMainScreen.this.popupY0() + 4,
                 12,
                 12,
-                I18n.get("mco.selectServer.close"),
+                new TranslatableComponent("mco.selectServer.close"),
                 param1 -> RealmsMainScreen.this.onClosePopup()
             );
         }
 
         @Override
-        public void renderButton(int param0, int param1, float param2) {
+        public void renderButton(PoseStack param0, int param1, int param2, float param3) {
             RealmsMainScreen.this.minecraft.getTextureManager().bind(RealmsMainScreen.CROSS_ICON_LOCATION);
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             float var0 = this.isHovered() ? 12.0F : 0.0F;
-            blit(this.x, this.y, 0.0F, var0, 12, 12, 12, 24);
-            if (this.isMouseOver((double)param0, (double)param1)) {
-                RealmsMainScreen.this.toolTip = this.getMessage();
+            blit(param0, this.x, this.y, 0.0F, var0, 12, 12, 12, 24);
+            if (this.isMouseOver((double)param1, (double)param2)) {
+                RealmsMainScreen.this.setTooltip(this.getMessage());
             }
 
         }
@@ -1192,9 +1207,17 @@ public class RealmsMainScreen extends RealmsScreen {
     }
 
     @OnlyIn(Dist.CLIENT)
+    static enum HoveredElement {
+        NONE,
+        EXPIRED,
+        LEAVE,
+        CONFIGURE;
+    }
+
+    @OnlyIn(Dist.CLIENT)
     class NewsButton extends Button {
         public NewsButton() {
-            super(RealmsMainScreen.this.width - 62, 6, 20, 20, "", param1 -> {
+            super(RealmsMainScreen.this.width - 62, 6, 20, 20, TextComponent.EMPTY, param1 -> {
                 if (RealmsMainScreen.this.newsLink != null) {
                     Util.getPlatform().openUri(RealmsMainScreen.this.newsLink);
                     if (RealmsMainScreen.this.hasUnreadNews) {
@@ -1206,29 +1229,29 @@ public class RealmsMainScreen extends RealmsScreen {
 
                 }
             });
-            this.setMessage(I18n.get("mco.news"));
+            this.setMessage(new TranslatableComponent("mco.news"));
         }
 
         @Override
-        public void renderButton(int param0, int param1, float param2) {
-            RealmsMainScreen.this.renderNews(param0, param1, RealmsMainScreen.this.hasUnreadNews, this.x, this.y, this.isHovered(), this.active);
+        public void renderButton(PoseStack param0, int param1, int param2, float param3) {
+            RealmsMainScreen.this.renderNews(param0, param1, param2, RealmsMainScreen.this.hasUnreadNews, this.x, this.y, this.isHovered(), this.active);
         }
     }
 
     @OnlyIn(Dist.CLIENT)
     class PendingInvitesButton extends Button implements TickableWidget {
         public PendingInvitesButton() {
-            super(RealmsMainScreen.this.width / 2 + 47, 6, 22, 22, "", param1 -> RealmsMainScreen.this.pendingButtonPress(param1));
+            super(RealmsMainScreen.this.width / 2 + 47, 6, 22, 22, TextComponent.EMPTY, param1 -> RealmsMainScreen.this.pendingButtonPress(param1));
         }
 
         @Override
         public void tick() {
-            this.setMessage(I18n.get(RealmsMainScreen.this.numberOfPendingInvites == 0 ? "mco.invites.nopending" : "mco.invites.pending"));
+            this.setMessage(new TranslatableComponent(RealmsMainScreen.this.numberOfPendingInvites == 0 ? "mco.invites.nopending" : "mco.invites.pending"));
         }
 
         @Override
-        public void renderButton(int param0, int param1, float param2) {
-            RealmsMainScreen.this.drawInvitationPendingIcon(param0, param1, this.x, this.y, this.isHovered(), this.active);
+        public void renderButton(PoseStack param0, int param1, int param2, float param3) {
+            RealmsMainScreen.this.drawInvitationPendingIcon(param0, param1, param2, this.x, this.y, this.isHovered(), this.active);
         }
     }
 
@@ -1344,13 +1367,13 @@ public class RealmsMainScreen extends RealmsScreen {
                         RealmsMainScreen.this.selectedServerId = var0.id;
                     }
 
-                    if (RealmsMainScreen.this.toolTip != null && RealmsMainScreen.this.toolTip.equals(I18n.get("mco.selectServer.configure"))) {
+                    if (RealmsMainScreen.this.hoveredElement == RealmsMainScreen.HoveredElement.CONFIGURE) {
                         RealmsMainScreen.this.selectedServerId = var0.id;
                         RealmsMainScreen.this.configureClicked(var0);
-                    } else if (RealmsMainScreen.this.toolTip != null && RealmsMainScreen.this.toolTip.equals(I18n.get("mco.selectServer.leave"))) {
+                    } else if (RealmsMainScreen.this.hoveredElement == RealmsMainScreen.HoveredElement.LEAVE) {
                         RealmsMainScreen.this.selectedServerId = var0.id;
                         RealmsMainScreen.this.leaveClicked(var0);
-                    } else if (RealmsMainScreen.this.isSelfOwnedServer(var0) && var0.expired && RealmsMainScreen.this.expiredHover) {
+                    } else if (RealmsMainScreen.this.hoveredElement == RealmsMainScreen.HoveredElement.EXPIRED) {
                         RealmsMainScreen.this.onRenew();
                     }
 
@@ -1378,8 +1401,8 @@ public class RealmsMainScreen extends RealmsScreen {
         }
 
         @Override
-        public void render(int param0, int param1, int param2, int param3, int param4, int param5, int param6, boolean param7, float param8) {
-            this.renderMcoServerItem(this.serverData, param2, param1, param5, param6);
+        public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
+            this.renderMcoServerItem(this.serverData, param0, param3, param2, param6, param7);
         }
 
         @Override
@@ -1394,51 +1417,51 @@ public class RealmsMainScreen extends RealmsScreen {
             return true;
         }
 
-        private void renderMcoServerItem(RealmsServer param0, int param1, int param2, int param3, int param4) {
-            this.renderLegacy(param0, param1 + 36, param2, param3, param4);
+        private void renderMcoServerItem(RealmsServer param0, PoseStack param1, int param2, int param3, int param4, int param5) {
+            this.renderLegacy(param0, param1, param2 + 36, param3, param4, param5);
         }
 
-        private void renderLegacy(RealmsServer param0, int param1, int param2, int param3, int param4) {
+        private void renderLegacy(RealmsServer param0, PoseStack param1, int param2, int param3, int param4, int param5) {
             if (param0.state == RealmsServer.State.UNINITIALIZED) {
                 RealmsMainScreen.this.minecraft.getTextureManager().bind(RealmsMainScreen.WORLDICON_LOCATION);
                 RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
                 RenderSystem.enableAlphaTest();
-                GuiComponent.blit(param1 + 10, param2 + 6, 0.0F, 0.0F, 40, 20, 40, 20);
+                GuiComponent.blit(param1, param2 + 10, param3 + 6, 0.0F, 0.0F, 40, 20, 40, 20);
                 float var0 = 0.5F + (1.0F + Mth.sin((float)RealmsMainScreen.this.animTick * 0.25F)) * 0.25F;
                 int var1 = 0xFF000000 | (int)(127.0F * var0) << 16 | (int)(255.0F * var0) << 8 | (int)(127.0F * var0);
                 RealmsMainScreen.this.drawCenteredString(
-                    RealmsMainScreen.this.font, I18n.get("mco.selectServer.uninitialized"), param1 + 10 + 40 + 75, param2 + 12, var1
+                    param1, RealmsMainScreen.this.font, I18n.get("mco.selectServer.uninitialized"), param2 + 10 + 40 + 75, param3 + 12, var1
                 );
             } else {
                 int var2 = 225;
                 int var3 = 2;
                 if (param0.expired) {
-                    RealmsMainScreen.this.drawExpired(param1 + 225 - 14, param2 + 2, param3, param4);
+                    RealmsMainScreen.this.drawExpired(param1, param2 + 225 - 14, param3 + 2, param4, param5);
                 } else if (param0.state == RealmsServer.State.CLOSED) {
-                    RealmsMainScreen.this.drawClose(param1 + 225 - 14, param2 + 2, param3, param4);
+                    RealmsMainScreen.this.drawClose(param1, param2 + 225 - 14, param3 + 2, param4, param5);
                 } else if (RealmsMainScreen.this.isSelfOwnedServer(param0) && param0.daysLeft < 7) {
-                    RealmsMainScreen.this.drawExpiring(param1 + 225 - 14, param2 + 2, param3, param4, param0.daysLeft);
+                    RealmsMainScreen.this.drawExpiring(param1, param2 + 225 - 14, param3 + 2, param4, param5, param0.daysLeft);
                 } else if (param0.state == RealmsServer.State.OPEN) {
-                    RealmsMainScreen.this.drawOpen(param1 + 225 - 14, param2 + 2, param3, param4);
+                    RealmsMainScreen.this.drawOpen(param1, param2 + 225 - 14, param3 + 2, param4, param5);
                 }
 
                 if (!RealmsMainScreen.this.isSelfOwnedServer(param0) && !RealmsMainScreen.overrideConfigure) {
-                    RealmsMainScreen.this.drawLeave(param1 + 225, param2 + 2, param3, param4);
+                    RealmsMainScreen.this.drawLeave(param1, param2 + 225, param3 + 2, param4, param5);
                 } else {
-                    RealmsMainScreen.this.drawConfigure(param1 + 225, param2 + 2, param3, param4);
+                    RealmsMainScreen.this.drawConfigure(param1, param2 + 225, param3 + 2, param4, param5);
                 }
 
                 if (!"0".equals(param0.serverPing.nrOfPlayers)) {
                     String var4 = ChatFormatting.GRAY + "" + param0.serverPing.nrOfPlayers;
-                    RealmsMainScreen.this.font.draw(var4, (float)(param1 + 207 - RealmsMainScreen.this.font.width(var4)), (float)(param2 + 3), 8421504);
-                    if (param3 >= param1 + 207 - RealmsMainScreen.this.font.width(var4)
-                        && param3 <= param1 + 207
-                        && param4 >= param2 + 1
-                        && param4 <= param2 + 10
-                        && param4 < RealmsMainScreen.this.height - 40
-                        && param4 > 32
+                    RealmsMainScreen.this.font.draw(param1, var4, (float)(param2 + 207 - RealmsMainScreen.this.font.width(var4)), (float)(param3 + 3), 8421504);
+                    if (param4 >= param2 + 207 - RealmsMainScreen.this.font.width(var4)
+                        && param4 <= param2 + 207
+                        && param5 >= param3 + 1
+                        && param5 <= param3 + 10
+                        && param5 < RealmsMainScreen.this.height - 40
+                        && param5 > 32
                         && !RealmsMainScreen.this.shouldShowPopup()) {
-                        RealmsMainScreen.this.toolTip = param0.serverPing.playerList;
+                        RealmsMainScreen.this.setTooltip(new TextComponent(param0.serverPing.playerList));
                     }
                 }
 
@@ -1456,50 +1479,50 @@ public class RealmsMainScreen extends RealmsScreen {
 
                     int var7 = RealmsMainScreen.this.font.width(var6) + 17;
                     int var8 = 16;
-                    int var9 = param1 + RealmsMainScreen.this.font.width(var5) + 8;
-                    int var10 = param2 + 13;
+                    int var9 = param2 + RealmsMainScreen.this.font.width(var5) + 8;
+                    int var10 = param3 + 13;
                     boolean var11 = false;
-                    if (param3 >= var9
-                        && param3 < var9 + var7
-                        && param4 > var10
-                        && param4 <= var10 + 16 & param4 < RealmsMainScreen.this.height - 40
-                        && param4 > 32
+                    if (param4 >= var9
+                        && param4 < var9 + var7
+                        && param5 > var10
+                        && param5 <= var10 + 16 & param5 < RealmsMainScreen.this.height - 40
+                        && param5 > 32
                         && !RealmsMainScreen.this.shouldShowPopup()) {
                         var11 = true;
-                        RealmsMainScreen.this.expiredHover = true;
+                        RealmsMainScreen.this.hoveredElement = RealmsMainScreen.HoveredElement.EXPIRED;
                     }
 
                     int var12 = var11 ? 2 : 1;
-                    GuiComponent.blit(var9, var10, 0.0F, (float)(46 + var12 * 20), var7 / 2, 8, 256, 256);
-                    GuiComponent.blit(var9 + var7 / 2, var10, (float)(200 - var7 / 2), (float)(46 + var12 * 20), var7 / 2, 8, 256, 256);
-                    GuiComponent.blit(var9, var10 + 8, 0.0F, (float)(46 + var12 * 20 + 12), var7 / 2, 8, 256, 256);
-                    GuiComponent.blit(var9 + var7 / 2, var10 + 8, (float)(200 - var7 / 2), (float)(46 + var12 * 20 + 12), var7 / 2, 8, 256, 256);
+                    GuiComponent.blit(param1, var9, var10, 0.0F, (float)(46 + var12 * 20), var7 / 2, 8, 256, 256);
+                    GuiComponent.blit(param1, var9 + var7 / 2, var10, (float)(200 - var7 / 2), (float)(46 + var12 * 20), var7 / 2, 8, 256, 256);
+                    GuiComponent.blit(param1, var9, var10 + 8, 0.0F, (float)(46 + var12 * 20 + 12), var7 / 2, 8, 256, 256);
+                    GuiComponent.blit(param1, var9 + var7 / 2, var10 + 8, (float)(200 - var7 / 2), (float)(46 + var12 * 20 + 12), var7 / 2, 8, 256, 256);
                     RenderSystem.disableBlend();
-                    int var13 = param2 + 11 + 5;
+                    int var13 = param3 + 11 + 5;
                     int var14 = var11 ? 16777120 : 16777215;
-                    RealmsMainScreen.this.font.draw(var5, (float)(param1 + 2), (float)(var13 + 1), 15553363);
-                    RealmsMainScreen.this.drawCenteredString(RealmsMainScreen.this.font, var6, var9 + var7 / 2, var13 + 1, var14);
+                    RealmsMainScreen.this.font.draw(param1, var5, (float)(param2 + 2), (float)(var13 + 1), 15553363);
+                    RealmsMainScreen.this.drawCenteredString(param1, RealmsMainScreen.this.font, var6, var9 + var7 / 2, var13 + 1, var14);
                 } else {
                     if (param0.worldType == RealmsServer.WorldType.MINIGAME) {
                         int var15 = 13413468;
                         String var16 = I18n.get("mco.selectServer.minigame") + " ";
                         int var17 = RealmsMainScreen.this.font.width(var16);
-                        RealmsMainScreen.this.font.draw(var16, (float)(param1 + 2), (float)(param2 + 12), 13413468);
-                        RealmsMainScreen.this.font.draw(param0.getMinigameName(), (float)(param1 + 2 + var17), (float)(param2 + 12), 7105644);
+                        RealmsMainScreen.this.font.draw(param1, var16, (float)(param2 + 2), (float)(param3 + 12), 13413468);
+                        RealmsMainScreen.this.font.draw(param1, param0.getMinigameName(), (float)(param2 + 2 + var17), (float)(param3 + 12), 7105644);
                     } else {
-                        RealmsMainScreen.this.font.draw(param0.getDescription(), (float)(param1 + 2), (float)(param2 + 12), 7105644);
+                        RealmsMainScreen.this.font.draw(param1, param0.getDescription(), (float)(param2 + 2), (float)(param3 + 12), 7105644);
                     }
 
                     if (!RealmsMainScreen.this.isSelfOwnedServer(param0)) {
-                        RealmsMainScreen.this.font.draw(param0.owner, (float)(param1 + 2), (float)(param2 + 12 + 11), 5000268);
+                        RealmsMainScreen.this.font.draw(param1, param0.owner, (float)(param2 + 2), (float)(param3 + 12 + 11), 5000268);
                     }
                 }
 
-                RealmsMainScreen.this.font.draw(param0.getName(), (float)(param1 + 2), (float)(param2 + 1), 16777215);
+                RealmsMainScreen.this.font.draw(param1, param0.getName(), (float)(param2 + 2), (float)(param3 + 1), 16777215);
                 RealmsTextureManager.withBoundFace(param0.ownerUUID, () -> {
                     RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-                    GuiComponent.blit(param1 - 36, param2, 32, 32, 8.0F, 8.0F, 8, 8, 64, 64);
-                    GuiComponent.blit(param1 - 36, param2, 32, 32, 40.0F, 8.0F, 8, 8, 64, 64);
+                    GuiComponent.blit(param1, param2 - 36, param3, 32, 32, 8.0F, 8.0F, 8, 8, 64, 64);
+                    GuiComponent.blit(param1, param2 - 36, param3, 32, 32, 40.0F, 8.0F, 8, 8, 64, 64);
                 });
             }
         }
@@ -1513,14 +1536,14 @@ public class RealmsMainScreen extends RealmsScreen {
                 6,
                 20,
                 20,
-                I18n.get("mco.selectServer.info"),
+                new TranslatableComponent("mco.selectServer.info"),
                 param1 -> RealmsMainScreen.this.popupOpenedByUser = !RealmsMainScreen.this.popupOpenedByUser
             );
         }
 
         @Override
-        public void renderButton(int param0, int param1, float param2) {
-            RealmsMainScreen.this.renderMoreInfo(param0, param1, this.x, this.y, this.isHovered());
+        public void renderButton(PoseStack param0, int param1, int param2, float param3) {
+            RealmsMainScreen.this.renderMoreInfo(param0, param1, param2, this.x, this.y, this.isHovered());
         }
     }
 
@@ -1530,8 +1553,8 @@ public class RealmsMainScreen extends RealmsScreen {
         }
 
         @Override
-        public void render(int param0, int param1, int param2, int param3, int param4, int param5, int param6, boolean param7, float param8) {
-            this.renderTrialItem(param0, param2, param1, param5, param6);
+        public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
+            this.renderTrialItem(param0, param1, param3, param2, param6, param7);
         }
 
         @Override
@@ -1540,12 +1563,12 @@ public class RealmsMainScreen extends RealmsScreen {
             return true;
         }
 
-        private void renderTrialItem(int param0, int param1, int param2, int param3, int param4) {
-            int var0 = param2 + 8;
+        private void renderTrialItem(PoseStack param0, int param1, int param2, int param3, int param4, int param5) {
+            int var0 = param3 + 8;
             int var1 = 0;
             String var2 = I18n.get("mco.trial.message.line1") + "\\n" + I18n.get("mco.trial.message.line2");
             boolean var3 = false;
-            if (param1 <= param3 && param3 <= (int)RealmsMainScreen.this.realmSelectionList.getScrollAmount() && param2 <= param4 && param4 <= param2 + 32) {
+            if (param2 <= param4 && param4 <= (int)RealmsMainScreen.this.realmSelectionList.getScrollAmount() && param3 <= param5 && param5 <= param3 + 32) {
                 var3 = true;
             }
 
@@ -1555,7 +1578,7 @@ public class RealmsMainScreen extends RealmsScreen {
             }
 
             for(String var5 : var2.split("\\\\n")) {
-                RealmsMainScreen.this.drawCenteredString(RealmsMainScreen.this.font, var5, RealmsMainScreen.this.width / 2, var0 + var1, var4);
+                RealmsMainScreen.this.drawCenteredString(param0, RealmsMainScreen.this.font, var5, RealmsMainScreen.this.width / 2, var0 + var1, var4);
                 var1 += 10;
             }
 

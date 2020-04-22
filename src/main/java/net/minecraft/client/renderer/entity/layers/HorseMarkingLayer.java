@@ -43,7 +43,7 @@ public class HorseMarkingLayer extends RenderLayer<Horse, HorseModel<Horse>> {
         float param9
     ) {
         ResourceLocation var0 = LOCATION_BY_MARKINGS.get(param3.getMarkings());
-        if (var0 != null) {
+        if (var0 != null && !param3.isInvisible()) {
             VertexConsumer var1 = param1.getBuffer(RenderType.entityTranslucent(var0));
             this.getParentModel().renderToBuffer(param0, var1, param2, LivingEntityRenderer.getOverlayCoords(param3, 0.0F), 1.0F, 1.0F, 1.0F, 1.0F);
         }

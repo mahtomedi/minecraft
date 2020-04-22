@@ -2,6 +2,7 @@ package net.minecraft.client.gui.screens.recipebook;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -10,6 +11,7 @@ import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.recipebook.PlaceRecipe;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -122,9 +124,9 @@ public class OverlayRecipeComponent extends GuiComponent implements Widget, GuiE
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
+    public void render(PoseStack param0, int param1, int param2, float param3) {
         if (this.isVisible) {
-            this.time += param2;
+            this.time += param3;
             RenderSystem.enableBlend();
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             this.minecraft.getTextureManager().bind(RECIPE_BOOK_LOCATION);
@@ -137,56 +139,79 @@ public class OverlayRecipeComponent extends GuiComponent implements Widget, GuiE
             int var4 = 4;
             int var5 = 82;
             int var6 = 208;
-            this.nineInchSprite(var1, var2, 24, 4, 82, 208);
+            this.nineInchSprite(param0, var1, var2, 24, 4, 82, 208);
             RenderSystem.disableBlend();
 
             for(OverlayRecipeComponent.OverlayRecipeButton var7 : this.recipeButtons) {
-                var7.render(param0, param1, param2);
+                var7.render(param0, param1, param2, param3);
             }
 
             RenderSystem.popMatrix();
         }
     }
 
-    private void nineInchSprite(int param0, int param1, int param2, int param3, int param4, int param5) {
-        this.blit(this.x, this.y, param4, param5, param3, param3);
-        this.blit(this.x + param3 * 2 + param0 * param2, this.y, param4 + param2 + param3, param5, param3, param3);
-        this.blit(this.x, this.y + param3 * 2 + param1 * param2, param4, param5 + param2 + param3, param3, param3);
+    private void nineInchSprite(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6) {
+        this.blit(param0, this.x, this.y, param5, param6, param4, param4);
+        this.blit(param0, this.x + param4 * 2 + param1 * param3, this.y, param5 + param3 + param4, param6, param4, param4);
+        this.blit(param0, this.x, this.y + param4 * 2 + param2 * param3, param5, param6 + param3 + param4, param4, param4);
         this.blit(
-            this.x + param3 * 2 + param0 * param2, this.y + param3 * 2 + param1 * param2, param4 + param2 + param3, param5 + param2 + param3, param3, param3
+            param0,
+            this.x + param4 * 2 + param1 * param3,
+            this.y + param4 * 2 + param2 * param3,
+            param5 + param3 + param4,
+            param6 + param3 + param4,
+            param4,
+            param4
         );
 
-        for(int var0 = 0; var0 < param0; ++var0) {
-            this.blit(this.x + param3 + var0 * param2, this.y, param4 + param3, param5, param2, param3);
-            this.blit(this.x + param3 + (var0 + 1) * param2, this.y, param4 + param3, param5, param3, param3);
+        for(int var0 = 0; var0 < param1; ++var0) {
+            this.blit(param0, this.x + param4 + var0 * param3, this.y, param5 + param4, param6, param3, param4);
+            this.blit(param0, this.x + param4 + (var0 + 1) * param3, this.y, param5 + param4, param6, param4, param4);
 
-            for(int var1 = 0; var1 < param1; ++var1) {
+            for(int var1 = 0; var1 < param2; ++var1) {
                 if (var0 == 0) {
-                    this.blit(this.x, this.y + param3 + var1 * param2, param4, param5 + param3, param3, param2);
-                    this.blit(this.x, this.y + param3 + (var1 + 1) * param2, param4, param5 + param3, param3, param3);
+                    this.blit(param0, this.x, this.y + param4 + var1 * param3, param5, param6 + param4, param4, param3);
+                    this.blit(param0, this.x, this.y + param4 + (var1 + 1) * param3, param5, param6 + param4, param4, param4);
                 }
 
-                this.blit(this.x + param3 + var0 * param2, this.y + param3 + var1 * param2, param4 + param3, param5 + param3, param2, param2);
-                this.blit(this.x + param3 + (var0 + 1) * param2, this.y + param3 + var1 * param2, param4 + param3, param5 + param3, param3, param2);
-                this.blit(this.x + param3 + var0 * param2, this.y + param3 + (var1 + 1) * param2, param4 + param3, param5 + param3, param2, param3);
+                this.blit(param0, this.x + param4 + var0 * param3, this.y + param4 + var1 * param3, param5 + param4, param6 + param4, param3, param3);
+                this.blit(param0, this.x + param4 + (var0 + 1) * param3, this.y + param4 + var1 * param3, param5 + param4, param6 + param4, param4, param3);
+                this.blit(param0, this.x + param4 + var0 * param3, this.y + param4 + (var1 + 1) * param3, param5 + param4, param6 + param4, param3, param4);
                 this.blit(
-                    this.x + param3 + (var0 + 1) * param2 - 1,
-                    this.y + param3 + (var1 + 1) * param2 - 1,
-                    param4 + param3,
-                    param5 + param3,
-                    param3 + 1,
-                    param3 + 1
+                    param0,
+                    this.x + param4 + (var0 + 1) * param3 - 1,
+                    this.y + param4 + (var1 + 1) * param3 - 1,
+                    param5 + param4,
+                    param6 + param4,
+                    param4 + 1,
+                    param4 + 1
                 );
-                if (var0 == param0 - 1) {
-                    this.blit(this.x + param3 * 2 + param0 * param2, this.y + param3 + var1 * param2, param4 + param2 + param3, param5 + param3, param3, param2);
+                if (var0 == param1 - 1) {
                     this.blit(
-                        this.x + param3 * 2 + param0 * param2, this.y + param3 + (var1 + 1) * param2, param4 + param2 + param3, param5 + param3, param3, param3
+                        param0,
+                        this.x + param4 * 2 + param1 * param3,
+                        this.y + param4 + var1 * param3,
+                        param5 + param3 + param4,
+                        param6 + param4,
+                        param4,
+                        param3
+                    );
+                    this.blit(
+                        param0,
+                        this.x + param4 * 2 + param1 * param3,
+                        this.y + param4 + (var1 + 1) * param3,
+                        param5 + param3 + param4,
+                        param6 + param4,
+                        param4,
+                        param4
                     );
                 }
             }
 
-            this.blit(this.x + param3 + var0 * param2, this.y + param3 * 2 + param1 * param2, param4 + param3, param5 + param2 + param3, param2, param3);
-            this.blit(this.x + param3 + (var0 + 1) * param2, this.y + param3 * 2 + param1 * param2, param4 + param3, param5 + param2 + param3, param3, param3);
+            this.blit(param0, this.x + param4 + var0 * param3, this.y + param4 * 2 + param2 * param3, param5 + param4, param6 + param3 + param4, param3, param4);
+            this.blit(
+                param0, this.x + param4 + (var0 + 1) * param3, this.y + param4 * 2 + param2 * param3, param5 + param4, param6 + param3 + param4, param4, param4
+            );
         }
 
     }
@@ -206,7 +231,7 @@ public class OverlayRecipeComponent extends GuiComponent implements Widget, GuiE
         protected final List<OverlayRecipeComponent.OverlayRecipeButton.Pos> ingredientPos = Lists.newArrayList();
 
         public OverlayRecipeButton(int param0, int param1, Recipe<?> param2, boolean param3) {
-            super(param0, param1, 200, 20, "");
+            super(param0, param1, 200, 20, TextComponent.EMPTY);
             this.width = 24;
             this.height = 24;
             this.recipe = param2;
@@ -228,7 +253,7 @@ public class OverlayRecipeComponent extends GuiComponent implements Widget, GuiE
         }
 
         @Override
-        public void renderButton(int param0, int param1, float param2) {
+        public void renderButton(PoseStack param0, int param1, int param2, float param3) {
             RenderSystem.enableAlphaTest();
             OverlayRecipeComponent.this.minecraft.getTextureManager().bind(OverlayRecipeComponent.RECIPE_BOOK_LOCATION);
             int var0 = 152;
@@ -241,7 +266,7 @@ public class OverlayRecipeComponent extends GuiComponent implements Widget, GuiE
                 var1 += 26;
             }
 
-            this.blit(this.x, this.y, var0, var1, this.width, this.height);
+            this.blit(param0, this.x, this.y, var0, var1, this.width, this.height);
 
             for(OverlayRecipeComponent.OverlayRecipeButton.Pos var2 : this.ingredientPos) {
                 RenderSystem.pushMatrix();

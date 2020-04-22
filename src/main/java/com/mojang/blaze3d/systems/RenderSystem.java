@@ -112,61 +112,73 @@ public class RenderSystem {
         lastDrawTime = var1;
     }
 
+    @Deprecated
     public static void pushLightingAttributes() {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._pushLightingAttributes();
     }
 
+    @Deprecated
     public static void pushTextureAttributes() {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._pushTextureAttributes();
     }
 
+    @Deprecated
     public static void popAttributes() {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._popAttributes();
     }
 
+    @Deprecated
     public static void disableAlphaTest() {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._disableAlphaTest();
     }
 
+    @Deprecated
     public static void enableAlphaTest() {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._enableAlphaTest();
     }
 
+    @Deprecated
     public static void alphaFunc(int param0, float param1) {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._alphaFunc(param0, param1);
     }
 
+    @Deprecated
     public static void enableLighting() {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._enableLighting();
     }
 
+    @Deprecated
     public static void disableLighting() {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._disableLighting();
     }
 
+    @Deprecated
     public static void enableColorMaterial() {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._enableColorMaterial();
     }
 
+    @Deprecated
     public static void disableColorMaterial() {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._disableColorMaterial();
     }
 
+    @Deprecated
     public static void colorMaterial(int param0, int param1) {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._colorMaterial(param0, param1);
     }
 
+    @Deprecated
     public static void normal3f(float param0, float param1, float param2) {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._normal3f(param0, param1, param2);
@@ -234,46 +246,55 @@ public class RenderSystem {
         GlStateManager._blendColor(param0, param1, param2, param3);
     }
 
+    @Deprecated
     public static void enableFog() {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._enableFog();
     }
 
+    @Deprecated
     public static void disableFog() {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._disableFog();
     }
 
+    @Deprecated
     public static void fogMode(GlStateManager.FogMode param0) {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._fogMode(param0.value);
     }
 
+    @Deprecated
     public static void fogMode(int param0) {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._fogMode(param0);
     }
 
+    @Deprecated
     public static void fogDensity(float param0) {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._fogDensity(param0);
     }
 
+    @Deprecated
     public static void fogStart(float param0) {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._fogStart(param0);
     }
 
+    @Deprecated
     public static void fogEnd(float param0) {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._fogEnd(param0);
     }
 
+    @Deprecated
     public static void fog(int param0, float param1, float param2, float param3, float param4) {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._fog(param0, new float[]{param1, param2, param3, param4});
     }
 
+    @Deprecated
     public static void fogi(int param0, int param1) {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._fogi(param0, param1);
@@ -362,16 +383,19 @@ public class RenderSystem {
         GlStateManager._bindTexture(param0);
     }
 
+    @Deprecated
     public static void shadeModel(int param0) {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._shadeModel(param0);
     }
 
+    @Deprecated
     public static void enableRescaleNormal() {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._enableRescaleNormal();
     }
 
+    @Deprecated
     public static void disableRescaleNormal() {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._disableRescaleNormal();
@@ -422,71 +446,85 @@ public class RenderSystem {
         GlStateManager._clear(param0, param1);
     }
 
+    @Deprecated
     public static void matrixMode(int param0) {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._matrixMode(param0);
     }
 
+    @Deprecated
     public static void loadIdentity() {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._loadIdentity();
     }
 
+    @Deprecated
     public static void pushMatrix() {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._pushMatrix();
     }
 
+    @Deprecated
     public static void popMatrix() {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._popMatrix();
     }
 
+    @Deprecated
     public static void ortho(double param0, double param1, double param2, double param3, double param4, double param5) {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._ortho(param0, param1, param2, param3, param4, param5);
     }
 
+    @Deprecated
     public static void rotatef(float param0, float param1, float param2, float param3) {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._rotatef(param0, param1, param2, param3);
     }
 
+    @Deprecated
     public static void scalef(float param0, float param1, float param2) {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._scalef(param0, param1, param2);
     }
 
+    @Deprecated
     public static void scaled(double param0, double param1, double param2) {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._scaled(param0, param1, param2);
     }
 
+    @Deprecated
     public static void translatef(float param0, float param1, float param2) {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._translatef(param0, param1, param2);
     }
 
+    @Deprecated
     public static void translated(double param0, double param1, double param2) {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._translated(param0, param1, param2);
     }
 
+    @Deprecated
     public static void multMatrix(Matrix4f param0) {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._multMatrix(param0);
     }
 
+    @Deprecated
     public static void color4f(float param0, float param1, float param2, float param3) {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._color4f(param0, param1, param2, param3);
     }
 
+    @Deprecated
     public static void color3f(float param0, float param1, float param2) {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._color4f(param0, param1, param2, 1.0F);
     }
 
+    @Deprecated
     public static void clearCurrentColor() {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._clearCurrentColor();
@@ -556,6 +594,7 @@ public class RenderSystem {
         GLX._setupNvFogDistance();
     }
 
+    @Deprecated
     public static void glMultiTexCoord2f(int param0, float param1, float param2) {
         assertThread(RenderSystem::isOnGameThread);
         GlStateManager._glMultiTexCoord2f(param0, param1, param2);

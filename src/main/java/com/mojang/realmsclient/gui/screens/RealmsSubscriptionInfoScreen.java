@@ -1,5 +1,6 @@
 package com.mojang.realmsclient.gui.screens;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.dto.RealmsServer;
 import com.mojang.realmsclient.dto.Subscription;
@@ -13,6 +14,9 @@ import net.minecraft.Util;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.realms.NarrationHelper;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraftforge.api.distmarker.Dist;
@@ -57,7 +61,7 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
                 row(6),
                 200,
                 20,
-                I18n.get("mco.configure.world.subscription.extend"),
+                new TranslatableComponent("mco.configure.world.subscription.extend"),
                 param0 -> {
                     String var0 = "https://aka.ms/ExtendJavaRealms?subscriptionId="
                         + this.serverData.remoteSubscriptionId
@@ -68,11 +72,11 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
                 }
             )
         );
-        this.addButton(new Button(this.width / 2 - 100, row(12), 200, 20, I18n.get("gui.back"), param0 -> this.minecraft.setScreen(this.lastScreen)));
+        this.addButton(new Button(this.width / 2 - 100, row(12), 200, 20, CommonComponents.GUI_BACK, param0 -> this.minecraft.setScreen(this.lastScreen)));
         if (this.serverData.expired) {
-            this.addButton(new Button(this.width / 2 - 100, row(10), 200, 20, I18n.get("mco.configure.world.delete.button"), param0 -> {
-                String var0 = I18n.get("mco.configure.world.delete.question.line1");
-                String var1 = I18n.get("mco.configure.world.delete.question.line2");
+            this.addButton(new Button(this.width / 2 - 100, row(10), 200, 20, new TranslatableComponent("mco.configure.world.delete.button"), param0 -> {
+                Component var0 = new TranslatableComponent("mco.configure.world.delete.question.line1");
+                Component var1 = new TranslatableComponent("mco.configure.world.delete.question.line2");
                 this.minecraft.setScreen(new RealmsLongConfirmationScreen(this::deleteRealm, RealmsLongConfirmationScreen.Type.Warning, var0, var1, true));
             }));
         }
@@ -139,20 +143,20 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
-        this.renderBackground();
+    public void render(PoseStack param0, int param1, int param2, float param3) {
+        this.renderBackground(param0);
         int var0 = this.width / 2 - 100;
-        this.drawCenteredString(this.font, this.subscriptionTitle, this.width / 2, 17, 16777215);
-        this.font.draw(this.subscriptionStartLabelText, (float)var0, (float)row(0), 10526880);
-        this.font.draw(this.startDate, (float)var0, (float)row(1), 16777215);
+        this.drawCenteredString(param0, this.font, this.subscriptionTitle, this.width / 2, 17, 16777215);
+        this.font.draw(param0, this.subscriptionStartLabelText, (float)var0, (float)row(0), 10526880);
+        this.font.draw(param0, this.startDate, (float)var0, (float)row(1), 16777215);
         if (this.type == Subscription.SubscriptionType.NORMAL) {
-            this.font.draw(this.timeLeftLabelText, (float)var0, (float)row(3), 10526880);
+            this.font.draw(param0, this.timeLeftLabelText, (float)var0, (float)row(3), 10526880);
         } else if (this.type == Subscription.SubscriptionType.RECURRING) {
-            this.font.draw(this.daysLeftLabelText, (float)var0, (float)row(3), 10526880);
+            this.font.draw(param0, this.daysLeftLabelText, (float)var0, (float)row(3), 10526880);
         }
 
-        this.font.draw(this.daysLeftPresentation(this.daysLeft), (float)var0, (float)row(4), 16777215);
-        super.render(param0, param1, param2);
+        this.font.draw(param0, this.daysLeftPresentation(this.daysLeft), (float)var0, (float)row(4), 16777215);
+        super.render(param0, param1, param2, param3);
     }
 
     private String daysLeftPresentation(int param0) {

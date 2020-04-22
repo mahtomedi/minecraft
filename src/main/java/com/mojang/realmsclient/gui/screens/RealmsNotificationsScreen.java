@@ -1,6 +1,7 @@
 package com.mojang.realmsclient.gui.screens;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.exception.RealmsServiceException;
 import com.mojang.realmsclient.gui.RealmsDataFetcher;
@@ -89,15 +90,15 @@ public class RealmsNotificationsScreen extends RealmsScreen {
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
+    public void render(PoseStack param0, int param1, int param2, float param3) {
         if (validClient) {
-            this.drawIcons(param0, param1);
+            this.drawIcons(param0, param1, param2);
         }
 
-        super.render(param0, param1, param2);
+        super.render(param0, param1, param2, param3);
     }
 
-    private void drawIcons(int param0, int param1) {
+    private void drawIcons(PoseStack param0, int param1, int param2) {
         int var0 = this.numberOfPendingInvites;
         int var1 = 24;
         int var2 = this.height / 4 + 48;
@@ -109,7 +110,7 @@ public class RealmsNotificationsScreen extends RealmsScreen {
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             RenderSystem.pushMatrix();
             RenderSystem.scalef(0.4F, 0.4F, 0.4F);
-            GuiComponent.blit((int)((double)(var3 + 2 - var5) * 2.5), (int)((double)var4 * 2.5), 0.0F, 0.0F, 40, 40, 40, 40);
+            GuiComponent.blit(param0, (int)((double)(var3 + 2 - var5) * 2.5), (int)((double)var4 * 2.5), 0.0F, 0.0F, 40, 40, 40, 40);
             RenderSystem.popMatrix();
             var5 += 14;
         }
@@ -117,7 +118,7 @@ public class RealmsNotificationsScreen extends RealmsScreen {
         if (var0 != 0) {
             this.minecraft.getTextureManager().bind(INVITE_ICON_LOCATION);
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            GuiComponent.blit(var3 - var5, var4 - 6, 0.0F, 0.0F, 15, 25, 31, 25);
+            GuiComponent.blit(param0, var3 - var5, var4 - 6, 0.0F, 0.0F, 15, 25, 31, 25);
             var5 += 16;
         }
 
@@ -129,7 +130,7 @@ public class RealmsNotificationsScreen extends RealmsScreen {
                 var6 = 8;
             }
 
-            GuiComponent.blit(var3 + 4 - var5, var4 + 4, 0.0F, (float)var6, 8, 8, 8, 16);
+            GuiComponent.blit(param0, var3 + 4 - var5, var4 + 4, 0.0F, (float)var6, 8, 8, 8, 16);
         }
 
     }

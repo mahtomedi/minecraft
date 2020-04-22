@@ -3,14 +3,15 @@ package net.minecraft.server.dedicated;
 import com.mojang.authlib.GameProfile;
 import java.io.IOException;
 import net.minecraft.server.players.PlayerList;
+import net.minecraft.world.level.storage.PlayerDataStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class DedicatedPlayerList extends PlayerList {
     private static final Logger LOGGER = LogManager.getLogger();
 
-    public DedicatedPlayerList(DedicatedServer param0) {
-        super(param0, param0.getProperties().maxPlayers);
+    public DedicatedPlayerList(DedicatedServer param0, PlayerDataStorage param1) {
+        super(param0, param1, param0.getProperties().maxPlayers);
         DedicatedServerProperties var0 = param0.getProperties();
         this.setViewDistance(var0.viewDistance);
         super.setUsingWhiteList(var0.whiteList.get());

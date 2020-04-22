@@ -5,6 +5,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.realmsclient.dto.Backup;
 import java.util.List;
@@ -15,7 +16,9 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ScrolledSelectionList;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
@@ -47,7 +50,9 @@ public class RealmsBackupInfoScreen extends RealmsScreen {
     public void init() {
         this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
         this.addButton(
-            new Button(this.width / 2 - 100, this.height / 4 + 120 + 24, 200, 20, I18n.get("gui.back"), param0 -> this.minecraft.setScreen(this.lastScreen))
+            new Button(
+                this.width / 2 - 100, this.height / 4 + 120 + 24, 200, 20, CommonComponents.GUI_BACK, param0 -> this.minecraft.setScreen(this.lastScreen)
+            )
         );
         this.backupInfoList = new RealmsBackupInfoScreen.BackupInfoList(this.minecraft);
         this.addWidget(this.backupInfoList);
@@ -70,35 +75,35 @@ public class RealmsBackupInfoScreen extends RealmsScreen {
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
-        this.renderBackground();
-        this.drawCenteredString(this.font, "Changes from last backup", this.width / 2, 10, 16777215);
-        this.backupInfoList.render(param0, param1, param2);
-        super.render(param0, param1, param2);
+    public void render(PoseStack param0, int param1, int param2, float param3) {
+        this.renderBackground(param0);
+        this.drawCenteredString(param0, this.font, "Changes from last backup", this.width / 2, 10, 16777215);
+        this.backupInfoList.render(param0, param1, param2, param3);
+        super.render(param0, param1, param2, param3);
     }
 
-    private String checkForSpecificMetadata(String param0, String param1) {
+    private Component checkForSpecificMetadata(String param0, String param1) {
         String var0 = param0.toLowerCase(Locale.ROOT);
         if (var0.contains("game") && var0.contains("mode")) {
             return this.gameModeMetadata(param1);
         } else {
-            return var0.contains("game") && var0.contains("difficulty") ? this.gameDifficultyMetadata(param1) : param1;
+            return (Component)(var0.contains("game") && var0.contains("difficulty") ? this.gameDifficultyMetadata(param1) : new TextComponent(param1));
         }
     }
 
-    private String gameDifficultyMetadata(String param0) {
+    private Component gameDifficultyMetadata(String param0) {
         try {
-            return I18n.get(RealmsSlotOptionsScreen.DIFFICULTIES[Integer.parseInt(param0)]);
+            return RealmsSlotOptionsScreen.DIFFICULTIES[Integer.parseInt(param0)];
         } catch (Exception var3) {
-            return "UNKNOWN";
+            return new TextComponent("UNKNOWN");
         }
     }
 
-    private String gameModeMetadata(String param0) {
+    private Component gameModeMetadata(String param0) {
         try {
-            return I18n.get(RealmsSlotOptionsScreen.GAME_MODES[Integer.parseInt(param0)]);
+            return RealmsSlotOptionsScreen.GAME_MODES[Integer.parseInt(param0)];
         } catch (Exception var3) {
-            return "UNKNOWN";
+            return new TextComponent("UNKNOWN");
         }
     }
 
@@ -114,12 +119,12 @@ public class RealmsBackupInfoScreen extends RealmsScreen {
         }
 
         @Override
-        protected void renderItem(int param0, int param1, int param2, int param3, int param4, int param5, float param6) {
-            String var0 = RealmsBackupInfoScreen.this.keys.get(param0);
+        protected void renderItem(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, float param7) {
+            String var0 = RealmsBackupInfoScreen.this.keys.get(param1);
             Font var1 = this.minecraft.font;
-            this.drawString(var1, var0, this.width / 2 - 40, param2, 10526880);
+            this.drawString(param0, var1, var0, this.width / 2 - 40, param3, 10526880);
             String var2 = RealmsBackupInfoScreen.this.backup.changeList.get(var0);
-            this.drawString(var1, RealmsBackupInfoScreen.this.checkForSpecificMetadata(var0, var2), this.width / 2 - 40, param2 + 12, 16777215);
+            this.drawString(param0, var1, RealmsBackupInfoScreen.this.checkForSpecificMetadata(var0, var2), this.width / 2 - 40, param3 + 12, 16777215);
         }
 
         @Override
@@ -132,7 +137,7 @@ public class RealmsBackupInfoScreen extends RealmsScreen {
         }
 
         @Override
-        public void render(int param0, int param1, float param2) {
+        public void render(PoseStack param0, int param1, int param2, float param3) {
             if (this.visible) {
                 this.renderBackground();
                 int var0 = this.getScrollbarPosition();
@@ -147,7 +152,7 @@ public class RealmsBackupInfoScreen extends RealmsScreen {
                     this.renderHeader(var4, var5, var2);
                 }
 
-                this.renderList(var4, var5, param0, param1, param2);
+                this.renderList(param0, var4, var5, param1, param2, param3);
                 RenderSystem.disableDepthTest();
                 this.renderHoleBackground(0, this.y0, 255, 255);
                 this.renderHoleBackground(this.y1, this.height, 255, 255);
@@ -190,7 +195,7 @@ public class RealmsBackupInfoScreen extends RealmsScreen {
                     var2.end();
                 }
 
-                this.renderDecorations(param0, param1);
+                this.renderDecorations(param1, param2);
                 RenderSystem.enableTexture();
                 RenderSystem.shadeModel(7424);
                 RenderSystem.enableAlphaTest();

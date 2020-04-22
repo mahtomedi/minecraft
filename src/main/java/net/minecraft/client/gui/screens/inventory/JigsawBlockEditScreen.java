@@ -1,5 +1,6 @@
 package net.minecraft.client.gui.screens.inventory;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.AbstractSliderButton;
@@ -7,6 +8,10 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.game.ServerboundJigsawGeneratePacket;
 import net.minecraft.network.protocol.game.ServerboundSetJigsawBlockPacket;
 import net.minecraft.resources.ResourceLocation;
@@ -77,35 +82,35 @@ public class JigsawBlockEditScreen extends Screen {
     @Override
     protected void init() {
         this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
-        this.doneButton = this.addButton(new Button(this.width / 2 - 4 - 150, 210, 150, 20, I18n.get("gui.done"), param0 -> this.onDone()));
-        this.addButton(new Button(this.width / 2 + 4, 210, 150, 20, I18n.get("gui.cancel"), param0 -> this.onCancel()));
-        this.poolEdit = new EditBox(this.font, this.width / 2 - 152, 20, 300, 20, I18n.get("jigsaw_block.pool"));
+        this.doneButton = this.addButton(new Button(this.width / 2 - 4 - 150, 210, 150, 20, CommonComponents.GUI_DONE, param0 -> this.onDone()));
+        this.addButton(new Button(this.width / 2 + 4, 210, 150, 20, CommonComponents.GUI_CANCEL, param0 -> this.onCancel()));
+        this.poolEdit = new EditBox(this.font, this.width / 2 - 152, 20, 300, 20, new TranslatableComponent("jigsaw_block.pool"));
         this.poolEdit.setMaxLength(128);
         this.poolEdit.setValue(this.jigsawEntity.getPool().toString());
         this.poolEdit.setResponder(param0 -> this.updateValidity());
         this.children.add(this.poolEdit);
-        this.nameEdit = new EditBox(this.font, this.width / 2 - 152, 55, 300, 20, I18n.get("jigsaw_block.name"));
+        this.nameEdit = new EditBox(this.font, this.width / 2 - 152, 55, 300, 20, new TranslatableComponent("jigsaw_block.name"));
         this.nameEdit.setMaxLength(128);
         this.nameEdit.setValue(this.jigsawEntity.getName().toString());
         this.nameEdit.setResponder(param0 -> this.updateValidity());
         this.children.add(this.nameEdit);
-        this.targetEdit = new EditBox(this.font, this.width / 2 - 152, 90, 300, 20, I18n.get("jigsaw_block.target"));
+        this.targetEdit = new EditBox(this.font, this.width / 2 - 152, 90, 300, 20, new TranslatableComponent("jigsaw_block.target"));
         this.targetEdit.setMaxLength(128);
         this.targetEdit.setValue(this.jigsawEntity.getTarget().toString());
         this.targetEdit.setResponder(param0 -> this.updateValidity());
         this.children.add(this.targetEdit);
-        this.finalStateEdit = new EditBox(this.font, this.width / 2 - 152, 125, 300, 20, I18n.get("jigsaw_block.final_state"));
+        this.finalStateEdit = new EditBox(this.font, this.width / 2 - 152, 125, 300, 20, new TranslatableComponent("jigsaw_block.final_state"));
         this.finalStateEdit.setMaxLength(256);
         this.finalStateEdit.setValue(this.jigsawEntity.getFinalState());
         this.children.add(this.finalStateEdit);
-        this.addButton(new AbstractSliderButton(this.width / 2 - 152, 180, 150, 20, "", 0.0) {
+        this.addButton(new AbstractSliderButton(this.width / 2 - 152, 180, 150, 20, TextComponent.EMPTY, 0.0) {
             {
                 this.updateMessage();
             }
 
             @Override
             protected void updateMessage() {
-                this.setMessage(I18n.get("jigsaw_block.levels") + JigsawBlockEditScreen.this.levels);
+                this.setMessage(new TranslatableComponent("jigsaw_block.levels", JigsawBlockEditScreen.this.levels));
             }
 
             @Override
@@ -113,7 +118,7 @@ public class JigsawBlockEditScreen extends Screen {
                 JigsawBlockEditScreen.this.levels = Mth.floor(Mth.clampedLerp(0.0, 7.0, this.value));
             }
         });
-        this.addButton(new Button(this.width / 2 + 4, 180, 150, 20, I18n.get("jigsaw_block.generate"), param0 -> this.sendGenerate()));
+        this.addButton(new Button(this.width / 2 + 4, 180, 150, 20, new TranslatableComponent("jigsaw_block.generate"), param0 -> this.sendGenerate()));
         this.joint = this.jigsawEntity.getJoint();
         int var0 = this.font.width(I18n.get("jigsaw_block.joint_label")) + 10;
         this.jointButton = this.addButton(new Button(this.width / 2 - 152 + var0, 150, 300 - var0, 20, this.getJointText(), param0 -> {
@@ -153,8 +158,8 @@ public class JigsawBlockEditScreen extends Screen {
         this.jointButton.setMessage(this.getJointText());
     }
 
-    private String getJointText() {
-        return I18n.get("jigsaw_block.joint." + this.joint.getSerializedName());
+    private Component getJointText() {
+        return new TranslatableComponent("jigsaw_block.joint." + this.joint.getSerializedName());
     }
 
     @Override
@@ -175,20 +180,20 @@ public class JigsawBlockEditScreen extends Screen {
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
-        this.renderBackground();
-        this.drawString(this.font, I18n.get("jigsaw_block.pool"), this.width / 2 - 153, 10, 10526880);
-        this.poolEdit.render(param0, param1, param2);
-        this.drawString(this.font, I18n.get("jigsaw_block.name"), this.width / 2 - 153, 45, 10526880);
-        this.nameEdit.render(param0, param1, param2);
-        this.drawString(this.font, I18n.get("jigsaw_block.target"), this.width / 2 - 153, 80, 10526880);
-        this.targetEdit.render(param0, param1, param2);
-        this.drawString(this.font, I18n.get("jigsaw_block.final_state"), this.width / 2 - 153, 115, 10526880);
-        this.finalStateEdit.render(param0, param1, param2);
+    public void render(PoseStack param0, int param1, int param2, float param3) {
+        this.renderBackground(param0);
+        this.drawString(param0, this.font, I18n.get("jigsaw_block.pool"), this.width / 2 - 153, 10, 10526880);
+        this.poolEdit.render(param0, param1, param2, param3);
+        this.drawString(param0, this.font, I18n.get("jigsaw_block.name"), this.width / 2 - 153, 45, 10526880);
+        this.nameEdit.render(param0, param1, param2, param3);
+        this.drawString(param0, this.font, I18n.get("jigsaw_block.target"), this.width / 2 - 153, 80, 10526880);
+        this.targetEdit.render(param0, param1, param2, param3);
+        this.drawString(param0, this.font, I18n.get("jigsaw_block.final_state"), this.width / 2 - 153, 115, 10526880);
+        this.finalStateEdit.render(param0, param1, param2, param3);
         if (JigsawBlock.getFrontFacing(this.jigsawEntity.getBlockState()).getAxis().isVertical()) {
-            this.drawString(this.font, I18n.get("jigsaw_block.joint_label"), this.width / 2 - 153, 156, 16777215);
+            this.drawString(param0, this.font, I18n.get("jigsaw_block.joint_label"), this.width / 2 - 153, 156, 16777215);
         }
 
-        super.render(param0, param1, param2);
+        super.render(param0, param1, param2, param3);
     }
 }

@@ -238,7 +238,7 @@ public class ItemFrame extends HangingEntity {
             var0.setDirty(true);
         }
 
-        param0.setFramed(null);
+        param0.setEntityRepresentation(null);
     }
 
     public ItemStack getItem() {
@@ -253,7 +253,7 @@ public class ItemFrame extends HangingEntity {
         if (!param0.isEmpty()) {
             param0 = param0.copy();
             param0.setCount(1);
-            param0.setFramed(this);
+            param0.setEntityRepresentation(this);
         }
 
         this.getEntityData().set(DATA_ITEM, param0);
@@ -282,7 +282,7 @@ public class ItemFrame extends HangingEntity {
         if (param0.equals(DATA_ITEM)) {
             ItemStack var0 = this.getItem();
             if (!var0.isEmpty() && var0.getFrame() != this) {
-                var0.setFramed(this);
+                var0.setEntityRepresentation(this);
             }
         }
 

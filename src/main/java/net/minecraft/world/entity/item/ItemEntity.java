@@ -336,6 +336,15 @@ public class ItemEntity extends Entity {
         this.getEntityData().set(DATA_ITEM, param0);
     }
 
+    @Override
+    public void onSyncedDataUpdated(EntityDataAccessor<?> param0) {
+        super.onSyncedDataUpdated(param0);
+        if (DATA_ITEM.equals(param0)) {
+            this.getItem().setEntityRepresentation(this);
+        }
+
+    }
+
     @Nullable
     public UUID getOwner() {
         return this.owner;
@@ -386,6 +395,11 @@ public class ItemEntity extends Entity {
     public void makeFakeItem() {
         this.setNeverPickUp();
         this.age = 5999;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public float getSpin(float param0) {
+        return ((float)this.getAge() + param0) / 20.0F + this.bobOffs;
     }
 
     @Override

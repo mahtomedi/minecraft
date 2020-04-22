@@ -4,11 +4,12 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.platform.InputConstants;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
 import net.minecraft.Util;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -128,9 +129,9 @@ public class KeyMapping implements Comparable<KeyMapping> {
             : CATEGORY_SORT_ORDER.get(this.category).compareTo(CATEGORY_SORT_ORDER.get(param0.category));
     }
 
-    public static Supplier<String> createNameSupplier(String param0) {
+    public static Supplier<Component> createNameSupplier(String param0) {
         KeyMapping var0 = ALL.get(param0);
-        return var0 == null ? () -> param0 : var0::getTranslatedKeyMessage;
+        return var0 == null ? () -> new TranslatableComponent(param0) : var0::getTranslatedKeyMessage;
     }
 
     public boolean same(KeyMapping param0) {
@@ -153,23 +154,8 @@ public class KeyMapping implements Comparable<KeyMapping> {
         return this.key.getType() == InputConstants.Type.MOUSE && this.key.getValue() == param0;
     }
 
-    public String getTranslatedKeyMessage() {
-        String var0x = this.key.getName();
-        int var1 = this.key.getValue();
-        String var2 = null;
-        switch(this.key.getType()) {
-            case KEYSYM:
-                var2 = InputConstants.translateKeyCode(var1);
-                break;
-            case SCANCODE:
-                var2 = InputConstants.translateScanCode(var1);
-                break;
-            case MOUSE:
-                String var3 = I18n.get(var0x);
-                var2 = Objects.equals(var3, var0x) ? I18n.get(InputConstants.Type.MOUSE.getDefaultPrefix(), var1 + 1) : var3;
-        }
-
-        return var2 == null ? I18n.get(var0x) : var2;
+    public Component getTranslatedKeyMessage() {
+        return this.key.getDisplayName();
     }
 
     public boolean isDefault() {

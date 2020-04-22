@@ -1,39 +1,41 @@
 package net.minecraft.world.level.biome;
 
+import com.mojang.datafixers.util.Pair;
 import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
-import net.minecraft.world.level.levelgen.synth.PerlinNoise;
+import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 public class MultiNoiseBiomeSource extends BiomeSource {
-    private final PerlinNoise temperatureNoise;
-    private final PerlinNoise humidityNoise;
-    private final PerlinNoise altitudeNoise;
-    private final PerlinNoise weirdnessNoise;
+    private final NormalNoise temperatureNoise;
+    private final NormalNoise humidityNoise;
+    private final NormalNoise altitudeNoise;
+    private final NormalNoise weirdnessNoise;
+    private final List<Pair<Biome.ClimateParameters, Biome>> parameters;
+    private final boolean useY;
 
     public MultiNoiseBiomeSource(MultiNoiseBiomeSourceSettings param0) {
-        super(param0.getBiomes());
+        super(param0.getParameters().stream().map(Pair::getSecond).collect(Collectors.toSet()));
         long var0 = param0.getSeed();
-        this.temperatureNoise = new PerlinNoise(new WorldgenRandom(var0), param0.getTemperatureOctaves());
-        this.humidityNoise = new PerlinNoise(new WorldgenRandom(var0 + 1L), param0.getHumidityOctaves());
-        this.altitudeNoise = new PerlinNoise(new WorldgenRandom(var0 + 2L), param0.getAltitudeOctaves());
-        this.weirdnessNoise = new PerlinNoise(new WorldgenRandom(var0 + 3L), param0.getWeirdnessOctaves());
+        this.temperatureNoise = new NormalNoise(new WorldgenRandom(var0), param0.getTemperatureOctaves());
+        this.humidityNoise = new NormalNoise(new WorldgenRandom(var0 + 1L), param0.getHumidityOctaves());
+        this.altitudeNoise = new NormalNoise(new WorldgenRandom(var0 + 2L), param0.getAltitudeOctaves());
+        this.weirdnessNoise = new NormalNoise(new WorldgenRandom(var0 + 3L), param0.getWeirdnessOctaves());
+        this.parameters = param0.getParameters();
+        this.useY = param0.useY();
     }
 
     @Override
     public Biome getNoiseBiome(int param0, int param1, int param2) {
-        double var0 = 1.0181268882175227;
-        double var1 = 1.0;
-        double var2 = (double)param0 * 1.0181268882175227;
-        double var3 = (double)param2 * 1.0181268882175227;
-        double var4 = (double)param0 * 1.0;
-        double var5 = (double)param2 * 1.0;
-        Biome.ClimateParameters var6 = new Biome.ClimateParameters(
-            (float)((this.temperatureNoise.getValue(var2, 0.0, var3) + this.temperatureNoise.getValue(var4, 0.0, var5)) * 0.5),
-            (float)((this.humidityNoise.getValue(var2, 0.0, var3) + this.humidityNoise.getValue(var4, 0.0, var5)) * 0.5),
-            (float)((this.altitudeNoise.getValue(var2, 0.0, var3) + this.altitudeNoise.getValue(var4, 0.0, var5)) * 0.5),
-            (float)((this.weirdnessNoise.getValue(var2, 0.0, var3) + this.weirdnessNoise.getValue(var4, 0.0, var5)) * 0.5),
-            1.0F
+        int var0 = this.useY ? param1 : 0;
+        Biome.ClimateParameters var1 = new Biome.ClimateParameters(
+            (float)this.temperatureNoise.getValue((double)param0, (double)var0, (double)param2),
+            (float)this.humidityNoise.getValue((double)param0, (double)var0, (double)param2),
+            (float)this.altitudeNoise.getValue((double)param0, (double)var0, (double)param2),
+            (float)this.weirdnessNoise.getValue((double)param0, (double)var0, (double)param2),
+            0.0F
         );
-        return this.possibleBiomes.stream().min(Comparator.comparing(param1x -> param1x.getFitness(var6))).orElse(Biomes.THE_END);
+        return this.parameters.stream().min(Comparator.comparing(param1x -> param1x.getFirst().fitness(var1))).map(Pair::getSecond).orElse(Biomes.THE_VOID);
     }
 }

@@ -6,7 +6,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
 import java.util.List;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.ComponentRenderUtils;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -14,6 +13,8 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SignBlock;
 import net.minecraft.world.level.block.StandingSignBlock;
@@ -66,15 +67,16 @@ public class SignRenderer extends BlockEntityRenderer<SignBlockEntity> {
         int var11 = (int)((double)NativeImage.getG(var8) * 0.4);
         int var12 = (int)((double)NativeImage.getB(var8) * 0.4);
         int var13 = NativeImage.combine(0, var12, var11, var10);
+        int var14 = 20;
 
-        for(int var14 = 0; var14 < 4; ++var14) {
-            String var15 = param0.getRenderMessage(var14, param1x -> {
-                List<Component> var0x = ComponentRenderUtils.wrapComponents(param1x, 90, var6, false, true);
-                return var0x.isEmpty() ? "" : var0x.get(0).getColoredString();
+        for(int var15 = 0; var15 < 4; ++var15) {
+            Component var16 = param0.getRenderMessage(var15, param1x -> {
+                List<Component> var0x = var6.getSplitter().splitLines(param1x, 90, Style.EMPTY, true);
+                return var0x.isEmpty() ? TextComponent.EMPTY : var0x.get(0);
             });
-            if (var15 != null) {
-                float var16 = (float)(-var6.width(var15) / 2);
-                var6.drawInBatch(var15, var16, (float)(var14 * 10 - param0.messages.length * 5), var13, false, param2.last().pose(), param3, false, 0, param4);
+            if (var16 != null) {
+                float var17 = (float)(-var6.width(var16) / 2);
+                var6.drawInBatch(var16, var17, (float)(var15 * 10 - 20), var13, false, param2.last().pose(), param3, false, 0, param4);
             }
         }
 

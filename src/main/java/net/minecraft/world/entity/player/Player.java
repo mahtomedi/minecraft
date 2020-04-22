@@ -24,6 +24,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
@@ -941,6 +942,11 @@ public abstract class Player extends LivingEntity {
         }
     }
 
+    @Override
+    protected boolean onSoulSpeedBlock() {
+        return !this.abilities.flying && super.onSoulSpeedBlock();
+    }
+
     public void openTextEdit(SignBlockEntity param0) {
     }
 
@@ -1330,14 +1336,14 @@ public abstract class Player extends LivingEntity {
     public static Optional<Vec3> findRespawnPositionAndUseSpawnBlock(ServerLevel param0, BlockPos param1, boolean param2, boolean param3) {
         BlockState var0 = param0.getBlockState(param1);
         Block var1 = var0.getBlock();
-        if (var1 instanceof RespawnAnchorBlock && var0.getValue(RespawnAnchorBlock.CHARGE) > 0) {
+        if (var1 instanceof RespawnAnchorBlock && var0.getValue(RespawnAnchorBlock.CHARGE) > 0 && RespawnAnchorBlock.canSetSpawn(param0)) {
             Optional<Vec3> var2 = RespawnAnchorBlock.findStandUpPosition(EntityType.PLAYER, param0, param1);
             if (!param3 && var2.isPresent()) {
                 param0.setBlock(param1, var0.setValue(RespawnAnchorBlock.CHARGE, Integer.valueOf(var0.getValue(RespawnAnchorBlock.CHARGE) - 1)), 3);
             }
 
             return var2;
-        } else if (var1 instanceof BedBlock) {
+        } else if (var1 instanceof BedBlock && BedBlock.canSetSpawn(param0, param1)) {
             return BedBlock.findStandUpPosition(EntityType.PLAYER, param0, param1, 0);
         } else if (!param2) {
             return Optional.empty();
@@ -1824,7 +1830,7 @@ public abstract class Player extends LivingEntity {
 
     @Override
     public Component getDisplayName() {
-        Component var0 = PlayerTeam.formatNameForTeam(this.getTeam(), this.getName());
+        MutableComponent var0 = PlayerTeam.formatNameForTeam(this.getTeam(), this.getName());
         return this.decorateDisplayNameComponent(var0);
     }
 
@@ -1832,12 +1838,12 @@ public abstract class Player extends LivingEntity {
         return new TextComponent("").append(this.getName()).append(" (").append(this.gameProfile.getId().toString()).append(")");
     }
 
-    private Component decorateDisplayNameComponent(Component param0) {
+    private MutableComponent decorateDisplayNameComponent(MutableComponent param0) {
         String var0 = this.getGameProfile().getName();
         return param0.withStyle(
-            param1 -> param1.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/tell " + var0 + " "))
-                    .setHoverEvent(this.createHoverEvent())
-                    .setInsertion(var0)
+            param1 -> param1.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/tell " + var0 + " "))
+                    .withHoverEvent(this.createHoverEvent())
+                    .withInsertion(var0)
         );
     }
 

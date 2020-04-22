@@ -18,7 +18,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BeehiveBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.feature.AbstractTreeFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public class BeehiveDecorator extends TreeDecorator {
@@ -44,7 +44,7 @@ public class BeehiveDecorator extends TreeDecorator {
             if (!var2.isEmpty()) {
                 BlockPos var3 = var2.get(param1.nextInt(var2.size()));
                 BlockPos var4 = var3.relative(var0);
-                if (AbstractTreeFeature.isAir(param0, var4) && AbstractTreeFeature.isAir(param0, var4.relative(Direction.SOUTH))) {
+                if (Feature.isAir(param0, var4) && Feature.isAir(param0, var4.relative(Direction.SOUTH))) {
                     BlockState var5 = Blocks.BEE_NEST.defaultBlockState().setValue(BeehiveBlock.FACING, Direction.SOUTH);
                     this.setBlock(param0, var4, var5, param4, param5);
                     BlockEntity var6 = param0.getBlockEntity(var4);

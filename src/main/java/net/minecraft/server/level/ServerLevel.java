@@ -68,7 +68,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.ProgressListener;
 import net.minecraft.util.Unit;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -99,7 +98,6 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.ForcedChunksSavedData;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.LevelType;
 import net.minecraft.world.level.PortalForcer;
 import net.minecraft.world.level.ServerTickList;
@@ -129,7 +127,7 @@ import net.minecraft.world.level.saveddata.maps.MapIndex;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.minecraft.world.level.storage.LevelData;
-import net.minecraft.world.level.storage.LevelStorage;
+import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
@@ -149,7 +147,6 @@ public class ServerLevel extends Level {
     private final List<ServerPlayer> players = Lists.newArrayList();
     boolean tickingEntities;
     private final MinecraftServer server;
-    private final LevelStorage levelStorage;
     public boolean noSave;
     private boolean allPlayersSleeping;
     private int emptyTime;
@@ -168,15 +165,22 @@ public class ServerLevel extends Level {
     private final WanderingTraderSpawner wanderingTraderSpawner;
     private final StructureFeatureManager structureFeatureManager = new StructureFeatureManager();
 
-    public ServerLevel(MinecraftServer param0, Executor param1, LevelStorage param2, LevelData param3, DimensionType param4, ChunkProgressListener param5) {
+    public ServerLevel(
+        MinecraftServer param0,
+        Executor param1,
+        LevelStorageSource.LevelStorageAccess param2,
+        LevelData param3,
+        DimensionType param4,
+        ChunkProgressListener param5
+    ) {
         super(
             param3,
             param4,
             (param4x, param5x) -> new ServerChunkCache(
                     (ServerLevel)param4x,
-                    param2.getFolder(),
-                    param2.getFixerUpper(),
-                    param2.getStructureManager(),
+                    param2,
+                    param0.getFixerUpper(),
+                    param0.getStructureManager(),
                     param1,
                     param5x.createRandomLevelGenerator(),
                     param0.getPlayerList().getViewDistance(),
@@ -187,7 +191,6 @@ public class ServerLevel extends Level {
             param0::getProfiler,
             false
         );
-        this.levelStorage = param2;
         this.server = param0;
         this.portalForcer = new PortalForcer(this);
         this.updateSkyBrightness();
@@ -296,10 +299,6 @@ public class ServerLevel extends Level {
             this.server.getPlayerList().broadcastAll(new ClientboundGameEventPacket(8, this.thunderLevel));
         }
 
-        if (this.getLevelData().isHardcore() && this.getDifficulty() != Difficulty.HARD) {
-            this.getLevelData().setDifficulty(Difficulty.HARD);
-        }
-
         if (this.allPlayersSleeping && this.players.stream().noneMatch(param0x -> !param0x.isSpectator() && !param0x.isSleepingLongEnough())) {
             this.allPlayersSleeping = false;
             if (this.getGameRules().getBoolean(GameRules.RULE_DAYLIGHT)) {
@@ -357,7 +356,7 @@ public class ServerLevel extends Level {
             this.tickingEntities = true;
             ObjectIterator<Entry<Entity>> var11 = this.entitiesById.int2ObjectEntrySet().iterator();
 
-            label174:
+            label170:
             while(true) {
                 Entity var13;
                 while(true) {
@@ -371,17 +370,17 @@ public class ServerLevel extends Level {
 
                         var0.pop();
                         this.tickBlockEntities();
-                        break label174;
+                        break label170;
                     }
 
                     Entry<Entity> var12 = var11.next();
                     var13 = var12.getValue();
                     Entity var14 = var13.getVehicle();
-                    if (!this.server.isAnimals() && (var13 instanceof Animal || var13 instanceof WaterAnimal)) {
+                    if (!this.server.isSpawningAnimals() && (var13 instanceof Animal || var13 instanceof WaterAnimal)) {
                         var13.remove();
                     }
 
-                    if (!this.server.isNpcsEnabled() && var13 instanceof Npc) {
+                    if (!this.server.areNpcsEnabled() && var13 instanceof Npc) {
                         var13.remove();
                     }
 
@@ -642,7 +641,7 @@ public class ServerLevel extends Level {
         return !this.server.isUnderSpawnProtection(this, param1, param0) && this.getWorldBorder().isWithinBounds(param1);
     }
 
-    public void setInitialSpawn(LevelSettings param0) {
+    public void setInitialSpawn(boolean param0) {
         if (!this.dimension.mayRespawn()) {
             this.levelData.setSpawn(BlockPos.ZERO.above(this.getChunkSource().getGenerator().getSpawnHeight()));
         } else if (this.levelData.getGeneratorType() == LevelType.DEBUG_ALL_BLOCK_STATES) {
@@ -692,7 +691,7 @@ public class ServerLevel extends Level {
                 var8 += var10;
             }
 
-            if (param0.hasStartingBonusItems()) {
+            if (param0) {
                 this.generateBonusItemsNearSpawn();
             }
 
@@ -1159,7 +1158,7 @@ public class ServerLevel extends Level {
     }
 
     public StructureManager getStructureManager() {
-        return this.levelStorage.getStructureManager();
+        return this.server.getStructureManager();
     }
 
     public <T extends ParticleOptions> int sendParticles(
@@ -1226,7 +1225,9 @@ public class ServerLevel extends Level {
 
     @Nullable
     public BlockPos findNearestMapFeature(String param0, BlockPos param1, int param2, boolean param3) {
-        return this.getChunkSource().getGenerator().findNearestMapFeature(this, param0, param1, param2, param3);
+        return !this.levelData.shouldGenerateMapFeatures()
+            ? null
+            : this.getChunkSource().getGenerator().findNearestMapFeature(this, param0, param1, param2, param3);
     }
 
     @Nullable
@@ -1256,10 +1257,6 @@ public class ServerLevel extends Level {
     @Override
     public boolean noSave() {
         return this.noSave;
-    }
-
-    public LevelStorage getLevelStorage() {
-        return this.levelStorage;
     }
 
     public DimensionDataStorage getDataStorage() {

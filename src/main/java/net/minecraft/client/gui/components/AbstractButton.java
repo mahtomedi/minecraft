@@ -1,12 +1,13 @@
 package net.minecraft.client.gui.components;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class AbstractButton extends AbstractWidget {
-    public AbstractButton(int param0, int param1, int param2, int param3, String param4) {
+    public AbstractButton(int param0, int param1, int param2, int param3, Component param4) {
         super(param0, param1, param2, param3, param4);
     }
 

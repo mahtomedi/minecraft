@@ -1,5 +1,6 @@
 package net.minecraft.world.level.levelgen.feature;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.Dynamic;
 import java.util.Random;
 import java.util.function.Function;
@@ -16,6 +17,19 @@ import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.feature.configurations.ColumnFeatureConfiguration;
 
 public class BasaltColumnsFeature extends Feature<ColumnFeatureConfiguration> {
+    private static final ImmutableList<Block> CANNOT_PLACE_ON = ImmutableList.of(
+        Blocks.LAVA,
+        Blocks.BEDROCK,
+        Blocks.MAGMA_BLOCK,
+        Blocks.SOUL_SAND,
+        Blocks.NETHER_BRICKS,
+        Blocks.NETHER_BRICK_FENCE,
+        Blocks.NETHER_BRICK_STAIRS,
+        Blocks.NETHER_WART,
+        Blocks.CHEST,
+        Blocks.SPAWNER
+    );
+
     public BasaltColumnsFeature(Function<Dynamic<?>, ? extends ColumnFeatureConfiguration> param0) {
         super(param0);
     }
@@ -89,8 +103,7 @@ public class BasaltColumnsFeature extends Feature<ColumnFeatureConfiguration> {
             if (isAirOrLavaOcean(param0, param1, param2)) {
                 BlockState var0 = param0.getBlockState(param2.move(Direction.DOWN));
                 param2.move(Direction.UP);
-                Block var1 = var0.getBlock();
-                if (var1 != Blocks.LAVA && var1 != Blocks.BEDROCK && var1 != Blocks.MAGMA_BLOCK && !var0.isAir()) {
+                if (!var0.isAir() && !CANNOT_PLACE_ON.contains(var0.getBlock())) {
                     return param2;
                 }
             }
@@ -103,7 +116,12 @@ public class BasaltColumnsFeature extends Feature<ColumnFeatureConfiguration> {
     private static BlockPos findAir(LevelAccessor param0, BlockPos.MutableBlockPos param1, int param2) {
         while(param1.getY() < param0.getMaxBuildHeight() && param2 > 0) {
             --param2;
-            if (param0.getBlockState(param1).isAir()) {
+            BlockState var0 = param0.getBlockState(param1);
+            if (CANNOT_PLACE_ON.contains(var0.getBlock())) {
+                return null;
+            }
+
+            if (var0.isAir()) {
                 return param1;
             }
 

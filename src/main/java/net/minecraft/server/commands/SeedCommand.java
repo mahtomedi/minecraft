@@ -22,10 +22,10 @@ public class SeedCommand {
                         Component var1 = ComponentUtils.wrapInSquareBrackets(
                             new TextComponent(String.valueOf(var0x))
                                 .withStyle(
-                                    param1 -> param1.setColor(ChatFormatting.GREEN)
-                                            .setClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, String.valueOf(var0x)))
-                                            .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslatableComponent("chat.copy.click")))
-                                            .setInsertion(String.valueOf(var0x))
+                                    param1 -> param1.withColor(ChatFormatting.GREEN)
+                                            .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, String.valueOf(var0x)))
+                                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslatableComponent("chat.copy.click")))
+                                            .withInsertion(String.valueOf(var0x))
                                 )
                         );
                         param0x.getSource().sendSuccess(new TranslatableComponent("commands.seed.success", var1), false);

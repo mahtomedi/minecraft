@@ -1,6 +1,7 @@
 package net.minecraft.client.gui.screens.recipebook;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
 import net.minecraft.client.ClientRecipeBook;
 import net.minecraft.client.Minecraft;
@@ -41,7 +42,7 @@ public class RecipeBookTabButton extends StateSwitchingButton {
     }
 
     @Override
-    public void renderButton(int param0, int param1, float param2) {
+    public void renderButton(PoseStack param0, int param1, int param2, float param3) {
         if (this.animationTime > 0.0F) {
             float var0 = 1.0F + 0.1F * (float)Math.sin((double)(this.animationTime / 15.0F * (float) Math.PI));
             RenderSystem.pushMatrix();
@@ -69,12 +70,12 @@ public class RecipeBookTabButton extends StateSwitchingButton {
         }
 
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        this.blit(var4, this.y, var2, var3, this.width, this.height);
+        this.blit(param0, var4, this.y, var2, var3, this.width, this.height);
         RenderSystem.enableDepthTest();
         this.renderIcon(var1.getItemRenderer());
         if (this.animationTime > 0.0F) {
             RenderSystem.popMatrix();
-            this.animationTime -= param2;
+            this.animationTime -= param3;
         }
 
     }

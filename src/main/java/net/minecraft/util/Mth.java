@@ -265,7 +265,7 @@ public class Mth {
         return var0 + 1;
     }
 
-    private static boolean isPowerOfTwo(int param0) {
+    public static boolean isPowerOfTwo(int param0) {
         return param0 != 0 && (param0 & param0 - 1) == 0;
     }
 
@@ -276,21 +276,6 @@ public class Mth {
 
     public static int log2(int param0) {
         return ceillog2(param0) - (isPowerOfTwo(param0) ? 0 : 1);
-    }
-
-    public static int roundUp(int param0, int param1) {
-        if (param1 == 0) {
-            return 0;
-        } else if (param0 == 0) {
-            return param1;
-        } else {
-            if (param0 < 0) {
-                param1 *= -1;
-            }
-
-            int var0 = param0 % param1;
-            return var0 == 0 ? param0 : param0 + param1 - var0;
-        }
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -563,6 +548,10 @@ public class Mth {
     @OnlyIn(Dist.CLIENT)
     public static float triangleWave(float param0, float param1) {
         return (Math.abs(param0 % param1 - param1 * 0.5F) - param1 * 0.25F) / (param1 * 0.25F);
+    }
+
+    public static float square(float param0) {
+        return param0 * param0;
     }
 
     static {

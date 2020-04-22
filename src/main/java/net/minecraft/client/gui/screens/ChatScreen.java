@@ -1,12 +1,14 @@
 package net.minecraft.client.gui.screens;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.components.CommandSuggestions;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -28,10 +30,10 @@ public class ChatScreen extends Screen {
     protected void init() {
         this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
         this.historyPos = this.minecraft.gui.getChat().getRecentChat().size();
-        this.input = new EditBox(this.font, 4, this.height - 12, this.width - 4, 12, I18n.get("chat.editBox")) {
+        this.input = new EditBox(this.font, 4, this.height - 12, this.width - 4, 12, new TranslatableComponent("chat.editBox")) {
             @Override
-            protected String getNarrationMessage() {
-                return super.getNarrationMessage() + ChatScreen.this.commandSuggestions.getNarrationMessage();
+            protected MutableComponent createNarrationMessage() {
+                return super.createNarrationMessage().append(ChatScreen.this.commandSuggestions.getNarrationMessage());
             }
         };
         this.input.setMaxLength(256);
@@ -177,18 +179,18 @@ public class ChatScreen extends Screen {
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
+    public void render(PoseStack param0, int param1, int param2, float param3) {
         this.setFocused(this.input);
         this.input.setFocus(true);
-        fill(2, this.height - 14, this.width - 2, this.height - 2, this.minecraft.options.getBackgroundColor(Integer.MIN_VALUE));
-        this.input.render(param0, param1, param2);
-        this.commandSuggestions.render(param0, param1);
-        Component var0 = this.minecraft.gui.getChat().getClickedComponentAt((double)param0, (double)param1);
+        fill(param0, 2, this.height - 14, this.width - 2, this.height - 2, this.minecraft.options.getBackgroundColor(Integer.MIN_VALUE));
+        this.input.render(param0, param1, param2, param3);
+        this.commandSuggestions.render(param0, param1, param2);
+        Component var0 = this.minecraft.gui.getChat().getClickedComponentAt((double)param1, (double)param2);
         if (var0 != null && var0.getStyle().getHoverEvent() != null) {
-            this.renderComponentHoverEffect(var0, param0, param1);
+            this.renderComponentHoverEffect(param0, var0, param1, param2);
         }
 
-        super.render(param0, param1, param2);
+        super.render(param0, param1, param2, param3);
     }
 
     @Override

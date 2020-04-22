@@ -1,7 +1,10 @@
 package net.minecraft.client.gui.components;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -18,8 +21,10 @@ public class VolumeSlider extends AbstractOptionSliderButton {
 
     @Override
     protected void updateMessage() {
-        String var0 = (float)this.value == (float)this.getYImage(false) ? I18n.get("options.off") : (int)((float)this.value * 100.0F) + "%";
-        this.setMessage(I18n.get("soundCategory." + this.source.getName()) + ": " + var0);
+        Component var0 = (Component)((float)this.value == (float)this.getYImage(false)
+            ? CommonComponents.OPTION_OFF
+            : new TextComponent((int)(this.value * 100.0) + "%"));
+        this.setMessage(new TranslatableComponent("soundCategory." + this.source.getName()).append(": ").append(var0));
     }
 
     @Override

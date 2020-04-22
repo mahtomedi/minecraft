@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -117,7 +118,7 @@ public class IntArrayTag extends CollectionTag<IntTag> {
     @Override
     public Component getPrettyDisplay(String param0, int param1) {
         Component var0 = new TextComponent("I").withStyle(SYNTAX_HIGHLIGHTING_NUMBER_TYPE);
-        Component var1 = new TextComponent("[").append(var0).append(";");
+        MutableComponent var1 = new TextComponent("[").append(var0).append(";");
 
         for(int var2 = 0; var2 < this.data.length; ++var2) {
             var1.append(" ").append(new TextComponent(String.valueOf(this.data[var2])).withStyle(SYNTAX_HIGHLIGHTING_NUMBER));

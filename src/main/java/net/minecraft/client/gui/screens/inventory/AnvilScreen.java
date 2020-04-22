@@ -1,10 +1,12 @@
 package net.minecraft.client.gui.screens.inventory;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.game.ServerboundRenameItemPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -29,7 +31,7 @@ public class AnvilScreen extends ItemCombinerScreen<AnvilMenu> {
         this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
         int var0 = (this.width - this.imageWidth) / 2;
         int var1 = (this.height - this.imageHeight) / 2;
-        this.name = new EditBox(this.font, var0 + 62, var1 + 24, 103, 12, I18n.get("container.repair"));
+        this.name = new EditBox(this.font, var0 + 62, var1 + 24, 103, 12, new TranslatableComponent("container.repair"));
         this.name.setCanLoseFocus(false);
         this.name.setTextColor(-1);
         this.name.setTextColorUneditable(-1);
@@ -76,9 +78,9 @@ public class AnvilScreen extends ItemCombinerScreen<AnvilMenu> {
     }
 
     @Override
-    protected void renderLabels(int param0, int param1) {
+    protected void renderLabels(PoseStack param0, int param1, int param2) {
         RenderSystem.disableBlend();
-        this.font.draw(this.title.getColoredString(), 60.0F, 6.0F, 4210752);
+        this.font.draw(param0, this.title, 60.0F, 6.0F, 4210752);
         int var0 = this.menu.getCost();
         if (var0 > 0) {
             int var1 = 8453920;
@@ -96,16 +98,16 @@ public class AnvilScreen extends ItemCombinerScreen<AnvilMenu> {
             if (var2) {
                 int var4 = this.imageWidth - 8 - this.font.width(var3) - 2;
                 int var5 = 69;
-                fill(var4 - 2, 67, this.imageWidth - 8, 79, 1325400064);
-                this.font.drawShadow(var3, (float)var4, 69.0F, var1);
+                fill(param0, var4 - 2, 67, this.imageWidth - 8, 79, 1325400064);
+                this.font.drawShadow(param0, var3, (float)var4, 69.0F, var1);
             }
         }
 
     }
 
     @Override
-    public void renderFg(int param0, int param1, float param2) {
-        this.name.render(param0, param1, param2);
+    public void renderFg(PoseStack param0, int param1, int param2, float param3) {
+        this.name.render(param0, param1, param2, param3);
     }
 
     @Override

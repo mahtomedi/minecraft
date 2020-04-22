@@ -8,7 +8,7 @@ import java.util.Random;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelSimulatedRW;
-import net.minecraft.world.level.levelgen.feature.configurations.SmallTreeConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
 
 public class PineFoliagePlacer extends FoliagePlacer {
     private final int height;
@@ -32,41 +32,43 @@ public class PineFoliagePlacer extends FoliagePlacer {
     }
 
     @Override
-    public void createFoliage(
-        LevelSimulatedRW param0, Random param1, SmallTreeConfiguration param2, int param3, BlockPos param4, int param5, int param6, Set<BlockPos> param7
+    protected void createFoliage(
+        LevelSimulatedRW param0,
+        Random param1,
+        TreeConfiguration param2,
+        int param3,
+        FoliagePlacer.FoliageAttachment param4,
+        int param5,
+        int param6,
+        Set<BlockPos> param7,
+        int param8
     ) {
-        int var0 = this.offset + param1.nextInt(this.offsetRandom + 1);
-        int var1 = 0;
+        int var0 = 0;
 
-        for(int var2 = param5 + var0; var2 >= var0; --var2) {
-            this.placeLeavesRow(param0, param1, param2, param4, param5, var2, var1, param7);
-            if (var1 >= 1 && var2 == var0 + 1) {
-                --var1;
-            } else if (var1 < param6) {
-                ++var1;
+        for(int var1 = param8; var1 >= param8 - param5; --var1) {
+            this.placeLeavesRow(param0, param1, param2, param4.foliagePos(), var0, param7, var1, param4.doubleTrunk());
+            if (var0 >= 1 && var1 == param8 - param5 + 1) {
+                --var0;
+            } else if (var0 < param6 + param4.radiusOffset()) {
+                ++var0;
             }
         }
 
     }
 
     @Override
-    public int foliageRadius(Random param0, int param1, SmallTreeConfiguration param2) {
-        return this.radius + param0.nextInt(this.radiusRandom + 1) + param0.nextInt(param1 + 1);
+    public int foliageRadius(Random param0, int param1) {
+        return super.foliageRadius(param0, param1) + param0.nextInt(param1 + 1);
     }
 
     @Override
-    public int foliageHeight(Random param0, int param1) {
+    public int foliageHeight(Random param0, int param1, TreeConfiguration param2) {
         return this.height + param0.nextInt(this.heightRandom + 1);
     }
 
     @Override
-    protected boolean shouldSkipLocation(Random param0, int param1, int param2, int param3, int param4, int param5) {
-        return Math.abs(param2) == param5 && Math.abs(param4) == param5 && param5 > 0;
-    }
-
-    @Override
-    public int getTreeRadiusForHeight(int param0, int param1, int param2) {
-        return param2 <= 1 ? 0 : 2;
+    protected boolean shouldSkipLocation(Random param0, int param1, int param2, int param3, int param4, boolean param5) {
+        return param1 == param4 && param3 == param4 && param4 > 0;
     }
 
     @Override

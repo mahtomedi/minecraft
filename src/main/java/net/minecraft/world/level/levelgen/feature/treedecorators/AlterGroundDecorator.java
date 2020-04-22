@@ -11,7 +11,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelSimulatedRW;
-import net.minecraft.world.level.levelgen.feature.AbstractTreeFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
@@ -66,12 +66,12 @@ public class AlterGroundDecorator extends TreeDecorator {
     private void placeBlockAt(LevelSimulatedRW param0, Random param1, BlockPos param2) {
         for(int var0 = 2; var0 >= -3; --var0) {
             BlockPos var1 = param2.above(var0);
-            if (AbstractTreeFeature.isGrassOrDirt(param0, var1)) {
+            if (Feature.isGrassOrDirt(param0, var1)) {
                 param0.setBlock(var1, this.provider.getState(param1, param2), 19);
                 break;
             }
 
-            if (!AbstractTreeFeature.isAir(param0, var1) && var0 < 0) {
+            if (!Feature.isAir(param0, var1) && var0 < 0) {
                 break;
             }
         }

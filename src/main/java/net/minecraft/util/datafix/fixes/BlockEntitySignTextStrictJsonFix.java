@@ -13,21 +13,22 @@ import com.mojang.datafixers.Typed;
 import com.mojang.datafixers.schemas.Schema;
 import java.lang.reflect.Type;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.GsonHelper;
 import org.apache.commons.lang3.StringUtils;
 
 public class BlockEntitySignTextStrictJsonFix extends NamedEntityFix {
     public static final Gson GSON = new GsonBuilder().registerTypeAdapter(Component.class, new JsonDeserializer<Component>() {
-        public Component deserialize(JsonElement param0, Type param1, JsonDeserializationContext param2) throws JsonParseException {
+        public MutableComponent deserialize(JsonElement param0, Type param1, JsonDeserializationContext param2) throws JsonParseException {
             if (param0.isJsonPrimitive()) {
                 return new TextComponent(param0.getAsString());
             } else if (param0.isJsonArray()) {
                 JsonArray var0 = param0.getAsJsonArray();
-                Component var1 = null;
+                MutableComponent var1 = null;
 
                 for(JsonElement var2 : var0) {
-                    Component var3 = this.deserialize(var2, var2.getClass(), param2);
+                    MutableComponent var3 = this.deserialize(var2, var2.getClass(), param2);
                     if (var1 == null) {
                         var1 = var3;
                     } else {
@@ -54,7 +55,7 @@ public class BlockEntitySignTextStrictJsonFix extends NamedEntityFix {
                 try {
                     var1 = GsonHelper.fromJson(GSON, var0, Component.class, true);
                     if (var1 == null) {
-                        var1 = new TextComponent("");
+                        var1 = TextComponent.EMPTY;
                     }
                 } catch (JsonParseException var8) {
                 }
@@ -80,7 +81,7 @@ public class BlockEntitySignTextStrictJsonFix extends NamedEntityFix {
                 var1 = new TextComponent(var0);
             }
         } else {
-            var1 = new TextComponent("");
+            var1 = TextComponent.EMPTY;
         }
 
         return param0.set(param1, param0.createString(Component.Serializer.toJson(var1)));

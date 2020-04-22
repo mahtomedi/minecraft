@@ -472,11 +472,10 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
                     * (double)this.minecraft.getWindow().getGuiScaledHeight()
                     / (double)this.minecraft.getWindow().getScreenHeight()
             );
-            PoseStack var2 = new PoseStack();
             RenderSystem.viewport(0, 0, this.minecraft.getWindow().getWidth(), this.minecraft.getWindow().getHeight());
             if (param2 && this.minecraft.level != null) {
                 this.minecraft.getProfiler().push("level");
-                this.renderLevel(param0, param1, var2);
+                this.renderLevel(param0, param1, new PoseStack());
                 if (this.minecraft.hasSingleplayerServer() && this.lastScreenshotAttempt < Util.getMillis() - 1000L) {
                     this.lastScreenshotAttempt = Util.getMillis();
                     if (!this.minecraft.getSingleplayerServer().hasWorldScreenshot()) {
@@ -500,21 +499,22 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
                 this.minecraft.getMainRenderTarget().bindWrite(true);
             }
 
-            Window var3 = this.minecraft.getWindow();
+            Window var2 = this.minecraft.getWindow();
             RenderSystem.clear(256, Minecraft.ON_OSX);
             RenderSystem.matrixMode(5889);
             RenderSystem.loadIdentity();
-            RenderSystem.ortho(0.0, (double)var3.getWidth() / var3.getGuiScale(), (double)var3.getHeight() / var3.getGuiScale(), 0.0, 1000.0, 3000.0);
+            RenderSystem.ortho(0.0, (double)var2.getWidth() / var2.getGuiScale(), (double)var2.getHeight() / var2.getGuiScale(), 0.0, 1000.0, 3000.0);
             RenderSystem.matrixMode(5888);
             RenderSystem.loadIdentity();
             RenderSystem.translatef(0.0F, 0.0F, -2000.0F);
             Lighting.setupFor3DItems();
+            PoseStack var3 = new PoseStack();
             if (param2 && this.minecraft.level != null) {
                 this.minecraft.getProfiler().popPush("gui");
                 if (!this.minecraft.options.hideGui || this.minecraft.screen != null) {
                     RenderSystem.defaultAlphaFunc();
                     this.renderItemActivationAnimation(this.minecraft.getWindow().getGuiScaledWidth(), this.minecraft.getWindow().getGuiScaledHeight(), param0);
-                    this.minecraft.gui.render(param0);
+                    this.minecraft.gui.render(var3, param0);
                     RenderSystem.clear(256, Minecraft.ON_OSX);
                 }
 
@@ -523,7 +523,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
 
             if (this.minecraft.overlay != null) {
                 try {
-                    this.minecraft.overlay.render(var0, var1, this.minecraft.getDeltaFrameTime());
+                    this.minecraft.overlay.render(var3, var0, var1, this.minecraft.getDeltaFrameTime());
                 } catch (Throwable var13) {
                     CrashReport var5 = CrashReport.forThrowable(var13, "Rendering overlay");
                     CrashReportCategory var6 = var5.addCategory("Overlay render details");
@@ -532,7 +532,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
                 }
             } else if (this.minecraft.screen != null) {
                 try {
-                    this.minecraft.screen.render(var0, var1, this.minecraft.getDeltaFrameTime());
+                    this.minecraft.screen.render(var3, var0, var1, this.minecraft.getDeltaFrameTime());
                 } catch (Throwable var12) {
                     CrashReport var8 = CrashReport.forThrowable(var12, "Rendering screen");
                     CrashReportCategory var9 = var8.addCategory("Screen render details");

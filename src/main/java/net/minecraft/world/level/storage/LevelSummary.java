@@ -1,13 +1,17 @@
 package net.minecraft.world.level.storage;
 
 import java.io.File;
+import javax.annotation.Nullable;
+import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LevelType;
+import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -27,8 +31,10 @@ public class LevelSummary implements Comparable<LevelSummary> {
     private final LevelType generatorType;
     private final boolean locked;
     private final File icon;
+    @Nullable
+    private Component info;
 
-    public LevelSummary(LevelData param0, String param1, String param2, long param3, boolean param4, boolean param5, File param6) {
+    public LevelSummary(WorldData param0, String param1, String param2, long param3, boolean param4, boolean param5, File param6) {
         this.levelId = param1;
         this.levelName = param2;
         this.locked = param5;
@@ -42,7 +48,7 @@ public class LevelSummary implements Comparable<LevelSummary> {
         this.worldVersionName = param0.getMinecraftVersionName();
         this.worldVersion = param0.getMinecraftVersion();
         this.snapshot = param0.isSnapshot();
-        this.generatorType = param0.getGeneratorType();
+        this.generatorType = param0.getLevelData(DimensionType.OVERWORLD).getGeneratorType();
     }
 
     public String getLevelId() {
@@ -85,8 +91,8 @@ public class LevelSummary implements Comparable<LevelSummary> {
         return this.hasCheats;
     }
 
-    public Component getWorldVersionName() {
-        return (Component)(StringUtil.isNullOrEmpty(this.worldVersionName)
+    public MutableComponent getWorldVersionName() {
+        return (MutableComponent)(StringUtil.isNullOrEmpty(this.worldVersionName)
             ? new TranslatableComponent("selectWorld.versionUnknown")
             : new TextComponent(this.worldVersionName));
     }
@@ -109,5 +115,39 @@ public class LevelSummary implements Comparable<LevelSummary> {
 
     public boolean isLocked() {
         return this.locked;
+    }
+
+    public Component getInfo() {
+        if (this.info == null) {
+            this.info = this.createInfo();
+        }
+
+        return this.info;
+    }
+
+    private Component createInfo() {
+        if (this.isLocked()) {
+            return new TranslatableComponent("selectWorld.locked").withStyle(ChatFormatting.RED);
+        } else if (this.isRequiresConversion()) {
+            return new TranslatableComponent("selectWorld.conversion");
+        } else {
+            MutableComponent var0 = (MutableComponent)(this.isHardcore()
+                ? new TextComponent("").append(new TranslatableComponent("gameMode.hardcore").withStyle(ChatFormatting.DARK_RED))
+                : new TranslatableComponent("gameMode." + this.getGameMode().getName()));
+            if (this.hasCheats()) {
+                var0.append(", ").append(new TranslatableComponent("selectWorld.cheats"));
+            }
+
+            MutableComponent var1 = this.getWorldVersionName();
+            MutableComponent var2 = new TextComponent(", ").append(new TranslatableComponent("selectWorld.version")).append(" ");
+            if (this.markVersionInList()) {
+                var2.append(var1.withStyle(this.askToOpenWorld() ? ChatFormatting.RED : ChatFormatting.ITALIC));
+            } else {
+                var2.append(var1);
+            }
+
+            var0.append(var2);
+            return var0;
+        }
     }
 }

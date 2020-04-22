@@ -1,11 +1,14 @@
 package com.mojang.realmsclient.gui.screens;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.dto.RealmsServer;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.realms.NarrationHelper;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraftforge.api.distmarker.Dist;
@@ -37,11 +40,15 @@ public class RealmsInviteScreen extends RealmsScreen {
     @Override
     public void init() {
         this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
-        this.profileName = new EditBox(this.minecraft.font, this.width / 2 - 100, row(2), 200, 20, null, I18n.get("mco.configure.world.invite.profile.name"));
+        this.profileName = new EditBox(
+            this.minecraft.font, this.width / 2 - 100, row(2), 200, 20, null, new TranslatableComponent("mco.configure.world.invite.profile.name")
+        );
         this.addWidget(this.profileName);
         this.setInitialFocus(this.profileName);
-        this.addButton(new Button(this.width / 2 - 100, row(10), 200, 20, I18n.get("mco.configure.world.buttons.invite"), param0 -> this.onInvite()));
-        this.addButton(new Button(this.width / 2 - 100, row(12), 200, 20, I18n.get("gui.cancel"), param0 -> this.minecraft.setScreen(this.lastScreen)));
+        this.addButton(
+            new Button(this.width / 2 - 100, row(10), 200, 20, new TranslatableComponent("mco.configure.world.buttons.invite"), param0 -> this.onInvite())
+        );
+        this.addButton(new Button(this.width / 2 - 100, row(12), 200, 20, CommonComponents.GUI_CANCEL, param0 -> this.minecraft.setScreen(this.lastScreen)));
     }
 
     @Override
@@ -87,14 +94,14 @@ public class RealmsInviteScreen extends RealmsScreen {
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
-        this.renderBackground();
-        this.font.draw(I18n.get("mco.configure.world.invite.profile.name"), (float)(this.width / 2 - 100), (float)row(1), 10526880);
+    public void render(PoseStack param0, int param1, int param2, float param3) {
+        this.renderBackground(param0);
+        this.font.draw(param0, I18n.get("mco.configure.world.invite.profile.name"), (float)(this.width / 2 - 100), (float)row(1), 10526880);
         if (this.showError) {
-            this.drawCenteredString(this.font, this.errorMsg, this.width / 2, row(5), 16711680);
+            this.drawCenteredString(param0, this.font, this.errorMsg, this.width / 2, row(5), 16711680);
         }
 
-        this.profileName.render(param0, param1, param2);
-        super.render(param0, param1, param2);
+        this.profileName.render(param0, param1, param2, param3);
+        super.render(param0, param1, param2, param3);
     }
 }

@@ -278,26 +278,22 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
     @Override
     public boolean mobInteract(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
-        boolean var1 = var0.getItem() == Items.NAME_TAG;
-        if (var1) {
-            var0.interactEnemy(param0, this, param1);
-            return true;
-        } else if (var0.getItem() == Items.VILLAGER_SPAWN_EGG || !this.isAlive() || this.isTrading() || this.isSleeping()) {
+        if (var0.getItem() == Items.VILLAGER_SPAWN_EGG || !this.isAlive() || this.isTrading() || this.isSleeping()) {
             return super.mobInteract(param0, param1);
         } else if (this.isBaby()) {
             this.setUnhappy();
             return super.mobInteract(param0, param1);
         } else {
-            boolean var2 = this.getOffers().isEmpty();
+            boolean var1 = this.getOffers().isEmpty();
             if (param1 == InteractionHand.MAIN_HAND) {
-                if (var2 && !this.level.isClientSide) {
+                if (var1 && !this.level.isClientSide) {
                     this.setUnhappy();
                 }
 
                 param0.awardStat(Stats.TALKED_TO_VILLAGER);
             }
 
-            if (var2) {
+            if (var1) {
                 return super.mobInteract(param0, param1);
             } else {
                 if (!this.level.isClientSide && !this.offers.isEmpty()) {

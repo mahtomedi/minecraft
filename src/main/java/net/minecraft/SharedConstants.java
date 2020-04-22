@@ -8,8 +8,6 @@ import io.netty.util.ResourceLeakDetector.Level;
 import java.time.Duration;
 import net.minecraft.commands.BrigadierExceptions;
 import net.minecraft.util.datafix.schemas.NamespacedSchema;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class SharedConstants {
     public static final Level NETTY_LEAK_DETECTION = Level.DISABLED;
@@ -28,22 +26,6 @@ public class SharedConstants {
         for(char var1 : param0.toCharArray()) {
             if (isAllowedChatCharacter(var1)) {
                 var0.append(var1);
-            }
-        }
-
-        return var0.toString();
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public static String filterUnicodeSupplementary(String param0) {
-        StringBuilder var0 = new StringBuilder();
-
-        for(int var1 = 0; var1 < param0.length(); var1 = param0.offsetByCodePoints(var1, 1)) {
-            int var2 = param0.codePointAt(var1);
-            if (!Character.isSupplementaryCodePoint(var2)) {
-                var0.appendCodePoint(var2);
-            } else {
-                var0.append('\ufffd');
             }
         }
 

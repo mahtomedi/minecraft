@@ -8,6 +8,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -76,11 +77,17 @@ public class ShulkerBoxBlock extends BaseEntityBlock {
         } else {
             BlockEntity var0 = param1.getBlockEntity(param2);
             if (var0 instanceof ShulkerBoxBlockEntity) {
-                Direction var1 = param0.getValue(FACING);
-                ShulkerBoxBlockEntity var2 = (ShulkerBoxBlockEntity)var0;
-                if (var2.getAnimationStatus() == ShulkerBoxBlockEntity.AnimationStatus.CLOSED
-                    && param1.noCollision(ShulkerSharedHelper.openBoundingBox(param2, var1))) {
-                    param3.openMenu(var2);
+                ShulkerBoxBlockEntity var1 = (ShulkerBoxBlockEntity)var0;
+                boolean var3;
+                if (var1.getAnimationStatus() == ShulkerBoxBlockEntity.AnimationStatus.CLOSED) {
+                    Direction var2 = param0.getValue(FACING);
+                    var3 = param1.noCollision(ShulkerSharedHelper.openBoundingBox(param2, var2));
+                } else {
+                    var3 = true;
+                }
+
+                if (var3) {
+                    param3.openMenu(var1);
                     param3.awardStat(Stats.OPEN_SHULKER_BOX);
                     PiglinAi.angerNearbyPiglinsThatSee(param3);
                 }
@@ -189,7 +196,7 @@ public class ShulkerBoxBlock extends BaseEntityBlock {
                         ++var3;
                         if (var2 <= 4) {
                             ++var2;
-                            Component var5 = var4.getHoverName().deepCopy();
+                            MutableComponent var5 = var4.getHoverName().mutableCopy();
                             var5.append(" x").append(String.valueOf(var4.getCount()));
                             param2.add(var5);
                         }

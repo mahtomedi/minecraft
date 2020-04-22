@@ -51,7 +51,6 @@ import net.minecraft.world.level.EmptyTickList;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.LevelType;
 import net.minecraft.world.level.TickList;
 import net.minecraft.world.level.biome.Biome;
@@ -89,10 +88,8 @@ public class ClientLevel extends Level {
         param0x.put(BiomeColors.WATER_COLOR_RESOLVER, new BlockTintCache());
     });
 
-    public ClientLevel(
-        ClientPacketListener param0, LevelSettings param1, DimensionType param2, int param3, Supplier<ProfilerFiller> param4, LevelRenderer param5
-    ) {
-        super(new LevelData(param1, "MpServer"), param2, (param1x, param2x) -> new ClientChunkCache((ClientLevel)param1x, param3), param4, true);
+    public ClientLevel(ClientPacketListener param0, LevelData param1, DimensionType param2, int param3, Supplier<ProfilerFiller> param4, LevelRenderer param5) {
+        super(param1, param2, (param1x, param2x) -> new ClientChunkCache((ClientLevel)param1x, param3), param4, true);
         this.connection = param0;
         this.levelRenderer = param5;
         this.setDefaultSpawnPos(new BlockPos(8, 64, 8));

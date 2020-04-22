@@ -16,6 +16,9 @@ import java.util.function.Function;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -48,8 +51,8 @@ public class GetServerDetailsTask extends LongRunningTask {
             try {
                 var4 = var0.join(this.server.id);
                 var1 = true;
-            } catch (RetryCallException var11) {
-                var3 = var11.delaySeconds;
+            } catch (RetryCallException var111) {
+                var3 = var111.delaySeconds;
             } catch (RealmsServiceException var121) {
                 if (var121.errorCode == 6002) {
                     var5 = true;
@@ -79,21 +82,24 @@ public class GetServerDetailsTask extends LongRunningTask {
             setScreen(new RealmsTermsScreen(this.lastScreen, this.mainScreen, this.server));
         } else if (var6) {
             if (this.server.ownerUUID.equals(Minecraft.getInstance().getUser().getUuid())) {
-                RealmsBrokenWorldScreen var11 = new RealmsBrokenWorldScreen(this.lastScreen, this.mainScreen, this.server.id);
-                if (this.server.worldType == RealmsServer.WorldType.MINIGAME) {
-                    var11.setTitle(I18n.get("mco.brokenworld.minigame.title"));
-                }
-
-                setScreen(var11);
+                setScreen(
+                    new RealmsBrokenWorldScreen(this.lastScreen, this.mainScreen, this.server.id, this.server.worldType == RealmsServer.WorldType.MINIGAME)
+                );
             } else {
-                setScreen(new RealmsGenericErrorScreen(I18n.get("mco.brokenworld.nonowner.title"), I18n.get("mco.brokenworld.nonowner.error"), this.lastScreen));
+                setScreen(
+                    new RealmsGenericErrorScreen(
+                        new TranslatableComponent("mco.brokenworld.nonowner.title"),
+                        new TranslatableComponent("mco.brokenworld.nonowner.error"),
+                        this.lastScreen
+                    )
+                );
             }
         } else if (!this.aborted() && !var2) {
             if (var1) {
-                RealmsServerAddress var12 = var4;
-                if (var12.resourcePackUrl != null && var12.resourcePackHash != null) {
-                    String var13 = I18n.get("mco.configure.world.resourcepack.question.line1");
-                    String var14 = I18n.get("mco.configure.world.resourcepack.question.line2");
+                RealmsServerAddress var11 = var4;
+                if (var11.resourcePackUrl != null && var11.resourcePackHash != null) {
+                    Component var12 = new TranslatableComponent("mco.configure.world.resourcepack.question.line1");
+                    Component var13 = new TranslatableComponent("mco.configure.world.resourcepack.question.line2");
                     setScreen(
                         new RealmsLongConfirmationScreen(
                             param1 -> {
@@ -102,17 +108,17 @@ public class GetServerDetailsTask extends LongRunningTask {
                                         Function<Throwable, Void> var0x = param0x -> {
                                             Minecraft.getInstance().getClientPackSource().clearServerPack();
                                             LOGGER.error(param0x);
-                                            setScreen(new RealmsGenericErrorScreen("Failed to download resource pack!", this.lastScreen));
+                                            setScreen(new RealmsGenericErrorScreen(new TextComponent("Failed to download resource pack!"), this.lastScreen));
                                             return null;
                                         };
         
                                         try {
                                             Minecraft.getInstance()
                                                 .getClientPackSource()
-                                                .downloadAndSelectResourcePack(var12.resourcePackUrl, var12.resourcePackHash)
+                                                .downloadAndSelectResourcePack(var11.resourcePackUrl, var11.resourcePackHash)
                                                 .thenRun(
                                                     () -> this.setScreen(
-                                                            new RealmsLongRunningMcoTaskScreen(this.lastScreen, new ConnectTask(this.lastScreen, var12))
+                                                            new RealmsLongRunningMcoTaskScreen(this.lastScreen, new ConnectTask(this.lastScreen, var11))
                                                         )
                                                 )
                                                 .exceptionally(var0x);
@@ -131,16 +137,16 @@ public class GetServerDetailsTask extends LongRunningTask {
         
                             },
                             RealmsLongConfirmationScreen.Type.Info,
+                            var12,
                             var13,
-                            var14,
                             true
                         )
                     );
                 } else {
-                    this.setScreen(new RealmsLongRunningMcoTaskScreen(this.lastScreen, new ConnectTask(this.lastScreen, var12)));
+                    this.setScreen(new RealmsLongRunningMcoTaskScreen(this.lastScreen, new ConnectTask(this.lastScreen, var11)));
                 }
             } else {
-                this.error(I18n.get("mco.errorMessage.connectionFailure"));
+                this.error(new TranslatableComponent("mco.errorMessage.connectionFailure"));
             }
         }
 

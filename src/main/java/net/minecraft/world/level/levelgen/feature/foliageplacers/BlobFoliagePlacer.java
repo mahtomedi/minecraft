@@ -8,14 +8,18 @@ import java.util.Random;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelSimulatedRW;
-import net.minecraft.world.level.levelgen.feature.configurations.SmallTreeConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
 
 public class BlobFoliagePlacer extends FoliagePlacer {
-    private final int height;
+    protected final int height;
+
+    protected BlobFoliagePlacer(int param0, int param1, int param2, int param3, int param4, FoliagePlacerType<?> param5) {
+        super(param0, param1, param2, param3, param5);
+        this.height = param4;
+    }
 
     public BlobFoliagePlacer(int param0, int param1, int param2, int param3, int param4) {
-        super(param0, param1, param2, param3, FoliagePlacerType.BLOB_FOLIAGE_PLACER);
-        this.height = param4;
+        this(param0, param1, param2, param3, param4, FoliagePlacerType.BLOB_FOLIAGE_PLACER);
     }
 
     public <T> BlobFoliagePlacer(Dynamic<T> param0) {
@@ -29,36 +33,32 @@ public class BlobFoliagePlacer extends FoliagePlacer {
     }
 
     @Override
-    public void createFoliage(
-        LevelSimulatedRW param0, Random param1, SmallTreeConfiguration param2, int param3, BlockPos param4, int param5, int param6, Set<BlockPos> param7
+    protected void createFoliage(
+        LevelSimulatedRW param0,
+        Random param1,
+        TreeConfiguration param2,
+        int param3,
+        FoliagePlacer.FoliageAttachment param4,
+        int param5,
+        int param6,
+        Set<BlockPos> param7,
+        int param8
     ) {
-        int var0 = this.offset + param1.nextInt(this.offsetRandom + 1);
-
-        for(int var1 = param5 + var0; var1 >= var0; --var1) {
-            int var2 = Math.max(param6 - 1 - (var1 - param5) / 2, 0);
-            this.placeLeavesRow(param0, param1, param2, param4, param5, var1, var2, param7);
+        for(int var0 = param8; var0 >= param8 - param5; --var0) {
+            int var1 = Math.max(param6 + param4.radiusOffset() - 1 - var0 / 2, 0);
+            this.placeLeavesRow(param0, param1, param2, param4.foliagePos(), var1, param7, var0, param4.doubleTrunk());
         }
 
     }
 
     @Override
-    public int foliageRadius(Random param0, int param1, SmallTreeConfiguration param2) {
-        return this.radius + param0.nextInt(this.radiusRandom + 1);
-    }
-
-    @Override
-    public int foliageHeight(Random param0, int param1) {
+    public int foliageHeight(Random param0, int param1, TreeConfiguration param2) {
         return this.height;
     }
 
     @Override
-    protected boolean shouldSkipLocation(Random param0, int param1, int param2, int param3, int param4, int param5) {
-        return Math.abs(param2) == param5 && Math.abs(param4) == param5 && (param0.nextInt(2) == 0 || param3 == param1);
-    }
-
-    @Override
-    public int getTreeRadiusForHeight(int param0, int param1, int param2) {
-        return param2 == 0 ? 0 : 1;
+    protected boolean shouldSkipLocation(Random param0, int param1, int param2, int param3, int param4, boolean param5) {
+        return param1 == param4 && param3 == param4 && (param0.nextInt(2) == 0 || param2 == 0);
     }
 
     @Override

@@ -2,6 +2,7 @@ package net.minecraft.client.gui.screens.advancements;
 
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Map;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.Advancement;
@@ -82,13 +83,13 @@ public class AdvancementsScreen extends Screen implements ClientAdvancements.Lis
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
+    public void render(PoseStack param0, int param1, int param2, float param3) {
         int var0 = (this.width - 252) / 2;
         int var1 = (this.height - 140) / 2;
-        this.renderBackground();
-        this.renderInside(param0, param1, var0, var1);
-        this.renderWindow(var0, var1);
-        this.renderTooltips(param0, param1, var0, var1);
+        this.renderBackground(param0);
+        this.renderInside(param0, param1, param2, var0, var1);
+        this.renderWindow(param0, var0, var1);
+        this.renderTooltips(param0, param1, param2, var0, var1);
     }
 
     @Override
@@ -107,64 +108,64 @@ public class AdvancementsScreen extends Screen implements ClientAdvancements.Lis
         }
     }
 
-    private void renderInside(int param0, int param1, int param2, int param3) {
+    private void renderInside(PoseStack param0, int param1, int param2, int param3, int param4) {
         AdvancementTab var0 = this.selectedTab;
         if (var0 == null) {
-            fill(param2 + 9, param3 + 18, param2 + 9 + 234, param3 + 18 + 113, -16777216);
+            fill(param0, param3 + 9, param4 + 18, param3 + 9 + 234, param4 + 18 + 113, -16777216);
             String var1 = I18n.get("advancements.empty");
             int var2 = this.font.width(var1);
-            this.font.draw(var1, (float)(param2 + 9 + 117 - var2 / 2), (float)(param3 + 18 + 56 - 9 / 2), -1);
-            this.font.draw(":(", (float)(param2 + 9 + 117 - this.font.width(":(") / 2), (float)(param3 + 18 + 113 - 9), -1);
+            this.font.draw(param0, var1, (float)(param3 + 9 + 117 - var2 / 2), (float)(param4 + 18 + 56 - 9 / 2), -1);
+            this.font.draw(param0, ":(", (float)(param3 + 9 + 117 - this.font.width(":(") / 2), (float)(param4 + 18 + 113 - 9), -1);
         } else {
             RenderSystem.pushMatrix();
-            RenderSystem.translatef((float)(param2 + 9), (float)(param3 + 18), 0.0F);
-            var0.drawContents();
+            RenderSystem.translatef((float)(param3 + 9), (float)(param4 + 18), 0.0F);
+            var0.drawContents(param0);
             RenderSystem.popMatrix();
             RenderSystem.depthFunc(515);
             RenderSystem.disableDepthTest();
         }
     }
 
-    public void renderWindow(int param0, int param1) {
+    public void renderWindow(PoseStack param0, int param1, int param2) {
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.enableBlend();
         this.minecraft.getTextureManager().bind(WINDOW_LOCATION);
-        this.blit(param0, param1, 0, 0, 252, 140);
+        this.blit(param0, param1, param2, 0, 0, 252, 140);
         if (this.tabs.size() > 1) {
             this.minecraft.getTextureManager().bind(TABS_LOCATION);
 
             for(AdvancementTab var0 : this.tabs.values()) {
-                var0.drawTab(param0, param1, var0 == this.selectedTab);
+                var0.drawTab(param0, param1, param2, var0 == this.selectedTab);
             }
 
             RenderSystem.enableRescaleNormal();
             RenderSystem.defaultBlendFunc();
 
             for(AdvancementTab var1 : this.tabs.values()) {
-                var1.drawIcon(param0, param1, this.itemRenderer);
+                var1.drawIcon(param1, param2, this.itemRenderer);
             }
 
             RenderSystem.disableBlend();
         }
 
-        this.font.draw(I18n.get("gui.advancements"), (float)(param0 + 8), (float)(param1 + 6), 4210752);
+        this.font.draw(param0, I18n.get("gui.advancements"), (float)(param1 + 8), (float)(param2 + 6), 4210752);
     }
 
-    private void renderTooltips(int param0, int param1, int param2, int param3) {
+    private void renderTooltips(PoseStack param0, int param1, int param2, int param3, int param4) {
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         if (this.selectedTab != null) {
             RenderSystem.pushMatrix();
             RenderSystem.enableDepthTest();
-            RenderSystem.translatef((float)(param2 + 9), (float)(param3 + 18), 400.0F);
-            this.selectedTab.drawTooltips(param0 - param2 - 9, param1 - param3 - 18, param2, param3);
+            RenderSystem.translatef((float)(param3 + 9), (float)(param4 + 18), 400.0F);
+            this.selectedTab.drawTooltips(param0, param1 - param3 - 9, param2 - param4 - 18, param3, param4);
             RenderSystem.disableDepthTest();
             RenderSystem.popMatrix();
         }
 
         if (this.tabs.size() > 1) {
             for(AdvancementTab var0 : this.tabs.values()) {
-                if (var0.isMouseOver(param2, param3, (double)param0, (double)param1)) {
-                    this.renderTooltip(var0.getTitle(), param0, param1);
+                if (var0.isMouseOver(param3, param4, (double)param1, (double)param2)) {
+                    this.renderTooltip(param0, var0.getTitle(), param1, param2);
                 }
             }
         }

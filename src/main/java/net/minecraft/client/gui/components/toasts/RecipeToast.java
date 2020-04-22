@@ -2,6 +2,7 @@ package net.minecraft.client.gui.components.toasts;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.world.item.ItemStack;
@@ -20,28 +21,28 @@ public class RecipeToast implements Toast {
     }
 
     @Override
-    public Toast.Visibility render(ToastComponent param0, long param1) {
+    public Toast.Visibility render(PoseStack param0, ToastComponent param1, long param2) {
         if (this.changed) {
-            this.lastChanged = param1;
+            this.lastChanged = param2;
             this.changed = false;
         }
 
         if (this.recipes.isEmpty()) {
             return Toast.Visibility.HIDE;
         } else {
-            param0.getMinecraft().getTextureManager().bind(TEXTURE);
+            param1.getMinecraft().getTextureManager().bind(TEXTURE);
             RenderSystem.color3f(1.0F, 1.0F, 1.0F);
-            param0.blit(0, 0, 0, 32, 160, 32);
-            param0.getMinecraft().font.draw(I18n.get("recipe.toast.title"), 30.0F, 7.0F, -11534256);
-            param0.getMinecraft().font.draw(I18n.get("recipe.toast.description"), 30.0F, 18.0F, -16777216);
-            Recipe<?> var0 = this.recipes.get((int)(param1 / (5000L / (long)this.recipes.size()) % (long)this.recipes.size()));
+            param1.blit(param0, 0, 0, 0, 32, 160, 32);
+            param1.getMinecraft().font.draw(param0, I18n.get("recipe.toast.title"), 30.0F, 7.0F, -11534256);
+            param1.getMinecraft().font.draw(param0, I18n.get("recipe.toast.description"), 30.0F, 18.0F, -16777216);
+            Recipe<?> var0 = this.recipes.get((int)(param2 / Math.max(1L, 5000L / (long)this.recipes.size()) % (long)this.recipes.size()));
             ItemStack var1 = var0.getToastSymbol();
             RenderSystem.pushMatrix();
             RenderSystem.scalef(0.6F, 0.6F, 1.0F);
-            param0.getMinecraft().getItemRenderer().renderAndDecorateItem(null, var1, 3, 3);
+            param1.getMinecraft().getItemRenderer().renderAndDecorateItem(null, var1, 3, 3);
             RenderSystem.popMatrix();
-            param0.getMinecraft().getItemRenderer().renderAndDecorateItem(null, var0.getResultItem(), 8, 8);
-            return param1 - this.lastChanged >= 5000L ? Toast.Visibility.HIDE : Toast.Visibility.SHOW;
+            param1.getMinecraft().getItemRenderer().renderAndDecorateItem(null, var0.getResultItem(), 8, 8);
+            return param2 - this.lastChanged >= 5000L ? Toast.Visibility.HIDE : Toast.Visibility.SHOW;
         }
     }
 

@@ -607,7 +607,7 @@ public abstract class Mob extends LivingEntity {
         }
     }
 
-    private boolean canReplaceEqualItem(ItemStack param0, ItemStack param1) {
+    public boolean canReplaceEqualItem(ItemStack param0, ItemStack param1) {
         if (param0.getDamageValue() >= param1.getDamageValue() && (!param0.hasTag() || param1.hasTag())) {
             if (param0.hasTag() && param1.hasTag()) {
                 return param0.getTag().getAllKeys().stream().anyMatch(param0x -> !param0x.equals("Damage"))
@@ -1049,6 +1049,9 @@ public abstract class Mob extends LivingEntity {
             if (var0.getItem() == Items.LEAD && this.canBeLeashed(param0)) {
                 this.setLeashedTo(param0, true);
                 var0.shrink(1);
+                return true;
+            } else if (var0.getItem() == Items.NAME_TAG) {
+                var0.interactEnemy(param0, this, param1);
                 return true;
             } else {
                 return this.mobInteract(param0, param1) ? true : super.interact(param0, param1);

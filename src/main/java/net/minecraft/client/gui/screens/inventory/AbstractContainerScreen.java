@@ -3,6 +3,7 @@ package net.minecraft.client.gui.screens.inventory;
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import java.util.Set;
 import net.minecraft.ChatFormatting;
@@ -68,13 +69,13 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
+    public void render(PoseStack param0, int param1, int param2, float param3) {
         int var0 = this.leftPos;
         int var1 = this.topPos;
-        this.renderBg(param2, param0, param1);
+        this.renderBg(param0, param3, param1, param2);
         RenderSystem.disableRescaleNormal();
         RenderSystem.disableDepthTest();
-        super.render(param0, param1, param2);
+        super.render(param0, param1, param2, param3);
         RenderSystem.pushMatrix();
         RenderSystem.translatef((float)var0, (float)var1, 0.0F);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
@@ -88,22 +89,22 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
         for(int var4 = 0; var4 < this.menu.slots.size(); ++var4) {
             Slot var5 = this.menu.slots.get(var4);
             if (var5.isActive()) {
-                this.renderSlot(var5);
+                this.renderSlot(param0, var5);
             }
 
-            if (this.isHovering(var5, (double)param0, (double)param1) && var5.isActive()) {
+            if (this.isHovering(var5, (double)param1, (double)param2) && var5.isActive()) {
                 this.hoveredSlot = var5;
                 RenderSystem.disableDepthTest();
                 int var6 = var5.x;
                 int var7 = var5.y;
                 RenderSystem.colorMask(true, true, true, false);
-                this.fillGradient(var6, var7, var6 + 16, var7 + 16, -2130706433, -2130706433);
+                this.fillGradient(param0, var6, var7, var6 + 16, var7 + 16, -2130706433, -2130706433);
                 RenderSystem.colorMask(true, true, true, true);
                 RenderSystem.enableDepthTest();
             }
         }
 
-        this.renderLabels(param0, param1);
+        this.renderLabels(param0, param1, param2);
         Inventory var8 = this.minecraft.player.inventory;
         ItemStack var9 = this.draggingItem.isEmpty() ? var8.getCarried() : this.draggingItem;
         if (!var9.isEmpty()) {
@@ -121,7 +122,7 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
                 }
             }
 
-            this.renderFloatingItem(var9, param0 - var0 - 8, param1 - var1 - var11, var12);
+            this.renderFloatingItem(var9, param1 - var0 - 8, param2 - var1 - var11, var12);
         }
 
         if (!this.snapbackItem.isEmpty()) {
@@ -142,9 +143,9 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
         RenderSystem.enableDepthTest();
     }
 
-    protected void renderTooltip(int param0, int param1) {
+    protected void renderTooltip(PoseStack param0, int param1, int param2) {
         if (this.minecraft.player.inventory.getCarried().isEmpty() && this.hoveredSlot != null && this.hoveredSlot.hasItem()) {
-            this.renderTooltip(this.hoveredSlot.getItem(), param0, param1);
+            this.renderTooltip(param0, this.hoveredSlot.getItem(), param1, param2);
         }
 
     }
@@ -159,59 +160,59 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
         this.itemRenderer.blitOffset = 0.0F;
     }
 
-    protected void renderLabels(int param0, int param1) {
+    protected void renderLabels(PoseStack param0, int param1, int param2) {
     }
 
-    protected abstract void renderBg(float var1, int var2, int var3);
+    protected abstract void renderBg(PoseStack var1, float var2, int var3, int var4);
 
-    private void renderSlot(Slot param0) {
-        int var0 = param0.x;
-        int var1 = param0.y;
-        ItemStack var2 = param0.getItem();
+    private void renderSlot(PoseStack param0, Slot param1) {
+        int var0 = param1.x;
+        int var1 = param1.y;
+        ItemStack var2 = param1.getItem();
         boolean var3 = false;
-        boolean var4 = param0 == this.clickedSlot && !this.draggingItem.isEmpty() && !this.isSplittingStack;
+        boolean var4 = param1 == this.clickedSlot && !this.draggingItem.isEmpty() && !this.isSplittingStack;
         ItemStack var5 = this.minecraft.player.inventory.getCarried();
         String var6 = null;
-        if (param0 == this.clickedSlot && !this.draggingItem.isEmpty() && this.isSplittingStack && !var2.isEmpty()) {
+        if (param1 == this.clickedSlot && !this.draggingItem.isEmpty() && this.isSplittingStack && !var2.isEmpty()) {
             var2 = var2.copy();
             var2.setCount(var2.getCount() / 2);
-        } else if (this.isQuickCrafting && this.quickCraftSlots.contains(param0) && !var5.isEmpty()) {
+        } else if (this.isQuickCrafting && this.quickCraftSlots.contains(param1) && !var5.isEmpty()) {
             if (this.quickCraftSlots.size() == 1) {
                 return;
             }
 
-            if (AbstractContainerMenu.canItemQuickReplace(param0, var5, true) && this.menu.canDragTo(param0)) {
+            if (AbstractContainerMenu.canItemQuickReplace(param1, var5, true) && this.menu.canDragTo(param1)) {
                 var2 = var5.copy();
                 var3 = true;
                 AbstractContainerMenu.getQuickCraftSlotCount(
-                    this.quickCraftSlots, this.quickCraftingType, var2, param0.getItem().isEmpty() ? 0 : param0.getItem().getCount()
+                    this.quickCraftSlots, this.quickCraftingType, var2, param1.getItem().isEmpty() ? 0 : param1.getItem().getCount()
                 );
-                int var7 = Math.min(var2.getMaxStackSize(), param0.getMaxStackSize(var2));
+                int var7 = Math.min(var2.getMaxStackSize(), param1.getMaxStackSize(var2));
                 if (var2.getCount() > var7) {
                     var6 = ChatFormatting.YELLOW.toString() + var7;
                     var2.setCount(var7);
                 }
             } else {
-                this.quickCraftSlots.remove(param0);
+                this.quickCraftSlots.remove(param1);
                 this.recalculateQuickCraftRemaining();
             }
         }
 
         this.setBlitOffset(100);
         this.itemRenderer.blitOffset = 100.0F;
-        if (var2.isEmpty() && param0.isActive()) {
-            Pair<ResourceLocation, ResourceLocation> var8 = param0.getNoItemIcon();
+        if (var2.isEmpty() && param1.isActive()) {
+            Pair<ResourceLocation, ResourceLocation> var8 = param1.getNoItemIcon();
             if (var8 != null) {
                 TextureAtlasSprite var9 = this.minecraft.getTextureAtlas(var8.getFirst()).apply(var8.getSecond());
                 this.minecraft.getTextureManager().bind(var9.atlas().location());
-                blit(var0, var1, this.getBlitOffset(), 16, 16, var9);
+                blit(param0, var0, var1, this.getBlitOffset(), 16, 16, var9);
                 var4 = true;
             }
         }
 
         if (!var4) {
             if (var3) {
-                fill(var0, var1, var0 + 16, var1 + 16, -2130706433);
+                fill(param0, var0, var1, var0 + 16, var1 + 16, -2130706433);
             }
 
             RenderSystem.enableDepthTest();

@@ -1,14 +1,16 @@
 package net.minecraft.client.gui.screens.recipebook;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.NonNullList;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -61,11 +63,11 @@ public abstract class AbstractFurnaceRecipeBookComponent extends RecipeBookCompo
     }
 
     @Override
-    protected String getFilterButtonTooltip() {
-        return I18n.get(this.filterButton.isStateTriggered() ? this.getRecipeFilterName() : "gui.recipebook.toggleRecipes.all");
+    protected Component getFilterButtonTooltip() {
+        return (Component)(this.filterButton.isStateTriggered() ? this.getRecipeFilterName() : new TranslatableComponent("gui.recipebook.toggleRecipes.all"));
     }
 
-    protected abstract String getRecipeFilterName();
+    protected abstract Component getRecipeFilterName();
 
     @Override
     public void slotClicked(@Nullable Slot param0) {
@@ -108,19 +110,19 @@ public abstract class AbstractFurnaceRecipeBookComponent extends RecipeBookCompo
     protected abstract Set<Item> getFuelItems();
 
     @Override
-    public void renderGhostRecipe(int param0, int param1, boolean param2, float param3) {
-        super.renderGhostRecipe(param0, param1, param2, param3);
+    public void renderGhostRecipe(PoseStack param0, int param1, int param2, boolean param3, float param4) {
+        super.renderGhostRecipe(param0, param1, param2, param3, param4);
         if (this.fuelSlot != null) {
             if (!Screen.hasControlDown()) {
-                this.time += param3;
+                this.time += param4;
             }
 
-            int var0 = this.fuelSlot.x + param0;
-            int var1 = this.fuelSlot.y + param1;
-            GuiComponent.fill(var0, var1, var0 + 16, var1 + 16, 822018048);
+            int var0 = this.fuelSlot.x + param1;
+            int var1 = this.fuelSlot.y + param2;
+            GuiComponent.fill(param0, var0, var1, var0 + 16, var1 + 16, 822018048);
             this.minecraft.getItemRenderer().renderAndDecorateItem(this.minecraft.player, this.getFuel().getDefaultInstance(), var0, var1);
             RenderSystem.depthFunc(516);
-            GuiComponent.fill(var0, var1, var0 + 16, var1 + 16, 822083583);
+            GuiComponent.fill(param0, var0, var1, var0 + 16, var1 + 16, 822083583);
             RenderSystem.depthFunc(515);
         }
     }

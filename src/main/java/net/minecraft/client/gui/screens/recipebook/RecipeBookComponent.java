@@ -2,6 +2,7 @@ package net.minecraft.client.gui.screens.recipebook;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import java.util.Iterator;
@@ -17,10 +18,11 @@ import net.minecraft.client.gui.components.StateSwitchingButton;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.resources.language.Language;
 import net.minecraft.client.resources.language.LanguageManager;
 import net.minecraft.client.searchtree.SearchRegistry;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.game.ServerboundRecipeBookUpdatePacket;
 import net.minecraft.recipebook.PlaceRecipe;
 import net.minecraft.resources.ResourceLocation;
@@ -76,7 +78,7 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
         this.minecraft.player.inventory.fillStackedContents(this.stackedContents);
         this.menu.fillCraftSlotsStackedContents(this.stackedContents);
         String var2 = this.searchBox != null ? this.searchBox.getValue() : "";
-        this.searchBox = new EditBox(this.minecraft.font, var0 + 25, var1 + 14, 80, 9 + 5, I18n.get("itemGroup.search"));
+        this.searchBox = new EditBox(this.minecraft.font, var0 + 25, var1 + 14, 80, 9 + 5, new TranslatableComponent("itemGroup.search"));
         this.searchBox.setMaxLength(50);
         this.searchBox.setBordered(false);
         this.searchBox.setVisible(true);
@@ -220,7 +222,7 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
+    public void render(PoseStack param0, int param1, int param2, float param3) {
         if (this.isVisible()) {
             RenderSystem.pushMatrix();
             RenderSystem.translatef(0.0F, 0.0F, 100.0F);
@@ -228,57 +230,57 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             int var0 = (this.width - 147) / 2 - this.xOffset;
             int var1 = (this.height - 166) / 2;
-            this.blit(var0, var1, 1, 1, 147, 166);
-            this.searchBox.render(param0, param1, param2);
+            this.blit(param0, var0, var1, 1, 1, 147, 166);
+            this.searchBox.render(param0, param1, param2, param3);
 
             for(RecipeBookTabButton var2 : this.tabButtons) {
-                var2.render(param0, param1, param2);
+                var2.render(param0, param1, param2, param3);
             }
 
-            this.filterButton.render(param0, param1, param2);
-            this.recipeBookPage.render(var0, var1, param0, param1, param2);
+            this.filterButton.render(param0, param1, param2, param3);
+            this.recipeBookPage.render(param0, var0, var1, param1, param2, param3);
             RenderSystem.popMatrix();
         }
     }
 
-    public void renderTooltip(int param0, int param1, int param2, int param3) {
+    public void renderTooltip(PoseStack param0, int param1, int param2, int param3, int param4) {
         if (this.isVisible()) {
-            this.recipeBookPage.renderTooltip(param2, param3);
+            this.recipeBookPage.renderTooltip(param0, param3, param4);
             if (this.filterButton.isHovered()) {
-                String var0 = this.getFilterButtonTooltip();
+                Component var0 = this.getFilterButtonTooltip();
                 if (this.minecraft.screen != null) {
-                    this.minecraft.screen.renderTooltip(var0, param2, param3);
+                    this.minecraft.screen.renderTooltip(param0, var0, param3, param4);
                 }
             }
 
-            this.renderGhostRecipeTooltip(param0, param1, param2, param3);
+            this.renderGhostRecipeTooltip(param0, param1, param2, param3, param4);
         }
     }
 
-    protected String getFilterButtonTooltip() {
-        return I18n.get(this.filterButton.isStateTriggered() ? "gui.recipebook.toggleRecipes.craftable" : "gui.recipebook.toggleRecipes.all");
+    protected Component getFilterButtonTooltip() {
+        return new TranslatableComponent(this.filterButton.isStateTriggered() ? "gui.recipebook.toggleRecipes.craftable" : "gui.recipebook.toggleRecipes.all");
     }
 
-    private void renderGhostRecipeTooltip(int param0, int param1, int param2, int param3) {
+    private void renderGhostRecipeTooltip(PoseStack param0, int param1, int param2, int param3, int param4) {
         ItemStack var0 = null;
 
         for(int var1 = 0; var1 < this.ghostRecipe.size(); ++var1) {
             GhostRecipe.GhostIngredient var2 = this.ghostRecipe.get(var1);
-            int var3 = var2.getX() + param0;
-            int var4 = var2.getY() + param1;
-            if (param2 >= var3 && param3 >= var4 && param2 < var3 + 16 && param3 < var4 + 16) {
+            int var3 = var2.getX() + param1;
+            int var4 = var2.getY() + param2;
+            if (param3 >= var3 && param4 >= var4 && param3 < var3 + 16 && param4 < var4 + 16) {
                 var0 = var2.getItem();
             }
         }
 
         if (var0 != null && this.minecraft.screen != null) {
-            this.minecraft.screen.renderTooltip(this.minecraft.screen.getTooltipFromItem(var0), param2, param3);
+            this.minecraft.screen.renderTooltip(param0, this.minecraft.screen.getTooltipFromItem(var0), param3, param4);
         }
 
     }
 
-    public void renderGhostRecipe(int param0, int param1, boolean param2, float param3) {
-        this.ghostRecipe.render(this.minecraft, param0, param1, param2, param3);
+    public void renderGhostRecipe(PoseStack param0, int param1, int param2, boolean param3, float param4) {
+        this.ghostRecipe.render(param0, this.minecraft, param1, param2, param3, param4);
     }
 
     @Override

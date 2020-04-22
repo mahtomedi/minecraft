@@ -1,5 +1,6 @@
 package net.minecraft.client.gui.screens;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.Dynamic;
 import java.util.Comparator;
 import java.util.List;
@@ -17,6 +18,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.StringTag;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.LevelType;
@@ -52,38 +55,29 @@ public class CreateBuffetWorldScreen extends Screen {
     @Override
     protected void init() {
         this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
-        this.addButton(
-            new Button(
-                (this.width - 200) / 2,
-                40,
-                200,
-                20,
-                I18n.get("createWorld.customize.buffet.generatortype")
-                    + " "
-                    + I18n.get(Util.makeDescriptionId("generator", GENERATORS.get(this.generatorIndex))),
-                param0 -> {
-                    ++this.generatorIndex;
-                    if (this.generatorIndex >= GENERATORS.size()) {
-                        this.generatorIndex = 0;
-                    }
-        
-                    param0.setMessage(
-                        I18n.get("createWorld.customize.buffet.generatortype")
-                            + " "
-                            + I18n.get(Util.makeDescriptionId("generator", GENERATORS.get(this.generatorIndex)))
-                    );
-                }
-            )
-        );
+        this.addButton(new Button((this.width - 200) / 2, 40, 200, 20, createGeneratorString(this.generatorIndex), param0 -> {
+            ++this.generatorIndex;
+            if (this.generatorIndex >= GENERATORS.size()) {
+                this.generatorIndex = 0;
+            }
+
+            param0.setMessage(createGeneratorString(this.generatorIndex));
+        }));
         this.list = new CreateBuffetWorldScreen.BiomeList();
         this.children.add(this.list);
-        this.doneButton = this.addButton(new Button(this.width / 2 - 155, this.height - 28, 150, 20, I18n.get("gui.done"), param0 -> {
+        this.doneButton = this.addButton(new Button(this.width / 2 - 155, this.height - 28, 150, 20, CommonComponents.GUI_DONE, param0 -> {
             this.parent.levelTypeOptions = LevelType.BUFFET.createProvider(new Dynamic<>(NbtOps.INSTANCE, this.saveOptions()));
             this.minecraft.setScreen(this.parent);
         }));
-        this.addButton(new Button(this.width / 2 + 5, this.height - 28, 150, 20, I18n.get("gui.cancel"), param0 -> this.minecraft.setScreen(this.parent)));
+        this.addButton(new Button(this.width / 2 + 5, this.height - 28, 150, 20, CommonComponents.GUI_CANCEL, param0 -> this.minecraft.setScreen(this.parent)));
         this.loadOptions();
         this.updateButtonValidity();
+    }
+
+    private static Component createGeneratorString(int param0) {
+        return new TranslatableComponent("createWorld.customize.buffet.generatortype")
+            .append(" ")
+            .append(new TranslatableComponent(Util.makeDescriptionId("generator", GENERATORS.get(param0))));
     }
 
     private void loadOptions() {
@@ -136,13 +130,13 @@ public class CreateBuffetWorldScreen extends Screen {
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
+    public void render(PoseStack param0, int param1, int param2, float param3) {
         this.renderDirtBackground(0);
-        this.list.render(param0, param1, param2);
-        this.drawCenteredString(this.font, this.title.getColoredString(), this.width / 2, 8, 16777215);
-        this.drawCenteredString(this.font, I18n.get("createWorld.customize.buffet.generator"), this.width / 2, 30, 10526880);
-        this.drawCenteredString(this.font, I18n.get("createWorld.customize.buffet.biome"), this.width / 2, 68, 10526880);
-        super.render(param0, param1, param2);
+        this.list.render(param0, param1, param2, param3);
+        this.drawCenteredString(param0, this.font, this.title, this.width / 2, 8, 16777215);
+        this.drawCenteredString(param0, this.font, I18n.get("createWorld.customize.buffet.generator"), this.width / 2, 30, 10526880);
+        this.drawCenteredString(param0, this.font, I18n.get("createWorld.customize.buffet.biome"), this.width / 2, 68, 10526880);
+        super.render(param0, param1, param2, param3);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -192,9 +186,11 @@ public class CreateBuffetWorldScreen extends Screen {
             }
 
             @Override
-            public void render(int param0, int param1, int param2, int param3, int param4, int param5, int param6, boolean param7, float param8) {
+            public void render(
+                PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9
+            ) {
                 BiomeList.this.drawString(
-                    CreateBuffetWorldScreen.this.font, Registry.BIOME.get(this.key).getName().getString(), param2 + 5, param1 + 2, 16777215
+                    param0, CreateBuffetWorldScreen.this.font, Registry.BIOME.get(this.key).getName().getString(), param3 + 5, param2 + 2, 16777215
                 );
             }
 

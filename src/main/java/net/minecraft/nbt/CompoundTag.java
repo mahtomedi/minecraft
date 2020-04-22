@@ -20,6 +20,7 @@ import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -461,7 +462,7 @@ public class CompoundTag implements Tag {
         if (this.tags.isEmpty()) {
             return new TextComponent("{}");
         } else {
-            Component var0 = new TextComponent("{");
+            MutableComponent var0 = new TextComponent("{");
             Collection<String> var1 = this.tags.keySet();
             if (LOGGER.isDebugEnabled()) {
                 List<String> var2 = Lists.newArrayList(this.tags.keySet());
@@ -473,7 +474,7 @@ public class CompoundTag implements Tag {
                 var0.append("\n");
             }
 
-            Component var5;
+            MutableComponent var5;
             for(Iterator<String> var3 = var1.iterator(); var3.hasNext(); var0.append(var5)) {
                 String var4 = var3.next();
                 var5 = new TextComponent(Strings.repeat(param0, param1 + 1))

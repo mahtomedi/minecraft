@@ -23,10 +23,12 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.game.ClientboundCommandsPacket;
 import net.minecraft.server.commands.AdvancementCommands;
+import net.minecraft.server.commands.AttributeCommand;
 import net.minecraft.server.commands.BanIpCommands;
 import net.minecraft.server.commands.BanListCommands;
 import net.minecraft.server.commands.BanPlayerCommands;
@@ -104,6 +106,7 @@ public class Commands {
 
     public Commands(boolean param0) {
         AdvancementCommands.register(this.dispatcher);
+        AttributeCommand.register(this.dispatcher);
         ExecuteCommand.register(this.dispatcher);
         BossBarCommands.register(this.dispatcher);
         ClearInventoryCommands.register(this.dispatcher);
@@ -205,9 +208,9 @@ public class Commands {
                 param0.sendFailure(ComponentUtils.fromMessage(var14.getRawMessage()));
                 if (var14.getInput() != null && var14.getCursor() >= 0) {
                     int var3 = Math.min(var14.getInput().length(), var14.getCursor());
-                    Component var4 = new TextComponent("")
+                    MutableComponent var4 = new TextComponent("")
                         .withStyle(ChatFormatting.GRAY)
-                        .withStyle(param1x -> param1x.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, param1)));
+                        .withStyle(param1x -> param1x.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, param1)));
                     if (var3 > 10) {
                         var4.append("...");
                     }
@@ -223,7 +226,7 @@ public class Commands {
                     param0.sendFailure(var4);
                 }
             } catch (Exception var15) {
-                Component var7 = new TextComponent(var15.getMessage() == null ? var15.getClass().getName() : var15.getMessage());
+                MutableComponent var7 = new TextComponent(var15.getMessage() == null ? var15.getClass().getName() : var15.getMessage());
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.error("Command exception: {}", param1, var15);
                     StackTraceElement[] var8 = var15.getStackTrace();
@@ -239,7 +242,7 @@ public class Commands {
                 }
 
                 param0.sendFailure(
-                    new TranslatableComponent("command.failed").withStyle(param1x -> param1x.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, var7)))
+                    new TranslatableComponent("command.failed").withStyle(param1x -> param1x.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, var7)))
                 );
                 if (SharedConstants.IS_RUNNING_IN_IDE) {
                     param0.sendFailure(new TextComponent(Util.describeError(var15)));

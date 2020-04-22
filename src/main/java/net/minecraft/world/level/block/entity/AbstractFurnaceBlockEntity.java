@@ -31,9 +31,11 @@ import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AbstractFurnaceBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
 public abstract class AbstractFurnaceBlockEntity
     extends BaseContainerBlockEntity
@@ -463,26 +465,31 @@ public abstract class AbstractFurnaceBlockEntity
     }
 
     @Override
-    public void awardAndReset(Player param0) {
+    public void awardUsedRecipes(Player param0) {
     }
 
-    public void awardResetAndExperience(Player param0) {
-        List<Recipe<?>> var0 = Lists.newArrayList();
-
-        for(Entry<ResourceLocation> var1 : this.recipesUsed.object2IntEntrySet()) {
-            param0.level.getRecipeManager().byKey(var1.getKey()).ifPresent(param3 -> {
-                var0.add(param3);
-                createExperience(param0, var1.getIntValue(), ((AbstractCookingRecipe)param3).getExperience());
-            });
-        }
-
+    public void awardUsedRecipesAndPopExperience(Player param0) {
+        List<Recipe<?>> var0 = this.getRecipesToAwardAndPopExperience(param0.level, param0.position());
         param0.awardRecipes(var0);
         this.recipesUsed.clear();
     }
 
-    private static void createExperience(Player param0, int param1, float param2) {
-        int var0 = Mth.floor((float)param1 * param2);
-        float var1 = Mth.frac((float)param1 * param2);
+    public List<Recipe<?>> getRecipesToAwardAndPopExperience(Level param0, Vec3 param1) {
+        List<Recipe<?>> var0 = Lists.newArrayList();
+
+        for(Entry<ResourceLocation> var1 : this.recipesUsed.object2IntEntrySet()) {
+            param0.getRecipeManager().byKey(var1.getKey()).ifPresent(param4 -> {
+                var0.add(param4);
+                createExperience(param0, param1, var1.getIntValue(), ((AbstractCookingRecipe)param4).getExperience());
+            });
+        }
+
+        return var0;
+    }
+
+    private static void createExperience(Level param0, Vec3 param1, int param2, float param3) {
+        int var0 = Mth.floor((float)param2 * param3);
+        float var1 = Mth.frac((float)param2 * param3);
         if (var1 != 0.0F && Math.random() < (double)var1) {
             ++var0;
         }
@@ -490,7 +497,7 @@ public abstract class AbstractFurnaceBlockEntity
         while(var0 > 0) {
             int var2 = ExperienceOrb.getExperienceValue(var0);
             var0 -= var2;
-            param0.level.addFreshEntity(new ExperienceOrb(param0.level, param0.getX(), param0.getY() + 0.5, param0.getZ() + 0.5, var2));
+            param0.addFreshEntity(new ExperienceOrb(param0, param1.x, param1.y, param1.z, var2));
         }
 
     }

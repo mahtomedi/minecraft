@@ -21,6 +21,7 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundChangeDifficultyPacket;
@@ -67,7 +68,8 @@ import net.minecraft.world.level.border.BorderChangeListener;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.storage.LevelData;
-import net.minecraft.world.level.storage.PlayerIO;
+import net.minecraft.world.level.storage.LevelResource;
+import net.minecraft.world.level.storage.PlayerDataStorage;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.PlayerTeam;
@@ -93,7 +95,7 @@ public abstract class PlayerList {
     private final UserWhiteList whitelist = new UserWhiteList(WHITELIST_FILE);
     private final Map<UUID, ServerStatsCounter> stats = Maps.newHashMap();
     private final Map<UUID, PlayerAdvancements> advancements = Maps.newHashMap();
-    private PlayerIO playerIo;
+    private final PlayerDataStorage playerIo;
     private boolean doWhiteList;
     protected final int maxPlayers;
     private int viewDistance;
@@ -101,9 +103,10 @@ public abstract class PlayerList {
     private boolean allowCheatsForAllPlayers;
     private int sendAllPlayerInfoIn;
 
-    public PlayerList(MinecraftServer param0, int param1) {
+    public PlayerList(MinecraftServer param0, PlayerDataStorage param1, int param2) {
         this.server = param0;
-        this.maxPlayers = param1;
+        this.maxPlayers = param2;
+        this.playerIo = param1;
         this.getBans().setEnabled(true);
         this.getIpBans().setEnabled(true);
     }
@@ -167,7 +170,7 @@ public abstract class PlayerList {
         param1.getRecipeBook().sendInitialRecipeBook(param1);
         this.updateEntireScoreboard(var5.getScoreboard(), param1);
         this.server.invalidateStatus();
-        Component var12;
+        MutableComponent var12;
         if (param1.getGameProfile().getName().equalsIgnoreCase(var3)) {
             var12 = new TranslatableComponent("multiplayer.player.joined", param1.getDisplayName());
         } else {
@@ -252,7 +255,6 @@ public abstract class PlayerList {
     }
 
     public void setLevel(ServerLevel param0) {
-        this.playerIo = param0.getLevelStorage();
         param0.getWorldBorder().addListener(new BorderChangeListener() {
             @Override
             public void onBorderSizeSet(WorldBorder param0, double param1) {
@@ -291,7 +293,7 @@ public abstract class PlayerList {
 
     @Nullable
     public CompoundTag load(ServerPlayer param0) {
-        CompoundTag var0 = this.server.getLevel(DimensionType.OVERWORLD).getLevelData().getLoadedPlayerTag();
+        CompoundTag var0 = this.server.getWorldData().getLoadedPlayerTag();
         CompoundTag var1;
         if (param0.getName().getString().equals(this.server.getSingleplayerName()) && var0 != null) {
             var1 = var0;
@@ -359,7 +361,7 @@ public abstract class PlayerList {
     public Component canPlayerLogin(SocketAddress param0, GameProfile param1) {
         if (this.bans.isBanned(param1)) {
             UserBanListEntry var0 = this.bans.get(param1);
-            Component var1 = new TranslatableComponent("multiplayer.disconnect.banned.reason", var0.getReason());
+            MutableComponent var1 = new TranslatableComponent("multiplayer.disconnect.banned.reason", var0.getReason());
             if (var0.getExpires() != null) {
                 var1.append(new TranslatableComponent("multiplayer.disconnect.banned.expiration", BAN_DATE_FORMAT.format(var0.getExpires())));
             }
@@ -369,7 +371,7 @@ public abstract class PlayerList {
             return new TranslatableComponent("multiplayer.disconnect.not_whitelisted");
         } else if (this.ipBans.isBanned(param0)) {
             IpBanListEntry var2 = this.ipBans.get(param0);
-            Component var3 = new TranslatableComponent("multiplayer.disconnect.banned_ip.reason", var2.getReason());
+            MutableComponent var3 = new TranslatableComponent("multiplayer.disconnect.banned_ip.reason", var2.getReason());
             if (var2.getExpires() != null) {
                 var3.append(new TranslatableComponent("multiplayer.disconnect.banned_ip.expiration", BAN_DATE_FORMAT.format(var2.getExpires())));
             }
@@ -763,7 +765,7 @@ public abstract class PlayerList {
         UUID var0 = param0.getUUID();
         ServerStatsCounter var1 = var0 == null ? null : this.stats.get(var0);
         if (var1 == null) {
-            File var2 = new File(this.server.getLevel(DimensionType.OVERWORLD).getLevelStorage().getFolder(), "stats");
+            File var2 = this.server.getWorldPath(LevelResource.PLAYER_STATS_DIR).toFile();
             File var3 = new File(var2, var0 + ".json");
             if (!var3.exists()) {
                 File var4 = new File(var2, param0.getName().getString() + ".json");
@@ -783,7 +785,7 @@ public abstract class PlayerList {
         UUID var0 = param0.getUUID();
         PlayerAdvancements var1 = this.advancements.get(var0);
         if (var1 == null) {
-            File var2 = new File(this.server.getLevel(DimensionType.OVERWORLD).getLevelStorage().getFolder(), "advancements");
+            File var2 = this.server.getWorldPath(LevelResource.PLAYER_ADVANCEMENTS_DIR).toFile();
             File var3 = new File(var2, var0 + ".json");
             var1 = new PlayerAdvancements(this.server, var3, param0);
             this.advancements.put(var0, var1);

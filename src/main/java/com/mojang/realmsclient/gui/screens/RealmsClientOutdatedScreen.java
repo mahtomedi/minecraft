@@ -1,8 +1,11 @@
 package com.mojang.realmsclient.gui.screens;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -19,23 +22,22 @@ public class RealmsClientOutdatedScreen extends RealmsScreen {
 
     @Override
     public void init() {
-        this.addButton(new Button(this.width / 2 - 100, row(12), 200, 20, I18n.get("gui.back"), param0 -> this.minecraft.setScreen(this.lastScreen)));
+        this.addButton(new Button(this.width / 2 - 100, row(12), 200, 20, CommonComponents.GUI_BACK, param0 -> this.minecraft.setScreen(this.lastScreen)));
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
-        this.renderBackground();
-        String var0 = I18n.get(this.outdated ? "mco.client.outdated.title" : "mco.client.incompatible.title");
-        this.drawCenteredString(this.font, var0, this.width / 2, row(3), 16711680);
+    public void render(PoseStack param0, int param1, int param2, float param3) {
+        this.renderBackground(param0);
+        Component var0 = new TranslatableComponent(this.outdated ? "mco.client.outdated.title" : "mco.client.incompatible.title");
+        this.drawCenteredString(param0, this.font, var0, this.width / 2, row(3), 16711680);
         int var1 = this.outdated ? 2 : 3;
 
         for(int var2 = 0; var2 < var1; ++var2) {
             String var3 = (this.outdated ? "mco.client.outdated.msg.line" : "mco.client.incompatible.msg.line") + (var2 + 1);
-            String var4 = I18n.get(var3);
-            this.drawCenteredString(this.font, var4, this.width / 2, row(5) + var2 * 12, 16777215);
+            this.drawCenteredString(param0, this.font, new TranslatableComponent(var3), this.width / 2, row(5) + var2 * 12, 16777215);
         }
 
-        super.render(param0, param1, param2);
+        super.render(param0, param1, param2, param3);
     }
 
     @Override

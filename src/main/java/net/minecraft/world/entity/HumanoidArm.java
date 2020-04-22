@@ -24,4 +24,9 @@ public enum HumanoidArm {
     public String toString() {
         return this.name.getString();
     }
+
+    @OnlyIn(Dist.CLIENT)
+    public Component getName() {
+        return this.name;
+    }
 }

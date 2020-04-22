@@ -42,6 +42,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.minecraft.world.level.storage.LevelData;
+import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -65,7 +66,7 @@ public class ServerChunkCache extends ChunkSource {
 
     public ServerChunkCache(
         ServerLevel param0,
-        File param1,
+        LevelStorageSource.LevelStorageAccess param1,
         DataFixer param2,
         StructureManager param3,
         Executor param4,
@@ -79,7 +80,7 @@ public class ServerChunkCache extends ChunkSource {
         this.mainThreadProcessor = new ServerChunkCache.MainThreadExecutor(param0);
         this.generator = param5;
         this.mainThread = Thread.currentThread();
-        File var0 = param0.getDimension().getType().getStorageFolder(param1);
+        File var0 = param1.getDimensionPath(param0.getDimension().getType());
         File var1 = new File(var0, "data");
         var1.mkdirs();
         this.dataStorage = new DimensionDataStorage(var1, param2);

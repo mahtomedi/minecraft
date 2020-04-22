@@ -1,9 +1,13 @@
 package com.mojang.realmsclient.gui.screens;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.realmsclient.dto.RealmsServer;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.realms.RealmsLabel;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraftforge.api.distmarker.Dist;
@@ -34,13 +38,17 @@ public class RealmsSettingsScreen extends RealmsScreen {
     public void init() {
         this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
         int var0 = this.width / 2 - 106;
-        this.doneButton = this.addButton(new Button(var0 - 2, row(12), 106, 20, I18n.get("mco.configure.world.buttons.done"), param0 -> this.save()));
-        this.addButton(new Button(this.width / 2 + 2, row(12), 106, 20, I18n.get("gui.cancel"), param0 -> this.minecraft.setScreen(this.configureWorldScreen)));
+        this.doneButton = this.addButton(
+            new Button(var0 - 2, row(12), 106, 20, new TranslatableComponent("mco.configure.world.buttons.done"), param0 -> this.save())
+        );
+        this.addButton(
+            new Button(this.width / 2 + 2, row(12), 106, 20, CommonComponents.GUI_CANCEL, param0 -> this.minecraft.setScreen(this.configureWorldScreen))
+        );
         String var1 = this.serverData.state == RealmsServer.State.OPEN ? "mco.configure.world.buttons.close" : "mco.configure.world.buttons.open";
-        Button var2 = new Button(this.width / 2 - 53, row(0), 106, 20, I18n.get(var1), param0 -> {
+        Button var2 = new Button(this.width / 2 - 53, row(0), 106, 20, new TranslatableComponent(var1), param0 -> {
             if (this.serverData.state == RealmsServer.State.OPEN) {
-                String var0x = I18n.get("mco.configure.world.close.question.line1");
-                String var1x = I18n.get("mco.configure.world.close.question.line2");
+                Component var0x = new TranslatableComponent("mco.configure.world.close.question.line1");
+                Component var1x = new TranslatableComponent("mco.configure.world.close.question.line2");
                 this.minecraft.setScreen(new RealmsLongConfirmationScreen(param0x -> {
                     if (param0x) {
                         this.configureWorldScreen.closeTheWorld(this);
@@ -55,16 +63,16 @@ public class RealmsSettingsScreen extends RealmsScreen {
 
         });
         this.addButton(var2);
-        this.nameEdit = new EditBox(this.minecraft.font, var0, row(4), 212, 20, null, I18n.get("mco.configure.world.name"));
+        this.nameEdit = new EditBox(this.minecraft.font, var0, row(4), 212, 20, null, new TranslatableComponent("mco.configure.world.name"));
         this.nameEdit.setMaxLength(32);
         this.nameEdit.setValue(this.serverData.getName());
         this.addWidget(this.nameEdit);
         this.magicalSpecialHackyFocus(this.nameEdit);
-        this.descEdit = new EditBox(this.minecraft.font, var0, row(8), 212, 20, null, I18n.get("mco.configure.world.description"));
+        this.descEdit = new EditBox(this.minecraft.font, var0, row(8), 212, 20, null, new TranslatableComponent("mco.configure.world.description"));
         this.descEdit.setMaxLength(32);
         this.descEdit.setValue(this.serverData.getDescription());
         this.addWidget(this.descEdit);
-        this.titleLabel = this.addWidget(new RealmsLabel(I18n.get("mco.configure.world.settings.title"), this.width / 2, 17, 16777215));
+        this.titleLabel = this.addWidget(new RealmsLabel(new TranslatableComponent("mco.configure.world.settings.title"), this.width / 2, 17, 16777215));
         this.narrateLabels();
     }
 
@@ -84,14 +92,14 @@ public class RealmsSettingsScreen extends RealmsScreen {
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
-        this.renderBackground();
-        this.titleLabel.render(this);
-        this.font.draw(I18n.get("mco.configure.world.name"), (float)(this.width / 2 - 106), (float)row(3), 10526880);
-        this.font.draw(I18n.get("mco.configure.world.description"), (float)(this.width / 2 - 106), (float)row(7), 10526880);
-        this.nameEdit.render(param0, param1, param2);
-        this.descEdit.render(param0, param1, param2);
-        super.render(param0, param1, param2);
+    public void render(PoseStack param0, int param1, int param2, float param3) {
+        this.renderBackground(param0);
+        this.titleLabel.render(this, param0);
+        this.font.draw(param0, I18n.get("mco.configure.world.name"), (float)(this.width / 2 - 106), (float)row(3), 10526880);
+        this.font.draw(param0, I18n.get("mco.configure.world.description"), (float)(this.width / 2 - 106), (float)row(7), 10526880);
+        this.nameEdit.render(param0, param1, param2, param3);
+        this.descEdit.render(param0, param1, param2, param3);
+        super.render(param0, param1, param2, param3);
     }
 
     public void save() {

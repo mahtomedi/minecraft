@@ -2,6 +2,7 @@ package net.minecraft.world.level.biome;
 
 import java.util.Optional;
 import java.util.OptionalInt;
+import net.minecraft.sounds.Music;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -14,6 +15,7 @@ public class BiomeSpecialEffects {
     private final Optional<SoundEvent> ambientLoopSoundEvent;
     private final Optional<AmbientMoodSettings> ambientMoodSettings;
     private final Optional<AmbientAdditionsSettings> ambientAdditionsSettings;
+    private final Optional<Music> backgroundMusic;
 
     private BiomeSpecialEffects(
         int param0,
@@ -22,7 +24,8 @@ public class BiomeSpecialEffects {
         Optional<AmbientParticleSettings> param3,
         Optional<SoundEvent> param4,
         Optional<AmbientMoodSettings> param5,
-        Optional<AmbientAdditionsSettings> param6
+        Optional<AmbientAdditionsSettings> param6,
+        Optional<Music> param7
     ) {
         this.fogColor = param0;
         this.waterColor = param1;
@@ -31,6 +34,7 @@ public class BiomeSpecialEffects {
         this.ambientLoopSoundEvent = param4;
         this.ambientMoodSettings = param5;
         this.ambientAdditionsSettings = param6;
+        this.backgroundMusic = param7;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -68,6 +72,11 @@ public class BiomeSpecialEffects {
         return this.ambientAdditionsSettings;
     }
 
+    @OnlyIn(Dist.CLIENT)
+    public Optional<Music> getBackgroundMusic() {
+        return this.backgroundMusic;
+    }
+
     public static class Builder {
         private OptionalInt fogColor = OptionalInt.empty();
         private OptionalInt waterColor = OptionalInt.empty();
@@ -76,6 +85,7 @@ public class BiomeSpecialEffects {
         private Optional<SoundEvent> ambientLoopSoundEvent = Optional.empty();
         private Optional<AmbientMoodSettings> ambientMoodSettings = Optional.empty();
         private Optional<AmbientAdditionsSettings> ambientAdditionsSettings = Optional.empty();
+        private Optional<Music> backgroundMusic = Optional.empty();
 
         public BiomeSpecialEffects.Builder fogColor(int param0) {
             this.fogColor = OptionalInt.of(param0);
@@ -112,6 +122,11 @@ public class BiomeSpecialEffects {
             return this;
         }
 
+        public BiomeSpecialEffects.Builder backgroundMusic(Music param0) {
+            this.backgroundMusic = Optional.of(param0);
+            return this;
+        }
+
         public BiomeSpecialEffects build() {
             return new BiomeSpecialEffects(
                 this.fogColor.orElseThrow(() -> new IllegalStateException("Missing 'fog' color.")),
@@ -120,7 +135,8 @@ public class BiomeSpecialEffects {
                 this.ambientParticle,
                 this.ambientLoopSoundEvent,
                 this.ambientMoodSettings,
-                this.ambientAdditionsSettings
+                this.ambientAdditionsSettings,
+                this.backgroundMusic
             );
         }
     }

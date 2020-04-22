@@ -1,11 +1,11 @@
 package net.minecraft.client.gui.screens;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.ComponentRenderUtils;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
@@ -35,7 +35,7 @@ public class DeathScreen extends Screen {
                 this.height / 4 + 72,
                 200,
                 20,
-                this.hardcore ? I18n.get("deathScreen.spectate") : I18n.get("deathScreen.respawn"),
+                this.hardcore ? new TranslatableComponent("deathScreen.spectate") : new TranslatableComponent("deathScreen.respawn"),
                 param0 -> {
                     this.minecraft.player.respawn();
                     this.minecraft.setScreen(null);
@@ -48,7 +48,7 @@ public class DeathScreen extends Screen {
                 this.height / 4 + 96,
                 200,
                 20,
-                I18n.get("deathScreen.titleScreen"),
+                new TranslatableComponent("deathScreen.titleScreen"),
                 param0 -> {
                     if (this.hardcore) {
                         this.exitToTitleScreen();
@@ -56,9 +56,9 @@ public class DeathScreen extends Screen {
                         ConfirmScreen var0x = new ConfirmScreen(
                             this::confirmResult,
                             new TranslatableComponent("deathScreen.quit.confirm"),
-                            new TextComponent(""),
-                            I18n.get("deathScreen.titleScreen"),
-                            I18n.get("deathScreen.respawn")
+                            TextComponent.EMPTY,
+                            new TranslatableComponent("deathScreen.titleScreen"),
+                            new TranslatableComponent("deathScreen.respawn")
                         );
                         this.minecraft.setScreen(var0x);
                         var0x.setDelay(20);
@@ -101,27 +101,25 @@ public class DeathScreen extends Screen {
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
-        this.fillGradient(0, 0, this.width, this.height, 1615855616, -1602211792);
+    public void render(PoseStack param0, int param1, int param2, float param3) {
+        this.fillGradient(param0, 0, 0, this.width, this.height, 1615855616, -1602211792);
         RenderSystem.pushMatrix();
         RenderSystem.scalef(2.0F, 2.0F, 2.0F);
-        this.drawCenteredString(this.font, this.title.getColoredString(), this.width / 2 / 2, 30, 16777215);
+        this.drawCenteredString(param0, this.font, this.title, this.width / 2 / 2, 30, 16777215);
         RenderSystem.popMatrix();
         if (this.causeOfDeath != null) {
-            this.drawCenteredString(this.font, this.causeOfDeath.getColoredString(), this.width / 2, 85, 16777215);
+            this.drawCenteredString(param0, this.font, this.causeOfDeath, this.width / 2, 85, 16777215);
         }
 
         this.drawCenteredString(
-            this.font, I18n.get("deathScreen.score") + ": " + ChatFormatting.YELLOW + this.minecraft.player.getScore(), this.width / 2, 100, 16777215
+            param0, this.font, I18n.get("deathScreen.score") + ": " + ChatFormatting.YELLOW + this.minecraft.player.getScore(), this.width / 2, 100, 16777215
         );
-        if (this.causeOfDeath != null && param1 > 85 && param1 < 85 + 9) {
-            Component var0 = this.getClickedComponentAt(param0);
-            if (var0 != null && var0.getStyle().getHoverEvent() != null) {
-                this.renderComponentHoverEffect(var0, param0, param1);
-            }
+        if (this.causeOfDeath != null && param2 > 85 && param2 < 85 + 9) {
+            Component var0 = this.getClickedComponentAt(param1);
+            this.renderComponentHoverEffect(param0, var0, param1, param2);
         }
 
-        super.render(param0, param1, param2);
+        super.render(param0, param1, param2, param3);
     }
 
     @Nullable
@@ -129,22 +127,10 @@ public class DeathScreen extends Screen {
         if (this.causeOfDeath == null) {
             return null;
         } else {
-            int var0 = this.minecraft.font.width(this.causeOfDeath.getColoredString());
+            int var0 = this.minecraft.font.width(this.causeOfDeath);
             int var1 = this.width / 2 - var0 / 2;
             int var2 = this.width / 2 + var0 / 2;
-            int var3 = var1;
-            if (param0 >= var1 && param0 <= var2) {
-                for(Component var4 : this.causeOfDeath) {
-                    var3 += this.minecraft.font.width(ComponentRenderUtils.stripColor(var4.getContents(), false));
-                    if (var3 > param0) {
-                        return var4;
-                    }
-                }
-
-                return null;
-            } else {
-                return null;
-            }
+            return param0 >= var1 && param0 <= var2 ? this.minecraft.font.getSplitter().componentAtWidth(this.causeOfDeath, param0 - var1) : null;
         }
     }
 

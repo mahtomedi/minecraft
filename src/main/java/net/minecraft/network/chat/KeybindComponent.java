@@ -1,19 +1,26 @@
 package net.minecraft.network.chat;
 
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class KeybindComponent extends BaseComponent {
-    public static Function<String, Supplier<String>> keyResolver = param0 -> () -> param0;
+    private static Function<String, Supplier<Component>> keyResolver = param0 -> () -> new TextComponent(param0);
     private final String name;
-    private Supplier<String> nameResolver;
+    private Supplier<Component> nameResolver;
 
     public KeybindComponent(String param0) {
         this.name = param0;
     }
 
-    @Override
-    public String getContents() {
+    @OnlyIn(Dist.CLIENT)
+    public static void setKeyResolver(Function<String, Supplier<Component>> param0) {
+        keyResolver = param0;
+    }
+
+    private Component getNestedComponent() {
         if (this.nameResolver == null) {
             this.nameResolver = keyResolver.apply(this.name);
         }
@@ -21,7 +28,18 @@ public class KeybindComponent extends BaseComponent {
         return this.nameResolver.get();
     }
 
-    public KeybindComponent copy() {
+    @Override
+    public <T> Optional<T> visitSelf(Component.ContentConsumer<T> param0) {
+        return this.getNestedComponent().visit(param0);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public <T> Optional<T> visitSelf(Component.StyledContentConsumer<T> param0, Style param1) {
+        return this.getNestedComponent().visit(param0, param1);
+    }
+
+    public KeybindComponent toMutable() {
         return new KeybindComponent(this.name);
     }
 

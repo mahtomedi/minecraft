@@ -34,9 +34,9 @@ public class McRegionUpgrader {
         List<File> var0 = Lists.newArrayList();
         List<File> var1 = Lists.newArrayList();
         List<File> var2 = Lists.newArrayList();
-        File var3 = param0.getLevelPath().toFile();
-        File var4 = DimensionType.NETHER.getStorageFolder(var3);
-        File var5 = DimensionType.THE_END.getStorageFolder(var3);
+        File var3 = param0.getDimensionPath(DimensionType.OVERWORLD);
+        File var4 = param0.getDimensionPath(DimensionType.NETHER);
+        File var5 = param0.getDimensionPath(DimensionType.THE_END);
         LOGGER.info("Scanning folders...");
         addRegionFiles(var3, var0);
         if (var4.exists()) {
@@ -49,12 +49,12 @@ public class McRegionUpgrader {
 
         int var6 = var0.size() + var1.size() + var2.size();
         LOGGER.info("Total conversion count is {}", var6);
-        LevelData var7 = param0.getDataTag();
+        WorldData var7 = param0.getDataTag();
         long var8 = var7 != null ? var7.getSeed() : 0L;
         BiomeSourceType<FixedBiomeSourceSettings, FixedBiomeSource> var9 = BiomeSourceType.FIXED;
         BiomeSourceType<OverworldBiomeSourceSettings, OverworldBiomeSource> var10 = BiomeSourceType.VANILLA_LAYERED;
         BiomeSource var11;
-        if (var7 != null && var7.getGeneratorType() == LevelType.FLAT) {
+        if (var7 != null && var7.getLevelData(DimensionType.OVERWORLD).getGeneratorType() == LevelType.FLAT) {
             var11 = var9.create(var9.createSettings(var7.getSeed()).setBiome(Biomes.PLAINS));
         } else {
             var11 = var10.create(var10.createSettings(var8));
@@ -63,31 +63,21 @@ public class McRegionUpgrader {
         convertRegions(new File(var3, "region"), var0, var11, 0, var6, param1);
         convertRegions(new File(var4, "region"), var1, var9.create(var9.createSettings(var8).setBiome(Biomes.NETHER_WASTES)), var0.size(), var6, param1);
         convertRegions(new File(var5, "region"), var2, var9.create(var9.createSettings(var8).setBiome(Biomes.THE_END)), var0.size() + var1.size(), var6, param1);
-        var7.setVersion(19133);
-        if (var7.getGeneratorType() == LevelType.NORMAL_1_1) {
-            var7.setGeneratorProvider(LevelType.NORMAL.getDefaultProvider());
-        }
-
-        makeMcrLevelDatBackup(var3);
-        LevelStorage var13 = param0.selectLevel(null);
-        var13.saveLevelData(var7);
+        makeMcrLevelDatBackup(param0);
+        param0.saveDataTag(var7);
         return true;
     }
 
-    private static void makeMcrLevelDatBackup(File param0) {
-        if (!param0.exists()) {
+    private static void makeMcrLevelDatBackup(LevelStorageSource.LevelStorageAccess param0) {
+        File var0 = param0.getLevelPath(LevelResource.LEVEL_DATA_FILE).toFile();
+        if (!var0.exists()) {
             LOGGER.warn("Unable to create level.dat_mcr backup");
         } else {
-            File var0 = new File(param0, "level.dat");
-            if (!var0.exists()) {
+            File var1 = new File(var0.getParent(), "level.dat_mcr");
+            if (!var0.renameTo(var1)) {
                 LOGGER.warn("Unable to create level.dat_mcr backup");
-            } else {
-                File var1 = new File(param0, "level.dat_mcr");
-                if (!var0.renameTo(var1)) {
-                    LOGGER.warn("Unable to create level.dat_mcr backup");
-                }
-
             }
+
         }
     }
 

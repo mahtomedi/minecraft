@@ -159,13 +159,9 @@ public abstract class AbstractChestedHorse extends AbstractHorse {
             if (!var0.isEmpty()) {
                 boolean var1 = this.handleEating(param0, var0);
                 if (!var1) {
-                    if (!this.isTamed() || var0.getItem() == Items.NAME_TAG) {
-                        if (var0.interactEnemy(param0, this, param1)) {
-                            return true;
-                        } else {
-                            this.makeMad();
-                            return true;
-                        }
+                    if (!this.isTamed()) {
+                        this.makeMad();
+                        return true;
                     }
 
                     if (!this.hasChest() && var0.getItem() == Blocks.CHEST.asItem()) {

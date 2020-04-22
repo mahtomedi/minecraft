@@ -1,6 +1,7 @@
 package net.minecraft.client.gui.screens.resourcepacks.lists;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import java.util.List;
 import net.minecraft.ChatFormatting;
@@ -35,16 +36,11 @@ public abstract class ResourcePackList extends ObjectSelectionList<ResourcePackL
     }
 
     @Override
-    protected void renderHeader(int param0, int param1, Tesselator param2) {
+    protected void renderHeader(PoseStack param0, int param1, int param2, Tesselator param3) {
         Component var0 = new TextComponent("").append(this.title).withStyle(ChatFormatting.UNDERLINE, ChatFormatting.BOLD);
         this.minecraft
             .font
-            .draw(
-                var0.getColoredString(),
-                (float)(param0 + this.width / 2 - this.minecraft.font.width(var0.getColoredString()) / 2),
-                (float)Math.min(this.y0 + 3, param1),
-                16777215
-            );
+            .draw(param0, var0, (float)(param1 + this.width / 2 - this.minecraft.font.width(var0) / 2), (float)Math.min(this.y0 + 3, param2), 16777215);
     }
 
     @Override
@@ -93,70 +89,62 @@ public abstract class ResourcePackList extends ObjectSelectionList<ResourcePackL
             return this.resourcePack.getCompatibility();
         }
 
-        protected String getDescription() {
-            return this.resourcePack.getDescription().getColoredString();
-        }
-
-        protected String getName() {
-            return this.resourcePack.getTitle().getColoredString();
-        }
-
         public UnopenedResourcePack getResourcePack() {
             return this.resourcePack;
         }
 
         @Override
-        public void render(int param0, int param1, int param2, int param3, int param4, int param5, int param6, boolean param7, float param8) {
+        public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
             PackCompatibility var0 = this.getCompatibility();
             if (!var0.isCompatible()) {
                 RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-                GuiComponent.fill(param2 - 1, param1 - 1, param2 + param3 - 9, param1 + param4 + 1, -8978432);
+                GuiComponent.fill(param0, param3 - 1, param2 - 1, param3 + param4 - 9, param2 + param5 + 1, -8978432);
             }
 
             this.bindToIcon();
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            GuiComponent.blit(param2, param1, 0.0F, 0.0F, 32, 32, 32, 32);
-            String var1 = this.getName();
-            String var2 = this.getDescription();
-            if (this.showHoverOverlay() && (this.minecraft.options.touchscreen || param7)) {
+            GuiComponent.blit(param0, param3, param2, 0.0F, 0.0F, 32, 32, 32, 32);
+            Component var1 = this.resourcePack.getTitle();
+            Component var2 = this.resourcePack.getDescription();
+            if (this.showHoverOverlay() && (this.minecraft.options.touchscreen || param8)) {
                 this.minecraft.getTextureManager().bind(ResourcePackList.ICON_OVERLAY_LOCATION);
-                GuiComponent.fill(param2, param1, param2 + 32, param1 + 32, -1601138544);
+                GuiComponent.fill(param0, param3, param2, param3 + 32, param2 + 32, -1601138544);
                 RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-                int var3 = param5 - param2;
-                int var4 = param6 - param1;
+                int var3 = param6 - param3;
+                int var4 = param7 - param2;
                 if (!var0.isCompatible()) {
-                    var1 = ResourcePackList.INCOMPATIBLE_TITLE.getColoredString();
-                    var2 = var0.getDescription().getColoredString();
+                    var1 = ResourcePackList.INCOMPATIBLE_TITLE;
+                    var2 = var0.getDescription();
                 }
 
                 if (this.canMoveRight()) {
                     if (var3 < 32) {
-                        GuiComponent.blit(param2, param1, 0.0F, 32.0F, 32, 32, 256, 256);
+                        GuiComponent.blit(param0, param3, param2, 0.0F, 32.0F, 32, 32, 256, 256);
                     } else {
-                        GuiComponent.blit(param2, param1, 0.0F, 0.0F, 32, 32, 256, 256);
+                        GuiComponent.blit(param0, param3, param2, 0.0F, 0.0F, 32, 32, 256, 256);
                     }
                 } else {
                     if (this.canMoveLeft()) {
                         if (var3 < 16) {
-                            GuiComponent.blit(param2, param1, 32.0F, 32.0F, 32, 32, 256, 256);
+                            GuiComponent.blit(param0, param3, param2, 32.0F, 32.0F, 32, 32, 256, 256);
                         } else {
-                            GuiComponent.blit(param2, param1, 32.0F, 0.0F, 32, 32, 256, 256);
+                            GuiComponent.blit(param0, param3, param2, 32.0F, 0.0F, 32, 32, 256, 256);
                         }
                     }
 
                     if (this.canMoveUp()) {
                         if (var3 < 32 && var3 > 16 && var4 < 16) {
-                            GuiComponent.blit(param2, param1, 96.0F, 32.0F, 32, 32, 256, 256);
+                            GuiComponent.blit(param0, param3, param2, 96.0F, 32.0F, 32, 32, 256, 256);
                         } else {
-                            GuiComponent.blit(param2, param1, 96.0F, 0.0F, 32, 32, 256, 256);
+                            GuiComponent.blit(param0, param3, param2, 96.0F, 0.0F, 32, 32, 256, 256);
                         }
                     }
 
                     if (this.canMoveDown()) {
                         if (var3 < 32 && var3 > 16 && var4 > 16) {
-                            GuiComponent.blit(param2, param1, 64.0F, 32.0F, 32, 32, 256, 256);
+                            GuiComponent.blit(param0, param3, param2, 64.0F, 32.0F, 32, 32, 256, 256);
                         } else {
-                            GuiComponent.blit(param2, param1, 64.0F, 0.0F, 32, 32, 256, 256);
+                            GuiComponent.blit(param0, param3, param2, 64.0F, 0.0F, 32, 32, 256, 256);
                         }
                     }
                 }
@@ -164,14 +152,17 @@ public abstract class ResourcePackList extends ObjectSelectionList<ResourcePackL
 
             int var5 = this.minecraft.font.width(var1);
             if (var5 > 157) {
-                var1 = this.minecraft.font.substrByWidth(var1, 157 - this.minecraft.font.width("...")) + "...";
+                Component var6 = this.minecraft.font.substrByWidth(var1, 157 - this.minecraft.font.width("...")).append("...");
+                this.minecraft.font.drawShadow(param0, var6, (float)(param3 + 32 + 2), (float)(param2 + 1), 16777215);
+            } else {
+                this.minecraft.font.drawShadow(param0, var1, (float)(param3 + 32 + 2), (float)(param2 + 1), 16777215);
             }
 
-            this.minecraft.font.drawShadow(var1, (float)(param2 + 32 + 2), (float)(param1 + 1), 16777215);
-            List<String> var6 = this.minecraft.font.split(var2, 157);
+            this.minecraft.font.drawShadow(param0, var1, (float)(param3 + 32 + 2), (float)(param2 + 1), 16777215);
+            List<Component> var7 = this.minecraft.font.split(var2, 157);
 
-            for(int var7 = 0; var7 < 2 && var7 < var6.size(); ++var7) {
-                this.minecraft.font.drawShadow(var6.get(var7), (float)(param2 + 32 + 2), (float)(param1 + 12 + 10 * var7), 8421504);
+            for(int var8 = 0; var8 < 2 && var8 < var7.size(); ++var8) {
+                this.minecraft.font.drawShadow(param0, var7.get(var8), (float)(param3 + 32 + 2), (float)(param2 + 12 + 10 * var8), 8421504);
             }
 
         }

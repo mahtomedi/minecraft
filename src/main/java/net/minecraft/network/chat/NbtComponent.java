@@ -52,11 +52,6 @@ public abstract class NbtComponent extends BaseComponent implements ContextAware
 
     protected abstract Stream<CompoundTag> getData(CommandSourceStack var1) throws CommandSyntaxException;
 
-    @Override
-    public String getContents() {
-        return "";
-    }
-
     public String getNbtPath() {
         return this.nbtPathPattern;
     }
@@ -66,7 +61,7 @@ public abstract class NbtComponent extends BaseComponent implements ContextAware
     }
 
     @Override
-    public Component resolve(@Nullable CommandSourceStack param0, @Nullable Entity param1, int param2) throws CommandSyntaxException {
+    public MutableComponent resolve(@Nullable CommandSourceStack param0, @Nullable Entity param1, int param2) throws CommandSyntaxException {
         if (param0 != null && this.compiledNbtPath != null) {
             Stream<String> var0 = this.getData(param0).flatMap(param0x -> {
                 try {
@@ -75,10 +70,10 @@ public abstract class NbtComponent extends BaseComponent implements ContextAware
                     return Stream.empty();
                 }
             }).map(Tag::getAsString);
-            return (Component)(this.interpreting
+            return (MutableComponent)(this.interpreting
                 ? var0.flatMap(param3 -> {
                     try {
-                        Component var1x = Component.Serializer.fromJson(param3);
+                        MutableComponent var1x = Component.Serializer.fromJson(param3);
                         return Stream.of(ComponentUtils.updateForEntity(param0, var1x, param1, param2));
                     } catch (Exception var5) {
                         LOGGER.warn("Failed to parse component: " + param3, (Throwable)var5);
@@ -122,8 +117,7 @@ public abstract class NbtComponent extends BaseComponent implements ContextAware
             return this.posPattern;
         }
 
-        @Override
-        public Component copy() {
+        public NbtComponent.BlockNbtComponent toMutable() {
             return new NbtComponent.BlockNbtComponent(this.nbtPathPattern, this.compiledNbtPath, this.interpreting, this.posPattern, this.compiledPos);
         }
 
@@ -202,8 +196,7 @@ public abstract class NbtComponent extends BaseComponent implements ContextAware
             return this.selectorPattern;
         }
 
-        @Override
-        public Component copy() {
+        public NbtComponent.EntityNbtComponent toMutable() {
             return new NbtComponent.EntityNbtComponent(
                 this.nbtPathPattern, this.compiledNbtPath, this.interpreting, this.selectorPattern, this.compiledSelector
             );
@@ -266,8 +259,7 @@ public abstract class NbtComponent extends BaseComponent implements ContextAware
             return this.id;
         }
 
-        @Override
-        public Component copy() {
+        public NbtComponent.StorageNbtComponent toMutable() {
             return new NbtComponent.StorageNbtComponent(this.nbtPathPattern, this.compiledNbtPath, this.interpreting, this.id);
         }
 

@@ -1,7 +1,10 @@
 package net.minecraft.client.gui.components;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -32,7 +35,7 @@ public class ImageButton extends Button {
         int param9,
         Button.OnPress param10
     ) {
-        this(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, "");
+        this(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, TextComponent.EMPTY);
     }
 
     public ImageButton(
@@ -47,7 +50,7 @@ public class ImageButton extends Button {
         int param8,
         int param9,
         Button.OnPress param10,
-        String param11
+        Component param11
     ) {
         super(param0, param1, param2, param3, param11, param10);
         this.textureWidth = param8;
@@ -64,7 +67,7 @@ public class ImageButton extends Button {
     }
 
     @Override
-    public void renderButton(int param0, int param1, float param2) {
+    public void renderButton(PoseStack param0, int param1, int param2, float param3) {
         Minecraft var0 = Minecraft.getInstance();
         var0.getTextureManager().bind(this.resourceLocation);
         RenderSystem.disableDepthTest();
@@ -73,7 +76,7 @@ public class ImageButton extends Button {
             var1 += this.yDiffTex;
         }
 
-        blit(this.x, this.y, (float)this.xTexStart, (float)var1, this.width, this.height, this.textureWidth, this.textureHeight);
+        blit(param0, this.x, this.y, (float)this.xTexStart, (float)var1, this.width, this.height, this.textureWidth, this.textureHeight);
         RenderSystem.enableDepthTest();
     }
 }

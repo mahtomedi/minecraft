@@ -2,6 +2,7 @@ package net.minecraft.client.gui.components;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Objects;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -9,9 +10,11 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundManager;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
@@ -25,7 +28,7 @@ public abstract class AbstractWidget extends GuiComponent implements Widget, Gui
     protected int height;
     public int x;
     public int y;
-    private String message;
+    private Component message;
     private boolean wasHovered;
     protected boolean isHovered;
     public boolean active = true;
@@ -34,7 +37,7 @@ public abstract class AbstractWidget extends GuiComponent implements Widget, Gui
     protected long nextNarration = Long.MAX_VALUE;
     private boolean focused;
 
-    public AbstractWidget(int param0, int param1, int param2, int param3, String param4) {
+    public AbstractWidget(int param0, int param1, int param2, int param3, Component param4) {
         this.x = param0;
         this.y = param1;
         this.width = param2;
@@ -58,9 +61,9 @@ public abstract class AbstractWidget extends GuiComponent implements Widget, Gui
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
+    public void render(PoseStack param0, int param1, int param2, float param3) {
         if (this.visible) {
-            this.isHovered = param0 >= this.x && param1 >= this.y && param0 < this.x + this.width && param1 < this.y + this.height;
+            this.isHovered = param1 >= this.x && param2 >= this.y && param1 < this.x + this.width && param2 < this.y + this.height;
             if (this.wasHovered != this.isHovered()) {
                 if (this.isHovered()) {
                     if (this.focused) {
@@ -74,7 +77,7 @@ public abstract class AbstractWidget extends GuiComponent implements Widget, Gui
             }
 
             if (this.visible) {
-                this.renderButton(param0, param1, param2);
+                this.renderButton(param0, param1, param2, param3);
             }
 
             this.narrate();
@@ -84,7 +87,7 @@ public abstract class AbstractWidget extends GuiComponent implements Widget, Gui
 
     protected void narrate() {
         if (this.active && this.isHovered() && Util.getMillis() > this.nextNarration) {
-            String var0 = this.getNarrationMessage();
+            String var0 = this.createNarrationMessage().getString();
             if (!var0.isEmpty()) {
                 NarratorChatListener.INSTANCE.sayNow(var0);
                 this.nextNarration = Long.MAX_VALUE;
@@ -93,11 +96,11 @@ public abstract class AbstractWidget extends GuiComponent implements Widget, Gui
 
     }
 
-    protected String getNarrationMessage() {
-        return this.getMessage().isEmpty() ? "" : I18n.get("gui.narrate.button", this.getMessage());
+    protected MutableComponent createNarrationMessage() {
+        return new TranslatableComponent("gui.narrate.button", this.getMessage());
     }
 
-    public void renderButton(int param0, int param1, float param2) {
+    public void renderButton(PoseStack param0, int param1, int param2, float param3) {
         Minecraft var0 = Minecraft.getInstance();
         Font var1 = var0.font;
         var0.getTextureManager().bind(WIDGETS_LOCATION);
@@ -106,14 +109,16 @@ public abstract class AbstractWidget extends GuiComponent implements Widget, Gui
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-        this.blit(this.x, this.y, 0, 46 + var2 * 20, this.width / 2, this.height);
-        this.blit(this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + var2 * 20, this.width / 2, this.height);
-        this.renderBg(var0, param0, param1);
+        this.blit(param0, this.x, this.y, 0, 46 + var2 * 20, this.width / 2, this.height);
+        this.blit(param0, this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + var2 * 20, this.width / 2, this.height);
+        this.renderBg(param0, var0, param1, param2);
         int var3 = this.active ? 16777215 : 10526880;
-        this.drawCenteredString(var1, this.getMessage(), this.x + this.width / 2, this.y + (this.height - 8) / 2, var3 | Mth.ceil(this.alpha * 255.0F) << 24);
+        this.drawCenteredString(
+            param0, var1, this.getMessage(), this.x + this.width / 2, this.y + (this.height - 8) / 2, var3 | Mth.ceil(this.alpha * 255.0F) << 24
+        );
     }
 
-    protected void renderBg(Minecraft param0, int param1, int param2) {
+    protected void renderBg(PoseStack param0, Minecraft param1, int param2, int param3) {
     }
 
     public void onClick(double param0, double param1) {
@@ -204,7 +209,7 @@ public abstract class AbstractWidget extends GuiComponent implements Widget, Gui
             && param1 < (double)(this.y + this.height);
     }
 
-    public void renderToolTip(int param0, int param1) {
+    public void renderToolTip(PoseStack param0, int param1, int param2) {
     }
 
     public void playDownSound(SoundManager param0) {
@@ -223,7 +228,7 @@ public abstract class AbstractWidget extends GuiComponent implements Widget, Gui
         this.alpha = param0;
     }
 
-    public void setMessage(String param0) {
+    public void setMessage(Component param0) {
         if (!Objects.equals(param0, this.message)) {
             this.queueNarration(250);
         }
@@ -235,7 +240,7 @@ public abstract class AbstractWidget extends GuiComponent implements Widget, Gui
         this.nextNarration = Util.getMillis() + (long)param0;
     }
 
-    public String getMessage() {
+    public Component getMessage() {
         return this.message;
     }
 

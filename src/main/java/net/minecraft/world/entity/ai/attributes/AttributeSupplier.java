@@ -3,6 +3,7 @@ package net.minecraft.world.entity.ai.attributes;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.core.Registry;
@@ -31,6 +32,15 @@ public class AttributeSupplier {
         return this.getAttributeInstance(param0).getBaseValue();
     }
 
+    public double getModifierValue(Attribute param0, UUID param1) {
+        AttributeModifier var0 = this.getAttributeInstance(param0).getModifier(param1);
+        if (var0 == null) {
+            throw new IllegalArgumentException("Can't find modifier " + param1 + " on attribute " + Registry.ATTRIBUTES.getKey(param0));
+        } else {
+            return var0.getAmount();
+        }
+    }
+
     @Nullable
     public AttributeInstance createInstance(Consumer<AttributeInstance> param0, Attribute param1) {
         AttributeInstance var0 = this.instances.get(param1);
@@ -45,6 +55,15 @@ public class AttributeSupplier {
 
     public static AttributeSupplier.Builder builder() {
         return new AttributeSupplier.Builder();
+    }
+
+    public boolean hasAttribute(Attribute param0) {
+        return this.instances.containsKey(param0);
+    }
+
+    public boolean hasModifier(Attribute param0, UUID param1) {
+        AttributeInstance var0 = this.instances.get(param0);
+        return var0 != null && var0.getModifier(param1) != null;
     }
 
     public static class Builder {

@@ -2,6 +2,7 @@ package net.minecraft.client.gui.screens.inventory;
 
 import com.google.common.collect.Ordering;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Collection;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.MobEffectTextureManager;
@@ -41,15 +42,15 @@ public abstract class EffectRenderingInventoryScreen<T extends AbstractContainer
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
-        super.render(param0, param1, param2);
+    public void render(PoseStack param0, int param1, int param2, float param3) {
+        super.render(param0, param1, param2, param3);
         if (this.doRenderEffects) {
-            this.renderEffects();
+            this.renderEffects(param0);
         }
 
     }
 
-    private void renderEffects() {
+    private void renderEffects(PoseStack param0) {
         int var0 = this.leftPos - 124;
         Collection<MobEffectInstance> var1 = this.minecraft.player.getActiveEffects();
         if (!var1.isEmpty()) {
@@ -60,51 +61,51 @@ public abstract class EffectRenderingInventoryScreen<T extends AbstractContainer
             }
 
             Iterable<MobEffectInstance> var3 = Ordering.natural().sortedCopy(var1);
-            this.renderBackgrounds(var0, var2, var3);
-            this.renderIcons(var0, var2, var3);
-            this.renderLabels(var0, var2, var3);
+            this.renderBackgrounds(param0, var0, var2, var3);
+            this.renderIcons(param0, var0, var2, var3);
+            this.renderLabels(param0, var0, var2, var3);
         }
     }
 
-    private void renderBackgrounds(int param0, int param1, Iterable<MobEffectInstance> param2) {
+    private void renderBackgrounds(PoseStack param0, int param1, int param2, Iterable<MobEffectInstance> param3) {
         this.minecraft.getTextureManager().bind(INVENTORY_LOCATION);
         int var0 = this.topPos;
 
-        for(MobEffectInstance var1 : param2) {
+        for(MobEffectInstance var1 : param3) {
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            this.blit(param0, var0, 0, 166, 140, 32);
-            var0 += param1;
+            this.blit(param0, param1, var0, 0, 166, 140, 32);
+            var0 += param2;
         }
 
     }
 
-    private void renderIcons(int param0, int param1, Iterable<MobEffectInstance> param2) {
+    private void renderIcons(PoseStack param0, int param1, int param2, Iterable<MobEffectInstance> param3) {
         MobEffectTextureManager var0 = this.minecraft.getMobEffectTextures();
         int var1 = this.topPos;
 
-        for(MobEffectInstance var2 : param2) {
+        for(MobEffectInstance var2 : param3) {
             MobEffect var3 = var2.getEffect();
             TextureAtlasSprite var4 = var0.get(var3);
             this.minecraft.getTextureManager().bind(var4.atlas().location());
-            blit(param0 + 6, var1 + 7, this.getBlitOffset(), 18, 18, var4);
-            var1 += param1;
+            blit(param0, param1 + 6, var1 + 7, this.getBlitOffset(), 18, 18, var4);
+            var1 += param2;
         }
 
     }
 
-    private void renderLabels(int param0, int param1, Iterable<MobEffectInstance> param2) {
+    private void renderLabels(PoseStack param0, int param1, int param2, Iterable<MobEffectInstance> param3) {
         int var0 = this.topPos;
 
-        for(MobEffectInstance var1 : param2) {
+        for(MobEffectInstance var1 : param3) {
             String var2 = I18n.get(var1.getEffect().getDescriptionId());
             if (var1.getAmplifier() >= 1 && var1.getAmplifier() <= 9) {
                 var2 = var2 + ' ' + I18n.get("enchantment.level." + (var1.getAmplifier() + 1));
             }
 
-            this.font.drawShadow(var2, (float)(param0 + 10 + 18), (float)(var0 + 6), 16777215);
+            this.font.drawShadow(param0, var2, (float)(param1 + 10 + 18), (float)(var0 + 6), 16777215);
             String var3 = MobEffectUtil.formatDuration(var1, 1.0F);
-            this.font.drawShadow(var3, (float)(param0 + 10 + 18), (float)(var0 + 6 + 10), 8355711);
-            var0 += param1;
+            this.font.drawShadow(param0, var3, (float)(param1 + 10 + 18), (float)(var0 + 6 + 10), 8355711);
+            var0 += param2;
         }
 
     }

@@ -1,11 +1,12 @@
 package net.minecraft.client;
 
 import com.mojang.blaze3d.platform.Window;
-import net.minecraft.Util;
 import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ChatComponent;
-import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.ChatVisiblity;
 import net.minecraftforge.api.distmarker.Dist;
@@ -19,9 +20,9 @@ public abstract class Option {
             Minecraft.getInstance().levelRenderer.allChanged();
         }, (param0, param1) -> {
             double var0 = param1.get(param0);
-            String var1 = param1.getCaption();
+            MutableComponent var1 = param1.createCaption();
             int var2 = (int)var0 * 2 + 1;
-            return var1 + I18n.get("options.biomeBlendRadius." + var2);
+            return var1.append(new TranslatableComponent("options.biomeBlendRadius." + var2));
         }
     );
     public static final ProgressOption CHAT_HEIGHT_FOCUSED = new ProgressOption(
@@ -30,7 +31,7 @@ public abstract class Option {
             Minecraft.getInstance().gui.getChat().rescaleChat();
         }, (param0, param1) -> {
             double var0 = param1.toPct(param1.get(param0));
-            return param1.getCaption() + ChatComponent.getHeight(var0) + "px";
+            return param1.createCaption().append(ChatComponent.getHeight(var0) + "px");
         }
     );
     public static final ProgressOption CHAT_HEIGHT_UNFOCUSED = new ProgressOption(
@@ -39,7 +40,7 @@ public abstract class Option {
             Minecraft.getInstance().gui.getChat().rescaleChat();
         }, (param0, param1) -> {
             double var0 = param1.toPct(param1.get(param0));
-            return param1.getCaption() + ChatComponent.getHeight(var0) + "px";
+            return param1.createCaption().append(ChatComponent.getHeight(var0) + "px");
         }
     );
     public static final ProgressOption CHAT_OPACITY = new ProgressOption(
@@ -48,7 +49,7 @@ public abstract class Option {
             Minecraft.getInstance().gui.getChat().rescaleChat();
         }, (param0, param1) -> {
             double var0 = param1.toPct(param1.get(param0));
-            return param1.getCaption() + (int)(var0 * 90.0 + 10.0) + "%";
+            return param1.createCaption().append((int)(var0 * 90.0 + 10.0) + "%");
         }
     );
     public static final ProgressOption CHAT_SCALE = new ProgressOption("options.chat.scale", 0.0, 1.0, 0.0F, param0 -> param0.chatScale, (param0, param1) -> {
@@ -56,15 +57,15 @@ public abstract class Option {
         Minecraft.getInstance().gui.getChat().rescaleChat();
     }, (param0, param1) -> {
         double var0 = param1.toPct(param1.get(param0));
-        String var1 = param1.getCaption();
-        return var0 == 0.0 ? var1 + I18n.get("options.off") : var1 + (int)(var0 * 100.0) + "%";
+        MutableComponent var1 = param1.createCaption();
+        return var0 == 0.0 ? var1.append(CommonComponents.OPTION_OFF) : var1.append((int)(var0 * 100.0) + "%");
     });
     public static final ProgressOption CHAT_WIDTH = new ProgressOption("options.chat.width", 0.0, 1.0, 0.0F, param0 -> param0.chatWidth, (param0, param1) -> {
         param0.chatWidth = param1;
         Minecraft.getInstance().gui.getChat().rescaleChat();
     }, (param0, param1) -> {
         double var0 = param1.toPct(param1.get(param0));
-        return param1.getCaption() + ChatComponent.getWidth(var0) + "px";
+        return param1.createCaption().append(ChatComponent.getWidth(var0) + "px");
     });
     public static final ProgressOption CHAT_LINE_SPACING = new ProgressOption(
         "options.chat.line_spacing",
@@ -73,43 +74,59 @@ public abstract class Option {
         0.0F,
         param0 -> param0.chatLineSpacing,
         (param0, param1) -> param0.chatLineSpacing = param1,
-        (param0, param1) -> param1.getCaption() + (int)(param1.toPct(param1.get(param0)) * 100.0) + "%"
+        (param0, param1) -> param1.createCaption().append((int)(param1.toPct(param1.get(param0)) * 100.0) + "%")
     );
     public static final ProgressOption CHAT_DELAY = new ProgressOption(
-        "options.chat.delay_instant", 0.0, 6.0, 0.1F, param0 -> param0.chatDelay, (param0, param1) -> param0.chatDelay = param1, (param0, param1) -> {
+        "options.chat.delay_instant",
+        0.0,
+        6.0,
+        0.1F,
+        param0 -> param0.chatDelay,
+        (param0, param1) -> param0.chatDelay = param1,
+        (param0, param1) -> {
             double var0 = param1.get(param0);
-            return var0 <= 0.0 ? I18n.get("options.chat.delay_none") : I18n.get("options.chat.delay", String.format("%.1f", var0));
+            return var0 <= 0.0
+                ? new TranslatableComponent("options.chat.delay_none")
+                : new TranslatableComponent("options.chat.delay", String.format("%.1f", var0));
         }
     );
     public static final ProgressOption FOV = new ProgressOption(
         "options.fov", 30.0, 110.0, 1.0F, param0 -> param0.fov, (param0, param1) -> param0.fov = param1, (param0, param1) -> {
             double var0 = param1.get(param0);
-            String var1 = param1.getCaption();
+            MutableComponent var1 = param1.createCaption();
             if (var0 == 70.0) {
-                return var1 + I18n.get("options.fov.min");
+                return var1.append(new TranslatableComponent("options.fov.min"));
             } else {
-                return var0 == param1.getMaxValue() ? var1 + I18n.get("options.fov.max") : var1 + (int)var0;
+                return var0 == param1.getMaxValue() ? var1.append(new TranslatableComponent("options.fov.max")) : var1.append(Integer.toString((int)var0));
             }
         }
     );
     public static final ProgressOption FRAMERATE_LIMIT = new ProgressOption(
-        "options.framerateLimit", 10.0, 260.0, 10.0F, param0 -> (double)param0.framerateLimit, (param0, param1) -> {
+        "options.framerateLimit",
+        10.0,
+        260.0,
+        10.0F,
+        param0 -> (double)param0.framerateLimit,
+        (param0, param1) -> {
             param0.framerateLimit = (int)param1.doubleValue();
             Minecraft.getInstance().getWindow().setFramerateLimit(param0.framerateLimit);
-        }, (param0, param1) -> {
+        },
+        (param0, param1) -> {
             double var0 = param1.get(param0);
-            String var1 = param1.getCaption();
-            return var0 == param1.getMaxValue() ? var1 + I18n.get("options.framerateLimit.max") : var1 + I18n.get("options.framerate", (int)var0);
+            MutableComponent var1 = param1.createCaption();
+            return var0 == param1.getMaxValue()
+                ? var1.append(new TranslatableComponent("options.framerateLimit.max"))
+                : var1.append(new TranslatableComponent("options.framerate", (int)var0));
         }
     );
     public static final ProgressOption GAMMA = new ProgressOption(
         "options.gamma", 0.0, 1.0, 0.0F, param0 -> param0.gamma, (param0, param1) -> param0.gamma = param1, (param0, param1) -> {
             double var0 = param1.toPct(param1.get(param0));
-            String var1 = param1.getCaption();
+            MutableComponent var1 = param1.createCaption();
             if (var0 == 0.0) {
-                return var1 + I18n.get("options.gamma.min");
+                return var1.append(new TranslatableComponent("options.gamma.min"));
             } else {
-                return var0 == 1.0 ? var1 + I18n.get("options.gamma.max") : var1 + "+" + (int)(var0 * 100.0) + "%";
+                return var0 == 1.0 ? var1.append(new TranslatableComponent("options.gamma.max")) : var1.append("+" + (int)(var0 * 100.0) + "%");
             }
         }
     );
@@ -122,8 +139,8 @@ public abstract class Option {
         (param0, param1) -> param0.mipmapLevels = (int)param1.doubleValue(),
         (param0, param1) -> {
             double var0 = param1.get(param0);
-            String var1 = param1.getCaption();
-            return var0 == 0.0 ? var1 + I18n.get("options.off") : var1 + (int)var0;
+            MutableComponent var1 = param1.createCaption();
+            return var0 == 0.0 ? var1.append(CommonComponents.OPTION_OFF) : var1.append(Integer.toString((int)var0));
         }
     );
     public static final ProgressOption MOUSE_WHEEL_SENSITIVITY = new LogaritmicProgressOption(
@@ -135,7 +152,7 @@ public abstract class Option {
         (param0, param1) -> param0.mouseWheelSensitivity = param1,
         (param0, param1) -> {
             double var0 = param1.toPct(param1.get(param0));
-            return param1.getCaption() + String.format("%.2f", param1.toValue(var0));
+            return param1.createCaption().append(String.format("%.2f", param1.toValue(var0)));
         }
     );
     public static final BooleanOption RAW_MOUSE_INPUT = new BooleanOption("options.rawMouseInput", param0 -> param0.rawMouseInput, (param0, param1) -> {
@@ -152,17 +169,29 @@ public abstract class Option {
             Minecraft.getInstance().levelRenderer.needsUpdate();
         }, (param0, param1) -> {
             double var0 = param1.get(param0);
-            return param1.getCaption() + I18n.get("options.chunks", (int)var0);
+            return param1.createCaption().append(new TranslatableComponent("options.chunks", (int)var0));
+        }
+    );
+    public static final ProgressOption ENTITY_DISTANCE_SCALING = new ProgressOption(
+        "options.entityDistanceScaling",
+        0.5,
+        5.0,
+        0.25F,
+        param0 -> (double)param0.entityDistanceScaling,
+        (param0, param1) -> param0.entityDistanceScaling = (float)param1.doubleValue(),
+        (param0, param1) -> {
+            double var0 = param1.get(param0);
+            return param1.createCaption().append(new TranslatableComponent("options.entityDistancePercent", (int)(var0 * 100.0)));
         }
     );
     public static final ProgressOption SENSITIVITY = new ProgressOption(
         "options.sensitivity", 0.0, 1.0, 0.0F, param0 -> param0.sensitivity, (param0, param1) -> param0.sensitivity = param1, (param0, param1) -> {
             double var0 = param1.toPct(param1.get(param0));
-            String var1 = param1.getCaption();
+            MutableComponent var1 = param1.createCaption();
             if (var0 == 0.0) {
-                return var1 + I18n.get("options.sensitivity.min");
+                return var1.append(new TranslatableComponent("options.sensitivity.min"));
             } else {
-                return var0 == 1.0 ? var1 + I18n.get("options.sensitivity.max") : var1 + (int)(var0 * 200.0) + "%";
+                return var0 == 1.0 ? var1.append(new TranslatableComponent("options.sensitivity.max")) : var1.append((int)(var0 * 200.0) + "%");
             }
         }
     );
@@ -170,21 +199,21 @@ public abstract class Option {
         "options.accessibility.text_background_opacity", 0.0, 1.0, 0.0F, param0 -> param0.textBackgroundOpacity, (param0, param1) -> {
             param0.textBackgroundOpacity = param1;
             Minecraft.getInstance().gui.getChat().rescaleChat();
-        }, (param0, param1) -> param1.getCaption() + (int)(param1.toPct(param1.get(param0)) * 100.0) + "%"
+        }, (param0, param1) -> param1.createCaption().append((int)(param1.toPct(param1.get(param0)) * 100.0) + "%")
     );
     public static final CycleOption AMBIENT_OCCLUSION = new CycleOption("options.ao", (param0, param1) -> {
         param0.ambientOcclusion = AmbientOcclusionStatus.byId(param0.ambientOcclusion.getId() + param1);
         Minecraft.getInstance().levelRenderer.allChanged();
-    }, (param0, param1) -> param1.getCaption() + I18n.get(param0.ambientOcclusion.getKey()));
+    }, (param0, param1) -> param1.createCaption().append(new TranslatableComponent(param0.ambientOcclusion.getKey())));
     public static final CycleOption ATTACK_INDICATOR = new CycleOption(
         "options.attackIndicator",
         (param0, param1) -> param0.attackIndicator = AttackIndicatorStatus.byId(param0.attackIndicator.getId() + param1),
-        (param0, param1) -> param1.getCaption() + I18n.get(param0.attackIndicator.getKey())
+        (param0, param1) -> param1.createCaption().append(new TranslatableComponent(param0.attackIndicator.getKey()))
     );
     public static final CycleOption CHAT_VISIBILITY = new CycleOption(
         "options.chat.visibility",
         (param0, param1) -> param0.chatVisibility = ChatVisiblity.byId((param0.chatVisibility.getId() + param1) % 3),
-        (param0, param1) -> param1.getCaption() + I18n.get(param0.chatVisibility.getKey())
+        (param0, param1) -> param1.createCaption().append(new TranslatableComponent(param0.chatVisibility.getKey()))
     );
     public static final CycleOption GRAPHICS = new CycleOption(
         "options.graphics",
@@ -193,18 +222,23 @@ public abstract class Option {
             Minecraft.getInstance().levelRenderer.allChanged();
         },
         (param0, param1) -> param0.fancyGraphics
-                ? param1.getCaption() + I18n.get("options.graphics.fancy")
-                : param1.getCaption() + I18n.get("options.graphics.fast")
+                ? param1.createCaption().append(new TranslatableComponent("options.graphics.fancy"))
+                : param1.createCaption().append(new TranslatableComponent("options.graphics.fast"))
     );
     public static final CycleOption GUI_SCALE = new CycleOption(
         "options.guiScale",
         (param0, param1) -> param0.guiScale = Integer.remainderUnsigned(
                 param0.guiScale + param1, Minecraft.getInstance().getWindow().calculateScale(0, Minecraft.getInstance().isEnforceUnicode()) + 1
             ),
-        (param0, param1) -> param1.getCaption() + (param0.guiScale == 0 ? I18n.get("options.guiScale.auto") : param0.guiScale)
+        (param0, param1) -> {
+            MutableComponent var0 = param1.createCaption();
+            return param0.guiScale == 0 ? var0.append(new TranslatableComponent("options.guiScale.auto")) : var0.append(Integer.toString(param0.guiScale));
+        }
     );
     public static final CycleOption MAIN_HAND = new CycleOption(
-        "options.mainHand", (param0, param1) -> param0.mainHand = param0.mainHand.getOpposite(), (param0, param1) -> param1.getCaption() + param0.mainHand
+        "options.mainHand",
+        (param0, param1) -> param0.mainHand = param0.mainHand.getOpposite(),
+        (param0, param1) -> param1.createCaption().append(param0.mainHand.getName())
     );
     public static final CycleOption NARRATOR = new CycleOption(
         "options.narrator",
@@ -218,24 +252,28 @@ public abstract class Option {
             NarratorChatListener.INSTANCE.updateNarratorStatus(param0.narratorStatus);
         },
         (param0, param1) -> NarratorChatListener.INSTANCE.isActive()
-                ? param1.getCaption() + I18n.get(param0.narratorStatus.getKey())
-                : param1.getCaption() + I18n.get("options.narrator.notavailable")
+                ? param1.createCaption().append(param0.narratorStatus.getName())
+                : param1.createCaption().append(new TranslatableComponent("options.narrator.notavailable"))
     );
     public static final CycleOption PARTICLES = new CycleOption(
         "options.particles",
         (param0, param1) -> param0.particles = ParticleStatus.byId(param0.particles.getId() + param1),
-        (param0, param1) -> param1.getCaption() + I18n.get(param0.particles.getKey())
+        (param0, param1) -> param1.createCaption().append(new TranslatableComponent(param0.particles.getKey()))
     );
     public static final CycleOption RENDER_CLOUDS = new CycleOption(
         "options.renderClouds",
         (param0, param1) -> param0.renderClouds = CloudStatus.byId(param0.renderClouds.getId() + param1),
-        (param0, param1) -> param1.getCaption() + I18n.get(param0.renderClouds.getKey())
+        (param0, param1) -> param1.createCaption().append(new TranslatableComponent(param0.renderClouds.getKey()))
     );
     public static final CycleOption TEXT_BACKGROUND = new CycleOption(
         "options.accessibility.text_background",
         (param0, param1) -> param0.backgroundForChatOnly = !param0.backgroundForChatOnly,
-        (param0, param1) -> param1.getCaption()
-                + I18n.get(param0.backgroundForChatOnly ? "options.accessibility.text_background.chat" : "options.accessibility.text_background.everywhere")
+        (param0, param1) -> param1.createCaption()
+                .append(
+                    new TranslatableComponent(
+                        param0.backgroundForChatOnly ? "options.accessibility.text_background.chat" : "options.accessibility.text_background.everywhere"
+                    )
+                )
     );
     public static final BooleanOption AUTO_JUMP = new BooleanOption("options.autoJump", param0 -> param0.autoJump, (param0, param1) -> param0.autoJump = param1);
     public static final BooleanOption AUTO_SUGGESTIONS = new BooleanOption(
@@ -267,8 +305,8 @@ public abstract class Option {
         "options.forceUnicodeFont", param0 -> param0.forceUnicodeFont, (param0, param1) -> {
             param0.forceUnicodeFont = param1;
             Minecraft var0 = Minecraft.getInstance();
-            if (var0.getFontManager() != null) {
-                var0.getFontManager().setForceUnicode(param0.forceUnicodeFont, Util.backgroundExecutor(), var0);
+            if (var0.getWindow() != null) {
+                var0.selectMainFont(param1);
             }
     
         }
@@ -294,12 +332,12 @@ public abstract class Option {
     public static final CycleOption TOGGLE_CROUCH = new CycleOption(
         "key.sneak",
         (param0, param1) -> param0.toggleCrouch = !param0.toggleCrouch,
-        (param0, param1) -> param1.getCaption() + I18n.get(param0.toggleCrouch ? "options.key.toggle" : "options.key.hold")
+        (param0, param1) -> param1.createCaption().append(new TranslatableComponent(param0.toggleCrouch ? "options.key.toggle" : "options.key.hold"))
     );
     public static final CycleOption TOGGLE_SPRINT = new CycleOption(
         "key.sprint",
         (param0, param1) -> param0.toggleSprint = !param0.toggleSprint,
-        (param0, param1) -> param1.getCaption() + I18n.get(param0.toggleSprint ? "options.key.toggle" : "options.key.hold")
+        (param0, param1) -> param1.createCaption().append(new TranslatableComponent(param0.toggleSprint ? "options.key.toggle" : "options.key.hold"))
     );
     public static final BooleanOption TOUCHSCREEN = new BooleanOption(
         "options.touchscreen", param0 -> param0.touchscreen, (param0, param1) -> param0.touchscreen = param1
@@ -324,7 +362,7 @@ public abstract class Option {
 
     public abstract AbstractWidget createButton(Options var1, int var2, int var3, int var4);
 
-    public String getCaption() {
-        return I18n.get(this.captionId) + ": ";
+    public MutableComponent createCaption() {
+        return new TranslatableComponent(this.captionId).append(": ");
     }
 }

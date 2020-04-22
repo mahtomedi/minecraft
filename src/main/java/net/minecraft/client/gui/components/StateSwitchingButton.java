@@ -1,7 +1,9 @@
 package net.minecraft.client.gui.components;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -16,7 +18,7 @@ public class StateSwitchingButton extends AbstractWidget {
     protected int yDiffTex;
 
     public StateSwitchingButton(int param0, int param1, int param2, int param3, boolean param4) {
-        super(param0, param1, param2, param3, "");
+        super(param0, param1, param2, param3, TextComponent.EMPTY);
         this.isStateTriggered = param4;
     }
 
@@ -42,7 +44,7 @@ public class StateSwitchingButton extends AbstractWidget {
     }
 
     @Override
-    public void renderButton(int param0, int param1, float param2) {
+    public void renderButton(PoseStack param0, int param1, int param2, float param3) {
         Minecraft var0 = Minecraft.getInstance();
         var0.getTextureManager().bind(this.resourceLocation);
         RenderSystem.disableDepthTest();
@@ -56,7 +58,7 @@ public class StateSwitchingButton extends AbstractWidget {
             var2 += this.yDiffTex;
         }
 
-        this.blit(this.x, this.y, var1, var2, this.width, this.height);
+        this.blit(param0, this.x, this.y, var1, var2, this.width, this.height);
         RenderSystem.enableDepthTest();
     }
 }

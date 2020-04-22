@@ -56,7 +56,7 @@ public class Screenshot {
                         var0.writeToFile(var2);
                         Component var0x = new TextComponent(var2.getName())
                             .withStyle(ChatFormatting.UNDERLINE)
-                            .withStyle(param1x -> param1x.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, var2.getAbsolutePath())));
+                            .withStyle(param1x -> param1x.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, var2.getAbsolutePath())));
                         param5.accept(new TranslatableComponent("screenshot.success", var0x));
                     } catch (Exception var7x) {
                         LOGGER.warn("Couldn't save screenshot", (Throwable)var7x);

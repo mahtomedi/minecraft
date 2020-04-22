@@ -5,6 +5,8 @@ import com.google.gson.JsonObject;
 import com.mojang.blaze3d.font.GlyphProvider;
 import com.mojang.blaze3d.font.RawGlyph;
 import com.mojang.blaze3d.platform.NativeImage;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
@@ -33,7 +35,7 @@ public class LegacyUnicodeBitmapsProvider implements GlyphProvider {
         this.texturePattern = param2;
 
         for(int var0 = 0; var0 < 256; ++var0) {
-            char var1 = (char)(var0 * 256);
+            int var1 = var0 * 256;
             ResourceLocation var2 = this.getSheetLocation(var1);
 
             try (
@@ -62,24 +64,41 @@ public class LegacyUnicodeBitmapsProvider implements GlyphProvider {
         this.textures.values().forEach(NativeImage::close);
     }
 
-    private ResourceLocation getSheetLocation(char param0) {
+    private ResourceLocation getSheetLocation(int param0) {
         ResourceLocation var0 = new ResourceLocation(String.format(this.texturePattern, String.format("%02x", param0 / 256)));
         return new ResourceLocation(var0.getNamespace(), "textures/" + var0.getPath());
     }
 
     @Nullable
     @Override
-    public RawGlyph getGlyph(char param0) {
-        byte var0 = this.sizes[param0];
-        if (var0 != 0) {
-            NativeImage var1 = this.textures.computeIfAbsent(this.getSheetLocation(param0), this::loadTexture);
-            if (var1 != null) {
-                int var2 = getLeft(var0);
-                return new LegacyUnicodeBitmapsProvider.Glyph(param0 % 16 * 16 + var2, (param0 & 255) / 16 * 16, getRight(var0) - var2, 16, var1);
+    public RawGlyph getGlyph(int param0) {
+        if (param0 >= 0 && param0 <= 65535) {
+            byte var0 = this.sizes[param0];
+            if (var0 != 0) {
+                NativeImage var1 = this.textures.computeIfAbsent(this.getSheetLocation(param0), this::loadTexture);
+                if (var1 != null) {
+                    int var2 = getLeft(var0);
+                    return new LegacyUnicodeBitmapsProvider.Glyph(param0 % 16 * 16 + var2, (param0 & 0xFF) / 16 * 16, getRight(var0) - var2, 16, var1);
+                }
+            }
+
+            return null;
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public IntSet getSupportedGlyphs() {
+        IntSet var0 = new IntOpenHashSet();
+
+        for(int var1 = 0; var1 < 65535; ++var1) {
+            if (this.sizes[var1] != 0) {
+                var0.add(var1);
             }
         }
 
-        return null;
+        return var0;
     }
 
     @Nullable

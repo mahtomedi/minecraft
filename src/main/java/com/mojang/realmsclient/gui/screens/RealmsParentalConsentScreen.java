@@ -1,10 +1,14 @@
 package com.mojang.realmsclient.gui.screens;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
 import net.minecraft.Util;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.realms.NarrationHelper;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraftforge.api.distmarker.Dist;
@@ -21,10 +25,10 @@ public class RealmsParentalConsentScreen extends RealmsScreen {
     @Override
     public void init() {
         NarrationHelper.now(I18n.get("mco.account.privacyinfo"));
-        String var0 = I18n.get("mco.account.update");
-        String var1 = I18n.get("gui.back");
+        Component var0 = new TranslatableComponent("mco.account.update");
+        Component var1 = CommonComponents.GUI_BACK;
         int var2 = Math.max(this.font.width(var0), this.font.width(var1)) + 30;
-        String var3 = I18n.get("mco.account.privacy.info");
+        Component var3 = new TranslatableComponent("mco.account.privacy.info");
         int var4 = (int)((double)this.font.width(var3) * 1.2);
         this.addButton(
             new Button(this.width / 2 - var4 / 2, row(11), var4, 20, var3, param0 -> Util.getPlatform().openUri("https://minecraft.net/privacy/gdpr/"))
@@ -36,16 +40,16 @@ public class RealmsParentalConsentScreen extends RealmsScreen {
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
-        this.renderBackground();
-        List<String> var0 = this.minecraft.font.split(I18n.get("mco.account.privacyinfo"), (int)Math.round((double)this.width * 0.9));
+    public void render(PoseStack param0, int param1, int param2, float param3) {
+        this.renderBackground(param0);
+        List<Component> var0 = this.minecraft.font.split(new TranslatableComponent("mco.account.privacyinfo"), (int)Math.round((double)this.width * 0.9));
         int var1 = 15;
 
-        for(String var2 : var0) {
-            this.drawCenteredString(this.font, var2, this.width / 2, var1, 16777215);
+        for(Component var2 : var0) {
+            this.drawCenteredString(param0, this.font, var2, this.width / 2, var1, 16777215);
             var1 += 15;
         }
 
-        super.render(param0, param1, param2);
+        super.render(param0, param1, param2, param3);
     }
 }

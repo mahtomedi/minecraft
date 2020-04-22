@@ -163,7 +163,7 @@ public class IronGolem extends AbstractGolem {
         this.attackAnimationTick = 10;
         this.level.broadcastEntityEvent(this, (byte)4);
         float var0 = this.getAttackDamage();
-        float var1 = var0 > 0.0F ? var0 / 2.0F + (float)this.random.nextInt((int)var0) : 0.0F;
+        float var1 = (int)var0 > 0 ? var0 / 2.0F + (float)this.random.nextInt((int)var0) : var0;
         boolean var2 = param0.hurt(DamageSource.mobAttack(this), var1);
         if (var2) {
             param0.setDeltaMovement(param0.getDeltaMovement().add(0.0, 0.4F, 0.0));

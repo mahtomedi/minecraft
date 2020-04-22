@@ -55,7 +55,6 @@ import net.minecraft.client.renderer.debug.BrainDebugRenderer;
 import net.minecraft.client.renderer.debug.GoalSelectorDebugRenderer;
 import net.minecraft.client.renderer.debug.NeighborsUpdateRenderer;
 import net.minecraft.client.renderer.debug.WorldGenAttemptRenderer;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.resources.sounds.BeeAggressiveSoundInstance;
 import net.minecraft.client.resources.sounds.BeeFlyingSoundInstance;
 import net.minecraft.client.resources.sounds.BeeSoundInstance;
@@ -77,6 +76,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketUtils;
@@ -192,6 +192,7 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagManager;
 import net.minecraft.util.Mth;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.effect.MobEffect;
@@ -286,6 +287,8 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
+import net.minecraft.world.level.storage.PrimaryLevelData;
+import net.minecraft.world.level.storage.WorldData;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.PlayerTeam;
@@ -306,6 +309,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
     private final Screen callbackScreen;
     private Minecraft minecraft;
     private ClientLevel level;
+    private WorldData worldData;
     private boolean started;
     private final Map<UUID, PlayerInfo> playerInfoMap = Maps.newHashMap();
     private final ClientAdvancements advancements;
@@ -351,14 +355,13 @@ public class ClientPacketListener implements ClientGamePacketListener {
         }
 
         this.serverChunkRadius = param0.getChunkRadius();
-        this.level = new ClientLevel(
-            this,
-            new LevelSettings(param0.getSeed(), param0.getGameType(), false, param0.isHardcore(), param0.getLevelType().getDefaultProvider()),
-            param0.getDimension(),
-            this.serverChunkRadius,
-            this.minecraft::getProfiler,
-            this.minecraft.levelRenderer
+        PrimaryLevelData var0 = new PrimaryLevelData(
+            new LevelSettings(
+                "MpServer", param0.getSeed(), param0.getGameType(), false, param0.isHardcore(), Difficulty.NORMAL, param0.getLevelType().getDefaultProvider()
+            )
         );
+        this.worldData = var0;
+        this.level = new ClientLevel(this, var0, param0.getDimension(), this.serverChunkRadius, this.minecraft::getProfiler, this.minecraft.levelRenderer);
         this.minecraft.setLevel(this.level);
         if (this.minecraft.player == null) {
             this.minecraft.player = this.minecraft.gameMode.createPlayer(this.level, new StatsCounter(), new ClientRecipeBook(this.level.getRecipeManager()));
@@ -370,14 +373,14 @@ public class ClientPacketListener implements ClientGamePacketListener {
 
         this.minecraft.debugRenderer.clear();
         this.minecraft.player.resetPos();
-        int var0 = param0.getPlayerId();
-        this.level.addPlayer(var0, this.minecraft.player);
+        int var1 = param0.getPlayerId();
+        this.level.addPlayer(var1, this.minecraft.player);
         this.minecraft.player.input = new KeyboardInput(this.minecraft.options);
         this.minecraft.gameMode.adjustPlayer(this.minecraft.player);
         this.minecraft.cameraEntity = this.minecraft.player;
         this.minecraft.player.dimension = param0.getDimension();
         this.minecraft.setScreen(new ReceivingLevelScreen());
-        this.minecraft.player.setId(var0);
+        this.minecraft.player.setId(var1);
         this.minecraft.player.setReducedDebugInfo(param0.isReducedDebugInfo());
         this.minecraft.player.setShowDeathScreen(param0.shouldShowDeathScreen());
         this.minecraft.gameMode.setLocalMode(param0.getGameType());
@@ -970,7 +973,9 @@ public class ClientPacketListener implements ClientGamePacketListener {
                 if (var3 != null) {
                     var3.startRiding(var0, true);
                     if (var3 == this.minecraft.player && !var1) {
-                        this.minecraft.gui.setOverlayMessage(I18n.get("mount.onboard", this.minecraft.options.keyShift.getTranslatedKeyMessage()), false);
+                        this.minecraft
+                            .gui
+                            .setOverlayMessage(new TranslatableComponent("mount.onboard", this.minecraft.options.keyShift.getTranslatedKeyMessage()), false);
                     }
                 }
             }
@@ -1043,43 +1048,42 @@ public class ClientPacketListener implements ClientGamePacketListener {
         this.started = false;
         if (var0 != var1.dimension) {
             Scoreboard var3 = this.level.getScoreboard();
-            this.level = new ClientLevel(
-                this,
+            PrimaryLevelData var4 = new PrimaryLevelData(
                 new LevelSettings(
+                    "MpServer",
                     param0.getSeed(),
                     param0.getPlayerGameType(),
                     false,
-                    this.minecraft.level.getLevelData().isHardcore(),
+                    this.worldData.isHardcore(),
+                    this.worldData.getDifficulty(),
                     param0.getLevelType().getDefaultProvider()
-                ),
-                param0.getDimension(),
-                this.serverChunkRadius,
-                this.minecraft::getProfiler,
-                this.minecraft.levelRenderer
+                )
             );
+            this.worldData = var4;
+            this.level = new ClientLevel(this, var4, param0.getDimension(), this.serverChunkRadius, this.minecraft::getProfiler, this.minecraft.levelRenderer);
             this.level.setScoreboard(var3);
             this.minecraft.setLevel(this.level);
             this.minecraft.setScreen(new ReceivingLevelScreen());
         }
 
         this.level.removeAllPendingEntityRemovals();
-        String var4 = var1.getServerBrand();
+        String var5 = var1.getServerBrand();
         this.minecraft.cameraEntity = null;
-        LocalPlayer var5 = this.minecraft.gameMode.createPlayer(this.level, var1.getStats(), var1.getRecipeBook());
-        var5.setId(var2);
-        var5.dimension = var0;
-        this.minecraft.player = var5;
-        this.minecraft.cameraEntity = var5;
-        var5.getEntityData().assignValues(var1.getEntityData().getAll());
-        var5.getAttributes().assignValues(var1.getAttributes());
-        var5.resetPos();
-        var5.setServerBrand(var4);
-        this.level.addPlayer(var2, var5);
-        var5.yRot = -180.0F;
-        var5.input = new KeyboardInput(this.minecraft.options);
-        this.minecraft.gameMode.adjustPlayer(var5);
-        var5.setReducedDebugInfo(var1.isReducedDebugInfo());
-        var5.setShowDeathScreen(var1.shouldShowDeathScreen());
+        LocalPlayer var6 = this.minecraft.gameMode.createPlayer(this.level, var1.getStats(), var1.getRecipeBook());
+        var6.setId(var2);
+        var6.dimension = var0;
+        this.minecraft.player = var6;
+        this.minecraft.cameraEntity = var6;
+        var6.getEntityData().assignValues(var1.getEntityData().getAll());
+        var6.getAttributes().assignValues(var1.getAttributes());
+        var6.resetPos();
+        var6.setServerBrand(var5);
+        this.level.addPlayer(var2, var6);
+        var6.yRot = -180.0F;
+        var6.input = new KeyboardInput(this.minecraft.options);
+        this.minecraft.gameMode.adjustPlayer(var6);
+        var6.setReducedDebugInfo(var1.isReducedDebugInfo());
+        var6.setShowDeathScreen(var1.shouldShowDeathScreen());
         if (this.minecraft.screen instanceof DeathScreen) {
             this.minecraft.setScreen(null);
         }
@@ -1555,8 +1559,8 @@ public class ClientPacketListener implements ClientGamePacketListener {
     @Override
     public void handleChangeDifficulty(ClientboundChangeDifficultyPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        this.minecraft.level.getLevelData().setDifficulty(param0.getDifficulty());
-        this.minecraft.level.getLevelData().setDifficultyLocked(param0.isLocked());
+        this.worldData.setDifficulty(param0.getDifficulty());
+        this.worldData.setDifficultyLocked(param0.isLocked());
     }
 
     @Override
@@ -1579,9 +1583,9 @@ public class ClientPacketListener implements ClientGamePacketListener {
     public void handleSetTitles(ClientboundSetTitlesPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         ClientboundSetTitlesPacket.Type var0 = param0.getType();
-        String var1 = null;
-        String var2 = null;
-        String var3 = param0.getText() != null ? param0.getText().getColoredString() : "";
+        Component var1 = null;
+        Component var2 = null;
+        Component var3 = param0.getText() != null ? param0.getText() : TextComponent.EMPTY;
         switch(var0) {
             case TITLE:
                 var1 = var3;
@@ -1593,7 +1597,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
                 this.minecraft.gui.setOverlayMessage(var3, false);
                 return;
             case RESET:
-                this.minecraft.gui.setTitles("", "", -1, -1, -1);
+                this.minecraft.gui.setTitles(null, null, -1, -1, -1);
                 this.minecraft.gui.resetTitleTimes();
                 return;
         }
@@ -1603,8 +1607,8 @@ public class ClientPacketListener implements ClientGamePacketListener {
 
     @Override
     public void handleTabListCustomisation(ClientboundTabListPacket param0) {
-        this.minecraft.gui.getTabList().setHeader(param0.getHeader().getColoredString().isEmpty() ? null : param0.getHeader());
-        this.minecraft.gui.getTabList().setFooter(param0.getFooter().getColoredString().isEmpty() ? null : param0.getFooter());
+        this.minecraft.gui.getTabList().setHeader(param0.getHeader().getString().isEmpty() ? null : param0.getHeader());
+        this.minecraft.gui.getTabList().setFooter(param0.getFooter().getString().isEmpty() ? null : param0.getFooter());
     }
 
     @Override

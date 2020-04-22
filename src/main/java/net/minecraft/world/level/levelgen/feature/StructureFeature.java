@@ -40,7 +40,7 @@ public abstract class StructureFeature<C extends FeatureConfiguration> extends F
     public boolean place(
         LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<? extends ChunkGeneratorSettings> param2, Random param3, BlockPos param4, C param5
     ) {
-        if (!param0.getLevelData().isGenerateMapFeatures()) {
+        if (!param0.getLevelData().shouldGenerateMapFeatures()) {
             return false;
         } else {
             int var0 = param4.getX() >> 4;
@@ -74,7 +74,7 @@ public abstract class StructureFeature<C extends FeatureConfiguration> extends F
     public BlockPos getNearestGeneratedFeature(
         ServerLevel param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, BlockPos param2, int param3, boolean param4
     ) {
-        if (!param1.getBiomeSource().canGenerateStructure(this)) {
+        if (!param1.canGenerateStructure(this)) {
             return null;
         } else {
             StructureFeatureManager var0 = param0.structureFeatureManager();

@@ -35,11 +35,11 @@ public class MsgCommand {
     private static int sendMessage(CommandSourceStack param0, Collection<ServerPlayer> param1, Component param2) {
         for(ServerPlayer var0 : param1) {
             var0.sendMessage(
-                new TranslatableComponent("commands.message.display.incoming", param0.getDisplayName(), param2.deepCopy())
+                new TranslatableComponent("commands.message.display.incoming", param0.getDisplayName(), param2)
                     .withStyle(new ChatFormatting[]{ChatFormatting.GRAY, ChatFormatting.ITALIC})
             );
             param0.sendSuccess(
-                new TranslatableComponent("commands.message.display.outgoing", var0.getDisplayName(), param2.deepCopy())
+                new TranslatableComponent("commands.message.display.outgoing", var0.getDisplayName(), param2)
                     .withStyle(new ChatFormatting[]{ChatFormatting.GRAY, ChatFormatting.ITALIC}),
                 false
             );

@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.material.MaterialColor;
@@ -135,7 +136,7 @@ public class MapRenderer implements AutoCloseable {
                     param0.popPose();
                     if (var6.getName() != null) {
                         Font var15 = Minecraft.getInstance().font;
-                        String var16 = var6.getName().getColoredString();
+                        Component var16 = var6.getName();
                         float var17 = (float)var15.width(var16);
                         float var18 = Mth.clamp(25.0F / var17, 0.0F, 6.0F / 9.0F);
                         param0.pushPose();

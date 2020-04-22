@@ -134,22 +134,19 @@ public class Pig extends Animal implements ItemSteerable, Saddleable {
 
     @Override
     public boolean mobInteract(Player param0, InteractionHand param1) {
-        if (super.mobInteract(param0, param1)) {
-            return true;
-        } else {
-            ItemStack var0 = param0.getItemInHand(param1);
-            if (var0.getItem() == Items.NAME_TAG) {
-                var0.interactEnemy(param0, this, param1);
-                return true;
-            } else if (this.isSaddled() && !this.isVehicle()) {
+        if (!super.mobInteract(param0, param1)) {
+            if (this.isSaddled() && !this.isVehicle()) {
                 if (!this.level.isClientSide) {
                     param0.startRiding(this);
                 }
 
                 return true;
             } else {
+                ItemStack var0 = param0.getItemInHand(param1);
                 return var0.getItem() == Items.SADDLE && var0.interactEnemy(param0, this, param1);
             }
+        } else {
+            return true;
         }
     }
 

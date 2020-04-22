@@ -1,5 +1,6 @@
 package net.minecraft.client.gui.screens.advancements;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.world.item.ItemStack;
@@ -31,18 +32,18 @@ enum AdvancementTabType {
         return this.max;
     }
 
-    public void draw(GuiComponent param0, int param1, int param2, boolean param3, int param4) {
+    public void draw(PoseStack param0, GuiComponent param1, int param2, int param3, boolean param4, int param5) {
         int var0 = this.textureX;
-        if (param4 > 0) {
+        if (param5 > 0) {
             var0 += this.width;
         }
 
-        if (param4 == this.max - 1) {
+        if (param5 == this.max - 1) {
             var0 += this.width;
         }
 
-        int var1 = param3 ? this.textureY + this.height : this.textureY;
-        param0.blit(param1 + this.getX(param4), param2 + this.getY(param4), var0, var1, this.width, this.height);
+        int var1 = param4 ? this.textureY + this.height : this.textureY;
+        param1.blit(param0, param2 + this.getX(param5), param3 + this.getY(param5), var0, var1, this.width, this.height);
     }
 
     public void drawIcon(int param0, int param1, int param2, ItemRenderer param3, ItemStack param4) {

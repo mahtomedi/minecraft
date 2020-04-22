@@ -46,7 +46,7 @@ public class ChunkStatus {
         ChunkStatus.ChunkType.PROTOCHUNK,
         (param0, param1, param2, param3, param4, param5, param6, param7) -> {
             if (!param7.getStatus().isOrAfter(param0)) {
-                if (param1.getLevelData().isGenerateMapFeatures()) {
+                if (param1.getLevelData().shouldGenerateMapFeatures()) {
                     param2.createStructures(
                         param1.structureFeatureManager(), param1.getBiomeManager().withDifferentSource(param2.getBiomeSource()), param7, param2, param3
                     );

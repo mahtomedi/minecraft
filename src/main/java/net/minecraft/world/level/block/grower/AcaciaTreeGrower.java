@@ -10,7 +10,7 @@ import net.minecraft.world.level.levelgen.feature.configurations.TreeConfigurati
 public class AcaciaTreeGrower extends AbstractTreeGrower {
     @Nullable
     @Override
-    protected ConfiguredFeature<? extends TreeConfiguration, ?> getConfiguredFeature(Random param0, boolean param1) {
-        return Feature.NORMAL_TREE.configured(BiomeDefaultFeatures.ACACIA_TREE_CONFIG);
+    protected ConfiguredFeature<TreeConfiguration, ?> getConfiguredFeature(Random param0, boolean param1) {
+        return Feature.TREE.configured(BiomeDefaultFeatures.ACACIA_TREE_CONFIG);
     }
 }

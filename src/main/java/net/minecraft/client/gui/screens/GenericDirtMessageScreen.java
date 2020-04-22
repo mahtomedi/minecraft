@@ -1,5 +1,6 @@
 package net.minecraft.client.gui.screens;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -16,9 +17,9 @@ public class GenericDirtMessageScreen extends Screen {
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
+    public void render(PoseStack param0, int param1, int param2, float param3) {
         this.renderDirtBackground(0);
-        this.drawCenteredString(this.font, this.title.getColoredString(), this.width / 2, 70, 16777215);
-        super.render(param0, param1, param2);
+        this.drawCenteredString(param0, this.font, this.title, this.width / 2, 70, 16777215);
+        super.render(param0, param1, param2, param3);
     }
 }

@@ -1,6 +1,7 @@
 package net.minecraft.client.gui.screens.inventory;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -28,37 +29,37 @@ public class StonecutterScreen extends AbstractContainerScreen<StonecutterMenu> 
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
-        super.render(param0, param1, param2);
-        this.renderTooltip(param0, param1);
+    public void render(PoseStack param0, int param1, int param2, float param3) {
+        super.render(param0, param1, param2, param3);
+        this.renderTooltip(param0, param1, param2);
     }
 
     @Override
-    protected void renderLabels(int param0, int param1) {
-        this.font.draw(this.title.getColoredString(), 8.0F, 4.0F, 4210752);
-        this.font.draw(this.inventory.getDisplayName().getColoredString(), 8.0F, (float)(this.imageHeight - 94), 4210752);
+    protected void renderLabels(PoseStack param0, int param1, int param2) {
+        this.font.draw(param0, this.title, 8.0F, 4.0F, 4210752);
+        this.font.draw(param0, this.inventory.getDisplayName(), 8.0F, (float)(this.imageHeight - 94), 4210752);
     }
 
     @Override
-    protected void renderBg(float param0, int param1, int param2) {
-        this.renderBackground();
+    protected void renderBg(PoseStack param0, float param1, int param2, int param3) {
+        this.renderBackground(param0);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.minecraft.getTextureManager().bind(BG_LOCATION);
         int var0 = this.leftPos;
         int var1 = this.topPos;
-        this.blit(var0, var1, 0, 0, this.imageWidth, this.imageHeight);
+        this.blit(param0, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
         int var2 = (int)(41.0F * this.scrollOffs);
-        this.blit(var0 + 119, var1 + 15 + var2, 176 + (this.isScrollBarActive() ? 0 : 12), 0, 12, 15);
+        this.blit(param0, var0 + 119, var1 + 15 + var2, 176 + (this.isScrollBarActive() ? 0 : 12), 0, 12, 15);
         int var3 = this.leftPos + 52;
         int var4 = this.topPos + 14;
         int var5 = this.startIndex + 12;
-        this.renderButtons(param1, param2, var3, var4, var5);
+        this.renderButtons(param0, param2, param3, var3, var4, var5);
         this.renderRecipes(var3, var4, var5);
     }
 
     @Override
-    protected void renderTooltip(int param0, int param1) {
-        super.renderTooltip(param0, param1);
+    protected void renderTooltip(PoseStack param0, int param1, int param2) {
+        super.renderTooltip(param0, param1, param2);
         if (this.displayRecipes) {
             int var0 = this.leftPos + 52;
             int var1 = this.topPos + 14;
@@ -69,28 +70,28 @@ public class StonecutterScreen extends AbstractContainerScreen<StonecutterMenu> 
                 int var5 = var4 - this.startIndex;
                 int var6 = var0 + var5 % 4 * 16;
                 int var7 = var1 + var5 / 4 * 18 + 2;
-                if (param0 >= var6 && param0 < var6 + 16 && param1 >= var7 && param1 < var7 + 18) {
-                    this.renderTooltip(var3.get(var4).getResultItem(), param0, param1);
+                if (param1 >= var6 && param1 < var6 + 16 && param2 >= var7 && param2 < var7 + 18) {
+                    this.renderTooltip(param0, var3.get(var4).getResultItem(), param1, param2);
                 }
             }
         }
 
     }
 
-    private void renderButtons(int param0, int param1, int param2, int param3, int param4) {
-        for(int var0 = this.startIndex; var0 < param4 && var0 < this.menu.getNumRecipes(); ++var0) {
+    private void renderButtons(PoseStack param0, int param1, int param2, int param3, int param4, int param5) {
+        for(int var0 = this.startIndex; var0 < param5 && var0 < this.menu.getNumRecipes(); ++var0) {
             int var1 = var0 - this.startIndex;
-            int var2 = param2 + var1 % 4 * 16;
+            int var2 = param3 + var1 % 4 * 16;
             int var3 = var1 / 4;
-            int var4 = param3 + var3 * 18 + 2;
+            int var4 = param4 + var3 * 18 + 2;
             int var5 = this.imageHeight;
             if (var0 == this.menu.getSelectedRecipeIndex()) {
                 var5 += 18;
-            } else if (param0 >= var2 && param1 >= var4 && param0 < var2 + 16 && param1 < var4 + 18) {
+            } else if (param1 >= var2 && param2 >= var4 && param1 < var2 + 16 && param2 < var4 + 18) {
                 var5 += 36;
             }
 
-            this.blit(var2, var4 - 1, 0, var5, 16, 18);
+            this.blit(param0, var2, var4 - 1, 0, var5, 16, 18);
         }
 
     }

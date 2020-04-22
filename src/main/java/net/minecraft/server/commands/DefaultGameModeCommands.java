@@ -25,7 +25,7 @@ public class DefaultGameModeCommands {
     private static int setMode(CommandSourceStack param0, GameType param1) {
         int var0 = 0;
         MinecraftServer var1 = param0.getServer();
-        var1.setDefaultGameMode(param1);
+        var1.setDefaultGameType(param1);
         if (var1.getForceGameType()) {
             for(ServerPlayer var2 : var1.getPlayerList().getPlayers()) {
                 if (var2.gameMode.getGameModeForPlayer() != param1) {

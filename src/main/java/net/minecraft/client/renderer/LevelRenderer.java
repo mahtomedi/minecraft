@@ -56,7 +56,6 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
-import net.minecraft.client.renderer.chunk.VisGraph;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.TextureAtlas;
@@ -102,7 +101,6 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.border.WorldBorder;
-import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.FluidState;
@@ -749,32 +747,15 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             this.needsUpdate = false;
             this.renderChunks.clear();
             Queue<LevelRenderer.RenderChunkInfo> var10 = Queues.newArrayDeque();
-            Entity.setViewScale(Mth.clamp((double)this.minecraft.options.renderDistance / 8.0, 1.0, 2.5));
+            Entity.setViewScale(Mth.clamp((double)this.minecraft.options.renderDistance / 8.0, 1.0, 2.5) * (double)this.minecraft.options.entityDistanceScaling);
             boolean var11 = this.minecraft.smartCull;
             if (var5 != null) {
-                boolean var19 = false;
-                LevelRenderer.RenderChunkInfo var20 = new LevelRenderer.RenderChunkInfo(var5, null, 0);
-                Set<Direction> var21 = this.getVisibleDirections(var4);
-                if (var21.size() == 1) {
-                    Vector3f var22 = param0.getLookVector();
-                    Direction var23 = Direction.getNearest(var22.x(), var22.y(), var22.z()).getOpposite();
-                    var21.remove(var23);
+                if (param4 && this.level.getBlockState(var4).isSolidRender(this.level, var4)) {
+                    var11 = false;
                 }
 
-                if (var21.isEmpty()) {
-                    var19 = true;
-                }
-
-                if (var19 && !param4) {
-                    this.renderChunks.add(var20);
-                } else {
-                    if (param4 && this.level.getBlockState(var4).isSolidRender(this.level, var4)) {
-                        var11 = false;
-                    }
-
-                    var5.setFrame(param3);
-                    var10.add(var20);
-                }
+                var5.setFrame(param3);
+                var10.add(new LevelRenderer.RenderChunkInfo(var5, null, 0));
             } else {
                 int var12 = var4.getY() > 0 ? 248 : 8;
                 int var13 = Mth.floor(var0.x / 16.0) * 16;
@@ -799,22 +780,22 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             this.minecraft.getProfiler().push("iteration");
 
             while(!var10.isEmpty()) {
-                LevelRenderer.RenderChunkInfo var24 = var10.poll();
-                ChunkRenderDispatcher.RenderChunk var25 = var24.chunk;
-                Direction var26 = var24.sourceDirection;
-                this.renderChunks.add(var24);
+                LevelRenderer.RenderChunkInfo var19 = var10.poll();
+                ChunkRenderDispatcher.RenderChunk var20 = var19.chunk;
+                Direction var21 = var19.sourceDirection;
+                this.renderChunks.add(var19);
 
-                for(Direction var27 : DIRECTIONS) {
-                    ChunkRenderDispatcher.RenderChunk var28 = this.getRelativeFrom(var7, var25, var27);
-                    if ((!var11 || !var24.hasDirection(var27.getOpposite()))
-                        && (!var11 || var26 == null || var25.getCompiledChunk().facesCanSeeEachother(var26.getOpposite(), var27))
-                        && var28 != null
-                        && var28.hasAllNeighbors()
-                        && var28.setFrame(param3)
-                        && param1.isVisible(var28.bb)) {
-                        LevelRenderer.RenderChunkInfo var29 = new LevelRenderer.RenderChunkInfo(var28, var27, var24.step + 1);
-                        var29.setDirections(var24.directions, var27);
-                        var10.add(var29);
+                for(Direction var22 : DIRECTIONS) {
+                    ChunkRenderDispatcher.RenderChunk var23 = this.getRelativeFrom(var7, var20, var22);
+                    if ((!var11 || !var19.hasDirection(var22.getOpposite()))
+                        && (!var11 || var21 == null || var20.getCompiledChunk().facesCanSeeEachother(var21.getOpposite(), var22))
+                        && var23 != null
+                        && var23.hasAllNeighbors()
+                        && var23.setFrame(param3)
+                        && param1.isVisible(var23.bb)) {
+                        LevelRenderer.RenderChunkInfo var24 = new LevelRenderer.RenderChunkInfo(var23, var22, var19.step + 1);
+                        var24.setDirections(var19.directions, var22);
+                        var10.add(var24);
                     }
                 }
             }
@@ -823,42 +804,28 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         }
 
         this.minecraft.getProfiler().popPush("rebuildNear");
-        Set<ChunkRenderDispatcher.RenderChunk> var30 = this.chunksToCompile;
+        Set<ChunkRenderDispatcher.RenderChunk> var25 = this.chunksToCompile;
         this.chunksToCompile = Sets.newLinkedHashSet();
 
-        for(LevelRenderer.RenderChunkInfo var31 : this.renderChunks) {
-            ChunkRenderDispatcher.RenderChunk var32 = var31.chunk;
-            if (var32.isDirty() || var30.contains(var32)) {
+        for(LevelRenderer.RenderChunkInfo var26 : this.renderChunks) {
+            ChunkRenderDispatcher.RenderChunk var27 = var26.chunk;
+            if (var27.isDirty() || var25.contains(var27)) {
                 this.needsUpdate = true;
-                BlockPos var33 = var32.getOrigin().offset(8, 8, 8);
-                boolean var34 = var33.distSqr(var4) < 768.0;
-                if (!var32.isDirtyFromPlayer() && !var34) {
-                    this.chunksToCompile.add(var32);
+                BlockPos var28 = var27.getOrigin().offset(8, 8, 8);
+                boolean var29 = var28.distSqr(var4) < 768.0;
+                if (!var27.isDirtyFromPlayer() && !var29) {
+                    this.chunksToCompile.add(var27);
                 } else {
                     this.minecraft.getProfiler().push("build near");
-                    this.chunkRenderDispatcher.rebuildChunkSync(var32);
-                    var32.setNotDirty();
+                    this.chunkRenderDispatcher.rebuildChunkSync(var27);
+                    var27.setNotDirty();
                     this.minecraft.getProfiler().pop();
                 }
             }
         }
 
-        this.chunksToCompile.addAll(var30);
+        this.chunksToCompile.addAll(var25);
         this.minecraft.getProfiler().pop();
-    }
-
-    private Set<Direction> getVisibleDirections(BlockPos param0) {
-        VisGraph var0 = new VisGraph();
-        BlockPos var1 = new BlockPos(param0.getX() >> 4 << 4, param0.getY() >> 4 << 4, param0.getZ() >> 4 << 4);
-        LevelChunk var2 = this.level.getChunkAt(var1);
-
-        for(BlockPos var3 : BlockPos.betweenClosed(var1, var1.offset(15, 15, 15))) {
-            if (var2.getBlockState(var3).isSolidRender(this.level, var3)) {
-                var0.setOpaque(var3);
-            }
-        }
-
-        return var0.floodFill(param0);
     }
 
     @Nullable
@@ -2304,7 +2271,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         if (param0 != null) {
             RecordItem var1 = RecordItem.getBySound(param0);
             if (var1 != null) {
-                this.minecraft.gui.setNowPlaying(var1.getDisplayName().getColoredString());
+                this.minecraft.gui.setNowPlaying(var1.getDisplayName());
             }
 
             SoundInstance var5 = SimpleSoundInstance.forRecord(param0, (float)param1.getX(), (float)param1.getY(), (float)param1.getZ());

@@ -10,14 +10,13 @@ import net.minecraft.world.level.levelgen.feature.configurations.TreeConfigurati
 public class SpruceTreeGrower extends AbstractMegaTreeGrower {
     @Nullable
     @Override
-    protected ConfiguredFeature<? extends TreeConfiguration, ?> getConfiguredFeature(Random param0, boolean param1) {
-        return Feature.NORMAL_TREE.configured(BiomeDefaultFeatures.SPRUCE_TREE_CONFIG);
+    protected ConfiguredFeature<TreeConfiguration, ?> getConfiguredFeature(Random param0, boolean param1) {
+        return Feature.TREE.configured(BiomeDefaultFeatures.SPRUCE_TREE_CONFIG);
     }
 
     @Nullable
     @Override
-    protected ConfiguredFeature<? extends TreeConfiguration, ?> getConfiguredMegaFeature(Random param0) {
-        return Feature.MEGA_SPRUCE_TREE
-            .configured(param0.nextBoolean() ? BiomeDefaultFeatures.MEGA_SPRUCE_TREE_CONFIG : BiomeDefaultFeatures.MEGA_PINE_TREE_CONFIG);
+    protected ConfiguredFeature<TreeConfiguration, ?> getConfiguredMegaFeature(Random param0) {
+        return Feature.TREE.configured(param0.nextBoolean() ? BiomeDefaultFeatures.MEGA_SPRUCE_TREE_CONFIG : BiomeDefaultFeatures.MEGA_PINE_TREE_CONFIG);
     }
 }

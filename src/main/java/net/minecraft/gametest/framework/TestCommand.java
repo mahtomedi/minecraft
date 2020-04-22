@@ -170,11 +170,11 @@ public class TestCommand {
             String var7 = var4.getStructurePath();
             Component var8 = new TextComponent(var6)
                 .setStyle(
-                    new Style()
-                        .setBold(true)
-                        .setColor(ChatFormatting.GREEN)
-                        .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent("Click to copy to clipboard")))
-                        .setClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, "final BlockPos " + param1 + " = new BlockPos(" + var6 + ");"))
+                    Style.EMPTY
+                        .withBold(true)
+                        .withColor(ChatFormatting.GREEN)
+                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent("Click to copy to clipboard")))
+                        .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, "final BlockPos " + param1 + " = new BlockPos(" + var6 + ");"))
                 );
             param0.sendSuccess(new TextComponent("Position relative to " + var7 + ": ").append(var8), false);
             DebugPackets.sendGameTestAddMarker(var2, new BlockPos(var1), var6, -2147418368, 10000);

@@ -2,6 +2,7 @@ package net.minecraft.client.gui.components.toasts;
 
 import com.google.common.collect.Queues;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Arrays;
 import java.util.Deque;
 import javax.annotation.Nullable;
@@ -22,11 +23,11 @@ public class ToastComponent extends GuiComponent {
         this.minecraft = param0;
     }
 
-    public void render() {
+    public void render(PoseStack param0) {
         if (!this.minecraft.options.hideGui) {
             for(int var0 = 0; var0 < this.visible.length; ++var0) {
                 ToastComponent.ToastInstance<?> var1 = this.visible[var0];
-                if (var1 != null && var1.render(this.minecraft.getWindow().getGuiScaledWidth(), var0)) {
+                if (var1 != null && var1.render(this.minecraft.getWindow().getGuiScaledWidth(), var0, param0)) {
                     this.visible[var0] = null;
                 }
 
@@ -89,7 +90,7 @@ public class ToastComponent extends GuiComponent {
             return this.visibility == Toast.Visibility.HIDE ? 1.0F - var0 : var0;
         }
 
-        public boolean render(int param0, int param1) {
+        public boolean render(int param0, int param1, PoseStack param2) {
             long var0 = Util.getMillis();
             if (this.animationTime == -1L) {
                 this.animationTime = var0;
@@ -102,7 +103,7 @@ public class ToastComponent extends GuiComponent {
 
             RenderSystem.pushMatrix();
             RenderSystem.translatef((float)param0 - 160.0F * this.getVisibility(var0), (float)(param1 * 32), (float)(800 + param1));
-            Toast.Visibility var1 = this.toast.render(ToastComponent.this, var0 - this.visibleTime);
+            Toast.Visibility var1 = this.toast.render(param2, ToastComponent.this, var0 - this.visibleTime);
             RenderSystem.popMatrix();
             if (var1 != this.visibility) {
                 this.animationTime = var0 - (long)((int)((1.0F - this.getVisibility(var0)) * 600.0F));

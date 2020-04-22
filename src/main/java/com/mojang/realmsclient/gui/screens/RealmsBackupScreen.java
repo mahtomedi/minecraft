@@ -1,6 +1,7 @@
 package com.mojang.realmsclient.gui.screens;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.dto.Backup;
 import com.mojang.realmsclient.dto.RealmsServer;
@@ -17,6 +18,9 @@ import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.realms.NarrationHelper;
 import net.minecraft.realms.RealmsLabel;
 import net.minecraft.realms.RealmsObjectSelectionList;
@@ -85,18 +89,20 @@ public class RealmsBackupScreen extends RealmsScreen {
             }
         }).start();
         this.downloadButton = this.addButton(
-            new Button(this.width - 135, row(1), 120, 20, I18n.get("mco.backup.button.download"), param0 -> this.downloadClicked())
+            new Button(this.width - 135, row(1), 120, 20, new TranslatableComponent("mco.backup.button.download"), param0 -> this.downloadClicked())
         );
         this.restoreButton = this.addButton(
-            new Button(this.width - 135, row(3), 120, 20, I18n.get("mco.backup.button.restore"), param0 -> this.restoreClicked(this.selectedBackup))
+            new Button(
+                this.width - 135, row(3), 120, 20, new TranslatableComponent("mco.backup.button.restore"), param0 -> this.restoreClicked(this.selectedBackup)
+            )
         );
-        this.changesButton = this.addButton(new Button(this.width - 135, row(5), 120, 20, I18n.get("mco.backup.changes.tooltip"), param0 -> {
+        this.changesButton = this.addButton(new Button(this.width - 135, row(5), 120, 20, new TranslatableComponent("mco.backup.changes.tooltip"), param0 -> {
             this.minecraft.setScreen(new RealmsBackupInfoScreen(this, this.backups.get(this.selectedBackup)));
             this.selectedBackup = -1;
         }));
-        this.addButton(new Button(this.width - 100, this.height - 35, 85, 20, I18n.get("gui.back"), param0 -> this.minecraft.setScreen(this.lastScreen)));
+        this.addButton(new Button(this.width - 100, this.height - 35, 85, 20, CommonComponents.GUI_BACK, param0 -> this.minecraft.setScreen(this.lastScreen)));
         this.addWidget(this.backupObjectSelectionList);
-        this.titleLabel = this.addWidget(new RealmsLabel(I18n.get("mco.configure.world.backup"), this.width / 2, 12, 16777215));
+        this.titleLabel = this.addWidget(new RealmsLabel(new TranslatableComponent("mco.configure.world.backup"), this.width / 2, 12, 16777215));
         this.magicalSpecialHackyFocus(this.backupObjectSelectionList);
         this.updateButtonStates();
         this.narrateLabels();
@@ -169,8 +175,8 @@ public class RealmsBackupScreen extends RealmsScreen {
             Date var0 = this.backups.get(param0).lastModifiedDate;
             String var1 = DateFormat.getDateTimeInstance(3, 3).format(var0);
             String var2 = RealmsUtil.convertToAgePresentationFromInstant(var0);
-            String var3 = I18n.get("mco.configure.world.restore.question.line1", var1, var2);
-            String var4 = I18n.get("mco.configure.world.restore.question.line2");
+            Component var3 = new TranslatableComponent("mco.configure.world.restore.question.line1", var1, var2);
+            Component var4 = new TranslatableComponent("mco.configure.world.restore.question.line2");
             this.minecraft.setScreen(new RealmsLongConfirmationScreen(param0x -> {
                 if (param0x) {
                     this.restore();
@@ -185,8 +191,8 @@ public class RealmsBackupScreen extends RealmsScreen {
     }
 
     private void downloadClicked() {
-        String var0 = I18n.get("mco.configure.world.restore.download.question.line1");
-        String var1 = I18n.get("mco.configure.world.restore.download.question.line2");
+        Component var0 = new TranslatableComponent("mco.configure.world.restore.download.question.line1");
+        Component var1 = new TranslatableComponent("mco.configure.world.restore.download.question.line2");
         this.minecraft.setScreen(new RealmsLongConfirmationScreen(param0 -> {
             if (param0) {
                 this.downloadWorldData();
@@ -220,31 +226,31 @@ public class RealmsBackupScreen extends RealmsScreen {
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
+    public void render(PoseStack param0, int param1, int param2, float param3) {
         this.toolTip = null;
-        this.renderBackground();
-        this.backupObjectSelectionList.render(param0, param1, param2);
-        this.titleLabel.render(this);
-        this.font.draw(I18n.get("mco.configure.world.backup"), (float)((this.width - 150) / 2 - 90), 20.0F, 10526880);
+        this.renderBackground(param0);
+        this.backupObjectSelectionList.render(param0, param1, param2, param3);
+        this.titleLabel.render(this, param0);
+        this.font.draw(param0, I18n.get("mco.configure.world.backup"), (float)((this.width - 150) / 2 - 90), 20.0F, 10526880);
         if (this.noBackups) {
-            this.font.draw(I18n.get("mco.backup.nobackups"), 20.0F, (float)(this.height / 2 - 10), 16777215);
+            this.font.draw(param0, I18n.get("mco.backup.nobackups"), 20.0F, (float)(this.height / 2 - 10), 16777215);
         }
 
         this.downloadButton.active = !this.noBackups;
-        super.render(param0, param1, param2);
+        super.render(param0, param1, param2, param3);
         if (this.toolTip != null) {
-            this.renderMousehoverTooltip(this.toolTip, param0, param1);
+            this.renderMousehoverTooltip(param0, this.toolTip, param1, param2);
         }
 
     }
 
-    protected void renderMousehoverTooltip(String param0, int param1, int param2) {
-        if (param0 != null) {
-            int var0 = param1 + 12;
-            int var1 = param2 - 12;
-            int var2 = this.font.width(param0);
-            this.fillGradient(var0 - 3, var1 - 3, var0 + var2 + 3, var1 + 8 + 3, -1073741824, -1073741824);
-            this.font.drawShadow(param0, (float)var0, (float)var1, 16777215);
+    protected void renderMousehoverTooltip(PoseStack param0, String param1, int param2, int param3) {
+        if (param1 != null) {
+            int var0 = param2 + 12;
+            int var1 = param3 - 12;
+            int var2 = this.font.width(param1);
+            this.fillGradient(param0, var0 - 3, var1 - 3, var0 + var2 + 3, var1 + 8 + 3, -1073741824, -1073741824);
+            this.font.drawShadow(param0, param1, (float)var0, (float)var1, 16777215);
         }
     }
 
@@ -274,8 +280,8 @@ public class RealmsBackupScreen extends RealmsScreen {
         }
 
         @Override
-        public void renderBackground() {
-            RealmsBackupScreen.this.renderBackground();
+        public void renderBackground(PoseStack param0) {
+            RealmsBackupScreen.this.renderBackground(param0);
         }
 
         @Override
@@ -353,27 +359,32 @@ public class RealmsBackupScreen extends RealmsScreen {
         }
 
         @Override
-        public void render(int param0, int param1, int param2, int param3, int param4, int param5, int param6, boolean param7, float param8) {
-            this.renderBackupItem(this.backup, param2 - 40, param1, param5, param6);
+        public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
+            this.renderBackupItem(param0, this.backup, param3 - 40, param2, param6, param7);
         }
 
-        private void renderBackupItem(Backup param0, int param1, int param2, int param3, int param4) {
-            int var0 = param0.isUploadedVersion() ? -8388737 : 16777215;
+        private void renderBackupItem(PoseStack param0, Backup param1, int param2, int param3, int param4, int param5) {
+            int var0 = param1.isUploadedVersion() ? -8388737 : 16777215;
             RealmsBackupScreen.this.font
                 .draw(
-                    "Backup (" + RealmsUtil.convertToAgePresentationFromInstant(param0.lastModifiedDate) + ")", (float)(param1 + 40), (float)(param2 + 1), var0
+                    param0,
+                    "Backup (" + RealmsUtil.convertToAgePresentationFromInstant(param1.lastModifiedDate) + ")",
+                    (float)(param2 + 40),
+                    (float)(param3 + 1),
+                    var0
                 );
-            RealmsBackupScreen.this.font.draw(this.getMediumDatePresentation(param0.lastModifiedDate), (float)(param1 + 40), (float)(param2 + 12), 5000268);
+            RealmsBackupScreen.this.font
+                .draw(param0, this.getMediumDatePresentation(param1.lastModifiedDate), (float)(param2 + 40), (float)(param3 + 12), 5000268);
             int var1 = RealmsBackupScreen.this.width - 175;
             int var2 = -3;
             int var3 = var1 - 10;
             int var4 = 0;
             if (!RealmsBackupScreen.this.serverData.expired) {
-                this.drawRestore(var1, param2 + -3, param3, param4);
+                this.drawRestore(param0, var1, param3 + -3, param4, param5);
             }
 
-            if (!param0.changeList.isEmpty()) {
-                this.drawInfo(var3, param2 + 0, param3, param4);
+            if (!param1.changeList.isEmpty()) {
+                this.drawInfo(param0, var3, param3 + 0, param4, param5);
             }
 
         }
@@ -382,19 +393,19 @@ public class RealmsBackupScreen extends RealmsScreen {
             return DateFormat.getDateTimeInstance(3, 3).format(param0);
         }
 
-        private void drawRestore(int param0, int param1, int param2, int param3) {
-            boolean var0 = param2 >= param0
-                && param2 <= param0 + 12
-                && param3 >= param1
-                && param3 <= param1 + 14
-                && param3 < RealmsBackupScreen.this.height - 15
-                && param3 > 32;
+        private void drawRestore(PoseStack param0, int param1, int param2, int param3, int param4) {
+            boolean var0 = param3 >= param1
+                && param3 <= param1 + 12
+                && param4 >= param2
+                && param4 <= param2 + 14
+                && param4 < RealmsBackupScreen.this.height - 15
+                && param4 > 32;
             RealmsBackupScreen.this.minecraft.getTextureManager().bind(RealmsBackupScreen.RESTORE_ICON_LOCATION);
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             RenderSystem.pushMatrix();
             RenderSystem.scalef(0.5F, 0.5F, 0.5F);
             float var1 = var0 ? 28.0F : 0.0F;
-            GuiComponent.blit(param0 * 2, param1 * 2, 0.0F, var1, 23, 28, 23, 56);
+            GuiComponent.blit(param0, param1 * 2, param2 * 2, 0.0F, var1, 23, 28, 23, 56);
             RenderSystem.popMatrix();
             if (var0) {
                 RealmsBackupScreen.this.toolTip = I18n.get("mco.backup.button.restore");
@@ -402,19 +413,19 @@ public class RealmsBackupScreen extends RealmsScreen {
 
         }
 
-        private void drawInfo(int param0, int param1, int param2, int param3) {
-            boolean var0 = param2 >= param0
-                && param2 <= param0 + 8
-                && param3 >= param1
+        private void drawInfo(PoseStack param0, int param1, int param2, int param3, int param4) {
+            boolean var0 = param3 >= param1
                 && param3 <= param1 + 8
-                && param3 < RealmsBackupScreen.this.height - 15
-                && param3 > 32;
+                && param4 >= param2
+                && param4 <= param2 + 8
+                && param4 < RealmsBackupScreen.this.height - 15
+                && param4 > 32;
             RealmsBackupScreen.this.minecraft.getTextureManager().bind(RealmsBackupScreen.PLUS_ICON_LOCATION);
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             RenderSystem.pushMatrix();
             RenderSystem.scalef(0.5F, 0.5F, 0.5F);
             float var1 = var0 ? 15.0F : 0.0F;
-            GuiComponent.blit(param0 * 2, param1 * 2, 0.0F, var1, 15, 15, 15, 30);
+            GuiComponent.blit(param0, param1 * 2, param2 * 2, 0.0F, var1, 15, 15, 15, 30);
             RenderSystem.popMatrix();
             if (var0) {
                 RealmsBackupScreen.this.toolTip = I18n.get("mco.backup.changes.tooltip");

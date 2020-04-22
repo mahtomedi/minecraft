@@ -39,7 +39,7 @@ public class ItemWrittenBookPagesStrictJsonFix extends DataFix {
                                                     try {
                                                         var1x = GsonHelper.fromJson(BlockEntitySignTextStrictJsonFix.GSON, var0x, Component.class, true);
                                                         if (var1x == null) {
-                                                            var1x = new TextComponent("");
+                                                            var1x = TextComponent.EMPTY;
                                                         }
                                                     } catch (JsonParseException var6) {
                                                     }
@@ -65,7 +65,7 @@ public class ItemWrittenBookPagesStrictJsonFix extends DataFix {
                                                     var1x = new TextComponent(var0x);
                                                 }
                                             } else {
-                                                var1x = new TextComponent("");
+                                                var1x = TextComponent.EMPTY;
                                             }
                     
                                             return param0xx.createString(Component.Serializer.toJson(var1x));

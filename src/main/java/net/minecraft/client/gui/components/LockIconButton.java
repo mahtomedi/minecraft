@@ -1,8 +1,10 @@
 package net.minecraft.client.gui.components;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -11,14 +13,18 @@ public class LockIconButton extends Button {
     private boolean locked;
 
     public LockIconButton(int param0, int param1, Button.OnPress param2) {
-        super(param0, param1, 20, 20, I18n.get("narrator.button.difficulty_lock"), param2);
+        super(param0, param1, 20, 20, new TranslatableComponent("narrator.button.difficulty_lock"), param2);
     }
 
     @Override
-    protected String getNarrationMessage() {
-        return super.getNarrationMessage()
-            + ". "
-            + (this.isLocked() ? I18n.get("narrator.button.difficulty_lock.locked") : I18n.get("narrator.button.difficulty_lock.unlocked"));
+    protected MutableComponent createNarrationMessage() {
+        return super.createNarrationMessage()
+            .append(". ")
+            .append(
+                this.isLocked()
+                    ? new TranslatableComponent("narrator.button.difficulty_lock.locked")
+                    : new TranslatableComponent("narrator.button.difficulty_lock.unlocked")
+            );
     }
 
     public boolean isLocked() {
@@ -30,7 +36,7 @@ public class LockIconButton extends Button {
     }
 
     @Override
-    public void renderButton(int param0, int param1, float param2) {
+    public void renderButton(PoseStack param0, int param1, int param2, float param3) {
         Minecraft.getInstance().getTextureManager().bind(Button.WIDGETS_LOCATION);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         LockIconButton.Icon var0;
@@ -42,7 +48,7 @@ public class LockIconButton extends Button {
             var0 = this.locked ? LockIconButton.Icon.LOCKED : LockIconButton.Icon.UNLOCKED;
         }
 
-        this.blit(this.x, this.y, var0.getX(), var0.getY(), this.width, this.height);
+        this.blit(param0, this.x, this.y, var0.getX(), var0.getY(), this.width, this.height);
     }
 
     @OnlyIn(Dist.CLIENT)

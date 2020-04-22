@@ -1,9 +1,12 @@
 package net.minecraft.client.gui.components;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.sounds.SoundManager;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -12,7 +15,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public abstract class AbstractSliderButton extends AbstractWidget {
     protected double value;
 
-    public AbstractSliderButton(int param0, int param1, int param2, int param3, String param4, double param5) {
+    public AbstractSliderButton(int param0, int param1, int param2, int param3, Component param4, double param5) {
         super(param0, param1, param2, param3, param4);
         this.value = param5;
     }
@@ -23,17 +26,17 @@ public abstract class AbstractSliderButton extends AbstractWidget {
     }
 
     @Override
-    protected String getNarrationMessage() {
-        return I18n.get("gui.narrate.slider", this.getMessage());
+    protected MutableComponent createNarrationMessage() {
+        return new TranslatableComponent("gui.narrate.slider", this.getMessage());
     }
 
     @Override
-    protected void renderBg(Minecraft param0, int param1, int param2) {
-        param0.getTextureManager().bind(WIDGETS_LOCATION);
+    protected void renderBg(PoseStack param0, Minecraft param1, int param2, int param3) {
+        param1.getTextureManager().bind(WIDGETS_LOCATION);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         int var0 = (this.isHovered() ? 2 : 1) * 20;
-        this.blit(this.x + (int)(this.value * (double)(this.width - 8)), this.y, 0, 46 + var0, 4, 20);
-        this.blit(this.x + (int)(this.value * (double)(this.width - 8)) + 4, this.y, 196, 46 + var0, 4, 20);
+        this.blit(param0, this.x + (int)(this.value * (double)(this.width - 8)), this.y, 0, 46 + var0, 4, 20);
+        this.blit(param0, this.x + (int)(this.value * (double)(this.width - 8)) + 4, this.y, 196, 46 + var0, 4, 20);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package net.minecraft.client.gui.screens.inventory;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 import net.minecraft.client.gui.screens.recipebook.RecipeUpdateListener;
@@ -47,35 +48,34 @@ public class CraftingScreen extends AbstractContainerScreen<CraftingMenu> implem
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
-        this.renderBackground();
+    public void render(PoseStack param0, int param1, int param2, float param3) {
+        this.renderBackground(param0);
         if (this.recipeBookComponent.isVisible() && this.widthTooNarrow) {
-            this.renderBg(param2, param0, param1);
-            this.recipeBookComponent.render(param0, param1, param2);
+            this.renderBg(param0, param3, param1, param2);
+            this.recipeBookComponent.render(param0, param1, param2, param3);
         } else {
-            this.recipeBookComponent.render(param0, param1, param2);
-            super.render(param0, param1, param2);
-            this.recipeBookComponent.renderGhostRecipe(this.leftPos, this.topPos, true, param2);
+            this.recipeBookComponent.render(param0, param1, param2, param3);
+            super.render(param0, param1, param2, param3);
+            this.recipeBookComponent.renderGhostRecipe(param0, this.leftPos, this.topPos, true, param3);
         }
 
-        this.renderTooltip(param0, param1);
-        this.recipeBookComponent.renderTooltip(this.leftPos, this.topPos, param0, param1);
-        this.magicalSpecialHackyFocus(this.recipeBookComponent);
+        this.renderTooltip(param0, param1, param2);
+        this.recipeBookComponent.renderTooltip(param0, this.leftPos, this.topPos, param1, param2);
     }
 
     @Override
-    protected void renderLabels(int param0, int param1) {
-        this.font.draw(this.title.getColoredString(), 28.0F, 6.0F, 4210752);
-        this.font.draw(this.inventory.getDisplayName().getColoredString(), 8.0F, (float)(this.imageHeight - 96 + 2), 4210752);
+    protected void renderLabels(PoseStack param0, int param1, int param2) {
+        this.font.draw(param0, this.title, 28.0F, 6.0F, 4210752);
+        this.font.draw(param0, this.inventory.getDisplayName(), 8.0F, (float)(this.imageHeight - 96 + 2), 4210752);
     }
 
     @Override
-    protected void renderBg(float param0, int param1, int param2) {
+    protected void renderBg(PoseStack param0, float param1, int param2, int param3) {
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.minecraft.getTextureManager().bind(CRAFTING_TABLE_LOCATION);
         int var0 = this.leftPos;
         int var1 = (this.height - this.imageHeight) / 2;
-        this.blit(var0, var1, 0, 0, this.imageWidth, this.imageHeight);
+        this.blit(param0, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.mojang.realmsclient.gui;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.realms.RealmsObjectSelectionList;
@@ -20,18 +21,18 @@ public abstract class RowButton {
         this.yOffset = param3;
     }
 
-    public void drawForRowAt(int param0, int param1, int param2, int param3) {
-        int var0 = param0 + this.xOffset;
-        int var1 = param1 + this.yOffset;
+    public void drawForRowAt(PoseStack param0, int param1, int param2, int param3, int param4) {
+        int var0 = param1 + this.xOffset;
+        int var1 = param2 + this.yOffset;
         boolean var2 = false;
-        if (param2 >= var0 && param2 <= var0 + this.width && param3 >= var1 && param3 <= var1 + this.height) {
+        if (param3 >= var0 && param3 <= var0 + this.width && param4 >= var1 && param4 <= var1 + this.height) {
             var2 = true;
         }
 
-        this.draw(var0, var1, var2);
+        this.draw(param0, var0, var1, var2);
     }
 
-    protected abstract void draw(int var1, int var2, boolean var3);
+    protected abstract void draw(PoseStack var1, int var2, int var3, boolean var4);
 
     public int getRight() {
         return this.xOffset + this.width;
@@ -43,10 +44,12 @@ public abstract class RowButton {
 
     public abstract void onClick(int var1);
 
-    public static void drawButtonsInRow(List<RowButton> param0, RealmsObjectSelectionList<?> param1, int param2, int param3, int param4, int param5) {
-        for(RowButton var0 : param0) {
-            if (param1.getRowWidth() > var0.getRight()) {
-                var0.drawForRowAt(param2, param3, param4, param5);
+    public static void drawButtonsInRow(
+        PoseStack param0, List<RowButton> param1, RealmsObjectSelectionList<?> param2, int param3, int param4, int param5, int param6
+    ) {
+        for(RowButton var0 : param1) {
+            if (param2.getRowWidth() > var0.getRight()) {
+                var0.drawForRowAt(param0, param3, param4, param5, param6);
             }
         }
 

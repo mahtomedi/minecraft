@@ -1,5 +1,6 @@
 package net.minecraft.client.gui.screens;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -11,9 +12,9 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.multiplayer.ClientHandshakePacketListenerImpl;
 import net.minecraft.client.multiplayer.ServerAddress;
 import net.minecraft.client.multiplayer.ServerData;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.handshake.ClientIntentionPacket;
@@ -138,7 +139,7 @@ public class ConnectScreen extends Screen {
 
     @Override
     protected void init() {
-        this.addButton(new Button(this.width / 2 - 100, this.height / 4 + 120 + 12, 200, 20, I18n.get("gui.cancel"), param0 -> {
+        this.addButton(new Button(this.width / 2 - 100, this.height / 4 + 120 + 12, 200, 20, CommonComponents.GUI_CANCEL, param0 -> {
             this.aborted = true;
             if (this.connection != null) {
                 this.connection.disconnect(new TranslatableComponent("connect.aborted"));
@@ -149,15 +150,15 @@ public class ConnectScreen extends Screen {
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
-        this.renderBackground();
+    public void render(PoseStack param0, int param1, int param2, float param3) {
+        this.renderBackground(param0);
         long var0 = Util.getMillis();
         if (var0 - this.lastNarration > 2000L) {
             this.lastNarration = var0;
             NarratorChatListener.INSTANCE.sayNow(new TranslatableComponent("narrator.joining").getString());
         }
 
-        this.drawCenteredString(this.font, this.status.getColoredString(), this.width / 2, this.height / 2 - 50, 16777215);
-        super.render(param0, param1, param2);
+        this.drawCenteredString(param0, this.font, this.status, this.width / 2, this.height / 2 - 50, 16777215);
+        super.render(param0, param1, param2, param3);
     }
 }

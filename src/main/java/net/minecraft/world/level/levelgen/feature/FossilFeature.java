@@ -59,7 +59,7 @@ public class FossilFeature extends Feature<NoneFeatureConfiguration> {
         Random var0 = param0.getRandom();
         Rotation var1 = Rotation.getRandom(var0);
         int var2 = var0.nextInt(fossils.length);
-        StructureManager var3 = ((ServerLevel)param0.getLevel()).getLevelStorage().getStructureManager();
+        StructureManager var3 = ((ServerLevel)param0.getLevel()).getServer().getStructureManager();
         StructureTemplate var4 = var3.getOrCreate(fossils[var2]);
         StructureTemplate var5 = var3.getOrCreate(fossilsCoal[var2]);
         ChunkPos var6 = new ChunkPos(param4);

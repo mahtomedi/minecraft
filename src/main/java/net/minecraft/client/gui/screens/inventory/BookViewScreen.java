@@ -3,19 +3,21 @@ package net.minecraft.client.gui.screens.inventory;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.ComponentRenderUtils;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -37,7 +39,7 @@ public class BookViewScreen extends Screen {
 
         @Override
         public Component getPageRaw(int param0) {
-            return new TextComponent("");
+            return TextComponent.EMPTY;
         }
     };
     public static final ResourceLocation BOOK_LOCATION = new ResourceLocation("textures/gui/book.png");
@@ -93,7 +95,7 @@ public class BookViewScreen extends Screen {
     }
 
     protected void createMenuControls() {
-        this.addButton(new Button(this.width / 2 - 100, 196, 200, 20, I18n.get("gui.done"), param0 -> this.minecraft.setScreen(null)));
+        this.addButton(new Button(this.width / 2 - 100, 196, 200, 20, CommonComponents.GUI_DONE, param0 -> this.minecraft.setScreen(null)));
     }
 
     protected void createPageControlButtons() {
@@ -148,35 +150,35 @@ public class BookViewScreen extends Screen {
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
-        this.renderBackground();
+    public void render(PoseStack param0, int param1, int param2, float param3) {
+        this.renderBackground(param0);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.minecraft.getTextureManager().bind(BOOK_LOCATION);
         int var0 = (this.width - 192) / 2;
         int var1 = 2;
-        this.blit(var0, 2, 0, 0, 192, 192);
+        this.blit(param0, var0, 2, 0, 0, 192, 192);
         String var2 = I18n.get("book.pageIndicator", this.currentPage + 1, Math.max(this.getNumPages(), 1));
         if (this.cachedPage != this.currentPage) {
             Component var3 = this.bookAccess.getPage(this.currentPage);
-            this.cachedPageComponents = ComponentRenderUtils.wrapComponents(var3, 114, this.font, true, true);
+            this.cachedPageComponents = this.font.getSplitter().splitLines(var3, 114, Style.EMPTY, false);
         }
 
         this.cachedPage = this.currentPage;
         int var4 = this.strWidth(var2);
-        this.font.draw(var2, (float)(var0 - var4 + 192 - 44), 18.0F, 0);
+        this.font.draw(param0, var2, (float)(var0 - var4 + 192 - 44), 18.0F, 0);
         int var5 = Math.min(128 / 9, this.cachedPageComponents.size());
 
         for(int var6 = 0; var6 < var5; ++var6) {
             Component var7 = this.cachedPageComponents.get(var6);
-            this.font.draw(var7.getColoredString(), (float)(var0 + 36), (float)(32 + var6 * 9), 0);
+            this.font.draw(param0, var7, (float)(var0 + 36), (float)(32 + var6 * 9), 0);
         }
 
-        Component var8 = this.getClickedComponentAt((double)param0, (double)param1);
+        Component var8 = this.getClickedComponentAt((double)param1, (double)param2);
         if (var8 != null) {
-            this.renderComponentHoverEffect(var8, param0, param1);
+            this.renderComponentHoverEffect(param0, var8, param1, param2);
         }
 
-        super.render(param0, param1, param2);
+        super.render(param0, param1, param2, param3);
     }
 
     private int strWidth(String param0) {
@@ -232,19 +234,10 @@ public class BookViewScreen extends Screen {
                     int var3 = var1 / 9;
                     if (var3 >= 0 && var3 < this.cachedPageComponents.size()) {
                         Component var4 = this.cachedPageComponents.get(var3);
-                        int var5 = 0;
-
-                        for(Component var6 : var4) {
-                            if (var6 instanceof TextComponent) {
-                                var5 += this.minecraft.font.width(var6.getColoredString());
-                                if (var5 > var0) {
-                                    return var6;
-                                }
-                            }
-                        }
+                        return this.minecraft.font.getSplitter().componentAtWidth(var4, var0);
+                    } else {
+                        return null;
                     }
-
-                    return null;
                 } else {
                     return null;
                 }
@@ -272,7 +265,7 @@ public class BookViewScreen extends Screen {
         Component getPageRaw(int var1);
 
         default Component getPage(int param0) {
-            return (Component)(param0 >= 0 && param0 < this.getPageCount() ? this.getPageRaw(param0) : new TextComponent(""));
+            return param0 >= 0 && param0 < this.getPageCount() ? this.getPageRaw(param0) : TextComponent.EMPTY;
         }
 
         static BookViewScreen.BookAccess fromItem(ItemStack param0) {
@@ -321,7 +314,7 @@ public class BookViewScreen extends Screen {
             CompoundTag var0 = param0.getTag();
             return (List<String>)(var0 != null && WrittenBookItem.makeSureTagIsValid(var0)
                 ? BookViewScreen.convertPages(var0)
-                : ImmutableList.of(new TranslatableComponent("book.invalid.tag").withStyle(ChatFormatting.DARK_RED).getColoredString()));
+                : ImmutableList.of(Component.Serializer.toJson(new TranslatableComponent("book.invalid.tag").withStyle(ChatFormatting.DARK_RED))));
         }
 
         @Override

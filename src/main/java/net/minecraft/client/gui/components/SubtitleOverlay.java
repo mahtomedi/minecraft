@@ -2,6 +2,7 @@ package net.minecraft.client.gui.components;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Iterator;
 import java.util.List;
 import net.minecraft.Util;
@@ -10,6 +11,7 @@ import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.sounds.SoundEventListener;
 import net.minecraft.client.sounds.WeighedSoundEvents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -25,7 +27,7 @@ public class SubtitleOverlay extends GuiComponent implements SoundEventListener 
         this.minecraft = param0;
     }
 
-    public void render() {
+    public void render(PoseStack param0) {
         if (!this.isListening && this.minecraft.options.showSubtitles) {
             this.minecraft.getSoundManager().addListener(this);
             this.isListening = true;
@@ -63,7 +65,7 @@ public class SubtitleOverlay extends GuiComponent implements SoundEventListener 
 
             for(SubtitleOverlay.Subtitle var8 : this.subtitles) {
                 int var9 = 255;
-                String var10 = var8.getText();
+                Component var10 = var8.getText();
                 Vec3 var11 = var8.getLocation().subtract(var0).normalize();
                 double var12 = -var3.dot(var11);
                 double var13 = -var1.dot(var11);
@@ -82,17 +84,17 @@ public class SubtitleOverlay extends GuiComponent implements SoundEventListener 
                     0.0F
                 );
                 RenderSystem.scalef(1.0F, 1.0F, 1.0F);
-                fill(-var15 - 1, -var17 - 1, var15 + 1, var17 + 1, this.minecraft.options.getBackgroundColor(0.8F));
+                fill(param0, -var15 - 1, -var17 - 1, var15 + 1, var17 + 1, this.minecraft.options.getBackgroundColor(0.8F));
                 RenderSystem.enableBlend();
                 if (!var14) {
                     if (var12 > 0.0) {
-                        this.minecraft.font.draw(">", (float)(var15 - this.minecraft.font.width(">")), (float)(-var17), var21 + -16777216);
+                        this.minecraft.font.draw(param0, ">", (float)(var15 - this.minecraft.font.width(">")), (float)(-var17), var21 + -16777216);
                     } else if (var12 < 0.0) {
-                        this.minecraft.font.draw("<", (float)(-var15), (float)(-var17), var21 + -16777216);
+                        this.minecraft.font.draw(param0, "<", (float)(-var15), (float)(-var17), var21 + -16777216);
                     }
                 }
 
-                this.minecraft.font.draw(var10, (float)(-var19 / 2), (float)(-var17), var21 + -16777216);
+                this.minecraft.font.draw(param0, var10, (float)(-var19 / 2), (float)(-var17), var21 + -16777216);
                 RenderSystem.popMatrix();
                 ++var4;
             }
@@ -105,7 +107,7 @@ public class SubtitleOverlay extends GuiComponent implements SoundEventListener 
     @Override
     public void onPlaySound(SoundInstance param0, WeighedSoundEvents param1) {
         if (param1.getSubtitle() != null) {
-            String var0 = param1.getSubtitle().getColoredString();
+            Component var0 = param1.getSubtitle();
             if (!this.subtitles.isEmpty()) {
                 for(SubtitleOverlay.Subtitle var1 : this.subtitles) {
                     if (var1.getText().equals(var0)) {
@@ -121,17 +123,17 @@ public class SubtitleOverlay extends GuiComponent implements SoundEventListener 
 
     @OnlyIn(Dist.CLIENT)
     public class Subtitle {
-        private final String text;
+        private final Component text;
         private long time;
         private Vec3 location;
 
-        public Subtitle(String param1, Vec3 param2) {
+        public Subtitle(Component param1, Vec3 param2) {
             this.text = param1;
             this.location = param2;
             this.time = Util.getMillis();
         }
 
-        public String getText() {
+        public Component getText() {
             return this.text;
         }
 

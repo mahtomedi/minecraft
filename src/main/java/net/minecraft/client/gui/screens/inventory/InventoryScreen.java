@@ -67,37 +67,36 @@ public class InventoryScreen extends EffectRenderingInventoryScreen<InventoryMen
     }
 
     @Override
-    protected void renderLabels(int param0, int param1) {
-        this.font.draw(this.title.getColoredString(), 97.0F, 8.0F, 4210752);
+    protected void renderLabels(PoseStack param0, int param1, int param2) {
+        this.font.draw(param0, this.title, 97.0F, 8.0F, 4210752);
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
-        this.renderBackground();
+    public void render(PoseStack param0, int param1, int param2, float param3) {
+        this.renderBackground(param0);
         this.doRenderEffects = !this.recipeBookComponent.isVisible();
         if (this.recipeBookComponent.isVisible() && this.widthTooNarrow) {
-            this.renderBg(param2, param0, param1);
-            this.recipeBookComponent.render(param0, param1, param2);
+            this.renderBg(param0, param3, param1, param2);
+            this.recipeBookComponent.render(param0, param1, param2, param3);
         } else {
-            this.recipeBookComponent.render(param0, param1, param2);
-            super.render(param0, param1, param2);
-            this.recipeBookComponent.renderGhostRecipe(this.leftPos, this.topPos, false, param2);
+            this.recipeBookComponent.render(param0, param1, param2, param3);
+            super.render(param0, param1, param2, param3);
+            this.recipeBookComponent.renderGhostRecipe(param0, this.leftPos, this.topPos, false, param3);
         }
 
-        this.renderTooltip(param0, param1);
-        this.recipeBookComponent.renderTooltip(this.leftPos, this.topPos, param0, param1);
-        this.xMouse = (float)param0;
-        this.yMouse = (float)param1;
-        this.magicalSpecialHackyFocus(this.recipeBookComponent);
+        this.renderTooltip(param0, param1, param2);
+        this.recipeBookComponent.renderTooltip(param0, this.leftPos, this.topPos, param1, param2);
+        this.xMouse = (float)param1;
+        this.yMouse = (float)param2;
     }
 
     @Override
-    protected void renderBg(float param0, int param1, int param2) {
+    protected void renderBg(PoseStack param0, float param1, int param2, int param3) {
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.minecraft.getTextureManager().bind(INVENTORY_LOCATION);
         int var0 = this.leftPos;
         int var1 = this.topPos;
-        this.blit(var0, var1, 0, 0, this.imageWidth, this.imageHeight);
+        this.blit(param0, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
         renderEntityInInventory(var0 + 51, var1 + 75, 30, (float)(var0 + 51) - this.xMouse, (float)(var1 + 75 - 50) - this.yMouse, this.minecraft.player);
     }
 

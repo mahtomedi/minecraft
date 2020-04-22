@@ -2,10 +2,12 @@ package net.minecraft.client.gui.components;
 
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBossEventPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.BossEvent;
@@ -22,7 +24,7 @@ public class BossHealthOverlay extends GuiComponent {
         this.minecraft = param0;
     }
 
-    public void render() {
+    public void render(PoseStack param0) {
         if (!this.events.isEmpty()) {
             int var0 = this.minecraft.getWindow().getGuiScaledWidth();
             int var1 = 12;
@@ -31,12 +33,12 @@ public class BossHealthOverlay extends GuiComponent {
                 int var3 = var0 / 2 - 91;
                 RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
                 this.minecraft.getTextureManager().bind(GUI_BARS_LOCATION);
-                this.drawBar(var3, var1, var2);
-                String var5 = var2.getName().getColoredString();
+                this.drawBar(param0, var3, var1, var2);
+                Component var5 = var2.getName();
                 int var6 = this.minecraft.font.width(var5);
                 int var7 = var0 / 2 - var6 / 2;
                 int var8 = var1 - 9;
-                this.minecraft.font.drawShadow(var5, (float)var7, (float)var8, 16777215);
+                this.minecraft.font.drawShadow(param0, var5, (float)var7, (float)var8, 16777215);
                 var1 += 10 + 9;
                 if (var1 >= this.minecraft.getWindow().getGuiScaledHeight() / 3) {
                     break;
@@ -46,17 +48,17 @@ public class BossHealthOverlay extends GuiComponent {
         }
     }
 
-    private void drawBar(int param0, int param1, BossEvent param2) {
-        this.blit(param0, param1, 0, param2.getColor().ordinal() * 5 * 2, 182, 5);
-        if (param2.getOverlay() != BossEvent.BossBarOverlay.PROGRESS) {
-            this.blit(param0, param1, 0, 80 + (param2.getOverlay().ordinal() - 1) * 5 * 2, 182, 5);
+    private void drawBar(PoseStack param0, int param1, int param2, BossEvent param3) {
+        this.blit(param0, param1, param2, 0, param3.getColor().ordinal() * 5 * 2, 182, 5);
+        if (param3.getOverlay() != BossEvent.BossBarOverlay.PROGRESS) {
+            this.blit(param0, param1, param2, 0, 80 + (param3.getOverlay().ordinal() - 1) * 5 * 2, 182, 5);
         }
 
-        int var0 = (int)(param2.getPercent() * 183.0F);
+        int var0 = (int)(param3.getPercent() * 183.0F);
         if (var0 > 0) {
-            this.blit(param0, param1, 0, param2.getColor().ordinal() * 5 * 2 + 5, var0, 5);
-            if (param2.getOverlay() != BossEvent.BossBarOverlay.PROGRESS) {
-                this.blit(param0, param1, 0, 80 + (param2.getOverlay().ordinal() - 1) * 5 * 2 + 5, var0, 5);
+            this.blit(param0, param1, param2, 0, param3.getColor().ordinal() * 5 * 2 + 5, var0, 5);
+            if (param3.getOverlay() != BossEvent.BossBarOverlay.PROGRESS) {
+                this.blit(param0, param1, param2, 0, 80 + (param3.getOverlay().ordinal() - 1) * 5 * 2 + 5, var0, 5);
             }
         }
 

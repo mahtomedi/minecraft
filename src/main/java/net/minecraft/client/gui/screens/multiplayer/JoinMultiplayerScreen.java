@@ -1,7 +1,6 @@
 package net.minecraft.client.gui.screens.multiplayer;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.ConfirmScreen;
@@ -15,6 +14,7 @@ import net.minecraft.client.multiplayer.ServerStatusPinger;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.server.LanServer;
 import net.minecraft.client.server.LanServerDetection;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
@@ -32,7 +32,7 @@ public class JoinMultiplayerScreen extends Screen {
     private Button editButton;
     private Button selectButton;
     private Button deleteButton;
-    private String toolTip;
+    private List<Component> toolTip;
     private ServerData editingServer;
     private LanServerDetection.LanServerList lanServerList;
     private LanServerDetection.LanServerDetector lanServerDetector;
@@ -68,17 +68,17 @@ public class JoinMultiplayerScreen extends Screen {
 
         this.children.add(this.serverSelectionList);
         this.selectButton = this.addButton(
-            new Button(this.width / 2 - 154, this.height - 52, 100, 20, I18n.get("selectServer.select"), param0 -> this.joinSelectedServer())
+            new Button(this.width / 2 - 154, this.height - 52, 100, 20, new TranslatableComponent("selectServer.select"), param0 -> this.joinSelectedServer())
         );
-        this.addButton(new Button(this.width / 2 - 50, this.height - 52, 100, 20, I18n.get("selectServer.direct"), param0 -> {
+        this.addButton(new Button(this.width / 2 - 50, this.height - 52, 100, 20, new TranslatableComponent("selectServer.direct"), param0 -> {
             this.editingServer = new ServerData(I18n.get("selectServer.defaultName"), "", false);
             this.minecraft.setScreen(new DirectJoinServerScreen(this, this::directJoinCallback, this.editingServer));
         }));
-        this.addButton(new Button(this.width / 2 + 4 + 50, this.height - 52, 100, 20, I18n.get("selectServer.add"), param0 -> {
+        this.addButton(new Button(this.width / 2 + 4 + 50, this.height - 52, 100, 20, new TranslatableComponent("selectServer.add"), param0 -> {
             this.editingServer = new ServerData(I18n.get("selectServer.defaultName"), "", false);
             this.minecraft.setScreen(new EditServerScreen(this, this::addServerCallback, this.editingServer));
         }));
-        this.editButton = this.addButton(new Button(this.width / 2 - 154, this.height - 28, 70, 20, I18n.get("selectServer.edit"), param0 -> {
+        this.editButton = this.addButton(new Button(this.width / 2 - 154, this.height - 28, 70, 20, new TranslatableComponent("selectServer.edit"), param0 -> {
             ServerSelectionList.Entry var0x = this.serverSelectionList.getSelected();
             if (var0x instanceof ServerSelectionList.OnlineServerEntry) {
                 ServerData var1 = ((ServerSelectionList.OnlineServerEntry)var0x).getServerData();
@@ -88,23 +88,27 @@ public class JoinMultiplayerScreen extends Screen {
             }
 
         }));
-        this.deleteButton = this.addButton(new Button(this.width / 2 - 74, this.height - 28, 70, 20, I18n.get("selectServer.delete"), param0 -> {
-            ServerSelectionList.Entry var0x = this.serverSelectionList.getSelected();
-            if (var0x instanceof ServerSelectionList.OnlineServerEntry) {
-                String var1 = ((ServerSelectionList.OnlineServerEntry)var0x).getServerData().name;
-                if (var1 != null) {
-                    Component var2x = new TranslatableComponent("selectServer.deleteQuestion");
-                    Component var3 = new TranslatableComponent("selectServer.deleteWarning", var1);
-                    String var4 = I18n.get("selectServer.deleteButton");
-                    String var5 = I18n.get("gui.cancel");
-                    this.minecraft.setScreen(new ConfirmScreen(this::deleteCallback, var2x, var3, var4, var5));
+        this.deleteButton = this.addButton(
+            new Button(this.width / 2 - 74, this.height - 28, 70, 20, new TranslatableComponent("selectServer.delete"), param0 -> {
+                ServerSelectionList.Entry var0x = this.serverSelectionList.getSelected();
+                if (var0x instanceof ServerSelectionList.OnlineServerEntry) {
+                    String var1 = ((ServerSelectionList.OnlineServerEntry)var0x).getServerData().name;
+                    if (var1 != null) {
+                        Component var2x = new TranslatableComponent("selectServer.deleteQuestion");
+                        Component var3 = new TranslatableComponent("selectServer.deleteWarning", var1);
+                        Component var4 = new TranslatableComponent("selectServer.deleteButton");
+                        Component var5 = CommonComponents.GUI_CANCEL;
+                        this.minecraft.setScreen(new ConfirmScreen(this::deleteCallback, var2x, var3, var4, var5));
+                    }
                 }
-            }
-
-        }));
-        this.addButton(new Button(this.width / 2 + 4, this.height - 28, 70, 20, I18n.get("selectServer.refresh"), param0 -> this.refreshServerList()));
+    
+            })
+        );
         this.addButton(
-            new Button(this.width / 2 + 4 + 76, this.height - 28, 75, 20, I18n.get("gui.cancel"), param0 -> this.minecraft.setScreen(this.lastScreen))
+            new Button(this.width / 2 + 4, this.height - 28, 70, 20, new TranslatableComponent("selectServer.refresh"), param0 -> this.refreshServerList())
+        );
+        this.addButton(
+            new Button(this.width / 2 + 4 + 76, this.height - 28, 75, 20, CommonComponents.GUI_CANCEL, param0 -> this.minecraft.setScreen(this.lastScreen))
         );
         this.onSelectedChange();
     }
@@ -202,14 +206,14 @@ public class JoinMultiplayerScreen extends Screen {
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
+    public void render(PoseStack param0, int param1, int param2, float param3) {
         this.toolTip = null;
-        this.renderBackground();
-        this.serverSelectionList.render(param0, param1, param2);
-        this.drawCenteredString(this.font, this.title.getColoredString(), this.width / 2, 20, 16777215);
-        super.render(param0, param1, param2);
+        this.renderBackground(param0);
+        this.serverSelectionList.render(param0, param1, param2, param3);
+        this.drawCenteredString(param0, this.font, this.title, this.width / 2, 20, 16777215);
+        super.render(param0, param1, param2, param3);
         if (this.toolTip != null) {
-            this.renderTooltip(Lists.newArrayList(Splitter.on("\n").split(this.toolTip)), param0, param1);
+            this.renderTooltip(param0, this.toolTip, param1, param2);
         }
 
     }
@@ -253,7 +257,7 @@ public class JoinMultiplayerScreen extends Screen {
         return this.pinger;
     }
 
-    public void setToolTip(String param0) {
+    public void setToolTip(List<Component> param0) {
         this.toolTip = param0;
     }
 

@@ -3,7 +3,7 @@ package com.mojang.blaze3d.platform;
 import com.google.common.base.Charsets;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
-import net.minecraft.SharedConstants;
+import net.minecraft.client.StringDecomposer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.BufferUtils;
@@ -19,7 +19,7 @@ public class ClipboardManager {
     public String getClipboard(long param0, GLFWErrorCallbackI param1) {
         GLFWErrorCallback var0 = GLFW.glfwSetErrorCallback(param1);
         String var1 = GLFW.glfwGetClipboardString(param0);
-        var1 = var1 != null ? SharedConstants.filterUnicodeSupplementary(var1) : "";
+        var1 = var1 != null ? StringDecomposer.filterBrokenSurrogates(var1) : "";
         GLFWErrorCallback var2 = GLFW.glfwSetErrorCallback(var0);
         if (var2 != null) {
             var2.free();

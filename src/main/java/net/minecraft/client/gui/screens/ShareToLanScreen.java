@@ -1,7 +1,9 @@
 package net.minecraft.client.gui.screens;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.HttpUtil;
@@ -24,7 +26,7 @@ public class ShareToLanScreen extends Screen {
 
     @Override
     protected void init() {
-        this.addButton(new Button(this.width / 2 - 155, this.height - 28, 150, 20, I18n.get("lanServer.start"), param0 -> {
+        this.addButton(new Button(this.width / 2 - 155, this.height - 28, 150, 20, new TranslatableComponent("lanServer.start"), param0 -> {
             this.minecraft.setScreen(null);
             int var0 = HttpUtil.getAvailablePort();
             Component var1;
@@ -37,8 +39,10 @@ public class ShareToLanScreen extends Screen {
             this.minecraft.gui.getChat().addMessage(var1);
             this.minecraft.updateTitle();
         }));
-        this.addButton(new Button(this.width / 2 + 5, this.height - 28, 150, 20, I18n.get("gui.cancel"), param0 -> this.minecraft.setScreen(this.lastScreen)));
-        this.modeButton = this.addButton(new Button(this.width / 2 - 155, 100, 150, 20, I18n.get("selectWorld.gameMode"), param0 -> {
+        this.addButton(
+            new Button(this.width / 2 + 5, this.height - 28, 150, 20, CommonComponents.GUI_CANCEL, param0 -> this.minecraft.setScreen(this.lastScreen))
+        );
+        this.modeButton = this.addButton(new Button(this.width / 2 - 155, 100, 150, 20, new TranslatableComponent("selectWorld.gameMode"), param0 -> {
             if ("spectator".equals(this.gameModeName)) {
                 this.gameModeName = "creative";
             } else if ("creative".equals(this.gameModeName)) {
@@ -51,7 +55,7 @@ public class ShareToLanScreen extends Screen {
 
             this.updateSelectionStrings();
         }));
-        this.commandsButton = this.addButton(new Button(this.width / 2 + 5, 100, 150, 20, I18n.get("selectWorld.allowCommands"), param0 -> {
+        this.commandsButton = this.addButton(new Button(this.width / 2 + 5, 100, 150, 20, new TranslatableComponent("selectWorld.allowCommands"), param0 -> {
             this.commands = !this.commands;
             this.updateSelectionStrings();
         }));
@@ -59,15 +63,18 @@ public class ShareToLanScreen extends Screen {
     }
 
     private void updateSelectionStrings() {
-        this.modeButton.setMessage(I18n.get("selectWorld.gameMode") + ": " + I18n.get("selectWorld.gameMode." + this.gameModeName));
-        this.commandsButton.setMessage(I18n.get("selectWorld.allowCommands") + ' ' + I18n.get(this.commands ? "options.on" : "options.off"));
+        this.modeButton
+            .setMessage(
+                new TranslatableComponent("selectWorld.gameMode").append(": ").append(new TranslatableComponent("selectWorld.gameMode." + this.gameModeName))
+            );
+        this.commandsButton.setMessage(new TranslatableComponent("selectWorld.allowCommands").append(" ").append(CommonComponents.optionStatus(this.commands)));
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
-        this.renderBackground();
-        this.drawCenteredString(this.font, this.title.getColoredString(), this.width / 2, 50, 16777215);
-        this.drawCenteredString(this.font, I18n.get("lanServer.otherPlayers"), this.width / 2, 82, 16777215);
-        super.render(param0, param1, param2);
+    public void render(PoseStack param0, int param1, int param2, float param3) {
+        this.renderBackground(param0);
+        this.drawCenteredString(param0, this.font, this.title, this.width / 2, 50, 16777215);
+        this.drawCenteredString(param0, this.font, I18n.get("lanServer.otherPlayers"), this.width / 2, 82, 16777215);
+        super.render(param0, param1, param2, param3);
     }
 }

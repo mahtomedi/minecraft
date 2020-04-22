@@ -343,6 +343,21 @@ public class LocalPlayer extends AbstractClientPlayer {
         return true;
     }
 
+    @Override
+    public boolean isSuppressingSlidingDownLadder() {
+        return !this.abilities.flying && super.isSuppressingSlidingDownLadder();
+    }
+
+    @Override
+    public boolean canSpawnSprintParticle() {
+        return !this.abilities.flying && super.canSpawnSprintParticle();
+    }
+
+    @Override
+    public boolean canSpawnSoulSpeedParticle() {
+        return !this.abilities.flying && super.canSpawnSoulSpeedParticle();
+    }
+
     protected void sendRidingJump() {
         this.connection
             .send(
@@ -675,6 +690,10 @@ public class LocalPlayer extends AbstractClientPlayer {
             this.checkInBlock(this.getX() - (double)this.getBbWidth() * 0.35, this.getY() + 0.5, this.getZ() - (double)this.getBbWidth() * 0.35);
             this.checkInBlock(this.getX() + (double)this.getBbWidth() * 0.35, this.getY() + 0.5, this.getZ() - (double)this.getBbWidth() * 0.35);
             this.checkInBlock(this.getX() + (double)this.getBbWidth() * 0.35, this.getY() + 0.5, this.getZ() + (double)this.getBbWidth() * 0.35);
+        }
+
+        if (var1) {
+            this.sprintTriggerTime = 0;
         }
 
         boolean var4 = (float)this.getFoodData().getFoodLevel() > 6.0F || this.abilities.mayfly;

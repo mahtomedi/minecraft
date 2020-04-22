@@ -2,6 +2,7 @@ package com.mojang.realmsclient.gui.screens;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Either;
 import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.dto.RealmsServer;
@@ -23,6 +24,9 @@ import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.realms.NarrationHelper;
 import net.minecraft.realms.RealmsObjectSelectionList;
 import net.minecraft.realms.RealmsScreen;
@@ -41,7 +45,7 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
     private final RealmsScreenWithCallback lastScreen;
     private RealmsSelectWorldTemplateScreen.WorldTemplateObjectSelectionList worldTemplateObjectSelectionList;
     private int selectedTemplate = -1;
-    private String title;
+    private Component title;
     private Button selectButton;
     private Button trailerButton;
     private Button publisherButton;
@@ -49,7 +53,8 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
     private String currentLink;
     private final RealmsServer.WorldType worldType;
     private int clicks;
-    private String warning;
+    @Nullable
+    private Component[] warning;
     private String warningURL;
     private boolean displayWarning;
     private boolean hoverWarning;
@@ -70,14 +75,14 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
             this.fetchTemplatesAsync(param2);
         }
 
-        this.title = I18n.get("mco.template.title");
+        this.title = new TranslatableComponent("mco.template.title");
     }
 
-    public void setTitle(String param0) {
+    public void setTitle(Component param0) {
         this.title = param0;
     }
 
-    public void setWarning(String param0) {
+    public void setWarning(Component... param0) {
         this.warning = param0;
         this.displayWarning = true;
     }
@@ -99,23 +104,30 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
             this.worldTemplateObjectSelectionList.getTemplates()
         );
         this.trailerButton = this.addButton(
-            new Button(this.width / 2 - 206, this.height - 32, 100, 20, I18n.get("mco.template.button.trailer"), param0 -> this.onTrailer())
+            new Button(this.width / 2 - 206, this.height - 32, 100, 20, new TranslatableComponent("mco.template.button.trailer"), param0 -> this.onTrailer())
         );
         this.selectButton = this.addButton(
-            new Button(this.width / 2 - 100, this.height - 32, 100, 20, I18n.get("mco.template.button.select"), param0 -> this.selectTemplate())
+            new Button(
+                this.width / 2 - 100, this.height - 32, 100, 20, new TranslatableComponent("mco.template.button.select"), param0 -> this.selectTemplate()
+            )
         );
-        String var0 = this.worldType == RealmsServer.WorldType.MINIGAME ? "gui.cancel" : "gui.back";
-        Button var1 = new Button(this.width / 2 + 6, this.height - 32, 100, 20, I18n.get(var0), param0 -> this.backButtonClicked());
+        Component var0 = this.worldType == RealmsServer.WorldType.MINIGAME ? CommonComponents.GUI_CANCEL : CommonComponents.GUI_BACK;
+        Button var1 = new Button(this.width / 2 + 6, this.height - 32, 100, 20, var0, param0 -> this.backButtonClicked());
         this.addButton(var1);
         this.publisherButton = this.addButton(
-            new Button(this.width / 2 + 112, this.height - 32, 100, 20, I18n.get("mco.template.button.publisher"), param0 -> this.onPublish())
+            new Button(this.width / 2 + 112, this.height - 32, 100, 20, new TranslatableComponent("mco.template.button.publisher"), param0 -> this.onPublish())
         );
         this.selectButton.active = false;
         this.trailerButton.visible = false;
         this.publisherButton.visible = false;
         this.addWidget(this.worldTemplateObjectSelectionList);
         this.magicalSpecialHackyFocus(this.worldTemplateObjectSelectionList);
-        NarrationHelper.now(Stream.of(this.title, this.warning).filter(Objects::nonNull).collect(Collectors.toList()));
+        Stream<Component> var2 = Stream.of(this.title);
+        if (this.warning != null) {
+            var2 = Stream.concat(Stream.of(this.warning), var2);
+        }
+
+        NarrationHelper.now(var2.filter(Objects::nonNull).map(Component::getString).collect(Collectors.toList()));
     }
 
     private void updateButtonStates() {
@@ -259,63 +271,63 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
+    public void render(PoseStack param0, int param1, int param2, float param3) {
         this.toolTip = null;
         this.currentLink = null;
         this.hoverWarning = false;
-        this.renderBackground();
-        this.worldTemplateObjectSelectionList.render(param0, param1, param2);
+        this.renderBackground(param0);
+        this.worldTemplateObjectSelectionList.render(param0, param1, param2, param3);
         if (this.noTemplatesMessage != null) {
-            this.renderMultilineMessage(param0, param1, this.noTemplatesMessage);
+            this.renderMultilineMessage(param0, param1, param2, this.noTemplatesMessage);
         }
 
-        this.drawCenteredString(this.font, this.title, this.width / 2, 13, 16777215);
+        this.drawCenteredString(param0, this.font, this.title, this.width / 2, 13, 16777215);
         if (this.displayWarning) {
-            String[] var0 = this.warning.split("\\\\n");
+            Component[] var0 = this.warning;
 
             for(int var1 = 0; var1 < var0.length; ++var1) {
                 int var2 = this.font.width(var0[var1]);
                 int var3 = this.width / 2 - var2 / 2;
                 int var4 = row(-1 + var1);
-                if (param0 >= var3 && param0 <= var3 + var2 && param1 >= var4 && param1 <= var4 + 9) {
+                if (param1 >= var3 && param1 <= var3 + var2 && param2 >= var4 && param2 <= var4 + 9) {
                     this.hoverWarning = true;
                 }
             }
 
             for(int var5 = 0; var5 < var0.length; ++var5) {
-                String var6 = var0[var5];
+                Component var6 = var0[var5];
                 int var7 = 10526880;
                 if (this.warningURL != null) {
                     if (this.hoverWarning) {
                         var7 = 7107012;
-                        var6 = ChatFormatting.STRIKETHROUGH + var6;
+                        var6 = var6.mutableCopy().withStyle(ChatFormatting.STRIKETHROUGH);
                     } else {
                         var7 = 3368635;
                     }
                 }
 
-                this.drawCenteredString(this.font, var6, this.width / 2, row(-1 + var5), var7);
+                this.drawCenteredString(param0, this.font, var6, this.width / 2, row(-1 + var5), var7);
             }
         }
 
-        super.render(param0, param1, param2);
+        super.render(param0, param1, param2, param3);
         if (this.toolTip != null) {
-            this.renderMousehoverTooltip(this.toolTip, param0, param1);
+            this.renderMousehoverTooltip(param0, this.toolTip, param1, param2);
         }
 
     }
 
-    private void renderMultilineMessage(int param0, int param1, List<TextRenderingUtils.Line> param2) {
-        for(int var0 = 0; var0 < param2.size(); ++var0) {
-            TextRenderingUtils.Line var1 = param2.get(var0);
+    private void renderMultilineMessage(PoseStack param0, int param1, int param2, List<TextRenderingUtils.Line> param3) {
+        for(int var0 = 0; var0 < param3.size(); ++var0) {
+            TextRenderingUtils.Line var1 = param3.get(var0);
             int var2 = row(4 + var0);
             int var3 = var1.segments.stream().mapToInt(param0x -> this.font.width(param0x.renderedText())).sum();
             int var4 = this.width / 2 - var3 / 2;
 
             for(TextRenderingUtils.LineSegment var5 : var1.segments) {
                 int var6 = var5.isLink() ? 3368635 : 16777215;
-                int var7 = this.font.drawShadow(var5.renderedText(), (float)var4, (float)var2, var6);
-                if (var5.isLink() && param0 > var4 && param0 < var7 && param1 > var2 - 3 && param1 < var2 + 8) {
+                int var7 = this.font.drawShadow(param0, var5.renderedText(), (float)var4, (float)var2, var6);
+                if (var5.isLink() && param1 > var4 && param1 < var7 && param2 > var2 - 3 && param2 < var2 + 8) {
                     this.toolTip = var5.getLinkUrl();
                     this.currentLink = var5.getLinkUrl();
                 }
@@ -326,13 +338,13 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
 
     }
 
-    protected void renderMousehoverTooltip(String param0, int param1, int param2) {
-        if (param0 != null) {
-            int var0 = param1 + 12;
-            int var1 = param2 - 12;
-            int var2 = this.font.width(param0);
-            this.fillGradient(var0 - 3, var1 - 3, var0 + var2 + 3, var1 + 8 + 3, -1073741824, -1073741824);
-            this.font.drawShadow(param0, (float)var0, (float)var1, 16777215);
+    protected void renderMousehoverTooltip(PoseStack param0, String param1, int param2, int param3) {
+        if (param1 != null) {
+            int var0 = param2 + 12;
+            int var1 = param3 - 12;
+            int var2 = this.font.width(param1);
+            this.fillGradient(param0, var0 - 3, var1 - 3, var0 + var2 + 3, var1 + 8 + 3, -1073741824, -1073741824);
+            this.font.drawShadow(param0, param1, (float)var0, (float)var1, 16777215);
         }
     }
 
@@ -345,84 +357,86 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
         }
 
         @Override
-        public void render(int param0, int param1, int param2, int param3, int param4, int param5, int param6, boolean param7, float param8) {
-            this.renderWorldTemplateItem(this.template, param2, param1, param5, param6);
+        public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
+            this.renderWorldTemplateItem(param0, this.template, param3, param2, param6, param7);
         }
 
-        private void renderWorldTemplateItem(WorldTemplate param0, int param1, int param2, int param3, int param4) {
-            int var0 = param1 + 45 + 20;
-            RealmsSelectWorldTemplateScreen.this.font.draw(param0.name, (float)var0, (float)(param2 + 2), 16777215);
-            RealmsSelectWorldTemplateScreen.this.font.draw(param0.author, (float)var0, (float)(param2 + 15), 7105644);
+        private void renderWorldTemplateItem(PoseStack param0, WorldTemplate param1, int param2, int param3, int param4, int param5) {
+            int var0 = param2 + 45 + 20;
+            RealmsSelectWorldTemplateScreen.this.font.draw(param0, param1.name, (float)var0, (float)(param3 + 2), 16777215);
+            RealmsSelectWorldTemplateScreen.this.font.draw(param0, param1.author, (float)var0, (float)(param3 + 15), 7105644);
             RealmsSelectWorldTemplateScreen.this.font
-                .draw(param0.version, (float)(var0 + 227 - RealmsSelectWorldTemplateScreen.this.font.width(param0.version)), (float)(param2 + 1), 7105644);
-            if (!"".equals(param0.link) || !"".equals(param0.trailer) || !"".equals(param0.recommendedPlayers)) {
-                this.drawIcons(var0 - 1, param2 + 25, param3, param4, param0.link, param0.trailer, param0.recommendedPlayers);
+                .draw(
+                    param0, param1.version, (float)(var0 + 227 - RealmsSelectWorldTemplateScreen.this.font.width(param1.version)), (float)(param3 + 1), 7105644
+                );
+            if (!"".equals(param1.link) || !"".equals(param1.trailer) || !"".equals(param1.recommendedPlayers)) {
+                this.drawIcons(param0, var0 - 1, param3 + 25, param4, param5, param1.link, param1.trailer, param1.recommendedPlayers);
             }
 
-            this.drawImage(param1, param2 + 1, param3, param4, param0);
+            this.drawImage(param0, param2, param3 + 1, param4, param5, param1);
         }
 
-        private void drawImage(int param0, int param1, int param2, int param3, WorldTemplate param4) {
-            RealmsTextureManager.bindWorldTemplate(param4.id, param4.image);
+        private void drawImage(PoseStack param0, int param1, int param2, int param3, int param4, WorldTemplate param5) {
+            RealmsTextureManager.bindWorldTemplate(param5.id, param5.image);
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            GuiComponent.blit(param0 + 1, param1 + 1, 0.0F, 0.0F, 38, 38, 38, 38);
+            GuiComponent.blit(param0, param1 + 1, param2 + 1, 0.0F, 0.0F, 38, 38, 38, 38);
             RealmsSelectWorldTemplateScreen.this.minecraft.getTextureManager().bind(RealmsSelectWorldTemplateScreen.SLOT_FRAME_LOCATION);
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            GuiComponent.blit(param0, param1, 0.0F, 0.0F, 40, 40, 40, 40);
+            GuiComponent.blit(param0, param1, param2, 0.0F, 0.0F, 40, 40, 40, 40);
         }
 
-        private void drawIcons(int param0, int param1, int param2, int param3, String param4, String param5, String param6) {
-            if (!"".equals(param6)) {
-                RealmsSelectWorldTemplateScreen.this.font.draw(param6, (float)param0, (float)(param1 + 4), 5000268);
+        private void drawIcons(PoseStack param0, int param1, int param2, int param3, int param4, String param5, String param6, String param7) {
+            if (!"".equals(param7)) {
+                RealmsSelectWorldTemplateScreen.this.font.draw(param0, param7, (float)param1, (float)(param2 + 4), 5000268);
             }
 
-            int var0 = "".equals(param6) ? 0 : RealmsSelectWorldTemplateScreen.this.font.width(param6) + 2;
+            int var0 = "".equals(param7) ? 0 : RealmsSelectWorldTemplateScreen.this.font.width(param7) + 2;
             boolean var1 = false;
             boolean var2 = false;
-            if (param2 >= param0 + var0
-                && param2 <= param0 + var0 + 32
-                && param3 >= param1
-                && param3 <= param1 + 15
-                && param3 < RealmsSelectWorldTemplateScreen.this.height - 15
-                && param3 > 32) {
-                if (param2 <= param0 + 15 + var0 && param2 > var0) {
-                    if ("".equals(param4)) {
+            if (param3 >= param1 + var0
+                && param3 <= param1 + var0 + 32
+                && param4 >= param2
+                && param4 <= param2 + 15
+                && param4 < RealmsSelectWorldTemplateScreen.this.height - 15
+                && param4 > 32) {
+                if (param3 <= param1 + 15 + var0 && param3 > var0) {
+                    if ("".equals(param5)) {
                         var2 = true;
                     } else {
                         var1 = true;
                     }
-                } else if (!"".equals(param4)) {
+                } else if (!"".equals(param5)) {
                     var2 = true;
                 }
             }
 
-            if (!"".equals(param4)) {
+            if (!"".equals(param5)) {
                 RealmsSelectWorldTemplateScreen.this.minecraft.getTextureManager().bind(RealmsSelectWorldTemplateScreen.LINK_ICON);
                 RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
                 RenderSystem.pushMatrix();
                 RenderSystem.scalef(1.0F, 1.0F, 1.0F);
                 float var3 = var1 ? 15.0F : 0.0F;
-                GuiComponent.blit(param0 + var0, param1, var3, 0.0F, 15, 15, 30, 15);
+                GuiComponent.blit(param0, param1 + var0, param2, var3, 0.0F, 15, 15, 30, 15);
                 RenderSystem.popMatrix();
             }
 
-            if (!"".equals(param5)) {
+            if (!"".equals(param6)) {
                 RealmsSelectWorldTemplateScreen.this.minecraft.getTextureManager().bind(RealmsSelectWorldTemplateScreen.TRAILER_ICON);
                 RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
                 RenderSystem.pushMatrix();
                 RenderSystem.scalef(1.0F, 1.0F, 1.0F);
-                int var4 = param0 + var0 + ("".equals(param4) ? 0 : 17);
+                int var4 = param1 + var0 + ("".equals(param5) ? 0 : 17);
                 float var5 = var2 ? 15.0F : 0.0F;
-                GuiComponent.blit(var4, param1, var5, 0.0F, 15, 15, 30, 15);
+                GuiComponent.blit(param0, var4, param2, var5, 0.0F, 15, 15, 30, 15);
                 RenderSystem.popMatrix();
             }
 
-            if (var1 && !"".equals(param4)) {
+            if (var1 && !"".equals(param5)) {
                 RealmsSelectWorldTemplateScreen.this.toolTip = I18n.get("mco.template.info.tooltip");
-                RealmsSelectWorldTemplateScreen.this.currentLink = param4;
-            } else if (var2 && !"".equals(param5)) {
-                RealmsSelectWorldTemplateScreen.this.toolTip = I18n.get("mco.template.trailer.tooltip");
                 RealmsSelectWorldTemplateScreen.this.currentLink = param5;
+            } else if (var2 && !"".equals(param6)) {
+                RealmsSelectWorldTemplateScreen.this.toolTip = I18n.get("mco.template.trailer.tooltip");
+                RealmsSelectWorldTemplateScreen.this.currentLink = param6;
             }
 
         }
@@ -511,8 +525,8 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
         }
 
         @Override
-        public void renderBackground() {
-            RealmsSelectWorldTemplateScreen.this.renderBackground();
+        public void renderBackground(PoseStack param0) {
+            RealmsSelectWorldTemplateScreen.this.renderBackground(param0);
         }
 
         @Override

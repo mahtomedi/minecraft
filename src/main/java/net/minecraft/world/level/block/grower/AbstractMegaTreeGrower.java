@@ -27,10 +27,10 @@ public abstract class AbstractMegaTreeGrower extends AbstractTreeGrower {
     }
 
     @Nullable
-    protected abstract ConfiguredFeature<? extends TreeConfiguration, ?> getConfiguredMegaFeature(Random var1);
+    protected abstract ConfiguredFeature<TreeConfiguration, ?> getConfiguredMegaFeature(Random var1);
 
     public boolean placeMega(ServerLevel param0, ChunkGenerator<?> param1, BlockPos param2, BlockState param3, Random param4, int param5, int param6) {
-        ConfiguredFeature<? extends TreeConfiguration, ?> var0 = this.getConfiguredMegaFeature(param4);
+        ConfiguredFeature<TreeConfiguration, ?> var0 = this.getConfiguredMegaFeature(param4);
         if (var0 == null) {
             return false;
         } else {

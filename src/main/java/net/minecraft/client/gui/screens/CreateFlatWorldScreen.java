@@ -1,6 +1,7 @@
 package net.minecraft.client.gui.screens;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.client.gui.GuiComponent;
@@ -10,6 +11,8 @@ import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -28,8 +31,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class CreateFlatWorldScreen extends Screen {
     private final CreateWorldScreen parent;
     private FlatLevelGeneratorSettings generator = FlatLevelGeneratorSettings.getDefault();
-    private String columnType;
-    private String columnHeight;
+    private Component columnType;
+    private Component columnHeight;
     private CreateFlatWorldScreen.DetailsList list;
     private Button deleteLayerButton;
 
@@ -52,12 +55,12 @@ public class CreateFlatWorldScreen extends Screen {
 
     @Override
     protected void init() {
-        this.columnType = I18n.get("createWorld.customize.flat.tile");
-        this.columnHeight = I18n.get("createWorld.customize.flat.height");
+        this.columnType = new TranslatableComponent("createWorld.customize.flat.tile");
+        this.columnHeight = new TranslatableComponent("createWorld.customize.flat.height");
         this.list = new CreateFlatWorldScreen.DetailsList();
         this.children.add(this.list);
         this.deleteLayerButton = this.addButton(
-            new Button(this.width / 2 - 155, this.height - 52, 150, 20, I18n.get("createWorld.customize.flat.removeLayer"), param0 -> {
+            new Button(this.width / 2 - 155, this.height - 52, 150, 20, new TranslatableComponent("createWorld.customize.flat.removeLayer"), param0 -> {
                 if (this.hasValidSelection()) {
                     List<FlatLayerInfo> var0 = this.generator.getLayersInfo();
                     int var1 = this.list.children().indexOf(this.list.getSelected());
@@ -69,18 +72,18 @@ public class CreateFlatWorldScreen extends Screen {
                 }
             })
         );
-        this.addButton(new Button(this.width / 2 + 5, this.height - 52, 150, 20, I18n.get("createWorld.customize.presets"), param0 -> {
+        this.addButton(new Button(this.width / 2 + 5, this.height - 52, 150, 20, new TranslatableComponent("createWorld.customize.presets"), param0 -> {
             this.minecraft.setScreen(new PresetFlatWorldScreen(this));
             this.generator.updateLayers();
             this.updateButtonValidity();
         }));
-        this.addButton(new Button(this.width / 2 - 155, this.height - 28, 150, 20, I18n.get("gui.done"), param0 -> {
+        this.addButton(new Button(this.width / 2 - 155, this.height - 28, 150, 20, CommonComponents.GUI_DONE, param0 -> {
             this.parent.levelTypeOptions = LevelType.FLAT.createProvider(this.generator.toObject(NbtOps.INSTANCE));
             this.minecraft.setScreen(this.parent);
             this.generator.updateLayers();
             this.updateButtonValidity();
         }));
-        this.addButton(new Button(this.width / 2 + 5, this.height - 28, 150, 20, I18n.get("gui.cancel"), param0 -> {
+        this.addButton(new Button(this.width / 2 + 5, this.height - 28, 150, 20, CommonComponents.GUI_CANCEL, param0 -> {
             this.minecraft.setScreen(this.parent);
             this.generator.updateLayers();
             this.updateButtonValidity();
@@ -104,14 +107,14 @@ public class CreateFlatWorldScreen extends Screen {
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
-        this.renderBackground();
-        this.list.render(param0, param1, param2);
-        this.drawCenteredString(this.font, this.title.getColoredString(), this.width / 2, 8, 16777215);
+    public void render(PoseStack param0, int param1, int param2, float param3) {
+        this.renderBackground(param0);
+        this.list.render(param0, param1, param2, param3);
+        this.drawCenteredString(param0, this.font, this.title, this.width / 2, 8, 16777215);
         int var0 = this.width / 2 - 92 - 16;
-        this.drawString(this.font, this.columnType, var0, 32, 16777215);
-        this.drawString(this.font, this.columnHeight, var0 + 2 + 213 - this.font.width(this.columnHeight), 32, 16777215);
-        super.render(param0, param1, param2);
+        this.drawString(param0, this.font, this.columnType, var0, 32, 16777215);
+        this.drawString(param0, this.font, this.columnHeight, var0 + 2 + 213 - this.font.width(this.columnHeight), 32, 16777215);
+        super.render(param0, param1, param2, param3);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -183,10 +186,12 @@ public class CreateFlatWorldScreen extends Screen {
             }
 
             @Override
-            public void render(int param0, int param1, int param2, int param3, int param4, int param5, int param6, boolean param7, float param8) {
+            public void render(
+                PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9
+            ) {
                 FlatLayerInfo var0 = CreateFlatWorldScreen.this.generator
                     .getLayersInfo()
-                    .get(CreateFlatWorldScreen.this.generator.getLayersInfo().size() - param0 - 1);
+                    .get(CreateFlatWorldScreen.this.generator.getLayersInfo().size() - param1 - 1);
                 BlockState var1 = var0.getBlockState();
                 Block var2 = var1.getBlock();
                 Item var3 = var2.asItem();
@@ -199,20 +204,19 @@ public class CreateFlatWorldScreen extends Screen {
                 }
 
                 ItemStack var4 = new ItemStack(var3);
-                String var5 = var3.getName(var4).getColoredString();
-                this.blitSlot(param2, param1, var4);
-                CreateFlatWorldScreen.this.font.draw(var5, (float)(param2 + 18 + 5), (float)(param1 + 3), 16777215);
-                String var6;
-                if (param0 == 0) {
-                    var6 = I18n.get("createWorld.customize.flat.layer.top", var0.getHeight());
-                } else if (param0 == CreateFlatWorldScreen.this.generator.getLayersInfo().size() - 1) {
-                    var6 = I18n.get("createWorld.customize.flat.layer.bottom", var0.getHeight());
+                this.blitSlot(param0, param3, param2, var4);
+                CreateFlatWorldScreen.this.font.draw(param0, var3.getName(var4), (float)(param3 + 18 + 5), (float)(param2 + 3), 16777215);
+                String var5;
+                if (param1 == 0) {
+                    var5 = I18n.get("createWorld.customize.flat.layer.top", var0.getHeight());
+                } else if (param1 == CreateFlatWorldScreen.this.generator.getLayersInfo().size() - 1) {
+                    var5 = I18n.get("createWorld.customize.flat.layer.bottom", var0.getHeight());
                 } else {
-                    var6 = I18n.get("createWorld.customize.flat.layer", var0.getHeight());
+                    var5 = I18n.get("createWorld.customize.flat.layer", var0.getHeight());
                 }
 
                 CreateFlatWorldScreen.this.font
-                    .draw(var6, (float)(param2 + 2 + 213 - CreateFlatWorldScreen.this.font.width(var6)), (float)(param1 + 3), 16777215);
+                    .draw(param0, var5, (float)(param3 + 2 + 213 - CreateFlatWorldScreen.this.font.width(var5)), (float)(param2 + 3), 16777215);
             }
 
             @Override
@@ -226,20 +230,20 @@ public class CreateFlatWorldScreen extends Screen {
                 }
             }
 
-            private void blitSlot(int param0, int param1, ItemStack param2) {
-                this.blitSlotBg(param0 + 1, param1 + 1);
+            private void blitSlot(PoseStack param0, int param1, int param2, ItemStack param3) {
+                this.blitSlotBg(param0, param1 + 1, param2 + 1);
                 RenderSystem.enableRescaleNormal();
-                if (!param2.isEmpty()) {
-                    CreateFlatWorldScreen.this.itemRenderer.renderGuiItem(param2, param0 + 2, param1 + 2);
+                if (!param3.isEmpty()) {
+                    CreateFlatWorldScreen.this.itemRenderer.renderGuiItem(param3, param1 + 2, param2 + 2);
                 }
 
                 RenderSystem.disableRescaleNormal();
             }
 
-            private void blitSlotBg(int param0, int param1) {
+            private void blitSlotBg(PoseStack param0, int param1, int param2) {
                 RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
                 DetailsList.this.minecraft.getTextureManager().bind(GuiComponent.STATS_ICON_LOCATION);
-                GuiComponent.blit(param0, param1, CreateFlatWorldScreen.this.getBlitOffset(), 0.0F, 0.0F, 18, 18, 128, 128);
+                GuiComponent.blit(param0, param1, param2, CreateFlatWorldScreen.this.getBlitOffset(), 0.0F, 0.0F, 18, 18, 128, 128);
             }
         }
     }

@@ -480,7 +480,7 @@ public class ServerPlayer extends Player implements ContainerListener {
                                 "death.attack.message_too_long", new TextComponent(var1x).withStyle(ChatFormatting.YELLOW)
                             );
                             Component var3x = new TranslatableComponent("death.attack.even_more_magic", this.getDisplayName())
-                                .withStyle(param1x -> param1x.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, var2x)));
+                                .withStyle(param1x -> param1x.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, var2x)));
                             this.connection
                                 .send(new ClientboundPlayerCombatPacket(this.getCombatTracker(), ClientboundPlayerCombatPacket.Event.ENTITY_DIED, var3x));
                         }

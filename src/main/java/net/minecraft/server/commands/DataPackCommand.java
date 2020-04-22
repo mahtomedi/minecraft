@@ -15,8 +15,7 @@ import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.server.packs.repository.UnopenedPack;
-import net.minecraft.world.level.dimension.DimensionType;
-import net.minecraft.world.level.storage.LevelData;
+import net.minecraft.world.level.storage.WorldData;
 
 public class DataPackCommand {
     private static final DynamicCommandExceptionType ERROR_UNKNOWN_PACK = new DynamicCommandExceptionType(
@@ -114,7 +113,7 @@ public class DataPackCommand {
         List<UnopenedPack> var1 = Lists.newArrayList(var0.getSelected());
         param2.apply(var1, param1);
         var0.setSelected(var1);
-        LevelData var2 = param0.getServer().getLevel(DimensionType.OVERWORLD).getLevelData();
+        WorldData var2 = param0.getServer().getWorldData();
         var2.getEnabledDataPacks().clear();
         var0.getSelected().forEach(param1x -> var2.getEnabledDataPacks().add(param1x.getId()));
         var2.getDisabledDataPacks().remove(param1.getId());
@@ -128,7 +127,7 @@ public class DataPackCommand {
         List<UnopenedPack> var1 = Lists.newArrayList(var0.getSelected());
         var1.remove(param1);
         var0.setSelected(var1);
-        LevelData var2 = param0.getServer().getLevel(DimensionType.OVERWORLD).getLevelData();
+        WorldData var2 = param0.getServer().getWorldData();
         var2.getEnabledDataPacks().clear();
         var0.getSelected().forEach(param1x -> var2.getEnabledDataPacks().add(param1x.getId()));
         var2.getDisabledDataPacks().add(param1.getId());

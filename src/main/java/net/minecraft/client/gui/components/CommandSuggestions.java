@@ -2,6 +2,7 @@ package net.minecraft.client.gui.components;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.Message;
 import com.mojang.brigadier.ParseResults;
@@ -296,16 +297,18 @@ public class CommandSuggestions {
         return var2.toString();
     }
 
-    public void render(int param0, int param1) {
+    public void render(PoseStack param0, int param1, int param2) {
         if (this.suggestions != null) {
-            this.suggestions.render(param0, param1);
+            this.suggestions.render(param0, param1, param2);
         } else {
             int var0 = 0;
 
             for(String var1 : this.commandUsage) {
                 int var2 = this.anchorToBottom ? this.screen.height - 14 - 13 - 12 * var0 : 72 + 12 * var0;
-                GuiComponent.fill(this.commandUsagePosition - 1, var2, this.commandUsagePosition + this.commandUsageWidth + 1, var2 + 12, this.fillColor);
-                this.font.drawShadow(var1, (float)this.commandUsagePosition, (float)(var2 + 2), -1);
+                GuiComponent.fill(
+                    param0, this.commandUsagePosition - 1, var2, this.commandUsagePosition + this.commandUsageWidth + 1, var2 + 12, this.fillColor
+                );
+                this.font.drawShadow(param0, var1, (float)this.commandUsagePosition, (float)(var2 + 2), -1);
                 ++var0;
             }
         }
@@ -339,22 +342,28 @@ public class CommandSuggestions {
             this.select(0);
         }
 
-        public void render(int param0, int param1) {
+        public void render(PoseStack param0, int param1, int param2) {
             int var0 = Math.min(this.suggestions.getList().size(), CommandSuggestions.this.suggestionLineLimit);
             int var1 = -5592406;
             boolean var2 = this.offset > 0;
             boolean var3 = this.suggestions.getList().size() > this.offset + var0;
             boolean var4 = var2 || var3;
-            boolean var5 = this.lastMouse.x != (float)param0 || this.lastMouse.y != (float)param1;
+            boolean var5 = this.lastMouse.x != (float)param1 || this.lastMouse.y != (float)param2;
             if (var5) {
-                this.lastMouse = new Vec2((float)param0, (float)param1);
+                this.lastMouse = new Vec2((float)param1, (float)param2);
             }
 
             if (var4) {
                 GuiComponent.fill(
-                    this.rect.getX(), this.rect.getY() - 1, this.rect.getX() + this.rect.getWidth(), this.rect.getY(), CommandSuggestions.this.fillColor
+                    param0,
+                    this.rect.getX(),
+                    this.rect.getY() - 1,
+                    this.rect.getX() + this.rect.getWidth(),
+                    this.rect.getY(),
+                    CommandSuggestions.this.fillColor
                 );
                 GuiComponent.fill(
+                    param0,
                     this.rect.getX(),
                     this.rect.getY() + this.rect.getHeight(),
                     this.rect.getX() + this.rect.getWidth(),
@@ -364,7 +373,7 @@ public class CommandSuggestions {
                 if (var2) {
                     for(int var6 = 0; var6 < this.rect.getWidth(); ++var6) {
                         if (var6 % 2 == 0) {
-                            GuiComponent.fill(this.rect.getX() + var6, this.rect.getY() - 1, this.rect.getX() + var6 + 1, this.rect.getY(), -1);
+                            GuiComponent.fill(param0, this.rect.getX() + var6, this.rect.getY() - 1, this.rect.getX() + var6 + 1, this.rect.getY(), -1);
                         }
                     }
                 }
@@ -373,6 +382,7 @@ public class CommandSuggestions {
                     for(int var7 = 0; var7 < this.rect.getWidth(); ++var7) {
                         if (var7 % 2 == 0) {
                             GuiComponent.fill(
+                                param0,
                                 this.rect.getX() + var7,
                                 this.rect.getY() + this.rect.getHeight(),
                                 this.rect.getX() + var7 + 1,
@@ -389,16 +399,17 @@ public class CommandSuggestions {
             for(int var9 = 0; var9 < var0; ++var9) {
                 Suggestion var10 = this.suggestions.getList().get(var9 + this.offset);
                 GuiComponent.fill(
+                    param0,
                     this.rect.getX(),
                     this.rect.getY() + 12 * var9,
                     this.rect.getX() + this.rect.getWidth(),
                     this.rect.getY() + 12 * var9 + 12,
                     CommandSuggestions.this.fillColor
                 );
-                if (param0 > this.rect.getX()
-                    && param0 < this.rect.getX() + this.rect.getWidth()
-                    && param1 > this.rect.getY() + 12 * var9
-                    && param1 < this.rect.getY() + 12 * var9 + 12) {
+                if (param1 > this.rect.getX()
+                    && param1 < this.rect.getX() + this.rect.getWidth()
+                    && param2 > this.rect.getY() + 12 * var9
+                    && param2 < this.rect.getY() + 12 * var9 + 12) {
                     if (var5) {
                         this.select(var9 + this.offset);
                     }
@@ -408,6 +419,7 @@ public class CommandSuggestions {
 
                 CommandSuggestions.this.font
                     .drawShadow(
+                        param0,
                         var10.getText(),
                         (float)(this.rect.getX() + 1),
                         (float)(this.rect.getY() + 2 + 12 * var9),
@@ -418,7 +430,7 @@ public class CommandSuggestions {
             if (var8) {
                 Message var11 = this.suggestions.getList().get(this.current).getTooltip();
                 if (var11 != null) {
-                    CommandSuggestions.this.screen.renderTooltip(ComponentUtils.fromMessage(var11).getColoredString(), param0, param1);
+                    CommandSuggestions.this.screen.renderTooltip(param0, ComponentUtils.fromMessage(var11), param1, param2);
                 }
             }
 

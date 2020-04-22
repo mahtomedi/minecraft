@@ -4,15 +4,16 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.OptionButton;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class CycleOption extends Option {
     private final BiConsumer<Options, Integer> setter;
-    private final BiFunction<Options, CycleOption, String> toString;
+    private final BiFunction<Options, CycleOption, Component> toString;
 
-    public CycleOption(String param0, BiConsumer<Options, Integer> param1, BiFunction<Options, CycleOption, String> param2) {
+    public CycleOption(String param0, BiConsumer<Options, Integer> param1, BiFunction<Options, CycleOption, Component> param2) {
         super(param0);
         this.setter = param1;
         this.toString = param2;
@@ -31,7 +32,7 @@ public class CycleOption extends Option {
         });
     }
 
-    public String getMessage(Options param0) {
+    public Component getMessage(Options param0) {
         return this.toString.apply(param0, this);
     }
 }

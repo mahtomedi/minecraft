@@ -21,6 +21,8 @@ import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.client.renderer.entity.layers.ParrotOnShoulderLayer;
 import net.minecraft.client.renderer.entity.layers.SpinAttackEffectLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -140,7 +142,7 @@ public class PlayerRenderer extends LivingEntityRenderer<AbstractClientPlayer, P
         param1.scale(0.9375F, 0.9375F, 0.9375F);
     }
 
-    protected void renderNameTag(AbstractClientPlayer param0, String param1, PoseStack param2, MultiBufferSource param3, int param4) {
+    protected void renderNameTag(AbstractClientPlayer param0, Component param1, PoseStack param2, MultiBufferSource param3, int param4) {
         double var0 = this.entityRenderDispatcher.distanceToSqr(param0);
         param2.pushPose();
         if (var0 < 100.0) {
@@ -148,7 +150,9 @@ public class PlayerRenderer extends LivingEntityRenderer<AbstractClientPlayer, P
             Objective var2 = var1.getDisplayObjective(2);
             if (var2 != null) {
                 Score var3 = var1.getOrCreatePlayerScore(param0.getScoreboardName(), var2);
-                super.renderNameTag(param0, var3.getScore() + " " + var2.getDisplayName().getColoredString(), param2, param3, param4);
+                super.renderNameTag(
+                    param0, new TextComponent(Integer.toString(var3.getScore())).append(" ").append(var2.getDisplayName()), param2, param3, param4
+                );
                 param2.translate(0.0, (double)(9.0F * 1.15F * 0.025F), 0.0);
             }
         }

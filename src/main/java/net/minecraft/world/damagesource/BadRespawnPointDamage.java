@@ -19,8 +19,8 @@ public class BadRespawnPointDamage extends DamageSource {
     public Component getLocalizedDeathMessage(LivingEntity param0) {
         Component var0 = ComponentUtils.wrapInSquareBrackets(new TranslatableComponent("death.attack.badRespawnPoint.link"))
             .withStyle(
-                param0x -> param0x.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://bugs.mojang.com/browse/MCPE-28723"))
-                        .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent("MCPE-28723")))
+                param0x -> param0x.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://bugs.mojang.com/browse/MCPE-28723"))
+                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent("MCPE-28723")))
             );
         return new TranslatableComponent("death.attack.badRespawnPoint.message", param0.getDisplayName(), var0);
     }

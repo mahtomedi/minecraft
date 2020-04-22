@@ -188,7 +188,7 @@ public class Explosion {
                 double var29 = (double)(Mth.sqrt(var28.distanceToSqr(var26)) / var18);
                 if (var29 <= 1.0) {
                     double var30 = var28.getX() - this.x;
-                    double var31 = var28.getEyeY() - this.y;
+                    double var31 = (var28 instanceof PrimedTnt ? var28.getY() : var28.getEyeY()) - this.y;
                     double var32 = var28.getZ() - this.z;
                     double var33 = (double)Mth.sqrt(var30 * var30 + var31 * var31 + var32 * var32);
                     if (var33 != 0.0) {

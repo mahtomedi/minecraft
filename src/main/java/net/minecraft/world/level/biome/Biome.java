@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
@@ -21,6 +22,7 @@ import net.minecraft.core.IdMapper;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.sounds.Music;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
 import net.minecraft.util.WeighedRandom;
@@ -298,7 +300,10 @@ public abstract class Biome {
                 var1.place(param3, param1, param2, param5, param6);
             } catch (Exception var14) {
                 CrashReport var3 = CrashReport.forThrowable(var14, "Feature placement");
-                var3.addCategory("Feature").setDetail("Id", Registry.FEATURE.getKey(var1.feature)).setDetail("Description", () -> var1.feature.toString());
+                var3.addCategory("Feature")
+                    .setDetail("Id", Registry.FEATURE.getKey(var1.feature))
+                    .setDetail("Config", var1.config)
+                    .setDetail("Description", () -> var1.feature.toString());
                 throw new ReportedException(var3);
             }
 
@@ -405,6 +410,11 @@ public abstract class Biome {
         return this.specialEffects.getAmbientAdditionsSettings();
     }
 
+    @OnlyIn(Dist.CLIENT)
+    public Optional<Music> getBackgroundMusic() {
+        return this.specialEffects.getBackgroundMusic();
+    }
+
     public final Biome.BiomeCategory getBiomeCategory() {
         return this.biomeCategory;
     }
@@ -417,8 +427,8 @@ public abstract class Biome {
         return this.surfaceBuilder.getSurfaceBuilderConfiguration();
     }
 
-    public float getFitness(Biome.ClimateParameters param0) {
-        return this.optimalParameters.stream().map(param1 -> param1.fitness(param0)).min(Float::compare).orElse(Float.POSITIVE_INFINITY);
+    public Stream<Biome.ClimateParameters> optimalParameters() {
+        return this.optimalParameters.stream();
     }
 
     @Nullable
@@ -585,14 +595,14 @@ public abstract class Biome {
         private final float humidity;
         private final float altitude;
         private final float weirdness;
-        private final float weight;
+        private final float offset;
 
         public ClimateParameters(float param0, float param1, float param2, float param3, float param4) {
             this.temperature = param0;
             this.humidity = param1;
             this.altitude = param2;
             this.weirdness = param3;
-            this.weight = param4;
+            this.offset = param4;
         }
 
         @Override
@@ -628,7 +638,7 @@ public abstract class Biome {
                 + (this.humidity - param0.humidity) * (this.humidity - param0.humidity)
                 + (this.altitude - param0.altitude) * (this.altitude - param0.altitude)
                 + (this.weirdness - param0.weirdness) * (this.weirdness - param0.weirdness)
-                - (this.weight - param0.weight) * (this.weight - param0.weight);
+                + (this.offset - param0.offset) * (this.offset - param0.offset);
         }
     }
 

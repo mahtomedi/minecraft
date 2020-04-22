@@ -1,6 +1,7 @@
 package com.mojang.realmsclient.gui.screens;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.realmsclient.RealmsMainScreen;
 import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.dto.RealmsServer;
@@ -17,6 +18,10 @@ import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -30,7 +35,7 @@ public class RealmsConfigureWorldScreen extends RealmsScreenWithCallback {
     private static final ResourceLocation OFF_ICON_LOCATION = new ResourceLocation("realms", "textures/gui/realms/off_icon.png");
     private static final ResourceLocation EXPIRED_ICON_LOCATION = new ResourceLocation("realms", "textures/gui/realms/expired_icon.png");
     private static final ResourceLocation EXPIRES_SOON_ICON_LOCATION = new ResourceLocation("realms", "textures/gui/realms/expires_soon_icon.png");
-    private String toolTip;
+    private Component toolTip;
     private final RealmsMainScreen lastScreen;
     @Nullable
     private RealmsServer serverData;
@@ -68,7 +73,7 @@ public class RealmsConfigureWorldScreen extends RealmsScreenWithCallback {
                 row(0),
                 100,
                 20,
-                I18n.get("mco.configure.world.buttons.players"),
+                new TranslatableComponent("mco.configure.world.buttons.players"),
                 param0 -> this.minecraft.setScreen(new RealmsPlayerScreen(this, this.serverData))
             )
         );
@@ -78,7 +83,7 @@ public class RealmsConfigureWorldScreen extends RealmsScreenWithCallback {
                 row(0),
                 100,
                 20,
-                I18n.get("mco.configure.world.buttons.settings"),
+                new TranslatableComponent("mco.configure.world.buttons.settings"),
                 param0 -> this.minecraft.setScreen(new RealmsSettingsScreen(this, this.serverData.clone()))
             )
         );
@@ -88,7 +93,7 @@ public class RealmsConfigureWorldScreen extends RealmsScreenWithCallback {
                 row(0),
                 100,
                 20,
-                I18n.get("mco.configure.world.buttons.subscription"),
+                new TranslatableComponent("mco.configure.world.buttons.subscription"),
                 param0 -> this.minecraft.setScreen(new RealmsSubscriptionInfoScreen(this, this.serverData.clone(), this.lastScreen))
             )
         );
@@ -98,9 +103,9 @@ public class RealmsConfigureWorldScreen extends RealmsScreenWithCallback {
         }
 
         this.switchMinigameButton = this.addButton(
-            new Button(this.leftButton(0), row(13) - 5, 100, 20, I18n.get("mco.configure.world.buttons.switchminigame"), param0 -> {
+            new Button(this.leftButton(0), row(13) - 5, 100, 20, new TranslatableComponent("mco.configure.world.buttons.switchminigame"), param0 -> {
                 RealmsSelectWorldTemplateScreen var0x = new RealmsSelectWorldTemplateScreen(this, RealmsServer.WorldType.MINIGAME);
-                var0x.setTitle(I18n.get("mco.template.title.minigame"));
+                var0x.setTitle(new TranslatableComponent("mco.template.title.minigame"));
                 this.minecraft.setScreen(var0x);
             })
         );
@@ -110,7 +115,7 @@ public class RealmsConfigureWorldScreen extends RealmsScreenWithCallback {
                 row(13) - 5,
                 90,
                 20,
-                I18n.get("mco.configure.world.buttons.options"),
+                new TranslatableComponent("mco.configure.world.buttons.options"),
                 param0 -> this.minecraft
                         .setScreen(
                             new RealmsSlotOptionsScreen(
@@ -125,7 +130,7 @@ public class RealmsConfigureWorldScreen extends RealmsScreenWithCallback {
                 row(13) - 5,
                 90,
                 20,
-                I18n.get("mco.configure.world.backup"),
+                new TranslatableComponent("mco.configure.world.backup"),
                 param0 -> this.minecraft.setScreen(new RealmsBackupScreen(this, this.serverData.clone(), this.serverData.activeSlot))
             )
         );
@@ -135,7 +140,7 @@ public class RealmsConfigureWorldScreen extends RealmsScreenWithCallback {
                 row(13) - 5,
                 90,
                 20,
-                I18n.get("mco.configure.world.buttons.resetworld"),
+                new TranslatableComponent("mco.configure.world.buttons.resetworld"),
                 param0 -> this.minecraft
                         .setScreen(
                             new RealmsResetWorldScreen(
@@ -147,7 +152,7 @@ public class RealmsConfigureWorldScreen extends RealmsScreenWithCallback {
                         )
             )
         );
-        this.addButton(new Button(this.rightX - 80 + 8, row(13) - 5, 70, 20, I18n.get("gui.back"), param0 -> this.backButtonClicked()));
+        this.addButton(new Button(this.rightX - 80 + 8, row(13) - 5, 70, 20, CommonComponents.GUI_BACK, param0 -> this.backButtonClicked()));
         this.backupButton.active = true;
         if (this.serverData == null) {
             this.hideMinigameButtons();
@@ -218,25 +223,26 @@ public class RealmsConfigureWorldScreen extends RealmsScreenWithCallback {
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
+    public void render(PoseStack param0, int param1, int param2, float param3) {
         this.toolTip = null;
-        this.renderBackground();
-        this.drawCenteredString(this.font, I18n.get("mco.configure.worlds.title"), this.width / 2, row(4), 16777215);
-        super.render(param0, param1, param2);
+        this.renderBackground(param0);
+        this.drawCenteredString(param0, this.font, I18n.get("mco.configure.worlds.title"), this.width / 2, row(4), 16777215);
+        super.render(param0, param1, param2, param3);
         if (this.serverData == null) {
-            this.drawCenteredString(this.font, I18n.get("mco.configure.world.title"), this.width / 2, 17, 16777215);
+            this.drawCenteredString(param0, this.font, I18n.get("mco.configure.world.title"), this.width / 2, 17, 16777215);
         } else {
             String var0 = this.serverData.getName();
             int var1 = this.font.width(var0);
             int var2 = this.serverData.state == RealmsServer.State.CLOSED ? 10526880 : 8388479;
             int var3 = this.font.width(I18n.get("mco.configure.world.title"));
-            this.drawCenteredString(this.font, I18n.get("mco.configure.world.title"), this.width / 2, 12, 16777215);
-            this.drawCenteredString(this.font, var0, this.width / 2, 24, var2);
+            this.drawCenteredString(param0, this.font, I18n.get("mco.configure.world.title"), this.width / 2, 12, 16777215);
+            this.drawCenteredString(param0, this.font, var0, this.width / 2, 24, var2);
             int var4 = Math.min(this.centerButton(2, 3) + 80 - 11, this.width / 2 + var1 / 2 + var3 / 2 + 10);
-            this.drawServerStatus(var4, 7, param0, param1);
+            this.drawServerStatus(param0, var4, 7, param1, param2);
             if (this.isMinigame()) {
                 this.font
                     .draw(
+                        param0,
                         I18n.get("mco.configure.current.minigame") + ": " + this.serverData.getMinigameName(),
                         (float)(this.leftX + 80 + 20 + 10),
                         (float)row(13),
@@ -245,7 +251,7 @@ public class RealmsConfigureWorldScreen extends RealmsScreenWithCallback {
             }
 
             if (this.toolTip != null) {
-                this.renderMousehoverTooltip(this.toolTip, param0, param1);
+                this.renderMousehoverTooltip(param0, this.toolTip, param1, param2);
             }
 
         }
@@ -294,7 +300,7 @@ public class RealmsConfigureWorldScreen extends RealmsScreenWithCallback {
                 }
             } catch (RealmsServiceException var5) {
                 LOGGER.error("Couldn't get own world");
-                this.minecraft.execute(() -> this.minecraft.setScreen(new RealmsGenericErrorScreen(var5.getMessage(), this.lastScreen)));
+                this.minecraft.execute(() -> this.minecraft.setScreen(new RealmsGenericErrorScreen(new TextComponent(var5.getMessage()), this.lastScreen)));
             }
 
         }).start();
@@ -320,14 +326,14 @@ public class RealmsConfigureWorldScreen extends RealmsScreenWithCallback {
 
     private void switchToMinigame() {
         RealmsSelectWorldTemplateScreen var0 = new RealmsSelectWorldTemplateScreen(this, RealmsServer.WorldType.MINIGAME);
-        var0.setTitle(I18n.get("mco.template.title.minigame"));
-        var0.setWarning(I18n.get("mco.minigame.world.info.line1") + "\\n" + I18n.get("mco.minigame.world.info.line2"));
+        var0.setTitle(new TranslatableComponent("mco.template.title.minigame"));
+        var0.setWarning(new TranslatableComponent("mco.minigame.world.info.line1"), new TranslatableComponent("mco.minigame.world.info.line2"));
         this.minecraft.setScreen(var0);
     }
 
     private void switchToFullSlot(int param0, RealmsServer param1) {
-        String var0 = I18n.get("mco.configure.world.slot.switch.question.line1");
-        String var1 = I18n.get("mco.configure.world.slot.switch.question.line2");
+        Component var0 = new TranslatableComponent("mco.configure.world.slot.switch.question.line1");
+        Component var1 = new TranslatableComponent("mco.configure.world.slot.switch.question.line2");
         this.minecraft
             .setScreen(
                 new RealmsLongConfirmationScreen(
@@ -353,8 +359,8 @@ public class RealmsConfigureWorldScreen extends RealmsScreenWithCallback {
     }
 
     private void switchToEmptySlot(int param0, RealmsServer param1) {
-        String var0 = I18n.get("mco.configure.world.slot.switch.question.line1");
-        String var1 = I18n.get("mco.configure.world.slot.switch.question.line2");
+        Component var0 = new TranslatableComponent("mco.configure.world.slot.switch.question.line1");
+        Component var1 = new TranslatableComponent("mco.configure.world.slot.switch.question.line2");
         this.minecraft
             .setScreen(
                 new RealmsLongConfirmationScreen(
@@ -363,10 +369,10 @@ public class RealmsConfigureWorldScreen extends RealmsScreenWithCallback {
                             RealmsResetWorldScreen var0x = new RealmsResetWorldScreen(
                                 this,
                                 param1,
-                                I18n.get("mco.configure.world.switch.slot"),
-                                I18n.get("mco.configure.world.switch.slot.subtitle"),
+                                new TranslatableComponent("mco.configure.world.switch.slot"),
+                                new TranslatableComponent("mco.configure.world.switch.slot.subtitle"),
                                 10526880,
-                                I18n.get("gui.cancel"),
+                                CommonComponents.GUI_CANCEL,
                                 () -> this.minecraft.setScreen(this.getNewScreen()),
                                 () -> this.minecraft.setScreen(this.getNewScreen())
                             );
@@ -386,80 +392,80 @@ public class RealmsConfigureWorldScreen extends RealmsScreenWithCallback {
             );
     }
 
-    protected void renderMousehoverTooltip(String param0, int param1, int param2) {
-        int var0 = param1 + 12;
-        int var1 = param2 - 12;
-        int var2 = this.font.width(param0);
+    protected void renderMousehoverTooltip(PoseStack param0, Component param1, int param2, int param3) {
+        int var0 = param2 + 12;
+        int var1 = param3 - 12;
+        int var2 = this.font.width(param1);
         if (var0 + var2 + 3 > this.rightX) {
             var0 = var0 - var2 - 20;
         }
 
-        this.fillGradient(var0 - 3, var1 - 3, var0 + var2 + 3, var1 + 8 + 3, -1073741824, -1073741824);
-        this.font.drawShadow(param0, (float)var0, (float)var1, 16777215);
+        this.fillGradient(param0, var0 - 3, var1 - 3, var0 + var2 + 3, var1 + 8 + 3, -1073741824, -1073741824);
+        this.font.drawShadow(param0, param1, (float)var0, (float)var1, 16777215);
     }
 
-    private void drawServerStatus(int param0, int param1, int param2, int param3) {
+    private void drawServerStatus(PoseStack param0, int param1, int param2, int param3, int param4) {
         if (this.serverData.expired) {
-            this.drawExpired(param0, param1, param2, param3);
+            this.drawExpired(param0, param1, param2, param3, param4);
         } else if (this.serverData.state == RealmsServer.State.CLOSED) {
-            this.drawClose(param0, param1, param2, param3);
+            this.drawClose(param0, param1, param2, param3, param4);
         } else if (this.serverData.state == RealmsServer.State.OPEN) {
             if (this.serverData.daysLeft < 7) {
-                this.drawExpiring(param0, param1, param2, param3, this.serverData.daysLeft);
+                this.drawExpiring(param0, param1, param2, param3, param4, this.serverData.daysLeft);
             } else {
-                this.drawOpen(param0, param1, param2, param3);
+                this.drawOpen(param0, param1, param2, param3, param4);
             }
         }
 
     }
 
-    private void drawExpired(int param0, int param1, int param2, int param3) {
+    private void drawExpired(PoseStack param0, int param1, int param2, int param3, int param4) {
         this.minecraft.getTextureManager().bind(EXPIRED_ICON_LOCATION);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GuiComponent.blit(param0, param1, 0.0F, 0.0F, 10, 28, 10, 28);
-        if (param2 >= param0 && param2 <= param0 + 9 && param3 >= param1 && param3 <= param1 + 27) {
-            this.toolTip = I18n.get("mco.selectServer.expired");
+        GuiComponent.blit(param0, param1, param2, 0.0F, 0.0F, 10, 28, 10, 28);
+        if (param3 >= param1 && param3 <= param1 + 9 && param4 >= param2 && param4 <= param2 + 27) {
+            this.toolTip = new TranslatableComponent("mco.selectServer.expired");
         }
 
     }
 
-    private void drawExpiring(int param0, int param1, int param2, int param3, int param4) {
+    private void drawExpiring(PoseStack param0, int param1, int param2, int param3, int param4, int param5) {
         this.minecraft.getTextureManager().bind(EXPIRES_SOON_ICON_LOCATION);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         if (this.animTick % 20 < 10) {
-            GuiComponent.blit(param0, param1, 0.0F, 0.0F, 10, 28, 20, 28);
+            GuiComponent.blit(param0, param1, param2, 0.0F, 0.0F, 10, 28, 20, 28);
         } else {
-            GuiComponent.blit(param0, param1, 10.0F, 0.0F, 10, 28, 20, 28);
+            GuiComponent.blit(param0, param1, param2, 10.0F, 0.0F, 10, 28, 20, 28);
         }
 
-        if (param2 >= param0 && param2 <= param0 + 9 && param3 >= param1 && param3 <= param1 + 27) {
-            if (param4 <= 0) {
-                this.toolTip = I18n.get("mco.selectServer.expires.soon");
-            } else if (param4 == 1) {
-                this.toolTip = I18n.get("mco.selectServer.expires.day");
+        if (param3 >= param1 && param3 <= param1 + 9 && param4 >= param2 && param4 <= param2 + 27) {
+            if (param5 <= 0) {
+                this.toolTip = new TranslatableComponent("mco.selectServer.expires.soon");
+            } else if (param5 == 1) {
+                this.toolTip = new TranslatableComponent("mco.selectServer.expires.day");
             } else {
-                this.toolTip = I18n.get("mco.selectServer.expires.days", param4);
+                this.toolTip = new TranslatableComponent("mco.selectServer.expires.days", param5);
             }
         }
 
     }
 
-    private void drawOpen(int param0, int param1, int param2, int param3) {
+    private void drawOpen(PoseStack param0, int param1, int param2, int param3, int param4) {
         this.minecraft.getTextureManager().bind(ON_ICON_LOCATION);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GuiComponent.blit(param0, param1, 0.0F, 0.0F, 10, 28, 10, 28);
-        if (param2 >= param0 && param2 <= param0 + 9 && param3 >= param1 && param3 <= param1 + 27) {
-            this.toolTip = I18n.get("mco.selectServer.open");
+        GuiComponent.blit(param0, param1, param2, 0.0F, 0.0F, 10, 28, 10, 28);
+        if (param3 >= param1 && param3 <= param1 + 9 && param4 >= param2 && param4 <= param2 + 27) {
+            this.toolTip = new TranslatableComponent("mco.selectServer.open");
         }
 
     }
 
-    private void drawClose(int param0, int param1, int param2, int param3) {
+    private void drawClose(PoseStack param0, int param1, int param2, int param3, int param4) {
         this.minecraft.getTextureManager().bind(OFF_ICON_LOCATION);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GuiComponent.blit(param0, param1, 0.0F, 0.0F, 10, 28, 10, 28);
-        if (param2 >= param0 && param2 <= param0 + 9 && param3 >= param1 && param3 <= param1 + 27) {
-            this.toolTip = I18n.get("mco.selectServer.closed");
+        GuiComponent.blit(param0, param1, param2, 0.0F, 0.0F, 10, 28, 10, 28);
+        if (param3 >= param1 && param3 <= param1 + 9 && param4 >= param2 && param4 <= param2 + 27) {
+            this.toolTip = new TranslatableComponent("mco.selectServer.closed");
         }
 
     }

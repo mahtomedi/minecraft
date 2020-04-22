@@ -164,13 +164,13 @@ public abstract class ChunkGenerator<C extends ChunkGeneratorSettings> {
 
     public void createStructures(StructureFeatureManager param0, BiomeManager param1, ChunkAccess param2, ChunkGenerator<?> param3, StructureManager param4) {
         for(StructureFeature<?> var0 : Feature.STRUCTURES_REGISTRY.values()) {
-            if (param3.getBiomeSource().canGenerateStructure(var0)) {
+            if (param3.canGenerateStructure(var0)) {
                 StructureStart var1 = param0.getStartForFeature(SectionPos.of(param2.getPos(), 0), var0, param2);
                 int var2 = var1 != null ? var1.getReferences() : 0;
                 WorldgenRandom var3 = new WorldgenRandom();
                 ChunkPos var4 = param2.getPos();
                 StructureStart var5 = StructureStart.INVALID_START;
-                Biome var6 = param1.getBiome(new BlockPos(var4.getMinBlockX() + 9, 0, var4.getMinBlockZ() + 9));
+                Biome var6 = param3.getCarvingOrDecorationBiome(param1, new BlockPos(var4.getMinBlockX() + 9, 0, var4.getMinBlockZ() + 9));
                 if (var0.featureChunk(param1, param3, var3, var4.x, var4.z, var6)) {
                     StructureStart var7 = var0.getStartFactory().create(var0, var4.x, var4.z, BoundingBox.getUnknownBox(), var2, param3.getSeed());
                     var7.generatePieces(this, param4, var4.x, var4.z, var6);
@@ -181,6 +181,10 @@ public abstract class ChunkGenerator<C extends ChunkGeneratorSettings> {
             }
         }
 
+    }
+
+    public boolean canGenerateStructure(StructureFeature<?> param0) {
+        return this.getBiomeSource().canGenerateStructure(param0);
     }
 
     public void createReferences(LevelAccessor param0, StructureFeatureManager param1, ChunkAccess param2) {

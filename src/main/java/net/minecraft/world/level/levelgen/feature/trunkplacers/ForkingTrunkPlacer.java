@@ -1,15 +1,15 @@
 package net.minecraft.world.level.levelgen.feature.trunkplacers;
 
+import com.google.common.collect.Lists;
 import com.mojang.datafixers.Dynamic;
-import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.LevelSimulatedRW;
-import net.minecraft.world.level.levelgen.feature.AbstractTreeFeature;
-import net.minecraft.world.level.levelgen.feature.configurations.SmallTreeConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
+import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacer;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public class ForkingTrunkPlacer extends TrunkPlacer {
@@ -22,17 +22,11 @@ public class ForkingTrunkPlacer extends TrunkPlacer {
     }
 
     @Override
-    public Map<BlockPos, Integer> placeTrunk(
-        LevelSimulatedRW param0,
-        Random param1,
-        int param2,
-        BlockPos param3,
-        int param4,
-        Set<BlockPos> param5,
-        BoundingBox param6,
-        SmallTreeConfiguration param7
+    public List<FoliagePlacer.FoliageAttachment> placeTrunk(
+        LevelSimulatedRW param0, Random param1, int param2, BlockPos param3, Set<BlockPos> param4, BoundingBox param5, TreeConfiguration param6
     ) {
-        Map<BlockPos, Integer> var0 = new Object2ObjectLinkedOpenHashMap<>();
+        setDirtAt(param0, param3.below());
+        List<FoliagePlacer.FoliageAttachment> var0 = Lists.newArrayList();
         Direction var1 = Direction.Plane.HORIZONTAL.getRandomDirection(param1);
         int var2 = param2 - param1.nextInt(4) - 1;
         int var3 = 3 - param1.nextInt(3);
@@ -49,12 +43,12 @@ public class ForkingTrunkPlacer extends TrunkPlacer {
                 --var3;
             }
 
-            if (AbstractTreeFeature.placeLog(param0, param1, var4.set(var5, var9, var6), param5, param6, param7)) {
+            if (placeLog(param0, param1, var4.set(var5, var9, var6), param4, param5, param6)) {
                 var7 = var9 + 1;
             }
         }
 
-        var0.put(new BlockPos(var5, var7, var6), param4 + 1);
+        var0.add(new FoliagePlacer.FoliageAttachment(new BlockPos(var5, var7, var6), 1, false));
         var5 = param3.getX();
         var6 = param3.getZ();
         Direction var10 = Direction.Plane.HORIZONTAL.getRandomDirection(param1);
@@ -68,7 +62,7 @@ public class ForkingTrunkPlacer extends TrunkPlacer {
                     int var14 = param3.getY() + var13;
                     var5 += var10.getStepX();
                     var6 += var10.getStepZ();
-                    if (AbstractTreeFeature.placeLog(param0, param1, var4.set(var5, var14, var6), param5, param6, param7)) {
+                    if (placeLog(param0, param1, var4.set(var5, var14, var6), param4, param5, param6)) {
                         var7 = var14 + 1;
                     }
                 }
@@ -77,7 +71,7 @@ public class ForkingTrunkPlacer extends TrunkPlacer {
             }
 
             if (var7 > 1) {
-                var0.put(new BlockPos(var5, var7, var6), param4);
+                var0.add(new FoliagePlacer.FoliageAttachment(new BlockPos(var5, var7, var6), 0, false));
             }
         }
 

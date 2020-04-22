@@ -86,7 +86,7 @@ public class StrongholdFeature extends StructureFeature<NoneFeatureConfiguration
     public BlockPos getNearestGeneratedFeature(
         ServerLevel param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, BlockPos param2, int param3, boolean param4
     ) {
-        if (!param1.getBiomeSource().canGenerateStructure(this)) {
+        if (!param1.canGenerateStructure(this)) {
             return null;
         } else {
             if (this.currentSeed != param0.getSeed()) {

@@ -17,8 +17,11 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.dimension.Dimension;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -36,50 +39,63 @@ public class CompassItem extends Item implements Vanishable {
                 @OnlyIn(Dist.CLIENT)
                 @Override
                 public float call(ItemStack param0, @Nullable Level param1, @Nullable LivingEntity param2) {
-                    if (param2 == null && !param0.isFramed()) {
+                    Entity var0 = (Entity)(param2 != null ? param2 : param0.getEntityRepresentation());
+                    if (var0 == null) {
                         return 0.0F;
                     } else {
-                        boolean var0 = param2 != null;
-                        Entity var1 = (Entity)(var0 ? param2 : param0.getFrame());
                         if (param1 == null) {
-                            param1 = var1.level;
+                            param1 = var0.level;
                         }
     
-                        CompoundTag var2 = param0.getOrCreateTag();
-                        BlockPos var3 = CompassItem.hasLodestoneData(var2)
-                            ? CompassItem.this.getLodestonePosition(param1, var2)
+                        BlockPos var1 = CompassItem.isLodestoneCompass(param0)
+                            ? CompassItem.this.getLodestonePosition(param1, param0.getOrCreateTag())
                             : CompassItem.this.getSpawnPosition(param1);
-                        double var9;
-                        if (var3 != null) {
-                            double var4 = var0 ? (double)var1.yRot : CompassItem.getFrameRotation((ItemFrame)var1);
-                            var4 = Mth.positiveModulo(var4 / 360.0, 1.0);
-                            double var5 = 0.5 - (var4 - 0.25);
-                            boolean var6 = !var0 && var1.getDirection().getAxis().isVertical();
-                            boolean var7 = var6 && var1.getDirection() == Direction.UP;
-                            double var8 = CompassItem.getAngleTo(Vec3.atCenterOf(var3), var1) / (float) (Math.PI * 2) * (double)(var7 ? -1 : 1);
-                            var9 = 0.5 - (var4 - 0.25 - var8) * (double)(var6 ? -1 : 1);
-                            if (var0) {
-                                this.wobble.update(param1, var5);
-                                var9 -= var5 - this.wobble.getRotation();
+                        long var2 = param1.getGameTime();
+                        if (var1 != null
+                            && !(var0.position().distanceToSqr((double)var1.getX() + 0.5, var0.position().y(), (double)var1.getZ() + 0.5) < 1.0E-5F)) {
+                            boolean var4 = param2 instanceof Player && ((Player)param2).isLocalPlayer();
+                            double var5 = 0.0;
+                            if (var4) {
+                                var5 = (double)param2.yRot;
+                            } else if (var0 instanceof ItemFrame) {
+                                var5 = CompassItem.getFrameRotation((ItemFrame)var0);
+                            } else if (var0 instanceof ItemEntity) {
+                                var5 = (double)(180.0F - ((ItemEntity)var0).getSpin(0.5F) / (float) (Math.PI * 2) * 360.0F);
+                            } else if (param2 != null) {
+                                var5 = (double)param2.yBodyRot;
                             }
-                        } else {
-                            this.wobbleRandom.update(param1, Math.random());
-                            var9 = this.wobbleRandom.getRotation();
-                        }
     
-                        return Mth.positiveModulo((float)var9, 1.0F);
+                            var5 = Mth.positiveModulo(var5 / 360.0, 1.0);
+                            double var6 = CompassItem.getAngleTo(Vec3.atCenterOf(var1), var0) / (float) (Math.PI * 2);
+                            double var7;
+                            if (var4) {
+                                if (this.wobble.shouldUpdate(var2)) {
+                                    this.wobble.update(var2, 0.5 - (var5 - 0.25));
+                                }
+    
+                                var7 = var6 + this.wobble.rotation;
+                            } else {
+                                var7 = 0.5 - (var5 - 0.25 - var6);
+                            }
+    
+                            return Mth.positiveModulo((float)var7, 1.0F);
+                        } else {
+                            if (this.wobbleRandom.shouldUpdate(var2)) {
+                                this.wobbleRandom.update(var2, Math.random());
+                            }
+    
+                            double var3 = this.wobbleRandom.rotation + (double)((float)param0.hashCode() / 2.14748365E9F);
+                            return Mth.positiveModulo((float)var3, 1.0F);
+                        }
                     }
                 }
             }
         );
     }
 
-    private static boolean hasLodestoneData(CompoundTag param0) {
-        return param0.contains("LodestoneDimension") || param0.contains("LodestonePos");
-    }
-
     private static boolean isLodestoneCompass(ItemStack param0) {
-        return hasLodestoneData(param0.getOrCreateTag());
+        CompoundTag var0 = param0.getTag();
+        return var0 != null && (var0.contains("LodestoneDimension") || var0.contains("LodestonePos"));
     }
 
     @Override
@@ -113,24 +129,11 @@ public class CompassItem extends Item implements Vanishable {
         return null;
     }
 
-    @OnlyIn(Dist.CLIENT)
-    private static double getFrameRotation(ItemFrame param0) {
-        Direction var0 = param0.getDirection();
-        return var0.getAxis().isVertical()
-            ? (double)Mth.wrapDegrees(param0.getRotation() * -45)
-            : (double)Mth.wrapDegrees(180 + param0.getDirection().get2DDataValue() * 90 + param0.getRotation() * 45);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    private static double getAngleTo(Vec3 param0, Entity param1) {
-        return Math.atan2(param0.z() - param1.getZ(), param0.x() - param1.getX());
-    }
-
     @Override
     public void inventoryTick(ItemStack param0, Level param1, Entity param2, int param3, boolean param4) {
         if (!param1.isClientSide) {
-            CompoundTag var0 = param0.getOrCreateTag();
-            if (hasLodestoneData(var0)) {
+            if (isLodestoneCompass(param0)) {
+                CompoundTag var0 = param0.getOrCreateTag();
                 if (var0.contains("LodestoneTracked") && !var0.getBoolean("LodestoneTracked")) {
                     return;
                 }
@@ -152,21 +155,52 @@ public class CompassItem extends Item implements Vanishable {
     @Override
     public InteractionResult useOn(UseOnContext param0) {
         BlockPos var0 = param0.hitResult.getBlockPos();
-        if (param0.level.getBlockState(var0).getBlock() == Blocks.LODESTONE) {
-            param0.level.playSound(null, var0, SoundEvents.LODESTONE_COMPASS_LOCK, SoundSource.PLAYERS, 1.0F, 1.0F);
-            CompoundTag var1 = param0.itemStack.getOrCreateTag();
-            var1.put("LodestonePos", NbtUtils.writeBlockPos(var0));
-            var1.putString("LodestoneDimension", DimensionType.getName(param0.level.dimension.getType()).toString());
-            var1.putBoolean("LodestoneTracked", true);
-            return InteractionResult.SUCCESS;
-        } else {
+        if (param0.level.getBlockState(var0).getBlock() != Blocks.LODESTONE) {
             return super.useOn(param0);
+        } else {
+            param0.level.playSound(null, var0, SoundEvents.LODESTONE_COMPASS_LOCK, SoundSource.PLAYERS, 1.0F, 1.0F);
+            boolean var1 = !param0.player.abilities.instabuild && param0.itemStack.getCount() == 1;
+            if (var1) {
+                this.addLodestoneTags(param0.level.dimension, var0, param0.itemStack.getOrCreateTag());
+            } else {
+                ItemStack var2 = new ItemStack(Items.COMPASS, 1);
+                CompoundTag var3 = param0.itemStack.hasTag() ? param0.itemStack.getTag().copy() : new CompoundTag();
+                var2.setTag(var3);
+                if (!param0.player.abilities.instabuild) {
+                    param0.itemStack.shrink(1);
+                }
+
+                this.addLodestoneTags(param0.level.dimension, var0, var3);
+                if (!param0.player.inventory.add(var2)) {
+                    param0.player.drop(var2, false);
+                }
+            }
+
+            return InteractionResult.SUCCESS;
         }
+    }
+
+    private void addLodestoneTags(Dimension param0, BlockPos param1, CompoundTag param2) {
+        param2.put("LodestonePos", NbtUtils.writeBlockPos(param1));
+        param2.putString("LodestoneDimension", DimensionType.getName(param0.getType()).toString());
+        param2.putBoolean("LodestoneTracked", true);
     }
 
     @Override
     public String getDescriptionId(ItemStack param0) {
         return isLodestoneCompass(param0) ? "item.minecraft.lodestone_compass" : super.getDescriptionId(param0);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private static double getFrameRotation(ItemFrame param0) {
+        Direction var0 = param0.getDirection();
+        int var1 = var0.getAxis().isVertical() ? 90 * var0.getAxisDirection().getStep() : 0;
+        return (double)Mth.wrapDegrees(180 + var0.get2DDataValue() * 90 + param0.getRotation() * 45 + var1);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private static double getAngleTo(Vec3 param0, Entity param1) {
+        return Math.atan2(param0.z() - param1.getZ(), param0.x() - param1.getX());
     }
 
     static class CompassWobble {
@@ -181,21 +215,18 @@ public class CompassItem extends Item implements Vanishable {
         }
 
         @OnlyIn(Dist.CLIENT)
-        public double getRotation() {
-            return this.rotation;
+        private boolean shouldUpdate(long param0) {
+            return this.lastUpdateTick != param0;
         }
 
         @OnlyIn(Dist.CLIENT)
-        private void update(Level param0, double param1) {
-            if (param0.getGameTime() != this.lastUpdateTick) {
-                this.lastUpdateTick = param0.getGameTime();
-                double var0 = param1 - this.rotation;
-                var0 = Mth.positiveModulo(var0 + 0.5, 1.0) - 0.5;
-                this.deltaRotation += var0 * 0.1;
-                this.deltaRotation *= 0.8;
-                this.rotation = Mth.positiveModulo(this.rotation + this.deltaRotation, 1.0);
-            }
-
+        private void update(long param0, double param1) {
+            this.lastUpdateTick = param0;
+            double var0 = param1 - this.rotation;
+            var0 = Mth.positiveModulo(var0 + 0.5, 1.0) - 0.5;
+            this.deltaRotation += var0 * 0.1;
+            this.deltaRotation *= 0.8;
+            this.rotation = Mth.positiveModulo(this.rotation + this.deltaRotation, 1.0);
         }
     }
 }

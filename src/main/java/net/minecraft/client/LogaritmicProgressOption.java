@@ -3,6 +3,7 @@ package net.minecraft.client;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -15,7 +16,7 @@ public class LogaritmicProgressOption extends ProgressOption {
         float param3,
         Function<Options, Double> param4,
         BiConsumer<Options, Double> param5,
-        BiFunction<Options, ProgressOption, String> param6
+        BiFunction<Options, ProgressOption, Component> param6
     ) {
         super(param0, param1, param2, param3, param4, param5, param6);
     }

@@ -1,6 +1,7 @@
 package net.minecraft.client.gui.screens.recipebook;
 
 import com.google.common.collect.Lists;
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
@@ -84,30 +85,30 @@ public class RecipeBookPage {
         this.backButton.visible = this.totalPages > 1 && this.currentPage > 0;
     }
 
-    public void render(int param0, int param1, int param2, int param3, float param4) {
+    public void render(PoseStack param0, int param1, int param2, int param3, int param4, float param5) {
         if (this.totalPages > 1) {
             String var0 = this.currentPage + 1 + "/" + this.totalPages;
             int var1 = this.minecraft.font.width(var0);
-            this.minecraft.font.draw(var0, (float)(param0 - var1 / 2 + 73), (float)(param1 + 141), -1);
+            this.minecraft.font.draw(param0, var0, (float)(param1 - var1 / 2 + 73), (float)(param2 + 141), -1);
         }
 
         this.hoveredButton = null;
 
         for(RecipeButton var2 : this.buttons) {
-            var2.render(param2, param3, param4);
+            var2.render(param0, param3, param4, param5);
             if (var2.visible && var2.isHovered()) {
                 this.hoveredButton = var2;
             }
         }
 
-        this.backButton.render(param2, param3, param4);
-        this.forwardButton.render(param2, param3, param4);
-        this.overlay.render(param2, param3, param4);
+        this.backButton.render(param0, param3, param4, param5);
+        this.forwardButton.render(param0, param3, param4, param5);
+        this.overlay.render(param0, param3, param4, param5);
     }
 
-    public void renderTooltip(int param0, int param1) {
+    public void renderTooltip(PoseStack param0, int param1, int param2) {
         if (this.minecraft.screen != null && this.hoveredButton != null && !this.overlay.isVisible()) {
-            this.minecraft.screen.renderTooltip(this.hoveredButton.getTooltipText(this.minecraft.screen), param0, param1);
+            this.minecraft.screen.renderTooltip(param0, this.hoveredButton.getTooltipText(this.minecraft.screen), param1, param2);
         }
 
     }

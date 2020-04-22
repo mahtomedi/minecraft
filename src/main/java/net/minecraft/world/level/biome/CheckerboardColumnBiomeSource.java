@@ -14,6 +14,6 @@ public class CheckerboardColumnBiomeSource extends BiomeSource {
 
     @Override
     public Biome getNoiseBiome(int param0, int param1, int param2) {
-        return this.allowedBiomes[Math.abs(((param0 >> this.bitShift) + (param2 >> this.bitShift)) % this.allowedBiomes.length)];
+        return this.allowedBiomes[Math.floorMod((param0 >> this.bitShift) + (param2 >> this.bitShift), this.allowedBiomes.length)];
     }
 }

@@ -1,10 +1,13 @@
 package com.mojang.blaze3d.font;
 
 import com.mojang.blaze3d.platform.NativeImage;
-import it.unimi.dsi.fastutil.chars.CharArraySet;
-import it.unimi.dsi.fastutil.chars.CharSet;
+import it.unimi.dsi.fastutil.ints.IntArraySet;
+import it.unimi.dsi.fastutil.ints.IntCollection;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -18,7 +21,7 @@ public class TrueTypeGlyphProvider implements GlyphProvider {
     private final ByteBuffer fontMemory;
     private final STBTTFontinfo font;
     private final float oversample;
-    private final CharSet skip = new CharArraySet();
+    private final IntSet skip = new IntArraySet();
     private final float shiftX;
     private final float shiftY;
     private final float pointScale;
@@ -28,7 +31,7 @@ public class TrueTypeGlyphProvider implements GlyphProvider {
         this.fontMemory = param0;
         this.font = param1;
         this.oversample = param3;
-        param6.chars().forEach(param0x -> this.skip.add((char)(param0x & 65535)));
+        param6.codePoints().forEach(this.skip::add);
         this.shiftX = param4 * param3;
         this.shiftY = param5 * param3;
         this.pointScale = STBTruetype.stbtt_ScaleForPixelHeight(param1, param2 * param3);
@@ -44,7 +47,7 @@ public class TrueTypeGlyphProvider implements GlyphProvider {
     }
 
     @Nullable
-    public TrueTypeGlyphProvider.Glyph getGlyph(char param0) {
+    public TrueTypeGlyphProvider.Glyph getGlyph(int param0) {
         if (this.skip.contains(param0)) {
             return null;
         } else {
@@ -90,6 +93,11 @@ public class TrueTypeGlyphProvider implements GlyphProvider {
     public void close() {
         this.font.free();
         MemoryUtil.memFree(this.fontMemory);
+    }
+
+    @Override
+    public IntSet getSupportedGlyphs() {
+        return IntStream.range(0, 65535).filter(param0 -> !this.skip.contains(param0)).collect(IntOpenHashSet::new, IntCollection::add, IntCollection::addAll);
     }
 
     @OnlyIn(Dist.CLIENT)

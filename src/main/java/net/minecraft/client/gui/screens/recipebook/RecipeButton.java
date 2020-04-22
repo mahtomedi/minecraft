@@ -1,11 +1,14 @@
 package net.minecraft.client.gui.screens.recipebook;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.stats.RecipeBook;
 import net.minecraft.util.Mth;
@@ -26,7 +29,7 @@ public class RecipeButton extends AbstractWidget {
     private int currentIndex;
 
     public RecipeButton() {
-        super(0, 0, 25, 25, "");
+        super(0, 0, 25, 25, TextComponent.EMPTY);
     }
 
     public void init(RecipeCollection param0, RecipeBookPage param1) {
@@ -55,9 +58,9 @@ public class RecipeButton extends AbstractWidget {
     }
 
     @Override
-    public void renderButton(int param0, int param1, float param2) {
+    public void renderButton(PoseStack param0, int param1, int param2, float param3) {
         if (!Screen.hasControlDown()) {
-            this.time += param2;
+            this.time += param3;
         }
 
         Minecraft var0 = Minecraft.getInstance();
@@ -79,10 +82,10 @@ public class RecipeButton extends AbstractWidget {
             RenderSystem.translatef((float)(this.x + 8), (float)(this.y + 12), 0.0F);
             RenderSystem.scalef(var4, var4, 1.0F);
             RenderSystem.translatef((float)(-(this.x + 8)), (float)(-(this.y + 12)), 0.0F);
-            this.animationTime -= param2;
+            this.animationTime -= param3;
         }
 
-        this.blit(this.x, this.y, var1, var2, this.width, this.height);
+        this.blit(param0, this.x, this.y, var1, var2, this.width, this.height);
         List<Recipe<?>> var5 = this.getOrderedRecipes();
         this.currentIndex = Mth.floor(this.time / 30.0F) % var5.size();
         ItemStack var6 = var5.get(this.currentIndex).getResultItem();
@@ -117,11 +120,11 @@ public class RecipeButton extends AbstractWidget {
         return var0.get(this.currentIndex);
     }
 
-    public List<String> getTooltipText(Screen param0) {
+    public List<Component> getTooltipText(Screen param0) {
         ItemStack var0 = this.getOrderedRecipes().get(this.currentIndex).getResultItem();
-        List<String> var1 = param0.getTooltipFromItem(var0);
+        List<Component> var1 = param0.getTooltipFromItem(var0);
         if (this.collection.getRecipes(this.book.isFilteringCraftable(this.menu)).size() > 1) {
-            var1.add(I18n.get("gui.recipebook.moreRecipes"));
+            var1.add(new TranslatableComponent("gui.recipebook.moreRecipes"));
         }
 
         return var1;

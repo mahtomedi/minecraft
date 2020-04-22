@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import java.util.Collections;
 import java.util.List;
@@ -71,7 +72,7 @@ public abstract class ScrolledSelectionList extends AbstractContainerEventHandle
     protected void updateItemPosition(int param0, int param1, int param2, float param3) {
     }
 
-    protected abstract void renderItem(int var1, int var2, int var3, int var4, int var5, int var6, float var7);
+    protected abstract void renderItem(PoseStack var1, int var2, int var3, int var4, int var5, int var6, int var7, float var8);
 
     protected void renderHeader(int param0, int param1, Tesselator param2) {
     }
@@ -110,7 +111,7 @@ public abstract class ScrolledSelectionList extends AbstractContainerEventHandle
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
+    public void render(PoseStack param0, int param1, int param2, float param3) {
         if (this.visible) {
             this.renderBackground();
             int var0 = this.getScrollbarPosition();
@@ -145,7 +146,7 @@ public abstract class ScrolledSelectionList extends AbstractContainerEventHandle
                 this.renderHeader(var5, var6, var2);
             }
 
-            this.renderList(var5, var6, param0, param1, param2);
+            this.renderList(param0, var5, var6, param1, param2, param3);
             RenderSystem.disableDepthTest();
             this.renderHoleBackground(0, this.y0, 255, 255);
             this.renderHoleBackground(this.y1, this.height, 255, 255);
@@ -201,7 +202,7 @@ public abstract class ScrolledSelectionList extends AbstractContainerEventHandle
                 var2.end();
             }
 
-            this.renderDecorations(param0, param1);
+            this.renderDecorations(param1, param2);
             RenderSystem.enableTexture();
             RenderSystem.shadeModel(7424);
             RenderSystem.enableAlphaTest();
@@ -323,16 +324,16 @@ public abstract class ScrolledSelectionList extends AbstractContainerEventHandle
         return 220;
     }
 
-    protected void renderList(int param0, int param1, int param2, int param3, float param4) {
+    protected void renderList(PoseStack param0, int param1, int param2, int param3, int param4, float param5) {
         int var0 = this.getItemCount();
         Tesselator var1 = Tesselator.getInstance();
         BufferBuilder var2 = var1.getBuilder();
 
         for(int var3 = 0; var3 < var0; ++var3) {
-            int var4 = param1 + var3 * this.itemHeight + this.headerHeight;
+            int var4 = param2 + var3 * this.itemHeight + this.headerHeight;
             int var5 = this.itemHeight - 4;
             if (var4 > this.y1 || var4 + var5 < this.y0) {
-                this.updateItemPosition(var3, param0, var4, param4);
+                this.updateItemPosition(var3, param1, var4, param5);
             }
 
             if (this.renderSelection && this.isSelectedItem(var3)) {
@@ -357,7 +358,7 @@ public abstract class ScrolledSelectionList extends AbstractContainerEventHandle
                 RenderSystem.enableTexture();
             }
 
-            this.renderItem(var3, param0, var4, var5, param2, param3, param4);
+            this.renderItem(param0, var3, param1, var4, var5, param3, param4, param5);
         }
 
     }

@@ -13,7 +13,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CocoaBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.feature.AbstractTreeFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public class CocoaDecorator extends TreeDecorator {
@@ -40,7 +40,7 @@ public class CocoaDecorator extends TreeDecorator {
                             if (param1.nextFloat() <= 0.25F) {
                                 Direction var1x = var0x.getOpposite();
                                 BlockPos var2x = param4x.offset(var1x.getStepX(), 0, var1x.getStepZ());
-                                if (AbstractTreeFeature.isAir(param0, var2x)) {
+                                if (Feature.isAir(param0, var2x)) {
                                     BlockState var3x = Blocks.COCOA
                                         .defaultBlockState()
                                         .setValue(CocoaBlock.AGE, Integer.valueOf(param1.nextInt(3)))

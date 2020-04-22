@@ -12,7 +12,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelSimulatedRW;
 import net.minecraft.world.level.block.VineBlock;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.levelgen.feature.AbstractTreeFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public class LeaveVineDecorator extends TreeDecorator {
@@ -29,28 +29,28 @@ public class LeaveVineDecorator extends TreeDecorator {
         param3.forEach(param4x -> {
             if (param1.nextInt(4) == 0) {
                 BlockPos var3x = param4x.west();
-                if (AbstractTreeFeature.isAir(param0, var3x)) {
+                if (Feature.isAir(param0, var3x)) {
                     this.addHangingVine(param0, var3x, VineBlock.EAST, param4, param5);
                 }
             }
 
             if (param1.nextInt(4) == 0) {
                 BlockPos var1 = param4x.east();
-                if (AbstractTreeFeature.isAir(param0, var1)) {
+                if (Feature.isAir(param0, var1)) {
                     this.addHangingVine(param0, var1, VineBlock.WEST, param4, param5);
                 }
             }
 
             if (param1.nextInt(4) == 0) {
                 BlockPos var2 = param4x.north();
-                if (AbstractTreeFeature.isAir(param0, var2)) {
+                if (Feature.isAir(param0, var2)) {
                     this.addHangingVine(param0, var2, VineBlock.SOUTH, param4, param5);
                 }
             }
 
             if (param1.nextInt(4) == 0) {
                 BlockPos var3 = param4x.south();
-                if (AbstractTreeFeature.isAir(param0, var3)) {
+                if (Feature.isAir(param0, var3)) {
                     this.addHangingVine(param0, var3, VineBlock.NORTH, param4, param5);
                 }
             }
@@ -62,7 +62,7 @@ public class LeaveVineDecorator extends TreeDecorator {
         this.placeVine(param0, param1, param2, param3, param4);
         int var0 = 4;
 
-        for(BlockPos var7 = param1.below(); AbstractTreeFeature.isAir(param0, var7) && var0 > 0; --var0) {
+        for(BlockPos var7 = param1.below(); Feature.isAir(param0, var7) && var0 > 0; --var0) {
             this.placeVine(param0, var7, param2, param3, param4);
             var7 = var7.below();
         }

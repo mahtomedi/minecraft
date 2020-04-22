@@ -1,10 +1,12 @@
 package net.minecraft.client.gui.screens;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Option;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.OptionButton;
-import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraftforge.api.distmarker.Dist;
@@ -50,26 +52,24 @@ public class SkinCustomizationScreen extends OptionsSubScreen {
 
         this.addButton(
             new Button(
-                this.width / 2 - 100, this.height / 6 + 24 * (var0 >> 1), 200, 20, I18n.get("gui.done"), param0 -> this.minecraft.setScreen(this.lastScreen)
+                this.width / 2 - 100,
+                this.height / 6 + 24 * (var0 >> 1),
+                200,
+                20,
+                CommonComponents.GUI_DONE,
+                param0 -> this.minecraft.setScreen(this.lastScreen)
             )
         );
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
-        this.renderBackground();
-        this.drawCenteredString(this.font, this.title.getColoredString(), this.width / 2, 20, 16777215);
-        super.render(param0, param1, param2);
+    public void render(PoseStack param0, int param1, int param2, float param3) {
+        this.renderBackground(param0);
+        this.drawCenteredString(param0, this.font, this.title, this.width / 2, 20, 16777215);
+        super.render(param0, param1, param2, param3);
     }
 
-    private String getMessage(PlayerModelPart param0) {
-        String var0;
-        if (this.options.getModelParts().contains(param0)) {
-            var0 = I18n.get("options.on");
-        } else {
-            var0 = I18n.get("options.off");
-        }
-
-        return param0.getName().getColoredString() + ": " + var0;
+    private Component getMessage(PlayerModelPart param0) {
+        return param0.getName().mutableCopy().append(": ").append(CommonComponents.optionStatus(this.options.getModelParts().contains(param0)));
     }
 }

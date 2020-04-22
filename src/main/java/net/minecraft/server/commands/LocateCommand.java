@@ -56,9 +56,9 @@ public class LocateCommand {
         int var0 = Mth.floor(dist(param2.getX(), param2.getZ(), param3.getX(), param3.getZ()));
         Component var1 = ComponentUtils.wrapInSquareBrackets(new TranslatableComponent("chat.coordinates", param3.getX(), "~", param3.getZ()))
             .withStyle(
-                param1x -> param1x.setColor(ChatFormatting.GREEN)
-                        .setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/tp @s " + param3.getX() + " ~ " + param3.getZ()))
-                        .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslatableComponent("chat.coordinates.tooltip")))
+                param1x -> param1x.withColor(ChatFormatting.GREEN)
+                        .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/tp @s " + param3.getX() + " ~ " + param3.getZ()))
+                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslatableComponent("chat.coordinates.tooltip")))
             );
         param0.sendSuccess(new TranslatableComponent(param4, param1, var1, var0), false);
         return var0;

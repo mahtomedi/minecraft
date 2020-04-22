@@ -20,6 +20,7 @@ public class EmptyMapItem extends ComplexItem {
             var1.shrink(1);
         }
 
+        param1.awardStat(Stats.ITEM_USED.get(this));
         if (var1.isEmpty()) {
             return InteractionResultHolder.success(var0);
         } else {
@@ -27,7 +28,6 @@ public class EmptyMapItem extends ComplexItem {
                 param1.drop(var0, false);
             }
 
-            param1.awardStat(Stats.ITEM_USED.get(this));
             return InteractionResultHolder.success(var1);
         }
     }

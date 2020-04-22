@@ -4,10 +4,10 @@ import com.google.common.collect.Lists;
 import java.util.List;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -25,6 +25,7 @@ public class WorldBorder {
     private double centerZ;
     private int absoluteMaxSize = 29999984;
     private WorldBorder.BorderExtent extent = new WorldBorder.StaticBorderExtent(6.0E7);
+    public static final WorldBorder.Settings DEFAULT_SETTINGS = new WorldBorder.Settings(0.0, 0.0, 0.2, 5.0, 5, 15, 6.0E7, 0L, 0.0);
 
     public boolean isWithinBounds(BlockPos param0) {
         return (double)(param0.getX() + 1) > this.getMinX()
@@ -212,28 +213,20 @@ public class WorldBorder {
         this.extent = this.extent.update();
     }
 
-    public void saveWorldBorderData(LevelData param0) {
-        param0.setBorderSize(this.getSize());
-        param0.setBorderX(this.getCenterX());
-        param0.setBorderZ(this.getCenterZ());
-        param0.setBorderSafeZone(this.getDamageSafeZone());
-        param0.setBorderDamagePerBlock(this.getDamagePerBlock());
-        param0.setBorderWarningBlocks(this.getWarningBlocks());
-        param0.setBorderWarningTime(this.getWarningTime());
-        param0.setBorderSizeLerpTarget(this.getLerpTarget());
-        param0.setBorderSizeLerpTime(this.getLerpRemainingTime());
+    public WorldBorder.Settings createSettings() {
+        return new WorldBorder.Settings(this);
     }
 
-    public void readBorderData(LevelData param0) {
-        this.setCenter(param0.getBorderX(), param0.getBorderZ());
-        this.setDamagePerBlock(param0.getBorderDamagePerBlock());
-        this.setDamageSafeZone(param0.getBorderSafeZone());
-        this.setWarningBlocks(param0.getBorderWarningBlocks());
-        this.setWarningTime(param0.getBorderWarningTime());
-        if (param0.getBorderSizeLerpTime() > 0L) {
-            this.lerpSizeBetween(param0.getBorderSize(), param0.getBorderSizeLerpTarget(), param0.getBorderSizeLerpTime());
+    public void applySettings(WorldBorder.Settings param0) {
+        this.setCenter(param0.getCenterX(), param0.getCenterZ());
+        this.setDamagePerBlock(param0.getDamagePerBlock());
+        this.setDamageSafeZone(param0.getSafeZone());
+        this.setWarningBlocks(param0.getWarningBlocks());
+        this.setWarningTime(param0.getWarningTime());
+        if (param0.getSizeLerpTime() > 0L) {
+            this.lerpSizeBetween(param0.getSize(), param0.getSizeLerpTarget(), param0.getSizeLerpTime());
         } else {
-            this.setSize(param0.getBorderSize());
+            this.setSize(param0.getSize());
         }
 
     }
@@ -358,6 +351,139 @@ public class WorldBorder {
                 ),
                 BooleanOp.ONLY_FIRST
             );
+        }
+    }
+
+    public static class Settings {
+        private final double centerX;
+        private final double centerZ;
+        private final double damagePerBlock;
+        private final double safeZone;
+        private final int warningBlocks;
+        private final int warningTime;
+        private final double size;
+        private final long sizeLerpTime;
+        private final double sizeLerpTarget;
+
+        private Settings(double param0, double param1, double param2, double param3, int param4, int param5, double param6, long param7, double param8) {
+            this.centerX = param0;
+            this.centerZ = param1;
+            this.damagePerBlock = param2;
+            this.safeZone = param3;
+            this.warningBlocks = param4;
+            this.warningTime = param5;
+            this.size = param6;
+            this.sizeLerpTime = param7;
+            this.sizeLerpTarget = param8;
+        }
+
+        private Settings(WorldBorder param0) {
+            this.centerX = param0.getCenterX();
+            this.centerZ = param0.getCenterZ();
+            this.damagePerBlock = param0.getDamagePerBlock();
+            this.safeZone = param0.getDamageSafeZone();
+            this.warningBlocks = param0.getWarningBlocks();
+            this.warningTime = param0.getWarningTime();
+            this.size = param0.getSize();
+            this.sizeLerpTime = param0.getLerpRemainingTime();
+            this.sizeLerpTarget = param0.getLerpTarget();
+        }
+
+        public double getCenterX() {
+            return this.centerX;
+        }
+
+        public double getCenterZ() {
+            return this.centerZ;
+        }
+
+        public double getDamagePerBlock() {
+            return this.damagePerBlock;
+        }
+
+        public double getSafeZone() {
+            return this.safeZone;
+        }
+
+        public int getWarningBlocks() {
+            return this.warningBlocks;
+        }
+
+        public int getWarningTime() {
+            return this.warningTime;
+        }
+
+        public double getSize() {
+            return this.size;
+        }
+
+        public long getSizeLerpTime() {
+            return this.sizeLerpTime;
+        }
+
+        public double getSizeLerpTarget() {
+            return this.sizeLerpTarget;
+        }
+
+        public static WorldBorder.Settings read(CompoundTag param0, WorldBorder.Settings param1) {
+            double var0 = param1.centerX;
+            double var1 = param1.centerZ;
+            double var2 = param1.size;
+            long var3 = param1.sizeLerpTime;
+            double var4 = param1.sizeLerpTarget;
+            double var5 = param1.safeZone;
+            double var6 = param1.damagePerBlock;
+            int var7 = param1.warningBlocks;
+            int var8 = param1.warningTime;
+            if (param0.contains("BorderCenterX", 99)) {
+                var0 = param0.getDouble("BorderCenterX");
+            }
+
+            if (param0.contains("BorderCenterZ", 99)) {
+                var1 = param0.getDouble("BorderCenterZ");
+            }
+
+            if (param0.contains("BorderSize", 99)) {
+                var2 = param0.getDouble("BorderSize");
+            }
+
+            if (param0.contains("BorderSizeLerpTime", 99)) {
+                var3 = param0.getLong("BorderSizeLerpTime");
+            }
+
+            if (param0.contains("BorderSizeLerpTarget", 99)) {
+                var4 = param0.getDouble("BorderSizeLerpTarget");
+            }
+
+            if (param0.contains("BorderSafeZone", 99)) {
+                var5 = param0.getDouble("BorderSafeZone");
+            }
+
+            if (param0.contains("BorderDamagePerBlock", 99)) {
+                var6 = param0.getDouble("BorderDamagePerBlock");
+            }
+
+            if (param0.contains("BorderWarningBlocks", 99)) {
+                var7 = param0.getInt("BorderWarningBlocks");
+            }
+
+            if (param0.contains("BorderWarningTime", 99)) {
+                var8 = param0.getInt("BorderWarningTime");
+            }
+
+            return new WorldBorder.Settings(var0, var1, var6, var5, var7, var8, var2, var3, var4);
+        }
+
+        public void write(CompoundTag param0) {
+            param0.putDouble("BorderCenterX", this.centerX);
+            param0.putDouble("BorderCenterZ", this.centerZ);
+            param0.putDouble("BorderSize", this.size);
+            param0.putLong("BorderSizeLerpTime", this.sizeLerpTime);
+            param0.putDouble("BorderSafeZone", this.safeZone);
+            param0.putDouble("BorderDamagePerBlock", this.damagePerBlock);
+            param0.putDouble("BorderSizeLerpTarget", this.sizeLerpTarget);
+            param0.putDouble("BorderWarningBlocks", (double)this.warningBlocks);
+            param0.putDouble("BorderWarningTime", (double)this.warningTime);
         }
     }
 

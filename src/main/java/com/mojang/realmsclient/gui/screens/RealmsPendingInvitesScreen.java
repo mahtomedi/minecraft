@@ -1,6 +1,7 @@
 package com.mojang.realmsclient.gui.screens;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.realmsclient.RealmsMainScreen;
 import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.dto.PendingInvite;
@@ -17,6 +18,8 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.realms.NarrationHelper;
 import net.minecraft.realms.RealmsLabel;
 import net.minecraft.realms.RealmsObjectSelectionList;
@@ -71,22 +74,31 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
             })
             .start();
         this.addWidget(this.pendingInvitationSelectionList);
-        this.acceptButton = this.addButton(new Button(this.width / 2 - 174, this.height - 32, 100, 20, I18n.get("mco.invites.button.accept"), param0 -> {
-            this.accept(this.selectedInvite);
-            this.selectedInvite = -1;
-            this.updateButtonStates();
-        }));
+        this.acceptButton = this.addButton(
+            new Button(this.width / 2 - 174, this.height - 32, 100, 20, new TranslatableComponent("mco.invites.button.accept"), param0 -> {
+                this.accept(this.selectedInvite);
+                this.selectedInvite = -1;
+                this.updateButtonStates();
+            })
+        );
         this.addButton(
             new Button(
-                this.width / 2 - 50, this.height - 32, 100, 20, I18n.get("gui.done"), param0 -> this.minecraft.setScreen(new RealmsMainScreen(this.lastScreen))
+                this.width / 2 - 50,
+                this.height - 32,
+                100,
+                20,
+                CommonComponents.GUI_DONE,
+                param0 -> this.minecraft.setScreen(new RealmsMainScreen(this.lastScreen))
             )
         );
-        this.rejectButton = this.addButton(new Button(this.width / 2 + 74, this.height - 32, 100, 20, I18n.get("mco.invites.button.reject"), param0 -> {
-            this.reject(this.selectedInvite);
-            this.selectedInvite = -1;
-            this.updateButtonStates();
-        }));
-        this.titleLabel = new RealmsLabel(I18n.get("mco.invites.title"), this.width / 2, 12, 16777215);
+        this.rejectButton = this.addButton(
+            new Button(this.width / 2 + 74, this.height - 32, 100, 20, new TranslatableComponent("mco.invites.button.reject"), param0 -> {
+                this.reject(this.selectedInvite);
+                this.selectedInvite = -1;
+                this.updateButtonStates();
+            })
+        );
+        this.titleLabel = new RealmsLabel(new TranslatableComponent("mco.invites.title"), this.width / 2, 12, 16777215);
         this.addWidget(this.titleLabel);
         this.narrateLabels();
         this.updateButtonStates();
@@ -145,29 +157,29 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
+    public void render(PoseStack param0, int param1, int param2, float param3) {
         this.toolTip = null;
-        this.renderBackground();
-        this.pendingInvitationSelectionList.render(param0, param1, param2);
-        this.titleLabel.render(this);
+        this.renderBackground(param0);
+        this.pendingInvitationSelectionList.render(param0, param1, param2, param3);
+        this.titleLabel.render(this, param0);
         if (this.toolTip != null) {
-            this.renderMousehoverTooltip(this.toolTip, param0, param1);
+            this.renderMousehoverTooltip(param0, this.toolTip, param1, param2);
         }
 
         if (this.pendingInvitationSelectionList.getItemCount() == 0 && this.loaded) {
-            this.drawCenteredString(this.font, I18n.get("mco.invites.nopending"), this.width / 2, this.height / 2 - 20, 16777215);
+            this.drawCenteredString(param0, this.font, I18n.get("mco.invites.nopending"), this.width / 2, this.height / 2 - 20, 16777215);
         }
 
-        super.render(param0, param1, param2);
+        super.render(param0, param1, param2, param3);
     }
 
-    protected void renderMousehoverTooltip(String param0, int param1, int param2) {
-        if (param0 != null) {
-            int var0 = param1 + 12;
-            int var1 = param2 - 12;
-            int var2 = this.font.width(param0);
-            this.fillGradient(var0 - 3, var1 - 3, var0 + var2 + 3, var1 + 8 + 3, -1073741824, -1073741824);
-            this.font.drawShadow(param0, (float)var0, (float)var1, 16777215);
+    protected void renderMousehoverTooltip(PoseStack param0, String param1, int param2, int param3) {
+        if (param1 != null) {
+            int var0 = param2 + 12;
+            int var1 = param3 - 12;
+            int var2 = this.font.width(param1);
+            this.fillGradient(param0, var0 - 3, var1 - 3, var0 + var2 + 3, var1 + 8 + 3, -1073741824, -1073741824);
+            this.font.drawShadow(param0, param1, (float)var0, (float)var1, 16777215);
         }
     }
 
@@ -191,8 +203,8 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
         }
 
         @Override
-        public void render(int param0, int param1, int param2, int param3, int param4, int param5, int param6, boolean param7, float param8) {
-            this.renderPendingInvitationItem(this.pendingInvite, param2, param1, param5, param6);
+        public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
+            this.renderPendingInvitationItem(param0, this.pendingInvite, param3, param2, param6, param7);
         }
 
         @Override
@@ -201,16 +213,16 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
             return true;
         }
 
-        private void renderPendingInvitationItem(PendingInvite param0, int param1, int param2, int param3, int param4) {
-            RealmsPendingInvitesScreen.this.font.draw(param0.worldName, (float)(param1 + 38), (float)(param2 + 1), 16777215);
-            RealmsPendingInvitesScreen.this.font.draw(param0.worldOwnerName, (float)(param1 + 38), (float)(param2 + 12), 7105644);
+        private void renderPendingInvitationItem(PoseStack param0, PendingInvite param1, int param2, int param3, int param4, int param5) {
+            RealmsPendingInvitesScreen.this.font.draw(param0, param1.worldName, (float)(param2 + 38), (float)(param3 + 1), 16777215);
+            RealmsPendingInvitesScreen.this.font.draw(param0, param1.worldOwnerName, (float)(param2 + 38), (float)(param3 + 12), 7105644);
             RealmsPendingInvitesScreen.this.font
-                .draw(RealmsUtil.convertToAgePresentationFromInstant(param0.date), (float)(param1 + 38), (float)(param2 + 24), 7105644);
-            RowButton.drawButtonsInRow(this.rowButtons, RealmsPendingInvitesScreen.this.pendingInvitationSelectionList, param1, param2, param3, param4);
-            RealmsTextureManager.withBoundFace(param0.worldOwnerUuid, () -> {
+                .draw(param0, RealmsUtil.convertToAgePresentationFromInstant(param1.date), (float)(param2 + 38), (float)(param3 + 24), 7105644);
+            RowButton.drawButtonsInRow(param0, this.rowButtons, RealmsPendingInvitesScreen.this.pendingInvitationSelectionList, param2, param3, param4, param5);
+            RealmsTextureManager.withBoundFace(param1.worldOwnerUuid, () -> {
                 RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-                GuiComponent.blit(param1, param2, 32, 32, 8.0F, 8.0F, 8, 8, 64, 64);
-                GuiComponent.blit(param1, param2, 32, 32, 40.0F, 8.0F, 8, 8, 64, 64);
+                GuiComponent.blit(param0, param2, param3, 32, 32, 8.0F, 8.0F, 8, 8, 64, 64);
+                GuiComponent.blit(param0, param2, param3, 32, 32, 40.0F, 8.0F, 8, 8, 64, 64);
             });
         }
 
@@ -221,12 +233,12 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
             }
 
             @Override
-            protected void draw(int param0, int param1, boolean param2) {
+            protected void draw(PoseStack param0, int param1, int param2, boolean param3) {
                 RealmsPendingInvitesScreen.this.minecraft.getTextureManager().bind(RealmsPendingInvitesScreen.ACCEPT_ICON_LOCATION);
                 RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-                float var0 = param2 ? 19.0F : 0.0F;
-                GuiComponent.blit(param0, param1, var0, 0.0F, 18, 18, 37, 18);
-                if (param2) {
+                float var0 = param3 ? 19.0F : 0.0F;
+                GuiComponent.blit(param0, param1, param2, var0, 0.0F, 18, 18, 37, 18);
+                if (param3) {
                     RealmsPendingInvitesScreen.this.toolTip = I18n.get("mco.invites.button.accept");
                 }
 
@@ -245,12 +257,12 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
             }
 
             @Override
-            protected void draw(int param0, int param1, boolean param2) {
+            protected void draw(PoseStack param0, int param1, int param2, boolean param3) {
                 RealmsPendingInvitesScreen.this.minecraft.getTextureManager().bind(RealmsPendingInvitesScreen.REJECT_ICON_LOCATION);
                 RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-                float var0 = param2 ? 19.0F : 0.0F;
-                GuiComponent.blit(param0, param1, var0, 0.0F, 18, 18, 37, 18);
-                if (param2) {
+                float var0 = param3 ? 19.0F : 0.0F;
+                GuiComponent.blit(param0, param1, param2, var0, 0.0F, 18, 18, 37, 18);
+                if (param3) {
                     RealmsPendingInvitesScreen.this.toolTip = I18n.get("mco.invites.button.reject");
                 }
 
@@ -289,8 +301,8 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
         }
 
         @Override
-        public void renderBackground() {
-            RealmsPendingInvitesScreen.this.renderBackground();
+        public void renderBackground(PoseStack param0) {
+            RealmsPendingInvitesScreen.this.renderBackground(param0);
         }
 
         @Override

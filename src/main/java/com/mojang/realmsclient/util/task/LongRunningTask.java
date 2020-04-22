@@ -1,15 +1,17 @@
 package com.mojang.realmsclient.util.task;
 
+import com.mojang.realmsclient.gui.ErrorCallback;
 import com.mojang.realmsclient.gui.screens.RealmsLongRunningMcoTaskScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
-public abstract class LongRunningTask implements Runnable {
+public abstract class LongRunningTask implements ErrorCallback, Runnable {
     public static final Logger LOGGER = LogManager.getLogger();
     protected RealmsLongRunningMcoTaskScreen longRunningMcoTaskScreen;
 
@@ -31,7 +33,8 @@ public abstract class LongRunningTask implements Runnable {
         this.longRunningMcoTaskScreen = param0;
     }
 
-    public void error(String param0) {
+    @Override
+    public void error(Component param0) {
         this.longRunningMcoTaskScreen.error(param0);
     }
 

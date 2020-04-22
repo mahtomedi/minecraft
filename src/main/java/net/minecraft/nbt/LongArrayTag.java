@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -118,10 +119,10 @@ public class LongArrayTag extends CollectionTag<LongTag> {
     @Override
     public Component getPrettyDisplay(String param0, int param1) {
         Component var0 = new TextComponent("L").withStyle(SYNTAX_HIGHLIGHTING_NUMBER_TYPE);
-        Component var1 = new TextComponent("[").append(var0).append(";");
+        MutableComponent var1 = new TextComponent("[").append(var0).append(";");
 
         for(int var2 = 0; var2 < this.data.length; ++var2) {
-            Component var3 = new TextComponent(String.valueOf(this.data[var2])).withStyle(SYNTAX_HIGHLIGHTING_NUMBER);
+            MutableComponent var3 = new TextComponent(String.valueOf(this.data[var2])).withStyle(SYNTAX_HIGHLIGHTING_NUMBER);
             var1.append(" ").append(var3).append(var0);
             if (var2 != this.data.length - 1) {
                 var1.append(",");

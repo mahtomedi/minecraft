@@ -1,5 +1,6 @@
 package net.minecraft.client.gui.screens.inventory;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
@@ -9,6 +10,8 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.game.ServerboundSetStructureBlockPacket;
 import net.minecraft.world.level.block.Blocks;
@@ -94,38 +97,44 @@ public class StructureBlockEditScreen extends Screen {
     @Override
     protected void init() {
         this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
-        this.doneButton = this.addButton(new Button(this.width / 2 - 4 - 150, 210, 150, 20, I18n.get("gui.done"), param0 -> this.onDone()));
-        this.cancelButton = this.addButton(new Button(this.width / 2 + 4, 210, 150, 20, I18n.get("gui.cancel"), param0 -> this.onCancel()));
-        this.saveButton = this.addButton(new Button(this.width / 2 + 4 + 100, 185, 50, 20, I18n.get("structure_block.button.save"), param0 -> {
-            if (this.structure.getMode() == StructureMode.SAVE) {
-                this.sendToServer(StructureBlockEntity.UpdateType.SAVE_AREA);
-                this.minecraft.setScreen(null);
-            }
-
-        }));
-        this.loadButton = this.addButton(new Button(this.width / 2 + 4 + 100, 185, 50, 20, I18n.get("structure_block.button.load"), param0 -> {
-            if (this.structure.getMode() == StructureMode.LOAD) {
-                this.sendToServer(StructureBlockEntity.UpdateType.LOAD_AREA);
-                this.minecraft.setScreen(null);
-            }
-
-        }));
-        this.modeButton = this.addButton(new Button(this.width / 2 - 4 - 150, 185, 50, 20, "MODE", param0 -> {
+        this.doneButton = this.addButton(new Button(this.width / 2 - 4 - 150, 210, 150, 20, CommonComponents.GUI_DONE, param0 -> this.onDone()));
+        this.cancelButton = this.addButton(new Button(this.width / 2 + 4, 210, 150, 20, CommonComponents.GUI_CANCEL, param0 -> this.onCancel()));
+        this.saveButton = this.addButton(
+            new Button(this.width / 2 + 4 + 100, 185, 50, 20, new TranslatableComponent("structure_block.button.save"), param0 -> {
+                if (this.structure.getMode() == StructureMode.SAVE) {
+                    this.sendToServer(StructureBlockEntity.UpdateType.SAVE_AREA);
+                    this.minecraft.setScreen(null);
+                }
+    
+            })
+        );
+        this.loadButton = this.addButton(
+            new Button(this.width / 2 + 4 + 100, 185, 50, 20, new TranslatableComponent("structure_block.button.load"), param0 -> {
+                if (this.structure.getMode() == StructureMode.LOAD) {
+                    this.sendToServer(StructureBlockEntity.UpdateType.LOAD_AREA);
+                    this.minecraft.setScreen(null);
+                }
+    
+            })
+        );
+        this.modeButton = this.addButton(new Button(this.width / 2 - 4 - 150, 185, 50, 20, new TextComponent("MODE"), param0 -> {
             this.structure.nextMode();
             this.updateMode();
         }));
-        this.detectButton = this.addButton(new Button(this.width / 2 + 4 + 100, 120, 50, 20, I18n.get("structure_block.button.detect_size"), param0 -> {
-            if (this.structure.getMode() == StructureMode.SAVE) {
-                this.sendToServer(StructureBlockEntity.UpdateType.SCAN_AREA);
-                this.minecraft.setScreen(null);
-            }
-
-        }));
-        this.entitiesButton = this.addButton(new Button(this.width / 2 + 4 + 100, 160, 50, 20, "ENTITIES", param0 -> {
+        this.detectButton = this.addButton(
+            new Button(this.width / 2 + 4 + 100, 120, 50, 20, new TranslatableComponent("structure_block.button.detect_size"), param0 -> {
+                if (this.structure.getMode() == StructureMode.SAVE) {
+                    this.sendToServer(StructureBlockEntity.UpdateType.SCAN_AREA);
+                    this.minecraft.setScreen(null);
+                }
+    
+            })
+        );
+        this.entitiesButton = this.addButton(new Button(this.width / 2 + 4 + 100, 160, 50, 20, new TextComponent("ENTITIES"), param0 -> {
             this.structure.setIgnoreEntities(!this.structure.isIgnoreEntities());
             this.updateEntitiesButton();
         }));
-        this.mirrorButton = this.addButton(new Button(this.width / 2 - 20, 185, 40, 20, "MIRROR", param0 -> {
+        this.mirrorButton = this.addButton(new Button(this.width / 2 - 20, 185, 40, 20, new TextComponent("MIRROR"), param0 -> {
             switch(this.structure.getMirror()) {
                 case NONE:
                     this.structure.setMirror(Mirror.LEFT_RIGHT);
@@ -139,31 +148,31 @@ public class StructureBlockEditScreen extends Screen {
 
             this.updateMirrorButton();
         }));
-        this.toggleAirButton = this.addButton(new Button(this.width / 2 + 4 + 100, 80, 50, 20, "SHOWAIR", param0 -> {
+        this.toggleAirButton = this.addButton(new Button(this.width / 2 + 4 + 100, 80, 50, 20, new TextComponent("SHOWAIR"), param0 -> {
             this.structure.setShowAir(!this.structure.getShowAir());
             this.updateToggleAirButton();
         }));
-        this.toggleBoundingBox = this.addButton(new Button(this.width / 2 + 4 + 100, 80, 50, 20, "SHOWBB", param0 -> {
+        this.toggleBoundingBox = this.addButton(new Button(this.width / 2 + 4 + 100, 80, 50, 20, new TextComponent("SHOWBB"), param0 -> {
             this.structure.setShowBoundingBox(!this.structure.getShowBoundingBox());
             this.updateToggleBoundingBox();
         }));
-        this.rot0Button = this.addButton(new Button(this.width / 2 - 1 - 40 - 1 - 40 - 20, 185, 40, 20, "0", param0 -> {
+        this.rot0Button = this.addButton(new Button(this.width / 2 - 1 - 40 - 1 - 40 - 20, 185, 40, 20, new TextComponent("0"), param0 -> {
             this.structure.setRotation(Rotation.NONE);
             this.updateDirectionButtons();
         }));
-        this.rot90Button = this.addButton(new Button(this.width / 2 - 1 - 40 - 20, 185, 40, 20, "90", param0 -> {
+        this.rot90Button = this.addButton(new Button(this.width / 2 - 1 - 40 - 20, 185, 40, 20, new TextComponent("90"), param0 -> {
             this.structure.setRotation(Rotation.CLOCKWISE_90);
             this.updateDirectionButtons();
         }));
-        this.rot180Button = this.addButton(new Button(this.width / 2 + 1 + 20, 185, 40, 20, "180", param0 -> {
+        this.rot180Button = this.addButton(new Button(this.width / 2 + 1 + 20, 185, 40, 20, new TextComponent("180"), param0 -> {
             this.structure.setRotation(Rotation.CLOCKWISE_180);
             this.updateDirectionButtons();
         }));
-        this.rot270Button = this.addButton(new Button(this.width / 2 + 1 + 40 + 1 + 20, 185, 40, 20, "270", param0 -> {
+        this.rot270Button = this.addButton(new Button(this.width / 2 + 1 + 40 + 1 + 20, 185, 40, 20, new TextComponent("270"), param0 -> {
             this.structure.setRotation(Rotation.COUNTERCLOCKWISE_90);
             this.updateDirectionButtons();
         }));
-        this.nameEdit = new EditBox(this.font, this.width / 2 - 152, 40, 300, 20, I18n.get("structure_block.structure_name")) {
+        this.nameEdit = new EditBox(this.font, this.width / 2 - 152, 40, 300, 20, new TranslatableComponent("structure_block.structure_name")) {
             @Override
             public boolean charTyped(char param0, int param1) {
                 return !StructureBlockEditScreen.this.isValidCharacterForName(this.getValue(), param0, this.getCursorPosition())
@@ -175,40 +184,40 @@ public class StructureBlockEditScreen extends Screen {
         this.nameEdit.setValue(this.structure.getStructureName());
         this.children.add(this.nameEdit);
         BlockPos var0 = this.structure.getStructurePos();
-        this.posXEdit = new EditBox(this.font, this.width / 2 - 152, 80, 80, 20, I18n.get("structure_block.position.x"));
+        this.posXEdit = new EditBox(this.font, this.width / 2 - 152, 80, 80, 20, new TranslatableComponent("structure_block.position.x"));
         this.posXEdit.setMaxLength(15);
         this.posXEdit.setValue(Integer.toString(var0.getX()));
         this.children.add(this.posXEdit);
-        this.posYEdit = new EditBox(this.font, this.width / 2 - 72, 80, 80, 20, I18n.get("structure_block.position.y"));
+        this.posYEdit = new EditBox(this.font, this.width / 2 - 72, 80, 80, 20, new TranslatableComponent("structure_block.position.y"));
         this.posYEdit.setMaxLength(15);
         this.posYEdit.setValue(Integer.toString(var0.getY()));
         this.children.add(this.posYEdit);
-        this.posZEdit = new EditBox(this.font, this.width / 2 + 8, 80, 80, 20, I18n.get("structure_block.position.z"));
+        this.posZEdit = new EditBox(this.font, this.width / 2 + 8, 80, 80, 20, new TranslatableComponent("structure_block.position.z"));
         this.posZEdit.setMaxLength(15);
         this.posZEdit.setValue(Integer.toString(var0.getZ()));
         this.children.add(this.posZEdit);
         BlockPos var1 = this.structure.getStructureSize();
-        this.sizeXEdit = new EditBox(this.font, this.width / 2 - 152, 120, 80, 20, I18n.get("structure_block.size.x"));
+        this.sizeXEdit = new EditBox(this.font, this.width / 2 - 152, 120, 80, 20, new TranslatableComponent("structure_block.size.x"));
         this.sizeXEdit.setMaxLength(15);
         this.sizeXEdit.setValue(Integer.toString(var1.getX()));
         this.children.add(this.sizeXEdit);
-        this.sizeYEdit = new EditBox(this.font, this.width / 2 - 72, 120, 80, 20, I18n.get("structure_block.size.y"));
+        this.sizeYEdit = new EditBox(this.font, this.width / 2 - 72, 120, 80, 20, new TranslatableComponent("structure_block.size.y"));
         this.sizeYEdit.setMaxLength(15);
         this.sizeYEdit.setValue(Integer.toString(var1.getY()));
         this.children.add(this.sizeYEdit);
-        this.sizeZEdit = new EditBox(this.font, this.width / 2 + 8, 120, 80, 20, I18n.get("structure_block.size.z"));
+        this.sizeZEdit = new EditBox(this.font, this.width / 2 + 8, 120, 80, 20, new TranslatableComponent("structure_block.size.z"));
         this.sizeZEdit.setMaxLength(15);
         this.sizeZEdit.setValue(Integer.toString(var1.getZ()));
         this.children.add(this.sizeZEdit);
-        this.integrityEdit = new EditBox(this.font, this.width / 2 - 152, 120, 80, 20, I18n.get("structure_block.integrity.integrity"));
+        this.integrityEdit = new EditBox(this.font, this.width / 2 - 152, 120, 80, 20, new TranslatableComponent("structure_block.integrity.integrity"));
         this.integrityEdit.setMaxLength(15);
         this.integrityEdit.setValue(this.decimalFormat.format((double)this.structure.getIntegrity()));
         this.children.add(this.integrityEdit);
-        this.seedEdit = new EditBox(this.font, this.width / 2 - 72, 120, 80, 20, I18n.get("structure_block.integrity.seed"));
+        this.seedEdit = new EditBox(this.font, this.width / 2 - 72, 120, 80, 20, new TranslatableComponent("structure_block.integrity.seed"));
         this.seedEdit.setMaxLength(31);
         this.seedEdit.setValue(Long.toString(this.structure.getSeed()));
         this.children.add(this.seedEdit);
-        this.dataEdit = new EditBox(this.font, this.width / 2 - 152, 120, 240, 20, I18n.get("structure_block.custom_data"));
+        this.dataEdit = new EditBox(this.font, this.width / 2 - 152, 120, 240, 20, new TranslatableComponent("structure_block.custom_data"));
         this.dataEdit.setMaxLength(128);
         this.dataEdit.setValue(this.structure.getMetaData());
         this.children.add(this.dataEdit);
@@ -258,46 +267,28 @@ public class StructureBlockEditScreen extends Screen {
     }
 
     private void updateEntitiesButton() {
-        boolean var0 = !this.structure.isIgnoreEntities();
-        if (var0) {
-            this.entitiesButton.setMessage(I18n.get("options.on"));
-        } else {
-            this.entitiesButton.setMessage(I18n.get("options.off"));
-        }
-
+        this.entitiesButton.setMessage(CommonComponents.optionStatus(!this.structure.isIgnoreEntities()));
     }
 
     private void updateToggleAirButton() {
-        boolean var0 = this.structure.getShowAir();
-        if (var0) {
-            this.toggleAirButton.setMessage(I18n.get("options.on"));
-        } else {
-            this.toggleAirButton.setMessage(I18n.get("options.off"));
-        }
-
+        this.toggleAirButton.setMessage(CommonComponents.optionStatus(this.structure.getShowAir()));
     }
 
     private void updateToggleBoundingBox() {
-        boolean var0 = this.structure.getShowBoundingBox();
-        if (var0) {
-            this.toggleBoundingBox.setMessage(I18n.get("options.on"));
-        } else {
-            this.toggleBoundingBox.setMessage(I18n.get("options.off"));
-        }
-
+        this.toggleBoundingBox.setMessage(CommonComponents.optionStatus(this.structure.getShowBoundingBox()));
     }
 
     private void updateMirrorButton() {
         Mirror var0 = this.structure.getMirror();
         switch(var0) {
             case NONE:
-                this.mirrorButton.setMessage("|");
+                this.mirrorButton.setMessage(new TextComponent("|"));
                 break;
             case LEFT_RIGHT:
-                this.mirrorButton.setMessage("< >");
+                this.mirrorButton.setMessage(new TextComponent("< >"));
                 break;
             case FRONT_BACK:
-                this.mirrorButton.setMessage("^ v");
+                this.mirrorButton.setMessage(new TextComponent("^ v"));
         }
 
     }
@@ -383,7 +374,7 @@ public class StructureBlockEditScreen extends Screen {
                 this.dataEdit.setVisible(true);
         }
 
-        this.modeButton.setMessage(I18n.get("structure_block.mode." + this.structure.getMode().getSerializedName()));
+        this.modeButton.setMessage(new TranslatableComponent("structure_block.mode." + this.structure.getMode().getSerializedName()));
     }
 
     private boolean sendToServer(StructureBlockEntity.UpdateType param0) {
@@ -460,55 +451,55 @@ public class StructureBlockEditScreen extends Screen {
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
-        this.renderBackground();
+    public void render(PoseStack param0, int param1, int param2, float param3) {
+        this.renderBackground(param0);
         StructureMode var0 = this.structure.getMode();
-        this.drawCenteredString(this.font, this.title.getColoredString(), this.width / 2, 10, 16777215);
+        this.drawCenteredString(param0, this.font, this.title, this.width / 2, 10, 16777215);
         if (var0 != StructureMode.DATA) {
-            this.drawString(this.font, I18n.get("structure_block.structure_name"), this.width / 2 - 153, 30, 10526880);
-            this.nameEdit.render(param0, param1, param2);
+            this.drawString(param0, this.font, I18n.get("structure_block.structure_name"), this.width / 2 - 153, 30, 10526880);
+            this.nameEdit.render(param0, param1, param2, param3);
         }
 
         if (var0 == StructureMode.LOAD || var0 == StructureMode.SAVE) {
-            this.drawString(this.font, I18n.get("structure_block.position"), this.width / 2 - 153, 70, 10526880);
-            this.posXEdit.render(param0, param1, param2);
-            this.posYEdit.render(param0, param1, param2);
-            this.posZEdit.render(param0, param1, param2);
+            this.drawString(param0, this.font, I18n.get("structure_block.position"), this.width / 2 - 153, 70, 10526880);
+            this.posXEdit.render(param0, param1, param2, param3);
+            this.posYEdit.render(param0, param1, param2, param3);
+            this.posZEdit.render(param0, param1, param2, param3);
             String var1 = I18n.get("structure_block.include_entities");
             int var2 = this.font.width(var1);
-            this.drawString(this.font, var1, this.width / 2 + 154 - var2, 150, 10526880);
+            this.drawString(param0, this.font, var1, this.width / 2 + 154 - var2, 150, 10526880);
         }
 
         if (var0 == StructureMode.SAVE) {
-            this.drawString(this.font, I18n.get("structure_block.size"), this.width / 2 - 153, 110, 10526880);
-            this.sizeXEdit.render(param0, param1, param2);
-            this.sizeYEdit.render(param0, param1, param2);
-            this.sizeZEdit.render(param0, param1, param2);
+            this.drawString(param0, this.font, I18n.get("structure_block.size"), this.width / 2 - 153, 110, 10526880);
+            this.sizeXEdit.render(param0, param1, param2, param3);
+            this.sizeYEdit.render(param0, param1, param2, param3);
+            this.sizeZEdit.render(param0, param1, param2, param3);
             String var3 = I18n.get("structure_block.detect_size");
             int var4 = this.font.width(var3);
-            this.drawString(this.font, var3, this.width / 2 + 154 - var4, 110, 10526880);
+            this.drawString(param0, this.font, var3, this.width / 2 + 154 - var4, 110, 10526880);
             String var5 = I18n.get("structure_block.show_air");
             int var6 = this.font.width(var5);
-            this.drawString(this.font, var5, this.width / 2 + 154 - var6, 70, 10526880);
+            this.drawString(param0, this.font, var5, this.width / 2 + 154 - var6, 70, 10526880);
         }
 
         if (var0 == StructureMode.LOAD) {
-            this.drawString(this.font, I18n.get("structure_block.integrity"), this.width / 2 - 153, 110, 10526880);
-            this.integrityEdit.render(param0, param1, param2);
-            this.seedEdit.render(param0, param1, param2);
+            this.drawString(param0, this.font, I18n.get("structure_block.integrity"), this.width / 2 - 153, 110, 10526880);
+            this.integrityEdit.render(param0, param1, param2, param3);
+            this.seedEdit.render(param0, param1, param2, param3);
             String var7 = I18n.get("structure_block.show_boundingbox");
             int var8 = this.font.width(var7);
-            this.drawString(this.font, var7, this.width / 2 + 154 - var8, 70, 10526880);
+            this.drawString(param0, this.font, var7, this.width / 2 + 154 - var8, 70, 10526880);
         }
 
         if (var0 == StructureMode.DATA) {
-            this.drawString(this.font, I18n.get("structure_block.custom_data"), this.width / 2 - 153, 110, 10526880);
-            this.dataEdit.render(param0, param1, param2);
+            this.drawString(param0, this.font, I18n.get("structure_block.custom_data"), this.width / 2 - 153, 110, 10526880);
+            this.dataEdit.render(param0, param1, param2, param3);
         }
 
         String var9 = "structure_block.mode_info." + var0.getSerializedName();
-        this.drawString(this.font, I18n.get(var9), this.width / 2 - 153, 174, 10526880);
-        super.render(param0, param1, param2);
+        this.drawString(param0, this.font, I18n.get(var9), this.width / 2 - 153, 174, 10526880);
+        super.render(param0, param1, param2, param3);
     }
 
     @Override

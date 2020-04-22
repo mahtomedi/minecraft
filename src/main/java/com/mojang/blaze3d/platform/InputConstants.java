@@ -9,7 +9,12 @@ import java.lang.invoke.MethodType;
 import java.lang.invoke.MethodHandles.Lookup;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.BiFunction;
 import javax.annotation.Nullable;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.util.LazyLoadedValue;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.glfw.GLFW;
@@ -80,16 +85,6 @@ public class InputConstants {
 
     }
 
-    @Nullable
-    public static String translateKeyCode(int param0) {
-        return GLFW.glfwGetKeyName(param0, -1);
-    }
-
-    @Nullable
-    public static String translateScanCode(int param0) {
-        return GLFW.glfwGetKeyName(-1, param0);
-    }
-
     static {
         Lookup var0 = MethodHandles.lookup();
         MethodType var1 = MethodType.methodType(Boolean.TYPE);
@@ -115,12 +110,14 @@ public class InputConstants {
         private final String name;
         private final InputConstants.Type type;
         private final int value;
+        private final LazyLoadedValue<Component> displayName;
         private static final Map<String, InputConstants.Key> NAME_MAP = Maps.newHashMap();
 
         private Key(String param0, InputConstants.Type param1, int param2) {
             this.name = param0;
             this.type = param1;
             this.value = param2;
+            this.displayName = new LazyLoadedValue<>(() -> param1.displayTextSupplier.apply(param2, param0));
             NAME_MAP.put(param0, this);
         }
 
@@ -134,6 +131,10 @@ public class InputConstants {
 
         public String getName() {
             return this.name;
+        }
+
+        public Component getDisplayName() {
+            return this.displayName.get();
         }
 
         @Override
@@ -161,46 +162,40 @@ public class InputConstants {
 
     @OnlyIn(Dist.CLIENT)
     public static enum Type {
-        KEYSYM("key.keyboard"),
-        SCANCODE("scancode"),
-        MOUSE("key.mouse");
+        KEYSYM("key.keyboard", (param0, param1) -> {
+            String var0 = GLFW.glfwGetKeyName(param0, -1);
+            return (Component)(var0 != null ? new TextComponent(var0) : new TranslatableComponent(param1));
+        }),
+        SCANCODE("scancode", (param0, param1) -> {
+            String var0 = GLFW.glfwGetKeyName(-1, param0);
+            return (Component)(var0 != null ? new TextComponent(var0) : new TranslatableComponent(param1));
+        }),
+        MOUSE("key.mouse", (param0, param1) -> new TranslatableComponent(param1));
 
-        private static final String[] MOUSE_BUTTON_NAMES = new String[]{"left", "middle", "right"};
         private final Int2ObjectMap<InputConstants.Key> map = new Int2ObjectOpenHashMap<>();
         private final String defaultPrefix;
+        private final BiFunction<Integer, String, Component> displayTextSupplier;
 
         private static void addKey(InputConstants.Type param0, String param1, int param2) {
             InputConstants.Key var0 = new InputConstants.Key(param1, param0, param2);
             param0.map.put(param2, var0);
         }
 
-        private Type(String param0) {
+        private Type(String param0, BiFunction<Integer, String, Component> param1) {
             this.defaultPrefix = param0;
+            this.displayTextSupplier = param1;
         }
 
         public InputConstants.Key getOrCreate(int param0) {
-            if (this.map.containsKey(param0)) {
-                return this.map.get(param0);
-            } else {
-                String var0;
+            return this.map.computeIfAbsent(param0, param0x -> {
+                int var0 = param0x;
                 if (this == MOUSE) {
-                    if (param0 <= 2) {
-                        var0 = "." + MOUSE_BUTTON_NAMES[param0];
-                    } else {
-                        var0 = "." + (param0 + 1);
-                    }
-                } else {
-                    var0 = "." + param0;
+                    var0 = param0x + 1;
                 }
 
-                InputConstants.Key var3 = new InputConstants.Key(this.defaultPrefix + var0, this, param0);
-                this.map.put(param0, var3);
-                return var3;
-            }
-        }
-
-        public String getDefaultPrefix() {
-            return this.defaultPrefix;
+                String var1x = this.defaultPrefix + "." + var0;
+                return new InputConstants.Key(var1x, this, param0x);
+            });
         }
 
         static {

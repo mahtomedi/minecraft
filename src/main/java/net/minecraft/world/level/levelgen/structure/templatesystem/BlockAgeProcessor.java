@@ -57,7 +57,7 @@ public class BlockAgeProcessor extends StructureProcessor {
 
     @Nullable
     private BlockState maybeReplaceFullStoneBlock(Random param0) {
-        if (param0.nextFloat() < 0.5F) {
+        if (param0.nextFloat() >= 0.5F) {
             return null;
         } else {
             BlockState[] var0 = new BlockState[]{Blocks.CRACKED_STONE_BRICKS.defaultBlockState(), getRandomFacingStairs(param0, Blocks.STONE_BRICK_STAIRS)};
@@ -70,7 +70,7 @@ public class BlockAgeProcessor extends StructureProcessor {
     private BlockState maybeReplaceStairs(Random param0, BlockState param1) {
         Direction var0 = param1.getValue(StairBlock.FACING);
         Half var1 = param1.getValue(StairBlock.HALF);
-        if (param0.nextFloat() < 0.5F) {
+        if (param0.nextFloat() >= 0.5F) {
             return null;
         } else {
             BlockState[] var2 = new BlockState[]{Blocks.STONE_SLAB.defaultBlockState(), Blocks.STONE_BRICK_SLAB.defaultBlockState()};
@@ -94,7 +94,7 @@ public class BlockAgeProcessor extends StructureProcessor {
 
     @Nullable
     private BlockState maybeReplaceObsidian(Random param0) {
-        return (double)param0.nextFloat() < 0.2 ? Blocks.CRYING_OBSIDIAN.defaultBlockState() : null;
+        return param0.nextFloat() < 0.15F ? Blocks.CRYING_OBSIDIAN.defaultBlockState() : null;
     }
 
     private static BlockState getRandomFacingStairs(Random param0, Block param1) {

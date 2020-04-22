@@ -7,6 +7,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
+import net.minecraft.world.level.storage.PlayerDataStorage;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -14,8 +15,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class IntegratedPlayerList extends PlayerList {
     private CompoundTag playerData;
 
-    public IntegratedPlayerList(IntegratedServer param0) {
-        super(param0, 8);
+    public IntegratedPlayerList(IntegratedServer param0, PlayerDataStorage param1) {
+        super(param0, param1, 8);
         this.setViewDistance(10);
     }
 

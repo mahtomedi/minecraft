@@ -4,7 +4,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.OptionButton;
-import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -44,7 +45,7 @@ public class BooleanOption extends Option {
         });
     }
 
-    public String getMessage(Options param0) {
-        return this.getCaption() + I18n.get(this.get(param0) ? "options.on" : "options.off");
+    public Component getMessage(Options param0) {
+        return this.createCaption().append(CommonComponents.optionStatus(this.get(param0)));
     }
 }

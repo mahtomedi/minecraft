@@ -1,10 +1,10 @@
 package net.minecraft.client.gui.screens;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.Util;
 import net.minecraft.client.gui.chat.NarratorChatListener;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.progress.StoringChunkProgressListener;
 import net.minecraft.util.Mth;
@@ -45,12 +45,12 @@ public class LevelLoadingScreen extends Screen {
 
     @Override
     public void removed() {
-        NarratorChatListener.INSTANCE.sayNow(I18n.get("narrator.loading.done"));
+        NarratorChatListener.INSTANCE.sayNow(new TranslatableComponent("narrator.loading.done").getString());
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
-        this.renderBackground();
+    public void render(PoseStack param0, int param1, int param2, float param3) {
+        this.renderBackground(param0);
         String var0 = Mth.clamp(this.progressListener.getProgress(), 0, 100) + "%";
         long var1 = Util.getMillis();
         if (var1 - this.lastNarration > 2000L) {
@@ -61,33 +61,33 @@ public class LevelLoadingScreen extends Screen {
         int var2 = this.width / 2;
         int var3 = this.height / 2;
         int var4 = 30;
-        renderChunks(this.progressListener, var2, var3 + 30, 2, 0);
-        this.drawCenteredString(this.font, var0, var2, var3 - 9 / 2 - 30, 16777215);
+        renderChunks(param0, this.progressListener, var2, var3 + 30, 2, 0);
+        this.drawCenteredString(param0, this.font, var0, var2, var3 - 9 / 2 - 30, 16777215);
     }
 
-    public static void renderChunks(StoringChunkProgressListener param0, int param1, int param2, int param3, int param4) {
-        int var0 = param3 + param4;
-        int var1 = param0.getFullDiameter();
-        int var2 = var1 * var0 - param4;
-        int var3 = param0.getDiameter();
-        int var4 = var3 * var0 - param4;
-        int var5 = param1 - var4 / 2;
-        int var6 = param2 - var4 / 2;
+    public static void renderChunks(PoseStack param0, StoringChunkProgressListener param1, int param2, int param3, int param4, int param5) {
+        int var0 = param4 + param5;
+        int var1 = param1.getFullDiameter();
+        int var2 = var1 * var0 - param5;
+        int var3 = param1.getDiameter();
+        int var4 = var3 * var0 - param5;
+        int var5 = param2 - var4 / 2;
+        int var6 = param3 - var4 / 2;
         int var7 = var2 / 2 + 1;
         int var8 = -16772609;
-        if (param4 != 0) {
-            fill(param1 - var7, param2 - var7, param1 - var7 + 1, param2 + var7, -16772609);
-            fill(param1 + var7 - 1, param2 - var7, param1 + var7, param2 + var7, -16772609);
-            fill(param1 - var7, param2 - var7, param1 + var7, param2 - var7 + 1, -16772609);
-            fill(param1 - var7, param2 + var7 - 1, param1 + var7, param2 + var7, -16772609);
+        if (param5 != 0) {
+            fill(param0, param2 - var7, param3 - var7, param2 - var7 + 1, param3 + var7, -16772609);
+            fill(param0, param2 + var7 - 1, param3 - var7, param2 + var7, param3 + var7, -16772609);
+            fill(param0, param2 - var7, param3 - var7, param2 + var7, param3 - var7 + 1, -16772609);
+            fill(param0, param2 - var7, param3 + var7 - 1, param2 + var7, param3 + var7, -16772609);
         }
 
         for(int var9 = 0; var9 < var3; ++var9) {
             for(int var10 = 0; var10 < var3; ++var10) {
-                ChunkStatus var11 = param0.getStatus(var9, var10);
+                ChunkStatus var11 = param1.getStatus(var9, var10);
                 int var12 = var5 + var9 * var0;
                 int var13 = var6 + var10 * var0;
-                fill(var12, var13, var12 + param3, var13 + param3, COLORS.getInt(var11) | 0xFF000000);
+                fill(param0, var12, var13, var12 + param4, var13 + param4, COLORS.getInt(var11) | 0xFF000000);
             }
         }
 

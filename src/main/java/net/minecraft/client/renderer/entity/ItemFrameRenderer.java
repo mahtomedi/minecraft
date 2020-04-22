@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.item.ItemStack;
@@ -109,7 +110,7 @@ public class ItemFrameRenderer extends EntityRenderer<ItemFrame> {
         }
     }
 
-    protected void renderNameTag(ItemFrame param0, String param1, PoseStack param2, MultiBufferSource param3, int param4) {
-        super.renderNameTag(param0, param0.getItem().getHoverName().getColoredString(), param2, param3, param4);
+    protected void renderNameTag(ItemFrame param0, Component param1, PoseStack param2, MultiBufferSource param3, int param4) {
+        super.renderNameTag(param0, param0.getItem().getHoverName(), param2, param3, param4);
     }
 }

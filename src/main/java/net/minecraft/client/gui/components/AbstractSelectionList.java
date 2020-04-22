@@ -5,6 +5,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import java.util.AbstractList;
 import java.util.Collection;
@@ -147,18 +148,18 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
     protected void clickedHeader(int param0, int param1) {
     }
 
-    protected void renderHeader(int param0, int param1, Tesselator param2) {
+    protected void renderHeader(PoseStack param0, int param1, int param2, Tesselator param3) {
     }
 
-    protected void renderBackground() {
+    protected void renderBackground(PoseStack param0) {
     }
 
-    protected void renderDecorations(int param0, int param1) {
+    protected void renderDecorations(PoseStack param0, int param1, int param2) {
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
-        this.renderBackground();
+    public void render(PoseStack param0, int param1, int param2, float param3) {
+        this.renderBackground(param0);
         int var0 = this.getScrollbarPosition();
         int var1 = var0 + 6;
         Tesselator var2 = Tesselator.getInstance();
@@ -187,10 +188,10 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
         int var5 = this.getRowLeft();
         int var6 = this.y0 + 4 - (int)this.getScrollAmount();
         if (this.renderHeader) {
-            this.renderHeader(var5, var6, var2);
+            this.renderHeader(param0, var5, var6, var2);
         }
 
-        this.renderList(var5, var6, param0, param1, param2);
+        this.renderList(param0, var5, var6, param1, param2, param3);
         RenderSystem.disableDepthTest();
         this.renderHoleBackground(0, this.y0, 255, 255);
         this.renderHoleBackground(this.y1, this.height, 255, 255);
@@ -246,7 +247,7 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
             var2.end();
         }
 
-        this.renderDecorations(param0, param1);
+        this.renderDecorations(param0, param1, param2);
         RenderSystem.enableTexture();
         RenderSystem.shadeModel(7424);
         RenderSystem.enableAlphaTest();
@@ -390,7 +391,7 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
         return param1 >= (double)this.y0 && param1 <= (double)this.y1 && param0 >= (double)this.x0 && param0 <= (double)this.x1;
     }
 
-    protected void renderList(int param0, int param1, int param2, int param3, float param4) {
+    protected void renderList(PoseStack param0, int param1, int param2, int param3, int param4, float param5) {
         int var0 = this.getItemCount();
         Tesselator var1 = Tesselator.getInstance();
         BufferBuilder var2 = var1.getBuilder();
@@ -399,7 +400,7 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
             int var4 = this.getRowTop(var3);
             int var5 = this.getRowBottom(var3);
             if (var5 >= this.y0 && var4 <= this.y1) {
-                int var6 = param1 + var3 * this.itemHeight + this.headerHeight;
+                int var6 = param2 + var3 * this.itemHeight + this.headerHeight;
                 int var7 = this.itemHeight - 4;
                 E var8 = this.getEntry(var3);
                 int var9 = this.getRowWidth();
@@ -427,15 +428,16 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
 
                 int var13 = this.getRowLeft();
                 var8.render(
+                    param0,
                     var3,
                     var4,
                     var13,
                     var9,
                     var7,
-                    param2,
                     param3,
-                    this.isMouseOver((double)param2, (double)param3) && Objects.equals(this.getEntryAtPosition((double)param2, (double)param3), var8),
-                    param4
+                    param4,
+                    this.isMouseOver((double)param3, (double)param4) && Objects.equals(this.getEntryAtPosition((double)param3, (double)param4), var8),
+                    param5
                 );
             }
         }
@@ -497,7 +499,7 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
         @Deprecated
         AbstractSelectionList<E> list;
 
-        public abstract void render(int var1, int var2, int var3, int var4, int var5, int var6, int var7, boolean var8, float var9);
+        public abstract void render(PoseStack var1, int var2, int var3, int var4, int var5, int var6, int var7, int var8, boolean var9, float var10);
 
         @Override
         public boolean isMouseOver(double param0, double param1) {

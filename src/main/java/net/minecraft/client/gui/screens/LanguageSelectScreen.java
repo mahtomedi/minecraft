@@ -1,5 +1,6 @@
 package net.minecraft.client.gui.screens;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Option;
@@ -11,6 +12,7 @@ import net.minecraft.client.gui.components.OptionButton;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.resources.language.Language;
 import net.minecraft.client.resources.language.LanguageManager;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -41,14 +43,14 @@ public class LanguageSelectScreen extends OptionsSubScreen {
                 }
             )
         );
-        this.doneButton = this.addButton(new Button(this.width / 2 - 155 + 160, this.height - 38, 150, 20, I18n.get("gui.done"), param0 -> {
+        this.doneButton = this.addButton(new Button(this.width / 2 - 155 + 160, this.height - 38, 150, 20, CommonComponents.GUI_DONE, param0 -> {
             LanguageSelectScreen.LanguageSelectionList.Entry var0 = this.packSelectionList.getSelected();
             if (var0 != null && !var0.language.getCode().equals(this.languageManager.getSelected().getCode())) {
                 this.languageManager.setSelected(var0.language);
                 this.options.languageCode = var0.language.getCode();
                 this.minecraft.reloadResourcePacks();
                 this.font.setBidirectional(this.languageManager.isBidirectional());
-                this.doneButton.setMessage(I18n.get("gui.done"));
+                this.doneButton.setMessage(CommonComponents.GUI_DONE);
                 this.forceUnicodeButton.setMessage(Option.FORCE_UNICODE_FONT.getMessage(this.options));
                 this.options.save();
             }
@@ -59,11 +61,11 @@ public class LanguageSelectScreen extends OptionsSubScreen {
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
-        this.packSelectionList.render(param0, param1, param2);
-        this.drawCenteredString(this.font, this.title.getColoredString(), this.width / 2, 16, 16777215);
-        this.drawCenteredString(this.font, "(" + I18n.get("options.languageWarning") + ")", this.width / 2, this.height - 56, 8421504);
-        super.render(param0, param1, param2);
+    public void render(PoseStack param0, int param1, int param2, float param3) {
+        this.packSelectionList.render(param0, param1, param2, param3);
+        this.drawCenteredString(param0, this.font, this.title, this.width / 2, 16, 16777215);
+        this.drawCenteredString(param0, this.font, "(" + I18n.get("options.languageWarning") + ")", this.width / 2, this.height - 56, 8421504);
+        super.render(param0, param1, param2, param3);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -104,8 +106,8 @@ public class LanguageSelectScreen extends OptionsSubScreen {
         }
 
         @Override
-        protected void renderBackground() {
-            LanguageSelectScreen.this.renderBackground();
+        protected void renderBackground(PoseStack param0) {
+            LanguageSelectScreen.this.renderBackground(param0);
         }
 
         @Override
@@ -122,10 +124,12 @@ public class LanguageSelectScreen extends OptionsSubScreen {
             }
 
             @Override
-            public void render(int param0, int param1, int param2, int param3, int param4, int param5, int param6, boolean param7, float param8) {
+            public void render(
+                PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9
+            ) {
                 LanguageSelectScreen.this.font.setBidirectional(true);
                 LanguageSelectionList.this.drawCenteredString(
-                    LanguageSelectScreen.this.font, this.language.toString(), LanguageSelectionList.this.width / 2, param1 + 1, 16777215
+                    param0, LanguageSelectScreen.this.font, this.language.toString(), LanguageSelectionList.this.width / 2, param2 + 1, 16777215
                 );
                 LanguageSelectScreen.this.font.setBidirectional(LanguageSelectScreen.this.languageManager.getSelected().isBidirectional());
             }

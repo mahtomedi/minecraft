@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -22,7 +23,7 @@ public abstract class Team {
 
     public abstract String getName();
 
-    public abstract Component getFormattedName(Component var1);
+    public abstract MutableComponent getFormattedName(Component var1);
 
     @OnlyIn(Dist.CLIENT)
     public abstract boolean canSeeFriendlyInvisibles();

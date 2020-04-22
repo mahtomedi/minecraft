@@ -16,20 +16,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.commands.Commands;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.level.progress.ChunkProgressListener;
 import net.minecraft.server.level.progress.ChunkProgressListenerFactory;
 import net.minecraft.server.players.GameProfileCache;
 import net.minecraft.util.Crypt;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.Difficulty;
 import net.minecraft.world.Snooper;
 import net.minecraft.world.level.GameType;
-import net.minecraft.world.level.LevelSettings;
-import net.minecraft.world.level.dimension.DimensionType;
-import net.minecraft.world.level.levelgen.ChunkGeneratorProvider;
-import net.minecraft.world.level.storage.LevelData;
-import net.minecraft.world.level.storage.LevelStorage;
 import net.minecraft.world.level.storage.LevelStorageSource;
+import net.minecraft.world.level.storage.WorldData;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
@@ -39,7 +33,6 @@ import org.apache.logging.log4j.Logger;
 public class IntegratedServer extends MinecraftServer {
     private static final Logger LOGGER = LogManager.getLogger();
     private final Minecraft minecraft;
-    private final LevelSettings settings;
     private boolean paused;
     private int publishedPort = -1;
     private LanServerPinger lanPinger;
@@ -48,59 +41,30 @@ public class IntegratedServer extends MinecraftServer {
     public IntegratedServer(
         Minecraft param0,
         LevelStorageSource.LevelStorageAccess param1,
-        String param2,
-        LevelSettings param3,
-        MinecraftSessionService param4,
-        GameProfileRepository param5,
-        GameProfileCache param6,
-        ChunkProgressListenerFactory param7
+        WorldData param2,
+        MinecraftSessionService param3,
+        GameProfileRepository param4,
+        GameProfileCache param5,
+        ChunkProgressListenerFactory param6
     ) {
-        super(param1, param0.getProxy(), param0.getFixerUpper(), new Commands(false), param4, param5, param6, param7);
+        super(param1, param2, param0.getProxy(), param0.getFixerUpper(), new Commands(false), param3, param4, param5, param6);
         this.setSingleplayerName(param0.getUser().getName());
-        this.setLevelName(param2);
         this.setDemo(param0.isDemo());
-        this.setBonusChest(param3.hasStartingBonusItems());
         this.setMaxBuildHeight(256);
-        this.setPlayerList(new IntegratedPlayerList(this));
+        this.setPlayerList(new IntegratedPlayerList(this, this.playerDataStorage));
         this.minecraft = param0;
-        this.settings = this.isDemo() ? MinecraftServer.DEMO_SETTINGS : param3;
-    }
-
-    @Override
-    public void loadLevel(String param0, long param1, ChunkGeneratorProvider param2) {
-        this.ensureLevelConversion();
-        LevelStorage var0 = this.storageSource.selectLevel(this);
-        this.detectBundledResources(this.storageSource.getLevelId(), var0);
-        LevelData var1 = var0.prepareLevel();
-        if (var1 == null) {
-            var1 = new LevelData(this.settings, param0);
-        } else {
-            var1.setLevelName(param0);
-        }
-
-        var1.setModdedInfo(this.getServerModName(), this.getModdedStatus().isPresent());
-        this.loadDataPacks(var0.getFolder(), var1);
-        ChunkProgressListener var2 = this.progressListenerFactory.create(11);
-        this.createLevels(var0, var1, this.settings, var2);
-        if (this.getLevel(DimensionType.OVERWORLD).getLevelData().getDifficulty() == null) {
-            this.setDifficulty(this.minecraft.options.difficulty, true);
-        }
-
-        this.prepareLevels(var2);
     }
 
     @Override
     public boolean initServer() {
         LOGGER.info("Starting integrated minecraft server version " + SharedConstants.getCurrentVersion().getName());
         this.setUsesAuthentication(true);
-        this.setAnimals(true);
-        this.setNpcsEnabled(true);
         this.setPvpAllowed(true);
         this.setFlightAllowed(true);
         LOGGER.info("Generating keypair");
         this.setKeyPair(Crypt.generateKeyPair());
-        this.loadLevel(this.getLevelName(), this.settings.getSeed(), this.settings.getGeneratorProvider());
-        this.setMotd(this.getSingleplayerName() + " - " + this.getLevel(DimensionType.OVERWORLD).getLevelData().getLevelName());
+        this.loadLevel();
+        this.setMotd(this.getSingleplayerName() + " - " + this.getWorldData().getLevelName());
         return true;
     }
 
@@ -126,26 +90,6 @@ public class IntegratedServer extends MinecraftServer {
             }
 
         }
-    }
-
-    @Override
-    public boolean canGenerateStructures() {
-        return false;
-    }
-
-    @Override
-    public GameType getDefaultGameType() {
-        return this.settings.getGameType();
-    }
-
-    @Override
-    public Difficulty getDefaultDifficulty() {
-        return this.minecraft.level.getLevelData().getDifficulty();
-    }
-
-    @Override
-    public boolean isHardcore() {
-        return this.settings.isHardcore();
     }
 
     @Override
@@ -270,8 +214,8 @@ public class IntegratedServer extends MinecraftServer {
     }
 
     @Override
-    public void setDefaultGameMode(GameType param0) {
-        super.setDefaultGameMode(param0);
+    public void setDefaultGameType(GameType param0) {
+        super.setDefaultGameType(param0);
         this.getPlayerList().setOverrideGameMode(param0);
     }
 

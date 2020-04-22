@@ -5,7 +5,9 @@ import com.google.common.hash.Hashing;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.net.UnknownHostException;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -23,6 +25,8 @@ import net.minecraft.client.multiplayer.ServerList;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.server.LanServer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -136,11 +140,12 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
         private final Minecraft minecraft = Minecraft.getInstance();
 
         @Override
-        public void render(int param0, int param1, int param2, int param3, int param4, int param5, int param6, boolean param7, float param8) {
-            int var0 = param1 + param4 / 2 - 9 / 2;
+        public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
+            int var0 = param2 + param5 / 2 - 9 / 2;
             this.minecraft
                 .font
                 .draw(
+                    param0,
                     I18n.get("lanServer.scanning"),
                     (float)(this.minecraft.screen.width / 2 - this.minecraft.font.width(I18n.get("lanServer.scanning")) / 2),
                     (float)var0,
@@ -160,7 +165,7 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
                     var1 = "o o O";
             }
 
-            this.minecraft.font.draw(var1, (float)(this.minecraft.screen.width / 2 - this.minecraft.font.width(var1) / 2), (float)(var0 + 9), 8421504);
+            this.minecraft.font.draw(param0, var1, (float)(this.minecraft.screen.width / 2 - this.minecraft.font.width(var1) / 2), (float)(var0 + 9), 8421504);
         }
     }
 
@@ -178,13 +183,13 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
         }
 
         @Override
-        public void render(int param0, int param1, int param2, int param3, int param4, int param5, int param6, boolean param7, float param8) {
-            this.minecraft.font.draw(I18n.get("lanServer.title"), (float)(param2 + 32 + 3), (float)(param1 + 1), 16777215);
-            this.minecraft.font.draw(this.serverData.getMotd(), (float)(param2 + 32 + 3), (float)(param1 + 12), 8421504);
+        public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
+            this.minecraft.font.draw(param0, I18n.get("lanServer.title"), (float)(param3 + 32 + 3), (float)(param2 + 1), 16777215);
+            this.minecraft.font.draw(param0, this.serverData.getMotd(), (float)(param3 + 32 + 3), (float)(param2 + 12), 8421504);
             if (this.minecraft.options.hideServerAddress) {
-                this.minecraft.font.draw(I18n.get("selectServer.hiddenAddress"), (float)(param2 + 32 + 3), (float)(param1 + 12 + 11), 3158064);
+                this.minecraft.font.draw(param0, I18n.get("selectServer.hiddenAddress"), (float)(param3 + 32 + 3), (float)(param2 + 12 + 11), 3158064);
             } else {
-                this.minecraft.font.draw(this.serverData.getAddress(), (float)(param2 + 32 + 3), (float)(param1 + 12 + 11), 3158064);
+                this.minecraft.font.draw(param0, this.serverData.getAddress(), (float)(param3 + 32 + 3), (float)(param2 + 12 + 11), 3158064);
             }
 
         }
@@ -224,21 +229,21 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
         }
 
         @Override
-        public void render(int param0, int param1, int param2, int param3, int param4, int param5, int param6, boolean param7, float param8) {
+        public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
             if (!this.serverData.pinged) {
                 this.serverData.pinged = true;
                 this.serverData.ping = -2L;
-                this.serverData.motd = "";
-                this.serverData.status = "";
+                this.serverData.motd = TextComponent.EMPTY;
+                this.serverData.status = TextComponent.EMPTY;
                 ServerSelectionList.THREAD_POOL.submit(() -> {
                     try {
                         this.screen.getPinger().pingServer(this.serverData);
                     } catch (UnknownHostException var2x) {
                         this.serverData.ping = -1L;
-                        this.serverData.motd = ChatFormatting.DARK_RED + I18n.get("multiplayer.status.cannot_resolve");
+                        this.serverData.motd = new TranslatableComponent("multiplayer.status.cannot_resolve").withStyle(ChatFormatting.DARK_RED);
                     } catch (Exception var3x) {
                         this.serverData.ping = -1L;
-                        this.serverData.motd = ChatFormatting.DARK_RED + I18n.get("multiplayer.status.cannot_connect");
+                        this.serverData.motd = new TranslatableComponent("multiplayer.status.cannot_connect").withStyle(ChatFormatting.DARK_RED);
                     }
 
                 });
@@ -247,58 +252,60 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
             boolean var0 = this.serverData.protocol > SharedConstants.getCurrentVersion().getProtocolVersion();
             boolean var1 = this.serverData.protocol < SharedConstants.getCurrentVersion().getProtocolVersion();
             boolean var2 = var0 || var1;
-            this.minecraft.font.draw(this.serverData.name, (float)(param2 + 32 + 3), (float)(param1 + 1), 16777215);
-            List<String> var3 = this.minecraft.font.split(this.serverData.motd, param3 - 32 - 2);
+            this.minecraft.font.draw(param0, this.serverData.name, (float)(param3 + 32 + 3), (float)(param2 + 1), 16777215);
+            List<Component> var3 = this.minecraft.font.split(this.serverData.motd, param4 - 32 - 2);
 
             for(int var4 = 0; var4 < Math.min(var3.size(), 2); ++var4) {
-                this.minecraft.font.draw(var3.get(var4), (float)(param2 + 32 + 3), (float)(param1 + 12 + 9 * var4), 8421504);
+                this.minecraft.font.draw(param0, var3.get(var4), (float)(param3 + 32 + 3), (float)(param2 + 12 + 9 * var4), 8421504);
             }
 
-            String var5 = var2 ? ChatFormatting.DARK_RED + this.serverData.version : this.serverData.status;
+            Component var5 = (Component)(var2 ? this.serverData.version.mutableCopy().withStyle(ChatFormatting.DARK_RED) : this.serverData.status);
             int var6 = this.minecraft.font.width(var5);
-            this.minecraft.font.draw(var5, (float)(param2 + param3 - var6 - 15 - 2), (float)(param1 + 1), 8421504);
+            this.minecraft.font.draw(param0, var5, (float)(param3 + param4 - var6 - 15 - 2), (float)(param2 + 1), 8421504);
             int var7 = 0;
-            String var8 = null;
-            int var9;
-            String var10;
+            int var8;
+            List<Component> var10;
+            Component var9;
             if (var2) {
-                var9 = 5;
-                var10 = I18n.get(var0 ? "multiplayer.status.client_out_of_date" : "multiplayer.status.server_out_of_date");
-                var8 = this.serverData.playerList;
+                var8 = 5;
+                var9 = new TranslatableComponent(var0 ? "multiplayer.status.client_out_of_date" : "multiplayer.status.server_out_of_date");
+                var10 = this.serverData.playerList;
             } else if (this.serverData.pinged && this.serverData.ping != -2L) {
                 if (this.serverData.ping < 0L) {
-                    var9 = 5;
+                    var8 = 5;
                 } else if (this.serverData.ping < 150L) {
-                    var9 = 0;
+                    var8 = 0;
                 } else if (this.serverData.ping < 300L) {
-                    var9 = 1;
+                    var8 = 1;
                 } else if (this.serverData.ping < 600L) {
-                    var9 = 2;
+                    var8 = 2;
                 } else if (this.serverData.ping < 1000L) {
-                    var9 = 3;
+                    var8 = 3;
                 } else {
-                    var9 = 4;
+                    var8 = 4;
                 }
 
                 if (this.serverData.ping < 0L) {
-                    var10 = I18n.get("multiplayer.status.no_connection");
+                    var9 = new TranslatableComponent("multiplayer.status.no_connection");
+                    var10 = Collections.emptyList();
                 } else {
-                    var10 = this.serverData.ping + "ms";
-                    var8 = this.serverData.playerList;
+                    var9 = new TranslatableComponent("multiplayer.status.ping", this.serverData.ping);
+                    var10 = this.serverData.playerList;
                 }
             } else {
                 var7 = 1;
-                var9 = (int)(Util.getMillis() / 100L + (long)(param0 * 2) & 7L);
-                if (var9 > 4) {
-                    var9 = 8 - var9;
+                var8 = (int)(Util.getMillis() / 100L + (long)(param1 * 2) & 7L);
+                if (var8 > 4) {
+                    var8 = 8 - var8;
                 }
 
-                var10 = I18n.get("multiplayer.status.pinging");
+                var9 = new TranslatableComponent("multiplayer.status.pinging");
+                var10 = Collections.emptyList();
             }
 
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             this.minecraft.getTextureManager().bind(GuiComponent.GUI_ICONS_LOCATION);
-            GuiComponent.blit(param2 + param3 - 15, param1, (float)(var7 * 10), (float)(176 + var9 * 8), 10, 8, 256, 256);
+            GuiComponent.blit(param0, param3 + param4 - 15, param2, (float)(var7 * 10), (float)(176 + var8 * 8), 10, 8, 256, 256);
             if (this.serverData.getIconB64() != null && !this.serverData.getIconB64().equals(this.lastIconB64)) {
                 this.lastIconB64 = this.serverData.getIconB64();
                 this.loadServerIcon();
@@ -306,56 +313,56 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
             }
 
             if (this.icon != null) {
-                this.drawIcon(param2, param1, this.iconLocation);
+                this.drawIcon(param0, param3, param2, this.iconLocation);
             } else {
-                this.drawIcon(param2, param1, ServerSelectionList.ICON_MISSING);
+                this.drawIcon(param0, param3, param2, ServerSelectionList.ICON_MISSING);
             }
 
-            int var21 = param5 - param2;
-            int var22 = param6 - param1;
-            if (var21 >= param3 - 15 && var21 <= param3 - 5 && var22 >= 0 && var22 <= 8) {
+            int var24 = param6 - param3;
+            int var25 = param7 - param2;
+            if (var24 >= param4 - 15 && var24 <= param4 - 5 && var25 >= 0 && var25 <= 8) {
+                this.screen.setToolTip(Collections.singletonList(var9));
+            } else if (var24 >= param4 - var6 - 15 - 2 && var24 <= param4 - 15 - 2 && var25 >= 0 && var25 <= 8) {
                 this.screen.setToolTip(var10);
-            } else if (var21 >= param3 - var6 - 15 - 2 && var21 <= param3 - 15 - 2 && var22 >= 0 && var22 <= 8) {
-                this.screen.setToolTip(var8);
             }
 
-            if (this.minecraft.options.touchscreen || param7) {
+            if (this.minecraft.options.touchscreen || param8) {
                 this.minecraft.getTextureManager().bind(ServerSelectionList.ICON_OVERLAY_LOCATION);
-                GuiComponent.fill(param2, param1, param2 + 32, param1 + 32, -1601138544);
+                GuiComponent.fill(param0, param3, param2, param3 + 32, param2 + 32, -1601138544);
                 RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-                int var23 = param5 - param2;
-                int var24 = param6 - param1;
+                int var26 = param6 - param3;
+                int var27 = param7 - param2;
                 if (this.canJoin()) {
-                    if (var23 < 32 && var23 > 16) {
-                        GuiComponent.blit(param2, param1, 0.0F, 32.0F, 32, 32, 256, 256);
+                    if (var26 < 32 && var26 > 16) {
+                        GuiComponent.blit(param0, param3, param2, 0.0F, 32.0F, 32, 32, 256, 256);
                     } else {
-                        GuiComponent.blit(param2, param1, 0.0F, 0.0F, 32, 32, 256, 256);
+                        GuiComponent.blit(param0, param3, param2, 0.0F, 0.0F, 32, 32, 256, 256);
                     }
                 }
 
-                if (param0 > 0) {
-                    if (var23 < 16 && var24 < 16) {
-                        GuiComponent.blit(param2, param1, 96.0F, 32.0F, 32, 32, 256, 256);
+                if (param1 > 0) {
+                    if (var26 < 16 && var27 < 16) {
+                        GuiComponent.blit(param0, param3, param2, 96.0F, 32.0F, 32, 32, 256, 256);
                     } else {
-                        GuiComponent.blit(param2, param1, 96.0F, 0.0F, 32, 32, 256, 256);
+                        GuiComponent.blit(param0, param3, param2, 96.0F, 0.0F, 32, 32, 256, 256);
                     }
                 }
 
-                if (param0 < this.screen.getServers().size() - 1) {
-                    if (var23 < 16 && var24 > 16) {
-                        GuiComponent.blit(param2, param1, 64.0F, 32.0F, 32, 32, 256, 256);
+                if (param1 < this.screen.getServers().size() - 1) {
+                    if (var26 < 16 && var27 > 16) {
+                        GuiComponent.blit(param0, param3, param2, 64.0F, 32.0F, 32, 32, 256, 256);
                     } else {
-                        GuiComponent.blit(param2, param1, 64.0F, 0.0F, 32, 32, 256, 256);
+                        GuiComponent.blit(param0, param3, param2, 64.0F, 0.0F, 32, 32, 256, 256);
                     }
                 }
             }
 
         }
 
-        protected void drawIcon(int param0, int param1, ResourceLocation param2) {
-            this.minecraft.getTextureManager().bind(param2);
+        protected void drawIcon(PoseStack param0, int param1, int param2, ResourceLocation param3) {
+            this.minecraft.getTextureManager().bind(param3);
             RenderSystem.enableBlend();
-            GuiComponent.blit(param0, param1, 0.0F, 0.0F, 32, 32, 32, 32);
+            GuiComponent.blit(param0, param1, param2, 0.0F, 0.0F, 32, 32, 32, 32);
             RenderSystem.disableBlend();
         }
 

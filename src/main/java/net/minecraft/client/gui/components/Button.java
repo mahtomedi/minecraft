@@ -1,5 +1,6 @@
 package net.minecraft.client.gui.components;
 
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -7,7 +8,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class Button extends AbstractButton {
     protected final Button.OnPress onPress;
 
-    public Button(int param0, int param1, int param2, int param3, String param4, Button.OnPress param5) {
+    public Button(int param0, int param1, int param2, int param3, Component param4, Button.OnPress param5) {
         super(param0, param1, param2, param3, param4);
         this.onPress = param5;
     }

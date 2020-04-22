@@ -23,10 +23,10 @@ import java.util.Iterator;
 import java.util.List;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.handshake.ClientIntentionPacket;
 import net.minecraft.network.protocol.status.ClientStatusPacketListener;
@@ -52,7 +52,7 @@ public class ServerStatusPinger {
         ServerAddress var0 = ServerAddress.parseString(param0.ip);
         final Connection var1 = Connection.connectToServer(InetAddress.getByName(var0.getHost()), var0.getPort(), false);
         this.connections.add(var1);
-        param0.motd = I18n.get("multiplayer.status.pinging");
+        param0.motd = new TranslatableComponent("multiplayer.status.pinging");
         param0.ping = -1L;
         param0.playerList = null;
         var1.setListener(
@@ -69,53 +69,39 @@ public class ServerStatusPinger {
                         this.receivedPing = true;
                         ServerStatus var0 = param0.getStatus();
                         if (var0.getDescription() != null) {
-                            param0.motd = var0.getDescription().getColoredString();
+                            param0.motd = var0.getDescription();
                         } else {
-                            param0.motd = "";
+                            param0.motd = TextComponent.EMPTY;
                         }
     
                         if (var0.getVersion() != null) {
-                            param0.version = var0.getVersion().getName();
+                            param0.version = new TextComponent(var0.getVersion().getName());
                             param0.protocol = var0.getVersion().getProtocol();
                         } else {
-                            param0.version = I18n.get("multiplayer.status.old");
+                            param0.version = new TranslatableComponent("multiplayer.status.old");
                             param0.protocol = 0;
                         }
     
                         if (var0.getPlayers() != null) {
-                            param0.status = ChatFormatting.GRAY
-                                + ""
-                                + var0.getPlayers().getNumPlayers()
-                                + ""
-                                + ChatFormatting.DARK_GRAY
-                                + "/"
-                                + ChatFormatting.GRAY
-                                + var0.getPlayers().getMaxPlayers();
+                            param0.status = ServerStatusPinger.formatPlayerCount(var0.getPlayers().getNumPlayers(), var0.getPlayers().getMaxPlayers());
+                            List<Component> var1 = Lists.newArrayList();
                             if (ArrayUtils.isNotEmpty(var0.getPlayers().getSample())) {
-                                StringBuilder var1 = new StringBuilder();
-    
                                 for(GameProfile var2 : var0.getPlayers().getSample()) {
-                                    if (var1.length() > 0) {
-                                        var1.append("\n");
-                                    }
-    
-                                    var1.append(var2.getName());
+                                    var1.add(new TextComponent(var2.getName()));
                                 }
     
                                 if (var0.getPlayers().getSample().length < var0.getPlayers().getNumPlayers()) {
-                                    if (var1.length() > 0) {
-                                        var1.append("\n");
-                                    }
-    
-                                    var1.append(
-                                        I18n.get("multiplayer.status.and_more", var0.getPlayers().getNumPlayers() - var0.getPlayers().getSample().length)
+                                    var1.add(
+                                        new TranslatableComponent(
+                                            "multiplayer.status.and_more", var0.getPlayers().getNumPlayers() - var0.getPlayers().getSample().length
+                                        )
                                     );
                                 }
     
-                                param0.playerList = var1.toString();
+                                param0.playerList = var1;
                             }
                         } else {
-                            param0.status = ChatFormatting.DARK_GRAY + I18n.get("multiplayer.status.unknown");
+                            param0.status = new TranslatableComponent("multiplayer.status.unknown").withStyle(ChatFormatting.DARK_GRAY);
                         }
     
                         if (var0.getFavicon() != null) {
@@ -147,8 +133,8 @@ public class ServerStatusPinger {
                 public void onDisconnect(Component param0x) {
                     if (!this.success) {
                         ServerStatusPinger.LOGGER.error("Can't ping {}: {}", param0.ip, param0.getString());
-                        param0.motd = ChatFormatting.DARK_RED + I18n.get("multiplayer.status.cannot_connect");
-                        param0.status = "";
+                        param0.motd = new TranslatableComponent("multiplayer.status.cannot_connect").withStyle(ChatFormatting.DARK_RED);
+                        param0.status = TextComponent.EMPTY;
                         ServerStatusPinger.this.pingLegacyServer(param0);
                     }
     
@@ -226,9 +212,9 @@ public class ServerStatusPinger {
                                 int var6 = Mth.getInt(var2[4], -1);
                                 int var7 = Mth.getInt(var2[5], -1);
                                 param0.protocol = -1;
-                                param0.version = var4;
-                                param0.motd = var5;
-                                param0.status = ChatFormatting.GRAY + "" + var6 + "" + ChatFormatting.DARK_GRAY + "/" + ChatFormatting.GRAY + var7;
+                                param0.version = new TextComponent(var4);
+                                param0.motd = new TextComponent(var5);
+                                param0.status = ServerStatusPinger.formatPlayerCount(var6, var7);
                             }
                         }
 
@@ -242,6 +228,13 @@ public class ServerStatusPinger {
                 });
             }
         }).channel(NioSocketChannel.class).connect(var0.getHost(), var0.getPort());
+    }
+
+    private static Component formatPlayerCount(int param0, int param1) {
+        return new TextComponent(Integer.toString(param0))
+            .append(new TextComponent("/").withStyle(ChatFormatting.DARK_GRAY))
+            .append(Integer.toString(param1))
+            .withStyle(ChatFormatting.GRAY);
     }
 
     public void tick() {

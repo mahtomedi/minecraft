@@ -1,5 +1,6 @@
 package net.minecraft.client.gui.screens;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import java.net.IDN;
 import java.util.function.Predicate;
@@ -8,6 +9,8 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.StringUtil;
 import net.minecraftforge.api.distmarker.Dist;
@@ -56,12 +59,12 @@ public class EditServerScreen extends Screen {
     @Override
     protected void init() {
         this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
-        this.nameEdit = new EditBox(this.font, this.width / 2 - 100, 66, 200, 20, I18n.get("addServer.enterName"));
+        this.nameEdit = new EditBox(this.font, this.width / 2 - 100, 66, 200, 20, new TranslatableComponent("addServer.enterName"));
         this.nameEdit.setFocus(true);
         this.nameEdit.setValue(this.serverData.name);
         this.nameEdit.setResponder(this::onEdited);
         this.children.add(this.nameEdit);
-        this.ipEdit = new EditBox(this.font, this.width / 2 - 100, 106, 200, 20, I18n.get("addServer.enterIp"));
+        this.ipEdit = new EditBox(this.font, this.width / 2 - 100, 106, 200, 20, new TranslatableComponent("addServer.enterIp"));
         this.ipEdit.setMaxLength(128);
         this.ipEdit.setValue(this.serverData.ip);
         this.ipEdit.setFilter(this.addressFilter);
@@ -73,21 +76,28 @@ public class EditServerScreen extends Screen {
                 this.height / 4 + 72,
                 200,
                 20,
-                I18n.get("addServer.resourcePack") + ": " + this.serverData.getResourcePackStatus().getName().getColoredString(),
+                createServerButtonText(this.serverData.getResourcePackStatus()),
                 param0 -> {
                     this.serverData
                         .setResourcePackStatus(
                             ServerData.ServerPackStatus.values()[(this.serverData.getResourcePackStatus().ordinal() + 1)
                                 % ServerData.ServerPackStatus.values().length]
                         );
-                    this.serverPackButton
-                        .setMessage(I18n.get("addServer.resourcePack") + ": " + this.serverData.getResourcePackStatus().getName().getColoredString());
+                    this.serverPackButton.setMessage(createServerButtonText(this.serverData.getResourcePackStatus()));
                 }
             )
         );
-        this.addButton = this.addButton(new Button(this.width / 2 - 100, this.height / 4 + 96 + 18, 200, 20, I18n.get("addServer.add"), param0 -> this.onAdd()));
-        this.addButton(new Button(this.width / 2 - 100, this.height / 4 + 120 + 18, 200, 20, I18n.get("gui.cancel"), param0 -> this.callback.accept(false)));
+        this.addButton = this.addButton(
+            new Button(this.width / 2 - 100, this.height / 4 + 96 + 18, 200, 20, new TranslatableComponent("addServer.add"), param0 -> this.onAdd())
+        );
+        this.addButton(
+            new Button(this.width / 2 - 100, this.height / 4 + 120 + 18, 200, 20, CommonComponents.GUI_CANCEL, param0 -> this.callback.accept(false))
+        );
         this.cleanUp();
+    }
+
+    private static Component createServerButtonText(ServerData.ServerPackStatus param0) {
+        return new TranslatableComponent("addServer.resourcePack").append(": ").append(param0.getName());
     }
 
     @Override
@@ -127,13 +137,13 @@ public class EditServerScreen extends Screen {
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
-        this.renderBackground();
-        this.drawCenteredString(this.font, this.title.getColoredString(), this.width / 2, 17, 16777215);
-        this.drawString(this.font, I18n.get("addServer.enterName"), this.width / 2 - 100, 53, 10526880);
-        this.drawString(this.font, I18n.get("addServer.enterIp"), this.width / 2 - 100, 94, 10526880);
-        this.nameEdit.render(param0, param1, param2);
-        this.ipEdit.render(param0, param1, param2);
-        super.render(param0, param1, param2);
+    public void render(PoseStack param0, int param1, int param2, float param3) {
+        this.renderBackground(param0);
+        this.drawCenteredString(param0, this.font, this.title, this.width / 2, 17, 16777215);
+        this.drawString(param0, this.font, I18n.get("addServer.enterName"), this.width / 2 - 100, 53, 10526880);
+        this.drawString(param0, this.font, I18n.get("addServer.enterIp"), this.width / 2 - 100, 94, 10526880);
+        this.nameEdit.render(param0, param1, param2, param3);
+        this.ipEdit.render(param0, param1, param2, param3);
+        super.render(param0, param1, param2, param3);
     }
 }

@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 
 public class ListTag extends CollectionTag<Tag> {
@@ -292,7 +293,7 @@ public class ListTag extends CollectionTag<Tag> {
             return new TextComponent("[]");
         } else if (INLINE_ELEMENT_TYPES.contains(this.type) && this.size() <= 8) {
             String var0 = ", ";
-            Component var1 = new TextComponent("[");
+            MutableComponent var1 = new TextComponent("[");
 
             for(int var2 = 0; var2 < this.list.size(); ++var2) {
                 if (var2 != 0) {
@@ -305,7 +306,7 @@ public class ListTag extends CollectionTag<Tag> {
             var1.append("]");
             return var1;
         } else {
-            Component var3 = new TextComponent("[");
+            MutableComponent var3 = new TextComponent("[");
             if (!param0.isEmpty()) {
                 var3.append("\n");
             }
@@ -313,7 +314,7 @@ public class ListTag extends CollectionTag<Tag> {
             String var4 = String.valueOf(',');
 
             for(int var5 = 0; var5 < this.list.size(); ++var5) {
-                Component var6 = new TextComponent(Strings.repeat(param0, param1 + 1));
+                MutableComponent var6 = new TextComponent(Strings.repeat(param0, param1 + 1));
                 var6.append(this.list.get(var5).getPrettyDisplay(param0, param1 + 1));
                 if (var5 != this.list.size() - 1) {
                     var6.append(var4).append(param0.isEmpty() ? " " : "\n");

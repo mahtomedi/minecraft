@@ -1,6 +1,7 @@
 package net.minecraft.client.gui.screens.inventory;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -17,8 +18,8 @@ public class SmithingScreen extends ItemCombinerScreen<SmithingMenu> {
     }
 
     @Override
-    protected void renderLabels(int param0, int param1) {
+    protected void renderLabels(PoseStack param0, int param1, int param2) {
         RenderSystem.disableBlend();
-        this.font.draw(this.title.getColoredString(), 40.0F, 20.0F, 4210752);
+        this.font.draw(param0, this.title, 60.0F, 20.0F, 4210752);
     }
 }

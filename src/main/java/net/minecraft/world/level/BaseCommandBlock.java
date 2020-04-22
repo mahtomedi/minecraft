@@ -39,7 +39,7 @@ public abstract class BaseCommandBlock implements CommandSource {
     }
 
     public Component getLastOutput() {
-        return (Component)(this.lastOutput == null ? new TextComponent("") : this.lastOutput);
+        return this.lastOutput == null ? TextComponent.EMPTY : this.lastOutput;
     }
 
     public CompoundTag save(CompoundTag param0) {

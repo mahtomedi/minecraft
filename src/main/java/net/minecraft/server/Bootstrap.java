@@ -17,6 +17,7 @@ import net.minecraft.world.entity.ai.attributes.DefaultAttributes;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.ComposterBlock;
@@ -50,14 +51,27 @@ public class Bootstrap {
         }
     }
 
-    private static <T> void checkTranslations(Registry<T> param0, Function<T, String> param1, Set<String> param2) {
+    private static <T> void checkTranslations(Iterable<T> param0, Function<T, String> param1, Set<String> param2) {
         Language var0 = Language.getInstance();
-        param0.iterator().forEachRemaining(param3 -> {
+        param0.forEach(param3 -> {
             String var0x = param1.apply(param3);
             if (!var0.exists(var0x)) {
                 param2.add(var0x);
             }
 
+        });
+    }
+
+    private static void checkGameruleTranslations(final Set<String> param0) {
+        final Language var0 = Language.getInstance();
+        GameRules.visitGameRuleTypes(new GameRules.GameRuleTypeVisitor() {
+            @Override
+            public <T extends GameRules.Value<T>> void visit(GameRules.Key<T> param0x, GameRules.Type<T> param1) {
+                if (!var0.exists(param0.getDescriptionId())) {
+                    param0.add(param0.getId());
+                }
+
+            }
         });
     }
 
@@ -71,6 +85,7 @@ public class Bootstrap {
         checkTranslations(Registry.BIOME, Biome::getDescriptionId, var0);
         checkTranslations(Registry.BLOCK, Block::getDescriptionId, var0);
         checkTranslations(Registry.CUSTOM_STAT, param0 -> "stat." + param0.toString().replace(':', '.'), var0);
+        checkGameruleTranslations(var0);
         return var0;
     }
 

@@ -58,6 +58,6 @@ public class EndTag implements Tag {
 
     @Override
     public Component getPrettyDisplay(String param0, int param1) {
-        return new TextComponent("");
+        return TextComponent.EMPTY;
     }
 }

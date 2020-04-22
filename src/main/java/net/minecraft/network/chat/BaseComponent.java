@@ -1,20 +1,22 @@
 package net.minecraft.network.chat;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Streams;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Stream;
 
-public abstract class BaseComponent implements Component {
+public abstract class BaseComponent implements MutableComponent {
     protected final List<Component> siblings = Lists.newArrayList();
-    private Style style;
+    private Style style = Style.EMPTY;
 
     @Override
-    public Component append(Component param0) {
-        param0.getStyle().inheritFrom(this.getStyle());
+    public MutableComponent append(Component param0) {
         this.siblings.add(param0);
         return this;
+    }
+
+    @Override
+    public String getContents() {
+        return "";
     }
 
     @Override
@@ -23,32 +25,24 @@ public abstract class BaseComponent implements Component {
     }
 
     @Override
-    public Component setStyle(Style param0) {
+    public MutableComponent setStyle(Style param0) {
         this.style = param0;
-
-        for(Component var0 : this.siblings) {
-            var0.getStyle().inheritFrom(this.getStyle());
-        }
-
         return this;
     }
 
     @Override
     public Style getStyle() {
-        if (this.style == null) {
-            this.style = new Style();
-
-            for(Component var0 : this.siblings) {
-                var0.getStyle().inheritFrom(this.style);
-            }
-        }
-
         return this.style;
     }
 
+    public abstract BaseComponent toMutable();
+
     @Override
-    public Stream<Component> stream() {
-        return Streams.concat(Stream.of(this), this.siblings.stream().flatMap(Component::stream));
+    public final MutableComponent mutableCopy() {
+        BaseComponent var0 = this.toMutable();
+        var0.siblings.addAll(this.siblings);
+        var0.setStyle(this.style);
+        return var0;
     }
 
     @Override
@@ -59,7 +53,7 @@ public abstract class BaseComponent implements Component {
             return false;
         } else {
             BaseComponent var0 = (BaseComponent)param0;
-            return this.siblings.equals(var0.siblings) && this.getStyle().equals(var0.getStyle());
+            return this.siblings.equals(var0.siblings) && Objects.equals(this.getStyle(), var0.getStyle());
         }
     }
 

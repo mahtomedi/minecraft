@@ -3,6 +3,7 @@ package net.minecraft.client.gui.screens;
 import com.google.common.util.concurrent.Runnables;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.io.IOException;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
@@ -21,13 +22,14 @@ import net.minecraft.client.renderer.CubeMap;
 import net.minecraft.client.renderer.PanoramaRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.realms.RealmsBridge;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.level.storage.LevelStorageSource;
+import net.minecraft.world.level.storage.WorldData;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
@@ -123,7 +125,7 @@ public class TitleScreen extends Screen {
                 256,
                 256,
                 param0 -> this.minecraft.setScreen(new LanguageSelectScreen(this, this.minecraft.options, this.minecraft.getLanguageManager())),
-                I18n.get("narrator.button.language")
+                new TranslatableComponent("narrator.button.language")
             )
         );
         this.addButton(
@@ -132,11 +134,11 @@ public class TitleScreen extends Screen {
                 var1 + 72 + 12,
                 98,
                 20,
-                I18n.get("menu.options"),
+                new TranslatableComponent("menu.options"),
                 param0 -> this.minecraft.setScreen(new OptionsScreen(this, this.minecraft.options))
             )
         );
-        this.addButton(new Button(this.width / 2 + 2, var1 + 72 + 12, 98, 20, I18n.get("menu.quit"), param0 -> this.minecraft.stop()));
+        this.addButton(new Button(this.width / 2 + 2, var1 + 72 + 12, 98, 20, new TranslatableComponent("menu.quit"), param0 -> this.minecraft.stop()));
         this.addButton(
             new ImageButton(
                 this.width / 2 + 104,
@@ -150,7 +152,7 @@ public class TitleScreen extends Screen {
                 32,
                 64,
                 param0 -> this.minecraft.setScreen(new AccessibilityOptionsScreen(this, this.minecraft.options)),
-                I18n.get("narrator.button.accessibility")
+                new TranslatableComponent("narrator.button.accessibility")
             )
         );
         this.minecraft.setConnectedToRealms(false);
@@ -168,9 +170,16 @@ public class TitleScreen extends Screen {
 
     private void createNormalMenuOptions(int param0, int param1) {
         this.addButton(
-            new Button(this.width / 2 - 100, param0, 200, 20, I18n.get("menu.singleplayer"), param0x -> this.minecraft.setScreen(new SelectWorldScreen(this)))
+            new Button(
+                this.width / 2 - 100,
+                param0,
+                200,
+                20,
+                new TranslatableComponent("menu.singleplayer"),
+                param0x -> this.minecraft.setScreen(new SelectWorldScreen(this))
+            )
         );
-        this.addButton(new Button(this.width / 2 - 100, param0 + param1 * 1, 200, 20, I18n.get("menu.multiplayer"), param0x -> {
+        this.addButton(new Button(this.width / 2 - 100, param0 + param1 * 1, 200, 20, new TranslatableComponent("menu.multiplayer"), param0x -> {
             if (this.minecraft.options.skipMultiplayerWarning) {
                 this.minecraft.setScreen(new JoinMultiplayerScreen(this));
             } else {
@@ -178,7 +187,9 @@ public class TitleScreen extends Screen {
             }
 
         }));
-        this.addButton(new Button(this.width / 2 - 100, param0 + param1 * 2, 200, 20, I18n.get("menu.online"), param0x -> this.realmsButtonClicked()));
+        this.addButton(
+            new Button(this.width / 2 - 100, param0 + param1 * 2, 200, 20, new TranslatableComponent("menu.online"), param0x -> this.realmsButtonClicked())
+        );
     }
 
     private void createDemoMenuOptions(int param0, int param1) {
@@ -188,8 +199,8 @@ public class TitleScreen extends Screen {
                 param0,
                 200,
                 20,
-                I18n.get("menu.playdemo"),
-                param0x -> this.minecraft.selectLevel("Demo_World", "Demo_World", MinecraftServer.DEMO_SETTINGS)
+                new TranslatableComponent("menu.playdemo"),
+                param0x -> this.minecraft.selectLevel("Demo_World", MinecraftServer.DEMO_SETTINGS)
             )
         );
         this.resetDemoButton = this.addButton(
@@ -198,12 +209,12 @@ public class TitleScreen extends Screen {
                 param0 + param1 * 1,
                 200,
                 20,
-                I18n.get("menu.resetdemo"),
+                new TranslatableComponent("menu.resetdemo"),
                 param0x -> {
                     LevelStorageSource var0x = this.minecraft.getLevelSource();
         
                     try (LevelStorageSource.LevelStorageAccess var3x = var0x.createAccess("Demo_World")) {
-                        LevelData var2x = var3x.getDataTag();
+                        WorldData var2x = var3x.getDataTag();
                         if (var2x != null) {
                             this.minecraft
                                 .setScreen(
@@ -211,8 +222,8 @@ public class TitleScreen extends Screen {
                                         this::confirmDemo,
                                         new TranslatableComponent("selectWorld.deleteQuestion"),
                                         new TranslatableComponent("selectWorld.deleteWarning", var2x.getLevelName()),
-                                        I18n.get("selectWorld.deleteButton"),
-                                        I18n.get("gui.cancel")
+                                        new TranslatableComponent("selectWorld.deleteButton"),
+                                        CommonComponents.GUI_CANCEL
                                     )
                                 );
                         }
@@ -226,7 +237,7 @@ public class TitleScreen extends Screen {
         );
 
         try (LevelStorageSource.LevelStorageAccess var0 = this.minecraft.getLevelSource().createAccess("Demo_World")) {
-            LevelData var1 = var0.getDataTag();
+            WorldData var1 = var0.getDataTag();
             if (var1 == null) {
                 this.resetDemoButton.active = false;
             }
@@ -243,14 +254,14 @@ public class TitleScreen extends Screen {
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
+    public void render(PoseStack param0, int param1, int param2, float param3) {
         if (this.fadeInStart == 0L && this.fading) {
             this.fadeInStart = Util.getMillis();
         }
 
         float var0 = this.fading ? (float)(Util.getMillis() - this.fadeInStart) / 1000.0F : 1.0F;
-        fill(0, 0, this.width, this.height, -1);
-        this.panorama.render(param2, Mth.clamp(var0, 0.0F, 1.0F));
+        fill(param0, 0, 0, this.width, this.height, -1);
+        this.panorama.render(param3, Mth.clamp(var0, 0.0F, 1.0F));
         int var1 = 274;
         int var2 = this.width / 2 - 137;
         int var3 = 30;
@@ -258,25 +269,25 @@ public class TitleScreen extends Screen {
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, this.fading ? (float)Mth.ceil(Mth.clamp(var0, 0.0F, 1.0F)) : 1.0F);
-        blit(0, 0, this.width, this.height, 0.0F, 0.0F, 16, 128, 16, 128);
+        blit(param0, 0, 0, this.width, this.height, 0.0F, 0.0F, 16, 128, 16, 128);
         float var4 = this.fading ? Mth.clamp(var0 - 1.0F, 0.0F, 1.0F) : 1.0F;
         int var5 = Mth.ceil(var4 * 255.0F) << 24;
         if ((var5 & -67108864) != 0) {
             this.minecraft.getTextureManager().bind(MINECRAFT_LOGO);
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, var4);
             if (this.minceraftEasterEgg) {
-                this.blit(var2 + 0, 30, 0, 0, 99, 44);
-                this.blit(var2 + 99, 30, 129, 0, 27, 44);
-                this.blit(var2 + 99 + 26, 30, 126, 0, 3, 44);
-                this.blit(var2 + 99 + 26 + 3, 30, 99, 0, 26, 44);
-                this.blit(var2 + 155, 30, 0, 45, 155, 44);
+                this.blit(param0, var2 + 0, 30, 0, 0, 99, 44);
+                this.blit(param0, var2 + 99, 30, 129, 0, 27, 44);
+                this.blit(param0, var2 + 99 + 26, 30, 126, 0, 3, 44);
+                this.blit(param0, var2 + 99 + 26 + 3, 30, 99, 0, 26, 44);
+                this.blit(param0, var2 + 155, 30, 0, 45, 155, 44);
             } else {
-                this.blit(var2 + 0, 30, 0, 0, 155, 44);
-                this.blit(var2 + 155, 30, 0, 45, 155, 44);
+                this.blit(param0, var2 + 0, 30, 0, 0, 155, 44);
+                this.blit(param0, var2 + 155, 30, 0, 45, 155, 44);
             }
 
             this.minecraft.getTextureManager().bind(MINECRAFT_EDITION);
-            blit(var2 + 88, 67, 0.0F, 0.0F, 98, 14, 128, 16);
+            blit(param0, var2 + 88, 67, 0.0F, 0.0F, 98, 14, 128, 16);
             if (this.splash != null) {
                 RenderSystem.pushMatrix();
                 RenderSystem.translatef((float)(this.width / 2 + 90), 70.0F, 0.0F);
@@ -284,7 +295,7 @@ public class TitleScreen extends Screen {
                 float var6 = 1.8F - Mth.abs(Mth.sin((float)(Util.getMillis() % 1000L) / 1000.0F * (float) (Math.PI * 2)) * 0.1F);
                 var6 = var6 * 100.0F / (float)(this.font.width(this.splash) + 32);
                 RenderSystem.scalef(var6, var6, var6);
-                this.drawCenteredString(this.font, this.splash, 0, -8, 16776960 | var5);
+                this.drawCenteredString(param0, this.font, this.splash, 0, -8, 16776960 | var5);
                 RenderSystem.popMatrix();
             }
 
@@ -299,19 +310,19 @@ public class TitleScreen extends Screen {
                 var7 = var7 + I18n.get("menu.modded");
             }
 
-            this.drawString(this.font, var7, 2, this.height - 10, 16777215 | var5);
-            this.drawString(this.font, "Copyright Mojang AB. Do not distribute!", this.copyrightX, this.height - 10, 16777215 | var5);
-            if (param0 > this.copyrightX && param0 < this.copyrightX + this.copyrightWidth && param1 > this.height - 10 && param1 < this.height) {
-                fill(this.copyrightX, this.height - 1, this.copyrightX + this.copyrightWidth, this.height, 16777215 | var5);
+            this.drawString(param0, this.font, var7, 2, this.height - 10, 16777215 | var5);
+            this.drawString(param0, this.font, "Copyright Mojang AB. Do not distribute!", this.copyrightX, this.height - 10, 16777215 | var5);
+            if (param1 > this.copyrightX && param1 < this.copyrightX + this.copyrightWidth && param2 > this.height - 10 && param2 < this.height) {
+                fill(param0, this.copyrightX, this.height - 1, this.copyrightX + this.copyrightWidth, this.height, 16777215 | var5);
             }
 
             for(AbstractWidget var8 : this.buttons) {
                 var8.setAlpha(var4);
             }
 
-            super.render(param0, param1, param2);
+            super.render(param0, param1, param2, param3);
             if (this.realmsNotificationsEnabled() && var4 >= 1.0F) {
-                this.realmsNotificationsScreen.render(param0, param1, param2);
+                this.realmsNotificationsScreen.render(param0, param1, param2, param3);
             }
 
         }

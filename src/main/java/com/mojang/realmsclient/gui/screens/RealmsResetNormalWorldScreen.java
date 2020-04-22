@@ -1,8 +1,12 @@
 package com.mojang.realmsclient.gui.screens;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.realms.RealmsLabel;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraftforge.api.distmarker.Dist;
@@ -15,10 +19,15 @@ public class RealmsResetNormalWorldScreen extends RealmsScreen {
     private EditBox seedEdit;
     private Boolean generateStructures = true;
     private Integer levelTypeIndex = 0;
-    private String[] levelTypes;
-    private String buttonTitle;
+    private Component[] levelTypes = new Component[]{
+        new TranslatableComponent("generator.default"),
+        new TranslatableComponent("generator.flat"),
+        new TranslatableComponent("generator.largeBiomes"),
+        new TranslatableComponent("generator.amplified")
+    };
+    private Component buttonTitle;
 
-    public RealmsResetNormalWorldScreen(RealmsResetWorldScreen param0, String param1) {
+    public RealmsResetNormalWorldScreen(RealmsResetWorldScreen param0, Component param1) {
         this.lastScreen = param0;
         this.buttonTitle = param1;
     }
@@ -31,13 +40,10 @@ public class RealmsResetNormalWorldScreen extends RealmsScreen {
 
     @Override
     public void init() {
-        this.levelTypes = new String[]{
-            I18n.get("generator.default"), I18n.get("generator.flat"), I18n.get("generator.largeBiomes"), I18n.get("generator.amplified")
-        };
         this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
-        this.titleLabel = new RealmsLabel(I18n.get("mco.reset.world.generate"), this.width / 2, 17, 16777215);
+        this.titleLabel = new RealmsLabel(new TranslatableComponent("mco.reset.world.generate"), this.width / 2, 17, 16777215);
         this.addWidget(this.titleLabel);
-        this.seedEdit = new EditBox(this.minecraft.font, this.width / 2 - 100, row(2), 200, 20, null, I18n.get("mco.reset.world.seed"));
+        this.seedEdit = new EditBox(this.minecraft.font, this.width / 2 - 100, row(2), 200, 20, null, new TranslatableComponent("mco.reset.world.seed"));
         this.seedEdit.setMaxLength(32);
         this.addWidget(this.seedEdit);
         this.setInitialFocus(this.seedEdit);
@@ -60,7 +66,7 @@ public class RealmsResetNormalWorldScreen extends RealmsScreen {
                         .resetWorld(new RealmsResetWorldScreen.ResetWorldInfo(this.seedEdit.getValue(), this.levelTypeIndex, this.generateStructures))
             )
         );
-        this.addButton(new Button(this.width / 2 + 8, row(12), 97, 20, I18n.get("gui.back"), param0 -> this.minecraft.setScreen(this.lastScreen)));
+        this.addButton(new Button(this.width / 2 + 8, row(12), 97, 20, CommonComponents.GUI_BACK, param0 -> this.minecraft.setScreen(this.lastScreen)));
         this.narrateLabels();
     }
 
@@ -80,21 +86,20 @@ public class RealmsResetNormalWorldScreen extends RealmsScreen {
     }
 
     @Override
-    public void render(int param0, int param1, float param2) {
-        this.renderBackground();
-        this.titleLabel.render(this);
-        this.font.draw(I18n.get("mco.reset.world.seed"), (float)(this.width / 2 - 100), (float)row(1), 10526880);
-        this.seedEdit.render(param0, param1, param2);
-        super.render(param0, param1, param2);
+    public void render(PoseStack param0, int param1, int param2, float param3) {
+        this.renderBackground(param0);
+        this.titleLabel.render(this, param0);
+        this.font.draw(param0, I18n.get("mco.reset.world.seed"), (float)(this.width / 2 - 100), (float)row(1), 10526880);
+        this.seedEdit.render(param0, param1, param2, param3);
+        super.render(param0, param1, param2, param3);
     }
 
-    private String levelTypeTitle() {
-        String var0 = I18n.get("selectWorld.mapType");
-        return var0 + " " + this.levelTypes[this.levelTypeIndex];
+    private Component levelTypeTitle() {
+        return new TranslatableComponent("selectWorld.mapType").append(" ").append(this.levelTypes[this.levelTypeIndex]);
     }
 
-    private String generateStructuresTitle() {
+    private Component generateStructuresTitle() {
         String var0 = this.generateStructures ? "mco.configure.world.on" : "mco.configure.world.off";
-        return I18n.get("selectWorld.mapFeatures") + " " + I18n.get(var0);
+        return new TranslatableComponent("selectWorld.mapFeatures").append(" ").append(new TranslatableComponent(var0));
     }
 }

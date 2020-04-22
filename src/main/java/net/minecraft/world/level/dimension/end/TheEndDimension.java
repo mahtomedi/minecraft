@@ -24,7 +24,7 @@ public class TheEndDimension extends Dimension {
 
     public TheEndDimension(Level param0, DimensionType param1) {
         super(param0, param1, 0.0F);
-        CompoundTag var0 = param0.getLevelData().getDimensionData(DimensionType.THE_END);
+        CompoundTag var0 = param0.getLevelData().getDimensionData();
         this.dragonFight = param0 instanceof ServerLevel ? new EndDragonFight((ServerLevel)param0, var0.getCompound("DragonFight")) : null;
     }
 
@@ -115,7 +115,7 @@ public class TheEndDimension extends Dimension {
             var0.put("DragonFight", this.dragonFight.saveData());
         }
 
-        this.level.getLevelData().setDimensionData(DimensionType.THE_END, var0);
+        this.level.getLevelData().setDimensionData(var0);
     }
 
     @Override

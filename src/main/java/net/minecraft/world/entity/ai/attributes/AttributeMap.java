@@ -6,6 +6,7 @@ import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
@@ -48,6 +49,15 @@ public class AttributeMap {
         return this.attributes.computeIfAbsent(param0, param0x -> this.supplier.createInstance(this::onAttributeModified, param0x));
     }
 
+    public boolean hasAttribute(Attribute param0) {
+        return this.attributes.get(param0) != null || this.supplier.hasAttribute(param0);
+    }
+
+    public boolean hasModifier(Attribute param0, UUID param1) {
+        AttributeInstance var0 = this.attributes.get(param0);
+        return var0 != null ? var0.getModifier(param1) != null : this.supplier.hasModifier(param0, param1);
+    }
+
     public double getValue(Attribute param0) {
         AttributeInstance var0 = this.attributes.get(param0);
         return var0 != null ? var0.getValue() : this.supplier.getValue(param0);
@@ -56,6 +66,11 @@ public class AttributeMap {
     public double getBaseValue(Attribute param0) {
         AttributeInstance var0 = this.attributes.get(param0);
         return var0 != null ? var0.getBaseValue() : this.supplier.getBaseValue(param0);
+    }
+
+    public double getModifierValue(Attribute param0, UUID param1) {
+        AttributeInstance var0 = this.attributes.get(param0);
+        return var0 != null ? var0.getModifier(param1).getAmount() : this.supplier.getModifierValue(param0, param1);
     }
 
     public void removeAttributeModifiers(Multimap<Attribute, AttributeModifier> param0) {

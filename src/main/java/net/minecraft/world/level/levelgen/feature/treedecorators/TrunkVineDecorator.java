@@ -10,7 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.VineBlock;
-import net.minecraft.world.level.levelgen.feature.AbstractTreeFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public class TrunkVineDecorator extends TreeDecorator {
@@ -27,28 +27,28 @@ public class TrunkVineDecorator extends TreeDecorator {
         param2.forEach(param4x -> {
             if (param1.nextInt(3) > 0) {
                 BlockPos var3x = param4x.west();
-                if (AbstractTreeFeature.isAir(param0, var3x)) {
+                if (Feature.isAir(param0, var3x)) {
                     this.placeVine(param0, var3x, VineBlock.EAST, param4, param5);
                 }
             }
 
             if (param1.nextInt(3) > 0) {
                 BlockPos var1 = param4x.east();
-                if (AbstractTreeFeature.isAir(param0, var1)) {
+                if (Feature.isAir(param0, var1)) {
                     this.placeVine(param0, var1, VineBlock.WEST, param4, param5);
                 }
             }
 
             if (param1.nextInt(3) > 0) {
                 BlockPos var2 = param4x.north();
-                if (AbstractTreeFeature.isAir(param0, var2)) {
+                if (Feature.isAir(param0, var2)) {
                     this.placeVine(param0, var2, VineBlock.SOUTH, param4, param5);
                 }
             }
 
             if (param1.nextInt(3) > 0) {
                 BlockPos var3 = param4x.south();
-                if (AbstractTreeFeature.isAir(param0, var3)) {
+                if (Feature.isAir(param0, var3)) {
                     this.placeVine(param0, var3, VineBlock.NORTH, param4, param5);
                 }
             }
