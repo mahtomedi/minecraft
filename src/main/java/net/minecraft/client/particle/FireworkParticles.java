@@ -5,6 +5,7 @@ import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.nbt.CompoundTag;
@@ -15,7 +16,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.FireworkRocketItem;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -30,7 +30,7 @@ public class FireworkParticles {
         }
 
         public Particle createParticle(
-            SimpleParticleType param0, Level param1, double param2, double param3, double param4, double param5, double param6, double param7
+            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
             FireworkParticles.OverlayParticle var0 = new FireworkParticles.OverlayParticle(param1, param2, param3, param4);
             var0.pickSprite(this.sprite);
@@ -40,7 +40,7 @@ public class FireworkParticles {
 
     @OnlyIn(Dist.CLIENT)
     public static class OverlayParticle extends TextureSheetParticle {
-        private OverlayParticle(Level param0, double param1, double param2, double param3) {
+        private OverlayParticle(ClientLevel param0, double param1, double param2, double param3) {
             super(param0, param1, param2, param3);
             this.lifetime = 4;
         }
@@ -73,7 +73,15 @@ public class FireworkParticles {
         private boolean hasFade;
 
         private SparkParticle(
-            Level param0, double param1, double param2, double param3, double param4, double param5, double param6, ParticleEngine param7, SpriteSet param8
+            ClientLevel param0,
+            double param1,
+            double param2,
+            double param3,
+            double param4,
+            double param5,
+            double param6,
+            ParticleEngine param7,
+            SpriteSet param8
         ) {
             super(param0, param1, param2, param3, param8, -0.004F);
             this.xd = param4;
@@ -134,7 +142,7 @@ public class FireworkParticles {
         }
 
         public Particle createParticle(
-            SimpleParticleType param0, Level param1, double param2, double param3, double param4, double param5, double param6, double param7
+            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
             FireworkParticles.SparkParticle var0 = new FireworkParticles.SparkParticle(
                 param1, param2, param3, param4, param5, param6, param7, Minecraft.getInstance().particleEngine, this.sprites
@@ -152,7 +160,7 @@ public class FireworkParticles {
         private boolean twinkleDelay;
 
         public Starter(
-            Level param0,
+            ClientLevel param0,
             double param1,
             double param2,
             double param3,

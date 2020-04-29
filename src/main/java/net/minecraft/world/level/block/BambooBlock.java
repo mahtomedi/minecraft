@@ -83,12 +83,11 @@ public class BambooBlock extends Block implements BonemealableBlock {
         } else {
             BlockState var1 = param0.getLevel().getBlockState(param0.getClickedPos().below());
             if (var1.is(BlockTags.BAMBOO_PLANTABLE_ON)) {
-                Block var2 = var1.getBlock();
-                if (var2 == Blocks.BAMBOO_SAPLING) {
+                if (var1.is(Blocks.BAMBOO_SAPLING)) {
                     return this.defaultBlockState().setValue(AGE, Integer.valueOf(0));
-                } else if (var2 == Blocks.BAMBOO) {
-                    int var3 = var1.getValue(AGE) > 0 ? 1 : 0;
-                    return this.defaultBlockState().setValue(AGE, Integer.valueOf(var3));
+                } else if (var1.is(Blocks.BAMBOO)) {
+                    int var2 = var1.getValue(AGE) > 0 ? 1 : 0;
+                    return this.defaultBlockState().setValue(AGE, Integer.valueOf(var2));
                 } else {
                     return Blocks.BAMBOO_SAPLING.defaultBlockState();
                 }
@@ -135,7 +134,7 @@ public class BambooBlock extends Block implements BonemealableBlock {
             param3.getBlockTicks().scheduleTick(param4, this, 1);
         }
 
-        if (param1 == Direction.UP && param2.getBlock() == Blocks.BAMBOO && param2.getValue(AGE) > param0.getValue(AGE)) {
+        if (param1 == Direction.UP && param2.is(Blocks.BAMBOO) && param2.getValue(AGE) > param0.getValue(AGE)) {
             param3.setBlock(param4, param0.cycle(AGE), 2);
         }
 
@@ -186,18 +185,18 @@ public class BambooBlock extends Block implements BonemealableBlock {
         BlockState var2 = param1.getBlockState(var1);
         BambooLeaves var3 = BambooLeaves.NONE;
         if (param4 >= 1) {
-            if (var0.getBlock() != Blocks.BAMBOO || var0.getValue(LEAVES) == BambooLeaves.NONE) {
+            if (!var0.is(Blocks.BAMBOO) || var0.getValue(LEAVES) == BambooLeaves.NONE) {
                 var3 = BambooLeaves.SMALL;
-            } else if (var0.getBlock() == Blocks.BAMBOO && var0.getValue(LEAVES) != BambooLeaves.NONE) {
+            } else if (var0.is(Blocks.BAMBOO) && var0.getValue(LEAVES) != BambooLeaves.NONE) {
                 var3 = BambooLeaves.LARGE;
-                if (var2.getBlock() == Blocks.BAMBOO) {
+                if (var2.is(Blocks.BAMBOO)) {
                     param1.setBlock(param2.below(), var0.setValue(LEAVES, BambooLeaves.SMALL), 3);
                     param1.setBlock(var1, var2.setValue(LEAVES, BambooLeaves.NONE), 3);
                 }
             }
         }
 
-        int var4 = param0.getValue(AGE) != 1 && var2.getBlock() != Blocks.BAMBOO ? 0 : 1;
+        int var4 = param0.getValue(AGE) != 1 && !var2.is(Blocks.BAMBOO) ? 0 : 1;
         int var5 = (param4 < 11 || !(param3.nextFloat() < 0.25F)) && param4 != 15 ? 0 : 1;
         param1.setBlock(
             param2.above(), this.defaultBlockState().setValue(AGE, Integer.valueOf(var4)).setValue(LEAVES, var3).setValue(STAGE, Integer.valueOf(var5)), 3
@@ -207,7 +206,7 @@ public class BambooBlock extends Block implements BonemealableBlock {
     protected int getHeightAboveUpToMax(BlockGetter param0, BlockPos param1) {
         int var0 = 0;
 
-        while(var0 < 16 && param0.getBlockState(param1.above(var0 + 1)).getBlock() == Blocks.BAMBOO) {
+        while(var0 < 16 && param0.getBlockState(param1.above(var0 + 1)).is(Blocks.BAMBOO)) {
             ++var0;
         }
 
@@ -217,7 +216,7 @@ public class BambooBlock extends Block implements BonemealableBlock {
     protected int getHeightBelowUpToMax(BlockGetter param0, BlockPos param1) {
         int var0 = 0;
 
-        while(var0 < 16 && param0.getBlockState(param1.below(var0 + 1)).getBlock() == Blocks.BAMBOO) {
+        while(var0 < 16 && param0.getBlockState(param1.below(var0 + 1)).is(Blocks.BAMBOO)) {
             ++var0;
         }
 

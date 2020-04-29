@@ -4,12 +4,12 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import java.util.Random;
 import java.util.stream.Stream;
 import net.minecraft.client.Camera;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RewindableStream;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -19,7 +19,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public abstract class Particle {
     private static final AABB INITIAL_AABB = new AABB(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    protected final Level level;
+    protected final ClientLevel level;
     protected double xo;
     protected double yo;
     protected double zo;
@@ -47,7 +47,7 @@ public abstract class Particle {
     protected float roll;
     protected float oRoll;
 
-    protected Particle(Level param0, double param1, double param2, double param3) {
+    protected Particle(ClientLevel param0, double param1, double param2, double param3) {
         this.level = param0;
         this.setSize(0.2F, 0.2F);
         this.setPos(param1, param2, param3);
@@ -57,7 +57,7 @@ public abstract class Particle {
         this.lifetime = (int)(4.0F / (this.random.nextFloat() * 0.9F + 0.1F));
     }
 
-    public Particle(Level param0, double param1, double param2, double param3, double param4, double param5, double param6) {
+    public Particle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6) {
         this(param0, param1, param2, param3);
         this.xd = param4 + (Math.random() * 2.0 - 1.0) * 0.4F;
         this.yd = param5 + (Math.random() * 2.0 - 1.0) * 0.4F;

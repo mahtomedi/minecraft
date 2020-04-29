@@ -14,6 +14,7 @@ import com.mojang.math.Matrix4f;
 import com.mojang.math.Transformation;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.longs.LongSets;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Locale;
@@ -22,6 +23,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
@@ -42,9 +45,11 @@ import net.minecraft.util.FrameTimer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.chunk.ChunkStatus;
@@ -329,19 +334,28 @@ public class DebugScreenOverlay extends GuiComponent {
                 var17.add("Outside of world...");
             }
 
-            PostChain var31 = this.minecraft.gameRenderer.currentEffect();
+            ServerLevel var31 = this.getServerLevel();
             if (var31 != null) {
-                var17.add("Shader: " + var31.getName());
+                NaturalSpawner.SpawnState var32 = var31.getChunkSource().getLastSpawnState();
+                if (var32 != null) {
+                    Object2IntMap<MobCategory> var33 = var32.getMobCategoryCounts();
+                    int var34 = var32.getSpawnableChunkCount();
+                    var17.add(
+                        "SC: "
+                            + var34
+                            + ", "
+                            + (String)Stream.of(MobCategory.values())
+                                .map(param1 -> Character.toUpperCase(param1.getName().charAt(0)) + ": " + var33.getInt(param1))
+                                .collect(Collectors.joining(", "))
+                    );
+                } else {
+                    var17.add("SC: N/A");
+                }
             }
 
-            if (this.block.getType() == HitResult.Type.BLOCK) {
-                BlockPos var32 = ((BlockHitResult)this.block).getBlockPos();
-                var17.add(String.format("Looking at block: %d %d %d", var32.getX(), var32.getY(), var32.getZ()));
-            }
-
-            if (this.liquid.getType() == HitResult.Type.BLOCK) {
-                BlockPos var33 = ((BlockHitResult)this.liquid).getBlockPos();
-                var17.add(String.format("Looking at liquid: %d %d %d", var33.getX(), var33.getY(), var33.getZ()));
+            PostChain var35 = this.minecraft.gameRenderer.currentEffect();
+            if (var35 != null) {
+                var17.add("Shader: " + var35.getName());
             }
 
             var17.add(
@@ -352,16 +366,15 @@ public class DebugScreenOverlay extends GuiComponent {
     }
 
     @Nullable
-    private String getServerChunkStats() {
+    private ServerLevel getServerLevel() {
         IntegratedServer var0 = this.minecraft.getSingleplayerServer();
-        if (var0 != null) {
-            ServerLevel var1 = var0.getLevel(this.minecraft.level.getDimension().getType());
-            if (var1 != null) {
-                return var1.gatherChunkSourceStats();
-            }
-        }
+        return var0 != null ? var0.getLevel(this.minecraft.level.getDimension().getType()) : null;
+    }
 
-        return null;
+    @Nullable
+    private String getServerChunkStats() {
+        ServerLevel var0 = this.getServerLevel();
+        return var0 != null ? var0.gatherChunkSourceStats() : null;
     }
 
     private Level getLevel() {
@@ -374,14 +387,11 @@ public class DebugScreenOverlay extends GuiComponent {
     @Nullable
     private LevelChunk getServerChunk() {
         if (this.serverChunk == null) {
-            IntegratedServer var0 = this.minecraft.getSingleplayerServer();
+            ServerLevel var0 = this.getServerLevel();
             if (var0 != null) {
-                ServerLevel var1 = var0.getLevel(this.minecraft.level.dimension.getType());
-                if (var1 != null) {
-                    this.serverChunk = var1.getChunkSource()
-                        .getChunkFuture(this.lastPos.x, this.lastPos.z, ChunkStatus.FULL, false)
-                        .thenApply(param0 -> param0.map(param0x -> (LevelChunk)param0x, param0x -> null));
-                }
+                this.serverChunk = var0.getChunkSource()
+                    .getChunkFuture(this.lastPos.x, this.lastPos.z, ChunkStatus.FULL, false)
+                    .thenApply(param0 -> param0.map(param0x -> (LevelChunk)param0x, param0x -> null));
             }
 
             if (this.serverChunk == null) {
@@ -425,7 +435,7 @@ public class DebugScreenOverlay extends GuiComponent {
                 BlockPos var5 = ((BlockHitResult)this.block).getBlockPos();
                 BlockState var6 = this.minecraft.level.getBlockState(var5);
                 var4.add("");
-                var4.add(ChatFormatting.UNDERLINE + "Targeted Block");
+                var4.add(ChatFormatting.UNDERLINE + "Targeted Block: " + var5.getX() + ", " + var5.getY() + ", " + var5.getZ());
                 var4.add(String.valueOf(Registry.BLOCK.getKey(var6.getBlock())));
 
                 for(Entry<Property<?>, Comparable<?>> var7 : var6.getValues().entrySet()) {
@@ -441,7 +451,7 @@ public class DebugScreenOverlay extends GuiComponent {
                 BlockPos var9 = ((BlockHitResult)this.liquid).getBlockPos();
                 FluidState var10 = this.minecraft.level.getFluidState(var9);
                 var4.add("");
-                var4.add(ChatFormatting.UNDERLINE + "Targeted Fluid");
+                var4.add(ChatFormatting.UNDERLINE + "Targeted Fluid: " + var9.getX() + ", " + var9.getY() + ", " + var9.getZ());
                 var4.add(String.valueOf(Registry.FLUID.getKey(var10.getType())));
 
                 for(Entry<Property<?>, Comparable<?>> var11 : var10.getValues().entrySet()) {

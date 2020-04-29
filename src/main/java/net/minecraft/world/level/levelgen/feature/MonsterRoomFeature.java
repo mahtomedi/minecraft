@@ -81,12 +81,12 @@ public class MonsterRoomFeature extends Feature<NoneFeatureConfiguration> {
                     for(int var18 = var7; var18 <= var8; ++var18) {
                         BlockPos var19 = param4.offset(var16, var17, var18);
                         if (var16 != var2 && var17 != -1 && var18 != var7 && var16 != var3 && var17 != 4 && var18 != var8) {
-                            if (param0.getBlockState(var19).getBlock() != Blocks.CHEST) {
+                            if (!param0.getBlockState(var19).is(Blocks.CHEST)) {
                                 param0.setBlock(var19, AIR, 2);
                             }
                         } else if (var19.getY() >= 0 && !param0.getBlockState(var19.below()).getMaterial().isSolid()) {
                             param0.setBlock(var19, AIR, 2);
-                        } else if (param0.getBlockState(var19).getMaterial().isSolid() && param0.getBlockState(var19).getBlock() != Blocks.CHEST) {
+                        } else if (param0.getBlockState(var19).getMaterial().isSolid() && !param0.getBlockState(var19).is(Blocks.CHEST)) {
                             if (var17 == -1 && param3.nextInt(4) != 0) {
                                 param0.setBlock(var19, Blocks.MOSSY_COBBLESTONE.defaultBlockState(), 2);
                             } else {

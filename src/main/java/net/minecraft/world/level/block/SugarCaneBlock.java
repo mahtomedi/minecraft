@@ -44,7 +44,7 @@ public class SugarCaneBlock extends Block {
         if (param1.isEmptyBlock(param2.above())) {
             int var0 = 1;
 
-            while(param1.getBlockState(param2.below(var0)).getBlock() == this) {
+            while(param1.getBlockState(param2.below(var0)).is(this)) {
                 ++var0;
             }
 
@@ -72,22 +72,22 @@ public class SugarCaneBlock extends Block {
 
     @Override
     public boolean canSurvive(BlockState param0, LevelReader param1, BlockPos param2) {
-        Block var0 = param1.getBlockState(param2.below()).getBlock();
-        if (var0 == this) {
+        BlockState var0 = param1.getBlockState(param2.below());
+        if (var0.getBlock() == this) {
             return true;
         } else {
-            if (var0 == Blocks.GRASS_BLOCK
-                || var0 == Blocks.DIRT
-                || var0 == Blocks.COARSE_DIRT
-                || var0 == Blocks.PODZOL
-                || var0 == Blocks.SAND
-                || var0 == Blocks.RED_SAND) {
+            if (var0.is(Blocks.GRASS_BLOCK)
+                || var0.is(Blocks.DIRT)
+                || var0.is(Blocks.COARSE_DIRT)
+                || var0.is(Blocks.PODZOL)
+                || var0.is(Blocks.SAND)
+                || var0.is(Blocks.RED_SAND)) {
                 BlockPos var1 = param2.below();
 
                 for(Direction var2 : Direction.Plane.HORIZONTAL) {
                     BlockState var3 = param1.getBlockState(var1.relative(var2));
                     FluidState var4 = param1.getFluidState(var1.relative(var2));
-                    if (var4.is(FluidTags.WATER) || var3.getBlock() == Blocks.FROSTED_ICE) {
+                    if (var4.is(FluidTags.WATER) || var3.is(Blocks.FROSTED_ICE)) {
                         return true;
                     }
                 }

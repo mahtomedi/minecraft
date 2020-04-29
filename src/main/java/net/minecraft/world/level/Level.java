@@ -59,6 +59,7 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.level.storage.LevelData;
+import net.minecraft.world.level.storage.WritableLevelData;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -86,14 +87,16 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     public final Random random = new Random();
     public final Dimension dimension;
     protected final ChunkSource chunkSource;
-    protected final LevelData levelData;
+    protected final WritableLevelData levelData;
     private final Supplier<ProfilerFiller> profiler;
     public final boolean isClientSide;
     protected boolean updatingBlockEntities;
     private final WorldBorder worldBorder;
     private final BiomeManager biomeManager;
 
-    protected Level(LevelData param0, DimensionType param1, BiFunction<Level, Dimension, ChunkSource> param2, Supplier<ProfilerFiller> param3, boolean param4) {
+    protected Level(
+        WritableLevelData param0, DimensionType param1, BiFunction<Level, Dimension, ChunkSource> param2, Supplier<ProfilerFiller> param3, boolean param4
+    ) {
         this.profiler = param3;
         this.levelData = param0;
         this.dimension = param1.create(this);
@@ -591,7 +594,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
                 for(int var8 = var2; var8 < var3; ++var8) {
                     for(int var9 = var4; var9 < var5; ++var9) {
                         BlockState var10 = this.getBlockState(var6.set(var7, var8, var9));
-                        if (var10.is(BlockTags.FIRE) || var10.getBlock() == Blocks.LAVA) {
+                        if (var10.is(BlockTags.FIRE) || var10.is(Blocks.LAVA)) {
                             return true;
                         }
                     }
@@ -618,7 +621,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
                 for(int var8 = var2; var8 < var3; ++var8) {
                     for(int var9 = var4; var9 < var5; ++var9) {
                         BlockState var10 = this.getBlockState(var6.set(var7, var8, var9));
-                        if (var10.getBlock() == param1) {
+                        if (var10.is(param1)) {
                             return var10;
                         }
                     }
@@ -949,7 +952,8 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
 
     public int getSignal(BlockPos param0, Direction param1) {
         BlockState var0 = this.getBlockState(param0);
-        return var0.isRedstoneConductor(this, param0) ? this.getDirectSignalTo(param0) : var0.getSignal(this, param0, param1);
+        int var1 = var0.getSignal(this, param0, param1);
+        return var0.isRedstoneConductor(this, param0) ? Math.max(var1, this.getDirectSignalTo(param0)) : var1;
     }
 
     public boolean hasNeighborSignal(BlockPos param0) {
@@ -1016,21 +1020,6 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
             this.setDayTime(this.levelData.getDayTime() + 1L);
         }
 
-    }
-
-    public BlockPos getSharedSpawnPos() {
-        BlockPos var0 = new BlockPos(this.levelData.getXSpawn(), this.levelData.getYSpawn(), this.levelData.getZSpawn());
-        if (!this.getWorldBorder().isWithinBounds(var0)) {
-            var0 = this.getHeightmapPos(
-                Heightmap.Types.MOTION_BLOCKING, new BlockPos(this.getWorldBorder().getCenterX(), 0.0, this.getWorldBorder().getCenterZ())
-            );
-        }
-
-        return var0;
-    }
-
-    public void setDefaultSpawnPos(BlockPos param0) {
-        this.levelData.setSpawn(param0);
     }
 
     public boolean mayInteract(Player param0, BlockPos param1) {
@@ -1146,12 +1135,12 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
             BlockPos var1 = param0.relative(var0);
             if (this.hasChunkAt(var1)) {
                 BlockState var2 = this.getBlockState(var1);
-                if (var2.getBlock() == Blocks.COMPARATOR) {
+                if (var2.is(Blocks.COMPARATOR)) {
                     var2.neighborChanged(this, var1, param1, param0, false);
                 } else if (var2.isRedstoneConductor(this, var1)) {
                     var1 = var1.relative(var0);
                     var2 = this.getBlockState(var1);
-                    if (var2.getBlock() == Blocks.COMPARATOR) {
+                    if (var2.is(Blocks.COMPARATOR)) {
                         var2.neighborChanged(this, var1, param1, param0, false);
                     }
                 }

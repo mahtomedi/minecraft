@@ -1,7 +1,5 @@
 package net.minecraft.advancements.critereon;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
@@ -17,14 +15,14 @@ public class ChangeDimensionTrigger extends SimpleCriterionTrigger<ChangeDimensi
         return ID;
     }
 
-    public ChangeDimensionTrigger.TriggerInstance createInstance(JsonObject param0, JsonDeserializationContext param1) {
+    public ChangeDimensionTrigger.TriggerInstance createInstance(JsonObject param0, EntityPredicate.Composite param1, DeserializationContext param2) {
         DimensionType var0 = param0.has("from") ? DimensionType.getByName(new ResourceLocation(GsonHelper.getAsString(param0, "from"))) : null;
         DimensionType var1 = param0.has("to") ? DimensionType.getByName(new ResourceLocation(GsonHelper.getAsString(param0, "to"))) : null;
-        return new ChangeDimensionTrigger.TriggerInstance(var0, var1);
+        return new ChangeDimensionTrigger.TriggerInstance(param1, var0, var1);
     }
 
     public void trigger(ServerPlayer param0, DimensionType param1, DimensionType param2) {
-        this.trigger(param0.getAdvancements(), param2x -> param2x.matches(param1, param2));
+        this.trigger(param0, param2x -> param2x.matches(param1, param2));
     }
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
@@ -33,14 +31,14 @@ public class ChangeDimensionTrigger extends SimpleCriterionTrigger<ChangeDimensi
         @Nullable
         private final DimensionType to;
 
-        public TriggerInstance(@Nullable DimensionType param0, @Nullable DimensionType param1) {
-            super(ChangeDimensionTrigger.ID);
-            this.from = param0;
-            this.to = param1;
+        public TriggerInstance(EntityPredicate.Composite param0, @Nullable DimensionType param1, @Nullable DimensionType param2) {
+            super(ChangeDimensionTrigger.ID, param0);
+            this.from = param1;
+            this.to = param2;
         }
 
         public static ChangeDimensionTrigger.TriggerInstance changedDimensionTo(DimensionType param0) {
-            return new ChangeDimensionTrigger.TriggerInstance(null, param0);
+            return new ChangeDimensionTrigger.TriggerInstance(EntityPredicate.Composite.ANY, null, param0);
         }
 
         public boolean matches(DimensionType param0, DimensionType param1) {
@@ -52,8 +50,8 @@ public class ChangeDimensionTrigger extends SimpleCriterionTrigger<ChangeDimensi
         }
 
         @Override
-        public JsonElement serializeToJson() {
-            JsonObject var0 = new JsonObject();
+        public JsonObject serializeToJson(SerializationContext param0) {
+            JsonObject var0 = super.serializeToJson(param0);
             if (this.from != null) {
                 var0.addProperty("from", DimensionType.getName(this.from).toString());
             }

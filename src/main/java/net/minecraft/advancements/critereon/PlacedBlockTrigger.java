@@ -1,7 +1,5 @@
 package net.minecraft.advancements.critereon;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import javax.annotation.Nullable;
@@ -23,7 +21,7 @@ public class PlacedBlockTrigger extends SimpleCriterionTrigger<PlacedBlockTrigge
         return ID;
     }
 
-    public PlacedBlockTrigger.TriggerInstance createInstance(JsonObject param0, JsonDeserializationContext param1) {
+    public PlacedBlockTrigger.TriggerInstance createInstance(JsonObject param0, EntityPredicate.Composite param1, DeserializationContext param2) {
         Block var0 = deserializeBlock(param0);
         StatePropertiesPredicate var1 = StatePropertiesPredicate.fromJson(param0.get("state"));
         if (var0 != null) {
@@ -34,7 +32,7 @@ public class PlacedBlockTrigger extends SimpleCriterionTrigger<PlacedBlockTrigge
 
         LocationPredicate var2 = LocationPredicate.fromJson(param0.get("location"));
         ItemPredicate var3 = ItemPredicate.fromJson(param0.get("item"));
-        return new PlacedBlockTrigger.TriggerInstance(var0, var1, var2, var3);
+        return new PlacedBlockTrigger.TriggerInstance(param1, var0, var1, var2, var3);
     }
 
     @Nullable
@@ -49,7 +47,7 @@ public class PlacedBlockTrigger extends SimpleCriterionTrigger<PlacedBlockTrigge
 
     public void trigger(ServerPlayer param0, BlockPos param1, ItemStack param2) {
         BlockState var0 = param0.getLevel().getBlockState(param1);
-        this.trigger(param0.getAdvancements(), param4 -> param4.matches(var0, param1, param0.getLevel(), param2));
+        this.trigger(param0, param4 -> param4.matches(var0, param1, param0.getLevel(), param2));
     }
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
@@ -58,20 +56,24 @@ public class PlacedBlockTrigger extends SimpleCriterionTrigger<PlacedBlockTrigge
         private final LocationPredicate location;
         private final ItemPredicate item;
 
-        public TriggerInstance(@Nullable Block param0, StatePropertiesPredicate param1, LocationPredicate param2, ItemPredicate param3) {
-            super(PlacedBlockTrigger.ID);
-            this.block = param0;
-            this.state = param1;
-            this.location = param2;
-            this.item = param3;
+        public TriggerInstance(
+            EntityPredicate.Composite param0, @Nullable Block param1, StatePropertiesPredicate param2, LocationPredicate param3, ItemPredicate param4
+        ) {
+            super(PlacedBlockTrigger.ID, param0);
+            this.block = param1;
+            this.state = param2;
+            this.location = param3;
+            this.item = param4;
         }
 
         public static PlacedBlockTrigger.TriggerInstance placedBlock(Block param0) {
-            return new PlacedBlockTrigger.TriggerInstance(param0, StatePropertiesPredicate.ANY, LocationPredicate.ANY, ItemPredicate.ANY);
+            return new PlacedBlockTrigger.TriggerInstance(
+                EntityPredicate.Composite.ANY, param0, StatePropertiesPredicate.ANY, LocationPredicate.ANY, ItemPredicate.ANY
+            );
         }
 
         public boolean matches(BlockState param0, BlockPos param1, ServerLevel param2, ItemStack param3) {
-            if (this.block != null && param0.getBlock() != this.block) {
+            if (this.block != null && !param0.is(this.block)) {
                 return false;
             } else if (!this.state.matches(param0)) {
                 return false;
@@ -83,8 +85,8 @@ public class PlacedBlockTrigger extends SimpleCriterionTrigger<PlacedBlockTrigge
         }
 
         @Override
-        public JsonElement serializeToJson() {
-            JsonObject var0 = new JsonObject();
+        public JsonObject serializeToJson(SerializationContext param0) {
+            JsonObject var0 = super.serializeToJson(param0);
             if (this.block != null) {
                 var0.addProperty("block", Registry.BLOCK.getKey(this.block).toString());
             }

@@ -20,6 +20,7 @@ import net.minecraft.ReportedException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.item.ItemColors;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
@@ -152,12 +153,9 @@ public class ItemRenderer implements ResourceManagerReloadListener {
             var1 = this.itemModelShaper.getItemModel(param0);
         }
 
-        return !var0.hasProperties() ? var1 : this.resolveOverrides(var1, param0, param1, param2);
-    }
-
-    private BakedModel resolveOverrides(BakedModel param0, ItemStack param1, @Nullable Level param2, @Nullable LivingEntity param3) {
-        BakedModel var0 = param0.getOverrides().resolve(param0, param1, param2, param3);
-        return var0 == null ? this.itemModelShaper.getModelManager().getMissingModel() : var0;
+        ClientLevel var3 = param1 instanceof ClientLevel ? (ClientLevel)param1 : null;
+        BakedModel var4 = var1.getOverrides().resolve(var1, param0, var3, param2);
+        return var4 == null ? this.itemModelShaper.getModelManager().getMissingModel() : var4;
     }
 
     public void renderStatic(ItemStack param0, ItemTransforms.TransformType param1, int param2, int param3, PoseStack param4, MultiBufferSource param5) {

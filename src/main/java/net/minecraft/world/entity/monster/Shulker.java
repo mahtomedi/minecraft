@@ -204,7 +204,7 @@ public class Shulker extends AbstractGolem implements Enemy {
         } else if (!this.level.isClientSide) {
             BlockState var2 = this.level.getBlockState(var0);
             if (!var2.isAir()) {
-                if (var2.getBlock() == Blocks.MOVING_PISTON) {
+                if (var2.is(Blocks.MOVING_PISTON)) {
                     Direction var3 = var2.getValue(PistonBaseBlock.FACING);
                     if (this.level.isEmptyBlock(var0.relative(var3))) {
                         var0 = var0.relative(var3);
@@ -212,7 +212,7 @@ public class Shulker extends AbstractGolem implements Enemy {
                     } else {
                         this.teleportSomewhere();
                     }
-                } else if (var2.getBlock() == Blocks.PISTON_HEAD) {
+                } else if (var2.is(Blocks.PISTON_HEAD)) {
                     Direction var4 = var2.getValue(PistonHeadBlock.FACING);
                     if (this.level.isEmptyBlock(var0.relative(var4))) {
                         var0 = var0.relative(var4);

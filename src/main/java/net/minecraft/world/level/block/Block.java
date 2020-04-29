@@ -121,6 +121,10 @@ public class Block extends BlockBehaviour implements ItemLike {
         return param0.contains(this);
     }
 
+    public boolean is(Block param0) {
+        return this == param0;
+    }
+
     public static BlockState updateFromNeighbourShapes(BlockState param0, LevelAccessor param1, BlockPos param2) {
         BlockState var0 = param0;
         BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos();

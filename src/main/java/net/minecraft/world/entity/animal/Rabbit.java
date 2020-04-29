@@ -375,8 +375,8 @@ public class Rabbit extends Animal {
     }
 
     public static boolean checkRabbitSpawnRules(EntityType<Rabbit> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
-        Block var0 = param1.getBlockState(param3.below()).getBlock();
-        return (var0 == Blocks.GRASS_BLOCK || var0 == Blocks.SNOW || var0 == Blocks.SAND) && param1.getRawBrightness(param3, 0) > 8;
+        BlockState var0 = param1.getBlockState(param3.below());
+        return (var0.is(Blocks.GRASS_BLOCK) || var0.is(Blocks.SNOW) || var0.is(Blocks.SAND)) && param1.getRawBrightness(param3, 0) > 8;
     }
 
     private boolean wantsMoreFood() {

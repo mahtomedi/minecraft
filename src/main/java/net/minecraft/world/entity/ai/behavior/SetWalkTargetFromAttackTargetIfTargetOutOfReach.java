@@ -40,10 +40,9 @@ public class SetWalkTargetFromAttackTargetIfTargetOutOfReach extends Behavior<Mo
 
     private void setWalkAndLookTarget(LivingEntity param0, LivingEntity param1) {
         Brain var0 = param0.getBrain();
-        PositionTracker var1 = new EntityTracker(param1);
-        var0.setMemory(MemoryModuleType.LOOK_TARGET, var1);
-        WalkTarget var2 = new WalkTarget(var1, this.speedModifier, 0);
-        var0.setMemory(MemoryModuleType.WALK_TARGET, var2);
+        var0.setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(param1, true));
+        WalkTarget var1 = new WalkTarget(new EntityTracker(param1, false), this.speedModifier, 0);
+        var0.setMemory(MemoryModuleType.WALK_TARGET, var1);
     }
 
     private void clearWalkTarget(LivingEntity param0) {

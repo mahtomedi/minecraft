@@ -45,7 +45,7 @@ public class CactusBlock extends Block {
         if (param1.isEmptyBlock(var0)) {
             int var1 = 1;
 
-            while(param1.getBlockState(param2.below(var1)).getBlock() == this) {
+            while(param1.getBlockState(param2.below(var1)).is(this)) {
                 ++var1;
             }
 
@@ -93,8 +93,8 @@ public class CactusBlock extends Block {
             }
         }
 
-        Block var3 = param1.getBlockState(param2.below()).getBlock();
-        return (var3 == Blocks.CACTUS || var3 == Blocks.SAND || var3 == Blocks.RED_SAND) && !param1.getBlockState(param2.above()).getMaterial().isLiquid();
+        BlockState var3 = param1.getBlockState(param2.below());
+        return (var3.is(Blocks.CACTUS) || var3.is(Blocks.SAND) || var3.is(Blocks.RED_SAND)) && !param1.getBlockState(param2.above()).getMaterial().isLiquid();
     }
 
     @Override

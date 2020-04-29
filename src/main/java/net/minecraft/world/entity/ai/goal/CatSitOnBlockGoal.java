@@ -5,7 +5,6 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.BedBlock;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FurnaceBlock;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
@@ -49,13 +48,14 @@ public class CatSitOnBlockGoal extends MoveToBlockGoal {
             return false;
         } else {
             BlockState var0 = param0.getBlockState(param1);
-            Block var1 = var0.getBlock();
-            if (var1 == Blocks.CHEST) {
+            if (var0.is(Blocks.CHEST)) {
                 return ChestBlockEntity.getOpenCount(param0, param1) < 1;
-            } else if (var1 == Blocks.FURNACE && var0.getValue(FurnaceBlock.LIT)) {
-                return true;
             } else {
-                return var1.is(BlockTags.BEDS) && var0.getValue(BedBlock.PART) != BedPart.HEAD;
+                return var0.is(Blocks.FURNACE) && var0.getValue(FurnaceBlock.LIT)
+                    ? true
+                    : var0.is(
+                        BlockTags.BEDS, param0x -> param0x.<BedPart>getOptionalValue(BedBlock.PART).map(param0xx -> param0xx != BedPart.HEAD).orElse(true)
+                    );
             }
         }
     }

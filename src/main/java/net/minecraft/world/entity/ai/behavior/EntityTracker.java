@@ -10,14 +10,16 @@ import net.minecraft.world.phys.Vec3;
 
 public class EntityTracker implements PositionTracker {
     private final Entity entity;
+    private final boolean trackEyeHeight;
 
-    public EntityTracker(Entity param0) {
+    public EntityTracker(Entity param0, boolean param1) {
         this.entity = param0;
+        this.trackEyeHeight = param1;
     }
 
     @Override
     public Vec3 currentPosition() {
-        return this.entity.position();
+        return this.trackEyeHeight ? this.entity.position().add(0.0, (double)this.entity.getEyeHeight(), 0.0) : this.entity.position();
     }
 
     @Override

@@ -1208,6 +1208,10 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
             }
         }
 
+        private int scaledRange(int param0) {
+            return ChunkMap.this.level.getServer().getScaledTrackingDistance(param0);
+        }
+
         private int getEffectiveRange() {
             Collection<Entity> var0 = this.entity.getIndirectPassengers();
             int var1 = this.range;
@@ -1219,7 +1223,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
                 }
             }
 
-            return var1;
+            return this.scaledRange(var1);
         }
 
         public void updatePlayers(List<ServerPlayer> param0) {

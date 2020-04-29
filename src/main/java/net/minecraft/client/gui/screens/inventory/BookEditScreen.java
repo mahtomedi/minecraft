@@ -155,24 +155,21 @@ public class BookEditScreen extends Screen {
         }
 
         this.updateButtonVisibility();
-        this.clearDisplayCache();
+        this.clearDisplayCacheAfterPageChange();
     }
 
     private void pageForward() {
         if (this.currentPage < this.getNumPages() - 1) {
             ++this.currentPage;
-            this.pageEdit.setStart();
         } else {
             this.appendPageToBook();
             if (this.currentPage < this.getNumPages() - 1) {
                 ++this.currentPage;
             }
-
-            this.pageEdit.setStart();
         }
 
         this.updateButtonVisibility();
-        this.clearDisplayCache();
+        this.clearDisplayCacheAfterPageChange();
     }
 
     @Override
@@ -472,27 +469,31 @@ public class BookEditScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double param0, double param1, int param2) {
-        if (param2 == 0) {
-            long var0 = Util.getMillis();
-            BookEditScreen.DisplayCache var1 = this.getDisplayCache();
-            int var2 = var1.getIndexAtPosition(this.font, this.convertScreenToLocal(new BookEditScreen.Pos2i((int)param0, (int)param1)));
-            if (var2 >= 0) {
-                if (var2 != this.lastIndex || var0 - this.lastClickTime >= 250L) {
-                    this.pageEdit.setCursorPos(var2, Screen.hasShiftDown());
-                } else if (!this.pageEdit.isSelecting()) {
-                    this.selectWord(var2);
-                } else {
-                    this.pageEdit.selectAll();
+        if (super.mouseClicked(param0, param1, param2)) {
+            return true;
+        } else {
+            if (param2 == 0) {
+                long var0 = Util.getMillis();
+                BookEditScreen.DisplayCache var1 = this.getDisplayCache();
+                int var2 = var1.getIndexAtPosition(this.font, this.convertScreenToLocal(new BookEditScreen.Pos2i((int)param0, (int)param1)));
+                if (var2 >= 0) {
+                    if (var2 != this.lastIndex || var0 - this.lastClickTime >= 250L) {
+                        this.pageEdit.setCursorPos(var2, Screen.hasShiftDown());
+                    } else if (!this.pageEdit.isSelecting()) {
+                        this.selectWord(var2);
+                    } else {
+                        this.pageEdit.selectAll();
+                    }
+
+                    this.clearDisplayCache();
                 }
 
-                this.clearDisplayCache();
+                this.lastIndex = var2;
+                this.lastClickTime = var0;
             }
 
-            this.lastIndex = var2;
-            this.lastClickTime = var0;
+            return true;
         }
-
-        return super.mouseClicked(param0, param1, param2);
     }
 
     private void selectWord(int param0) {
@@ -502,14 +503,18 @@ public class BookEditScreen extends Screen {
 
     @Override
     public boolean mouseDragged(double param0, double param1, int param2, double param3, double param4) {
-        if (param2 == 0) {
-            BookEditScreen.DisplayCache var0 = this.getDisplayCache();
-            int var1 = var0.getIndexAtPosition(this.font, this.convertScreenToLocal(new BookEditScreen.Pos2i((int)param0, (int)param1)));
-            this.pageEdit.setCursorPos(var1, true);
-            this.clearDisplayCache();
-        }
+        if (super.mouseDragged(param0, param1, param2, param3, param4)) {
+            return true;
+        } else {
+            if (param2 == 0) {
+                BookEditScreen.DisplayCache var0 = this.getDisplayCache();
+                int var1 = var0.getIndexAtPosition(this.font, this.convertScreenToLocal(new BookEditScreen.Pos2i((int)param0, (int)param1)));
+                this.pageEdit.setCursorPos(var1, true);
+                this.clearDisplayCache();
+            }
 
-        return super.mouseDragged(param0, param1, param2, param3, param4);
+            return true;
+        }
     }
 
     private BookEditScreen.DisplayCache getDisplayCache() {
@@ -522,6 +527,11 @@ public class BookEditScreen extends Screen {
 
     private void clearDisplayCache() {
         this.displayCache = null;
+    }
+
+    private void clearDisplayCacheAfterPageChange() {
+        this.pageEdit.setCursorToEnd();
+        this.clearDisplayCache();
     }
 
     private BookEditScreen.DisplayCache rebuildDisplayCache() {

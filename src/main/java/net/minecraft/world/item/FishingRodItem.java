@@ -1,6 +1,5 @@
 package net.minecraft.world.item;
 
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -14,19 +13,6 @@ import net.minecraft.world.level.Level;
 public class FishingRodItem extends Item implements Vanishable {
     public FishingRodItem(Item.Properties param0) {
         super(param0);
-        this.addProperty(new ResourceLocation("cast"), (param0x, param1, param2) -> {
-            if (param2 == null) {
-                return 0.0F;
-            } else {
-                boolean var0 = param2.getMainHandItem() == param0x;
-                boolean var1x = param2.getOffhandItem() == param0x;
-                if (param2.getMainHandItem().getItem() instanceof FishingRodItem) {
-                    var1x = false;
-                }
-
-                return (var0 || var1x) && param2 instanceof Player && ((Player)param2).fishing != null ? 1.0F : 0.0F;
-            }
-        });
     }
 
     @Override

@@ -108,14 +108,14 @@ public class TripWireHookBlock extends Block {
         for(int var7 = 1; var7 < 42; ++var7) {
             BlockPos var8 = param1.relative(var0, var7);
             BlockState var9 = param0.getBlockState(var8);
-            if (var9.getBlock() == Blocks.TRIPWIRE_HOOK) {
+            if (var9.is(Blocks.TRIPWIRE_HOOK)) {
                 if (var9.getValue(FACING) == var0.getOpposite()) {
                     var5 = var7;
                 }
                 break;
             }
 
-            if (var9.getBlock() != Blocks.TRIPWIRE && var7 != param5) {
+            if (!var9.is(Blocks.TRIPWIRE) && var7 != param5) {
                 var6[var7] = null;
                 var3 = false;
             } else {
@@ -192,7 +192,7 @@ public class TripWireHookBlock extends Block {
 
     @Override
     public void onRemove(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
-        if (!param4 && param0.getBlock() != param3.getBlock()) {
+        if (!param4 && !param0.is(param3.getBlock())) {
             boolean var0 = param0.getValue(ATTACHED);
             boolean var1 = param0.getValue(POWERED);
             if (var0 || var1) {

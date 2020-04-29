@@ -15,8 +15,11 @@ public class BushBlock extends Block {
     }
 
     protected boolean mayPlaceOn(BlockState param0, BlockGetter param1, BlockPos param2) {
-        Block var0 = param0.getBlock();
-        return var0 == Blocks.GRASS_BLOCK || var0 == Blocks.DIRT || var0 == Blocks.COARSE_DIRT || var0 == Blocks.PODZOL || var0 == Blocks.FARMLAND;
+        return param0.is(Blocks.GRASS_BLOCK)
+            || param0.is(Blocks.DIRT)
+            || param0.is(Blocks.COARSE_DIRT)
+            || param0.is(Blocks.PODZOL)
+            || param0.is(Blocks.FARMLAND);
     }
 
     @Override

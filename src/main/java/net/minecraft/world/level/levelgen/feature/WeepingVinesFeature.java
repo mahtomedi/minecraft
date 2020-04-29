@@ -8,9 +8,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.GrowingPlantHeadBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
@@ -33,8 +33,8 @@ public class WeepingVinesFeature extends Feature<NoneFeatureConfiguration> {
         if (!param0.isEmptyBlock(param4)) {
             return false;
         } else {
-            Block var0 = param0.getBlockState(param4.above()).getBlock();
-            if (var0 != Blocks.NETHERRACK && var0 != Blocks.NETHER_WART_BLOCK) {
+            BlockState var0 = param0.getBlockState(param4.above());
+            if (!var0.is(Blocks.NETHERRACK) && !var0.is(Blocks.NETHER_WART_BLOCK)) {
                 return false;
             } else {
                 this.placeRoofNetherWart(param0, param3, param4);
@@ -55,8 +55,8 @@ public class WeepingVinesFeature extends Feature<NoneFeatureConfiguration> {
                 int var3 = 0;
 
                 for(Direction var4 : DIRECTIONS) {
-                    Block var5 = param0.getBlockState(var1.setWithOffset(var0, var4)).getBlock();
-                    if (var5 == Blocks.NETHERRACK || var5 == Blocks.NETHER_WART_BLOCK) {
+                    BlockState var5 = param0.getBlockState(var1.setWithOffset(var0, var4));
+                    if (var5.is(Blocks.NETHERRACK) || var5.is(Blocks.NETHER_WART_BLOCK)) {
                         ++var3;
                     }
 
@@ -79,8 +79,8 @@ public class WeepingVinesFeature extends Feature<NoneFeatureConfiguration> {
         for(int var1 = 0; var1 < 100; ++var1) {
             var0.setWithOffset(param2, param1.nextInt(8) - param1.nextInt(8), param1.nextInt(2) - param1.nextInt(7), param1.nextInt(8) - param1.nextInt(8));
             if (param0.isEmptyBlock(var0)) {
-                Block var2 = param0.getBlockState(var0.above()).getBlock();
-                if (var2 == Blocks.NETHERRACK || var2 == Blocks.NETHER_WART_BLOCK) {
+                BlockState var2 = param0.getBlockState(var0.above());
+                if (var2.is(Blocks.NETHERRACK) || var2.is(Blocks.NETHER_WART_BLOCK)) {
                     int var3 = Mth.nextInt(param1, 1, 8);
                     if (param1.nextInt(6) == 0) {
                         var3 *= 2;

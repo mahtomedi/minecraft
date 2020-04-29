@@ -64,7 +64,7 @@ public class BadlandsSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseCon
                 BlockState var11 = param1.getBlockState(var9);
                 if (var11.isAir()) {
                     var6 = -1;
-                } else if (var11.getBlock() == param7.getBlock()) {
+                } else if (var11.is(param7.getBlock())) {
                     if (var6 == -1) {
                         var7 = false;
                         if (var4 <= 0) {

@@ -160,7 +160,7 @@ public class BookViewScreen extends Screen {
         String var2 = I18n.get("book.pageIndicator", this.currentPage + 1, Math.max(this.getNumPages(), 1));
         if (this.cachedPage != this.currentPage) {
             Component var3 = this.bookAccess.getPage(this.currentPage);
-            this.cachedPageComponents = this.font.getSplitter().splitLines(var3, 114, Style.EMPTY, false);
+            this.cachedPageComponents = this.font.getSplitter().splitLines(var3, 114, Style.EMPTY);
         }
 
         this.cachedPage = this.currentPage;

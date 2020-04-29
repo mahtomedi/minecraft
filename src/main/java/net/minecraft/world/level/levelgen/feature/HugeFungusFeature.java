@@ -108,7 +108,7 @@ public class HugeFungusFeature extends Feature<HugeFungusConfiguration> {
 
     private void placeHat(LevelAccessor param0, Random param1, HugeFungusConfiguration param2, BlockPos param3, int param4, boolean param5) {
         BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
-        boolean var1 = param2.hatState.getBlock() == Blocks.NETHER_WART_BLOCK;
+        boolean var1 = param2.hatState.is(Blocks.NETHER_WART_BLOCK);
         int var2 = Math.min(param1.nextInt(1 + param4 / 3) + 5, param4);
         int var3 = param4 - var2;
 
@@ -168,7 +168,7 @@ public class HugeFungusFeature extends Feature<HugeFungusConfiguration> {
     }
 
     private void placeHatDropBlock(LevelAccessor param0, Random param1, BlockPos param2, BlockState param3, boolean param4) {
-        if (param0.getBlockState(param2.below()).getBlock() == param3.getBlock()) {
+        if (param0.getBlockState(param2.below()).is(param3.getBlock())) {
             this.setBlock(param0, param2, param3);
         } else if ((double)param1.nextFloat() < 0.15) {
             this.setBlock(param0, param2, param3);

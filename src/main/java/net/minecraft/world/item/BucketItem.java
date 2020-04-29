@@ -138,17 +138,19 @@ public class BucketItem extends Item {
                             ParticleTypes.LARGE_SMOKE, (double)var3 + Math.random(), (double)var4 + Math.random(), (double)var5 + Math.random(), 0.0, 0.0, 0.0
                         );
                     }
-                } else if (var0.getBlock() instanceof LiquidBlockContainer && this.content == Fluids.WATER) {
+                } else {
+                    if (!(var0.getBlock() instanceof LiquidBlockContainer) || this.content != Fluids.WATER) {
+                        if (!param1.isClientSide && var2 && !var1.isLiquid()) {
+                            param1.destroyBlock(param2, true);
+                        }
+
+                        this.playEmptySound(param0, param1, param2);
+                        return param1.setBlock(param2, this.content.defaultFluidState().createLegacyBlock(), 11);
+                    }
+
                     if (((LiquidBlockContainer)var0.getBlock()).placeLiquid(param1, param2, var0, ((FlowingFluid)this.content).getSource(false))) {
                         this.playEmptySound(param0, param1, param2);
                     }
-                } else {
-                    if (!param1.isClientSide && var2 && !var1.isLiquid()) {
-                        param1.destroyBlock(param2, true);
-                    }
-
-                    this.playEmptySound(param0, param1, param2);
-                    param1.setBlock(param2, this.content.defaultFluidState().createLegacyBlock(), 11);
                 }
 
                 return true;

@@ -98,7 +98,7 @@ public class PistonMovingBlockEntity extends BlockEntity implements TickableBloc
             ? Blocks.PISTON_HEAD
                 .defaultBlockState()
                 .setValue(PistonHeadBlock.SHORT, Boolean.valueOf(this.progress > 0.25F))
-                .setValue(PistonHeadBlock.TYPE, this.movedState.getBlock() == Blocks.STICKY_PISTON ? PistonType.STICKY : PistonType.DEFAULT)
+                .setValue(PistonHeadBlock.TYPE, this.movedState.is(Blocks.STICKY_PISTON) ? PistonType.STICKY : PistonType.DEFAULT)
                 .setValue(PistonHeadBlock.FACING, this.movedState.getValue(PistonBaseBlock.FACING))
             : this.movedState;
     }
@@ -112,7 +112,7 @@ public class PistonMovingBlockEntity extends BlockEntity implements TickableBloc
             List<Entity> var4 = this.level.getEntities(null, PistonMath.getMovementArea(var3, var0, var1).minmax(var3));
             if (!var4.isEmpty()) {
                 List<AABB> var5 = var2.toAabbs();
-                boolean var6 = this.movedState.getBlock() == Blocks.SLIME_BLOCK;
+                boolean var6 = this.movedState.is(Blocks.SLIME_BLOCK);
 
                 for(Entity var7 : var4) {
                     if (var7.getPistonPushReaction() != PushReaction.IGNORE) {
@@ -197,7 +197,7 @@ public class PistonMovingBlockEntity extends BlockEntity implements TickableBloc
     }
 
     private boolean isStickyForEntities() {
-        return this.movedState.getBlock() == Blocks.HONEY_BLOCK;
+        return this.movedState.is(Blocks.HONEY_BLOCK);
     }
 
     public Direction getMovementDirection() {
@@ -256,7 +256,7 @@ public class PistonMovingBlockEntity extends BlockEntity implements TickableBloc
             this.progressO = this.progress;
             this.level.removeBlockEntity(this.worldPosition);
             this.setRemoved();
-            if (this.level.getBlockState(this.worldPosition).getBlock() == Blocks.MOVING_PISTON) {
+            if (this.level.getBlockState(this.worldPosition).is(Blocks.MOVING_PISTON)) {
                 BlockState var0;
                 if (this.isSourcePiston) {
                     var0 = Blocks.AIR.defaultBlockState();
@@ -278,7 +278,7 @@ public class PistonMovingBlockEntity extends BlockEntity implements TickableBloc
         if (this.progressO >= 1.0F) {
             this.level.removeBlockEntity(this.worldPosition);
             this.setRemoved();
-            if (this.movedState != null && this.level.getBlockState(this.worldPosition).getBlock() == Blocks.MOVING_PISTON) {
+            if (this.movedState != null && this.level.getBlockState(this.worldPosition).is(Blocks.MOVING_PISTON)) {
                 BlockState var0 = Block.updateFromNeighbourShapes(this.movedState, this.level, this.worldPosition);
                 if (var0.isAir()) {
                     this.level.setBlock(this.worldPosition, this.movedState, 84);

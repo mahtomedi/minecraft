@@ -18,7 +18,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.LevelType;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.ChunkGeneratorProvider;
@@ -193,30 +192,29 @@ public class CreateFlatWorldScreen extends Screen {
                     .getLayersInfo()
                     .get(CreateFlatWorldScreen.this.generator.getLayersInfo().size() - param1 - 1);
                 BlockState var1 = var0.getBlockState();
-                Block var2 = var1.getBlock();
-                Item var3 = var2.asItem();
-                if (var3 == Items.AIR) {
-                    if (var2 == Blocks.WATER) {
-                        var3 = Items.WATER_BUCKET;
-                    } else if (var2 == Blocks.LAVA) {
-                        var3 = Items.LAVA_BUCKET;
+                Item var2 = var1.getBlock().asItem();
+                if (var2 == Items.AIR) {
+                    if (var1.is(Blocks.WATER)) {
+                        var2 = Items.WATER_BUCKET;
+                    } else if (var1.is(Blocks.LAVA)) {
+                        var2 = Items.LAVA_BUCKET;
                     }
                 }
 
-                ItemStack var4 = new ItemStack(var3);
-                this.blitSlot(param0, param3, param2, var4);
-                CreateFlatWorldScreen.this.font.draw(param0, var3.getName(var4), (float)(param3 + 18 + 5), (float)(param2 + 3), 16777215);
-                String var5;
+                ItemStack var3 = new ItemStack(var2);
+                this.blitSlot(param0, param3, param2, var3);
+                CreateFlatWorldScreen.this.font.draw(param0, var2.getName(var3), (float)(param3 + 18 + 5), (float)(param2 + 3), 16777215);
+                String var4;
                 if (param1 == 0) {
-                    var5 = I18n.get("createWorld.customize.flat.layer.top", var0.getHeight());
+                    var4 = I18n.get("createWorld.customize.flat.layer.top", var0.getHeight());
                 } else if (param1 == CreateFlatWorldScreen.this.generator.getLayersInfo().size() - 1) {
-                    var5 = I18n.get("createWorld.customize.flat.layer.bottom", var0.getHeight());
+                    var4 = I18n.get("createWorld.customize.flat.layer.bottom", var0.getHeight());
                 } else {
-                    var5 = I18n.get("createWorld.customize.flat.layer", var0.getHeight());
+                    var4 = I18n.get("createWorld.customize.flat.layer", var0.getHeight());
                 }
 
                 CreateFlatWorldScreen.this.font
-                    .draw(param0, var5, (float)(param3 + 2 + 213 - CreateFlatWorldScreen.this.font.width(var5)), (float)(param2 + 3), 16777215);
+                    .draw(param0, var4, (float)(param3 + 2 + 213 - CreateFlatWorldScreen.this.font.width(var4)), (float)(param2 + 3), 16777215);
             }
 
             @Override

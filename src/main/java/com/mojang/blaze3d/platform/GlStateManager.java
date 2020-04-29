@@ -10,7 +10,6 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
-import net.minecraft.Util;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.opengl.ARBFramebufferObject;
@@ -45,8 +44,6 @@ public class GlStateManager {
     private static final GlStateManager.ClearState CLEAR = new GlStateManager.ClearState();
     private static final GlStateManager.StencilState STENCIL = new GlStateManager.StencilState();
     private static final FloatBuffer FLOAT_ARG_BUFFER = MemoryTracker.createFloatBuffer(4);
-    private static final Vector3f DIFFUSE_LIGHT_0 = Util.make(new Vector3f(0.2F, 1.0F, -0.7F), Vector3f::normalize);
-    private static final Vector3f DIFFUSE_LIGHT_1 = Util.make(new Vector3f(-0.2F, 1.0F, 0.7F), Vector3f::normalize);
     private static int activeTexture;
     private static final GlStateManager.TextureState[] TEXTURES = IntStream.range(0, 8)
         .mapToObj(param0 -> new GlStateManager.TextureState())
@@ -654,21 +651,21 @@ public class GlStateManager {
         _texEnv(8960, 34200, 770);
     }
 
-    public static void setupLevelDiffuseLighting(Matrix4f param0) {
+    public static void setupLevelDiffuseLighting(Vector3f param0, Vector3f param1, Matrix4f param2) {
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         _pushMatrix();
         _loadIdentity();
         _enableLight(0);
         _enableLight(1);
-        Vector4f var0 = new Vector4f(DIFFUSE_LIGHT_0);
-        var0.transform(param0);
+        Vector4f var0 = new Vector4f(param0);
+        var0.transform(param2);
         _light(16384, 4611, getBuffer(var0.x(), var0.y(), var0.z(), 0.0F));
         float var1 = 0.6F;
         _light(16384, 4609, getBuffer(0.6F, 0.6F, 0.6F, 1.0F));
         _light(16384, 4608, getBuffer(0.0F, 0.0F, 0.0F, 1.0F));
         _light(16384, 4610, getBuffer(0.0F, 0.0F, 0.0F, 1.0F));
-        Vector4f var2 = new Vector4f(DIFFUSE_LIGHT_1);
-        var2.transform(param0);
+        Vector4f var2 = new Vector4f(param1);
+        var2.transform(param2);
         _light(16385, 4611, getBuffer(var2.x(), var2.y(), var2.z(), 0.0F));
         _light(16385, 4609, getBuffer(0.6F, 0.6F, 0.6F, 1.0F));
         _light(16385, 4608, getBuffer(0.0F, 0.0F, 0.0F, 1.0F));
@@ -679,17 +676,17 @@ public class GlStateManager {
         _popMatrix();
     }
 
-    public static void setupGuiFlatDiffuseLighting() {
+    public static void setupGuiFlatDiffuseLighting(Vector3f param0, Vector3f param1) {
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         Matrix4f var0 = new Matrix4f();
         var0.setIdentity();
         var0.multiply(Matrix4f.createScaleMatrix(1.0F, -1.0F, 1.0F));
         var0.multiply(Vector3f.YP.rotationDegrees(-22.5F));
         var0.multiply(Vector3f.XP.rotationDegrees(135.0F));
-        setupLevelDiffuseLighting(var0);
+        setupLevelDiffuseLighting(param0, param1, var0);
     }
 
-    public static void setupGui3DDiffuseLighting() {
+    public static void setupGui3DDiffuseLighting(Vector3f param0, Vector3f param1) {
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         Matrix4f var0 = new Matrix4f();
         var0.setIdentity();
@@ -698,7 +695,7 @@ public class GlStateManager {
         var0.multiply(Matrix4f.createScaleMatrix(1.0F, -1.0F, 1.0F));
         var0.multiply(Vector3f.YP.rotationDegrees(-22.5F));
         var0.multiply(Vector3f.XP.rotationDegrees(135.0F));
-        setupLevelDiffuseLighting(var0);
+        setupLevelDiffuseLighting(param0, param1, var0);
     }
 
     private static FloatBuffer getBuffer(float param0, float param1, float param2, float param3) {

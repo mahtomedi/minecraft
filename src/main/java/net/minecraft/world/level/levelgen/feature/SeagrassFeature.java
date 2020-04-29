@@ -35,14 +35,14 @@ public class SeagrassFeature extends Feature<SeagrassFeatureConfiguration> {
             int var3 = param3.nextInt(8) - param3.nextInt(8);
             int var4 = param0.getHeight(Heightmap.Types.OCEAN_FLOOR, param4.getX() + var2, param4.getZ() + var3);
             BlockPos var5 = new BlockPos(param4.getX() + var2, var4, param4.getZ() + var3);
-            if (param0.getBlockState(var5).getBlock() == Blocks.WATER) {
+            if (param0.getBlockState(var5).is(Blocks.WATER)) {
                 boolean var6 = param3.nextDouble() < param5.tallSeagrassProbability;
                 BlockState var7 = var6 ? Blocks.TALL_SEAGRASS.defaultBlockState() : Blocks.SEAGRASS.defaultBlockState();
                 if (var7.canSurvive(param0, var5)) {
                     if (var6) {
                         BlockState var8 = var7.setValue(TallSeagrass.HALF, DoubleBlockHalf.UPPER);
                         BlockPos var9 = var5.above();
-                        if (param0.getBlockState(var9).getBlock() == Blocks.WATER) {
+                        if (param0.getBlockState(var9).is(Blocks.WATER)) {
                             param0.setBlock(var5, var7, 2);
                             param0.setBlock(var9, var8, 2);
                         }

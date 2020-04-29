@@ -1,13 +1,13 @@
 package net.minecraft.client.particle;
 
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class SuspendedParticle extends TextureSheetParticle {
-    private SuspendedParticle(Level param0, double param1, double param2, double param3) {
+    private SuspendedParticle(ClientLevel param0, double param1, double param2, double param3) {
         super(param0, param1, param2 - 0.125, param3);
         this.rCol = 0.4F;
         this.gCol = 0.4F;
@@ -18,7 +18,7 @@ public class SuspendedParticle extends TextureSheetParticle {
         this.hasPhysics = false;
     }
 
-    private SuspendedParticle(Level param0, double param1, double param2, double param3, double param4, double param5, double param6) {
+    private SuspendedParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6) {
         super(param0, param1, param2 - 0.125, param3, param4, param5, param6);
         this.setSize(0.01F, 0.01F);
         this.quadSize *= this.random.nextFloat() * 0.6F + 0.6F;
@@ -51,7 +51,7 @@ public class SuspendedParticle extends TextureSheetParticle {
         }
 
         public Particle createParticle(
-            SimpleParticleType param0, Level param1, double param2, double param3, double param4, double param5, double param6, double param7
+            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
             SuspendedParticle var0 = new SuspendedParticle(param1, param2, param3, param4, param5, param6, param7);
             var0.pickSprite(this.sprite);
@@ -69,7 +69,7 @@ public class SuspendedParticle extends TextureSheetParticle {
         }
 
         public Particle createParticle(
-            SimpleParticleType param0, Level param1, double param2, double param3, double param4, double param5, double param6, double param7
+            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
             SuspendedParticle var0 = new SuspendedParticle(param1, param2, param3, param4);
             var0.pickSprite(this.sprite);
@@ -86,7 +86,7 @@ public class SuspendedParticle extends TextureSheetParticle {
         }
 
         public Particle createParticle(
-            SimpleParticleType param0, Level param1, double param2, double param3, double param4, double param5, double param6, double param7
+            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
             SuspendedParticle var0 = new SuspendedParticle(param1, param2, param3, param4, param5, param6, param7);
             var0.pickSprite(this.sprite);

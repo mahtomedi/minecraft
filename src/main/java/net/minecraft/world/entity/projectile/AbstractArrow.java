@@ -376,9 +376,9 @@ public abstract class AbstractArrow extends Projectile {
                 if (!this.level.isClientSide && var3 instanceof ServerPlayer) {
                     ServerPlayer var10 = (ServerPlayer)var3;
                     if (this.piercedAndKilledEntities != null && this.shotFromCrossbow()) {
-                        CriteriaTriggers.KILLED_BY_CROSSBOW.trigger(var10, this.piercedAndKilledEntities, this.piercedAndKilledEntities.size());
+                        CriteriaTriggers.KILLED_BY_CROSSBOW.trigger(var10, this.piercedAndKilledEntities);
                     } else if (!var0.isAlive() && this.shotFromCrossbow()) {
-                        CriteriaTriggers.KILLED_BY_CROSSBOW.trigger(var10, Arrays.asList(var0), 0);
+                        CriteriaTriggers.KILLED_BY_CROSSBOW.trigger(var10, Arrays.asList(var0));
                     }
                 }
             }

@@ -180,10 +180,6 @@ public class StringSplitter {
     }
 
     public List<Component> splitLines(Component param0, int param1, Style param2) {
-        return this.splitLines(param0, param1, param2, false);
-    }
-
-    public List<Component> splitLines(Component param0, int param1, Style param2, boolean param3) {
         List<Component> var0 = Lists.newArrayList();
         List<StringSplitter.LineComponent> var1 = Lists.newArrayList();
         param0.visit((param1x, param2x) -> {
@@ -195,30 +191,35 @@ public class StringSplitter {
         }, param2);
         StringSplitter.FlatComponents var2 = new StringSplitter.FlatComponents(var1);
         boolean var3 = true;
+        boolean var4 = false;
 
         while(var3) {
             var3 = false;
-            StringSplitter.LineBreakFinder var4 = new StringSplitter.LineBreakFinder((float)param1);
+            StringSplitter.LineBreakFinder var5 = new StringSplitter.LineBreakFinder((float)param1);
 
-            for(StringSplitter.LineComponent var5 : var2.parts) {
-                boolean var6 = StringDecomposer.iterateFormatted(var5.contents, 0, var5.style, param2, var4);
-                if (!var6) {
-                    int var7 = var4.getSplitPosition();
-                    Style var8 = var4.getSplitStyle();
-                    char var9 = var2.charAt(var7);
-                    boolean var10 = !param3 && (var9 == '\n' || var9 == ' ');
-                    var0.add(var2.splitAt(var7, var10 ? 1 : 0, var8));
+            for(StringSplitter.LineComponent var6 : var2.parts) {
+                boolean var7 = StringDecomposer.iterateFormatted(var6.contents, 0, var6.style, param2, var5);
+                if (!var7) {
+                    int var8 = var5.getSplitPosition();
+                    Style var9 = var5.getSplitStyle();
+                    char var10 = var2.charAt(var8);
+                    boolean var11 = var10 == '\n';
+                    boolean var12 = var11 || var10 == ' ';
+                    var4 = var11;
+                    var0.add(var2.splitAt(var8, var12 ? 1 : 0, var9));
                     var3 = true;
                     break;
                 }
 
-                var4.addToOffset(var5.contents.length());
+                var5.addToOffset(var6.contents.length());
             }
         }
 
-        Component var11 = var2.getRemainder();
-        if (var11 != null) {
-            var0.add(var11);
+        Component var13 = var2.getRemainder();
+        if (var13 != null) {
+            var0.add(var13);
+        } else if (var4) {
+            var0.add(new TextComponent("").withStyle(param2));
         }
 
         return var0;

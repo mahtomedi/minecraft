@@ -47,6 +47,7 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.MenuProvider;
@@ -251,7 +252,7 @@ public class Gui extends GuiComponent {
 
                     int var10 = var8 << 24 & 0xFF000000;
                     int var11 = var0.width(this.overlayMessageString);
-                    this.drawBackdrop(param0, var0, -4, var11);
+                    this.drawBackdrop(param0, var0, -4, var11, 16777215 | var10);
                     var0.draw(param0, this.overlayMessageString, (float)(-var11 / 2), -4.0F, var9 | var10);
                     RenderSystem.disableBlend();
                     RenderSystem.popMatrix();
@@ -283,14 +284,14 @@ public class Gui extends GuiComponent {
                     RenderSystem.scalef(4.0F, 4.0F, 4.0F);
                     int var15 = var13 << 24 & 0xFF000000;
                     int var16 = var0.width(this.title);
-                    this.drawBackdrop(param0, var0, -10, var16);
+                    this.drawBackdrop(param0, var0, -10, var16, 16777215 | var15);
                     var0.drawShadow(param0, this.title, (float)(-var16 / 2), -10.0F, 16777215 | var15);
                     RenderSystem.popMatrix();
                     if (this.subtitle != null) {
                         RenderSystem.pushMatrix();
                         RenderSystem.scalef(2.0F, 2.0F, 2.0F);
                         int var17 = var0.width(this.subtitle);
-                        this.drawBackdrop(param0, var0, 5, var17);
+                        this.drawBackdrop(param0, var0, 5, var17, 16777215 | var15);
                         var0.drawShadow(param0, this.subtitle, (float)(-var17 / 2), 5.0F, 16777215 | var15);
                         RenderSystem.popMatrix();
                     }
@@ -341,11 +342,11 @@ public class Gui extends GuiComponent {
         RenderSystem.enableAlphaTest();
     }
 
-    private void drawBackdrop(PoseStack param0, Font param1, int param2, int param3) {
+    private void drawBackdrop(PoseStack param0, Font param1, int param2, int param3, int param4) {
         int var0 = this.minecraft.options.getBackgroundColor(0.0F);
         if (var0 != 0) {
             int var1 = -param3 / 2;
-            fill(param0, var1 - 2, param2 - 2, var1 + param3 + 2, param2 + 9 + 2, var0);
+            fill(param0, var1 - 2, param2 - 2, var1 + param3 + 2, param2 + 9 + 2, FastColor.ARGB32.multiply(var0, param4));
         }
 
     }

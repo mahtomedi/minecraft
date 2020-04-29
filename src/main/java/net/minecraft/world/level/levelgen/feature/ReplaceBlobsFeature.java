@@ -43,7 +43,7 @@ public class ReplaceBlobsFeature extends Feature<ReplaceSpheroidConfiguration> {
                 }
 
                 BlockState var6 = param0.getBlockState(var5);
-                if (var6.getBlock() == var0) {
+                if (var6.is(var0)) {
                     this.setBlock(param0, var5, param5.replaceState);
                     var4 = true;
                 }
@@ -57,7 +57,7 @@ public class ReplaceBlobsFeature extends Feature<ReplaceSpheroidConfiguration> {
     private static BlockPos findTarget(LevelAccessor param0, BlockPos.MutableBlockPos param1, Block param2) {
         while(param1.getY() > 1) {
             BlockState var0 = param0.getBlockState(param1);
-            if (var0.getBlock() == param2) {
+            if (var0.is(param2)) {
                 return param1;
             }
 

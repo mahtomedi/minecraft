@@ -9,9 +9,9 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.GrowingPlantHeadBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
@@ -100,8 +100,8 @@ public class TwistingVinesFeature extends Feature<NoneFeatureConfiguration> {
         if (!param0.isEmptyBlock(param1)) {
             return true;
         } else {
-            Block var0 = param0.getBlockState(param1.below()).getBlock();
-            return var0 != Blocks.NETHERRACK && var0 != Blocks.WARPED_NYLIUM && var0 != Blocks.WARPED_WART_BLOCK;
+            BlockState var0 = param0.getBlockState(param1.below());
+            return !var0.is(Blocks.NETHERRACK) && !var0.is(Blocks.WARPED_NYLIUM) && !var0.is(Blocks.WARPED_WART_BLOCK);
         }
     }
 }

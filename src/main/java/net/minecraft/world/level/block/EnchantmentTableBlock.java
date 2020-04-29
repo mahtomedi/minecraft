@@ -59,7 +59,7 @@ public class EnchantmentTableBlock extends BaseEntityBlock {
                 if (param3.nextInt(16) == 0) {
                     for(int var2 = 0; var2 <= 1; ++var2) {
                         BlockPos var3 = param2.offset(var0, var2, var1);
-                        if (param1.getBlockState(var3).getBlock() == Blocks.BOOKSHELF) {
+                        if (param1.getBlockState(var3).is(Blocks.BOOKSHELF)) {
                             if (!param1.isEmptyBlock(param2.offset(var0 / 2, 0, var1 / 2))) {
                                 break;
                             }

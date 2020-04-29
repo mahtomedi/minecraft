@@ -73,7 +73,7 @@ public class DefaultSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConf
             BlockState var8 = param1.getBlockState(var2);
             if (var8.isAir()) {
                 var3 = -1;
-            } else if (var8.getBlock() == param7.getBlock()) {
+            } else if (var8.is(param7.getBlock())) {
                 if (var3 == -1) {
                     if (var4 <= 0) {
                         var0 = Blocks.AIR.defaultBlockState();
@@ -106,9 +106,9 @@ public class DefaultSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConf
                 } else if (var3 > 0) {
                     --var3;
                     param1.setBlockState(var2, var1, false);
-                    if (var3 == 0 && var1.getBlock() == Blocks.SAND && var4 > 1) {
+                    if (var3 == 0 && var1.is(Blocks.SAND) && var4 > 1) {
                         var3 = param0.nextInt(4) + Math.max(0, var7 - 63);
-                        var1 = var1.getBlock() == Blocks.RED_SAND ? Blocks.RED_SANDSTONE.defaultBlockState() : Blocks.SANDSTONE.defaultBlockState();
+                        var1 = var1.is(Blocks.RED_SAND) ? Blocks.RED_SANDSTONE.defaultBlockState() : Blocks.SANDSTONE.defaultBlockState();
                     }
                 }
             }

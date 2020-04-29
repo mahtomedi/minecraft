@@ -59,7 +59,7 @@ public abstract class GrowingPlantHeadBlock extends GrowingPlantBlock implements
             param3.getBlockTicks().scheduleTick(param4, this, 1);
         }
 
-        if (param1 == this.growthDirection && param2.getBlock() == this) {
+        if (param1 == this.growthDirection && param2.is(this)) {
             return this.getBodyBlock().defaultBlockState();
         } else {
             if (this.scheduleFluidTicks) {

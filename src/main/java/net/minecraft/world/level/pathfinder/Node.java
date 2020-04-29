@@ -74,7 +74,6 @@ public class Node {
         return var0 + var1 + var2;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public BlockPos asBlockPos() {
         return new BlockPos(this.x, this.y, this.z);
     }

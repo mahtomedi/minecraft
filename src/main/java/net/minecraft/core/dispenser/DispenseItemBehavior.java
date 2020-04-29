@@ -521,8 +521,7 @@ public interface DispenseItemBehavior {
                     LevelAccessor var0 = param0.getLevel();
                     BlockPos var1 = param0.getPos().relative(param0.getBlockState().getValue(DispenserBlock.FACING));
                     BlockState var2 = var0.getBlockState(var1);
-                    Block var3 = var2.getBlock();
-                    if (var3.is(BlockTags.BEEHIVES) && var2.getValue(BeehiveBlock.HONEY_LEVEL) >= 5) {
+                    if (var2.is(BlockTags.BEEHIVES, param0x -> param0x.hasProperty(BeehiveBlock.HONEY_LEVEL)) && var2.getValue(BeehiveBlock.HONEY_LEVEL) >= 5) {
                         ((BeehiveBlock)var2.getBlock())
                             .releaseBeesAndResetHoneyLevel(var0.getLevel(), var2, var1, null, BeehiveBlockEntity.BeeReleaseStatus.BEE_RELEASED);
                         this.success = true;
@@ -543,7 +542,7 @@ public interface DispenseItemBehavior {
                 BlockPos var1 = param0.getPos().relative(var0);
                 Level var2 = param0.getLevel();
                 BlockState var3 = var2.getBlockState(var1);
-                if (var3.getBlock() == Blocks.RESPAWN_ANCHOR) {
+                if (var3.is(Blocks.RESPAWN_ANCHOR)) {
                     if (var3.getValue(RespawnAnchorBlock.CHARGE) != 4) {
                         RespawnAnchorBlock.charge(var2, var1, var3);
                         param1.shrink(1);

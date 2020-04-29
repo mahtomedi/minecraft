@@ -54,7 +54,7 @@ public class EndRodBlock extends DirectionalBlock {
     public BlockState getStateForPlacement(BlockPlaceContext param0) {
         Direction var0 = param0.getClickedFace();
         BlockState var1 = param0.getLevel().getBlockState(param0.getClickedPos().relative(var0.getOpposite()));
-        return var1.getBlock() == this && var1.getValue(FACING) == var0
+        return var1.is(this) && var1.getValue(FACING) == var0
             ? this.defaultBlockState().setValue(FACING, var0.getOpposite())
             : this.defaultBlockState().setValue(FACING, var0);
     }

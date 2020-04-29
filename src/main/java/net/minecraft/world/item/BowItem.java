@@ -1,7 +1,6 @@
 package net.minecraft.world.item;
 
 import java.util.function.Predicate;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -17,17 +16,6 @@ import net.minecraft.world.level.Level;
 public class BowItem extends ProjectileWeaponItem implements Vanishable {
     public BowItem(Item.Properties param0) {
         super(param0);
-        this.addProperty(new ResourceLocation("pull"), (param0x, param1, param2) -> {
-            if (param2 == null) {
-                return 0.0F;
-            } else {
-                return param2.getUseItem() != param0x ? 0.0F : (float)(param0x.getUseDuration() - param2.getUseItemRemainingTicks()) / 20.0F;
-            }
-        });
-        this.addProperty(
-            new ResourceLocation("pulling"),
-            (param0x, param1, param2) -> param2 != null && param2.isUsingItem() && param2.getUseItem() == param0x ? 1.0F : 0.0F
-        );
     }
 
     @Override

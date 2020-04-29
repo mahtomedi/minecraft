@@ -43,7 +43,7 @@ public class SoulSandBlock extends Block {
 
     @Override
     public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
-        if (param1 == Direction.UP && param2.getBlock() == Blocks.WATER) {
+        if (param1 == Direction.UP && param2.is(Blocks.WATER)) {
             param3.getBlockTicks().scheduleTick(param4, this, 20);
         }
 

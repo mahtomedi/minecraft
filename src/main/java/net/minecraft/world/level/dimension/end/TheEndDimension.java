@@ -14,6 +14,8 @@ import net.minecraft.world.level.chunk.ChunkGeneratorType;
 import net.minecraft.world.level.dimension.Dimension;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.TheEndGeneratorSettings;
+import net.minecraft.world.level.storage.LevelData;
+import net.minecraft.world.level.storage.ServerLevelData;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -24,8 +26,19 @@ public class TheEndDimension extends Dimension {
 
     public TheEndDimension(Level param0, DimensionType param1) {
         super(param0, param1, 0.0F);
-        CompoundTag var0 = param0.getLevelData().getDimensionData();
-        this.dragonFight = param0 instanceof ServerLevel ? new EndDragonFight((ServerLevel)param0, var0.getCompound("DragonFight")) : null;
+        if (param0 instanceof ServerLevel) {
+            ServerLevel var0 = (ServerLevel)param0;
+            LevelData var1 = var0.getLevelData();
+            if (var1 instanceof ServerLevelData) {
+                CompoundTag var2 = ((ServerLevelData)var1).getDimensionData();
+                this.dragonFight = new EndDragonFight(var0, var2.getCompound("DragonFight"));
+            } else {
+                this.dragonFight = null;
+            }
+        } else {
+            this.dragonFight = null;
+        }
+
     }
 
     @Override
@@ -109,13 +122,13 @@ public class TheEndDimension extends Dimension {
     }
 
     @Override
-    public void saveData() {
+    public void saveData(ServerLevelData param0) {
         CompoundTag var0 = new CompoundTag();
         if (this.dragonFight != null) {
             var0.put("DragonFight", this.dragonFight.saveData());
         }
 
-        this.level.getLevelData().setDimensionData(var0);
+        param0.setDimensionData(var0);
     }
 
     @Override

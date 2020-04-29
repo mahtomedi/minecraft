@@ -603,7 +603,7 @@ public class Raid {
                 && this.level.getChunkSource().isEntityTickingChunk(new ChunkPos(var1))
                 && (
                     NaturalSpawner.isSpawnPositionOk(SpawnPlacements.Type.ON_GROUND, this.level, var1, EntityType.RAVAGER)
-                        || this.level.getBlockState(var1.below()).getBlock() == Blocks.SNOW && this.level.getBlockState(var1).isAir()
+                        || this.level.getBlockState(var1.below()).is(Blocks.SNOW) && this.level.getBlockState(var1).isAir()
                 )) {
                 return var1;
             }

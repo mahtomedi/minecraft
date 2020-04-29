@@ -73,7 +73,7 @@ public class IronBarsBlock extends CrossCollisionBlock {
     @OnlyIn(Dist.CLIENT)
     @Override
     public boolean skipRendering(BlockState param0, BlockState param1, Direction param2) {
-        if (param1.getBlock() == this) {
+        if (param1.is(this)) {
             if (!param2.getAxis().isHorizontal()) {
                 return true;
             }

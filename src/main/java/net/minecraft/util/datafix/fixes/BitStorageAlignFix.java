@@ -6,6 +6,7 @@ import com.mojang.datafixers.DataFixUtils;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.OpticFinder;
 import com.mojang.datafixers.TypeRewriteRule;
+import com.mojang.datafixers.Typed;
 import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.Type;
 import com.mojang.datafixers.types.templates.List.ListType;
@@ -33,30 +34,41 @@ public class BitStorageAlignFix extends DataFix {
             "BitStorageAlignFix",
             var0,
             this.getOutputSchema().getType(References.CHUNK),
-            param4 -> param4.updateTyped(
-                    var2,
-                    param3x -> param3x.updateTyped(
-                            var3,
-                            param2x -> param2x.updateTyped(
-                                    var5,
-                                    param1x -> {
-                                        int var0x = param1x.getOptional(var7).map(param0x -> Math.max(4, DataFixUtils.ceillog2(param0x.size()))).orElse(0);
-                                        return var0x != 0 && !Mth.isPowerOfTwo(var0x)
-                                            ? param1x.update(DSL.remainderFinder(), param1xx -> this.fixBlockStates(param1xx, var0x))
-                                            : param1x;
-                                    }
-                                )
-                        )
+            param4 -> param4.updateTyped(var2, param3x -> this.updateHeightmaps(updateSections(var3, var5, var7, param3x)))
+        );
+    }
+
+    private Typed<?> updateHeightmaps(Typed<?> param0) {
+        return param0.update(
+            DSL.remainderFinder(),
+            param0x -> param0x.update(
+                    "Heightmaps", param1 -> param1.updateMapValues(param1x -> param1x.mapSecond(param1xx -> updateBitStorage(param0x, param1xx, 256, 9)))
                 )
         );
     }
 
-    private Dynamic<?> fixBlockStates(Dynamic<?> param0, int param1) {
-        return param0.update("BlockStates", param2 -> {
-            long[] var0 = param2.asLongStream().toArray();
-            long[] var1x = addPadding(4096, param1, var0);
-            return param0.createLongList(LongStream.of(var1x));
-        });
+    private static Typed<?> updateSections(OpticFinder<?> param0, OpticFinder<?> param1, OpticFinder<List<Pair<String, Dynamic<?>>>> param2, Typed<?> param3) {
+        return param3.updateTyped(
+            param0,
+            param2x -> param2x.updateTyped(
+                    param1,
+                    param1x -> {
+                        int var0x = param1x.getOptional(param2).map(param0x -> Math.max(4, DataFixUtils.ceillog2(param0x.size()))).orElse(0);
+                        return var0x != 0 && !Mth.isPowerOfTwo(var0x)
+                            ? param1x.update(
+                                DSL.remainderFinder(),
+                                param1xx -> param1xx.update("BlockStates", param2xx -> updateBitStorage(param1xx, param2xx, 4096, var0x))
+                            )
+                            : param1x;
+                    }
+                )
+        );
+    }
+
+    private static Dynamic<?> updateBitStorage(Dynamic<?> param0, Dynamic<?> param1, int param2, int param3) {
+        long[] var0 = param1.asLongStream().toArray();
+        long[] var1 = addPadding(param2, param3, var0);
+        return param0.createLongList(LongStream.of(var1));
     }
 
     public static long[] addPadding(int param0, int param1, long[] param2) {

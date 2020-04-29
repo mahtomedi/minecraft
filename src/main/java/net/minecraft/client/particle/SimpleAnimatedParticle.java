@@ -1,6 +1,6 @@
 package net.minecraft.client.particle;
 
-import net.minecraft.world.level.Level;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -14,7 +14,7 @@ public class SimpleAnimatedParticle extends TextureSheetParticle {
     private float fadeB;
     private boolean hasFade;
 
-    protected SimpleAnimatedParticle(Level param0, double param1, double param2, double param3, SpriteSet param4, float param5) {
+    protected SimpleAnimatedParticle(ClientLevel param0, double param1, double param2, double param3, SpriteSet param4, float param5) {
         super(param0, param1, param2, param3);
         this.sprites = param4;
         this.baseGravity = param5;

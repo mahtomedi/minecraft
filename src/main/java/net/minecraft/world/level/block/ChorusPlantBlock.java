@@ -55,9 +55,8 @@ public class ChorusPlantBlock extends PipeBlock {
             param3.getBlockTicks().scheduleTick(param4, this, 1);
             return super.updateShape(param0, param1, param2, param3, param4, param5);
         } else {
-            Block var0 = param2.getBlock();
-            boolean var1 = var0 == this || var0 == Blocks.CHORUS_FLOWER || param1 == Direction.DOWN && var0 == Blocks.END_STONE;
-            return param0.setValue(PROPERTY_BY_DIRECTION.get(param1), Boolean.valueOf(var1));
+            boolean var0 = param2.getBlock() == this || param2.is(Blocks.CHORUS_FLOWER) || param1 == Direction.DOWN && param2.is(Blocks.END_STONE);
+            return param0.setValue(PROPERTY_BY_DIRECTION.get(param1), Boolean.valueOf(var0));
         }
     }
 

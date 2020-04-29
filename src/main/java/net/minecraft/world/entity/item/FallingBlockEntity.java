@@ -105,7 +105,7 @@ public class FallingBlockEntity extends Entity {
             Block var0 = this.blockState.getBlock();
             if (this.time++ == 0) {
                 BlockPos var1 = this.blockPosition();
-                if (this.level.getBlockState(var1).getBlock() == var0) {
+                if (this.level.getBlockState(var1).is(var0)) {
                     this.level.removeBlock(var1, false);
                 } else if (!this.level.isClientSide) {
                     this.remove();
@@ -139,7 +139,7 @@ public class FallingBlockEntity extends Entity {
                 if (this.onGround || var4) {
                     BlockState var7 = this.level.getBlockState(var2);
                     this.setDeltaMovement(this.getDeltaMovement().multiply(0.7, -0.5, 0.7));
-                    if (var7.getBlock() != Blocks.MOVING_PISTON) {
+                    if (!var7.is(Blocks.MOVING_PISTON)) {
                         this.remove();
                         if (!this.cancelDrop) {
                             boolean var8 = var7.canBeReplaced(new DirectionalPlaceContext(this.level, var2, Direction.DOWN, ItemStack.EMPTY, Direction.UP));

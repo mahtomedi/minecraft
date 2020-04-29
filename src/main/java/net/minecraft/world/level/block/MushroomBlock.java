@@ -34,7 +34,7 @@ public class MushroomBlock extends BushBlock implements BonemealableBlock {
             int var1 = 4;
 
             for(BlockPos var2 : BlockPos.betweenClosed(param2.offset(-4, -1, -4), param2.offset(4, 1, 4))) {
-                if (param1.getBlockState(var2).getBlock() == this) {
+                if (param1.getBlockState(var2).is(this)) {
                     if (--var0 <= 0) {
                         return;
                     }
@@ -67,8 +67,7 @@ public class MushroomBlock extends BushBlock implements BonemealableBlock {
     public boolean canSurvive(BlockState param0, LevelReader param1, BlockPos param2) {
         BlockPos var0 = param2.below();
         BlockState var1 = param1.getBlockState(var0);
-        Block var2 = var1.getBlock();
-        if (var2 != Blocks.MYCELIUM && var2 != Blocks.PODZOL) {
+        if (!var1.is(Blocks.MYCELIUM) && !var1.is(Blocks.PODZOL)) {
             return param1.getRawBrightness(param2, 0) < 13 && this.mayPlaceOn(var1, param1, var0);
         } else {
             return true;

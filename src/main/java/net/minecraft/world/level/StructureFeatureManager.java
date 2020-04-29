@@ -3,12 +3,22 @@ package net.minecraft.world.level;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.core.SectionPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.FeatureAccess;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
+import net.minecraft.world.level.storage.ServerLevelData;
 
 public class StructureFeatureManager {
+    private final ServerLevel level;
+    private final ServerLevelData serverLevelData;
+
+    public StructureFeatureManager(ServerLevel param0, ServerLevelData param1) {
+        this.level = param0;
+        this.serverLevelData = param1;
+    }
+
     public Stream<StructureStart> startsForFeature(SectionPos param0, StructureFeature<?> param1, LevelAccessor param2) {
         return param2.getChunk(param0.x(), param0.z(), ChunkStatus.STRUCTURE_REFERENCES)
             .getReferencesForFeature(param1.getFeatureName())
@@ -29,5 +39,9 @@ public class StructureFeatureManager {
 
     public void addReferenceForFeature(SectionPos param0, StructureFeature<?> param1, long param2, FeatureAccess param3) {
         param3.addReferenceForFeature(param1.getFeatureName(), param2);
+    }
+
+    public boolean shouldGenerateFeatures() {
+        return this.serverLevelData.shouldGenerateMapFeatures();
     }
 }

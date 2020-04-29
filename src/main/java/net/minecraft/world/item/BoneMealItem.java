@@ -70,7 +70,7 @@ public class BoneMealItem extends Item {
     }
 
     public static boolean growWaterPlant(ItemStack param0, Level param1, BlockPos param2, @Nullable Direction param3) {
-        if (param1.getBlockState(param2).getBlock() == Blocks.WATER && param1.getFluidState(param2).getAmount() == 8) {
+        if (param1.getBlockState(param2).is(Blocks.WATER) && param1.getFluidState(param2).getAmount() == 8) {
             if (!(param1 instanceof ServerLevel)) {
                 return true;
             } else {
@@ -104,9 +104,9 @@ public class BoneMealItem extends Item {
 
                     if (var3.canSurvive(param1, var1)) {
                         BlockState var6 = param1.getBlockState(var1);
-                        if (var6.getBlock() == Blocks.WATER && param1.getFluidState(var1).getAmount() == 8) {
+                        if (var6.is(Blocks.WATER) && param1.getFluidState(var1).getAmount() == 8) {
                             param1.setBlock(var1, var3, 3);
-                        } else if (var6.getBlock() == Blocks.SEAGRASS && random.nextInt(10) == 0) {
+                        } else if (var6.is(Blocks.SEAGRASS) && random.nextInt(10) == 0) {
                             ((BonemealableBlock)Blocks.SEAGRASS).performBonemeal((ServerLevel)param1, random, var1, var6);
                         }
                     }

@@ -22,7 +22,7 @@ public class BlockMatchTest extends RuleTest {
 
     @Override
     public boolean test(BlockState param0, Random param1) {
-        return param0.getBlock() == this.block;
+        return param0.is(this.block);
     }
 
     @Override

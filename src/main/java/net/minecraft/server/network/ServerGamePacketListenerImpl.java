@@ -113,6 +113,9 @@ import net.minecraft.world.inventory.AnvilMenu;
 import net.minecraft.world.inventory.BeaconMenu;
 import net.minecraft.world.inventory.MerchantMenu;
 import net.minecraft.world.inventory.RecipeBookMenu;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.BucketItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.WritableBookItem;
@@ -936,6 +939,15 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
         }
     }
 
+    private static boolean wasBlockPlacementAttempt(ServerPlayer param0, ItemStack param1) {
+        if (param1.isEmpty()) {
+            return false;
+        } else {
+            Item var0 = param1.getItem();
+            return (var0 instanceof BlockItem || var0 instanceof BucketItem) && !param0.getCooldowns().isOnCooldown(var0);
+        }
+    }
+
     @Override
     public void handleUseItemOn(ServerboundUseItemOnPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
@@ -946,18 +958,24 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
         BlockPos var4 = var3.getBlockPos();
         Direction var5 = var3.getDirection();
         this.player.resetLastActionTime();
-        if (var4.getY() < this.server.getMaxBuildHeight() - 1 || var5 != Direction.UP && var4.getY() < this.server.getMaxBuildHeight()) {
+        if (var4.getY() < this.server.getMaxBuildHeight()) {
             if (this.awaitingPositionFromClient == null
                 && this.player.distanceToSqr((double)var4.getX() + 0.5, (double)var4.getY() + 0.5, (double)var4.getZ() + 0.5) < 64.0
                 && var0.mayInteract(this.player, var4)) {
                 InteractionResult var6 = this.player.gameMode.useItemOn(this.player, var0, var2, var1, var3);
-                if (var6.shouldSwing()) {
+                if (var5 == Direction.UP
+                    && var6 != InteractionResult.SUCCESS
+                    && var4.getY() >= this.server.getMaxBuildHeight() - 1
+                    && wasBlockPlacementAttempt(this.player, var2)) {
+                    Component var7 = new TranslatableComponent("build.tooHigh", this.server.getMaxBuildHeight()).withStyle(ChatFormatting.RED);
+                    this.player.connection.send(new ClientboundChatPacket(var7, ChatType.GAME_INFO));
+                } else if (var6.shouldSwing()) {
                     this.player.swing(var1, true);
                 }
             }
         } else {
-            Component var7 = new TranslatableComponent("build.tooHigh", this.server.getMaxBuildHeight()).withStyle(ChatFormatting.RED);
-            this.player.connection.send(new ClientboundChatPacket(var7, ChatType.GAME_INFO));
+            Component var8 = new TranslatableComponent("build.tooHigh", this.server.getMaxBuildHeight()).withStyle(ChatFormatting.RED);
+            this.player.connection.send(new ClientboundChatPacket(var8, ChatType.GAME_INFO));
         }
 
         this.player.connection.send(new ClientboundBlockUpdatePacket(var0, var4));

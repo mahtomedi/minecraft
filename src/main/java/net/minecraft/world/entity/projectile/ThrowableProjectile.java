@@ -46,7 +46,7 @@ public abstract class ThrowableProjectile extends Projectile {
         super.tick();
         HitResult var0 = ProjectileUtil.getHitResult(this, this::canHitEntity, ClipContext.Block.OUTLINE);
         if (var0.getType() != HitResult.Type.MISS) {
-            if (var0.getType() == HitResult.Type.BLOCK && this.level.getBlockState(((BlockHitResult)var0).getBlockPos()).getBlock() == Blocks.NETHER_PORTAL) {
+            if (var0.getType() == HitResult.Type.BLOCK && this.level.getBlockState(((BlockHitResult)var0).getBlockPos()).is(Blocks.NETHER_PORTAL)) {
                 this.handleInsidePortal(((BlockHitResult)var0).getBlockPos());
             } else {
                 this.onHit(var0);

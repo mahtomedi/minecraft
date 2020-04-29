@@ -100,7 +100,7 @@ public class TurtleEggBlock extends Block {
     }
 
     private boolean onSand(BlockGetter param0, BlockPos param1) {
-        return param0.getBlockState(param1.below()).getBlock() == Blocks.SAND;
+        return param0.getBlockState(param1.below()).is(Blocks.SAND);
     }
 
     @Override
@@ -135,7 +135,7 @@ public class TurtleEggBlock extends Block {
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext param0) {
         BlockState var0 = param0.getLevel().getBlockState(param0.getClickedPos());
-        return var0.getBlock() == this ? var0.setValue(EGGS, Integer.valueOf(Math.min(4, var0.getValue(EGGS) + 1))) : super.getStateForPlacement(param0);
+        return var0.is(this) ? var0.setValue(EGGS, Integer.valueOf(Math.min(4, var0.getValue(EGGS) + 1))) : super.getStateForPlacement(param0);
     }
 
     @Override

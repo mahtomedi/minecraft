@@ -31,7 +31,7 @@ public class IceSpikeFeature extends Feature<NoneFeatureConfiguration> {
             param4 = param4.below();
         }
 
-        if (param0.getBlockState(param4).getBlock() != Blocks.SNOW_BLOCK) {
+        if (!param0.getBlockState(param4).is(Blocks.SNOW_BLOCK)) {
             return false;
         } else {
             param4 = param4.above(param3.nextInt(4));

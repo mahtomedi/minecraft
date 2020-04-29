@@ -2,10 +2,10 @@ package net.minecraft.client.particle;
 
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
@@ -17,7 +17,7 @@ public class FallingDustParticle extends TextureSheetParticle {
     private final float rotSpeed;
     private final SpriteSet sprites;
 
-    private FallingDustParticle(Level param0, double param1, double param2, double param3, float param4, float param5, float param6, SpriteSet param7) {
+    private FallingDustParticle(ClientLevel param0, double param1, double param2, double param3, float param4, float param5, float param6, SpriteSet param7) {
         super(param0, param1, param2, param3);
         this.sprites = param7;
         this.rCol = param4;
@@ -73,7 +73,7 @@ public class FallingDustParticle extends TextureSheetParticle {
 
         @Nullable
         public Particle createParticle(
-            BlockParticleOption param0, Level param1, double param2, double param3, double param4, double param5, double param6, double param7
+            BlockParticleOption param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
             BlockState var0 = param0.getState();
             if (!var0.isAir() && var0.getRenderShape() == RenderShape.INVISIBLE) {

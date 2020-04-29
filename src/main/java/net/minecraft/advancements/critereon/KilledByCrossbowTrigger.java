@@ -2,8 +2,6 @@ package net.minecraft.advancements.critereon;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.util.Collection;
 import java.util.Iterator;
@@ -13,6 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.storage.loot.LootContext;
 
 public class KilledByCrossbowTrigger extends SimpleCriterionTrigger<KilledByCrossbowTrigger.TriggerInstance> {
     private static final ResourceLocation ID = new ResourceLocation("killed_by_crossbow");
@@ -22,53 +21,61 @@ public class KilledByCrossbowTrigger extends SimpleCriterionTrigger<KilledByCros
         return ID;
     }
 
-    public KilledByCrossbowTrigger.TriggerInstance createInstance(JsonObject param0, JsonDeserializationContext param1) {
-        EntityPredicate[] var0 = EntityPredicate.fromJsonArray(param0.get("victims"));
+    public KilledByCrossbowTrigger.TriggerInstance createInstance(JsonObject param0, EntityPredicate.Composite param1, DeserializationContext param2) {
+        EntityPredicate.Composite[] var0 = EntityPredicate.Composite.fromJsonArray(param0, "victims", param2);
         MinMaxBounds.Ints var1 = MinMaxBounds.Ints.fromJson(param0.get("unique_entity_types"));
-        return new KilledByCrossbowTrigger.TriggerInstance(var0, var1);
+        return new KilledByCrossbowTrigger.TriggerInstance(param1, var0, var1);
     }
 
-    public void trigger(ServerPlayer param0, Collection<Entity> param1, int param2) {
-        this.trigger(param0.getAdvancements(), param3 -> param3.matches(param0, param1, param2));
+    public void trigger(ServerPlayer param0, Collection<Entity> param1) {
+        List<LootContext> var0 = Lists.newArrayList();
+        Set<EntityType<?>> var1 = Sets.newHashSet();
+
+        for(Entity var2 : param1) {
+            var1.add(var2.getType());
+            var0.add(EntityPredicate.createContext(param0, var2));
+        }
+
+        this.trigger(param0, param2 -> param2.matches(var0, var1.size()));
     }
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
-        private final EntityPredicate[] victims;
+        private final EntityPredicate.Composite[] victims;
         private final MinMaxBounds.Ints uniqueEntityTypes;
 
-        public TriggerInstance(EntityPredicate[] param0, MinMaxBounds.Ints param1) {
-            super(KilledByCrossbowTrigger.ID);
-            this.victims = param0;
-            this.uniqueEntityTypes = param1;
+        public TriggerInstance(EntityPredicate.Composite param0, EntityPredicate.Composite[] param1, MinMaxBounds.Ints param2) {
+            super(KilledByCrossbowTrigger.ID, param0);
+            this.victims = param1;
+            this.uniqueEntityTypes = param2;
         }
 
         public static KilledByCrossbowTrigger.TriggerInstance crossbowKilled(EntityPredicate.Builder... param0) {
-            EntityPredicate[] var0 = new EntityPredicate[param0.length];
+            EntityPredicate.Composite[] var0 = new EntityPredicate.Composite[param0.length];
 
             for(int var1 = 0; var1 < param0.length; ++var1) {
                 EntityPredicate.Builder var2 = param0[var1];
-                var0[var1] = var2.build();
+                var0[var1] = EntityPredicate.Composite.wrap(var2.build());
             }
 
-            return new KilledByCrossbowTrigger.TriggerInstance(var0, MinMaxBounds.Ints.ANY);
+            return new KilledByCrossbowTrigger.TriggerInstance(EntityPredicate.Composite.ANY, var0, MinMaxBounds.Ints.ANY);
         }
 
         public static KilledByCrossbowTrigger.TriggerInstance crossbowKilled(MinMaxBounds.Ints param0) {
-            EntityPredicate[] var0 = new EntityPredicate[0];
-            return new KilledByCrossbowTrigger.TriggerInstance(var0, param0);
+            EntityPredicate.Composite[] var0 = new EntityPredicate.Composite[0];
+            return new KilledByCrossbowTrigger.TriggerInstance(EntityPredicate.Composite.ANY, var0, param0);
         }
 
-        public boolean matches(ServerPlayer param0, Collection<Entity> param1, int param2) {
+        public boolean matches(Collection<LootContext> param0, int param1) {
             if (this.victims.length > 0) {
-                List<Entity> var0 = Lists.newArrayList(param1);
+                List<LootContext> var0 = Lists.newArrayList(param0);
 
-                for(EntityPredicate var1 : this.victims) {
+                for(EntityPredicate.Composite var1 : this.victims) {
                     boolean var2 = false;
-                    Iterator<Entity> var3 = var0.iterator();
+                    Iterator<LootContext> var3 = var0.iterator();
 
                     while(var3.hasNext()) {
-                        Entity var4 = var3.next();
-                        if (var1.matches(param0, var4)) {
+                        LootContext var4 = var3.next();
+                        if (var1.matches(var4)) {
                             var3.remove();
                             var2 = true;
                             break;
@@ -81,23 +88,13 @@ public class KilledByCrossbowTrigger extends SimpleCriterionTrigger<KilledByCros
                 }
             }
 
-            if (this.uniqueEntityTypes == MinMaxBounds.Ints.ANY) {
-                return true;
-            } else {
-                Set<EntityType<?>> var5 = Sets.newHashSet();
-
-                for(Entity var6 : param1) {
-                    var5.add(var6.getType());
-                }
-
-                return this.uniqueEntityTypes.matches(var5.size()) && this.uniqueEntityTypes.matches(param2);
-            }
+            return this.uniqueEntityTypes.matches(param1);
         }
 
         @Override
-        public JsonElement serializeToJson() {
-            JsonObject var0 = new JsonObject();
-            var0.add("victims", EntityPredicate.serializeArrayToJson(this.victims));
+        public JsonObject serializeToJson(SerializationContext param0) {
+            JsonObject var0 = super.serializeToJson(param0);
+            var0.add("victims", EntityPredicate.Composite.toJson(this.victims, param0));
             var0.add("unique_entity_types", this.uniqueEntityTypes.serializeToJson());
             return var0;
         }

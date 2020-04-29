@@ -3,12 +3,12 @@ package net.minecraft.client.particle;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Camera;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderBuffers;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -21,11 +21,11 @@ public class ItemPickupParticle extends Particle {
     private int life;
     private final EntityRenderDispatcher entityRenderDispatcher;
 
-    public ItemPickupParticle(EntityRenderDispatcher param0, RenderBuffers param1, Level param2, Entity param3, Entity param4) {
+    public ItemPickupParticle(EntityRenderDispatcher param0, RenderBuffers param1, ClientLevel param2, Entity param3, Entity param4) {
         this(param0, param1, param2, param3, param4, param3.getDeltaMovement());
     }
 
-    private ItemPickupParticle(EntityRenderDispatcher param0, RenderBuffers param1, Level param2, Entity param3, Entity param4, Vec3 param5) {
+    private ItemPickupParticle(EntityRenderDispatcher param0, RenderBuffers param1, ClientLevel param2, Entity param3, Entity param4, Vec3 param5) {
         super(param2, param3.getX(), param3.getY(), param3.getZ(), param5.x, param5.y, param5.z);
         this.renderBuffers = param1;
         this.itemEntity = param3;

@@ -1,11 +1,11 @@
 package net.minecraft.client.particle;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -14,7 +14,7 @@ public class BreakingItemParticle extends TextureSheetParticle {
     private final float uo;
     private final float vo;
 
-    private BreakingItemParticle(Level param0, double param1, double param2, double param3, double param4, double param5, double param6, ItemStack param7) {
+    private BreakingItemParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6, ItemStack param7) {
         this(param0, param1, param2, param3, param7);
         this.xd *= 0.1F;
         this.yd *= 0.1F;
@@ -29,7 +29,7 @@ public class BreakingItemParticle extends TextureSheetParticle {
         return ParticleRenderType.TERRAIN_SHEET;
     }
 
-    protected BreakingItemParticle(Level param0, double param1, double param2, double param3, ItemStack param4) {
+    protected BreakingItemParticle(ClientLevel param0, double param1, double param2, double param3, ItemStack param4) {
         super(param0, param1, param2, param3, 0.0, 0.0, 0.0);
         this.setSprite(Minecraft.getInstance().getItemRenderer().getModel(param4, param0, null).getParticleIcon());
         this.gravity = 1.0F;
@@ -61,7 +61,7 @@ public class BreakingItemParticle extends TextureSheetParticle {
     @OnlyIn(Dist.CLIENT)
     public static class Provider implements ParticleProvider<ItemParticleOption> {
         public Particle createParticle(
-            ItemParticleOption param0, Level param1, double param2, double param3, double param4, double param5, double param6, double param7
+            ItemParticleOption param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
             return new BreakingItemParticle(param1, param2, param3, param4, param5, param6, param7, param0.getItem());
         }
@@ -70,7 +70,7 @@ public class BreakingItemParticle extends TextureSheetParticle {
     @OnlyIn(Dist.CLIENT)
     public static class SlimeProvider implements ParticleProvider<SimpleParticleType> {
         public Particle createParticle(
-            SimpleParticleType param0, Level param1, double param2, double param3, double param4, double param5, double param6, double param7
+            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
             return new BreakingItemParticle(param1, param2, param3, param4, new ItemStack(Items.SLIME_BALL));
         }
@@ -79,7 +79,7 @@ public class BreakingItemParticle extends TextureSheetParticle {
     @OnlyIn(Dist.CLIENT)
     public static class SnowballProvider implements ParticleProvider<SimpleParticleType> {
         public Particle createParticle(
-            SimpleParticleType param0, Level param1, double param2, double param3, double param4, double param5, double param6, double param7
+            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
             return new BreakingItemParticle(param1, param2, param3, param4, new ItemStack(Items.SNOWBALL));
         }

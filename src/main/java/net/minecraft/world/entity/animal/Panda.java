@@ -834,7 +834,7 @@ public class Panda extends Animal {
                     for(int var4 = 0; var4 <= var3; var4 = var4 > 0 ? -var4 : 1 - var4) {
                         for(int var5 = var4 < var3 && var4 > -var3 ? var3 : 0; var5 <= var3; var5 = var5 > 0 ? -var5 : 1 - var5) {
                             var1.setWithOffset(var0, var4, var2, var5);
-                            if (this.level.getBlockState(var1).getBlock() == Blocks.BAMBOO) {
+                            if (this.level.getBlockState(var1).is(Blocks.BAMBOO)) {
                                 return true;
                             }
                         }

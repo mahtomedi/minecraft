@@ -34,7 +34,7 @@ public class SmithingMenu extends ItemCombinerMenu {
 
     @Override
     protected boolean isValidBlock(BlockState param0) {
-        return param0.getBlock() == Blocks.SMITHING_TABLE;
+        return param0.is(Blocks.SMITHING_TABLE);
     }
 
     @Override

@@ -108,7 +108,7 @@ public class BarrelBlockEntity extends RandomizableContainerBlockEntity {
             this.scheduleRecheck();
         } else {
             BlockState var3 = this.getBlockState();
-            if (var3.getBlock() != Blocks.BARREL) {
+            if (!var3.is(Blocks.BARREL)) {
                 this.setRemoved();
                 return;
             }

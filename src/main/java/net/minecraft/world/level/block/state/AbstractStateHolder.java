@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -90,6 +91,11 @@ public abstract class AbstractStateHolder<O, S> implements StateHolder<S> {
         } else {
             return param0.getValueClass().cast(var0);
         }
+    }
+
+    public <T extends Comparable<T>> Optional<T> getOptionalValue(Property<T> param0) {
+        Comparable<?> var0 = this.values.get(param0);
+        return var0 == null ? Optional.empty() : Optional.of(param0.getValueClass().cast(var0));
     }
 
     @Override

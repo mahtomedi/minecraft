@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.BlockModelRotation;
 import net.minecraft.client.resources.model.ModelBakery;
@@ -14,7 +15,6 @@ import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -42,7 +42,7 @@ public class ItemOverrides {
     }
 
     @Nullable
-    public BakedModel resolve(BakedModel param0, ItemStack param1, @Nullable Level param2, @Nullable LivingEntity param3) {
+    public BakedModel resolve(BakedModel param0, ItemStack param1, @Nullable ClientLevel param2, @Nullable LivingEntity param3) {
         if (!this.overrides.isEmpty()) {
             for(int var0 = 0; var0 < this.overrides.size(); ++var0) {
                 ItemOverride var1 = this.overrides.get(var0);

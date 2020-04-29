@@ -57,6 +57,8 @@ public class DedicatedServerProperties extends Settings<DedicatedServerPropertie
     public final int maxWorldSize;
     public final boolean syncChunkWrites;
     public final boolean enableJmxMonitoring;
+    public final boolean enableStatus;
+    public final int entityBroadcastRangePercentage;
     public final Settings<DedicatedServerProperties>.MutableValue<Integer> playerIdleTimeout;
     public final Settings<DedicatedServerProperties>.MutableValue<Boolean> whiteList;
 
@@ -80,6 +82,8 @@ public class DedicatedServerProperties extends Settings<DedicatedServerPropertie
         this.maxWorldSize = this.get("max-world-size", param0x -> Mth.clamp(param0x, 1, 29999984), 29999984);
         this.syncChunkWrites = this.get("sync-chunk-writes", true);
         this.enableJmxMonitoring = this.get("enable-jmx-monitoring", false);
+        this.enableStatus = this.get("enable-status", true);
+        this.entityBroadcastRangePercentage = this.get("entity-broadcast-range-percentage", param0x -> Mth.clamp(param0x, 10, 1000), 100);
         this.playerIdleTimeout = this.getMutable("player-idle-timeout", 0);
         this.whiteList = this.getMutable("white-list", false);
     }

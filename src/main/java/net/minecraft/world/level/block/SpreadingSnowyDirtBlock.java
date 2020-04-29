@@ -19,7 +19,7 @@ public abstract class SpreadingSnowyDirtBlock extends SnowyDirtBlock {
     private static boolean canBeGrass(BlockState param0, LevelReader param1, BlockPos param2) {
         BlockPos var0 = param2.above();
         BlockState var1 = param1.getBlockState(var0);
-        if (var1.getBlock() == Blocks.SNOW && var1.getValue(SnowLayerBlock.LAYERS) == 1) {
+        if (var1.is(Blocks.SNOW) && var1.getValue(SnowLayerBlock.LAYERS) == 1) {
             return true;
         } else if (var1.getFluidState().getType() != Fluids.EMPTY) {
             return false;
@@ -44,8 +44,8 @@ public abstract class SpreadingSnowyDirtBlock extends SnowyDirtBlock {
 
                 for(int var1 = 0; var1 < 4; ++var1) {
                     BlockPos var2 = param2.offset(param3.nextInt(3) - 1, param3.nextInt(5) - 3, param3.nextInt(3) - 1);
-                    if (param1.getBlockState(var2).getBlock() == Blocks.DIRT && canPropagate(var0, param1, var2)) {
-                        param1.setBlockAndUpdate(var2, var0.setValue(SNOWY, Boolean.valueOf(param1.getBlockState(var2.above()).getBlock() == Blocks.SNOW)));
+                    if (param1.getBlockState(var2).is(Blocks.DIRT) && canPropagate(var0, param1, var2)) {
+                        param1.setBlockAndUpdate(var2, var0.setValue(SNOWY, Boolean.valueOf(param1.getBlockState(var2.above()).is(Blocks.SNOW))));
                     }
                 }
             }

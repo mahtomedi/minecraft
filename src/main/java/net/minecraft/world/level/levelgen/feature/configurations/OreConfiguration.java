@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.predicate.BlockPredicate;
@@ -52,8 +51,7 @@ public class OreConfiguration implements FeatureConfiguration {
             if (param0 == null) {
                 return false;
             } else {
-                Block var0 = param0.getBlock();
-                return var0 == Blocks.STONE || var0 == Blocks.GRANITE || var0 == Blocks.DIORITE || var0 == Blocks.ANDESITE;
+                return param0.is(Blocks.STONE) || param0.is(Blocks.GRANITE) || param0.is(Blocks.DIORITE) || param0.is(Blocks.ANDESITE);
             }
         }),
         NETHERRACK("netherrack", new BlockPredicate(Blocks.NETHERRACK));

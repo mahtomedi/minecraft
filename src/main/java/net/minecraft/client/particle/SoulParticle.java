@@ -1,7 +1,7 @@
 package net.minecraft.client.particle;
 
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -9,7 +9,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class SoulParticle extends RisingParticle {
     private final SpriteSet sprites;
 
-    private SoulParticle(Level param0, double param1, double param2, double param3, double param4, double param5, double param6, SpriteSet param7) {
+    private SoulParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6, SpriteSet param7) {
         super(param0, param1, param2, param3, param4, param5, param6);
         this.sprites = param7;
         this.scale(1.5F);
@@ -39,7 +39,7 @@ public class SoulParticle extends RisingParticle {
         }
 
         public Particle createParticle(
-            SimpleParticleType param0, Level param1, double param2, double param3, double param4, double param5, double param6, double param7
+            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
             SoulParticle var0 = new SoulParticle(param1, param2, param3, param4, param5, param6, param7, this.sprite);
             var0.setAlpha(1.0F);

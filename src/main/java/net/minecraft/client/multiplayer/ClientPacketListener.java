@@ -262,7 +262,6 @@ import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.GameType;
-import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -287,8 +286,6 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
-import net.minecraft.world.level.storage.PrimaryLevelData;
-import net.minecraft.world.level.storage.WorldData;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.PlayerTeam;
@@ -309,7 +306,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
     private final Screen callbackScreen;
     private Minecraft minecraft;
     private ClientLevel level;
-    private WorldData worldData;
+    private ClientLevel.ClientLevelData levelData;
     private boolean started;
     private final Map<UUID, PlayerInfo> playerInfoMap = Maps.newHashMap();
     private final ClientAdvancements advancements;
@@ -355,12 +352,10 @@ public class ClientPacketListener implements ClientGamePacketListener {
         }
 
         this.serverChunkRadius = param0.getChunkRadius();
-        PrimaryLevelData var0 = new PrimaryLevelData(
-            new LevelSettings(
-                "MpServer", param0.getSeed(), param0.getGameType(), false, param0.isHardcore(), Difficulty.NORMAL, param0.getLevelType().getDefaultProvider()
-            )
+        ClientLevel.ClientLevelData var0 = new ClientLevel.ClientLevelData(
+            param0.getSeed(), Difficulty.NORMAL, param0.isHardcore(), param0.getLevelType().getDefaultProvider()
         );
-        this.worldData = var0;
+        this.levelData = var0;
         this.level = new ClientLevel(this, var0, param0.getDimension(), this.serverChunkRadius, this.minecraft::getProfiler, this.minecraft.levelRenderer);
         this.minecraft.setLevel(this.level);
         if (this.minecraft.player == null) {
@@ -955,7 +950,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
     @Override
     public void handleSetSpawn(ClientboundSetDefaultSpawnPositionPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        this.minecraft.level.getLevelData().setSpawn(param0.getPos());
+        this.minecraft.level.setDefaultSpawnPos(param0.getPos());
     }
 
     @Override
@@ -1048,18 +1043,10 @@ public class ClientPacketListener implements ClientGamePacketListener {
         this.started = false;
         if (var0 != var1.dimension) {
             Scoreboard var3 = this.level.getScoreboard();
-            PrimaryLevelData var4 = new PrimaryLevelData(
-                new LevelSettings(
-                    "MpServer",
-                    param0.getSeed(),
-                    param0.getPlayerGameType(),
-                    false,
-                    this.worldData.isHardcore(),
-                    this.worldData.getDifficulty(),
-                    param0.getLevelType().getDefaultProvider()
-                )
+            ClientLevel.ClientLevelData var4 = new ClientLevel.ClientLevelData(
+                param0.getSeed(), this.levelData.getDifficulty(), this.levelData.isHardcore(), param0.getLevelType().getDefaultProvider()
             );
-            this.worldData = var4;
+            this.levelData = var4;
             this.level = new ClientLevel(this, var4, param0.getDimension(), this.serverChunkRadius, this.minecraft::getProfiler, this.minecraft.levelRenderer);
             this.level.setScoreboard(var3);
             this.minecraft.setLevel(this.level);
@@ -1075,7 +1062,10 @@ public class ClientPacketListener implements ClientGamePacketListener {
         this.minecraft.player = var6;
         this.minecraft.cameraEntity = var6;
         var6.getEntityData().assignValues(var1.getEntityData().getAll());
-        var6.getAttributes().assignValues(var1.getAttributes());
+        if (param0.shouldKeepAllPlayerData()) {
+            var6.getAttributes().assignValues(var1.getAttributes());
+        }
+
         var6.resetPos();
         var6.setServerBrand(var5);
         this.level.addPlayer(var2, var6);
@@ -1559,8 +1549,8 @@ public class ClientPacketListener implements ClientGamePacketListener {
     @Override
     public void handleChangeDifficulty(ClientboundChangeDifficultyPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        this.worldData.setDifficulty(param0.getDifficulty());
-        this.worldData.setDifficultyLocked(param0.isLocked());
+        this.levelData.setDifficulty(param0.getDifficulty());
+        this.levelData.setDifficultyLocked(param0.isLocked());
     }
 
     @Override

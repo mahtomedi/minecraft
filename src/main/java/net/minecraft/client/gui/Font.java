@@ -33,7 +33,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class Font {
-    private static final Vector3f SHADOW_OFFSET = new Vector3f(0.0F, 0.0F, 0.001F);
+    private static final Vector3f SHADOW_OFFSET = new Vector3f(0.0F, 0.0F, 0.03F);
     public final int lineHeight = 9;
     public final Random random = new Random();
     private final Function<ResourceLocation, FontSet> fonts;
@@ -379,7 +379,7 @@ public class Font {
             if (param1.isStrikethrough()) {
                 this.addEffect(
                     new BakedGlyph.Effect(
-                        this.x + var17 - 1.0F, this.y + var17 + 4.5F, this.x + var17 + var16, this.y + var17 + 4.5F - 1.0F, -0.01F, var7, var8, var9, var4
+                        this.x + var17 - 1.0F, this.y + var17 + 4.5F, this.x + var17 + var16, this.y + var17 + 4.5F - 1.0F, 0.01F, var7, var8, var9, var4
                     )
                 );
             }
@@ -387,7 +387,7 @@ public class Font {
             if (param1.isUnderlined()) {
                 this.addEffect(
                     new BakedGlyph.Effect(
-                        this.x + var17 - 1.0F, this.y + var17 + 9.0F, this.x + var17 + var16, this.y + var17 + 9.0F - 1.0F, -0.01F, var7, var8, var9, var4
+                        this.x + var17 - 1.0F, this.y + var17 + 9.0F, this.x + var17 + var16, this.y + var17 + 9.0F - 1.0F, 0.01F, var7, var8, var9, var4
                     )
                 );
             }
@@ -402,7 +402,7 @@ public class Font {
                 float var1 = (float)(param0 >> 16 & 0xFF) / 255.0F;
                 float var2 = (float)(param0 >> 8 & 0xFF) / 255.0F;
                 float var3 = (float)(param0 & 0xFF) / 255.0F;
-                this.addEffect(new BakedGlyph.Effect(param1 - 1.0F, this.y + 9.0F, this.x + 1.0F, this.y - 1.0F, 0.01F, var1, var2, var3, var0));
+                this.addEffect(new BakedGlyph.Effect(param1 - 1.0F, this.y + 9.0F, this.x + 1.0F, this.y - 1.0F, -0.01F, var1, var2, var3, var0));
             }
 
             if (this.effects != null) {

@@ -84,7 +84,7 @@ public class DoorBlock extends Block {
                 ? Blocks.AIR.defaultBlockState()
                 : super.updateShape(param0, param1, param2, param3, param4, param5);
         } else {
-            return param2.getBlock() == this && param2.getValue(HALF) != var0
+            return param2.is(this) && param2.getValue(HALF) != var0
                 ? param0.setValue(FACING, param2.getValue(FACING))
                     .setValue(OPEN, param2.getValue(OPEN))
                     .setValue(HINGE, param2.getValue(HINGE))
@@ -103,7 +103,7 @@ public class DoorBlock extends Block {
         DoubleBlockHalf var0 = param2.getValue(HALF);
         BlockPos var1 = var0 == DoubleBlockHalf.LOWER ? param1.above() : param1.below();
         BlockState var2 = param0.getBlockState(var1);
-        if (var2.getBlock() == this && var2.getValue(HALF) != var0) {
+        if (var2.is(this) && var2.getValue(HALF) != var0) {
             param0.setBlock(var1, Blocks.AIR.defaultBlockState(), 35);
             param0.levelEvent(param3, 2001, var1, Block.getId(var2));
             ItemStack var3 = param3.getMainHandItem();
@@ -180,8 +180,8 @@ public class DoorBlock extends Block {
             + (var8.isCollisionShapeFullBlock(var0, var7) ? -1 : 0)
             + (var11.isCollisionShapeFullBlock(var0, var10) ? 1 : 0)
             + (var13.isCollisionShapeFullBlock(var0, var12) ? 1 : 0);
-        boolean var15 = var6.getBlock() == this && var6.getValue(HALF) == DoubleBlockHalf.LOWER;
-        boolean var16 = var11.getBlock() == this && var11.getValue(HALF) == DoubleBlockHalf.LOWER;
+        boolean var15 = var6.is(this) && var6.getValue(HALF) == DoubleBlockHalf.LOWER;
+        boolean var16 = var11.is(this) && var11.getValue(HALF) == DoubleBlockHalf.LOWER;
         if ((!var15 || var16) && var14 <= 0) {
             if ((!var16 || var15) && var14 >= 0) {
                 int var17 = var2.getStepX();
@@ -214,7 +214,7 @@ public class DoorBlock extends Block {
 
     public void setOpen(Level param0, BlockPos param1, boolean param2) {
         BlockState var0 = param0.getBlockState(param1);
-        if (var0.getBlock() == this && var0.getValue(OPEN) != param2) {
+        if (var0.is(this) && var0.getValue(OPEN) != param2) {
             param0.setBlock(param1, var0.setValue(OPEN, Boolean.valueOf(param2)), 10);
             this.playSound(param0, param1, param2);
         }
@@ -238,11 +238,7 @@ public class DoorBlock extends Block {
     public boolean canSurvive(BlockState param0, LevelReader param1, BlockPos param2) {
         BlockPos var0 = param2.below();
         BlockState var1 = param1.getBlockState(var0);
-        if (param0.getValue(HALF) == DoubleBlockHalf.LOWER) {
-            return var1.isFaceSturdy(param1, var0, Direction.UP);
-        } else {
-            return var1.getBlock() == this;
-        }
+        return param0.getValue(HALF) == DoubleBlockHalf.LOWER ? var1.isFaceSturdy(param1, var0, Direction.UP) : var1.is(this);
     }
 
     private void playSound(Level param0, BlockPos param1, boolean param2) {

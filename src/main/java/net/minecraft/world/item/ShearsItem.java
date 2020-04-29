@@ -5,7 +5,6 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -20,32 +19,29 @@ public class ShearsItem extends Item {
             param0.hurtAndBreak(1, param4, param0x -> param0x.broadcastBreakEvent(EquipmentSlot.MAINHAND));
         }
 
-        Block var0 = param2.getBlock();
         return !param2.is(BlockTags.LEAVES)
-                && var0 != Blocks.COBWEB
-                && var0 != Blocks.GRASS
-                && var0 != Blocks.FERN
-                && var0 != Blocks.DEAD_BUSH
-                && var0 != Blocks.VINE
-                && var0 != Blocks.TRIPWIRE
-                && !var0.is(BlockTags.WOOL)
+                && !param2.is(Blocks.COBWEB)
+                && !param2.is(Blocks.GRASS)
+                && !param2.is(Blocks.FERN)
+                && !param2.is(Blocks.DEAD_BUSH)
+                && !param2.is(Blocks.VINE)
+                && !param2.is(Blocks.TRIPWIRE)
+                && !param2.is(BlockTags.WOOL)
             ? super.mineBlock(param0, param1, param2, param3, param4)
             : true;
     }
 
     @Override
     public boolean canDestroySpecial(BlockState param0) {
-        Block var0 = param0.getBlock();
-        return var0 == Blocks.COBWEB || var0 == Blocks.REDSTONE_WIRE || var0 == Blocks.TRIPWIRE;
+        return param0.is(Blocks.COBWEB) || param0.is(Blocks.REDSTONE_WIRE) || param0.is(Blocks.TRIPWIRE);
     }
 
     @Override
     public float getDestroySpeed(ItemStack param0, BlockState param1) {
-        Block var0 = param1.getBlock();
-        if (var0 == Blocks.COBWEB || param1.is(BlockTags.LEAVES)) {
+        if (param1.is(Blocks.COBWEB) || param1.is(BlockTags.LEAVES)) {
             return 15.0F;
         } else {
-            return var0.is(BlockTags.WOOL) ? 5.0F : super.getDestroySpeed(param0, param1);
+            return param1.is(BlockTags.WOOL) ? 5.0F : super.getDestroySpeed(param0, param1);
         }
     }
 }

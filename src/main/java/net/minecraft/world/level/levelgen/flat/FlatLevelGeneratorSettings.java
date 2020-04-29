@@ -27,6 +27,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGeneratorType;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.GenerationStep;
+import net.minecraft.world.level.levelgen.feature.BastionPieces;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.MineshaftFeature;
@@ -35,6 +36,7 @@ import net.minecraft.world.level.levelgen.feature.configurations.BlockStateConfi
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.JigsawConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.MineshaftConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.MultiJigsawConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.OceanRuinConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.RuinedPortalConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.ShipwreckConfiguration;
@@ -76,6 +78,8 @@ public class FlatLevelGeneratorSettings extends ChunkGeneratorSettings {
         .configured(new OceanRuinConfiguration(OceanRuinFeature.Type.COLD, 0.3F, 0.1F));
     private static final ConfiguredFeature<?, ? extends StructureFeature<?>> PILLAGER_OUTPOST_COMPOSITE_FEATURE = Feature.PILLAGER_OUTPOST
         .configured(FeatureConfiguration.NONE);
+    private static final ConfiguredFeature<?, ? extends StructureFeature<?>> BASTION_REMNANT_COMMPOSITE_FEATURE = Feature.BASTION_REMNANT
+        .configured(new MultiJigsawConfiguration(BastionPieces.POOLS));
     private static final ConfiguredFeature<?, ?> WATER_LAKE_COMPOSITE_FEATURE = Feature.LAKE
         .configured(new BlockStateConfiguration(Blocks.WATER.defaultBlockState()))
         .decorated(FeatureDecorator.WATER_LAKE.configured(new ChanceDecoratorConfiguration(4)));
@@ -100,6 +104,7 @@ public class FlatLevelGeneratorSettings extends ChunkGeneratorSettings {
         param0.put(FORTRESS_COMPOSITE_FEATURE, GenerationStep.Decoration.UNDERGROUND_STRUCTURES);
         param0.put(OCEAN_MONUMENT_COMPOSITE_FEATURE, GenerationStep.Decoration.SURFACE_STRUCTURES);
         param0.put(PILLAGER_OUTPOST_COMPOSITE_FEATURE, GenerationStep.Decoration.SURFACE_STRUCTURES);
+        param0.put(BASTION_REMNANT_COMMPOSITE_FEATURE, GenerationStep.Decoration.SURFACE_STRUCTURES);
     });
     public static final Map<String, ConfiguredFeature<?, ?>[]> STRUCTURE_FEATURES = Util.make(
         Maps.newHashMap(),
@@ -126,6 +131,7 @@ public class FlatLevelGeneratorSettings extends ChunkGeneratorSettings {
             param0.put("fortress", new ConfiguredFeature[]{FORTRESS_COMPOSITE_FEATURE});
             param0.put("pillager_outpost", new ConfiguredFeature[]{PILLAGER_OUTPOST_COMPOSITE_FEATURE});
             param0.put("ruined_portal", new ConfiguredFeature[]{RUINED_PORTAL_COMPOSITE_FEATURE});
+            param0.put("bastion_remnant", new ConfiguredFeature[]{BASTION_REMNANT_COMMPOSITE_FEATURE});
         }
     );
     public static final Map<ConfiguredFeature<?, ? extends StructureFeature<?>>, FeatureConfiguration> STRUCTURE_FEATURES_DEFAULT = Util.make(
@@ -144,6 +150,7 @@ public class FlatLevelGeneratorSettings extends ChunkGeneratorSettings {
             param0.put(WOOLAND_MANSION_COMPOSITE_FEATURE, FeatureConfiguration.NONE);
             param0.put(FORTRESS_COMPOSITE_FEATURE, FeatureConfiguration.NONE);
             param0.put(PILLAGER_OUTPOST_COMPOSITE_FEATURE, FeatureConfiguration.NONE);
+            param0.put(BASTION_REMNANT_COMMPOSITE_FEATURE, new MultiJigsawConfiguration(BastionPieces.POOLS));
         }
     );
     private final List<FlatLayerInfo> layersInfo = Lists.newArrayList();
@@ -195,13 +202,13 @@ public class FlatLevelGeneratorSettings extends ChunkGeneratorSettings {
         for(FlatLayerInfo var3 : this.layersInfo) {
             for(int var4 = var3.getStart(); var4 < var3.getStart() + var3.getHeight(); ++var4) {
                 BlockState var5 = var3.getBlockState();
-                if (var5.getBlock() != Blocks.AIR) {
+                if (!var5.is(Blocks.AIR)) {
                     this.voidGen = false;
                     this.layers[var4] = var5;
                 }
             }
 
-            if (var3.getBlockState().getBlock() == Blocks.AIR) {
+            if (var3.getBlockState().is(Blocks.AIR)) {
                 var0 += var3.getHeight();
             } else {
                 this.seaLevel += var3.getHeight() + var0;

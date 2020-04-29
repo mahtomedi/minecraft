@@ -35,6 +35,7 @@ public class LiquidBlock extends Block implements BucketPickup {
     public static final IntegerProperty LEVEL = BlockStateProperties.LEVEL;
     protected final FlowingFluid fluid;
     private final List<FluidState> stateCache;
+    public static final VoxelShape STABLE_SHAPE = Block.box(0.0, 0.0, 0.0, 16.0, 8.0, 16.0);
 
     protected LiquidBlock(FlowingFluid param0, BlockBehaviour.Properties param1) {
         super(param1);
@@ -48,6 +49,15 @@ public class LiquidBlock extends Block implements BucketPickup {
 
         this.stateCache.add(param0.getFlowing(8, true));
         this.registerDefaultState(this.stateDefinition.any().setValue(LEVEL, Integer.valueOf(0)));
+    }
+
+    @Override
+    public VoxelShape getCollisionShape(BlockState param0, BlockGetter param1, BlockPos param2, CollisionContext param3) {
+        return param3.isAbove(STABLE_SHAPE, param2, true)
+                && param0.getValue(LEVEL) == 0
+                && param3.canStandOnFluid(param1.getFluidState(param2.above()), this.fluid)
+            ? STABLE_SHAPE
+            : Shapes.empty();
     }
 
     @Override
@@ -124,7 +134,7 @@ public class LiquidBlock extends Block implements BucketPickup {
 
     private boolean shouldSpreadLiquid(Level param0, BlockPos param1, BlockState param2) {
         if (this.fluid.is(FluidTags.LAVA)) {
-            boolean var0 = param0.getBlockState(param1.below()).getBlock() == Blocks.SOUL_SOIL;
+            boolean var0 = param0.getBlockState(param1.below()).is(Blocks.SOUL_SOIL);
 
             for(Direction var1 : Direction.values()) {
                 if (var1 != Direction.DOWN) {
@@ -136,7 +146,7 @@ public class LiquidBlock extends Block implements BucketPickup {
                         return false;
                     }
 
-                    if (var0 && param0.getBlockState(var2).getBlock() == Blocks.BLUE_ICE) {
+                    if (var0 && param0.getBlockState(var2).is(Blocks.BLUE_ICE)) {
                         param0.setBlockAndUpdate(param1, Blocks.BASALT.defaultBlockState());
                         this.fizz(param0, param1);
                         return false;

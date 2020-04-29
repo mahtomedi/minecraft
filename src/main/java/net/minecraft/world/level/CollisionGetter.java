@@ -103,7 +103,7 @@ public interface CollisionGetter extends BlockGetter {
                             if (var9 != null) {
                                 var8.set(var3, var4, var5);
                                 BlockState var10 = var9.getBlockState(var8);
-                                if ((var6 != 1 || var10.hasLargeCollisionShape()) && (var6 != 2 || var10.getBlock() == Blocks.MOVING_PISTON)) {
+                                if ((var6 != 1 || var10.hasLargeCollisionShape()) && (var6 != 2 || var10.is(Blocks.MOVING_PISTON))) {
                                     VoxelShape var11 = var10.getCollisionShape(CollisionGetter.this, var8, var6);
                                     if (var11 == Shapes.block()) {
                                         if (param1.intersects(

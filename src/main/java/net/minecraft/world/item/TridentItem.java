@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.ImmutableMultimap.Builder;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -31,10 +30,6 @@ public class TridentItem extends Item implements Vanishable {
 
     public TridentItem(Item.Properties param0) {
         super(param0);
-        this.addProperty(
-            new ResourceLocation("throwing"),
-            (param0x, param1, param2) -> param2 != null && param2.isUsingItem() && param2.getUseItem() == param0x ? 1.0F : 0.0F
-        );
         Builder<Attribute, AttributeModifier> var0 = ImmutableMultimap.builder();
         var0.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(BASE_ATTACK_DAMAGE_UUID, "Tool modifier", 8.0, AttributeModifier.Operation.ADDITION));
         var0.put(Attributes.ATTACK_SPEED, new AttributeModifier(BASE_ATTACK_SPEED_UUID, "Tool modifier", -2.9F, AttributeModifier.Operation.ADDITION));

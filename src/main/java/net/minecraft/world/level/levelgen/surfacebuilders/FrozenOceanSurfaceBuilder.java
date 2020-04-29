@@ -93,8 +93,8 @@ public class FrozenOceanSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBase
             BlockState var18 = param1.getBlockState(var2);
             if (var18.isAir()) {
                 var13 = -1;
-            } else if (var18.getBlock() != param7.getBlock()) {
-                if (var18.getBlock() == Blocks.PACKED_ICE && var14 <= var15 && var17 > var16) {
+            } else if (!var18.is(param7.getBlock())) {
+                if (var18.is(Blocks.PACKED_ICE) && var14 <= var15 && var17 > var16) {
                     param1.setBlockState(var2, SNOW_BLOCK, false);
                     ++var14;
                 }
@@ -128,9 +128,9 @@ public class FrozenOceanSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBase
             } else if (var13 > 0) {
                 --var13;
                 param1.setBlockState(var2, var10, false);
-                if (var13 == 0 && var10.getBlock() == Blocks.SAND && var12 > 1) {
+                if (var13 == 0 && var10.is(Blocks.SAND) && var12 > 1) {
                     var13 = param0.nextInt(4) + Math.max(0, var17 - 63);
-                    var10 = var10.getBlock() == Blocks.RED_SAND ? Blocks.RED_SANDSTONE.defaultBlockState() : Blocks.SANDSTONE.defaultBlockState();
+                    var10 = var10.is(Blocks.RED_SAND) ? Blocks.RED_SANDSTONE.defaultBlockState() : Blocks.SANDSTONE.defaultBlockState();
                 }
             }
         }

@@ -1,6 +1,5 @@
 package net.minecraft.advancements;
 
-import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
@@ -102,9 +101,9 @@ public class DisplayInfo {
         return this.hidden;
     }
 
-    public static DisplayInfo fromJson(JsonObject param0, JsonDeserializationContext param1) {
-        Component var0 = GsonHelper.getAsObject(param0, "title", param1, Component.class);
-        Component var1 = GsonHelper.getAsObject(param0, "description", param1, Component.class);
+    public static DisplayInfo fromJson(JsonObject param0) {
+        Component var0 = Component.Serializer.fromJson(param0.get("title"));
+        Component var1 = Component.Serializer.fromJson(param0.get("description"));
         if (var0 != null && var1 != null) {
             ItemStack var2 = getIcon(GsonHelper.getAsJsonObject(param0, "icon"));
             ResourceLocation var3 = param0.has("background") ? new ResourceLocation(GsonHelper.getAsString(param0, "background")) : null;

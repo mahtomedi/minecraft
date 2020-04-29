@@ -90,7 +90,7 @@ public class PistonBaseBlock extends DirectionalBlock {
 
     @Override
     public void onPlace(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
-        if (param3.getBlock() != param0.getBlock()) {
+        if (!param3.is(param0.getBlock())) {
             if (!param1.isClientSide && param1.getBlockEntity(param2) == null) {
                 this.checkIfExtend(param1, param2, param0);
             }
@@ -114,7 +114,7 @@ public class PistonBaseBlock extends DirectionalBlock {
             BlockPos var2 = param1.relative(var0, 2);
             BlockState var3 = param0.getBlockState(var2);
             int var4 = 1;
-            if (var3.getBlock() == Blocks.MOVING_PISTON && var3.getValue(FACING) == var0) {
+            if (var3.is(Blocks.MOVING_PISTON) && var3.getValue(FACING) == var0) {
                 BlockEntity var5 = param0.getBlockEntity(var2);
                 if (var5 instanceof PistonMovingBlockEntity) {
                     PistonMovingBlockEntity var6 = (PistonMovingBlockEntity)var5;
@@ -194,24 +194,23 @@ public class PistonBaseBlock extends DirectionalBlock {
             if (this.isSticky) {
                 BlockPos var4 = param2.offset(var0.getStepX() * 2, var0.getStepY() * 2, var0.getStepZ() * 2);
                 BlockState var5 = param1.getBlockState(var4);
-                Block var6 = var5.getBlock();
-                boolean var7 = false;
-                if (var6 == Blocks.MOVING_PISTON) {
-                    BlockEntity var8 = param1.getBlockEntity(var4);
-                    if (var8 instanceof PistonMovingBlockEntity) {
-                        PistonMovingBlockEntity var9 = (PistonMovingBlockEntity)var8;
-                        if (var9.getDirection() == var0 && var9.isExtending()) {
-                            var9.finalTick();
-                            var7 = true;
+                boolean var6 = false;
+                if (var5.is(Blocks.MOVING_PISTON)) {
+                    BlockEntity var7 = param1.getBlockEntity(var4);
+                    if (var7 instanceof PistonMovingBlockEntity) {
+                        PistonMovingBlockEntity var8 = (PistonMovingBlockEntity)var7;
+                        if (var8.getDirection() == var0 && var8.isExtending()) {
+                            var8.finalTick();
+                            var6 = true;
                         }
                     }
                 }
 
-                if (!var7) {
+                if (!var6) {
                     if (param3 != 1
                         || var5.isAir()
                         || !isPushable(var5, param1, var4, var0.getOpposite(), false, var0)
-                        || var5.getPistonPushReaction() != PushReaction.NORMAL && var6 != Blocks.PISTON && var6 != Blocks.STICKY_PISTON) {
+                        || var5.getPistonPushReaction() != PushReaction.NORMAL && !var5.is(Blocks.PISTON) && !var5.is(Blocks.STICKY_PISTON)) {
                         param1.removeBlock(param2.relative(var0), false);
                     } else {
                         this.moveBlocks(param1, param2, var0, false);
@@ -228,13 +227,12 @@ public class PistonBaseBlock extends DirectionalBlock {
     }
 
     public static boolean isPushable(BlockState param0, Level param1, BlockPos param2, Direction param3, boolean param4, Direction param5) {
-        Block var0 = param0.getBlock();
-        if (var0 != Blocks.OBSIDIAN && var0 != Blocks.CRYING_OBSIDIAN && var0 != Blocks.RESPAWN_ANCHOR) {
+        if (!param0.is(Blocks.OBSIDIAN) && !param0.is(Blocks.CRYING_OBSIDIAN) && !param0.is(Blocks.RESPAWN_ANCHOR)) {
             if (!param1.getWorldBorder().isWithinBounds(param2)) {
                 return false;
             } else if (param2.getY() >= 0 && (param3 != Direction.DOWN || param2.getY() != 0)) {
                 if (param2.getY() <= param1.getMaxBuildHeight() - 1 && (param3 != Direction.UP || param2.getY() != param1.getMaxBuildHeight() - 1)) {
-                    if (var0 != Blocks.PISTON && var0 != Blocks.STICKY_PISTON) {
+                    if (!param0.is(Blocks.PISTON) && !param0.is(Blocks.STICKY_PISTON)) {
                         if (param0.getDestroySpeed(param1, param2) == -1.0F) {
                             return false;
                         }
@@ -251,7 +249,7 @@ public class PistonBaseBlock extends DirectionalBlock {
                         return false;
                     }
 
-                    return !var0.isEntityBlock();
+                    return !param0.getBlock().isEntityBlock();
                 } else {
                     return false;
                 }
@@ -265,7 +263,7 @@ public class PistonBaseBlock extends DirectionalBlock {
 
     private boolean moveBlocks(Level param0, BlockPos param1, Direction param2, boolean param3) {
         BlockPos var0 = param1.relative(param2);
-        if (!param3 && param0.getBlockState(var0).getBlock() == Blocks.PISTON_HEAD) {
+        if (!param3 && param0.getBlockState(var0).is(Blocks.PISTON_HEAD)) {
             param0.setBlock(var0, Blocks.AIR.defaultBlockState(), 20);
         }
 

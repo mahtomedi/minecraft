@@ -255,7 +255,7 @@ public class UpgradeData {
         CHEST(Blocks.CHEST, Blocks.TRAPPED_CHEST) {
             @Override
             public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
-                if (param2.getBlock() == param0.getBlock()
+                if (param2.is(param0.getBlock())
                     && param1.getAxis().isHorizontal()
                     && param0.getValue(ChestBlock.TYPE) == ChestType.SINGLE
                     && param2.getValue(ChestBlock.TYPE) == ChestType.SINGLE) {
@@ -334,7 +334,7 @@ public class UpgradeData {
             public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
                 if (param0.getValue(StemBlock.AGE) == 7) {
                     StemGrownBlock var0 = ((StemBlock)param0.getBlock()).getFruit();
-                    if (param2.getBlock() == var0) {
+                    if (param2.is(var0)) {
                         return var0.getAttachedStem().defaultBlockState().setValue(HorizontalDirectionalBlock.FACING, param1);
                     }
                 }

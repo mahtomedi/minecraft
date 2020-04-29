@@ -73,10 +73,10 @@ public class LiquidBlockRenderer {
             return false;
         } else {
             boolean var12 = false;
-            float var13 = 0.5F;
-            float var14 = 1.0F;
-            float var15 = 0.8F;
-            float var16 = 0.6F;
+            float var13 = param0.getShade(Direction.DOWN, true);
+            float var14 = param0.getShade(Direction.UP, true);
+            float var15 = param0.getShade(Direction.NORTH, true);
+            float var16 = param0.getShade(Direction.WEST, true);
             float var17 = this.getWaterHeight(param0, param1, param3.getType());
             float var18 = this.getWaterHeight(param0, param1.south(), param3.getType());
             float var19 = this.getWaterHeight(param0, param1.east().south(), param3.getType());
@@ -141,9 +141,9 @@ public class LiquidBlockRenderer {
                 var33 = Mth.lerp(var53, var33, var50);
                 var35 = Mth.lerp(var53, var35, var50);
                 int var54 = this.getLightColor(param0, param1);
-                float var55 = 1.0F * var3;
-                float var56 = 1.0F * var4;
-                float var57 = 1.0F * var5;
+                float var55 = var14 * var3;
+                float var56 = var14 * var4;
+                float var57 = var14 * var5;
                 this.vertex(param2, var21 + 0.0, var22 + (double)var17, var23 + 0.0, var55, var56, var57, var28, var29, var54);
                 this.vertex(param2, var21 + 0.0, var22 + (double)var18, var23 + 1.0, var55, var56, var57, var30, var31, var54);
                 this.vertex(param2, var21 + 1.0, var22 + (double)var19, var23 + 1.0, var55, var56, var57, var32, var33, var54);
@@ -162,9 +162,9 @@ public class LiquidBlockRenderer {
                 float var60 = var1[0].getV0();
                 float var61 = var1[0].getV1();
                 int var62 = this.getLightColor(param0, param1.below());
-                float var63 = 0.5F * var3;
-                float var64 = 0.5F * var4;
-                float var65 = 0.5F * var5;
+                float var63 = var13 * var3;
+                float var64 = var13 * var4;
+                float var65 = var13 * var5;
                 this.vertex(param2, var21, var22 + (double)var25, var23 + 1.0, var63, var64, var65, var58, var61, var62);
                 this.vertex(param2, var21, var22 + (double)var25, var23, var63, var64, var65, var58, var60, var62);
                 this.vertex(param2, var21 + 1.0, var22 + (double)var25, var23, var63, var64, var65, var59, var60, var62);
@@ -236,10 +236,10 @@ public class LiquidBlockRenderer {
                     float var105 = var100.getV((double)((1.0F - var68) * 16.0F * 0.5F));
                     float var106 = var100.getV(8.0);
                     int var107 = this.getLightColor(param0, var99);
-                    float var108 = var66 < 2 ? 0.8F : 0.6F;
-                    float var109 = 1.0F * var108 * var3;
-                    float var110 = 1.0F * var108 * var4;
-                    float var111 = 1.0F * var108 * var5;
+                    float var108 = var66 < 2 ? var15 : var16;
+                    float var109 = var14 * var108 * var3;
+                    float var110 = var14 * var108 * var4;
+                    float var111 = var14 * var108 * var5;
                     this.vertex(param2, var69, var22 + (double)var67, var71, var109, var110, var111, var102, var104, var107);
                     this.vertex(param2, var70, var22 + (double)var68, var72, var109, var110, var111, var103, var105, var107);
                     this.vertex(param2, var70, var22 + (double)var25, var72, var109, var110, var111, var103, var106, var107);

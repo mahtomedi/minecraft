@@ -1,13 +1,13 @@
 package net.minecraft.client.particle;
 
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class CampfireSmokeParticle extends TextureSheetParticle {
-    private CampfireSmokeParticle(Level param0, double param1, double param2, double param3, double param4, double param5, double param6, boolean param7) {
+    private CampfireSmokeParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6, boolean param7) {
         super(param0, param1, param2, param3);
         this.scale(3.0F);
         this.setSize(0.25F, 0.25F);
@@ -56,7 +56,7 @@ public class CampfireSmokeParticle extends TextureSheetParticle {
         }
 
         public Particle createParticle(
-            SimpleParticleType param0, Level param1, double param2, double param3, double param4, double param5, double param6, double param7
+            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
             CampfireSmokeParticle var0 = new CampfireSmokeParticle(param1, param2, param3, param4, param5, param6, param7, false);
             var0.setAlpha(0.9F);
@@ -74,7 +74,7 @@ public class CampfireSmokeParticle extends TextureSheetParticle {
         }
 
         public Particle createParticle(
-            SimpleParticleType param0, Level param1, double param2, double param3, double param4, double param5, double param6, double param7
+            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
             CampfireSmokeParticle var0 = new CampfireSmokeParticle(param1, param2, param3, param4, param5, param6, param7, true);
             var0.setAlpha(0.95F);

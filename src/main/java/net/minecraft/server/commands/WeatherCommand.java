@@ -39,31 +39,19 @@ public class WeatherCommand {
     }
 
     private static int setClear(CommandSourceStack param0, int param1) {
-        param0.getLevel().getLevelData().setClearWeatherTime(param1);
-        param0.getLevel().getLevelData().setRainTime(0);
-        param0.getLevel().getLevelData().setThunderTime(0);
-        param0.getLevel().getLevelData().setRaining(false);
-        param0.getLevel().getLevelData().setThundering(false);
+        param0.getLevel().setWeatherParameters(param1, 0, false, false);
         param0.sendSuccess(new TranslatableComponent("commands.weather.set.clear"), true);
         return param1;
     }
 
     private static int setRain(CommandSourceStack param0, int param1) {
-        param0.getLevel().getLevelData().setClearWeatherTime(0);
-        param0.getLevel().getLevelData().setRainTime(param1);
-        param0.getLevel().getLevelData().setThunderTime(param1);
-        param0.getLevel().getLevelData().setRaining(true);
-        param0.getLevel().getLevelData().setThundering(false);
+        param0.getLevel().setWeatherParameters(0, param1, true, false);
         param0.sendSuccess(new TranslatableComponent("commands.weather.set.rain"), true);
         return param1;
     }
 
     private static int setThunder(CommandSourceStack param0, int param1) {
-        param0.getLevel().getLevelData().setClearWeatherTime(0);
-        param0.getLevel().getLevelData().setRainTime(param1);
-        param0.getLevel().getLevelData().setThunderTime(param1);
-        param0.getLevel().getLevelData().setRaining(true);
-        param0.getLevel().getLevelData().setThundering(true);
+        param0.getLevel().setWeatherParameters(0, param1, true, true);
         param0.sendSuccess(new TranslatableComponent("commands.weather.set.thunder"), true);
         return param1;
     }

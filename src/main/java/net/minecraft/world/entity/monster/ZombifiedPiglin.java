@@ -30,6 +30,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 
 public class ZombifiedPiglin extends Zombie {
@@ -117,7 +118,7 @@ public class ZombifiedPiglin extends Zombie {
     public static boolean checkZombifiedPiglinSpawnRules(
         EntityType<ZombifiedPiglin> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4
     ) {
-        return param1.getDifficulty() != Difficulty.PEACEFUL;
+        return param1.getDifficulty() != Difficulty.PEACEFUL && param1.getBlockState(param3.below()).getBlock() != Blocks.NETHER_WART_BLOCK;
     }
 
     @Override

@@ -78,8 +78,12 @@ public final class TextColor {
     @Nullable
     public static TextColor parseColor(String param0) {
         if (param0.startsWith("#")) {
-            int var0 = Integer.parseInt(param0.substring(1), 16);
-            return fromRgb(var0);
+            try {
+                int var0 = Integer.parseInt(param0.substring(1), 16);
+                return fromRgb(var0);
+            } catch (NumberFormatException var2) {
+                return null;
+            }
         } else {
             return NAMED_COLORS.get(param0);
         }

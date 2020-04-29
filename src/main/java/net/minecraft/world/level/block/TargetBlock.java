@@ -100,7 +100,7 @@ public class TargetBlock extends Block {
 
     @Override
     public void onPlace(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
-        if (!param1.isClientSide() && param0.getBlock() != param3.getBlock()) {
+        if (!param1.isClientSide() && !param0.is(param3.getBlock())) {
             if (param0.getValue(OUTPUT_POWER) > 0 && !param1.getBlockTicks().hasScheduledTick(param2, this)) {
                 param1.setBlock(param2, param0.setValue(OUTPUT_POWER, Integer.valueOf(0)), 18);
             }

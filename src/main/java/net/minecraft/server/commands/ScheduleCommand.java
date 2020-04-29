@@ -29,7 +29,7 @@ public class ScheduleCommand {
         param0 -> new TranslatableComponent("commands.schedule.cleared.failure", param0)
     );
     private static final SuggestionProvider<CommandSourceStack> SUGGEST_SCHEDULE = (param0, param1) -> SharedSuggestionProvider.suggest(
-            param0.getSource().getLevel().getLevelData().getScheduledEvents().getEventsIds(), param1
+            param0.getSource().getServer().getWorldData().overworldData().getScheduledEvents().getEventsIds(), param1
         );
 
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
@@ -95,7 +95,7 @@ public class ScheduleCommand {
         } else {
             long var0 = param0.getLevel().getGameTime() + (long)param2;
             ResourceLocation var1 = param1.getFirst();
-            TimerQueue<MinecraftServer> var2 = param0.getLevel().getLevelData().getScheduledEvents();
+            TimerQueue<MinecraftServer> var2 = param0.getServer().getWorldData().overworldData().getScheduledEvents();
             param1.getSecond().ifLeft(param6 -> {
                 String var0x = var1.toString();
                 if (param3) {
@@ -118,7 +118,7 @@ public class ScheduleCommand {
     }
 
     private static int remove(CommandSourceStack param0, String param1) throws CommandSyntaxException {
-        int var0 = param0.getLevel().getLevelData().getScheduledEvents().remove(param1);
+        int var0 = param0.getServer().getWorldData().overworldData().getScheduledEvents().remove(param1);
         if (var0 == 0) {
             throw ERROR_CANT_REMOVE.create(param1);
         } else {

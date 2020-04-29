@@ -142,7 +142,7 @@ public class ChestBlock extends AbstractChestBlock<ChestBlockEntity> implements 
             param3.getLiquidTicks().scheduleTick(param4, Fluids.WATER, Fluids.WATER.getTickDelay(param3));
         }
 
-        if (param2.getBlock() == this && param1.getAxis().isHorizontal()) {
+        if (param2.is(this) && param1.getAxis().isHorizontal()) {
             ChestType var0 = param2.getValue(TYPE);
             if (param0.getValue(TYPE) == ChestType.SINGLE
                 && var0 != ChestType.SINGLE
@@ -215,7 +215,7 @@ public class ChestBlock extends AbstractChestBlock<ChestBlockEntity> implements 
     @Nullable
     private Direction candidatePartnerFacing(BlockPlaceContext param0, Direction param1) {
         BlockState var0 = param0.getLevel().getBlockState(param0.getClickedPos().relative(param1));
-        return var0.getBlock() == this && var0.getValue(TYPE) == ChestType.SINGLE ? var0.getValue(FACING) : null;
+        return var0.is(this) && var0.getValue(TYPE) == ChestType.SINGLE ? var0.getValue(FACING) : null;
     }
 
     @Override
@@ -231,7 +231,7 @@ public class ChestBlock extends AbstractChestBlock<ChestBlockEntity> implements 
 
     @Override
     public void onRemove(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
-        if (param0.getBlock() != param3.getBlock()) {
+        if (!param0.is(param3.getBlock())) {
             BlockEntity var0 = param1.getBlockEntity(param2);
             if (var0 instanceof Container) {
                 Containers.dropContents(param1, param2, (Container)var0);

@@ -1,6 +1,7 @@
 package net.minecraft.client.gui.screens.worldselection;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.datafixers.DataFixer;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenCustomHashMap;
@@ -29,15 +30,15 @@ public class OptimizeWorldScreen extends Screen {
     private final BooleanConsumer callback;
     private final WorldUpgrader upgrader;
 
-    public static OptimizeWorldScreen create(BooleanConsumer param0, LevelStorageSource.LevelStorageAccess param1, boolean param2) {
-        WorldData var0 = param1.getDataTag();
-        return new OptimizeWorldScreen(param0, param1, var0, param2);
+    public static OptimizeWorldScreen create(BooleanConsumer param0, DataFixer param1, LevelStorageSource.LevelStorageAccess param2, boolean param3) {
+        WorldData var0 = param2.getDataTag();
+        return new OptimizeWorldScreen(param0, param1, param2, var0, param3);
     }
 
-    private OptimizeWorldScreen(BooleanConsumer param0, LevelStorageSource.LevelStorageAccess param1, WorldData param2, boolean param3) {
-        super(new TranslatableComponent("optimizeWorld.title", param2.getLevelName()));
+    private OptimizeWorldScreen(BooleanConsumer param0, DataFixer param1, LevelStorageSource.LevelStorageAccess param2, WorldData param3, boolean param4) {
+        super(new TranslatableComponent("optimizeWorld.title", param3.getLevelName()));
         this.callback = param0;
-        this.upgrader = new WorldUpgrader(param1, this.minecraft.getFixerUpper(), param2, param3);
+        this.upgrader = new WorldUpgrader(param2, param1, param3, param4);
     }
 
     @Override

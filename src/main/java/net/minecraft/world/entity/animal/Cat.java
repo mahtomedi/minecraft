@@ -6,7 +6,6 @@ import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -519,8 +518,9 @@ public class Cat extends TamableAnimal {
                     BlockPos var1 = this.ownerPlayer.blockPosition();
                     BlockState var2 = this.cat.level.getBlockState(var1);
                     if (var2.getBlock().is(BlockTags.BEDS)) {
-                        Direction var3 = var2.getValue(BedBlock.FACING);
-                        this.goalPos = new BlockPos(var1.getX() - var3.getStepX(), var1.getY(), var1.getZ() - var3.getStepZ());
+                        this.goalPos = var2.getOptionalValue(BedBlock.FACING)
+                            .map(param1 -> var1.relative(param1.getOpposite()))
+                            .orElseGet(() -> new BlockPos(var1));
                         return !this.spaceIsOccupied();
                     }
                 }

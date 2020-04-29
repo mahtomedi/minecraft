@@ -6,6 +6,7 @@ import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.util.Pair;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -238,7 +239,10 @@ public class Zoglin extends Monster implements Enemy, HoglinBase {
     @Override
     public void setBaby(boolean param0) {
         this.getEntityData().set(DATA_BABY_ID, param0);
-        this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(0.5);
+        if (!this.level.isClientSide && param0) {
+            this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(0.5);
+        }
+
     }
 
     @Override
@@ -306,5 +310,23 @@ public class Zoglin extends Monster implements Enemy, HoglinBase {
     @Override
     public MobType getMobType() {
         return MobType.UNDEAD;
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundTag param0) {
+        super.addAdditionalSaveData(param0);
+        if (this.isBaby()) {
+            param0.putBoolean("IsBaby", true);
+        }
+
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag param0) {
+        super.readAdditionalSaveData(param0);
+        if (param0.getBoolean("IsBaby")) {
+            this.setBaby(true);
+        }
+
     }
 }

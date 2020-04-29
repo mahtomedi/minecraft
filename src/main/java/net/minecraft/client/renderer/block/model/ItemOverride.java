@@ -10,13 +10,14 @@ import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.Nullable;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.client.renderer.item.ItemPropertyFunction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemPropertyFunction;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -34,11 +35,11 @@ public class ItemOverride {
         return this.model;
     }
 
-    boolean test(ItemStack param0, @Nullable Level param1, @Nullable LivingEntity param2) {
+    boolean test(ItemStack param0, @Nullable ClientLevel param1, @Nullable LivingEntity param2) {
         Item var0 = param0.getItem();
 
         for(Entry<ResourceLocation, Float> var1 : this.predicates.entrySet()) {
-            ItemPropertyFunction var2 = var0.getProperty(var1.getKey());
+            ItemPropertyFunction var2 = ItemProperties.getProperty(var0, var1.getKey());
             if (var2 == null || var2.call(param0, param1, param2) < var1.getValue()) {
                 return false;
             }

@@ -1,7 +1,5 @@
 package net.minecraft.advancements.critereon;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
@@ -23,16 +21,16 @@ public class ItemUsedOnBlockTrigger extends SimpleCriterionTrigger<ItemUsedOnBlo
         return this.id;
     }
 
-    public ItemUsedOnBlockTrigger.TriggerInstance createInstance(JsonObject param0, JsonDeserializationContext param1) {
+    public ItemUsedOnBlockTrigger.TriggerInstance createInstance(JsonObject param0, EntityPredicate.Composite param1, DeserializationContext param2) {
         BlockPredicate var0 = BlockPredicate.fromJson(param0.get("block"));
         StatePropertiesPredicate var1 = StatePropertiesPredicate.fromJson(param0.get("state"));
         ItemPredicate var2 = ItemPredicate.fromJson(param0.get("item"));
-        return new ItemUsedOnBlockTrigger.TriggerInstance(this.id, var0, var1, var2);
+        return new ItemUsedOnBlockTrigger.TriggerInstance(this.id, param1, var0, var1, var2);
     }
 
     public void trigger(ServerPlayer param0, BlockPos param1, ItemStack param2) {
         BlockState var0 = param0.getLevel().getBlockState(param1);
-        this.trigger(param0.getAdvancements(), param4 -> param4.matches(var0, param0.getLevel(), param1, param2));
+        this.trigger(param0, param4 -> param4.matches(var0, param0.getLevel(), param1, param2));
     }
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
@@ -40,16 +38,18 @@ public class ItemUsedOnBlockTrigger extends SimpleCriterionTrigger<ItemUsedOnBlo
         private final StatePropertiesPredicate state;
         private final ItemPredicate item;
 
-        public TriggerInstance(ResourceLocation param0, BlockPredicate param1, StatePropertiesPredicate param2, ItemPredicate param3) {
-            super(param0);
-            this.block = param1;
-            this.state = param2;
-            this.item = param3;
+        public TriggerInstance(
+            ResourceLocation param0, EntityPredicate.Composite param1, BlockPredicate param2, StatePropertiesPredicate param3, ItemPredicate param4
+        ) {
+            super(param0, param1);
+            this.block = param2;
+            this.state = param3;
+            this.item = param4;
         }
 
         public static ItemUsedOnBlockTrigger.TriggerInstance safelyHarvestedHoney(BlockPredicate.Builder param0, ItemPredicate.Builder param1) {
             return new ItemUsedOnBlockTrigger.TriggerInstance(
-                CriteriaTriggers.SAFELY_HARVEST_HONEY.id, param0.build(), StatePropertiesPredicate.ANY, param1.build()
+                CriteriaTriggers.SAFELY_HARVEST_HONEY.id, EntityPredicate.Composite.ANY, param0.build(), StatePropertiesPredicate.ANY, param1.build()
             );
         }
 
@@ -64,8 +64,8 @@ public class ItemUsedOnBlockTrigger extends SimpleCriterionTrigger<ItemUsedOnBlo
         }
 
         @Override
-        public JsonElement serializeToJson() {
-            JsonObject var0 = new JsonObject();
+        public JsonObject serializeToJson(SerializationContext param0) {
+            JsonObject var0 = super.serializeToJson(param0);
             var0.add("block", this.block.serializeToJson());
             var0.add("state", this.state.serializeToJson());
             var0.add("item", this.item.serializeToJson());

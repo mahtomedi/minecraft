@@ -144,7 +144,7 @@ public class GameTestRunner {
         param2.clear();
         BlockPos var0 = param1.offset(-param3, 0, -param3);
         BlockPos var1 = param1.offset(param3, 0, param3);
-        BlockPos.betweenClosedStream(var0, var1).filter(param1x -> param0.getBlockState(param1x).getBlock() == Blocks.STRUCTURE_BLOCK).forEach(param1x -> {
+        BlockPos.betweenClosedStream(var0, var1).filter(param1x -> param0.getBlockState(param1x).is(Blocks.STRUCTURE_BLOCK)).forEach(param1x -> {
             StructureBlockEntity var0x = (StructureBlockEntity)param0.getBlockEntity(param1x);
             BlockPos var1x = var0x.getBlockPos();
             BoundingBox var2x = StructureUtils.createStructureBoundingBox(var1x, var0x.getStructureSize(), 2);

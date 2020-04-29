@@ -2,13 +2,10 @@ package net.minecraft.advancements;
 
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -139,6 +136,32 @@ public class AdvancementRewards {
         }
     }
 
+    public static AdvancementRewards deserialize(JsonObject param0) throws JsonParseException {
+        int var0 = GsonHelper.getAsInt(param0, "experience", 0);
+        JsonArray var1 = GsonHelper.getAsJsonArray(param0, "loot", new JsonArray());
+        ResourceLocation[] var2 = new ResourceLocation[var1.size()];
+
+        for(int var3 = 0; var3 < var2.length; ++var3) {
+            var2[var3] = new ResourceLocation(GsonHelper.convertToString(var1.get(var3), "loot[" + var3 + "]"));
+        }
+
+        JsonArray var4 = GsonHelper.getAsJsonArray(param0, "recipes", new JsonArray());
+        ResourceLocation[] var5 = new ResourceLocation[var4.size()];
+
+        for(int var6 = 0; var6 < var5.length; ++var6) {
+            var5[var6] = new ResourceLocation(GsonHelper.convertToString(var4.get(var6), "recipes[" + var6 + "]"));
+        }
+
+        CommandFunction.CacheableFunction var7;
+        if (param0.has("function")) {
+            var7 = new CommandFunction.CacheableFunction(new ResourceLocation(GsonHelper.getAsString(param0, "function")));
+        } else {
+            var7 = CommandFunction.CacheableFunction.NONE;
+        }
+
+        return new AdvancementRewards(var0, var2, var5, var7);
+    }
+
     public static class Builder {
         private int experience;
         private final List<ResourceLocation> loot = Lists.newArrayList();
@@ -171,35 +194,6 @@ public class AdvancementRewards {
                 this.recipes.toArray(new ResourceLocation[0]),
                 this.function == null ? CommandFunction.CacheableFunction.NONE : new CommandFunction.CacheableFunction(this.function)
             );
-        }
-    }
-
-    public static class Deserializer implements JsonDeserializer<AdvancementRewards> {
-        public AdvancementRewards deserialize(JsonElement param0, Type param1, JsonDeserializationContext param2) throws JsonParseException {
-            JsonObject var0 = GsonHelper.convertToJsonObject(param0, "rewards");
-            int var1 = GsonHelper.getAsInt(var0, "experience", 0);
-            JsonArray var2 = GsonHelper.getAsJsonArray(var0, "loot", new JsonArray());
-            ResourceLocation[] var3 = new ResourceLocation[var2.size()];
-
-            for(int var4 = 0; var4 < var3.length; ++var4) {
-                var3[var4] = new ResourceLocation(GsonHelper.convertToString(var2.get(var4), "loot[" + var4 + "]"));
-            }
-
-            JsonArray var5 = GsonHelper.getAsJsonArray(var0, "recipes", new JsonArray());
-            ResourceLocation[] var6 = new ResourceLocation[var5.size()];
-
-            for(int var7 = 0; var7 < var6.length; ++var7) {
-                var6[var7] = new ResourceLocation(GsonHelper.convertToString(var5.get(var7), "recipes[" + var7 + "]"));
-            }
-
-            CommandFunction.CacheableFunction var8;
-            if (var0.has("function")) {
-                var8 = new CommandFunction.CacheableFunction(new ResourceLocation(GsonHelper.getAsString(var0, "function")));
-            } else {
-                var8 = CommandFunction.CacheableFunction.NONE;
-            }
-
-            return new AdvancementRewards(var1, var3, var6, var8);
         }
     }
 }

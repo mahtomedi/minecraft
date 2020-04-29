@@ -56,7 +56,7 @@ public class NetherPortalBlock extends Block {
         if (param1.dimension.isNaturalDimension()
             && param1.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING)
             && param3.nextInt(2000) < param1.getDifficulty().getId()) {
-            while(param1.getBlockState(param2).getBlock() == this) {
+            while(param1.getBlockState(param2).is(this)) {
                 param2 = param2.below();
             }
 
@@ -96,7 +96,7 @@ public class NetherPortalBlock extends Block {
         Direction.Axis var0 = param1.getAxis();
         Direction.Axis var1 = param0.getValue(AXIS);
         boolean var2 = var1 != var0 && var0.isHorizontal();
-        return !var2 && param2.getBlock() != this && !new NetherPortalBlock.PortalShape(param3, param4, var1).isComplete()
+        return !var2 && !param2.is(this) && !new NetherPortalBlock.PortalShape(param3, param4, var1).isComplete()
             ? Blocks.AIR.defaultBlockState()
             : super.updateShape(param0, param1, param2, param3, param4, param5);
     }
@@ -133,7 +133,7 @@ public class NetherPortalBlock extends Block {
             double var5 = ((double)param3.nextFloat() - 0.5) * 0.5;
             double var6 = ((double)param3.nextFloat() - 0.5) * 0.5;
             int var7 = param3.nextInt(2) * 2 - 1;
-            if (param1.getBlockState(param2.west()).getBlock() != this && param1.getBlockState(param2.east()).getBlock() != this) {
+            if (!param1.getBlockState(param2.west()).is(this) && !param1.getBlockState(param2.east()).is(this)) {
                 var1 = (double)param2.getX() + 0.5 + 0.25 * (double)var7;
                 var4 = (double)(param3.nextFloat() * 2.0F * (float)var7);
             } else {
@@ -280,13 +280,12 @@ public class NetherPortalBlock extends Block {
             int var0;
             for(var0 = 0; var0 < 22; ++var0) {
                 BlockPos var1 = param0.relative(param1, var0);
-                if (!this.isEmpty(this.level.getBlockState(var1)) || this.level.getBlockState(var1.below()).getBlock() != Blocks.OBSIDIAN) {
+                if (!this.isEmpty(this.level.getBlockState(var1)) || !this.level.getBlockState(var1.below()).is(Blocks.OBSIDIAN)) {
                     break;
                 }
             }
 
-            Block var2 = this.level.getBlockState(param0.relative(param1, var0)).getBlock();
-            return var2 == Blocks.OBSIDIAN ? var0 : 0;
+            return this.level.getBlockState(param0.relative(param1, var0)).is(Blocks.OBSIDIAN) ? var0 : 0;
         }
 
         public int getHeight() {
@@ -307,27 +306,22 @@ public class NetherPortalBlock extends Block {
                         break label56;
                     }
 
-                    Block var3 = var2.getBlock();
-                    if (var3 == Blocks.NETHER_PORTAL) {
+                    if (var2.is(Blocks.NETHER_PORTAL)) {
                         ++this.numPortalBlocks;
                     }
 
                     if (var0 == 0) {
-                        var3 = this.level.getBlockState(var1.relative(this.leftDir)).getBlock();
-                        if (var3 != Blocks.OBSIDIAN) {
+                        if (!this.level.getBlockState(var1.relative(this.leftDir)).is(Blocks.OBSIDIAN)) {
                             break label56;
                         }
-                    } else if (var0 == this.width - 1) {
-                        var3 = this.level.getBlockState(var1.relative(this.rightDir)).getBlock();
-                        if (var3 != Blocks.OBSIDIAN) {
-                            break label56;
-                        }
+                    } else if (var0 == this.width - 1 && !this.level.getBlockState(var1.relative(this.rightDir)).is(Blocks.OBSIDIAN)) {
+                        break label56;
                     }
                 }
             }
 
-            for(int var4 = 0; var4 < this.width; ++var4) {
-                if (this.level.getBlockState(this.bottomLeft.relative(this.rightDir, var4).above(this.height)).getBlock() != Blocks.OBSIDIAN) {
+            for(int var3 = 0; var3 < this.width; ++var3) {
+                if (!this.level.getBlockState(this.bottomLeft.relative(this.rightDir, var3).above(this.height)).is(Blocks.OBSIDIAN)) {
                     this.height = 0;
                     break;
                 }
@@ -344,8 +338,7 @@ public class NetherPortalBlock extends Block {
         }
 
         protected boolean isEmpty(BlockState param0) {
-            Block var0 = param0.getBlock();
-            return param0.isAir() || param0.is(BlockTags.FIRE) || var0 == Blocks.NETHER_PORTAL;
+            return param0.isAir() || param0.is(BlockTags.FIRE) || param0.is(Blocks.NETHER_PORTAL);
         }
 
         public boolean isValid() {

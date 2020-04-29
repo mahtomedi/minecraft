@@ -530,6 +530,7 @@ public abstract class Mob extends LivingEntity {
             }
 
             this.setItemSlotAndDropWhenKilled(var0, param0);
+            this.playEquipSound(param0);
             return true;
         } else {
             return false;
@@ -633,7 +634,7 @@ public abstract class Mob extends LivingEntity {
     }
 
     public boolean requiresCustomPersistence() {
-        return false;
+        return this.isPassenger();
     }
 
     protected boolean shouldDespawnInPeaceful() {

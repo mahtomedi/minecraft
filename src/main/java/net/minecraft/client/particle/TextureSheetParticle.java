@@ -1,7 +1,7 @@
 package net.minecraft.client.particle;
 
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -9,11 +9,11 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public abstract class TextureSheetParticle extends SingleQuadParticle {
     protected TextureAtlasSprite sprite;
 
-    protected TextureSheetParticle(Level param0, double param1, double param2, double param3) {
+    protected TextureSheetParticle(ClientLevel param0, double param1, double param2, double param3) {
         super(param0, param1, param2, param3);
     }
 
-    protected TextureSheetParticle(Level param0, double param1, double param2, double param3, double param4, double param5, double param6) {
+    protected TextureSheetParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6) {
         super(param0, param1, param2, param3, param4, param5, param6);
     }
 

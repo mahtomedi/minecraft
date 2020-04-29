@@ -706,8 +706,7 @@ public class StructureTemplate {
         }
 
         public List<StructureTemplate.StructureBlockInfo> blocks(Block param0) {
-            return this.cache
-                .computeIfAbsent(param0, param0x -> this.blocks.stream().filter(param1 -> param1.state.getBlock() == param0x).collect(Collectors.toList()));
+            return this.cache.computeIfAbsent(param0, param0x -> this.blocks.stream().filter(param1 -> param1.state.is(param0x)).collect(Collectors.toList()));
         }
     }
 

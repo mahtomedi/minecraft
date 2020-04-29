@@ -38,13 +38,13 @@ public class GrassBlock extends SpreadingSnowyDirtBlock implements BonemealableB
 
             for(int var4 = 0; var4 < var2 / 16; ++var4) {
                 var3 = var3.offset(param1.nextInt(3) - 1, (param1.nextInt(3) - 1) * param1.nextInt(3) / 2, param1.nextInt(3) - 1);
-                if (param0.getBlockState(var3.below()).getBlock() != this || param0.getBlockState(var3).isCollisionShapeFullBlock(param0, var3)) {
+                if (!param0.getBlockState(var3.below()).is(this) || param0.getBlockState(var3).isCollisionShapeFullBlock(param0, var3)) {
                     continue label48;
                 }
             }
 
             BlockState var5 = param0.getBlockState(var3);
-            if (var5.getBlock() == var1.getBlock() && param1.nextInt(10) == 0) {
+            if (var5.is(var1.getBlock()) && param1.nextInt(10) == 0) {
                 ((BonemealableBlock)var1.getBlock()).performBonemeal(param0, param1, var3, var5);
             }
 

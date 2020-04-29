@@ -32,7 +32,7 @@ public class EatBlockGoal extends Goal {
             if (IS_TALL_GRASS.test(this.level.getBlockState(var0))) {
                 return true;
             } else {
-                return this.level.getBlockState(var0.below()).getBlock() == Blocks.GRASS_BLOCK;
+                return this.level.getBlockState(var0.below()).is(Blocks.GRASS_BLOCK);
             }
         }
     }
@@ -71,7 +71,7 @@ public class EatBlockGoal extends Goal {
                 this.mob.ate();
             } else {
                 BlockPos var1 = var0.below();
-                if (this.level.getBlockState(var1).getBlock() == Blocks.GRASS_BLOCK) {
+                if (this.level.getBlockState(var1).is(Blocks.GRASS_BLOCK)) {
                     if (this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
                         this.level.levelEvent(2001, var1, Block.getId(Blocks.GRASS_BLOCK.defaultBlockState()));
                         this.level.setBlock(var1, Blocks.DIRT.defaultBlockState(), 2);

@@ -81,11 +81,10 @@ public class SnowLayerBlock extends Block {
     @Override
     public boolean canSurvive(BlockState param0, LevelReader param1, BlockPos param2) {
         BlockState var0 = param1.getBlockState(param2.below());
-        Block var1 = var0.getBlock();
-        if (var1 == Blocks.ICE || var1 == Blocks.PACKED_ICE || var1 == Blocks.BARRIER) {
+        if (var0.is(Blocks.ICE) || var0.is(Blocks.PACKED_ICE) || var0.is(Blocks.BARRIER)) {
             return false;
-        } else if (var1 != Blocks.HONEY_BLOCK && var1 != Blocks.SOUL_SAND) {
-            return Block.isFaceFull(var0.getCollisionShape(param1, param2.below()), Direction.UP) || var1 == this && var0.getValue(LAYERS) == 8;
+        } else if (!var0.is(Blocks.HONEY_BLOCK) && !var0.is(Blocks.SOUL_SAND)) {
+            return Block.isFaceFull(var0.getCollisionShape(param1, param2.below()), Direction.UP) || var0.getBlock() == this && var0.getValue(LAYERS) == 8;
         } else {
             return true;
         }
@@ -121,7 +120,7 @@ public class SnowLayerBlock extends Block {
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext param0) {
         BlockState var0 = param0.getLevel().getBlockState(param0.getClickedPos());
-        if (var0.getBlock() == this) {
+        if (var0.is(this)) {
             int var1 = var0.getValue(LAYERS);
             return var0.setValue(LAYERS, Integer.valueOf(Math.min(8, var1 + 1)));
         } else {

@@ -175,9 +175,7 @@ public class Turtle extends Animal {
     }
 
     public static boolean checkTurtleSpawnRules(EntityType<Turtle> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
-        return param3.getY() < param1.getSeaLevel() + 4
-            && param1.getBlockState(param3.below()).getBlock() == Blocks.SAND
-            && param1.getRawBrightness(param3, 0) > 8;
+        return param3.getY() < param1.getSeaLevel() + 4 && param1.getBlockState(param3.below()).is(Blocks.SAND) && param1.getRawBrightness(param3, 0) > 8;
     }
 
     @Override
@@ -287,7 +285,7 @@ public class Turtle extends Animal {
         if (!this.isGoingHome() && param1.getFluidState(param0).is(FluidTags.WATER)) {
             return 10.0F;
         } else {
-            return param1.getBlockState(param0.below()).getBlock() == Blocks.SAND ? 10.0F : param1.getBrightness(param0) - 0.5F;
+            return param1.getBlockState(param0.below()).is(Blocks.SAND) ? 10.0F : param1.getBrightness(param0) - 0.5F;
         }
     }
 
@@ -296,7 +294,7 @@ public class Turtle extends Animal {
         super.aiStep();
         if (this.isAlive() && this.isLayingEgg() && this.layEggCounter >= 1 && this.layEggCounter % 5 == 0) {
             BlockPos var0 = this.blockPosition();
-            if (this.level.getBlockState(var0.below()).getBlock() == Blocks.SAND) {
+            if (this.level.getBlockState(var0.below()).is(Blocks.SAND)) {
                 this.level.levelEvent(2001, var0, Block.getId(Blocks.SAND.defaultBlockState()));
             }
         }
@@ -429,7 +427,7 @@ public class Turtle extends Animal {
                     var3 = RandomPos.getPosTowards(this.turtle, 8, 7, var2);
                 }
 
-                if (var3 != null && !var1 && this.turtle.level.getBlockState(new BlockPos(var3)).getBlock() != Blocks.WATER) {
+                if (var3 != null && !var1 && !this.turtle.level.getBlockState(new BlockPos(var3)).is(Blocks.WATER)) {
                     var3 = RandomPos.getPosTowards(this.turtle, 16, 5, var2);
                 }
 
@@ -474,8 +472,7 @@ public class Turtle extends Animal {
 
         @Override
         protected boolean isValidTarget(LevelReader param0, BlockPos param1) {
-            Block var0 = param0.getBlockState(param1).getBlock();
-            return var0 == Blocks.WATER;
+            return param0.getBlockState(param1).is(Blocks.WATER);
         }
     }
 
@@ -526,12 +523,7 @@ public class Turtle extends Animal {
 
         @Override
         protected boolean isValidTarget(LevelReader param0, BlockPos param1) {
-            if (!param0.isEmptyBlock(param1.above())) {
-                return false;
-            } else {
-                Block var0 = param0.getBlockState(param1).getBlock();
-                return var0 == Blocks.SAND;
-            }
+            return !param0.isEmptyBlock(param1.above()) ? false : param0.getBlockState(param1).is(Blocks.SAND);
         }
     }
 
@@ -624,7 +616,7 @@ public class Turtle extends Animal {
             if (this.mob instanceof Turtle) {
                 Turtle var0 = (Turtle)this.mob;
                 if (var0.isTravelling()) {
-                    return this.level.getBlockState(param0).getBlock() == Blocks.WATER;
+                    return this.level.getBlockState(param0).is(Blocks.WATER);
                 }
             }
 

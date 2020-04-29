@@ -4,8 +4,8 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.Camera;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -14,11 +14,11 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public abstract class SingleQuadParticle extends Particle {
     protected float quadSize = 0.1F * (this.random.nextFloat() * 0.5F + 0.5F) * 2.0F;
 
-    protected SingleQuadParticle(Level param0, double param1, double param2, double param3) {
+    protected SingleQuadParticle(ClientLevel param0, double param1, double param2, double param3) {
         super(param0, param1, param2, param3);
     }
 
-    protected SingleQuadParticle(Level param0, double param1, double param2, double param3, double param4, double param5, double param6) {
+    protected SingleQuadParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6) {
         super(param0, param1, param2, param3, param4, param5, param6);
     }
 

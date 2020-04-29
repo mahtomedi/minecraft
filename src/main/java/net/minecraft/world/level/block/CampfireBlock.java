@@ -101,7 +101,7 @@ public class CampfireBlock extends BaseEntityBlock implements SimpleWaterloggedB
 
     @Override
     public void onRemove(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
-        if (param0.getBlock() != param3.getBlock()) {
+        if (!param0.is(param3.getBlock())) {
             BlockEntity var0 = param1.getBlockEntity(param2);
             if (var0 instanceof CampfireBlockEntity) {
                 Containers.dropContents(param1, param2, ((CampfireBlockEntity)var0).getItems());
@@ -136,7 +136,7 @@ public class CampfireBlock extends BaseEntityBlock implements SimpleWaterloggedB
     }
 
     private boolean isSmokeSource(BlockState param0) {
-        return param0.getBlock() == Blocks.HAY_BLOCK;
+        return param0.is(Blocks.HAY_BLOCK);
     }
 
     @Override

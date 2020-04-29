@@ -1,15 +1,15 @@
 package net.minecraft.client.particle;
 
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class WaterDropParticle extends TextureSheetParticle {
-    protected WaterDropParticle(Level param0, double param1, double param2, double param3) {
+    protected WaterDropParticle(ClientLevel param0, double param1, double param2, double param3) {
         super(param0, param1, param2, param3, 0.0, 0.0, 0.0);
         this.xd *= 0.3F;
         this.yd = Math.random() * 0.2F + 0.1F;
@@ -70,7 +70,7 @@ public class WaterDropParticle extends TextureSheetParticle {
         }
 
         public Particle createParticle(
-            SimpleParticleType param0, Level param1, double param2, double param3, double param4, double param5, double param6, double param7
+            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
             WaterDropParticle var0 = new WaterDropParticle(param1, param2, param3, param4);
             var0.pickSprite(this.sprite);

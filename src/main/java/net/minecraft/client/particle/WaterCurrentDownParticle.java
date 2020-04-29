@@ -1,10 +1,10 @@
 package net.minecraft.client.particle;
 
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -12,7 +12,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class WaterCurrentDownParticle extends TextureSheetParticle {
     private float angle;
 
-    private WaterCurrentDownParticle(Level param0, double param1, double param2, double param3) {
+    private WaterCurrentDownParticle(ClientLevel param0, double param1, double param2, double param3) {
         super(param0, param1, param2, param3);
         this.lifetime = (int)(Math.random() * 60.0) + 30;
         this.hasPhysics = false;
@@ -60,7 +60,7 @@ public class WaterCurrentDownParticle extends TextureSheetParticle {
         }
 
         public Particle createParticle(
-            SimpleParticleType param0, Level param1, double param2, double param3, double param4, double param5, double param6, double param7
+            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
             WaterCurrentDownParticle var0 = new WaterCurrentDownParticle(param1, param2, param3, param4);
             var0.pickSprite(this.sprite);

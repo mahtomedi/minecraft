@@ -64,10 +64,10 @@ public abstract class NetherCappedSurfaceBuilder extends SurfaceBuilder<SurfaceB
         for(int var11 = 127; var11 >= 0; --var11) {
             var9.set(var1, var11, var2);
             BlockState var12 = param1.getBlockState(var9);
-            if (var10.getBlock() == param7.getBlock() && (var12.isAir() || var12 == param8)) {
+            if (var10.is(param7.getBlock()) && (var12.isAir() || var12 == param8)) {
                 for(int var13 = 0; var13 < var3; ++var13) {
                     var9.move(Direction.UP);
-                    if (param1.getBlockState(var9).getBlock() != param7.getBlock()) {
+                    if (!param1.getBlockState(var9).is(param7.getBlock())) {
                         break;
                     }
 
@@ -77,8 +77,8 @@ public abstract class NetherCappedSurfaceBuilder extends SurfaceBuilder<SurfaceB
                 var9.set(var1, var11, var2);
             }
 
-            if ((var10.isAir() || var10 == param8) && var12.getBlock() == param7.getBlock()) {
-                for(int var14 = 0; var14 < var4 && param1.getBlockState(var9).getBlock() == param7.getBlock(); ++var14) {
+            if ((var10.isAir() || var10 == param8) && var12.is(param7.getBlock())) {
+                for(int var14 = 0; var14 < var4 && param1.getBlockState(var9).is(param7.getBlock()); ++var14) {
                     if (var6 && var11 >= var0 - 4 && var11 <= var0 + 1) {
                         param1.setBlockState(var9, this.getPatchBlockState(), false);
                     } else {

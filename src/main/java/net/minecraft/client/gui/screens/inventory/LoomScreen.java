@@ -33,7 +33,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class LoomScreen extends AbstractContainerScreen<LoomMenu> {
     private static final ResourceLocation BG_LOCATION = new ResourceLocation("textures/gui/container/loom.png");
-    private static final int TOTAL_PATTERN_ROWS = (BannerPattern.COUNT - 5 - 1 + 4 - 1) / 4;
+    private static final int TOTAL_PATTERN_ROWS = (BannerPattern.COUNT - BannerPattern.PATTERN_ITEM_COUNT - 1 + 4 - 1) / 4;
     private final ModelPart flag;
     @Nullable
     private List<Pair<BannerPattern, DyeColor>> resultBannerPatterns;
@@ -115,7 +115,7 @@ public class LoomScreen extends AbstractContainerScreen<LoomMenu> {
             int var10 = var1 + 13;
             int var11 = this.startIndex + 16;
 
-            for(int var12 = this.startIndex; var12 < var11 && var12 < BannerPattern.COUNT - 5; ++var12) {
+            for(int var12 = this.startIndex; var12 < var11 && var12 < BannerPattern.COUNT - BannerPattern.PATTERN_ITEM_COUNT; ++var12) {
                 int var13 = var12 - this.startIndex;
                 int var14 = var9 + var13 % 4 * 14;
                 int var15 = var10 + var13 / 4 * 14;

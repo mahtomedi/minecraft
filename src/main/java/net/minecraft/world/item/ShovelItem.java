@@ -59,8 +59,7 @@ public class ShovelItem extends DiggerItem {
 
     @Override
     public boolean canDestroySpecial(BlockState param0) {
-        Block var0 = param0.getBlock();
-        return var0 == Blocks.SNOW || var0 == Blocks.SNOW_BLOCK;
+        return param0.is(Blocks.SNOW) || param0.is(Blocks.SNOW_BLOCK);
     }
 
     @Override

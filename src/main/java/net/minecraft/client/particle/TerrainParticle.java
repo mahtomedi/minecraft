@@ -2,11 +2,10 @@ package net.minecraft.client.particle;
 
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.BlockParticleOption;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
@@ -19,7 +18,7 @@ public class TerrainParticle extends TextureSheetParticle {
     private final float uo;
     private final float vo;
 
-    public TerrainParticle(Level param0, double param1, double param2, double param3, double param4, double param5, double param6, BlockState param7) {
+    public TerrainParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6, BlockState param7) {
         super(param0, param1, param2, param3, param4, param5, param6);
         this.blockState = param7;
         this.setSprite(Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getParticleIcon(param7));
@@ -39,7 +38,7 @@ public class TerrainParticle extends TextureSheetParticle {
 
     public TerrainParticle init(BlockPos param0) {
         this.pos = param0;
-        if (this.blockState.getBlock() == Blocks.GRASS_BLOCK) {
+        if (this.blockState.is(Blocks.GRASS_BLOCK)) {
             return this;
         } else {
             this.multiplyColor(param0);
@@ -49,8 +48,7 @@ public class TerrainParticle extends TextureSheetParticle {
 
     public TerrainParticle init() {
         this.pos = new BlockPos(this.x, this.y, this.z);
-        Block var0 = this.blockState.getBlock();
-        if (var0 == Blocks.GRASS_BLOCK) {
+        if (this.blockState.is(Blocks.GRASS_BLOCK)) {
             return this;
         } else {
             this.multiplyColor(this.pos);
@@ -99,10 +97,10 @@ public class TerrainParticle extends TextureSheetParticle {
     @OnlyIn(Dist.CLIENT)
     public static class Provider implements ParticleProvider<BlockParticleOption> {
         public Particle createParticle(
-            BlockParticleOption param0, Level param1, double param2, double param3, double param4, double param5, double param6, double param7
+            BlockParticleOption param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
             BlockState var0 = param0.getState();
-            return !var0.isAir() && var0.getBlock() != Blocks.MOVING_PISTON
+            return !var0.isAir() && !var0.is(Blocks.MOVING_PISTON)
                 ? new TerrainParticle(param1, param2, param3, param4, param5, param6, param7, var0).init()
                 : null;
         }

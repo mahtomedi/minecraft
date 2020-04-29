@@ -37,7 +37,7 @@ public class SolidFaceRenderer implements DebugRenderer.SimpleDebugRenderer {
 
         for(BlockPos var2 : BlockPos.betweenClosed(var1.offset(-6, -6, -6), var1.offset(6, 6, 6))) {
             BlockState var3 = var0.getBlockState(var2);
-            if (var3.getBlock() != Blocks.AIR) {
+            if (!var3.is(Blocks.AIR)) {
                 VoxelShape var4 = var3.getShape(var0, var2);
 
                 for(AABB var5 : var4.toAabbs()) {

@@ -7,8 +7,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
@@ -29,8 +29,8 @@ public class GlowstoneFeature extends Feature<NoneFeatureConfiguration> {
         if (!param0.isEmptyBlock(param4)) {
             return false;
         } else {
-            Block var0 = param0.getBlockState(param4.above()).getBlock();
-            if (var0 != Blocks.NETHERRACK && var0 != Blocks.BASALT && var0 != Blocks.BLACKSTONE) {
+            BlockState var0 = param0.getBlockState(param4.above());
+            if (!var0.is(Blocks.NETHERRACK) && !var0.is(Blocks.BASALT) && !var0.is(Blocks.BLACKSTONE)) {
                 return false;
             } else {
                 param0.setBlock(param4, Blocks.GLOWSTONE.defaultBlockState(), 2);
@@ -41,7 +41,7 @@ public class GlowstoneFeature extends Feature<NoneFeatureConfiguration> {
                         int var3 = 0;
 
                         for(Direction var4 : Direction.values()) {
-                            if (param0.getBlockState(var2.relative(var4)).getBlock() == Blocks.GLOWSTONE) {
+                            if (param0.getBlockState(var2.relative(var4)).is(Blocks.GLOWSTONE)) {
                                 ++var3;
                             }
 

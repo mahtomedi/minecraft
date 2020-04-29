@@ -73,7 +73,6 @@ public class BreathAirGoal extends Goal {
 
     private boolean givesAir(LevelReader param0, BlockPos param1) {
         BlockState var0 = param0.getBlockState(param1);
-        return (param0.getFluidState(param1).isEmpty() || var0.getBlock() == Blocks.BUBBLE_COLUMN)
-            && var0.isPathfindable(param0, param1, PathComputationType.LAND);
+        return (param0.getFluidState(param1).isEmpty() || var0.is(Blocks.BUBBLE_COLUMN)) && var0.isPathfindable(param0, param1, PathComputationType.LAND);
     }
 }

@@ -20,18 +20,15 @@ public class SnowyDirtBlock extends Block {
 
     @Override
     public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
-        if (param1 != Direction.UP) {
-            return super.updateShape(param0, param1, param2, param3, param4, param5);
-        } else {
-            Block var0 = param2.getBlock();
-            return param0.setValue(SNOWY, Boolean.valueOf(var0 == Blocks.SNOW_BLOCK || var0 == Blocks.SNOW));
-        }
+        return param1 != Direction.UP
+            ? super.updateShape(param0, param1, param2, param3, param4, param5)
+            : param0.setValue(SNOWY, Boolean.valueOf(param2.is(Blocks.SNOW_BLOCK) || param2.is(Blocks.SNOW)));
     }
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext param0) {
-        Block var0 = param0.getLevel().getBlockState(param0.getClickedPos().above()).getBlock();
-        return this.defaultBlockState().setValue(SNOWY, Boolean.valueOf(var0 == Blocks.SNOW_BLOCK || var0 == Blocks.SNOW));
+        BlockState var0 = param0.getLevel().getBlockState(param0.getClickedPos());
+        return this.defaultBlockState().setValue(SNOWY, Boolean.valueOf(var0.is(Blocks.SNOW_BLOCK) || var0.is(Blocks.SNOW)));
     }
 
     @Override

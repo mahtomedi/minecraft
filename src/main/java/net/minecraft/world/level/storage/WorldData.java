@@ -57,7 +57,7 @@ public interface WorldData {
 
     void setCustomBossEvents(@Nullable CompoundTag var1);
 
-    LevelData getLevelData(DimensionType var1);
+    ServerLevelData overworldData();
 
     LevelSettings getLevelSettings();
 

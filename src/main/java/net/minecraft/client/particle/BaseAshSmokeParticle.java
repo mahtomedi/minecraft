@@ -1,7 +1,7 @@
 package net.minecraft.client.particle;
 
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -11,7 +11,7 @@ public class BaseAshSmokeParticle extends TextureSheetParticle {
     private final double fallSpeed;
 
     protected BaseAshSmokeParticle(
-        Level param0,
+        ClientLevel param0,
         double param1,
         double param2,
         double param3,

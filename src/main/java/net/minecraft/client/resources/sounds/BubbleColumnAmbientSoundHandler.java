@@ -24,7 +24,7 @@ public class BubbleColumnAmbientSoundHandler implements AmbientSoundHandler {
         Level var0 = this.player.level;
         BlockState var1 = var0.containsBlock(this.player.getBoundingBox().inflate(0.0, -0.4F, 0.0).deflate(0.001), Blocks.BUBBLE_COLUMN);
         if (var1 != null) {
-            if (!this.wasInBubbleColumn && !this.firstTick && var1.getBlock() == Blocks.BUBBLE_COLUMN && !this.player.isSpectator()) {
+            if (!this.wasInBubbleColumn && !this.firstTick && var1.is(Blocks.BUBBLE_COLUMN) && !this.player.isSpectator()) {
                 boolean var2 = var1.getValue(BubbleColumnBlock.DRAG_DOWN);
                 if (var2) {
                     this.player.playSound(SoundEvents.BUBBLE_COLUMN_WHIRLPOOL_INSIDE, 1.0F, 1.0F);

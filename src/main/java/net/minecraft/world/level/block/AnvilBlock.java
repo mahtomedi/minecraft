@@ -97,11 +97,10 @@ public class AnvilBlock extends FallingBlock {
 
     @Nullable
     public static BlockState damage(BlockState param0) {
-        Block var0 = param0.getBlock();
-        if (var0 == Blocks.ANVIL) {
+        if (param0.is(Blocks.ANVIL)) {
             return Blocks.CHIPPED_ANVIL.defaultBlockState().setValue(FACING, param0.getValue(FACING));
         } else {
-            return var0 == Blocks.CHIPPED_ANVIL ? Blocks.DAMAGED_ANVIL.defaultBlockState().setValue(FACING, param0.getValue(FACING)) : null;
+            return param0.is(Blocks.CHIPPED_ANVIL) ? Blocks.DAMAGED_ANVIL.defaultBlockState().setValue(FACING, param0.getValue(FACING)) : null;
         }
     }
 

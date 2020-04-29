@@ -11,7 +11,6 @@ import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ComposterBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -25,8 +24,7 @@ public class WorkAtComposter extends WorkAtPoi {
         if (var0.isPresent()) {
             GlobalPos var1 = var0.get();
             BlockState var2 = param0.getBlockState(var1.pos());
-            Block var3 = var2.getBlock();
-            if (var3 == Blocks.COMPOSTER) {
+            if (var2.is(Blocks.COMPOSTER)) {
                 this.makeBread(param1);
                 this.compostItems(param0, param1, var1, var2);
             }

@@ -352,7 +352,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
         if (!param1.getMaterial().isLiquid()) {
             BlockState var0 = this.level.getBlockState(param0.above());
             SoundType var1 = param1.getSoundType();
-            if (var0.getBlock() == Blocks.SNOW) {
+            if (var0.is(Blocks.SNOW)) {
                 var1 = var0.getSoundType();
             }
 
@@ -528,7 +528,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
                 if (!this.isEating()
                     && !this.isVehicle()
                     && this.random.nextInt(300) == 0
-                    && this.level.getBlockState(this.blockPosition().below()).getBlock() == Blocks.GRASS_BLOCK) {
+                    && this.level.getBlockState(this.blockPosition().below()).is(Blocks.GRASS_BLOCK)) {
                     this.setEating(true);
                 }
 

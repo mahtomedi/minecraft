@@ -1,15 +1,15 @@
 package net.minecraft.client.particle;
 
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class BubbleColumnUpParticle extends TextureSheetParticle {
-    private BubbleColumnUpParticle(Level param0, double param1, double param2, double param3, double param4, double param5, double param6) {
+    private BubbleColumnUpParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6) {
         super(param0, param1, param2, param3);
         this.setSize(0.02F, 0.02F);
         this.quadSize *= this.random.nextFloat() * 0.6F + 0.2F;
@@ -53,7 +53,7 @@ public class BubbleColumnUpParticle extends TextureSheetParticle {
         }
 
         public Particle createParticle(
-            SimpleParticleType param0, Level param1, double param2, double param3, double param4, double param5, double param6, double param7
+            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
             BubbleColumnUpParticle var0 = new BubbleColumnUpParticle(param1, param2, param3, param4, param5, param6, param7);
             var0.pickSprite(this.sprite);

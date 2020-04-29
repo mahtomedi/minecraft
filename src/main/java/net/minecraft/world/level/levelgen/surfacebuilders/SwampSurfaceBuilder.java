@@ -36,7 +36,7 @@ public class SwampSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConfig
             for(int var4 = param5; var4 >= 0; --var4) {
                 var3.set(var1, var4, var2);
                 if (!param1.getBlockState(var3).isAir()) {
-                    if (var4 == 62 && param1.getBlockState(var3).getBlock() != param8.getBlock()) {
+                    if (var4 == 62 && !param1.getBlockState(var3).is(param8.getBlock())) {
                         param1.setBlockState(var3, param8, false);
                     }
                     break;

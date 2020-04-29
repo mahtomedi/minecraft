@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
+import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -13,6 +14,12 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Cat;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
+import net.minecraft.world.level.storage.loot.predicates.LootItemConditions;
+import net.minecraft.world.level.storage.loot.predicates.LootItemEntityPropertyCondition;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Team;
 
@@ -30,7 +37,6 @@ public class EntityPredicate {
         null,
         null
     );
-    public static final EntityPredicate[] ANY_ARRAY = new EntityPredicate[0];
     private final EntityTypePredicate entityType;
     private final DistancePredicate distanceToPlayer;
     private final LocationPredicate location;
@@ -150,21 +156,6 @@ public class EntityPredicate {
         }
     }
 
-    public static EntityPredicate[] fromJsonArray(@Nullable JsonElement param0) {
-        if (param0 != null && !param0.isJsonNull()) {
-            JsonArray var0 = GsonHelper.convertToJsonArray(param0, "entities");
-            EntityPredicate[] var1 = new EntityPredicate[var0.size()];
-
-            for(int var2 = 0; var2 < var0.size(); ++var2) {
-                var1[var2] = fromJson(var0.get(var2));
-            }
-
-            return var1;
-        } else {
-            return ANY_ARRAY;
-        }
-    }
-
     public JsonElement serializeToJson() {
         if (this == ANY) {
             return JsonNull.INSTANCE;
@@ -188,21 +179,13 @@ public class EntityPredicate {
         }
     }
 
-    public static JsonElement serializeArrayToJson(EntityPredicate[] param0) {
-        if (param0 == ANY_ARRAY) {
-            return JsonNull.INSTANCE;
-        } else {
-            JsonArray var0 = new JsonArray();
-
-            for(EntityPredicate var1 : param0) {
-                JsonElement var2 = var1.serializeToJson();
-                if (!var2.isJsonNull()) {
-                    var0.add(var2);
-                }
-            }
-
-            return var0;
-        }
+    public static LootContext createContext(ServerPlayer param0, Entity param1) {
+        return new LootContext.Builder(param0.getLevel())
+            .withParameter(LootContextParams.THIS_ENTITY, param1)
+            .withParameter(LootContextParams.BLOCK_POS, param1.blockPosition())
+            .withParameter(LootContextParams.ORIGIN, param0.position())
+            .withRandom(param0.getRandom())
+            .create(LootContextParamSets.ADVANCEMENT_ENTITY);
     }
 
     public static class Builder {
@@ -306,6 +289,81 @@ public class EntityPredicate {
                 this.team,
                 this.catType
             );
+        }
+    }
+
+    public static class Composite {
+        public static final EntityPredicate.Composite ANY = new EntityPredicate.Composite(new LootItemCondition[0]);
+        private final LootItemCondition[] conditions;
+        private final Predicate<LootContext> compositePredicates;
+
+        private Composite(LootItemCondition[] param0) {
+            this.conditions = param0;
+            this.compositePredicates = LootItemConditions.andConditions(param0);
+        }
+
+        public static EntityPredicate.Composite fromJson(JsonObject param0, String param1, DeserializationContext param2) {
+            JsonElement var0 = param0.get(param1);
+            return fromElement(param1, param2, var0);
+        }
+
+        public static EntityPredicate.Composite[] fromJsonArray(JsonObject param0, String param1, DeserializationContext param2) {
+            JsonElement var0 = param0.get(param1);
+            if (var0 != null && !var0.isJsonNull()) {
+                JsonArray var1 = GsonHelper.convertToJsonArray(var0, param1);
+                EntityPredicate.Composite[] var2 = new EntityPredicate.Composite[var1.size()];
+
+                for(int var3 = 0; var3 < var1.size(); ++var3) {
+                    var2[var3] = fromElement(param1 + "[" + var3 + "]", param2, var1.get(var3));
+                }
+
+                return var2;
+            } else {
+                return new EntityPredicate.Composite[0];
+            }
+        }
+
+        private static EntityPredicate.Composite fromElement(String param0, DeserializationContext param1, @Nullable JsonElement param2) {
+            if (param2 != null && param2.isJsonArray()) {
+                LootItemCondition[] var0 = param1.deserializeConditions(
+                    param2.getAsJsonArray(), param1.getAdvancementId().toString() + "/" + param0, LootContextParamSets.ADVANCEMENT_ENTITY
+                );
+                return new EntityPredicate.Composite(var0);
+            } else {
+                EntityPredicate var1 = EntityPredicate.fromJson(param2);
+                return wrap(var1);
+            }
+        }
+
+        public static EntityPredicate.Composite wrap(EntityPredicate param0) {
+            if (param0 == EntityPredicate.ANY) {
+                return ANY;
+            } else {
+                LootItemCondition var0 = LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.THIS, param0).build();
+                return new EntityPredicate.Composite(new LootItemCondition[]{var0});
+            }
+        }
+
+        public boolean matches(LootContext param0) {
+            return this.compositePredicates.test(param0);
+        }
+
+        public JsonElement toJson(SerializationContext param0) {
+            return (JsonElement)(this.conditions.length == 0 ? JsonNull.INSTANCE : param0.serializeConditions(this.conditions));
+        }
+
+        public static JsonElement toJson(EntityPredicate.Composite[] param0, SerializationContext param1) {
+            if (param0.length == 0) {
+                return JsonNull.INSTANCE;
+            } else {
+                JsonArray var0 = new JsonArray();
+
+                for(EntityPredicate.Composite var1 : param0) {
+                    var0.add(var1.toJson(param1));
+                }
+
+                return var0;
+            }
         }
     }
 }

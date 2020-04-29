@@ -27,7 +27,7 @@ public class RingBell extends Behavior<LivingEntity> {
         BlockPos var1 = var0.getMemory(MemoryModuleType.MEETING_POINT).get().pos();
         if (var1.closerThan(param1.blockPosition(), 3.0)) {
             BlockState var2 = param0.getBlockState(var1);
-            if (var2.getBlock() == Blocks.BELL) {
+            if (var2.is(Blocks.BELL)) {
                 BellBlock var3 = (BellBlock)var2.getBlock();
                 var3.attemptToRing(param0, var1, null);
             }

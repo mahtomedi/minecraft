@@ -116,7 +116,7 @@ public abstract class ButtonBlock extends FaceAttachedHorizontalDirectionalBlock
 
     @Override
     public void onRemove(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
-        if (!param4 && param0.getBlock() != param3.getBlock()) {
+        if (!param4 && !param0.is(param3.getBlock())) {
             if (param0.getValue(POWERED)) {
                 this.updateNeighbours(param0, param1, param2);
             }

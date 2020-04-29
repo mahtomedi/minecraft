@@ -113,7 +113,7 @@ public class HopperBlock extends BaseEntityBlock {
 
     @Override
     public void onPlace(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
-        if (param3.getBlock() != param0.getBlock()) {
+        if (!param3.is(param0.getBlock())) {
             this.checkPoweredState(param1, param2, param0);
         }
     }
@@ -148,7 +148,7 @@ public class HopperBlock extends BaseEntityBlock {
 
     @Override
     public void onRemove(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
-        if (param0.getBlock() != param3.getBlock()) {
+        if (!param0.is(param3.getBlock())) {
             BlockEntity var0 = param1.getBlockEntity(param2);
             if (var0 instanceof HopperBlockEntity) {
                 Containers.dropContents(param1, param2, (HopperBlockEntity)var0);

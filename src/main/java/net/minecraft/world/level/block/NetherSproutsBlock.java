@@ -36,13 +36,13 @@ public class NetherSproutsBlock extends Block {
 
     @Override
     public boolean canSurvive(BlockState param0, LevelReader param1, BlockPos param2) {
-        Block var0 = param1.getBlockState(param2.below()).getBlock();
+        BlockState var0 = param1.getBlockState(param2.below());
         return var0.is(BlockTags.NYLIUM)
-            || var0 == Blocks.SOUL_SOIL
-            || var0 == Blocks.GRASS_BLOCK
-            || var0 == Blocks.DIRT
-            || var0 == Blocks.COARSE_DIRT
-            || var0 == Blocks.PODZOL
-            || var0 == Blocks.FARMLAND;
+            || var0.is(Blocks.SOUL_SOIL)
+            || var0.is(Blocks.GRASS_BLOCK)
+            || var0.is(Blocks.DIRT)
+            || var0.is(Blocks.COARSE_DIRT)
+            || var0.is(Blocks.PODZOL)
+            || var0.is(Blocks.FARMLAND);
     }
 }

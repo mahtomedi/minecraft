@@ -84,6 +84,7 @@ public abstract class Biome {
     protected final List<ConfiguredFeature<?, ?>> flowerFeatures = Lists.newArrayList();
     protected final Map<StructureFeature<?>, FeatureConfiguration> validFeatureStarts = Maps.newHashMap();
     private final Map<MobCategory, List<Biome.SpawnerData>> spawners = Maps.newHashMap();
+    private final Map<EntityType<?>, Biome.MobSpawnCost> mobSpawnCosts = Maps.newHashMap();
     private final ThreadLocal<Long2FloatLinkedOpenHashMap> temperatureCache = ThreadLocal.withInitial(() -> Util.make(() -> {
             Long2FloatLinkedOpenHashMap var0x = new Long2FloatLinkedOpenHashMap(1024, 0.25F) {
                 @Override
@@ -158,8 +159,17 @@ public abstract class Biome {
         this.spawners.get(param0).add(param1);
     }
 
+    protected void addMobCharge(EntityType<?> param0, double param1, double param2) {
+        this.mobSpawnCosts.put(param0, new Biome.MobSpawnCost(param2, param1));
+    }
+
     public List<Biome.SpawnerData> getMobs(MobCategory param0) {
         return this.spawners.get(param0);
+    }
+
+    @Nullable
+    public Biome.MobSpawnCost getMobSpawnCost(EntityType<?> param0) {
+        return this.mobSpawnCosts.get(param0);
     }
 
     public Biome.Precipitation getPrecipitation() {
@@ -639,6 +649,24 @@ public abstract class Biome {
                 + (this.altitude - param0.altitude) * (this.altitude - param0.altitude)
                 + (this.weirdness - param0.weirdness) * (this.weirdness - param0.weirdness)
                 + (this.offset - param0.offset) * (this.offset - param0.offset);
+        }
+    }
+
+    public static class MobSpawnCost {
+        private final double energyBudget;
+        private final double charge;
+
+        public MobSpawnCost(double param0, double param1) {
+            this.energyBudget = param0;
+            this.charge = param1;
+        }
+
+        public double getEnergyBudget() {
+            return this.energyBudget;
+        }
+
+        public double getCharge() {
+            return this.charge;
         }
     }
 

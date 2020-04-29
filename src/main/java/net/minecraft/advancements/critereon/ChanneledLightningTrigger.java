@@ -1,12 +1,14 @@
 package net.minecraft.advancements.critereon;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.storage.loot.LootContext;
 
 public class ChanneledLightningTrigger extends SimpleCriterionTrigger<ChanneledLightningTrigger.TriggerInstance> {
     private static final ResourceLocation ID = new ResourceLocation("channeled_lightning");
@@ -16,33 +18,37 @@ public class ChanneledLightningTrigger extends SimpleCriterionTrigger<ChanneledL
         return ID;
     }
 
-    public ChanneledLightningTrigger.TriggerInstance createInstance(JsonObject param0, JsonDeserializationContext param1) {
-        EntityPredicate[] var0 = EntityPredicate.fromJsonArray(param0.get("victims"));
-        return new ChanneledLightningTrigger.TriggerInstance(var0);
+    public ChanneledLightningTrigger.TriggerInstance createInstance(JsonObject param0, EntityPredicate.Composite param1, DeserializationContext param2) {
+        EntityPredicate.Composite[] var0 = EntityPredicate.Composite.fromJsonArray(param0, "victims", param2);
+        return new ChanneledLightningTrigger.TriggerInstance(param1, var0);
     }
 
     public void trigger(ServerPlayer param0, Collection<? extends Entity> param1) {
-        this.trigger(param0.getAdvancements(), param2 -> param2.matches(param0, param1));
+        List<LootContext> var0 = param1.stream().map(param1x -> EntityPredicate.createContext(param0, param1x)).collect(Collectors.toList());
+        this.trigger(param0, param1x -> param1x.matches(var0));
     }
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
-        private final EntityPredicate[] victims;
+        private final EntityPredicate.Composite[] victims;
 
-        public TriggerInstance(EntityPredicate[] param0) {
-            super(ChanneledLightningTrigger.ID);
-            this.victims = param0;
+        public TriggerInstance(EntityPredicate.Composite param0, EntityPredicate.Composite[] param1) {
+            super(ChanneledLightningTrigger.ID, param0);
+            this.victims = param1;
         }
 
         public static ChanneledLightningTrigger.TriggerInstance channeledLightning(EntityPredicate... param0) {
-            return new ChanneledLightningTrigger.TriggerInstance(param0);
+            return new ChanneledLightningTrigger.TriggerInstance(
+                EntityPredicate.Composite.ANY,
+                Stream.of(param0).map(EntityPredicate.Composite::wrap).toArray(param0x -> new EntityPredicate.Composite[param0x])
+            );
         }
 
-        public boolean matches(ServerPlayer param0, Collection<? extends Entity> param1) {
-            for(EntityPredicate var0 : this.victims) {
+        public boolean matches(Collection<? extends LootContext> param0) {
+            for(EntityPredicate.Composite var0 : this.victims) {
                 boolean var1 = false;
 
-                for(Entity var2 : param1) {
-                    if (var0.matches(param0, var2)) {
+                for(LootContext var2 : param0) {
+                    if (var0.matches(var2)) {
                         var1 = true;
                         break;
                     }
@@ -57,9 +63,9 @@ public class ChanneledLightningTrigger extends SimpleCriterionTrigger<ChanneledL
         }
 
         @Override
-        public JsonElement serializeToJson() {
-            JsonObject var0 = new JsonObject();
-            var0.add("victims", EntityPredicate.serializeArrayToJson(this.victims));
+        public JsonObject serializeToJson(SerializationContext param0) {
+            JsonObject var0 = super.serializeToJson(param0);
+            var0.add("victims", EntityPredicate.Composite.toJson(this.victims, param0));
             return var0;
         }
     }

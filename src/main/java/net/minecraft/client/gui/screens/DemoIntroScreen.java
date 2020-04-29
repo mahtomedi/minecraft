@@ -5,7 +5,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.Util;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -53,7 +52,7 @@ public class DemoIntroScreen extends Screen {
         this.font
             .draw(
                 param0,
-                I18n.get(
+                new TranslatableComponent(
                     "demo.help.movementShort",
                     var2.keyUp.getTranslatedKeyMessage(),
                     var2.keyLeft.getTranslatedKeyMessage(),
@@ -64,9 +63,12 @@ public class DemoIntroScreen extends Screen {
                 (float)var1,
                 5197647
             );
-        this.font.draw(param0, I18n.get("demo.help.movementMouse"), (float)var0, (float)(var1 + 12), 5197647);
-        this.font.draw(param0, I18n.get("demo.help.jump", var2.keyJump.getTranslatedKeyMessage()), (float)var0, (float)(var1 + 24), 5197647);
-        this.font.draw(param0, I18n.get("demo.help.inventory", var2.keyInventory.getTranslatedKeyMessage()), (float)var0, (float)(var1 + 36), 5197647);
+        this.font.draw(param0, new TranslatableComponent("demo.help.movementMouse"), (float)var0, (float)(var1 + 12), 5197647);
+        this.font.draw(param0, new TranslatableComponent("demo.help.jump", var2.keyJump.getTranslatedKeyMessage()), (float)var0, (float)(var1 + 24), 5197647);
+        this.font
+            .draw(
+                param0, new TranslatableComponent("demo.help.inventory", var2.keyInventory.getTranslatedKeyMessage()), (float)var0, (float)(var1 + 36), 5197647
+            );
         this.font.drawWordWrap(new TranslatableComponent("demo.help.fullWrapped"), var0, var1 + 68, 218, 2039583);
         super.render(param0, param1, param2, param3);
     }

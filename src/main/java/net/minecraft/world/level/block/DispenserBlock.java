@@ -133,7 +133,7 @@ public class DispenserBlock extends BaseEntityBlock {
 
     @Override
     public void onRemove(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
-        if (param0.getBlock() != param3.getBlock()) {
+        if (!param0.is(param3.getBlock())) {
             BlockEntity var0 = param1.getBlockEntity(param2);
             if (var0 instanceof DispenserBlockEntity) {
                 Containers.dropContents(param1, param2, (DispenserBlockEntity)var0);

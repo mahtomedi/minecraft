@@ -12,6 +12,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.PathNavigationRegion;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class FlyNodeEvaluator extends WalkNodeEvaluator {
     @Override
@@ -259,9 +260,9 @@ public class FlyNodeEvaluator extends WalkNodeEvaluator {
         BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
         BlockPathTypes var1 = getBlockPathTypeRaw(param0, var0.set(param1, param2, param3));
         if (var1 == BlockPathTypes.OPEN && param2 >= 1) {
-            Block var2 = param0.getBlockState(var0.set(param1, param2 - 1, param3)).getBlock();
+            BlockState var2 = param0.getBlockState(var0.set(param1, param2 - 1, param3));
             BlockPathTypes var3 = getBlockPathTypeRaw(param0, var0.set(param1, param2 - 1, param3));
-            if (var3 == BlockPathTypes.DAMAGE_FIRE || var2 == Blocks.MAGMA_BLOCK || var3 == BlockPathTypes.LAVA || var2.is(BlockTags.CAMPFIRES)) {
+            if (var3 == BlockPathTypes.DAMAGE_FIRE || var2.is(Blocks.MAGMA_BLOCK) || var3 == BlockPathTypes.LAVA || var2.is(BlockTags.CAMPFIRES)) {
                 var1 = BlockPathTypes.DAMAGE_FIRE;
             } else if (var3 == BlockPathTypes.DAMAGE_CACTUS) {
                 var1 = BlockPathTypes.DAMAGE_CACTUS;

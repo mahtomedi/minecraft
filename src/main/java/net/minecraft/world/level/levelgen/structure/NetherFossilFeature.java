@@ -70,7 +70,7 @@ public class NetherFossilFeature extends RandomScatteredFeature<NoneFeatureConfi
                 BlockState var7 = var5.getBlockState(var6);
                 var6.move(Direction.DOWN);
                 BlockState var8 = var5.getBlockState(var6);
-                if (var7.isAir() && (var8.getBlock() == Blocks.SOUL_SAND || var8.isFaceSturdy(var5, var6, Direction.UP))) {
+                if (var7.isAir() && (var8.is(Blocks.SOUL_SAND) || var8.isFaceSturdy(var5, var6, Direction.UP))) {
                     break;
                 }
             }

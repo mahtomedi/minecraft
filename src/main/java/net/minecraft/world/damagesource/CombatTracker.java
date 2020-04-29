@@ -12,8 +12,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class CombatTracker {
     private final List<CombatEntry> entries = Lists.newArrayList();
@@ -33,16 +33,16 @@ public class CombatTracker {
         this.resetPreparedStatus();
         Optional<BlockPos> var0 = this.mob.getLastClimbablePos();
         if (var0.isPresent()) {
-            Block var1 = this.mob.level.getBlockState(var0.get()).getBlock();
-            if (var1 == Blocks.LADDER || var1.is(BlockTags.TRAPDOORS)) {
+            BlockState var1 = this.mob.level.getBlockState(var0.get());
+            if (var1.is(Blocks.LADDER) || var1.is(BlockTags.TRAPDOORS)) {
                 this.nextLocation = "ladder";
-            } else if (var1 == Blocks.VINE) {
+            } else if (var1.is(Blocks.VINE)) {
                 this.nextLocation = "vines";
-            } else if (var1 == Blocks.WEEPING_VINES || var1 == Blocks.WEEPING_VINES_PLANT) {
+            } else if (var1.is(Blocks.WEEPING_VINES) || var1.is(Blocks.WEEPING_VINES_PLANT)) {
                 this.nextLocation = "weeping_vines";
-            } else if (var1 == Blocks.TWISTING_VINES || var1 == Blocks.TWISTING_VINES_PLANT) {
+            } else if (var1.is(Blocks.TWISTING_VINES) || var1.is(Blocks.TWISTING_VINES_PLANT)) {
                 this.nextLocation = "twisting_vines";
-            } else if (var1 == Blocks.SCAFFOLDING) {
+            } else if (var1.is(Blocks.SCAFFOLDING)) {
                 this.nextLocation = "scaffolding";
             } else {
                 this.nextLocation = "other_climbable";

@@ -34,7 +34,7 @@ public class DoublePlantBlock extends BushBlock {
         DoubleBlockHalf var0 = param0.getValue(HALF);
         if (param1.getAxis() != Direction.Axis.Y
             || var0 == DoubleBlockHalf.LOWER != (param1 == Direction.UP)
-            || param2.getBlock() == this && param2.getValue(HALF) != var0) {
+            || param2.is(this) && param2.getValue(HALF) != var0) {
             return var0 == DoubleBlockHalf.LOWER && param1 == Direction.DOWN && !param0.canSurvive(param3, param4)
                 ? Blocks.AIR.defaultBlockState()
                 : super.updateShape(param0, param1, param2, param3, param4, param5);
@@ -61,7 +61,7 @@ public class DoublePlantBlock extends BushBlock {
             return super.canSurvive(param0, param1, param2);
         } else {
             BlockState var0 = param1.getBlockState(param2.below());
-            return var0.getBlock() == this && var0.getValue(HALF) == DoubleBlockHalf.LOWER;
+            return var0.is(this) && var0.getValue(HALF) == DoubleBlockHalf.LOWER;
         }
     }
 
@@ -80,7 +80,7 @@ public class DoublePlantBlock extends BushBlock {
         DoubleBlockHalf var0 = param2.getValue(HALF);
         BlockPos var1 = var0 == DoubleBlockHalf.LOWER ? param1.above() : param1.below();
         BlockState var2 = param0.getBlockState(var1);
-        if (var2.getBlock() == this && var2.getValue(HALF) != var0) {
+        if (var2.is(this) && var2.getValue(HALF) != var0) {
             param0.setBlock(var1, Blocks.AIR.defaultBlockState(), 35);
             param0.levelEvent(param3, 2001, var1, Block.getId(var2));
             if (!param0.isClientSide && !param3.isCreative()) {

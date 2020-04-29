@@ -208,7 +208,7 @@ public class TheEndGatewayBlockEntity extends TheEndPortalBlockEntity implements
                     for(int var3 = 255; var3 > (var0 == null ? 0 : var0.getY()); --var3) {
                         BlockPos var4 = new BlockPos(param1.getX() + var1, var3, param1.getZ() + var2);
                         BlockState var5 = param0.getBlockState(var4);
-                        if (var5.isCollisionShapeFullBlock(param0, var4) && (param3 || var5.getBlock() != Blocks.BEDROCK)) {
+                        if (var5.isCollisionShapeFullBlock(param0, var4) && (param3 || !var5.is(Blocks.BEDROCK))) {
                             var0 = var4;
                             break;
                         }
@@ -237,7 +237,7 @@ public class TheEndGatewayBlockEntity extends TheEndPortalBlockEntity implements
             BlockState var7 = param0.getBlockState(var6);
             BlockPos var8 = var6.above();
             BlockPos var9 = var6.above(2);
-            if (var7.getBlock() == Blocks.END_STONE
+            if (var7.is(Blocks.END_STONE)
                 && !param0.getBlockState(var8).isCollisionShapeFullBlock(param0, var8)
                 && !param0.getBlockState(var9).isCollisionShapeFullBlock(param0, var9)) {
                 double var10 = var6.distSqr(0.0, 0.0, 0.0, true);

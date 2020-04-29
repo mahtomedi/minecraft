@@ -6,6 +6,7 @@ import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.math.Matrix4f;
+import com.mojang.math.Vector3f;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -735,19 +736,19 @@ public class RenderSystem {
         GlStateManager.teardownOverlayColor();
     }
 
-    public static void setupLevelDiffuseLighting(Matrix4f param0) {
+    public static void setupLevelDiffuseLighting(Vector3f param0, Vector3f param1, Matrix4f param2) {
         assertThread(RenderSystem::isOnGameThread);
-        GlStateManager.setupLevelDiffuseLighting(param0);
+        GlStateManager.setupLevelDiffuseLighting(param0, param1, param2);
     }
 
-    public static void setupGuiFlatDiffuseLighting() {
+    public static void setupGuiFlatDiffuseLighting(Vector3f param0, Vector3f param1) {
         assertThread(RenderSystem::isOnGameThread);
-        GlStateManager.setupGuiFlatDiffuseLighting();
+        GlStateManager.setupGuiFlatDiffuseLighting(param0, param1);
     }
 
-    public static void setupGui3DDiffuseLighting() {
+    public static void setupGui3DDiffuseLighting(Vector3f param0, Vector3f param1) {
         assertThread(RenderSystem::isOnGameThread);
-        GlStateManager.setupGui3DDiffuseLighting();
+        GlStateManager.setupGui3DDiffuseLighting(param0, param1);
     }
 
     public static void mulTextureByProjModelView() {

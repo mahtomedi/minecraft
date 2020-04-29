@@ -14,6 +14,6 @@ public class HalfTransparentBlock extends Block {
     @OnlyIn(Dist.CLIENT)
     @Override
     public boolean skipRendering(BlockState param0, BlockState param1, Direction param2) {
-        return param1.getBlock() == this ? true : super.skipRendering(param0, param1, param2);
+        return param1.is(this) ? true : super.skipRendering(param0, param1, param2);
     }
 }

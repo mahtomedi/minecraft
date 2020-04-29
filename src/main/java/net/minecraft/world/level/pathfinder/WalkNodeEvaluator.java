@@ -42,56 +42,53 @@ public class WalkNodeEvaluator extends NodeEvaluator {
     @Override
     public Node getStart() {
         BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
-        int var1;
-        if (this.canFloat() && this.mob.isInWater()) {
-            var1 = Mth.floor(this.mob.getY());
-            BlockState var2 = this.level.getBlockState(var0.set(this.mob.getX(), (double)var1, this.mob.getZ()));
+        int var1 = Mth.floor(this.mob.getY());
+        BlockState var2 = this.level.getBlockState(var0.set(this.mob.getX(), (double)var1, this.mob.getZ()));
+        if (!this.mob.canStandOnFluid(var2.getFluidState().getType())) {
+            if (this.canFloat() && this.mob.isInWater()) {
+                while(true) {
+                    if (var2.getBlock() != Blocks.WATER && var2.getFluidState() != Fluids.WATER.getSource(false)) {
+                        --var1;
+                        break;
+                    }
 
-            while(var2.getBlock() == Blocks.WATER || var2.getFluidState() == Fluids.WATER.getSource(false)) {
+                    var2 = this.level.getBlockState(var0.set(this.mob.getX(), (double)(++var1), this.mob.getZ()));
+                }
+            } else if (this.mob.isOnGround()) {
+                var1 = Mth.floor(this.mob.getY() + 0.5);
+            } else {
+                BlockPos var3 = this.mob.blockPosition();
+
+                while(
+                    (this.level.getBlockState(var3).isAir() || this.level.getBlockState(var3).isPathfindable(this.level, var3, PathComputationType.LAND))
+                        && var3.getY() > 0
+                ) {
+                    var3 = var3.below();
+                }
+
+                var1 = var3.above().getY();
+            }
+        } else {
+            while(this.mob.canStandOnFluid(var2.getFluidState().getType())) {
                 var2 = this.level.getBlockState(var0.set(this.mob.getX(), (double)(++var1), this.mob.getZ()));
             }
 
             --var1;
-        } else if (this.mob.isInLava() && this.mob.canFloatInLava()) {
-            var1 = Mth.floor(this.mob.getY());
-            BlockPos.MutableBlockPos var4 = new BlockPos.MutableBlockPos(this.mob.getX(), (double)var1, this.mob.getZ());
-
-            for(BlockState var5 = this.level.getBlockState(var4);
-                var5.getBlock() == Blocks.LAVA || var5.getFluidState() == Fluids.LAVA.getSource(false);
-                var5 = this.level.getBlockState(var4)
-            ) {
-                var4.set(this.mob.getX(), (double)(++var1), this.mob.getZ());
-            }
-
-            --var1;
-        } else if (this.mob.isOnGround()) {
-            var1 = Mth.floor(this.mob.getY() + 0.5);
-        } else {
-            BlockPos var7 = this.mob.blockPosition();
-
-            while(
-                (this.level.getBlockState(var7).isAir() || this.level.getBlockState(var7).isPathfindable(this.level, var7, PathComputationType.LAND))
-                    && var7.getY() > 0
-            ) {
-                var7 = var7.below();
-            }
-
-            var1 = var7.above().getY();
         }
 
-        BlockPos var9 = this.mob.blockPosition();
-        BlockPathTypes var10 = this.getBlockPathType(this.mob, var9.getX(), var1, var9.getZ());
-        if (this.mob.getPathfindingMalus(var10) < 0.0F) {
-            AABB var11 = this.mob.getBoundingBox();
-            if (this.hasPositiveMalus(var0.set(var11.minX, (double)var1, var11.minZ))
-                || this.hasPositiveMalus(var0.set(var11.minX, (double)var1, var11.maxZ))
-                || this.hasPositiveMalus(var0.set(var11.maxX, (double)var1, var11.minZ))
-                || this.hasPositiveMalus(var0.set(var11.maxX, (double)var1, var11.maxZ))) {
+        BlockPos var4 = this.mob.blockPosition();
+        BlockPathTypes var5 = this.getBlockPathType(this.mob, var4.getX(), var1, var4.getZ());
+        if (this.mob.getPathfindingMalus(var5) < 0.0F) {
+            AABB var6 = this.mob.getBoundingBox();
+            if (this.hasPositiveMalus(var0.set(var6.minX, (double)var1, var6.minZ))
+                || this.hasPositiveMalus(var0.set(var6.minX, (double)var1, var6.maxZ))
+                || this.hasPositiveMalus(var0.set(var6.maxX, (double)var1, var6.minZ))
+                || this.hasPositiveMalus(var0.set(var6.maxX, (double)var1, var6.maxZ))) {
                 return this.getNode(var0);
             }
         }
 
-        return this.getNode(var9.getX(), var1, var9.getZ());
+        return this.getNode(var4.getX(), var1, var4.getZ());
     }
 
     private boolean hasPositiveMalus(BlockPos param0) {
@@ -443,10 +440,9 @@ public class WalkNodeEvaluator extends NodeEvaluator {
                     if (var3 != 0 || var5 != 0) {
                         param1.set(var3 + var0, var4 + var1, var5 + var2);
                         BlockState var6 = param0.getBlockState(param1);
-                        Block var7 = var6.getBlock();
-                        if (var7 == Blocks.CACTUS) {
+                        if (var6.is(Blocks.CACTUS)) {
                             param2 = BlockPathTypes.DANGER_CACTUS;
-                        } else if (var7 == Blocks.SWEET_BERRY_BUSH) {
+                        } else if (var6.is(Blocks.SWEET_BERRY_BUSH)) {
                             param2 = BlockPathTypes.DANGER_OTHER;
                         } else if (isBurningBlock(var6)) {
                             param2 = BlockPathTypes.DANGER_FIRE;
@@ -465,15 +461,15 @@ public class WalkNodeEvaluator extends NodeEvaluator {
         Material var2 = var0.getMaterial();
         if (var0.isAir()) {
             return BlockPathTypes.OPEN;
-        } else if (var1.is(BlockTags.TRAPDOORS) || var1 == Blocks.LILY_PAD) {
+        } else if (var0.is(BlockTags.TRAPDOORS) || var0.is(Blocks.LILY_PAD)) {
             return BlockPathTypes.TRAPDOOR;
-        } else if (var1 == Blocks.CACTUS) {
+        } else if (var0.is(Blocks.CACTUS)) {
             return BlockPathTypes.DAMAGE_CACTUS;
-        } else if (var1 == Blocks.SWEET_BERRY_BUSH) {
+        } else if (var0.is(Blocks.SWEET_BERRY_BUSH)) {
             return BlockPathTypes.DAMAGE_OTHER;
-        } else if (var1 == Blocks.HONEY_BLOCK) {
+        } else if (var0.is(Blocks.HONEY_BLOCK)) {
             return BlockPathTypes.STICKY_HONEY;
-        } else if (var1 == Blocks.COCOA) {
+        } else if (var0.is(Blocks.COCOA)) {
             return BlockPathTypes.COCOA;
         } else if (isBurningBlock(var0)) {
             return BlockPathTypes.DAMAGE_FIRE;
@@ -504,7 +500,6 @@ public class WalkNodeEvaluator extends NodeEvaluator {
     }
 
     private static boolean isBurningBlock(BlockState param0) {
-        Block var0 = param0.getBlock();
-        return var0.is(BlockTags.FIRE) || var0 == Blocks.LAVA || var0 == Blocks.MAGMA_BLOCK || CampfireBlock.isLitCampfire(param0);
+        return param0.is(BlockTags.FIRE) || param0.is(Blocks.LAVA) || param0.is(Blocks.MAGMA_BLOCK) || CampfireBlock.isLitCampfire(param0);
     }
 }

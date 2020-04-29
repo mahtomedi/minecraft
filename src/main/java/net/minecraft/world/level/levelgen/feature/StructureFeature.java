@@ -40,7 +40,7 @@ public abstract class StructureFeature<C extends FeatureConfiguration> extends F
     public boolean place(
         LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<? extends ChunkGeneratorSettings> param2, Random param3, BlockPos param4, C param5
     ) {
-        if (!param0.getLevelData().shouldGenerateMapFeatures()) {
+        if (!param1.shouldGenerateFeatures()) {
             return false;
         } else {
             int var0 = param4.getX() >> 4;

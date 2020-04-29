@@ -1,14 +1,14 @@
 package net.minecraft.client.particle;
 
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class LavaParticle extends TextureSheetParticle {
-    private LavaParticle(Level param0, double param1, double param2, double param3) {
+    private LavaParticle(ClientLevel param0, double param1, double param2, double param3) {
         super(param0, param1, param2, param3, 0.0, 0.0, 0.0);
         this.xd *= 0.8F;
         this.yd *= 0.8F;
@@ -72,7 +72,7 @@ public class LavaParticle extends TextureSheetParticle {
         }
 
         public Particle createParticle(
-            SimpleParticleType param0, Level param1, double param2, double param3, double param4, double param5, double param6, double param7
+            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
             LavaParticle var0 = new LavaParticle(param1, param2, param3, param4);
             var0.pickSprite(this.sprite);

@@ -54,7 +54,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
@@ -169,7 +168,7 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
 
     @Override
     public void aiStep() {
-        if (this.jukebox == null || !this.jukebox.closerThan(this.position(), 3.46) || this.level.getBlockState(this.jukebox).getBlock() != Blocks.JUKEBOX) {
+        if (this.jukebox == null || !this.jukebox.closerThan(this.position(), 3.46) || !this.level.getBlockState(this.jukebox).is(Blocks.JUKEBOX)) {
             this.partyParrot = false;
             this.jukebox = null;
         }
@@ -292,8 +291,8 @@ public class Parrot extends ShoulderRidingEntity implements FlyingAnimal {
     }
 
     public static boolean checkParrotSpawnRules(EntityType<Parrot> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
-        Block var0 = param1.getBlockState(param3.below()).getBlock();
-        return (var0.is(BlockTags.LEAVES) || var0 == Blocks.GRASS_BLOCK || var0.is(BlockTags.LOGS) || var0 == Blocks.AIR)
+        BlockState var0 = param1.getBlockState(param3.below());
+        return (var0.is(BlockTags.LEAVES) || var0.is(Blocks.GRASS_BLOCK) || var0.is(BlockTags.LOGS) || var0.is(Blocks.AIR))
             && param1.getRawBrightness(param3, 0) > 8;
     }
 

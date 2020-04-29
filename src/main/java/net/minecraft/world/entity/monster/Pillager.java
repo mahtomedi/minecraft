@@ -49,8 +49,8 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -155,8 +155,8 @@ public class Pillager extends AbstractIllager implements CrossbowAttackMob {
 
     @Override
     public float getWalkTargetValue(BlockPos param0, LevelReader param1) {
-        Block var0 = param1.getBlockState(param0.below()).getBlock();
-        return var0 != Blocks.GRASS_BLOCK && var0 != Blocks.SAND ? 0.5F - param1.getBrightness(param0) : 10.0F;
+        BlockState var0 = param1.getBlockState(param0.below());
+        return !var0.is(Blocks.GRASS_BLOCK) && !var0.is(Blocks.SAND) ? 0.5F - param1.getBrightness(param0) : 10.0F;
     }
 
     @Override

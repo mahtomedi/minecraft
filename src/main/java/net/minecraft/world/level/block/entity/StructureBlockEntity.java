@@ -133,7 +133,7 @@ public class StructureBlockEntity extends BlockEntity {
         if (this.level != null) {
             BlockPos var0 = this.getBlockPos();
             BlockState var1 = this.level.getBlockState(var0);
-            if (var1.getBlock() == Blocks.STRUCTURE_BLOCK) {
+            if (var1.is(Blocks.STRUCTURE_BLOCK)) {
                 this.level.setBlock(var0, var1.setValue(StructureBlock.MODE, this.mode), 2);
             }
 
@@ -237,7 +237,7 @@ public class StructureBlockEntity extends BlockEntity {
     public void setMode(StructureMode param0) {
         this.mode = param0;
         BlockState var0 = this.level.getBlockState(this.getBlockPos());
-        if (var0.getBlock() == Blocks.STRUCTURE_BLOCK) {
+        if (var0.is(Blocks.STRUCTURE_BLOCK)) {
             this.level.setBlock(this.getBlockPos(), var0.setValue(StructureBlock.MODE, param0), 2);
         }
 
@@ -326,7 +326,7 @@ public class StructureBlockEntity extends BlockEntity {
 
         for(BlockPos var1 : BlockPos.betweenClosed(param0, param1)) {
             BlockState var2 = this.level.getBlockState(var1);
-            if (var2.getBlock() == Blocks.STRUCTURE_BLOCK) {
+            if (var2.is(Blocks.STRUCTURE_BLOCK)) {
                 BlockEntity var3 = this.level.getBlockEntity(var1);
                 if (var3 != null && var3 instanceof StructureBlockEntity) {
                     var0.add((StructureBlockEntity)var3);

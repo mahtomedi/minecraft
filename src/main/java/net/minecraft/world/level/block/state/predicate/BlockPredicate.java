@@ -17,6 +17,6 @@ public class BlockPredicate implements Predicate<BlockState> {
     }
 
     public boolean test(@Nullable BlockState param0) {
-        return param0 != null && param0.getBlock() == this.block;
+        return param0 != null && param0.is(this.block);
     }
 }

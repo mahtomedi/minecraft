@@ -40,7 +40,7 @@ public abstract class AbstractContainerMenu {
 
     protected static boolean stillValid(ContainerLevelAccess param0, Player param1, Block param2) {
         return param0.evaluate(
-            (param2x, param3) -> param2x.getBlockState(param3).getBlock() != param2
+            (param2x, param3) -> !param2x.getBlockState(param3).is(param2)
                     ? false
                     : param1.distanceToSqr((double)param3.getX() + 0.5, (double)param3.getY() + 0.5, (double)param3.getZ() + 0.5) <= 64.0,
             true

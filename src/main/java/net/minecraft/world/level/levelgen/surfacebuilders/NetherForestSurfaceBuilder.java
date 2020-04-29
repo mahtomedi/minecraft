@@ -53,7 +53,7 @@ public class NetherForestSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBas
             BlockState var13 = param1.getBlockState(var8);
             if (var13.isAir()) {
                 var9 = -1;
-            } else if (var13.getBlock() == param7.getBlock()) {
+            } else if (var13.is(param7.getBlock())) {
                 if (var9 == -1) {
                     if (var7 <= 0) {
                         var12 = AIR;

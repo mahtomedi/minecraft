@@ -14,12 +14,12 @@ import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.ChunkGeneratorProvider;
 import net.minecraft.world.level.timers.TimerQueue;
 
-public class DerivedLevelData implements LevelData {
+public class DerivedLevelData implements ServerLevelData {
     private final DimensionType dimensionType;
     private final WorldData worldData;
-    private final LevelData wrapped;
+    private final ServerLevelData wrapped;
 
-    public DerivedLevelData(DimensionType param0, WorldData param1, LevelData param2) {
+    public DerivedLevelData(DimensionType param0, WorldData param1, ServerLevelData param2) {
         this.dimensionType = param0;
         this.worldData = param1;
         this.wrapped = param2;
@@ -145,7 +145,7 @@ public class DerivedLevelData implements LevelData {
 
     @Override
     public boolean isHardcore() {
-        return false;
+        return this.worldData.isHardcore();
     }
 
     @Override

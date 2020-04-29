@@ -55,7 +55,9 @@ public class FlintAndSteelItem extends Item {
     }
 
     public static boolean canLightCampFire(BlockState param0) {
-        return param0.getBlock().is(BlockTags.CAMPFIRES) && !param0.getValue(BlockStateProperties.WATERLOGGED) && !param0.getValue(BlockStateProperties.LIT);
+        return param0.is(BlockTags.CAMPFIRES, param0x -> param0x.hasProperty(BlockStateProperties.WATERLOGGED) && param0x.hasProperty(BlockStateProperties.LIT))
+            && !param0.getValue(BlockStateProperties.WATERLOGGED)
+            && !param0.getValue(BlockStateProperties.LIT);
     }
 
     public static boolean canUse(BlockState param0, LevelAccessor param1, BlockPos param2) {
@@ -63,7 +65,7 @@ public class FlintAndSteelItem extends Item {
         boolean var1 = false;
 
         for(Direction var2 : Direction.Plane.HORIZONTAL) {
-            if (param1.getBlockState(param2.relative(var2)).getBlock() == Blocks.OBSIDIAN && NetherPortalBlock.isPortal(param1, param2) != null) {
+            if (param1.getBlockState(param2.relative(var2)).is(Blocks.OBSIDIAN) && NetherPortalBlock.isPortal(param1, param2) != null) {
                 var1 = true;
             }
         }

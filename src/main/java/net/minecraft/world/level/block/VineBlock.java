@@ -108,7 +108,7 @@ public class VineBlock extends Block {
             } else {
                 BooleanProperty var1 = PROPERTY_BY_DIRECTION.get(param2);
                 BlockState var2 = param0.getBlockState(param1.above());
-                return var2.getBlock() == this && var2.getValue(var1);
+                return var2.is(this) && var2.getValue(var1);
             }
         }
     }
@@ -135,7 +135,7 @@ public class VineBlock extends Block {
                         var1 = param1.getBlockState(var0);
                     }
 
-                    var4 = var1.getBlock() == this && var1.getValue(var3);
+                    var4 = var1.is(this) && var1.getValue(var3);
                 }
 
                 param0 = param0.setValue(var3, Boolean.valueOf(var4));
@@ -221,7 +221,7 @@ public class VineBlock extends Block {
                 if (param2.getY() > 0) {
                     BlockPos var13 = param2.below();
                     BlockState var14 = param1.getBlockState(var13);
-                    if (var14.isAir() || var14.getBlock() == this) {
+                    if (var14.isAir() || var14.is(this)) {
                         BlockState var15 = var14.isAir() ? this.defaultBlockState() : var14;
                         BlockState var16 = this.copyRandomFaces(param0, var15, param3);
                         if (var15 != var16 && this.hasHorizontalConnection(var16)) {
@@ -259,7 +259,7 @@ public class VineBlock extends Block {
         int var2 = 5;
 
         for(BlockPos var3 : var1) {
-            if (param0.getBlockState(var3).getBlock() == this) {
+            if (param0.getBlockState(var3).is(this)) {
                 if (--var2 <= 0) {
                     return false;
                 }
@@ -272,7 +272,7 @@ public class VineBlock extends Block {
     @Override
     public boolean canBeReplaced(BlockState param0, BlockPlaceContext param1) {
         BlockState var0 = param1.getLevel().getBlockState(param1.getClickedPos());
-        if (var0.getBlock() == this) {
+        if (var0.is(this)) {
             return this.countFaces(var0) < PROPERTY_BY_DIRECTION.size();
         } else {
             return super.canBeReplaced(param0, param1);
@@ -283,7 +283,7 @@ public class VineBlock extends Block {
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext param0) {
         BlockState var0 = param0.getLevel().getBlockState(param0.getClickedPos());
-        boolean var1 = var0.getBlock() == this;
+        boolean var1 = var0.is(this);
         BlockState var2 = var1 ? var0 : this.defaultBlockState();
 
         for(Direction var3 : param0.getNearestLookingDirections()) {

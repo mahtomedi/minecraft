@@ -139,27 +139,26 @@ public class ChorusFlowerBlock extends Block {
     @Override
     public boolean canSurvive(BlockState param0, LevelReader param1, BlockPos param2) {
         BlockState var0 = param1.getBlockState(param2.below());
-        Block var1 = var0.getBlock();
-        if (var1 != this.plant && var1 != Blocks.END_STONE) {
+        if (var0.getBlock() != this.plant && !var0.is(Blocks.END_STONE)) {
             if (!var0.isAir()) {
                 return false;
             } else {
-                boolean var2 = false;
+                boolean var1 = false;
 
-                for(Direction var3 : Direction.Plane.HORIZONTAL) {
-                    BlockState var4 = param1.getBlockState(param2.relative(var3));
-                    if (var4.getBlock() == this.plant) {
-                        if (var2) {
+                for(Direction var2 : Direction.Plane.HORIZONTAL) {
+                    BlockState var3 = param1.getBlockState(param2.relative(var2));
+                    if (var3.is(this.plant)) {
+                        if (var1) {
                             return false;
                         }
 
-                        var2 = true;
-                    } else if (!var4.isAir()) {
+                        var1 = true;
+                    } else if (!var3.isAir()) {
                         return false;
                     }
                 }
 
-                return var2;
+                return var1;
             }
         } else {
             return true;

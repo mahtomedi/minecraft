@@ -71,7 +71,7 @@ public class SignRenderer extends BlockEntityRenderer<SignBlockEntity> {
 
         for(int var15 = 0; var15 < 4; ++var15) {
             Component var16 = param0.getRenderMessage(var15, param1x -> {
-                List<Component> var0x = var6.getSplitter().splitLines(param1x, 90, Style.EMPTY, true);
+                List<Component> var0x = var6.getSplitter().splitLines(param1x, 90, Style.EMPTY);
                 return var0x.isEmpty() ? TextComponent.EMPTY : var0x.get(0);
             });
             if (var16 != null) {

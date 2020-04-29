@@ -97,16 +97,15 @@ public class BubbleColumnBlock extends Block implements BucketPickup {
 
     public static boolean canExistIn(LevelAccessor param0, BlockPos param1) {
         FluidState var0 = param0.getFluidState(param1);
-        return param0.getBlockState(param1).getBlock() == Blocks.WATER && var0.getAmount() >= 8 && var0.isSource();
+        return param0.getBlockState(param1).is(Blocks.WATER) && var0.getAmount() >= 8 && var0.isSource();
     }
 
     private static boolean getDrag(BlockGetter param0, BlockPos param1) {
         BlockState var0 = param0.getBlockState(param1);
-        Block var1 = var0.getBlock();
-        if (var1 == Blocks.BUBBLE_COLUMN) {
+        if (var0.is(Blocks.BUBBLE_COLUMN)) {
             return var0.getValue(DRAG_DOWN);
         } else {
-            return var1 != Blocks.SOUL_SAND;
+            return !var0.is(Blocks.SOUL_SAND);
         }
     }
 
@@ -164,7 +163,7 @@ public class BubbleColumnBlock extends Block implements BucketPickup {
         } else {
             if (param1 == Direction.DOWN) {
                 param3.setBlock(param4, Blocks.BUBBLE_COLUMN.defaultBlockState().setValue(DRAG_DOWN, Boolean.valueOf(getDrag(param3, param5))), 2);
-            } else if (param1 == Direction.UP && param2.getBlock() != Blocks.BUBBLE_COLUMN && canExistIn(param3, param5)) {
+            } else if (param1 == Direction.UP && !param2.is(Blocks.BUBBLE_COLUMN) && canExistIn(param3, param5)) {
                 param3.getBlockTicks().scheduleTick(param4, this, 5);
             }
 
@@ -175,8 +174,8 @@ public class BubbleColumnBlock extends Block implements BucketPickup {
 
     @Override
     public boolean canSurvive(BlockState param0, LevelReader param1, BlockPos param2) {
-        Block var0 = param1.getBlockState(param2.below()).getBlock();
-        return var0 == Blocks.BUBBLE_COLUMN || var0 == Blocks.MAGMA_BLOCK || var0 == Blocks.SOUL_SAND;
+        BlockState var0 = param1.getBlockState(param2.below());
+        return var0.is(Blocks.BUBBLE_COLUMN) || var0.is(Blocks.MAGMA_BLOCK) || var0.is(Blocks.SOUL_SAND);
     }
 
     @Override

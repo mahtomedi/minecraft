@@ -1,13 +1,13 @@
 package net.minecraft.client.particle;
 
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class SuspendedTownParticle extends TextureSheetParticle {
-    private SuspendedTownParticle(Level param0, double param1, double param2, double param3, double param4, double param5, double param6) {
+    private SuspendedTownParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6) {
         super(param0, param1, param2, param3, param4, param5, param6);
         float var0 = this.random.nextFloat() * 0.1F + 0.2F;
         this.rCol = var0;
@@ -56,7 +56,7 @@ public class SuspendedTownParticle extends TextureSheetParticle {
         }
 
         public Particle createParticle(
-            SimpleParticleType param0, Level param1, double param2, double param3, double param4, double param5, double param6, double param7
+            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
             SuspendedTownParticle var0 = new SuspendedTownParticle(param1, param2, param3, param4, param5, param6, param7);
             var0.pickSprite(this.sprite);
@@ -75,7 +75,7 @@ public class SuspendedTownParticle extends TextureSheetParticle {
         }
 
         public Particle createParticle(
-            SimpleParticleType param0, Level param1, double param2, double param3, double param4, double param5, double param6, double param7
+            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
             SuspendedTownParticle var0 = new SuspendedTownParticle(param1, param2, param3, param4, param5, param6, param7);
             var0.setColor(0.3F, 0.5F, 1.0F);
@@ -95,7 +95,7 @@ public class SuspendedTownParticle extends TextureSheetParticle {
         }
 
         public Particle createParticle(
-            SimpleParticleType param0, Level param1, double param2, double param3, double param4, double param5, double param6, double param7
+            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
             SuspendedTownParticle var0 = new SuspendedTownParticle(param1, param2, param3, param4, param5, param6, param7);
             var0.pickSprite(this.sprite);
@@ -113,7 +113,7 @@ public class SuspendedTownParticle extends TextureSheetParticle {
         }
 
         public Particle createParticle(
-            SimpleParticleType param0, Level param1, double param2, double param3, double param4, double param5, double param6, double param7
+            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
             SuspendedTownParticle var0 = new SuspendedTownParticle(param1, param2, param3, param4, param5, param6, param7);
             var0.pickSprite(this.sprite);

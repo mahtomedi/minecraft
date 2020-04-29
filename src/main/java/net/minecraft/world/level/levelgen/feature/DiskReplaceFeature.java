@@ -41,7 +41,7 @@ public class DiskReplaceFeature extends Feature<DiskConfiguration> {
                             BlockState var8 = param0.getBlockState(var7);
 
                             for(BlockState var9 : param5.targets) {
-                                if (var9.getBlock() == var8.getBlock()) {
+                                if (var9.is(var8.getBlock())) {
                                     param0.setBlock(var7, param5.state, 2);
                                     ++var0;
                                     break;

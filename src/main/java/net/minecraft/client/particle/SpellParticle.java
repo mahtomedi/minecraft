@@ -1,8 +1,8 @@
 package net.minecraft.client.particle;
 
 import java.util.Random;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -11,7 +11,7 @@ public class SpellParticle extends TextureSheetParticle {
     private static final Random RANDOM = new Random();
     private final SpriteSet sprites;
 
-    private SpellParticle(Level param0, double param1, double param2, double param3, double param4, double param5, double param6, SpriteSet param7) {
+    private SpellParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6, SpriteSet param7) {
         super(param0, param1, param2, param3, 0.5 - RANDOM.nextDouble(), param5, 0.5 - RANDOM.nextDouble());
         this.sprites = param7;
         this.yd *= 0.2F;
@@ -67,7 +67,7 @@ public class SpellParticle extends TextureSheetParticle {
         }
 
         public Particle createParticle(
-            SimpleParticleType param0, Level param1, double param2, double param3, double param4, double param5, double param6, double param7
+            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
             Particle var0 = new SpellParticle(param1, param2, param3, param4, param5, param6, param7, this.sprite);
             var0.setAlpha(0.15F);
@@ -85,7 +85,7 @@ public class SpellParticle extends TextureSheetParticle {
         }
 
         public Particle createParticle(
-            SimpleParticleType param0, Level param1, double param2, double param3, double param4, double param5, double param6, double param7
+            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
             return new SpellParticle(param1, param2, param3, param4, param5, param6, param7, this.sprite);
         }
@@ -100,7 +100,7 @@ public class SpellParticle extends TextureSheetParticle {
         }
 
         public Particle createParticle(
-            SimpleParticleType param0, Level param1, double param2, double param3, double param4, double param5, double param6, double param7
+            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
             Particle var0 = new SpellParticle(param1, param2, param3, param4, param5, param6, param7, this.sprite);
             var0.setColor((float)param5, (float)param6, (float)param7);
@@ -117,7 +117,7 @@ public class SpellParticle extends TextureSheetParticle {
         }
 
         public Particle createParticle(
-            SimpleParticleType param0, Level param1, double param2, double param3, double param4, double param5, double param6, double param7
+            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
             return new SpellParticle(param1, param2, param3, param4, param5, param6, param7, this.sprite);
         }
@@ -132,7 +132,7 @@ public class SpellParticle extends TextureSheetParticle {
         }
 
         public Particle createParticle(
-            SimpleParticleType param0, Level param1, double param2, double param3, double param4, double param5, double param6, double param7
+            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
             SpellParticle var0 = new SpellParticle(param1, param2, param3, param4, param5, param6, param7, this.sprite);
             float var1 = param1.random.nextFloat() * 0.5F + 0.35F;

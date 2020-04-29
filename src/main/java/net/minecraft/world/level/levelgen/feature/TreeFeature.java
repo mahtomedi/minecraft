@@ -46,20 +46,20 @@ public class TreeFeature extends Feature<TreeConfiguration> {
                 return param0x.isAir()
                     || param0x.is(BlockTags.LEAVES)
                     || isDirt(var0x)
-                    || var0x.is(BlockTags.LOGS)
-                    || var0x.is(BlockTags.SAPLINGS)
-                    || var0x == Blocks.VINE
-                    || var0x == Blocks.WATER;
+                    || param0x.is(BlockTags.LOGS)
+                    || param0x.is(BlockTags.SAPLINGS)
+                    || param0x.is(Blocks.VINE)
+                    || param0x.is(Blocks.WATER);
             }
         );
     }
 
     private static boolean isVine(LevelSimulatedReader param0, BlockPos param1) {
-        return param0.isStateAtPosition(param1, param0x -> param0x.getBlock() == Blocks.VINE);
+        return param0.isStateAtPosition(param1, param0x -> param0x.is(Blocks.VINE));
     }
 
     private static boolean isBlockWater(LevelSimulatedReader param0, BlockPos param1) {
-        return param0.isStateAtPosition(param1, param0x -> param0x.getBlock() == Blocks.WATER);
+        return param0.isStateAtPosition(param1, param0x -> param0x.is(Blocks.WATER));
     }
 
     public static boolean isAirOrLeaves(LevelSimulatedReader param0, BlockPos param1) {

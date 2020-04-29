@@ -1,14 +1,14 @@
 package net.minecraft.client.particle;
 
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class CritParticle extends TextureSheetParticle {
-    private CritParticle(Level param0, double param1, double param2, double param3, double param4, double param5, double param6) {
+    private CritParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6) {
         super(param0, param1, param2, param3, 0.0, 0.0, 0.0);
         this.xd *= 0.1F;
         this.yd *= 0.1F;
@@ -68,7 +68,7 @@ public class CritParticle extends TextureSheetParticle {
         }
 
         public Particle createParticle(
-            SimpleParticleType param0, Level param1, double param2, double param3, double param4, double param5, double param6, double param7
+            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
             CritParticle var0 = new CritParticle(param1, param2, param3, param4, param5, param6 + 1.0, param7);
             var0.setLifetime(20);
@@ -86,7 +86,7 @@ public class CritParticle extends TextureSheetParticle {
         }
 
         public Particle createParticle(
-            SimpleParticleType param0, Level param1, double param2, double param3, double param4, double param5, double param6, double param7
+            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
             CritParticle var0 = new CritParticle(param1, param2, param3, param4, param5, param6, param7);
             var0.rCol *= 0.3F;
@@ -105,7 +105,7 @@ public class CritParticle extends TextureSheetParticle {
         }
 
         public Particle createParticle(
-            SimpleParticleType param0, Level param1, double param2, double param3, double param4, double param5, double param6, double param7
+            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
             CritParticle var0 = new CritParticle(param1, param2, param3, param4, param5, param6, param7);
             var0.pickSprite(this.sprite);

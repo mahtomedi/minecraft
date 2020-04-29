@@ -124,7 +124,7 @@ public class StructureUtils {
                 for(int var4 = (int)var1.minZ; var4 <= (int)var1.maxZ; ++var4) {
                     BlockPos var5 = new BlockPos(var2, var3, var4);
                     BlockState var6 = param2.getBlockState(var5);
-                    if (var6.getBlock() == Blocks.STRUCTURE_BLOCK) {
+                    if (var6.is(Blocks.STRUCTURE_BLOCK)) {
                         var0.add(var5);
                     }
                 }

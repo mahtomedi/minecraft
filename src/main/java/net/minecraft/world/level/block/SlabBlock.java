@@ -62,7 +62,7 @@ public class SlabBlock extends Block implements SimpleWaterloggedBlock {
     public BlockState getStateForPlacement(BlockPlaceContext param0) {
         BlockPos var0 = param0.getClickedPos();
         BlockState var1 = param0.getLevel().getBlockState(var0);
-        if (var1.getBlock() == this) {
+        if (var1.is(this)) {
             return var1.setValue(TYPE, SlabType.DOUBLE).setValue(WATERLOGGED, Boolean.valueOf(false));
         } else {
             FluidState var2 = param0.getLevel().getFluidState(var0);

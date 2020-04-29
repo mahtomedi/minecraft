@@ -61,7 +61,7 @@ public abstract class AbstractFish extends WaterAnimal {
     public static boolean checkFishSpawnRules(
         EntityType<? extends AbstractFish> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4
     ) {
-        return param1.getBlockState(param3).getBlock() == Blocks.WATER && param1.getBlockState(param3.above()).getBlock() == Blocks.WATER;
+        return param1.getBlockState(param3).is(Blocks.WATER) && param1.getBlockState(param3.above()).is(Blocks.WATER);
     }
 
     @Override

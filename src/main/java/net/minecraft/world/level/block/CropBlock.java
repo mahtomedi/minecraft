@@ -48,7 +48,7 @@ public class CropBlock extends BushBlock implements BonemealableBlock {
 
     @Override
     protected boolean mayPlaceOn(BlockState param0, BlockGetter param1, BlockPos param2) {
-        return param0.getBlock() == Blocks.FARMLAND;
+        return param0.is(Blocks.FARMLAND);
     }
 
     public IntegerProperty getAgeProperty() {
@@ -112,7 +112,7 @@ public class CropBlock extends BushBlock implements BonemealableBlock {
             for(int var3 = -1; var3 <= 1; ++var3) {
                 float var4 = 0.0F;
                 BlockState var5 = param1.getBlockState(var1.offset(var2, 0, var3));
-                if (var5.getBlock() == Blocks.FARMLAND) {
+                if (var5.is(Blocks.FARMLAND)) {
                     var4 = 1.0F;
                     if (var5.getValue(FarmBlock.MOISTURE) > 0) {
                         var4 = 3.0F;

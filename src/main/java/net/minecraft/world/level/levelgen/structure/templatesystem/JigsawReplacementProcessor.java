@@ -8,8 +8,8 @@ import javax.annotation.Nullable;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class JigsawReplacementProcessor extends StructureProcessor {
     public static final JigsawReplacementProcessor INSTANCE = new JigsawReplacementProcessor();
@@ -27,8 +27,8 @@ public class JigsawReplacementProcessor extends StructureProcessor {
         StructureTemplate.StructureBlockInfo param4,
         StructurePlaceSettings param5
     ) {
-        Block var0 = param4.state.getBlock();
-        if (var0 == Blocks.JIGSAW) {
+        BlockState var0 = param4.state;
+        if (var0.is(Blocks.JIGSAW)) {
             String var1 = param4.nbt.getString("final_state");
             BlockStateParser var2 = new BlockStateParser(new StringReader(var1), false);
 
@@ -38,7 +38,7 @@ public class JigsawReplacementProcessor extends StructureProcessor {
                 throw new RuntimeException(var11);
             }
 
-            return var2.getState().getBlock() == Blocks.STRUCTURE_VOID ? null : new StructureTemplate.StructureBlockInfo(param4.pos, var2.getState(), null);
+            return var2.getState().is(Blocks.STRUCTURE_VOID) ? null : new StructureTemplate.StructureBlockInfo(param4.pos, var2.getState(), null);
         } else {
             return param4;
         }

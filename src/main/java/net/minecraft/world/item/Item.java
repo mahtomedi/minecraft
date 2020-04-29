@@ -15,7 +15,6 @@ import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.Tag;
@@ -26,7 +25,6 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -44,23 +42,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Item implements ItemLike {
     public static final Map<Block, Item> BY_BLOCK = Maps.newHashMap();
-    private static final ItemPropertyFunction PROPERTY_DAMAGED = (param0, param1, param2) -> param0.isDamaged() ? 1.0F : 0.0F;
-    private static final ItemPropertyFunction PROPERTY_DAMAGE = (param0, param1, param2) -> Mth.clamp(
-            (float)param0.getDamageValue() / (float)param0.getMaxDamage(), 0.0F, 1.0F
-        );
-    private static final ItemPropertyFunction PROPERTY_LEFTHANDED = (param0, param1, param2) -> param2 != null && param2.getMainArm() != HumanoidArm.RIGHT
-            ? 1.0F
-            : 0.0F;
-    private static final ItemPropertyFunction PROPERTY_COOLDOWN = (param0, param1, param2) -> param2 instanceof Player
-            ? ((Player)param2).getCooldowns().getCooldownPercent(param0.getItem(), 0.0F)
-            : 0.0F;
-    private static final ItemPropertyFunction PROPERTY_CUSTOM_MODEL_DATA = (param0, param1, param2) -> param0.hasTag()
-            ? (float)param0.getTag().getInt("CustomModelData")
-            : 0.0F;
     protected static final UUID BASE_ATTACK_DAMAGE_UUID = UUID.fromString("CB3F55D3-645C-4F38-A497-9C13A33DB5CF");
     protected static final UUID BASE_ATTACK_SPEED_UUID = UUID.fromString("FA233E1C-4180-4865-B01B-BCCE9785ACA3");
     protected static final Random random = new Random();
-    private final Map<ResourceLocation, ItemPropertyFunction> properties = Maps.newHashMap();
     protected final CreativeModeTab category;
     private final Rarity rarity;
     private final int maxStackSize;
@@ -86,9 +70,6 @@ public class Item implements ItemLike {
     }
 
     public Item(Item.Properties param0) {
-        this.addProperty(new ResourceLocation("lefthanded"), PROPERTY_LEFTHANDED);
-        this.addProperty(new ResourceLocation("cooldown"), PROPERTY_COOLDOWN);
-        this.addProperty(new ResourceLocation("custom_model_data"), PROPERTY_CUSTOM_MODEL_DATA);
         this.category = param0.category;
         this.rarity = param0.rarity;
         this.craftingRemainingItem = param0.craftingRemainingItem;
@@ -96,25 +77,9 @@ public class Item implements ItemLike {
         this.maxStackSize = param0.maxStackSize;
         this.foodProperties = param0.foodProperties;
         this.isFireResistant = param0.isFireResistant;
-        if (this.maxDamage > 0) {
-            this.addProperty(new ResourceLocation("damaged"), PROPERTY_DAMAGED);
-            this.addProperty(new ResourceLocation("damage"), PROPERTY_DAMAGE);
-        }
-
     }
 
     public void onUseTick(Level param0, LivingEntity param1, ItemStack param2, int param3) {
-    }
-
-    @Nullable
-    @OnlyIn(Dist.CLIENT)
-    public ItemPropertyFunction getProperty(ResourceLocation param0) {
-        return this.properties.get(param0);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public boolean hasProperties() {
-        return !this.properties.isEmpty();
     }
 
     public boolean verifyTagAfterLoad(CompoundTag param0) {
@@ -128,10 +93,6 @@ public class Item implements ItemLike {
     @Override
     public Item asItem() {
         return this;
-    }
-
-    public final void addProperty(ResourceLocation param0, ItemPropertyFunction param1) {
-        this.properties.put(param0, param1);
     }
 
     public InteractionResult useOn(UseOnContext param0) {

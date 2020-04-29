@@ -62,7 +62,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.RespawnAnchorBlock;
 import net.minecraft.world.level.border.BorderChangeListener;
 import net.minecraft.world.level.border.WorldBorder;
@@ -464,7 +463,7 @@ public abstract class PlayerList {
         var6.connection
             .send(
                 new ClientboundRespawnPacket(
-                    var6.dimension, LevelData.obfuscateSeed(var11.getSeed()), var11.getGeneratorType(), var6.gameMode.getGameModeForPlayer()
+                    var6.dimension, LevelData.obfuscateSeed(var11.getSeed()), var11.getGeneratorType(), var6.gameMode.getGameModeForPlayer(), param1
                 )
             );
         var6.connection.teleport(var6.getX(), var6.getY(), var6.getZ(), var6.yRot, var6.xRot);
@@ -608,7 +607,7 @@ public abstract class PlayerList {
 
     public boolean isOp(GameProfile param0) {
         return this.ops.contains(param0)
-            || this.server.isSingleplayerOwner(param0) && this.server.getLevel(DimensionType.OVERWORLD).getLevelData().getAllowCommands()
+            || this.server.isSingleplayerOwner(param0) && this.server.getWorldData().getAllowCommands()
             || this.allowCheatsForAllPlayers;
     }
 
@@ -729,14 +728,14 @@ public abstract class PlayerList {
         this.overrideGameMode = param0;
     }
 
-    private void updatePlayerGameMode(ServerPlayer param0, ServerPlayer param1, LevelAccessor param2) {
+    private void updatePlayerGameMode(ServerPlayer param0, ServerPlayer param1, ServerLevel param2) {
         if (param1 != null) {
             param0.gameMode.setGameModeForPlayer(param1.gameMode.getGameModeForPlayer());
         } else if (this.overrideGameMode != null) {
             param0.gameMode.setGameModeForPlayer(this.overrideGameMode);
         }
 
-        param0.gameMode.updateGameMode(param2.getLevelData().getGameType());
+        param0.gameMode.updateGameMode(param2.getServer().getWorldData().getGameType());
     }
 
     @OnlyIn(Dist.CLIENT)

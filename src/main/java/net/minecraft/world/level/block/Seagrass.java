@@ -33,7 +33,7 @@ public class Seagrass extends BushBlock implements BonemealableBlock, LiquidBloc
 
     @Override
     protected boolean mayPlaceOn(BlockState param0, BlockGetter param1, BlockPos param2) {
-        return param0.isFaceSturdy(param1, param2, Direction.UP) && param0.getBlock() != Blocks.MAGMA_BLOCK;
+        return param0.isFaceSturdy(param1, param2, Direction.UP) && !param0.is(Blocks.MAGMA_BLOCK);
     }
 
     @Nullable
@@ -73,7 +73,7 @@ public class Seagrass extends BushBlock implements BonemealableBlock, LiquidBloc
         BlockState var0 = Blocks.TALL_SEAGRASS.defaultBlockState();
         BlockState var1 = var0.setValue(TallSeagrass.HALF, DoubleBlockHalf.UPPER);
         BlockPos var2 = param2.above();
-        if (param0.getBlockState(var2).getBlock() == Blocks.WATER) {
+        if (param0.getBlockState(var2).is(Blocks.WATER)) {
             param0.setBlock(param2, var0, 2);
             param0.setBlock(var2, var1, 2);
         }

@@ -37,7 +37,7 @@ public class NetherWartBlock extends BushBlock {
 
     @Override
     protected boolean mayPlaceOn(BlockState param0, BlockGetter param1, BlockPos param2) {
-        return param0.getBlock() == Blocks.SOUL_SAND;
+        return param0.is(Blocks.SOUL_SAND);
     }
 
     @Override

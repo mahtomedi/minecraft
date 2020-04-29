@@ -413,7 +413,7 @@ public abstract class StructurePiece {
         for(Direction var1 : Direction.Plane.HORIZONTAL) {
             BlockPos var2 = param1.relative(var1);
             BlockState var3 = param0.getBlockState(var2);
-            if (var3.getBlock() == Blocks.CHEST) {
+            if (var3.is(Blocks.CHEST)) {
                 return param2;
             }
 
@@ -454,7 +454,7 @@ public abstract class StructurePiece {
     protected boolean createChest(
         LevelAccessor param0, BoundingBox param1, Random param2, BlockPos param3, ResourceLocation param4, @Nullable BlockState param5
     ) {
-        if (param1.isInside(param3) && param0.getBlockState(param3).getBlock() != Blocks.CHEST) {
+        if (param1.isInside(param3) && !param0.getBlockState(param3).is(Blocks.CHEST)) {
             if (param5 == null) {
                 param5 = reorient(param0, param3, Blocks.CHEST.defaultBlockState());
             }
@@ -475,7 +475,7 @@ public abstract class StructurePiece {
         LevelAccessor param0, BoundingBox param1, Random param2, int param3, int param4, int param5, Direction param6, ResourceLocation param7
     ) {
         BlockPos var0 = new BlockPos(this.getWorldX(param3, param5), this.getWorldY(param4), this.getWorldZ(param3, param5));
-        if (param1.isInside(var0) && param0.getBlockState(var0).getBlock() != Blocks.DISPENSER) {
+        if (param1.isInside(var0) && !param0.getBlockState(var0).is(Blocks.DISPENSER)) {
             this.placeBlock(param0, Blocks.DISPENSER.defaultBlockState().setValue(DispenserBlock.FACING, param6), param3, param4, param5, param1);
             BlockEntity var1 = param0.getBlockEntity(var0);
             if (var1 instanceof DispenserBlockEntity) {

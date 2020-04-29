@@ -1,8 +1,6 @@
 package net.minecraft.advancements.critereon;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.List;
@@ -21,13 +19,13 @@ public class InventoryChangeTrigger extends SimpleCriterionTrigger<InventoryChan
         return ID;
     }
 
-    public InventoryChangeTrigger.TriggerInstance createInstance(JsonObject param0, JsonDeserializationContext param1) {
+    public InventoryChangeTrigger.TriggerInstance createInstance(JsonObject param0, EntityPredicate.Composite param1, DeserializationContext param2) {
         JsonObject var0 = GsonHelper.getAsJsonObject(param0, "slots", new JsonObject());
         MinMaxBounds.Ints var1 = MinMaxBounds.Ints.fromJson(var0.get("occupied"));
         MinMaxBounds.Ints var2 = MinMaxBounds.Ints.fromJson(var0.get("full"));
         MinMaxBounds.Ints var3 = MinMaxBounds.Ints.fromJson(var0.get("empty"));
         ItemPredicate[] var4 = ItemPredicate.fromJsonArray(param0.get("items"));
-        return new InventoryChangeTrigger.TriggerInstance(var1, var2, var3, var4);
+        return new InventoryChangeTrigger.TriggerInstance(param1, var1, var2, var3, var4);
     }
 
     public void trigger(ServerPlayer param0, Inventory param1, ItemStack param2) {
@@ -51,7 +49,7 @@ public class InventoryChangeTrigger extends SimpleCriterionTrigger<InventoryChan
     }
 
     private void trigger(ServerPlayer param0, Inventory param1, ItemStack param2, int param3, int param4, int param5) {
-        this.trigger(param0.getAdvancements(), param5x -> param5x.matches(param1, param2, param3, param4, param5));
+        this.trigger(param0, param5x -> param5x.matches(param1, param2, param3, param4, param5));
     }
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
@@ -60,16 +58,20 @@ public class InventoryChangeTrigger extends SimpleCriterionTrigger<InventoryChan
         private final MinMaxBounds.Ints slotsEmpty;
         private final ItemPredicate[] predicates;
 
-        public TriggerInstance(MinMaxBounds.Ints param0, MinMaxBounds.Ints param1, MinMaxBounds.Ints param2, ItemPredicate[] param3) {
-            super(InventoryChangeTrigger.ID);
-            this.slotsOccupied = param0;
-            this.slotsFull = param1;
-            this.slotsEmpty = param2;
-            this.predicates = param3;
+        public TriggerInstance(
+            EntityPredicate.Composite param0, MinMaxBounds.Ints param1, MinMaxBounds.Ints param2, MinMaxBounds.Ints param3, ItemPredicate[] param4
+        ) {
+            super(InventoryChangeTrigger.ID, param0);
+            this.slotsOccupied = param1;
+            this.slotsFull = param2;
+            this.slotsEmpty = param3;
+            this.predicates = param4;
         }
 
         public static InventoryChangeTrigger.TriggerInstance hasItem(ItemPredicate... param0) {
-            return new InventoryChangeTrigger.TriggerInstance(MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, param0);
+            return new InventoryChangeTrigger.TriggerInstance(
+                EntityPredicate.Composite.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, param0
+            );
         }
 
         public static InventoryChangeTrigger.TriggerInstance hasItem(ItemLike... param0) {
@@ -92,8 +94,8 @@ public class InventoryChangeTrigger extends SimpleCriterionTrigger<InventoryChan
         }
 
         @Override
-        public JsonElement serializeToJson() {
-            JsonObject var0 = new JsonObject();
+        public JsonObject serializeToJson(SerializationContext param0) {
+            JsonObject var0 = super.serializeToJson(param0);
             if (!this.slotsOccupied.isAny() || !this.slotsFull.isAny() || !this.slotsEmpty.isAny()) {
                 JsonObject var1 = new JsonObject();
                 var1.add("occupied", this.slotsOccupied.serializeToJson());

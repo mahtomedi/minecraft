@@ -7,13 +7,13 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.GuardianModel;
 import net.minecraft.client.model.Model;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.ElderGuardianRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -22,7 +22,7 @@ public class MobAppearanceParticle extends Particle {
     private final Model model = new GuardianModel();
     private final RenderType renderType = RenderType.entityTranslucent(ElderGuardianRenderer.GUARDIAN_ELDER_LOCATION);
 
-    private MobAppearanceParticle(Level param0, double param1, double param2, double param3) {
+    private MobAppearanceParticle(ClientLevel param0, double param1, double param2, double param3) {
         super(param0, param1, param2, param3);
         this.gravity = 0.0F;
         this.lifetime = 30;
@@ -51,7 +51,7 @@ public class MobAppearanceParticle extends Particle {
     @OnlyIn(Dist.CLIENT)
     public static class Provider implements ParticleProvider<SimpleParticleType> {
         public Particle createParticle(
-            SimpleParticleType param0, Level param1, double param2, double param3, double param4, double param5, double param6, double param7
+            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
             return new MobAppearanceParticle(param1, param2, param3, param4);
         }

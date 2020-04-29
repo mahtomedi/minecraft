@@ -3,7 +3,6 @@ package net.minecraft.world.item;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -16,10 +15,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class ShieldItem extends Item {
     public ShieldItem(Item.Properties param0) {
         super(param0);
-        this.addProperty(
-            new ResourceLocation("blocking"),
-            (param0x, param1, param2) -> param2 != null && param2.isUsingItem() && param2.getUseItem() == param0x ? 1.0F : 0.0F
-        );
         DispenserBlock.registerBehavior(this, ArmorItem.DISPENSE_ITEM_BEHAVIOR);
     }
 

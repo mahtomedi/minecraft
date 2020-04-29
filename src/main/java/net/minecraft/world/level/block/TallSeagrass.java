@@ -36,7 +36,7 @@ public class TallSeagrass extends ShearableDoublePlantBlock implements LiquidBlo
 
     @Override
     protected boolean mayPlaceOn(BlockState param0, BlockGetter param1, BlockPos param2) {
-        return param0.isFaceSturdy(param1, param2, Direction.UP) && param0.getBlock() != Blocks.MAGMA_BLOCK;
+        return param0.isFaceSturdy(param1, param2, Direction.UP) && !param0.is(Blocks.MAGMA_BLOCK);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -63,7 +63,7 @@ public class TallSeagrass extends ShearableDoublePlantBlock implements LiquidBlo
     public boolean canSurvive(BlockState param0, LevelReader param1, BlockPos param2) {
         if (param0.getValue(HALF) == DoubleBlockHalf.UPPER) {
             BlockState var0 = param1.getBlockState(param2.below());
-            return var0.getBlock() == this && var0.getValue(HALF) == DoubleBlockHalf.LOWER;
+            return var0.is(this) && var0.getValue(HALF) == DoubleBlockHalf.LOWER;
         } else {
             FluidState var1 = param1.getFluidState(param2);
             return super.canSurvive(param0, param1, param2) && var1.is(FluidTags.WATER) && var1.getAmount() == 8;

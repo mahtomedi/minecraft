@@ -1,8 +1,8 @@
 package net.minecraft.client.particle;
 
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -14,15 +14,15 @@ public class TrackingEmitter extends NoRenderParticle {
     private final int lifeTime;
     private final ParticleOptions particleType;
 
-    public TrackingEmitter(Level param0, Entity param1, ParticleOptions param2) {
+    public TrackingEmitter(ClientLevel param0, Entity param1, ParticleOptions param2) {
         this(param0, param1, param2, 3);
     }
 
-    public TrackingEmitter(Level param0, Entity param1, ParticleOptions param2, int param3) {
+    public TrackingEmitter(ClientLevel param0, Entity param1, ParticleOptions param2, int param3) {
         this(param0, param1, param2, param3, param1.getDeltaMovement());
     }
 
-    private TrackingEmitter(Level param0, Entity param1, ParticleOptions param2, int param3, Vec3 param4) {
+    private TrackingEmitter(ClientLevel param0, Entity param1, ParticleOptions param2, int param3, Vec3 param4) {
         super(param0, param1.getX(), param1.getY(0.5), param1.getZ(), param4.x, param4.y, param4.z);
         this.entity = param1;
         this.lifeTime = param3;

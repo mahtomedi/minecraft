@@ -11,7 +11,6 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LevelType;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -48,7 +47,7 @@ public class LevelSummary implements Comparable<LevelSummary> {
         this.worldVersionName = param0.getMinecraftVersionName();
         this.worldVersion = param0.getMinecraftVersion();
         this.snapshot = param0.isSnapshot();
-        this.generatorType = param0.getLevelData(DimensionType.OVERWORLD).getGeneratorType();
+        this.generatorType = param0.overworldData().getGeneratorType();
     }
 
     public String getLevelId() {

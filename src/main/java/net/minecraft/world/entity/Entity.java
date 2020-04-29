@@ -5,6 +5,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import it.unimi.dsi.fastutil.objects.Object2DoubleArrayMap;
+import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -60,6 +62,7 @@ import net.minecraft.world.Nameable;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.global.LightningBolt;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.monster.Shulker;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.ItemStack;
@@ -156,7 +159,7 @@ public abstract class Entity implements CommandSource, Nameable {
     public int tickCount;
     private int remainingFireTicks = -this.getFireImmuneTicks();
     protected boolean wasInWater;
-    protected double fluidHeight;
+    protected Object2DoubleMap<Tag<Fluid>> fluidHeight = new Object2DoubleArrayMap<>(2);
     protected boolean wasUnderWater;
     protected boolean isInLava;
     public int invulnerableTime;
@@ -315,7 +318,7 @@ public abstract class Entity implements CommandSource, Nameable {
         this.removed = true;
     }
 
-    protected void setPose(Pose param0) {
+    public void setPose(Pose param0) {
         this.entityData.set(DATA_POSE, param0);
     }
 
@@ -841,7 +844,7 @@ public abstract class Entity implements CommandSource, Nameable {
     protected void playStepSound(BlockPos param0, BlockState param1) {
         if (!param1.getMaterial().isLiquid()) {
             BlockState var0 = this.level.getBlockState(param0.above());
-            SoundType var1 = var0.getBlock() == Blocks.SNOW ? var0.getSoundType() : param1.getSoundType();
+            SoundType var1 = var0.is(Blocks.SNOW) ? var0.getSoundType() : param1.getSoundType();
             this.playSound(var1.getStepSound(), var1.getVolume() * 0.15F, var1.getPitch());
         }
     }
@@ -927,7 +930,7 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     private boolean isInBubbleColumn() {
-        return this.level.getBlockState(this.blockPosition()).getBlock() == Blocks.BUBBLE_COLUMN;
+        return this.level.getBlockState(this.blockPosition()).is(Blocks.BUBBLE_COLUMN);
     }
 
     public boolean isInWaterOrRain() {
@@ -956,6 +959,7 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     protected boolean updateInWaterStateAndDoFluidPushing() {
+        this.fluidHeight.clear();
         this.updateInWaterStateAndDoWaterCurrentPushing();
         if (this.isInWater()) {
             return true;
@@ -1411,6 +1415,11 @@ public abstract class Entity implements CommandSource, Nameable {
             this.xRot = var2.getFloat(1);
             this.yRotO = this.yRot;
             this.xRotO = this.xRot;
+            if (var2.isEmpty() && this instanceof Shulker) {
+                this.yRot = 180.0F;
+                this.yRotO = 180.0F;
+            }
+
             this.setYHeadRot(this.yRot);
             this.setYBodyRot(this.yRot);
             this.fallDistance = param0.getFloat("FallDistance");
@@ -2014,7 +2023,7 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     private static Component removeAction(Component param0) {
-        MutableComponent var0 = param0.mutableCopy().withStyle(param0x -> param0x.withClickEvent(null));
+        MutableComponent var0 = param0.toMutable().withStyle(param0x -> param0x.withClickEvent(null));
 
         for(Component var1 : param0.getSiblings()) {
             var0.append(removeAction(var1));
@@ -2063,7 +2072,7 @@ public abstract class Entity implements CommandSource, Nameable {
             this.getClass().getSimpleName(),
             this.getName().getContents(),
             this.id,
-            this.level == null ? "~NULL~" : this.level.getLevelData().getLevelName(),
+            this.level == null ? "~NULL~" : this.level.toString(),
             this.getX(),
             this.getY(),
             this.getZ()
@@ -2759,13 +2768,13 @@ public abstract class Entity implements CommandSource, Nameable {
                 this.setDeltaMovement(this.getDeltaMovement().add(var10.scale(param1)));
             }
 
-            this.fluidHeight = var7;
+            this.fluidHeight.put(param0, var7);
             return var9;
         }
     }
 
-    public double getFluidHeight() {
-        return this.fluidHeight;
+    public double getFluidHeight(Tag<Fluid> param0) {
+        return this.fluidHeight.getDouble(param0);
     }
 
     public final float getBbWidth() {

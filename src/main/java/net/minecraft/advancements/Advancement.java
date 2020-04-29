@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import java.util.Arrays;
@@ -15,6 +14,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
+import net.minecraft.advancements.critereon.DeserializationContext;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
@@ -355,10 +355,12 @@ public class Advancement {
                 + '}';
         }
 
-        public static Advancement.Builder fromJson(JsonObject param0, JsonDeserializationContext param1) {
+        public static Advancement.Builder fromJson(JsonObject param0, DeserializationContext param1) {
             ResourceLocation var0 = param0.has("parent") ? new ResourceLocation(GsonHelper.getAsString(param0, "parent")) : null;
-            DisplayInfo var1 = param0.has("display") ? DisplayInfo.fromJson(GsonHelper.getAsJsonObject(param0, "display"), param1) : null;
-            AdvancementRewards var2 = GsonHelper.getAsObject(param0, "rewards", AdvancementRewards.EMPTY, param1, AdvancementRewards.class);
+            DisplayInfo var1 = param0.has("display") ? DisplayInfo.fromJson(GsonHelper.getAsJsonObject(param0, "display")) : null;
+            AdvancementRewards var2 = param0.has("rewards")
+                ? AdvancementRewards.deserialize(GsonHelper.getAsJsonObject(param0, "rewards"))
+                : AdvancementRewards.EMPTY;
             Map<String, Criterion> var3 = Criterion.criteriaFromJson(GsonHelper.getAsJsonObject(param0, "criteria"), param1);
             if (var3.isEmpty()) {
                 throw new JsonSyntaxException("Advancement criteria cannot be empty");

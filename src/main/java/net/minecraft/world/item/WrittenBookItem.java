@@ -84,7 +84,7 @@ public class WrittenBookItem extends Item {
         Level var0 = param0.getLevel();
         BlockPos var1 = param0.getClickedPos();
         BlockState var2 = var0.getBlockState(var1);
-        if (var2.getBlock() == Blocks.LECTERN) {
+        if (var2.is(Blocks.LECTERN)) {
             return LecternBlock.tryPlaceBook(var0, var1, var2, param0.getItemInHand()) ? InteractionResult.SUCCESS : InteractionResult.PASS;
         } else {
             return InteractionResult.PASS;

@@ -6,7 +6,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import java.util.Set;
 import net.minecraft.advancements.critereon.EntityPredicate;
-import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
@@ -31,8 +30,8 @@ public class LootItemEntityPropertyCondition implements LootItemCondition {
 
     public boolean test(LootContext param0) {
         Entity var0 = param0.getParamOrNull(this.entityTarget.getParam());
-        BlockPos var1 = param0.getParamOrNull(LootContextParams.BLOCK_POS);
-        return this.predicate.matches(param0.getLevel(), var1 != null ? Vec3.atLowerCornerOf(var1) : null, var0);
+        Vec3 var1 = param0.getParamOrNull(LootContextParams.ORIGIN);
+        return this.predicate.matches(param0.getLevel(), var1, var0);
     }
 
     public static LootItemCondition.Builder entityPresent(LootContext.EntityTarget param0) {
@@ -41,6 +40,10 @@ public class LootItemEntityPropertyCondition implements LootItemCondition {
 
     public static LootItemCondition.Builder hasProperties(LootContext.EntityTarget param0, EntityPredicate.Builder param1) {
         return () -> new LootItemEntityPropertyCondition(param1.build(), param0);
+    }
+
+    public static LootItemCondition.Builder hasProperties(LootContext.EntityTarget param0, EntityPredicate param1) {
+        return () -> new LootItemEntityPropertyCondition(param1, param0);
     }
 
     public static class Serializer extends LootItemCondition.Serializer<LootItemEntityPropertyCondition> {

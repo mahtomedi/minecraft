@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -131,7 +132,7 @@ public abstract class BlockBehaviour {
 
     @Deprecated
     public void onRemove(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
-        if (this.isEntityBlock() && param0.getBlock() != param3.getBlock()) {
+        if (this.isEntityBlock() && !param0.is(param3.getBlock())) {
             param1.removeBlockEntity(param2);
         }
 
@@ -667,6 +668,14 @@ public abstract class BlockBehaviour {
             return this.getBlock().is(param0);
         }
 
+        public boolean is(Tag<Block> param0, Predicate<BlockBehaviour.BlockStateBase> param1) {
+            return this.getBlock().is(param0) && param1.test(this);
+        }
+
+        public boolean is(Block param0) {
+            return this.getBlock().is(param0);
+        }
+
         public FluidState getFluidState() {
             return this.getBlock().getFluidState(this.asState());
         }
@@ -766,8 +775,7 @@ public abstract class BlockBehaviour {
                 )
                 && param0x.getLightEmission() < 14;
         private BlockBehaviour.StatePredicate isRedstoneConductor = (param0x, param1x, param2) -> param0x.getMaterial().isSolidBlocking()
-                && param0x.isCollisionShapeFullBlock(param1x, param2)
-                && !param0x.isSignalSource();
+                && param0x.isCollisionShapeFullBlock(param1x, param2);
         private BlockBehaviour.StatePredicate isSuffocating = (param0x, param1x, param2) -> this.material.blocksMotion()
                 && param0x.isCollisionShapeFullBlock(param1x, param2);
         private BlockBehaviour.StatePredicate isViewBlocking = this.isSuffocating;

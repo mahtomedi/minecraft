@@ -105,7 +105,7 @@ public class PistonHeadBlock extends DirectionalBlock {
 
     private boolean isFittingBase(BlockState param0, BlockState param1) {
         Block var0 = param0.getValue(TYPE) == PistonType.DEFAULT ? Blocks.PISTON : Blocks.STICKY_PISTON;
-        return param1.getBlock() == var0 && param1.getValue(PistonBaseBlock.EXTENDED) && param1.getValue(FACING) == param0.getValue(FACING);
+        return param1.is(var0) && param1.getValue(PistonBaseBlock.EXTENDED) && param1.getValue(FACING) == param0.getValue(FACING);
     }
 
     @Override
@@ -122,7 +122,7 @@ public class PistonHeadBlock extends DirectionalBlock {
 
     @Override
     public void onRemove(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
-        if (param0.getBlock() != param3.getBlock()) {
+        if (!param0.is(param3.getBlock())) {
             super.onRemove(param0, param1, param2, param3, param4);
             BlockPos var0 = param2.relative(param0.getValue(FACING).getOpposite());
             if (this.isFittingBase(param0, param1.getBlockState(var0))) {
@@ -142,7 +142,7 @@ public class PistonHeadBlock extends DirectionalBlock {
     @Override
     public boolean canSurvive(BlockState param0, LevelReader param1, BlockPos param2) {
         BlockState var0 = param1.getBlockState(param2.relative(param0.getValue(FACING).getOpposite()));
-        return this.isFittingBase(param0, var0) || var0.getBlock() == Blocks.MOVING_PISTON && var0.getValue(FACING) == param0.getValue(FACING);
+        return this.isFittingBase(param0, var0) || var0.is(Blocks.MOVING_PISTON) && var0.getValue(FACING) == param0.getValue(FACING);
     }
 
     @Override

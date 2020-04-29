@@ -24,7 +24,6 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.entity.BedBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -34,6 +33,7 @@ import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.AABB;
@@ -80,7 +80,7 @@ public class BedBlock extends HorizontalDirectionalBlock implements EntityBlock 
             if (param0.getValue(PART) != BedPart.HEAD) {
                 param2 = param2.relative(param0.getValue(FACING));
                 param0 = param1.getBlockState(param2);
-                if (param0.getBlock() != this) {
+                if (!param0.is(this)) {
                     return InteractionResult.CONSUME;
                 }
             }
@@ -88,7 +88,7 @@ public class BedBlock extends HorizontalDirectionalBlock implements EntityBlock 
             if (!canSetSpawn(param1, param2)) {
                 param1.removeBlock(param2, false);
                 BlockPos var0 = param2.relative(param0.getValue(FACING).getOpposite());
-                if (param1.getBlockState(var0).getBlock() == this) {
+                if (param1.getBlockState(var0).is(this)) {
                     param1.removeBlock(var0, false);
                 }
 
@@ -122,7 +122,7 @@ public class BedBlock extends HorizontalDirectionalBlock implements EntityBlock 
     }
 
     public static boolean canSetSpawn(Level param0, BlockPos param1) {
-        return param0.dimension.mayRespawn() && param0.getBiome(param1) != Biomes.NETHER_WASTES;
+        return param0.dimension.getType() == DimensionType.OVERWORLD;
     }
 
     private boolean kickVillagerOutOfBed(Level param0, BlockPos param1) {
@@ -162,7 +162,7 @@ public class BedBlock extends HorizontalDirectionalBlock implements EntityBlock 
     @Override
     public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
         if (param1 == getNeighbourDirection(param0.getValue(PART), param0.getValue(FACING))) {
-            return param2.getBlock() == this && param2.getValue(PART) != param0.getValue(PART)
+            return param2.is(this) && param2.getValue(PART) != param0.getValue(PART)
                 ? param0.setValue(OCCUPIED, param2.getValue(OCCUPIED))
                 : Blocks.AIR.defaultBlockState();
         } else {
@@ -184,7 +184,7 @@ public class BedBlock extends HorizontalDirectionalBlock implements EntityBlock 
         BedPart var0 = param2.getValue(PART);
         BlockPos var1 = param1.relative(getNeighbourDirection(var0, param2.getValue(FACING)));
         BlockState var2 = param0.getBlockState(var1);
-        if (var2.getBlock() == this && var2.getValue(PART) != var0) {
+        if (var2.is(this) && var2.getValue(PART) != var0) {
             param0.setBlock(var1, Blocks.AIR.defaultBlockState(), 35);
             param0.levelEvent(param3, 2001, var1, Block.getId(var2));
             if (!param0.isClientSide && !param3.isCreative()) {

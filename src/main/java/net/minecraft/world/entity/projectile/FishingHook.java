@@ -30,7 +30,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
@@ -316,8 +315,8 @@ public class FishingHook extends Projectile {
                 double var6 = this.getX() + (double)(var4 * (float)this.timeUntilHooked * 0.1F);
                 double var7 = (double)((float)Mth.floor(this.getY()) + 1.0F);
                 double var8 = this.getZ() + (double)(var5 * (float)this.timeUntilHooked * 0.1F);
-                Block var9 = var0.getBlockState(new BlockPos(var6, var7 - 1.0, var8)).getBlock();
-                if (var9 == Blocks.WATER) {
+                BlockState var9 = var0.getBlockState(new BlockPos(var6, var7 - 1.0, var8));
+                if (var9.is(Blocks.WATER)) {
                     if (this.random.nextFloat() < 0.15F) {
                         var0.sendParticles(ParticleTypes.BUBBLE, var6, var7 - 0.1F, var8, 1, (double)var4, 0.1, (double)var5, 0.0);
                     }
@@ -372,8 +371,8 @@ public class FishingHook extends Projectile {
                 double var16 = this.getX() + (double)(Mth.sin(var14) * var15 * 0.1F);
                 double var17 = (double)((float)Mth.floor(this.getY()) + 1.0F);
                 double var18 = this.getZ() + (double)(Mth.cos(var14) * var15 * 0.1F);
-                Block var19 = var0.getBlockState(new BlockPos(var16, var17 - 1.0, var18)).getBlock();
-                if (var19 == Blocks.WATER) {
+                BlockState var19 = var0.getBlockState(new BlockPos(var16, var17 - 1.0, var18));
+                if (var19.is(Blocks.WATER)) {
                     var0.sendParticles(ParticleTypes.SPLASH, var16, var17, var18, 2 + this.random.nextInt(2), 0.1F, 0.0, 0.1F, 0.0);
                 }
             }
@@ -423,7 +422,7 @@ public class FishingHook extends Projectile {
 
     private FishingHook.OpenWaterType getOpenWaterTypeForBlock(BlockPos param0x) {
         BlockState var0 = this.level.getBlockState(param0x);
-        if (!var0.isAir() && var0.getBlock() != Blocks.LILY_PAD) {
+        if (!var0.isAir() && !var0.is(Blocks.LILY_PAD)) {
             FluidState var1 = var0.getFluidState();
             return var1.is(FluidTags.WATER) && var1.isSource() && var0.getCollisionShape(this.level, param0x).isEmpty()
                 ? FishingHook.OpenWaterType.INSIDE_WATER

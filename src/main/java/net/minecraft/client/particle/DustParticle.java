@@ -1,8 +1,8 @@
 package net.minecraft.client.particle;
 
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -11,7 +11,15 @@ public class DustParticle extends TextureSheetParticle {
     private final SpriteSet sprites;
 
     private DustParticle(
-        Level param0, double param1, double param2, double param3, double param4, double param5, double param6, DustParticleOptions param7, SpriteSet param8
+        ClientLevel param0,
+        double param1,
+        double param2,
+        double param3,
+        double param4,
+        double param5,
+        double param6,
+        DustParticleOptions param7,
+        SpriteSet param8
     ) {
         super(param0, param1, param2, param3, param4, param5, param6);
         this.sprites = param8;
@@ -73,7 +81,7 @@ public class DustParticle extends TextureSheetParticle {
         }
 
         public Particle createParticle(
-            DustParticleOptions param0, Level param1, double param2, double param3, double param4, double param5, double param6, double param7
+            DustParticleOptions param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
             return new DustParticle(param1, param2, param3, param4, param5, param6, param7, param0, this.sprites);
         }

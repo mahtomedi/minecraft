@@ -101,27 +101,26 @@ public class PickaxeItem extends DiggerItem {
 
     @Override
     public boolean canDestroySpecial(BlockState param0) {
-        Block var0 = param0.getBlock();
-        int var1 = this.getTier().getLevel();
-        if (var0 == Blocks.OBSIDIAN
-            || var0 == Blocks.CRYING_OBSIDIAN
-            || var0 == Blocks.NETHERITE_BLOCK
-            || var0 == Blocks.RESPAWN_ANCHOR
-            || var0 == Blocks.ANCIENT_DEBRIS) {
-            return var1 >= 3;
-        } else if (var0 == Blocks.DIAMOND_BLOCK
-            || var0 == Blocks.DIAMOND_ORE
-            || var0 == Blocks.EMERALD_ORE
-            || var0 == Blocks.EMERALD_BLOCK
-            || var0 == Blocks.GOLD_BLOCK
-            || var0 == Blocks.GOLD_ORE
-            || var0 == Blocks.REDSTONE_ORE) {
-            return var1 >= 2;
-        } else if (var0 != Blocks.IRON_BLOCK && var0 != Blocks.IRON_ORE && var0 != Blocks.LAPIS_BLOCK && var0 != Blocks.LAPIS_ORE) {
-            Material var2 = param0.getMaterial();
-            return var2 == Material.STONE || var2 == Material.METAL || var2 == Material.HEAVY_METAL || var0 == Blocks.NETHER_GOLD_ORE;
+        int var0 = this.getTier().getLevel();
+        if (param0.is(Blocks.OBSIDIAN)
+            || param0.is(Blocks.CRYING_OBSIDIAN)
+            || param0.is(Blocks.NETHERITE_BLOCK)
+            || param0.is(Blocks.RESPAWN_ANCHOR)
+            || param0.is(Blocks.ANCIENT_DEBRIS)) {
+            return var0 >= 3;
+        } else if (param0.is(Blocks.DIAMOND_BLOCK)
+            || param0.is(Blocks.DIAMOND_ORE)
+            || param0.is(Blocks.EMERALD_ORE)
+            || param0.is(Blocks.EMERALD_BLOCK)
+            || param0.is(Blocks.GOLD_BLOCK)
+            || param0.is(Blocks.GOLD_ORE)
+            || param0.is(Blocks.REDSTONE_ORE)) {
+            return var0 >= 2;
+        } else if (!param0.is(Blocks.IRON_BLOCK) && !param0.is(Blocks.IRON_ORE) && !param0.is(Blocks.LAPIS_BLOCK) && !param0.is(Blocks.LAPIS_ORE)) {
+            Material var1 = param0.getMaterial();
+            return var1 == Material.STONE || var1 == Material.METAL || var1 == Material.HEAVY_METAL || param0.is(Blocks.NETHER_GOLD_ORE);
         } else {
-            return var1 >= 1;
+            return var0 >= 1;
         }
     }
 

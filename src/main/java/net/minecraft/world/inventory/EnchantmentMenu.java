@@ -99,28 +99,28 @@ public class EnchantmentMenu extends AbstractContainerMenu {
                                     if ((var1x != 0 || var2 != 0)
                                         && param1.isEmptyBlock(param2.offset(var2, 0, var1x))
                                         && param1.isEmptyBlock(param2.offset(var2, 1, var1x))) {
-                                        if (param1.getBlockState(param2.offset(var2 * 2, 0, var1x * 2)).getBlock() == Blocks.BOOKSHELF) {
+                                        if (param1.getBlockState(param2.offset(var2 * 2, 0, var1x * 2)).is(Blocks.BOOKSHELF)) {
                                             ++var0x;
                                         }
         
-                                        if (param1.getBlockState(param2.offset(var2 * 2, 1, var1x * 2)).getBlock() == Blocks.BOOKSHELF) {
+                                        if (param1.getBlockState(param2.offset(var2 * 2, 1, var1x * 2)).is(Blocks.BOOKSHELF)) {
                                             ++var0x;
                                         }
         
                                         if (var2 != 0 && var1x != 0) {
-                                            if (param1.getBlockState(param2.offset(var2 * 2, 0, var1x)).getBlock() == Blocks.BOOKSHELF) {
+                                            if (param1.getBlockState(param2.offset(var2 * 2, 0, var1x)).is(Blocks.BOOKSHELF)) {
                                                 ++var0x;
                                             }
         
-                                            if (param1.getBlockState(param2.offset(var2 * 2, 1, var1x)).getBlock() == Blocks.BOOKSHELF) {
+                                            if (param1.getBlockState(param2.offset(var2 * 2, 1, var1x)).is(Blocks.BOOKSHELF)) {
                                                 ++var0x;
                                             }
         
-                                            if (param1.getBlockState(param2.offset(var2, 0, var1x * 2)).getBlock() == Blocks.BOOKSHELF) {
+                                            if (param1.getBlockState(param2.offset(var2, 0, var1x * 2)).is(Blocks.BOOKSHELF)) {
                                                 ++var0x;
                                             }
         
-                                            if (param1.getBlockState(param2.offset(var2, 1, var1x * 2)).getBlock() == Blocks.BOOKSHELF) {
+                                            if (param1.getBlockState(param2.offset(var2, 1, var1x * 2)).is(Blocks.BOOKSHELF)) {
                                                 ++var0x;
                                             }
                                         }

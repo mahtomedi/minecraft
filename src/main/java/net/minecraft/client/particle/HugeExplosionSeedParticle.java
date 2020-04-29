@@ -1,8 +1,8 @@
 package net.minecraft.client.particle;
 
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -11,7 +11,7 @@ public class HugeExplosionSeedParticle extends NoRenderParticle {
     private int life;
     private final int lifeTime = 8;
 
-    private HugeExplosionSeedParticle(Level param0, double param1, double param2, double param3) {
+    private HugeExplosionSeedParticle(ClientLevel param0, double param1, double param2, double param3) {
         super(param0, param1, param2, param3, 0.0, 0.0, 0.0);
     }
 
@@ -34,7 +34,7 @@ public class HugeExplosionSeedParticle extends NoRenderParticle {
     @OnlyIn(Dist.CLIENT)
     public static class Provider implements ParticleProvider<SimpleParticleType> {
         public Particle createParticle(
-            SimpleParticleType param0, Level param1, double param2, double param3, double param4, double param5, double param6, double param7
+            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
             return new HugeExplosionSeedParticle(param1, param2, param3, param4);
         }

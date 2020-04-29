@@ -25,7 +25,7 @@ public class ChorusPlantFeature extends Feature<NoneFeatureConfiguration> {
         BlockPos param4,
         NoneFeatureConfiguration param5
     ) {
-        if (param0.isEmptyBlock(param4.above()) && param0.getBlockState(param4).getBlock() == Blocks.END_STONE) {
+        if (param0.isEmptyBlock(param4.above()) && param0.getBlockState(param4).is(Blocks.END_STONE)) {
             ChorusFlowerBlock.generatePlant(param0, param4.above(), param3, 8);
             return true;
         } else {

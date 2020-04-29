@@ -103,7 +103,7 @@ public class StructureBlockRenderer extends BlockEntityRenderer<StructureBlockEn
         for(BlockPos var3 : BlockPos.betweenClosed(var2, var2.offset(param0.getStructureSize()).offset(-1, -1, -1))) {
             BlockState var4 = var0.getBlockState(var3);
             boolean var5 = var4.isAir();
-            boolean var6 = var4.getBlock() == Blocks.STRUCTURE_VOID;
+            boolean var6 = var4.is(Blocks.STRUCTURE_VOID);
             if (var5 || var6) {
                 float var7 = var5 ? 0.05F : 0.0F;
                 double var8 = (double)((float)(var3.getX() - var1.getX()) + 0.45F - var7);

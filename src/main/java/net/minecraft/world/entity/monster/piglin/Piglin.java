@@ -188,7 +188,7 @@ public class Piglin extends Monster implements CrossbowAttackMob {
     }
 
     public static boolean checkPiglinSpawnRules(EntityType<Piglin> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
-        return param1.getBlockState(param3.below()).getBlock() != Blocks.NETHER_WART_BLOCK;
+        return !param1.getBlockState(param3.below()).is(Blocks.NETHER_WART_BLOCK);
     }
 
     @Nullable

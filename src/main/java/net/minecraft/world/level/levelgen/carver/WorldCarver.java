@@ -181,7 +181,7 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
             param4.set(param10, param13, param11);
             BlockState var1 = param0.getBlockState(param4);
             BlockState var2 = param0.getBlockState(param5.setWithOffset(param4, Direction.UP));
-            if (var1.getBlock() == Blocks.GRASS_BLOCK || var1.getBlock() == Blocks.MYCELIUM) {
+            if (var1.is(Blocks.GRASS_BLOCK) || var1.is(Blocks.MYCELIUM)) {
                 param15.set(true);
             }
 
@@ -194,7 +194,7 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
                     param0.setBlockState(param4, CAVE_AIR, false);
                     if (param15.get()) {
                         param6.setWithOffset(param4, Direction.DOWN);
-                        if (param0.getBlockState(param6).getBlock() == Blocks.DIRT) {
+                        if (param0.getBlockState(param6).is(Blocks.DIRT)) {
                             param0.setBlockState(param6, param1.apply(param4).getSurfaceBuilderConfig().getTopMaterial(), false);
                         }
                     }
@@ -216,8 +216,7 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
     }
 
     protected boolean canReplaceBlock(BlockState param0, BlockState param1) {
-        Block var0 = param0.getBlock();
-        return this.canReplaceBlock(param0) || (var0 == Blocks.SAND || var0 == Blocks.GRAVEL) && !param1.getFluidState().is(FluidTags.WATER);
+        return this.canReplaceBlock(param0) || (param0.is(Blocks.SAND) || param0.is(Blocks.GRAVEL)) && !param1.getFluidState().is(FluidTags.WATER);
     }
 
     protected boolean hasWater(ChunkAccess param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8) {

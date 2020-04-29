@@ -1291,7 +1291,7 @@ public class ChestLoot implements Consumer<BiConsumer<ResourceLocation, LootTabl
                         )
                         .add(LootItem.lootTableItem(Items.FLINT_AND_STEEL).setWeight(40))
                         .add(LootItem.lootTableItem(Items.FIRE_CHARGE).setWeight(40))
-                        .add(LootItem.lootTableItem(Items.GOLDEN_APPLE).setWeight(40))
+                        .add(LootItem.lootTableItem(Items.GOLDEN_APPLE).setWeight(15))
                         .add(
                             LootItem.lootTableItem(Items.GOLD_NUGGET)
                                 .setWeight(15)

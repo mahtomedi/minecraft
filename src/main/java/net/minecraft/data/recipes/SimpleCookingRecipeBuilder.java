@@ -69,7 +69,7 @@ public class SimpleCookingRecipeBuilder {
         this.ensureValid(param1);
         this.advancement
             .parent(new ResourceLocation("recipes/root"))
-            .addCriterion("has_the_recipe", new RecipeUnlockedTrigger.TriggerInstance(param1))
+            .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(param1))
             .rewards(AdvancementRewards.Builder.recipe(param1))
             .requirements(RequirementsStrategy.OR);
         param0.accept(

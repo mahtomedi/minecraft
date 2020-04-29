@@ -1,6 +1,5 @@
 package net.minecraft.advancements.critereon;
 
-import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -13,8 +12,8 @@ public class TickTrigger extends SimpleCriterionTrigger<TickTrigger.TriggerInsta
         return ID;
     }
 
-    public TickTrigger.TriggerInstance createInstance(JsonObject param0, JsonDeserializationContext param1) {
-        return new TickTrigger.TriggerInstance();
+    public TickTrigger.TriggerInstance createInstance(JsonObject param0, EntityPredicate.Composite param1, DeserializationContext param2) {
+        return new TickTrigger.TriggerInstance(param1);
     }
 
     public void trigger(ServerPlayer param0) {
@@ -22,8 +21,8 @@ public class TickTrigger extends SimpleCriterionTrigger<TickTrigger.TriggerInsta
     }
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
-        public TriggerInstance() {
-            super(TickTrigger.ID);
+        public TriggerInstance(EntityPredicate.Composite param0) {
+            super(TickTrigger.ID, param0);
         }
     }
 }

@@ -45,7 +45,7 @@ public class Heightmap {
                 for(int var8 = var3 - 1; var8 >= 0; --var8) {
                     var4.set(var5, var8, var6);
                     BlockState var9 = param0.getBlockState(var4);
-                    if (var9.getBlock() != Blocks.AIR) {
+                    if (!var9.is(Blocks.AIR)) {
                         while(var2.hasNext()) {
                             Heightmap var10 = var2.next();
                             if (var10.isOpaque.test(var9)) {

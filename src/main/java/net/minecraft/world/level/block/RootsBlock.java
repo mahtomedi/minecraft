@@ -22,7 +22,6 @@ public class RootsBlock extends BushBlock {
 
     @Override
     protected boolean mayPlaceOn(BlockState param0, BlockGetter param1, BlockPos param2) {
-        Block var0 = param0.getBlock();
-        return param0.is(BlockTags.NYLIUM) || var0 == Blocks.SOUL_SOIL || super.mayPlaceOn(param0, param1, param2);
+        return param0.is(BlockTags.NYLIUM) || param0.is(Blocks.SOUL_SOIL) || super.mayPlaceOn(param0, param1, param2);
     }
 }

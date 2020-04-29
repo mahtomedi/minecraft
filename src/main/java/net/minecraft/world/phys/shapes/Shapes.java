@@ -266,7 +266,7 @@ public final class Shapes {
                         if (var18 < 3) {
                             var4.set(var0, var16, var17, var15);
                             BlockState var19 = param1.getBlockState(var4);
-                            if ((var18 != 1 || var19.hasLargeCollisionShape()) && (var18 != 2 || var19.getBlock() == Blocks.MOVING_PISTON)) {
+                            if ((var18 != 1 || var19.hasLargeCollisionShape()) && (var18 != 2 || var19.is(Blocks.MOVING_PISTON))) {
                                 param2 = var19.getCollisionShape(param1, var4, param3)
                                     .collide(var3, param0.move((double)(-var4.getX()), (double)(-var4.getY()), (double)(-var4.getZ())), param2);
                                 if (Math.abs(param2) < 1.0E-7) {

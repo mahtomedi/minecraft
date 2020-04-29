@@ -29,7 +29,7 @@ public class TextFieldHelper {
         this.getClipboardFn = param2;
         this.setClipboardFn = param3;
         this.stringValidator = param4;
-        this.setEnd();
+        this.setCursorToEnd();
     }
 
     public static Supplier<String> createClipboardGetter(Minecraft param0) {
@@ -97,12 +97,12 @@ public class TextFieldHelper {
                 }
 
                 if (param0 == 268) {
-                    this.setStart(Screen.hasShiftDown());
+                    this.setCursorToStart(Screen.hasShiftDown());
                     return true;
                 }
 
                 if (param0 == 269) {
-                    this.setEnd(Screen.hasShiftDown());
+                    this.setCursorToEnd(Screen.hasShiftDown());
                     return true;
                 }
             }
@@ -209,21 +209,17 @@ public class TextFieldHelper {
         }
     }
 
-    public void setStart() {
-        this.setStart(false);
-    }
-
-    public void setStart(boolean param0) {
+    private void setCursorToStart(boolean param0) {
         this.cursorPos = 0;
         this.resetSelectionIfNeeded(param0);
     }
 
-    public void setEnd() {
-        this.setEnd(false);
+    public void setCursorToEnd() {
+        this.setCursorToEnd(false);
     }
 
-    public void setEnd(boolean param0) {
-        this.selectionPos = this.cursorPos = this.getMessageFn.get().length();
+    private void setCursorToEnd(boolean param0) {
+        this.cursorPos = this.getMessageFn.get().length();
         this.resetSelectionIfNeeded(param0);
     }
 

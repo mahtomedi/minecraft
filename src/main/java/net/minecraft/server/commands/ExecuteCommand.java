@@ -699,7 +699,7 @@ public class ExecuteCommand {
                         BlockPos var8 = new BlockPos(var7, var6, var5);
                         BlockPos var9 = var8.offset(var2);
                         BlockState var10 = param0.getBlockState(var8);
-                        if (!param4 || var10.getBlock() != Blocks.AIR) {
+                        if (!param4 || !var10.is(Blocks.AIR)) {
                             if (var10 != param0.getBlockState(var9)) {
                                 return OptionalInt.empty();
                             }

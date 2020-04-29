@@ -30,7 +30,7 @@ public class BlockInput implements Predicate<BlockInWorld> {
 
     public boolean test(BlockInWorld param0) {
         BlockState var0 = param0.getState();
-        if (var0.getBlock() != this.state.getBlock()) {
+        if (!var0.is(this.state.getBlock())) {
             return false;
         } else {
             for(Property<?> var1 : this.properties) {

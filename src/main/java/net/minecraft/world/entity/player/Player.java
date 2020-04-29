@@ -160,14 +160,13 @@ public abstract class Player extends LivingEntity {
     @Nullable
     public FishingHook fishing;
 
-    public Player(Level param0, GameProfile param1) {
+    public Player(Level param0, BlockPos param1, GameProfile param2) {
         super(EntityType.PLAYER, param0);
-        this.setUUID(createPlayerUUID(param1));
-        this.gameProfile = param1;
+        this.setUUID(createPlayerUUID(param2));
+        this.gameProfile = param2;
         this.inventoryMenu = new InventoryMenu(this.inventory, !param0.isClientSide, this);
         this.containerMenu = this.inventoryMenu;
-        BlockPos var0 = param0.getSharedSpawnPos();
-        this.moveTo((double)var0.getX() + 0.5, (double)(var0.getY() + 1), (double)var0.getZ() + 0.5, 0.0F, 0.0F);
+        this.moveTo((double)param1.getX() + 0.5, (double)(param1.getY() + 1), (double)param1.getZ() + 0.5, 0.0F, 0.0F);
         this.rotOffs = 180.0F;
     }
 

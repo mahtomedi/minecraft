@@ -58,8 +58,6 @@ public class ChatComponent extends GuiComponent {
                 double var7 = 9.0 * (this.minecraft.options.chatLineSpacing + 1.0);
                 double var8 = -8.0 * (this.minecraft.options.chatLineSpacing + 1.0) + 4.0 * this.minecraft.options.chatLineSpacing;
                 int var9 = 0;
-                param0.pushPose();
-                param0.translate(0.0, 0.0, -100.0);
 
                 for(int var10 = 0; var10 + this.chatScrollbarPos < this.trimmedMessages.size() && var10 < var0; ++var10) {
                     GuiMessage var11 = this.trimmedMessages.get(var10 + this.chatScrollbarPos);
@@ -73,11 +71,15 @@ public class ChatComponent extends GuiComponent {
                             if (var14 > 3) {
                                 int var16 = 0;
                                 double var17 = (double)(-var10) * var7;
+                                param0.pushPose();
+                                param0.translate(0.0, 0.0, 50.0);
                                 fill(param0, -2, (int)(var17 - var7), 0 + var4 + 4, (int)var17, var15 << 24);
                                 RenderSystem.enableBlend();
+                                param0.translate(0.0, 0.0, 50.0);
                                 this.minecraft.font.drawShadow(param0, var11.getMessage(), 0.0F, (float)((int)(var17 + var8)), 16777215 + (var14 << 24));
                                 RenderSystem.disableAlphaTest();
                                 RenderSystem.disableBlend();
+                                param0.popPose();
                             }
                         }
                     }
@@ -86,16 +88,19 @@ public class ChatComponent extends GuiComponent {
                 if (!this.chatQueue.isEmpty()) {
                     int var18 = (int)(128.0 * var5);
                     int var19 = (int)(255.0 * var6);
+                    param0.pushPose();
+                    param0.translate(0.0, 0.0, 50.0);
                     fill(param0, -2, 0, var4 + 4, 9, var19 << 24);
                     RenderSystem.enableBlend();
+                    param0.translate(0.0, 0.0, 50.0);
                     this.minecraft
                         .font
                         .drawShadow(param0, new TranslatableComponent("chat.queue", this.chatQueue.size()), 0.0F, 1.0F, 16777215 + (var18 << 24));
+                    param0.popPose();
                     RenderSystem.disableAlphaTest();
                     RenderSystem.disableBlend();
                 }
 
-                param0.popPose();
                 if (var2) {
                     int var20 = 9;
                     RenderSystem.translatef(-3.0F, 0.0F, 0.0F);

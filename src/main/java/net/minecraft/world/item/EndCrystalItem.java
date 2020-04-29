@@ -22,7 +22,7 @@ public class EndCrystalItem extends Item {
         Level var0 = param0.getLevel();
         BlockPos var1 = param0.getClickedPos();
         BlockState var2 = var0.getBlockState(var1);
-        if (var2.getBlock() != Blocks.OBSIDIAN && var2.getBlock() != Blocks.BEDROCK) {
+        if (!var2.is(Blocks.OBSIDIAN) && !var2.is(Blocks.BEDROCK)) {
             return InteractionResult.FAIL;
         } else {
             BlockPos var3 = var1.above();

@@ -38,6 +38,9 @@ public class LootContextParamSets {
     public static final LootContextParamSet ADVANCEMENT_REWARD = register(
         "advancement_reward", param0 -> param0.required(LootContextParams.THIS_ENTITY).required(LootContextParams.BLOCK_POS)
     );
+    public static final LootContextParamSet ADVANCEMENT_ENTITY = register(
+        "advancement_entity", param0 -> param0.required(LootContextParams.THIS_ENTITY).required(LootContextParams.ORIGIN).required(LootContextParams.BLOCK_POS)
+    );
     public static final LootContextParamSet ALL_PARAMS = register(
         "generic",
         param0 -> param0.required(LootContextParams.THIS_ENTITY)

@@ -52,7 +52,6 @@ public class WorldGenRegion implements LevelAccessor {
     private final int size;
     private final ServerLevel level;
     private final long seed;
-    private final int seaLevel;
     private final LevelData levelData;
     private final Random random;
     private final Dimension dimension;
@@ -76,7 +75,6 @@ public class WorldGenRegion implements LevelAccessor {
             this.level = param0;
             this.seed = param0.getSeed();
             this.settings = param0.getChunkSource().getGenerator().getSettings();
-            this.seaLevel = param0.getSeaLevel();
             this.levelData = param0.getLevelData();
             this.random = param0.getRandom();
             this.dimension = param0.getDimension();
@@ -330,7 +328,7 @@ public class WorldGenRegion implements LevelAccessor {
 
     @Override
     public int getSeaLevel() {
-        return this.seaLevel;
+        return this.level.getSeaLevel();
     }
 
     @Override

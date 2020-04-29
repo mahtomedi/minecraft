@@ -118,7 +118,7 @@ public class Spider extends Monster {
 
     @Override
     public void makeStuckInBlock(BlockState param0, Vec3 param1) {
-        if (param0.getBlock() != Blocks.COBWEB) {
+        if (!param0.is(Blocks.COBWEB)) {
             super.makeStuckInBlock(param0, param1);
         }
 

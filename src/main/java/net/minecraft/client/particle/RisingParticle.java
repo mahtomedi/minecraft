@@ -1,12 +1,12 @@
 package net.minecraft.client.particle;
 
-import net.minecraft.world.level.Level;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class RisingParticle extends TextureSheetParticle {
-    protected RisingParticle(Level param0, double param1, double param2, double param3, double param4, double param5, double param6) {
+    protected RisingParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6) {
         super(param0, param1, param2, param3, param4, param5, param6);
         this.xd = this.xd * 0.01F + param4;
         this.yd = this.yd * 0.01F + param5;

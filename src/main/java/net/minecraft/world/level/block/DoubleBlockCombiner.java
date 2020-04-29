@@ -35,7 +35,7 @@ public class DoubleBlockCombiner {
             } else {
                 BlockPos var4 = param6.relative(param2.apply(param4));
                 BlockState var5 = param5.getBlockState(var4);
-                if (var5.getBlock() == param4.getBlock()) {
+                if (var5.is(param4.getBlock())) {
                     DoubleBlockCombiner.BlockType var6 = param1.apply(var5);
                     if (var6 != DoubleBlockCombiner.BlockType.SINGLE && var1 != var6 && var5.getValue(param3) == param4.getValue(param3)) {
                         if (param7.test(param5, var4)) {

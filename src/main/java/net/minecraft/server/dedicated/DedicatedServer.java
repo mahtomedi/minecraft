@@ -32,6 +32,7 @@ import net.minecraft.server.ConsoleInput;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerInterface;
 import net.minecraft.server.gui.MinecraftServerGui;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.progress.ChunkProgressListenerFactory;
 import net.minecraft.server.players.GameProfileCache;
 import net.minecraft.server.players.OldUsersConverter;
@@ -47,7 +48,6 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.storage.LevelStorageSource;
@@ -405,7 +405,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
     }
 
     @Override
-    public boolean isUnderSpawnProtection(Level param0, BlockPos param1, Player param2) {
+    public boolean isUnderSpawnProtection(ServerLevel param0, BlockPos param1, Player param2) {
         if (param0.dimension.getType() != DimensionType.OVERWORLD) {
             return false;
         } else if (this.getPlayerList().getOps().isEmpty()) {
@@ -421,6 +421,11 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
             int var3 = Math.max(var1, var2);
             return var3 <= this.getSpawnProtectionRadius();
         }
+    }
+
+    @Override
+    public boolean repliesToStatus() {
+        return this.getProperties().enableStatus;
     }
 
     @Override
@@ -554,6 +559,11 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
     @Override
     public boolean isSingleplayerOwner(GameProfile param0) {
         return false;
+    }
+
+    @Override
+    public int getScaledTrackingDistance(int param0) {
+        return this.getProperties().entityBroadcastRangePercentage * param0 / 100;
     }
 
     @Override

@@ -129,13 +129,13 @@ public class RemoveBlockGoal extends MoveToBlockGoal {
 
     @Nullable
     private BlockPos getPosWithBlock(BlockPos param0, BlockGetter param1) {
-        if (param1.getBlockState(param0).getBlock() == this.blockToRemove) {
+        if (param1.getBlockState(param0).is(this.blockToRemove)) {
             return param0;
         } else {
             BlockPos[] var0 = new BlockPos[]{param0.below(), param0.west(), param0.east(), param0.north(), param0.south(), param0.below().below()};
 
             for(BlockPos var1 : var0) {
-                if (param1.getBlockState(var1).getBlock() == this.blockToRemove) {
+                if (param1.getBlockState(var1).is(this.blockToRemove)) {
                     return var1;
                 }
             }
@@ -150,7 +150,7 @@ public class RemoveBlockGoal extends MoveToBlockGoal {
         if (var0 == null) {
             return false;
         } else {
-            return var0.getBlockState(param1).getBlock() == this.blockToRemove
+            return var0.getBlockState(param1).is(this.blockToRemove)
                 && var0.getBlockState(param1.above()).isAir()
                 && var0.getBlockState(param1.above(2)).isAir();
         }

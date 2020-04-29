@@ -21,7 +21,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BaseSpawner;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -57,29 +56,28 @@ public class SpawnEggItem extends Item {
             BlockPos var2 = param0.getClickedPos();
             Direction var3 = param0.getClickedFace();
             BlockState var4 = var0.getBlockState(var2);
-            Block var5 = var4.getBlock();
-            if (var5 == Blocks.SPAWNER) {
-                BlockEntity var6 = var0.getBlockEntity(var2);
-                if (var6 instanceof SpawnerBlockEntity) {
-                    BaseSpawner var7 = ((SpawnerBlockEntity)var6).getSpawner();
-                    EntityType<?> var8 = this.getType(var1.getTag());
-                    var7.setEntityId(var8);
-                    var6.setChanged();
+            if (var4.is(Blocks.SPAWNER)) {
+                BlockEntity var5 = var0.getBlockEntity(var2);
+                if (var5 instanceof SpawnerBlockEntity) {
+                    BaseSpawner var6 = ((SpawnerBlockEntity)var5).getSpawner();
+                    EntityType<?> var7 = this.getType(var1.getTag());
+                    var6.setEntityId(var7);
+                    var5.setChanged();
                     var0.sendBlockUpdated(var2, var4, var4, 3);
                     var1.shrink(1);
                     return InteractionResult.SUCCESS;
                 }
             }
 
-            BlockPos var9;
+            BlockPos var8;
             if (var4.getCollisionShape(var0, var2).isEmpty()) {
-                var9 = var2;
+                var8 = var2;
             } else {
-                var9 = var2.relative(var3);
+                var8 = var2.relative(var3);
             }
 
-            EntityType<?> var11 = this.getType(var1.getTag());
-            if (var11.spawn(var0, var1, param0.getPlayer(), var9, MobSpawnType.SPAWN_EGG, true, !Objects.equals(var2, var9) && var3 == Direction.UP) != null) {
+            EntityType<?> var10 = this.getType(var1.getTag());
+            if (var10.spawn(var0, var1, param0.getPlayer(), var8, MobSpawnType.SPAWN_EGG, true, !Objects.equals(var2, var8) && var3 == Direction.UP) != null) {
                 var1.shrink(1);
             }
 

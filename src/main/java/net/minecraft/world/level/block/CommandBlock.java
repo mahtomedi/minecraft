@@ -189,7 +189,7 @@ public class CommandBlock extends BaseEntityBlock {
             var0.move(param2);
             var3 = param0.getBlockState(var0);
             Block var4 = var3.getBlock();
-            if (var4 != Blocks.CHAIN_COMMAND_BLOCK) {
+            if (!var3.is(Blocks.CHAIN_COMMAND_BLOCK)) {
                 break;
             }
 

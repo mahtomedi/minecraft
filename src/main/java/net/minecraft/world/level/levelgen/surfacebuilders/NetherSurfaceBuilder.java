@@ -54,7 +54,7 @@ public class NetherSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConfi
             BlockState var12 = param1.getBlockState(var7);
             if (var12.isAir()) {
                 var8 = -1;
-            } else if (var12.getBlock() == param7.getBlock()) {
+            } else if (var12.is(param7.getBlock())) {
                 if (var8 == -1) {
                     if (var6 <= 0) {
                         var9 = AIR;

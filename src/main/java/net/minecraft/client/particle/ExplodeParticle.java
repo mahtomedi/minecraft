@@ -1,7 +1,7 @@
 package net.minecraft.client.particle;
 
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -9,7 +9,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class ExplodeParticle extends TextureSheetParticle {
     private final SpriteSet sprites;
 
-    protected ExplodeParticle(Level param0, double param1, double param2, double param3, double param4, double param5, double param6, SpriteSet param7) {
+    protected ExplodeParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6, SpriteSet param7) {
         super(param0, param1, param2, param3);
         this.sprites = param7;
         this.xd = param4 + (Math.random() * 2.0 - 1.0) * 0.05F;
@@ -60,7 +60,7 @@ public class ExplodeParticle extends TextureSheetParticle {
         }
 
         public Particle createParticle(
-            SimpleParticleType param0, Level param1, double param2, double param3, double param4, double param5, double param6, double param7
+            SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
             return new ExplodeParticle(param1, param2, param3, param4, param5, param6, param7, this.sprites);
         }

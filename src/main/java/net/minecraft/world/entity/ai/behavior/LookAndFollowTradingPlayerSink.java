@@ -51,9 +51,8 @@ public class LookAndFollowTradingPlayerSink extends Behavior<Villager> {
     }
 
     private void followPlayer(Villager param0) {
-        EntityTracker var0 = new EntityTracker(param0.getTradingPlayer());
-        Brain<?> var1 = param0.getBrain();
-        var1.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(var0, this.speedModifier, 2));
-        var1.setMemory(MemoryModuleType.LOOK_TARGET, var0);
+        Brain<?> var0 = param0.getBrain();
+        var0.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(new EntityTracker(param0.getTradingPlayer(), false), this.speedModifier, 2));
+        var0.setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(param0.getTradingPlayer(), true));
     }
 }

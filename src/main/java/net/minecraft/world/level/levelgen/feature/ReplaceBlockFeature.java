@@ -23,7 +23,7 @@ public class ReplaceBlockFeature extends Feature<ReplaceBlockConfiguration> {
         BlockPos param4,
         ReplaceBlockConfiguration param5
     ) {
-        if (param0.getBlockState(param4).getBlock() == param5.target.getBlock()) {
+        if (param0.getBlockState(param4).is(param5.target.getBlock())) {
             param0.setBlock(param4, param5.state, 2);
         }
 

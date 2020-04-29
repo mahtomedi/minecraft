@@ -153,7 +153,7 @@ public abstract class Raider extends PatrollingMonster {
                         --var8;
                     }
 
-                    var8 = Mth.clamp(var8, 0, 5);
+                    var8 = Mth.clamp(var8, 0, 4);
                     MobEffectInstance var9 = new MobEffectInstance(MobEffects.BAD_OMEN, 120000, var8, false, false, true);
                     if (!this.level.getGameRules().getBoolean(GameRules.RULE_DISABLE_RAIDS)) {
                         var3.addEffect(var9);

@@ -138,7 +138,7 @@ public class IcebergFeature extends Feature<BlockStateConfiguration> {
     }
 
     private void removeFloatingSnowLayer(LevelAccessor param0, BlockPos param1) {
-        if (param0.getBlockState(param1.above()).getBlock() == Blocks.SNOW) {
+        if (param0.getBlockState(param1.above()).is(Blocks.SNOW)) {
             this.setBlock(param0, param1.above(), Blocks.AIR.defaultBlockState());
         }
 
@@ -179,11 +179,10 @@ public class IcebergFeature extends Feature<BlockStateConfiguration> {
         BlockPos param0, LevelAccessor param1, Random param2, int param3, int param4, boolean param5, boolean param6, BlockState param7
     ) {
         BlockState var0 = param1.getBlockState(param0);
-        Block var1 = var0.getBlock();
-        if (var0.getMaterial() == Material.AIR || var1 == Blocks.SNOW_BLOCK || var1 == Blocks.ICE || var1 == Blocks.WATER) {
-            boolean var2 = !param5 || param2.nextDouble() > 0.05;
-            int var3 = param5 ? 3 : 2;
-            if (param6 && var1 != Blocks.WATER && (double)param3 <= (double)param2.nextInt(Math.max(1, param4 / var3)) + (double)param4 * 0.6 && var2) {
+        if (var0.getMaterial() == Material.AIR || var0.is(Blocks.SNOW_BLOCK) || var0.is(Blocks.ICE) || var0.is(Blocks.WATER)) {
+            boolean var1 = !param5 || param2.nextDouble() > 0.05;
+            int var2 = param5 ? 3 : 2;
+            if (param6 && !var0.is(Blocks.WATER) && (double)param3 <= (double)param2.nextInt(Math.max(1, param4 / var2)) + (double)param4 * 0.6 && var1) {
                 this.setBlock(param1, param0, Blocks.SNOW_BLOCK.defaultBlockState());
             } else {
                 this.setBlock(param1, param0, param7);
