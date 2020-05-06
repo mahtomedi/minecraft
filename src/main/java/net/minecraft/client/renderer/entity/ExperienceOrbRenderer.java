@@ -8,6 +8,7 @@ import com.mojang.math.Vector3f;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ExperienceOrb;
@@ -25,7 +26,7 @@ public class ExperienceOrbRenderer extends EntityRenderer<ExperienceOrb> {
         this.shadowStrength = 0.75F;
     }
 
-    protected int getBlockLightLevel(ExperienceOrb param0, float param1) {
+    protected int getBlockLightLevel(ExperienceOrb param0, BlockPos param1) {
         return Mth.clamp(super.getBlockLightLevel(param0, param1) + 7, 0, 15);
     }
 

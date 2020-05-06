@@ -7,6 +7,7 @@ import net.minecraft.client.model.ShulkerBulletModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.projectile.ShulkerBullet;
@@ -23,7 +24,7 @@ public class ShulkerBulletRenderer extends EntityRenderer<ShulkerBullet> {
         super(param0);
     }
 
-    protected int getBlockLightLevel(ShulkerBullet param0, float param1) {
+    protected int getBlockLightLevel(ShulkerBullet param0, BlockPos param1) {
         return 15;
     }
 

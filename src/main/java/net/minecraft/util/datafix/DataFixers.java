@@ -128,6 +128,7 @@ import net.minecraft.util.datafix.fixes.SwimStatsRenameFix;
 import net.minecraft.util.datafix.fixes.TeamDisplayNameFix;
 import net.minecraft.util.datafix.fixes.TrappedChestBlockEntityFix;
 import net.minecraft.util.datafix.fixes.VillagerDataFix;
+import net.minecraft.util.datafix.fixes.VillagerFollowRangeFix;
 import net.minecraft.util.datafix.fixes.VillagerRebuildLevelAndXpFix;
 import net.minecraft.util.datafix.fixes.VillagerTradeFix;
 import net.minecraft.util.datafix.fixes.WallPropertyFix;
@@ -664,5 +665,7 @@ public class DataFixers {
         param0.addFixer(new StriderGravityFix(var115, false));
         Schema var116 = param0.addSchema(2531, SAME_NAMESPACED);
         param0.addFixer(new RedstoneWireConnectionsFix(var116));
+        Schema var117 = param0.addSchema(2533, SAME_NAMESPACED);
+        param0.addFixer(new VillagerFollowRangeFix(var117));
     }
 }

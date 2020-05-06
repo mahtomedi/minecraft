@@ -71,6 +71,7 @@ import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.boss.EnderDragonPart;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.monster.Strider;
 import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.entity.vehicle.Boat;
@@ -470,7 +471,7 @@ public abstract class Player extends LivingEntity {
             super.rideTick();
             this.oBob = this.bob;
             this.bob = 0.0F;
-            this.checkRidingStatistiscs(this.getX() - var0, this.getY() - var1, this.getZ() - var2);
+            this.checkRidingStatistics(this.getX() - var0, this.getY() - var1, this.getZ() - var2);
             if (this.getVehicle() instanceof Pig) {
                 this.xRot = var4;
                 this.yRot = var3;
@@ -898,22 +899,28 @@ public abstract class Player extends LivingEntity {
 
     @Override
     protected void hurtCurrentlyUsedShield(float param0) {
-        if (param0 >= 3.0F && this.useItem.getItem() == Items.SHIELD) {
-            int var0 = 1 + Mth.floor(param0);
-            InteractionHand var1 = this.getUsedItemHand();
-            this.useItem.hurtAndBreak(var0, this, param1 -> param1.broadcastBreakEvent(var1));
-            if (this.useItem.isEmpty()) {
-                if (var1 == InteractionHand.MAIN_HAND) {
-                    this.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
-                } else {
-                    this.setItemSlot(EquipmentSlot.OFFHAND, ItemStack.EMPTY);
-                }
-
-                this.useItem = ItemStack.EMPTY;
-                this.playSound(SoundEvents.SHIELD_BREAK, 0.8F, 0.8F + this.level.random.nextFloat() * 0.4F);
+        if (this.useItem.getItem() == Items.SHIELD) {
+            if (!this.level.isClientSide) {
+                this.awardStat(Stats.ITEM_USED.get(this.useItem.getItem()));
             }
-        }
 
+            if (param0 >= 3.0F) {
+                int var0 = 1 + Mth.floor(param0);
+                InteractionHand var1 = this.getUsedItemHand();
+                this.useItem.hurtAndBreak(var0, this, param1 -> param1.broadcastBreakEvent(var1));
+                if (this.useItem.isEmpty()) {
+                    if (var1 == InteractionHand.MAIN_HAND) {
+                        this.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+                    } else {
+                        this.setItemSlot(EquipmentSlot.OFFHAND, ItemStack.EMPTY);
+                    }
+
+                    this.useItem = ItemStack.EMPTY;
+                    this.playSound(SoundEvents.SHIELD_BREAK, 0.8F, 0.8F + this.level.random.nextFloat() * 0.4F);
+                }
+            }
+
+        }
     }
 
     @Override
@@ -1510,18 +1517,21 @@ public abstract class Player extends LivingEntity {
         }
     }
 
-    private void checkRidingStatistiscs(double param0, double param1, double param2) {
+    private void checkRidingStatistics(double param0, double param1, double param2) {
         if (this.isPassenger()) {
             int var0 = Math.round(Mth.sqrt(param0 * param0 + param1 * param1 + param2 * param2) * 100.0F);
             if (var0 > 0) {
-                if (this.getVehicle() instanceof AbstractMinecart) {
+                Entity var1 = this.getVehicle();
+                if (var1 instanceof AbstractMinecart) {
                     this.awardStat(Stats.MINECART_ONE_CM, var0);
-                } else if (this.getVehicle() instanceof Boat) {
+                } else if (var1 instanceof Boat) {
                     this.awardStat(Stats.BOAT_ONE_CM, var0);
-                } else if (this.getVehicle() instanceof Pig) {
+                } else if (var1 instanceof Pig) {
                     this.awardStat(Stats.PIG_ONE_CM, var0);
-                } else if (this.getVehicle() instanceof AbstractHorse) {
+                } else if (var1 instanceof AbstractHorse) {
                     this.awardStat(Stats.HORSE_ONE_CM, var0);
+                } else if (var1 instanceof Strider) {
+                    this.awardStat(Stats.STRIDER_ONE_CM, var0);
                 }
             }
         }
@@ -1542,7 +1552,7 @@ public abstract class Player extends LivingEntity {
     }
 
     public boolean tryToStartFallFlying() {
-        if (!this.onGround && !this.isFallFlying() && !this.isInWater()) {
+        if (!this.onGround && !this.isFallFlying() && !this.isInWater() && !this.hasEffect(MobEffects.LEVITATION)) {
             ItemStack var0 = this.getItemBySlot(EquipmentSlot.CHEST);
             if (var0.getItem() == Items.ELYTRA && ElytraItem.isFlyEnabled(var0)) {
                 this.startFallFlying();

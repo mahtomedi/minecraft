@@ -214,7 +214,7 @@ public final class NaturalSpawner {
         EntityType<?> var0 = param4.type;
         if (var0.getCategory() == MobCategory.MISC) {
             return false;
-        } else if (!var0.canSpawnFarFromPlayer() && param6 > (double)(var0.getInstantDespawnDistance() * var0.getInstantDespawnDistance())) {
+        } else if (!var0.canSpawnFarFromPlayer() && param6 > (double)(var0.getCategory().getDespawnDistance() * var0.getCategory().getDespawnDistance())) {
             return false;
         } else if (var0.canSummon() && canSpawnMobAt(param2, param3, param1, param4, param5)) {
             SpawnPlacements.Type var1 = SpawnPlacements.getPlacementType(var0);
@@ -246,7 +246,8 @@ public final class NaturalSpawner {
     }
 
     private static boolean isValidPositionForMob(ServerLevel param0, Mob param1, double param2) {
-        if (param2 > (double)(param1.getType().getInstantDespawnDistance() * param1.getType().getInstantDespawnDistance()) && param1.removeWhenFarAway(param2)) {
+        if (param2 > (double)(param1.getType().getCategory().getDespawnDistance() * param1.getType().getCategory().getDespawnDistance())
+            && param1.removeWhenFarAway(param2)) {
             return false;
         } else {
             return param1.checkSpawnRules(param0, MobSpawnType.NATURAL) && param1.checkSpawnObstruction(param0);
@@ -284,7 +285,7 @@ public final class NaturalSpawner {
         } else if (!param3.isEmpty()) {
             return false;
         } else {
-            return !param2.is(BlockTags.RAILS);
+            return !param2.is(BlockTags.PREVENT_MOB_SPAWNING_INSIDE);
         }
     }
 
@@ -410,7 +411,7 @@ public final class NaturalSpawner {
 
     public static class SpawnState {
         private final int spawnableChunkCount;
-        private final Object2IntMap<MobCategory> mobCategoryCounts;
+        private final Object2IntOpenHashMap<MobCategory> mobCategoryCounts;
         private final PotentialCalculator spawnPotential;
         private final Object2IntMap<MobCategory> unmodifiableMobCategoryCounts;
         @Nullable
@@ -419,7 +420,7 @@ public final class NaturalSpawner {
         private EntityType<?> lastCheckedType;
         private double lastCharge;
 
-        private SpawnState(int param0, Object2IntMap<MobCategory> param1, PotentialCalculator param2) {
+        private SpawnState(int param0, Object2IntOpenHashMap<MobCategory> param1, PotentialCalculator param2) {
             this.spawnableChunkCount = param0;
             this.mobCategoryCounts = param1;
             this.spawnPotential = param2;
@@ -451,14 +452,15 @@ public final class NaturalSpawner {
             } else {
                 Biome var3 = NaturalSpawner.getRoughBiome(var1, param1);
                 Biome.MobSpawnCost var4 = var3.getMobSpawnCost(var0);
-                if (var4 == null) {
-                    return;
+                if (var4 != null) {
+                    var2 = var4.getCharge();
+                } else {
+                    var2 = 0.0;
                 }
-
-                var2 = var4.getCharge();
             }
 
             this.spawnPotential.addCharge(var1, var2);
+            this.mobCategoryCounts.addTo(var0.getCategory(), 1);
         }
 
         @OnlyIn(Dist.CLIENT)

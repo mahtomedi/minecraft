@@ -402,7 +402,7 @@ public class Font {
                 float var1 = (float)(param0 >> 16 & 0xFF) / 255.0F;
                 float var2 = (float)(param0 >> 8 & 0xFF) / 255.0F;
                 float var3 = (float)(param0 & 0xFF) / 255.0F;
-                this.addEffect(new BakedGlyph.Effect(param1 - 1.0F, this.y + 9.0F, this.x + 1.0F, this.y - 1.0F, -0.01F, var1, var2, var3, var0));
+                this.addEffect(new BakedGlyph.Effect(param1 - 1.0F, this.y + 9.0F, this.x + 1.0F, this.y - 1.0F, 0.01F, var1, var2, var3, var0));
             }
 
             if (this.effects != null) {

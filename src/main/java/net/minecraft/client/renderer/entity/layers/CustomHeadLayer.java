@@ -28,8 +28,19 @@ import org.apache.commons.lang3.StringUtils;
 
 @OnlyIn(Dist.CLIENT)
 public class CustomHeadLayer<T extends LivingEntity, M extends EntityModel<T> & HeadedModel> extends RenderLayer<T, M> {
+    private final float scaleX;
+    private final float scaleY;
+    private final float scaleZ;
+
     public CustomHeadLayer(RenderLayerParent<T, M> param0) {
+        this(param0, 1.0F, 1.0F, 1.0F);
+    }
+
+    public CustomHeadLayer(RenderLayerParent<T, M> param0, float param1, float param2, float param3) {
         super(param0);
+        this.scaleX = param1;
+        this.scaleY = param2;
+        this.scaleZ = param3;
     }
 
     public void render(
@@ -39,6 +50,7 @@ public class CustomHeadLayer<T extends LivingEntity, M extends EntityModel<T> & 
         if (!var0.isEmpty()) {
             Item var1 = var0.getItem();
             param0.pushPose();
+            param0.scale(this.scaleX, this.scaleY, this.scaleZ);
             boolean var2 = param3 instanceof Villager || param3 instanceof ZombieVillager;
             if (param3.isBaby() && !(param3 instanceof Villager)) {
                 float var3 = 2.0F;

@@ -40,6 +40,12 @@ public class RandomPos {
     }
 
     @Nullable
+    public static Vec3 getLandPosTowards(PathfinderMob param0, int param1, int param2, Vec3 param3) {
+        Vec3 var0 = param3.subtract(param0.getX(), param0.getY(), param0.getZ());
+        return generateRandomPos(param0, param1, param2, 0, var0, false, (float) (Math.PI / 2), param0::getWalkTargetValue, true, 0, 0, true);
+    }
+
+    @Nullable
     public static Vec3 getPosTowards(PathfinderMob param0, int param1, int param2, Vec3 param3) {
         Vec3 var0 = param3.subtract(param0.getX(), param0.getY(), param0.getZ());
         return generateRandomPos(param0, param1, param2, 0, var0, true, (float) (Math.PI / 2), param0::getWalkTargetValue, false, 0, 0, true);

@@ -132,7 +132,7 @@ public class AdvancementWidget extends GuiComponent {
 
             this.minecraft.getTextureManager().bind(WIDGETS_LOCATION);
             this.blit(param0, param1 + this.x + 3, param2 + this.y, this.display.getFrame().getTexture(), 128 + var1.getIndex() * 26, 26, 26);
-            this.minecraft.getItemRenderer().renderAndDecorateItem(null, this.display.getIcon(), param1 + this.x + 8, param2 + this.y + 5);
+            this.minecraft.getItemRenderer().renderAndDecorateFakeItem(this.display.getIcon(), param1 + this.x + 8, param2 + this.y + 5);
         }
 
         for(AdvancementWidget var3 : this.children) {
@@ -226,7 +226,7 @@ public class AdvancementWidget extends GuiComponent {
             }
         }
 
-        this.minecraft.getItemRenderer().renderAndDecorateItem(null, this.display.getIcon(), param1 + this.x + 8, param2 + this.y + 5);
+        this.minecraft.getItemRenderer().renderAndDecorateFakeItem(this.display.getIcon(), param1 + this.x + 8, param2 + this.y + 5);
     }
 
     protected void render9Sprite(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9) {

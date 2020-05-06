@@ -81,6 +81,7 @@ public class AnvilScreen extends ItemCombinerScreen<AnvilMenu> {
     protected void renderLabels(PoseStack param0, int param1, int param2) {
         RenderSystem.disableBlend();
         this.font.draw(param0, this.title, 60.0F, 6.0F, 4210752);
+        this.font.draw(param0, this.inventory.getDisplayName(), 8.0F, (float)(this.imageHeight - 96 + 2), 4210752);
         int var0 = this.menu.getCost();
         if (var0 > 0) {
             int var1 = 8453920;

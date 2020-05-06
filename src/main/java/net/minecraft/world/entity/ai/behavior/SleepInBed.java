@@ -35,12 +35,15 @@ public class SleepInBed extends Behavior<LivingEntity> {
                 return false;
             } else {
                 Optional<SerializableLong> var2 = var0.getMemory(MemoryModuleType.LAST_WOKEN);
-                if (var2.isPresent() && param0.getGameTime() - var2.get().value() < 100L) {
-                    return false;
-                } else {
-                    BlockState var3 = param0.getBlockState(var1.pos());
-                    return var1.pos().closerThan(param1.position(), 2.0) && var3.getBlock().is(BlockTags.BEDS) && !var3.getValue(BedBlock.OCCUPIED);
+                if (var2.isPresent()) {
+                    long var3 = param0.getGameTime() - var2.get().value();
+                    if (var3 > 0L && var3 < 100L) {
+                        return false;
+                    }
                 }
+
+                BlockState var4 = param0.getBlockState(var1.pos());
+                return var1.pos().closerThan(param1.position(), 2.0) && var4.getBlock().is(BlockTags.BEDS) && !var4.getValue(BedBlock.OCCUPIED);
             }
         }
     }

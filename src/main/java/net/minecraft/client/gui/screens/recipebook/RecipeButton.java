@@ -95,7 +95,7 @@ public class RecipeButton extends AbstractWidget {
             --var7;
         }
 
-        var0.getItemRenderer().renderAndDecorateItem(var6, this.x + var7, this.y + var7);
+        var0.getItemRenderer().renderAndDecorateFakeItem(var6, this.x + var7, this.y + var7);
         if (var3) {
             RenderSystem.popMatrix();
         }

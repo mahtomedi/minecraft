@@ -67,7 +67,7 @@ enum AdvancementTabType {
                 var1 += 5;
         }
 
-        param3.renderAndDecorateItem(null, param4, var0, var1);
+        param3.renderAndDecorateFakeItem(param4, var0, var1);
     }
 
     public int getX(int param0) {

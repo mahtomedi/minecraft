@@ -27,7 +27,7 @@ public class FishingRodHookedTrigger extends SimpleCriterionTrigger<FishingRodHo
     }
 
     public void trigger(ServerPlayer param0, ItemStack param1, FishingHook param2, Collection<ItemStack> param3) {
-        LootContext var0 = EntityPredicate.createContext(param0, param2.getHookedIn());
+        LootContext var0 = EntityPredicate.createContext(param0, (Entity)(param2.getHookedIn() != null ? param2.getHookedIn() : param2));
         this.trigger(param0, param3x -> param3x.matches(param1, var0, param3));
     }
 

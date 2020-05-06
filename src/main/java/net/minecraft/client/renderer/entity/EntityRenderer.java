@@ -28,13 +28,16 @@ public abstract class EntityRenderer<T extends Entity> {
     }
 
     public final int getPackedLightCoords(T param0, float param1) {
-        return LightTexture.pack(
-            this.getBlockLightLevel(param0, param1), param0.level.getBrightness(LightLayer.SKY, new BlockPos(param0.getEyePosition(param1)))
-        );
+        BlockPos var0 = new BlockPos(param0.getEyePosition(param1));
+        return LightTexture.pack(this.getBlockLightLevel(param0, var0), this.getSkyLightLevel(param0, var0));
     }
 
-    protected int getBlockLightLevel(T param0, float param1) {
-        return param0.isOnFire() ? 15 : param0.level.getBrightness(LightLayer.BLOCK, new BlockPos(param0.getEyePosition(param1)));
+    protected int getSkyLightLevel(T param0, BlockPos param1) {
+        return param0.level.getBrightness(LightLayer.SKY, param1);
+    }
+
+    protected int getBlockLightLevel(T param0, BlockPos param1) {
+        return param0.isOnFire() ? 15 : param0.level.getBrightness(LightLayer.BLOCK, param1);
     }
 
     public boolean shouldRender(T param0, Frustum param1, double param2, double param3, double param4) {

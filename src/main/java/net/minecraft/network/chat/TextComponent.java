@@ -18,7 +18,9 @@ public class TextComponent extends BaseComponent {
     }
 
     public TextComponent toMutable() {
-        return new TextComponent(this.text);
+        TextComponent var0 = new TextComponent(this.text);
+        var0.setStyle(this.getStyle());
+        return var0;
     }
 
     @Override

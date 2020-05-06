@@ -8,6 +8,7 @@ import com.mojang.math.Vector3f;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.projectile.DragonFireball;
 import net.minecraftforge.api.distmarker.Dist;
@@ -22,7 +23,7 @@ public class DragonFireballRenderer extends EntityRenderer<DragonFireball> {
         super(param0);
     }
 
-    protected int getBlockLightLevel(DragonFireball param0, float param1) {
+    protected int getBlockLightLevel(DragonFireball param0, BlockPos param1) {
         return 15;
     }
 

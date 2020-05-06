@@ -9,9 +9,9 @@ import net.minecraft.world.entity.ai.behavior.BehaviorUtils;
 import net.minecraft.world.entity.ai.util.RandomPos;
 import net.minecraft.world.phys.Vec3;
 
-public class MoveBackToVillage extends RandomStrollGoal {
-    public MoveBackToVillage(PathfinderMob param0, double param1) {
-        super(param0, param1, 10);
+public class MoveBackToVillageGoal extends RandomStrollGoal {
+    public MoveBackToVillageGoal(PathfinderMob param0, double param1, boolean param2) {
+        super(param0, param1, 10, param2);
     }
 
     @Override

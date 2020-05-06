@@ -166,7 +166,9 @@ public class PlayerTabOverlay extends GuiComponent {
                     var27 += 9;
                 }
 
-                this.minecraft.font.drawShadow(param0, this.getNameForDisplay(var29), (float)var27, (float)var28, -1862270977);
+                this.minecraft
+                    .font
+                    .drawShadow(param0, this.getNameForDisplay(var29), (float)var27, (float)var28, var29.getGameMode() == GameType.SPECTATOR ? -1862270977 : -1);
                 if (param3 != null && var29.getGameMode() != GameType.SPECTATOR) {
                     int var37 = var27 + var2 + 1;
                     int var38 = var37 + var10;

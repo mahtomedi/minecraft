@@ -23,6 +23,7 @@ import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.WaterAnimal;
 import net.minecraft.world.entity.player.Player;
@@ -681,32 +682,35 @@ public class Boat extends Entity {
 
     @Override
     public Vec3 getDismountLocationForPassenger(LivingEntity param0) {
-        Vec3 var0 = getCollisionHorizontalEscapeVector(Math.sqrt((double)(this.getBbWidth() * this.getBbWidth()) * 2.0), (double)param0.getBbWidth(), this.yRot);
+        Vec3 var0 = getCollisionHorizontalEscapeVector((double)(this.getBbWidth() * Mth.SQRT_OF_TWO), (double)param0.getBbWidth(), this.yRot);
         double var1 = this.getX() + var0.x;
-        double var2 = this.getBoundingBox().maxY + 0.001;
-        double var3 = this.getZ() + var0.z;
-        BlockPos var4 = new BlockPos(var1, var2, var3);
-        BlockPos var5 = var4.below();
-        if (!this.level.isWaterAt(var5)) {
-            AABB var6 = param0.getLocalBoundsForPose(param0.getShortestDismountPose()).move(var1, var2, var3);
-            double var7 = this.level.getRelativeFloorHeight(var4);
-            if (!Double.isInfinite(var7) && var7 < 1.0) {
-                AABB var8 = var6.move(var1, (double)var4.getY() + var7, var3);
-                if (this.level.getBlockCollisions(param0, var8).allMatch(VoxelShape::isEmpty)) {
-                    return new Vec3(var1, (double)var4.getY() + var7, var3);
+        double var2 = this.getZ() + var0.z;
+        BlockPos var3 = new BlockPos(var1, this.getBoundingBox().maxY, var2);
+        BlockPos var4 = var3.below();
+        if (!this.level.isWaterAt(var4)) {
+            for(Pose var5 : param0.getDismountPoses()) {
+                AABB var6 = param0.getLocalBoundsForPose(var5);
+                double var7 = this.level.getRelativeFloorHeight(var3);
+                if (DismountHelper.isFloorValid(var7)) {
+                    Vec3 var8 = new Vec3(var1, (double)var3.getY() + var7, var2);
+                    if (DismountHelper.canDismountTo(this.level, param0, var6.move(var8))) {
+                        param0.setPose(var5);
+                        return var8;
+                    }
                 }
-            } else if (var7 < 1.0) {
-                double var9 = this.level.getRelativeFloorHeight(var5);
-                if (!Double.isInfinite(var9) && var9 <= 0.5) {
-                    AABB var10 = var6.move(var1, (double)var5.getY() + var9, var3);
-                    if (this.level.getBlockCollisions(param0, var10).allMatch(VoxelShape::isEmpty)) {
-                        return new Vec3(var1, (double)var5.getY() + var9, var3);
+
+                double var9 = this.level.getRelativeFloorHeight(var4);
+                if (DismountHelper.isFloorValid(var9)) {
+                    Vec3 var10 = new Vec3(var1, (double)var4.getY() + var9, var2);
+                    if (DismountHelper.canDismountTo(this.level, param0, var6.move(var10))) {
+                        param0.setPose(var5);
+                        return var10;
                     }
                 }
             }
         }
 
-        return new Vec3(this.getX(), var2, this.getZ());
+        return super.getDismountLocationForPassenger(param0);
     }
 
     protected void clampRotation(Entity param0) {

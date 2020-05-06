@@ -39,7 +39,7 @@ public class CatSpawner {
                         return 0;
                     } else {
                         if (NaturalSpawner.isSpawnPositionOk(SpawnPlacements.Type.ON_GROUND, param0, var4, EntityType.CAT)) {
-                            if (param0.closeToVillage(var4, 2)) {
+                            if (param0.isCloseToVillage(var4, 2)) {
                                 return this.spawnInVillage(param0, var4);
                             }
 

@@ -2,6 +2,7 @@ package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.VexModel;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.monster.Vex;
 import net.minecraftforge.api.distmarker.Dist;
@@ -16,7 +17,7 @@ public class VexRenderer extends HumanoidMobRenderer<Vex, VexModel> {
         super(param0, new VexModel(), 0.3F);
     }
 
-    protected int getBlockLightLevel(Vex param0, float param1) {
+    protected int getBlockLightLevel(Vex param0, BlockPos param1) {
         return 15;
     }
 

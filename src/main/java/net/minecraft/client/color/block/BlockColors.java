@@ -67,7 +67,7 @@ public class BlockColors {
             Blocks.BUBBLE_COLUMN,
             Blocks.CAULDRON
         );
-        var0.register((param0, param1, param2, param3) -> RedStoneWireBlock.getColorForData(param0.getValue(RedStoneWireBlock.POWER)), Blocks.REDSTONE_WIRE);
+        var0.register((param0, param1, param2, param3) -> RedStoneWireBlock.getColorForPower(param0.getValue(RedStoneWireBlock.POWER)), Blocks.REDSTONE_WIRE);
         var0.addColoringState(RedStoneWireBlock.POWER, Blocks.REDSTONE_WIRE);
         var0.register(
             (param0, param1, param2, param3) -> param1 != null && param2 != null ? BiomeColors.getAverageGrassColor(param1, param2) : -1, Blocks.SUGAR_CANE

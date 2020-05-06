@@ -79,12 +79,14 @@ public abstract class MobRenderer<T extends Mob, M extends EntityModel<T>> exten
         float var19 = Mth.fastInvSqrt(var13 * var13 + var15 * var15) * 0.025F / 2.0F;
         float var20 = var15 * var19;
         float var21 = var13 * var19;
-        int var22 = this.getBlockLightLevel(param0, param1);
-        int var23 = this.entityRenderDispatcher.getRenderer(param4).getBlockLightLevel(param4, param1);
-        int var24 = param0.level.getBrightness(LightLayer.SKY, new BlockPos(param0.getEyePosition(param1)));
-        int var25 = param0.level.getBrightness(LightLayer.SKY, new BlockPos(param4.getEyePosition(param1)));
-        renderSide(var17, var18, var13, var14, var15, var22, var23, var24, var25, 0.025F, 0.025F, var20, var21);
-        renderSide(var17, var18, var13, var14, var15, var22, var23, var24, var25, 0.025F, 0.0F, var20, var21);
+        BlockPos var22 = new BlockPos(param0.getEyePosition(param1));
+        BlockPos var23 = new BlockPos(param4.getEyePosition(param1));
+        int var24 = this.getBlockLightLevel(param0, var22);
+        int var25 = this.entityRenderDispatcher.getRenderer(param4).getBlockLightLevel(param4, var23);
+        int var26 = param0.level.getBrightness(LightLayer.SKY, var22);
+        int var27 = param0.level.getBrightness(LightLayer.SKY, var23);
+        renderSide(var17, var18, var13, var14, var15, var24, var25, var26, var27, 0.025F, 0.025F, var20, var21);
+        renderSide(var17, var18, var13, var14, var15, var24, var25, var26, var27, 0.025F, 0.0F, var20, var21);
         param2.popPose();
     }
 

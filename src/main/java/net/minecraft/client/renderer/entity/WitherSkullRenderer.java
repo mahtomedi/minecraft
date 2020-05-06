@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.SkullModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.projectile.WitherSkull;
@@ -21,7 +22,7 @@ public class WitherSkullRenderer extends EntityRenderer<WitherSkull> {
         super(param0);
     }
 
-    protected int getBlockLightLevel(WitherSkull param0, float param1) {
+    protected int getBlockLightLevel(WitherSkull param0, BlockPos param1) {
         return 15;
     }
 

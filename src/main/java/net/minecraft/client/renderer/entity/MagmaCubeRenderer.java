@@ -2,6 +2,7 @@ package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.LavaSlimeModel;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.monster.MagmaCube;
@@ -16,7 +17,7 @@ public class MagmaCubeRenderer extends MobRenderer<MagmaCube, LavaSlimeModel<Mag
         super(param0, new LavaSlimeModel<>(), 0.25F);
     }
 
-    protected int getBlockLightLevel(MagmaCube param0, float param1) {
+    protected int getBlockLightLevel(MagmaCube param0, BlockPos param1) {
         return 15;
     }
 

@@ -68,33 +68,7 @@ public abstract class BaseRailBlock extends Block {
     public void neighborChanged(BlockState param0, Level param1, BlockPos param2, Block param3, BlockPos param4, boolean param5) {
         if (!param1.isClientSide) {
             RailShape var0 = param0.getValue(this.getShapeProperty());
-            boolean var1 = false;
-            BlockPos var2 = param2.below();
-            if (!canSupportRigidBlock(param1, var2)) {
-                var1 = true;
-            }
-
-            BlockPos var3 = param2.east();
-            if (var0 == RailShape.ASCENDING_EAST && !canSupportRigidBlock(param1, var3)) {
-                var1 = true;
-            } else {
-                BlockPos var4 = param2.west();
-                if (var0 == RailShape.ASCENDING_WEST && !canSupportRigidBlock(param1, var4)) {
-                    var1 = true;
-                } else {
-                    BlockPos var5 = param2.north();
-                    if (var0 == RailShape.ASCENDING_NORTH && !canSupportRigidBlock(param1, var5)) {
-                        var1 = true;
-                    } else {
-                        BlockPos var6 = param2.south();
-                        if (var0 == RailShape.ASCENDING_SOUTH && !canSupportRigidBlock(param1, var6)) {
-                            var1 = true;
-                        }
-                    }
-                }
-            }
-
-            if (var1 && !param1.isEmptyBlock(param2)) {
+            if (shouldBeRemoved(param2, param1, var0) && !param1.isEmptyBlock(param2)) {
                 if (!param5) {
                     dropResources(param0, param1, param2);
                 }
@@ -104,6 +78,25 @@ public abstract class BaseRailBlock extends Block {
                 this.updateState(param0, param1, param2, param3);
             }
 
+        }
+    }
+
+    private static boolean shouldBeRemoved(BlockPos param0, Level param1, RailShape param2) {
+        if (!canSupportRigidBlock(param1, param0.below())) {
+            return true;
+        } else {
+            switch(param2) {
+                case ASCENDING_EAST:
+                    return !canSupportRigidBlock(param1, param0.east());
+                case ASCENDING_WEST:
+                    return !canSupportRigidBlock(param1, param0.west());
+                case ASCENDING_NORTH:
+                    return !canSupportRigidBlock(param1, param0.north());
+                case ASCENDING_SOUTH:
+                    return !canSupportRigidBlock(param1, param0.south());
+                default:
+                    return false;
+            }
         }
     }
 

@@ -1,6 +1,7 @@
 package net.minecraft.client.renderer.entity;
 
 import net.minecraft.client.model.BlazeModel;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.monster.Blaze;
 import net.minecraftforge.api.distmarker.Dist;
@@ -14,7 +15,7 @@ public class BlazeRenderer extends MobRenderer<Blaze, BlazeModel<Blaze>> {
         super(param0, new BlazeModel<>(), 0.5F);
     }
 
-    protected int getBlockLightLevel(Blaze param0, float param1) {
+    protected int getBlockLightLevel(Blaze param0, BlockPos param1) {
         return 15;
     }
 

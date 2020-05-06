@@ -39,9 +39,9 @@ public class RecipeToast implements Toast {
             ItemStack var1 = var0.getToastSymbol();
             RenderSystem.pushMatrix();
             RenderSystem.scalef(0.6F, 0.6F, 1.0F);
-            param1.getMinecraft().getItemRenderer().renderAndDecorateItem(null, var1, 3, 3);
+            param1.getMinecraft().getItemRenderer().renderAndDecorateFakeItem(var1, 3, 3);
             RenderSystem.popMatrix();
-            param1.getMinecraft().getItemRenderer().renderAndDecorateItem(null, var0.getResultItem(), 8, 8);
+            param1.getMinecraft().getItemRenderer().renderAndDecorateFakeItem(var0.getResultItem(), 8, 8);
             return param2 - this.lastChanged >= 5000L ? Toast.Visibility.HIDE : Toast.Visibility.SHOW;
         }
     }

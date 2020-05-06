@@ -120,6 +120,12 @@ public class ItemRenderer implements ResourceManagerReloadListener {
         }
     }
 
+    public static VertexConsumer getArmorFoilBuffer(MultiBufferSource param0, RenderType param1, boolean param2, boolean param3) {
+        return param3
+            ? VertexMultiConsumer.create(param0.getBuffer(param2 ? RenderType.armorGlint() : RenderType.armorEntityGlint()), param0.getBuffer(param1))
+            : param0.getBuffer(param1);
+    }
+
     public static VertexConsumer getFoilBuffer(MultiBufferSource param0, RenderType param1, boolean param2, boolean param3) {
         return param3
             ? VertexMultiConsumer.create(param0.getBuffer(param2 ? RenderType.glint() : RenderType.entityGlint()), param0.getBuffer(param1))
@@ -217,10 +223,18 @@ public class ItemRenderer implements ResourceManagerReloadListener {
     }
 
     public void renderAndDecorateItem(ItemStack param0, int param1, int param2) {
-        this.renderAndDecorateItem(Minecraft.getInstance().player, param0, param1, param2);
+        this.tryRenderGuiItem(Minecraft.getInstance().player, param0, param1, param2);
     }
 
-    public void renderAndDecorateItem(@Nullable LivingEntity param0, ItemStack param1, int param2, int param3) {
+    public void renderAndDecorateFakeItem(ItemStack param0, int param1, int param2) {
+        this.tryRenderGuiItem(null, param0, param1, param2);
+    }
+
+    public void renderAndDecorateItem(LivingEntity param0, ItemStack param1, int param2, int param3) {
+        this.tryRenderGuiItem(param0, param1, param2, param3);
+    }
+
+    private void tryRenderGuiItem(@Nullable LivingEntity param0, ItemStack param1, int param2, int param3) {
         if (!param1.isEmpty()) {
             this.blitOffset += 50.0F;
 

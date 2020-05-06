@@ -531,6 +531,7 @@ public class FishingHook extends Projectile {
         return var0 instanceof Player ? (Player)var0 : null;
     }
 
+    @Nullable
     public Entity getHookedIn() {
         return this.hookedIn;
     }

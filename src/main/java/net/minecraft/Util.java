@@ -28,6 +28,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.TimeUnit;
@@ -52,6 +53,7 @@ import org.apache.logging.log4j.Logger;
 public class Util {
     private static final AtomicInteger WORKER_COUNT = new AtomicInteger(1);
     private static final ExecutorService BACKGROUND_EXECUTOR = makeBackgroundExecutor();
+    private static final ExecutorService IO_POOL = makeIoExecutor();
     public static LongSupplier timeSource = System::nanoTime;
     private static final Logger LOGGER = LogManager.getLogger();
 
@@ -100,19 +102,7 @@ public class Util {
                 };
                 var0x.setName("Worker-" + WORKER_COUNT.getAndIncrement());
                 return var0x;
-            }, (param0, param1) -> {
-                pauseInIde(param1);
-                if (param1 instanceof CompletionException) {
-                    param1 = param1.getCause();
-                }
-
-                if (param1 instanceof ReportedException) {
-                    Bootstrap.realStdoutPrintln(((ReportedException)param1).getReport().getFriendlyReport());
-                    System.exit(-1);
-                }
-
-                LOGGER.error(String.format("Caught exception in thread %s", param0), param1);
-            }, true);
+            }, Util::onThreadException, true);
         }
 
         return var1;
@@ -122,20 +112,38 @@ public class Util {
         return BACKGROUND_EXECUTOR;
     }
 
-    public static void shutdownBackgroundExecutor() {
-        BACKGROUND_EXECUTOR.shutdown();
+    public static Executor ioPool() {
+        return IO_POOL;
+    }
+
+    public static void shutdownExecutors() {
+        shutdownExecutor(BACKGROUND_EXECUTOR);
+        shutdownExecutor(IO_POOL);
+    }
+
+    private static void shutdownExecutor(ExecutorService param0) {
+        param0.shutdown();
 
         boolean var0;
         try {
-            var0 = BACKGROUND_EXECUTOR.awaitTermination(3L, TimeUnit.SECONDS);
-        } catch (InterruptedException var21) {
+            var0 = param0.awaitTermination(3L, TimeUnit.SECONDS);
+        } catch (InterruptedException var3) {
             var0 = false;
         }
 
         if (!var0) {
-            BACKGROUND_EXECUTOR.shutdownNow();
+            param0.shutdownNow();
         }
 
+    }
+
+    private static ExecutorService makeIoExecutor() {
+        return Executors.newCachedThreadPool(param0 -> {
+            Thread var0 = new Thread(param0);
+            var0.setName("IO-Worker-" + WORKER_COUNT.getAndIncrement());
+            var0.setUncaughtExceptionHandler(Util::onThreadException);
+            return var0;
+        });
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -148,6 +156,20 @@ public class Util {
     @OnlyIn(Dist.CLIENT)
     public static void throwAsRuntime(Throwable param0) {
         throw param0 instanceof RuntimeException ? (RuntimeException)param0 : new RuntimeException(param0);
+    }
+
+    private static void onThreadException(Thread param0, Throwable param1) {
+        pauseInIde(param1);
+        if (param1 instanceof CompletionException) {
+            param1 = param1.getCause();
+        }
+
+        if (param1 instanceof ReportedException) {
+            Bootstrap.realStdoutPrintln(((ReportedException)param1).getReport().getFriendlyReport());
+            System.exit(-1);
+        }
+
+        LOGGER.error(String.format("Caught exception in thread %s", param0), param1);
     }
 
     public static Util.OS getPlatform() {

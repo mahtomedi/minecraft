@@ -840,10 +840,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
     }
 
     public boolean wantsToSpawnGolem(long param0) {
-        VillagerData var0 = this.getVillagerData();
-        if (var0.getProfession() == VillagerProfession.NONE || var0.getProfession() == VillagerProfession.NITWIT) {
-            return false;
-        } else if (!this.golemSpawnConditionsMet(this.level.getGameTime())) {
+        if (!this.golemSpawnConditionsMet(this.level.getGameTime())) {
             return false;
         } else {
             return !this.hasSeenGolemRecently(param0);
@@ -940,9 +937,8 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
 
     private boolean golemSpawnConditionsMet(long param0) {
         Optional<SerializableLong> var0 = this.brain.getMemory(MemoryModuleType.LAST_SLEPT);
-        Optional<SerializableLong> var1 = this.brain.getMemory(MemoryModuleType.LAST_WORKED_AT_POI);
-        if (var0.isPresent() && var1.isPresent()) {
-            return param0 - var0.get().value() < 24000L && param0 - var1.get().value() < 36000L;
+        if (var0.isPresent()) {
+            return param0 - var0.get().value() < 24000L;
         } else {
             return false;
         }

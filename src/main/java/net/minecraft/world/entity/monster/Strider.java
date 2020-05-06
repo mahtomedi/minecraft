@@ -43,6 +43,7 @@ import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.vehicle.DismountHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -59,7 +60,6 @@ import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class Strider extends Animal implements ItemSteerable, Saddleable {
     private static final Ingredient FOOD_ITEMS = Ingredient.of(Items.WARPED_FUNGUS);
@@ -224,16 +224,14 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
 
         for(BlockPos var7 : var1) {
             if (!this.level.getFluidState(var7).is(FluidTags.LAVA)) {
-                Vec3 var8 = Vec3.atBottomCenterOf(var7);
-
-                for(Pose var9 : param0.getDismountPoses()) {
-                    AABB var10 = param0.getLocalBoundsForPose(var9).move(var8);
-                    double var11 = this.level.getRelativeFloorHeight(var7);
-                    if (!Double.isInfinite(var11) && var11 < 1.0) {
-                        AABB var12 = var10.move(0.0, var11, 0.0);
-                        if (this.level.getBlockCollisions(param0, var12).allMatch(VoxelShape::isEmpty)) {
-                            param0.setPose(var9);
-                            return new Vec3(var8.x, (double)var7.getY() + var11, var8.z);
+                for(Pose var8 : param0.getDismountPoses()) {
+                    double var9 = this.level.getRelativeFloorHeight(var7);
+                    if (DismountHelper.isFloorValid(var9)) {
+                        AABB var10 = param0.getLocalBoundsForPose(var8);
+                        Vec3 var11 = Vec3.upFromBottomCenterOf(var7, var9);
+                        if (DismountHelper.canDismountTo(this.level, param0, var10.move(var11))) {
+                            param0.setPose(var8);
+                            return var11;
                         }
                     }
                 }

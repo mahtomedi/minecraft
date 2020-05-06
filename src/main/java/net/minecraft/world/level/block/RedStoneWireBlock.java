@@ -3,6 +3,7 @@ package net.minecraft.world.level.block;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.mojang.math.Vector3f;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -64,6 +65,7 @@ public class RedStoneWireBlock extends Block {
         )
     );
     private final Map<BlockState, VoxelShape> SHAPES_CACHE = Maps.newHashMap();
+    private static final Vector3f[] COLORS = new Vector3f[16];
     private boolean shouldSignal = true;
 
     public RedStoneWireBlock(BlockBehaviour.Properties param0) {
@@ -209,9 +211,9 @@ public class RedStoneWireBlock extends Block {
         BlockPos var0 = param1.relative(param2);
         BlockState var1 = param0.getBlockState(var0);
         if (param3) {
-            boolean var2 = var1.isFaceSturdy(param0, var0, Direction.UP) || var1.is(Blocks.HOPPER);
+            boolean var2 = this.canSurviveOn(param0, var0, var1);
             if (var2 && shouldConnectTo(param0.getBlockState(var0.above()))) {
-                if (var1.isCollisionShapeFullBlock(param0, var0)) {
+                if (var1.isFaceSturdy(param0, var0, param2.getOpposite())) {
                     return RedstoneSide.UP;
                 }
 
@@ -228,7 +230,11 @@ public class RedStoneWireBlock extends Block {
     public boolean canSurvive(BlockState param0, LevelReader param1, BlockPos param2) {
         BlockPos var0 = param2.below();
         BlockState var1 = param1.getBlockState(var0);
-        return var1.isFaceSturdy(param1, var0, Direction.UP) || var1.is(Blocks.HOPPER);
+        return this.canSurviveOn(param1, var0, var1);
+    }
+
+    private boolean canSurviveOn(BlockGetter param0, BlockPos param1, BlockState param2) {
+        return param2.isFaceSturdy(param0, param1, Direction.UP) || param2.is(Blocks.HOPPER);
     }
 
     private void updatePowerStrength(Level param0, BlockPos param1, BlockState param2) {
@@ -391,27 +397,32 @@ public class RedStoneWireBlock extends Block {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static int getColorForData(int param0) {
-        float var0 = (float)param0 / 15.0F;
-        float var1 = var0 * 0.6F + 0.4F;
-        if (param0 == 0) {
-            var1 = 0.3F;
-        }
+    public static int getColorForPower(int param0) {
+        Vector3f var0 = COLORS[param0];
+        return Mth.color(var0.x(), var0.y(), var0.z());
+    }
 
-        float var2 = var0 * var0 * 0.7F - 0.5F;
-        float var3 = var0 * var0 * 0.6F - 0.7F;
-        if (var2 < 0.0F) {
-            var2 = 0.0F;
+    @OnlyIn(Dist.CLIENT)
+    private void spawnParticlesAlongLine(
+        Level param0, Random param1, BlockPos param2, Vector3f param3, Direction param4, Direction param5, float param6, float param7
+    ) {
+        float var0 = param7 - param6;
+        if (!(param1.nextFloat() >= 0.2F * var0)) {
+            float var1 = 0.4375F;
+            float var2 = param6 + var0 * param1.nextFloat();
+            float var3 = 0.5F + 0.4375F * (float)param4.getStepX() + var2 * (float)param5.getStepX();
+            float var4 = 0.5F + 0.4375F * (float)param4.getStepY() + var2 * (float)param5.getStepY();
+            float var5 = 0.5F + 0.4375F * (float)param4.getStepZ() + var2 * (float)param5.getStepZ();
+            param0.addParticle(
+                new DustParticleOptions(param3.x(), param3.y(), param3.z(), 1.0F),
+                (double)((float)param2.getX() + var3),
+                (double)((float)param2.getY() + var4),
+                (double)((float)param2.getZ() + var5),
+                0.0,
+                0.0,
+                0.0
+            );
         }
-
-        if (var3 < 0.0F) {
-            var3 = 0.0F;
-        }
-
-        int var4 = Mth.clamp((int)(var1 * 255.0F), 0, 255);
-        int var5 = Mth.clamp((int)(var2 * 255.0F), 0, 255);
-        int var6 = Mth.clamp((int)(var3 * 255.0F), 0, 255);
-        return 0xFF000000 | var4 << 16 | var5 << 8 | var6;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -419,14 +430,20 @@ public class RedStoneWireBlock extends Block {
     public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
         int var0 = param0.getValue(POWER);
         if (var0 != 0) {
-            double var1 = (double)param2.getX() + 0.5 + ((double)param3.nextFloat() - 0.5) * 0.2;
-            double var2 = (double)((float)param2.getY() + 0.0625F);
-            double var3 = (double)param2.getZ() + 0.5 + ((double)param3.nextFloat() - 0.5) * 0.2;
-            float var4 = (float)var0 / 15.0F;
-            float var5 = var4 * 0.6F + 0.4F;
-            float var6 = Math.max(0.0F, var4 * var4 * 0.7F - 0.5F);
-            float var7 = Math.max(0.0F, var4 * var4 * 0.6F - 0.7F);
-            param1.addParticle(new DustParticleOptions(var5, var6, var7, 1.0F), var1, var2, var3, 0.0, 0.0, 0.0);
+            for(Direction var1 : Direction.Plane.HORIZONTAL) {
+                RedstoneSide var2 = param0.getValue(PROPERTY_BY_DIRECTION.get(var1));
+                switch(var2) {
+                    case UP:
+                        this.spawnParticlesAlongLine(param1, param3, param2, COLORS[var0], var1, Direction.UP, -0.5F, 0.5F);
+                    case SIDE:
+                        this.spawnParticlesAlongLine(param1, param3, param2, COLORS[var0], Direction.DOWN, var1, 0.0F, 0.5F);
+                        break;
+                    case NONE:
+                    default:
+                        this.spawnParticlesAlongLine(param1, param3, param2, COLORS[var0], Direction.DOWN, var1, 0.0F, 0.3F);
+                }
+            }
+
         }
     }
 
@@ -468,5 +485,16 @@ public class RedStoneWireBlock extends Block {
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> param0) {
         param0.add(NORTH, EAST, SOUTH, WEST, POWER);
+    }
+
+    static {
+        for(int var0 = 0; var0 <= 15; ++var0) {
+            float var1 = (float)var0 / 15.0F;
+            float var2 = var1 * 0.6F + (var1 > 0.0F ? 0.4F : 0.3F);
+            float var3 = Mth.clamp(var1 * var1 * 0.7F - 0.5F, 0.0F, 1.0F);
+            float var4 = Mth.clamp(var1 * var1 * 0.6F - 0.7F, 0.0F, 1.0F);
+            COLORS[var0] = new Vector3f(var2, var3, var4);
+        }
+
     }
 }

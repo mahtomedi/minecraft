@@ -202,7 +202,8 @@ public class Block extends BlockBehaviour implements ItemLike {
 
     public static boolean canSupportRigidBlock(BlockGetter param0, BlockPos param1) {
         BlockState var0 = param0.getBlockState(param1);
-        return !Shapes.joinIsNotEmpty(var0.getBlockSupportShape(param0, param1).getFaceShape(Direction.UP), RIGID_SUPPORT_SHAPE, BooleanOp.ONLY_SECOND);
+        return var0.isCollisionShapeFullBlock(param0, param1) && var0.isFaceSturdy(param0, param1, Direction.UP)
+            || !Shapes.joinIsNotEmpty(var0.getBlockSupportShape(param0, param1).getFaceShape(Direction.UP), RIGID_SUPPORT_SHAPE, BooleanOp.ONLY_SECOND);
     }
 
     public static boolean canSupportCenter(LevelReader param0, BlockPos param1, Direction param2) {

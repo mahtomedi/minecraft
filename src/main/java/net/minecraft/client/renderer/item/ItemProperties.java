@@ -101,24 +101,27 @@ public class ItemProperties {
 
             @Override
             public float call(ItemStack param0, @Nullable ClientLevel param1, @Nullable LivingEntity param2) {
-                boolean var0 = param2 != null;
-                Entity var1 = (Entity)(var0 ? param2 : param0.getFrame());
-                if (param1 == null && var1 != null && var1.level instanceof ClientLevel) {
-                    param1 = (ClientLevel)var1.level;
-                }
-
-                if (param1 == null) {
+                Entity var0 = (Entity)(param2 != null ? param2 : param0.getEntityRepresentation());
+                if (var0 == null) {
                     return 0.0F;
                 } else {
-                    double var2;
-                    if (param1.dimension.isNaturalDimension()) {
-                        var2 = (double)param1.getTimeOfDay(1.0F);
-                    } else {
-                        var2 = Math.random();
+                    if (param1 == null && var0.level instanceof ClientLevel) {
+                        param1 = (ClientLevel)var0.level;
                     }
 
-                    var2 = this.wobble(param1, var2);
-                    return (float)var2;
+                    if (param1 == null) {
+                        return 0.0F;
+                    } else {
+                        double var1;
+                        if (param1.dimension.isNaturalDimension()) {
+                            var1 = (double)param1.getTimeOfDay(1.0F);
+                        } else {
+                            var1 = Math.random();
+                        }
+
+                        var1 = this.wobble(param1, var1);
+                        return (float)var1;
+                    }
                 }
             }
 

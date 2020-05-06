@@ -51,6 +51,7 @@ import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.vehicle.DismountHelper;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -62,7 +63,6 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -297,7 +297,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
 
     protected void updateContainerEquipment() {
         if (!this.level.isClientSide) {
-            this.setFlag(4, !this.inventory.getItem(0).isEmpty() && this.isSaddleable());
+            this.setFlag(4, !this.inventory.getItem(0).isEmpty());
         }
     }
 
@@ -1002,35 +1002,54 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
         return this.getPassengers().isEmpty() ? null : this.getPassengers().get(0);
     }
 
+    @Nullable
+    private Vec3 getDismountLocationInDirection(Vec3 param0, LivingEntity param1) {
+        double var0 = this.getX() + param0.x;
+        double var1 = this.getBoundingBox().minY;
+        double var2 = this.getZ() + param0.z;
+        BlockPos.MutableBlockPos var3 = new BlockPos.MutableBlockPos();
+
+        for(Pose var4 : param1.getDismountPoses()) {
+            var3.set(var0, var1, var2);
+            double var5 = this.getBoundingBox().maxY + 0.75;
+
+            do {
+                double var6 = this.level.getRelativeFloorHeight(var3);
+                if ((double)var3.getY() + var6 > var5) {
+                    break;
+                }
+
+                if (DismountHelper.isFloorValid(var6)) {
+                    AABB var7 = param1.getLocalBoundsForPose(var4);
+                    Vec3 var8 = new Vec3(var0, (double)var3.getY() + var6, var2);
+                    if (DismountHelper.canDismountTo(this.level, param1, var7.move(var8))) {
+                        param1.setPose(var4);
+                        return var8;
+                    }
+                }
+
+                var3.move(Direction.UP);
+            } while(!((double)var3.getY() < var5));
+        }
+
+        return null;
+    }
+
     @Override
     public Vec3 getDismountLocationForPassenger(LivingEntity param0) {
         Vec3 var0 = getCollisionHorizontalEscapeVector(
             (double)this.getBbWidth(), (double)param0.getBbWidth(), this.yRot + (param0.getMainArm() == HumanoidArm.RIGHT ? 90.0F : -90.0F)
         );
-        double var1 = this.getX() + var0.x;
-        double var2 = this.getBoundingBox().minY;
-        double var3 = this.getZ() + var0.z;
-        AABB var4 = param0.getLocalBoundsForPose(param0.getShortestDismountPose()).move(var1, var2, var3);
-        BlockPos.MutableBlockPos var5 = new BlockPos.MutableBlockPos(var1, var2, var3);
-        double var6 = this.getBoundingBox().maxY + 0.75;
-
-        do {
-            double var7 = this.level.getRelativeFloorHeight(var5);
-            if ((double)var5.getY() + var7 > var6) {
-                break;
-            }
-
-            if (!Double.isInfinite(var7) && var7 < 1.0) {
-                AABB var8 = var4.move(var1, (double)var5.getY() + var7, var3);
-                if (this.level.getBlockCollisions(param0, var8).allMatch(VoxelShape::isEmpty)) {
-                    return new Vec3(var1, (double)var5.getY() + var7, var3);
-                }
-            }
-
-            var5.move(Direction.UP);
-        } while((double)var5.getY() < var6);
-
-        return new Vec3(this.getX(), this.getY(), this.getZ());
+        Vec3 var1 = this.getDismountLocationInDirection(var0, param0);
+        if (var1 != null) {
+            return var1;
+        } else {
+            Vec3 var2 = getCollisionHorizontalEscapeVector(
+                (double)this.getBbWidth(), (double)param0.getBbWidth(), this.yRot + (param0.getMainArm() == HumanoidArm.LEFT ? 90.0F : -90.0F)
+            );
+            Vec3 var3 = this.getDismountLocationInDirection(var2, param0);
+            return var3 != null ? var3 : this.position();
+        }
     }
 
     protected void randomizeAttributes() {

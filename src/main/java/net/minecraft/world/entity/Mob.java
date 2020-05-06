@@ -649,13 +649,13 @@ public abstract class Mob extends LivingEntity {
             Entity var0 = this.level.getNearestPlayer(this, -1.0);
             if (var0 != null) {
                 double var1 = var0.distanceToSqr(this);
-                int var2 = this.getType().getInstantDespawnDistance();
+                int var2 = this.getType().getCategory().getDespawnDistance();
                 int var3 = var2 * var2;
                 if (var1 > (double)var3 && this.removeWhenFarAway(var1)) {
                     this.remove();
                 }
 
-                int var4 = this.getType().getNoDespawnDistance();
+                int var4 = this.getType().getCategory().getNoDespawnDistance();
                 int var5 = var4 * var4;
                 if (this.noActionTime > 600 && this.random.nextInt(800) == 0 && var1 > (double)var5 && this.removeWhenFarAway(var1)) {
                     this.remove();

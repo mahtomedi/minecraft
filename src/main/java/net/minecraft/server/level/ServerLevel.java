@@ -1262,14 +1262,14 @@ public class ServerLevel extends Level {
     }
 
     public boolean isVillage(BlockPos param0) {
-        return this.closeToVillage(param0, 1);
+        return this.isCloseToVillage(param0, 1);
     }
 
     public boolean isVillage(SectionPos param0) {
         return this.isVillage(param0.center());
     }
 
-    public boolean closeToVillage(BlockPos param0, int param1) {
+    public boolean isCloseToVillage(BlockPos param0, int param1) {
         if (param1 > 6) {
             return false;
         } else {

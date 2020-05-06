@@ -1,5 +1,7 @@
 package net.minecraft.world.entity.vehicle;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Pair;
 import java.util.List;
@@ -20,9 +22,12 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -33,6 +38,7 @@ import net.minecraft.world.level.block.BaseRailBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.PoweredRailBlock;
+import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.RailShape;
 import net.minecraft.world.phys.AABB;
@@ -47,6 +53,9 @@ public abstract class AbstractMinecart extends Entity {
     private static final EntityDataAccessor<Integer> DATA_ID_DISPLAY_BLOCK = SynchedEntityData.defineId(AbstractMinecart.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_ID_DISPLAY_OFFSET = SynchedEntityData.defineId(AbstractMinecart.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> DATA_ID_CUSTOM_DISPLAY = SynchedEntityData.defineId(AbstractMinecart.class, EntityDataSerializers.BOOLEAN);
+    private static final ImmutableMap<Pose, ImmutableList<Integer>> POSE_DISMOUNT_HEIGHTS = ImmutableMap.of(
+        Pose.STANDING, ImmutableList.of(0, 1, -1), Pose.CROUCHING, ImmutableList.of(0, 1, -1), Pose.SWIMMING, ImmutableList.of(0, 1)
+    );
     private boolean flipped;
     private static final Map<RailShape, Pair<Vec3i, Vec3i>> EXITS = Util.make(Maps.newEnumMap(RailShape.class), param0 -> {
         Vec3i var0 = Direction.WEST.getNormal();
@@ -142,6 +151,59 @@ public abstract class AbstractMinecart extends Entity {
     @Override
     public double getRideHeight() {
         return 0.0;
+    }
+
+    @Override
+    public Vec3 getDismountLocationForPassenger(LivingEntity param0) {
+        Direction var0 = this.getMotionDirection();
+        if (var0.getAxis() == Direction.Axis.Y) {
+            return super.getDismountLocationForPassenger(param0);
+        } else {
+            int[][] var1 = DismountHelper.offsetsForDirection(var0);
+            BlockPos var2 = this.blockPosition();
+            BlockPos.MutableBlockPos var3 = new BlockPos.MutableBlockPos();
+            ImmutableList<Pose> var4 = param0.getDismountPoses();
+
+            for(Pose var5 : var4) {
+                EntityDimensions var6 = param0.getDimensions(var5);
+                float var7 = Math.min(var6.width, 1.0F) / 2.0F;
+
+                for(int var8 : POSE_DISMOUNT_HEIGHTS.get(var5)) {
+                    for(int[] var9 : var1) {
+                        var3.set(var2.getX() + var9[0], var2.getY() + var8, var2.getZ() + var9[1]);
+                        double var10 = this.level.getRelativeFloorHeight(var3, param0x -> {
+                            if (param0x.is(BlockTags.CLIMBABLE)) {
+                                return true;
+                            } else {
+                                return param0x.getBlock() instanceof TrapDoorBlock && param0x.getValue(TrapDoorBlock.OPEN);
+                            }
+                        });
+                        if (DismountHelper.isFloorValid(var10)) {
+                            AABB var11 = new AABB((double)(-var7), var10, (double)(-var7), (double)var7, var10 + (double)var6.height, (double)var7);
+                            Vec3 var12 = Vec3.upFromBottomCenterOf(var3, var10);
+                            if (DismountHelper.canDismountTo(this.level, param0, var11.move(var12))) {
+                                param0.setPose(var5);
+                                return var12;
+                            }
+                        }
+                    }
+                }
+            }
+
+            double var13 = this.getBoundingBox().maxY;
+            var3.set((double)var2.getX(), var13, (double)var2.getZ());
+
+            for(Pose var14 : var4) {
+                double var15 = (double)param0.getDimensions(var14).height;
+                double var16 = (double)var3.getY() + this.level.getRelativeCeilingHeight(var3, var13 - (double)var3.getY() + var15);
+                if (var13 + var15 <= var16) {
+                    param0.setPose(var14);
+                    break;
+                }
+            }
+
+            return super.getDismountLocationForPassenger(param0);
+        }
     }
 
     @Override

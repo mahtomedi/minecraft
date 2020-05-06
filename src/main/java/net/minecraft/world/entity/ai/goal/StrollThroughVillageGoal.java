@@ -35,7 +35,7 @@ public class StrollThroughVillageGoal extends Goal {
         } else {
             ServerLevel var0 = (ServerLevel)this.mob.level;
             BlockPos var1 = this.mob.blockPosition();
-            if (!var0.closeToVillage(var1, 6)) {
+            if (!var0.isCloseToVillage(var1, 6)) {
                 return false;
             } else {
                 Vec3 var2 = RandomPos.getLandPos(this.mob, 15, 7, param1 -> (double)(-var0.sectionsToVillage(SectionPos.of(param1))));

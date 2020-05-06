@@ -624,12 +624,12 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
 
             this.visibleTags.forEach((param2x, param3x) -> {
                 if (param3x.contains(var2)) {
-                    var1.add(1, new TextComponent("#" + param2x).withStyle(new ChatFormatting[]{ChatFormatting.BOLD, ChatFormatting.DARK_PURPLE}));
+                    var1.add(1, new TextComponent("#" + param2x).withStyle(ChatFormatting.DARK_PURPLE));
                 }
 
             });
             if (var3 != null) {
-                var1.add(1, new TranslatableComponent(var3.getName()).withStyle(new ChatFormatting[]{ChatFormatting.BOLD, ChatFormatting.BLUE}));
+                var1.add(1, new TranslatableComponent(var3.getName()).withStyle(ChatFormatting.BLUE));
             }
 
             this.renderTooltip(param0, var1, param2, param3);

@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.util.Pair;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -325,7 +326,7 @@ public class PiglinAi {
         param0.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
         if (param0.isAdult()) {
             if (param1 && isBarterCurrency(var0.getItem())) {
-                throwItem(param0, getBarterResponseItem(param0));
+                throwItems(param0, getBarterResponseItems(param0));
             } else {
                 boolean var1 = param0.equipItemIfPossible(var0);
                 if (!var1) {
@@ -339,7 +340,7 @@ public class PiglinAi {
                 if (isLovedItem(var3.getItem())) {
                     putInInventory(param0, var3);
                 } else {
-                    throwItem(param0, var3);
+                    throwItems(param0, Collections.singletonList(var3));
                 }
 
                 param0.holdInMainHand(var0);
@@ -358,44 +359,46 @@ public class PiglinAi {
 
     private static void putInInventory(Piglin param0, ItemStack param1) {
         ItemStack var0 = param0.addToInventory(param1);
-        throwItemTowardRandomPos(param0, var0);
+        throwItemsTowardRandomPos(param0, Collections.singletonList(var0));
     }
 
-    private static void throwItem(Piglin param0, ItemStack param1) {
+    private static void throwItems(Piglin param0, List<ItemStack> param1) {
         Optional<Player> var0 = param0.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_PLAYER);
         if (var0.isPresent()) {
-            throwItemTowardPlayer(param0, var0.get(), param1);
+            throwItemsTowardPlayer(param0, var0.get(), param1);
         } else {
-            throwItemTowardRandomPos(param0, param1);
+            throwItemsTowardRandomPos(param0, param1);
         }
 
     }
 
-    private static void throwItemTowardRandomPos(Piglin param0, ItemStack param1) {
-        throwItemTowardPos(param0, param1, getRandomNearbyPos(param0));
+    private static void throwItemsTowardRandomPos(Piglin param0, List<ItemStack> param1) {
+        throwItemsTowardPos(param0, param1, getRandomNearbyPos(param0));
     }
 
-    private static void throwItemTowardPlayer(Piglin param0, Player param1, ItemStack param2) {
-        throwItemTowardPos(param0, param2, param1.position());
+    private static void throwItemsTowardPlayer(Piglin param0, Player param1, List<ItemStack> param2) {
+        throwItemsTowardPos(param0, param2, param1.position());
     }
 
-    private static void throwItemTowardPos(Piglin param0, ItemStack param1, Vec3 param2) {
+    private static void throwItemsTowardPos(Piglin param0, List<ItemStack> param1, Vec3 param2) {
         if (!param1.isEmpty()) {
             param0.swing(InteractionHand.OFF_HAND);
-            BehaviorUtils.throwItem(param0, param1, param2.add(0.0, 1.0, 0.0));
+
+            for(ItemStack var0 : param1) {
+                BehaviorUtils.throwItem(param0, var0, param2.add(0.0, 1.0, 0.0));
+            }
         }
 
     }
 
-    private static ItemStack getBarterResponseItem(Piglin param0) {
+    private static List<ItemStack> getBarterResponseItems(Piglin param0) {
         LootTable var0 = param0.level.getServer().getLootTables().get(BuiltInLootTables.PIGLIN_BARTERING);
-        List<ItemStack> var1 = var0.getRandomItems(
+        return var0.getRandomItems(
             new LootContext.Builder((ServerLevel)param0.level)
                 .withParameter(LootContextParams.THIS_ENTITY, param0)
                 .withRandom(param0.level.random)
                 .create(LootContextParamSets.PIGLIN_BARTER)
         );
-        return var1.isEmpty() ? ItemStack.EMPTY : var1.get(0);
     }
 
     protected static boolean wantsToPickup(Piglin param0, ItemStack param1) {

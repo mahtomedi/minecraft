@@ -14,15 +14,21 @@ public class RandomStrollGoal extends Goal {
     protected final double speedModifier;
     protected int interval;
     protected boolean forceTrigger;
+    private boolean checkNoActionTime;
 
     public RandomStrollGoal(PathfinderMob param0, double param1) {
         this(param0, param1, 120);
     }
 
     public RandomStrollGoal(PathfinderMob param0, double param1, int param2) {
+        this(param0, param1, param2, true);
+    }
+
+    public RandomStrollGoal(PathfinderMob param0, double param1, int param2, boolean param3) {
         this.mob = param0;
         this.speedModifier = param1;
         this.interval = param2;
+        this.checkNoActionTime = param3;
         this.setFlags(EnumSet.of(Goal.Flag.MOVE));
     }
 
@@ -32,7 +38,7 @@ public class RandomStrollGoal extends Goal {
             return false;
         } else {
             if (!this.forceTrigger) {
-                if (this.mob.getNoActionTime() >= 100) {
+                if (this.checkNoActionTime && this.mob.getNoActionTime() >= 100) {
                     return false;
                 }
 

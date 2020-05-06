@@ -55,7 +55,7 @@ public class SectionStorage<R> implements AutoCloseable {
         this.factory = param3;
         this.fixerUpper = param4;
         this.type = param5;
-        this.worker = new IOWorker(new RegionFileStorage(param0, param6), param0.getName());
+        this.worker = new IOWorker(param0, param6, param0.getName());
     }
 
     protected void tick(BooleanSupplier param0) {

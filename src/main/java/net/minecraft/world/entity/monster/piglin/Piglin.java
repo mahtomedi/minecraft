@@ -302,7 +302,7 @@ public class Piglin extends Monster implements CrossbowAttackMob {
     }
 
     public boolean isConverting() {
-        return this.level.getDimension().getType() == DimensionType.OVERWORLD && !this.isImmuneToZombification() && !this.isNoAi();
+        return this.level.getDimension().getType() != DimensionType.NETHER && !this.isImmuneToZombification() && !this.isNoAi();
     }
 
     @Override
@@ -459,14 +459,16 @@ public class Piglin extends Monster implements CrossbowAttackMob {
 
     @Override
     protected boolean canReplaceCurrentItem(ItemStack param0, ItemStack param1) {
-        if (PiglinAi.isLovedItem(param0.getItem()) && PiglinAi.isLovedItem(param1.getItem())) {
-            return super.canReplaceEqualItem(param0, param1);
-        } else if (PiglinAi.isLovedItem(param0.getItem())) {
+        boolean var0 = PiglinAi.isLovedItem(param0.getItem());
+        boolean var1 = PiglinAi.isLovedItem(param1.getItem());
+        if (var0 && !var1) {
             return true;
-        } else if (PiglinAi.isLovedItem(param1.getItem())) {
+        } else if (!var0 && var1) {
             return false;
         } else {
-            return this.isAdult() && param1.getItem() == Items.CROSSBOW ? false : super.canReplaceCurrentItem(param0, param1);
+            return this.isAdult() && param0.getItem() != Items.CROSSBOW && param1.getItem() == Items.CROSSBOW
+                ? false
+                : super.canReplaceCurrentItem(param0, param1);
         }
     }
 

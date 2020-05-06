@@ -1,7 +1,5 @@
 package net.minecraft.world.entity;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -85,7 +83,6 @@ import net.minecraft.world.level.block.NetherPortalBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.pattern.BlockPattern;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -112,9 +109,6 @@ public abstract class Entity implements CommandSource, Nameable {
     protected static final Logger LOGGER = LogManager.getLogger();
     private static final AtomicInteger ENTITY_COUNTER = new AtomicInteger();
     private static final List<ItemStack> EMPTY_LIST = Collections.emptyList();
-    private static final ImmutableMap<Pose, ImmutableList<Integer>> POSE_DISMOUNT_HEIGHTS = ImmutableMap.of(
-        Pose.STANDING, ImmutableList.of(0, 1, -1), Pose.CROUCHING, ImmutableList.of(0, 1, -1), Pose.SWIMMING, ImmutableList.of(0, 1)
-    );
     private static final AABB INITIAL_AABB = new AABB(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
     private static double viewScale = 1.0;
     private final EntityType<?> type;
@@ -2576,74 +2570,7 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     public Vec3 getDismountLocationForPassenger(LivingEntity param0) {
-        Direction var0 = this.getMotionDirection();
-        if (var0.getAxis() == Direction.Axis.Y) {
-            return new Vec3(this.getX(), this.getBoundingBox().maxY, this.getZ());
-        } else {
-            Direction var1 = var0.getClockWise();
-            int[][] var2 = new int[][]{
-                {var1.getStepX(), var1.getStepZ()},
-                {-var1.getStepX(), -var1.getStepZ()},
-                {-var0.getStepX() + var1.getStepX(), -var0.getStepZ() + var1.getStepZ()},
-                {-var0.getStepX() - var1.getStepX(), -var0.getStepZ() - var1.getStepZ()},
-                {var0.getStepX() + var1.getStepX(), var0.getStepZ() + var1.getStepZ()},
-                {var0.getStepX() - var1.getStepX(), var0.getStepZ() - var1.getStepZ()},
-                {-var0.getStepX(), -var0.getStepZ()},
-                {var0.getStepX(), var0.getStepZ()}
-            };
-            BlockPos var3 = this.blockPosition();
-            BlockPos.MutableBlockPos var4 = new BlockPos.MutableBlockPos();
-            ImmutableList<Pose> var5 = param0.getDismountPoses();
-
-            for(Pose var6 : var5) {
-                EntityDimensions var7 = param0.getDimensions(var6);
-                float var8 = Math.min(var7.width, 1.0F) / 2.0F;
-                float var9 = 0.5F - var8;
-                float var10 = 0.5F + var8;
-
-                for(int var11 : POSE_DISMOUNT_HEIGHTS.get(var6)) {
-                    for(int[] var12 : var2) {
-                        var4.set(var3.getX() + var12[0], var3.getY() + var11, var3.getZ() + var12[1]);
-                        double var13 = this.level.getRelativeFloorHeight(var4, param0x -> {
-                            if (param0x.is(BlockTags.CLIMBABLE)) {
-                                return true;
-                            } else {
-                                return param0x.getBlock() instanceof TrapDoorBlock && param0x.getValue(TrapDoorBlock.OPEN);
-                            }
-                        });
-                        if (!Double.isInfinite(var13) && !(var13 >= 1.0)) {
-                            double var14 = (double)var4.getY() + var13;
-                            AABB var15 = new AABB(
-                                (double)((float)var4.getX() + var9),
-                                var14,
-                                (double)((float)var4.getZ() + var9),
-                                (double)((float)var4.getX() + var10),
-                                var14 + (double)var7.height,
-                                (double)((float)var4.getZ() + var10)
-                            );
-                            if (this.level.getBlockCollisions(param0, var15).allMatch(VoxelShape::isEmpty)) {
-                                param0.setPose(var6);
-                                return Vec3.upFromBottomCenterOf(var4, var13);
-                            }
-                        }
-                    }
-                }
-            }
-
-            double var16 = this.getBoundingBox().maxY;
-            var4.set((double)var3.getX(), var16, (double)var3.getZ());
-
-            for(Pose var17 : var5) {
-                double var18 = (double)param0.getDimensions(var17).height;
-                double var19 = (double)var4.getY() + this.level.getRelativeCeilingHeight(var4, var16 - (double)var4.getY() + var18);
-                if (var16 + var18 <= var19) {
-                    param0.setPose(var17);
-                    break;
-                }
-            }
-
-            return new Vec3(this.getX(), var16, this.getZ());
-        }
+        return new Vec3(this.getX(), this.getBoundingBox().maxY, this.getZ());
     }
 
     @Nullable

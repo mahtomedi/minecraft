@@ -41,7 +41,7 @@ public class PatrolSpawner {
                         Player var3 = param0.players().get(var0.nextInt(var2));
                         if (var3.isSpectator()) {
                             return 0;
-                        } else if (param0.closeToVillage(var3.blockPosition(), 2)) {
+                        } else if (param0.isCloseToVillage(var3.blockPosition(), 2)) {
                             return 0;
                         } else {
                             int var4 = (24 + var0.nextInt(24)) * (var0.nextBoolean() ? -1 : 1);

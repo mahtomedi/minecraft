@@ -3,6 +3,7 @@ package net.minecraft.client.renderer.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.WitherBossModel;
 import net.minecraft.client.renderer.entity.layers.WitherArmorLayer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraftforge.api.distmarker.Dist;
@@ -18,7 +19,7 @@ public class WitherBossRenderer extends MobRenderer<WitherBoss, WitherBossModel<
         this.addLayer(new WitherArmorLayer(this));
     }
 
-    protected int getBlockLightLevel(WitherBoss param0, float param1) {
+    protected int getBlockLightLevel(WitherBoss param0, BlockPos param1) {
         return 15;
     }
 
