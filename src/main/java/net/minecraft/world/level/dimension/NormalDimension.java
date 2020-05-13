@@ -8,13 +8,8 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class NormalDimension extends Dimension {
     public NormalDimension(Level param0, DimensionType param1) {
@@ -26,17 +21,12 @@ public class NormalDimension extends Dimension {
         return DimensionType.OVERWORLD;
     }
 
-    @Override
-    public ChunkGenerator<? extends ChunkGeneratorSettings> createRandomLevelGenerator() {
-        return this.level.getLevelData().getGeneratorProvider().create(this.level);
-    }
-
     @Nullable
     @Override
-    public BlockPos getSpawnPosInChunk(ChunkPos param0, boolean param1) {
-        for(int var0 = param0.getMinBlockX(); var0 <= param0.getMaxBlockX(); ++var0) {
-            for(int var1 = param0.getMinBlockZ(); var1 <= param0.getMaxBlockZ(); ++var1) {
-                BlockPos var2 = this.getValidSpawnPosition(var0, var1, param1);
+    public BlockPos getSpawnPosInChunk(long param0, ChunkPos param1, boolean param2) {
+        for(int var0 = param1.getMinBlockX(); var0 <= param1.getMaxBlockX(); ++var0) {
+            for(int var1 = param1.getMinBlockZ(); var1 <= param1.getMaxBlockZ(); ++var1) {
+                BlockPos var2 = this.getValidSpawnPosition(param0, var0, var1, param2);
                 if (var2 != null) {
                     return var2;
                 }
@@ -48,23 +38,23 @@ public class NormalDimension extends Dimension {
 
     @Nullable
     @Override
-    public BlockPos getValidSpawnPosition(int param0, int param1, boolean param2) {
-        BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos(param0, 0, param1);
+    public BlockPos getValidSpawnPosition(long param0, int param1, int param2, boolean param3) {
+        BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos(param1, 0, param2);
         Biome var1 = this.level.getBiome(var0);
         BlockState var2 = var1.getSurfaceBuilderConfig().getTopMaterial();
-        if (param2 && !var2.getBlock().is(BlockTags.VALID_SPAWN)) {
+        if (param3 && !var2.getBlock().is(BlockTags.VALID_SPAWN)) {
             return null;
         } else {
-            LevelChunk var3 = this.level.getChunk(param0 >> 4, param1 >> 4);
-            int var4 = var3.getHeight(Heightmap.Types.MOTION_BLOCKING, param0 & 15, param1 & 15);
+            LevelChunk var3 = this.level.getChunk(param1 >> 4, param2 >> 4);
+            int var4 = var3.getHeight(Heightmap.Types.MOTION_BLOCKING, param1 & 15, param2 & 15);
             if (var4 < 0) {
                 return null;
-            } else if (var3.getHeight(Heightmap.Types.WORLD_SURFACE, param0 & 15, param1 & 15)
-                > var3.getHeight(Heightmap.Types.OCEAN_FLOOR, param0 & 15, param1 & 15)) {
+            } else if (var3.getHeight(Heightmap.Types.WORLD_SURFACE, param1 & 15, param2 & 15)
+                > var3.getHeight(Heightmap.Types.OCEAN_FLOOR, param1 & 15, param2 & 15)) {
                 return null;
             } else {
                 for(int var5 = var4 + 1; var5 >= 0; --var5) {
-                    var0.set(param0, var5, param1);
+                    var0.set(param1, var5, param2);
                     BlockState var6 = this.level.getBlockState(var0);
                     if (!var6.getFluidState().isEmpty()) {
                         break;
@@ -92,20 +82,8 @@ public class NormalDimension extends Dimension {
         return true;
     }
 
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public Vec3 getBrightnessDependentFogColor(Vec3 param0, float param1) {
-        return param0.multiply((double)(param1 * 0.94F + 0.06F), (double)(param1 * 0.94F + 0.06F), (double)(param1 * 0.91F + 0.09F));
-    }
-
     @Override
     public boolean mayRespawn() {
         return true;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public boolean isFoggyAt(int param0, int param1) {
-        return false;
     }
 }

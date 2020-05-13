@@ -11,6 +11,7 @@ import net.minecraft.world.entity.monster.Witch;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
+import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -42,7 +43,7 @@ public class SwamplandHutPiece extends ScatteredFeaturePiece {
 
     @Override
     public boolean postProcess(
-        LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<?> param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
+        WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
     ) {
         if (!this.updateAverageGroundHeight(param0, param4, 0)) {
             return false;

@@ -11,10 +11,12 @@ import net.minecraft.advancements.critereon.DamageSourcePredicate;
 import net.minecraft.advancements.critereon.EnchantedItemTrigger;
 import net.minecraft.advancements.critereon.EntityHurtPlayerTrigger;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
+import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.LocationPredicate;
 import net.minecraft.advancements.critereon.LocationTrigger;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -33,7 +35,7 @@ public class StoryAdvancements implements Consumer<Consumer<Advancement>> {
                 false,
                 false
             )
-            .addCriterion("crafting_table", InventoryChangeTrigger.TriggerInstance.hasItem(Blocks.CRAFTING_TABLE))
+            .addCriterion("crafting_table", InventoryChangeTrigger.TriggerInstance.hasItems(Blocks.CRAFTING_TABLE))
             .save(param0, "story/root");
         Advancement var1 = Advancement.Builder.advancement()
             .parent(var0)
@@ -47,7 +49,7 @@ public class StoryAdvancements implements Consumer<Consumer<Advancement>> {
                 true,
                 false
             )
-            .addCriterion("get_stone", InventoryChangeTrigger.TriggerInstance.hasItem(Blocks.COBBLESTONE))
+            .addCriterion("get_stone", InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(ItemTags.STONE_TOOL_MATERIALS).build()))
             .save(param0, "story/mine_stone");
         Advancement var2 = Advancement.Builder.advancement()
             .parent(var1)
@@ -61,7 +63,7 @@ public class StoryAdvancements implements Consumer<Consumer<Advancement>> {
                 true,
                 false
             )
-            .addCriterion("stone_pickaxe", InventoryChangeTrigger.TriggerInstance.hasItem(Items.STONE_PICKAXE))
+            .addCriterion("stone_pickaxe", InventoryChangeTrigger.TriggerInstance.hasItems(Items.STONE_PICKAXE))
             .save(param0, "story/upgrade_tools");
         Advancement var3 = Advancement.Builder.advancement()
             .parent(var2)
@@ -75,7 +77,7 @@ public class StoryAdvancements implements Consumer<Consumer<Advancement>> {
                 true,
                 false
             )
-            .addCriterion("iron", InventoryChangeTrigger.TriggerInstance.hasItem(Items.IRON_INGOT))
+            .addCriterion("iron", InventoryChangeTrigger.TriggerInstance.hasItems(Items.IRON_INGOT))
             .save(param0, "story/smelt_iron");
         Advancement var4 = Advancement.Builder.advancement()
             .parent(var3)
@@ -89,7 +91,7 @@ public class StoryAdvancements implements Consumer<Consumer<Advancement>> {
                 true,
                 false
             )
-            .addCriterion("iron_pickaxe", InventoryChangeTrigger.TriggerInstance.hasItem(Items.IRON_PICKAXE))
+            .addCriterion("iron_pickaxe", InventoryChangeTrigger.TriggerInstance.hasItems(Items.IRON_PICKAXE))
             .save(param0, "story/iron_tools");
         Advancement var5 = Advancement.Builder.advancement()
             .parent(var4)
@@ -103,7 +105,7 @@ public class StoryAdvancements implements Consumer<Consumer<Advancement>> {
                 true,
                 false
             )
-            .addCriterion("diamond", InventoryChangeTrigger.TriggerInstance.hasItem(Items.DIAMOND))
+            .addCriterion("diamond", InventoryChangeTrigger.TriggerInstance.hasItems(Items.DIAMOND))
             .save(param0, "story/mine_diamond");
         Advancement var6 = Advancement.Builder.advancement()
             .parent(var3)
@@ -117,7 +119,7 @@ public class StoryAdvancements implements Consumer<Consumer<Advancement>> {
                 true,
                 false
             )
-            .addCriterion("lava_bucket", InventoryChangeTrigger.TriggerInstance.hasItem(Items.LAVA_BUCKET))
+            .addCriterion("lava_bucket", InventoryChangeTrigger.TriggerInstance.hasItems(Items.LAVA_BUCKET))
             .save(param0, "story/lava_bucket");
         Advancement var7 = Advancement.Builder.advancement()
             .parent(var3)
@@ -132,12 +134,12 @@ public class StoryAdvancements implements Consumer<Consumer<Advancement>> {
                 false
             )
             .requirements(RequirementsStrategy.OR)
-            .addCriterion("iron_helmet", InventoryChangeTrigger.TriggerInstance.hasItem(Items.IRON_HELMET))
-            .addCriterion("iron_chestplate", InventoryChangeTrigger.TriggerInstance.hasItem(Items.IRON_CHESTPLATE))
-            .addCriterion("iron_leggings", InventoryChangeTrigger.TriggerInstance.hasItem(Items.IRON_LEGGINGS))
-            .addCriterion("iron_boots", InventoryChangeTrigger.TriggerInstance.hasItem(Items.IRON_BOOTS))
+            .addCriterion("iron_helmet", InventoryChangeTrigger.TriggerInstance.hasItems(Items.IRON_HELMET))
+            .addCriterion("iron_chestplate", InventoryChangeTrigger.TriggerInstance.hasItems(Items.IRON_CHESTPLATE))
+            .addCriterion("iron_leggings", InventoryChangeTrigger.TriggerInstance.hasItems(Items.IRON_LEGGINGS))
+            .addCriterion("iron_boots", InventoryChangeTrigger.TriggerInstance.hasItems(Items.IRON_BOOTS))
             .save(param0, "story/obtain_armor");
-        Advancement var8 = Advancement.Builder.advancement()
+        Advancement.Builder.advancement()
             .parent(var5)
             .display(
                 Items.ENCHANTED_BOOK,
@@ -151,7 +153,7 @@ public class StoryAdvancements implements Consumer<Consumer<Advancement>> {
             )
             .addCriterion("enchanted_item", EnchantedItemTrigger.TriggerInstance.enchantedItem())
             .save(param0, "story/enchant_item");
-        Advancement var9 = Advancement.Builder.advancement()
+        Advancement var8 = Advancement.Builder.advancement()
             .parent(var6)
             .display(
                 Blocks.OBSIDIAN,
@@ -163,9 +165,9 @@ public class StoryAdvancements implements Consumer<Consumer<Advancement>> {
                 true,
                 false
             )
-            .addCriterion("obsidian", InventoryChangeTrigger.TriggerInstance.hasItem(Blocks.OBSIDIAN))
+            .addCriterion("obsidian", InventoryChangeTrigger.TriggerInstance.hasItems(Blocks.OBSIDIAN))
             .save(param0, "story/form_obsidian");
-        Advancement var10 = Advancement.Builder.advancement()
+        Advancement.Builder.advancement()
             .parent(var7)
             .display(
                 Items.SHIELD,
@@ -184,7 +186,7 @@ public class StoryAdvancements implements Consumer<Consumer<Advancement>> {
                 )
             )
             .save(param0, "story/deflect_arrow");
-        Advancement var11 = Advancement.Builder.advancement()
+        Advancement.Builder.advancement()
             .parent(var5)
             .display(
                 Items.DIAMOND_CHESTPLATE,
@@ -197,13 +199,13 @@ public class StoryAdvancements implements Consumer<Consumer<Advancement>> {
                 false
             )
             .requirements(RequirementsStrategy.OR)
-            .addCriterion("diamond_helmet", InventoryChangeTrigger.TriggerInstance.hasItem(Items.DIAMOND_HELMET))
-            .addCriterion("diamond_chestplate", InventoryChangeTrigger.TriggerInstance.hasItem(Items.DIAMOND_CHESTPLATE))
-            .addCriterion("diamond_leggings", InventoryChangeTrigger.TriggerInstance.hasItem(Items.DIAMOND_LEGGINGS))
-            .addCriterion("diamond_boots", InventoryChangeTrigger.TriggerInstance.hasItem(Items.DIAMOND_BOOTS))
+            .addCriterion("diamond_helmet", InventoryChangeTrigger.TriggerInstance.hasItems(Items.DIAMOND_HELMET))
+            .addCriterion("diamond_chestplate", InventoryChangeTrigger.TriggerInstance.hasItems(Items.DIAMOND_CHESTPLATE))
+            .addCriterion("diamond_leggings", InventoryChangeTrigger.TriggerInstance.hasItems(Items.DIAMOND_LEGGINGS))
+            .addCriterion("diamond_boots", InventoryChangeTrigger.TriggerInstance.hasItems(Items.DIAMOND_BOOTS))
             .save(param0, "story/shiny_gear");
-        Advancement var12 = Advancement.Builder.advancement()
-            .parent(var9)
+        Advancement var9 = Advancement.Builder.advancement()
+            .parent(var8)
             .display(
                 Items.FLINT_AND_STEEL,
                 new TranslatableComponent("advancements.story.enter_the_nether.title"),
@@ -216,8 +218,8 @@ public class StoryAdvancements implements Consumer<Consumer<Advancement>> {
             )
             .addCriterion("entered_nether", ChangeDimensionTrigger.TriggerInstance.changedDimensionTo(DimensionType.NETHER))
             .save(param0, "story/enter_the_nether");
-        Advancement var13 = Advancement.Builder.advancement()
-            .parent(var12)
+        Advancement.Builder.advancement()
+            .parent(var9)
             .display(
                 Items.GOLDEN_APPLE,
                 new TranslatableComponent("advancements.story.cure_zombie_villager.title"),
@@ -230,8 +232,8 @@ public class StoryAdvancements implements Consumer<Consumer<Advancement>> {
             )
             .addCriterion("cured_zombie", CuredZombieVillagerTrigger.TriggerInstance.curedZombieVillager())
             .save(param0, "story/cure_zombie_villager");
-        Advancement var14 = Advancement.Builder.advancement()
-            .parent(var12)
+        Advancement var10 = Advancement.Builder.advancement()
+            .parent(var9)
             .display(
                 Items.ENDER_EYE,
                 new TranslatableComponent("advancements.story.follow_ender_eye.title"),
@@ -244,8 +246,8 @@ public class StoryAdvancements implements Consumer<Consumer<Advancement>> {
             )
             .addCriterion("in_stronghold", LocationTrigger.TriggerInstance.located(LocationPredicate.inFeature(Feature.STRONGHOLD)))
             .save(param0, "story/follow_ender_eye");
-        Advancement var15 = Advancement.Builder.advancement()
-            .parent(var14)
+        Advancement.Builder.advancement()
+            .parent(var10)
             .display(
                 Blocks.END_STONE,
                 new TranslatableComponent("advancements.story.enter_the_end.title"),

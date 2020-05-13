@@ -7,7 +7,6 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.MultiJigsawConfiguration;
@@ -21,13 +20,13 @@ public class BastionFeature extends StructureFeature<MultiJigsawConfiguration> {
     }
 
     @Override
-    protected int getSpacing(DimensionType param0, ChunkGeneratorSettings param1) {
-        return param1.getRareNetherStructureSpacing();
+    protected int getSpacing(ChunkGeneratorSettings param0) {
+        return param0.getRareNetherStructureSpacing();
     }
 
     @Override
-    protected int getSeparation(DimensionType param0, ChunkGeneratorSettings param1) {
-        return param1.getRareNetherStructureSeparation();
+    protected int getSeparation(ChunkGeneratorSettings param0) {
+        return param0.getRareNetherStructureSeparation();
     }
 
     @Override
@@ -37,9 +36,9 @@ public class BastionFeature extends StructureFeature<MultiJigsawConfiguration> {
 
     @Override
     protected boolean isFeatureChunk(
-        BiomeManager param0, ChunkGenerator<?> param1, WorldgenRandom param2, int param3, int param4, Biome param5, ChunkPos param6
+        BiomeManager param0, ChunkGenerator param1, long param2, WorldgenRandom param3, int param4, int param5, Biome param6, ChunkPos param7
     ) {
-        return param2.nextInt(6) >= 2;
+        return param3.nextInt(6) >= 2;
     }
 
     @Override
@@ -63,7 +62,7 @@ public class BastionFeature extends StructureFeature<MultiJigsawConfiguration> {
         }
 
         @Override
-        public void generatePieces(ChunkGenerator<?> param0, StructureManager param1, int param2, int param3, Biome param4) {
+        public void generatePieces(ChunkGenerator param0, StructureManager param1, int param2, int param3, Biome param4) {
             MultiJigsawConfiguration var0 = param0.getStructureConfiguration(param4, Feature.BASTION_REMNANT);
             BlockPos var1 = new BlockPos(param2 * 16, 33, param3 * 16);
             BastionPieces.addPieces(param0, param1, var1, this.pieces, this.random, var0);

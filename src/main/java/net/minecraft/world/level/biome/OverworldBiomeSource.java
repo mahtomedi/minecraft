@@ -4,6 +4,8 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Set;
 import net.minecraft.world.level.newbiome.layer.Layer;
 import net.minecraft.world.level.newbiome.layer.Layers;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class OverworldBiomeSource extends BiomeSource {
     private final Layer noiseBiomeLayer;
@@ -75,10 +77,20 @@ public class OverworldBiomeSource extends BiomeSource {
         Biomes.MODIFIED_WOODED_BADLANDS_PLATEAU,
         Biomes.MODIFIED_BADLANDS_PLATEAU
     );
+    private final boolean legacyBiomeInitLayer;
+    private final int biomeSize;
 
-    public OverworldBiomeSource(OverworldBiomeSourceSettings param0) {
+    public OverworldBiomeSource(long param0, boolean param1, int param2) {
         super(POSSIBLE_BIOMES);
-        this.noiseBiomeLayer = Layers.getDefaultLayer(param0.getSeed(), param0.getGeneratorType(), param0.getGeneratorSettings());
+        this.legacyBiomeInitLayer = param1;
+        this.biomeSize = param2;
+        this.noiseBiomeLayer = Layers.getDefaultLayer(param0, param1, param2, 4);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public BiomeSource withSeed(long param0) {
+        return new OverworldBiomeSource(param0, this.legacyBiomeInitLayer, this.biomeSize);
     }
 
     @Override

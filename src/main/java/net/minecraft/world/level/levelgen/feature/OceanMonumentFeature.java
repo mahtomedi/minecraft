@@ -8,12 +8,11 @@ import java.util.function.Function;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
+import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
@@ -30,13 +29,13 @@ public class OceanMonumentFeature extends StructureFeature<NoneFeatureConfigurat
     }
 
     @Override
-    protected int getSpacing(DimensionType param0, ChunkGeneratorSettings param1) {
-        return param1.getMonumentsSpacing();
+    protected int getSpacing(ChunkGeneratorSettings param0) {
+        return param0.getMonumentsSpacing();
     }
 
     @Override
-    protected int getSeparation(DimensionType param0, ChunkGeneratorSettings param1) {
-        return param1.getMonumentsSeparation();
+    protected int getSeparation(ChunkGeneratorSettings param0) {
+        return param0.getMonumentsSeparation();
     }
 
     @Override
@@ -51,15 +50,15 @@ public class OceanMonumentFeature extends StructureFeature<NoneFeatureConfigurat
 
     @Override
     protected boolean isFeatureChunk(
-        BiomeManager param0, ChunkGenerator<?> param1, WorldgenRandom param2, int param3, int param4, Biome param5, ChunkPos param6
+        BiomeManager param0, ChunkGenerator param1, long param2, WorldgenRandom param3, int param4, int param5, Biome param6, ChunkPos param7
     ) {
-        for(Biome var1 : param1.getBiomeSource().getBiomesWithin(param3 * 16 + 9, param1.getSeaLevel(), param4 * 16 + 9, 16)) {
+        for(Biome var1 : param1.getBiomeSource().getBiomesWithin(param4 * 16 + 9, param1.getSeaLevel(), param5 * 16 + 9, 16)) {
             if (!param1.isBiomeValidStartForStructure(var1, this)) {
                 return false;
             }
         }
 
-        for(Biome var3 : param1.getBiomeSource().getBiomesWithin(param3 * 16 + 9, param1.getSeaLevel(), param4 * 16 + 9, 29)) {
+        for(Biome var3 : param1.getBiomeSource().getBiomesWithin(param4 * 16 + 9, param1.getSeaLevel(), param5 * 16 + 9, 29)) {
             if (var3.getBiomeCategory() != Biome.BiomeCategory.OCEAN && var3.getBiomeCategory() != Biome.BiomeCategory.RIVER) {
                 return false;
             }
@@ -96,7 +95,7 @@ public class OceanMonumentFeature extends StructureFeature<NoneFeatureConfigurat
         }
 
         @Override
-        public void generatePieces(ChunkGenerator<?> param0, StructureManager param1, int param2, int param3, Biome param4) {
+        public void generatePieces(ChunkGenerator param0, StructureManager param1, int param2, int param3, Biome param4) {
             this.generatePieces(param2, param3);
         }
 
@@ -110,9 +109,7 @@ public class OceanMonumentFeature extends StructureFeature<NoneFeatureConfigurat
         }
 
         @Override
-        public void postProcess(
-            LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<?> param2, Random param3, BoundingBox param4, ChunkPos param5
-        ) {
+        public void postProcess(WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5) {
             if (!this.isCreated) {
                 this.pieces.clear();
                 this.generatePieces(this.getChunkX(), this.getChunkZ());

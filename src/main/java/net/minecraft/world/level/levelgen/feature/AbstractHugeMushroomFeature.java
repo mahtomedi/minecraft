@@ -8,10 +8,10 @@ import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
+import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.feature.configurations.HugeMushroomFeatureConfiguration;
 
 public abstract class AbstractHugeMushroomFeature extends Feature<HugeMushroomFeatureConfiguration> {
@@ -70,12 +70,7 @@ public abstract class AbstractHugeMushroomFeature extends Feature<HugeMushroomFe
     }
 
     public boolean place(
-        LevelAccessor param0,
-        StructureFeatureManager param1,
-        ChunkGenerator<? extends ChunkGeneratorSettings> param2,
-        Random param3,
-        BlockPos param4,
-        HugeMushroomFeatureConfiguration param5
+        WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BlockPos param4, HugeMushroomFeatureConfiguration param5
     ) {
         int var0 = this.getTreeHeight(param3);
         BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos();

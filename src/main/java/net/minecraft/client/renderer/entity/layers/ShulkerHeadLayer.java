@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Quaternion;
 import net.minecraft.client.model.ShulkerModel;
-import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
@@ -42,19 +41,10 @@ public class ShulkerHeadLayer extends RenderLayer<Shulker, ShulkerModel<Shulker>
         param0.mulPose(var0);
         param0.scale(-1.0F, -1.0F, 1.0F);
         param0.translate(0.0, -1.0, 0.0);
-        ModelPart var1 = this.getParentModel().getHead();
-        var1.yRot = param8 * (float) (Math.PI / 180.0);
-        var1.xRot = param9 * (float) (Math.PI / 180.0);
-        DyeColor var2 = param3.getColor();
-        ResourceLocation var3;
-        if (var2 == null) {
-            var3 = ShulkerRenderer.DEFAULT_TEXTURE_LOCATION;
-        } else {
-            var3 = ShulkerRenderer.TEXTURE_LOCATION[var2.getId()];
-        }
-
-        VertexConsumer var5 = param1.getBuffer(RenderType.entitySolid(var3));
-        var1.render(param0, var5, param2, LivingEntityRenderer.getOverlayCoords(param3, 0.0F));
+        DyeColor var1 = param3.getColor();
+        ResourceLocation var2 = var1 == null ? ShulkerRenderer.DEFAULT_TEXTURE_LOCATION : ShulkerRenderer.TEXTURE_LOCATION[var1.getId()];
+        VertexConsumer var3 = param1.getBuffer(RenderType.entitySolid(var2));
+        this.getParentModel().getHead().render(param0, var3, param2, LivingEntityRenderer.getOverlayCoords(param3, 0.0F));
         param0.popPose();
     }
 }

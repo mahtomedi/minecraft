@@ -70,7 +70,7 @@ public class LocateHidingPlace extends Behavior<LivingEntity> {
             var0.eraseMemory(MemoryModuleType.LOOK_TARGET);
             var0.eraseMemory(MemoryModuleType.BREED_TARGET);
             var0.eraseMemory(MemoryModuleType.INTERACTION_TARGET);
-            var0.setMemory(MemoryModuleType.HIDING_PLACE, GlobalPos.of(param0.getDimension().getType(), var1.get()));
+            var0.setMemory(MemoryModuleType.HIDING_PLACE, GlobalPos.of(param0.dimensionType(), var1.get()));
             if (!var1.get().closerThan(param1.position(), (double)this.closeEnoughDist)) {
                 var0.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(var1.get(), this.speedModifier, this.closeEnoughDist));
             }

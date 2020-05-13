@@ -36,8 +36,8 @@ public class TargetBlockTrigger extends SimpleCriterionTrigger<TargetBlockTrigge
             this.projectile = param2;
         }
 
-        public static TargetBlockTrigger.TriggerInstance targetHit(MinMaxBounds.Ints param0) {
-            return new TargetBlockTrigger.TriggerInstance(EntityPredicate.Composite.ANY, param0, EntityPredicate.Composite.ANY);
+        public static TargetBlockTrigger.TriggerInstance targetHit(MinMaxBounds.Ints param0, EntityPredicate.Composite param1) {
+            return new TargetBlockTrigger.TriggerInstance(EntityPredicate.Composite.ANY, param0, param1);
         }
 
         @Override

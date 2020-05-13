@@ -9,7 +9,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 
 public class TopSolidHeightMapNoiseBasedDecorator extends FeatureDecorator<NoiseCountFactorDecoratorConfiguration> {
     public TopSolidHeightMapNoiseBasedDecorator(Function<Dynamic<?>, ? extends NoiseCountFactorDecoratorConfiguration> param0) {
@@ -17,11 +16,7 @@ public class TopSolidHeightMapNoiseBasedDecorator extends FeatureDecorator<Noise
     }
 
     public Stream<BlockPos> getPositions(
-        LevelAccessor param0,
-        ChunkGenerator<? extends ChunkGeneratorSettings> param1,
-        Random param2,
-        NoiseCountFactorDecoratorConfiguration param3,
-        BlockPos param4
+        LevelAccessor param0, ChunkGenerator param1, Random param2, NoiseCountFactorDecoratorConfiguration param3, BlockPos param4
     ) {
         double var0 = Biome.BIOME_INFO_NOISE.getValue((double)param4.getX() / param3.noiseFactor, (double)param4.getZ() / param3.noiseFactor, false);
         int var1 = (int)Math.ceil((var0 + param3.noiseOffset) * (double)param3.noiseToCountRatio);

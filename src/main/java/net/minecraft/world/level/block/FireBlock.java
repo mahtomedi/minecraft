@@ -123,7 +123,9 @@ public class FireBlock extends BaseFireBlock {
             }
 
             BlockState var0 = param1.getBlockState(param2.below());
-            boolean var1 = param1.dimension instanceof TheEndDimension && var0.is(Blocks.BEDROCK) || var0.is(Blocks.NETHERRACK) || var0.is(Blocks.MAGMA_BLOCK);
+            boolean var1 = param1.getDimension() instanceof TheEndDimension && var0.is(Blocks.BEDROCK)
+                || var0.is(Blocks.NETHERRACK)
+                || var0.is(Blocks.MAGMA_BLOCK);
             int var2 = param0.getValue(AGE);
             if (!var1 && param1.isRaining() && this.isNearRain(param1, param2) && param3.nextFloat() < 0.2F + (float)var2 * 0.03F) {
                 param1.removeBlock(param2, false);

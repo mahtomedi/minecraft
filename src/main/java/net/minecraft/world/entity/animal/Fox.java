@@ -489,6 +489,7 @@ public class Fox extends Animal {
             }
 
             this.spitOutItem(this.getItemBySlot(EquipmentSlot.MAINHAND));
+            this.onItemPickup(param0);
             this.setItemSlot(EquipmentSlot.MAINHAND, var0.split(1));
             this.handDropChances[EquipmentSlot.MAINHAND.getIndex()] = 2.0F;
             this.take(param0, var0.getCount());

@@ -5,7 +5,6 @@ import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.feature.configurations.JigsawConfiguration;
 import net.minecraft.world.level.levelgen.structure.BeardedStructureStart;
@@ -18,13 +17,13 @@ public class VillageFeature extends StructureFeature<JigsawConfiguration> {
     }
 
     @Override
-    protected int getSpacing(DimensionType param0, ChunkGeneratorSettings param1) {
-        return param1.getVillagesSpacing();
+    protected int getSpacing(ChunkGeneratorSettings param0) {
+        return param0.getVillagesSpacing();
     }
 
     @Override
-    protected int getSeparation(DimensionType param0, ChunkGeneratorSettings param1) {
-        return param1.getVillagesSeparation();
+    protected int getSeparation(ChunkGeneratorSettings param0) {
+        return param0.getVillagesSeparation();
     }
 
     @Override
@@ -53,7 +52,7 @@ public class VillageFeature extends StructureFeature<JigsawConfiguration> {
         }
 
         @Override
-        public void generatePieces(ChunkGenerator<?> param0, StructureManager param1, int param2, int param3, Biome param4) {
+        public void generatePieces(ChunkGenerator param0, StructureManager param1, int param2, int param3, Biome param4) {
             JigsawConfiguration var0 = param0.getStructureConfiguration(param4, Feature.VILLAGE);
             BlockPos var1 = new BlockPos(param2 * 16, 0, param3 * 16);
             VillagePieces.addPieces(param0, param1, var1, this.pieces, this.random, var0);

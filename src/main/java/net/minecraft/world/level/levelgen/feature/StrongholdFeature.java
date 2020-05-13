@@ -13,7 +13,6 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -33,26 +32,26 @@ public class StrongholdFeature extends StructureFeature<NoneFeatureConfiguration
     }
 
     @Override
-    public boolean featureChunk(BiomeManager param0, ChunkGenerator<?> param1, WorldgenRandom param2, int param3, int param4, Biome param5) {
-        ChunkPos var0 = this.getPotentialFeatureChunk(param1, param2, param3, param4);
-        return this.isFeatureChunk(param0, param1, param2, param3, param4, param5, var0);
+    public boolean featureChunk(BiomeManager param0, ChunkGenerator param1, long param2, WorldgenRandom param3, int param4, int param5, Biome param6) {
+        ChunkPos var0 = this.getPotentialFeatureChunk(param1.getSettings(), param2, param3, param4, param5);
+        return this.isFeatureChunk(param0, param1, param2, param3, param4, param5, param6, var0);
     }
 
     @Override
     protected boolean isFeatureChunk(
-        BiomeManager param0, ChunkGenerator<?> param1, WorldgenRandom param2, int param3, int param4, Biome param5, ChunkPos param6
+        BiomeManager param0, ChunkGenerator param1, long param2, WorldgenRandom param3, int param4, int param5, Biome param6, ChunkPos param7
     ) {
-        if (this.currentSeed != param1.getSeed()) {
+        if (this.currentSeed != param2) {
             this.reset();
         }
 
         if (!this.isSpotSelected) {
-            this.generatePositions(param1);
+            this.generatePositions(param1, param2);
             this.isSpotSelected = true;
         }
 
         for(ChunkPos var0 : this.strongholdPos) {
-            if (param3 == var0.x && param4 == var0.z) {
+            if (param4 == var0.x && param5 == var0.z) {
                 return true;
             }
         }
@@ -83,9 +82,7 @@ public class StrongholdFeature extends StructureFeature<NoneFeatureConfiguration
 
     @Nullable
     @Override
-    public BlockPos getNearestGeneratedFeature(
-        ServerLevel param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, BlockPos param2, int param3, boolean param4
-    ) {
+    public BlockPos getNearestGeneratedFeature(ServerLevel param0, ChunkGenerator param1, BlockPos param2, int param3, boolean param4) {
         if (!param1.canGenerateStructure(this)) {
             return null;
         } else {
@@ -94,7 +91,7 @@ public class StrongholdFeature extends StructureFeature<NoneFeatureConfiguration
             }
 
             if (!this.isSpotSelected) {
-                this.generatePositions(param1);
+                this.generatePositions(param1, param0.getSeed());
                 this.isSpotSelected = true;
             }
 
@@ -118,8 +115,8 @@ public class StrongholdFeature extends StructureFeature<NoneFeatureConfiguration
         }
     }
 
-    private void generatePositions(ChunkGenerator<?> param0) {
-        this.currentSeed = param0.getSeed();
+    private void generatePositions(ChunkGenerator param0, long param1) {
+        this.currentSeed = param1;
         List<Biome> var0 = Lists.newArrayList();
 
         for(Biome var1 : Registry.BIOME) {
@@ -141,7 +138,7 @@ public class StrongholdFeature extends StructureFeature<NoneFeatureConfiguration
         }
 
         Random var7 = new Random();
-        var7.setSeed(param0.getSeed());
+        var7.setSeed(param1);
         double var8 = var7.nextDouble() * Math.PI * 2.0;
         int var9 = var5;
         if (var5 < this.strongholdPos.length) {
@@ -176,35 +173,37 @@ public class StrongholdFeature extends StructureFeature<NoneFeatureConfiguration
     }
 
     public static class StrongholdStart extends StructureStart {
+        private final long seed;
+
         public StrongholdStart(StructureFeature<?> param0, int param1, int param2, BoundingBox param3, int param4, long param5) {
             super(param0, param1, param2, param3, param4, param5);
+            this.seed = param5;
         }
 
         @Override
-        public void generatePieces(ChunkGenerator<?> param0, StructureManager param1, int param2, int param3, Biome param4) {
+        public void generatePieces(ChunkGenerator param0, StructureManager param1, int param2, int param3, Biome param4) {
             int var0 = 0;
-            long var1 = param0.getSeed();
 
-            StrongholdPieces.StartPiece var2;
+            StrongholdPieces.StartPiece var1;
             do {
                 this.pieces.clear();
                 this.boundingBox = BoundingBox.getUnknownBox();
-                this.random.setLargeFeatureSeed(var1 + (long)(var0++), param2, param3);
+                this.random.setLargeFeatureSeed(this.seed + (long)(var0++), param2, param3);
                 StrongholdPieces.resetPieces();
-                var2 = new StrongholdPieces.StartPiece(this.random, (param2 << 4) + 2, (param3 << 4) + 2);
-                this.pieces.add(var2);
-                var2.addChildren(var2, this.pieces, this.random);
-                List<StructurePiece> var3 = var2.pendingChildren;
+                var1 = new StrongholdPieces.StartPiece(this.random, (param2 << 4) + 2, (param3 << 4) + 2);
+                this.pieces.add(var1);
+                var1.addChildren(var1, this.pieces, this.random);
+                List<StructurePiece> var2 = var1.pendingChildren;
 
-                while(!var3.isEmpty()) {
-                    int var4 = this.random.nextInt(var3.size());
-                    StructurePiece var5 = var3.remove(var4);
-                    var5.addChildren(var2, this.pieces, this.random);
+                while(!var2.isEmpty()) {
+                    int var3 = this.random.nextInt(var2.size());
+                    StructurePiece var4 = var2.remove(var3);
+                    var4.addChildren(var1, this.pieces, this.random);
                 }
 
                 this.calculateBoundingBox();
                 this.moveBelowSeaLevel(param0.getSeaLevel(), this.random, 10);
-            } while(this.pieces.isEmpty() || var2.portalRoomPiece == null);
+            } while(this.pieces.isEmpty() || var1.portalRoomPiece == null);
 
             ((StrongholdFeature)this.getFeature()).discoveredStarts.add(this);
         }

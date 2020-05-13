@@ -33,7 +33,7 @@ public class BastionPieces {
     }
 
     public static void addPieces(
-        ChunkGenerator<?> param0, StructureManager param1, BlockPos param2, List<StructurePiece> param3, WorldgenRandom param4, MultiJigsawConfiguration param5
+        ChunkGenerator param0, StructureManager param1, BlockPos param2, List<StructurePiece> param3, WorldgenRandom param4, MultiJigsawConfiguration param5
     ) {
         bootstrap();
         JigsawConfiguration var0 = param5.getRandomPool(param4);

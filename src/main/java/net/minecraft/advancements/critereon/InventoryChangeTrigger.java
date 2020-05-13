@@ -68,13 +68,13 @@ public class InventoryChangeTrigger extends SimpleCriterionTrigger<InventoryChan
             this.predicates = param4;
         }
 
-        public static InventoryChangeTrigger.TriggerInstance hasItem(ItemPredicate... param0) {
+        public static InventoryChangeTrigger.TriggerInstance hasItems(ItemPredicate... param0) {
             return new InventoryChangeTrigger.TriggerInstance(
                 EntityPredicate.Composite.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, param0
             );
         }
 
-        public static InventoryChangeTrigger.TriggerInstance hasItem(ItemLike... param0) {
+        public static InventoryChangeTrigger.TriggerInstance hasItems(ItemLike... param0) {
             ItemPredicate[] var0 = new ItemPredicate[param0.length];
 
             for(int var1 = 0; var1 < param0.length; ++var1) {
@@ -90,7 +90,7 @@ public class InventoryChangeTrigger extends SimpleCriterionTrigger<InventoryChan
                 );
             }
 
-            return hasItem(var0);
+            return hasItems(var0);
         }
 
         @Override

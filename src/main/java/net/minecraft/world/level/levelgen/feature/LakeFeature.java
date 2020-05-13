@@ -5,14 +5,13 @@ import java.util.Random;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.StructureFeatureManager;
+import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.feature.configurations.BlockStateConfiguration;
 import net.minecraft.world.level.material.Material;
 
@@ -24,12 +23,7 @@ public class LakeFeature extends Feature<BlockStateConfiguration> {
     }
 
     public boolean place(
-        LevelAccessor param0,
-        StructureFeatureManager param1,
-        ChunkGenerator<? extends ChunkGeneratorSettings> param2,
-        Random param3,
-        BlockPos param4,
-        BlockStateConfiguration param5
+        WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BlockPos param4, BlockStateConfiguration param5
     ) {
         while(param4.getY() > 5 && param0.isEmptyBlock(param4)) {
             param4 = param4.below();
@@ -39,7 +33,7 @@ public class LakeFeature extends Feature<BlockStateConfiguration> {
             return false;
         } else {
             param4 = param4.below(4);
-            if (param1.startsForFeature(SectionPos.of(param4), Feature.VILLAGE, param0).findAny().isPresent()) {
+            if (param1.startsForFeature(SectionPos.of(param4), Feature.VILLAGE).findAny().isPresent()) {
                 return false;
             } else {
                 boolean[] var0 = new boolean[2048];

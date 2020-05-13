@@ -108,15 +108,14 @@ public class BeehiveBlock extends BaseEntityBlock {
     @Override
     public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
         ItemStack var0 = param3.getItemInHand(param4);
-        ItemStack var1 = var0.copy();
-        int var2 = param0.getValue(HONEY_LEVEL);
-        boolean var3 = false;
-        if (var2 >= 5) {
+        int var1 = param0.getValue(HONEY_LEVEL);
+        boolean var2 = false;
+        if (var1 >= 5) {
             if (var0.getItem() == Items.SHEARS) {
                 param1.playSound(param3, param3.getX(), param3.getY(), param3.getZ(), SoundEvents.BEEHIVE_SHEAR, SoundSource.NEUTRAL, 1.0F, 1.0F);
                 dropHoneycomb(param1, param2);
                 var0.hurtAndBreak(1, param3, param1x -> param1x.broadcastBreakEvent(param4));
-                var3 = true;
+                var2 = true;
             } else if (var0.getItem() == Items.GLASS_BOTTLE) {
                 var0.shrink(1);
                 param1.playSound(param3, param3.getX(), param3.getY(), param3.getZ(), SoundEvents.BOTTLE_FILL, SoundSource.NEUTRAL, 1.0F, 1.0F);
@@ -126,12 +125,12 @@ public class BeehiveBlock extends BaseEntityBlock {
                     param3.drop(new ItemStack(Items.HONEY_BOTTLE), false);
                 }
 
-                var3 = true;
+                var2 = true;
             }
         }
 
-        if (var3) {
-            if (!CampfireBlock.isSmokeyPos(param1, param2, 5)) {
+        if (var2) {
+            if (!CampfireBlock.isSmokeyPos(param1, param2)) {
                 if (this.hiveContainsBees(param1, param2)) {
                     this.angerNearbyBees(param1, param2);
                 }
@@ -139,9 +138,6 @@ public class BeehiveBlock extends BaseEntityBlock {
                 this.releaseBeesAndResetHoneyLevel(param1, param0, param2, param3, BeehiveBlockEntity.BeeReleaseStatus.EMERGENCY);
             } else {
                 this.resetHoneyLevel(param1, param0, param2);
-                if (param3 instanceof ServerPlayer) {
-                    CriteriaTriggers.SAFELY_HARVEST_HONEY.trigger((ServerPlayer)param3, param2, var1);
-                }
             }
 
             return InteractionResult.SUCCESS;

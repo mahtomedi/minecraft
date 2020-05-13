@@ -8,7 +8,6 @@ import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.Heightmap;
 
 public class TopSolidHeightMapRangeDecorator extends FeatureDecorator<RangeDecoratorConfiguration> {
@@ -16,9 +15,7 @@ public class TopSolidHeightMapRangeDecorator extends FeatureDecorator<RangeDecor
         super(param0);
     }
 
-    public Stream<BlockPos> getPositions(
-        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, RangeDecoratorConfiguration param3, BlockPos param4
-    ) {
+    public Stream<BlockPos> getPositions(LevelAccessor param0, ChunkGenerator param1, Random param2, RangeDecoratorConfiguration param3, BlockPos param4) {
         int var0 = param2.nextInt(param3.max - param3.min) + param3.min;
         return IntStream.range(0, var0).mapToObj(param3x -> {
             int var0x = param2.nextInt(16) + param4.getX();

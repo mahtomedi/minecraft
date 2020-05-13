@@ -98,7 +98,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
     private final ServerLevel level;
     private final ThreadedLevelLightEngine lightEngine;
     private final BlockableEventLoop<Runnable> mainThreadExecutor;
-    private final ChunkGenerator<?> generator;
+    private final ChunkGenerator generator;
     private final Supplier<DimensionDataStorage> overworldDataStorage;
     private final PoiManager poiManager;
     private final LongSet toDrop = new LongOpenHashSet();
@@ -125,15 +125,15 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         Executor param4,
         BlockableEventLoop<Runnable> param5,
         LightChunkGetter param6,
-        ChunkGenerator<?> param7,
+        ChunkGenerator param7,
         ChunkProgressListener param8,
         Supplier<DimensionDataStorage> param9,
         int param10,
         boolean param11
     ) {
-        super(new File(param1.getDimensionPath(param0.getDimension().getType()), "region"), param2, param11);
+        super(new File(param1.getDimensionPath(param0.dimensionType()), "region"), param2, param11);
         this.structureManager = param3;
-        this.storageFolder = param1.getDimensionPath(param0.getDimension().getType());
+        this.storageFolder = param1.getDimensionPath(param0.dimensionType());
         this.level = param0;
         this.generator = param7;
         this.mainThreadExecutor = param5;
@@ -145,7 +145,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         this.worldgenMailbox = this.queueSorter.getProcessor(var0, false);
         this.mainThreadMailbox = this.queueSorter.getProcessor(var1, false);
         this.lightEngine = new ThreadedLevelLightEngine(
-            param6, this, this.level.getDimension().isHasSkyLight(), var2, this.queueSorter.getProcessor(var2, false)
+            param6, this, this.level.dimensionType().hasSkyLight(), var2, this.queueSorter.getProcessor(var2, false)
         );
         this.distanceManager = new ChunkMap.DistanceManager(param4, param5);
         this.overworldDataStorage = param9;
@@ -823,7 +823,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
     @Nullable
     private CompoundTag readChunk(ChunkPos param0) throws IOException {
         CompoundTag var0 = this.read(param0);
-        return var0 == null ? null : this.upgradeChunkTag(this.level.getDimension().getType(), this.overworldDataStorage, var0);
+        return var0 == null ? null : this.upgradeChunkTag(this.level.dimensionType(), this.overworldDataStorage, var0);
     }
 
     boolean noPlayersCloseForSpawning(ChunkPos param0) {

@@ -14,7 +14,7 @@ import net.minecraft.world.level.levelgen.feature.configurations.TreeConfigurati
 
 public abstract class AbstractMegaTreeGrower extends AbstractTreeGrower {
     @Override
-    public boolean growTree(ServerLevel param0, ChunkGenerator<?> param1, BlockPos param2, BlockState param3, Random param4) {
+    public boolean growTree(ServerLevel param0, ChunkGenerator param1, BlockPos param2, BlockState param3, Random param4) {
         for(int var0 = 0; var0 >= -1; --var0) {
             for(int var1 = 0; var1 >= -1; --var1) {
                 if (isTwoByTwoSapling(param3, param0, param2, var0, var1)) {
@@ -29,7 +29,7 @@ public abstract class AbstractMegaTreeGrower extends AbstractTreeGrower {
     @Nullable
     protected abstract ConfiguredFeature<TreeConfiguration, ?> getConfiguredMegaFeature(Random var1);
 
-    public boolean placeMega(ServerLevel param0, ChunkGenerator<?> param1, BlockPos param2, BlockState param3, Random param4, int param5, int param6) {
+    public boolean placeMega(ServerLevel param0, ChunkGenerator param1, BlockPos param2, BlockState param3, Random param4, int param5, int param6) {
         ConfiguredFeature<TreeConfiguration, ?> var0 = this.getConfiguredMegaFeature(param4);
         if (var0 == null) {
             return false;

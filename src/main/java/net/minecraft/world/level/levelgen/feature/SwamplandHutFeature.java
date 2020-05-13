@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -56,8 +55,8 @@ public class SwamplandHutFeature extends RandomScatteredFeature<NoneFeatureConfi
         return SWAMPHUT_ANIMALS;
     }
 
-    public boolean isSwamphut(LevelAccessor param0, StructureFeatureManager param1, BlockPos param2) {
-        StructureStart var0 = this.getStructureAt(param0, param1, param2, true);
+    public boolean isSwamphut(StructureFeatureManager param0, BlockPos param1) {
+        StructureStart var0 = this.getStructureAt(param0, param1, true);
         if (var0.isValid() && var0 instanceof SwamplandHutFeature.FeatureStart) {
             StructurePiece var1 = var0.getPieces().get(0);
             return var1 instanceof SwamplandHutPiece;
@@ -72,7 +71,7 @@ public class SwamplandHutFeature extends RandomScatteredFeature<NoneFeatureConfi
         }
 
         @Override
-        public void generatePieces(ChunkGenerator<?> param0, StructureManager param1, int param2, int param3, Biome param4) {
+        public void generatePieces(ChunkGenerator param0, StructureManager param1, int param2, int param3, Biome param4) {
             SwamplandHutPiece var0 = new SwamplandHutPiece(this.random, param2 * 16, param3 * 16);
             this.pieces.add(var0);
             this.calculateBoundingBox();

@@ -1,12 +1,18 @@
 package net.minecraft.world.level.levelgen.synth;
 
+import com.google.common.collect.ImmutableList;
 import java.util.List;
+import java.util.stream.IntStream;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 
 public class NormalNoise {
     private final double valueFactor;
     private final PerlinNoise first;
     private final PerlinNoise second;
+
+    public NormalNoise(WorldgenRandom param0, IntStream param1) {
+        this(param0, param1.boxed().collect(ImmutableList.toImmutableList()));
+    }
 
     public NormalNoise(WorldgenRandom param0, List<Integer> param1) {
         this.first = new PerlinNoise(param0, param1);

@@ -7,16 +7,13 @@ import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 
 public class LakeWaterPlacementDecorator extends FeatureDecorator<ChanceDecoratorConfiguration> {
     public LakeWaterPlacementDecorator(Function<Dynamic<?>, ? extends ChanceDecoratorConfiguration> param0) {
         super(param0);
     }
 
-    public Stream<BlockPos> getPositions(
-        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, ChanceDecoratorConfiguration param3, BlockPos param4
-    ) {
+    public Stream<BlockPos> getPositions(LevelAccessor param0, ChunkGenerator param1, Random param2, ChanceDecoratorConfiguration param3, BlockPos param4) {
         if (param2.nextInt(param3.chance) == 0) {
             int var0 = param2.nextInt(16) + param4.getX();
             int var1 = param2.nextInt(16) + param4.getZ();

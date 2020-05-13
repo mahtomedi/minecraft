@@ -22,7 +22,6 @@ import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.biome.BiomeSource;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -34,54 +33,51 @@ import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfigur
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
-public abstract class ChunkGenerator<C extends ChunkGeneratorSettings> {
-    protected final LevelAccessor level;
-    protected final long seed;
+public abstract class ChunkGenerator {
     protected final BiomeSource biomeSource;
-    protected final C settings;
+    private final ChunkGeneratorSettings settings;
 
-    public ChunkGenerator(LevelAccessor param0, BiomeSource param1, C param2) {
-        this.level = param0;
-        this.seed = param0.getSeed();
-        this.biomeSource = param1;
-        this.settings = param2;
+    public ChunkGenerator(BiomeSource param0, ChunkGeneratorSettings param1) {
+        this.biomeSource = param0;
+        this.settings = param1;
     }
+
+    @OnlyIn(Dist.CLIENT)
+    public abstract ChunkGenerator withSeed(long var1);
 
     public void createBiomes(ChunkAccess param0) {
         ChunkPos var0 = param0.getPos();
         ((ProtoChunk)param0).setBiomes(new ChunkBiomeContainer(var0, this.biomeSource));
     }
 
-    public DimensionType getDimensionType() {
-        return this.level.getDimension().getType();
-    }
-
     protected Biome getCarvingOrDecorationBiome(BiomeManager param0, BlockPos param1) {
         return param0.getBiome(param1);
     }
 
-    public void applyCarvers(BiomeManager param0, ChunkAccess param1, GenerationStep.Carving param2) {
+    public void applyCarvers(long param0, BiomeManager param1, ChunkAccess param2, GenerationStep.Carving param3) {
         WorldgenRandom var0 = new WorldgenRandom();
         int var1 = 8;
-        ChunkPos var2 = param1.getPos();
+        ChunkPos var2 = param2.getPos();
         int var3 = var2.x;
         int var4 = var2.z;
-        Biome var5 = this.getCarvingOrDecorationBiome(param0, var2.getWorldPosition());
-        BitSet var6 = param1.getCarvingMask(param2);
+        Biome var5 = this.getCarvingOrDecorationBiome(param1, var2.getWorldPosition());
+        BitSet var6 = param2.getCarvingMask(param3);
 
         for(int var7 = var3 - 8; var7 <= var3 + 8; ++var7) {
             for(int var8 = var4 - 8; var8 <= var4 + 8; ++var8) {
-                List<ConfiguredWorldCarver<?>> var9 = var5.getCarvers(param2);
+                List<ConfiguredWorldCarver<?>> var9 = var5.getCarvers(param3);
                 ListIterator<ConfiguredWorldCarver<?>> var10 = var9.listIterator();
 
                 while(var10.hasNext()) {
                     int var11 = var10.nextIndex();
                     ConfiguredWorldCarver<?> var12 = var10.next();
-                    var0.setLargeFeatureSeed(this.seed + (long)var11, var7, var8);
+                    var0.setLargeFeatureSeed(param0 + (long)var11, var7, var8);
                     if (var12.isStartChunk(var0, var7, var8)) {
                         var12.carve(
-                            param1, param1x -> this.getCarvingOrDecorationBiome(param0, param1x), var0, this.getSeaLevel(), var7, var8, var3, var4, var6
+                            param2, param1x -> this.getCarvingOrDecorationBiome(param1, param1x), var0, this.getSeaLevel(), var7, var8, var3, var4, var6
                         );
                     }
                 }
@@ -128,11 +124,13 @@ public abstract class ChunkGenerator<C extends ChunkGeneratorSettings> {
     public void spawnOriginalMobs(WorldGenRegion param0) {
     }
 
-    public C getSettings() {
+    public ChunkGeneratorSettings getSettings() {
         return this.settings;
     }
 
-    public abstract int getSpawnHeight();
+    public int getSpawnHeight() {
+        return 64;
+    }
 
     public void tickCustomSpawners(ServerLevel param0, boolean param1, boolean param2) {
     }
@@ -150,19 +148,17 @@ public abstract class ChunkGenerator<C extends ChunkGeneratorSettings> {
         return this.biomeSource;
     }
 
-    public long getSeed() {
-        return this.seed;
-    }
-
     public int getGenDepth() {
         return 256;
     }
 
-    public List<Biome.SpawnerData> getMobsAt(StructureFeatureManager param0, MobCategory param1, BlockPos param2) {
-        return this.level.getBiome(param2).getMobs(param1);
+    public List<Biome.SpawnerData> getMobsAt(Biome param0, StructureFeatureManager param1, MobCategory param2, BlockPos param3) {
+        return param0.getMobs(param2);
     }
 
-    public void createStructures(StructureFeatureManager param0, BiomeManager param1, ChunkAccess param2, ChunkGenerator<?> param3, StructureManager param4) {
+    public void createStructures(
+        StructureFeatureManager param0, BiomeManager param1, ChunkAccess param2, ChunkGenerator param3, StructureManager param4, long param5
+    ) {
         for(StructureFeature<?> var0 : Feature.STRUCTURES_REGISTRY.values()) {
             if (param3.canGenerateStructure(var0)) {
                 StructureStart var1 = param0.getStartForFeature(SectionPos.of(param2.getPos(), 0), var0, param2);
@@ -171,8 +167,8 @@ public abstract class ChunkGenerator<C extends ChunkGeneratorSettings> {
                 ChunkPos var4 = param2.getPos();
                 StructureStart var5 = StructureStart.INVALID_START;
                 Biome var6 = param3.getCarvingOrDecorationBiome(param1, new BlockPos(var4.getMinBlockX() + 9, 0, var4.getMinBlockZ() + 9));
-                if (var0.featureChunk(param1, param3, var3, var4.x, var4.z, var6)) {
-                    StructureStart var7 = var0.getStartFactory().create(var0, var4.x, var4.z, BoundingBox.getUnknownBox(), var2, param3.getSeed());
+                if (var0.featureChunk(param1, param3, param5, var3, var4.x, var4.z, var6)) {
+                    StructureStart var7 = var0.getStartFactory().create(var0, var4.x, var4.z, BoundingBox.getUnknownBox(), var2, param5);
                     var7.generatePieces(this, param4, var4.x, var4.z, var6);
                     var5 = var7.isValid() ? var7 : StructureStart.INVALID_START;
                 }

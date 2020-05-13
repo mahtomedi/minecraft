@@ -403,17 +403,16 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
         public void recreateWorld() {
             try {
                 this.minecraft.setScreen(new ProgressScreen());
-                CreateWorldScreen var0 = new CreateWorldScreen(this.screen);
 
-                try (LevelStorageSource.LevelStorageAccess var1 = this.minecraft.getLevelSource().createAccess(this.summary.getLevelId())) {
-                    WorldData var2 = var1.getDataTag();
-                    if (var2 != null) {
-                        var0.copyFromWorld(var2);
+                try (LevelStorageSource.LevelStorageAccess var0 = this.minecraft.getLevelSource().createAccess(this.summary.getLevelId())) {
+                    WorldData var1 = var0.getDataTag();
+                    if (var1 != null) {
+                        CreateWorldScreen var2 = new CreateWorldScreen(this.screen, var1);
                         if (this.summary.isOldCustomizedWorld()) {
                             this.minecraft
                                 .setScreen(
                                     new ConfirmScreen(
-                                        param1 -> this.minecraft.setScreen((Screen)(param1 ? var0 : this.screen)),
+                                        param1 -> this.minecraft.setScreen((Screen)(param1 ? var2 : this.screen)),
                                         new TranslatableComponent("selectWorld.recreate.customized.title"),
                                         new TranslatableComponent("selectWorld.recreate.customized.text"),
                                         CommonComponents.GUI_PROCEED,
@@ -421,7 +420,7 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
                                     )
                                 );
                         } else {
-                            this.minecraft.setScreen(var0);
+                            this.minecraft.setScreen(var2);
                         }
                     }
                 }

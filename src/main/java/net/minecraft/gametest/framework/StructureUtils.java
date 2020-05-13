@@ -28,7 +28,6 @@ import net.minecraft.world.level.block.entity.CommandBlockEntity;
 import net.minecraft.world.level.block.entity.StructureBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.StructureMode;
-import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
@@ -185,25 +184,17 @@ public class StructureUtils {
     }
 
     private static void clearBlock(int param0, BlockPos param1, ServerLevel param2) {
-        ChunkGeneratorSettings var0 = param2.getChunkSource().getGenerator().getSettings();
+        FlatLevelGeneratorSettings var0 = FlatLevelGeneratorSettings.getDefault();
+        BlockState[] var1 = var0.getLayers();
         BlockState var2;
-        if (var0 instanceof FlatLevelGeneratorSettings) {
-            BlockState[] var1 = ((FlatLevelGeneratorSettings)var0).getLayers();
-            if (param1.getY() < param0) {
-                var2 = var1[param1.getY() - 1];
-            } else {
-                var2 = Blocks.AIR.defaultBlockState();
-            }
-        } else if (param1.getY() == param0 - 1) {
-            var2 = param2.getBiome(param1).getSurfaceBuilderConfig().getTopMaterial();
-        } else if (param1.getY() < param0 - 1) {
-            var2 = param2.getBiome(param1).getSurfaceBuilderConfig().getUnderMaterial();
+        if (param1.getY() < param0) {
+            var2 = var1[param1.getY() - 1];
         } else {
             var2 = Blocks.AIR.defaultBlockState();
         }
 
-        BlockInput var7 = new BlockInput(var2, Collections.emptySet(), null);
-        var7.place(param2, param1, 2);
+        BlockInput var4 = new BlockInput(var2, Collections.emptySet(), null);
+        var4.place(param2, param1, 2);
         param2.blockUpdated(param1, var2.getBlock());
     }
 

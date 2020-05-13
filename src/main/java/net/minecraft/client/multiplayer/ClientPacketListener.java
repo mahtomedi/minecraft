@@ -352,11 +352,13 @@ public class ClientPacketListener implements ClientGamePacketListener {
         }
 
         this.serverChunkRadius = param0.getChunkRadius();
-        ClientLevel.ClientLevelData var0 = new ClientLevel.ClientLevelData(
-            param0.getSeed(), Difficulty.NORMAL, param0.isHardcore(), param0.getLevelType().getDefaultProvider()
+        boolean var0 = param0.isDebug();
+        boolean var1 = param0.isFlat();
+        ClientLevel.ClientLevelData var2 = new ClientLevel.ClientLevelData(Difficulty.NORMAL, param0.isHardcore(), var1);
+        this.levelData = var2;
+        this.level = new ClientLevel(
+            this, var2, param0.getDimension(), this.serverChunkRadius, this.minecraft::getProfiler, this.minecraft.levelRenderer, var0, param0.getSeed()
         );
-        this.levelData = var0;
-        this.level = new ClientLevel(this, var0, param0.getDimension(), this.serverChunkRadius, this.minecraft::getProfiler, this.minecraft.levelRenderer);
         this.minecraft.setLevel(this.level);
         if (this.minecraft.player == null) {
             this.minecraft.player = this.minecraft.gameMode.createPlayer(this.level, new StatsCounter(), new ClientRecipeBook(this.level.getRecipeManager()));
@@ -368,14 +370,14 @@ public class ClientPacketListener implements ClientGamePacketListener {
 
         this.minecraft.debugRenderer.clear();
         this.minecraft.player.resetPos();
-        int var1 = param0.getPlayerId();
-        this.level.addPlayer(var1, this.minecraft.player);
+        int var3 = param0.getPlayerId();
+        this.level.addPlayer(var3, this.minecraft.player);
         this.minecraft.player.input = new KeyboardInput(this.minecraft.options);
         this.minecraft.gameMode.adjustPlayer(this.minecraft.player);
         this.minecraft.cameraEntity = this.minecraft.player;
         this.minecraft.player.dimension = param0.getDimension();
         this.minecraft.setScreen(new ReceivingLevelScreen());
-        this.minecraft.player.setId(var1);
+        this.minecraft.player.setId(var3);
         this.minecraft.player.setReducedDebugInfo(param0.isReducedDebugInfo());
         this.minecraft.player.setShowDeathScreen(param0.shouldShowDeathScreen());
         this.minecraft.gameMode.setLocalMode(param0.getGameType());
@@ -1043,37 +1045,39 @@ public class ClientPacketListener implements ClientGamePacketListener {
         this.started = false;
         if (var0 != var1.dimension) {
             Scoreboard var3 = this.level.getScoreboard();
-            ClientLevel.ClientLevelData var4 = new ClientLevel.ClientLevelData(
-                param0.getSeed(), this.levelData.getDifficulty(), this.levelData.isHardcore(), param0.getLevelType().getDefaultProvider()
+            boolean var4 = param0.isDebug();
+            boolean var5 = param0.isFlat();
+            ClientLevel.ClientLevelData var6 = new ClientLevel.ClientLevelData(this.levelData.getDifficulty(), this.levelData.isHardcore(), var5);
+            this.levelData = var6;
+            this.level = new ClientLevel(
+                this, var6, param0.getDimension(), this.serverChunkRadius, this.minecraft::getProfiler, this.minecraft.levelRenderer, var4, param0.getSeed()
             );
-            this.levelData = var4;
-            this.level = new ClientLevel(this, var4, param0.getDimension(), this.serverChunkRadius, this.minecraft::getProfiler, this.minecraft.levelRenderer);
             this.level.setScoreboard(var3);
             this.minecraft.setLevel(this.level);
             this.minecraft.setScreen(new ReceivingLevelScreen());
         }
 
         this.level.removeAllPendingEntityRemovals();
-        String var5 = var1.getServerBrand();
+        String var7 = var1.getServerBrand();
         this.minecraft.cameraEntity = null;
-        LocalPlayer var6 = this.minecraft.gameMode.createPlayer(this.level, var1.getStats(), var1.getRecipeBook());
-        var6.setId(var2);
-        var6.dimension = var0;
-        this.minecraft.player = var6;
-        this.minecraft.cameraEntity = var6;
-        var6.getEntityData().assignValues(var1.getEntityData().getAll());
+        LocalPlayer var8 = this.minecraft.gameMode.createPlayer(this.level, var1.getStats(), var1.getRecipeBook());
+        var8.setId(var2);
+        var8.dimension = var0;
+        this.minecraft.player = var8;
+        this.minecraft.cameraEntity = var8;
+        var8.getEntityData().assignValues(var1.getEntityData().getAll());
         if (param0.shouldKeepAllPlayerData()) {
-            var6.getAttributes().assignValues(var1.getAttributes());
+            var8.getAttributes().assignValues(var1.getAttributes());
         }
 
-        var6.resetPos();
-        var6.setServerBrand(var5);
-        this.level.addPlayer(var2, var6);
-        var6.yRot = -180.0F;
-        var6.input = new KeyboardInput(this.minecraft.options);
-        this.minecraft.gameMode.adjustPlayer(var6);
-        var6.setReducedDebugInfo(var1.isReducedDebugInfo());
-        var6.setShowDeathScreen(var1.shouldShowDeathScreen());
+        var8.resetPos();
+        var8.setServerBrand(var7);
+        this.level.addPlayer(var2, var8);
+        var8.yRot = -180.0F;
+        var8.input = new KeyboardInput(this.minecraft.options);
+        this.minecraft.gameMode.adjustPlayer(var8);
+        var8.setReducedDebugInfo(var1.isReducedDebugInfo());
+        var8.setShowDeathScreen(var1.shouldShowDeathScreen());
         if (this.minecraft.screen instanceof DeathScreen) {
             this.minecraft.setScreen(null);
         }

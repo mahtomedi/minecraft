@@ -4,13 +4,12 @@ import com.mojang.datafixers.Dynamic;
 import java.util.Random;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
+import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.KelpBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 
@@ -20,12 +19,7 @@ public class KelpFeature extends Feature<NoneFeatureConfiguration> {
     }
 
     public boolean place(
-        LevelAccessor param0,
-        StructureFeatureManager param1,
-        ChunkGenerator<? extends ChunkGeneratorSettings> param2,
-        Random param3,
-        BlockPos param4,
-        NoneFeatureConfiguration param5
+        WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BlockPos param4, NoneFeatureConfiguration param5
     ) {
         int var0 = 0;
         int var1 = param0.getHeight(Heightmap.Types.OCEAN_FLOOR, param4.getX(), param4.getZ());

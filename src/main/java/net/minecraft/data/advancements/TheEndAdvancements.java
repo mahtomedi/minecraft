@@ -66,7 +66,7 @@ public class TheEndAdvancements implements Consumer<Consumer<Advancement>> {
             )
             .addCriterion("entered_end_gateway", EnterBlockTrigger.TriggerInstance.entersBlock(Blocks.END_GATEWAY))
             .save(param0, "end/enter_end_gateway");
-        Advancement var3 = Advancement.Builder.advancement()
+        Advancement.Builder.advancement()
             .parent(var1)
             .display(
                 Items.END_CRYSTAL,
@@ -80,7 +80,7 @@ public class TheEndAdvancements implements Consumer<Consumer<Advancement>> {
             )
             .addCriterion("summoned_dragon", SummonedEntityTrigger.TriggerInstance.summonedEntity(EntityPredicate.Builder.entity().of(EntityType.ENDER_DRAGON)))
             .save(param0, "end/respawn_dragon");
-        Advancement var4 = Advancement.Builder.advancement()
+        Advancement var3 = Advancement.Builder.advancement()
             .parent(var2)
             .display(
                 Blocks.PURPUR_BLOCK,
@@ -94,7 +94,7 @@ public class TheEndAdvancements implements Consumer<Consumer<Advancement>> {
             )
             .addCriterion("in_city", LocationTrigger.TriggerInstance.located(LocationPredicate.inFeature(Feature.END_CITY)))
             .save(param0, "end/find_end_city");
-        Advancement var5 = Advancement.Builder.advancement()
+        Advancement.Builder.advancement()
             .parent(var1)
             .display(
                 Items.DRAGON_BREATH,
@@ -106,10 +106,10 @@ public class TheEndAdvancements implements Consumer<Consumer<Advancement>> {
                 true,
                 false
             )
-            .addCriterion("dragon_breath", InventoryChangeTrigger.TriggerInstance.hasItem(Items.DRAGON_BREATH))
+            .addCriterion("dragon_breath", InventoryChangeTrigger.TriggerInstance.hasItems(Items.DRAGON_BREATH))
             .save(param0, "end/dragon_breath");
-        Advancement var6 = Advancement.Builder.advancement()
-            .parent(var4)
+        Advancement.Builder.advancement()
+            .parent(var3)
             .display(
                 Items.SHULKER_SHELL,
                 new TranslatableComponent("advancements.end.levitate.title"),
@@ -123,8 +123,8 @@ public class TheEndAdvancements implements Consumer<Consumer<Advancement>> {
             .rewards(AdvancementRewards.Builder.experience(50))
             .addCriterion("levitated", LevitationTrigger.TriggerInstance.levitated(DistancePredicate.vertical(MinMaxBounds.Floats.atLeast(50.0F))))
             .save(param0, "end/levitate");
-        Advancement var7 = Advancement.Builder.advancement()
-            .parent(var4)
+        Advancement.Builder.advancement()
+            .parent(var3)
             .display(
                 Items.ELYTRA,
                 new TranslatableComponent("advancements.end.elytra.title"),
@@ -135,9 +135,9 @@ public class TheEndAdvancements implements Consumer<Consumer<Advancement>> {
                 true,
                 false
             )
-            .addCriterion("elytra", InventoryChangeTrigger.TriggerInstance.hasItem(Items.ELYTRA))
+            .addCriterion("elytra", InventoryChangeTrigger.TriggerInstance.hasItems(Items.ELYTRA))
             .save(param0, "end/elytra");
-        Advancement var8 = Advancement.Builder.advancement()
+        Advancement.Builder.advancement()
             .parent(var1)
             .display(
                 Blocks.DRAGON_EGG,
@@ -149,7 +149,7 @@ public class TheEndAdvancements implements Consumer<Consumer<Advancement>> {
                 true,
                 false
             )
-            .addCriterion("dragon_egg", InventoryChangeTrigger.TriggerInstance.hasItem(Blocks.DRAGON_EGG))
+            .addCriterion("dragon_egg", InventoryChangeTrigger.TriggerInstance.hasItems(Blocks.DRAGON_EGG))
             .save(param0, "end/dragon_egg");
     }
 }

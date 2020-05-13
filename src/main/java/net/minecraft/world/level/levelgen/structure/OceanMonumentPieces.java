@@ -15,6 +15,7 @@ import net.minecraft.world.entity.monster.ElderGuardian;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
+import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -350,7 +351,7 @@ public class OceanMonumentPieces {
 
         @Override
         public boolean postProcess(
-            LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<?> param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
+            WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             int var0 = Math.max(param0.getSeaLevel(), 64) - this.boundingBox.y0;
             this.generateWaterBox(param0, param4, 0, 0, 0, 58, var0, 58);
@@ -748,7 +749,7 @@ public class OceanMonumentPieces {
 
         @Override
         public boolean postProcess(
-            LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<?> param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
+            WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             this.generateBoxOnFillOnly(param0, param4, 1, 8, 0, 14, 8, 14, BASE_GRAY);
             int var0 = 7;
@@ -829,7 +830,7 @@ public class OceanMonumentPieces {
 
         @Override
         public boolean postProcess(
-            LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<?> param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
+            WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             OceanMonumentPieces.RoomDefinition var0 = this.roomDefinition.connections[Direction.EAST.get3DDataValue()];
             OceanMonumentPieces.RoomDefinition var1 = this.roomDefinition;
@@ -902,7 +903,7 @@ public class OceanMonumentPieces {
 
         @Override
         public boolean postProcess(
-            LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<?> param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
+            WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             OceanMonumentPieces.RoomDefinition var0 = this.roomDefinition.connections[Direction.EAST.get3DDataValue()];
             OceanMonumentPieces.RoomDefinition var1 = this.roomDefinition;
@@ -1019,7 +1020,7 @@ public class OceanMonumentPieces {
 
         @Override
         public boolean postProcess(
-            LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<?> param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
+            WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             if (this.roomDefinition.index / 25 > 0) {
                 this.generateDefaultFloor(param0, param4, 0, 0, this.roomDefinition.hasOpening[Direction.DOWN.get3DDataValue()]);
@@ -1103,7 +1104,7 @@ public class OceanMonumentPieces {
 
         @Override
         public boolean postProcess(
-            LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<?> param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
+            WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             OceanMonumentPieces.RoomDefinition var0 = this.roomDefinition.connections[Direction.NORTH.get3DDataValue()];
             OceanMonumentPieces.RoomDefinition var1 = this.roomDefinition;
@@ -1218,7 +1219,7 @@ public class OceanMonumentPieces {
 
         @Override
         public boolean postProcess(
-            LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<?> param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
+            WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             OceanMonumentPieces.RoomDefinition var0 = this.roomDefinition.connections[Direction.NORTH.get3DDataValue()];
             OceanMonumentPieces.RoomDefinition var1 = this.roomDefinition;
@@ -1310,7 +1311,7 @@ public class OceanMonumentPieces {
 
         @Override
         public boolean postProcess(
-            LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<?> param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
+            WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             this.generateBox(param0, param4, 0, 3, 0, 2, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
             this.generateBox(param0, param4, 5, 3, 0, 7, 3, 7, BASE_LIGHT, BASE_LIGHT, false);
@@ -1348,7 +1349,7 @@ public class OceanMonumentPieces {
 
         @Override
         public boolean postProcess(
-            LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<?> param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
+            WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             this.generateBox(param0, param4, 2, -1, 2, 11, -1, 11, BASE_LIGHT, BASE_LIGHT, false);
             this.generateBox(param0, param4, 0, -1, 0, 1, -1, 11, BASE_GRAY, BASE_GRAY, false);
@@ -1556,7 +1557,7 @@ public class OceanMonumentPieces {
 
         @Override
         public boolean postProcess(
-            LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<?> param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
+            WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             if (this.roomDefinition.index / 25 > 0) {
                 this.generateDefaultFloor(param0, param4, 0, 0, this.roomDefinition.hasOpening[Direction.DOWN.get3DDataValue()]);
@@ -1726,7 +1727,7 @@ public class OceanMonumentPieces {
 
         @Override
         public boolean postProcess(
-            LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<?> param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
+            WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             if (this.roomDefinition.index / 25 > 0) {
                 this.generateDefaultFloor(param0, param4, 0, 0, this.roomDefinition.hasOpening[Direction.DOWN.get3DDataValue()]);
@@ -1784,7 +1785,7 @@ public class OceanMonumentPieces {
 
         @Override
         public boolean postProcess(
-            LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<?> param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
+            WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5, BlockPos param6
         ) {
             if (this.mainDesign == 0) {
                 for(int var0 = 0; var0 < 4; ++var0) {

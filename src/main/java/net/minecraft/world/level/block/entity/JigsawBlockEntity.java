@@ -126,7 +126,7 @@ public class JigsawBlockEntity extends BlockEntity {
     }
 
     public void generate(ServerLevel param0, int param1) {
-        ChunkGenerator<?> var0 = param0.getChunkSource().getGenerator();
+        ChunkGenerator var0 = param0.getChunkSource().getGenerator();
         StructureManager var1 = param0.getStructureManager();
         StructureFeatureManager var2 = param0.structureFeatureManager();
         Random var3 = param0.getRandom();

@@ -52,7 +52,8 @@ import org.apache.logging.log4j.Logger;
 
 public class Util {
     private static final AtomicInteger WORKER_COUNT = new AtomicInteger(1);
-    private static final ExecutorService BACKGROUND_EXECUTOR = makeBackgroundExecutor();
+    private static final ExecutorService BOOTSTRAP_EXECUTOR = makeExecutor("Bootstrap");
+    private static final ExecutorService BACKGROUND_EXECUTOR = makeExecutor("Main");
     private static final ExecutorService IO_POOL = makeIoExecutor();
     public static LongSupplier timeSource = System::nanoTime;
     private static final Logger LOGGER = LogManager.getLogger();
@@ -81,14 +82,14 @@ public class Util {
         return Instant.now().toEpochMilli();
     }
 
-    private static ExecutorService makeBackgroundExecutor() {
+    private static ExecutorService makeExecutor(String param0) {
         int var0 = Mth.clamp(Runtime.getRuntime().availableProcessors() - 1, 1, 7);
         ExecutorService var1;
         if (var0 <= 0) {
             var1 = MoreExecutors.newDirectExecutorService();
         } else {
-            var1 = new ForkJoinPool(var0, param0 -> {
-                ForkJoinWorkerThread var0x = new ForkJoinWorkerThread(param0) {
+            var1 = new ForkJoinPool(var0, param1 -> {
+                ForkJoinWorkerThread var0x = new ForkJoinWorkerThread(param1) {
                     @Override
                     protected void onTermination(Throwable param0) {
                         if (param0 != null) {
@@ -100,12 +101,16 @@ public class Util {
                         super.onTermination(param0);
                     }
                 };
-                var0x.setName("Worker-" + WORKER_COUNT.getAndIncrement());
+                var0x.setName("Worker-" + param0 + "-" + WORKER_COUNT.getAndIncrement());
                 return var0x;
             }, Util::onThreadException, true);
         }
 
         return var1;
+    }
+
+    public static Executor bootstrapExecutor() {
+        return BOOTSTRAP_EXECUTOR;
     }
 
     public static Executor backgroundExecutor() {
@@ -158,7 +163,7 @@ public class Util {
         throw param0 instanceof RuntimeException ? (RuntimeException)param0 : new RuntimeException(param0);
     }
 
-    private static void onThreadException(Thread param0, Throwable param1) {
+    private static void onThreadException(Thread param0x, Throwable param1) {
         pauseInIde(param1);
         if (param1 instanceof CompletionException) {
             param1 = param1.getCause();
@@ -169,7 +174,7 @@ public class Util {
             System.exit(-1);
         }
 
-        LOGGER.error(String.format("Caught exception in thread %s", param0), param1);
+        LOGGER.error(String.format("Caught exception in thread %s", param0x), param1);
     }
 
     public static Util.OS getPlatform() {

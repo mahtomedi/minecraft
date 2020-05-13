@@ -12,13 +12,17 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.biome.BiomeManager;
-import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.biome.FixedBiomeSource;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class DebugLevelSource extends ChunkGenerator<DebugGeneratorSettings> {
+public class DebugLevelSource extends ChunkGenerator {
+    public static final ChunkGenerator INSTANCE = new DebugLevelSource();
     private static final List<BlockState> ALL_BLOCKS = StreamSupport.stream(Registry.BLOCK.spliterator(), false)
         .flatMap(param0 -> param0.getStateDefinition().getPossibleStates().stream())
         .collect(Collectors.toList());
@@ -27,8 +31,14 @@ public class DebugLevelSource extends ChunkGenerator<DebugGeneratorSettings> {
     protected static final BlockState AIR = Blocks.AIR.defaultBlockState();
     protected static final BlockState BARRIER = Blocks.BARRIER.defaultBlockState();
 
-    public DebugLevelSource(LevelAccessor param0, BiomeSource param1, DebugGeneratorSettings param2) {
-        super(param0, param1, param2);
+    private DebugLevelSource() {
+        super(new FixedBiomeSource(Biomes.PLAINS), new ChunkGeneratorSettings());
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public ChunkGenerator withSeed(long param0) {
+        return this;
     }
 
     @Override
@@ -36,12 +46,7 @@ public class DebugLevelSource extends ChunkGenerator<DebugGeneratorSettings> {
     }
 
     @Override
-    public void applyCarvers(BiomeManager param0, ChunkAccess param1, GenerationStep.Carving param2) {
-    }
-
-    @Override
-    public int getSpawnHeight() {
-        return this.level.getSeaLevel() + 1;
+    public void applyCarvers(long param0, BiomeManager param1, ChunkAccess param2, GenerationStep.Carving param3) {
     }
 
     @Override

@@ -9,11 +9,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
+import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.feature.configurations.DeltaFeatureConfiguration;
 
 public class DeltaFeature extends Feature<DeltaFeatureConfiguration> {
@@ -35,12 +35,7 @@ public class DeltaFeature extends Feature<DeltaFeatureConfiguration> {
     }
 
     public boolean place(
-        LevelAccessor param0,
-        StructureFeatureManager param1,
-        ChunkGenerator<? extends ChunkGeneratorSettings> param2,
-        Random param3,
-        BlockPos param4,
-        DeltaFeatureConfiguration param5
+        WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BlockPos param4, DeltaFeatureConfiguration param5
     ) {
         BlockPos var0 = findDeltaLevel(param0, param4.mutable().clamp(Direction.Axis.Y, 1, param0.getMaxBuildHeight() - 1));
         if (var0 == null) {

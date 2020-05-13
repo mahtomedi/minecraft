@@ -8,7 +8,6 @@ import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.Heightmap;
 
 public class CountWithExtraChanceHeightmapDecorator extends FeatureDecorator<FrequencyWithExtraChanceDecoratorConfiguration> {
@@ -17,11 +16,7 @@ public class CountWithExtraChanceHeightmapDecorator extends FeatureDecorator<Fre
     }
 
     public Stream<BlockPos> getPositions(
-        LevelAccessor param0,
-        ChunkGenerator<? extends ChunkGeneratorSettings> param1,
-        Random param2,
-        FrequencyWithExtraChanceDecoratorConfiguration param3,
-        BlockPos param4
+        LevelAccessor param0, ChunkGenerator param1, Random param2, FrequencyWithExtraChanceDecoratorConfiguration param3, BlockPos param4
     ) {
         int var0 = param3.count;
         if (param2.nextFloat() < param3.extraChance) {

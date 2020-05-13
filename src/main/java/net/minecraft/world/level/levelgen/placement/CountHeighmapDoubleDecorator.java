@@ -9,7 +9,6 @@ import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.Heightmap;
 
 public class CountHeighmapDoubleDecorator extends FeatureDecorator<FrequencyDecoratorConfiguration> {
@@ -17,9 +16,7 @@ public class CountHeighmapDoubleDecorator extends FeatureDecorator<FrequencyDeco
         super(param0);
     }
 
-    public Stream<BlockPos> getPositions(
-        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, FrequencyDecoratorConfiguration param3, BlockPos param4
-    ) {
+    public Stream<BlockPos> getPositions(LevelAccessor param0, ChunkGenerator param1, Random param2, FrequencyDecoratorConfiguration param3, BlockPos param4) {
         return IntStream.range(0, param3.count).mapToObj(param3x -> {
             int var0 = param2.nextInt(16) + param4.getX();
             int var1x = param2.nextInt(16) + param4.getZ();

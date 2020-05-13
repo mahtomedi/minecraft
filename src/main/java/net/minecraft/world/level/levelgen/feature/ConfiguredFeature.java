@@ -7,10 +7,9 @@ import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
+import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.feature.configurations.DecoratedFeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
@@ -55,9 +54,7 @@ public class ConfiguredFeature<FC extends FeatureConfiguration, F extends Featur
         );
     }
 
-    public boolean place(
-        LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<? extends ChunkGeneratorSettings> param2, Random param3, BlockPos param4
-    ) {
+    public boolean place(WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BlockPos param4) {
         return this.feature.place(param0, param1, param2, param3, param4, this.config);
     }
 

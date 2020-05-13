@@ -8,10 +8,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
-import net.minecraft.world.level.LevelType;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.dimension.DimensionType;
-import net.minecraft.world.level.levelgen.ChunkGeneratorProvider;
 import net.minecraft.world.level.timers.TimerQueue;
 
 public class DerivedLevelData implements ServerLevelData {
@@ -23,11 +21,6 @@ public class DerivedLevelData implements ServerLevelData {
         this.dimensionType = param0;
         this.worldData = param1;
         this.wrapped = param2;
-    }
-
-    @Override
-    public long getSeed() {
-        return this.worldData.getSeed();
     }
 
     @Override
@@ -135,27 +128,12 @@ public class DerivedLevelData implements ServerLevelData {
     }
 
     @Override
-    public boolean shouldGenerateMapFeatures() {
-        return this.wrapped.shouldGenerateMapFeatures();
-    }
-
-    @Override
     public void setGameType(GameType param0) {
     }
 
     @Override
     public boolean isHardcore() {
         return this.worldData.isHardcore();
-    }
-
-    @Override
-    public LevelType getGeneratorType() {
-        return this.wrapped.getGeneratorType();
-    }
-
-    @Override
-    public ChunkGeneratorProvider getGeneratorProvider() {
-        return this.wrapped.getGeneratorProvider();
     }
 
     @Override

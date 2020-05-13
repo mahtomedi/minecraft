@@ -25,7 +25,6 @@ public class PiglinBarterLoot implements Consumer<BiConsumer<ResourceLocation, L
                 .withPool(
                     LootPool.lootPool()
                         .setRolls(ConstantIntValue.exactly(1))
-                        .add(LootItem.lootTableItem(Items.NETHERITE_HOE).setWeight(1))
                         .add(
                             LootItem.lootTableItem(Items.BOOK)
                                 .setWeight(5)

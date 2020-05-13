@@ -24,12 +24,12 @@ public class MineshaftFeature extends StructureFeature<MineshaftConfiguration> {
 
     @Override
     protected boolean isFeatureChunk(
-        BiomeManager param0, ChunkGenerator<?> param1, WorldgenRandom param2, int param3, int param4, Biome param5, ChunkPos param6
+        BiomeManager param0, ChunkGenerator param1, long param2, WorldgenRandom param3, int param4, int param5, Biome param6, ChunkPos param7
     ) {
-        param2.setLargeFeatureSeed(param1.getSeed(), param3, param4);
-        MineshaftConfiguration var0 = param1.getStructureConfiguration(param5, this);
+        param3.setLargeFeatureSeed(param2, param4, param5);
+        MineshaftConfiguration var0 = param1.getStructureConfiguration(param6, this);
         double var1 = var0.probability;
-        return param2.nextDouble() < var1;
+        return param3.nextDouble() < var1;
     }
 
     @Override
@@ -53,7 +53,7 @@ public class MineshaftFeature extends StructureFeature<MineshaftConfiguration> {
         }
 
         @Override
-        public void generatePieces(ChunkGenerator<?> param0, StructureManager param1, int param2, int param3, Biome param4) {
+        public void generatePieces(ChunkGenerator param0, StructureManager param1, int param2, int param3, Biome param4) {
             MineshaftConfiguration var0 = param0.getStructureConfiguration(param4, Feature.MINESHAFT);
             MineShaftPieces.MineShaftRoom var1 = new MineShaftPieces.MineShaftRoom(0, this.random, (param2 << 4) + 2, (param3 << 4) + 2, var0.type);
             this.pieces.add(var1);

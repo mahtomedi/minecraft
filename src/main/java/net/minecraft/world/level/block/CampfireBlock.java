@@ -250,8 +250,8 @@ public class CampfireBlock extends BaseEntityBlock implements SimpleWaterloggedB
 
     }
 
-    public static boolean isSmokeyPos(Level param0, BlockPos param1, int param2) {
-        for(int var0 = 1; var0 <= param2; ++var0) {
+    public static boolean isSmokeyPos(Level param0, BlockPos param1) {
+        for(int var0 = 1; var0 <= 5; ++var0) {
             BlockPos var1 = param1.below(var0);
             BlockState var2 = param0.getBlockState(var1);
             if (isLitCampfire(var2)) {

@@ -12,14 +12,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.util.ProgressListener;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.LevelType;
 import net.minecraft.world.level.biome.BiomeSource;
-import net.minecraft.world.level.biome.BiomeSourceType;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.FixedBiomeSource;
-import net.minecraft.world.level.biome.FixedBiomeSourceSettings;
 import net.minecraft.world.level.biome.OverworldBiomeSource;
-import net.minecraft.world.level.biome.OverworldBiomeSourceSettings;
 import net.minecraft.world.level.chunk.storage.OldChunkStorage;
 import net.minecraft.world.level.chunk.storage.RegionFile;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -50,19 +46,17 @@ public class McRegionUpgrader {
         int var6 = var0.size() + var1.size() + var2.size();
         LOGGER.info("Total conversion count is {}", var6);
         WorldData var7 = param0.getDataTag();
-        long var8 = var7 != null ? var7.getSeed() : 0L;
-        BiomeSourceType<FixedBiomeSourceSettings, FixedBiomeSource> var9 = BiomeSourceType.FIXED;
-        BiomeSourceType<OverworldBiomeSourceSettings, OverworldBiomeSource> var10 = BiomeSourceType.VANILLA_LAYERED;
-        BiomeSource var11;
-        if (var7 != null && var7.overworldData().getGeneratorType() == LevelType.FLAT) {
-            var11 = var9.create(var9.createSettings(var7.getSeed()).setBiome(Biomes.PLAINS));
+        long var8 = var7 != null ? var7.worldGenSettings().seed() : 0L;
+        BiomeSource var9;
+        if (var7 != null && var7.worldGenSettings().isFlatWorld()) {
+            var9 = new FixedBiomeSource(Biomes.PLAINS);
         } else {
-            var11 = var10.create(var10.createSettings(var8));
+            var9 = new OverworldBiomeSource(var8, false, 4);
         }
 
-        convertRegions(new File(var3, "region"), var0, var11, 0, var6, param1);
-        convertRegions(new File(var4, "region"), var1, var9.create(var9.createSettings(var8).setBiome(Biomes.NETHER_WASTES)), var0.size(), var6, param1);
-        convertRegions(new File(var5, "region"), var2, var9.create(var9.createSettings(var8).setBiome(Biomes.THE_END)), var0.size() + var1.size(), var6, param1);
+        convertRegions(new File(var3, "region"), var0, var9, 0, var6, param1);
+        convertRegions(new File(var4, "region"), var1, new FixedBiomeSource(Biomes.NETHER_WASTES), var0.size(), var6, param1);
+        convertRegions(new File(var5, "region"), var2, new FixedBiomeSource(Biomes.THE_END), var0.size() + var1.size(), var6, param1);
         makeMcrLevelDatBackup(param0);
         param0.saveDataTag(var7);
         return true;

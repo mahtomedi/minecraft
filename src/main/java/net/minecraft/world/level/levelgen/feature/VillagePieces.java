@@ -24,7 +24,7 @@ public class VillagePieces {
     }
 
     public static void addPieces(
-        ChunkGenerator<?> param0, StructureManager param1, BlockPos param2, List<StructurePiece> param3, WorldgenRandom param4, JigsawConfiguration param5
+        ChunkGenerator param0, StructureManager param1, BlockPos param2, List<StructurePiece> param3, WorldgenRandom param4, JigsawConfiguration param5
     ) {
         bootstrap();
         JigsawPlacement.addPieces(param5.startPool, param5.size, VillagePieces.VillagePiece::new, param0, param1, param2, param3, param4, true, true);

@@ -8,8 +8,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
+import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
 
@@ -18,14 +18,7 @@ public class OreFeature extends Feature<OreConfiguration> {
         super(param0);
     }
 
-    public boolean place(
-        LevelAccessor param0,
-        StructureFeatureManager param1,
-        ChunkGenerator<? extends ChunkGeneratorSettings> param2,
-        Random param3,
-        BlockPos param4,
-        OreConfiguration param5
-    ) {
+    public boolean place(WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BlockPos param4, OreConfiguration param5) {
         float var0 = param3.nextFloat() * (float) Math.PI;
         float var1 = (float)param5.size / 8.0F;
         int var2 = Mth.ceil(((float)param5.size / 16.0F * 2.0F + 1.0F) / 2.0F);

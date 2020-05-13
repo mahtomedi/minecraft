@@ -21,11 +21,11 @@ public class BuriedTreasureFeature extends StructureFeature<BuriedTreasureConfig
 
     @Override
     protected boolean isFeatureChunk(
-        BiomeManager param0, ChunkGenerator<?> param1, WorldgenRandom param2, int param3, int param4, Biome param5, ChunkPos param6
+        BiomeManager param0, ChunkGenerator param1, long param2, WorldgenRandom param3, int param4, int param5, Biome param6, ChunkPos param7
     ) {
-        param2.setLargeFeatureWithSalt(param1.getSeed(), param3, param4, 10387320);
-        BuriedTreasureConfiguration var0 = param1.getStructureConfiguration(param5, this);
-        return param2.nextFloat() < var0.probability;
+        param3.setLargeFeatureWithSalt(param2, param4, param5, 10387320);
+        BuriedTreasureConfiguration var0 = param1.getStructureConfiguration(param6, this);
+        return param3.nextFloat() < var0.probability;
     }
 
     @Override
@@ -49,7 +49,7 @@ public class BuriedTreasureFeature extends StructureFeature<BuriedTreasureConfig
         }
 
         @Override
-        public void generatePieces(ChunkGenerator<?> param0, StructureManager param1, int param2, int param3, Biome param4) {
+        public void generatePieces(ChunkGenerator param0, StructureManager param1, int param2, int param3, Biome param4) {
             int var0 = param2 * 16;
             int var1 = param3 * 16;
             BlockPos var2 = new BlockPos(var0 + 9, 90, var1 + 9);

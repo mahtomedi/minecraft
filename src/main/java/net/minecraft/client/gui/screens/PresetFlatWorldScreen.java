@@ -24,7 +24,6 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.chunk.ChunkGeneratorType;
 import net.minecraft.world.level.levelgen.flat.FlatLayerInfo;
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
 import net.minecraftforge.api.distmarker.Dist;
@@ -113,7 +112,7 @@ public class PresetFlatWorldScreen extends Screen {
     }
 
     private static void preset(Component param0, ItemLike param1, Biome param2, List<String> param3, FlatLayerInfo... param4) {
-        FlatLevelGeneratorSettings var0 = ChunkGeneratorType.FLAT.createSettings();
+        FlatLevelGeneratorSettings var0 = new FlatLevelGeneratorSettings();
 
         for(int var1 = param4.length - 1; var1 >= 0; --var1) {
             var0.getLayersInfo().add(param4[var1]);

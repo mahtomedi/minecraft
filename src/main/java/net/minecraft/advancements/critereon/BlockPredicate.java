@@ -120,8 +120,13 @@ public class BlockPredicate {
             return new BlockPredicate.Builder();
         }
 
-        public BlockPredicate.Builder of(Tag<Block> param0) {
-            this.blocks = param0;
+        public BlockPredicate.Builder of(Block param0) {
+            this.block = param0;
+            return this;
+        }
+
+        public BlockPredicate.Builder setProperties(StatePropertiesPredicate param0) {
+            this.properties = param0;
             return this;
         }
 

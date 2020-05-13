@@ -103,6 +103,7 @@ import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -175,7 +176,7 @@ public class ServerPlayer extends Player implements ContainerListener {
 
     private void fudgeSpawnLocation(ServerLevel param0) {
         BlockPos var0 = param0.getSharedSpawnPos();
-        if (param0.dimension.isHasSkyLight() && param0.getServer().getWorldData().getGameType() != GameType.ADVENTURE) {
+        if (param0.dimensionType().hasSkyLight() && param0.getServer().getWorldData().getGameType() != GameType.ADVENTURE) {
             int var1 = Math.max(0, this.server.getSpawnRadius(param0));
             int var2 = Mth.floor(param0.getWorldBorder().getDistanceToBorder((double)var0.getX(), (double)var0.getZ()));
             if (var2 < var1) {
@@ -196,7 +197,7 @@ public class ServerPlayer extends Player implements ContainerListener {
                 int var9 = (var7 + var6 * var8) % var5;
                 int var10 = var9 % (var1 * 2 + 1);
                 int var11 = var9 / (var1 * 2 + 1);
-                BlockPos var12 = param0.getDimension().getValidSpawnPosition(var0.getX() + var10 - var1, var0.getZ() + var11 - var1, false);
+                BlockPos var12 = param0.getDimension().getValidSpawnPosition(param0.getSeed(), var0.getX() + var10 - var1, var0.getZ() + var11 - var1, false);
                 if (var12 != null) {
                     this.moveTo(var12, 0.0F, 0.0F);
                     if (param0.noCollision(this)) {
@@ -614,7 +615,7 @@ public class ServerPlayer extends Player implements ContainerListener {
             this.connection
                 .send(
                     new ClientboundRespawnPacket(
-                        param0, LevelData.obfuscateSeed(var3.getSeed()), var3.getGeneratorType(), this.gameMode.getGameModeForPlayer(), true
+                        param0, BiomeManager.obfuscateSeed(var2.getSeed()), this.gameMode.getGameModeForPlayer(), var2.isDebug(), var2.isFlat(), true
                     )
                 );
             this.connection.send(new ClientboundChangeDifficultyPacket(var3.getDifficulty(), var3.isDifficultyLocked()));
@@ -707,8 +708,8 @@ public class ServerPlayer extends Player implements ContainerListener {
     }
 
     private void triggerDimensionChangeTriggers(ServerLevel param0) {
-        DimensionType var0 = param0.dimension.getType();
-        DimensionType var1 = this.level.dimension.getType();
+        DimensionType var0 = param0.dimensionType();
+        DimensionType var1 = this.level.dimensionType();
         CriteriaTriggers.CHANGED_DIMENSION.trigger(this, var0, var1);
         if (var0 == DimensionType.NETHER && var1 == DimensionType.OVERWORLD && this.enteredNetherPosition != null) {
             CriteriaTriggers.NETHER_TRAVEL.trigger(this, this.enteredNetherPosition);
@@ -750,14 +751,14 @@ public class ServerPlayer extends Player implements ContainerListener {
         Direction var0 = this.level.getBlockState(param0).getValue(HorizontalDirectionalBlock.FACING);
         if (this.isSleeping() || !this.isAlive()) {
             return Either.left(Player.BedSleepingProblem.OTHER_PROBLEM);
-        } else if (!this.level.dimension.isNaturalDimension()) {
+        } else if (!this.level.getDimension().isNaturalDimension()) {
             return Either.left(Player.BedSleepingProblem.NOT_POSSIBLE_HERE);
         } else if (!this.bedInRange(param0, var0)) {
             return Either.left(Player.BedSleepingProblem.TOO_FAR_AWAY);
         } else if (this.bedBlocked(param0, var0)) {
             return Either.left(Player.BedSleepingProblem.OBSTRUCTED);
         } else {
-            this.setRespawnPosition(this.level.getDimension().getType(), param0, false, true);
+            this.setRespawnPosition(this.level.dimensionType(), param0, false, true);
             if (this.level.isDay()) {
                 return Either.left(Player.BedSleepingProblem.NOT_POSSIBLE_NOW);
             } else {
@@ -1362,12 +1363,17 @@ public class ServerPlayer extends Player implements ContainerListener {
             this.connection.teleport(param1, param2, param3, param4, param5);
         } else {
             ServerLevel var0 = this.getLevel();
-            this.dimension = param0.dimension.getType();
+            this.dimension = param0.dimensionType();
             LevelData var1 = param0.getLevelData();
             this.connection
                 .send(
                     new ClientboundRespawnPacket(
-                        this.dimension, LevelData.obfuscateSeed(var1.getSeed()), var1.getGeneratorType(), this.gameMode.getGameModeForPlayer(), true
+                        this.dimension,
+                        BiomeManager.obfuscateSeed(param0.getSeed()),
+                        this.gameMode.getGameModeForPlayer(),
+                        param0.isDebug(),
+                        param0.isFlat(),
+                        true
                     )
                 );
             this.connection.send(new ClientboundChangeDifficultyPacket(var1.getDifficulty(), var1.isDifficultyLocked()));

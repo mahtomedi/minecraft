@@ -88,9 +88,9 @@ public class StructureBlockEntity extends BlockEntity {
         this.setStructureName(param1.getString("name"));
         this.author = param1.getString("author");
         this.metaData = param1.getString("metadata");
-        int var0 = Mth.clamp(param1.getInt("posX"), -32, 32);
-        int var1 = Mth.clamp(param1.getInt("posY"), -32, 32);
-        int var2 = Mth.clamp(param1.getInt("posZ"), -32, 32);
+        int var0 = Mth.clamp(param1.getInt("posX"), -48, 48);
+        int var1 = Mth.clamp(param1.getInt("posY"), -48, 48);
+        int var2 = Mth.clamp(param1.getInt("posZ"), -48, 48);
         this.structurePos = new BlockPos(var0, var1, var2);
         int var3 = Mth.clamp(param1.getInt("sizeX"), 0, 48);
         int var4 = Mth.clamp(param1.getInt("sizeY"), 0, 48);

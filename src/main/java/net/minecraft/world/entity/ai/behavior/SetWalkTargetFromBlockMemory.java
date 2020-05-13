@@ -87,10 +87,10 @@ public class SetWalkTargetFromBlockMemory extends Behavior<Villager> {
     }
 
     private boolean tooFar(ServerLevel param0, Villager param1, GlobalPos param2) {
-        return param2.dimension() != param0.getDimension().getType() || param2.pos().distManhattan(param1.blockPosition()) > this.tooFarDistance;
+        return param2.dimension() != param0.dimensionType() || param2.pos().distManhattan(param1.blockPosition()) > this.tooFarDistance;
     }
 
     private boolean closeEnough(ServerLevel param0, Villager param1, GlobalPos param2) {
-        return param2.dimension() == param0.getDimension().getType() && param2.pos().distManhattan(param1.blockPosition()) <= this.closeEnoughDist;
+        return param2.dimension() == param0.dimensionType() && param2.pos().distManhattan(param1.blockPosition()) <= this.closeEnoughDist;
     }
 }

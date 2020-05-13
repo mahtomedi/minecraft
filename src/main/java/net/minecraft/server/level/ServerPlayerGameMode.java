@@ -1,6 +1,7 @@
 package net.minecraft.server.level;
 
 import java.util.Objects;
+import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.protocol.game.ClientboundBlockBreakAckPacket;
@@ -10,7 +11,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseOnContext;
 import net.minecraft.world.level.GameType;
@@ -262,7 +262,7 @@ public class ServerPlayerGameMode {
         }
     }
 
-    public InteractionResult useItem(Player param0, Level param1, ItemStack param2, InteractionHand param3) {
+    public InteractionResult useItem(ServerPlayer param0, Level param1, ItemStack param2, InteractionHand param3) {
         if (this.gameModeForPlayer == GameType.SPECTATOR) {
             return InteractionResult.PASS;
         } else if (param0.getCooldowns().isOnCooldown(param2.getItem())) {
@@ -290,7 +290,7 @@ public class ServerPlayerGameMode {
                 }
 
                 if (!param0.isUsingItem()) {
-                    ((ServerPlayer)param0).refreshContainer(param0.inventoryMenu);
+                    param0.refreshContainer(param0.inventoryMenu);
                 }
 
                 return var2.getResult();
@@ -298,7 +298,7 @@ public class ServerPlayerGameMode {
         }
     }
 
-    public InteractionResult useItemOn(Player param0, Level param1, ItemStack param2, InteractionHand param3, BlockHitResult param4) {
+    public InteractionResult useItemOn(ServerPlayer param0, Level param1, ItemStack param2, InteractionHand param3, BlockHitResult param4) {
         BlockPos var0 = param4.getBlockPos();
         BlockState var1 = param1.getBlockState(var0);
         if (this.gameModeForPlayer == GameType.SPECTATOR) {
@@ -312,23 +312,34 @@ public class ServerPlayerGameMode {
         } else {
             boolean var3 = !param0.getMainHandItem().isEmpty() || !param0.getOffhandItem().isEmpty();
             boolean var4 = param0.isSecondaryUseActive() && var3;
+            ItemStack var5 = param2.copy();
             if (!var4) {
-                InteractionResult var5 = var1.use(param1, param0, param3, param4);
-                if (var5.consumesAction()) {
-                    return var5;
+                InteractionResult var6 = var1.use(param1, param0, param3, param4);
+                if (var6 == InteractionResult.SUCCESS) {
+                    CriteriaTriggers.ITEM_USED_ON_BLOCK.trigger(param0, var0, var5);
+                }
+
+                if (var6.consumesAction()) {
+                    return var6;
                 }
             }
 
             if (!param2.isEmpty() && !param0.getCooldowns().isOnCooldown(param2.getItem())) {
-                UseOnContext var6 = new UseOnContext(param0, param3, param4);
+                UseOnContext var7 = new UseOnContext(param0, param3, param4);
+                InteractionResult var9;
                 if (this.isCreative()) {
-                    int var7 = param2.getCount();
-                    InteractionResult var8 = param2.useOn(var6);
-                    param2.setCount(var7);
-                    return var8;
+                    int var8 = param2.getCount();
+                    var9 = param2.useOn(var7);
+                    param2.setCount(var8);
                 } else {
-                    return param2.useOn(var6);
+                    var9 = param2.useOn(var7);
                 }
+
+                if (var9 == InteractionResult.SUCCESS) {
+                    CriteriaTriggers.ITEM_USED_ON_BLOCK.trigger(param0, var0, var5);
+                }
+
+                return var9;
             } else {
                 return InteractionResult.PASS;
             }

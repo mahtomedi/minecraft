@@ -1,15 +1,12 @@
 package net.minecraft.world.level.chunk;
 
 import java.io.IOException;
-import java.util.function.BooleanSupplier;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.lighting.LevelLightEngine;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class ChunkSource implements AutoCloseable, LightChunkGetter {
     @Nullable
@@ -34,9 +31,6 @@ public abstract class ChunkSource implements AutoCloseable, LightChunkGetter {
 
     @Nullable
     public abstract ChunkAccess getChunk(int var1, int var2, ChunkStatus var3, boolean var4);
-
-    @OnlyIn(Dist.CLIENT)
-    public abstract void tick(BooleanSupplier var1);
 
     public abstract String gatherStats();
 

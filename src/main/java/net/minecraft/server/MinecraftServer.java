@@ -3,14 +3,11 @@ package net.minecraft.server;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.datafixers.DataFixer;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.JsonOps;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
@@ -98,7 +95,6 @@ import net.minecraft.server.players.UserWhiteList;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagManager;
 import net.minecraft.util.FrameTimer;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
 import net.minecraft.util.ProgressListener;
 import net.minecraft.util.Unit;
@@ -120,15 +116,15 @@ import net.minecraft.world.level.ForcedChunksSavedData;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LevelSettings;
-import net.minecraft.world.level.LevelType;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.Dimension;
 import net.minecraft.world.level.dimension.DimensionType;
-import net.minecraft.world.level.levelgen.ChunkGeneratorProvider;
+import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
@@ -159,9 +155,8 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     public static final File USERID_CACHE_FILE = new File("usercache.json");
     private static final CompletableFuture<Unit> DATA_RELOAD_INITIAL_TASK = CompletableFuture.completedFuture(Unit.INSTANCE);
     public static final LevelSettings DEMO_SETTINGS = new LevelSettings(
-            "Demo World", (long)"North Carolina".hashCode(), GameType.SURVIVAL, true, false, Difficulty.NORMAL, LevelType.NORMAL.getDefaultProvider()
-        )
-        .enableStartingBonusItems();
+        "Demo World", GameType.SURVIVAL, false, Difficulty.NORMAL, false, new GameRules(), WorldGenSettings.DEMO_SETTINGS
+    );
     protected final LevelStorageSource.LevelStorageAccess storageSource;
     protected final PlayerDataStorage playerDataStorage;
     private final Snooper snooper = new Snooper("server", this, Util.getMillis());
@@ -364,52 +359,63 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
     protected void createLevels(ChunkProgressListener param0) {
         ServerLevelData var0 = this.worldData.overworldData();
-        ServerLevel var1 = new ServerLevel(this, this.executor, this.storageSource, var0, DimensionType.OVERWORLD, param0);
-        this.levels.put(DimensionType.OVERWORLD, var1);
-        DimensionDataStorage var2 = var1.getDataStorage();
-        this.readScoreboard(var2);
-        this.commandStorage = new CommandStorage(var2);
-        var1.getWorldBorder().applySettings(var0.getWorldBorder());
-        ServerLevel var3 = this.getLevel(DimensionType.OVERWORLD);
+        WorldGenSettings var1 = this.worldData.worldGenSettings();
+        boolean var2 = var1.isDebug();
+        long var3 = var1.seed();
+        long var4 = BiomeManager.obfuscateSeed(var3);
+        ServerLevel var5 = new ServerLevel(this, this.executor, this.storageSource, var0, DimensionType.OVERWORLD, param0, var1.overworld(), var2, var4);
+        this.levels.put(DimensionType.OVERWORLD, var5);
+        DimensionDataStorage var6 = var5.getDataStorage();
+        this.readScoreboard(var6);
+        this.commandStorage = new CommandStorage(var6);
+        var5.getWorldBorder().applySettings(var0.getWorldBorder());
+        ServerLevel var7 = this.getLevel(DimensionType.OVERWORLD);
         if (!var0.isInitialized()) {
             try {
-                setInitialSpawn(var3, var3.dimension, var0, this.worldData.getLevelSettings().hasStartingBonusItems());
+                setInitialSpawn(var7, var7.getDimension(), var0, var1.generateBonusChest(), var2);
                 var0.setInitialized(true);
-                if (var0.getGeneratorType() == LevelType.DEBUG_ALL_BLOCK_STATES) {
+                if (var2) {
                     this.setupDebugLevel(this.worldData);
                 }
-            } catch (Throwable var10) {
-                CrashReport var5 = CrashReport.forThrowable(var10, "Exception initializing level");
+            } catch (Throwable var16) {
+                CrashReport var9 = CrashReport.forThrowable(var16, "Exception initializing level");
 
                 try {
-                    var3.fillReportDetails(var5);
-                } catch (Throwable var9) {
+                    var7.fillReportDetails(var9);
+                } catch (Throwable var15) {
                 }
 
-                throw new ReportedException(var5);
+                throw new ReportedException(var9);
             }
 
             var0.setInitialized(true);
         }
 
-        this.getPlayerList().setLevel(var3);
+        this.getPlayerList().setLevel(var7);
         if (this.worldData.getCustomBossEvents() != null) {
             this.getCustomBossEvents().load(this.worldData.getCustomBossEvents());
         }
 
-        for(DimensionType var6 : DimensionType.getAllTypes()) {
-            if (var6 != DimensionType.OVERWORLD) {
-                this.levels.put(var6, new DerivedServerLevel(var3, this.worldData.overworldData(), this, this.executor, this.storageSource, var6, param0));
+        for(Entry<DimensionType, ChunkGenerator> var10 : var1.generators().entrySet()) {
+            DimensionType var11 = var10.getKey();
+            if (var11 != DimensionType.OVERWORLD) {
+                this.levels
+                    .put(
+                        var11,
+                        new DerivedServerLevel(
+                            var7, this.worldData.overworldData(), this, this.executor, this.storageSource, var11, param0, var10.getValue(), var2, var4
+                        )
+                    );
             }
         }
 
     }
 
-    private static void setInitialSpawn(ServerLevel param0, Dimension param1, ServerLevelData param2, boolean param3) {
-        ChunkGenerator<?> var0 = param0.getChunkSource().getGenerator();
+    private static void setInitialSpawn(ServerLevel param0, Dimension param1, ServerLevelData param2, boolean param3, boolean param4) {
+        ChunkGenerator var0 = param0.getChunkSource().getGenerator();
         if (!param1.mayRespawn()) {
             param2.setSpawn(BlockPos.ZERO.above(var0.getSpawnHeight()));
-        } else if (param2.getGeneratorType() == LevelType.DEBUG_ALL_BLOCK_STATES) {
+        } else if (param4) {
             param2.setSpawn(BlockPos.ZERO.above());
         } else {
             BiomeSource var1 = var0.getBiomeSource();
@@ -439,7 +445,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
             for(int var13 = 0; var13 < 1024; ++var13) {
                 if (var8 > -16 && var8 <= 16 && var9 > -16 && var9 <= 16) {
-                    BlockPos var14 = param1.getSpawnPosInChunk(new ChunkPos(var5.x + var8, var5.z + var9), var6);
+                    BlockPos var14 = param1.getSpawnPosInChunk(param0.getSeed(), new ChunkPos(var5.x + var8, var5.z + var9), var6);
                     if (var14 != null) {
                         param2.setSpawn(var14);
                         break;
@@ -500,7 +506,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
     private void prepareLevels(ChunkProgressListener param0) {
         ServerLevel var0 = this.getLevel(DimensionType.OVERWORLD);
-        LOGGER.info("Preparing start region for dimension " + DimensionType.getName(var0.dimension.getType()));
+        LOGGER.info("Preparing start region for dimension " + DimensionType.getName(var0.dimensionType()));
         BlockPos var1 = var0.getSharedSpawnPos();
         param0.updateSpawnPos(new ChunkPos(var1));
         ServerChunkCache var2 = var0.getChunkSource();
@@ -570,7 +576,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
         for(ServerLevel var1 : this.getAllLevels()) {
             if (!param0) {
-                LOGGER.info("Saving chunks for level '{}'/{}", var1, DimensionType.getName(var1.dimension.getType()));
+                LOGGER.info("Saving chunks for level '{}'/{}", var1, DimensionType.getName(var1.dimensionType()));
             }
 
             var1.save(null, param1, var1.noSave && !param2);
@@ -872,14 +878,14 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         this.profiler.popPush("levels");
 
         for(ServerLevel var0 : this.getAllLevels()) {
-            if (var0.dimension.getType() == DimensionType.OVERWORLD || this.isNetherEnabled()) {
-                this.profiler.push(() -> var0 + " " + Registry.DIMENSION_TYPE.getKey(var0.dimension.getType()));
+            if (var0.dimensionType() == DimensionType.OVERWORLD || this.isNetherEnabled()) {
+                this.profiler.push(() -> var0 + " " + Registry.DIMENSION_TYPE.getKey(var0.dimensionType()));
                 if (this.tickCount % 20 == 0) {
                     this.profiler.push("timeSync");
                     this.playerList
                         .broadcastAll(
                             new ClientboundSetTimePacket(var0.getGameTime(), var0.getDayTime(), var0.getGameRules().getBoolean(GameRules.RULE_DAYLIGHT)),
-                            var0.dimension.getType()
+                            var0.dimensionType()
                         );
                     this.profiler.pop();
                 }
@@ -980,59 +986,46 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
                 if (var14.has(var3)) {
                     var28 = DEMO_SETTINGS;
                 } else {
-                    var28 = createLevelSettings(var16.getProperties());
-                    if (var14.has(var4)) {
-                        var28.enableStartingBonusItems();
-                    }
+                    DedicatedServerProperties var29 = var16.getProperties();
+                    var28 = new LevelSettings(
+                        var29.levelName,
+                        var29.gamemode,
+                        var29.hardcore,
+                        var29.difficulty,
+                        false,
+                        new GameRules(),
+                        var14.has(var4) ? var29.worldGenSettings : var29.worldGenSettings.withBonusChest()
+                    );
                 }
 
                 var27 = new PrimaryLevelData(var28);
             }
 
-            final DedicatedServer var30 = new DedicatedServer(
+            final DedicatedServer var31 = new DedicatedServer(
                 var26, var27, var16, DataFixers.getDataFixer(), var21, var22, var23, LoggerChunkProgressListener::new
             );
-            var30.setSingleplayerName(var14.valueOf(var8));
-            var30.setPort(var14.valueOf(var11));
-            var30.setDemo(var14.has(var3));
-            var30.setId(var14.valueOf(var12));
-            boolean var31 = !var14.has(var1) && !var14.valuesOf(var13).contains("nogui");
-            if (var31 && !GraphicsEnvironment.isHeadless()) {
-                var30.showGui();
+            var31.setSingleplayerName(var14.valueOf(var8));
+            var31.setPort(var14.valueOf(var11));
+            var31.setDemo(var14.has(var3));
+            var31.setId(var14.valueOf(var12));
+            boolean var32 = !var14.has(var1) && !var14.valuesOf(var13).contains("nogui");
+            if (var32 && !GraphicsEnvironment.isHeadless()) {
+                var31.showGui();
             }
 
-            var30.forkAndRun();
-            Thread var32 = new Thread("Server Shutdown Thread") {
+            var31.forkAndRun();
+            Thread var33 = new Thread("Server Shutdown Thread") {
                 @Override
                 public void run() {
-                    var30.halt(true);
+                    var31.halt(true);
                 }
             };
-            var32.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
-            Runtime.getRuntime().addShutdownHook(var32);
+            var33.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
+            Runtime.getRuntime().addShutdownHook(var33);
         } catch (Exception var321) {
             LOGGER.fatal("Failed to start the minecraft server", (Throwable)var321);
         }
 
-    }
-
-    private static LevelSettings createLevelSettings(DedicatedServerProperties param0) {
-        long var0 = new Random().nextLong();
-        if (!param0.levelSeed.isEmpty()) {
-            try {
-                long var1 = Long.parseLong(param0.levelSeed);
-                if (var1 != 0L) {
-                    var0 = var1;
-                }
-            } catch (NumberFormatException var6) {
-                var0 = (long)param0.levelSeed.hashCode();
-            }
-        }
-
-        String var3 = param0.generatorSettings;
-        JsonObject var4 = !var3.isEmpty() ? GsonHelper.parse(var3) : new JsonObject();
-        ChunkGeneratorProvider var5 = param0.levelType.createProvider(new Dynamic<>(JsonOps.INSTANCE, var4));
-        return new LevelSettings(param0.levelName, var0, param0.gamemode, param0.generateStructures, param0.hardcore, param0.difficulty, var5);
     }
 
     protected void setId(String param0) {
@@ -1218,13 +1211,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
         for(ServerLevel var1 : this.getAllLevels()) {
             if (var1 != null) {
-                LevelData var2 = var1.getLevelData();
-                param0.setDynamicData("world[" + var0 + "][dimension]", var1.dimension.getType());
+                param0.setDynamicData("world[" + var0 + "][dimension]", var1.dimensionType());
                 param0.setDynamicData("world[" + var0 + "][mode]", this.worldData.getGameType());
                 param0.setDynamicData("world[" + var0 + "][difficulty]", var1.getDifficulty());
                 param0.setDynamicData("world[" + var0 + "][hardcore]", this.worldData.isHardcore());
-                param0.setDynamicData("world[" + var0 + "][generator_name]", var2.getGeneratorType().getName());
-                param0.setDynamicData("world[" + var0 + "][generator_version]", var2.getGeneratorType().getVersion());
                 param0.setDynamicData("world[" + var0 + "][height]", this.maxBuildHeight);
                 param0.setDynamicData("world[" + var0 + "][chunks_loaded]", var1.getChunkSource().getLoadedChunksCount());
                 ++var0;

@@ -5,19 +5,26 @@ import java.util.Set;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.synth.SimplexNoise;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class TheEndBiomeSource extends BiomeSource {
     private final SimplexNoise islandNoise;
-    private final WorldgenRandom random;
     private static final Set<Biome> POSSIBLE_BIOMES = ImmutableSet.of(
         Biomes.THE_END, Biomes.END_HIGHLANDS, Biomes.END_MIDLANDS, Biomes.SMALL_END_ISLANDS, Biomes.END_BARRENS
     );
 
-    public TheEndBiomeSource(TheEndBiomeSourceSettings param0) {
+    public TheEndBiomeSource(long param0) {
         super(POSSIBLE_BIOMES);
-        this.random = new WorldgenRandom(param0.getSeed());
-        this.random.consumeCount(17292);
-        this.islandNoise = new SimplexNoise(this.random);
+        WorldgenRandom var0 = new WorldgenRandom(param0);
+        var0.consumeCount(17292);
+        this.islandNoise = new SimplexNoise(var0);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public BiomeSource withSeed(long param0) {
+        return new TheEndBiomeSource(param0);
     }
 
     @Override

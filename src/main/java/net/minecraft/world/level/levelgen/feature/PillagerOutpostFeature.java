@@ -42,19 +42,19 @@ public class PillagerOutpostFeature extends RandomScatteredFeature<NoneFeatureCo
 
     @Override
     protected boolean isFeatureChunk(
-        BiomeManager param0, ChunkGenerator<?> param1, WorldgenRandom param2, int param3, int param4, Biome param5, ChunkPos param6
+        BiomeManager param0, ChunkGenerator param1, long param2, WorldgenRandom param3, int param4, int param5, Biome param6, ChunkPos param7
     ) {
-        int var0 = param3 >> 4;
-        int var1 = param4 >> 4;
-        param2.setSeed((long)(var0 ^ var1 << 4) ^ param1.getSeed());
-        param2.nextInt();
-        if (param2.nextInt(5) != 0) {
+        int var0 = param4 >> 4;
+        int var1 = param5 >> 4;
+        param3.setSeed((long)(var0 ^ var1 << 4) ^ param2);
+        param3.nextInt();
+        if (param3.nextInt(5) != 0) {
             return false;
         } else {
-            for(int var2 = param3 - 10; var2 <= param3 + 10; ++var2) {
-                for(int var3 = param4 - 10; var3 <= param4 + 10; ++var3) {
+            for(int var2 = param4 - 10; var2 <= param4 + 10; ++var2) {
+                for(int var3 = param5 - 10; var3 <= param5 + 10; ++var3) {
                     Biome var4 = param0.getBiome(new BlockPos((var2 << 4) + 9, 0, (var3 << 4) + 9));
-                    if (Feature.VILLAGE.featureChunk(param0, param1, param2, var2, var3, var4)) {
+                    if (Feature.VILLAGE.featureChunk(param0, param1, param2, param3, var2, var3, var4)) {
                         return false;
                     }
                 }
@@ -80,7 +80,7 @@ public class PillagerOutpostFeature extends RandomScatteredFeature<NoneFeatureCo
         }
 
         @Override
-        public void generatePieces(ChunkGenerator<?> param0, StructureManager param1, int param2, int param3, Biome param4) {
+        public void generatePieces(ChunkGenerator param0, StructureManager param1, int param2, int param3, Biome param4) {
             BlockPos var0 = new BlockPos(param2 * 16, 0, param3 * 16);
             PillagerOutpostPieces.addPieces(param0, param1, var0, this.pieces, this.random);
             this.calculateBoundingBox();

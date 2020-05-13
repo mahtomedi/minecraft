@@ -6,7 +6,6 @@ import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
@@ -43,8 +42,8 @@ public class StructureFeatureIO {
     }
 
     @Nullable
-    public static StructureStart loadStaticStart(ChunkGenerator<?> param0, StructureManager param1, CompoundTag param2) {
-        String var0 = param2.getString("id");
+    public static StructureStart loadStaticStart(StructureManager param0, CompoundTag param1, long param2) {
+        String var0 = param1.getString("id");
         if ("INVALID".equals(var0)) {
             return StructureStart.INVALID_START;
         } else {
@@ -53,14 +52,14 @@ public class StructureFeatureIO {
                 LOGGER.error("Unknown feature id: {}", var0);
                 return null;
             } else {
-                int var2 = param2.getInt("ChunkX");
-                int var3 = param2.getInt("ChunkZ");
-                int var4 = param2.getInt("references");
-                BoundingBox var5 = param2.contains("BB") ? new BoundingBox(param2.getIntArray("BB")) : BoundingBox.getUnknownBox();
-                ListTag var6 = param2.getList("Children", 10);
+                int var2 = param1.getInt("ChunkX");
+                int var3 = param1.getInt("ChunkZ");
+                int var4 = param1.getInt("references");
+                BoundingBox var5 = param1.contains("BB") ? new BoundingBox(param1.getIntArray("BB")) : BoundingBox.getUnknownBox();
+                ListTag var6 = param1.getList("Children", 10);
 
                 try {
-                    StructureStart var7 = var1.getStartFactory().create(var1, var2, var3, var5, var4, param0.getSeed());
+                    StructureStart var7 = var1.getStartFactory().create(var1, var2, var3, var5, var4, param2);
 
                     for(int var8 = 0; var8 < var6.size(); ++var8) {
                         CompoundTag var9 = var6.getCompound(var8);
@@ -70,17 +69,17 @@ public class StructureFeatureIO {
                             LOGGER.error("Unknown structure piece id: {}", var10);
                         } else {
                             try {
-                                StructurePiece var12 = var11.load(param1, var9);
+                                StructurePiece var12 = var11.load(param0, var9);
                                 var7.pieces.add(var12);
-                            } catch (Exception var16) {
-                                LOGGER.error("Exception loading structure piece with id {}", var10, var16);
+                            } catch (Exception var17) {
+                                LOGGER.error("Exception loading structure piece with id {}", var10, var17);
                             }
                         }
                     }
 
                     return var7;
-                } catch (Exception var17) {
-                    LOGGER.error("Failed Start with id {}", var0, var17);
+                } catch (Exception var18) {
+                    LOGGER.error("Failed Start with id {}", var0, var18);
                     return null;
                 }
             }

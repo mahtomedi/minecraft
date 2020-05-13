@@ -2,10 +2,8 @@ package net.minecraft.world.level.newbiome.layer;
 
 import java.util.function.LongFunction;
 import net.minecraft.core.Registry;
-import net.minecraft.world.level.LevelType;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
-import net.minecraft.world.level.levelgen.OverworldGeneratorSettings;
 import net.minecraft.world.level.newbiome.area.Area;
 import net.minecraft.world.level.newbiome.area.AreaFactory;
 import net.minecraft.world.level.newbiome.area.LazyArea;
@@ -37,65 +35,61 @@ public class Layers {
         return var0;
     }
 
-    public static <T extends Area, C extends BigContext<T>> AreaFactory<T> getDefaultLayer(
-        LevelType param0, OverworldGeneratorSettings param1, LongFunction<C> param2
-    ) {
-        AreaFactory<T> var0 = IslandLayer.INSTANCE.run(param2.apply(1L));
-        var0 = ZoomLayer.FUZZY.run(param2.apply(2000L), var0);
-        var0 = AddIslandLayer.INSTANCE.run(param2.apply(1L), var0);
-        var0 = ZoomLayer.NORMAL.run(param2.apply(2001L), var0);
-        var0 = AddIslandLayer.INSTANCE.run(param2.apply(2L), var0);
-        var0 = AddIslandLayer.INSTANCE.run(param2.apply(50L), var0);
-        var0 = AddIslandLayer.INSTANCE.run(param2.apply(70L), var0);
-        var0 = RemoveTooMuchOceanLayer.INSTANCE.run(param2.apply(2L), var0);
-        AreaFactory<T> var1 = OceanLayer.INSTANCE.run(param2.apply(2L));
-        var1 = zoom(2001L, ZoomLayer.NORMAL, var1, 6, param2);
-        var0 = AddSnowLayer.INSTANCE.run(param2.apply(2L), var0);
-        var0 = AddIslandLayer.INSTANCE.run(param2.apply(3L), var0);
-        var0 = AddEdgeLayer.CoolWarm.INSTANCE.run(param2.apply(2L), var0);
-        var0 = AddEdgeLayer.HeatIce.INSTANCE.run(param2.apply(2L), var0);
-        var0 = AddEdgeLayer.IntroduceSpecial.INSTANCE.run(param2.apply(3L), var0);
-        var0 = ZoomLayer.NORMAL.run(param2.apply(2002L), var0);
-        var0 = ZoomLayer.NORMAL.run(param2.apply(2003L), var0);
-        var0 = AddIslandLayer.INSTANCE.run(param2.apply(4L), var0);
-        var0 = AddMushroomIslandLayer.INSTANCE.run(param2.apply(5L), var0);
-        var0 = AddDeepOceanLayer.INSTANCE.run(param2.apply(4L), var0);
-        var0 = zoom(1000L, ZoomLayer.NORMAL, var0, 0, param2);
-        int var2 = param0 == LevelType.LARGE_BIOMES ? 6 : param1.getBiomeSize();
-        int var3 = param1.getRiverSize();
-        AreaFactory<T> var4 = zoom(1000L, ZoomLayer.NORMAL, var0, 0, param2);
-        var4 = RiverInitLayer.INSTANCE.run(param2.apply(100L), var4);
-        AreaFactory<T> var5 = new BiomeInitLayer(param0, param1.getFixedBiome()).run(param2.apply(200L), var0);
-        var5 = RareBiomeLargeLayer.INSTANCE.run(param2.apply(1001L), var5);
-        var5 = zoom(1000L, ZoomLayer.NORMAL, var5, 2, param2);
-        var5 = BiomeEdgeLayer.INSTANCE.run(param2.apply(1000L), var5);
-        AreaFactory<T> var6 = zoom(1000L, ZoomLayer.NORMAL, var4, 2, param2);
-        var5 = RegionHillsLayer.INSTANCE.run(param2.apply(1000L), var5, var6);
-        var4 = zoom(1000L, ZoomLayer.NORMAL, var4, 2, param2);
-        var4 = zoom(1000L, ZoomLayer.NORMAL, var4, var3, param2);
-        var4 = RiverLayer.INSTANCE.run(param2.apply(1L), var4);
-        var4 = SmoothLayer.INSTANCE.run(param2.apply(1000L), var4);
-        var5 = RareBiomeSpotLayer.INSTANCE.run(param2.apply(1001L), var5);
+    private static <T extends Area, C extends BigContext<T>> AreaFactory<T> getDefaultLayer(boolean param0, int param1, int param2, LongFunction<C> param3) {
+        AreaFactory<T> var0 = IslandLayer.INSTANCE.run(param3.apply(1L));
+        var0 = ZoomLayer.FUZZY.run(param3.apply(2000L), var0);
+        var0 = AddIslandLayer.INSTANCE.run(param3.apply(1L), var0);
+        var0 = ZoomLayer.NORMAL.run(param3.apply(2001L), var0);
+        var0 = AddIslandLayer.INSTANCE.run(param3.apply(2L), var0);
+        var0 = AddIslandLayer.INSTANCE.run(param3.apply(50L), var0);
+        var0 = AddIslandLayer.INSTANCE.run(param3.apply(70L), var0);
+        var0 = RemoveTooMuchOceanLayer.INSTANCE.run(param3.apply(2L), var0);
+        AreaFactory<T> var1 = OceanLayer.INSTANCE.run(param3.apply(2L));
+        var1 = zoom(2001L, ZoomLayer.NORMAL, var1, 6, param3);
+        var0 = AddSnowLayer.INSTANCE.run(param3.apply(2L), var0);
+        var0 = AddIslandLayer.INSTANCE.run(param3.apply(3L), var0);
+        var0 = AddEdgeLayer.CoolWarm.INSTANCE.run(param3.apply(2L), var0);
+        var0 = AddEdgeLayer.HeatIce.INSTANCE.run(param3.apply(2L), var0);
+        var0 = AddEdgeLayer.IntroduceSpecial.INSTANCE.run(param3.apply(3L), var0);
+        var0 = ZoomLayer.NORMAL.run(param3.apply(2002L), var0);
+        var0 = ZoomLayer.NORMAL.run(param3.apply(2003L), var0);
+        var0 = AddIslandLayer.INSTANCE.run(param3.apply(4L), var0);
+        var0 = AddMushroomIslandLayer.INSTANCE.run(param3.apply(5L), var0);
+        var0 = AddDeepOceanLayer.INSTANCE.run(param3.apply(4L), var0);
+        var0 = zoom(1000L, ZoomLayer.NORMAL, var0, 0, param3);
+        AreaFactory<T> var2 = zoom(1000L, ZoomLayer.NORMAL, var0, 0, param3);
+        var2 = RiverInitLayer.INSTANCE.run(param3.apply(100L), var2);
+        AreaFactory<T> var3 = new BiomeInitLayer(param0).run(param3.apply(200L), var0);
+        var3 = RareBiomeLargeLayer.INSTANCE.run(param3.apply(1001L), var3);
+        var3 = zoom(1000L, ZoomLayer.NORMAL, var3, 2, param3);
+        var3 = BiomeEdgeLayer.INSTANCE.run(param3.apply(1000L), var3);
+        AreaFactory<T> var4 = zoom(1000L, ZoomLayer.NORMAL, var2, 2, param3);
+        var3 = RegionHillsLayer.INSTANCE.run(param3.apply(1000L), var3, var4);
+        var2 = zoom(1000L, ZoomLayer.NORMAL, var2, 2, param3);
+        var2 = zoom(1000L, ZoomLayer.NORMAL, var2, param2, param3);
+        var2 = RiverLayer.INSTANCE.run(param3.apply(1L), var2);
+        var2 = SmoothLayer.INSTANCE.run(param3.apply(1000L), var2);
+        var3 = RareBiomeSpotLayer.INSTANCE.run(param3.apply(1001L), var3);
 
-        for(int var7x = 0; var7x < var2; ++var7x) {
-            var5 = ZoomLayer.NORMAL.run(param2.apply((long)(1000 + var7x)), var5);
-            if (var7x == 0) {
-                var5 = AddIslandLayer.INSTANCE.run(param2.apply(3L), var5);
+        for(int var5 = 0; var5 < param1; ++var5) {
+            var3 = ZoomLayer.NORMAL.run(param3.apply((long)(1000 + var5)), var3);
+            if (var5 == 0) {
+                var3 = AddIslandLayer.INSTANCE.run(param3.apply(3L), var3);
             }
 
-            if (var7x == 1 || var2 == 1) {
-                var5 = ShoreLayer.INSTANCE.run(param2.apply(1000L), var5);
+            if (var5 == 1 || param1 == 1) {
+                var3 = ShoreLayer.INSTANCE.run(param3.apply(1000L), var3);
             }
         }
 
-        var5 = SmoothLayer.INSTANCE.run(param2.apply(1000L), var5);
-        var5 = RiverMixerLayer.INSTANCE.run(param2.apply(100L), var5, var4);
-        return OceanMixerLayer.INSTANCE.run(param2.apply(100L), var5, var1);
+        var3 = SmoothLayer.INSTANCE.run(param3.apply(1000L), var3);
+        var3 = RiverMixerLayer.INSTANCE.run(param3.apply(100L), var3, var2);
+        return OceanMixerLayer.INSTANCE.run(param3.apply(100L), var3, var1);
     }
 
-    public static Layer getDefaultLayer(long param0, LevelType param1, OverworldGeneratorSettings param2) {
+    public static Layer getDefaultLayer(long param0, boolean param1, int param2, int param3) {
         int var0 = 25;
-        AreaFactory<LazyArea> var1 = getDefaultLayer(param1, param2, param1x -> new LazyAreaContext(25, param0, param1x));
+        AreaFactory<LazyArea> var1 = getDefaultLayer(param1, param2, param3, param1x -> new LazyAreaContext(25, param0, param1x));
         return new Layer(var1);
     }
 

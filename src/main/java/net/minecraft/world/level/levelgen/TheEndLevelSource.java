@@ -1,15 +1,22 @@
 package net.minecraft.world.level.levelgen;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class TheEndLevelSource extends NoiseBasedChunkGenerator<TheEndGeneratorSettings> {
-    private final BlockPos dimensionSpawnPosition;
+public class TheEndLevelSource extends NoiseBasedChunkGenerator<NoiseGeneratorSettings> {
+    private final NoiseGeneratorSettings settings;
 
-    public TheEndLevelSource(LevelAccessor param0, BiomeSource param1, TheEndGeneratorSettings param2) {
-        super(param0, param1, 8, 4, 128, param2, true);
-        this.dimensionSpawnPosition = param2.getSpawnPosition();
+    public TheEndLevelSource(BiomeSource param0, long param1, NoiseGeneratorSettings param2) {
+        super(param0, param1, param2, 8, 4, 128, true);
+        this.settings = param2;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public ChunkGenerator withSeed(long param0) {
+        return new TheEndLevelSource(this.biomeSource.withSeed(param0), param0, this.settings);
     }
 
     @Override

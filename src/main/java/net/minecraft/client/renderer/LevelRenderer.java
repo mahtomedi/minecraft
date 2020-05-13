@@ -898,7 +898,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         FogRenderer.setupColor(param4, param1, this.minecraft.level, this.minecraft.options.renderDistance, param5.getDarkenWorldAmount(param1));
         RenderSystem.clear(16640, Minecraft.ON_OSX);
         float var9 = param5.getRenderDistance();
-        boolean var10 = this.minecraft.level.dimension.isFoggyAt(Mth.floor(var2), Mth.floor(var3))
+        boolean var10 = this.minecraft.level.effects().isFoggyAt(Mth.floor(var2), Mth.floor(var3))
             || this.minecraft.gui.getBossOverlay().shouldCreateWorldFog();
         if (this.minecraft.options.renderDistance >= 4) {
             FogRenderer.setupFog(param4, FogRenderer.FogMode.FOG_SKY, var9, var10);
@@ -930,7 +930,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         this.renderChunkLayer(RenderType.solid(), param0, var2, var3, var4);
         this.renderChunkLayer(RenderType.cutoutMipped(), param0, var2, var3, var4);
         this.renderChunkLayer(RenderType.cutout(), param0, var2, var3, var4);
-        if (this.level.dimension.getType() == DimensionType.NETHER) {
+        if (this.level.dimensionType() == DimensionType.NETHER) {
             Lighting.setupNetherLevel(param0.last().pose());
         } else {
             Lighting.setupLevel(param0.last().pose());
@@ -1452,9 +1452,9 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
     }
 
     public void renderSky(PoseStack param0, float param1) {
-        if (this.minecraft.level.dimension.getType() == DimensionType.THE_END) {
+        if (this.minecraft.level.dimensionType() == DimensionType.THE_END) {
             this.renderEndSky(param0);
-        } else if (this.minecraft.level.dimension.isNaturalDimension()) {
+        } else if (this.minecraft.level.effects().renderNormalSky()) {
             RenderSystem.disableTexture();
             Vec3 var0 = this.level.getSkyColor(this.minecraft.gameRenderer.getMainCamera().getBlockPosition(), param1);
             float var1 = (float)var0.x;
@@ -1474,7 +1474,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             RenderSystem.disableAlphaTest();
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
-            float[] var5 = this.level.dimension.getSunriseColor(this.level.getTimeOfDay(param1), param1);
+            float[] var5 = this.level.effects().getSunriseColor(this.level.getTimeOfDay(param1), param1);
             if (var5 != null) {
                 RenderSystem.disableTexture();
                 RenderSystem.shadeModel(7425);
@@ -1557,7 +1557,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             param0.popPose();
             RenderSystem.disableTexture();
             RenderSystem.color3f(0.0F, 0.0F, 0.0F);
-            double var27 = this.minecraft.player.getEyePosition(param1).y - this.level.getHorizonHeight();
+            double var27 = this.minecraft.player.getEyePosition(param1).y - this.level.getLevelData().getHorizonHeight();
             if (var27 < 0.0) {
                 param0.pushPose();
                 param0.translate(0.0, 12.0, 0.0);
@@ -1569,7 +1569,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                 param0.popPose();
             }
 
-            if (this.level.dimension.hasGround()) {
+            if (this.level.effects().hasGround()) {
                 RenderSystem.color3f(var1 * 0.2F + 0.04F, var2 * 0.2F + 0.04F, var3 * 0.6F + 0.1F);
             } else {
                 RenderSystem.color3f(var1, var2, var3);
@@ -1582,7 +1582,8 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
     }
 
     public void renderClouds(PoseStack param0, float param1, double param2, double param3, double param4) {
-        if (this.minecraft.level.dimension.isNaturalDimension()) {
+        float var0 = this.level.effects().getCloudHeight();
+        if (!Float.isNaN(var0)) {
             RenderSystem.disableCull();
             RenderSystem.enableBlend();
             RenderSystem.enableAlphaTest();
@@ -1590,59 +1591,59 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             RenderSystem.defaultAlphaFunc();
             RenderSystem.defaultBlendFunc();
             RenderSystem.enableFog();
-            float var0 = 12.0F;
-            float var1 = 4.0F;
-            double var2 = 2.0E-4;
-            double var3 = (double)(((float)this.ticks + param1) * 0.03F);
-            double var4 = (param2 + var3) / 12.0;
-            double var5 = (double)(this.level.dimension.getCloudHeight() - (float)param3 + 0.33F);
-            double var6 = param4 / 12.0 + 0.33F;
-            var4 -= (double)(Mth.floor(var4 / 2048.0) * 2048);
-            var6 -= (double)(Mth.floor(var6 / 2048.0) * 2048);
-            float var7 = (float)(var4 - (double)Mth.floor(var4));
-            float var8 = (float)(var5 / 4.0 - (double)Mth.floor(var5 / 4.0)) * 4.0F;
-            float var9 = (float)(var6 - (double)Mth.floor(var6));
-            Vec3 var10 = this.level.getCloudColor(param1);
-            int var11 = (int)Math.floor(var4);
-            int var12 = (int)Math.floor(var5 / 4.0);
-            int var13 = (int)Math.floor(var6);
-            if (var11 != this.prevCloudX
-                || var12 != this.prevCloudY
-                || var13 != this.prevCloudZ
+            float var1 = 12.0F;
+            float var2 = 4.0F;
+            double var3 = 2.0E-4;
+            double var4 = (double)(((float)this.ticks + param1) * 0.03F);
+            double var5 = (param2 + var4) / 12.0;
+            double var6 = (double)(var0 - (float)param3 + 0.33F);
+            double var7 = param4 / 12.0 + 0.33F;
+            var5 -= (double)(Mth.floor(var5 / 2048.0) * 2048);
+            var7 -= (double)(Mth.floor(var7 / 2048.0) * 2048);
+            float var8 = (float)(var5 - (double)Mth.floor(var5));
+            float var9 = (float)(var6 / 4.0 - (double)Mth.floor(var6 / 4.0)) * 4.0F;
+            float var10 = (float)(var7 - (double)Mth.floor(var7));
+            Vec3 var11 = this.level.getCloudColor(param1);
+            int var12 = (int)Math.floor(var5);
+            int var13 = (int)Math.floor(var6 / 4.0);
+            int var14 = (int)Math.floor(var7);
+            if (var12 != this.prevCloudX
+                || var13 != this.prevCloudY
+                || var14 != this.prevCloudZ
                 || this.minecraft.options.getCloudsType() != this.prevCloudsType
-                || this.prevCloudColor.distanceToSqr(var10) > 2.0E-4) {
-                this.prevCloudX = var11;
-                this.prevCloudY = var12;
-                this.prevCloudZ = var13;
-                this.prevCloudColor = var10;
+                || this.prevCloudColor.distanceToSqr(var11) > 2.0E-4) {
+                this.prevCloudX = var12;
+                this.prevCloudY = var13;
+                this.prevCloudZ = var14;
+                this.prevCloudColor = var11;
                 this.prevCloudsType = this.minecraft.options.getCloudsType();
                 this.generateClouds = true;
             }
 
             if (this.generateClouds) {
                 this.generateClouds = false;
-                BufferBuilder var14 = Tesselator.getInstance().getBuilder();
+                BufferBuilder var15 = Tesselator.getInstance().getBuilder();
                 if (this.cloudBuffer != null) {
                     this.cloudBuffer.close();
                 }
 
                 this.cloudBuffer = new VertexBuffer(DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
-                this.buildClouds(var14, var4, var5, var6, var10);
-                var14.end();
-                this.cloudBuffer.upload(var14);
+                this.buildClouds(var15, var5, var6, var7, var11);
+                var15.end();
+                this.cloudBuffer.upload(var15);
             }
 
             this.textureManager.bind(CLOUDS_LOCATION);
             param0.pushPose();
             param0.scale(12.0F, 1.0F, 12.0F);
-            param0.translate((double)(-var7), (double)var8, (double)(-var9));
+            param0.translate((double)(-var8), (double)var9, (double)(-var10));
             if (this.cloudBuffer != null) {
                 this.cloudBuffer.bind();
                 DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL.setupBufferState(0L);
-                int var15 = this.prevCloudsType == CloudStatus.FANCY ? 0 : 1;
+                int var16 = this.prevCloudsType == CloudStatus.FANCY ? 0 : 1;
 
-                for(int var16 = var15; var16 < 2; ++var16) {
-                    if (var16 == 0) {
+                for(int var17 = var16; var17 < 2; ++var17) {
+                    if (var17 == 0) {
                         RenderSystem.colorMask(false, false, false, false);
                     } else {
                         RenderSystem.colorMask(true, true, true, true);

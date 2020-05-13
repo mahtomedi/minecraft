@@ -44,7 +44,7 @@ public class IglooFeature extends RandomScatteredFeature<NoneFeatureConfiguratio
         }
 
         @Override
-        public void generatePieces(ChunkGenerator<?> param0, StructureManager param1, int param2, int param3, Biome param4) {
+        public void generatePieces(ChunkGenerator param0, StructureManager param1, int param2, int param3, Biome param4) {
             NoneFeatureConfiguration var0 = param0.getStructureConfiguration(param4, Feature.IGLOO);
             int var1 = param2 * 16;
             int var2 = param3 * 16;

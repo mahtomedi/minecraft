@@ -148,7 +148,7 @@ public class TheEndGatewayBlockEntity extends TheEndPortalBlockEntity implements
     public void teleportEntity(Entity param0) {
         if (this.level instanceof ServerLevel && !this.isCoolingDown()) {
             this.teleportCooldown = 100;
-            if (this.exitPortal == null && this.level.dimension instanceof TheEndDimension) {
+            if (this.exitPortal == null && this.level.getDimension() instanceof TheEndDimension) {
                 this.findExitPortal((ServerLevel)this.level);
             }
 

@@ -10,7 +10,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.configurations.NoiseDependantDecoratorConfiguration;
 
@@ -20,11 +19,7 @@ public class NoiseHeightmapDoubleDecorator extends FeatureDecorator<NoiseDependa
     }
 
     public Stream<BlockPos> getPositions(
-        LevelAccessor param0,
-        ChunkGenerator<? extends ChunkGeneratorSettings> param1,
-        Random param2,
-        NoiseDependantDecoratorConfiguration param3,
-        BlockPos param4
+        LevelAccessor param0, ChunkGenerator param1, Random param2, NoiseDependantDecoratorConfiguration param3, BlockPos param4
     ) {
         double var0 = Biome.BIOME_INFO_NOISE.getValue((double)param4.getX() / 200.0, (double)param4.getZ() / 200.0, false);
         int var1 = var0 < param3.noiseLevel ? param3.belowNoise : param3.aboveNoise;

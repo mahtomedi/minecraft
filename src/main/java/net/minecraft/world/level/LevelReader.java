@@ -11,6 +11,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.dimension.Dimension;
+import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
@@ -55,6 +56,8 @@ public interface LevelReader extends BlockAndTintGetter, CollisionGetter, BiomeM
     int getSeaLevel();
 
     Dimension getDimension();
+
+    DimensionType dimensionType();
 
     default BlockPos getHeightmapPos(Heightmap.Types param0, BlockPos param1) {
         return new BlockPos(param1.getX(), this.getHeight(param0, param1.getX(), param1.getZ()), param1.getZ());

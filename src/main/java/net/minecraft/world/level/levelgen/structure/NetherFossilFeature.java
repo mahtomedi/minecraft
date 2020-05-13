@@ -10,7 +10,6 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.feature.RandomScatteredFeature;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
@@ -38,12 +37,12 @@ public class NetherFossilFeature extends RandomScatteredFeature<NoneFeatureConfi
     }
 
     @Override
-    protected int getSpacing(DimensionType param0, ChunkGeneratorSettings param1) {
+    protected int getSpacing(ChunkGeneratorSettings param0) {
         return 2;
     }
 
     @Override
-    protected int getSeparation(DimensionType param0, ChunkGeneratorSettings param1) {
+    protected int getSeparation(ChunkGeneratorSettings param0) {
         return 1;
     }
 
@@ -58,7 +57,7 @@ public class NetherFossilFeature extends RandomScatteredFeature<NoneFeatureConfi
         }
 
         @Override
-        public void generatePieces(ChunkGenerator<?> param0, StructureManager param1, int param2, int param3, Biome param4) {
+        public void generatePieces(ChunkGenerator param0, StructureManager param1, int param2, int param3, Biome param4) {
             ChunkPos var0 = new ChunkPos(param2, param3);
             int var1 = var0.getMinBlockX() + this.random.nextInt(16);
             int var2 = var0.getMinBlockZ() + this.random.nextInt(16);

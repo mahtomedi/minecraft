@@ -14,8 +14,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Deserializer;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
+import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.properties.StructureMode;
@@ -104,9 +104,9 @@ public class SinglePoolElement extends StructurePoolElement {
     @Override
     public boolean place(
         StructureManager param0,
-        LevelAccessor param1,
+        WorldGenLevel param1,
         StructureFeatureManager param2,
-        ChunkGenerator<?> param3,
+        ChunkGenerator param3,
         BlockPos param4,
         BlockPos param5,
         Rotation param6,

@@ -4,7 +4,6 @@ import java.io.IOException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.level.GameType;
-import net.minecraft.world.level.LevelType;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -13,18 +12,20 @@ public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener
     private DimensionType dimension;
     private long seed;
     private GameType playerGameType;
-    private LevelType levelType;
+    private boolean isDebug;
+    private boolean isFlat;
     private boolean keepAllPlayerData;
 
     public ClientboundRespawnPacket() {
     }
 
-    public ClientboundRespawnPacket(DimensionType param0, long param1, LevelType param2, GameType param3, boolean param4) {
+    public ClientboundRespawnPacket(DimensionType param0, long param1, GameType param2, boolean param3, boolean param4, boolean param5) {
         this.dimension = param0;
         this.seed = param1;
-        this.playerGameType = param3;
-        this.levelType = param2;
-        this.keepAllPlayerData = param4;
+        this.playerGameType = param2;
+        this.isDebug = param3;
+        this.isFlat = param4;
+        this.keepAllPlayerData = param5;
     }
 
     public void handle(ClientGamePacketListener param0) {
@@ -36,11 +37,8 @@ public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener
         this.dimension = DimensionType.getById(param0.readInt());
         this.seed = param0.readLong();
         this.playerGameType = GameType.byId(param0.readUnsignedByte());
-        this.levelType = LevelType.getLevelType(param0.readUtf(16));
-        if (this.levelType == null) {
-            this.levelType = LevelType.NORMAL;
-        }
-
+        this.isDebug = param0.readBoolean();
+        this.isFlat = param0.readBoolean();
         this.keepAllPlayerData = param0.readBoolean();
     }
 
@@ -49,7 +47,8 @@ public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener
         param0.writeInt(this.dimension.getId());
         param0.writeLong(this.seed);
         param0.writeByte(this.playerGameType.getId());
-        param0.writeUtf(this.levelType.getName());
+        param0.writeBoolean(this.isDebug);
+        param0.writeBoolean(this.isFlat);
         param0.writeBoolean(this.keepAllPlayerData);
     }
 
@@ -69,8 +68,13 @@ public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener
     }
 
     @OnlyIn(Dist.CLIENT)
-    public LevelType getLevelType() {
-        return this.levelType;
+    public boolean isDebug() {
+        return this.isDebug;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public boolean isFlat() {
+        return this.isFlat;
     }
 
     @OnlyIn(Dist.CLIENT)

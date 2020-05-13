@@ -27,6 +27,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.decoration.Painting;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
@@ -76,26 +77,24 @@ public class StructureTemplate {
                 BlockState var8 = param0.getBlockState(var6);
                 if (param4 == null || param4 != var8.getBlock()) {
                     BlockEntity var9 = param0.getBlockEntity(var6);
+                    StructureTemplate.StructureBlockInfo var11;
                     if (var9 != null) {
                         CompoundTag var10 = var9.save(new CompoundTag());
                         var10.remove("x");
                         var10.remove("y");
                         var10.remove("z");
-                        var2.add(new StructureTemplate.StructureBlockInfo(var7, var8, var10));
-                    } else if (!var8.isSolidRender(param0, var6) && !var8.isCollisionShapeFullBlock(param0, var6)) {
-                        var3.add(new StructureTemplate.StructureBlockInfo(var7, var8, null));
+                        var11 = new StructureTemplate.StructureBlockInfo(var7, var8, var10);
                     } else {
-                        var1.add(new StructureTemplate.StructureBlockInfo(var7, var8, null));
+                        var11 = new StructureTemplate.StructureBlockInfo(var7, var8, null);
                     }
+
+                    addToLists(var11, var1, var2, var3);
                 }
             }
 
-            List<StructureTemplate.StructureBlockInfo> var11 = Lists.newArrayList();
-            var11.addAll(var1);
-            var11.addAll(var2);
-            var11.addAll(var3);
+            List<StructureTemplate.StructureBlockInfo> var13 = buildInfoList(var1, var2, var3);
             this.palettes.clear();
-            this.palettes.add(new StructureTemplate.Palette(var11));
+            this.palettes.add(new StructureTemplate.Palette(var13));
             if (param3) {
                 this.fillEntityList(param0, var4, var5.offset(1, 1, 1));
             } else {
@@ -103,6 +102,38 @@ public class StructureTemplate {
             }
 
         }
+    }
+
+    private static void addToLists(
+        StructureTemplate.StructureBlockInfo param0,
+        List<StructureTemplate.StructureBlockInfo> param1,
+        List<StructureTemplate.StructureBlockInfo> param2,
+        List<StructureTemplate.StructureBlockInfo> param3
+    ) {
+        if (param0.nbt != null) {
+            param2.add(param0);
+        } else if (!param0.state.getBlock().hasDynamicShape() && param0.state.isCollisionShapeFullBlock(EmptyBlockGetter.INSTANCE, BlockPos.ZERO)) {
+            param1.add(param0);
+        } else {
+            param3.add(param0);
+        }
+
+    }
+
+    private static List<StructureTemplate.StructureBlockInfo> buildInfoList(
+        List<StructureTemplate.StructureBlockInfo> param0, List<StructureTemplate.StructureBlockInfo> param1, List<StructureTemplate.StructureBlockInfo> param2
+    ) {
+        Comparator<StructureTemplate.StructureBlockInfo> var0 = Comparator.<StructureTemplate.StructureBlockInfo>comparingInt(param0x -> param0x.pos.getY())
+            .thenComparingInt(param0x -> param0x.pos.getX())
+            .thenComparingInt(param0x -> param0x.pos.getZ());
+        param0.sort(var0);
+        param2.sort(var0);
+        param1.sort(var0);
+        List<StructureTemplate.StructureBlockInfo> var1 = Lists.newArrayList();
+        var1.addAll(param0);
+        var1.addAll(param2);
+        var1.addAll(param1);
+        return var1;
     }
 
     private void fillEntityList(Level param0, BlockPos param1, BlockPos param2) {
@@ -648,29 +679,33 @@ public class StructureTemplate {
 
     private void loadPalette(ListTag param0, ListTag param1) {
         StructureTemplate.SimplePalette var0 = new StructureTemplate.SimplePalette();
-        List<StructureTemplate.StructureBlockInfo> var1 = Lists.newArrayList();
 
-        for(int var2 = 0; var2 < param0.size(); ++var2) {
-            var0.addMapping(NbtUtils.readBlockState(param0.getCompound(var2)), var2);
+        for(int var1 = 0; var1 < param0.size(); ++var1) {
+            var0.addMapping(NbtUtils.readBlockState(param0.getCompound(var1)), var1);
         }
 
-        for(int var3 = 0; var3 < param1.size(); ++var3) {
-            CompoundTag var4 = param1.getCompound(var3);
-            ListTag var5 = var4.getList("pos", 3);
-            BlockPos var6 = new BlockPos(var5.getInt(0), var5.getInt(1), var5.getInt(2));
-            BlockState var7 = var0.stateFor(var4.getInt("state"));
-            CompoundTag var8;
-            if (var4.contains("nbt")) {
-                var8 = var4.getCompound("nbt");
+        List<StructureTemplate.StructureBlockInfo> var2 = Lists.newArrayList();
+        List<StructureTemplate.StructureBlockInfo> var3 = Lists.newArrayList();
+        List<StructureTemplate.StructureBlockInfo> var4 = Lists.newArrayList();
+
+        for(int var5 = 0; var5 < param1.size(); ++var5) {
+            CompoundTag var6 = param1.getCompound(var5);
+            ListTag var7 = var6.getList("pos", 3);
+            BlockPos var8 = new BlockPos(var7.getInt(0), var7.getInt(1), var7.getInt(2));
+            BlockState var9 = var0.stateFor(var6.getInt("state"));
+            CompoundTag var10;
+            if (var6.contains("nbt")) {
+                var10 = var6.getCompound("nbt");
             } else {
-                var8 = null;
+                var10 = null;
             }
 
-            var1.add(new StructureTemplate.StructureBlockInfo(var6, var7, var8));
+            StructureTemplate.StructureBlockInfo var12 = new StructureTemplate.StructureBlockInfo(var8, var9, var10);
+            addToLists(var12, var2, var3, var4);
         }
 
-        var1.sort(Comparator.comparingInt(param0x -> param0x.pos.getY()));
-        this.palettes.add(new StructureTemplate.Palette(var1));
+        List<StructureTemplate.StructureBlockInfo> var13 = buildInfoList(var2, var3, var4);
+        this.palettes.add(new StructureTemplate.Palette(var13));
     }
 
     private ListTag newIntegerList(int... param0) {

@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.Dynamic;
+import com.mojang.datafixers.OptionalDynamic;
 import com.mojang.datafixers.types.DynamicOps;
 import com.mojang.datafixers.util.Pair;
 import java.util.Collections;
@@ -18,13 +19,11 @@ import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkGeneratorType;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.feature.BastionPieces;
@@ -48,7 +47,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class FlatLevelGeneratorSettings extends ChunkGeneratorSettings {
+public class FlatLevelGeneratorSettings {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final ConfiguredFeature<?, ? extends StructureFeature<?>> MINESHAFT_COMPOSITE_FEATURE = Feature.MINESHAFT
         .configured(new MineshaftConfiguration(0.004, MineshaftFeature.Type.NORMAL));
@@ -153,12 +152,25 @@ public class FlatLevelGeneratorSettings extends ChunkGeneratorSettings {
             param0.put(BASTION_REMNANT_COMMPOSITE_FEATURE, new MultiJigsawConfiguration(BastionPieces.POOLS));
         }
     );
+    private final ChunkGeneratorSettings structureSettings;
     private final List<FlatLayerInfo> layersInfo = Lists.newArrayList();
     private final Map<String, Map<String, String>> structuresOptions = Maps.newHashMap();
     private Biome biome;
     private final BlockState[] layers = new BlockState[256];
     private boolean voidGen;
     private int seaLevel;
+
+    public FlatLevelGeneratorSettings() {
+        this(new ChunkGeneratorSettings());
+    }
+
+    public FlatLevelGeneratorSettings(ChunkGeneratorSettings param0) {
+        this.structureSettings = param0;
+    }
+
+    public ChunkGeneratorSettings structureSettings() {
+        return this.structureSettings;
+    }
 
     @Nullable
     public static Block byString(String param0) {
@@ -371,7 +383,7 @@ public class FlatLevelGeneratorSettings extends ChunkGeneratorSettings {
     }
 
     public static FlatLevelGeneratorSettings fromObject(Dynamic<?> param0) {
-        FlatLevelGeneratorSettings var0 = ChunkGeneratorType.FLAT.createSettings();
+        FlatLevelGeneratorSettings var0 = new FlatLevelGeneratorSettings();
         List<Pair<Integer, Block>> var1 = param0.get("layers")
             .asList(param0x -> Pair.of(param0x.get("height").asInt(1), byString(param0x.get("block").asString(""))));
         if (var1.stream().anyMatch(param0x -> param0x.getSecond() == null)) {
@@ -383,7 +395,11 @@ public class FlatLevelGeneratorSettings extends ChunkGeneratorSettings {
             } else {
                 var0.getLayersInfo().addAll(var2);
                 var0.updateLayers();
-                var0.setBiome(Registry.BIOME.get(new ResourceLocation(param0.get("biome").asString(""))));
+                OptionalDynamic<?> var3 = param0.get("biome");
+                var0.setBiome(Registry.BIOME.getOptional(new ResourceLocation(var3.asString(""))).orElseGet(() -> {
+                    LOGGER.error("Unknown biome, defaulting to plains: " + var3);
+                    return Biomes.PLAINS;
+                }));
                 param0.get("structures")
                     .flatMap(Dynamic::getMapValues)
                     .ifPresent(
@@ -401,7 +417,7 @@ public class FlatLevelGeneratorSettings extends ChunkGeneratorSettings {
         if (!var0.hasNext()) {
             return getDefault();
         } else {
-            FlatLevelGeneratorSettings var1 = ChunkGeneratorType.FLAT.createSettings();
+            FlatLevelGeneratorSettings var1 = new FlatLevelGeneratorSettings();
             List<FlatLayerInfo> var2 = getLayersInfoFromString(var0.next());
             if (var2.isEmpty()) {
                 return getDefault();
@@ -456,44 +472,11 @@ public class FlatLevelGeneratorSettings extends ChunkGeneratorSettings {
     @OnlyIn(Dist.CLIENT)
     private void addStructureOption(String param0, String param1, String param2) {
         this.structuresOptions.get(param0).put(param1, param2);
-        if ("village".equals(param0) && "distance".equals(param1)) {
-            this.villagesSpacing = Mth.getInt(param2, this.villagesSpacing, 9);
-        }
-
-        if ("biome_1".equals(param0) && "distance".equals(param1)) {
-            this.templesSpacing = Mth.getInt(param2, this.templesSpacing, 9);
-        }
-
-        if ("stronghold".equals(param0)) {
-            if ("distance".equals(param1)) {
-                this.strongholdsDistance = Mth.getInt(param2, this.strongholdsDistance, 1);
-            } else if ("count".equals(param1)) {
-                this.strongholdsCount = Mth.getInt(param2, this.strongholdsCount, 1);
-            } else if ("spread".equals(param1)) {
-                this.strongholdsSpread = Mth.getInt(param2, this.strongholdsSpread, 1);
-            }
-        }
-
-        if ("oceanmonument".equals(param0)) {
-            if ("separation".equals(param1)) {
-                this.monumentsSeparation = Mth.getInt(param2, this.monumentsSeparation, 1);
-            } else if ("spacing".equals(param1)) {
-                this.monumentsSpacing = Mth.getInt(param2, this.monumentsSpacing, 1);
-            }
-        }
-
-        if ("endcity".equals(param0) && "distance".equals(param1)) {
-            this.endCitySpacing = Mth.getInt(param2, this.endCitySpacing, 1);
-        }
-
-        if ("mansion".equals(param0) && "distance".equals(param1)) {
-            this.woodlandMansionSpacing = Mth.getInt(param2, this.woodlandMansionSpacing, 1);
-        }
-
+        this.structureSettings.setOption(param0, param1, param2);
     }
 
     public static FlatLevelGeneratorSettings getDefault() {
-        FlatLevelGeneratorSettings var0 = ChunkGeneratorType.FLAT.createSettings();
+        FlatLevelGeneratorSettings var0 = new FlatLevelGeneratorSettings();
         var0.setBiome(Biomes.PLAINS);
         var0.getLayersInfo().add(new FlatLayerInfo(1, Blocks.BEDROCK));
         var0.getLayersInfo().add(new FlatLayerInfo(2, Blocks.DIRT));

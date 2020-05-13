@@ -7,7 +7,6 @@ import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
@@ -78,7 +77,7 @@ public class DemoMode extends ServerPlayerGameMode {
     }
 
     @Override
-    public InteractionResult useItem(Player param0, Level param1, ItemStack param2, InteractionHand param3) {
+    public InteractionResult useItem(ServerPlayer param0, Level param1, ItemStack param2, InteractionHand param3) {
         if (this.demoHasEnded) {
             this.outputDemoReminder();
             return InteractionResult.PASS;
@@ -88,7 +87,7 @@ public class DemoMode extends ServerPlayerGameMode {
     }
 
     @Override
-    public InteractionResult useItemOn(Player param0, Level param1, ItemStack param2, InteractionHand param3, BlockHitResult param4) {
+    public InteractionResult useItemOn(ServerPlayer param0, Level param1, ItemStack param2, InteractionHand param3, BlockHitResult param4) {
         if (this.demoHasEnded) {
             this.outputDemoReminder();
             return InteractionResult.PASS;

@@ -40,7 +40,7 @@ public class MapItem extends ComplexItem {
 
     public static ItemStack create(Level param0, int param1, int param2, byte param3, boolean param4, boolean param5) {
         ItemStack var0 = new ItemStack(Items.FILLED_MAP);
-        createAndStoreSavedData(var0, param0, param1, param2, param3, param4, param5, param0.dimension.getType());
+        createAndStoreSavedData(var0, param0, param1, param2, param3, param4, param5, param0.dimensionType());
         return var0;
     }
 
@@ -52,9 +52,9 @@ public class MapItem extends ComplexItem {
     @Nullable
     public static MapItemSavedData getOrCreateSavedData(ItemStack param0, Level param1) {
         MapItemSavedData var0 = getSavedData(param0, param1);
-        if (var0 == null && !param1.isClientSide) {
+        if (var0 == null && param1 instanceof ServerLevel) {
             var0 = createAndStoreSavedData(
-                param0, param1, param1.getLevelData().getXSpawn(), param1.getLevelData().getZSpawn(), 3, false, false, param1.dimension.getType()
+                param0, param1, param1.getLevelData().getXSpawn(), param1.getLevelData().getZSpawn(), 3, false, false, param1.dimensionType()
             );
         }
 
@@ -82,14 +82,14 @@ public class MapItem extends ComplexItem {
     }
 
     public void update(Level param0, Entity param1, MapItemSavedData param2) {
-        if (param0.dimension.getType() == param2.dimension && param1 instanceof Player) {
+        if (param0.dimensionType() == param2.dimension && param1 instanceof Player) {
             int var0 = 1 << param2.scale;
             int var1 = param2.x;
             int var2 = param2.z;
             int var3 = Mth.floor(param1.getX() - (double)var1) / var0 + 64;
             int var4 = Mth.floor(param1.getZ() - (double)var2) / var0 + 64;
             int var5 = 128 / var0;
-            if (param0.dimension.isHasCeiling()) {
+            if (param0.dimensionType().hasCeiling()) {
                 var5 /= 2;
             }
 
@@ -117,7 +117,7 @@ public class MapItem extends ComplexItem {
                                 int var20 = var15 & 15;
                                 int var21 = 0;
                                 double var22 = 0.0;
-                                if (param0.dimension.isHasCeiling()) {
+                                if (param0.dimensionType().hasCeiling()) {
                                     int var23 = var14 + var15 * 231871;
                                     var23 = var23 * var23 * 31287121 + var23 * 11;
                                     if ((var23 >> 20 & 1) == 0) {
@@ -220,7 +220,7 @@ public class MapItem extends ComplexItem {
     public static void renderBiomePreviewMap(ServerLevel param0, ItemStack param1) {
         MapItemSavedData var0 = getOrCreateSavedData(param1, param0);
         if (var0 != null) {
-            if (param0.dimension.getType() == var0.dimension) {
+            if (param0.dimensionType() == var0.dimension) {
                 int var1 = 1 << var0.scale;
                 int var2 = var0.x;
                 int var3 = var0.z;

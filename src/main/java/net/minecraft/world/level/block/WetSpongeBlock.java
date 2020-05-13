@@ -19,7 +19,7 @@ public class WetSpongeBlock extends Block {
 
     @Override
     public void onPlace(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
-        if (param1.getDimension().isUltraWarm()) {
+        if (param1.dimensionType().ultraWarm()) {
             param1.setBlock(param2, Blocks.SPONGE.defaultBlockState(), 3);
             param1.levelEvent(2009, param2, 0);
             param1.playSound(null, param2, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 1.0F, (1.0F + param1.getRandom().nextFloat() * 0.2F) * 0.7F);

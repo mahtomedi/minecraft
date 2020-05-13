@@ -36,7 +36,6 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.ChunkTickList;
 import net.minecraft.world.level.EmptyTickList;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelType;
 import net.minecraft.world.level.TickList;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -194,7 +193,7 @@ public class LevelChunk implements ChunkAccess {
         int var0 = param0.getX();
         int var1 = param0.getY();
         int var2 = param0.getZ();
-        if (this.level.getGeneratorType() == LevelType.DEBUG_ALL_BLOCK_STATES) {
+        if (this.level.isDebug()) {
             BlockState var3 = null;
             if (var1 == 60) {
                 var3 = Blocks.BARRIER.defaultBlockState();

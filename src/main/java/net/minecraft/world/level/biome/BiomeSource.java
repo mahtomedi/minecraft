@@ -11,6 +11,8 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class BiomeSource implements BiomeManager.NoiseBiomeSource {
     private static final List<Biome> PLAYER_SPAWN_BIOMES = Lists.newArrayList(
@@ -23,6 +25,9 @@ public abstract class BiomeSource implements BiomeManager.NoiseBiomeSource {
     protected BiomeSource(Set<Biome> param0) {
         this.possibleBiomes = param0;
     }
+
+    @OnlyIn(Dist.CLIENT)
+    public abstract BiomeSource withSeed(long var1);
 
     public List<Biome> getPlayerSpawnBiomes() {
         return PLAYER_SPAWN_BIOMES;

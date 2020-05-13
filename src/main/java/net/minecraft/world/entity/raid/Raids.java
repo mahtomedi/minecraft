@@ -20,7 +20,6 @@ import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.ai.village.poi.PoiRecord;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.level.GameRules;
-import net.minecraft.world.level.dimension.Dimension;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.phys.Vec3;
@@ -32,7 +31,7 @@ public class Raids extends SavedData {
     private int tick;
 
     public Raids(ServerLevel param0) {
-        super(getFileId(param0.dimension));
+        super(getFileId(param0.dimensionType()));
         this.level = param0;
         this.nextAvailableID = 1;
         this.setDirty();
@@ -72,7 +71,7 @@ public class Raids extends SavedData {
             return param0.isAlive()
                 && param0.canJoinRaid()
                 && param0.getNoActionTime() <= 2400
-                && param0.level.getDimension().getType() == param1.getLevel().getDimension().getType();
+                && param0.level.dimensionType() == param1.getLevel().dimensionType();
         } else {
             return false;
         }
@@ -85,7 +84,7 @@ public class Raids extends SavedData {
         } else if (this.level.getGameRules().getBoolean(GameRules.RULE_DISABLE_RAIDS)) {
             return null;
         } else {
-            DimensionType var0 = param0.level.getDimension().getType();
+            DimensionType var0 = param0.level.dimensionType();
             if (var0 == DimensionType.NETHER) {
                 return null;
             } else {
@@ -176,8 +175,8 @@ public class Raids extends SavedData {
         return param0;
     }
 
-    public static String getFileId(Dimension param0) {
-        return "raids" + param0.getType().getFileSuffix();
+    public static String getFileId(DimensionType param0) {
+        return "raids" + param0.getFileSuffix();
     }
 
     private int getUniqueId() {

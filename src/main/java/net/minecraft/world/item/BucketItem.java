@@ -120,7 +120,7 @@ public class BucketItem extends Item {
                 || var2
                 || var0.getBlock() instanceof LiquidBlockContainer
                     && ((LiquidBlockContainer)var0.getBlock()).canPlaceLiquid(param1, param2, var0, this.content)) {
-                if (param1.dimension.isUltraWarm() && this.content.is(FluidTags.WATER)) {
+                if (param1.dimensionType().ultraWarm() && this.content.is(FluidTags.WATER)) {
                     int var3 = param2.getX();
                     int var4 = param2.getY();
                     int var5 = param2.getZ();

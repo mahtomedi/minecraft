@@ -524,6 +524,7 @@ public class Panda extends Animal {
     @Override
     protected void pickUpItem(ItemEntity param0) {
         if (this.getItemBySlot(EquipmentSlot.MAINHAND).isEmpty() && PANDA_ITEMS.test(param0)) {
+            this.onItemPickup(param0);
             ItemStack var0 = param0.getItem();
             this.setItemSlot(EquipmentSlot.MAINHAND, var0);
             this.handDropChances[EquipmentSlot.MAINHAND.getIndex()] = 2.0F;

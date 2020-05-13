@@ -36,7 +36,7 @@ import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 import net.minecraft.world.level.levelgen.synth.PerlinSimplexNoise;
 import net.minecraft.world.level.levelgen.synth.SurfaceNoise;
 
-public abstract class NoiseBasedChunkGenerator<T extends ChunkGeneratorSettings> extends ChunkGenerator<T> {
+public abstract class NoiseBasedChunkGenerator<T extends NoiseGeneratorSettings> extends ChunkGenerator {
     private static final float[] BEARD_KERNEL = Util.make(new float[13824], param0 -> {
         for(int var0 = 0; var0 < 24; ++var0) {
             for(int var1 = 0; var1 < 24; ++var1) {
@@ -60,23 +60,27 @@ public abstract class NoiseBasedChunkGenerator<T extends ChunkGeneratorSettings>
     private final SurfaceNoise surfaceNoise;
     protected final BlockState defaultBlock;
     protected final BlockState defaultFluid;
+    private final int bedrockFloorPosition;
+    private final int bedrockRoofPosition;
 
-    public NoiseBasedChunkGenerator(LevelAccessor param0, BiomeSource param1, int param2, int param3, int param4, T param5, boolean param6) {
-        super(param0, param1, param5);
-        this.chunkHeight = param3;
-        this.chunkWidth = param2;
-        this.defaultBlock = param5.getDefaultBlock();
-        this.defaultFluid = param5.getDefaultFluid();
+    public NoiseBasedChunkGenerator(BiomeSource param0, long param1, T param2, int param3, int param4, int param5, boolean param6) {
+        super(param0, param2.structureSettings());
+        this.chunkHeight = param4;
+        this.chunkWidth = param3;
+        this.defaultBlock = param2.getDefaultBlock();
+        this.defaultFluid = param2.getDefaultFluid();
         this.chunkCountX = 16 / this.chunkWidth;
-        this.chunkCountY = param4 / this.chunkHeight;
+        this.chunkCountY = param5 / this.chunkHeight;
         this.chunkCountZ = 16 / this.chunkWidth;
-        this.random = new WorldgenRandom(this.seed);
+        this.random = new WorldgenRandom(param1);
         this.minLimitPerlinNoise = new PerlinNoise(this.random, IntStream.rangeClosed(-15, 0));
         this.maxLimitPerlinNoise = new PerlinNoise(this.random, IntStream.rangeClosed(-15, 0));
         this.mainPerlinNoise = new PerlinNoise(this.random, IntStream.rangeClosed(-7, 0));
         this.surfaceNoise = (SurfaceNoise)(param6
             ? new PerlinSimplexNoise(this.random, IntStream.rangeClosed(-3, 0))
             : new PerlinNoise(this.random, IntStream.rangeClosed(-3, 0)));
+        this.bedrockFloorPosition = param2.getBedrockFloorPosition();
+        this.bedrockRoofPosition = param2.getBedrockRoofPosition();
     }
 
     private double sampleAndClampNoise(int param0, int param1, int param2, double param3, double param4, double param5, double param6) {
@@ -252,18 +256,7 @@ public abstract class NoiseBasedChunkGenerator<T extends ChunkGeneratorSettings>
                 int var13 = param1.getHeight(Heightmap.Types.WORLD_SURFACE_WG, var9, var10) + 1;
                 double var14 = this.surfaceNoise.getSurfaceNoiseValue((double)var11 * 0.0625, (double)var12 * 0.0625, 0.0625, (double)var9 * 0.0625) * 15.0;
                 param0.getBiome(var8.set(var5 + var9, var13, var6 + var10))
-                    .buildSurfaceAt(
-                        var3,
-                        param1,
-                        var11,
-                        var12,
-                        var13,
-                        var14,
-                        this.getSettings().getDefaultBlock(),
-                        this.getSettings().getDefaultFluid(),
-                        this.getSeaLevel(),
-                        this.level.getSeed()
-                    );
+                    .buildSurfaceAt(var3, param1, var11, var12, var13, var14, this.defaultBlock, this.defaultFluid, this.getSeaLevel(), param0.getSeed());
             }
         }
 
@@ -274,23 +267,22 @@ public abstract class NoiseBasedChunkGenerator<T extends ChunkGeneratorSettings>
         BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
         int var1 = param0.getPos().getMinBlockX();
         int var2 = param0.getPos().getMinBlockZ();
-        T var3 = this.getSettings();
-        int var4 = var3.getBedrockFloorPosition();
-        int var5 = var3.getBedrockRoofPosition();
+        int var3 = this.bedrockFloorPosition;
+        int var4 = this.bedrockRoofPosition;
 
-        for(BlockPos var6 : BlockPos.betweenClosed(var1, 0, var2, var1 + 15, 0, var2 + 15)) {
-            if (var5 > 0) {
-                for(int var7 = var5; var7 >= var5 - 4; --var7) {
-                    if (var7 >= var5 - param1.nextInt(5)) {
-                        param0.setBlockState(var0.set(var6.getX(), var7, var6.getZ()), Blocks.BEDROCK.defaultBlockState(), false);
+        for(BlockPos var5 : BlockPos.betweenClosed(var1, 0, var2, var1 + 15, 0, var2 + 15)) {
+            if (var4 > 0) {
+                for(int var6 = var4; var6 >= var4 - 4; --var6) {
+                    if (var6 >= var4 - param1.nextInt(5)) {
+                        param0.setBlockState(var0.set(var5.getX(), var6, var5.getZ()), Blocks.BEDROCK.defaultBlockState(), false);
                     }
                 }
             }
 
-            if (var4 < 256) {
-                for(int var8 = var4 + 4; var8 >= var4; --var8) {
-                    if (var8 <= var4 + param1.nextInt(5)) {
-                        param0.setBlockState(var0.set(var6.getX(), var8, var6.getZ()), Blocks.BEDROCK.defaultBlockState(), false);
+            if (var3 < 256) {
+                for(int var7 = var3 + 4; var7 >= var3; --var7) {
+                    if (var7 <= var3 + param1.nextInt(5)) {
+                        param0.setBlockState(var0.set(var5.getX(), var7, var5.getZ()), Blocks.BEDROCK.defaultBlockState(), false);
                     }
                 }
             }
@@ -309,7 +301,7 @@ public abstract class NoiseBasedChunkGenerator<T extends ChunkGeneratorSettings>
         int var6 = var4 << 4;
 
         for(StructureFeature<?> var7 : Feature.NOISE_AFFECTING_FEATURES) {
-            param1.startsForFeature(SectionPos.of(var2, 0), var7, param0).forEach(param5 -> {
+            param1.startsForFeature(SectionPos.of(var2, 0), var7).forEach(param5 -> {
                 for(StructurePiece var0x : param5.getPieces()) {
                     if (var0x.isCloseToChunk(var2, 12)) {
                         if (var0x instanceof PoolElementStructurePiece) {

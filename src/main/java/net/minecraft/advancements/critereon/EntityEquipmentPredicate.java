@@ -93,4 +93,41 @@ public class EntityEquipmentPredicate {
             return var0;
         }
     }
+
+    public static class Builder {
+        private ItemPredicate head = ItemPredicate.ANY;
+        private ItemPredicate chest = ItemPredicate.ANY;
+        private ItemPredicate legs = ItemPredicate.ANY;
+        private ItemPredicate feet = ItemPredicate.ANY;
+        private ItemPredicate mainhand = ItemPredicate.ANY;
+        private ItemPredicate offhand = ItemPredicate.ANY;
+
+        public static EntityEquipmentPredicate.Builder equipment() {
+            return new EntityEquipmentPredicate.Builder();
+        }
+
+        public EntityEquipmentPredicate.Builder head(ItemPredicate param0) {
+            this.head = param0;
+            return this;
+        }
+
+        public EntityEquipmentPredicate.Builder chest(ItemPredicate param0) {
+            this.chest = param0;
+            return this;
+        }
+
+        public EntityEquipmentPredicate.Builder legs(ItemPredicate param0) {
+            this.legs = param0;
+            return this;
+        }
+
+        public EntityEquipmentPredicate.Builder feet(ItemPredicate param0) {
+            this.feet = param0;
+            return this;
+        }
+
+        public EntityEquipmentPredicate build() {
+            return new EntityEquipmentPredicate(this.head, this.chest, this.legs, this.feet, this.mainhand, this.offhand);
+        }
+    }
 }

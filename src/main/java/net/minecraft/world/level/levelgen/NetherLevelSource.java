@@ -3,18 +3,27 @@ package net.minecraft.world.level.levelgen;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class NetherLevelSource extends NoiseBasedChunkGenerator<NetherGeneratorSettings> {
     private final double[] yOffsets = this.makeYOffsets();
+    private final NetherGeneratorSettings settings;
 
-    public NetherLevelSource(LevelAccessor param0, BiomeSource param1, NetherGeneratorSettings param2) {
-        super(param0, param1, 4, 8, 128, param2, false);
+    public NetherLevelSource(BiomeSource param0, long param1, NetherGeneratorSettings param2) {
+        super(param0, param1, param2, 4, 8, 128, false);
+        this.settings = param2;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public ChunkGenerator withSeed(long param0) {
+        return new NetherLevelSource(this.biomeSource.withSeed(param0), param0, this.settings);
     }
 
     @Override
@@ -58,23 +67,10 @@ public class NetherLevelSource extends NoiseBasedChunkGenerator<NetherGeneratorS
     }
 
     @Override
-    public List<Biome.SpawnerData> getMobsAt(StructureFeatureManager param0, MobCategory param1, BlockPos param2) {
-        if (param1 == MobCategory.MONSTER) {
-            if (Feature.NETHER_BRIDGE.isInsideFeature(this.level, param0, param2)) {
-                return Feature.NETHER_BRIDGE.getSpecialEnemies();
-            }
-
-            if (Feature.NETHER_BRIDGE.isInsideBoundingFeature(this.level, param0, param2) && this.level.getBlockState(param2.below()).is(Blocks.NETHER_BRICKS)) {
-                return Feature.NETHER_BRIDGE.getSpecialEnemies();
-            }
-        }
-
-        return super.getMobsAt(param0, param1, param2);
-    }
-
-    @Override
-    public int getSpawnHeight() {
-        return this.level.getSeaLevel() + 1;
+    public List<Biome.SpawnerData> getMobsAt(Biome param0, StructureFeatureManager param1, MobCategory param2, BlockPos param3) {
+        return param2 == MobCategory.MONSTER && Feature.NETHER_BRIDGE.isInsideFeature(param1, param3)
+            ? Feature.NETHER_BRIDGE.getSpecialEnemies()
+            : super.getMobsAt(param0, param1, param2, param3);
     }
 
     @Override

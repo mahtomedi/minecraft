@@ -9,7 +9,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.RandomScatteredFeature;
@@ -33,13 +32,13 @@ public class OceanRuinFeature extends RandomScatteredFeature<OceanRuinConfigurat
     }
 
     @Override
-    protected int getSpacing(DimensionType param0, ChunkGeneratorSettings param1) {
-        return param1.getOceanRuinSpacing();
+    protected int getSpacing(ChunkGeneratorSettings param0) {
+        return param0.getOceanRuinSpacing();
     }
 
     @Override
-    protected int getSeparation(DimensionType param0, ChunkGeneratorSettings param1) {
-        return param1.getOceanRuinSeparation();
+    protected int getSeparation(ChunkGeneratorSettings param0) {
+        return param0.getOceanRuinSeparation();
     }
 
     @Override
@@ -58,7 +57,7 @@ public class OceanRuinFeature extends RandomScatteredFeature<OceanRuinConfigurat
         }
 
         @Override
-        public void generatePieces(ChunkGenerator<?> param0, StructureManager param1, int param2, int param3, Biome param4) {
+        public void generatePieces(ChunkGenerator param0, StructureManager param1, int param2, int param3, Biome param4) {
             OceanRuinConfiguration var0 = param0.getStructureConfiguration(param4, Feature.OCEAN_RUIN);
             int var1 = param2 * 16;
             int var2 = param3 * 16;

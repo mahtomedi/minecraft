@@ -150,6 +150,7 @@ public class GameRules {
         this.rules = GAME_RULE_TYPES.entrySet().stream().collect(ImmutableMap.toImmutableMap(Entry::getKey, param0 -> param0.getValue().createRule()));
     }
 
+    @OnlyIn(Dist.CLIENT)
     private GameRules(Map<GameRules.Key<?>, GameRules.Value<?>> param0) {
         this.rules = param0;
     }
@@ -173,6 +174,7 @@ public class GameRules {
         });
     }
 
+    @OnlyIn(Dist.CLIENT)
     public GameRules copy() {
         return new GameRules(this.rules.entrySet().stream().collect(ImmutableMap.toImmutableMap(Entry::getKey, param0 -> param0.getValue().copy())));
     }
@@ -255,6 +257,7 @@ public class GameRules {
             return this;
         }
 
+        @OnlyIn(Dist.CLIENT)
         protected GameRules.BooleanValue copy() {
             return new GameRules.BooleanValue(this.type, this.value);
         }
@@ -366,6 +369,7 @@ public class GameRules {
             return this;
         }
 
+        @OnlyIn(Dist.CLIENT)
         protected GameRules.IntegerValue copy() {
             return new GameRules.IntegerValue(this.type, this.value);
         }
@@ -480,6 +484,7 @@ public class GameRules {
 
         protected abstract T getSelf();
 
+        @OnlyIn(Dist.CLIENT)
         protected abstract T copy();
 
         public abstract void setFrom(T var1, @Nullable MinecraftServer var2);

@@ -25,7 +25,7 @@ public class IceBlock extends HalfTransparentBlock {
     public void playerDestroy(Level param0, Player param1, BlockPos param2, BlockState param3, @Nullable BlockEntity param4, ItemStack param5) {
         super.playerDestroy(param0, param1, param2, param3, param4, param5);
         if (EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SILK_TOUCH, param5) == 0) {
-            if (param0.dimension.isUltraWarm()) {
+            if (param0.dimensionType().ultraWarm()) {
                 param0.removeBlock(param2, false);
                 return;
             }
@@ -47,7 +47,7 @@ public class IceBlock extends HalfTransparentBlock {
     }
 
     protected void melt(BlockState param0, Level param1, BlockPos param2) {
-        if (param1.dimension.isUltraWarm()) {
+        if (param1.dimensionType().ultraWarm()) {
             param1.removeBlock(param2, false);
         } else {
             param1.setBlockAndUpdate(param2, Blocks.WATER.defaultBlockState());

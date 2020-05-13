@@ -62,6 +62,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.block.RespawnAnchorBlock;
 import net.minecraft.world.level.border.BorderChangeListener;
 import net.minecraft.world.level.border.WorldBorder;
@@ -144,14 +145,15 @@ public abstract class PlayerList {
             new ClientboundLoginPacket(
                 param1.getId(),
                 param1.gameMode.getGameModeForPlayer(),
-                LevelData.obfuscateSeed(var7.getSeed()),
+                BiomeManager.obfuscateSeed(var5.getSeed()),
                 var7.isHardcore(),
-                var5.dimension.getType(),
+                var5.dimensionType(),
                 this.getMaxPlayers(),
-                var7.getGeneratorType(),
                 this.viewDistance,
                 var11,
-                !var10
+                !var10,
+                var5.isDebug(),
+                var5.isFlat()
             )
         );
         var8.send(
@@ -463,7 +465,12 @@ public abstract class PlayerList {
         var6.connection
             .send(
                 new ClientboundRespawnPacket(
-                    var6.dimension, LevelData.obfuscateSeed(var11.getSeed()), var11.getGeneratorType(), var6.gameMode.getGameModeForPlayer(), param1
+                    var6.dimension,
+                    BiomeManager.obfuscateSeed(var6.getLevel().getSeed()),
+                    var6.gameMode.getGameModeForPlayer(),
+                    var6.getLevel().isDebug(),
+                    var6.getLevel().isFlat(),
+                    param1
                 )
             );
         var6.connection.teleport(var6.getX(), var6.getY(), var6.getZ(), var6.yRot, var6.xRot);

@@ -79,6 +79,7 @@ public class EndDragonFight {
     private DragonRespawnAnimation respawnStage;
     private int respawnTime;
     private List<EndCrystal> respawnCrystals;
+    private boolean populateGateways;
 
     public EndDragonFight(ServerLevel param0, CompoundTag param1) {
         this.level = param0;
@@ -108,8 +109,7 @@ public class EndDragonFight {
                 this.gateways.add(var0.getInt(var1));
             }
         } else {
-            this.gateways.addAll(ContiguousSet.create(Range.closedOpen(0, 20), DiscreteDomain.integers()));
-            Collections.shuffle(this.gateways, new Random(param0.getSeed()));
+            this.populateGateways = true;
         }
 
         this.exitPortalPattern = BlockPatternBuilder.start()
@@ -374,6 +374,12 @@ public class EndDragonFight {
     }
 
     private void spawnNewGateway() {
+        if (this.populateGateways) {
+            this.populateGateways = false;
+            this.gateways.addAll(ContiguousSet.create(Range.closedOpen(0, 20), DiscreteDomain.integers()));
+            Collections.shuffle(this.gateways, new Random(this.level.getSeed()));
+        }
+
         if (!this.gateways.isEmpty()) {
             int var0 = this.gateways.remove(this.gateways.size() - 1);
             int var1 = Mth.floor(96.0 * Math.cos(2.0 * (-Math.PI + (Math.PI / 20) * (double)var0)));

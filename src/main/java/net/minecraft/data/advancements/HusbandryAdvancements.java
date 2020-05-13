@@ -13,16 +13,16 @@ import net.minecraft.advancements.critereon.EnchantmentPredicate;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.FilledBucketTrigger;
 import net.minecraft.advancements.critereon.FishingRodHookedTrigger;
-import net.minecraft.advancements.critereon.ItemDurabilityTrigger;
+import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.ItemUsedOnBlockTrigger;
+import net.minecraft.advancements.critereon.LocationPredicate;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.advancements.critereon.PlacedBlockTrigger;
 import net.minecraft.advancements.critereon.TameAnimalTrigger;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.item.Item;
@@ -47,7 +47,8 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
         EntityType.PANDA,
         EntityType.FOX,
         EntityType.BEE,
-        EntityType.HOGLIN
+        EntityType.HOGLIN,
+        EntityType.STRIDER
     };
     private static final Item[] FISH = new Item[]{Items.COD, Items.TROPICAL_FISH, Items.PUFFERFISH, Items.SALMON};
     private static final Item[] FISH_BUCKETS = new Item[]{Items.COD_BUCKET, Items.TROPICAL_FISH_BUCKET, Items.PUFFERFISH_BUCKET, Items.SALMON_BUCKET};
@@ -141,7 +142,7 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
             .requirements(RequirementsStrategy.OR)
             .addCriterion("bred", BredAnimalsTrigger.TriggerInstance.bredAnimals())
             .save(param0, "husbandry/breed_an_animal");
-        Advancement var3 = this.addFood(Advancement.Builder.advancement())
+        this.addFood(Advancement.Builder.advancement())
             .parent(var1)
             .display(
                 Items.APPLE,
@@ -155,12 +156,12 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
             )
             .rewards(AdvancementRewards.Builder.experience(100))
             .save(param0, "husbandry/balanced_diet");
-        Advancement var4 = Advancement.Builder.advancement()
+        Advancement.Builder.advancement()
             .parent(var1)
             .display(
-                Items.DIAMOND_HOE,
-                new TranslatableComponent("advancements.husbandry.break_diamond_hoe.title"),
-                new TranslatableComponent("advancements.husbandry.break_diamond_hoe.description"),
+                Items.NETHERITE_HOE,
+                new TranslatableComponent("advancements.husbandry.netherite_hoe.title"),
+                new TranslatableComponent("advancements.husbandry.netherite_hoe.description"),
                 null,
                 FrameType.CHALLENGE,
                 true,
@@ -168,14 +169,9 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
                 false
             )
             .rewards(AdvancementRewards.Builder.experience(100))
-            .addCriterion(
-                "broke_hoe",
-                ItemDurabilityTrigger.TriggerInstance.changedDurability(
-                    ItemPredicate.Builder.item().of(Items.DIAMOND_HOE).build(), MinMaxBounds.Ints.exactly(0)
-                )
-            )
+            .addCriterion("netherite_hoe", InventoryChangeTrigger.TriggerInstance.hasItems(Items.NETHERITE_HOE))
             .save(param0, "husbandry/break_diamond_hoe");
-        Advancement var5 = Advancement.Builder.advancement()
+        Advancement var3 = Advancement.Builder.advancement()
             .parent(var0)
             .display(
                 Items.LEAD,
@@ -189,7 +185,7 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
             )
             .addCriterion("tamed_animal", TameAnimalTrigger.TriggerInstance.tamedAnimal())
             .save(param0, "husbandry/tame_an_animal");
-        Advancement var6 = this.addBreedable(Advancement.Builder.advancement())
+        this.addBreedable(Advancement.Builder.advancement())
             .parent(var2)
             .display(
                 Items.GOLDEN_CARROT,
@@ -203,7 +199,7 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
             )
             .rewards(AdvancementRewards.Builder.experience(100))
             .save(param0, "husbandry/bred_all_animals");
-        Advancement var7 = this.addFish(Advancement.Builder.advancement())
+        Advancement var4 = this.addFish(Advancement.Builder.advancement())
             .parent(var0)
             .requirements(RequirementsStrategy.OR)
             .display(
@@ -217,8 +213,8 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
                 false
             )
             .save(param0, "husbandry/fishy_business");
-        Advancement var8 = this.addFishBuckets(Advancement.Builder.advancement())
-            .parent(var7)
+        this.addFishBuckets(Advancement.Builder.advancement())
+            .parent(var4)
             .requirements(RequirementsStrategy.OR)
             .display(
                 Items.PUFFERFISH_BUCKET,
@@ -231,8 +227,8 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
                 false
             )
             .save(param0, "husbandry/tactical_fishing");
-        Advancement var9 = this.addCatVariants(Advancement.Builder.advancement())
-            .parent(var5)
+        this.addCatVariants(Advancement.Builder.advancement())
+            .parent(var3)
             .display(
                 Items.COD,
                 new TranslatableComponent("advancements.husbandry.complete_catalogue.title"),
@@ -245,12 +241,13 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
             )
             .rewards(AdvancementRewards.Builder.experience(50))
             .save(param0, "husbandry/complete_catalogue");
-        Advancement var10 = Advancement.Builder.advancement()
+        Advancement.Builder.advancement()
             .parent(var0)
             .addCriterion(
                 "safely_harvest_honey",
-                ItemUsedOnBlockTrigger.TriggerInstance.safelyHarvestedHoney(
-                    BlockPredicate.Builder.block().of(BlockTags.BEEHIVES), ItemPredicate.Builder.item().of(Items.GLASS_BOTTLE)
+                ItemUsedOnBlockTrigger.TriggerInstance.itemUsedOnBlock(
+                    LocationPredicate.Builder.location().setBlock(BlockPredicate.Builder.block().of(Blocks.BEEHIVE).build()).setSmokey(true),
+                    ItemPredicate.Builder.item().of(Items.GLASS_BOTTLE)
                 )
             )
             .display(
@@ -264,7 +261,7 @@ public class HusbandryAdvancements implements Consumer<Consumer<Advancement>> {
                 false
             )
             .save(param0, "husbandry/safely_harvest_honey");
-        Advancement var11 = Advancement.Builder.advancement()
+        Advancement.Builder.advancement()
             .parent(var0)
             .addCriterion(
                 "silk_touch_nest",

@@ -8,7 +8,6 @@ import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneDecoratorConfiguration;
 
@@ -17,9 +16,7 @@ public class DarkOakTreePlacementDecorator extends FeatureDecorator<NoneDecorato
         super(param0);
     }
 
-    public Stream<BlockPos> getPositions(
-        LevelAccessor param0, ChunkGenerator<? extends ChunkGeneratorSettings> param1, Random param2, NoneDecoratorConfiguration param3, BlockPos param4
-    ) {
+    public Stream<BlockPos> getPositions(LevelAccessor param0, ChunkGenerator param1, Random param2, NoneDecoratorConfiguration param3, BlockPos param4) {
         return IntStream.range(0, 16).mapToObj(param3x -> {
             int var0 = param3x / 4;
             int var1x = param3x % 4;

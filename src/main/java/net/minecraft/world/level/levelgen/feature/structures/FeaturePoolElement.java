@@ -11,8 +11,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.FrontAndTop;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
+import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.JigsawBlock;
 import net.minecraft.world.level.block.Rotation;
@@ -82,9 +82,9 @@ public class FeaturePoolElement extends StructurePoolElement {
     @Override
     public boolean place(
         StructureManager param0,
-        LevelAccessor param1,
+        WorldGenLevel param1,
         StructureFeatureManager param2,
-        ChunkGenerator<?> param3,
+        ChunkGenerator param3,
         BlockPos param4,
         BlockPos param5,
         Rotation param6,

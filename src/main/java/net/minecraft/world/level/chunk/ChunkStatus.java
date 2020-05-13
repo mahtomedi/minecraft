@@ -46,9 +46,14 @@ public class ChunkStatus {
         ChunkStatus.ChunkType.PROTOCHUNK,
         (param0, param1, param2, param3, param4, param5, param6, param7) -> {
             if (!param7.getStatus().isOrAfter(param0)) {
-                if (param1.getServer().getWorldData().overworldData().shouldGenerateMapFeatures()) {
+                if (param1.getServer().getWorldData().worldGenSettings().generateFeatures()) {
                     param2.createStructures(
-                        param1.structureFeatureManager(), param1.getBiomeManager().withDifferentSource(param2.getBiomeSource()), param7, param2, param3
+                        param1.structureFeatureManager(),
+                        param1.getBiomeManager().withDifferentSource(param2.getBiomeSource()),
+                        param7,
+                        param2,
+                        param3,
+                        param1.getSeed()
                     );
                 }
     
@@ -94,7 +99,7 @@ public class ChunkStatus {
         PRE_FEATURES,
         ChunkStatus.ChunkType.PROTOCHUNK,
         (param0, param1, param2, param3) -> param1.applyCarvers(
-                param0.getBiomeManager().withDifferentSource(param1.getBiomeSource()), param3, GenerationStep.Carving.AIR
+                param0.getSeed(), param0.getBiomeManager().withDifferentSource(param1.getBiomeSource()), param3, GenerationStep.Carving.AIR
             )
     );
     public static final ChunkStatus LIQUID_CARVERS = registerSimple(
@@ -104,7 +109,7 @@ public class ChunkStatus {
         POST_FEATURES,
         ChunkStatus.ChunkType.PROTOCHUNK,
         (param0, param1, param2, param3) -> param1.applyCarvers(
-                param0.getBiomeManager().withDifferentSource(param1.getBiomeSource()), param3, GenerationStep.Carving.LIQUID
+                param0.getSeed(), param0.getBiomeManager().withDifferentSource(param1.getBiomeSource()), param3, GenerationStep.Carving.LIQUID
             )
     );
     public static final ChunkStatus FEATURES = register(
@@ -305,7 +310,7 @@ public class ChunkStatus {
 
     public CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> generate(
         ServerLevel param0,
-        ChunkGenerator<?> param1,
+        ChunkGenerator param1,
         StructureManager param2,
         ThreadedLevelLightEngine param3,
         Function<ChunkAccess, CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> param4,
@@ -358,7 +363,7 @@ public class ChunkStatus {
         CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> doWork(
             ChunkStatus var1,
             ServerLevel var2,
-            ChunkGenerator<?> var3,
+            ChunkGenerator var3,
             StructureManager var4,
             ThreadedLevelLightEngine var5,
             Function<ChunkAccess, CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> var6,
@@ -383,7 +388,7 @@ public class ChunkStatus {
         default CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> doWork(
             ChunkStatus param0,
             ServerLevel param1,
-            ChunkGenerator<?> param2,
+            ChunkGenerator param2,
             StructureManager param3,
             ThreadedLevelLightEngine param4,
             Function<ChunkAccess, CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> param5,
@@ -400,6 +405,6 @@ public class ChunkStatus {
             return CompletableFuture.completedFuture(Either.left(param7));
         }
 
-        void doWork(ServerLevel var1, ChunkGenerator<?> var2, List<ChunkAccess> var3, ChunkAccess var4);
+        void doWork(ServerLevel var1, ChunkGenerator var2, List<ChunkAccess> var3, ChunkAccess var4);
     }
 }

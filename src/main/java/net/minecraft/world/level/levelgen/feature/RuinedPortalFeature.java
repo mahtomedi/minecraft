@@ -18,7 +18,6 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.configurations.RuinedPortalConfiguration;
@@ -60,13 +59,13 @@ public class RuinedPortalFeature extends RandomScatteredFeature<RuinedPortalConf
     }
 
     @Override
-    protected int getSpacing(DimensionType param0, ChunkGeneratorSettings param1) {
-        return param1.getRuinedPortalSpacing(param0 == DimensionType.NETHER);
+    protected int getSpacing(ChunkGeneratorSettings param0) {
+        return param0.getRuinedPortalSpacing();
     }
 
     @Override
-    protected int getSeparation(DimensionType param0, ChunkGeneratorSettings param1) {
-        return param1.getRuinedPortalSeparation(param0 == DimensionType.NETHER);
+    protected int getSeparation(ChunkGeneratorSettings param0) {
+        return param0.getRuinedPortalSeparation();
     }
 
     @Override
@@ -84,7 +83,7 @@ public class RuinedPortalFeature extends RandomScatteredFeature<RuinedPortalConf
     }
 
     private static int findSuitableY(
-        Random param0, ChunkGenerator<?> param1, RuinedPortalPiece.VerticalPlacement param2, boolean param3, int param4, int param5, BoundingBox param6
+        Random param0, ChunkGenerator param1, RuinedPortalPiece.VerticalPlacement param2, boolean param3, int param4, int param5, BoundingBox param6
     ) {
         int var0;
         if (param2 == RuinedPortalPiece.VerticalPlacement.IN_NETHER) {
@@ -148,7 +147,7 @@ public class RuinedPortalFeature extends RandomScatteredFeature<RuinedPortalConf
         }
 
         @Override
-        public void generatePieces(ChunkGenerator<?> param0, StructureManager param1, int param2, int param3, Biome param4) {
+        public void generatePieces(ChunkGenerator param0, StructureManager param1, int param2, int param3, Biome param4) {
             RuinedPortalConfiguration var0 = param0.getStructureConfiguration(param4, Feature.RUINED_PORTAL);
             if (var0 != null) {
                 RuinedPortalPiece.Properties var1 = new RuinedPortalPiece.Properties();

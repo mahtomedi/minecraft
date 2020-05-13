@@ -23,6 +23,7 @@ import net.minecraft.client.color.block.BlockTintCache;
 import net.minecraft.client.particle.FireworkParticles;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.BiomeColors;
+import net.minecraft.client.renderer.DimensionSpecialEffects;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.resources.sounds.EntityBoundSoundInstance;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -52,7 +53,6 @@ import net.minecraft.world.level.EmptyTickList;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelType;
 import net.minecraft.world.level.TickList;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
@@ -62,7 +62,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.dimension.DimensionType;
-import net.minecraft.world.level.levelgen.ChunkGeneratorProvider;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
@@ -81,6 +80,7 @@ public class ClientLevel extends Level {
     private final ClientPacketListener connection;
     private final LevelRenderer levelRenderer;
     private final ClientLevel.ClientLevelData clientLevelData;
+    private final DimensionSpecialEffects effects;
     private final Minecraft minecraft = Minecraft.getInstance();
     private final List<AbstractClientPlayer> players = Lists.newArrayList();
     private Scoreboard scoreboard = new Scoreboard();
@@ -91,6 +91,7 @@ public class ClientLevel extends Level {
         param0x.put(BiomeColors.FOLIAGE_COLOR_RESOLVER, new BlockTintCache());
         param0x.put(BiomeColors.WATER_COLOR_RESOLVER, new BlockTintCache());
     });
+    private final ClientChunkCache chunkSource;
 
     public ClientLevel(
         ClientPacketListener param0,
@@ -98,15 +99,23 @@ public class ClientLevel extends Level {
         DimensionType param2,
         int param3,
         Supplier<ProfilerFiller> param4,
-        LevelRenderer param5
+        LevelRenderer param5,
+        boolean param6,
+        long param7
     ) {
-        super(param1, param2, (param1x, param2x) -> new ClientChunkCache((ClientLevel)param1x, param3), param4, true);
+        super(param1, param2, param4, true, param6, param7);
+        this.chunkSource = new ClientChunkCache(this, param3);
         this.clientLevelData = param1;
         this.connection = param0;
         this.levelRenderer = param5;
+        this.effects = DimensionSpecialEffects.forType(param2);
         this.setDefaultSpawnPos(new BlockPos(8, 64, 8));
         this.updateSkyBrightness();
         this.prepareWeather();
+    }
+
+    public DimensionSpecialEffects effects() {
+        return this.effects;
     }
 
     public void tick(BooleanSupplier param0) {
@@ -533,7 +542,7 @@ public class ClientLevel extends Level {
     }
 
     public ClientChunkCache getChunkSource() {
-        return (ClientChunkCache)super.getChunkSource();
+        return this.chunkSource;
     }
 
     @Nullable
@@ -726,10 +735,6 @@ public class ClientLevel extends Level {
         return var1 * var1 * 0.5F;
     }
 
-    public double getHorizonHeight() {
-        return this.levelData.getGeneratorType() == LevelType.FLAT ? 0.0 : 63.0;
-    }
-
     public int getSkyFlashTime() {
         return this.skyFlashTime;
     }
@@ -741,7 +746,7 @@ public class ClientLevel extends Level {
 
     @Override
     public float getShade(Direction param0, boolean param1) {
-        boolean var0 = this.dimension.getType() == DimensionType.NETHER;
+        boolean var0 = this.dimensionType() == DimensionType.NETHER;
         if (!param1) {
             return var0 ? 0.9F : 1.0F;
         } else {
@@ -811,12 +816,15 @@ public class ClientLevel extends Level {
         return "ClientLevel";
     }
 
+    public ClientLevel.ClientLevelData getLevelData() {
+        return this.clientLevelData;
+    }
+
     @OnlyIn(Dist.CLIENT)
     public static class ClientLevelData implements WritableLevelData {
-        private final long seed;
-        private final ChunkGeneratorProvider generatorProvider;
         private final boolean hardcore;
         private final GameRules gameRules;
+        private final boolean isFlat;
         private int xSpawn;
         private int ySpawn;
         private int zSpawn;
@@ -826,17 +834,11 @@ public class ClientLevel extends Level {
         private Difficulty difficulty;
         private boolean difficultyLocked;
 
-        public ClientLevelData(long param0, Difficulty param1, boolean param2, ChunkGeneratorProvider param3) {
-            this.seed = param0;
-            this.difficulty = param1;
-            this.hardcore = param2;
-            this.generatorProvider = param3;
+        public ClientLevelData(Difficulty param0, boolean param1, boolean param2) {
+            this.difficulty = param0;
+            this.hardcore = param1;
+            this.isFlat = param2;
             this.gameRules = new GameRules();
-        }
-
-        @Override
-        public long getSeed() {
-            return this.seed;
         }
 
         @Override
@@ -917,16 +919,6 @@ public class ClientLevel extends Level {
         }
 
         @Override
-        public LevelType getGeneratorType() {
-            return this.generatorProvider.getType();
-        }
-
-        @Override
-        public ChunkGeneratorProvider getGeneratorProvider() {
-            return this.generatorProvider;
-        }
-
-        @Override
         public GameRules getGameRules() {
             return this.gameRules;
         }
@@ -952,6 +944,14 @@ public class ClientLevel extends Level {
 
         public void setDifficultyLocked(boolean param0) {
             this.difficultyLocked = param0;
+        }
+
+        public double getHorizonHeight() {
+            return this.isFlat ? 0.0 : 63.0;
+        }
+
+        public double getClearColorScale() {
+            return this.isFlat ? 1.0 : 0.03125;
         }
     }
 }

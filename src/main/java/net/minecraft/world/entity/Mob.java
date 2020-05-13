@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import javax.annotation.Nullable;
+import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.particles.ParticleTypes;
@@ -20,6 +21,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.Tag;
 import net.minecraft.util.Mth;
@@ -513,8 +515,17 @@ public abstract class Mob extends LivingEntity {
     protected void pickUpItem(ItemEntity param0) {
         ItemStack var0 = param0.getItem();
         if (this.equipItemIfPossible(var0)) {
+            this.onItemPickup(param0);
             this.take(param0, var0.getCount());
             param0.remove();
+        }
+
+    }
+
+    protected void onItemPickup(ItemEntity param0) {
+        Player var0 = param0.getThrower() != null ? this.level.getPlayerByUUID(param0.getThrower()) : null;
+        if (var0 instanceof ServerPlayer) {
+            CriteriaTriggers.ITEM_PICKED_UP_BY_ENTITY.trigger((ServerPlayer)var0, param0.getItem(), this);
         }
 
     }

@@ -1,7 +1,8 @@
 package net.minecraft.world.level.levelgen;
 
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.util.Mth;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ChunkGeneratorSettings {
     protected int villagesSpacing = 32;
@@ -24,12 +25,8 @@ public class ChunkGeneratorSettings {
     protected final int rareNetherStructureSpacing = 30;
     protected final int rareNetherStructureSeparation = 4;
     protected final int rareNetherStructureSalt = 30084232;
-    protected int ruinedPortalOverworldSpacing = 40;
-    protected final int ruinedPortalOverworldSeparation = 15;
-    protected int ruinedPortalNetherSpacing = 25;
-    protected final int ruinedPortalNetherSeparation = 10;
-    protected BlockState defaultBlock = Blocks.STONE.defaultBlockState();
-    protected BlockState defaultFluid = Blocks.WATER.defaultBlockState();
+    protected int ruinedPortalSpacing = 40;
+    protected int ruinedPortalSeparation = 15;
 
     public int getRareNetherStructureSpacing() {
         return 30;
@@ -111,35 +108,49 @@ public class ChunkGeneratorSettings {
         return 20;
     }
 
-    public int getRuinedPortalSpacing(boolean param0) {
-        return param0 ? this.ruinedPortalNetherSpacing : this.ruinedPortalOverworldSpacing;
+    public int getRuinedPortalSpacing() {
+        return this.ruinedPortalSpacing;
     }
 
-    public int getRuinedPortalSeparation(boolean param0) {
-        return param0 ? 10 : 15;
+    public int getRuinedPortalSeparation() {
+        return this.ruinedPortalSeparation;
     }
 
-    public BlockState getDefaultBlock() {
-        return this.defaultBlock;
-    }
+    @OnlyIn(Dist.CLIENT)
+    public void setOption(String param0, String param1, String param2) {
+        if ("village".equals(param0) && "distance".equals(param1)) {
+            this.villagesSpacing = Mth.getInt(param2, this.villagesSpacing, 9);
+        }
 
-    public BlockState getDefaultFluid() {
-        return this.defaultFluid;
-    }
+        if ("biome_1".equals(param0) && "distance".equals(param1)) {
+            this.templesSpacing = Mth.getInt(param2, this.templesSpacing, 9);
+        }
 
-    public void setDefaultBlock(BlockState param0) {
-        this.defaultBlock = param0;
-    }
+        if ("stronghold".equals(param0)) {
+            if ("distance".equals(param1)) {
+                this.strongholdsDistance = Mth.getInt(param2, this.strongholdsDistance, 1);
+            } else if ("count".equals(param1)) {
+                this.strongholdsCount = Mth.getInt(param2, this.strongholdsCount, 1);
+            } else if ("spread".equals(param1)) {
+                this.strongholdsSpread = Mth.getInt(param2, this.strongholdsSpread, 1);
+            }
+        }
 
-    public void setDefaultFluid(BlockState param0) {
-        this.defaultFluid = param0;
-    }
+        if ("oceanmonument".equals(param0)) {
+            if ("separation".equals(param1)) {
+                this.monumentsSeparation = Mth.getInt(param2, this.monumentsSeparation, 1);
+            } else if ("spacing".equals(param1)) {
+                this.monumentsSpacing = Mth.getInt(param2, this.monumentsSpacing, 1);
+            }
+        }
 
-    public int getBedrockRoofPosition() {
-        return 0;
-    }
+        if ("endcity".equals(param0) && "distance".equals(param1)) {
+            this.endCitySpacing = Mth.getInt(param2, this.endCitySpacing, 1);
+        }
 
-    public int getBedrockFloorPosition() {
-        return 256;
+        if ("mansion".equals(param0) && "distance".equals(param1)) {
+            this.woodlandMansionSpacing = Mth.getInt(param2, this.woodlandMansionSpacing, 1);
+        }
+
     }
 }

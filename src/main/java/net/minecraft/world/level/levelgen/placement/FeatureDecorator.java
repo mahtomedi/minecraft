@@ -9,8 +9,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
+import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.configurations.ChanceRangeDecoratorConfiguration;
@@ -160,13 +160,7 @@ public abstract class FeatureDecorator<DC extends DecoratorConfiguration> {
     }
 
     protected <FC extends FeatureConfiguration, F extends Feature<FC>> boolean placeFeature(
-        LevelAccessor param0,
-        StructureFeatureManager param1,
-        ChunkGenerator<? extends ChunkGeneratorSettings> param2,
-        Random param3,
-        BlockPos param4,
-        DC param5,
-        ConfiguredFeature<FC, F> param6
+        WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BlockPos param4, DC param5, ConfiguredFeature<FC, F> param6
     ) {
         AtomicBoolean var0 = new AtomicBoolean(false);
         this.getPositions(param0, param2, param3, param5, param4).forEach(param6x -> {
@@ -176,9 +170,7 @@ public abstract class FeatureDecorator<DC extends DecoratorConfiguration> {
         return var0.get();
     }
 
-    public abstract Stream<BlockPos> getPositions(
-        LevelAccessor var1, ChunkGenerator<? extends ChunkGeneratorSettings> var2, Random var3, DC var4, BlockPos var5
-    );
+    public abstract Stream<BlockPos> getPositions(LevelAccessor var1, ChunkGenerator var2, Random var3, DC var4, BlockPos var5);
 
     @Override
     public String toString() {

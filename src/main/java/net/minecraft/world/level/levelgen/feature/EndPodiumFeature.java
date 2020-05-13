@@ -3,12 +3,11 @@ package net.minecraft.world.level.levelgen.feature;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
+import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.WallTorchBlock;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 
 public class EndPodiumFeature extends Feature<NoneFeatureConfiguration> {
@@ -21,12 +20,7 @@ public class EndPodiumFeature extends Feature<NoneFeatureConfiguration> {
     }
 
     public boolean place(
-        LevelAccessor param0,
-        StructureFeatureManager param1,
-        ChunkGenerator<? extends ChunkGeneratorSettings> param2,
-        Random param3,
-        BlockPos param4,
-        NoneFeatureConfiguration param5
+        WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BlockPos param4, NoneFeatureConfiguration param5
     ) {
         for(BlockPos var0 : BlockPos.betweenClosed(
             new BlockPos(param4.getX() - 4, param4.getY() - 1, param4.getZ() - 4), new BlockPos(param4.getX() + 4, param4.getY() + 32, param4.getZ() + 4)

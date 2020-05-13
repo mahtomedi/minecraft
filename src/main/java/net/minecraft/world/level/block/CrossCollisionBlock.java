@@ -37,6 +37,11 @@ public class CrossCollisionBlock extends Block implements SimpleWaterloggedBlock
         super(param5);
         this.collisionShapeByIndex = this.makeShapes(param0, param1, param4, 0.0F, param4);
         this.shapeByIndex = this.makeShapes(param0, param1, param2, 0.0F, param3);
+
+        for(BlockState var0 : this.stateDefinition.getPossibleStates()) {
+            this.getAABBIndex(var0);
+        }
+
     }
 
     protected VoxelShape[] makeShapes(float param0, float param1, float param2, float param3, float param4) {

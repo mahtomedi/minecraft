@@ -46,7 +46,7 @@ public class SetSpawnCommand {
     }
 
     private static int setSpawn(CommandSourceStack param0, Collection<ServerPlayer> param1, BlockPos param2) {
-        DimensionType var0 = param0.getLevel().getDimension().getType();
+        DimensionType var0 = param0.getLevel().dimensionType();
 
         for(ServerPlayer var1 : param1) {
             var1.setRespawnPosition(var0, param2, true, false);

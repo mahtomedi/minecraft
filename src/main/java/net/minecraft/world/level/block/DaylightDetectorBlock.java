@@ -47,7 +47,7 @@ public class DaylightDetectorBlock extends BaseEntityBlock {
     }
 
     public static void updateSignalStrength(BlockState param0, Level param1, BlockPos param2) {
-        if (param1.dimension.isHasSkyLight()) {
+        if (param1.dimensionType().hasSkyLight()) {
             int var0 = param1.getBrightness(LightLayer.SKY, param2) - param1.getSkyDarken();
             float var1 = param1.getSunAngle(1.0F);
             boolean var2 = param0.getValue(INVERTED);

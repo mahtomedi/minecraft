@@ -1,6 +1,7 @@
 package net.minecraft.world.level.levelgen;
 
 import com.google.common.collect.Lists;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -15,9 +16,10 @@ import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
-import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.BiomeSpecialEffects;
 import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.biome.FixedBiomeSource;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -28,15 +30,25 @@ import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfigur
 import net.minecraft.world.level.levelgen.feature.configurations.LayerConfiguration;
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
 import net.minecraft.world.level.levelgen.surfacebuilders.ConfiguredSurfaceBuilder;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class FlatLevelSource extends ChunkGenerator<FlatLevelGeneratorSettings> {
+public class FlatLevelSource extends ChunkGenerator {
     private final Biome biomeWrapper;
     private final PhantomSpawner phantomSpawner = new PhantomSpawner();
     private final CatSpawner catSpawner = new CatSpawner();
+    private final FlatLevelGeneratorSettings settings;
 
-    public FlatLevelSource(LevelAccessor param0, BiomeSource param1, FlatLevelGeneratorSettings param2) {
-        super(param0, param1, param2);
+    public FlatLevelSource(FlatLevelGeneratorSettings param0) {
+        super(new FixedBiomeSource(param0.getBiome()), param0.structureSettings());
+        this.settings = param0;
         this.biomeWrapper = this.getBiomeFromSettings();
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public ChunkGenerator withSeed(long param0) {
+        return this;
     }
 
     private Biome getBiomeFromSettings() {
@@ -103,8 +115,16 @@ public class FlatLevelSource extends ChunkGenerator<FlatLevelGeneratorSettings> 
 
     @Override
     public int getSpawnHeight() {
-        ChunkAccess var0 = this.level.getChunk(0, 0);
-        return var0.getHeight(Heightmap.Types.MOTION_BLOCKING, 8, 8);
+        BlockState[] var0 = this.settings.getLayers();
+
+        for(int var1 = 0; var1 < var0.length; ++var1) {
+            BlockState var2 = var0[var1] == null ? Blocks.AIR.defaultBlockState() : var0[var1];
+            if (!Heightmap.Types.MOTION_BLOCKING.isOpaque().test(var2)) {
+                return var1 - 1;
+            }
+        }
+
+        return var0.length;
     }
 
     @Override
@@ -155,7 +175,11 @@ public class FlatLevelSource extends ChunkGenerator<FlatLevelGeneratorSettings> 
 
     @Override
     public BlockGetter getBaseColumn(int param0, int param1) {
-        return new NoiseColumn(this.settings.getLayers());
+        return new NoiseColumn(
+            Arrays.stream(this.settings.getLayers())
+                .map(param0x -> param0x == null ? Blocks.AIR.defaultBlockState() : param0x)
+                .toArray(param0x -> new BlockState[param0x])
+        );
     }
 
     @Override

@@ -113,7 +113,7 @@ public class ItemProperties {
                         return 0.0F;
                     } else {
                         double var1;
-                        if (param1.dimension.isNaturalDimension()) {
+                        if (param1.getDimension().isNaturalDimension()) {
                             var1 = (double)param1.getTimeOfDay(1.0F);
                         } else {
                             var1 = Math.random();
@@ -200,7 +200,7 @@ public class ItemProperties {
     
                 @Nullable
                 private BlockPos getSpawnPosition(ClientLevel param0) {
-                    return param0.dimension.isNaturalDimension() ? param0.getSharedSpawnPos() : null;
+                    return param0.getDimension().isNaturalDimension() ? param0.getSharedSpawnPos() : null;
                 }
     
                 @Nullable
@@ -209,7 +209,7 @@ public class ItemProperties {
                     boolean var1 = param1.contains("LodestoneDimension");
                     if (var0 && var1) {
                         Optional<DimensionType> var2 = CompassItem.getLodestoneDimension(param1);
-                        if (var2.isPresent() && param0.dimension.getType().equals(var2.get())) {
+                        if (var2.isPresent() && param0.dimensionType().equals(var2.get())) {
                             return NbtUtils.readBlockPos((CompoundTag)param1.get("LodestonePos"));
                         }
                     }

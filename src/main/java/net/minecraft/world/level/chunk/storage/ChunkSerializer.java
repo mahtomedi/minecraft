@@ -58,7 +58,7 @@ public class ChunkSerializer {
     private static final Logger LOGGER = LogManager.getLogger();
 
     public static ProtoChunk read(ServerLevel param0, StructureManager param1, PoiManager param2, ChunkPos param3, CompoundTag param4) {
-        ChunkGenerator<?> var0 = param0.getChunkSource().getGenerator();
+        ChunkGenerator var0 = param0.getChunkSource().getGenerator();
         BiomeSource var1 = var0.getBiomeSource();
         CompoundTag var2 = param4.getCompound("Level");
         ChunkPos var3 = new ChunkPos(var2.getInt("xPos"), var2.getInt("zPos"));
@@ -76,7 +76,7 @@ public class ChunkSerializer {
         ListTag var9 = var2.getList("Sections", 10);
         int var10 = 16;
         LevelChunkSection[] var11 = new LevelChunkSection[16];
-        boolean var12 = param0.getDimension().isHasSkyLight();
+        boolean var12 = param0.dimensionType().hasSkyLight();
         ChunkSource var13 = param0.getChunkSource();
         LevelLightEngine var14 = var13.getLightEngine();
         if (var8) {
@@ -161,7 +161,7 @@ public class ChunkSerializer {
 
         Heightmap.primeHeightmaps(var25, var30);
         CompoundTag var33 = var2.getCompound("Structures");
-        var25.setAllStarts(unpackStructureStart(var0, param1, var33));
+        var25.setAllStarts(unpackStructureStart(param1, var33, param0.getSeed()));
         var25.setAllReferences(unpackStructureReferences(param3, var33));
         if (var2.getBoolean("shouldSave")) {
             var25.setUnsaved(true);
@@ -404,12 +404,12 @@ public class ChunkSerializer {
         return var0;
     }
 
-    private static Map<String, StructureStart> unpackStructureStart(ChunkGenerator<?> param0, StructureManager param1, CompoundTag param2) {
+    private static Map<String, StructureStart> unpackStructureStart(StructureManager param0, CompoundTag param1, long param2) {
         Map<String, StructureStart> var0 = Maps.newHashMap();
-        CompoundTag var1 = param2.getCompound("Starts");
+        CompoundTag var1 = param1.getCompound("Starts");
 
         for(String var2 : var1.getAllKeys()) {
-            var0.put(var2, StructureFeatureIO.loadStaticStart(param0, param1, var1.getCompound(var2)));
+            var0.put(var2, StructureFeatureIO.loadStaticStart(param0, var1.getCompound(var2), param2));
         }
 
         return var0;

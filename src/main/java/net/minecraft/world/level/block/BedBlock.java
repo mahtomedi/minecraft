@@ -122,7 +122,7 @@ public class BedBlock extends HorizontalDirectionalBlock implements EntityBlock 
     }
 
     public static boolean canSetSpawn(Level param0, BlockPos param1) {
-        return param0.dimension.getType() == DimensionType.OVERWORLD;
+        return param0.dimensionType() == DimensionType.OVERWORLD;
     }
 
     private boolean kickVillagerOutOfBed(Level param0, BlockPos param1) {

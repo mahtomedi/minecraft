@@ -9,8 +9,8 @@ import java.util.stream.Collectors;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.util.Deserializer;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
+import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -66,9 +66,9 @@ public class ListPoolElement extends StructurePoolElement {
     @Override
     public boolean place(
         StructureManager param0,
-        LevelAccessor param1,
+        WorldGenLevel param1,
         StructureFeatureManager param2,
-        ChunkGenerator<?> param3,
+        ChunkGenerator param3,
         BlockPos param4,
         BlockPos param5,
         Rotation param6,

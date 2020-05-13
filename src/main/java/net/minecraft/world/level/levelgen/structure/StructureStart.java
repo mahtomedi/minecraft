@@ -10,8 +10,8 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
+import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
@@ -22,7 +22,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureMana
 public abstract class StructureStart {
     public static final StructureStart INVALID_START = new StructureStart(Feature.MINESHAFT, 0, 0, BoundingBox.getUnknownBox(), 0, 0L) {
         @Override
-        public void generatePieces(ChunkGenerator<?> param0, StructureManager param1, int param2, int param3, Biome param4) {
+        public void generatePieces(ChunkGenerator param0, StructureManager param1, int param2, int param3, Biome param4) {
         }
     };
     private final StructureFeature<?> feature;
@@ -43,7 +43,7 @@ public abstract class StructureStart {
         this.boundingBox = param3;
     }
 
-    public abstract void generatePieces(ChunkGenerator<?> var1, StructureManager var2, int var3, int var4, Biome var5);
+    public abstract void generatePieces(ChunkGenerator var1, StructureManager var2, int var3, int var4, Biome var5);
 
     public BoundingBox getBoundingBox() {
         return this.boundingBox;
@@ -53,7 +53,7 @@ public abstract class StructureStart {
         return this.pieces;
     }
 
-    public void postProcess(LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<?> param2, Random param3, BoundingBox param4, ChunkPos param5) {
+    public void postProcess(WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5) {
         synchronized(this.pieces) {
             if (!this.pieces.isEmpty()) {
                 BoundingBox var0 = this.pieces.get(0).boundingBox;

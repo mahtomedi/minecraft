@@ -36,7 +36,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LevelType;
+import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
@@ -277,29 +277,29 @@ public class Slime extends Mob implements Enemy {
     }
 
     public static boolean checkSlimeSpawnRules(EntityType<Slime> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, Random param4) {
-        if (param1.getLevelData().getGeneratorType() == LevelType.FLAT && param4.nextInt(4) != 1) {
-            return false;
-        } else {
-            if (param1.getDifficulty() != Difficulty.PEACEFUL) {
-                Biome var0 = param1.getBiome(param3);
-                if (var0 == Biomes.SWAMP
-                    && param3.getY() > 50
-                    && param3.getY() < 70
-                    && param4.nextFloat() < 0.5F
-                    && param4.nextFloat() < param1.getMoonBrightness()
-                    && param1.getMaxLocalRawBrightness(param3) <= param4.nextInt(8)) {
-                    return checkMobSpawnRules(param0, param1, param2, param3, param4);
-                }
-
-                ChunkPos var1 = new ChunkPos(param3);
-                boolean var2 = WorldgenRandom.seedSlimeChunk(var1.x, var1.z, param1.getSeed(), 987234911L).nextInt(10) == 0;
-                if (param4.nextInt(10) == 0 && var2 && param3.getY() < 40) {
-                    return checkMobSpawnRules(param0, param1, param2, param3, param4);
-                }
+        if (param1.getDifficulty() != Difficulty.PEACEFUL) {
+            Biome var0 = param1.getBiome(param3);
+            if (var0 == Biomes.SWAMP
+                && param3.getY() > 50
+                && param3.getY() < 70
+                && param4.nextFloat() < 0.5F
+                && param4.nextFloat() < param1.getMoonBrightness()
+                && param1.getMaxLocalRawBrightness(param3) <= param4.nextInt(8)) {
+                return checkMobSpawnRules(param0, param1, param2, param3, param4);
             }
 
-            return false;
+            if (!(param1 instanceof WorldGenLevel)) {
+                return false;
+            }
+
+            ChunkPos var1 = new ChunkPos(param3);
+            boolean var2 = WorldgenRandom.seedSlimeChunk(var1.x, var1.z, ((WorldGenLevel)param1).getSeed(), 987234911L).nextInt(10) == 0;
+            if (param4.nextInt(10) == 0 && var2 && param3.getY() < 40) {
+                return checkMobSpawnRules(param0, param1, param2, param3, param4);
+            }
         }
+
+        return false;
     }
 
     @Override

@@ -252,6 +252,24 @@ public abstract class RenderType extends RenderStateShard {
         return entityCutoutNoCull(param0, true);
     }
 
+    public static RenderType entityCutoutNoCullZOffset(ResourceLocation param0, boolean param1) {
+        RenderType.CompositeState var0 = RenderType.CompositeState.builder()
+            .setTextureState(new RenderStateShard.TextureStateShard(param0, false, false))
+            .setTransparencyState(NO_TRANSPARENCY)
+            .setDiffuseLightingState(DIFFUSE_LIGHTING)
+            .setAlphaState(DEFAULT_ALPHA)
+            .setCullState(NO_CULL)
+            .setLightmapState(LIGHTMAP)
+            .setOverlayState(OVERLAY)
+            .setLayeringState(VIEW_OFFSET_Z_LAYERING)
+            .createCompositeState(param1);
+        return create("entity_cutout_no_cull_z_offset", DefaultVertexFormat.NEW_ENTITY, 7, 256, true, false, var0);
+    }
+
+    public static RenderType entityCutoutNoCullZOffset(ResourceLocation param0) {
+        return entityCutoutNoCullZOffset(param0, true);
+    }
+
     public static RenderType entityTranslucentCull(ResourceLocation param0) {
         RenderType.CompositeState var0 = RenderType.CompositeState.builder()
             .setTextureState(new RenderStateShard.TextureStateShard(param0, false, false))

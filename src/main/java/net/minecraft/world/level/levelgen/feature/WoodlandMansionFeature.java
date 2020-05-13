@@ -7,14 +7,13 @@ import java.util.Random;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.StructureFeatureManager;
+import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
@@ -31,13 +30,13 @@ public class WoodlandMansionFeature extends StructureFeature<NoneFeatureConfigur
     }
 
     @Override
-    protected int getSpacing(DimensionType param0, ChunkGeneratorSettings param1) {
-        return param1.getWoodlandMansionSpacing();
+    protected int getSpacing(ChunkGeneratorSettings param0) {
+        return param0.getWoodlandMansionSpacing();
     }
 
     @Override
-    protected int getSeparation(DimensionType param0, ChunkGeneratorSettings param1) {
-        return param1.getWoodlandMansionSeparation();
+    protected int getSeparation(ChunkGeneratorSettings param0) {
+        return param0.getWoodlandMansionSeparation();
     }
 
     @Override
@@ -52,9 +51,9 @@ public class WoodlandMansionFeature extends StructureFeature<NoneFeatureConfigur
 
     @Override
     protected boolean isFeatureChunk(
-        BiomeManager param0, ChunkGenerator<?> param1, WorldgenRandom param2, int param3, int param4, Biome param5, ChunkPos param6
+        BiomeManager param0, ChunkGenerator param1, long param2, WorldgenRandom param3, int param4, int param5, Biome param6, ChunkPos param7
     ) {
-        for(Biome var1 : param1.getBiomeSource().getBiomesWithin(param3 * 16 + 9, param1.getSeaLevel(), param4 * 16 + 9, 32)) {
+        for(Biome var1 : param1.getBiomeSource().getBiomesWithin(param4 * 16 + 9, param1.getSeaLevel(), param5 * 16 + 9, 32)) {
             if (!param1.isBiomeValidStartForStructure(var1, this)) {
                 return false;
             }
@@ -84,7 +83,7 @@ public class WoodlandMansionFeature extends StructureFeature<NoneFeatureConfigur
         }
 
         @Override
-        public void generatePieces(ChunkGenerator<?> param0, StructureManager param1, int param2, int param3, Biome param4) {
+        public void generatePieces(ChunkGenerator param0, StructureManager param1, int param2, int param3, Biome param4) {
             Rotation var0 = Rotation.getRandom(this.random);
             int var1 = 5;
             int var2 = 5;
@@ -114,9 +113,7 @@ public class WoodlandMansionFeature extends StructureFeature<NoneFeatureConfigur
         }
 
         @Override
-        public void postProcess(
-            LevelAccessor param0, StructureFeatureManager param1, ChunkGenerator<?> param2, Random param3, BoundingBox param4, ChunkPos param5
-        ) {
+        public void postProcess(WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5) {
             super.postProcess(param0, param1, param2, param3, param4, param5);
             int var0 = this.boundingBox.y0;
 

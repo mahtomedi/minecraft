@@ -2,6 +2,7 @@ package net.minecraft.client.model;
 
 import com.google.common.collect.ImmutableList;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.monster.Shulker;
 import net.minecraftforge.api.distmarker.Dist;
@@ -14,6 +15,7 @@ public class ShulkerModel<T extends Shulker> extends ListModel<T> {
     private final ModelPart head;
 
     public ShulkerModel() {
+        super(RenderType::entityCutoutNoCullZOffset);
         this.base = new ModelPart(64, 64, 0, 28);
         this.head = new ModelPart(64, 64, 0, 52);
         this.lid.addBox(-8.0F, -16.0F, -8.0F, 16.0F, 12.0F, 16.0F);
@@ -41,7 +43,7 @@ public class ShulkerModel<T extends Shulker> extends ListModel<T> {
         }
 
         this.head.xRot = param5 * (float) (Math.PI / 180.0);
-        this.head.yRot = param4 * (float) (Math.PI / 180.0);
+        this.head.yRot = (param0.yHeadRot - 180.0F - param0.yBodyRot) * (float) (Math.PI / 180.0);
     }
 
     @Override

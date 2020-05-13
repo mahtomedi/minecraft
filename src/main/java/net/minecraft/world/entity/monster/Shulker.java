@@ -16,7 +16,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Difficulty;
-import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.ShulkerSharedHelper;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -24,10 +23,8 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -43,7 +40,6 @@ import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.ShulkerBullet;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.piston.PistonBaseBlock;
 import net.minecraft.world.level.block.piston.PistonHeadBlock;
@@ -66,29 +62,12 @@ public class Shulker extends AbstractGolem implements Enemy {
     protected static final EntityDataAccessor<Byte> DATA_COLOR_ID = SynchedEntityData.defineId(Shulker.class, EntityDataSerializers.BYTE);
     private float currentPeekAmountO;
     private float currentPeekAmount;
-    private BlockPos oldAttachPosition;
+    private BlockPos oldAttachPosition = null;
     private int clientSideTeleportInterpolation;
 
     public Shulker(EntityType<? extends Shulker> param0, Level param1) {
         super(param0, param1);
-        this.yBodyRotO = 180.0F;
-        this.yBodyRot = 180.0F;
-        this.oldAttachPosition = null;
         this.xpReward = 5;
-    }
-
-    @Nullable
-    @Override
-    public SpawnGroupData finalizeSpawn(
-        LevelAccessor param0, DifficultyInstance param1, MobSpawnType param2, @Nullable SpawnGroupData param3, @Nullable CompoundTag param4
-    ) {
-        this.yBodyRot = 180.0F;
-        this.yBodyRotO = 180.0F;
-        this.yRot = 180.0F;
-        this.yRotO = 180.0F;
-        this.yHeadRot = 180.0F;
-        this.yHeadRotO = 180.0F;
-        return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
 
     @Override
@@ -352,9 +331,11 @@ public class Shulker extends AbstractGolem implements Enemy {
     public void aiStep() {
         super.aiStep();
         this.setDeltaMovement(Vec3.ZERO);
-        this.yBodyRotO = 180.0F;
-        this.yBodyRot = 180.0F;
-        this.yRot = 180.0F;
+        if (!this.isNoAi()) {
+            this.yBodyRotO = 0.0F;
+            this.yBodyRot = 0.0F;
+        }
+
     }
 
     @Override

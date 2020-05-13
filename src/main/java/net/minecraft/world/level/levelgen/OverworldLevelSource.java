@@ -11,14 +11,15 @@ import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.ai.village.VillageSiege;
 import net.minecraft.world.entity.npc.CatSpawner;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LevelType;
 import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.synth.PerlinNoise;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class OverworldLevelSource extends NoiseBasedChunkGenerator<OverworldGeneratorSettings> {
     private static final float[] BIOME_WEIGHTS = Util.make(new float[25], param0 -> {
@@ -31,17 +32,23 @@ public class OverworldLevelSource extends NoiseBasedChunkGenerator<OverworldGene
 
     });
     private final PerlinNoise depthNoise;
-    private final boolean isAmplified;
     private final PhantomSpawner phantomSpawner = new PhantomSpawner();
     private final PatrolSpawner patrolSpawner = new PatrolSpawner();
     private final CatSpawner catSpawner = new CatSpawner();
     private final VillageSiege villageSiege = new VillageSiege();
+    private final OverworldGeneratorSettings settings;
 
-    public OverworldLevelSource(LevelAccessor param0, BiomeSource param1, OverworldGeneratorSettings param2) {
-        super(param0, param1, 4, 8, 256, param2, true);
+    public OverworldLevelSource(BiomeSource param0, long param1, OverworldGeneratorSettings param2) {
+        super(param0, param1, param2, 4, 8, 256, true);
+        this.settings = param2;
         this.random.consumeCount(2620);
         this.depthNoise = new PerlinNoise(this.random, IntStream.rangeClosed(-15, 0));
-        this.isAmplified = param0.getLevelData().getGeneratorType() == LevelType.AMPLIFIED;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public ChunkGenerator withSeed(long param0) {
+        return new OverworldLevelSource(this.biomeSource.withSeed(param0), param0, this.settings);
     }
 
     @Override
@@ -91,7 +98,7 @@ public class OverworldLevelSource extends NoiseBasedChunkGenerator<OverworldGene
                 Biome var9 = this.biomeSource.getNoiseBiome(param0 + var7, var5, param1 + var8);
                 float var10 = var9.getDepth();
                 float var11 = var9.getScale();
-                if (this.isAmplified && var10 > 0.0F) {
+                if (this.settings.isAmplified() && var10 > 0.0F) {
                     var10 = 1.0F + var10 * 2.0F;
                     var11 = 1.0F + var11 * 4.0F;
                 }
@@ -137,26 +144,26 @@ public class OverworldLevelSource extends NoiseBasedChunkGenerator<OverworldGene
     }
 
     @Override
-    public List<Biome.SpawnerData> getMobsAt(StructureFeatureManager param0, MobCategory param1, BlockPos param2) {
-        if (Feature.SWAMP_HUT.isSwamphut(this.level, param0, param2)) {
-            if (param1 == MobCategory.MONSTER) {
+    public List<Biome.SpawnerData> getMobsAt(Biome param0, StructureFeatureManager param1, MobCategory param2, BlockPos param3) {
+        if (Feature.SWAMP_HUT.isSwamphut(param1, param3)) {
+            if (param2 == MobCategory.MONSTER) {
                 return Feature.SWAMP_HUT.getSpecialEnemies();
             }
 
-            if (param1 == MobCategory.CREATURE) {
+            if (param2 == MobCategory.CREATURE) {
                 return Feature.SWAMP_HUT.getSpecialAnimals();
             }
-        } else if (param1 == MobCategory.MONSTER) {
-            if (Feature.PILLAGER_OUTPOST.isInsideBoundingFeature(this.level, param0, param2)) {
+        } else if (param2 == MobCategory.MONSTER) {
+            if (Feature.PILLAGER_OUTPOST.isInsideBoundingFeature(param1, param3)) {
                 return Feature.PILLAGER_OUTPOST.getSpecialEnemies();
             }
 
-            if (Feature.OCEAN_MONUMENT.isInsideBoundingFeature(this.level, param0, param2)) {
+            if (Feature.OCEAN_MONUMENT.isInsideBoundingFeature(param1, param3)) {
                 return Feature.OCEAN_MONUMENT.getSpecialEnemies();
             }
         }
 
-        return super.getMobsAt(param0, param1, param2);
+        return super.getMobsAt(param0, param1, param2, param3);
     }
 
     @Override
@@ -165,11 +172,6 @@ public class OverworldLevelSource extends NoiseBasedChunkGenerator<OverworldGene
         this.patrolSpawner.tick(param0, param1, param2);
         this.catSpawner.tick(param0, param1, param2);
         this.villageSiege.tick(param0, param1, param2);
-    }
-
-    @Override
-    public int getSpawnHeight() {
-        return this.level.getSeaLevel() + 1;
     }
 
     @Override

@@ -13,6 +13,7 @@ import net.minecraft.tags.Tag;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
@@ -34,6 +35,8 @@ public class EntityPredicate {
         EntityEquipmentPredicate.ANY,
         PlayerPredicate.ANY,
         FishingHookPredicate.ANY,
+        EntityPredicate.ANY,
+        EntityPredicate.ANY,
         null,
         null
     );
@@ -46,6 +49,8 @@ public class EntityPredicate {
     private final EntityEquipmentPredicate equipment;
     private final PlayerPredicate player;
     private final FishingHookPredicate fishingHook;
+    private final EntityPredicate vehicle;
+    private final EntityPredicate targetedEntity;
     @Nullable
     private final String team;
     @Nullable
@@ -61,8 +66,10 @@ public class EntityPredicate {
         EntityEquipmentPredicate param6,
         PlayerPredicate param7,
         FishingHookPredicate param8,
-        @Nullable String param9,
-        @Nullable ResourceLocation param10
+        EntityPredicate param9,
+        EntityPredicate param10,
+        @Nullable String param11,
+        @Nullable ResourceLocation param12
     ) {
         this.entityType = param0;
         this.distanceToPlayer = param1;
@@ -73,8 +80,10 @@ public class EntityPredicate {
         this.equipment = param6;
         this.player = param7;
         this.fishingHook = param8;
-        this.team = param9;
-        this.catType = param10;
+        this.vehicle = param9;
+        this.targetedEntity = param10;
+        this.team = param11;
+        this.catType = param12;
     }
 
     public boolean matches(ServerPlayer param0, @Nullable Entity param1) {
@@ -111,6 +120,10 @@ public class EntityPredicate {
                 return false;
             } else if (!this.fishingHook.matches(param2)) {
                 return false;
+            } else if (!this.vehicle.matches(param0, param1, param2.getVehicle())) {
+                return false;
+            } else if (!this.targetedEntity.matches(param0, param1, param2 instanceof Mob ? ((Mob)param2).getTarget() : null)) {
+                return false;
             } else {
                 if (this.team != null) {
                     Team var0 = param2.getTeam();
@@ -136,8 +149,10 @@ public class EntityPredicate {
             EntityEquipmentPredicate var7 = EntityEquipmentPredicate.fromJson(var0.get("equipment"));
             PlayerPredicate var8 = PlayerPredicate.fromJson(var0.get("player"));
             FishingHookPredicate var9 = FishingHookPredicate.fromJson(var0.get("fishing_hook"));
-            String var10 = GsonHelper.getAsString(var0, "team", null);
-            ResourceLocation var11 = var0.has("catType") ? new ResourceLocation(GsonHelper.getAsString(var0, "catType")) : null;
+            EntityPredicate var10 = fromJson(var0.get("vehicle"));
+            EntityPredicate var11 = fromJson(var0.get("targeted_entity"));
+            String var12 = GsonHelper.getAsString(var0, "team", null);
+            ResourceLocation var13 = var0.has("catType") ? new ResourceLocation(GsonHelper.getAsString(var0, "catType")) : null;
             return new EntityPredicate.Builder()
                 .entityType(var1)
                 .distance(var2)
@@ -148,8 +163,10 @@ public class EntityPredicate {
                 .equipment(var7)
                 .player(var8)
                 .fishingHook(var9)
-                .team(var10)
-                .catType(var11)
+                .team(var12)
+                .vehicle(var10)
+                .targetedEntity(var11)
+                .catType(var13)
                 .build();
         } else {
             return ANY;
@@ -170,6 +187,8 @@ public class EntityPredicate {
             var0.add("equipment", this.equipment.serializeToJson());
             var0.add("player", this.player.serializeToJson());
             var0.add("fishing_hook", this.fishingHook.serializeToJson());
+            var0.add("vehicle", this.vehicle.serializeToJson());
+            var0.add("targeted_entity", this.targetedEntity.serializeToJson());
             var0.addProperty("team", this.team);
             if (this.catType != null) {
                 var0.addProperty("catType", this.catType.toString());
@@ -198,6 +217,8 @@ public class EntityPredicate {
         private EntityEquipmentPredicate equipment = EntityEquipmentPredicate.ANY;
         private PlayerPredicate player = PlayerPredicate.ANY;
         private FishingHookPredicate fishingHook = FishingHookPredicate.ANY;
+        private EntityPredicate vehicle = EntityPredicate.ANY;
+        private EntityPredicate targetedEntity = EntityPredicate.ANY;
         private String team;
         private ResourceLocation catType;
 
@@ -265,6 +286,16 @@ public class EntityPredicate {
             return this;
         }
 
+        public EntityPredicate.Builder vehicle(EntityPredicate param0) {
+            this.vehicle = param0;
+            return this;
+        }
+
+        public EntityPredicate.Builder targetedEntity(EntityPredicate param0) {
+            this.targetedEntity = param0;
+            return this;
+        }
+
         public EntityPredicate.Builder team(@Nullable String param0) {
             this.team = param0;
             return this;
@@ -286,6 +317,8 @@ public class EntityPredicate {
                 this.equipment,
                 this.player,
                 this.fishingHook,
+                this.vehicle,
+                this.targetedEntity,
                 this.team,
                 this.catType
             );
@@ -300,6 +333,10 @@ public class EntityPredicate {
         private Composite(LootItemCondition[] param0) {
             this.conditions = param0;
             this.compositePredicates = LootItemConditions.andConditions(param0);
+        }
+
+        public static EntityPredicate.Composite create(LootItemCondition... param0) {
+            return new EntityPredicate.Composite(param0);
         }
 
         public static EntityPredicate.Composite fromJson(JsonObject param0, String param1, DeserializationContext param2) {

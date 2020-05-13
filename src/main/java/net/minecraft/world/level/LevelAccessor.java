@@ -24,8 +24,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public interface LevelAccessor extends EntityGetter, LevelReader, LevelSimulatedRW {
-    long getSeed();
-
     default float getMoonBrightness() {
         return Dimension.MOON_BRIGHTNESS_PER_PHASE[this.getDimension().getMoonPhase(this.getLevelData().getDayTime())];
     }
@@ -72,7 +70,7 @@ public interface LevelAccessor extends EntityGetter, LevelReader, LevelSimulated
     void levelEvent(@Nullable Player var1, int var2, BlockPos var3, int var4);
 
     default int getHeight() {
-        return this.getDimension().isHasCeiling() ? 128 : 256;
+        return this.dimensionType().hasCeiling() ? 128 : 256;
     }
 
     default void levelEvent(int param0, BlockPos param1, int param2) {

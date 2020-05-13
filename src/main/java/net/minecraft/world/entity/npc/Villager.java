@@ -743,6 +743,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
                 return;
             }
 
+            this.onItemPickup(param0);
             this.take(param0, var0.getCount());
             ItemStack var3 = var1.addItem(var0);
             if (var3.isEmpty()) {

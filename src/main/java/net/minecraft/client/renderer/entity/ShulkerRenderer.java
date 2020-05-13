@@ -65,14 +65,9 @@ public class ShulkerRenderer extends MobRenderer<Shulker, ShulkerModel<Shulker>>
     }
 
     protected void setupRotations(Shulker param0, PoseStack param1, float param2, float param3, float param4) {
-        super.setupRotations(param0, param1, param2, param3, param4);
+        super.setupRotations(param0, param1, param2, param3 + 180.0F, param4);
         param1.translate(0.0, 0.5, 0.0);
         param1.mulPose(param0.getAttachFace().getOpposite().getRotation());
         param1.translate(0.0, -0.5, 0.0);
-    }
-
-    protected void scale(Shulker param0, PoseStack param1, float param2) {
-        float var0 = 0.999F;
-        param1.scale(0.999F, 0.999F, 0.999F);
     }
 }

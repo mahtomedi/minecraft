@@ -372,7 +372,7 @@ public class Cat extends TamableAnimal {
         }
 
         Level var0 = param0.getLevel();
-        if (var0 instanceof ServerLevel && Feature.SWAMP_HUT.isInsideFeature(param0, ((ServerLevel)var0).structureFeatureManager(), this.blockPosition())) {
+        if (var0 instanceof ServerLevel && Feature.SWAMP_HUT.isInsideFeature(((ServerLevel)var0).structureFeatureManager(), this.blockPosition())) {
             this.setCatType(10);
             this.setPersistenceRequired();
         }

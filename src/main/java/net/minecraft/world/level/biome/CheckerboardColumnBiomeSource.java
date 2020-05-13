@@ -1,15 +1,23 @@
 package net.minecraft.world.level.biome;
 
 import com.google.common.collect.ImmutableSet;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class CheckerboardColumnBiomeSource extends BiomeSource {
     private final Biome[] allowedBiomes;
     private final int bitShift;
 
-    public CheckerboardColumnBiomeSource(CheckerboardBiomeSourceSettings param0) {
-        super(ImmutableSet.copyOf(param0.getAllowedBiomes()));
-        this.allowedBiomes = param0.getAllowedBiomes();
-        this.bitShift = param0.getSize() + 2;
+    public CheckerboardColumnBiomeSource(Biome[] param0, int param1) {
+        super(ImmutableSet.copyOf(param0));
+        this.allowedBiomes = param0;
+        this.bitShift = param1 + 2;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public BiomeSource withSeed(long param0) {
+        return this;
     }
 
     @Override
