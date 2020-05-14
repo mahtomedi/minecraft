@@ -6,13 +6,11 @@ import com.google.common.collect.Maps;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
-import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.datafixers.DataFixer;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.longs.LongIterator;
-import java.awt.GraphicsEnvironment;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +25,6 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.KeyPair;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -39,18 +36,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
-import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.BooleanSupplier;
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
-import joptsimple.OptionSpec;
 import net.minecraft.CrashReport;
-import net.minecraft.DefaultUncaughtExceptionHandler;
 import net.minecraft.ReportedException;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
@@ -68,9 +60,6 @@ import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
 import net.minecraft.network.protocol.status.ServerStatus;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.bossevents.CustomBossEvents;
-import net.minecraft.server.dedicated.DedicatedServer;
-import net.minecraft.server.dedicated.DedicatedServerProperties;
-import net.minecraft.server.dedicated.DedicatedServerSettings;
 import net.minecraft.server.level.DerivedServerLevel;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
@@ -78,7 +67,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.TicketType;
 import net.minecraft.server.level.progress.ChunkProgressListener;
 import net.minecraft.server.level.progress.ChunkProgressListenerFactory;
-import net.minecraft.server.level.progress.LoggerChunkProgressListener;
 import net.minecraft.server.network.ServerConnectionListener;
 import net.minecraft.server.packs.Pack;
 import net.minecraft.server.packs.PackType;
@@ -98,7 +86,6 @@ import net.minecraft.util.FrameTimer;
 import net.minecraft.util.Mth;
 import net.minecraft.util.ProgressListener;
 import net.minecraft.util.Unit;
-import net.minecraft.util.datafix.DataFixers;
 import net.minecraft.util.profiling.ContinuousProfiler;
 import net.minecraft.util.profiling.InactiveProfiler;
 import net.minecraft.util.profiling.ProfileResults;
@@ -136,7 +123,6 @@ import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.PlayerDataStorage;
-import net.minecraft.world.level.storage.PrimaryLevelData;
 import net.minecraft.world.level.storage.ServerLevelData;
 import net.minecraft.world.level.storage.WorldData;
 import net.minecraft.world.level.storage.loot.LootTables;
@@ -928,104 +914,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
     public void addTickable(Runnable param0) {
         this.tickables.add(param0);
-    }
-
-    public static void main(String[] param0) {
-        OptionParser var0 = new OptionParser();
-        OptionSpec<Void> var1 = var0.accepts("nogui");
-        OptionSpec<Void> var2 = var0.accepts("initSettings", "Initializes 'server.properties' and 'eula.txt', then quits");
-        OptionSpec<Void> var3 = var0.accepts("demo");
-        OptionSpec<Void> var4 = var0.accepts("bonusChest");
-        OptionSpec<Void> var5 = var0.accepts("forceUpgrade");
-        OptionSpec<Void> var6 = var0.accepts("eraseCache");
-        OptionSpec<Void> var7 = var0.accepts("help").forHelp();
-        OptionSpec<String> var8 = var0.accepts("singleplayer").withRequiredArg();
-        OptionSpec<String> var9 = var0.accepts("universe").withRequiredArg().defaultsTo(".");
-        OptionSpec<String> var10 = var0.accepts("world").withRequiredArg();
-        OptionSpec<Integer> var11 = var0.accepts("port").withRequiredArg().ofType(Integer.class).defaultsTo(-1);
-        OptionSpec<String> var12 = var0.accepts("serverId").withRequiredArg();
-        OptionSpec<String> var13 = var0.nonOptions();
-
-        try {
-            OptionSet var14 = var0.parse(param0);
-            if (var14.has(var7)) {
-                var0.printHelpOn(System.err);
-                return;
-            }
-
-            Path var15 = Paths.get("server.properties");
-            DedicatedServerSettings var16 = new DedicatedServerSettings(var15);
-            var16.forceSave();
-            Path var17 = Paths.get("eula.txt");
-            Eula var18 = new Eula(var17);
-            if (var14.has(var2)) {
-                LOGGER.info("Initialized '" + var15.toAbsolutePath().toString() + "' and '" + var17.toAbsolutePath().toString() + "'");
-                return;
-            }
-
-            if (!var18.hasAgreedToEULA()) {
-                LOGGER.info("You need to agree to the EULA in order to run the server. Go to eula.txt for more info.");
-                return;
-            }
-
-            CrashReport.preload();
-            Bootstrap.bootStrap();
-            Bootstrap.validate();
-            File var19 = new File(var14.valueOf(var9));
-            YggdrasilAuthenticationService var20 = new YggdrasilAuthenticationService(Proxy.NO_PROXY, UUID.randomUUID().toString());
-            MinecraftSessionService var21 = var20.createMinecraftSessionService();
-            GameProfileRepository var22 = var20.createProfileRepository();
-            GameProfileCache var23 = new GameProfileCache(var22, new File(var19, USERID_CACHE_FILE.getName()));
-            String var24 = Optional.ofNullable(var14.valueOf(var10)).orElse(var16.getProperties().levelName);
-            LevelStorageSource var25 = LevelStorageSource.createDefault(var19.toPath());
-            LevelStorageSource.LevelStorageAccess var26 = var25.createAccess(var24);
-            ensureLevelConversion(var26, DataFixers.getDataFixer(), var14.has(var5), var14.has(var6), () -> true);
-            WorldData var27 = var26.getDataTag();
-            if (var27 == null) {
-                LevelSettings var28;
-                if (var14.has(var3)) {
-                    var28 = DEMO_SETTINGS;
-                } else {
-                    DedicatedServerProperties var29 = var16.getProperties();
-                    var28 = new LevelSettings(
-                        var29.levelName,
-                        var29.gamemode,
-                        var29.hardcore,
-                        var29.difficulty,
-                        false,
-                        new GameRules(),
-                        var14.has(var4) ? var29.worldGenSettings : var29.worldGenSettings.withBonusChest()
-                    );
-                }
-
-                var27 = new PrimaryLevelData(var28);
-            }
-
-            final DedicatedServer var31 = new DedicatedServer(
-                var26, var27, var16, DataFixers.getDataFixer(), var21, var22, var23, LoggerChunkProgressListener::new
-            );
-            var31.setSingleplayerName(var14.valueOf(var8));
-            var31.setPort(var14.valueOf(var11));
-            var31.setDemo(var14.has(var3));
-            var31.setId(var14.valueOf(var12));
-            boolean var32 = !var14.has(var1) && !var14.valuesOf(var13).contains("nogui");
-            if (var32 && !GraphicsEnvironment.isHeadless()) {
-                var31.showGui();
-            }
-
-            var31.forkAndRun();
-            Thread var33 = new Thread("Server Shutdown Thread") {
-                @Override
-                public void run() {
-                    var31.halt(true);
-                }
-            };
-            var33.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
-            Runtime.getRuntime().addShutdownHook(var33);
-        } catch (Exception var321) {
-            LOGGER.fatal("Failed to start the minecraft server", (Throwable)var321);
-        }
-
     }
 
     protected void setId(String param0) {
