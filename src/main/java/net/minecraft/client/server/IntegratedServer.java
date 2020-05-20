@@ -51,7 +51,7 @@ public class IntegratedServer extends MinecraftServer {
         this.setSingleplayerName(param0.getUser().getName());
         this.setDemo(param0.isDemo());
         this.setMaxBuildHeight(256);
-        this.setPlayerList(new IntegratedPlayerList(this, this.playerDataStorage));
+        this.setPlayerList(new IntegratedPlayerList(this, this.registryHolder, this.playerDataStorage));
         this.minecraft = param0;
     }
 

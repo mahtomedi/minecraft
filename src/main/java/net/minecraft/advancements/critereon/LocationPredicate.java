@@ -4,19 +4,23 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import com.mojang.serialization.JsonOps;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.dimension.DimensionType;
-import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class LocationPredicate {
+    private static final Logger LOGGER = LogManager.getLogger();
     public static final LocationPredicate ANY = new LocationPredicate(
         MinMaxBounds.Floats.ANY,
         MinMaxBounds.Floats.ANY,
@@ -37,7 +41,7 @@ public class LocationPredicate {
     @Nullable
     private final StructureFeature<?> feature;
     @Nullable
-    private final DimensionType dimension;
+    private final ResourceKey<DimensionType> dimension;
     @Nullable
     private final Boolean smokey;
     private final LightPredicate light;
@@ -50,7 +54,7 @@ public class LocationPredicate {
         MinMaxBounds.Floats param2,
         @Nullable Biome param3,
         @Nullable StructureFeature<?> param4,
-        @Nullable DimensionType param5,
+        @Nullable ResourceKey<DimensionType> param5,
         @Nullable Boolean param6,
         LightPredicate param7,
         BlockPredicate param8,
@@ -83,7 +87,7 @@ public class LocationPredicate {
         );
     }
 
-    public static LocationPredicate inDimension(DimensionType param0) {
+    public static LocationPredicate inDimension(ResourceKey<DimensionType> param0) {
         return new LocationPredicate(
             MinMaxBounds.Floats.ANY,
             MinMaxBounds.Floats.ANY,
@@ -124,13 +128,13 @@ public class LocationPredicate {
             return false;
         } else if (!this.z.matches(param3)) {
             return false;
-        } else if (this.dimension != null && this.dimension != param0.dimensionType()) {
+        } else if (this.dimension != null && this.dimension != param0.dimension()) {
             return false;
         } else {
             BlockPos var0 = new BlockPos((double)param1, (double)param2, (double)param3);
             boolean var1 = param0.isLoaded(var0);
             if (this.biome == null || var1 && this.biome == param0.getBiome(var0)) {
-                if (this.feature == null || var1 && this.feature.isInsideFeature(param0.structureFeatureManager(), var0)) {
+                if (this.feature == null || var1 && param0.structureFeatureManager().getStructureAt(var0, true, this.feature).isValid()) {
                     if (this.smokey == null || var1 && this.smokey == CampfireBlock.isSmokeyPos(param0, var0)) {
                         if (!this.light.matches(param0, var0)) {
                             return false;
@@ -165,11 +169,14 @@ public class LocationPredicate {
             }
 
             if (this.dimension != null) {
-                var0.addProperty("dimension", DimensionType.getName(this.dimension).toString());
+                DimensionType.RESOURCE_KEY_CODEC
+                    .encodeStart(JsonOps.INSTANCE, this.dimension)
+                    .resultOrPartial(LOGGER::error)
+                    .ifPresent(param1 -> var0.add("dimension", param1));
             }
 
             if (this.feature != null) {
-                var0.addProperty("feature", Feature.STRUCTURES_REGISTRY.inverse().get(this.feature));
+                var0.addProperty("feature", this.feature.getFeatureName());
             }
 
             if (this.biome != null) {
@@ -194,8 +201,14 @@ public class LocationPredicate {
             MinMaxBounds.Floats var2 = MinMaxBounds.Floats.fromJson(var1.get("x"));
             MinMaxBounds.Floats var3 = MinMaxBounds.Floats.fromJson(var1.get("y"));
             MinMaxBounds.Floats var4 = MinMaxBounds.Floats.fromJson(var1.get("z"));
-            DimensionType var5 = var0.has("dimension") ? DimensionType.getByName(new ResourceLocation(GsonHelper.getAsString(var0, "dimension"))) : null;
-            StructureFeature<?> var6 = var0.has("feature") ? Feature.STRUCTURES_REGISTRY.get(GsonHelper.getAsString(var0, "feature")) : null;
+            ResourceKey<DimensionType> var5 = var0.has("dimension")
+                ? ResourceLocation.CODEC
+                    .parse(JsonOps.INSTANCE, var0.get("dimension"))
+                    .resultOrPartial(LOGGER::error)
+                    .map(param0x -> ResourceKey.create(Registry.DIMENSION_TYPE_REGISTRY, param0x))
+                    .orElse(null)
+                : null;
+            StructureFeature<?> var6 = var0.has("feature") ? StructureFeature.STRUCTURES_REGISTRY.get(GsonHelper.getAsString(var0, "feature")) : null;
             Biome var7 = null;
             if (var0.has("biome")) {
                 ResourceLocation var8 = new ResourceLocation(GsonHelper.getAsString(var0, "biome"));
@@ -221,7 +234,7 @@ public class LocationPredicate {
         @Nullable
         private StructureFeature<?> feature;
         @Nullable
-        private DimensionType dimension;
+        private ResourceKey<DimensionType> dimension;
         @Nullable
         private Boolean smokey;
         private LightPredicate light = LightPredicate.ANY;

@@ -213,17 +213,20 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
         }
 
         if (var3 && !this.isSilent()) {
-            this.level
-                .playSound(
-                    null,
-                    this.getX(),
-                    this.getY(),
-                    this.getZ(),
-                    SoundEvents.LLAMA_EAT,
-                    this.getSoundSource(),
-                    1.0F,
-                    1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.2F
-                );
+            SoundEvent var5 = this.getEatingSound();
+            if (var5 != null) {
+                this.level
+                    .playSound(
+                        null,
+                        this.getX(),
+                        this.getY(),
+                        this.getZ(),
+                        this.getEatingSound(),
+                        this.getSoundSource(),
+                        1.0F,
+                        1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.2F
+                    );
+            }
         }
 
         return var3;
@@ -270,6 +273,12 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
     @Override
     protected SoundEvent getDeathSound() {
         return SoundEvents.LLAMA_DEATH;
+    }
+
+    @Nullable
+    @Override
+    protected SoundEvent getEatingSound() {
+        return SoundEvents.LLAMA_EAT;
     }
 
     @Override

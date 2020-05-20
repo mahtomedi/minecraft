@@ -1,31 +1,34 @@
 package net.minecraft.world.level.levelgen.feature.featuresize;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMap.Builder;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.Optional;
 import java.util.OptionalInt;
 import net.minecraft.core.Registry;
 
 public abstract class FeatureSize {
-    protected final FeatureSizeType<?> type;
-    private final OptionalInt minClippedHeight;
+    public static final Codec<FeatureSize> CODEC = Registry.FEATURE_SIZE_TYPES.dispatch(FeatureSize::type, FeatureSizeType::codec);
+    protected final OptionalInt minClippedHeight;
 
-    public FeatureSize(FeatureSizeType<?> param0, OptionalInt param1) {
-        this.type = param0;
-        this.minClippedHeight = param1;
+    protected static <S extends FeatureSize> RecordCodecBuilder<S, OptionalInt> minClippedHeightCodec() {
+        return Codec.INT
+            .optionalFieldOf("min_clipped_height")
+            .xmap(
+                param0 -> param0.map(OptionalInt::of).orElse(OptionalInt.empty()),
+                param0 -> param0.isPresent() ? Optional.of(param0.getAsInt()) : Optional.empty()
+            )
+            .forGetter(param0 -> param0.minClippedHeight);
     }
+
+    public FeatureSize(OptionalInt param0) {
+        this.minClippedHeight = param0;
+    }
+
+    protected abstract FeatureSizeType<?> type();
 
     public abstract int getSizeAtHeight(int var1, int var2);
 
     public OptionalInt minClippedHeight() {
         return this.minClippedHeight;
-    }
-
-    public <T> T serialize(DynamicOps<T> param0) {
-        Builder<T, T> var0 = ImmutableMap.builder();
-        var0.put(param0.createString("type"), param0.createString(Registry.FEATURE_SIZE_TYPES.getKey(this.type).toString()));
-        this.minClippedHeight.ifPresent(param2 -> var0.put(param0.createString("min_clipped_height"), param0.createInt(param2)));
-        return new Dynamic<>(param0, param0.createMap(var0.build())).getValue();
     }
 }

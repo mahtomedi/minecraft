@@ -1,9 +1,8 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Codec;
 import java.util.Random;
-import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -30,7 +29,7 @@ public class BasaltColumnsFeature extends Feature<ColumnFeatureConfiguration> {
         Blocks.SPAWNER
     );
 
-    public BasaltColumnsFeature(Function<Dynamic<?>, ? extends ColumnFeatureConfiguration> param0) {
+    public BasaltColumnsFeature(Codec<ColumnFeatureConfiguration> param0) {
         super(param0);
     }
 

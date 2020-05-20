@@ -10,6 +10,7 @@ import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -17,7 +18,6 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.level.dimension.end.EndDragonFight;
-import net.minecraft.world.level.dimension.end.TheEndDimension;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -53,9 +53,9 @@ public class EndCrystal extends Entity {
     @Override
     public void tick() {
         ++this.time;
-        if (!this.level.isClientSide) {
+        if (this.level instanceof ServerLevel) {
             BlockPos var0 = this.blockPosition();
-            if (this.level.getDimension() instanceof TheEndDimension && this.level.getBlockState(var0).isAir()) {
+            if (((ServerLevel)this.level).dragonFight() != null && this.level.getBlockState(var0).isAir()) {
                 this.level.setBlockAndUpdate(var0, BaseFireBlock.getState(this.level, var0));
             }
         }
@@ -115,11 +115,10 @@ public class EndCrystal extends Entity {
     }
 
     private void onDestroyedBy(DamageSource param0) {
-        if (this.level.getDimension() instanceof TheEndDimension) {
-            TheEndDimension var0 = (TheEndDimension)this.level.getDimension();
-            EndDragonFight var1 = var0.getDragonFight();
-            if (var1 != null) {
-                var1.onCrystalDestroyed(this, param0);
+        if (this.level instanceof ServerLevel) {
+            EndDragonFight var0 = ((ServerLevel)this.level).dragonFight();
+            if (var0 != null) {
+                var0.onCrystalDestroyed(this, param0);
             }
         }
 

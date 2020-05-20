@@ -3,8 +3,9 @@ package net.minecraft.world.entity.npc;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.Dynamic;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import java.util.List;
 import java.util.Map;
@@ -162,7 +163,6 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
         this.getNavigation().setCanFloat(true);
         this.setCanPickUpLoot(true);
         this.setVillagerData(this.getVillagerData().setType(param2).setProfession(VillagerProfession.NONE));
-        this.brain = this.makeBrain(new Dynamic<>(NbtOps.INSTANCE, new CompoundTag()));
     }
 
     @Override
@@ -171,8 +171,13 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
     }
 
     @Override
+    protected Brain.Provider<Villager> brainProvider() {
+        return Brain.provider(MEMORY_TYPES, SENSOR_TYPES);
+    }
+
+    @Override
     protected Brain<?> makeBrain(Dynamic<?> param0) {
-        Brain<Villager> var0 = new Brain<>(MEMORY_TYPES, SENSOR_TYPES, param0);
+        Brain<Villager> var0 = this.brainProvider().makeBrain(param0);
         this.registerBrainGoals(var0);
         return var0;
     }
@@ -443,7 +448,10 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
     @Override
     public void addAdditionalSaveData(CompoundTag param0) {
         super.addAdditionalSaveData(param0);
-        param0.put("VillagerData", this.getVillagerData().serialize(NbtOps.INSTANCE));
+        VillagerData.CODEC
+            .encodeStart(NbtOps.INSTANCE, this.getVillagerData())
+            .resultOrPartial(LOGGER::error)
+            .ifPresent(param1 -> param0.put("VillagerData", param1));
         param0.putByte("FoodLevel", this.foodLevel);
         param0.put("Gossips", this.gossips.store(NbtOps.INSTANCE).getValue());
         param0.putInt("Xp", this.villagerXp);
@@ -456,7 +464,8 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
     public void readAdditionalSaveData(CompoundTag param0) {
         super.readAdditionalSaveData(param0);
         if (param0.contains("VillagerData", 10)) {
-            this.setVillagerData(new VillagerData(new Dynamic<>(NbtOps.INSTANCE, param0.get("VillagerData"))));
+            DataResult<VillagerData> var0 = VillagerData.CODEC.parse(new Dynamic<>(NbtOps.INSTANCE, param0.get("VillagerData")));
+            var0.resultOrPartial(LOGGER::error).ifPresent(this::setVillagerData);
         }
 
         if (param0.contains("Offers", 10)) {
@@ -467,8 +476,8 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
             this.foodLevel = param0.getByte("FoodLevel");
         }
 
-        ListTag var0 = param0.getList("Gossips", 10);
-        this.gossips.update(new Dynamic<>(NbtOps.INSTANCE, var0));
+        ListTag var1 = param0.getList("Gossips", 10);
+        this.gossips.update(new Dynamic<>(NbtOps.INSTANCE, var1));
         if (param0.contains("Xp", 3)) {
             this.villagerXp = param0.getInt("Xp");
         }
@@ -516,13 +525,13 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
 
     }
 
-    public void setVillagerData(VillagerData param0) {
-        VillagerData var0 = this.getVillagerData();
-        if (var0.getProfession() != param0.getProfession()) {
+    public void setVillagerData(VillagerData param0x) {
+        VillagerData var0x = this.getVillagerData();
+        if (var0x.getProfession() != param0x.getProfession()) {
             this.offers = null;
         }
 
-        this.entityData.set(DATA_VILLAGER_DATA, param0);
+        this.entityData.set(DATA_VILLAGER_DATA, param0x);
     }
 
     @Override

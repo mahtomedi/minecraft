@@ -1,13 +1,21 @@
 package net.minecraft.world.level.levelgen.feature.configurations;
 
-import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Optional;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class DeltaFeatureConfiguration implements FeatureConfiguration {
+    public static final Codec<DeltaFeatureConfiguration> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    BlockState.CODEC.fieldOf("contents").forGetter(param0x -> param0x.contents),
+                    BlockState.CODEC.fieldOf("rim").forGetter(param0x -> param0x.rim),
+                    Codec.INT.fieldOf("minimum_radius").forGetter(param0x -> param0x.minimumRadius),
+                    Codec.INT.fieldOf("maximum_radius").forGetter(param0x -> param0x.maximumRadius),
+                    Codec.INT.fieldOf("maximum_rim").forGetter(param0x -> param0x.maximumRimSize)
+                )
+                .apply(param0, DeltaFeatureConfiguration::new)
+    );
     public final BlockState contents;
     public final BlockState rim;
     public final int minimumRadius;
@@ -20,31 +28,6 @@ public class DeltaFeatureConfiguration implements FeatureConfiguration {
         this.minimumRadius = param2;
         this.maximumRadius = param3;
         this.maximumRimSize = param4;
-    }
-
-    @Override
-    public <T> Dynamic<T> serialize(DynamicOps<T> param0) {
-        return new Dynamic<>(
-            param0,
-            param0.createMap(
-                new ImmutableMap.Builder<T, T>()
-                    .put(param0.createString("contents"), BlockState.serialize(param0, this.contents).getValue())
-                    .put(param0.createString("rim"), BlockState.serialize(param0, this.rim).getValue())
-                    .put(param0.createString("minimum_radius"), param0.createInt(this.minimumRadius))
-                    .put(param0.createString("maximum_radius"), param0.createInt(this.maximumRadius))
-                    .put(param0.createString("maximum_rim"), param0.createInt(this.maximumRimSize))
-                    .build()
-            )
-        );
-    }
-
-    public static <T> DeltaFeatureConfiguration deserialize(Dynamic<T> param0) {
-        BlockState var0 = param0.get("contents").map(BlockState::deserialize).orElse(Blocks.AIR.defaultBlockState());
-        BlockState var1 = param0.get("rim").map(BlockState::deserialize).orElse(Blocks.AIR.defaultBlockState());
-        int var2 = param0.get("minimum_radius").asInt(0);
-        int var3 = param0.get("maximum_radius").asInt(0);
-        int var4 = param0.get("maximum_rim").asInt(0);
-        return new DeltaFeatureConfiguration(var0, var1, var2, var3, var4);
     }
 
     public static class Builder {

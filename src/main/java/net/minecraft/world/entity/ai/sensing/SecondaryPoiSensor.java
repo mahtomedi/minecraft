@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -18,7 +19,7 @@ public class SecondaryPoiSensor extends Sensor<Villager> {
     }
 
     protected void doTick(ServerLevel param0, Villager param1) {
-        DimensionType var0 = param0.dimensionType();
+        ResourceKey<DimensionType> var0 = param0.dimension();
         BlockPos var1 = param1.blockPosition();
         List<GlobalPos> var2 = Lists.newArrayList();
         int var3 = 4;

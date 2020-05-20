@@ -7,6 +7,7 @@ import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.serialization.DynamicLike;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -146,11 +147,15 @@ public class GameRules {
         }
     }
 
+    public GameRules(DynamicLike<?> param0) {
+        this();
+        this.loadFromTag(param0);
+    }
+
     public GameRules() {
         this.rules = GAME_RULE_TYPES.entrySet().stream().collect(ImmutableMap.toImmutableMap(Entry::getKey, param0 -> param0.getValue().createRule()));
     }
 
-    @OnlyIn(Dist.CLIENT)
     private GameRules(Map<GameRules.Key<?>, GameRules.Value<?>> param0) {
         this.rules = param0;
     }
@@ -165,16 +170,10 @@ public class GameRules {
         return var0;
     }
 
-    public void loadFromTag(CompoundTag param0) {
-        this.rules.forEach((param1, param2) -> {
-            if (param0.contains(param1.id)) {
-                param2.deserialize(param0.getString(param1.id));
-            }
-
-        });
+    private void loadFromTag(DynamicLike<?> param0) {
+        this.rules.forEach((param1, param2) -> param0.get(param1.id).asString().result().ifPresent(param2::deserialize));
     }
 
-    @OnlyIn(Dist.CLIENT)
     public GameRules copy() {
         return new GameRules(this.rules.entrySet().stream().collect(ImmutableMap.toImmutableMap(Entry::getKey, param0 -> param0.getValue().copy())));
     }
@@ -188,10 +187,12 @@ public class GameRules {
         param2.callVisitor(param0, param1);
     }
 
+    @OnlyIn(Dist.CLIENT)
     public void assignFrom(GameRules param0, @Nullable MinecraftServer param1) {
         param0.rules.keySet().forEach(param2 -> this.assignCap(param2, param0, param1));
     }
 
+    @OnlyIn(Dist.CLIENT)
     private <T extends GameRules.Value<T>> void assignCap(GameRules.Key<T> param0, GameRules param1, @Nullable MinecraftServer param2) {
         T var0 = param1.getRule(param0);
         this.<T>getRule(param0).setFrom(var0, param2);
@@ -257,11 +258,11 @@ public class GameRules {
             return this;
         }
 
-        @OnlyIn(Dist.CLIENT)
         protected GameRules.BooleanValue copy() {
             return new GameRules.BooleanValue(this.type, this.value);
         }
 
+        @OnlyIn(Dist.CLIENT)
         public void setFrom(GameRules.BooleanValue param0, @Nullable MinecraftServer param1) {
             this.value = param0.value;
             this.onChanged(param1);
@@ -369,11 +370,11 @@ public class GameRules {
             return this;
         }
 
-        @OnlyIn(Dist.CLIENT)
         protected GameRules.IntegerValue copy() {
             return new GameRules.IntegerValue(this.type, this.value);
         }
 
+        @OnlyIn(Dist.CLIENT)
         public void setFrom(GameRules.IntegerValue param0, @Nullable MinecraftServer param1) {
             this.value = param0.value;
             this.onChanged(param1);
@@ -484,9 +485,9 @@ public class GameRules {
 
         protected abstract T getSelf();
 
-        @OnlyIn(Dist.CLIENT)
         protected abstract T copy();
 
+        @OnlyIn(Dist.CLIENT)
         public abstract void setFrom(T var1, @Nullable MinecraftServer var2);
     }
 

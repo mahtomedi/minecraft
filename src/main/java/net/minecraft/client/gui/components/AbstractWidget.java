@@ -1,6 +1,5 @@
 package net.minecraft.client.gui.components;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Objects;
@@ -108,7 +107,7 @@ public abstract class AbstractWidget extends GuiComponent implements Widget, Gui
         int var2 = this.getYImage(this.isHovered());
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+        RenderSystem.enableDepthTest();
         this.blit(param0, this.x, this.y, 0, 46 + var2 * 20, this.width / 2, this.height);
         this.blit(param0, this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + var2 * 20, this.width / 2, this.height);
         this.renderBg(param0, var0, param1, param2);

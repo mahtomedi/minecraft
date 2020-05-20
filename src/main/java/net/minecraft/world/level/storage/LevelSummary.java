@@ -1,5 +1,6 @@
 package net.minecraft.world.level.storage;
 
+import com.mojang.serialization.Lifecycle;
 import java.io.File;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
@@ -10,44 +11,32 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.commons.lang3.StringUtils;
 
 @OnlyIn(Dist.CLIENT)
 public class LevelSummary implements Comparable<LevelSummary> {
+    private final LevelSettings settings;
+    private final LevelVersion levelVersion;
     private final String levelId;
-    private final String levelName;
-    private final long lastPlayed;
-    private final long sizeOnDisk;
     private final boolean requiresConversion;
-    private final GameType gameMode;
-    private final boolean hardcore;
-    private final boolean hasCheats;
-    private final String worldVersionName;
-    private final int worldVersion;
-    private final boolean snapshot;
     private final boolean locked;
     private final File icon;
-    private final WorldGenSettings worldGenSettings;
+    private final Lifecycle lifecycle;
     @Nullable
     private Component info;
 
-    public LevelSummary(WorldData param0, String param1, String param2, long param3, boolean param4, boolean param5, File param6) {
-        this.levelId = param1;
-        this.levelName = param2;
-        this.locked = param5;
-        this.icon = param6;
-        this.lastPlayed = param0.getLastPlayed();
-        this.sizeOnDisk = param3;
-        this.gameMode = param0.getGameType();
-        this.requiresConversion = param4;
-        this.hardcore = param0.isHardcore();
-        this.hasCheats = param0.getAllowCommands();
-        this.worldVersionName = param0.getMinecraftVersionName();
-        this.worldVersion = param0.getMinecraftVersion();
-        this.snapshot = param0.isSnapshot();
-        this.worldGenSettings = param0.worldGenSettings();
+    public LevelSummary(LevelSettings param0, LevelVersion param1, String param2, boolean param3, boolean param4, File param5, Lifecycle param6) {
+        this.settings = param0;
+        this.levelVersion = param1;
+        this.levelId = param2;
+        this.locked = param4;
+        this.icon = param5;
+        this.requiresConversion = param3;
+        this.lifecycle = param6;
     }
 
     public String getLevelId() {
@@ -55,7 +44,7 @@ public class LevelSummary implements Comparable<LevelSummary> {
     }
 
     public String getLevelName() {
-        return this.levelName;
+        return StringUtils.isEmpty(this.settings.levelName()) ? this.levelId : this.settings.levelName();
     }
 
     public File getIcon() {
@@ -67,49 +56,61 @@ public class LevelSummary implements Comparable<LevelSummary> {
     }
 
     public long getLastPlayed() {
-        return this.lastPlayed;
+        return this.levelVersion.lastPlayed();
     }
 
     public int compareTo(LevelSummary param0) {
-        if (this.lastPlayed < param0.lastPlayed) {
+        if (this.levelVersion.lastPlayed() < param0.levelVersion.lastPlayed()) {
             return 1;
         } else {
-            return this.lastPlayed > param0.lastPlayed ? -1 : this.levelId.compareTo(param0.levelId);
+            return this.levelVersion.lastPlayed() > param0.levelVersion.lastPlayed() ? -1 : this.levelId.compareTo(param0.levelId);
         }
     }
 
     public GameType getGameMode() {
-        return this.gameMode;
+        return this.settings.gameType();
     }
 
     public boolean isHardcore() {
-        return this.hardcore;
+        return this.settings.hardcore();
     }
 
     public boolean hasCheats() {
-        return this.hasCheats;
+        return this.settings.allowCommands();
     }
 
     public MutableComponent getWorldVersionName() {
-        return (MutableComponent)(StringUtil.isNullOrEmpty(this.worldVersionName)
+        return (MutableComponent)(StringUtil.isNullOrEmpty(this.levelVersion.minecraftVersionName())
             ? new TranslatableComponent("selectWorld.versionUnknown")
-            : new TextComponent(this.worldVersionName));
+            : new TextComponent(this.levelVersion.minecraftVersionName()));
     }
 
     public boolean markVersionInList() {
-        return this.askToOpenWorld() || !SharedConstants.getCurrentVersion().isStable() && !this.snapshot || this.shouldBackup() || this.isOldCustomizedWorld();
+        return this.askToOpenWorld()
+            || !SharedConstants.getCurrentVersion().isStable() && !this.levelVersion.snapshot()
+            || this.shouldBackup()
+            || this.isOldCustomizedWorld()
+            || this.experimental();
     }
 
     public boolean askToOpenWorld() {
-        return this.worldVersion > SharedConstants.getCurrentVersion().getWorldVersion();
+        return this.levelVersion.minecraftVersion() > SharedConstants.getCurrentVersion().getWorldVersion();
     }
 
     public boolean isOldCustomizedWorld() {
-        return this.worldGenSettings.isOldCustomizedWorld();
+        return this.settings.worldGenSettings().isOldCustomizedWorld() && this.levelVersion.minecraftVersion() < 1466;
+    }
+
+    protected WorldGenSettings worldGenSettings() {
+        return this.settings.worldGenSettings();
+    }
+
+    public boolean experimental() {
+        return this.lifecycle != Lifecycle.stable();
     }
 
     public boolean shouldBackup() {
-        return this.worldVersion < SharedConstants.getCurrentVersion().getWorldVersion();
+        return this.levelVersion.minecraftVersion() < SharedConstants.getCurrentVersion().getWorldVersion();
     }
 
     public boolean isLocked() {

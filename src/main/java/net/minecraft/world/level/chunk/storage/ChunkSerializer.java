@@ -45,7 +45,7 @@ import net.minecraft.world.level.chunk.ProtoTickList;
 import net.minecraft.world.level.chunk.UpgradeData;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.levelgen.structure.StructureFeatureIO;
+import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.lighting.LevelLightEngine;
@@ -304,41 +304,44 @@ public class ChunkSerializer {
             CompoundTag var24 = new CompoundTag();
 
             for(GenerationStep.Carving var25 : GenerationStep.Carving.values()) {
-                var24.putByteArray(var25.toString(), param1.getCarvingMask(var25).toByteArray());
+                BitSet var26 = var23.getCarvingMask(var25);
+                if (var26 != null) {
+                    var24.putByteArray(var25.toString(), var26.toByteArray());
+                }
             }
 
             var2.put("CarvingMasks", var24);
         }
 
         var2.put("Entities", var18);
-        TickList<Block> var26 = param1.getBlockTicks();
-        if (var26 instanceof ProtoTickList) {
-            var2.put("ToBeTicked", ((ProtoTickList)var26).save());
-        } else if (var26 instanceof ChunkTickList) {
-            var2.put("TileTicks", ((ChunkTickList)var26).save());
+        TickList<Block> var27 = param1.getBlockTicks();
+        if (var27 instanceof ProtoTickList) {
+            var2.put("ToBeTicked", ((ProtoTickList)var27).save());
+        } else if (var27 instanceof ChunkTickList) {
+            var2.put("TileTicks", ((ChunkTickList)var27).save());
         } else {
             var2.put("TileTicks", param0.getBlockTicks().save(var0));
         }
 
-        TickList<Fluid> var27 = param1.getLiquidTicks();
-        if (var27 instanceof ProtoTickList) {
-            var2.put("LiquidsToBeTicked", ((ProtoTickList)var27).save());
-        } else if (var27 instanceof ChunkTickList) {
-            var2.put("LiquidTicks", ((ChunkTickList)var27).save());
+        TickList<Fluid> var28 = param1.getLiquidTicks();
+        if (var28 instanceof ProtoTickList) {
+            var2.put("LiquidsToBeTicked", ((ProtoTickList)var28).save());
+        } else if (var28 instanceof ChunkTickList) {
+            var2.put("LiquidTicks", ((ChunkTickList)var28).save());
         } else {
             var2.put("LiquidTicks", param0.getLiquidTicks().save(var0));
         }
 
         var2.put("PostProcessing", packOffsets(param1.getPostProcessing()));
-        CompoundTag var28 = new CompoundTag();
+        CompoundTag var29 = new CompoundTag();
 
-        for(Entry<Heightmap.Types, Heightmap> var29 : param1.getHeightmaps()) {
-            if (param1.getStatus().heightmapsAfter().contains(var29.getKey())) {
-                var28.put(var29.getKey().getSerializationKey(), new LongArrayTag(var29.getValue().getRawData()));
+        for(Entry<Heightmap.Types, Heightmap> var30 : param1.getHeightmaps()) {
+            if (param1.getStatus().heightmapsAfter().contains(var30.getKey())) {
+                var29.put(var30.getKey().getSerializationKey(), new LongArrayTag(var30.getValue().getRawData()));
             }
         }
 
-        var2.put("Heightmaps", var28);
+        var2.put("Heightmaps", var29);
         var2.put("Structures", packStructureData(var0, param1.getAllStarts(), param1.getAllReferences()));
         return var1;
     }
@@ -385,11 +388,11 @@ public class ChunkSerializer {
 
     }
 
-    private static CompoundTag packStructureData(ChunkPos param0, Map<String, StructureStart> param1, Map<String, LongSet> param2) {
+    private static CompoundTag packStructureData(ChunkPos param0, Map<String, StructureStart<?>> param1, Map<String, LongSet> param2) {
         CompoundTag var0 = new CompoundTag();
         CompoundTag var1 = new CompoundTag();
 
-        for(Entry<String, StructureStart> var2 : param1.entrySet()) {
+        for(Entry<String, StructureStart<?>> var2 : param1.entrySet()) {
             var1.put(var2.getKey(), var2.getValue().createTag(param0.x, param0.z));
         }
 
@@ -404,12 +407,12 @@ public class ChunkSerializer {
         return var0;
     }
 
-    private static Map<String, StructureStart> unpackStructureStart(StructureManager param0, CompoundTag param1, long param2) {
-        Map<String, StructureStart> var0 = Maps.newHashMap();
+    private static Map<String, StructureStart<?>> unpackStructureStart(StructureManager param0, CompoundTag param1, long param2) {
+        Map<String, StructureStart<?>> var0 = Maps.newHashMap();
         CompoundTag var1 = param1.getCompound("Starts");
 
         for(String var2 : var1.getAllKeys()) {
-            var0.put(var2, StructureFeatureIO.loadStaticStart(param0, var1.getCompound(var2), param2));
+            var0.put(var2, StructureFeature.loadStaticStart(param0, var1.getCompound(var2), param2));
         }
 
         return var0;

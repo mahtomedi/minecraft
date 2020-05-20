@@ -2,9 +2,9 @@ package net.minecraft.util.datafix.fixes;
 
 import com.mojang.datafixers.DSL;
 import com.mojang.datafixers.DataFix;
-import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.TypeRewriteRule;
 import com.mojang.datafixers.schemas.Schema;
+import com.mojang.serialization.Dynamic;
 
 public class RedstoneWireConnectionsFix extends DataFix {
     public RedstoneWireConnectionsFix(Schema param0) {
@@ -20,16 +20,16 @@ public class RedstoneWireConnectionsFix extends DataFix {
     }
 
     private <T> Dynamic<T> updateRedstoneConnections(Dynamic<T> param0) {
-        boolean var0 = param0.get("Name").asString().filter("minecraft:redstone_wire"::equals).isPresent();
+        boolean var0 = param0.get("Name").asString().result().filter("minecraft:redstone_wire"::equals).isPresent();
         return !var0
             ? param0
             : param0.update(
                 "Properties",
                 param0x -> {
-                    String var0x = param0x.get("east").asString().orElseGet(() -> "none");
-                    String var1x = param0x.get("west").asString().orElseGet(() -> "none");
-                    String var2x = param0x.get("north").asString().orElseGet(() -> "none");
-                    String var3 = param0x.get("south").asString().orElseGet(() -> "none");
+                    String var0x = param0x.get("east").asString("none");
+                    String var1x = param0x.get("west").asString("none");
+                    String var2x = param0x.get("north").asString("none");
+                    String var3 = param0x.get("south").asString("none");
                     boolean var4 = isConnected(var0x) || isConnected(var1x);
                     boolean var5 = isConnected(var2x) || isConnected(var3);
                     String var6 = !isConnected(var0x) && !var5 ? "side" : var0x;

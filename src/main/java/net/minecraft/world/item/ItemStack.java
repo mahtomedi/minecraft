@@ -6,6 +6,8 @@ import com.google.common.collect.Multimap;
 import com.google.gson.JsonParseException;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Collection;
@@ -69,6 +71,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public final class ItemStack {
+    public static final Codec<ItemStack> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    Registry.ITEM.fieldOf("id").forGetter(param0x -> param0x.item),
+                    Codec.INT.fieldOf("Count").forGetter(param0x -> param0x.count),
+                    CompoundTag.CODEC.optionalFieldOf("tag").forGetter(param0x -> Optional.ofNullable(param0x.tag))
+                )
+                .apply(param0, ItemStack::new)
+    );
     private static final Logger LOGGER = LogManager.getLogger();
     public static final ItemStack EMPTY = new ItemStack((Item)null);
     public static final DecimalFormat ATTRIBUTE_MODIFIER_FORMAT = Util.make(
@@ -89,6 +99,11 @@ public final class ItemStack {
 
     public ItemStack(ItemLike param0) {
         this(param0, 1);
+    }
+
+    private ItemStack(ItemLike param0, int param1, Optional<CompoundTag> param2) {
+        this(param0, param1);
+        param2.ifPresent(this::setTag);
     }
 
     public ItemStack(ItemLike param0, int param1) {
@@ -458,8 +473,8 @@ public final class ItemStack {
         return this.tag != null ? this.tag.getList("Enchantments", 10) : new ListTag();
     }
 
-    public void setTag(@Nullable CompoundTag param0) {
-        this.tag = param0;
+    public void setTag(@Nullable CompoundTag param0x) {
+        this.tag = param0x;
         if (this.getItem().canBeDepleted()) {
             this.setDamageValue(this.getDamageValue());
         }

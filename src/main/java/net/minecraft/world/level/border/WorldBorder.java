@@ -1,6 +1,7 @@
 package net.minecraft.world.level.border;
 
 import com.google.common.collect.Lists;
+import com.mojang.serialization.DynamicLike;
 import java.util.List;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -425,52 +426,16 @@ public class WorldBorder {
             return this.sizeLerpTarget;
         }
 
-        public static WorldBorder.Settings read(CompoundTag param0, WorldBorder.Settings param1) {
-            double var0 = param1.centerX;
-            double var1 = param1.centerZ;
-            double var2 = param1.size;
-            long var3 = param1.sizeLerpTime;
-            double var4 = param1.sizeLerpTarget;
-            double var5 = param1.safeZone;
-            double var6 = param1.damagePerBlock;
-            int var7 = param1.warningBlocks;
-            int var8 = param1.warningTime;
-            if (param0.contains("BorderCenterX", 99)) {
-                var0 = param0.getDouble("BorderCenterX");
-            }
-
-            if (param0.contains("BorderCenterZ", 99)) {
-                var1 = param0.getDouble("BorderCenterZ");
-            }
-
-            if (param0.contains("BorderSize", 99)) {
-                var2 = param0.getDouble("BorderSize");
-            }
-
-            if (param0.contains("BorderSizeLerpTime", 99)) {
-                var3 = param0.getLong("BorderSizeLerpTime");
-            }
-
-            if (param0.contains("BorderSizeLerpTarget", 99)) {
-                var4 = param0.getDouble("BorderSizeLerpTarget");
-            }
-
-            if (param0.contains("BorderSafeZone", 99)) {
-                var5 = param0.getDouble("BorderSafeZone");
-            }
-
-            if (param0.contains("BorderDamagePerBlock", 99)) {
-                var6 = param0.getDouble("BorderDamagePerBlock");
-            }
-
-            if (param0.contains("BorderWarningBlocks", 99)) {
-                var7 = param0.getInt("BorderWarningBlocks");
-            }
-
-            if (param0.contains("BorderWarningTime", 99)) {
-                var8 = param0.getInt("BorderWarningTime");
-            }
-
+        public static WorldBorder.Settings read(DynamicLike<?> param0, WorldBorder.Settings param1) {
+            double var0 = param0.get("BorderCenterX").asDouble(param1.centerX);
+            double var1 = param0.get("BorderCenterZ").asDouble(param1.centerZ);
+            double var2 = param0.get("BorderSize").asDouble(param1.size);
+            long var3 = param0.get("BorderSizeLerpTime").asLong(param1.sizeLerpTime);
+            double var4 = param0.get("BorderSizeLerpTarget").asDouble(param1.sizeLerpTarget);
+            double var5 = param0.get("BorderSafeZone").asDouble(param1.safeZone);
+            double var6 = param0.get("BorderDamagePerBlock").asDouble(param1.damagePerBlock);
+            int var7 = param0.get("BorderWarningBlocks").asInt(param1.warningBlocks);
+            int var8 = param0.get("BorderWarningTime").asInt(param1.warningTime);
             return new WorldBorder.Settings(var0, var1, var6, var5, var7, var8, var2, var3, var4);
         }
 

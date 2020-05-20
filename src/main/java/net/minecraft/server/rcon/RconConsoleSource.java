@@ -1,5 +1,6 @@
 package net.minecraft.server.rcon;
 
+import java.util.UUID;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
@@ -27,14 +28,14 @@ public class RconConsoleSource implements CommandSource {
     }
 
     public CommandSourceStack createCommandSourceStack() {
-        ServerLevel var0 = this.server.getLevel(DimensionType.OVERWORLD);
+        ServerLevel var0 = this.server.getLevel(DimensionType.OVERWORLD_LOCATION);
         return new CommandSourceStack(
             this, Vec3.atLowerCornerOf(var0.getSharedSpawnPos()), Vec2.ZERO, var0, 4, "Recon", new TextComponent("Rcon"), this.server, null
         );
     }
 
     @Override
-    public void sendMessage(Component param0) {
+    public void sendMessage(Component param0, UUID param1) {
         this.buffer.append(param0.getString());
     }
 

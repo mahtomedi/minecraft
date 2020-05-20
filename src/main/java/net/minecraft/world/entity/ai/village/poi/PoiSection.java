@@ -1,12 +1,13 @@
 package net.minecraft.world.entity.ai.village.poi;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.shorts.Short2ObjectMap;
 import it.unimi.dsi.fastutil.shorts.Short2ObjectOpenHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -17,34 +18,36 @@ import java.util.stream.Stream;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
-import net.minecraft.util.Serializable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class PoiSection implements Serializable {
+public class PoiSection {
     private static final Logger LOGGER = LogManager.getLogger();
     private final Short2ObjectMap<PoiRecord> records = new Short2ObjectOpenHashMap<>();
     private final Map<PoiType, Set<PoiRecord>> byType = Maps.newHashMap();
     private final Runnable setDirty;
     private boolean isValid;
 
-    public PoiSection(Runnable param0) {
-        this.setDirty = param0;
-        this.isValid = true;
+    public static Codec<PoiSection> codec(Runnable param0) {
+        return RecordCodecBuilder.<PoiSection>create(
+                param1 -> param1.group(
+                            RecordCodecBuilder.point(param0),
+                            Codec.BOOL.fieldOf("Valid").forGetter(param0x -> param0x.isValid),
+                            PoiRecord.codec(param0).listOf().fieldOf("Records").forGetter(param0x -> ImmutableList.copyOf(param0x.records.values()))
+                        )
+                        .apply(param1, PoiSection::new)
+            )
+            .withDefault(Util.prefix("Failed to read POI section: ", LOGGER::error), () -> new PoiSection(param0, false, ImmutableList.of()));
     }
 
-    public <T> PoiSection(Runnable param0, Dynamic<T> param1) {
+    public PoiSection(Runnable param0) {
+        this(param0, true, ImmutableList.of());
+    }
+
+    private PoiSection(Runnable param0, boolean param1, List<PoiRecord> param2) {
         this.setDirty = param0;
-
-        try {
-            this.isValid = param1.get("Valid").asBoolean(false);
-            param1.get("Records").asStream().forEach(param1x -> this.add(new PoiRecord(param1x, param0)));
-        } catch (Exception var4) {
-            LOGGER.error("Failed to load POI chunk", (Throwable)var4);
-            this.clear();
-            this.isValid = false;
-        }
-
+        this.isValid = param1;
+        param2.forEach(this::add);
     }
 
     public Stream<PoiRecord> getRecords(Predicate<PoiType> param0, PoiManager.Occupancy param1) {
@@ -64,9 +67,9 @@ public class PoiSection implements Serializable {
 
     }
 
-    private boolean add(PoiRecord param0) {
-        BlockPos var0 = param0.getPos();
-        PoiType var1 = param0.getPoiType();
+    private boolean add(PoiRecord param0x) {
+        BlockPos var0 = param0x.getPos();
+        PoiType var1 = param0x.getPoiType();
         short var2 = SectionPos.sectionRelativePos(var0);
         PoiRecord var3 = this.records.get(var2);
         if (var3 != null) {
@@ -76,8 +79,8 @@ public class PoiSection implements Serializable {
                 throw (IllegalStateException)Util.pauseInIde(new IllegalStateException("POI data mismatch: already registered at " + var0));
             }
         } else {
-            this.records.put(var2, param0);
-            this.byType.computeIfAbsent(var1, param0x -> Sets.newHashSet()).add(param0);
+            this.records.put(var2, param0x);
+            this.byType.computeIfAbsent(var1, param0xx -> Sets.newHashSet()).add(param0x);
             return true;
         }
     }
@@ -114,12 +117,6 @@ public class PoiSection implements Serializable {
         short var0 = SectionPos.sectionRelativePos(param0);
         PoiRecord var1 = this.records.get(var0);
         return var1 != null ? Optional.of(var1.getPoiType()) : Optional.empty();
-    }
-
-    @Override
-    public <T> T serialize(DynamicOps<T> param0) {
-        T var0 = param0.createList(this.records.values().stream().map(param1 -> param1.serialize(param0)));
-        return param0.createMap(ImmutableMap.of(param0.createString("Records"), var0, param0.createString("Valid"), param0.createBoolean(this.isValid)));
     }
 
     public void refresh(Consumer<BiConsumer<BlockPos, PoiType>> param0) {

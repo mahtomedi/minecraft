@@ -1,18 +1,15 @@
 package net.minecraft.world.level.levelgen.feature.stateproviders;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMap.Builder;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Codec;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class ForestFlowerProvider extends BlockStateProvider {
+    public static final Codec<ForestFlowerProvider> CODEC = Codec.unit(() -> ForestFlowerProvider.INSTANCE);
     private static final BlockState[] FLOWERS = new BlockState[]{
         Blocks.DANDELION.defaultBlockState(),
         Blocks.POPPY.defaultBlockState(),
@@ -26,25 +23,16 @@ public class ForestFlowerProvider extends BlockStateProvider {
         Blocks.CORNFLOWER.defaultBlockState(),
         Blocks.LILY_OF_THE_VALLEY.defaultBlockState()
     };
+    public static final ForestFlowerProvider INSTANCE = new ForestFlowerProvider();
 
-    public ForestFlowerProvider() {
-        super(BlockStateProviderType.FOREST_FLOWER_PROVIDER);
-    }
-
-    public <T> ForestFlowerProvider(Dynamic<T> param0) {
-        this();
+    @Override
+    protected BlockStateProviderType<?> type() {
+        return BlockStateProviderType.FOREST_FLOWER_PROVIDER;
     }
 
     @Override
     public BlockState getState(Random param0, BlockPos param1) {
         double var0 = Mth.clamp((1.0 + Biome.BIOME_INFO_NOISE.getValue((double)param1.getX() / 48.0, (double)param1.getZ() / 48.0, false)) / 2.0, 0.0, 0.9999);
         return FLOWERS[(int)(var0 * (double)FLOWERS.length)];
-    }
-
-    @Override
-    public <T> T serialize(DynamicOps<T> param0) {
-        Builder<T, T> var0 = ImmutableMap.builder();
-        var0.put(param0.createString("type"), param0.createString(Registry.BLOCKSTATE_PROVIDER_TYPES.getKey(this.type).toString()));
-        return new Dynamic<>(param0, param0.createMap(var0.build())).getValue();
     }
 }

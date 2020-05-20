@@ -115,7 +115,7 @@ public class VillagerMakeLove extends Behavior<Villager> {
     }
 
     private void giveBedToChild(ServerLevel param0, Villager param1, BlockPos param2) {
-        GlobalPos var0 = GlobalPos.of(param0.dimensionType(), param2);
+        GlobalPos var0 = GlobalPos.of(param0.dimension(), param2);
         param1.getBrain().setMemory(MemoryModuleType.HOME, var0);
     }
 }

@@ -1,9 +1,9 @@
 package net.minecraft.util.datafix.fixes;
 
 import com.mojang.datafixers.DataFix;
-import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.TypeRewriteRule;
 import com.mojang.datafixers.schemas.Schema;
+import com.mojang.serialization.Dynamic;
 import java.util.stream.Stream;
 
 public class SavedDataVillageCropFix extends DataFix {
@@ -26,7 +26,7 @@ public class SavedDataVillageCropFix extends DataFix {
     }
 
     private static <T> Dynamic<T> updateChildren(Dynamic<T> param0x) {
-        return param0x.asStreamOpt().map(SavedDataVillageCropFix::updateChildren).map(param0x::createList).orElse(param0x);
+        return param0x.asStreamOpt().map(SavedDataVillageCropFix::updateChildren).map(param0x::createList).result().orElse(param0x);
     }
 
     private static Stream<? extends Dynamic<?>> updateChildren(Stream<? extends Dynamic<?>> param0x) {
@@ -53,6 +53,6 @@ public class SavedDataVillageCropFix extends DataFix {
     }
 
     private static <T> Dynamic<T> updateCrop(Dynamic<T> param0, String param1) {
-        return param0.get(param1).asNumber().isPresent() ? param0.set(param1, BlockStateData.getTag(param0.get(param1).asInt(0) << 4)) : param0;
+        return param0.get(param1).asNumber().result().isPresent() ? param0.set(param1, BlockStateData.getTag(param0.get(param1).asInt(0) << 4)) : param0;
     }
 }

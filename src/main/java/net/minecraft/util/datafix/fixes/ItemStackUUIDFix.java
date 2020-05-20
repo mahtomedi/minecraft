@@ -1,11 +1,12 @@
 package net.minecraft.util.datafix.fixes;
 
 import com.mojang.datafixers.DSL;
-import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.OpticFinder;
 import com.mojang.datafixers.TypeRewriteRule;
 import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Dynamic;
+import net.minecraft.util.datafix.schemas.NamespacedSchema;
 
 public class ItemStackUUIDFix extends AbstractUUIDFix {
     public ItemStackUUIDFix(Schema param0) {
@@ -14,7 +15,7 @@ public class ItemStackUUIDFix extends AbstractUUIDFix {
 
     @Override
     public TypeRewriteRule makeRule() {
-        OpticFinder<Pair<String, String>> var0 = DSL.fieldFinder("id", DSL.named(References.ITEM_NAME.typeName(), DSL.namespacedString()));
+        OpticFinder<Pair<String, String>> var0 = DSL.fieldFinder("id", DSL.named(References.ITEM_NAME.typeName(), NamespacedSchema.namespacedString()));
         return this.fixTypeEverywhereTyped("ItemStackUUIDFix", this.getInputSchema().getType(this.typeReference), param1 -> {
             OpticFinder<?> var0x = param1.getType().findField("tag");
             return param1.updateTyped(var0x, param2 -> param2.update(DSL.remainderFinder(), param2x -> {

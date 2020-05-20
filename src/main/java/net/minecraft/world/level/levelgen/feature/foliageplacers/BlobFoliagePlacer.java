@@ -1,9 +1,10 @@
 package net.minecraft.world.level.levelgen.feature.foliageplacers;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMap.Builder;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.datafixers.Products.P5;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.mojang.serialization.codecs.RecordCodecBuilder.Instance;
+import com.mojang.serialization.codecs.RecordCodecBuilder.Mu;
 import java.util.Random;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
@@ -11,10 +12,15 @@ import net.minecraft.world.level.LevelSimulatedRW;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
 
 public class BlobFoliagePlacer extends FoliagePlacer {
+    public static final Codec<BlobFoliagePlacer> CODEC = RecordCodecBuilder.create(param0 -> blobParts(param0).apply(param0, BlobFoliagePlacer::new));
     protected final int height;
 
+    protected static <P extends BlobFoliagePlacer> P5<Mu<P>, Integer, Integer, Integer, Integer, Integer> blobParts(Instance<P> param0) {
+        return foliagePlacerParts(param0).and(Codec.INT.fieldOf("height").forGetter(param0x -> param0x.height));
+    }
+
     protected BlobFoliagePlacer(int param0, int param1, int param2, int param3, int param4, FoliagePlacerType<?> param5) {
-        super(param0, param1, param2, param3, param5);
+        super(param0, param1, param2, param3);
         this.height = param4;
     }
 
@@ -22,14 +28,9 @@ public class BlobFoliagePlacer extends FoliagePlacer {
         this(param0, param1, param2, param3, param4, FoliagePlacerType.BLOB_FOLIAGE_PLACER);
     }
 
-    public <T> BlobFoliagePlacer(Dynamic<T> param0) {
-        this(
-            param0.get("radius").asInt(0),
-            param0.get("radius_random").asInt(0),
-            param0.get("offset").asInt(0),
-            param0.get("offset_random").asInt(0),
-            param0.get("height").asInt(0)
-        );
+    @Override
+    protected FoliagePlacerType<?> type() {
+        return FoliagePlacerType.BLOB_FOLIAGE_PLACER;
     }
 
     @Override
@@ -59,12 +60,5 @@ public class BlobFoliagePlacer extends FoliagePlacer {
     @Override
     protected boolean shouldSkipLocation(Random param0, int param1, int param2, int param3, int param4, boolean param5) {
         return param1 == param4 && param3 == param4 && (param0.nextInt(2) == 0 || param2 == 0);
-    }
-
-    @Override
-    public <T> T serialize(DynamicOps<T> param0) {
-        Builder<T, T> var0 = ImmutableMap.builder();
-        var0.put(param0.createString("height"), param0.createInt(this.height));
-        return param0.merge(super.serialize(param0), param0.createMap(var0.build()));
     }
 }

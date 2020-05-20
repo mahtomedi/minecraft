@@ -1,6 +1,7 @@
 package net.minecraft.world.entity.monster;
 
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.Dynamic;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -70,7 +71,10 @@ public class ZombieVillager extends Zombie implements VillagerDataHolder {
     @Override
     public void addAdditionalSaveData(CompoundTag param0) {
         super.addAdditionalSaveData(param0);
-        param0.put("VillagerData", this.getVillagerData().serialize(NbtOps.INSTANCE));
+        VillagerData.CODEC
+            .encodeStart(NbtOps.INSTANCE, this.getVillagerData())
+            .resultOrPartial(LOGGER::error)
+            .ifPresent(param1 -> param0.put("VillagerData", param1));
         if (this.tradeOffers != null) {
             param0.put("Offers", this.tradeOffers);
         }
@@ -91,7 +95,8 @@ public class ZombieVillager extends Zombie implements VillagerDataHolder {
     public void readAdditionalSaveData(CompoundTag param0) {
         super.readAdditionalSaveData(param0);
         if (param0.contains("VillagerData", 10)) {
-            this.setVillagerData(new VillagerData(new Dynamic<>(NbtOps.INSTANCE, param0.get("VillagerData"))));
+            DataResult<VillagerData> var0 = VillagerData.CODEC.parse(new Dynamic<>(NbtOps.INSTANCE, param0.get("VillagerData")));
+            var0.resultOrPartial(LOGGER::error).ifPresent(this::setVillagerData);
         }
 
         if (param0.contains("Offers", 10)) {
@@ -325,13 +330,13 @@ public class ZombieVillager extends Zombie implements VillagerDataHolder {
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
 
-    public void setVillagerData(VillagerData param0) {
-        VillagerData var0 = this.getVillagerData();
-        if (var0.getProfession() != param0.getProfession()) {
+    public void setVillagerData(VillagerData param0x) {
+        VillagerData var0x = this.getVillagerData();
+        if (var0x.getProfession() != param0x.getProfession()) {
             this.tradeOffers = null;
         }
 
-        this.entityData.set(DATA_VILLAGER_DATA, param0);
+        this.entityData.set(DATA_VILLAGER_DATA, param0x);
     }
 
     @Override

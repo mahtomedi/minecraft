@@ -9,6 +9,7 @@ import com.mojang.datafixers.types.templates.List.ListType;
 import com.mojang.datafixers.util.Pair;
 import java.util.Objects;
 import java.util.function.Function;
+import net.minecraft.util.datafix.schemas.NamespacedSchema;
 
 public class VillagerTradeFix extends NamedEntityFix {
     public VillagerTradeFix(Schema param0, boolean param1) {
@@ -29,7 +30,7 @@ public class VillagerTradeFix extends NamedEntityFix {
             OpticFinder<?> var6 = var4.findField("buy");
             OpticFinder<?> var7 = var4.findField("buyB");
             OpticFinder<?> var8 = var4.findField("sell");
-            OpticFinder<Pair<String, String>> var9 = DSL.fieldFinder("id", DSL.named(References.ITEM_NAME.typeName(), DSL.namespacedString()));
+            OpticFinder<Pair<String, String>> var9 = DSL.fieldFinder("id", DSL.named(References.ITEM_NAME.typeName(), NamespacedSchema.namespacedString()));
             Function<Typed<?>, Typed<?>> var10 = param1 -> this.updateItemStack(var9, param1);
             return param0.updateTyped(
                 var0,

@@ -39,22 +39,10 @@ public class ChunkStatus {
         }
     );
     public static final ChunkStatus STRUCTURE_STARTS = register(
-        "structure_starts",
-        EMPTY,
-        0,
-        PRE_FEATURES,
-        ChunkStatus.ChunkType.PROTOCHUNK,
-        (param0, param1, param2, param3, param4, param5, param6, param7) -> {
+        "structure_starts", EMPTY, 0, PRE_FEATURES, ChunkStatus.ChunkType.PROTOCHUNK, (param0, param1, param2, param3, param4, param5, param6, param7) -> {
             if (!param7.getStatus().isOrAfter(param0)) {
                 if (param1.getServer().getWorldData().worldGenSettings().generateFeatures()) {
-                    param2.createStructures(
-                        param1.structureFeatureManager(),
-                        param1.getBiomeManager().withDifferentSource(param2.getBiomeSource()),
-                        param7,
-                        param2,
-                        param3,
-                        param1.getSeed()
-                    );
+                    param2.createStructures(param1.structureFeatureManager(), param7, param3, param1.getSeed());
                 }
     
                 if (param7 instanceof ProtoChunk) {
@@ -98,9 +86,7 @@ public class ChunkStatus {
         0,
         PRE_FEATURES,
         ChunkStatus.ChunkType.PROTOCHUNK,
-        (param0, param1, param2, param3) -> param1.applyCarvers(
-                param0.getSeed(), param0.getBiomeManager().withDifferentSource(param1.getBiomeSource()), param3, GenerationStep.Carving.AIR
-            )
+        (param0, param1, param2, param3) -> param1.applyCarvers(param0.getSeed(), param0.getBiomeManager(), param3, GenerationStep.Carving.AIR)
     );
     public static final ChunkStatus LIQUID_CARVERS = registerSimple(
         "liquid_carvers",
@@ -108,9 +94,7 @@ public class ChunkStatus {
         0,
         POST_FEATURES,
         ChunkStatus.ChunkType.PROTOCHUNK,
-        (param0, param1, param2, param3) -> param1.applyCarvers(
-                param0.getSeed(), param0.getBiomeManager().withDifferentSource(param1.getBiomeSource()), param3, GenerationStep.Carving.LIQUID
-            )
+        (param0, param1, param2, param3) -> param1.applyCarvers(param0.getSeed(), param0.getBiomeManager(), param3, GenerationStep.Carving.LIQUID)
     );
     public static final ChunkStatus FEATURES = register(
         "features",

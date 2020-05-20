@@ -1,24 +1,38 @@
 package net.minecraft.world.level.levelgen.feature.configurations;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
-import com.google.common.collect.ImmutableMap.Builder;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.blockplacers.BlockPlacer;
-import net.minecraft.world.level.levelgen.feature.blockplacers.BlockPlacerType;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
-import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProviderType;
 
 public class RandomPatchConfiguration implements FeatureConfiguration {
+    public static final Codec<RandomPatchConfiguration> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    BlockStateProvider.CODEC.fieldOf("state_provider").forGetter(param0x -> param0x.stateProvider),
+                    BlockPlacer.CODEC.fieldOf("block_placer").forGetter(param0x -> param0x.blockPlacer),
+                    BlockState.CODEC
+                        .listOf()
+                        .fieldOf("whitelist")
+                        .forGetter(param0x -> param0x.whitelist.stream().map(Block::defaultBlockState).collect(Collectors.toList())),
+                    BlockState.CODEC.listOf().fieldOf("blacklist").forGetter(param0x -> ImmutableList.copyOf(param0x.blacklist)),
+                    Codec.INT.fieldOf("tries").withDefault(128).forGetter(param0x -> param0x.tries),
+                    Codec.INT.fieldOf("xspread").withDefault(7).forGetter(param0x -> param0x.xspread),
+                    Codec.INT.fieldOf("yspread").withDefault(3).forGetter(param0x -> param0x.yspread),
+                    Codec.INT.fieldOf("zspread").withDefault(7).forGetter(param0x -> param0x.zspread),
+                    Codec.BOOL.fieldOf("can_replace").withDefault(false).forGetter(param0x -> param0x.canReplace),
+                    Codec.BOOL.fieldOf("project").withDefault(true).forGetter(param0x -> param0x.project),
+                    Codec.BOOL.fieldOf("need_water").withDefault(false).forGetter(param0x -> param0x.needWater)
+                )
+                .apply(param0, RandomPatchConfiguration::new)
+    );
     public final BlockStateProvider stateProvider;
     public final BlockPlacer blockPlacer;
     public final Set<Block> whitelist;
@@ -30,6 +44,34 @@ public class RandomPatchConfiguration implements FeatureConfiguration {
     public final boolean canReplace;
     public final boolean project;
     public final boolean needWater;
+
+    private RandomPatchConfiguration(
+        BlockStateProvider param0,
+        BlockPlacer param1,
+        List<BlockState> param2,
+        List<BlockState> param3,
+        int param4,
+        int param5,
+        int param6,
+        int param7,
+        boolean param8,
+        boolean param9,
+        boolean param10
+    ) {
+        this(
+            param0,
+            param1,
+            param2.stream().map(BlockBehaviour.BlockStateBase::getBlock).collect(Collectors.toSet()),
+            ImmutableSet.copyOf(param3),
+            param4,
+            param5,
+            param6,
+            param7,
+            param8,
+            param9,
+            param10
+        );
+    }
 
     private RandomPatchConfiguration(
         BlockStateProvider param0,
@@ -55,46 +97,6 @@ public class RandomPatchConfiguration implements FeatureConfiguration {
         this.canReplace = param8;
         this.project = param9;
         this.needWater = param10;
-    }
-
-    @Override
-    public <T> Dynamic<T> serialize(DynamicOps<T> param0) {
-        Builder<T, T> var0 = ImmutableMap.builder();
-        var0.put(param0.createString("state_provider"), this.stateProvider.serialize(param0))
-            .put(param0.createString("block_placer"), this.blockPlacer.serialize(param0))
-            .put(
-                param0.createString("whitelist"),
-                param0.createList(this.whitelist.stream().map(param1 -> BlockState.serialize(param0, param1.defaultBlockState()).getValue()))
-            )
-            .put(param0.createString("blacklist"), param0.createList(this.blacklist.stream().map(param1 -> BlockState.serialize(param0, param1).getValue())))
-            .put(param0.createString("tries"), param0.createInt(this.tries))
-            .put(param0.createString("xspread"), param0.createInt(this.xspread))
-            .put(param0.createString("yspread"), param0.createInt(this.yspread))
-            .put(param0.createString("zspread"), param0.createInt(this.zspread))
-            .put(param0.createString("can_replace"), param0.createBoolean(this.canReplace))
-            .put(param0.createString("project"), param0.createBoolean(this.project))
-            .put(param0.createString("need_water"), param0.createBoolean(this.needWater));
-        return new Dynamic<>(param0, param0.createMap(var0.build()));
-    }
-
-    public static <T> RandomPatchConfiguration deserialize(Dynamic<T> param0) {
-        BlockStateProviderType<?> var0 = Registry.BLOCKSTATE_PROVIDER_TYPES
-            .get(new ResourceLocation(param0.get("state_provider").get("type").asString().orElseThrow(RuntimeException::new)));
-        BlockPlacerType<?> var1 = Registry.BLOCK_PLACER_TYPES
-            .get(new ResourceLocation(param0.get("block_placer").get("type").asString().orElseThrow(RuntimeException::new)));
-        return new RandomPatchConfiguration(
-            var0.deserialize(param0.get("state_provider").orElseEmptyMap()),
-            var1.deserialize(param0.get("block_placer").orElseEmptyMap()),
-            param0.get("whitelist").asList(BlockState::deserialize).stream().map(BlockBehaviour.BlockStateBase::getBlock).collect(Collectors.toSet()),
-            Sets.newHashSet(param0.get("blacklist").asList(BlockState::deserialize)),
-            param0.get("tries").asInt(128),
-            param0.get("xspread").asInt(7),
-            param0.get("yspread").asInt(3),
-            param0.get("zspread").asInt(7),
-            param0.get("can_replace").asBoolean(false),
-            param0.get("project").asBoolean(true),
-            param0.get("need_water").asBoolean(false)
-        );
     }
 
     public static class GrassConfigurationBuilder {

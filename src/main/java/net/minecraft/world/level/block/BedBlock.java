@@ -33,7 +33,6 @@ import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.AABB;
@@ -122,7 +121,7 @@ public class BedBlock extends HorizontalDirectionalBlock implements EntityBlock 
     }
 
     public static boolean canSetSpawn(Level param0, BlockPos param1) {
-        return param0.dimensionType() == DimensionType.OVERWORLD;
+        return param0.dimensionType().isOverworld();
     }
 
     private boolean kickVillagerOutOfBed(Level param0, BlockPos param1) {

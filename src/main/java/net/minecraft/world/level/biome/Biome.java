@@ -4,13 +4,18 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.longs.Long2FloatLinkedOpenHashMap;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -20,14 +25,17 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.IdMapper;
 import net.minecraft.core.Registry;
+import net.minecraft.core.SectionPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.sounds.Music;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.util.WeighedRandom;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.FoliageColor;
 import net.minecraft.world.level.GrassColor;
 import net.minecraft.world.level.LevelReader;
@@ -45,9 +53,10 @@ import net.minecraft.world.level.levelgen.carver.CarverConfiguration;
 import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
 import net.minecraft.world.level.levelgen.carver.WorldCarver;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
-import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.surfacebuilders.ConfiguredSurfaceBuilder;
 import net.minecraft.world.level.levelgen.surfacebuilders.SurfaceBuilder;
 import net.minecraft.world.level.levelgen.surfacebuilders.SurfaceBuilderConfiguration;
@@ -59,8 +68,56 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public abstract class Biome {
+public class Biome {
     public static final Logger LOGGER = LogManager.getLogger();
+    public static final Codec<Biome> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    Biome.Precipitation.CODEC.fieldOf("precipitation").forGetter(param0x -> param0x.precipitation),
+                    Biome.BiomeCategory.CODEC.fieldOf("category").forGetter(param0x -> param0x.biomeCategory),
+                    Codec.FLOAT.fieldOf("depth").forGetter(param0x -> param0x.depth),
+                    Codec.FLOAT.fieldOf("scale").forGetter(param0x -> param0x.scale),
+                    Codec.FLOAT.fieldOf("temperature").forGetter(param0x -> param0x.temperature),
+                    Codec.FLOAT.fieldOf("downfall").forGetter(param0x -> param0x.downfall),
+                    BiomeSpecialEffects.CODEC.fieldOf("effects").forGetter(param0x -> param0x.specialEffects),
+                    Codec.INT.fieldOf("sky_color").forGetter(param0x -> param0x.skyColor),
+                    ConfiguredSurfaceBuilder.CODEC.fieldOf("surface_builder").forGetter(param0x -> param0x.surfaceBuilder),
+                    Codec.simpleMap(
+                            GenerationStep.Carving.CODEC,
+                            ConfiguredWorldCarver.CODEC.listOf().promotePartial(Util.prefix("Carver: ", LOGGER::error)),
+                            StringRepresentable.keys(GenerationStep.Carving.values())
+                        )
+                        .fieldOf("carvers")
+                        .forGetter(param0x -> param0x.carvers),
+                    Codec.simpleMap(
+                            GenerationStep.Decoration.CODEC,
+                            ConfiguredFeature.CODEC.listOf().promotePartial(Util.prefix("Feature: ", LOGGER::error)),
+                            StringRepresentable.keys(GenerationStep.Decoration.values())
+                        )
+                        .fieldOf("features")
+                        .forGetter(param0x -> param0x.features),
+                    ConfiguredStructureFeature.CODEC
+                        .listOf()
+                        .promotePartial(Util.prefix("Structure start: ", LOGGER::error))
+                        .fieldOf("starts")
+                        .forGetter(
+                            param0x -> param0x.validFeatureStarts
+                                    .values()
+                                    .stream()
+                                    .sorted(Comparator.comparing(param0xx -> Registry.STRUCTURE_FEATURE.getKey(param0xx.feature)))
+                                    .collect(Collectors.toList())
+                        ),
+                    Codec.simpleMap(
+                            MobCategory.CODEC,
+                            Biome.SpawnerData.CODEC.listOf().promotePartial(Util.prefix("Spawn data: ", LOGGER::error)),
+                            StringRepresentable.keys(MobCategory.values())
+                        )
+                        .fieldOf("spawners")
+                        .forGetter(param0x -> param0x.spawners),
+                    Biome.ClimateParameters.CODEC.listOf().fieldOf("climate_parameters").forGetter(param0x -> param0x.optimalParameters),
+                    Codec.STRING.optionalFieldOf("parent").forGetter(param0x -> Optional.ofNullable(param0x.parent))
+                )
+                .apply(param0, Biome::new)
+    );
     public static final Set<Biome> EXPLORABLE_BIOMES = Sets.newHashSet();
     public static final IdMapper<Biome> MUTATED_BIOMES = new IdMapper<>();
     protected static final PerlinSimplexNoise TEMPERATURE_NOISE = new PerlinSimplexNoise(new WorldgenRandom(1234L), ImmutableList.of(0));
@@ -78,12 +135,13 @@ public abstract class Biome {
     protected final Biome.BiomeCategory biomeCategory;
     protected final Biome.Precipitation precipitation;
     protected final BiomeSpecialEffects specialEffects;
-    protected final Map<GenerationStep.Carving, List<ConfiguredWorldCarver<?>>> carvers = Maps.newHashMap();
-    protected final Map<GenerationStep.Decoration, List<ConfiguredFeature<?, ?>>> features = Maps.newHashMap();
+    protected final Map<GenerationStep.Carving, List<ConfiguredWorldCarver<?>>> carvers;
+    protected final Map<GenerationStep.Decoration, List<ConfiguredFeature<?, ?>>> features;
     protected final List<ConfiguredFeature<?, ?>> flowerFeatures = Lists.newArrayList();
-    protected final Map<StructureFeature<?>, FeatureConfiguration> validFeatureStarts = Maps.newHashMap();
-    private final Map<MobCategory, List<Biome.SpawnerData>> spawners = Maps.newHashMap();
+    private final Map<StructureFeature<?>, ConfiguredStructureFeature<?, ?>> validFeatureStarts;
+    private final Map<MobCategory, List<Biome.SpawnerData>> spawners;
     private final Map<EntityType<?>, Biome.MobSpawnCost> mobSpawnCosts = Maps.newHashMap();
+    private final List<Biome.ClimateParameters> optimalParameters;
     private final ThreadLocal<Long2FloatLinkedOpenHashMap> temperatureCache = ThreadLocal.withInitial(() -> Util.make(() -> {
             Long2FloatLinkedOpenHashMap var0x = new Long2FloatLinkedOpenHashMap(1024, 0.25F) {
                 @Override
@@ -93,7 +151,6 @@ public abstract class Biome {
             var0x.defaultReturnValue(Float.NaN);
             return var0x;
         }));
-    private final List<Biome.ClimateParameters> optimalParameters;
 
     @Nullable
     public static Biome getMutatedVariant(Biome param0) {
@@ -124,10 +181,15 @@ public abstract class Biome {
             this.parent = param0.parent;
             this.optimalParameters = (List<Biome.ClimateParameters>)(param0.optimalParameters != null ? param0.optimalParameters : ImmutableList.of());
             this.specialEffects = param0.specialEffects;
+            this.carvers = Maps.newHashMap();
+            this.validFeatureStarts = Maps.newHashMap();
+            this.features = Maps.newHashMap();
 
             for(GenerationStep.Decoration var0 : GenerationStep.Decoration.values()) {
                 this.features.put(var0, Lists.newArrayList());
             }
+
+            this.spawners = Maps.newHashMap();
 
             for(MobCategory var1 : MobCategory.values()) {
                 this.spawners.put(var1, Lists.newArrayList());
@@ -136,6 +198,41 @@ public abstract class Biome {
         } else {
             throw new IllegalStateException("You are missing parameters to build a proper biome for " + this.getClass().getSimpleName() + "\n" + param0);
         }
+    }
+
+    private Biome(
+        Biome.Precipitation param0,
+        Biome.BiomeCategory param1,
+        float param2,
+        float param3,
+        float param4,
+        float param5,
+        BiomeSpecialEffects param6,
+        int param7,
+        ConfiguredSurfaceBuilder<?> param8,
+        Map<GenerationStep.Carving, List<ConfiguredWorldCarver<?>>> param9,
+        Map<GenerationStep.Decoration, List<ConfiguredFeature<?, ?>>> param10,
+        List<ConfiguredStructureFeature<?, ?>> param11,
+        Map<MobCategory, List<Biome.SpawnerData>> param12,
+        List<Biome.ClimateParameters> param13,
+        Optional<String> param14
+    ) {
+        this.precipitation = param0;
+        this.biomeCategory = param1;
+        this.depth = param2;
+        this.scale = param3;
+        this.temperature = param4;
+        this.downfall = param5;
+        this.specialEffects = param6;
+        this.skyColor = param7;
+        this.surfaceBuilder = param8;
+        this.carvers = param9;
+        this.features = param10;
+        this.validFeatureStarts = param11.stream().collect(Collectors.toMap(param0x -> param0x.feature, Function.identity()));
+        this.spawners = param12;
+        this.optimalParameters = param13;
+        this.parent = param14.orElse(null);
+        param10.values().stream().flatMap(Collection::stream).filter(param0x -> param0x.feature == Feature.DECORATED_FLOWER).forEach(this.flowerFeatures::add);
     }
 
     public boolean isMutated() {
@@ -270,17 +367,20 @@ public abstract class Biome {
         return this.carvers.computeIfAbsent(param0, param0x -> Lists.newArrayList());
     }
 
-    public <C extends FeatureConfiguration> void addStructureStart(ConfiguredFeature<C, ? extends StructureFeature<C>> param0) {
-        this.validFeatureStarts.put(param0.feature, param0.config);
+    public void addStructureStart(ConfiguredStructureFeature<?, ?> param0) {
+        this.validFeatureStarts.put(param0.feature, param0);
     }
 
-    public <C extends FeatureConfiguration> boolean isValidStart(StructureFeature<C> param0) {
+    public boolean isValidStart(StructureFeature<?> param0) {
         return this.validFeatureStarts.containsKey(param0);
     }
 
-    @Nullable
-    public <C extends FeatureConfiguration> C getStructureConfiguration(StructureFeature<C> param0) {
-        return (C)this.validFeatureStarts.get(param0);
+    public Iterable<ConfiguredStructureFeature<?, ?>> structures() {
+        return this.validFeatureStarts.values();
+    }
+
+    public ConfiguredStructureFeature<?, ?> withBiomeConfig(ConfiguredStructureFeature<?, ?> param0) {
+        return this.validFeatureStarts.getOrDefault(param0.feature, param0);
     }
 
     public List<ConfiguredFeature<?, ?>> getFlowerFeatures() {
@@ -301,19 +401,45 @@ public abstract class Biome {
         BlockPos param6
     ) {
         int var0 = 0;
+        if (param1.shouldGenerateFeatures()) {
+            for(StructureFeature<?> var1 : Registry.STRUCTURE_FEATURE) {
+                if (var1.step() == param0) {
+                    param5.setFeatureSeed(param4, var0, param0.ordinal());
+                    int var2 = param6.getX() >> 4;
+                    int var3 = param6.getZ() >> 4;
+                    int var4 = var2 << 4;
+                    int var5 = var3 << 4;
 
-        for(ConfiguredFeature<?, ?> var1 : this.features.get(param0)) {
+                    try {
+                        param1.startsForFeature(SectionPos.of(param6), var1)
+                            .forEach(
+                                param8 -> param8.placeInChunk(
+                                        param3, param1, param2, param5, new BoundingBox(var4, var5, var4 + 15, var5 + 15), new ChunkPos(var2, var3)
+                                    )
+                            );
+                    } catch (Exception var19) {
+                        CrashReport var7 = CrashReport.forThrowable(var19, "Feature placement");
+                        var7.addCategory("Feature").setDetail("Id", Registry.STRUCTURE_FEATURE.getKey(var1)).setDetail("Description", () -> var1.toString());
+                        throw new ReportedException(var7);
+                    }
+
+                    ++var0;
+                }
+            }
+        }
+
+        for(ConfiguredFeature<?, ?> var8 : this.features.get(param0)) {
             param5.setFeatureSeed(param4, var0, param0.ordinal());
 
             try {
-                var1.place(param3, param1, param2, param5, param6);
-            } catch (Exception var14) {
-                CrashReport var3 = CrashReport.forThrowable(var14, "Feature placement");
-                var3.addCategory("Feature")
-                    .setDetail("Id", Registry.FEATURE.getKey(var1.feature))
-                    .setDetail("Config", var1.config)
-                    .setDetail("Description", () -> var1.feature.toString());
-                throw new ReportedException(var3);
+                var8.place(param3, param1, param2, param5, param6);
+            } catch (Exception var18) {
+                CrashReport var10 = CrashReport.forThrowable(var18, "Feature placement");
+                var10.addCategory("Feature")
+                    .setDetail("Id", Registry.FEATURE.getKey(var8.feature))
+                    .setDetail("Config", var8.config)
+                    .setDetail("Description", () -> var8.feature.toString());
+                throw new ReportedException(var10);
             }
 
             ++var0;
@@ -548,7 +674,7 @@ public abstract class Biome {
         }
     }
 
-    public static enum BiomeCategory {
+    public static enum BiomeCategory implements StringRepresentable {
         NONE("none"),
         TAIGA("taiga"),
         EXTREME_HILLS("extreme_hills"),
@@ -567,6 +693,7 @@ public abstract class Biome {
         MUSHROOM("mushroom"),
         NETHER("nether");
 
+        public static final Codec<Biome.BiomeCategory> CODEC = StringRepresentable.fromEnum(Biome.BiomeCategory::values, Biome.BiomeCategory::byName);
         private static final Map<String, Biome.BiomeCategory> BY_NAME = Arrays.stream(values())
             .collect(Collectors.toMap(Biome.BiomeCategory::getName, param0 -> param0));
         private final String name;
@@ -576,6 +703,15 @@ public abstract class Biome {
         }
 
         public String getName() {
+            return this.name;
+        }
+
+        public static Biome.BiomeCategory byName(String param0) {
+            return BY_NAME.get(param0);
+        }
+
+        @Override
+        public String getSerializedName() {
             return this.name;
         }
     }
@@ -600,6 +736,16 @@ public abstract class Biome {
     }
 
     public static class ClimateParameters {
+        public static final Codec<Biome.ClimateParameters> CODEC = RecordCodecBuilder.create(
+            param0 -> param0.group(
+                        Codec.FLOAT.fieldOf("temparature").forGetter(param0x -> param0x.temperature),
+                        Codec.FLOAT.fieldOf("humidity").forGetter(param0x -> param0x.humidity),
+                        Codec.FLOAT.fieldOf("altitude").forGetter(param0x -> param0x.altitude),
+                        Codec.FLOAT.fieldOf("weirdness").forGetter(param0x -> param0x.weirdness),
+                        Codec.FLOAT.fieldOf("offset").forGetter(param0x -> param0x.offset)
+                    )
+                    .apply(param0, Biome.ClimateParameters::new)
+        );
         private final float temperature;
         private final float humidity;
         private final float altitude;
@@ -669,11 +815,12 @@ public abstract class Biome {
         }
     }
 
-    public static enum Precipitation {
+    public static enum Precipitation implements StringRepresentable {
         NONE("none"),
         RAIN("rain"),
         SNOW("snow");
 
+        public static final Codec<Biome.Precipitation> CODEC = StringRepresentable.fromEnum(Biome.Precipitation::values, Biome.Precipitation::byName);
         private static final Map<String, Biome.Precipitation> BY_NAME = Arrays.stream(values())
             .collect(Collectors.toMap(Biome.Precipitation::getName, param0 -> param0));
         private final String name;
@@ -685,16 +832,34 @@ public abstract class Biome {
         public String getName() {
             return this.name;
         }
+
+        public static Biome.Precipitation byName(String param0) {
+            return BY_NAME.get(param0);
+        }
+
+        @Override
+        public String getSerializedName() {
+            return this.name;
+        }
     }
 
     public static class SpawnerData extends WeighedRandom.WeighedRandomItem {
+        public static final Codec<Biome.SpawnerData> CODEC = RecordCodecBuilder.create(
+            param0 -> param0.group(
+                        Registry.ENTITY_TYPE.fieldOf("type").forGetter(param0x -> param0x.type),
+                        Codec.INT.fieldOf("weight").forGetter(param0x -> param0x.weight),
+                        Codec.INT.fieldOf("minCount").forGetter(param0x -> param0x.minCount),
+                        Codec.INT.fieldOf("maxCount").forGetter(param0x -> param0x.maxCount)
+                    )
+                    .apply(param0, Biome.SpawnerData::new)
+        );
         public final EntityType<?> type;
         public final int minCount;
         public final int maxCount;
 
         public SpawnerData(EntityType<?> param0, int param1, int param2, int param3) {
             super(param1);
-            this.type = param0;
+            this.type = param0.getCategory() == MobCategory.MISC ? EntityType.PIG : param0;
             this.minCount = param2;
             this.maxCount = param3;
         }

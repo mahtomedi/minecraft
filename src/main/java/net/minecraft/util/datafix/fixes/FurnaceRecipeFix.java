@@ -3,7 +3,6 @@ package net.minecraft.util.datafix.fixes;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.DSL;
 import com.mojang.datafixers.DataFix;
-import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.OpticFinder;
 import com.mojang.datafixers.TypeRewriteRule;
 import com.mojang.datafixers.Typed;
@@ -12,6 +11,7 @@ import com.mojang.datafixers.types.Type;
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.datafixers.util.Unit;
+import com.mojang.serialization.Dynamic;
 import java.util.List;
 import java.util.Optional;
 
@@ -53,19 +53,19 @@ public class FurnaceRecipeFix extends DataFix {
         Type<R> param0, Type<Pair<Either<Pair<List<Pair<R, Integer>>, Dynamic<?>>, Unit>, Dynamic<?>>> param1, Typed<?> param2
     ) {
         Dynamic<?> var0 = param2.getOrCreate(DSL.remainderFinder());
-        int var1 = var0.get("RecipesUsedSize").asNumber().orElse(0).intValue();
+        int var1 = var0.get("RecipesUsedSize").asInt(0);
         var0 = var0.remove("RecipesUsedSize");
         List<Pair<R, Integer>> var2 = Lists.newArrayList();
 
         for(int var3 = 0; var3 < var1; ++var3) {
             String var4 = "RecipeLocation" + var3;
             String var5 = "RecipeAmount" + var3;
-            Optional<? extends Dynamic<?>> var6 = var0.get(var4).get();
-            int var7 = var0.get(var5).asNumber().orElse(0).intValue();
+            Optional<? extends Dynamic<?>> var6 = var0.get(var4).result();
+            int var7 = var0.get(var5).asInt(0);
             if (var7 > 0) {
                 var6.ifPresent(param3 -> {
-                    Pair<? extends Dynamic<?>, Optional<R>> var0x = param0.read(param3);
-                    var0x.getSecond().ifPresent(param2x -> var2.add(Pair.of(param2x, var7)));
+                    Optional<? extends Pair<R, ? extends Dynamic<?>>> var0x = param0.read(param3).result();
+                    var0x.ifPresent(param2x -> var2.add(Pair.of(param2x.getFirst(), var7)));
                 });
             }
 

@@ -4,12 +4,12 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.DSL;
 import com.mojang.datafixers.DataFix;
 import com.mojang.datafixers.DataFixUtils;
-import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.OpticFinder;
 import com.mojang.datafixers.TypeRewriteRule;
 import com.mojang.datafixers.Typed;
 import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.Type;
+import com.mojang.serialization.Dynamic;
 import java.util.Map;
 
 public class AttributesRename extends DataFix {
@@ -50,7 +50,7 @@ public class AttributesRename extends DataFix {
     }
 
     private static Dynamic<?> fixName(Dynamic<?> param0) {
-        return DataFixUtils.orElse(param0.asString().map(param0x -> RENAMES.getOrDefault(param0x, param0x)).map(param0::createString), param0);
+        return DataFixUtils.orElse(param0.asString().result().map(param0x -> RENAMES.getOrDefault(param0x, param0x)).map(param0::createString), param0);
     }
 
     private static Typed<?> fixItemStackTag(Typed<?> param0) {
@@ -60,6 +60,7 @@ public class AttributesRename extends DataFix {
                     "AttributeModifiers",
                     param0xx -> DataFixUtils.orElse(
                             param0xx.asStreamOpt()
+                                .result()
                                 .map(param0xxx -> param0xxx.map(param0xxxx -> param0xxxx.update("AttributeName", AttributesRename::fixName)))
                                 .map(param0xx::createList),
                             param0xx
@@ -75,6 +76,7 @@ public class AttributesRename extends DataFix {
                     "Attributes",
                     param0xx -> DataFixUtils.orElse(
                             param0xx.asStreamOpt()
+                                .result()
                                 .map(param0xxx -> param0xxx.map(param0xxxx -> param0xxxx.update("Name", AttributesRename::fixName)))
                                 .map(param0xx::createList),
                             param0xx

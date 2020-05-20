@@ -6,17 +6,28 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 
 public interface Tag<T> {
+    static <T> Codec<Tag<T>> codec(Supplier<TagCollection<T>> param0) {
+        return ResourceLocation.CODEC
+            .flatXmap(
+                param1 -> Optional.ofNullable(param0.get().getTag(param1)).map(DataResult::success).orElseGet(() -> DataResult.error("Unknown tag: " + param1)),
+                param1 -> Optional.ofNullable(param0.get().getId(param1)).map(DataResult::success).orElseGet(() -> DataResult.error("Unknown tag: " + param1))
+            );
+    }
+
     boolean contains(T var1);
 
     List<T> getValues();

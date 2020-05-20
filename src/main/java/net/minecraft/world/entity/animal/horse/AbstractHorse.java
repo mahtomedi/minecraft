@@ -230,17 +230,20 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
     private void eating() {
         this.openMouth();
         if (!this.isSilent()) {
-            this.level
-                .playSound(
-                    null,
-                    this.getX(),
-                    this.getY(),
-                    this.getZ(),
-                    SoundEvents.HORSE_EAT,
-                    this.getSoundSource(),
-                    1.0F,
-                    1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.2F
-                );
+            SoundEvent var0 = this.getEatingSound();
+            if (var0 != null) {
+                this.level
+                    .playSound(
+                        null,
+                        this.getX(),
+                        this.getY(),
+                        this.getZ(),
+                        var0,
+                        this.getSoundSource(),
+                        1.0F,
+                        1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.2F
+                    );
+            }
         }
 
     }
@@ -313,6 +316,11 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
 
     public double getCustomJump() {
         return this.getAttributeValue(Attributes.JUMP_STRENGTH);
+    }
+
+    @Nullable
+    protected SoundEvent getEatingSound() {
+        return null;
     }
 
     @Nullable

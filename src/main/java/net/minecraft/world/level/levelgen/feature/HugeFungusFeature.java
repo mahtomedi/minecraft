@@ -1,8 +1,7 @@
 package net.minecraft.world.level.levelgen.feature;
 
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Codec;
 import java.util.Random;
-import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -17,7 +16,7 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.material.Material;
 
 public class HugeFungusFeature extends Feature<HugeFungusConfiguration> {
-    public HugeFungusFeature(Function<Dynamic<?>, ? extends HugeFungusConfiguration> param0) {
+    public HugeFungusFeature(Codec<HugeFungusConfiguration> param0) {
         super(param0);
     }
 

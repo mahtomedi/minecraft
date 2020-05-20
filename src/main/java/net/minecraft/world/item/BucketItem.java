@@ -17,6 +17,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.LiquidBlockContainer;
 import net.minecraft.world.level.block.state.BlockState;
@@ -114,48 +115,49 @@ public class BucketItem extends Item {
             return false;
         } else {
             BlockState var0 = param1.getBlockState(param2);
-            Material var1 = var0.getMaterial();
-            boolean var2 = var0.canBeReplaced(this.content);
-            if (var0.isAir()
-                || var2
-                || var0.getBlock() instanceof LiquidBlockContainer
-                    && ((LiquidBlockContainer)var0.getBlock()).canPlaceLiquid(param1, param2, var0, this.content)) {
-                if (param1.dimensionType().ultraWarm() && this.content.is(FluidTags.WATER)) {
-                    int var3 = param2.getX();
-                    int var4 = param2.getY();
-                    int var5 = param2.getZ();
-                    param1.playSound(
-                        param0,
-                        param2,
-                        SoundEvents.FIRE_EXTINGUISH,
-                        SoundSource.BLOCKS,
-                        0.5F,
-                        2.6F + (param1.random.nextFloat() - param1.random.nextFloat()) * 0.8F
+            Block var1 = var0.getBlock();
+            Material var2 = var0.getMaterial();
+            boolean var3 = var0.canBeReplaced(this.content);
+            boolean var4 = var0.isAir()
+                || var3
+                || var1 instanceof LiquidBlockContainer && ((LiquidBlockContainer)var1).canPlaceLiquid(param1, param2, var0, this.content);
+            if (!var4) {
+                return param3 != null && this.emptyBucket(param0, param1, param3.getBlockPos().relative(param3.getDirection()), null);
+            } else if (param1.dimensionType().ultraWarm() && this.content.is(FluidTags.WATER)) {
+                int var5 = param2.getX();
+                int var6 = param2.getY();
+                int var7 = param2.getZ();
+                param1.playSound(
+                    param0,
+                    param2,
+                    SoundEvents.FIRE_EXTINGUISH,
+                    SoundSource.BLOCKS,
+                    0.5F,
+                    2.6F + (param1.random.nextFloat() - param1.random.nextFloat()) * 0.8F
+                );
+
+                for(int var8 = 0; var8 < 8; ++var8) {
+                    param1.addParticle(
+                        ParticleTypes.LARGE_SMOKE, (double)var5 + Math.random(), (double)var6 + Math.random(), (double)var7 + Math.random(), 0.0, 0.0, 0.0
                     );
-
-                    for(int var6 = 0; var6 < 8; ++var6) {
-                        param1.addParticle(
-                            ParticleTypes.LARGE_SMOKE, (double)var3 + Math.random(), (double)var4 + Math.random(), (double)var5 + Math.random(), 0.0, 0.0, 0.0
-                        );
-                    }
-                } else {
-                    if (!(var0.getBlock() instanceof LiquidBlockContainer) || this.content != Fluids.WATER) {
-                        if (!param1.isClientSide && var2 && !var1.isLiquid()) {
-                            param1.destroyBlock(param2, true);
-                        }
-
-                        this.playEmptySound(param0, param1, param2);
-                        return param1.setBlock(param2, this.content.defaultFluidState().createLegacyBlock(), 11);
-                    }
-
-                    if (((LiquidBlockContainer)var0.getBlock()).placeLiquid(param1, param2, var0, ((FlowingFluid)this.content).getSource(false))) {
-                        this.playEmptySound(param0, param1, param2);
-                    }
                 }
 
                 return true;
+            } else if (var1 instanceof LiquidBlockContainer && this.content == Fluids.WATER) {
+                ((LiquidBlockContainer)var1).placeLiquid(param1, param2, var0, ((FlowingFluid)this.content).getSource(false));
+                this.playEmptySound(param0, param1, param2);
+                return true;
             } else {
-                return param3 == null ? false : this.emptyBucket(param0, param1, param3.getBlockPos().relative(param3.getDirection()), null);
+                if (!param1.isClientSide && var3 && !var2.isLiquid()) {
+                    param1.destroyBlock(param2, true);
+                }
+
+                if (!param1.setBlock(param2, this.content.defaultFluidState().createLegacyBlock(), 11) && !var0.getFluidState().isSource()) {
+                    return false;
+                } else {
+                    this.playEmptySound(param0, param1, param2);
+                    return true;
+                }
             }
         }
     }

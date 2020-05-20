@@ -6,13 +6,13 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonElement;
 import com.mojang.datafixers.DataFix;
-import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.TypeRewriteRule;
 import com.mojang.datafixers.schemas.Schema;
-import com.mojang.datafixers.types.DynamicOps;
-import com.mojang.datafixers.types.JsonOps;
 import com.mojang.datafixers.types.Type;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.JsonOps;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -108,22 +108,23 @@ public class LevelDataGeneratorOptionsFix extends DataFix {
     @Override
     protected TypeRewriteRule makeRule() {
         Type<?> var0 = this.getOutputSchema().getType(References.LEVEL);
-        return this.fixTypeEverywhereTyped("LevelDataGeneratorOptionsFix", this.getInputSchema().getType(References.LEVEL), var0, param1 -> {
-            Dynamic<?> var0x = param1.write();
-            Optional<String> var1x = var0x.get("generatorOptions").asString();
-            Dynamic<?> var3;
-            if ("flat".equalsIgnoreCase(var0x.get("generatorName").asString(""))) {
-                String var2 = var1x.orElse("");
-                var3 = var0x.set("generatorOptions", convert(var2, var0x.getOps()));
-            } else if ("buffet".equalsIgnoreCase(var0x.get("generatorName").asString("")) && var1x.isPresent()) {
-                Dynamic<JsonElement> var4 = new Dynamic<>(JsonOps.INSTANCE, GsonHelper.parse((String)var1x.get(), true));
-                var3 = var0x.set("generatorOptions", var4.convert(var0x.getOps()));
-            } else {
-                var3 = var0x;
-            }
-
-            return var0.readTyped(var3).getSecond().orElseThrow(() -> new IllegalStateException("Could not read new level type."));
-        });
+        return this.fixTypeEverywhereTyped(
+            "LevelDataGeneratorOptionsFix", this.getInputSchema().getType(References.LEVEL), var0, param1 -> param1.write().flatMap(param1x -> {
+                    Optional<String> var0x = param1x.get("generatorOptions").asString().result();
+                    Dynamic<?> var2;
+                    if ("flat".equalsIgnoreCase(param1x.get("generatorName").asString(""))) {
+                        String var1 = var0x.orElse("");
+                        var2 = param1x.set("generatorOptions", convert(var1, param1x.getOps()));
+                    } else if ("buffet".equalsIgnoreCase(param1x.get("generatorName").asString("")) && var0x.isPresent()) {
+                        Dynamic<JsonElement> var3 = new Dynamic<>(JsonOps.INSTANCE, GsonHelper.parse(var0x.get(), true));
+                        var2 = param1x.set("generatorOptions", var3.convert(param1x.getOps()));
+                    } else {
+                        var2 = param1x;
+                    }
+    
+                    return var0.readTyped(var2);
+                }).map(Pair::getFirst).result().orElseThrow(() -> new IllegalStateException("Could not read new level type."))
+        );
     }
 
     private static <T> Dynamic<T> convert(String param0, DynamicOps<T> param1) {

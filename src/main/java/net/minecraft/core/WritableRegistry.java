@@ -1,11 +1,19 @@
 package net.minecraft.core;
 
-import net.minecraft.resources.ResourceLocation;
+import com.mojang.serialization.Lifecycle;
+import net.minecraft.resources.ResourceKey;
 
 public abstract class WritableRegistry<T> extends Registry<T> {
-    public abstract <V extends T> V registerMapping(int var1, ResourceLocation var2, V var3);
+    public WritableRegistry(ResourceKey<Registry<T>> param0, Lifecycle param1) {
+        super(param0, param1);
+    }
 
-    public abstract <V extends T> V register(ResourceLocation var1, V var2);
+    public abstract <V extends T> V registerMapping(int var1, ResourceKey<T> var2, V var3);
 
-    public abstract boolean isEmpty();
+    public abstract <V extends T> V register(ResourceKey<T> var1, V var2);
+
+    @Override
+    public String toString() {
+        return "Registry[" + WRITABLE_REGISTRY.getKey(this) + "]";
+    }
 }

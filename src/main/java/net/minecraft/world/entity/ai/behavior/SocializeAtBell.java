@@ -1,7 +1,6 @@
 package net.minecraft.world.entity.ai.behavior;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Objects;
 import java.util.Optional;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
@@ -36,7 +35,7 @@ public class SocializeAtBell extends Behavior<LivingEntity> {
         Optional<GlobalPos> var1 = var0.getMemory(MemoryModuleType.MEETING_POINT);
         return param0.getRandom().nextInt(100) == 0
             && var1.isPresent()
-            && Objects.equals(param0.dimensionType(), var1.get().dimension())
+            && param0.dimension() == var1.get().dimension()
             && var1.get().pos().closerThan(param1.position(), 4.0)
             && var0.getMemory(MemoryModuleType.VISIBLE_LIVING_ENTITIES).get().stream().anyMatch(param0x -> EntityType.VILLAGER.equals(param0x.getType()));
     }

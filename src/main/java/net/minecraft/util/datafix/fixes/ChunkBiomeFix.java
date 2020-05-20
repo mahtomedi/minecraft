@@ -21,7 +21,7 @@ public class ChunkBiomeFix extends DataFix {
         OpticFinder<?> var1 = var0.findField("Level");
         return this.fixTypeEverywhereTyped(
             "Leaves fix", var0, param1 -> param1.updateTyped(var1, param0x -> param0x.update(DSL.remainderFinder(), param0xx -> {
-                        Optional<IntStream> var0x = param0xx.get("Biomes").asIntStreamOpt();
+                        Optional<IntStream> var0x = param0xx.get("Biomes").asIntStreamOpt().result();
                         if (!var0x.isPresent()) {
                             return param0xx;
                         } else {

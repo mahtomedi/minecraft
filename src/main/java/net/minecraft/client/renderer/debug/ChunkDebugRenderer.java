@@ -14,6 +14,7 @@ import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.server.IntegratedServer;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
@@ -86,49 +87,43 @@ public class ChunkDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
 
         private ChunkData(IntegratedServer param0, double param1, double param2) {
             ClientLevel param3 = ChunkDebugRenderer.this.minecraft.level;
-            DimensionType var0 = ChunkDebugRenderer.this.minecraft.level.dimensionType();
-            ServerLevel var1;
-            if (param0.getLevel(var0) != null) {
-                var1 = param0.getLevel(var0);
-            } else {
-                var1 = null;
-            }
+            ResourceKey<DimensionType> var0 = param3.dimension();
+            int var1 = (int)param1 >> 4;
+            int var2 = (int)param2 >> 4;
+            Builder<ChunkPos, String> var3 = ImmutableMap.builder();
+            ClientChunkCache var4 = param3.getChunkSource();
 
-            int var3 = (int)param1 >> 4;
-            int var4 = (int)param2 >> 4;
-            Builder<ChunkPos, String> var5 = ImmutableMap.builder();
-            ClientChunkCache var6 = param3.getChunkSource();
-
-            for(int var7 = var3 - 12; var7 <= var3 + 12; ++var7) {
-                for(int var8 = var4 - 12; var8 <= var4 + 12; ++var8) {
-                    ChunkPos var9 = new ChunkPos(var7, var8);
-                    String var10 = "";
-                    LevelChunk var11 = var6.getChunk(var7, var8, false);
-                    var10 = var10 + "Client: ";
-                    if (var11 == null) {
-                        var10 = var10 + "0n/a\n";
+            for(int var5 = var1 - 12; var5 <= var1 + 12; ++var5) {
+                for(int var6 = var2 - 12; var6 <= var2 + 12; ++var6) {
+                    ChunkPos var7 = new ChunkPos(var5, var6);
+                    String var8 = "";
+                    LevelChunk var9 = var4.getChunk(var5, var6, false);
+                    var8 = var8 + "Client: ";
+                    if (var9 == null) {
+                        var8 = var8 + "0n/a\n";
                     } else {
-                        var10 = var10 + (var11.isEmpty() ? " E" : "");
-                        var10 = var10 + "\n";
+                        var8 = var8 + (var9.isEmpty() ? " E" : "");
+                        var8 = var8 + "\n";
                     }
 
-                    var5.put(var9, var10);
+                    var3.put(var7, var8);
                 }
             }
 
-            this.clientData = var5.build();
+            this.clientData = var3.build();
             this.serverData = param0.submit(() -> {
-                Builder<ChunkPos, String> var0x = ImmutableMap.builder();
-                ServerChunkCache var1x = var1.getChunkSource();
+                ServerLevel var0x = param0.getLevel(var0);
+                Builder<ChunkPos, String> var1xx = ImmutableMap.builder();
+                ServerChunkCache var2x = var0x.getChunkSource();
 
-                for(int var2x = var3 - 12; var2x <= var3 + 12; ++var2x) {
-                    for(int var3x = var4 - 12; var3x <= var4 + 12; ++var3x) {
-                        ChunkPos var4x = new ChunkPos(var2x, var3x);
-                        var0x.put(var4x, "Server: " + var1x.getChunkDebugData(var4x));
+                for(int var3x = var1 - 12; var3x <= var1 + 12; ++var3x) {
+                    for(int var4x = var2 - 12; var4x <= var2 + 12; ++var4x) {
+                        ChunkPos var5x = new ChunkPos(var3x, var4x);
+                        var1xx.put(var5x, "Server: " + var2x.getChunkDebugData(var5x));
                     }
                 }
 
-                return var0x.build();
+                return var1xx.build();
             });
         }
     }

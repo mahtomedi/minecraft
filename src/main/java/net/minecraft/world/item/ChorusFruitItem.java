@@ -1,9 +1,11 @@
 package net.minecraft.world.item;
 
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.Fox;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
@@ -29,8 +31,9 @@ public class ChorusFruitItem extends Item {
                 }
 
                 if (param2.randomTeleport(var5, var6, var7, true)) {
-                    param1.playSound(null, var1, var2, var3, SoundEvents.CHORUS_FRUIT_TELEPORT, SoundSource.PLAYERS, 1.0F, 1.0F);
-                    param2.playSound(SoundEvents.CHORUS_FRUIT_TELEPORT, 1.0F, 1.0F);
+                    SoundEvent var8 = param2 instanceof Fox ? SoundEvents.FOX_TELEPORT : SoundEvents.CHORUS_FRUIT_TELEPORT;
+                    param1.playSound(null, var1, var2, var3, var8, SoundSource.PLAYERS, 1.0F, 1.0F);
+                    param2.playSound(var8, 1.0F, 1.0F);
                     break;
                 }
             }

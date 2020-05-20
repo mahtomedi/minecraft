@@ -19,7 +19,6 @@ import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.level.progress.ChunkProgressListener;
@@ -81,7 +80,7 @@ public class ServerChunkCache extends ChunkSource {
         this.mainThreadProcessor = new ServerChunkCache.MainThreadExecutor(param0);
         this.generator = param5;
         this.mainThread = Thread.currentThread();
-        File var0 = param1.getDimensionPath(param0.dimensionType());
+        File var0 = param1.getDimensionPath(param0.dimension());
         File var1 = new File(var0, "data");
         var1.mkdirs();
         this.dataStorage = new DimensionDataStorage(var1, param2);
@@ -381,7 +380,7 @@ public class ServerChunkCache extends ChunkSource {
             });
             this.level.getProfiler().push("customSpawners");
             if (var4) {
-                this.generator.tickCustomSpawners(this.level, this.spawnEnemies, this.spawnFriendlies);
+                this.level.tickCustomSpawners(this.spawnEnemies, this.spawnFriendlies);
             }
 
             this.level.getProfiler().pop();
@@ -501,7 +500,7 @@ public class ServerChunkCache extends ChunkSource {
 
     final class MainThreadExecutor extends BlockableEventLoop<Runnable> {
         private MainThreadExecutor(Level param0) {
-            super("Chunk source main thread executor for " + Registry.DIMENSION_TYPE.getKey(param0.dimensionType()));
+            super("Chunk source main thread executor for " + param0.dimension().location());
         }
 
         @Override

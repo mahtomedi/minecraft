@@ -1,8 +1,8 @@
 package net.minecraft.util.datafix.fixes;
 
-import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.TypeRewriteRule;
 import com.mojang.datafixers.schemas.Schema;
+import com.mojang.serialization.Dynamic;
 
 public class BlockEntityUUIDFix extends AbstractUUIDFix {
     public BlockEntityUUIDFix(Schema param0) {
@@ -22,6 +22,7 @@ public class BlockEntityUUIDFix extends AbstractUUIDFix {
             .get()
             .map(param0x -> replaceUUIDString(param0x, "Id", "Id").orElse(param0x))
             .map(param1 -> param0.remove("Owner").set("SkullOwner", param1))
+            .result()
             .orElse(param0);
     }
 

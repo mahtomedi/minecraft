@@ -21,7 +21,8 @@ public class OptionsAddTextBackgroundFix extends DataFix {
                     param0x -> DataFixUtils.orElse(
                             param0x.get("chatOpacity")
                                 .asString()
-                                .map(param1 -> param0x.set("textBackgroundOpacity", param0x.createDouble(this.calculateBackground(param1)))),
+                                .map(param1 -> param0x.set("textBackgroundOpacity", param0x.createDouble(this.calculateBackground(param1))))
+                                .result(),
                             param0x
                         )
                 )

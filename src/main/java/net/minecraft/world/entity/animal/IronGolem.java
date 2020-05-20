@@ -292,12 +292,12 @@ public class IronGolem extends AbstractGolem {
             for(int var3 = 1; var3 < 3; ++var3) {
                 BlockPos var4 = var0.above(var3);
                 BlockState var5 = param0.getBlockState(var4);
-                if (!NaturalSpawner.isValidEmptySpawnBlock(param0, var4, var5, var5.getFluidState())) {
+                if (!NaturalSpawner.isValidEmptySpawnBlock(param0, var4, var5, var5.getFluidState(), EntityType.IRON_GOLEM)) {
                     return false;
                 }
             }
 
-            return NaturalSpawner.isValidEmptySpawnBlock(param0, var0, param0.getBlockState(var0), Fluids.EMPTY.defaultFluidState())
+            return NaturalSpawner.isValidEmptySpawnBlock(param0, var0, param0.getBlockState(var0), Fluids.EMPTY.defaultFluidState(), EntityType.IRON_GOLEM)
                 && param0.isUnobstructed(this);
         }
     }

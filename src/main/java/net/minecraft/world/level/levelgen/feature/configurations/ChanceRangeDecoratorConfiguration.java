@@ -1,10 +1,18 @@
 package net.minecraft.world.level.levelgen.feature.configurations;
 
-import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 public class ChanceRangeDecoratorConfiguration implements DecoratorConfiguration {
+    public static final Codec<ChanceRangeDecoratorConfiguration> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    Codec.FLOAT.fieldOf("chance").forGetter(param0x -> param0x.chance),
+                    Codec.INT.fieldOf("bottom_offset").withDefault(0).forGetter(param0x -> param0x.bottomOffset),
+                    Codec.INT.fieldOf("top_offset").withDefault(0).forGetter(param0x -> param0x.topOffset),
+                    Codec.INT.fieldOf("top").withDefault(0).forGetter(param0x -> param0x.top)
+                )
+                .apply(param0, ChanceRangeDecoratorConfiguration::new)
+    );
     public final float chance;
     public final int bottomOffset;
     public final int topOffset;
@@ -15,32 +23,5 @@ public class ChanceRangeDecoratorConfiguration implements DecoratorConfiguration
         this.bottomOffset = param1;
         this.topOffset = param2;
         this.top = param3;
-    }
-
-    @Override
-    public <T> Dynamic<T> serialize(DynamicOps<T> param0) {
-        return new Dynamic<>(
-            param0,
-            param0.createMap(
-                ImmutableMap.of(
-                    param0.createString("chance"),
-                    param0.createFloat(this.chance),
-                    param0.createString("bottom_offset"),
-                    param0.createInt(this.bottomOffset),
-                    param0.createString("top_offset"),
-                    param0.createInt(this.topOffset),
-                    param0.createString("top"),
-                    param0.createInt(this.top)
-                )
-            )
-        );
-    }
-
-    public static ChanceRangeDecoratorConfiguration deserialize(Dynamic<?> param0) {
-        float var0 = param0.get("chance").asFloat(0.0F);
-        int var1 = param0.get("bottom_offset").asInt(0);
-        int var2 = param0.get("top_offset").asInt(0);
-        int var3 = param0.get("top").asInt(0);
-        return new ChanceRangeDecoratorConfiguration(var0, var1, var2, var3);
     }
 }

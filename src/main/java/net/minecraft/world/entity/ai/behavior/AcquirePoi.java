@@ -60,7 +60,7 @@ public class AcquirePoi extends Behavior<PathfinderMob> {
             BlockPos var4 = var3.getTarget();
             var0.getType(var4).ifPresent(param4 -> {
                 var0.take(this.poiType.getPredicate(), param1x -> param1x.equals(var4), var4, 1);
-                param1.getBrain().setMemory(this.memoryType, GlobalPos.of(param0.dimensionType(), var4));
+                param1.getBrain().setMemory(this.memoryType, GlobalPos.of(param0.dimension(), var4));
                 DebugPackets.sendPoiTicketCountPacket(param0, var4);
             });
         } else if (this.triedCount < 5) {

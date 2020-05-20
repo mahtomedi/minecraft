@@ -2,11 +2,11 @@ package net.minecraft.util.datafix.schemas;
 
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.DSL;
-import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.schemas.Schema;
-import com.mojang.datafixers.types.DynamicOps;
 import com.mojang.datafixers.types.templates.TypeTemplate;
 import com.mojang.datafixers.types.templates.Hook.HookFunction;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.DynamicOps;
 import java.util.Map;
 import java.util.function.Supplier;
 import net.minecraft.util.datafix.fixes.References;
@@ -186,7 +186,7 @@ public class V705 extends NamespacedSchema {
     @Override
     public void registerTypes(Schema param0, Map<String, Supplier<TypeTemplate>> param1, Map<String, Supplier<TypeTemplate>> param2) {
         super.registerTypes(param0, param1, param2);
-        param0.registerType(true, References.ENTITY, () -> DSL.taggedChoiceLazy("id", DSL.namespacedString(), param1));
+        param0.registerType(true, References.ENTITY, () -> DSL.taggedChoiceLazy("id", namespacedString(), param1));
         param0.registerType(
             true,
             References.ITEM_STACK,

@@ -4,6 +4,9 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.mojang.datafixers.DataFixUtils;
+import com.mojang.datafixers.DSL.TypeReference;
+import com.mojang.datafixers.types.Type;
+import com.mojang.serialization.DataResult;
 import it.unimi.dsi.fastutil.Hash.Strategy;
 import java.io.File;
 import java.io.IOException;
@@ -17,12 +20,14 @@ import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -38,11 +43,13 @@ import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.Bootstrap;
 import net.minecraft.util.Mth;
+import net.minecraft.util.datafix.DataFixers;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -56,6 +63,7 @@ public class Util {
     private static final ExecutorService BACKGROUND_EXECUTOR = makeExecutor("Main");
     private static final ExecutorService IO_POOL = makeIoExecutor();
     public static LongSupplier timeSource = System::nanoTime;
+    public static final UUID NIL_UUID = new UUID(0L, 0L);
     private static final Logger LOGGER = LogManager.getLogger();
 
     public static <K, V> Collector<Entry<? extends K, ? extends V>, ?, Map<K, V>> toMap() {
@@ -175,6 +183,29 @@ public class Util {
         }
 
         LOGGER.error(String.format("Caught exception in thread %s", param0x), param1);
+    }
+
+    @Nullable
+    public static Type<?> fetchChoiceType(TypeReference param0, String param1) {
+        return !SharedConstants.CHECK_DATA_FIXER_SCHEMA ? null : doFetchChoiceType(param0, param1);
+    }
+
+    @Nullable
+    private static Type<?> doFetchChoiceType(TypeReference param0, String param1) {
+        Type<?> var0 = null;
+
+        try {
+            var0 = DataFixers.getDataFixer()
+                .getSchema(DataFixUtils.makeKey(SharedConstants.getCurrentVersion().getWorldVersion()))
+                .getChoiceType(param0, param1);
+        } catch (IllegalArgumentException var4) {
+            LOGGER.error("No data fixer registered for {}", param1);
+            if (SharedConstants.IS_RUNNING_IN_IDE) {
+                throw var4;
+            }
+        }
+
+        return var0;
     }
 
     public static Util.OS getPlatform() {
@@ -360,6 +391,20 @@ public class Util {
         }
 
         return param1;
+    }
+
+    public static Consumer<String> prefix(String param0, Consumer<String> param1) {
+        return param2 -> param1.accept(param0 + param2);
+    }
+
+    public static DataResult<int[]> fixedSize(IntStream param0, int param1) {
+        int[] var0 = param0.limit((long)(param1 + 1)).toArray();
+        if (var0.length != param1) {
+            String var1 = "Input is not a list of " + param1 + " ints";
+            return var0.length >= param1 ? DataResult.error(var1, Arrays.copyOf(var0, param1)) : DataResult.error(var1);
+        } else {
+            return DataResult.success(var0);
+        }
     }
 
     static enum IdentityStrategy implements Strategy<Object> {

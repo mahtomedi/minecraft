@@ -3,6 +3,7 @@ package net.minecraft.world.level.block;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
@@ -48,7 +49,8 @@ public class EndPortalBlock extends BaseEntityBlock {
                 param0.getShape(param1, param2),
                 BooleanOp.AND
             )) {
-            param3.changeDimension(param1.dimensionType() == DimensionType.THE_END ? DimensionType.OVERWORLD : DimensionType.THE_END);
+            ResourceKey<DimensionType> var0 = param1.dimensionType().isEnd() ? DimensionType.OVERWORLD_LOCATION : DimensionType.END_LOCATION;
+            param3.changeDimension(var0);
         }
 
     }

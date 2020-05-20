@@ -8,21 +8,11 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LevelSettings;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public interface WorldData {
-    @OnlyIn(Dist.CLIENT)
-    int getMinecraftVersion();
-
-    @OnlyIn(Dist.CLIENT)
-    boolean isSnapshot();
-
-    @OnlyIn(Dist.CLIENT)
-    String getMinecraftVersionName();
-
     Set<String> getDisabledDataPacks();
 
     Set<String> getEnabledDataPacks();
@@ -75,9 +65,6 @@ public interface WorldData {
 
     void setGameType(GameType var1);
 
-    @OnlyIn(Dist.CLIENT)
-    long getLastPlayed();
-
     boolean getAllowCommands();
 
     Difficulty getDifficulty();
@@ -92,9 +79,9 @@ public interface WorldData {
 
     CompoundTag getLoadedPlayerTag();
 
-    CompoundTag getDimensionData(DimensionType var1);
+    CompoundTag endDragonFightData();
 
-    void setDimensionData(DimensionType var1, CompoundTag var2);
+    void setEndDragonFightData(CompoundTag var1);
 
     WorldGenSettings worldGenSettings();
 }

@@ -77,35 +77,37 @@ public abstract class GuiComponent {
     }
 
     protected void fillGradient(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6) {
-        this.fillGradient(param0.last().pose(), param1, param2, param3, param4, param5, param6);
-    }
-
-    private void fillGradient(Matrix4f param0, int param1, int param2, int param3, int param4, int param5, int param6) {
-        float var0 = (float)(param5 >> 24 & 0xFF) / 255.0F;
-        float var1 = (float)(param5 >> 16 & 0xFF) / 255.0F;
-        float var2 = (float)(param5 >> 8 & 0xFF) / 255.0F;
-        float var3 = (float)(param5 & 0xFF) / 255.0F;
-        float var4 = (float)(param6 >> 24 & 0xFF) / 255.0F;
-        float var5 = (float)(param6 >> 16 & 0xFF) / 255.0F;
-        float var6 = (float)(param6 >> 8 & 0xFF) / 255.0F;
-        float var7 = (float)(param6 & 0xFF) / 255.0F;
         RenderSystem.disableTexture();
         RenderSystem.enableBlend();
         RenderSystem.disableAlphaTest();
         RenderSystem.defaultBlendFunc();
         RenderSystem.shadeModel(7425);
-        Tesselator var8 = Tesselator.getInstance();
-        BufferBuilder var9 = var8.getBuilder();
-        var9.begin(7, DefaultVertexFormat.POSITION_COLOR);
-        var9.vertex(param0, (float)param3, (float)param2, (float)this.blitOffset).color(var1, var2, var3, var0).endVertex();
-        var9.vertex(param0, (float)param1, (float)param2, (float)this.blitOffset).color(var1, var2, var3, var0).endVertex();
-        var9.vertex(param0, (float)param1, (float)param4, (float)this.blitOffset).color(var5, var6, var7, var4).endVertex();
-        var9.vertex(param0, (float)param3, (float)param4, (float)this.blitOffset).color(var5, var6, var7, var4).endVertex();
-        var8.end();
+        Tesselator var0 = Tesselator.getInstance();
+        BufferBuilder var1 = var0.getBuilder();
+        var1.begin(7, DefaultVertexFormat.POSITION_COLOR);
+        fillGradient(param0.last().pose(), var1, param1, param2, param3, param4, this.blitOffset, param5, param6);
+        var0.end();
         RenderSystem.shadeModel(7424);
         RenderSystem.disableBlend();
         RenderSystem.enableAlphaTest();
         RenderSystem.enableTexture();
+    }
+
+    protected static void fillGradient(
+        Matrix4f param0, BufferBuilder param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8
+    ) {
+        float var0 = (float)(param7 >> 24 & 0xFF) / 255.0F;
+        float var1 = (float)(param7 >> 16 & 0xFF) / 255.0F;
+        float var2 = (float)(param7 >> 8 & 0xFF) / 255.0F;
+        float var3 = (float)(param7 & 0xFF) / 255.0F;
+        float var4 = (float)(param8 >> 24 & 0xFF) / 255.0F;
+        float var5 = (float)(param8 >> 16 & 0xFF) / 255.0F;
+        float var6 = (float)(param8 >> 8 & 0xFF) / 255.0F;
+        float var7 = (float)(param8 & 0xFF) / 255.0F;
+        param1.vertex(param0, (float)param4, (float)param3, (float)param6).color(var1, var2, var3, var0).endVertex();
+        param1.vertex(param0, (float)param2, (float)param3, (float)param6).color(var1, var2, var3, var0).endVertex();
+        param1.vertex(param0, (float)param2, (float)param5, (float)param6).color(var5, var6, var7, var4).endVertex();
+        param1.vertex(param0, (float)param4, (float)param5, (float)param6).color(var5, var6, var7, var4).endVertex();
     }
 
     public void drawCenteredString(PoseStack param0, Font param1, String param2, int param3, int param4, int param5) {

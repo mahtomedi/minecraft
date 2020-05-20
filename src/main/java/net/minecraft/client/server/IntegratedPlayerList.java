@@ -2,6 +2,7 @@ package net.minecraft.client.server;
 
 import com.mojang.authlib.GameProfile;
 import java.net.SocketAddress;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -15,8 +16,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class IntegratedPlayerList extends PlayerList {
     private CompoundTag playerData;
 
-    public IntegratedPlayerList(IntegratedServer param0, PlayerDataStorage param1) {
-        super(param0, param1, 8);
+    public IntegratedPlayerList(IntegratedServer param0, RegistryAccess.RegistryHolder param1, PlayerDataStorage param2) {
+        super(param0, param1, param2, 8);
         this.setViewDistance(10);
     }
 

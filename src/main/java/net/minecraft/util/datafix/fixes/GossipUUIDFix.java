@@ -18,6 +18,7 @@ public class GossipUUIDFix extends NamedEntityFix {
                     "Gossips",
                     param0xx -> DataFixUtils.orElse(
                             param0xx.asStreamOpt()
+                                .result()
                                 .map(
                                     param0xxx -> param0xxx.map(
                                             param0xxxx -> AbstractUUIDFix.replaceUUIDLeastMost(param0xxxx, "Target", "Target").orElse(param0xxxx)

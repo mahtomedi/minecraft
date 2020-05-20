@@ -1,17 +1,25 @@
 package net.minecraft.world.level.levelgen.feature.configurations;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Set;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.Fluids;
 
 public class SpringConfiguration implements FeatureConfiguration {
+    public static final Codec<SpringConfiguration> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    FluidState.CODEC.fieldOf("state").forGetter(param0x -> param0x.state),
+                    Codec.BOOL.fieldOf("requires_block_below").withDefault(true).forGetter(param0x -> param0x.requiresBlockBelow),
+                    Codec.INT.fieldOf("rock_count").withDefault(4).forGetter(param0x -> param0x.rockCount),
+                    Codec.INT.fieldOf("hole_count").withDefault(1).forGetter(param0x -> param0x.holeCount),
+                    Registry.BLOCK.listOf().fieldOf("valid_blocks").xmap(ImmutableSet::copyOf, ImmutableList::copyOf).forGetter(param0x -> param0x.validBlocks)
+                )
+                .apply(param0, SpringConfiguration::new)
+    );
     public final FluidState state;
     public final boolean requiresBlockBelow;
     public final int rockCount;
@@ -24,36 +32,5 @@ public class SpringConfiguration implements FeatureConfiguration {
         this.rockCount = param2;
         this.holeCount = param3;
         this.validBlocks = param4;
-    }
-
-    @Override
-    public <T> Dynamic<T> serialize(DynamicOps<T> param0) {
-        return new Dynamic<>(
-            param0,
-            param0.createMap(
-                ImmutableMap.of(
-                    param0.createString("state"),
-                    FluidState.serialize(param0, this.state).getValue(),
-                    param0.createString("requires_block_below"),
-                    param0.createBoolean(this.requiresBlockBelow),
-                    param0.createString("rock_count"),
-                    param0.createInt(this.rockCount),
-                    param0.createString("hole_count"),
-                    param0.createInt(this.holeCount),
-                    param0.createString("valid_blocks"),
-                    param0.createList(this.validBlocks.stream().map(Registry.BLOCK::getKey).map(ResourceLocation::toString).map(param0::createString))
-                )
-            )
-        );
-    }
-
-    public static <T> SpringConfiguration deserialize(Dynamic<T> param0) {
-        return new SpringConfiguration(
-            param0.get("state").map(FluidState::deserialize).orElse(Fluids.EMPTY.defaultFluidState()),
-            param0.get("requires_block_below").asBoolean(true),
-            param0.get("rock_count").asInt(4),
-            param0.get("hole_count").asInt(1),
-            ImmutableSet.copyOf(param0.get("valid_blocks").asList(param0x -> Registry.BLOCK.get(new ResourceLocation(param0x.asString("minecraft:air")))))
-        );
     }
 }

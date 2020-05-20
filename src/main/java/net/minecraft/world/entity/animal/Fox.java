@@ -1038,8 +1038,8 @@ public class Fox extends Animal {
         @Override
         protected void checkAndPerformAttack(LivingEntity param0, double param1) {
             double var0 = this.getAttackReachSqr(param0);
-            if (param1 <= var0 && this.attackTime <= 0) {
-                this.attackTime = 20;
+            if (param1 <= var0 && this.isTimeToAttack()) {
+                this.resetAttackCooldown();
                 this.mob.doHurtTarget(param0);
                 Fox.this.playSound(SoundEvents.FOX_BITE, 1.0F, 1.0F);
             }

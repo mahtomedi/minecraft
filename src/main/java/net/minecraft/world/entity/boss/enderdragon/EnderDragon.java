@@ -9,6 +9,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -38,7 +39,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.dimension.end.EndDragonFight;
-import net.minecraft.world.level.dimension.end.TheEndDimension;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.EndPodiumFeature;
 import net.minecraft.world.level.material.Material;
@@ -97,8 +97,8 @@ public class EnderDragon extends Mob implements Enemy {
         this.setHealth(this.getMaxHealth());
         this.noPhysics = true;
         this.noCulling = true;
-        if (!param1.isClientSide && param1.getDimension() instanceof TheEndDimension) {
-            this.dragonFight = ((TheEndDimension)param1.getDimension()).getDragonFight();
+        if (param1 instanceof ServerLevel) {
+            this.dragonFight = ((ServerLevel)param1).dragonFight();
         } else {
             this.dragonFight = null;
         }

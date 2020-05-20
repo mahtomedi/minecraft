@@ -3,21 +3,42 @@ package net.minecraft.world.level.levelgen.feature.structures;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectArrays;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.templatesystem.GravityProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class StructureTemplatePool {
+    private static final Logger LOGGER = LogManager.getLogger();
+    public static final Codec<StructureTemplatePool> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    ResourceLocation.CODEC.fieldOf("name").forGetter(StructureTemplatePool::getName),
+                    ResourceLocation.CODEC.fieldOf("fallback").forGetter(StructureTemplatePool::getFallback),
+                    Codec.mapPair(StructurePoolElement.CODEC.fieldOf("element"), Codec.INT.fieldOf("weight"))
+                        .codec()
+                        .listOf()
+                        .promotePartial(Util.prefix("Pool element: ", LOGGER::error))
+                        .fieldOf("elements")
+                        .forGetter(param0x -> param0x.rawTemplates),
+                    StructureTemplatePool.Projection.CODEC.fieldOf("projection").forGetter(param0x -> param0x.projection)
+                )
+                .apply(param0, StructureTemplatePool::new)
+    );
     public static final StructureTemplatePool EMPTY = new StructureTemplatePool(
         new ResourceLocation("empty"), new ResourceLocation("empty"), ImmutableList.of(), StructureTemplatePool.Projection.RIGID
     );
@@ -39,7 +60,7 @@ public class StructureTemplatePool {
         this.templates = Lists.newArrayList();
 
         for(Pair<StructurePoolElement, Integer> var0 : param2) {
-            for(Integer var1 = 0; var1 < var0.getSecond(); var1 = var1 + 1) {
+            for(int var1 = 0; var1 < var0.getSecond(); ++var1) {
                 this.templates.add(var0.getFirst().setProjection(param3));
             }
         }
@@ -76,10 +97,13 @@ public class StructureTemplatePool {
         return this.templates.size();
     }
 
-    public static enum Projection {
+    public static enum Projection implements StringRepresentable {
         TERRAIN_MATCHING("terrain_matching", ImmutableList.of(new GravityProcessor(Heightmap.Types.WORLD_SURFACE_WG, -1))),
         RIGID("rigid", ImmutableList.of());
 
+        public static final Codec<StructureTemplatePool.Projection> CODEC = StringRepresentable.fromEnum(
+            StructureTemplatePool.Projection::values, StructureTemplatePool.Projection::byName
+        );
         private static final Map<String, StructureTemplatePool.Projection> BY_NAME = Arrays.stream(values())
             .collect(Collectors.toMap(StructureTemplatePool.Projection::getName, param0 -> param0));
         private final String name;
@@ -100,6 +124,11 @@ public class StructureTemplatePool {
 
         public ImmutableList<StructureProcessor> getProcessors() {
             return this.processors;
+        }
+
+        @Override
+        public String getSerializedName() {
+            return this.name;
         }
     }
 }

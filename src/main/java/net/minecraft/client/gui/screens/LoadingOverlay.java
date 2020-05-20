@@ -10,18 +10,22 @@ import java.util.function.Consumer;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.SimpleTexture;
+import net.minecraft.client.resources.metadata.texture.TextureMetadataSection;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.VanillaPack;
 import net.minecraft.server.packs.resources.ReloadInstance;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class LoadingOverlay extends Overlay {
-    private static final ResourceLocation MOJANG_LOGO_LOCATION = new ResourceLocation("textures/gui/title/mojang.png");
+    private static final ResourceLocation MOJANG_STUDIOS_LOGO_LOCATION = new ResourceLocation("textures/gui/title/mojangstudios.png");
+    private static final int BRAND_BACKGROUND = FastColor.ARGB32.color(255, 239, 50, 61);
+    private static final int BRAND_BACKGROUND_NO_ALPHA = BRAND_BACKGROUND & 16777215;
     private final Minecraft minecraft;
     private final ReloadInstance reload;
     private final Consumer<Optional<Throwable>> onFinish;
@@ -38,7 +42,7 @@ public class LoadingOverlay extends Overlay {
     }
 
     public static void registerTextures(Minecraft param0) {
-        param0.getTextureManager().register(MOJANG_LOGO_LOCATION, new LoadingOverlay.LogoTexture());
+        param0.getTextureManager().register(MOJANG_STUDIOS_LOGO_LOCATION, new LoadingOverlay.LogoTexture());
     }
 
     @Override
@@ -59,7 +63,7 @@ public class LoadingOverlay extends Overlay {
             }
 
             int var5 = Mth.ceil((1.0F - Mth.clamp(var3 - 1.0F, 0.0F, 1.0F)) * 255.0F);
-            fill(param0, 0, 0, var0, var1, 16777215 | var5 << 24);
+            fill(param0, 0, 0, var0, var1, BRAND_BACKGROUND_NO_ALPHA | var5 << 24);
             var6 = 1.0F - Mth.clamp(var3 - 1.0F, 0.0F, 1.0F);
         } else if (this.fadeIn) {
             if (this.minecraft.screen != null && var4 < 1.0F) {
@@ -67,23 +71,32 @@ public class LoadingOverlay extends Overlay {
             }
 
             int var7 = Mth.ceil(Mth.clamp((double)var4, 0.15, 1.0) * 255.0);
-            fill(param0, 0, 0, var0, var1, 16777215 | var7 << 24);
+            fill(param0, 0, 0, var0, var1, BRAND_BACKGROUND_NO_ALPHA | var7 << 24);
             var6 = Mth.clamp(var4, 0.0F, 1.0F);
         } else {
-            fill(param0, 0, 0, var0, var1, -1);
+            fill(param0, 0, 0, var0, var1, BRAND_BACKGROUND);
             var6 = 1.0F;
         }
 
-        int var10 = (this.minecraft.getWindow().getGuiScaledWidth() - 256) / 2;
-        int var11 = (this.minecraft.getWindow().getGuiScaledHeight() - 256) / 2;
-        this.minecraft.getTextureManager().bind(MOJANG_LOGO_LOCATION);
+        int var10 = (this.minecraft.getWindow().getGuiScaledWidth() - 322) / 2;
+        int var11 = (this.minecraft.getWindow().getGuiScaledHeight() + 161) / 4;
+        this.minecraft.getTextureManager().bind(MOJANG_STUDIOS_LOGO_LOCATION);
         RenderSystem.enableBlend();
+        RenderSystem.blendEquation(32774);
+        RenderSystem.blendFunc(770, 1);
+        RenderSystem.alphaFunc(516, 0.0F);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, var6);
-        this.blit(param0, var10, var11, 0, 0, 256, 256);
-        float var12 = this.reload.getActualProgress();
-        this.currentProgress = Mth.clamp(this.currentProgress * 0.95F + var12 * 0.050000012F, 0.0F, 1.0F);
+        float var12 = 0.0625F;
+        blit(param0, var10, var11, 161, 80, -0.0625F, 0.0F, 161, 80, 161, 161);
+        blit(param0, var10 + 161, var11, 161, 80, 0.0625F, 80.5F, 161, 80, 161, 161);
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.defaultAlphaFunc();
+        RenderSystem.disableBlend();
+        float var13 = this.reload.getActualProgress();
+        this.currentProgress = Mth.clamp(this.currentProgress * 0.95F + var13 * 0.050000012F, 0.0F, 1.0F);
         if (var3 < 1.0F) {
-            this.drawProgressBar(param0, var0 / 2 - 150, var1 / 4 * 3, var0 / 2 + 150, var1 / 4 * 3 + 10, 1.0F - Mth.clamp(var3, 0.0F, 1.0F));
+            int var14 = var1 * 648 / 801;
+            this.drawProgressBar(param0, var0 / 2 - 161, var14, var0 / 2 + 161, var14 + 12, 1.0F - Mth.clamp(var3, 0.0F, 1.0F));
         }
 
         if (var3 >= 2.0F) {
@@ -94,8 +107,8 @@ public class LoadingOverlay extends Overlay {
             try {
                 this.reload.checkExceptions();
                 this.onFinish.accept(Optional.empty());
-            } catch (Throwable var16) {
-                this.onFinish.accept(Optional.of(var16));
+            } catch (Throwable var17) {
+                this.onFinish.accept(Optional.of(var17));
             }
 
             this.fadeOutStart = Util.getMillis();
@@ -107,27 +120,12 @@ public class LoadingOverlay extends Overlay {
     }
 
     private void drawProgressBar(PoseStack param0, int param1, int param2, int param3, int param4, float param5) {
-        int var0 = Mth.ceil((float)(param3 - param1 - 1) * this.currentProgress);
-        fill(
-            param0,
-            param1 - 1,
-            param2 - 1,
-            param3 + 1,
-            param4 + 1,
-            0xFF000000 | Math.round((1.0F - param5) * 255.0F) << 16 | Math.round((1.0F - param5) * 255.0F) << 8 | Math.round((1.0F - param5) * 255.0F)
-        );
-        fill(param0, param1, param2, param3, param4, -1);
-        fill(
-            param0,
-            param1 + 1,
-            param2 + 1,
-            param1 + var0,
-            param4 - 1,
-            0xFF000000
-                | (int)Mth.lerp(1.0F - param5, 226.0F, 255.0F) << 16
-                | (int)Mth.lerp(1.0F - param5, 40.0F, 255.0F) << 8
-                | (int)Mth.lerp(1.0F - param5, 55.0F, 255.0F)
-        );
+        int var0 = Mth.ceil((float)(param3 - param1 - 2) * this.currentProgress);
+        int var1 = Math.round(param5 * 255.0F);
+        int var2 = FastColor.ARGB32.color(var1, 255, 255, 255);
+        fill(param0, param1, param2, param3, param4, var2);
+        fill(param0, param1 + 1, param2 + 1, param3 - 1, param4 - 1, BRAND_BACKGROUND_NO_ALPHA | var1 << 24);
+        fill(param0, param1 + 2, param2 + 2, param1 + var0, param4 - 2, var2);
     }
 
     @Override
@@ -138,7 +136,7 @@ public class LoadingOverlay extends Overlay {
     @OnlyIn(Dist.CLIENT)
     static class LogoTexture extends SimpleTexture {
         public LogoTexture() {
-            super(LoadingOverlay.MOJANG_LOGO_LOCATION);
+            super(LoadingOverlay.MOJANG_STUDIOS_LOGO_LOCATION);
         }
 
         @Override
@@ -146,8 +144,8 @@ public class LoadingOverlay extends Overlay {
             Minecraft var0 = Minecraft.getInstance();
             VanillaPack var1 = var0.getClientPackSource().getVanillaPack();
 
-            try (InputStream var2 = var1.getResource(PackType.CLIENT_RESOURCES, LoadingOverlay.MOJANG_LOGO_LOCATION)) {
-                return new SimpleTexture.TextureImage(null, NativeImage.read(var2));
+            try (InputStream var2 = var1.getResource(PackType.CLIENT_RESOURCES, LoadingOverlay.MOJANG_STUDIOS_LOGO_LOCATION)) {
+                return new SimpleTexture.TextureImage(new TextureMetadataSection(true, true), NativeImage.read(var2));
             } catch (IOException var18) {
                 return new SimpleTexture.TextureImage(var18);
             }

@@ -1,8 +1,7 @@
 package net.minecraft.world.level.levelgen.feature;
 
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Codec;
 import java.util.Random;
-import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.StructureFeatureManager;
@@ -12,7 +11,7 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.DiskConfiguration;
 
 public class DiskReplaceFeature extends Feature<DiskConfiguration> {
-    public DiskReplaceFeature(Function<Dynamic<?>, ? extends DiskConfiguration> param0) {
+    public DiskReplaceFeature(Codec<DiskConfiguration> param0) {
         super(param0);
     }
 

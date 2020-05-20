@@ -1,6 +1,7 @@
 package net.minecraft.world.level.levelgen.feature.foliageplacers;
 
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Random;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
@@ -9,18 +10,10 @@ import net.minecraft.world.level.LevelSimulatedRW;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
 
 public class FancyFoliagePlacer extends BlobFoliagePlacer {
+    public static final Codec<FancyFoliagePlacer> CODEC = RecordCodecBuilder.create(param0 -> blobParts(param0).apply(param0, FancyFoliagePlacer::new));
+
     public FancyFoliagePlacer(int param0, int param1, int param2, int param3, int param4) {
         super(param0, param1, param2, param3, param4, FoliagePlacerType.FANCY_FOLIAGE_PLACER);
-    }
-
-    public <T> FancyFoliagePlacer(Dynamic<T> param0) {
-        this(
-            param0.get("radius").asInt(0),
-            param0.get("radius_random").asInt(0),
-            param0.get("offset").asInt(0),
-            param0.get("offset_random").asInt(0),
-            param0.get("height").asInt(0)
-        );
     }
 
     @Override

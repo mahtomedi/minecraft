@@ -1,14 +1,10 @@
 package net.minecraft.world.level.levelgen.feature.treedecorators;
 
-import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Codec;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelSimulatedRW;
 import net.minecraft.world.level.levelgen.feature.Feature;
@@ -16,19 +12,19 @@ import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvi
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public class AlterGroundDecorator extends TreeDecorator {
+    public static final Codec<AlterGroundDecorator> CODEC = BlockStateProvider.CODEC
+        .fieldOf("provider")
+        .xmap(AlterGroundDecorator::new, param0 -> param0.provider)
+        .codec();
     private final BlockStateProvider provider;
 
     public AlterGroundDecorator(BlockStateProvider param0) {
-        super(TreeDecoratorType.ALTER_GROUND);
         this.provider = param0;
     }
 
-    public <T> AlterGroundDecorator(Dynamic<T> param0) {
-        this(
-            Registry.BLOCKSTATE_PROVIDER_TYPES
-                .get(new ResourceLocation(param0.get("provider").get("type").asString().orElseThrow(RuntimeException::new)))
-                .deserialize(param0.get("provider").orElseEmptyMap())
-        );
+    @Override
+    protected TreeDecoratorType<?> type() {
+        return TreeDecoratorType.ALTER_GROUND;
     }
 
     @Override
@@ -76,21 +72,5 @@ public class AlterGroundDecorator extends TreeDecorator {
             }
         }
 
-    }
-
-    @Override
-    public <T> T serialize(DynamicOps<T> param0) {
-        return new Dynamic<>(
-                param0,
-                param0.createMap(
-                    ImmutableMap.of(
-                        param0.createString("type"),
-                        param0.createString(Registry.TREE_DECORATOR_TYPES.getKey(this.type).toString()),
-                        param0.createString("provider"),
-                        this.provider.serialize(param0)
-                    )
-                )
-            )
-            .getValue();
     }
 }

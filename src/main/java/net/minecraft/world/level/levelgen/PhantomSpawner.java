@@ -13,14 +13,16 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.monster.Phantom;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.CustomSpawner;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 
-public class PhantomSpawner {
+public class PhantomSpawner implements CustomSpawner {
     private int nextTick;
 
+    @Override
     public int tick(ServerLevel param0, boolean param1, boolean param2) {
         if (!param1) {
             return 0;
@@ -51,7 +53,7 @@ public class PhantomSpawner {
                                         BlockPos var8 = var3.above(20 + var0.nextInt(15)).east(-10 + var0.nextInt(21)).south(-10 + var0.nextInt(21));
                                         BlockState var9 = param0.getBlockState(var8);
                                         FluidState var10 = param0.getFluidState(var8);
-                                        if (NaturalSpawner.isValidEmptySpawnBlock(param0, var8, var9, var10)) {
+                                        if (NaturalSpawner.isValidEmptySpawnBlock(param0, var8, var9, var10, EntityType.PHANTOM)) {
                                             SpawnGroupData var11 = null;
                                             int var12 = 1 + var0.nextInt(var4.getDifficulty().getId() + 1);
 

@@ -10,6 +10,8 @@ import com.google.gson.JsonSerializer;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import java.lang.reflect.Type;
 import javax.annotation.Nullable;
 import net.minecraft.ResourceLocationException;
@@ -20,6 +22,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.StringUtils;
 
 public class ResourceLocation implements Comparable<ResourceLocation> {
+    public static final Codec<ResourceLocation> CODEC = Codec.STRING
+        .<ResourceLocation>comapFlatMap(ResourceLocation::read, ResourceLocation::toString)
+        .stable();
     private static final SimpleCommandExceptionType ERROR_INVALID = new SimpleCommandExceptionType(new TranslatableComponent("argument.id.invalid"));
     protected final String namespace;
     protected final String path;
@@ -66,6 +71,14 @@ public class ResourceLocation implements Comparable<ResourceLocation> {
         }
 
         return var0;
+    }
+
+    private static DataResult<ResourceLocation> read(String param0) {
+        try {
+            return DataResult.success(new ResourceLocation(param0));
+        } catch (ResourceLocationException var2) {
+            return DataResult.error("Not a valid resource location: " + param0 + " " + var2.getMessage());
+        }
     }
 
     public String getPath() {
@@ -135,20 +148,31 @@ public class ResourceLocation implements Comparable<ResourceLocation> {
     }
 
     private static boolean isValidPath(String param0) {
-        return param0.chars()
-            .allMatch(
-                param0x -> param0x == 95
-                        || param0x == 45
-                        || param0x >= 97 && param0x <= 122
-                        || param0x >= 48 && param0x <= 57
-                        || param0x == 47
-                        || param0x == 46
-            );
+        for(int var0 = 0; var0 < param0.length(); ++var0) {
+            if (!validPathChar(param0.charAt(var0))) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private static boolean isValidNamespace(String param0) {
-        return param0.chars()
-            .allMatch(param0x -> param0x == 95 || param0x == 45 || param0x >= 97 && param0x <= 122 || param0x >= 48 && param0x <= 57 || param0x == 46);
+        for(int var0 = 0; var0 < param0.length(); ++var0) {
+            if (!validNamespaceChar(param0.charAt(var0))) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static boolean validPathChar(char param0) {
+        return param0 == '_' || param0 == '-' || param0 >= 'a' && param0 <= 'z' || param0 >= '0' && param0 <= '9' || param0 == '/' || param0 == '.';
+    }
+
+    private static boolean validNamespaceChar(char param0) {
+        return param0 == '_' || param0 == '-' || param0 >= 'a' && param0 <= 'z' || param0 >= '0' && param0 <= '9' || param0 == '.';
     }
 
     @OnlyIn(Dist.CLIENT)

@@ -27,6 +27,7 @@ import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.NearestNeighborBiomeZoomer;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -277,15 +278,17 @@ public final class NaturalSpawner {
         return new BlockPos(var1, var4, var2);
     }
 
-    public static boolean isValidEmptySpawnBlock(BlockGetter param0, BlockPos param1, BlockState param2, FluidState param3) {
+    public static boolean isValidEmptySpawnBlock(BlockGetter param0, BlockPos param1, BlockState param2, FluidState param3, EntityType param4) {
         if (param2.isCollisionShapeFullBlock(param0, param1)) {
             return false;
         } else if (param2.isSignalSource()) {
             return false;
         } else if (!param3.isEmpty()) {
             return false;
+        } else if (param2.is(BlockTags.PREVENT_MOB_SPAWNING_INSIDE)) {
+            return false;
         } else {
-            return !param2.is(BlockTags.PREVENT_MOB_SPAWNING_INSIDE);
+            return !param2.is(Blocks.WITHER_ROSE) || param4 == EntityType.WITHER_SKELETON;
         }
     }
 
@@ -312,8 +315,8 @@ public final class NaturalSpawner {
                     if (!var4.isValidSpawn(param1, var3, param3)) {
                         return false;
                     } else {
-                        return isValidEmptySpawnBlock(param1, param2, var0, var1)
-                            && isValidEmptySpawnBlock(param1, var2, param1.getBlockState(var2), param1.getFluidState(var2));
+                        return isValidEmptySpawnBlock(param1, param2, var0, var1, param3)
+                            && isValidEmptySpawnBlock(param1, var2, param1.getBlockState(var2), param1.getFluidState(var2), param3);
                     }
             }
         } else {

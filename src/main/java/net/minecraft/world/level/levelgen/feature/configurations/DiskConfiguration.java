@@ -1,13 +1,20 @@
 package net.minecraft.world.level.levelgen.feature.configurations;
 
-import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class DiskConfiguration implements FeatureConfiguration {
+    public static final Codec<DiskConfiguration> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    BlockState.CODEC.fieldOf("state").forGetter(param0x -> param0x.state),
+                    Codec.INT.fieldOf("radius").withDefault(0).forGetter(param0x -> param0x.radius),
+                    Codec.INT.fieldOf("y_size").withDefault(0).forGetter(param0x -> param0x.ySize),
+                    BlockState.CODEC.listOf().fieldOf("targets").forGetter(param0x -> param0x.targets)
+                )
+                .apply(param0, DiskConfiguration::new)
+    );
     public final BlockState state;
     public final int radius;
     public final int ySize;
@@ -18,32 +25,5 @@ public class DiskConfiguration implements FeatureConfiguration {
         this.radius = param1;
         this.ySize = param2;
         this.targets = param3;
-    }
-
-    @Override
-    public <T> Dynamic<T> serialize(DynamicOps<T> param0) {
-        return new Dynamic<>(
-            param0,
-            param0.createMap(
-                ImmutableMap.of(
-                    param0.createString("state"),
-                    BlockState.serialize(param0, this.state).getValue(),
-                    param0.createString("radius"),
-                    param0.createInt(this.radius),
-                    param0.createString("y_size"),
-                    param0.createInt(this.ySize),
-                    param0.createString("targets"),
-                    param0.createList(this.targets.stream().map(param1 -> BlockState.serialize(param0, param1).getValue()))
-                )
-            )
-        );
-    }
-
-    public static <T> DiskConfiguration deserialize(Dynamic<T> param0) {
-        BlockState var0 = param0.get("state").map(BlockState::deserialize).orElse(Blocks.AIR.defaultBlockState());
-        int var1 = param0.get("radius").asInt(0);
-        int var2 = param0.get("y_size").asInt(0);
-        List<BlockState> var3 = param0.get("targets").asList(BlockState::deserialize);
-        return new DiskConfiguration(var0, var1, var2, var3);
     }
 }

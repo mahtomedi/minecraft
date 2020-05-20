@@ -1,11 +1,11 @@
 package net.minecraft.util.datafix.fixes;
 
 import com.mojang.datafixers.DSL;
-import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.Typed;
 import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.Type;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Dynamic;
 import java.util.Objects;
 
 public class EntityHorseSplitFix extends EntityRenameFix {
@@ -39,7 +39,11 @@ public class EntityHorseSplitFix extends EntityRenameFix {
 
             var0.remove("Type");
             Type<?> var7 = this.getOutputSchema().findChoiceType(References.ENTITY).types().get(var2);
-            return Pair.of(var2, var7.readTyped(param1.write()).getSecond().orElseThrow(() -> new IllegalStateException("Could not parse the new horse")));
+            return Pair.of(
+                var2,
+                (Typed<?>)((Pair)param1.write().flatMap(var7::readTyped).result().orElseThrow(() -> new IllegalStateException("Could not parse the new horse")))
+                    .getFirst()
+            );
         } else {
             return Pair.of(param0, param1);
         }

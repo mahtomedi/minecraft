@@ -14,7 +14,7 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.MapItem;
-import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.saveddata.maps.MapDecoration;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.level.storage.loot.LootContext;
@@ -26,14 +26,15 @@ import org.apache.logging.log4j.Logger;
 
 public class ExplorationMapFunction extends LootItemConditionalFunction {
     private static final Logger LOGGER = LogManager.getLogger();
+    public static final StructureFeature<?> DEFAULT_FEATURE = StructureFeature.BURIED_TREASURE;
     public static final MapDecoration.Type DEFAULT_DECORATION = MapDecoration.Type.MANSION;
-    private final String destination;
+    private final StructureFeature<?> destination;
     private final MapDecoration.Type mapDecoration;
     private final byte zoom;
     private final int searchRadius;
     private final boolean skipKnownStructures;
 
-    private ExplorationMapFunction(LootItemCondition[] param0, String param1, MapDecoration.Type param2, byte param3, int param4, boolean param5) {
+    private ExplorationMapFunction(LootItemCondition[] param0, StructureFeature<?> param1, MapDecoration.Type param2, byte param3, int param4, boolean param5) {
         super(param0);
         this.destination = param1;
         this.mapDecoration = param2;
@@ -60,7 +61,7 @@ public class ExplorationMapFunction extends LootItemConditionalFunction {
                     ItemStack var3 = MapItem.create(var1, var2.getX(), var2.getZ(), this.zoom, true, true);
                     MapItem.renderBiomePreviewMap(var1, var3);
                     MapItemSavedData.addTargetDecoration(var3, var2, "+", this.mapDecoration);
-                    var3.setHoverName(new TranslatableComponent("filled_map." + this.destination.toLowerCase(Locale.ROOT)));
+                    var3.setHoverName(new TranslatableComponent("filled_map." + this.destination.getFeatureName().toLowerCase(Locale.ROOT)));
                     return var3;
                 }
             }
@@ -74,7 +75,7 @@ public class ExplorationMapFunction extends LootItemConditionalFunction {
     }
 
     public static class Builder extends LootItemConditionalFunction.Builder<ExplorationMapFunction.Builder> {
-        private String destination = "Buried_Treasure";
+        private StructureFeature<?> destination = ExplorationMapFunction.DEFAULT_FEATURE;
         private MapDecoration.Type mapDecoration = ExplorationMapFunction.DEFAULT_DECORATION;
         private byte zoom = 2;
         private int searchRadius = 50;
@@ -84,7 +85,7 @@ public class ExplorationMapFunction extends LootItemConditionalFunction {
             return this;
         }
 
-        public ExplorationMapFunction.Builder setDestination(String param0) {
+        public ExplorationMapFunction.Builder setDestination(StructureFeature<?> param0) {
             this.destination = param0;
             return this;
         }
@@ -119,8 +120,8 @@ public class ExplorationMapFunction extends LootItemConditionalFunction {
 
         public void serialize(JsonObject param0, ExplorationMapFunction param1, JsonSerializationContext param2) {
             super.serialize(param0, param1, param2);
-            if (!param1.destination.equals("Buried_Treasure")) {
-                param0.add("destination", param2.serialize(param1.destination));
+            if (!param1.destination.equals(ExplorationMapFunction.DEFAULT_FEATURE)) {
+                param0.add("destination", param2.serialize(param1.destination.getFeatureName()));
             }
 
             if (param1.mapDecoration != ExplorationMapFunction.DEFAULT_DECORATION) {
@@ -142,8 +143,7 @@ public class ExplorationMapFunction extends LootItemConditionalFunction {
         }
 
         public ExplorationMapFunction deserialize(JsonObject param0, JsonDeserializationContext param1, LootItemCondition[] param2) {
-            String var0 = param0.has("destination") ? GsonHelper.getAsString(param0, "destination") : "Buried_Treasure";
-            var0 = Feature.STRUCTURES_REGISTRY.containsKey(var0.toLowerCase(Locale.ROOT)) ? var0 : "Buried_Treasure";
+            StructureFeature<?> var0 = readStructure(param0);
             String var1 = param0.has("decoration") ? GsonHelper.getAsString(param0, "decoration") : "mansion";
             MapDecoration.Type var2 = ExplorationMapFunction.DEFAULT_DECORATION;
 
@@ -158,6 +158,18 @@ public class ExplorationMapFunction extends LootItemConditionalFunction {
             int var5 = GsonHelper.getAsInt(param0, "search_radius", 50);
             boolean var6 = GsonHelper.getAsBoolean(param0, "skip_existing_chunks", true);
             return new ExplorationMapFunction(param2, var0, var2, var4, var5, var6);
+        }
+
+        private static StructureFeature<?> readStructure(JsonObject param0) {
+            if (param0.has("destination")) {
+                String var0 = GsonHelper.getAsString(param0, "destination");
+                StructureFeature<?> var1 = StructureFeature.STRUCTURES_REGISTRY.get(var0.toLowerCase(Locale.ROOT));
+                if (var1 != null) {
+                    return var1;
+                }
+            }
+
+            return ExplorationMapFunction.DEFAULT_FEATURE;
         }
     }
 }

@@ -16,9 +16,11 @@ import net.minecraft.ReportedException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.sounds.SoundEvent;
@@ -49,7 +51,6 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.dimension.Dimension;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.lighting.LevelLightEngine;
@@ -85,7 +86,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     protected float oThunderLevel;
     protected float thunderLevel;
     public final Random random = new Random();
-    private final Dimension dimension;
+    private final DimensionType dimensionType;
     protected final WritableLevelData levelData;
     private final Supplier<ProfilerFiller> profiler;
     public final boolean isClientSide;
@@ -96,9 +97,24 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     protected Level(WritableLevelData param0, DimensionType param1, Supplier<ProfilerFiller> param2, boolean param3, boolean param4, long param5) {
         this.profiler = param2;
         this.levelData = param0;
-        this.dimension = param1.create(this);
+        this.dimensionType = param1;
         this.isClientSide = param3;
-        this.worldBorder = this.getDimension().createWorldBorder();
+        if (param1.shrunk()) {
+            this.worldBorder = new WorldBorder() {
+                @Override
+                public double getCenterX() {
+                    return super.getCenterX() / 8.0;
+                }
+
+                @Override
+                public double getCenterZ() {
+                    return super.getCenterZ() / 8.0;
+                }
+            };
+        } else {
+            this.worldBorder = new WorldBorder();
+        }
+
         this.thread = Thread.currentThread();
         this.biomeManager = new BiomeManager(this, param5, param1.getBiomeZoomer());
         this.isDebug = param4;
@@ -404,11 +420,11 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     }
 
     public boolean isDay() {
-        return this.dimensionType() == DimensionType.OVERWORLD && this.skyDarken < 4;
+        return this.dimensionType().isOverworld() && this.skyDarken < 4;
     }
 
     public boolean isNight() {
-        return this.dimensionType() == DimensionType.OVERWORLD && !this.isDay();
+        return this.dimensionType().isOverworld() && !this.isDay();
     }
 
     @Override
@@ -986,28 +1002,12 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     public void disconnect() {
     }
 
-    public void setGameTime(long param0) {
-        this.levelData.setGameTime(param0);
-    }
-
     public long getGameTime() {
         return this.levelData.getGameTime();
     }
 
     public long getDayTime() {
         return this.levelData.getDayTime();
-    }
-
-    public void setDayTime(long param0) {
-        this.levelData.setDayTime(param0);
-    }
-
-    protected void tickTime() {
-        this.setGameTime(this.levelData.getGameTime() + 1L);
-        if (this.levelData.getGameRules().getBoolean(GameRules.RULE_DAYLIGHT)) {
-            this.setDayTime(this.levelData.getDayTime() + 1L);
-        }
-
     }
 
     public boolean mayInteract(Player param0, BlockPos param1) {
@@ -1094,7 +1094,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         CrashReportCategory var0 = param0.addCategory("Affected level", 1);
         var0.setDetail("All players", () -> this.players().size() + " total; " + this.players());
         var0.setDetail("Chunk stats", this.getChunkSource()::gatherStats);
-        var0.setDetail("Level dimension", () -> this.dimensionType().toString());
+        var0.setDetail("Level dimension", () -> this.dimension().location().toString());
 
         try {
             this.levelData.fillCrashReportCategory(var0);
@@ -1162,13 +1162,12 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     }
 
     @Override
-    public Dimension getDimension() {
-        return this.dimension;
+    public DimensionType dimensionType() {
+        return this.dimensionType;
     }
 
-    @Override
-    public DimensionType dimensionType() {
-        return this.dimension.getType();
+    public ResourceKey<DimensionType> dimension() {
+        return this.registryAccess().dimensionTypes().getResourceKey(this.dimensionType);
     }
 
     @Override
@@ -1211,4 +1210,6 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     public final boolean isDebug() {
         return this.isDebug;
     }
+
+    public abstract RegistryAccess registryAccess();
 }

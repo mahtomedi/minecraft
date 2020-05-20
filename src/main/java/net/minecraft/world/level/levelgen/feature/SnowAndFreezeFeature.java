@@ -1,8 +1,7 @@
 package net.minecraft.world.level.levelgen.feature;
 
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Codec;
 import java.util.Random;
-import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.StructureFeatureManager;
@@ -16,7 +15,7 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 
 public class SnowAndFreezeFeature extends Feature<NoneFeatureConfiguration> {
-    public SnowAndFreezeFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0) {
+    public SnowAndFreezeFeature(Codec<NoneFeatureConfiguration> param0) {
         super(param0);
     }
 

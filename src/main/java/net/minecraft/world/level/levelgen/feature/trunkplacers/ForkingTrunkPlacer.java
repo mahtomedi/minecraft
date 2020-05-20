@@ -1,7 +1,8 @@
 package net.minecraft.world.level.levelgen.feature.trunkplacers;
 
 import com.google.common.collect.Lists;
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -13,12 +14,15 @@ import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacer;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public class ForkingTrunkPlacer extends TrunkPlacer {
+    public static final Codec<ForkingTrunkPlacer> CODEC = RecordCodecBuilder.create(param0 -> trunkPlacerParts(param0).apply(param0, ForkingTrunkPlacer::new));
+
     public ForkingTrunkPlacer(int param0, int param1, int param2) {
-        super(param0, param1, param2, TrunkPlacerType.FORKING_TRUNK_PLACER);
+        super(param0, param1, param2);
     }
 
-    public <T> ForkingTrunkPlacer(Dynamic<T> param0) {
-        this(param0.get("base_height").asInt(0), param0.get("height_rand_a").asInt(0), param0.get("height_rand_b").asInt(0));
+    @Override
+    protected TrunkPlacerType<?> type() {
+        return TrunkPlacerType.FORKING_TRUNK_PLACER;
     }
 
     @Override

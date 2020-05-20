@@ -9,6 +9,7 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.dimension.DimensionType;
 
@@ -46,13 +47,13 @@ public class SetSpawnCommand {
     }
 
     private static int setSpawn(CommandSourceStack param0, Collection<ServerPlayer> param1, BlockPos param2) {
-        DimensionType var0 = param0.getLevel().dimensionType();
+        ResourceKey<DimensionType> var0 = param0.getLevel().dimension();
 
         for(ServerPlayer var1 : param1) {
             var1.setRespawnPosition(var0, param2, true, false);
         }
 
-        String var2 = DimensionType.getName(var0).toString();
+        String var2 = var0.location().toString();
         if (param1.size() == 1) {
             param0.sendSuccess(
                 new TranslatableComponent(

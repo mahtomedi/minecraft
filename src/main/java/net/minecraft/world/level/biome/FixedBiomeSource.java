@@ -1,21 +1,29 @@
 package net.minecraft.world.level.biome;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+import com.mojang.serialization.Codec;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class FixedBiomeSource extends BiomeSource {
+    public static final Codec<FixedBiomeSource> CODEC = Registry.BIOME.fieldOf("biome").xmap(FixedBiomeSource::new, param0 -> param0.biome).stable().codec();
     private final Biome biome;
 
     public FixedBiomeSource(Biome param0) {
-        super(ImmutableSet.of(param0));
+        super(ImmutableList.of(param0));
         this.biome = param0;
+    }
+
+    @Override
+    protected Codec<? extends BiomeSource> codec() {
+        return CODEC;
     }
 
     @OnlyIn(Dist.CLIENT)

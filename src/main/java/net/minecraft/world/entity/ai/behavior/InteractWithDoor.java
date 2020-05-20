@@ -46,7 +46,7 @@ public class InteractWithDoor extends Behavior<LivingEntity> {
 
     private Set<BlockPos> getDoorsThatAreOnMyPath(ServerLevel param0, List<GlobalPos> param1, List<BlockPos> param2) {
         return param1.stream()
-            .filter(param1x -> param1x.dimension() == param0.dimensionType())
+            .filter(param1x -> param1x.dimension() == param0.dimension())
             .map(GlobalPos::pos)
             .filter(param2::contains)
             .collect(Collectors.toSet());
@@ -60,7 +60,7 @@ public class InteractWithDoor extends Behavior<LivingEntity> {
             if (BlockTags.WOODEN_DOORS.contains(var2x) && var2x instanceof DoorBlock) {
                 boolean var3x = var0 >= param3;
                 ((DoorBlock)var2x).setOpen(param0, param4x, var3x);
-                GlobalPos var4x = GlobalPos.of(param0.dimensionType(), param4x);
+                GlobalPos var4x = GlobalPos.of(param0.dimension(), param4x);
                 if (!param5.getMemory(MemoryModuleType.OPENED_DOORS).isPresent() && var3x) {
                     param5.setMemory(MemoryModuleType.OPENED_DOORS, Sets.newHashSet(var4x));
                 } else {
@@ -87,7 +87,7 @@ public class InteractWithDoor extends Behavior<LivingEntity> {
                 GlobalPos var1x = (GlobalPos)var0x.next();
                 BlockPos var2x = var1x.pos();
                 int var3x = param1.indexOf(var2x);
-                if (param0.dimensionType() != var1x.dimension()) {
+                if (param0.dimension() != var1x.dimension()) {
                     var0x.remove();
                 } else {
                     BlockState var4x = param0.getBlockState(var2x);

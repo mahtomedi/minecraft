@@ -1,10 +1,9 @@
 package net.minecraft.core;
 
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
-import net.minecraft.util.Serializable;
+import com.mojang.serialization.Codec;
 
-public final class SerializableLong implements Serializable {
+public final class SerializableLong {
+    public static final Codec<SerializableLong> CODEC = Codec.LONG.xmap(SerializableLong::new, param0 -> param0.value);
     private final long value;
 
     private SerializableLong(long param0) {
@@ -13,15 +12,6 @@ public final class SerializableLong implements Serializable {
 
     public long value() {
         return this.value;
-    }
-
-    @Override
-    public <T> T serialize(DynamicOps<T> param0) {
-        return param0.createLong(this.value);
-    }
-
-    public static SerializableLong of(Dynamic<?> param0) {
-        return new SerializableLong(param0.asNumber(Integer.valueOf(0)).longValue());
     }
 
     public static SerializableLong of(long param0) {

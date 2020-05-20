@@ -1,8 +1,7 @@
 package net.minecraft.world.level.levelgen.feature;
 
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Codec;
 import java.util.Random;
-import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.StructureFeatureManager;
@@ -13,7 +12,7 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.configurations.RandomPatchConfiguration;
 
 public class RandomPatchFeature extends Feature<RandomPatchConfiguration> {
-    public RandomPatchFeature(Function<Dynamic<?>, ? extends RandomPatchConfiguration> param0) {
+    public RandomPatchFeature(Codec<RandomPatchConfiguration> param0) {
         super(param0);
     }
 

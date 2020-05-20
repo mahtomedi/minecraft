@@ -1,9 +1,8 @@
 package net.minecraft.world.level.levelgen.feature.structures;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
@@ -24,6 +23,10 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureMana
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
 public class FeaturePoolElement extends StructurePoolElement {
+    public static final Codec<FeaturePoolElement> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(ConfiguredFeature.CODEC.fieldOf("feature").forGetter(param0x -> param0x.feature), projectionCodec())
+                .apply(param0, FeaturePoolElement::new)
+    );
     private final ConfiguredFeature<?, ?> feature;
     private final CompoundTag defaultJigsawNBT;
 
@@ -35,12 +38,6 @@ public class FeaturePoolElement extends StructurePoolElement {
     private FeaturePoolElement(ConfiguredFeature<?, ?> param0, StructureTemplatePool.Projection param1) {
         super(param1);
         this.feature = param0;
-        this.defaultJigsawNBT = this.fillDefaultJigsawNBT();
-    }
-
-    public <T> FeaturePoolElement(Dynamic<T> param0) {
-        super(param0);
-        this.feature = ConfiguredFeature.deserialize(param0.get("feature").orElseEmptyMap());
         this.defaultJigsawNBT = this.fillDefaultJigsawNBT();
     }
 
@@ -96,12 +93,7 @@ public class FeaturePoolElement extends StructurePoolElement {
     }
 
     @Override
-    public <T> Dynamic<T> getDynamic(DynamicOps<T> param0) {
-        return new Dynamic<>(param0, param0.createMap(ImmutableMap.of(param0.createString("feature"), this.feature.serialize(param0).getValue())));
-    }
-
-    @Override
-    public StructurePoolElementType getType() {
+    public StructurePoolElementType<?> getType() {
         return StructurePoolElementType.FEATURE;
     }
 

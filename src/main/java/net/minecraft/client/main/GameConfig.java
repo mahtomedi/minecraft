@@ -52,11 +52,15 @@ public class GameConfig {
         public final boolean demo;
         public final String launchVersion;
         public final String versionType;
+        public final boolean disableMultiplayer;
+        public final boolean disableChat;
 
-        public GameData(boolean param0, String param1, String param2) {
+        public GameData(boolean param0, String param1, String param2, boolean param3, boolean param4) {
             this.demo = param0;
             this.launchVersion = param1;
             this.versionType = param2;
+            this.disableMultiplayer = param3;
+            this.disableChat = param4;
         }
     }
 

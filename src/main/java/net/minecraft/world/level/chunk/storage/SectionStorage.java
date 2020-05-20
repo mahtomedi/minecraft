@@ -3,9 +3,11 @@ package net.minecraft.world.level.chunk.storage;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.DataFixer;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.OptionalDynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.OptionalDynamic;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet;
@@ -13,7 +15,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.BiFunction;
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 import javax.annotation.Nullable;
@@ -23,7 +24,6 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
-import net.minecraft.util.Serializer;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -35,27 +35,17 @@ public class SectionStorage<R> implements AutoCloseable {
     private final IOWorker worker;
     private final Long2ObjectMap<Optional<R>> storage = new Long2ObjectOpenHashMap<>();
     private final LongLinkedOpenHashSet dirty = new LongLinkedOpenHashSet();
-    private final Serializer<R> serializer;
-    private final BiFunction<Runnable, Dynamic<?>, R> deserializer;
+    private final Function<Runnable, Codec<R>> codec;
     private final Function<Runnable, R> factory;
     private final DataFixer fixerUpper;
     private final DataFixTypes type;
 
-    public SectionStorage(
-        File param0,
-        Serializer<R> param1,
-        BiFunction<Runnable, Dynamic<?>, R> param2,
-        Function<Runnable, R> param3,
-        DataFixer param4,
-        DataFixTypes param5,
-        boolean param6
-    ) {
-        this.serializer = param1;
-        this.deserializer = param2;
-        this.factory = param3;
-        this.fixerUpper = param4;
-        this.type = param5;
-        this.worker = new IOWorker(param0, param6, param0.getName());
+    public SectionStorage(File param0, Function<Runnable, Codec<R>> param1, Function<Runnable, R> param2, DataFixer param3, DataFixTypes param4, boolean param5) {
+        this.codec = param1;
+        this.factory = param2;
+        this.fixerUpper = param3;
+        this.type = param4;
+        this.worker = new IOWorker(param0, param5, param0.getName());
     }
 
     protected void tick(BooleanSupplier param0) {
@@ -135,7 +125,9 @@ public class SectionStorage<R> implements AutoCloseable {
 
             for(int var7 = 0; var7 < 16; ++var7) {
                 long var8 = SectionPos.of(param0, var7).asLong();
-                Optional<R> var9 = var6.get(Integer.toString(var7)).get().map(param1x -> this.deserializer.apply(() -> this.setDirty(var8), param1x));
+                Optional<R> var9 = var6.get(Integer.toString(var7))
+                    .result()
+                    .flatMap(param1x -> this.codec.apply(() -> this.setDirty(var8)).parse(param1x).resultOrPartial(LOGGER::error));
                 this.storage.put(var8, var9);
                 var9.ifPresent(param2x -> {
                     this.onSectionLoad(var8);
@@ -168,7 +160,9 @@ public class SectionStorage<R> implements AutoCloseable {
             this.dirty.remove(var2);
             Optional<R> var3 = this.storage.get(var2);
             if (var3 != null && var3.isPresent()) {
-                var0.put(param1.createString(Integer.toString(var1)), this.serializer.serialize(var3.get(), param1));
+                DataResult<T> var4 = this.codec.apply(() -> this.setDirty(var2)).encodeStart(param1, var3.get());
+                String var5 = Integer.toString(var1);
+                var4.resultOrPartial(LOGGER::error).ifPresent(param3 -> var0.put(param1.createString(var5), param3));
             }
         }
 
@@ -198,7 +192,7 @@ public class SectionStorage<R> implements AutoCloseable {
     }
 
     private static int getVersion(Dynamic<?> param0) {
-        return param0.get("DataVersion").asNumber().orElse(1945).intValue();
+        return param0.get("DataVersion").asInt(1945);
     }
 
     public void flush(ChunkPos param0) {

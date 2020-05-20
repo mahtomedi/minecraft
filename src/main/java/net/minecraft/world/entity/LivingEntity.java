@@ -2,8 +2,10 @@ package net.minecraft.world.entity;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.Dynamic;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
@@ -25,6 +27,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundAddMobPacket;
 import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
@@ -43,7 +46,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.tags.Tag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.CombatRules;
@@ -204,15 +206,20 @@ public abstract class LivingEntity extends Entity {
         this.yRot = (float)(Math.random() * (float) (Math.PI * 2));
         this.yHeadRot = this.yRot;
         this.maxUpStep = 0.6F;
-        this.brain = this.makeBrain(new Dynamic<>(NbtOps.INSTANCE, new CompoundTag()));
+        NbtOps var0 = NbtOps.INSTANCE;
+        this.brain = this.makeBrain(new Dynamic<>(var0, var0.createMap(ImmutableMap.of(var0.createString("memories"), var0.emptyMap()))));
     }
 
     public Brain<?> getBrain() {
         return this.brain;
     }
 
+    protected Brain.Provider<?> brainProvider() {
+        return Brain.provider(ImmutableList.of(), ImmutableList.of());
+    }
+
     protected Brain<?> makeBrain(Dynamic<?> param0) {
-        return new Brain<>(ImmutableList.of(), ImmutableList.of(), param0);
+        return this.brainProvider().makeBrain(param0);
     }
 
     @Override
@@ -594,7 +601,8 @@ public abstract class LivingEntity extends Entity {
             param0.putInt("SleepingY", param1.getY());
             param0.putInt("SleepingZ", param1.getZ());
         });
-        param0.put("Brain", this.brain.serialize(NbtOps.INSTANCE));
+        DataResult<Tag> var2 = this.brain.serializeStart(NbtOps.INSTANCE);
+        var2.resultOrPartial(LOGGER::error).ifPresent(param1 -> param0.put("Brain", param1));
     }
 
     @Override
@@ -1875,7 +1883,7 @@ public abstract class LivingEntity extends Entity {
         this.setDeltaMovement(this.getDeltaMovement().add(0.0, -0.04F, 0.0));
     }
 
-    protected void jumpInLiquid(Tag<Fluid> param0) {
+    protected void jumpInLiquid(net.minecraft.tags.Tag<Fluid> param0) {
         this.setDeltaMovement(this.getDeltaMovement().add(0.0, 0.04F, 0.0));
     }
 

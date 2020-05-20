@@ -5,6 +5,7 @@ import com.google.common.collect.Sets;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -127,8 +128,6 @@ public abstract class Screen extends AbstractContainerEventHandler implements Ti
 
     public void renderTooltip(PoseStack param0, List<Component> param1, int param2, int param3) {
         if (!param1.isEmpty()) {
-            RenderSystem.disableRescaleNormal();
-            RenderSystem.disableDepthTest();
             int var0 = 0;
 
             for(Component var1 : param1) {
@@ -153,42 +152,54 @@ public abstract class Screen extends AbstractContainerEventHandler implements Ti
                 var4 = this.height - var6 - 6;
             }
 
-            this.setBlitOffset(300);
+            param0.pushPose();
             this.itemRenderer.blitOffset = 300.0F;
             int var7 = -267386864;
-            this.fillGradient(param0, var3 - 3, var4 - 4, var3 + var0 + 3, var4 - 3, -267386864, -267386864);
-            this.fillGradient(param0, var3 - 3, var4 + var6 + 3, var3 + var0 + 3, var4 + var6 + 4, -267386864, -267386864);
-            this.fillGradient(param0, var3 - 3, var4 - 3, var3 + var0 + 3, var4 + var6 + 3, -267386864, -267386864);
-            this.fillGradient(param0, var3 - 4, var4 - 3, var3 - 3, var4 + var6 + 3, -267386864, -267386864);
-            this.fillGradient(param0, var3 + var0 + 3, var4 - 3, var3 + var0 + 4, var4 + var6 + 3, -267386864, -267386864);
             int var8 = 1347420415;
             int var9 = 1344798847;
-            this.fillGradient(param0, var3 - 3, var4 - 3 + 1, var3 - 3 + 1, var4 + var6 + 3 - 1, 1347420415, 1344798847);
-            this.fillGradient(param0, var3 + var0 + 2, var4 - 3 + 1, var3 + var0 + 3, var4 + var6 + 3 - 1, 1347420415, 1344798847);
-            this.fillGradient(param0, var3 - 3, var4 - 3, var3 + var0 + 3, var4 - 3 + 1, 1347420415, 1347420415);
-            this.fillGradient(param0, var3 - 3, var4 + var6 + 2, var3 + var0 + 3, var4 + var6 + 3, 1344798847, 1344798847);
-            MultiBufferSource.BufferSource var10 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
+            int var10 = 300;
+            Tesselator var11 = Tesselator.getInstance();
+            BufferBuilder var12 = var11.getBuilder();
+            var12.begin(7, DefaultVertexFormat.POSITION_COLOR);
+            Matrix4f var13 = param0.last().pose();
+            fillGradient(var13, var12, var3 - 3, var4 - 4, var3 + var0 + 3, var4 - 3, 300, -267386864, -267386864);
+            fillGradient(var13, var12, var3 - 3, var4 + var6 + 3, var3 + var0 + 3, var4 + var6 + 4, 300, -267386864, -267386864);
+            fillGradient(var13, var12, var3 - 3, var4 - 3, var3 + var0 + 3, var4 + var6 + 3, 300, -267386864, -267386864);
+            fillGradient(var13, var12, var3 - 4, var4 - 3, var3 - 3, var4 + var6 + 3, 300, -267386864, -267386864);
+            fillGradient(var13, var12, var3 + var0 + 3, var4 - 3, var3 + var0 + 4, var4 + var6 + 3, 300, -267386864, -267386864);
+            fillGradient(var13, var12, var3 - 3, var4 - 3 + 1, var3 - 3 + 1, var4 + var6 + 3 - 1, 300, 1347420415, 1344798847);
+            fillGradient(var13, var12, var3 + var0 + 2, var4 - 3 + 1, var3 + var0 + 3, var4 + var6 + 3 - 1, 300, 1347420415, 1344798847);
+            fillGradient(var13, var12, var3 - 3, var4 - 3, var3 + var0 + 3, var4 - 3 + 1, 300, 1347420415, 1347420415);
+            fillGradient(var13, var12, var3 - 3, var4 + var6 + 2, var3 + var0 + 3, var4 + var6 + 3, 300, 1344798847, 1344798847);
+            RenderSystem.enableDepthTest();
+            RenderSystem.disableTexture();
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
+            RenderSystem.shadeModel(7425);
+            var12.end();
+            BufferUploader.end(var12);
+            RenderSystem.shadeModel(7424);
+            RenderSystem.disableBlend();
+            RenderSystem.enableTexture();
+            MultiBufferSource.BufferSource var14 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
             param0.translate(0.0, 0.0, (double)this.itemRenderer.blitOffset);
-            Matrix4f var11 = param0.last().pose();
 
-            for(int var12 = 0; var12 < param1.size(); ++var12) {
-                Component var13 = param1.get(var12);
-                if (var13 != null) {
-                    this.font.drawInBatch(var13, (float)var3, (float)var4, -1, true, var11, var10, false, 0, 15728880);
+            for(int var15 = 0; var15 < param1.size(); ++var15) {
+                Component var16 = param1.get(var15);
+                if (var16 != null) {
+                    this.font.drawInBatch(var16, (float)var3, (float)var4, -1, true, var13, var14, false, 0, 15728880);
                 }
 
-                if (var12 == 0) {
+                if (var15 == 0) {
                     var4 += 2;
                 }
 
                 var4 += 10;
             }
 
-            var10.endBatch();
-            this.setBlitOffset(0);
+            var14.endBatch();
+            param0.popPose();
             this.itemRenderer.blitOffset = 0.0F;
-            RenderSystem.enableDepthTest();
-            RenderSystem.enableRescaleNormal();
         }
     }
 

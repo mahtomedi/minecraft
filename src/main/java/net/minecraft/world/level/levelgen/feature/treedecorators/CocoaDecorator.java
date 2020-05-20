@@ -1,14 +1,11 @@
 package net.minecraft.world.level.levelgen.feature.treedecorators;
 
-import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Codec;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CocoaBlock;
@@ -17,15 +14,16 @@ import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public class CocoaDecorator extends TreeDecorator {
+    public static final Codec<CocoaDecorator> CODEC = Codec.FLOAT.fieldOf("probability").xmap(CocoaDecorator::new, param0 -> param0.probability).codec();
     private final float probability;
 
     public CocoaDecorator(float param0) {
-        super(TreeDecoratorType.COCOA);
         this.probability = param0;
     }
 
-    public <T> CocoaDecorator(Dynamic<T> param0) {
-        this(param0.get("probability").asFloat(0.0F));
+    @Override
+    protected TreeDecoratorType<?> type() {
+        return TreeDecoratorType.COCOA;
     }
 
     @Override
@@ -53,21 +51,5 @@ public class CocoaDecorator extends TreeDecorator {
                     }
                 );
         }
-    }
-
-    @Override
-    public <T> T serialize(DynamicOps<T> param0) {
-        return new Dynamic<>(
-                param0,
-                param0.createMap(
-                    ImmutableMap.of(
-                        param0.createString("type"),
-                        param0.createString(Registry.TREE_DECORATOR_TYPES.getKey(this.type).toString()),
-                        param0.createString("probability"),
-                        param0.createFloat(this.probability)
-                    )
-                )
-            )
-            .getValue();
     }
 }

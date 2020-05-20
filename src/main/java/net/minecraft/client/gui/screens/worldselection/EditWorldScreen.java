@@ -1,10 +1,13 @@
 package net.minecraft.client.gui.screens.worldselection;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DataResult.PartialResult;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.function.Function;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -50,7 +53,7 @@ public class EditWorldScreen extends Screen {
     protected void init() {
         this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
         Button var0 = this.addButton(
-            new Button(this.width / 2 - 100, this.height / 4 + 24 + 5, 200, 20, new TranslatableComponent("selectWorld.edit.resetIcon"), param0 -> {
+            new Button(this.width / 2 - 100, this.height / 4 + 0 + 5, 200, 20, new TranslatableComponent("selectWorld.edit.resetIcon"), param0 -> {
                 FileUtils.deleteQuietly(this.levelAccess.getIconFile());
                 param0.active = false;
             })
@@ -58,19 +61,19 @@ public class EditWorldScreen extends Screen {
         this.addButton(
             new Button(
                 this.width / 2 - 100,
-                this.height / 4 + 48 + 5,
+                this.height / 4 + 24 + 5,
                 200,
                 20,
                 new TranslatableComponent("selectWorld.edit.openFolder"),
                 param0 -> Util.getPlatform().openFile(this.levelAccess.getLevelPath(LevelResource.ROOT).toFile())
             )
         );
-        this.addButton(new Button(this.width / 2 - 100, this.height / 4 + 72 + 5, 200, 20, new TranslatableComponent("selectWorld.edit.backup"), param0 -> {
+        this.addButton(new Button(this.width / 2 - 100, this.height / 4 + 48 + 5, 200, 20, new TranslatableComponent("selectWorld.edit.backup"), param0 -> {
             boolean var0x = makeBackupAndShowToast(this.levelAccess);
             this.callback.accept(!var0x);
         }));
         this.addButton(
-            new Button(this.width / 2 - 100, this.height / 4 + 96 + 5, 200, 20, new TranslatableComponent("selectWorld.edit.backupFolder"), param0 -> {
+            new Button(this.width / 2 - 100, this.height / 4 + 72 + 5, 200, 20, new TranslatableComponent("selectWorld.edit.backupFolder"), param0 -> {
                 LevelStorageSource var0x = this.minecraft.getLevelSource();
                 Path var1x = var0x.getBackupPath();
     
@@ -86,7 +89,7 @@ public class EditWorldScreen extends Screen {
         this.addButton(
             new Button(
                 this.width / 2 - 100,
-                this.height / 4 + 120 + 5,
+                this.height / 4 + 96 + 5,
                 200,
                 20,
                 new TranslatableComponent("selectWorld.edit.optimize"),
@@ -99,6 +102,24 @@ public class EditWorldScreen extends Screen {
                     }, new TranslatableComponent("optimizeWorld.confirm.title"), new TranslatableComponent("optimizeWorld.confirm.description"), true))
             )
         );
+        this.addButton(
+            new Button(
+                this.width / 2 - 100,
+                this.height / 4 + 120 + 5,
+                200,
+                20,
+                new TranslatableComponent("selectWorld.edit.export_worldgen_settings"),
+                param0 -> {
+                    DataResult<String> var0x = this.levelAccess.exportWorldGenSettings();
+                    Component var1x = new TextComponent(var0x.get().map(Function.identity(), PartialResult::message));
+                    Component var2x = new TranslatableComponent(
+                        var0x.result().isPresent() ? "selectWorld.edit.export_worldgen_settings.success" : "selectWorld.edit.export_worldgen_settings.failure"
+                    );
+                    var0x.error().ifPresent(param0x -> LOGGER.error("Error exporting world settings: {}", param0x));
+                    this.minecraft.getToasts().addToast(SystemToast.multiline(SystemToast.SystemToastIds.WORLD_GEN_SETTINGS_TRANSFER, var2x, var1x));
+                }
+            )
+        );
         this.renameButton = this.addButton(
             new Button(this.width / 2 - 100, this.height / 4 + 144 + 5, 98, 20, new TranslatableComponent("selectWorld.edit.save"), param0 -> this.onRename())
         );
@@ -106,7 +127,7 @@ public class EditWorldScreen extends Screen {
         var0.active = this.levelAccess.getIconFile().isFile();
         WorldData var1 = this.levelAccess.getDataTag();
         String var2 = var1 == null ? "" : var1.getLevelName();
-        this.nameEdit = new EditBox(this.font, this.width / 2 - 100, 53, 200, 20, new TranslatableComponent("selectWorld.enterName"));
+        this.nameEdit = new EditBox(this.font, this.width / 2 - 100, 38, 200, 20, new TranslatableComponent("selectWorld.enterName"));
         this.nameEdit.setValue(var2);
         this.nameEdit.setResponder(param0 -> this.renameButton.active = !param0.trim().isEmpty());
         this.children.add(this.nameEdit);
@@ -168,8 +189,8 @@ public class EditWorldScreen extends Screen {
     @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
-        this.drawCenteredString(param0, this.font, this.title, this.width / 2, 20, 16777215);
-        this.drawString(param0, this.font, I18n.get("selectWorld.enterName"), this.width / 2 - 100, 40, 10526880);
+        this.drawCenteredString(param0, this.font, this.title, this.width / 2, 15, 16777215);
+        this.drawString(param0, this.font, I18n.get("selectWorld.enterName"), this.width / 2 - 100, 24, 10526880);
         this.nameEdit.render(param0, param1, param2, param3);
         super.render(param0, param1, param2, param3);
     }

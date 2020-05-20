@@ -4,11 +4,11 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.DSL;
 import com.mojang.datafixers.DataFix;
-import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.TypeRewriteRule;
 import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.Type;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Dynamic;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -33,7 +33,7 @@ public class ReorganizePoi extends DataFix {
 
         for(int var1 = 0; var1 < 16; ++var1) {
             String var2 = String.valueOf(var1);
-            Optional<Dynamic<T>> var3 = param0.get(var2).get();
+            Optional<Dynamic<T>> var3 = param0.get(var2).result();
             if (var3.isPresent()) {
                 Dynamic<T> var4 = var3.get();
                 Dynamic<T> var5 = param0.createMap(ImmutableMap.of(param0.createString("Records"), var4));

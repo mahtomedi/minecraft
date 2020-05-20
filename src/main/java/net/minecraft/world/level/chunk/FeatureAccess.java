@@ -7,9 +7,9 @@ import net.minecraft.world.level.levelgen.structure.StructureStart;
 
 public interface FeatureAccess {
     @Nullable
-    StructureStart getStartForFeature(String var1);
+    StructureStart<?> getStartForFeature(String var1);
 
-    void setStartForFeature(String var1, StructureStart var2);
+    void setStartForFeature(String var1, StructureStart<?> var2);
 
     LongSet getReferencesForFeature(String var1);
 

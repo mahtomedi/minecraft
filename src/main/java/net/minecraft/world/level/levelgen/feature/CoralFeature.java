@@ -1,8 +1,7 @@
 package net.minecraft.world.level.levelgen.feature;
 
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Codec;
 import java.util.Random;
-import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
@@ -17,7 +16,7 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 
 public abstract class CoralFeature extends Feature<NoneFeatureConfiguration> {
-    public CoralFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0) {
+    public CoralFeature(Codec<NoneFeatureConfiguration> param0) {
         super(param0);
     }
 

@@ -1,15 +1,21 @@
 package net.minecraft.world.entity.npc;
 
-import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class VillagerData {
     private static final int[] NEXT_LEVEL_XP_THRESHOLDS = new int[]{0, 10, 70, 150, 250};
+    public static final Codec<VillagerData> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    Registry.VILLAGER_TYPE.fieldOf("type").forGetter(param0x -> param0x.type),
+                    Registry.VILLAGER_PROFESSION.fieldOf("profession").forGetter(param0x -> param0x.profession),
+                    Codec.INT.fieldOf("level").withDefault(1).forGetter(param0x -> param0x.level)
+                )
+                .apply(param0, VillagerData::new)
+    );
     private final VillagerType type;
     private final VillagerProfession profession;
     private final int level;
@@ -18,14 +24,6 @@ public class VillagerData {
         this.type = param0;
         this.profession = param1;
         this.level = Math.max(1, param2);
-    }
-
-    public VillagerData(Dynamic<?> param0) {
-        this(
-            Registry.VILLAGER_TYPE.get(ResourceLocation.tryParse(param0.get("type").asString(""))),
-            Registry.VILLAGER_PROFESSION.get(ResourceLocation.tryParse(param0.get("profession").asString(""))),
-            param0.get("level").asInt(1)
-        );
     }
 
     public VillagerType getType() {
@@ -50,19 +48,6 @@ public class VillagerData {
 
     public VillagerData setLevel(int param0) {
         return new VillagerData(this.type, this.profession, param0);
-    }
-
-    public <T> T serialize(DynamicOps<T> param0) {
-        return param0.createMap(
-            ImmutableMap.of(
-                param0.createString("type"),
-                param0.createString(Registry.VILLAGER_TYPE.getKey(this.type).toString()),
-                param0.createString("profession"),
-                param0.createString(Registry.VILLAGER_PROFESSION.getKey(this.profession).toString()),
-                param0.createString("level"),
-                param0.createInt(this.level)
-            )
-        );
     }
 
     @OnlyIn(Dist.CLIENT)

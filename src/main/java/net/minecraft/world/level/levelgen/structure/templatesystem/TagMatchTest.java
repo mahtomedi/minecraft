@@ -1,24 +1,18 @@
 package net.minecraft.world.level.levelgen.structure.templatesystem;
 
-import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Codec;
 import java.util.Random;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.Tag;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class TagMatchTest extends RuleTest {
+    public static final Codec<TagMatchTest> CODEC = Tag.codec(BlockTags::getAllTags).fieldOf("tag").xmap(TagMatchTest::new, param0 -> param0.tag).codec();
     private final Tag<Block> tag;
 
     public TagMatchTest(Tag<Block> param0) {
         this.tag = param0;
-    }
-
-    public <T> TagMatchTest(Dynamic<T> param0) {
-        this(BlockTags.getAllTags().getTag(new ResourceLocation(param0.get("tag").asString(""))));
     }
 
     @Override
@@ -27,15 +21,7 @@ public class TagMatchTest extends RuleTest {
     }
 
     @Override
-    protected RuleTestType getType() {
+    protected RuleTestType<?> getType() {
         return RuleTestType.TAG_TEST;
-    }
-
-    @Override
-    protected <T> Dynamic<T> getDynamic(DynamicOps<T> param0) {
-        return new Dynamic<>(
-            param0,
-            param0.createMap(ImmutableMap.of(param0.createString("tag"), param0.createString(BlockTags.getAllTags().getIdOrThrow(this.tag).toString())))
-        );
     }
 }

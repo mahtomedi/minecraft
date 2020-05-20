@@ -250,11 +250,6 @@ public class Mth {
         return NumberUtils.toInt(param0, param1);
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public static int getInt(String param0, int param1, int param2) {
-        return Math.max(param2, getInt(param0, param1));
-    }
-
     public static int smallestEncompassingPowerOfTwo(int param0) {
         int var0 = param0 - 1;
         var0 |= var0 >> 1;
@@ -276,6 +271,21 @@ public class Mth {
 
     public static int log2(int param0) {
         return ceillog2(param0) - (isPowerOfTwo(param0) ? 0 : 1);
+    }
+
+    public static int roundUp(int param0, int param1) {
+        if (param1 == 0) {
+            return 0;
+        } else if (param0 == 0) {
+            return param1;
+        } else {
+            if (param0 < 0) {
+                param1 *= -1;
+            }
+
+            int var0 = param0 % param1;
+            return var0 == 0 ? param0 : param0 + param1 - var0;
+        }
     }
 
     @OnlyIn(Dist.CLIENT)

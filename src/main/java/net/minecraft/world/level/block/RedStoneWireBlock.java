@@ -12,6 +12,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -24,6 +27,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.block.state.properties.RedstoneSide;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -66,6 +70,7 @@ public class RedStoneWireBlock extends Block {
     );
     private final Map<BlockState, VoxelShape> SHAPES_CACHE = Maps.newHashMap();
     private static final Vector3f[] COLORS = new Vector3f[16];
+    private final BlockState dotState;
     private boolean shouldSignal = true;
 
     public RedStoneWireBlock(BlockBehaviour.Properties param0) {
@@ -73,12 +78,17 @@ public class RedStoneWireBlock extends Block {
         this.registerDefaultState(
             this.stateDefinition
                 .any()
-                .setValue(NORTH, RedstoneSide.NONE)
-                .setValue(EAST, RedstoneSide.NONE)
-                .setValue(SOUTH, RedstoneSide.NONE)
-                .setValue(WEST, RedstoneSide.NONE)
+                .setValue(NORTH, RedstoneSide.SIDE)
+                .setValue(EAST, RedstoneSide.SIDE)
+                .setValue(SOUTH, RedstoneSide.SIDE)
+                .setValue(WEST, RedstoneSide.SIDE)
                 .setValue(POWER, Integer.valueOf(0))
         );
+        this.dotState = this.defaultBlockState()
+            .setValue(NORTH, RedstoneSide.NONE)
+            .setValue(EAST, RedstoneSide.NONE)
+            .setValue(SOUTH, RedstoneSide.NONE)
+            .setValue(WEST, RedstoneSide.NONE);
 
         for(BlockState var0 : this.getStateDefinition().getPossibleStates()) {
             if (var0.getValue(POWER) == 0) {
@@ -114,30 +124,35 @@ public class RedStoneWireBlock extends Block {
     }
 
     private BlockState getConnectionState(BlockGetter param0, BlockState param1, BlockPos param2) {
-        param1 = this.getMissingConnections(param0, this.defaultBlockState().setValue(POWER, param1.getValue(POWER)), param2);
-        boolean var0 = param1.getValue(NORTH).isConnected();
-        boolean var1 = param1.getValue(SOUTH).isConnected();
-        boolean var2 = param1.getValue(EAST).isConnected();
-        boolean var3 = param1.getValue(WEST).isConnected();
-        boolean var4 = !var0 && !var1;
-        boolean var5 = !var2 && !var3;
-        if (!var3 && var4) {
-            param1 = param1.setValue(WEST, RedstoneSide.SIDE);
-        }
+        boolean var0 = isDot(param1);
+        param1 = this.getMissingConnections(param0, this.dotState.setValue(POWER, param1.getValue(POWER)), param2);
+        boolean var1 = param1.getValue(NORTH).isConnected();
+        boolean var2 = param1.getValue(SOUTH).isConnected();
+        boolean var3 = param1.getValue(EAST).isConnected();
+        boolean var4 = param1.getValue(WEST).isConnected();
+        boolean var5 = !var1 && !var2;
+        boolean var6 = !var3 && !var4;
+        if (var0 && isDot(param1)) {
+            return param1;
+        } else {
+            if (!var4 && var5) {
+                param1 = param1.setValue(WEST, RedstoneSide.SIDE);
+            }
 
-        if (!var2 && var4) {
-            param1 = param1.setValue(EAST, RedstoneSide.SIDE);
-        }
+            if (!var3 && var5) {
+                param1 = param1.setValue(EAST, RedstoneSide.SIDE);
+            }
 
-        if (!var0 && var5) {
-            param1 = param1.setValue(NORTH, RedstoneSide.SIDE);
-        }
+            if (!var1 && var6) {
+                param1 = param1.setValue(NORTH, RedstoneSide.SIDE);
+            }
 
-        if (!var1 && var5) {
-            param1 = param1.setValue(SOUTH, RedstoneSide.SIDE);
-        }
+            if (!var2 && var6) {
+                param1 = param1.setValue(SOUTH, RedstoneSide.SIDE);
+            }
 
-        return param1;
+            return param1;
+        }
     }
 
     private BlockState getMissingConnections(BlockGetter param0, BlockState param1, BlockPos param2) {
@@ -174,6 +189,13 @@ public class RedStoneWireBlock extends Block {
             && param0.getValue(SOUTH).isConnected()
             && param0.getValue(EAST).isConnected()
             && param0.getValue(WEST).isConnected();
+    }
+
+    private static boolean isDot(BlockState param0) {
+        return !param0.getValue(NORTH).isConnected()
+            && !param0.getValue(SOUTH).isConnected()
+            && !param0.getValue(EAST).isConnected()
+            && !param0.getValue(WEST).isConnected();
     }
 
     @Override
@@ -485,6 +507,33 @@ public class RedStoneWireBlock extends Block {
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> param0) {
         param0.add(NORTH, EAST, SOUTH, WEST, POWER);
+    }
+
+    @Override
+    public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
+        if (isCross(param0) || isDot(param0)) {
+            BlockState var0 = isCross(param0) ? this.dotState : this.defaultBlockState();
+            var0 = var0.setValue(POWER, param0.getValue(POWER));
+            var0 = this.getConnectionState(param1, var0, param2);
+            if (var0 != param0) {
+                param1.setBlock(param2, var0, 3);
+                this.updatesOnShapeChange(param1, param2, param0, var0);
+                return InteractionResult.SUCCESS;
+            }
+        }
+
+        return InteractionResult.PASS;
+    }
+
+    private void updatesOnShapeChange(Level param0, BlockPos param1, BlockState param2, BlockState param3) {
+        for(Direction var0 : Direction.Plane.HORIZONTAL) {
+            BlockPos var1 = param1.relative(var0);
+            if (param2.getValue(PROPERTY_BY_DIRECTION.get(var0)).isConnected() != param3.getValue(PROPERTY_BY_DIRECTION.get(var0)).isConnected()
+                && param0.getBlockState(var1).isRedstoneConductor(param0, var1)) {
+                param0.updateNeighborsAtExceptFromFacing(var1, param3.getBlock(), var0.getOpposite());
+            }
+        }
+
     }
 
     static {

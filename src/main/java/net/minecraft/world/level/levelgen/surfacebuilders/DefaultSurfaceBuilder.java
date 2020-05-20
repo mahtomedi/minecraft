@@ -1,8 +1,7 @@
 package net.minecraft.world.level.levelgen.surfacebuilders;
 
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Codec;
 import java.util.Random;
-import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
@@ -10,7 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 
 public class DefaultSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConfiguration> {
-    public DefaultSurfaceBuilder(Function<Dynamic<?>, ? extends SurfaceBuilderBaseConfiguration> param0) {
+    public DefaultSurfaceBuilder(Codec<SurfaceBuilderBaseConfiguration> param0) {
         super(param0);
     }
 

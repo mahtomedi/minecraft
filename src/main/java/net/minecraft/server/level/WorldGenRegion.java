@@ -31,7 +31,6 @@ import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.ChunkStatus;
-import net.minecraft.world.level.dimension.Dimension;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.lighting.LevelLightEngine;
@@ -54,7 +53,7 @@ public class WorldGenRegion implements WorldGenLevel {
     private final long seed;
     private final LevelData levelData;
     private final Random random;
-    private final Dimension dimension;
+    private final DimensionType dimensionType;
     private final TickList<Block> blockTicks = new WorldGenTickList<>(param0x -> this.getChunk(param0x).getBlockTicks());
     private final TickList<Fluid> liquidTicks = new WorldGenTickList<>(param0x -> this.getChunk(param0x).getLiquidTicks());
     private final BiomeManager biomeManager;
@@ -75,7 +74,7 @@ public class WorldGenRegion implements WorldGenLevel {
             this.seed = param0.getSeed();
             this.levelData = param0.getLevelData();
             this.random = param0.getRandom();
-            this.dimension = param0.getDimension();
+            this.dimensionType = param0.dimensionType();
             this.biomeManager = new BiomeManager(this, BiomeManager.obfuscateSeed(this.seed), param0.dimensionType().getBiomeZoomer());
             this.firstPos = param1.get(0).getPos();
             this.lastPos = param1.get(param1.size() - 1).getPos();
@@ -352,13 +351,8 @@ public class WorldGenRegion implements WorldGenLevel {
     }
 
     @Override
-    public Dimension getDimension() {
-        return this.dimension;
-    }
-
-    @Override
     public DimensionType dimensionType() {
-        return this.dimension.getType();
+        return this.dimensionType;
     }
 
     @Override

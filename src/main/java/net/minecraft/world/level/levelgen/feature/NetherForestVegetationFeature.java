@@ -1,8 +1,7 @@
 package net.minecraft.world.level.levelgen.feature;
 
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Codec;
 import java.util.Random;
-import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.LevelAccessor;
@@ -14,7 +13,7 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.BlockPileConfiguration;
 
 public class NetherForestVegetationFeature extends Feature<BlockPileConfiguration> {
-    public NetherForestVegetationFeature(Function<Dynamic<?>, ? extends BlockPileConfiguration> param0) {
+    public NetherForestVegetationFeature(Codec<BlockPileConfiguration> param0) {
         super(param0);
     }
 

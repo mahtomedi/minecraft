@@ -2,7 +2,6 @@ package net.minecraft.world.entity.monster.hoglin;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.util.Pair;
 import java.util.List;
 import java.util.Optional;
@@ -38,16 +37,15 @@ import net.minecraft.world.entity.schedule.Activity;
 public class HoglinAi {
     private static final IntRange RETREAT_DURATION = TimeUtil.rangeOfSeconds(5, 20);
 
-    protected static Brain<?> makeBrain(Dynamic<?> param0) {
-        Brain<Hoglin> var0 = new Brain<>(Hoglin.MEMORY_TYPES, Hoglin.SENSOR_TYPES, param0);
-        initCoreActivity(var0);
-        initIdleActivity(var0);
-        initFightActivity(var0);
-        initRetreatActivity(var0);
-        var0.setCoreActivities(ImmutableSet.of(Activity.CORE));
-        var0.setDefaultActivity(Activity.IDLE);
-        var0.useDefaultActivity();
-        return var0;
+    protected static Brain<?> makeBrain(Brain<Hoglin> param0) {
+        initCoreActivity(param0);
+        initIdleActivity(param0);
+        initFightActivity(param0);
+        initRetreatActivity(param0);
+        param0.setCoreActivities(ImmutableSet.of(Activity.CORE));
+        param0.setDefaultActivity(Activity.IDLE);
+        param0.useDefaultActivity();
+        return param0;
     }
 
     private static void initCoreActivity(Brain<Hoglin> param0) {

@@ -1,13 +1,14 @@
 package net.minecraft.util.datafix.fixes;
 
 import com.mojang.datafixers.DSL;
-import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.OpticFinder;
 import com.mojang.datafixers.Typed;
 import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.Type;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Dynamic;
 import java.util.Optional;
+import net.minecraft.util.datafix.schemas.NamespacedSchema;
 
 public class EntityHorseSaddleFix extends NamedEntityFix {
     public EntityHorseSaddleFix(Schema param0, boolean param1) {
@@ -16,7 +17,7 @@ public class EntityHorseSaddleFix extends NamedEntityFix {
 
     @Override
     protected Typed<?> fix(Typed<?> param0) {
-        OpticFinder<Pair<String, String>> var0 = DSL.fieldFinder("id", DSL.named(References.ITEM_NAME.typeName(), DSL.namespacedString()));
+        OpticFinder<Pair<String, String>> var0 = DSL.fieldFinder("id", DSL.named(References.ITEM_NAME.typeName(), NamespacedSchema.namespacedString()));
         Type<?> var1 = this.getInputSchema().getTypeRaw(References.ITEM_STACK);
         OpticFinder<?> var2 = DSL.fieldFinder("SaddleItem", var1);
         Optional<? extends Typed<?>> var3 = param0.getOptionalTyped(var2);

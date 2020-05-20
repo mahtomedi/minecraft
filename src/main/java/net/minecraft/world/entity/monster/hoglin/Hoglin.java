@@ -1,7 +1,7 @@
 package net.minecraft.world.entity.monster.hoglin;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Dynamic;
 import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -44,7 +44,6 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -135,8 +134,13 @@ public class Hoglin extends Animal implements Enemy, HoglinBase {
     }
 
     @Override
+    protected Brain.Provider<Hoglin> brainProvider() {
+        return Brain.provider(MEMORY_TYPES, SENSOR_TYPES);
+    }
+
+    @Override
     protected Brain<?> makeBrain(Dynamic<?> param0) {
-        return HoglinAi.makeBrain(param0);
+        return HoglinAi.makeBrain(this.brainProvider().makeBrain(param0));
     }
 
     @Override
@@ -322,7 +326,7 @@ public class Hoglin extends Animal implements Enemy, HoglinBase {
     }
 
     public boolean isConverting() {
-        return this.level.dimensionType() != DimensionType.NETHER && !this.isImmuneToZombification() && !this.isNoAi();
+        return !this.level.dimensionType().isNether() && !this.isImmuneToZombification() && !this.isNoAi();
     }
 
     private void setCannotBeHunted(boolean param0) {

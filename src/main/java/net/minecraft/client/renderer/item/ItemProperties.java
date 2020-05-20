@@ -9,6 +9,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -113,7 +114,7 @@ public class ItemProperties {
                         return 0.0F;
                     } else {
                         double var1;
-                        if (param1.getDimension().isNaturalDimension()) {
+                        if (param1.dimensionType().natural()) {
                             var1 = (double)param1.getTimeOfDay(1.0F);
                         } else {
                             var1 = Math.random();
@@ -200,7 +201,7 @@ public class ItemProperties {
     
                 @Nullable
                 private BlockPos getSpawnPosition(ClientLevel param0) {
-                    return param0.getDimension().isNaturalDimension() ? param0.getSharedSpawnPos() : null;
+                    return param0.dimensionType().natural() ? param0.getSharedSpawnPos() : null;
                 }
     
                 @Nullable
@@ -208,9 +209,9 @@ public class ItemProperties {
                     boolean var0 = param1.contains("LodestonePos");
                     boolean var1 = param1.contains("LodestoneDimension");
                     if (var0 && var1) {
-                        Optional<DimensionType> var2 = CompassItem.getLodestoneDimension(param1);
-                        if (var2.isPresent() && param0.dimensionType().equals(var2.get())) {
-                            return NbtUtils.readBlockPos((CompoundTag)param1.get("LodestonePos"));
+                        Optional<ResourceKey<DimensionType>> var2 = CompassItem.getLodestoneDimension(param1);
+                        if (var2.isPresent() && param0.dimension() == var2.get()) {
+                            return NbtUtils.readBlockPos(param1.getCompound("LodestonePos"));
                         }
                     }
     

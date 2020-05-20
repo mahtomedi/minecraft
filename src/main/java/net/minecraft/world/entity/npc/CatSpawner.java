@@ -11,15 +11,17 @@ import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.CustomSpawner;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.NaturalSpawner;
-import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.phys.AABB;
 
-public class CatSpawner {
+public class CatSpawner implements CustomSpawner {
     private int nextTick;
 
+    @Override
     public int tick(ServerLevel param0, boolean param1, boolean param2) {
         if (param2 && param0.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING)) {
             --this.nextTick;
@@ -43,7 +45,7 @@ public class CatSpawner {
                                 return this.spawnInVillage(param0, var4);
                             }
 
-                            if (Feature.SWAMP_HUT.isInsideFeature(param0.structureFeatureManager(), var4)) {
+                            if (param0.structureFeatureManager().getStructureAt(var4, true, StructureFeature.SWAMP_HUT).isValid()) {
                                 return this.spawnInHut(param0, var4);
                             }
                         }

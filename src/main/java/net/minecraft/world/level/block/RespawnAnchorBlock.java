@@ -24,7 +24,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -70,8 +69,8 @@ public class RespawnAnchorBlock extends Block {
         } else {
             if (!param1.isClientSide) {
                 ServerPlayer var1 = (ServerPlayer)param3;
-                if (var1.getRespawnDimension() != param1.dimensionType() || !var1.getRespawnPosition().equals(param2)) {
-                    var1.setRespawnPosition(param1.dimensionType(), param2, false, true);
+                if (var1.getRespawnDimension() != param1.dimension() || !var1.getRespawnPosition().equals(param2)) {
+                    var1.setRespawnPosition(param1.dimension(), param2, false, true);
                     param1.playSound(
                         null,
                         (double)param2.getX() + 0.5,
@@ -91,7 +90,7 @@ public class RespawnAnchorBlock extends Block {
     }
 
     public static boolean canSetSpawn(Level param0) {
-        return param0.dimensionType() == DimensionType.NETHER;
+        return param0.dimensionType().isNether();
     }
 
     public static void charge(Level param0, BlockPos param1, BlockState param2) {

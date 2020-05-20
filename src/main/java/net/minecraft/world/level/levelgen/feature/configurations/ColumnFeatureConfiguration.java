@@ -1,10 +1,18 @@
 package net.minecraft.world.level.levelgen.feature.configurations;
 
-import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 public class ColumnFeatureConfiguration implements FeatureConfiguration {
+    public static final Codec<ColumnFeatureConfiguration> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    Codec.INT.fieldOf("minimum_reach").forGetter(param0x -> param0x.minimumReach),
+                    Codec.INT.fieldOf("maximum_reach").forGetter(param0x -> param0x.maximumReach),
+                    Codec.INT.fieldOf("minimum_height").forGetter(param0x -> param0x.minimumHeight),
+                    Codec.INT.fieldOf("maximum_height").forGetter(param0x -> param0x.maximumHeight)
+                )
+                .apply(param0, ColumnFeatureConfiguration::new)
+    );
     public final int minimumReach;
     public final int maximumReach;
     public final int minimumHeight;
@@ -15,33 +23,6 @@ public class ColumnFeatureConfiguration implements FeatureConfiguration {
         this.maximumReach = param1;
         this.minimumHeight = param2;
         this.maximumHeight = param3;
-    }
-
-    @Override
-    public <T> Dynamic<T> serialize(DynamicOps<T> param0) {
-        return new Dynamic<>(
-            param0,
-            param0.createMap(
-                ImmutableMap.of(
-                    param0.createString("minimum_reach"),
-                    param0.createInt(this.minimumReach),
-                    param0.createString("maximum_reach"),
-                    param0.createInt(this.maximumReach),
-                    param0.createString("minimum_height"),
-                    param0.createInt(this.minimumHeight),
-                    param0.createString("maximum_height"),
-                    param0.createInt(this.maximumHeight)
-                )
-            )
-        );
-    }
-
-    public static <T> ColumnFeatureConfiguration deserialize(Dynamic<T> param0) {
-        int var0 = param0.get("minimum_reach").asInt(0);
-        int var1 = param0.get("maximum_reach").asInt(0);
-        int var2 = param0.get("minimum_height").asInt(1);
-        int var3 = param0.get("maximum_height").asInt(1);
-        return new ColumnFeatureConfiguration(var0, var1, var2, var3);
     }
 
     public static class Builder {

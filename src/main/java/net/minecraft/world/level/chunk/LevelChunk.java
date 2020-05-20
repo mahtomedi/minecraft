@@ -67,7 +67,7 @@ public class LevelChunk implements ChunkAccess {
     private final UpgradeData upgradeData;
     private final Map<BlockPos, BlockEntity> blockEntities = Maps.newHashMap();
     private final ClassInstanceMultiMap<Entity>[] entitySections;
-    private final Map<String, StructureStart> structureStarts = Maps.newHashMap();
+    private final Map<String, StructureStart<?>> structureStarts = Maps.newHashMap();
     private final Map<String, LongSet> structuresRefences = Maps.newHashMap();
     private final ShortList[] postProcessing = new ShortList[16];
     private TickList<Block> blockTicks;
@@ -660,22 +660,22 @@ public class LevelChunk implements ChunkAccess {
 
     @Nullable
     @Override
-    public StructureStart getStartForFeature(String param0) {
+    public StructureStart<?> getStartForFeature(String param0) {
         return this.structureStarts.get(param0);
     }
 
     @Override
-    public void setStartForFeature(String param0, StructureStart param1) {
+    public void setStartForFeature(String param0, StructureStart<?> param1) {
         this.structureStarts.put(param0, param1);
     }
 
     @Override
-    public Map<String, StructureStart> getAllStarts() {
+    public Map<String, StructureStart<?>> getAllStarts() {
         return this.structureStarts;
     }
 
     @Override
-    public void setAllStarts(Map<String, StructureStart> param0) {
+    public void setAllStarts(Map<String, StructureStart<?>> param0) {
         this.structureStarts.clear();
         this.structureStarts.putAll(param0);
     }

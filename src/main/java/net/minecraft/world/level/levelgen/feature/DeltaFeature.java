@@ -1,9 +1,8 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Codec;
 import java.util.Random;
-import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -30,7 +29,7 @@ public class DeltaFeature extends Feature<DeltaFeatureConfiguration> {
         return param0.nextInt(param1.maximumRimSize + 1);
     }
 
-    public DeltaFeature(Function<Dynamic<?>, ? extends DeltaFeatureConfiguration> param0) {
+    public DeltaFeature(Codec<DeltaFeatureConfiguration> param0) {
         super(param0);
     }
 

@@ -1,7 +1,7 @@
 package net.minecraft.world.level.levelgen.feature.structures;
 
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
 import java.util.Random;
 import javax.annotation.Nullable;
@@ -17,15 +17,17 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureMana
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
 public abstract class StructurePoolElement {
+    public static final Codec<StructurePoolElement> CODEC = Registry.STRUCTURE_POOL_ELEMENT
+        .dispatch("element_type", StructurePoolElement::getType, StructurePoolElementType::codec);
     @Nullable
     private volatile StructureTemplatePool.Projection projection;
 
-    protected StructurePoolElement(StructureTemplatePool.Projection param0) {
-        this.projection = param0;
+    protected static <E extends StructurePoolElement> RecordCodecBuilder<E, StructureTemplatePool.Projection> projectionCodec() {
+        return StructureTemplatePool.Projection.CODEC.fieldOf("projection").forGetter(StructurePoolElement::getProjection);
     }
 
-    protected StructurePoolElement(Dynamic<?> param0) {
-        this.projection = StructureTemplatePool.Projection.byName(param0.get("projection").asString(StructureTemplatePool.Projection.RIGID.getName()));
+    protected StructurePoolElement(StructureTemplatePool.Projection param0) {
+        this.projection = param0;
     }
 
     public abstract List<StructureTemplate.StructureBlockInfo> getShuffledJigsawBlocks(StructureManager var1, BlockPos var2, Rotation var3, Random var4);
@@ -45,7 +47,7 @@ public abstract class StructurePoolElement {
         boolean var10
     );
 
-    public abstract StructurePoolElementType getType();
+    public abstract StructurePoolElementType<?> getType();
 
     public void handleDataMarker(
         LevelAccessor param0, StructureTemplate.StructureBlockInfo param1, BlockPos param2, Rotation param3, Random param4, BoundingBox param5
@@ -64,16 +66,6 @@ public abstract class StructurePoolElement {
         } else {
             return var0;
         }
-    }
-
-    protected abstract <T> Dynamic<T> getDynamic(DynamicOps<T> var1);
-
-    public <T> Dynamic<T> serialize(DynamicOps<T> param0) {
-        T var0 = this.getDynamic(param0).getValue();
-        T var1 = param0.mergeInto(
-            var0, param0.createString("element_type"), param0.createString(Registry.STRUCTURE_POOL_ELEMENT.getKey(this.getType()).toString())
-        );
-        return new Dynamic<>(param0, param0.mergeInto(var1, param0.createString("projection"), param0.createString(this.projection.getName())));
     }
 
     public int getGroundLevelDelta() {

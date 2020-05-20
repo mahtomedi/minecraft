@@ -1,5 +1,6 @@
 package net.minecraft.client.particle;
 
+import java.util.Random;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraftforge.api.distmarker.Dist;
@@ -53,10 +54,14 @@ public class SuspendedParticle extends TextureSheetParticle {
         public Particle createParticle(
             SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
-            SuspendedParticle var0 = new SuspendedParticle(param1, param2, param3, param4, param5, param6, param7);
-            var0.pickSprite(this.sprite);
-            var0.setColor(0.9F, 0.4F, 0.5F);
-            return var0;
+            Random var0 = param1.random;
+            double var1 = var0.nextGaussian() * 1.0E-6F;
+            double var2 = var0.nextGaussian() * 1.0E-4F;
+            double var3 = var0.nextGaussian() * 1.0E-6F;
+            SuspendedParticle var4 = new SuspendedParticle(param1, param2, param3, param4, var1, var2, var3);
+            var4.pickSprite(this.sprite);
+            var4.setColor(0.9F, 0.4F, 0.5F);
+            return var4;
         }
     }
 
@@ -88,11 +93,12 @@ public class SuspendedParticle extends TextureSheetParticle {
         public Particle createParticle(
             SimpleParticleType param0, ClientLevel param1, double param2, double param3, double param4, double param5, double param6, double param7
         ) {
-            SuspendedParticle var0 = new SuspendedParticle(param1, param2, param3, param4, param5, param6, param7);
-            var0.pickSprite(this.sprite);
-            var0.setColor(0.1F, 0.1F, 0.3F);
-            var0.setSize(0.001F, 0.001F);
-            return var0;
+            double var0 = (double)param1.random.nextFloat() * -1.9 * (double)param1.random.nextFloat() * 0.1;
+            SuspendedParticle var1 = new SuspendedParticle(param1, param2, param3, param4, 0.0, var0, 0.0);
+            var1.pickSprite(this.sprite);
+            var1.setColor(0.1F, 0.1F, 0.3F);
+            var1.setSize(0.001F, 0.001F);
+            return var1;
         }
     }
 }

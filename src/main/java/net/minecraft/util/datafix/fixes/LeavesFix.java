@@ -6,7 +6,6 @@ import com.google.common.collect.Lists;
 import com.mojang.datafixers.DSL;
 import com.mojang.datafixers.DataFix;
 import com.mojang.datafixers.DataFixUtils;
-import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.OpticFinder;
 import com.mojang.datafixers.TypeRewriteRule;
 import com.mojang.datafixers.Typed;
@@ -14,6 +13,7 @@ import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.Type;
 import com.mojang.datafixers.types.templates.List.ListType;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Dynamic;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -30,7 +30,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import net.minecraft.util.BitStorage;
+import net.minecraft.util.datafix.PackedBitStorage;
 
 public class LeavesFix extends DataFix {
     private static final int[][] DIRECTIONS = new int[][]{{-1, 0, 0}, {1, 0, 0}, {0, -1, 0}, {0, 1, 0}, {0, 0, -1}, {0, 0, 1}};
@@ -163,7 +163,7 @@ public class LeavesFix extends DataFix {
                                 var1x = var1x.update(
                                     DSL.remainderFinder(),
                                     param1x -> {
-                                        Dynamic<?> var0xx = DataFixUtils.orElse(param1x.get("UpgradeData").get(), param1x.emptyMap());
+                                        Dynamic<?> var0xx = DataFixUtils.orElse(param1x.get("UpgradeData").result(), param1x.emptyMap());
                                         return param1x.set(
                                             "UpgradeData", var0xx.set("Sides", param1x.createByte((byte)(var0xx.get("Sides").asByte((byte)0) | var0x[0])))
                                         );
@@ -292,7 +292,7 @@ public class LeavesFix extends DataFix {
 
             int var5 = this.stateToIdMap.get(var3);
             if (1 << this.storage.getBits() <= var5) {
-                BitStorage var6 = new BitStorage(this.storage.getBits() + 1, 4096);
+                PackedBitStorage var6 = new PackedBitStorage(this.storage.getBits() + 1, 4096);
 
                 for(int var7 = 0; var7 < 4096; ++var7) {
                     var6.set(var7, this.storage.get(var7));
@@ -311,7 +311,7 @@ public class LeavesFix extends DataFix {
         protected final List<Dynamic<?>> palette;
         protected final int index;
         @Nullable
-        protected BitStorage storage;
+        protected PackedBitStorage storage;
 
         public Section(Typed<?> param0, Schema param1) {
             if (!Objects.equals(param1.getType(References.BLOCK_STATE), this.blockStateType)) {
@@ -329,9 +329,9 @@ public class LeavesFix extends DataFix {
             if (this.skippable()) {
                 this.storage = null;
             } else {
-                long[] var0 = param0.get("BlockStates").asLongStreamOpt().get().toArray();
+                long[] var0 = param0.get("BlockStates").asLongStream().toArray();
                 int var1 = Math.max(4, DataFixUtils.ceillog2(this.palette.size()));
-                this.storage = new BitStorage(var1, 4096, var0);
+                this.storage = new PackedBitStorage(var1, 4096, var0);
             }
 
         }

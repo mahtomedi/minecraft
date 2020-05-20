@@ -3,6 +3,7 @@ package net.minecraft.server;
 import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
+import com.mojang.datafixers.DataFixer;
 import java.awt.GraphicsEnvironment;
 import java.io.File;
 import java.net.Proxy;
@@ -10,17 +11,21 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.BooleanSupplier;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import net.minecraft.CrashReport;
 import net.minecraft.DefaultUncaughtExceptionHandler;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.dedicated.DedicatedServerProperties;
 import net.minecraft.server.dedicated.DedicatedServerSettings;
 import net.minecraft.server.level.progress.LoggerChunkProgressListener;
 import net.minecraft.server.players.GameProfileCache;
+import net.minecraft.util.Mth;
 import net.minecraft.util.datafix.DataFixers;
+import net.minecraft.util.worldupdate.WorldUpgrader;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.storage.LevelStorageSource;
@@ -64,7 +69,7 @@ public class Main {
             Path var17 = Paths.get("eula.txt");
             Eula var18 = new Eula(var17);
             if (var14.has(var2)) {
-                LOGGER.info("Initialized '" + var15.toAbsolutePath().toString() + "' and '" + var17.toAbsolutePath().toString() + "'");
+                LOGGER.info("Initialized '{}' and '{}'", var15.toAbsolutePath(), var17.toAbsolutePath());
                 return;
             }
 
@@ -81,7 +86,11 @@ public class Main {
             String var24 = Optional.ofNullable(var14.valueOf(var10)).orElse(var16.getProperties().levelName);
             LevelStorageSource var25 = LevelStorageSource.createDefault(var19.toPath());
             LevelStorageSource.LevelStorageAccess var26 = var25.createAccess(var24);
-            MinecraftServer.ensureLevelConversion(var26, DataFixers.getDataFixer(), var14.has(var5), var14.has(var6), () -> true);
+            MinecraftServer.convertFromRegionFormatIfNeeded(var26);
+            if (var14.has(var5)) {
+                forceUpgrade(var26, DataFixers.getDataFixer(), var14.has(var6), () -> true);
+            }
+
             WorldData var27 = var26.getDataTag();
             if (var27 == null) {
                 LevelSettings var28;
@@ -96,7 +105,7 @@ public class Main {
                         var29.difficulty,
                         false,
                         new GameRules(),
-                        var14.has(var4) ? var29.worldGenSettings : var29.worldGenSettings.withBonusChest()
+                        var14.has(var4) ? var29.worldGenSettings.withBonusChest() : var29.worldGenSettings
                     );
                 }
 
@@ -126,6 +135,39 @@ public class Main {
             Runtime.getRuntime().addShutdownHook(var33);
         } catch (Exception var321) {
             LOGGER.fatal("Failed to start the minecraft server", (Throwable)var321);
+        }
+
+    }
+
+    private static void forceUpgrade(LevelStorageSource.LevelStorageAccess param0, DataFixer param1, boolean param2, BooleanSupplier param3) {
+        LOGGER.info("Forcing world upgrade!");
+        WorldData var0 = param0.getDataTag();
+        if (var0 != null) {
+            WorldUpgrader var1 = new WorldUpgrader(param0, param1, var0, param2);
+            Component var2 = null;
+
+            while(!var1.isFinished()) {
+                Component var3 = var1.getStatus();
+                if (var2 != var3) {
+                    var2 = var3;
+                    LOGGER.info(var1.getStatus().getString());
+                }
+
+                int var4 = var1.getTotalChunks();
+                if (var4 > 0) {
+                    int var5 = var1.getConverted() + var1.getSkipped();
+                    LOGGER.info("{}% completed ({} / {} chunks)...", Mth.floor((float)var5 / (float)var4 * 100.0F), var5, var4);
+                }
+
+                if (!param3.getAsBoolean()) {
+                    var1.cancel();
+                } else {
+                    try {
+                        Thread.sleep(1000L);
+                    } catch (InterruptedException var10) {
+                    }
+                }
+            }
         }
 
     }

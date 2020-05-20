@@ -1,22 +1,21 @@
 package net.minecraft.world.level.levelgen.structure.templatesystem;
 
-import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Codec;
 import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelReader;
 
 public class BlockRotProcessor extends StructureProcessor {
+    public static final Codec<BlockRotProcessor> CODEC = Codec.FLOAT
+        .fieldOf("integrity")
+        .withDefault(1.0F)
+        .xmap(BlockRotProcessor::new, param0 -> param0.integrity)
+        .codec();
     private final float integrity;
 
     public BlockRotProcessor(float param0) {
         this.integrity = param0;
-    }
-
-    public BlockRotProcessor(Dynamic<?> param0) {
-        this(param0.get("integrity").asFloat(1.0F));
     }
 
     @Nullable
@@ -34,12 +33,7 @@ public class BlockRotProcessor extends StructureProcessor {
     }
 
     @Override
-    protected StructureProcessorType getType() {
+    protected StructureProcessorType<?> getType() {
         return StructureProcessorType.BLOCK_ROT;
-    }
-
-    @Override
-    protected <T> Dynamic<T> getDynamic(DynamicOps<T> param0) {
-        return new Dynamic<>(param0, param0.createMap(ImmutableMap.of(param0.createString("integrity"), param0.createFloat(this.integrity))));
     }
 }

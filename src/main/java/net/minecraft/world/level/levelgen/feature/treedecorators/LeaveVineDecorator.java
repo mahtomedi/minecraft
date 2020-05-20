@@ -1,13 +1,10 @@
 package net.minecraft.world.level.levelgen.feature.treedecorators;
 
-import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Codec;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelSimulatedRW;
 import net.minecraft.world.level.block.VineBlock;
@@ -16,12 +13,12 @@ import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public class LeaveVineDecorator extends TreeDecorator {
-    public LeaveVineDecorator() {
-        super(TreeDecoratorType.LEAVE_VINE);
-    }
+    public static final Codec<LeaveVineDecorator> CODEC = Codec.unit(() -> LeaveVineDecorator.INSTANCE);
+    public static final LeaveVineDecorator INSTANCE = new LeaveVineDecorator();
 
-    public <T> LeaveVineDecorator(Dynamic<T> param0) {
-        this();
+    @Override
+    protected TreeDecoratorType<?> type() {
+        return TreeDecoratorType.LEAVE_VINE;
     }
 
     @Override
@@ -67,14 +64,5 @@ public class LeaveVineDecorator extends TreeDecorator {
             var7 = var7.below();
         }
 
-    }
-
-    @Override
-    public <T> T serialize(DynamicOps<T> param0) {
-        return new Dynamic<>(
-                param0,
-                param0.createMap(ImmutableMap.of(param0.createString("type"), param0.createString(Registry.TREE_DECORATOR_TYPES.getKey(this.type).toString())))
-            )
-            .getValue();
     }
 }

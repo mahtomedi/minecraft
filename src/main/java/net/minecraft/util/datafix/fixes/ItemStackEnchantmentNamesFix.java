@@ -3,11 +3,11 @@ package net.minecraft.util.datafix.fixes;
 import com.mojang.datafixers.DSL;
 import com.mojang.datafixers.DataFix;
 import com.mojang.datafixers.DataFixUtils;
-import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.OpticFinder;
 import com.mojang.datafixers.TypeRewriteRule;
 import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.Type;
+import com.mojang.serialization.Dynamic;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import java.util.Optional;
@@ -64,10 +64,11 @@ public class ItemStackEnchantmentNamesFix extends DataFix {
     }
 
     private Dynamic<?> fixTag(Dynamic<?> param0) {
-        Optional<Dynamic<?>> var0 = param0.get("ench")
+        Optional<? extends Dynamic<?>> var0 = param0.get("ench")
             .asStreamOpt()
             .map(param0x -> param0x.map(param0xx -> param0xx.set("id", param0xx.createString(MAP.getOrDefault(param0xx.get("id").asInt(0), "null")))))
-            .map(param0::createList);
+            .map(param0::createList)
+            .result();
         if (var0.isPresent()) {
             param0 = param0.remove("ench").set("Enchantments", var0.get());
         }
@@ -81,7 +82,8 @@ public class ItemStackEnchantmentNamesFix extends DataFix {
                                     param0xxx -> param0xxx.set("id", param0xxx.createString(MAP.getOrDefault(param0xxx.get("id").asInt(0), "null")))
                                 )
                         )
-                        .map(param0x::createList),
+                        .map(param0x::createList)
+                        .result(),
                     param0x
                 )
         );

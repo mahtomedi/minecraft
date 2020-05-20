@@ -85,6 +85,7 @@ public class FishingLoot implements Consumer<BiConsumer<ResourceLocation, LootTa
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
+                        .add(LootItem.lootTableItem(Blocks.LILY_PAD).setWeight(17))
                         .add(
                             LootItem.lootTableItem(Items.LEATHER_BOOTS)
                                 .setWeight(10)
@@ -127,7 +128,6 @@ public class FishingLoot implements Consumer<BiConsumer<ResourceLocation, LootTa
             LootTable.lootTable()
                 .withPool(
                     LootPool.lootPool()
-                        .add(LootItem.lootTableItem(Blocks.LILY_PAD))
                         .add(LootItem.lootTableItem(Items.NAME_TAG))
                         .add(LootItem.lootTableItem(Items.SADDLE))
                         .add(

@@ -3,13 +3,13 @@ package net.minecraft.util.datafix.schemas;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.DSL;
 import com.mojang.datafixers.DataFixUtils;
-import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.DSL.TypeReference;
 import com.mojang.datafixers.schemas.Schema;
-import com.mojang.datafixers.types.DynamicOps;
 import com.mojang.datafixers.types.Type;
 import com.mojang.datafixers.types.templates.TypeTemplate;
 import com.mojang.datafixers.types.templates.Hook.HookFunction;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.DynamicOps;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -145,7 +145,7 @@ public class V704 extends Schema {
     @Override
     public void registerTypes(Schema param0, Map<String, Supplier<TypeTemplate>> param1, Map<String, Supplier<TypeTemplate>> param2) {
         super.registerTypes(param0, param1, param2);
-        param0.registerType(false, References.BLOCK_ENTITY, () -> DSL.taggedChoiceLazy("id", DSL.namespacedString(), param2));
+        param0.registerType(false, References.BLOCK_ENTITY, () -> DSL.taggedChoiceLazy("id", NamespacedSchema.namespacedString(), param2));
         param0.registerType(
             true,
             References.ITEM_STACK,

@@ -5,12 +5,14 @@ import com.mojang.datafixers.DataFixer;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenCustomHashMap;
+import java.util.Map.Entry;
 import net.minecraft.Util;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
 import net.minecraft.util.worldupdate.WorldUpgrader;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -21,12 +23,14 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class OptimizeWorldScreen extends Screen {
-    private static final Object2IntMap<DimensionType> DIMENSION_COLORS = Util.make(new Object2IntOpenCustomHashMap<>(Util.identityStrategy()), param0 -> {
-        param0.put(DimensionType.OVERWORLD, -13408734);
-        param0.put(DimensionType.NETHER, -10075085);
-        param0.put(DimensionType.THE_END, -8943531);
-        param0.defaultReturnValue(-2236963);
-    });
+    private static final Object2IntMap<ResourceKey<DimensionType>> DIMENSION_COLORS = Util.make(
+        new Object2IntOpenCustomHashMap<>(Util.identityStrategy()), param0 -> {
+            param0.put(DimensionType.OVERWORLD_LOCATION, -13408734);
+            param0.put(DimensionType.NETHER_LOCATION, -10075085);
+            param0.put(DimensionType.END_LOCATION, -8943531);
+            param0.defaultReturnValue(-2236963);
+        }
+    );
     private final BooleanConsumer callback;
     private final WorldUpgrader upgrader;
 
@@ -84,9 +88,9 @@ public class OptimizeWorldScreen extends Screen {
             this.drawString(param0, this.font, I18n.get("optimizeWorld.info.total", this.upgrader.getTotalChunks()), var0, 40 + (9 + 3) * 2, 10526880);
             int var4 = 0;
 
-            for(DimensionType var5 : DimensionType.getAllTypes()) {
-                int var6 = Mth.floor(this.upgrader.dimensionProgress(var5) * (float)(var1 - var0));
-                fill(param0, var0 + var4, var2, var0 + var4 + var6, var3, DIMENSION_COLORS.getInt(var5));
+            for(Entry<ResourceKey<DimensionType>, DimensionType> var5 : this.upgrader.dimensionTypes().entrySet()) {
+                int var6 = Mth.floor(this.upgrader.dimensionProgress(var5.getValue()) * (float)(var1 - var0));
+                fill(param0, var0 + var4, var2, var0 + var4 + var6, var3, DIMENSION_COLORS.getInt(var5.getKey()));
                 var4 += var6;
             }
 

@@ -2,6 +2,7 @@ package net.minecraft.world.level.saveddata.maps;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.mojang.serialization.Dynamic;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -9,9 +10,12 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundMapItemDataPacket;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.player.Player;
@@ -21,11 +25,14 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.saveddata.SavedData;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class MapItemSavedData extends SavedData {
+    private static final Logger LOGGER = LogManager.getLogger();
     public int x;
     public int z;
-    public DimensionType dimension;
+    public ResourceKey<DimensionType> dimension;
     public boolean trackingPosition;
     public boolean unlimitedTracking;
     public byte scale;
@@ -41,7 +48,7 @@ public class MapItemSavedData extends SavedData {
         super(param0);
     }
 
-    public void setProperties(int param0, int param1, int param2, boolean param3, boolean param4, DimensionType param5) {
+    public void setProperties(int param0, int param1, int param2, boolean param3, boolean param4, ResourceKey<DimensionType> param5) {
         this.scale = (byte)param2;
         this.setOrigin((double)param0, (double)param1, this.scale);
         this.dimension = param5;
@@ -60,53 +67,52 @@ public class MapItemSavedData extends SavedData {
 
     @Override
     public void load(CompoundTag param0) {
-        int var0 = param0.getInt("dimension");
-        DimensionType var1 = DimensionType.getById(var0);
-        if (var1 == null) {
-            throw new IllegalArgumentException("Invalid map dimension: " + var0);
-        } else {
-            this.dimension = var1;
-            this.x = param0.getInt("xCenter");
-            this.z = param0.getInt("zCenter");
-            this.scale = (byte)Mth.clamp(param0.getByte("scale"), 0, 4);
-            this.trackingPosition = !param0.contains("trackingPosition", 1) || param0.getBoolean("trackingPosition");
-            this.unlimitedTracking = param0.getBoolean("unlimitedTracking");
-            this.locked = param0.getBoolean("locked");
-            this.colors = param0.getByteArray("colors");
-            if (this.colors.length != 16384) {
-                this.colors = new byte[16384];
-            }
-
-            ListTag var2 = param0.getList("banners", 10);
-
-            for(int var3 = 0; var3 < var2.size(); ++var3) {
-                MapBanner var4 = MapBanner.load(var2.getCompound(var3));
-                this.bannerMarkers.put(var4.getId(), var4);
-                this.addDecoration(var4.getDecoration(), null, var4.getId(), (double)var4.getPos().getX(), (double)var4.getPos().getZ(), 180.0, var4.getName());
-            }
-
-            ListTag var5 = param0.getList("frames", 10);
-
-            for(int var6 = 0; var6 < var5.size(); ++var6) {
-                MapFrame var7 = MapFrame.load(var5.getCompound(var6));
-                this.frameMarkers.put(var7.getId(), var7);
-                this.addDecoration(
-                    MapDecoration.Type.FRAME,
-                    null,
-                    "frame-" + var7.getEntityId(),
-                    (double)var7.getPos().getX(),
-                    (double)var7.getPos().getZ(),
-                    (double)var7.getRotation(),
-                    null
-                );
-            }
-
+        this.dimension = DimensionType.parseLegacy(new Dynamic<>(NbtOps.INSTANCE, param0.get("dimension")))
+            .resultOrPartial(LOGGER::error)
+            .orElseThrow(() -> new IllegalArgumentException("Invalid map dimension: " + param0.get("dimension")));
+        this.x = param0.getInt("xCenter");
+        this.z = param0.getInt("zCenter");
+        this.scale = (byte)Mth.clamp(param0.getByte("scale"), 0, 4);
+        this.trackingPosition = !param0.contains("trackingPosition", 1) || param0.getBoolean("trackingPosition");
+        this.unlimitedTracking = param0.getBoolean("unlimitedTracking");
+        this.locked = param0.getBoolean("locked");
+        this.colors = param0.getByteArray("colors");
+        if (this.colors.length != 16384) {
+            this.colors = new byte[16384];
         }
+
+        ListTag var0 = param0.getList("banners", 10);
+
+        for(int var1 = 0; var1 < var0.size(); ++var1) {
+            MapBanner var2 = MapBanner.load(var0.getCompound(var1));
+            this.bannerMarkers.put(var2.getId(), var2);
+            this.addDecoration(var2.getDecoration(), null, var2.getId(), (double)var2.getPos().getX(), (double)var2.getPos().getZ(), 180.0, var2.getName());
+        }
+
+        ListTag var3 = param0.getList("frames", 10);
+
+        for(int var4 = 0; var4 < var3.size(); ++var4) {
+            MapFrame var5 = MapFrame.load(var3.getCompound(var4));
+            this.frameMarkers.put(var5.getId(), var5);
+            this.addDecoration(
+                MapDecoration.Type.FRAME,
+                null,
+                "frame-" + var5.getEntityId(),
+                (double)var5.getPos().getX(),
+                (double)var5.getPos().getZ(),
+                (double)var5.getRotation(),
+                null
+            );
+        }
+
     }
 
     @Override
     public CompoundTag save(CompoundTag param0) {
-        param0.putInt("dimension", this.dimension.getId());
+        ResourceLocation.CODEC
+            .encodeStart(NbtOps.INSTANCE, this.dimension.location())
+            .resultOrPartial(LOGGER::error)
+            .ifPresent(param1 -> param0.put("dimension", param1));
         param0.putInt("xCenter", this.x);
         param0.putInt("zCenter", this.z);
         param0.putByte("scale", this.scale);
@@ -156,7 +162,7 @@ public class MapItemSavedData extends SavedData {
             MapItemSavedData.HoldingPlayer var2 = this.carriedBy.get(var1);
             String var3 = var2.player.getName().getString();
             if (!var2.player.removed && (var2.player.inventory.contains(param1) || param1.isFramed())) {
-                if (!param1.isFramed() && var2.player.dimension == this.dimension && this.trackingPosition) {
+                if (!param1.isFramed() && var2.player.level.dimension() == this.dimension && this.trackingPosition) {
                     this.addDecoration(
                         MapDecoration.Type.PLAYER, var2.player.level, var3, var2.player.getX(), var2.player.getZ(), (double)var2.player.yRot, null
                     );
@@ -247,7 +253,7 @@ public class MapItemSavedData extends SavedData {
         if (var1 >= -63.0F && var2 >= -63.0F && var1 <= 63.0F && var2 <= 63.0F) {
             param5 += param5 < 0.0 ? -8.0 : 8.0;
             var6 = (byte)((int)(param5 * 16.0 / 360.0));
-            if (this.dimension == DimensionType.NETHER && param1 != null) {
+            if (this.dimension == DimensionType.NETHER_LOCATION && param1 != null) {
                 int var7 = (int)(param1.getLevelData().getDayTime() / 10L);
                 var6 = (byte)(var7 * var7 * 34187121 + var7 * 121 >> 15 & 15);
             }

@@ -1,15 +1,13 @@
 package net.minecraft.world.level.levelgen.structure;
 
 import com.google.common.collect.Lists;
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Dynamic;
 import java.util.List;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.util.Deserializer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
@@ -20,8 +18,11 @@ import net.minecraft.world.level.levelgen.feature.structures.EmptyPoolElement;
 import net.minecraft.world.level.levelgen.feature.structures.JigsawJunction;
 import net.minecraft.world.level.levelgen.feature.structures.StructurePoolElement;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public abstract class PoolElementStructurePiece extends StructurePiece {
+    private static final Logger LOGGER = LogManager.getLogger();
     protected final StructurePoolElement element;
     protected BlockPos position;
     private final int groundLevelDelta;
@@ -46,9 +47,10 @@ public abstract class PoolElementStructurePiece extends StructurePiece {
         this.structureManager = param0;
         this.position = new BlockPos(param1.getInt("PosX"), param1.getInt("PosY"), param1.getInt("PosZ"));
         this.groundLevelDelta = param1.getInt("ground_level_delta");
-        this.element = Deserializer.deserialize(
-            new Dynamic<>(NbtOps.INSTANCE, param1.getCompound("pool_element")), Registry.STRUCTURE_POOL_ELEMENT, "element_type", EmptyPoolElement.INSTANCE
-        );
+        this.element = StructurePoolElement.CODEC
+            .parse(NbtOps.INSTANCE, param1.getCompound("pool_element"))
+            .resultOrPartial(LOGGER::error)
+            .orElse(EmptyPoolElement.INSTANCE);
         this.rotation = Rotation.valueOf(param1.getString("rotation"));
         this.boundingBox = this.element.getBoundingBox(param0, this.position, this.rotation);
         ListTag var0 = param1.getList("junctions", 10);
@@ -62,7 +64,10 @@ public abstract class PoolElementStructurePiece extends StructurePiece {
         param0.putInt("PosY", this.position.getY());
         param0.putInt("PosZ", this.position.getZ());
         param0.putInt("ground_level_delta", this.groundLevelDelta);
-        param0.put("pool_element", this.element.serialize(NbtOps.INSTANCE).getValue());
+        StructurePoolElement.CODEC
+            .encodeStart(NbtOps.INSTANCE, this.element)
+            .resultOrPartial(LOGGER::error)
+            .ifPresent(param1 -> param0.put("pool_element", param1));
         param0.putString("rotation", this.rotation.name());
         ListTag var0 = new ListTag();
 

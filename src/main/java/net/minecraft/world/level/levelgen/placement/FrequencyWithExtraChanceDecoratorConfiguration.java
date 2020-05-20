@@ -1,11 +1,18 @@
 package net.minecraft.world.level.levelgen.placement;
 
-import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.world.level.levelgen.feature.configurations.DecoratorConfiguration;
 
 public class FrequencyWithExtraChanceDecoratorConfiguration implements DecoratorConfiguration {
+    public static final Codec<FrequencyWithExtraChanceDecoratorConfiguration> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    Codec.INT.fieldOf("count").forGetter(param0x -> param0x.count),
+                    Codec.FLOAT.fieldOf("extra_chance").forGetter(param0x -> param0x.extraChance),
+                    Codec.INT.fieldOf("extra_count").forGetter(param0x -> param0x.extraCount)
+                )
+                .apply(param0, FrequencyWithExtraChanceDecoratorConfiguration::new)
+    );
     public final int count;
     public final float extraChance;
     public final int extraCount;
@@ -14,29 +21,5 @@ public class FrequencyWithExtraChanceDecoratorConfiguration implements Decorator
         this.count = param0;
         this.extraChance = param1;
         this.extraCount = param2;
-    }
-
-    @Override
-    public <T> Dynamic<T> serialize(DynamicOps<T> param0) {
-        return new Dynamic<>(
-            param0,
-            param0.createMap(
-                ImmutableMap.of(
-                    param0.createString("count"),
-                    param0.createInt(this.count),
-                    param0.createString("extra_chance"),
-                    param0.createFloat(this.extraChance),
-                    param0.createString("extra_count"),
-                    param0.createInt(this.extraCount)
-                )
-            )
-        );
-    }
-
-    public static FrequencyWithExtraChanceDecoratorConfiguration deserialize(Dynamic<?> param0) {
-        int var0 = param0.get("count").asInt(0);
-        float var1 = param0.get("extra_chance").asFloat(0.0F);
-        int var2 = param0.get("extra_count").asInt(0);
-        return new FrequencyWithExtraChanceDecoratorConfiguration(var0, var1, var2);
     }
 }

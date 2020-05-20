@@ -1,15 +1,14 @@
 package net.minecraft.world.level.levelgen.placement;
 
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Codec;
 import java.util.Random;
-import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneDecoratorConfiguration;
 
 public class EmeraldPlacementDecorator extends SimpleFeatureDecorator<NoneDecoratorConfiguration> {
-    public EmeraldPlacementDecorator(Function<Dynamic<?>, ? extends NoneDecoratorConfiguration> param0) {
+    public EmeraldPlacementDecorator(Codec<NoneDecoratorConfiguration> param0) {
         super(param0);
     }
 

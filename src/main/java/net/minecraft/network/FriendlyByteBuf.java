@@ -1,5 +1,7 @@
 package net.minecraft.network;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.ByteBufInputStream;
@@ -26,6 +28,8 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -50,6 +54,25 @@ public class FriendlyByteBuf extends ByteBuf {
         }
 
         return 5;
+    }
+
+    public <T> T readWithCodec(Codec<T> param0) throws IOException {
+        CompoundTag var0 = this.readNbt();
+        DataResult<T> var1 = param0.parse(NbtOps.INSTANCE, var0);
+        if (var1.error().isPresent()) {
+            throw new IOException("Failed to decode: " + var1.error().get().message() + " " + var0);
+        } else {
+            return var1.result().get();
+        }
+    }
+
+    public <T> void writeWithCodec(Codec<T> param0, T param1) throws IOException {
+        DataResult<Tag> var0 = param0.encodeStart(NbtOps.INSTANCE, param1);
+        if (var0.error().isPresent()) {
+            throw new IOException("Failed to encode: " + var0.error().get().message() + " " + param1);
+        } else {
+            this.writeNbt((CompoundTag)var0.result().get());
+        }
     }
 
     public FriendlyByteBuf writeByteArray(byte[] param0) {

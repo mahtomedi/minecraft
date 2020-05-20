@@ -3,8 +3,9 @@ package net.minecraft.world.entity.ai.gossip;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.DynamicOps;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
@@ -15,7 +16,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
@@ -80,7 +80,7 @@ public class GossipContainer {
         var0.forEach(param0x -> {
             int var0x = param0x.value - param0x.type.decayPerTransfer;
             if (var0x >= 2) {
-                this.getOrCreate(param0x.target).entries.mergeInt(param0x.type, var0x, GossipContainer::mergeValuesForTransfer);
+                this.getOrCreate(param0x.target.value()).entries.mergeInt(param0x.type, var0x, GossipContainer::mergeValuesForTransfer);
             }
 
         });
@@ -108,8 +108,8 @@ public class GossipContainer {
     public void update(Dynamic<?> param0) {
         param0.asStream()
             .map(GossipContainer.GossipEntry::load)
-            .flatMap(Util::toStream)
-            .forEach(param0x -> this.getOrCreate(param0x.target).entries.put(param0x.type, param0x.value));
+            .flatMap(param0x -> Util.toStream(param0x.result()))
+            .forEach(param0x -> this.getOrCreate(param0x.target.value()).entries.put(param0x.type, param0x.value));
     }
 
     private static int mergeValuesForTransfer(int param0, int param1) {
@@ -177,11 +177,15 @@ public class GossipContainer {
     }
 
     static class GossipEntry {
-        public final UUID target;
+        public final SerializableUUID target;
         public final GossipType type;
         public final int value;
 
         public GossipEntry(UUID param0, GossipType param1, int param2) {
+            this(new SerializableUUID(param0), param1, param2);
+        }
+
+        public GossipEntry(SerializableUUID param0, GossipType param1, int param2) {
             this.target = param0;
             this.type = param1;
             this.value = param2;
@@ -202,7 +206,7 @@ public class GossipContainer {
                 param0.createMap(
                     ImmutableMap.of(
                         param0.createString("Target"),
-                        SerializableUUID.serialize(param0, this.target),
+                        SerializableUUID.CODEC.encodeStart(param0, this.target).result().orElseThrow(RuntimeException::new),
                         param0.createString("Type"),
                         param0.createString(this.type.id),
                         param0.createString("Value"),
@@ -212,17 +216,16 @@ public class GossipContainer {
             );
         }
 
-        public static Optional<GossipContainer.GossipEntry> load(Dynamic<?> param0) {
-            return param0.get("Type")
-                .asString()
-                .map(GossipType::byId)
-                .flatMap(
-                    param1 -> param0.get("Target")
-                            .map(SerializableUUID::readUUID)
-                            .flatMap(
-                                param2 -> param0.get("Value").asNumber().map(param2x -> new GossipContainer.GossipEntry(param2, param1, param2x.intValue()))
-                            )
-                );
+        public static DataResult<GossipContainer.GossipEntry> load(Dynamic<?> param0) {
+            return DataResult.unbox(
+                DataResult.instance()
+                    .group(
+                        param0.get("Target").read(SerializableUUID.CODEC),
+                        param0.get("Type").asString().map(GossipType::byId),
+                        param0.get("Value").asNumber().map(Number::intValue)
+                    )
+                    .apply(DataResult.instance(), GossipContainer.GossipEntry::new)
+            );
         }
     }
 }

@@ -1,12 +1,10 @@
-package net.minecraft.util.datafix;
+package net.minecraft.util.datafix.fixes;
 
 import com.mojang.datafixers.DSL;
-import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.Typed;
 import com.mojang.datafixers.schemas.Schema;
+import com.mojang.serialization.Dynamic;
 import java.util.Optional;
-import net.minecraft.util.datafix.fixes.NamedEntityFix;
-import net.minecraft.util.datafix.fixes.References;
 
 public class OminousBannerBlockEntityRenameFix extends NamedEntityFix {
     public OminousBannerBlockEntityRenameFix(Schema param0, boolean param1) {
@@ -19,7 +17,7 @@ public class OminousBannerBlockEntityRenameFix extends NamedEntityFix {
     }
 
     private Dynamic<?> fixTag(Dynamic<?> param0x) {
-        Optional<String> var0 = param0x.get("CustomName").asString();
+        Optional<String> var0 = param0x.get("CustomName").asString().result();
         if (var0.isPresent()) {
             String var1 = var0.get();
             var1 = var1.replace("\"translate\":\"block.minecraft.illager_banner\"", "\"translate\":\"block.minecraft.ominous_banner\"");

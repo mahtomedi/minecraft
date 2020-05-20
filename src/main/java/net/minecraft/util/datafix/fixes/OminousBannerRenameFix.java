@@ -1,17 +1,17 @@
-package net.minecraft.util.datafix;
+package net.minecraft.util.datafix.fixes;
 
 import com.mojang.datafixers.DSL;
 import com.mojang.datafixers.DataFix;
-import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.OpticFinder;
 import com.mojang.datafixers.TypeRewriteRule;
 import com.mojang.datafixers.Typed;
 import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.Type;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Dynamic;
 import java.util.Objects;
 import java.util.Optional;
-import net.minecraft.util.datafix.fixes.References;
+import net.minecraft.util.datafix.schemas.NamespacedSchema;
 
 public class OminousBannerRenameFix extends DataFix {
     public OminousBannerRenameFix(Schema param0, boolean param1) {
@@ -19,10 +19,10 @@ public class OminousBannerRenameFix extends DataFix {
     }
 
     private Dynamic<?> fixTag(Dynamic<?> param0) {
-        Optional<? extends Dynamic<?>> var0 = param0.get("display").get();
+        Optional<? extends Dynamic<?>> var0 = param0.get("display").result();
         if (var0.isPresent()) {
             Dynamic<?> var1 = var0.get();
-            Optional<String> var2 = var1.get("Name").asString();
+            Optional<String> var2 = var1.get("Name").asString().result();
             if (var2.isPresent()) {
                 String var3 = var2.get();
                 var3 = var3.replace("\"translate\":\"block.minecraft.illager_banner\"", "\"translate\":\"block.minecraft.ominous_banner\"");
@@ -38,7 +38,7 @@ public class OminousBannerRenameFix extends DataFix {
     @Override
     public TypeRewriteRule makeRule() {
         Type<?> var0 = this.getInputSchema().getType(References.ITEM_STACK);
-        OpticFinder<Pair<String, String>> var1 = DSL.fieldFinder("id", DSL.named(References.ITEM_NAME.typeName(), DSL.namespacedString()));
+        OpticFinder<Pair<String, String>> var1 = DSL.fieldFinder("id", DSL.named(References.ITEM_NAME.typeName(), NamespacedSchema.namespacedString()));
         OpticFinder<?> var2 = var0.findField("tag");
         return this.fixTypeEverywhereTyped("OminousBannerRenameFix", var0, param2 -> {
             Optional<Pair<String, String>> var0x = param2.getOptional(var1);

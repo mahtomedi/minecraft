@@ -1,8 +1,7 @@
 package net.minecraft.world.level.levelgen.feature;
 
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Codec;
 import java.util.Random;
-import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.StructureFeatureManager;
@@ -14,7 +13,7 @@ import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConf
 import net.minecraft.world.level.material.Material;
 
 public class BlueIceFeature extends Feature<NoneFeatureConfiguration> {
-    public BlueIceFeature(Function<Dynamic<?>, ? extends NoneFeatureConfiguration> param0) {
+    public BlueIceFeature(Codec<NoneFeatureConfiguration> param0) {
         super(param0);
     }
 

@@ -1,7 +1,9 @@
 package net.minecraft.world.level;
 
+import com.mojang.datafixers.DataFixUtils;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.chunk.ChunkStatus;
@@ -19,7 +21,7 @@ public class StructureFeatureManager {
         this.worldGenSettings = param1;
     }
 
-    public Stream<StructureStart> startsForFeature(SectionPos param0, StructureFeature<?> param1) {
+    public Stream<? extends StructureStart<?>> startsForFeature(SectionPos param0, StructureFeature<?> param1) {
         return this.level
             .getChunk(param0.x(), param0.z(), ChunkStatus.STRUCTURE_REFERENCES)
             .getReferencesForFeature(param1.getFeatureName())
@@ -30,11 +32,11 @@ public class StructureFeatureManager {
     }
 
     @Nullable
-    public StructureStart getStartForFeature(SectionPos param0, StructureFeature<?> param1, FeatureAccess param2) {
+    public StructureStart<?> getStartForFeature(SectionPos param0, StructureFeature<?> param1, FeatureAccess param2) {
         return param2.getStartForFeature(param1.getFeatureName());
     }
 
-    public void setStartForFeature(SectionPos param0, StructureFeature<?> param1, StructureStart param2, FeatureAccess param3) {
+    public void setStartForFeature(SectionPos param0, StructureFeature<?> param1, StructureStart<?> param2, FeatureAccess param3) {
         param3.setStartForFeature(param1.getFeatureName(), param2);
     }
 
@@ -44,5 +46,15 @@ public class StructureFeatureManager {
 
     public boolean shouldGenerateFeatures() {
         return this.worldGenSettings.generateFeatures();
+    }
+
+    public StructureStart<?> getStructureAt(BlockPos param0, boolean param1, StructureFeature<?> param2) {
+        return DataFixUtils.orElse(
+            this.startsForFeature(SectionPos.of(param0), param2)
+                .filter(param1x -> param1x.getBoundingBox().isInside(param0))
+                .filter(param2x -> !param1 || param2x.getPieces().stream().anyMatch(param1x -> param1x.getBoundingBox().isInside(param0)))
+                .findFirst(),
+            StructureStart.INVALID_START
+        );
     }
 }

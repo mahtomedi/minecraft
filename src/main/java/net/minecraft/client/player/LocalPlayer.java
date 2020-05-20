@@ -3,6 +3,7 @@ package net.minecraft.client.player;
 import com.google.common.collect.Lists;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.client.ClientRecipeBook;
 import net.minecraft.client.Minecraft;
@@ -68,7 +69,6 @@ import net.minecraft.world.level.block.entity.JigsawBlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.entity.StructureBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
@@ -123,7 +123,6 @@ public class LocalPlayer extends AbstractClientPlayer {
         this.stats = param3;
         this.recipeBook = param4;
         this.minecraft = param0;
-        this.dimension = DimensionType.OVERWORLD;
         this.ambientSoundHandlers.add(new UnderwaterAmbientSoundHandler(this, param0.getSoundManager()));
         this.ambientSoundHandlers.add(new BubbleColumnAmbientSoundHandler(this));
         this.ambientSoundHandlers.add(new BiomeAmbientSoundsHandler(this, param0.getSoundManager(), param1.getBiomeManager()));
@@ -487,7 +486,7 @@ public class LocalPlayer extends AbstractClientPlayer {
     }
 
     @Override
-    public void sendMessage(Component param0) {
+    public void sendMessage(Component param0, UUID param1) {
         this.minecraft.gui.getChat().addMessage(param0);
     }
 

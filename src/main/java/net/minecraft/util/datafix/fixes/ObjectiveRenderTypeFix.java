@@ -2,11 +2,11 @@ package net.minecraft.util.datafix.fixes;
 
 import com.mojang.datafixers.DSL;
 import com.mojang.datafixers.DataFix;
-import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.TypeRewriteRule;
 import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.Type;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Dynamic;
 import java.util.Objects;
 import java.util.Optional;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
@@ -27,7 +27,7 @@ public class ObjectiveRenderTypeFix extends DataFix {
             throw new IllegalStateException("Objective type is not what was expected.");
         } else {
             return this.fixTypeEverywhere("ObjectiveRenderTypeFix", var0, param0 -> param0x -> param0x.mapSecond(param0xx -> {
-                        Optional<String> var0x = param0xx.get("RenderType").asString();
+                        Optional<String> var0x = param0xx.get("RenderType").asString().result();
                         if (!var0x.isPresent()) {
                             String var1x = param0xx.get("CriteriaName").asString("");
                             ObjectiveCriteria.RenderType var2 = getRenderType(var1x);

@@ -1,19 +1,28 @@
 package net.minecraft.world.entity.ai.village.poi;
 
-import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Objects;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Serializable;
 
-public class PoiRecord implements Serializable {
+public class PoiRecord {
     private final BlockPos pos;
     private final PoiType poiType;
     private int freeTickets;
     private final Runnable setDirty;
+
+    public static Codec<PoiRecord> codec(Runnable param0) {
+        return RecordCodecBuilder.create(
+            param1 -> param1.group(
+                        BlockPos.CODEC.fieldOf("pos").forGetter(param0x -> param0x.pos),
+                        Registry.POINT_OF_INTEREST_TYPE.fieldOf("type").forGetter(param0x -> param0x.poiType),
+                        Codec.INT.fieldOf("free_tickets").withDefault(0).forGetter(param0x -> param0x.freeTickets),
+                        RecordCodecBuilder.point(param0)
+                    )
+                    .apply(param1, PoiRecord::new)
+        );
+    }
 
     private PoiRecord(BlockPos param0, PoiType param1, int param2, Runnable param3) {
         this.pos = param0.immutable();
@@ -24,29 +33,6 @@ public class PoiRecord implements Serializable {
 
     public PoiRecord(BlockPos param0, PoiType param1, Runnable param2) {
         this(param0, param1, param1.getMaxTickets(), param2);
-    }
-
-    public <T> PoiRecord(Dynamic<T> param0, Runnable param1) {
-        this(
-            param0.get("pos").map(BlockPos::deserialize).orElse(new BlockPos(0, 0, 0)),
-            Registry.POINT_OF_INTEREST_TYPE.get(new ResourceLocation(param0.get("type").asString(""))),
-            param0.get("free_tickets").asInt(0),
-            param1
-        );
-    }
-
-    @Override
-    public <T> T serialize(DynamicOps<T> param0) {
-        return param0.createMap(
-            ImmutableMap.of(
-                param0.createString("pos"),
-                this.pos.serialize(param0),
-                param0.createString("type"),
-                param0.createString(Registry.POINT_OF_INTEREST_TYPE.getKey(this.poiType).toString()),
-                param0.createString("free_tickets"),
-                param0.createInt(this.freeTickets)
-            )
-        );
     }
 
     protected boolean acquireTicket() {

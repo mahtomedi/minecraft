@@ -1,7 +1,6 @@
 package net.minecraft.world.level.levelgen.feature.structures;
 
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Codec;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -15,6 +14,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureMana
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
 public class EmptyPoolElement extends StructurePoolElement {
+    public static final Codec<EmptyPoolElement> CODEC = Codec.unit(() -> EmptyPoolElement.INSTANCE);
     public static final EmptyPoolElement INSTANCE = new EmptyPoolElement();
 
     private EmptyPoolElement() {
@@ -48,13 +48,8 @@ public class EmptyPoolElement extends StructurePoolElement {
     }
 
     @Override
-    public StructurePoolElementType getType() {
+    public StructurePoolElementType<?> getType() {
         return StructurePoolElementType.EMPTY;
-    }
-
-    @Override
-    public <T> Dynamic<T> getDynamic(DynamicOps<T> param0) {
-        return new Dynamic<>(param0, param0.emptyMap());
     }
 
     @Override

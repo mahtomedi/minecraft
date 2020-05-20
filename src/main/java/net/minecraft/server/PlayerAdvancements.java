@@ -12,8 +12,8 @@ import com.google.gson.JsonParseException;
 import com.google.gson.internal.Streams;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.JsonOps;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.JsonOps;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
+import net.minecraft.Util;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -38,6 +39,7 @@ import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.CriterionProgress;
 import net.minecraft.advancements.CriterionTrigger;
 import net.minecraft.advancements.CriterionTriggerInstance;
+import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.game.ClientboundSelectAdvancementsTabPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateAdvancementsPacket;
@@ -135,7 +137,7 @@ public class PlayerAdvancements {
             try (JsonReader var0 = new JsonReader(new StringReader(Files.toString(this.file, StandardCharsets.UTF_8)))) {
                 var0.setLenient(false);
                 Dynamic<JsonElement> var1 = new Dynamic<>(JsonOps.INSTANCE, Streams.parse(var0));
-                if (!var1.get("DataVersion").asNumber().isPresent()) {
+                if (!var1.get("DataVersion").asNumber().result().isPresent()) {
                     var1 = var1.set("DataVersion", var1.createInt(1343));
                 }
 
@@ -216,7 +218,9 @@ public class PlayerAdvancements {
                         .broadcastMessage(
                             new TranslatableComponent(
                                 "chat.type.advancement." + param0.getDisplay().getFrame().getName(), this.player.getDisplayName(), param0.getChatComponent()
-                            )
+                            ),
+                            ChatType.SYSTEM,
+                            Util.NIL_UUID
                         );
                 }
             }

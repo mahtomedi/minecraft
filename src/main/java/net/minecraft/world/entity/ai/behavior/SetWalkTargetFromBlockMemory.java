@@ -57,7 +57,7 @@ public class SetWalkTargetFromBlockMemory extends Behavior<Villager> {
                         int var1x = 0;
         
                         for(int var2x = 1000;
-                            var1x < 1000 && (var0x == null || this.tooFar(param0, param1, GlobalPos.of(param1.dimension, new BlockPos(var0x))));
+                            var1x < 1000 && (var0x == null || this.tooFar(param0, param1, GlobalPos.of(param0.dimension(), new BlockPos(var0x))));
                             ++var1x
                         ) {
                             var0x = RandomPos.getPosTowards(param1, 15, 7, Vec3.atBottomCenterOf(param4.pos()));
@@ -87,10 +87,10 @@ public class SetWalkTargetFromBlockMemory extends Behavior<Villager> {
     }
 
     private boolean tooFar(ServerLevel param0, Villager param1, GlobalPos param2) {
-        return param2.dimension() != param0.dimensionType() || param2.pos().distManhattan(param1.blockPosition()) > this.tooFarDistance;
+        return param2.dimension() != param0.dimension() || param2.pos().distManhattan(param1.blockPosition()) > this.tooFarDistance;
     }
 
     private boolean closeEnough(ServerLevel param0, Villager param1, GlobalPos param2) {
-        return param2.dimension() == param0.dimensionType() && param2.pos().distManhattan(param1.blockPosition()) <= this.closeEnoughDist;
+        return param2.dimension() == param0.dimension() && param2.pos().distManhattan(param1.blockPosition()) <= this.closeEnoughDist;
     }
 }

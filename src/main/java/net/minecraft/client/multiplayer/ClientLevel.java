@@ -31,6 +31,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Cursor3D;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -108,7 +109,7 @@ public class ClientLevel extends Level {
         this.clientLevelData = param1;
         this.connection = param0;
         this.levelRenderer = param5;
-        this.effects = DimensionSpecialEffects.forType(param2);
+        this.effects = DimensionSpecialEffects.forType(param0.registryAccess().dimensionTypes().getResourceKey(param2));
         this.setDefaultSpawnPos(new BlockPos(8, 64, 8));
         this.updateSkyBrightness();
         this.prepareWeather();
@@ -124,6 +125,29 @@ public class ClientLevel extends Level {
         this.getProfiler().push("blocks");
         this.chunkSource.tick(param0);
         this.getProfiler().pop();
+    }
+
+    private void tickTime() {
+        this.setGameTime(this.levelData.getGameTime() + 1L);
+        if (this.levelData.getGameRules().getBoolean(GameRules.RULE_DAYLIGHT)) {
+            this.setDayTime(this.levelData.getDayTime() + 1L);
+        }
+
+    }
+
+    public void setGameTime(long param0) {
+        this.clientLevelData.setGameTime(param0);
+    }
+
+    public void setDayTime(long param0) {
+        if (param0 < 0L) {
+            param0 = -param0;
+            this.getGameRules().getRule(GameRules.RULE_DAYLIGHT).set(false, null);
+        } else {
+            this.getGameRules().getRule(GameRules.RULE_DAYLIGHT).set(true, null);
+        }
+
+        this.clientLevelData.setDayTime(param0);
     }
 
     public Iterable<Entity> entitiesForRendering() {
@@ -375,13 +399,13 @@ public class ClientLevel extends Level {
                     param1x -> {
                         if (param1x.canSpawn(this.random)) {
                             this.addParticle(
-                                param1x.getParticleType(),
+                                param1x.getOptions(),
                                 (double)((float)param6.getX() + this.random.nextFloat()),
                                 (double)((float)param6.getY() + this.random.nextFloat()),
                                 (double)((float)param6.getZ() + this.random.nextFloat()),
-                                param1x.getXVelocity(this.random),
-                                param1x.getYVelocity(this.random),
-                                param1x.getZVelocity(this.random)
+                                0.0,
+                                0.0,
+                                0.0
                             );
                         }
         
@@ -520,18 +544,6 @@ public class ClientLevel extends Level {
     }
 
     @Override
-    public void setDayTime(long param0) {
-        if (param0 < 0L) {
-            param0 = -param0;
-            this.getGameRules().getRule(GameRules.RULE_DAYLIGHT).set(false, null);
-        } else {
-            this.getGameRules().getRule(GameRules.RULE_DAYLIGHT).set(true, null);
-        }
-
-        super.setDayTime(param0);
-    }
-
-    @Override
     public TickList<Block> getBlockTicks() {
         return EmptyTickList.empty();
     }
@@ -569,6 +581,11 @@ public class ClientLevel extends Level {
     @Override
     public TagManager getTagManager() {
         return this.connection.getTags();
+    }
+
+    @Override
+    public RegistryAccess registryAccess() {
+        return this.connection.registryAccess();
     }
 
     @Override
@@ -746,7 +763,7 @@ public class ClientLevel extends Level {
 
     @Override
     public float getShade(Direction param0, boolean param1) {
-        boolean var0 = this.dimensionType() == DimensionType.NETHER;
+        boolean var0 = this.dimensionType().isNether();
         if (!param1) {
             return var0 ? 0.9F : 1.0F;
         } else {
@@ -881,12 +898,10 @@ public class ClientLevel extends Level {
             this.zSpawn = param0;
         }
 
-        @Override
         public void setGameTime(long param0) {
             this.gameTime = param0;
         }
 
-        @Override
         public void setDayTime(long param0) {
             this.dayTime = param0;
         }

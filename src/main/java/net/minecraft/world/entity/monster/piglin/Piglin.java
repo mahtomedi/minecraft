@@ -1,7 +1,7 @@
 package net.minecraft.world.entity.monster.piglin;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Dynamic;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -54,7 +54,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 
 public class Piglin extends Monster implements CrossbowAttackMob {
@@ -238,8 +237,13 @@ public class Piglin extends Monster implements CrossbowAttackMob {
     }
 
     @Override
+    protected Brain.Provider<Piglin> brainProvider() {
+        return Brain.provider(MEMORY_TYPES, SENSOR_TYPES);
+    }
+
+    @Override
     protected Brain<?> makeBrain(Dynamic<?> param0) {
-        return PiglinAi.makeBrain(this, param0);
+        return PiglinAi.makeBrain(this, this.brainProvider().makeBrain(param0));
     }
 
     @Override
@@ -302,7 +306,7 @@ public class Piglin extends Monster implements CrossbowAttackMob {
     }
 
     public boolean isConverting() {
-        return this.level.dimensionType() != DimensionType.NETHER && !this.isImmuneToZombification() && !this.isNoAi();
+        return !this.level.dimensionType().isNether() && !this.isImmuneToZombification() && !this.isNoAi();
     }
 
     @Override
@@ -459,8 +463,8 @@ public class Piglin extends Monster implements CrossbowAttackMob {
 
     @Override
     protected boolean canReplaceCurrentItem(ItemStack param0, ItemStack param1) {
-        boolean var0 = PiglinAi.isLovedItem(param0.getItem());
-        boolean var1 = PiglinAi.isLovedItem(param1.getItem());
+        boolean var0 = PiglinAi.isLovedItem(param0.getItem()) || param0.getItem() == Items.CROSSBOW;
+        boolean var1 = PiglinAi.isLovedItem(param1.getItem()) || param1.getItem() == Items.CROSSBOW;
         if (var0 && !var1) {
             return true;
         } else if (!var0 && var1) {

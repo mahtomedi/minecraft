@@ -1,5 +1,6 @@
 package net.minecraft.world.level.levelgen;
 
+import com.mojang.serialization.Codec;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -22,7 +23,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class DebugLevelSource extends ChunkGenerator {
-    public static final ChunkGenerator INSTANCE = new DebugLevelSource();
+    public static final DebugLevelSource INSTANCE = new DebugLevelSource();
+    public static final Codec<DebugLevelSource> CODEC = Codec.<DebugLevelSource>unit(() -> INSTANCE).stable();
     private static final List<BlockState> ALL_BLOCKS = StreamSupport.stream(Registry.BLOCK.spliterator(), false)
         .flatMap(param0 -> param0.getStateDefinition().getPossibleStates().stream())
         .collect(Collectors.toList());
@@ -32,7 +34,12 @@ public class DebugLevelSource extends ChunkGenerator {
     protected static final BlockState BARRIER = Blocks.BARRIER.defaultBlockState();
 
     private DebugLevelSource() {
-        super(new FixedBiomeSource(Biomes.PLAINS), new ChunkGeneratorSettings());
+        super(new FixedBiomeSource(Biomes.PLAINS), new StructureSettings(false));
+    }
+
+    @Override
+    protected Codec<? extends ChunkGenerator> codec() {
+        return CODEC;
     }
 
     @OnlyIn(Dist.CLIENT)

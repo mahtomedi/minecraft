@@ -1,5 +1,6 @@
 package net.minecraft.world.item;
 
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -21,6 +22,7 @@ public class EmptyMapItem extends ComplexItem {
         }
 
         param1.awardStat(Stats.ITEM_USED.get(this));
+        param1.playSound(SoundEvents.UI_CARTOGRAPHY_TABLE_TAKE_RESULT, 1.0F, 1.0F);
         if (var1.isEmpty()) {
             return InteractionResultHolder.success(var0);
         } else {

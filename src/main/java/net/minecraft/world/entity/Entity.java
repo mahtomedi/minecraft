@@ -26,6 +26,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -41,6 +42,7 @@ import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -179,7 +181,6 @@ public abstract class Entity implements CommandSource, Nameable {
     public int changingDimensionDelay;
     protected boolean isInsidePortal;
     protected int portalTime;
-    public DimensionType dimension;
     protected BlockPos portalEntranceBlock;
     protected Vec3 portalEntranceOffset;
     protected Direction portalEntranceForwards;
@@ -201,10 +202,6 @@ public abstract class Entity implements CommandSource, Nameable {
         this.position = Vec3.ZERO;
         this.blockPosition = BlockPos.ZERO;
         this.setPos(0.0, 0.0, 0.0);
-        if (param1 != null) {
-            this.dimension = param1.dimensionType();
-        }
-
         this.entityData = new SynchedEntityData(this);
         this.entityData.define(DATA_SHARED_FLAGS_ID, (byte)0);
         this.entityData.define(DATA_AIR_SUPPLY_ID, this.getMaxAirSupply());
@@ -1334,7 +1331,6 @@ public abstract class Entity implements CommandSource, Nameable {
             param0.putShort("Fire", (short)this.remainingFireTicks);
             param0.putShort("Air", (short)this.getAirSupply());
             param0.putBoolean("OnGround", this.onGround);
-            param0.putInt("Dimension", this.dimension.getId());
             param0.putBoolean("Invulnerable", this.invulnerable);
             param0.putInt("PortalCooldown", this.changingDimensionDelay);
             param0.putUUID("UUID", this.getUUID());
@@ -1414,10 +1410,6 @@ public abstract class Entity implements CommandSource, Nameable {
             this.remainingFireTicks = param0.getShort("Fire");
             this.setAirSupply(param0.getShort("Air"));
             this.onGround = param0.getBoolean("OnGround");
-            if (param0.contains("Dimension")) {
-                this.dimension = DimensionType.getById(param0.getInt("Dimension"));
-            }
-
             this.invulnerable = param0.getBoolean("Invulnerable");
             this.changingDimensionDelay = param0.getInt("PortalCooldown");
             if (param0.hasUUID("UUID")) {
@@ -1742,7 +1734,8 @@ public abstract class Entity implements CommandSource, Nameable {
                     this.level.getProfiler().push("portal");
                     this.portalTime = var0;
                     this.changingDimensionDelay = this.getDimensionChangingDelay();
-                    this.changeDimension(this.level.dimensionType() == DimensionType.NETHER ? DimensionType.OVERWORLD : DimensionType.NETHER);
+                    ResourceKey<DimensionType> var1 = this.level.dimensionType().isNether() ? DimensionType.OVERWORLD_LOCATION : DimensionType.NETHER_LOCATION;
+                    this.changeDimension(var1);
                     this.level.getProfiler().pop();
                 }
 
@@ -2094,61 +2087,66 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     @Nullable
-    public Entity changeDimension(DimensionType param0) {
+    public Entity changeDimension(ResourceKey<DimensionType> param0) {
         if (!this.level.isClientSide && !this.removed) {
             this.level.getProfiler().push("changeDimension");
             MinecraftServer var0 = this.getServer();
-            DimensionType var1 = this.dimension;
+            ResourceKey<DimensionType> var1 = this.level.dimension();
             ServerLevel var2 = var0.getLevel(var1);
             ServerLevel var3 = var0.getLevel(param0);
-            this.dimension = param0;
             this.unRide();
             this.level.getProfiler().push("reposition");
             Vec3 var4 = this.getDeltaMovement();
             float var5 = 0.0F;
             BlockPos var6;
-            if (var1 == DimensionType.THE_END && param0 == DimensionType.OVERWORLD) {
+            if (var1 == DimensionType.END_LOCATION && param0 == DimensionType.OVERWORLD_LOCATION) {
                 var6 = var3.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, var3.getSharedSpawnPos());
-            } else if (param0 == DimensionType.THE_END) {
-                var6 = var3.getDimensionSpecificSpawn();
+            } else if (param0 == DimensionType.END_LOCATION) {
+                var6 = ServerLevel.END_SPAWN_POINT;
             } else {
                 double var8 = this.getX();
                 double var9 = this.getZ();
-                double var10 = 8.0;
-                if (var1 == DimensionType.OVERWORLD && param0 == DimensionType.NETHER) {
+                Registry<DimensionType> var10 = var0.registryAccess().dimensionTypes();
+                DimensionType var11 = var10.get(var1);
+                DimensionType var12 = var10.get(param0);
+                double var13 = 8.0;
+                if (!var11.shrunk() && var12.shrunk()) {
                     var8 /= 8.0;
                     var9 /= 8.0;
-                } else if (var1 == DimensionType.NETHER && param0 == DimensionType.OVERWORLD) {
+                } else if (var11.shrunk() && !var12.shrunk()) {
                     var8 *= 8.0;
                     var9 *= 8.0;
                 }
 
-                double var11 = Math.min(-2.9999872E7, var3.getWorldBorder().getMinX() + 16.0);
-                double var12 = Math.min(-2.9999872E7, var3.getWorldBorder().getMinZ() + 16.0);
-                double var13 = Math.min(2.9999872E7, var3.getWorldBorder().getMaxX() - 16.0);
-                double var14 = Math.min(2.9999872E7, var3.getWorldBorder().getMaxZ() - 16.0);
-                var8 = Mth.clamp(var8, var11, var13);
-                var9 = Mth.clamp(var9, var12, var14);
-                Vec3 var15 = this.getPortalEntranceOffset();
+                double var14 = Math.min(-2.9999872E7, var3.getWorldBorder().getMinX() + 16.0);
+                double var15 = Math.min(-2.9999872E7, var3.getWorldBorder().getMinZ() + 16.0);
+                double var16 = Math.min(2.9999872E7, var3.getWorldBorder().getMaxX() - 16.0);
+                double var17 = Math.min(2.9999872E7, var3.getWorldBorder().getMaxZ() - 16.0);
+                var8 = Mth.clamp(var8, var14, var16);
+                var9 = Mth.clamp(var9, var15, var17);
+                Vec3 var18 = this.getPortalEntranceOffset();
                 var6 = new BlockPos(var8, this.getY(), var9);
-                BlockPattern.PortalInfo var17 = var3.getPortalForcer()
-                    .findPortal(var6, var4, this.getPortalEntranceForwards(), var15.x, var15.y, this instanceof Player);
-                if (var17 == null) {
+                BlockPattern.PortalInfo var20 = var3.getPortalForcer()
+                    .findPortal(var6, var4, this.getPortalEntranceForwards(), var18.x, var18.y, this instanceof Player);
+                if (var20 == null) {
                     return null;
                 }
 
-                var6 = new BlockPos(var17.pos);
-                var4 = var17.speed;
-                var5 = (float)var17.angle;
+                var6 = new BlockPos(var20.pos);
+                var4 = var20.speed;
+                var5 = (float)var20.angle;
             }
 
             this.level.getProfiler().popPush("reloading");
-            Entity var18 = this.getType().create(var3);
-            if (var18 != null) {
-                var18.restoreFrom(this);
-                var18.moveTo(var6, var18.yRot + var5, var18.xRot);
-                var18.setDeltaMovement(var4);
-                var3.addFromAnotherDimension(var18);
+            Entity var21 = this.getType().create(var3);
+            if (var21 != null) {
+                var21.restoreFrom(this);
+                var21.moveTo(var6, var21.yRot + var5, var21.xRot);
+                var21.setDeltaMovement(var4);
+                var3.addFromAnotherDimension(var21);
+                if (param0 == DimensionType.END_LOCATION) {
+                    ServerLevel.makeObsidianPlatform(var3);
+                }
             }
 
             this.removed = true;
@@ -2156,7 +2154,7 @@ public abstract class Entity implements CommandSource, Nameable {
             var2.resetEmptyTime();
             var3.resetEmptyTime();
             this.level.getProfiler().pop();
-            return var18;
+            return var21;
         } else {
             return null;
         }
@@ -2379,7 +2377,7 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     @Override
-    public void sendMessage(Component param0) {
+    public void sendMessage(Component param0, UUID param1) {
     }
 
     public Level getCommandSenderWorld() {

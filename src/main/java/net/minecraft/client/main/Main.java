@@ -41,6 +41,8 @@ public class Main {
         OptionParser var0 = new OptionParser();
         var0.allowsUnrecognizedOptions();
         var0.accepts("demo");
+        var0.accepts("disableMultiplayer");
+        var0.accepts("disableChat");
         var0.accepts("fullscreen");
         var0.accepts("checkGlErrors");
         OptionSpec<String> var1 = var0.accepts("server").withRequiredArg();
@@ -77,7 +79,7 @@ public class Main {
         if (var26 != null) {
             try {
                 var27 = new Proxy(Type.SOCKS, new InetSocketAddress(var26, parseArgument(var24, var7)));
-            } catch (Exception var68) {
+            } catch (Exception var70) {
             }
         }
 
@@ -98,28 +100,30 @@ public class Main {
         OptionalInt var33 = ofNullable(parseArgument(var24, var17));
         boolean var34 = var24.has("fullscreen");
         boolean var35 = var24.has("demo");
-        String var36 = parseArgument(var24, var13);
-        Gson var37 = new GsonBuilder().registerTypeAdapter(PropertyMap.class, new Serializer()).create();
-        PropertyMap var38 = GsonHelper.fromJson(var37, parseArgument(var24, var18), PropertyMap.class);
-        PropertyMap var39 = GsonHelper.fromJson(var37, parseArgument(var24, var19), PropertyMap.class);
-        String var40 = parseArgument(var24, var22);
-        File var41 = parseArgument(var24, var3);
-        File var42 = var24.has(var4) ? parseArgument(var24, var4) : new File(var41, "assets/");
-        File var43 = var24.has(var5) ? parseArgument(var24, var5) : new File(var41, "resourcepacks/");
-        String var44 = var24.has(var11) ? var11.value(var24) : Player.createPlayerUUID(var10.value(var24)).toString();
-        String var45 = var24.has(var20) ? var20.value(var24) : null;
-        String var46 = parseArgument(var24, var1);
-        Integer var47 = parseArgument(var24, var2);
+        boolean var36 = var24.has("disableMultiplayer");
+        boolean var37 = var24.has("disableChat");
+        String var38 = parseArgument(var24, var13);
+        Gson var39 = new GsonBuilder().registerTypeAdapter(PropertyMap.class, new Serializer()).create();
+        PropertyMap var40 = GsonHelper.fromJson(var39, parseArgument(var24, var18), PropertyMap.class);
+        PropertyMap var41 = GsonHelper.fromJson(var39, parseArgument(var24, var19), PropertyMap.class);
+        String var42 = parseArgument(var24, var22);
+        File var43 = parseArgument(var24, var3);
+        File var44 = var24.has(var4) ? parseArgument(var24, var4) : new File(var43, "assets/");
+        File var45 = var24.has(var5) ? parseArgument(var24, var5) : new File(var43, "resourcepacks/");
+        String var46 = var24.has(var11) ? var11.value(var24) : Player.createPlayerUUID(var10.value(var24)).toString();
+        String var47 = var24.has(var20) ? var20.value(var24) : null;
+        String var48 = parseArgument(var24, var1);
+        Integer var49 = parseArgument(var24, var2);
         CrashReport.preload();
-        User var48 = new User(var10.value(var24), var44, var12.value(var24), var21.value(var24));
-        GameConfig var49 = new GameConfig(
-            new GameConfig.UserData(var48, var38, var39, var27),
+        User var50 = new User(var10.value(var24), var46, var12.value(var24), var21.value(var24));
+        GameConfig var51 = new GameConfig(
+            new GameConfig.UserData(var50, var40, var41, var27),
             new DisplayData(var30, var31, var32, var33, var34),
-            new GameConfig.FolderData(var41, var43, var42, var45),
-            new GameConfig.GameData(var35, var36, var40),
-            new GameConfig.ServerData(var46, var47)
+            new GameConfig.FolderData(var43, var45, var44, var47),
+            new GameConfig.GameData(var35, var38, var42, var36, var37),
+            new GameConfig.ServerData(var48, var49)
         );
-        Thread var50 = new Thread("Client Shutdown Thread") {
+        Thread var52 = new Thread("Client Shutdown Thread") {
             @Override
             public void run() {
                 Minecraft var0 = Minecraft.getInstance();
@@ -132,66 +136,66 @@ public class Main {
                 }
             }
         };
-        var50.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
-        Runtime.getRuntime().addShutdownHook(var50);
+        var52.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
+        Runtime.getRuntime().addShutdownHook(var52);
         new RenderPipeline();
 
-        final Minecraft var52;
+        final Minecraft var54;
         try {
             Thread.currentThread().setName("Render thread");
             RenderSystem.initRenderThread();
             RenderSystem.beginInitialization();
-            var52 = new Minecraft(var49);
+            var54 = new Minecraft(var51);
             RenderSystem.finishInitialization();
-        } catch (SilentInitException var66) {
-            LOGGER.warn("Failed to create window: ", (Throwable)var66);
+        } catch (SilentInitException var68) {
+            LOGGER.warn("Failed to create window: ", (Throwable)var68);
             return;
-        } catch (Throwable var67) {
-            CrashReport var55 = CrashReport.forThrowable(var67, "Initializing game");
-            var55.addCategory("Initialization");
-            Minecraft.fillReport(null, var49.game.launchVersion, null, var55);
-            Minecraft.crash(var55);
+        } catch (Throwable var69) {
+            CrashReport var57 = CrashReport.forThrowable(var69, "Initializing game");
+            var57.addCategory("Initialization");
+            Minecraft.fillReport(null, var51.game.launchVersion, null, var57);
+            Minecraft.crash(var57);
             return;
         }
 
-        Thread var57;
-        if (var52.renderOnThread()) {
-            var57 = new Thread("Game thread") {
+        Thread var59;
+        if (var54.renderOnThread()) {
+            var59 = new Thread("Game thread") {
                 @Override
                 public void run() {
                     try {
                         RenderSystem.initGameThread(true);
-                        var52.run();
+                        var54.run();
                     } catch (Throwable var2) {
                         Main.LOGGER.error("Exception in client thread", var2);
                     }
 
                 }
             };
-            var57.start();
+            var59.start();
 
-            while(var52.isRunning()) {
+            while(var54.isRunning()) {
             }
         } else {
-            var57 = null;
+            var59 = null;
 
             try {
                 RenderSystem.initGameThread(false);
-                var52.run();
-            } catch (Throwable var65) {
-                LOGGER.error("Unhandled game exception", var65);
+                var54.run();
+            } catch (Throwable var67) {
+                LOGGER.error("Unhandled game exception", var67);
             }
         }
 
         try {
-            var52.stop();
-            if (var57 != null) {
-                var57.join();
+            var54.stop();
+            if (var59 != null) {
+                var59.join();
             }
-        } catch (InterruptedException var63) {
-            LOGGER.error("Exception during client thread shutdown", (Throwable)var63);
+        } catch (InterruptedException var65) {
+            LOGGER.error("Exception during client thread shutdown", (Throwable)var65);
         } finally {
-            var52.destroy();
+            var54.destroy();
         }
 
     }

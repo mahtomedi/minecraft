@@ -15,17 +15,19 @@ import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
-import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
+import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.MineshaftConfiguration;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 
-public abstract class StructureStart {
-    public static final StructureStart INVALID_START = new StructureStart(Feature.MINESHAFT, 0, 0, BoundingBox.getUnknownBox(), 0, 0L) {
-        @Override
-        public void generatePieces(ChunkGenerator param0, StructureManager param1, int param2, int param3, Biome param4) {
+public abstract class StructureStart<C extends FeatureConfiguration> {
+    public static final StructureStart<?> INVALID_START = new StructureStart<MineshaftConfiguration>(
+        StructureFeature.MINESHAFT, 0, 0, BoundingBox.getUnknownBox(), 0, 0L
+    ) {
+        public void generatePieces(ChunkGenerator param0, StructureManager param1, int param2, int param3, Biome param4, MineshaftConfiguration param5) {
         }
     };
-    private final StructureFeature<?> feature;
+    private final StructureFeature<C> feature;
     protected final List<StructurePiece> pieces = Lists.newArrayList();
     protected BoundingBox boundingBox;
     private final int chunkX;
@@ -33,7 +35,7 @@ public abstract class StructureStart {
     private int references;
     protected final WorldgenRandom random;
 
-    public StructureStart(StructureFeature<?> param0, int param1, int param2, BoundingBox param3, int param4, long param5) {
+    public StructureStart(StructureFeature<C> param0, int param1, int param2, BoundingBox param3, int param4, long param5) {
         this.feature = param0;
         this.chunkX = param1;
         this.chunkZ = param2;
@@ -43,7 +45,7 @@ public abstract class StructureStart {
         this.boundingBox = param3;
     }
 
-    public abstract void generatePieces(ChunkGenerator var1, StructureManager var2, int var3, int var4, Biome var5);
+    public abstract void generatePieces(ChunkGenerator var1, StructureManager var2, int var3, int var4, Biome var5, C var6);
 
     public BoundingBox getBoundingBox() {
         return this.boundingBox;
@@ -53,7 +55,7 @@ public abstract class StructureStart {
         return this.pieces;
     }
 
-    public void postProcess(WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5) {
+    public void placeInChunk(WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BoundingBox param4, ChunkPos param5) {
         synchronized(this.pieces) {
             if (!this.pieces.isEmpty()) {
                 BoundingBox var0 = this.pieces.get(0).boundingBox;

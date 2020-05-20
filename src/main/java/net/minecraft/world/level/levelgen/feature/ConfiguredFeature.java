@@ -1,12 +1,9 @@
 package net.minecraft.world.level.levelgen.feature;
 
-import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Codec;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -18,6 +15,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class ConfiguredFeature<FC extends FeatureConfiguration, F extends Feature<FC>> {
+    public static final ConfiguredFeature<?, ?> NOPE = new ConfiguredFeature<>(Feature.NO_OP, NoneFeatureConfiguration.NONE);
+    public static final Codec<ConfiguredFeature<?, ?>> CODEC = Registry.FEATURE
+        .<ConfiguredFeature<?, ?>>dispatch("name", param0 -> param0.feature, Feature::configuredCodec)
+        .withDefault(NOPE);
     public static final Logger LOGGER = LogManager.getLogger();
     public final F feature;
     public final FC config;
@@ -25,10 +26,6 @@ public class ConfiguredFeature<FC extends FeatureConfiguration, F extends Featur
     public ConfiguredFeature(F param0, FC param1) {
         this.feature = param0;
         this.config = param1;
-    }
-
-    public ConfiguredFeature(F param0, Dynamic<?> param1) {
-        this(param0, param0.createSettings(param1));
     }
 
     public ConfiguredFeature<?, ?> decorated(ConfiguredDecorator<?> param0) {
@@ -40,33 +37,7 @@ public class ConfiguredFeature<FC extends FeatureConfiguration, F extends Featur
         return new WeightedConfiguredFeature<>(this, param0);
     }
 
-    public <T> Dynamic<T> serialize(DynamicOps<T> param0) {
-        return new Dynamic<>(
-            param0,
-            param0.createMap(
-                ImmutableMap.of(
-                    param0.createString("name"),
-                    param0.createString(Registry.FEATURE.getKey(this.feature).toString()),
-                    param0.createString("config"),
-                    this.config.serialize(param0).getValue()
-                )
-            )
-        );
-    }
-
     public boolean place(WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BlockPos param4) {
         return this.feature.place(param0, param1, param2, param3, param4, this.config);
-    }
-
-    public static <T> ConfiguredFeature<?, ?> deserialize(Dynamic<T> param0) {
-        String var0 = param0.get("name").asString("");
-        Feature<? extends FeatureConfiguration> var1 = (Feature)Registry.FEATURE.get(new ResourceLocation(var0));
-
-        try {
-            return new ConfiguredFeature<>(var1, param0.get("config").orElseEmptyMap());
-        } catch (RuntimeException var4) {
-            LOGGER.warn("Error while deserializing {}", var0);
-            return new ConfiguredFeature<>(Feature.NO_OP, NoneFeatureConfiguration.NONE);
-        }
     }
 }

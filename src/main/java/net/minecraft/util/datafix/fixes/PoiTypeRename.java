@@ -3,11 +3,11 @@ package net.minecraft.util.datafix.fixes;
 import com.mojang.datafixers.DSL;
 import com.mojang.datafixers.DataFix;
 import com.mojang.datafixers.DataFixUtils;
-import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.TypeRewriteRule;
 import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.Type;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Dynamic;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -43,11 +43,13 @@ public abstract class PoiTypeRename extends DataFix {
                 param1 -> param0.createList(
                         param1.map(
                             param0x -> param0x.update(
-                                    "type", param0xx -> DataFixUtils.orElse(param0xx.asString().map(this::rename).map(param0xx::createString), param0xx)
+                                    "type",
+                                    param0xx -> DataFixUtils.orElse(param0xx.asString().map(this::rename).map(param0xx::createString).result(), param0xx)
                                 )
                         )
                     )
-            );
+            )
+            .result();
     }
 
     protected abstract String rename(String var1);

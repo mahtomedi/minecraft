@@ -160,7 +160,7 @@ public class OptionsKeyLwjgl3Fix extends DataFix {
                                 } else {
                                     return Pair.of(param0xxx.getKey(), param0xxx.getValue());
                                 }
-                            }).collect(Collectors.toMap(Pair::getFirst, Pair::getSecond)))).orElse(param0x)
+                            }).collect(Collectors.toMap(Pair::getFirst, Pair::getSecond)))).result().orElse(param0x)
                 )
         );
     }

@@ -1,14 +1,13 @@
 package net.minecraft.world.level.levelgen.placement;
 
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Codec;
 import java.util.Random;
-import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
 
 public class CountDepthAverageDecorator extends SimpleFeatureDecorator<DepthAverageConfigation> {
-    public CountDepthAverageDecorator(Function<Dynamic<?>, ? extends DepthAverageConfigation> param0) {
+    public CountDepthAverageDecorator(Codec<DepthAverageConfigation> param0) {
         super(param0);
     }
 

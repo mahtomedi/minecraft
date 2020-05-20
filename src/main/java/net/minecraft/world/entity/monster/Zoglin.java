@@ -2,8 +2,8 @@ package net.minecraft.world.entity.monster;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Dynamic;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -73,8 +73,13 @@ public class Zoglin extends Monster implements Enemy, HoglinBase {
     }
 
     @Override
+    protected Brain.Provider<Zoglin> brainProvider() {
+        return Brain.provider(MEMORY_TYPES, SENSOR_TYPES);
+    }
+
+    @Override
     protected Brain<?> makeBrain(Dynamic<?> param0) {
-        Brain<Zoglin> var0 = new Brain<>(MEMORY_TYPES, SENSOR_TYPES, param0);
+        Brain<Zoglin> var0 = this.brainProvider().makeBrain(param0);
         initCoreActivity(var0);
         initIdleActivity(var0);
         initFightActivity(var0);

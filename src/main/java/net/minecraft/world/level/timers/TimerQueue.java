@@ -3,12 +3,14 @@ package net.minecraft.world.level.timers;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import com.google.common.primitives.UnsignedLong;
+import com.mojang.serialization.Dynamic;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
+import java.util.stream.Stream;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -24,6 +26,20 @@ public class TimerQueue<T> {
 
     private static <T> Comparator<TimerQueue.Event<T>> createComparator() {
         return Comparator.<TimerQueue.Event<T>>comparingLong(param0 -> param0.triggerTime).thenComparing(param0 -> param0.sequentialId);
+    }
+
+    public TimerQueue(TimerCallbacks<T> param0, Stream<Dynamic<Tag>> param1) {
+        this(param0);
+        this.queue.clear();
+        this.events.clear();
+        this.sequentialId = UnsignedLong.ZERO;
+        param1.forEach(param0x -> {
+            if (!(param0x.getValue() instanceof CompoundTag)) {
+                LOGGER.warn("Invalid format of events: {}", param0x);
+            } else {
+                this.loadEvent((CompoundTag)param0x.getValue());
+            }
+        });
     }
 
     public TimerQueue(TimerCallbacks<T> param0) {
@@ -73,22 +89,6 @@ public class TimerQueue<T> {
             this.schedule(var2, var3, var1);
         }
 
-    }
-
-    public void load(ListTag param0) {
-        this.queue.clear();
-        this.events.clear();
-        this.sequentialId = UnsignedLong.ZERO;
-        if (!param0.isEmpty()) {
-            if (param0.getElementType() != 10) {
-                LOGGER.warn("Invalid format of events: " + param0);
-            } else {
-                for(Tag var0 : param0) {
-                    this.loadEvent((CompoundTag)var0);
-                }
-
-            }
-        }
     }
 
     private CompoundTag storeEvent(TimerQueue.Event<T> param0) {

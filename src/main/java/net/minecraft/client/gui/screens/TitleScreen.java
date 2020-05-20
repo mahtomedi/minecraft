@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
@@ -179,17 +180,30 @@ public class TitleScreen extends Screen {
                 param0x -> this.minecraft.setScreen(new SelectWorldScreen(this))
             )
         );
+        boolean var0 = this.minecraft.allowsMultiplayer();
+        Button.OnTooltip var1 = var0
+            ? Button.NO_TOOLTIP
+            : (param0x, param1x, param2, param3) -> {
+                if (!param0x.active) {
+                    this.renderTooltip(
+                        param1x,
+                        this.minecraft.font.split(new TranslatableComponent("title.multiplayer.disabled"), Math.max(this.width / 2 - 43, 170)),
+                        param2,
+                        param3
+                    );
+                }
+    
+            };
         this.addButton(new Button(this.width / 2 - 100, param0 + param1 * 1, 200, 20, new TranslatableComponent("menu.multiplayer"), param0x -> {
-            if (this.minecraft.options.skipMultiplayerWarning) {
-                this.minecraft.setScreen(new JoinMultiplayerScreen(this));
-            } else {
-                this.minecraft.setScreen(new SafetyScreen(this));
-            }
-
-        }));
+            Screen var0x = (Screen)(this.minecraft.options.skipMultiplayerWarning ? new JoinMultiplayerScreen(this) : new SafetyScreen(this));
+            this.minecraft.setScreen(var0x);
+        }, var1)).active = var0;
         this.addButton(
-            new Button(this.width / 2 - 100, param0 + param1 * 2, 200, 20, new TranslatableComponent("menu.online"), param0x -> this.realmsButtonClicked())
-        );
+                new Button(
+                    this.width / 2 - 100, param0 + param1 * 2, 200, 20, new TranslatableComponent("menu.online"), param0x -> this.realmsButtonClicked(), var1
+                )
+            )
+            .active = var0;
     }
 
     private void createDemoMenuOptions(int param0, int param1) {
@@ -276,14 +290,18 @@ public class TitleScreen extends Screen {
             this.minecraft.getTextureManager().bind(MINECRAFT_LOGO);
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, var4);
             if (this.minceraftEasterEgg) {
-                this.blit(param0, var2 + 0, 30, 0, 0, 99, 44);
-                this.blit(param0, var2 + 99, 30, 129, 0, 27, 44);
-                this.blit(param0, var2 + 99 + 26, 30, 126, 0, 3, 44);
-                this.blit(param0, var2 + 99 + 26 + 3, 30, 99, 0, 26, 44);
-                this.blit(param0, var2 + 155, 30, 0, 45, 155, 44);
+                this.blitOutline(var2, 30, (param1x, param2x) -> {
+                    this.blit(param0, param1x + 0, param2x, 0, 0, 99, 44);
+                    this.blit(param0, param1x + 99, param2x, 129, 0, 27, 44);
+                    this.blit(param0, param1x + 99 + 26, param2x, 126, 0, 3, 44);
+                    this.blit(param0, param1x + 99 + 26 + 3, param2x, 99, 0, 26, 44);
+                    this.blit(param0, param1x + 155, param2x, 0, 45, 155, 44);
+                });
             } else {
-                this.blit(param0, var2 + 0, 30, 0, 0, 155, 44);
-                this.blit(param0, var2 + 155, 30, 0, 45, 155, 44);
+                this.blitOutline(var2, 30, (param1x, param2x) -> {
+                    this.blit(param0, param1x + 0, param2x, 0, 0, 155, 44);
+                    this.blit(param0, param1x + 155, param2x, 0, 45, 155, 44);
+                });
             }
 
             this.minecraft.getTextureManager().bind(MINECRAFT_EDITION);
@@ -326,6 +344,14 @@ public class TitleScreen extends Screen {
             }
 
         }
+    }
+
+    private void blitOutline(int param0, int param1, BiConsumer<Integer, Integer> param2) {
+        param2.accept(param0 + 1, param1);
+        param2.accept(param0 - 1, param1);
+        param2.accept(param0, param1 + 1);
+        param2.accept(param0, param1 - 1);
+        param2.accept(param0, param1);
     }
 
     @Override

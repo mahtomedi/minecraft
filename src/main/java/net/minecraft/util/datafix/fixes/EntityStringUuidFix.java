@@ -20,7 +20,7 @@ public class EntityStringUuidFix extends DataFix {
             param0 -> param0.update(
                     DSL.remainderFinder(),
                     param0x -> {
-                        Optional<String> var0x = param0x.get("UUID").asString();
+                        Optional<String> var0x = param0x.get("UUID").asString().result();
                         if (var0x.isPresent()) {
                             UUID var1 = UUID.fromString((String)var0x.get());
                             return param0x.remove("UUID")

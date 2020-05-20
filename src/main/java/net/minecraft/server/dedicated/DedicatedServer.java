@@ -181,7 +181,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
         if (!OldUsersConverter.serverReadyAfterUserconversion(this)) {
             return false;
         } else {
-            this.setPlayerList(new DedicatedPlayerList(this, this.playerDataStorage));
+            this.setPlayerList(new DedicatedPlayerList(this, this.registryHolder, this.playerDataStorage));
             long var4 = Util.getNanos();
             this.setMaxBuildHeight(var1.maxBuildHeight);
             SkullBlockEntity.setProfileCache(this.getProfileCache());
@@ -406,7 +406,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
 
     @Override
     public boolean isUnderSpawnProtection(ServerLevel param0, BlockPos param1, Player param2) {
-        if (param0.dimensionType() != DimensionType.OVERWORLD) {
+        if (param0.dimension() != DimensionType.OVERWORLD_LOCATION) {
             return false;
         } else if (this.getPlayerList().getOps().isEmpty()) {
             return false;

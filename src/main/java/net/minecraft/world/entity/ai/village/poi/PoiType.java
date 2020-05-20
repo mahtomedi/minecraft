@@ -114,11 +114,15 @@ public class PoiType {
     }
 
     private static PoiType register(String param0, Set<BlockState> param1, int param2, int param3) {
-        return registerBlockStates(Registry.POINT_OF_INTEREST_TYPE.register(new ResourceLocation(param0), new PoiType(param0, param1, param2, param3)));
+        return registerBlockStates(
+            Registry.register(Registry.POINT_OF_INTEREST_TYPE, new ResourceLocation(param0), new PoiType(param0, param1, param2, param3))
+        );
     }
 
     private static PoiType register(String param0, Set<BlockState> param1, int param2, Predicate<PoiType> param3, int param4) {
-        return registerBlockStates(Registry.POINT_OF_INTEREST_TYPE.register(new ResourceLocation(param0), new PoiType(param0, param1, param2, param3, param4)));
+        return registerBlockStates(
+            Registry.register(Registry.POINT_OF_INTEREST_TYPE, new ResourceLocation(param0), new PoiType(param0, param1, param2, param3, param4))
+        );
     }
 
     private static PoiType registerBlockStates(PoiType param0) {

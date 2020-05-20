@@ -3,6 +3,9 @@ package net.minecraft.nbt;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.Dynamic;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -26,6 +29,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class CompoundTag implements Tag {
+    public static final Codec<CompoundTag> CODEC = Codec.PASSTHROUGH.comapFlatMap(param0 -> {
+        Tag var0 = param0.convert(NbtOps.INSTANCE).getValue();
+        return var0 instanceof CompoundTag ? DataResult.success((CompoundTag)var0) : DataResult.error("Not a compound tag: " + var0);
+    }, param0 -> new Dynamic<>(NbtOps.INSTANCE, param0));
     private static final Logger LOGGER = LogManager.getLogger();
     private static final Pattern SIMPLE_VALUE = Pattern.compile("[A-Za-z0-9._+-]+");
     public static final TagType<CompoundTag> TYPE = new TagType<CompoundTag>() {
@@ -62,7 +69,7 @@ public class CompoundTag implements Tag {
     };
     private final Map<String, Tag> tags;
 
-    private CompoundTag(Map<String, Tag> param0) {
+    protected CompoundTag(Map<String, Tag> param0) {
         this.tags = param0;
     }
 
@@ -494,5 +501,9 @@ public class CompoundTag implements Tag {
             var0.append("}");
             return var0;
         }
+    }
+
+    protected Map<String, Tag> entries() {
+        return Collections.unmodifiableMap(this.tags);
     }
 }

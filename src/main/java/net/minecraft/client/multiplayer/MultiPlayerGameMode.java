@@ -306,7 +306,7 @@ public class MultiPlayerGameMode {
                 int var1 = var0.getCount();
                 InteractionResultHolder<ItemStack> var2 = var0.use(param1, param0, param2);
                 ItemStack var3 = var2.getObject();
-                if (var3 != var0 || var3.getCount() != var1) {
+                if (var3 != var0) {
                     param0.setItemInHand(param2, var3);
                 }
 

@@ -51,6 +51,7 @@ import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.BowItem;
+import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.DiggerItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -581,6 +582,8 @@ public abstract class Mob extends LivingEntity {
                 }
             }
         } else if (param0.getItem() instanceof BowItem && param1.getItem() instanceof BowItem) {
+            return this.canReplaceEqualItem(param0, param1);
+        } else if (param0.getItem() instanceof CrossbowItem && param1.getItem() instanceof CrossbowItem) {
             return this.canReplaceEqualItem(param0, param1);
         } else if (param0.getItem() instanceof ArmorItem) {
             if (EnchantmentHelper.hasBindingCurse(param1)) {

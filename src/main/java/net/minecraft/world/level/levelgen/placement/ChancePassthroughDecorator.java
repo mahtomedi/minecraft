@@ -1,13 +1,12 @@
 package net.minecraft.world.level.levelgen.placement;
 
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Codec;
 import java.util.Random;
-import java.util.function.Function;
 import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
 
 public class ChancePassthroughDecorator extends SimpleFeatureDecorator<ChanceDecoratorConfiguration> {
-    public ChancePassthroughDecorator(Function<Dynamic<?>, ? extends ChanceDecoratorConfiguration> param0) {
+    public ChancePassthroughDecorator(Codec<ChanceDecoratorConfiguration> param0) {
         super(param0);
     }
 

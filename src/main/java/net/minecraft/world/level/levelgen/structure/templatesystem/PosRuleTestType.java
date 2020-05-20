@@ -1,14 +1,16 @@
 package net.minecraft.world.level.levelgen.structure.templatesystem;
 
+import com.mojang.serialization.Codec;
 import net.minecraft.core.Registry;
-import net.minecraft.util.Deserializer;
 
-public interface PosRuleTestType extends Deserializer<PosRuleTest> {
-    PosRuleTestType ALWAYS_TRUE_TEST = register("always_true", param0 -> PosAlwaysTrueTest.INSTANCE);
-    PosRuleTestType LINEAR_POS_TEST = register("linear_pos", LinearPosTest::new);
-    PosRuleTestType AXIS_ALIGNED_LINEAR_POS_TEST = register("axis_aligned_linear_pos", AxisAlignedLinearPosTest::new);
+public interface PosRuleTestType<P extends PosRuleTest> {
+    PosRuleTestType<PosAlwaysTrueTest> ALWAYS_TRUE_TEST = register("always_true", PosAlwaysTrueTest.CODEC);
+    PosRuleTestType<LinearPosTest> LINEAR_POS_TEST = register("linear_pos", LinearPosTest.CODEC);
+    PosRuleTestType<AxisAlignedLinearPosTest> AXIS_ALIGNED_LINEAR_POS_TEST = register("axis_aligned_linear_pos", AxisAlignedLinearPosTest.CODEC);
 
-    static PosRuleTestType register(String param0, PosRuleTestType param1) {
-        return Registry.register(Registry.POS_RULE_TEST, param0, param1);
+    Codec<P> codec();
+
+    static <P extends PosRuleTest> PosRuleTestType<P> register(String param0, Codec<P> param1) {
+        return Registry.register(Registry.POS_RULE_TEST, param0, () -> param1);
     }
 }

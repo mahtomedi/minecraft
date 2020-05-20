@@ -70,13 +70,12 @@ public class ImageButton extends Button {
     public void renderButton(PoseStack param0, int param1, int param2, float param3) {
         Minecraft var0 = Minecraft.getInstance();
         var0.getTextureManager().bind(this.resourceLocation);
-        RenderSystem.disableDepthTest();
         int var1 = this.yTexStart;
         if (this.isHovered()) {
             var1 += this.yDiffTex;
         }
 
-        blit(param0, this.x, this.y, (float)this.xTexStart, (float)var1, this.width, this.height, this.textureWidth, this.textureHeight);
         RenderSystem.enableDepthTest();
+        blit(param0, this.x, this.y, (float)this.xTexStart, (float)var1, this.width, this.height, this.textureWidth, this.textureHeight);
     }
 }

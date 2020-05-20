@@ -1,12 +1,16 @@
 package net.minecraft.client.gui.screens;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
@@ -14,23 +18,32 @@ import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.core.Registry;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.levelgen.StructureSettings;
+import net.minecraft.world.level.levelgen.feature.StructureFeature;
+import net.minecraft.world.level.levelgen.feature.configurations.StructureFeatureConfiguration;
 import net.minecraft.world.level.levelgen.flat.FlatLayerInfo;
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class PresetFlatWorldScreen extends Screen {
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final List<PresetFlatWorldScreen.PresetInfo> PRESETS = Lists.newArrayList();
     private final CreateFlatWorldScreen parent;
     private Component shareText;
@@ -38,10 +51,110 @@ public class PresetFlatWorldScreen extends Screen {
     private PresetFlatWorldScreen.PresetsList list;
     private Button selectButton;
     private EditBox export;
+    private StructureSettings structureSettings;
 
     public PresetFlatWorldScreen(CreateFlatWorldScreen param0) {
         super(new TranslatableComponent("createWorld.customize.presets.title"));
         this.parent = param0;
+    }
+
+    @Nullable
+    private static FlatLayerInfo getLayerInfoFromString(String param0, int param1) {
+        String[] var0 = param0.split("\\*", 2);
+        int var1;
+        if (var0.length == 2) {
+            try {
+                var1 = Math.max(Integer.parseInt(var0[0]), 0);
+            } catch (NumberFormatException var101) {
+                LOGGER.error("Error while parsing flat world string => {}", var101.getMessage());
+                return null;
+            }
+        } else {
+            var1 = 1;
+        }
+
+        int var4 = Math.min(param1 + var1, 256);
+        int var5 = var4 - param1;
+        String var6 = var0[var0.length - 1];
+
+        Block var7;
+        try {
+            var7 = Registry.BLOCK.getOptional(new ResourceLocation(var6)).orElse(null);
+        } catch (Exception var91) {
+            LOGGER.error("Error while parsing flat world string => {}", var91.getMessage());
+            return null;
+        }
+
+        if (var7 == null) {
+            LOGGER.error("Error while parsing flat world string => Unknown block, {}", var6);
+            return null;
+        } else {
+            FlatLayerInfo var10 = new FlatLayerInfo(var5, var7);
+            var10.setStart(param1);
+            return var10;
+        }
+    }
+
+    private static List<FlatLayerInfo> getLayersInfoFromString(String param0) {
+        List<FlatLayerInfo> var0 = Lists.newArrayList();
+        String[] var1 = param0.split(",");
+        int var2 = 0;
+
+        for(String var3 : var1) {
+            FlatLayerInfo var4 = getLayerInfoFromString(var3, var2);
+            if (var4 == null) {
+                return Collections.emptyList();
+            }
+
+            var0.add(var4);
+            var2 += var4.getHeight();
+        }
+
+        return var0;
+    }
+
+    public static FlatLevelGeneratorSettings fromString(String param0, StructureSettings param1) {
+        Iterator<String> var0 = Splitter.on(';').split(param0).iterator();
+        if (!var0.hasNext()) {
+            return FlatLevelGeneratorSettings.getDefault();
+        } else {
+            FlatLevelGeneratorSettings var1 = new FlatLevelGeneratorSettings(param1);
+            List<FlatLayerInfo> var2 = getLayersInfoFromString(var0.next());
+            if (var2.isEmpty()) {
+                return FlatLevelGeneratorSettings.getDefault();
+            } else {
+                var1.getLayersInfo().addAll(var2);
+                var1.updateLayers();
+                Biome var3 = Biomes.PLAINS;
+                if (var0.hasNext()) {
+                    try {
+                        ResourceLocation var4 = new ResourceLocation(var0.next());
+                        var3 = Registry.BIOME.getOptional(var4).orElseThrow(() -> new IllegalArgumentException("Invalid Biome: " + var4));
+                    } catch (Exception var7) {
+                        LOGGER.error("Error while parsing flat world string => {}", var7.getMessage());
+                    }
+                }
+
+                var1.setBiome(var3);
+                return var1;
+            }
+        }
+    }
+
+    private static String save(FlatLevelGeneratorSettings param0) {
+        StringBuilder var0 = new StringBuilder();
+
+        for(int var1 = 0; var1 < param0.getLayersInfo().size(); ++var1) {
+            if (var1 > 0) {
+                var0.append(",");
+            }
+
+            var0.append(param0.getLayersInfo().get(var1));
+        }
+
+        var0.append(";");
+        var0.append(Registry.BIOME.getKey(param0.getBiome()));
+        return var0.toString();
     }
 
     @Override
@@ -51,13 +164,15 @@ public class PresetFlatWorldScreen extends Screen {
         this.listText = new TranslatableComponent("createWorld.customize.presets.list");
         this.export = new EditBox(this.font, 50, 40, this.width - 100, 20, this.shareText);
         this.export.setMaxLength(1230);
-        this.export.setValue(this.parent.saveLayerString());
+        this.export.setValue(save(this.parent.settings()));
+        this.structureSettings = this.parent.settings().structureSettings();
         this.children.add(this.export);
         this.list = new PresetFlatWorldScreen.PresetsList();
         this.children.add(this.list);
         this.selectButton = this.addButton(
             new Button(this.width / 2 - 155, this.height - 28, 150, 20, new TranslatableComponent("createWorld.customize.presets.select"), param0 -> {
-                this.parent.loadLayers(this.export.getValue());
+                FlatLevelGeneratorSettings var0 = fromString(this.export.getValue(), this.structureSettings);
+                this.parent.setConfig(var0);
                 this.minecraft.setScreen(this.parent);
             })
         );
@@ -111,21 +226,39 @@ public class PresetFlatWorldScreen extends Screen {
         this.selectButton.active = param0 || this.export.getValue().length() > 1;
     }
 
-    private static void preset(Component param0, ItemLike param1, Biome param2, List<String> param3, FlatLayerInfo... param4) {
-        FlatLevelGeneratorSettings var0 = new FlatLevelGeneratorSettings();
+    private static void preset(
+        Component param0,
+        ItemLike param1,
+        Biome param2,
+        List<StructureFeature<?>> param3,
+        boolean param4,
+        boolean param5,
+        boolean param6,
+        FlatLayerInfo... param7
+    ) {
+        Map<StructureFeature<?>, StructureFeatureConfiguration> var0 = Maps.newHashMap();
 
-        for(int var1 = param4.length - 1; var1 >= 0; --var1) {
-            var0.getLayersInfo().add(param4[var1]);
+        for(StructureFeature<?> var1 : param3) {
+            var0.put(var1, StructureSettings.DEFAULTS.get(var1));
         }
 
-        var0.setBiome(param2);
-        var0.updateLayers();
-
-        for(String var2 : param3) {
-            var0.getStructuresOptions().put(var2, Maps.newHashMap());
+        StructureSettings var2 = new StructureSettings(param4 ? Optional.of(StructureSettings.DEFAULT_STRONGHOLD) : Optional.empty(), var0);
+        FlatLevelGeneratorSettings var3 = new FlatLevelGeneratorSettings(var2);
+        if (param5) {
+            var3.setDecoration();
         }
 
-        PRESETS.add(new PresetFlatWorldScreen.PresetInfo(param1.asItem(), param0, var0.toString()));
+        if (param6) {
+            var3.setAddLakes();
+        }
+
+        for(int var4 = param7.length - 1; var4 >= 0; --var4) {
+            var3.getLayersInfo().add(param7[var4]);
+        }
+
+        var3.setBiome(param2);
+        var3.updateLayers();
+        PRESETS.add(new PresetFlatWorldScreen.PresetInfo(param1.asItem(), param0, var3.withStructureSettings(var2)));
     }
 
     static {
@@ -133,7 +266,10 @@ public class PresetFlatWorldScreen extends Screen {
             new TranslatableComponent("createWorld.customize.preset.classic_flat"),
             Blocks.GRASS_BLOCK,
             Biomes.PLAINS,
-            Arrays.asList("village"),
+            Arrays.asList(StructureFeature.VILLAGE),
+            false,
+            false,
+            false,
             new FlatLayerInfo(1, Blocks.GRASS_BLOCK),
             new FlatLayerInfo(2, Blocks.DIRT),
             new FlatLayerInfo(1, Blocks.BEDROCK)
@@ -142,7 +278,18 @@ public class PresetFlatWorldScreen extends Screen {
             new TranslatableComponent("createWorld.customize.preset.tunnelers_dream"),
             Blocks.STONE,
             Biomes.MOUNTAINS,
-            Arrays.asList("biome_1", "dungeon", "decoration", "stronghold", "mineshaft"),
+            Arrays.asList(
+                StructureFeature.SWAMP_HUT,
+                StructureFeature.DESERT_PYRAMID,
+                StructureFeature.JUNGLE_TEMPLE,
+                StructureFeature.IGLOO,
+                StructureFeature.OCEAN_RUIN,
+                StructureFeature.SHIPWRECK,
+                StructureFeature.MINESHAFT
+            ),
+            true,
+            true,
+            false,
             new FlatLayerInfo(1, Blocks.GRASS_BLOCK),
             new FlatLayerInfo(5, Blocks.DIRT),
             new FlatLayerInfo(230, Blocks.STONE),
@@ -152,7 +299,18 @@ public class PresetFlatWorldScreen extends Screen {
             new TranslatableComponent("createWorld.customize.preset.water_world"),
             Items.WATER_BUCKET,
             Biomes.DEEP_OCEAN,
-            Arrays.asList("biome_1", "oceanmonument"),
+            Arrays.asList(
+                StructureFeature.SWAMP_HUT,
+                StructureFeature.DESERT_PYRAMID,
+                StructureFeature.JUNGLE_TEMPLE,
+                StructureFeature.IGLOO,
+                StructureFeature.OCEAN_RUIN,
+                StructureFeature.SHIPWRECK,
+                StructureFeature.OCEAN_MONUMENT
+            ),
+            false,
+            false,
+            false,
             new FlatLayerInfo(90, Blocks.WATER),
             new FlatLayerInfo(5, Blocks.SAND),
             new FlatLayerInfo(5, Blocks.DIRT),
@@ -163,7 +321,21 @@ public class PresetFlatWorldScreen extends Screen {
             new TranslatableComponent("createWorld.customize.preset.overworld"),
             Blocks.GRASS,
             Biomes.PLAINS,
-            Arrays.asList("village", "biome_1", "decoration", "stronghold", "mineshaft", "dungeon", "lake", "lava_lake", "pillager_outpost", "ruined_portal"),
+            Arrays.asList(
+                StructureFeature.VILLAGE,
+                StructureFeature.SWAMP_HUT,
+                StructureFeature.DESERT_PYRAMID,
+                StructureFeature.JUNGLE_TEMPLE,
+                StructureFeature.IGLOO,
+                StructureFeature.OCEAN_RUIN,
+                StructureFeature.SHIPWRECK,
+                StructureFeature.MINESHAFT,
+                StructureFeature.PILLAGER_OUTPOST,
+                StructureFeature.RUINED_PORTAL
+            ),
+            true,
+            true,
+            true,
             new FlatLayerInfo(1, Blocks.GRASS_BLOCK),
             new FlatLayerInfo(3, Blocks.DIRT),
             new FlatLayerInfo(59, Blocks.STONE),
@@ -173,7 +345,18 @@ public class PresetFlatWorldScreen extends Screen {
             new TranslatableComponent("createWorld.customize.preset.snowy_kingdom"),
             Blocks.SNOW,
             Biomes.SNOWY_TUNDRA,
-            Arrays.asList("village", "biome_1"),
+            Arrays.asList(
+                StructureFeature.VILLAGE,
+                StructureFeature.SWAMP_HUT,
+                StructureFeature.DESERT_PYRAMID,
+                StructureFeature.JUNGLE_TEMPLE,
+                StructureFeature.IGLOO,
+                StructureFeature.OCEAN_RUIN,
+                StructureFeature.SHIPWRECK
+            ),
+            false,
+            false,
+            false,
             new FlatLayerInfo(1, Blocks.SNOW),
             new FlatLayerInfo(1, Blocks.GRASS_BLOCK),
             new FlatLayerInfo(3, Blocks.DIRT),
@@ -184,7 +367,18 @@ public class PresetFlatWorldScreen extends Screen {
             new TranslatableComponent("createWorld.customize.preset.bottomless_pit"),
             Items.FEATHER,
             Biomes.PLAINS,
-            Arrays.asList("village", "biome_1"),
+            Arrays.asList(
+                StructureFeature.VILLAGE,
+                StructureFeature.SWAMP_HUT,
+                StructureFeature.DESERT_PYRAMID,
+                StructureFeature.JUNGLE_TEMPLE,
+                StructureFeature.IGLOO,
+                StructureFeature.OCEAN_RUIN,
+                StructureFeature.SHIPWRECK
+            ),
+            false,
+            false,
+            false,
             new FlatLayerInfo(1, Blocks.GRASS_BLOCK),
             new FlatLayerInfo(3, Blocks.DIRT),
             new FlatLayerInfo(2, Blocks.COBBLESTONE)
@@ -193,7 +387,19 @@ public class PresetFlatWorldScreen extends Screen {
             new TranslatableComponent("createWorld.customize.preset.desert"),
             Blocks.SAND,
             Biomes.DESERT,
-            Arrays.asList("village", "biome_1", "decoration", "stronghold", "mineshaft", "dungeon"),
+            Arrays.asList(
+                StructureFeature.VILLAGE,
+                StructureFeature.SWAMP_HUT,
+                StructureFeature.DESERT_PYRAMID,
+                StructureFeature.JUNGLE_TEMPLE,
+                StructureFeature.IGLOO,
+                StructureFeature.OCEAN_RUIN,
+                StructureFeature.SHIPWRECK,
+                StructureFeature.MINESHAFT
+            ),
+            true,
+            true,
+            false,
             new FlatLayerInfo(8, Blocks.SAND),
             new FlatLayerInfo(52, Blocks.SANDSTONE),
             new FlatLayerInfo(3, Blocks.STONE),
@@ -204,6 +410,9 @@ public class PresetFlatWorldScreen extends Screen {
             Items.REDSTONE,
             Biomes.DESERT,
             Collections.emptyList(),
+            false,
+            false,
+            false,
             new FlatLayerInfo(52, Blocks.SANDSTONE),
             new FlatLayerInfo(3, Blocks.STONE),
             new FlatLayerInfo(1, Blocks.BEDROCK)
@@ -212,7 +421,10 @@ public class PresetFlatWorldScreen extends Screen {
             new TranslatableComponent("createWorld.customize.preset.the_void"),
             Blocks.BARRIER,
             Biomes.THE_VOID,
-            Arrays.asList("decoration"),
+            Collections.emptyList(),
+            false,
+            true,
+            false,
             new FlatLayerInfo(1, Blocks.AIR)
         );
     }
@@ -221,12 +433,12 @@ public class PresetFlatWorldScreen extends Screen {
     static class PresetInfo {
         public final Item icon;
         public final Component name;
-        public final String value;
+        public final FlatLevelGeneratorSettings settings;
 
-        public PresetInfo(Item param0, Component param1, String param2) {
+        public PresetInfo(Item param0, Component param1, FlatLevelGeneratorSettings param2) {
             this.icon = param0;
             this.name = param1;
-            this.value = param2;
+            this.settings = param2;
         }
 
         public Component getName() {
@@ -310,8 +522,10 @@ public class PresetFlatWorldScreen extends Screen {
             private void select() {
                 PresetsList.this.setSelected(this);
                 PresetFlatWorldScreen.this.updateButtonValidity(true);
-                PresetFlatWorldScreen.this.export.setValue(PresetFlatWorldScreen.PRESETS.get(PresetsList.this.children().indexOf(this)).value);
+                PresetFlatWorldScreen.PresetInfo var0 = PresetFlatWorldScreen.PRESETS.get(PresetsList.this.children().indexOf(this));
+                PresetFlatWorldScreen.this.export.setValue(PresetFlatWorldScreen.save(var0.settings));
                 PresetFlatWorldScreen.this.export.moveCursorToStart();
+                PresetFlatWorldScreen.this.structureSettings = var0.settings.structureSettings();
             }
 
             private void blitSlot(PoseStack param0, int param1, int param2, Item param3) {

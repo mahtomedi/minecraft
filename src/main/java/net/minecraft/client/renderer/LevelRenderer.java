@@ -101,7 +101,6 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.border.WorldBorder;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
@@ -930,7 +929,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         this.renderChunkLayer(RenderType.solid(), param0, var2, var3, var4);
         this.renderChunkLayer(RenderType.cutoutMipped(), param0, var2, var3, var4);
         this.renderChunkLayer(RenderType.cutout(), param0, var2, var3, var4);
-        if (this.level.dimensionType() == DimensionType.NETHER) {
+        if (this.level.dimensionType().isNether()) {
             Lighting.setupNetherLevel(param0.last().pose());
         } else {
             Lighting.setupLevel(param0.last().pose());
@@ -1452,7 +1451,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
     }
 
     public void renderSky(PoseStack param0, float param1) {
-        if (this.minecraft.level.dimensionType() == DimensionType.THE_END) {
+        if (this.minecraft.level.dimensionType().isEnd()) {
             this.renderEndSky(param0);
         } else if (this.minecraft.level.effects().renderNormalSky()) {
             RenderSystem.disableTexture();

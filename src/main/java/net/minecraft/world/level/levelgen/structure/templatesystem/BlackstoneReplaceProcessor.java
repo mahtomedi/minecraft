@@ -1,8 +1,7 @@
 package net.minecraft.world.level.levelgen.structure.templatesystem;
 
 import com.google.common.collect.Maps;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Codec;
 import java.util.Map;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -14,6 +13,7 @@ import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class BlackstoneReplaceProcessor extends StructureProcessor {
+    public static final Codec<BlackstoneReplaceProcessor> CODEC = Codec.unit(() -> BlackstoneReplaceProcessor.INSTANCE);
     public static final BlackstoneReplaceProcessor INSTANCE = new BlackstoneReplaceProcessor();
     private final Map<Block, Block> replacements = Util.make(Maps.newHashMap(), param0 -> {
         param0.put(Blocks.COBBLESTONE, Blocks.BLACKSTONE);
@@ -40,6 +40,9 @@ public class BlackstoneReplaceProcessor extends StructureProcessor {
         param0.put(Blocks.CRACKED_STONE_BRICKS, Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS);
         param0.put(Blocks.IRON_BARS, Blocks.CHAIN);
     });
+
+    private BlackstoneReplaceProcessor() {
+    }
 
     @Override
     public StructureTemplate.StructureBlockInfo processBlock(
@@ -73,12 +76,7 @@ public class BlackstoneReplaceProcessor extends StructureProcessor {
     }
 
     @Override
-    protected StructureProcessorType getType() {
+    protected StructureProcessorType<?> getType() {
         return StructureProcessorType.BLACKSTONE_REPLACE;
-    }
-
-    @Override
-    protected <T> Dynamic<T> getDynamic(DynamicOps<T> param0) {
-        return new Dynamic<>(param0, param0.emptyMap());
     }
 }

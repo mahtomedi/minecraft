@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.blocks.BlockInput;
@@ -343,7 +344,7 @@ public class TestCommand {
     }
 
     private static void say(ServerLevel param0, String param1, ChatFormatting param2) {
-        param0.getPlayers(param0x -> true).forEach(param2x -> param2x.sendMessage(new TextComponent(param2 + param1)));
+        param0.getPlayers(param0x -> true).forEach(param2x -> param2x.sendMessage(new TextComponent(param2 + param1), Util.NIL_UUID));
     }
 
     static class TestSummaryDisplayer implements GameTestListener {

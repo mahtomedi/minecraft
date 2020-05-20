@@ -4,11 +4,11 @@ import com.google.gson.JsonParseException;
 import com.mojang.datafixers.DSL;
 import com.mojang.datafixers.DataFix;
 import com.mojang.datafixers.DataFixUtils;
-import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.OpticFinder;
 import com.mojang.datafixers.TypeRewriteRule;
 import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.Type;
+import com.mojang.serialization.Dynamic;
 import java.util.function.Function;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
@@ -28,7 +28,7 @@ public class ItemWrittenBookPagesStrictJsonFix extends DataFix {
                         .map(
                             param0x -> param0x.map(
                                     (Function<? super Dynamic<?>, ? extends Dynamic<?>>)(param0xx -> {
-                                        if (!param0xx.asString().isPresent()) {
+                                        if (!param0xx.asString().result().isPresent()) {
                                             return param0xx;
                                         } else {
                                             String var0x = param0xx.asString("");
@@ -73,7 +73,8 @@ public class ItemWrittenBookPagesStrictJsonFix extends DataFix {
                                     })
                                 )
                         )
-                        .map(param0::createList),
+                        .map(param0::createList)
+                        .result(),
                     param0.emptyList()
                 )
         );

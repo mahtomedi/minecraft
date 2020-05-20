@@ -1,5 +1,7 @@
 package net.minecraft.world.level.biome;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Optional;
 import java.util.OptionalInt;
 import net.minecraft.sounds.Music;
@@ -8,6 +10,19 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class BiomeSpecialEffects {
+    public static final Codec<BiomeSpecialEffects> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    Codec.INT.fieldOf("fog_color").forGetter(param0x -> param0x.fogColor),
+                    Codec.INT.fieldOf("water_color").forGetter(param0x -> param0x.waterColor),
+                    Codec.INT.fieldOf("water_fog_color").forGetter(param0x -> param0x.waterFogColor),
+                    AmbientParticleSettings.CODEC.optionalFieldOf("particle").forGetter(param0x -> param0x.ambientParticleSettings),
+                    SoundEvent.CODEC.optionalFieldOf("ambient_sound").forGetter(param0x -> param0x.ambientLoopSoundEvent),
+                    AmbientMoodSettings.CODEC.optionalFieldOf("mood_sound").forGetter(param0x -> param0x.ambientMoodSettings),
+                    AmbientAdditionsSettings.CODEC.optionalFieldOf("additions_sound").forGetter(param0x -> param0x.ambientAdditionsSettings),
+                    Music.CODEC.optionalFieldOf("music").forGetter(param0x -> param0x.backgroundMusic)
+                )
+                .apply(param0, BiomeSpecialEffects::new)
+    );
     private final int fogColor;
     private final int waterColor;
     private final int waterFogColor;

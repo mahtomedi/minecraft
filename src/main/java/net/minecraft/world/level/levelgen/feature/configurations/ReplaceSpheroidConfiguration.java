@@ -1,13 +1,21 @@
 package net.minecraft.world.level.levelgen.feature.configurations;
 
-import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class ReplaceSpheroidConfiguration implements FeatureConfiguration {
+    public static final Codec<ReplaceSpheroidConfiguration> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    BlockState.CODEC.fieldOf("target").forGetter(param0x -> param0x.targetState),
+                    BlockState.CODEC.fieldOf("state").forGetter(param0x -> param0x.replaceState),
+                    Vec3i.CODEC.fieldOf("minimum_reach").forGetter(param0x -> param0x.minimumReach),
+                    Vec3i.CODEC.fieldOf("maximum_reach").forGetter(param0x -> param0x.maximumReach)
+                )
+                .apply(param0, ReplaceSpheroidConfiguration::new)
+    );
     public final BlockState targetState;
     public final BlockState replaceState;
     public final Vec3i minimumReach;
@@ -18,32 +26,6 @@ public class ReplaceSpheroidConfiguration implements FeatureConfiguration {
         this.replaceState = param1;
         this.minimumReach = param2;
         this.maximumReach = param3;
-    }
-
-    @Override
-    public <T> Dynamic<T> serialize(DynamicOps<T> param0) {
-        ImmutableMap.Builder<T, T> var0 = ImmutableMap.builder();
-        var0.put(param0.createString("target"), BlockState.serialize(param0, this.targetState).getValue());
-        var0.put(param0.createString("state"), BlockState.serialize(param0, this.replaceState).getValue());
-        var0.put(param0.createString("minimum_reach_x"), param0.createInt(this.minimumReach.getX()));
-        var0.put(param0.createString("minimum_reach_y"), param0.createInt(this.minimumReach.getY()));
-        var0.put(param0.createString("minimum_reach_z"), param0.createInt(this.minimumReach.getZ()));
-        var0.put(param0.createString("maximum_reach_x"), param0.createInt(this.maximumReach.getX()));
-        var0.put(param0.createString("maximum_reach_y"), param0.createInt(this.maximumReach.getY()));
-        var0.put(param0.createString("maximum_reach_z"), param0.createInt(this.maximumReach.getZ()));
-        return new Dynamic<>(param0, param0.createMap(var0.build()));
-    }
-
-    public static <T> ReplaceSpheroidConfiguration deserialize(Dynamic<T> param0) {
-        BlockState var0 = param0.get("target").map(BlockState::deserialize).orElse(Blocks.AIR.defaultBlockState());
-        BlockState var1 = param0.get("state").map(BlockState::deserialize).orElse(Blocks.AIR.defaultBlockState());
-        int var2 = param0.get("minimum_reach_x").asInt(0);
-        int var3 = param0.get("minimum_reach_y").asInt(0);
-        int var4 = param0.get("minimum_reach_z").asInt(0);
-        int var5 = param0.get("maximum_reach_x").asInt(0);
-        int var6 = param0.get("maximum_reach_y").asInt(0);
-        int var7 = param0.get("maximum_reach_z").asInt(0);
-        return new ReplaceSpheroidConfiguration(var0, var1, new Vec3i(var2, var3, var4), new Vec3i(var5, var6, var7));
     }
 
     public static class Builder {

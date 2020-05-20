@@ -15,6 +15,6 @@ public class V1451_4 extends NamespacedSchema {
     @Override
     public void registerTypes(Schema param0, Map<String, Supplier<TypeTemplate>> param1, Map<String, Supplier<TypeTemplate>> param2) {
         super.registerTypes(param0, param1, param2);
-        param0.registerType(false, References.BLOCK_NAME, () -> DSL.constType(DSL.namespacedString()));
+        param0.registerType(false, References.BLOCK_NAME, () -> DSL.constType(namespacedString()));
     }
 }

@@ -1,25 +1,22 @@
 package net.minecraft.world.level.levelgen.feature.treedecorators;
 
-import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Codec;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.VineBlock;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public class TrunkVineDecorator extends TreeDecorator {
-    public TrunkVineDecorator() {
-        super(TreeDecoratorType.TRUNK_VINE);
-    }
+    public static final Codec<TrunkVineDecorator> CODEC = Codec.unit(() -> TrunkVineDecorator.INSTANCE);
+    public static final TrunkVineDecorator INSTANCE = new TrunkVineDecorator();
 
-    public <T> TrunkVineDecorator(Dynamic<T> param0) {
-        this();
+    @Override
+    protected TreeDecoratorType<?> type() {
+        return TreeDecoratorType.TRUNK_VINE;
     }
 
     @Override
@@ -54,14 +51,5 @@ public class TrunkVineDecorator extends TreeDecorator {
             }
 
         });
-    }
-
-    @Override
-    public <T> T serialize(DynamicOps<T> param0) {
-        return new Dynamic<>(
-                param0,
-                param0.createMap(ImmutableMap.of(param0.createString("type"), param0.createString(Registry.TREE_DECORATOR_TYPES.getKey(this.type).toString())))
-            )
-            .getValue();
     }
 }

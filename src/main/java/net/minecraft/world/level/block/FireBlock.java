@@ -20,7 +20,6 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraft.world.level.dimension.end.TheEndDimension;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -123,9 +122,7 @@ public class FireBlock extends BaseFireBlock {
             }
 
             BlockState var0 = param1.getBlockState(param2.below());
-            boolean var1 = param1.getDimension() instanceof TheEndDimension && var0.is(Blocks.BEDROCK)
-                || var0.is(Blocks.NETHERRACK)
-                || var0.is(Blocks.MAGMA_BLOCK);
+            boolean var1 = param1.dimensionType().isEnd() && var0.is(Blocks.BEDROCK) || var0.is(Blocks.NETHERRACK) || var0.is(Blocks.MAGMA_BLOCK);
             int var2 = param0.getValue(AGE);
             if (!var1 && param1.isRaining() && this.isNearRain(param1, param2) && param3.nextFloat() < 0.2F + (float)var2 * 0.03F) {
                 param1.removeBlock(param2, false);

@@ -9,7 +9,6 @@ import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -110,7 +109,7 @@ public class LightTexture implements AutoCloseable {
                         float var16 = var14 * ((var14 * 0.6F + 0.4F) * 0.6F + 0.4F);
                         float var17 = var14 * (var14 * var14 * 0.6F + 0.4F);
                         var10.set(var14, var16, var17);
-                        if (var0.dimensionType() == DimensionType.THE_END) {
+                        if (var0.dimensionType().isEnd()) {
                             var10.lerp(new Vector3f(0.99F, 1.12F, 1.0F), 0.25F);
                         } else {
                             Vector3f var18 = var8.copy();
@@ -163,7 +162,7 @@ public class LightTexture implements AutoCloseable {
     }
 
     private float getBrightness(Level param0, int param1) {
-        return param0.getDimension().getBrightness(param1);
+        return param0.dimensionType().brightness(param1);
     }
 
     public static int pack(int param0, int param1) {

@@ -1,9 +1,7 @@
 package net.minecraft.world.level.levelgen.feature.foliageplacers;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMap.Builder;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Random;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
@@ -11,24 +9,28 @@ import net.minecraft.world.level.LevelSimulatedRW;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
 
 public class PineFoliagePlacer extends FoliagePlacer {
+    public static final Codec<PineFoliagePlacer> CODEC = RecordCodecBuilder.create(
+        param0 -> foliagePlacerParts(param0)
+                .and(
+                    param0.group(
+                        Codec.INT.fieldOf("height").forGetter(param0x -> param0x.height),
+                        Codec.INT.fieldOf("height_random").forGetter(param0x -> param0x.heightRandom)
+                    )
+                )
+                .apply(param0, PineFoliagePlacer::new)
+    );
     private final int height;
     private final int heightRandom;
 
     public PineFoliagePlacer(int param0, int param1, int param2, int param3, int param4, int param5) {
-        super(param0, param1, param2, param3, FoliagePlacerType.PINE_FOLIAGE_PLACER);
+        super(param0, param1, param2, param3);
         this.height = param4;
         this.heightRandom = param5;
     }
 
-    public <T> PineFoliagePlacer(Dynamic<T> param0) {
-        this(
-            param0.get("radius").asInt(0),
-            param0.get("radius_random").asInt(0),
-            param0.get("offset").asInt(0),
-            param0.get("offset_random").asInt(0),
-            param0.get("height").asInt(0),
-            param0.get("height_random").asInt(0)
-        );
+    @Override
+    protected FoliagePlacerType<?> type() {
+        return FoliagePlacerType.PINE_FOLIAGE_PLACER;
     }
 
     @Override
@@ -69,12 +71,5 @@ public class PineFoliagePlacer extends FoliagePlacer {
     @Override
     protected boolean shouldSkipLocation(Random param0, int param1, int param2, int param3, int param4, boolean param5) {
         return param1 == param4 && param3 == param4 && param4 > 0;
-    }
-
-    @Override
-    public <T> T serialize(DynamicOps<T> param0) {
-        Builder<T, T> var0 = ImmutableMap.builder();
-        var0.put(param0.createString("height"), param0.createInt(this.height)).put(param0.createString("height_random"), param0.createInt(this.heightRandom));
-        return param0.merge(super.serialize(param0), param0.createMap(var0.build()));
     }
 }

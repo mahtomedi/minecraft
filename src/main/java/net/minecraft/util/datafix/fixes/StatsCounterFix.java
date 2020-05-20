@@ -5,10 +5,10 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.DSL;
 import com.mojang.datafixers.DataFix;
-import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.TypeRewriteRule;
 import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.Type;
+import com.mojang.serialization.Dynamic;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
@@ -148,7 +148,7 @@ public class StatsCounterFix extends DataFix {
             param1 -> {
                 Dynamic<?> var0x = param1.get(DSL.remainderFinder());
                 Map<Dynamic<?>, Dynamic<?>> var1x = Maps.newHashMap();
-                Optional<? extends Map<? extends Dynamic<?>, ? extends Dynamic<?>>> var2 = var0x.getMapValues();
+                Optional<? extends Map<? extends Dynamic<?>, ? extends Dynamic<?>>> var2 = var0x.getMapValues().result();
                 if (var2.isPresent()) {
                     Iterator var6 = var2.get().entrySet().iterator();
     
@@ -159,12 +159,13 @@ public class StatsCounterFix extends DataFix {
                         while(true) {
                             if (!var6.hasNext()) {
                                 return var0.readTyped(var0x.emptyMap().set("stats", var0x.createMap(var1x)))
-                                    .getSecond()
-                                    .orElseThrow(() -> new IllegalStateException("Could not parse new stats object."));
+                                    .result()
+                                    .orElseThrow(() -> new IllegalStateException("Could not parse new stats object."))
+                                    .getFirst();
                             }
     
                             var3 = (Entry)var6.next();
-                            if (var3.getValue().asNumber().isPresent()) {
+                            if (var3.getValue().asNumber().result().isPresent()) {
                                 String var4 = var3.getKey().asString("");
                                 if (!SKIP.contains(var4)) {
                                     if (CUSTOM_MAP.containsKey(var4)) {
@@ -207,8 +208,9 @@ public class StatsCounterFix extends DataFix {
                     }
                 } else {
                     return var0.readTyped(var0x.emptyMap().set("stats", var0x.createMap(var1x)))
-                        .getSecond()
-                        .orElseThrow(() -> new IllegalStateException("Could not parse new stats object."));
+                        .result()
+                        .orElseThrow(() -> new IllegalStateException("Could not parse new stats object."))
+                        .getFirst();
                 }
             }
         );

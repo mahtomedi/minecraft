@@ -1,7 +1,6 @@
 package net.minecraft.world.entity.ai.behavior;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Objects;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
@@ -29,7 +28,7 @@ public class ValidateNearbyPoi extends Behavior<LivingEntity> {
     @Override
     protected boolean checkExtraStartConditions(ServerLevel param0, LivingEntity param1) {
         GlobalPos var0 = param1.getBrain().getMemory(this.memoryType).get();
-        return Objects.equals(param0.dimensionType(), var0.dimension()) && var0.pos().closerThan(param1.position(), 5.0);
+        return param0.dimension() == var0.dimension() && var0.pos().closerThan(param1.position(), 5.0);
     }
 
     @Override

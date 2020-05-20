@@ -1,8 +1,7 @@
 package net.minecraft.world.level.levelgen.placement;
 
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Codec;
 import java.util.Random;
-import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
@@ -11,7 +10,7 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 
 public class CountHeightmapDecorator extends FeatureDecorator<FrequencyDecoratorConfiguration> {
-    public CountHeightmapDecorator(Function<Dynamic<?>, ? extends FrequencyDecoratorConfiguration> param0) {
+    public CountHeightmapDecorator(Codec<FrequencyDecoratorConfiguration> param0) {
         super(param0);
     }
 

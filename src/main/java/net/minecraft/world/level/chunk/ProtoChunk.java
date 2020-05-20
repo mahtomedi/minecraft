@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.shorts.ShortList;
 import java.util.BitSet;
 import java.util.Collection;
@@ -51,13 +52,13 @@ public class ProtoChunk implements ChunkAccess {
     private final List<CompoundTag> entities = Lists.newArrayList();
     private final List<BlockPos> lights = Lists.newArrayList();
     private final ShortList[] postProcessing = new ShortList[16];
-    private final Map<String, StructureStart> structureStarts = Maps.newHashMap();
+    private final Map<String, StructureStart<?>> structureStarts = Maps.newHashMap();
     private final Map<String, LongSet> structuresRefences = Maps.newHashMap();
     private final UpgradeData upgradeData;
     private final ProtoTickList<Block> blockTicks;
     private final ProtoTickList<Fluid> liquidTicks;
     private long inhabitedTime;
-    private final Map<GenerationStep.Carving, BitSet> carvingMasks = Maps.newHashMap();
+    private final Map<GenerationStep.Carving, BitSet> carvingMasks = new Object2ObjectArrayMap<>();
     private volatile boolean isLightCorrect;
 
     public ProtoChunk(ChunkPos param0, UpgradeData param1) {
@@ -312,23 +313,23 @@ public class ProtoChunk implements ChunkAccess {
 
     @Nullable
     @Override
-    public StructureStart getStartForFeature(String param0) {
+    public StructureStart<?> getStartForFeature(String param0) {
         return this.structureStarts.get(param0);
     }
 
     @Override
-    public void setStartForFeature(String param0, StructureStart param1) {
+    public void setStartForFeature(String param0, StructureStart<?> param1) {
         this.structureStarts.put(param0, param1);
         this.isDirty = true;
     }
 
     @Override
-    public Map<String, StructureStart> getAllStarts() {
+    public Map<String, StructureStart<?>> getAllStarts() {
         return Collections.unmodifiableMap(this.structureStarts);
     }
 
     @Override
-    public void setAllStarts(Map<String, StructureStart> param0) {
+    public void setAllStarts(Map<String, StructureStart<?>> param0) {
         this.structureStarts.clear();
         this.structureStarts.putAll(param0);
         this.isDirty = true;
@@ -442,8 +443,12 @@ public class ProtoChunk implements ChunkAccess {
         this.blockEntityNbts.remove(param0);
     }
 
-    @Override
+    @Nullable
     public BitSet getCarvingMask(GenerationStep.Carving param0) {
+        return this.carvingMasks.get(param0);
+    }
+
+    public BitSet getOrCreateCarvingMask(GenerationStep.Carving param0) {
         return this.carvingMasks.computeIfAbsent(param0, param0x -> new BitSet(65536));
     }
 

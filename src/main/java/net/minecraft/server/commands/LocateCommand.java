@@ -1,8 +1,10 @@
 package net.minecraft.server.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import java.util.Map.Entry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -13,42 +15,28 @@ import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.levelgen.feature.StructureFeature;
 
 public class LocateCommand {
     private static final SimpleCommandExceptionType ERROR_FAILED = new SimpleCommandExceptionType(new TranslatableComponent("commands.locate.failed"));
 
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
-        param0.register(
-            Commands.literal("locate")
-                .requires(param0x -> param0x.hasPermission(2))
-                .then(Commands.literal("Pillager_Outpost").executes(param0x -> locate(param0x.getSource(), "Pillager_Outpost")))
-                .then(Commands.literal("Mineshaft").executes(param0x -> locate(param0x.getSource(), "Mineshaft")))
-                .then(Commands.literal("Mansion").executes(param0x -> locate(param0x.getSource(), "Mansion")))
-                .then(Commands.literal("Igloo").executes(param0x -> locate(param0x.getSource(), "Igloo")))
-                .then(Commands.literal("Ruined_Portal").executes(param0x -> locate(param0x.getSource(), "Ruined_Portal")))
-                .then(Commands.literal("Desert_Pyramid").executes(param0x -> locate(param0x.getSource(), "Desert_Pyramid")))
-                .then(Commands.literal("Jungle_Pyramid").executes(param0x -> locate(param0x.getSource(), "Jungle_Pyramid")))
-                .then(Commands.literal("Swamp_Hut").executes(param0x -> locate(param0x.getSource(), "Swamp_Hut")))
-                .then(Commands.literal("Stronghold").executes(param0x -> locate(param0x.getSource(), "Stronghold")))
-                .then(Commands.literal("Monument").executes(param0x -> locate(param0x.getSource(), "Monument")))
-                .then(Commands.literal("Fortress").executes(param0x -> locate(param0x.getSource(), "Fortress")))
-                .then(Commands.literal("EndCity").executes(param0x -> locate(param0x.getSource(), "EndCity")))
-                .then(Commands.literal("Ocean_Ruin").executes(param0x -> locate(param0x.getSource(), "Ocean_Ruin")))
-                .then(Commands.literal("Buried_Treasure").executes(param0x -> locate(param0x.getSource(), "Buried_Treasure")))
-                .then(Commands.literal("Shipwreck").executes(param0x -> locate(param0x.getSource(), "Shipwreck")))
-                .then(Commands.literal("Village").executes(param0x -> locate(param0x.getSource(), "Village")))
-                .then(Commands.literal("Nether_Fossil").executes(param0x -> locate(param0x.getSource(), "Nether_Fossil")))
-                .then(Commands.literal("Bastion_Remnant").executes(param0x -> locate(param0x.getSource(), "Bastion_Remnant")))
-        );
+        LiteralArgumentBuilder<CommandSourceStack> var0 = Commands.literal("locate").requires(param0x -> param0x.hasPermission(2));
+
+        for(Entry<String, StructureFeature<?>> var1 : StructureFeature.STRUCTURES_REGISTRY.entrySet()) {
+            var0 = var0.then(Commands.literal(var1.getKey()).executes(param1 -> locate(param1.getSource(), var1.getValue())));
+        }
+
+        param0.register(var0);
     }
 
-    private static int locate(CommandSourceStack param0, String param1) throws CommandSyntaxException {
+    private static int locate(CommandSourceStack param0, StructureFeature<?> param1) throws CommandSyntaxException {
         BlockPos var0 = new BlockPos(param0.getPosition());
         BlockPos var1 = param0.getLevel().findNearestMapFeature(param1, var0, 100, false);
         if (var1 == null) {
             throw ERROR_FAILED.create();
         } else {
-            return showLocateResult(param0, param1, var0, var1, "commands.locate.success");
+            return showLocateResult(param0, param1.getFeatureName(), var0, var1, "commands.locate.success");
         }
     }
 

@@ -2,8 +2,6 @@ package net.minecraft.world.level.biome;
 
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import net.minecraft.world.level.levelgen.surfacebuilders.SurfaceBuilder;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -29,8 +27,7 @@ public class EndMidlandsBiome extends Biome {
                 )
                 .parent(null)
         );
-        this.addStructureStart(Feature.END_CITY.configured(FeatureConfiguration.NONE));
-        BiomeDefaultFeatures.addEndCity(this);
+        this.addStructureStart(BiomeDefaultFeatures.END_CITY);
         this.addSpawn(MobCategory.MONSTER, new Biome.SpawnerData(EntityType.ENDERMAN, 10, 4, 4));
     }
 

@@ -5,6 +5,7 @@ import com.google.common.collect.Sets;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.Dynamic4CommandExceptionType;
 import java.util.Collection;
@@ -17,6 +18,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.coordinates.Vec2Argument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
@@ -56,8 +58,32 @@ public class SpreadPlayersCommand {
                                                                     Vec2Argument.getVec2(param0x, "center"),
                                                                     FloatArgumentType.getFloat(param0x, "spreadDistance"),
                                                                     FloatArgumentType.getFloat(param0x, "maxRange"),
+                                                                    256,
                                                                     BoolArgumentType.getBool(param0x, "respectTeams"),
                                                                     EntityArgument.getEntities(param0x, "targets")
+                                                                )
+                                                        )
+                                                )
+                                        )
+                                        .then(
+                                            Commands.literal("under")
+                                                .then(
+                                                    Commands.argument("maxHeight", IntegerArgumentType.integer())
+                                                        .then(
+                                                            Commands.argument("respectTeams", BoolArgumentType.bool())
+                                                                .then(
+                                                                    Commands.argument("targets", EntityArgument.entities())
+                                                                        .executes(
+                                                                            param0x -> spreadPlayers(
+                                                                                    param0x.getSource(),
+                                                                                    Vec2Argument.getVec2(param0x, "center"),
+                                                                                    FloatArgumentType.getFloat(param0x, "spreadDistance"),
+                                                                                    FloatArgumentType.getFloat(param0x, "maxRange"),
+                                                                                    IntegerArgumentType.getInteger(param0x, "maxHeight"),
+                                                                                    BoolArgumentType.getBool(param0x, "respectTeams"),
+                                                                                    EntityArgument.getEntities(param0x, "targets")
+                                                                                )
+                                                                        )
                                                                 )
                                                         )
                                                 )
@@ -68,18 +94,20 @@ public class SpreadPlayersCommand {
         );
     }
 
-    private static int spreadPlayers(CommandSourceStack param0, Vec2 param1, float param2, float param3, boolean param4, Collection<? extends Entity> param5) throws CommandSyntaxException {
+    private static int spreadPlayers(
+        CommandSourceStack param0, Vec2 param1, float param2, float param3, int param4, boolean param5, Collection<? extends Entity> param6
+    ) throws CommandSyntaxException {
         Random var0 = new Random();
         double var1 = (double)(param1.x - param3);
         double var2 = (double)(param1.y - param3);
         double var3 = (double)(param1.x + param3);
         double var4 = (double)(param1.y + param3);
-        SpreadPlayersCommand.Position[] var5 = createInitialPositions(var0, param4 ? getNumberOfTeams(param5) : param5.size(), var1, var2, var3, var4);
-        spreadPositions(param1, (double)param2, param0.getLevel(), var0, var1, var2, var3, var4, var5, param4);
-        double var6 = setPlayerPositions(param5, param0.getLevel(), var5, param4);
+        SpreadPlayersCommand.Position[] var5 = createInitialPositions(var0, param5 ? getNumberOfTeams(param6) : param6.size(), var1, var2, var3, var4);
+        spreadPositions(param1, (double)param2, param0.getLevel(), var0, var1, var2, var3, var4, param4, var5, param5);
+        double var6 = setPlayerPositions(param6, param0.getLevel(), var5, param4, param5);
         param0.sendSuccess(
             new TranslatableComponent(
-                "commands.spreadplayers.success." + (param4 ? "teams" : "entities"), var5.length, param1.x, param1.y, String.format(Locale.ROOT, "%.2f", var6)
+                "commands.spreadplayers.success." + (param5 ? "teams" : "entities"), var5.length, param1.x, param1.y, String.format(Locale.ROOT, "%.2f", var6)
             ),
             true
         );
@@ -109,8 +137,9 @@ public class SpreadPlayersCommand {
         double param5,
         double param6,
         double param7,
-        SpreadPlayersCommand.Position[] param8,
-        boolean param9
+        int param8,
+        SpreadPlayersCommand.Position[] param9,
+        boolean param10
     ) throws CommandSyntaxException {
         boolean var0 = true;
         double var1 = Float.MAX_VALUE;
@@ -120,14 +149,14 @@ public class SpreadPlayersCommand {
             var0 = false;
             var1 = Float.MAX_VALUE;
 
-            for(int var3 = 0; var3 < param8.length; ++var3) {
-                SpreadPlayersCommand.Position var4 = param8[var3];
+            for(int var3 = 0; var3 < param9.length; ++var3) {
+                SpreadPlayersCommand.Position var4 = param9[var3];
                 int var5 = 0;
                 SpreadPlayersCommand.Position var6 = new SpreadPlayersCommand.Position();
 
-                for(int var7 = 0; var7 < param8.length; ++var7) {
+                for(int var7 = 0; var7 < param9.length; ++var7) {
                     if (var3 != var7) {
-                        SpreadPlayersCommand.Position var8 = param8[var7];
+                        SpreadPlayersCommand.Position var8 = param9[var7];
                         double var9 = var4.dist(var8);
                         var1 = Math.min(var9, var1);
                         if (var9 < param1) {
@@ -158,8 +187,8 @@ public class SpreadPlayersCommand {
             }
 
             if (!var0) {
-                for(SpreadPlayersCommand.Position var11 : param8) {
-                    if (!var11.isSafe(param2)) {
+                for(SpreadPlayersCommand.Position var11 : param9) {
+                    if (!var11.isSafe(param2, param8)) {
                         var11.randomize(param3, param4, param5, param6, param7);
                         var0 = true;
                     }
@@ -172,22 +201,24 @@ public class SpreadPlayersCommand {
         }
 
         if (var2 >= 10000) {
-            if (param9) {
-                throw ERROR_FAILED_TO_SPREAD_TEAMS.create(param8.length, param0.x, param0.y, String.format(Locale.ROOT, "%.2f", var1));
+            if (param10) {
+                throw ERROR_FAILED_TO_SPREAD_TEAMS.create(param9.length, param0.x, param0.y, String.format(Locale.ROOT, "%.2f", var1));
             } else {
-                throw ERROR_FAILED_TO_SPREAD_ENTITIES.create(param8.length, param0.x, param0.y, String.format(Locale.ROOT, "%.2f", var1));
+                throw ERROR_FAILED_TO_SPREAD_ENTITIES.create(param9.length, param0.x, param0.y, String.format(Locale.ROOT, "%.2f", var1));
             }
         }
     }
 
-    private static double setPlayerPositions(Collection<? extends Entity> param0, ServerLevel param1, SpreadPlayersCommand.Position[] param2, boolean param3) {
+    private static double setPlayerPositions(
+        Collection<? extends Entity> param0, ServerLevel param1, SpreadPlayersCommand.Position[] param2, int param3, boolean param4
+    ) {
         double var0 = 0.0;
         int var1 = 0;
         Map<Team, SpreadPlayersCommand.Position> var2 = Maps.newHashMap();
 
         for(Entity var3 : param0) {
             SpreadPlayersCommand.Position var5;
-            if (param3) {
+            if (param4) {
                 Team var4 = var3 instanceof Player ? var3.getTeam() : null;
                 if (!var2.containsKey(var4)) {
                     var2.put(var4, param2[var1++]);
@@ -198,7 +229,7 @@ public class SpreadPlayersCommand {
                 var5 = param2[var1++];
             }
 
-            var3.teleportToWithTicket((double)((float)Mth.floor(var5.x) + 0.5F), (double)var5.getSpawnY(param1), (double)Mth.floor(var5.z) + 0.5);
+            var3.teleportToWithTicket((double)((float)Mth.floor(var5.x) + 0.5F), (double)var5.getSpawnY(param1, param3), (double)Mth.floor(var5.z) + 0.5);
             double var7 = Double.MAX_VALUE;
 
             for(SpreadPlayersCommand.Position var8 : param2) {
@@ -272,32 +303,30 @@ public class SpreadPlayersCommand {
             return var0;
         }
 
-        public int getSpawnY(BlockGetter param0) {
-            BlockPos var0 = new BlockPos(this.x, 256.0, this.z);
+        public int getSpawnY(BlockGetter param0, int param1) {
+            BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos(this.x, (double)(param1 + 1), this.z);
+            boolean var1 = param0.getBlockState(var0).isAir();
+            var0.move(Direction.DOWN);
 
-            while(var0.getY() > 0) {
-                var0 = var0.below();
-                if (!param0.getBlockState(var0).isAir()) {
+            boolean var3;
+            for(boolean var2 = param0.getBlockState(var0).isAir(); var0.getY() > 0; var2 = var3) {
+                var0.move(Direction.DOWN);
+                var3 = param0.getBlockState(var0).isAir();
+                if (!var3 && var2 && var1) {
                     return var0.getY() + 1;
                 }
+
+                var1 = var2;
             }
 
-            return 257;
+            return param1 + 1;
         }
 
-        public boolean isSafe(BlockGetter param0) {
-            BlockPos var0 = new BlockPos(this.x, 256.0, this.z);
-
-            while(var0.getY() > 0) {
-                var0 = var0.below();
-                BlockState var1 = param0.getBlockState(var0);
-                if (!var1.isAir()) {
-                    Material var2 = var1.getMaterial();
-                    return !var2.isLiquid() && var2 != Material.FIRE;
-                }
-            }
-
-            return false;
+        public boolean isSafe(BlockGetter param0, int param1) {
+            BlockPos var0 = new BlockPos(this.x, (double)(this.getSpawnY(param0, param1) - 1), this.z);
+            BlockState var1 = param0.getBlockState(var0);
+            Material var2 = var1.getMaterial();
+            return var0.getY() < param1 && !var2.isLiquid() && var2 != Material.FIRE;
         }
 
         public void randomize(Random param0, double param1, double param2, double param3, double param4) {

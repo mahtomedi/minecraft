@@ -46,7 +46,7 @@ public class StatePropertiesPredicate {
         this.properties = ImmutableList.copyOf(param0);
     }
 
-    public <S extends StateHolder<S>> boolean matches(StateDefinition<?, S> param0, S param1) {
+    public <S extends StateHolder<?, S>> boolean matches(StateDefinition<?, S> param0, S param1) {
         for(StatePropertiesPredicate.PropertyMatcher var0 : this.properties) {
             if (!var0.match(param0, param1)) {
                 return false;
@@ -137,7 +137,7 @@ public class StatePropertiesPredicate {
         }
 
         @Override
-        protected <T extends Comparable<T>> boolean match(StateHolder<?> param0, Property<T> param1) {
+        protected <T extends Comparable<T>> boolean match(StateHolder<?, ?> param0, Property<T> param1) {
             T var0 = param0.getValue(param1);
             Optional<T> var1 = param1.getValue(this.value);
             return var1.isPresent() && var0.compareTo(var1.get()) == 0;
@@ -156,12 +156,12 @@ public class StatePropertiesPredicate {
             this.name = param0;
         }
 
-        public <S extends StateHolder<S>> boolean match(StateDefinition<?, S> param0, S param1) {
+        public <S extends StateHolder<?, S>> boolean match(StateDefinition<?, S> param0, S param1) {
             Property<?> var0 = param0.getProperty(this.name);
             return var0 == null ? false : this.match(param1, var0);
         }
 
-        protected abstract <T extends Comparable<T>> boolean match(StateHolder<?> var1, Property<T> var2);
+        protected abstract <T extends Comparable<T>> boolean match(StateHolder<?, ?> var1, Property<T> var2);
 
         public abstract JsonElement toJson();
 
@@ -191,7 +191,7 @@ public class StatePropertiesPredicate {
         }
 
         @Override
-        protected <T extends Comparable<T>> boolean match(StateHolder<?> param0, Property<T> param1) {
+        protected <T extends Comparable<T>> boolean match(StateHolder<?, ?> param0, Property<T> param1) {
             T var0 = param0.getValue(param1);
             if (this.minValue != null) {
                 Optional<T> var1 = param1.getValue(this.minValue);

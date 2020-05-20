@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.OptionalInt;
 import java.util.Random;
+import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.CrashReport;
@@ -19,8 +20,10 @@ import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
@@ -58,6 +61,7 @@ import net.minecraft.network.protocol.game.ClientboundSetHealthPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
 import net.minecraft.network.protocol.game.ServerboundClientInformationPacket;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerAdvancements;
@@ -104,7 +108,6 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.biome.BiomeManager;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.CommandBlockEntity;
@@ -154,7 +157,7 @@ public class ServerPlayer extends Player implements ContainerListener {
     @Nullable
     private Vec3 enteredNetherPosition;
     private SectionPos lastSectionPos = SectionPos.of(0, 0, 0);
-    private DimensionType respawnDimension = DimensionType.OVERWORLD;
+    private ResourceKey<DimensionType> respawnDimension = DimensionType.OVERWORLD_LOCATION;
     private BlockPos respawnPosition;
     private boolean respawnForced;
     private int containerCounter;
@@ -197,7 +200,7 @@ public class ServerPlayer extends Player implements ContainerListener {
                 int var9 = (var7 + var6 * var8) % var5;
                 int var10 = var9 % (var1 * 2 + 1);
                 int var11 = var9 / (var1 * 2 + 1);
-                BlockPos var12 = param0.getDimension().getValidSpawnPosition(param0.getSeed(), var0.getX() + var10 - var1, var0.getZ() + var11 - var1, false);
+                BlockPos var12 = PlayerRespawnLogic.validSpawnPosition(param0, var0, var1, var10, var11);
                 if (var12 != null) {
                     this.moveTo(var12, 0.0F, 0.0F);
                     if (param0.noCollision(this)) {
@@ -247,9 +250,11 @@ public class ServerPlayer extends Player implements ContainerListener {
         if (param0.contains("SpawnX", 99) && param0.contains("SpawnY", 99) && param0.contains("SpawnZ", 99)) {
             this.respawnPosition = new BlockPos(param0.getInt("SpawnX"), param0.getInt("SpawnY"), param0.getInt("SpawnZ"));
             this.respawnForced = param0.getBoolean("SpawnForced");
-            if (param0.contains("SpawnDimension", 8)) {
-                ResourceLocation var1 = ResourceLocation.tryParse(param0.getString("SpawnDimension"));
-                this.respawnDimension = var1 != null ? DimensionType.getByName(var1) : DimensionType.OVERWORLD;
+            if (param0.contains("SpawnDimension")) {
+                this.respawnDimension = DimensionType.RESOURCE_KEY_CODEC
+                    .parse(NbtOps.INSTANCE, param0.get("SpawnDimension"))
+                    .resultOrPartial(LOGGER::error)
+                    .orElse(DimensionType.OVERWORLD_LOCATION);
             }
         }
 
@@ -280,12 +285,16 @@ public class ServerPlayer extends Player implements ContainerListener {
         }
 
         param0.put("recipeBook", this.recipeBook.toNbt());
+        param0.putString("Dimension", this.level.dimension().location().toString());
         if (this.respawnPosition != null) {
             param0.putInt("SpawnX", this.respawnPosition.getX());
             param0.putInt("SpawnY", this.respawnPosition.getY());
             param0.putInt("SpawnZ", this.respawnPosition.getZ());
             param0.putBoolean("SpawnForced", this.respawnForced);
-            param0.putString("SpawnDimension", DimensionType.getName(this.respawnDimension).toString());
+            ResourceLocation.CODEC
+                .encodeStart(NbtOps.INSTANCE, this.respawnDimension.location())
+                .resultOrPartial(LOGGER::error)
+                .ifPresent(param1 -> param0.put("SpawnDimension", param1));
         }
 
     }
@@ -490,7 +499,7 @@ public class ServerPlayer extends Player implements ContainerListener {
                 );
             Team var2 = this.getTeam();
             if (var2 == null || var2.getDeathMessageVisibility() == Team.Visibility.ALWAYS) {
-                this.server.getPlayerList().broadcastMessage(var1);
+                this.server.getPlayerList().broadcastMessage(var1, ChatType.SYSTEM, Util.NIL_UUID);
             } else if (var2.getDeathMessageVisibility() == Team.Visibility.HIDE_FOR_OTHER_TEAMS) {
                 this.server.getPlayerList().broadcastToTeam(this, var1);
             } else if (var2.getDeathMessageVisibility() == Team.Visibility.HIDE_FOR_OWN_TEAM) {
@@ -594,10 +603,10 @@ public class ServerPlayer extends Player implements ContainerListener {
 
     @Nullable
     @Override
-    public Entity changeDimension(DimensionType param0) {
+    public Entity changeDimension(ResourceKey<DimensionType> param0) {
         this.isChangingDimension = true;
-        DimensionType var0 = this.dimension;
-        if (var0 == DimensionType.THE_END && param0 == DimensionType.OVERWORLD) {
+        ResourceKey<DimensionType> var0 = this.level.dimension();
+        if (var0 == DimensionType.END_LOCATION && param0 == DimensionType.OVERWORLD_LOCATION) {
             this.unRide();
             this.getLevel().removePlayerImmediately(this);
             if (!this.wonGame) {
@@ -609,13 +618,17 @@ public class ServerPlayer extends Player implements ContainerListener {
             return this;
         } else {
             ServerLevel var1 = this.server.getLevel(var0);
-            this.dimension = param0;
             ServerLevel var2 = this.server.getLevel(param0);
             LevelData var3 = var2.getLevelData();
             this.connection
                 .send(
                     new ClientboundRespawnPacket(
-                        param0, BiomeManager.obfuscateSeed(var2.getSeed()), this.gameMode.getGameModeForPlayer(), var2.isDebug(), var2.isFlat(), true
+                        param0.location(),
+                        BiomeManager.obfuscateSeed(var2.getSeed()),
+                        this.gameMode.getGameModeForPlayer(),
+                        var2.isDebug(),
+                        var2.isFlat(),
+                        true
                     )
                 );
             this.connection.send(new ClientboundChangeDifficultyPacket(var3.getDifficulty(), var3.isDifficultyLocked()));
@@ -628,61 +641,53 @@ public class ServerPlayer extends Player implements ContainerListener {
             double var7 = this.getZ();
             float var8 = this.xRot;
             float var9 = this.yRot;
-            double var10 = 8.0;
-            float var11 = var9;
+            float var10 = var9;
             var1.getProfiler().push("moving");
-            if (var0 == DimensionType.OVERWORLD && param0 == DimensionType.NETHER) {
-                this.enteredNetherPosition = this.position();
-                var5 /= 8.0;
-                var7 /= 8.0;
-            } else if (var0 == DimensionType.NETHER && param0 == DimensionType.OVERWORLD) {
-                var5 *= 8.0;
-                var7 *= 8.0;
-            } else if (var0 == DimensionType.OVERWORLD && param0 == DimensionType.THE_END) {
-                BlockPos var12 = var2.getDimensionSpecificSpawn();
-                var5 = (double)var12.getX();
-                var6 = (double)var12.getY();
-                var7 = (double)var12.getZ();
+            if (var0 == DimensionType.OVERWORLD_LOCATION && param0 == DimensionType.END_LOCATION) {
+                BlockPos var11 = ServerLevel.END_SPAWN_POINT;
+                var5 = (double)var11.getX();
+                var6 = (double)var11.getY();
+                var7 = (double)var11.getZ();
                 var9 = 90.0F;
                 var8 = 0.0F;
+            } else {
+                if (var0 == DimensionType.OVERWORLD_LOCATION && param0 == DimensionType.NETHER_LOCATION) {
+                    this.enteredNetherPosition = this.position();
+                }
+
+                Registry<DimensionType> var12 = this.server.registryAccess().dimensionTypes();
+                DimensionType var13 = var12.get(var0);
+                DimensionType var14 = var12.get(param0);
+                double var15 = 8.0;
+                if (!var13.shrunk() && var14.shrunk()) {
+                    var5 /= 8.0;
+                    var7 /= 8.0;
+                } else if (var13.shrunk() && !var14.shrunk()) {
+                    var5 *= 8.0;
+                    var7 *= 8.0;
+                }
             }
 
             this.moveTo(var5, var6, var7, var9, var8);
             var1.getProfiler().pop();
             var1.getProfiler().push("placing");
-            double var13 = Math.min(-2.9999872E7, var2.getWorldBorder().getMinX() + 16.0);
-            double var14 = Math.min(-2.9999872E7, var2.getWorldBorder().getMinZ() + 16.0);
-            double var15 = Math.min(2.9999872E7, var2.getWorldBorder().getMaxX() - 16.0);
-            double var16 = Math.min(2.9999872E7, var2.getWorldBorder().getMaxZ() - 16.0);
-            var5 = Mth.clamp(var5, var13, var15);
-            var7 = Mth.clamp(var7, var14, var16);
+            double var16 = Math.min(-2.9999872E7, var2.getWorldBorder().getMinX() + 16.0);
+            double var17 = Math.min(-2.9999872E7, var2.getWorldBorder().getMinZ() + 16.0);
+            double var18 = Math.min(2.9999872E7, var2.getWorldBorder().getMaxX() - 16.0);
+            double var19 = Math.min(2.9999872E7, var2.getWorldBorder().getMaxZ() - 16.0);
+            var5 = Mth.clamp(var5, var16, var18);
+            var7 = Mth.clamp(var7, var17, var19);
             this.moveTo(var5, var6, var7, var9, var8);
-            if (param0 == DimensionType.THE_END) {
-                int var17 = Mth.floor(this.getX());
-                int var18 = Mth.floor(this.getY()) - 1;
-                int var19 = Mth.floor(this.getZ());
-                int var20 = 1;
-                int var21 = 0;
-
-                for(int var22 = -2; var22 <= 2; ++var22) {
-                    for(int var23 = -2; var23 <= 2; ++var23) {
-                        for(int var24 = -1; var24 < 3; ++var24) {
-                            int var25 = var17 + var23 * 1 + var22 * 0;
-                            int var26 = var18 + var24;
-                            int var27 = var19 + var23 * 0 - var22 * 1;
-                            boolean var28 = var24 < 0;
-                            var2.setBlockAndUpdate(
-                                new BlockPos(var25, var26, var27), var28 ? Blocks.OBSIDIAN.defaultBlockState() : Blocks.AIR.defaultBlockState()
-                            );
-                        }
-                    }
-                }
-
-                this.moveTo((double)var17, (double)var18, (double)var19, var9, 0.0F);
+            if (param0 == DimensionType.END_LOCATION) {
+                int var20 = Mth.floor(this.getX());
+                int var21 = Mth.floor(this.getY()) - 1;
+                int var22 = Mth.floor(this.getZ());
+                ServerLevel.makeObsidianPlatform(var2);
+                this.moveTo((double)var20, (double)var21, (double)var22, var9, 0.0F);
                 this.setDeltaMovement(Vec3.ZERO);
-            } else if (!var2.getPortalForcer().findAndMoveToPortal(this, var11)) {
+            } else if (!var2.getPortalForcer().findAndMoveToPortal(this, var10)) {
                 var2.getPortalForcer().createPortal(this);
-                var2.getPortalForcer().findAndMoveToPortal(this, var11);
+                var2.getPortalForcer().findAndMoveToPortal(this, var10);
             }
 
             var1.getProfiler().pop();
@@ -695,8 +700,8 @@ public class ServerPlayer extends Player implements ContainerListener {
             var4.sendLevelInfo(this, var2);
             var4.sendAllPlayerInfo(this);
 
-            for(MobEffectInstance var29 : this.getActiveEffects()) {
-                this.connection.send(new ClientboundUpdateMobEffectPacket(this.getId(), var29));
+            for(MobEffectInstance var23 : this.getActiveEffects()) {
+                this.connection.send(new ClientboundUpdateMobEffectPacket(this.getId(), var23));
             }
 
             this.connection.send(new ClientboundLevelEventPacket(1032, BlockPos.ZERO, 0, false));
@@ -710,12 +715,14 @@ public class ServerPlayer extends Player implements ContainerListener {
     private void triggerDimensionChangeTriggers(ServerLevel param0) {
         DimensionType var0 = param0.dimensionType();
         DimensionType var1 = this.level.dimensionType();
-        CriteriaTriggers.CHANGED_DIMENSION.trigger(this, var0, var1);
-        if (var0 == DimensionType.NETHER && var1 == DimensionType.OVERWORLD && this.enteredNetherPosition != null) {
+        ResourceKey<DimensionType> var2 = param0.dimension();
+        ResourceKey<DimensionType> var3 = this.level.dimension();
+        CriteriaTriggers.CHANGED_DIMENSION.trigger(this, var2, var3);
+        if (var0.isNether() && var1.isOverworld() && this.enteredNetherPosition != null) {
             CriteriaTriggers.NETHER_TRAVEL.trigger(this, this.enteredNetherPosition);
         }
 
-        if (var1 != DimensionType.NETHER) {
+        if (var3 != DimensionType.NETHER_LOCATION) {
             this.enteredNetherPosition = null;
         }
 
@@ -751,14 +758,14 @@ public class ServerPlayer extends Player implements ContainerListener {
         Direction var0 = this.level.getBlockState(param0).getValue(HorizontalDirectionalBlock.FACING);
         if (this.isSleeping() || !this.isAlive()) {
             return Either.left(Player.BedSleepingProblem.OTHER_PROBLEM);
-        } else if (!this.level.getDimension().isNaturalDimension()) {
+        } else if (!this.level.dimensionType().natural()) {
             return Either.left(Player.BedSleepingProblem.NOT_POSSIBLE_HERE);
         } else if (!this.bedInRange(param0, var0)) {
             return Either.left(Player.BedSleepingProblem.TOO_FAR_AWAY);
         } else if (this.bedBlocked(param0, var0)) {
             return Either.left(Player.BedSleepingProblem.OBSTRUCTED);
         } else {
-            this.setRespawnPosition(this.level.dimensionType(), param0, false, true);
+            this.setRespawnPosition(this.level.dimension(), param0, false, true);
             if (this.level.isDay()) {
                 return Either.left(Player.BedSleepingProblem.NOT_POSSIBLE_NOW);
             } else {
@@ -866,8 +873,7 @@ public class ServerPlayer extends Player implements ContainerListener {
     public void doCheckFallDamage(double param0, boolean param1) {
         BlockPos var0 = this.getOnPos();
         if (this.level.hasChunkAt(var0)) {
-            BlockState var1 = this.level.getBlockState(var0);
-            super.checkFallDamage(param0, param1, var1, var0);
+            super.checkFallDamage(param0, param1, this.level.getBlockState(var0), var0);
         }
     }
 
@@ -1062,7 +1068,7 @@ public class ServerPlayer extends Player implements ContainerListener {
 
     @Override
     public void displayClientMessage(Component param0, boolean param1) {
-        this.connection.send(new ClientboundChatPacket(param0, param1 ? ChatType.GAME_INFO : ChatType.CHAT));
+        this.connection.send(new ClientboundChatPacket(param0, param1 ? ChatType.GAME_INFO : ChatType.CHAT, Util.NIL_UUID));
     }
 
     @Override
@@ -1209,23 +1215,25 @@ public class ServerPlayer extends Player implements ContainerListener {
     }
 
     @Override
-    public void sendMessage(Component param0) {
-        this.sendMessage(param0, ChatType.SYSTEM);
+    public void sendMessage(Component param0, UUID param1) {
+        this.sendMessage(param0, ChatType.SYSTEM, param1);
     }
 
-    public void sendMessage(Component param0, ChatType param1) {
+    public void sendMessage(Component param0, ChatType param1, UUID param2) {
         this.connection
             .send(
-                new ClientboundChatPacket(param0, param1),
-                param2 -> {
-                    if (!param2.isSuccess() && (param1 == ChatType.GAME_INFO || param1 == ChatType.SYSTEM)) {
+                new ClientboundChatPacket(param0, param1, param2),
+                param3 -> {
+                    if (!param3.isSuccess() && (param1 == ChatType.GAME_INFO || param1 == ChatType.SYSTEM)) {
                         int var0 = 256;
                         String var1x = param0.getString(256);
                         Component var2x = new TextComponent(var1x).withStyle(ChatFormatting.YELLOW);
                         this.connection
                             .send(
                                 new ClientboundChatPacket(
-                                    new TranslatableComponent("multiplayer.message_not_delivered", var2x).withStyle(ChatFormatting.RED), ChatType.SYSTEM
+                                    new TranslatableComponent("multiplayer.message_not_delivered", var2x).withStyle(ChatFormatting.RED),
+                                    ChatType.SYSTEM,
+                                    param2
                                 )
                             );
                     }
@@ -1363,12 +1371,11 @@ public class ServerPlayer extends Player implements ContainerListener {
             this.connection.teleport(param1, param2, param3, param4, param5);
         } else {
             ServerLevel var0 = this.getLevel();
-            this.dimension = param0.dimensionType();
             LevelData var1 = param0.getLevelData();
             this.connection
                 .send(
                     new ClientboundRespawnPacket(
-                        this.dimension,
+                        param0.dimension().location(),
                         BiomeManager.obfuscateSeed(param0.getSeed()),
                         this.gameMode.getGameModeForPlayer(),
                         param0.isDebug(),
@@ -1397,7 +1404,7 @@ public class ServerPlayer extends Player implements ContainerListener {
         return this.respawnPosition;
     }
 
-    public DimensionType getRespawnDimension() {
+    public ResourceKey<DimensionType> getRespawnDimension() {
         return this.respawnDimension;
     }
 
@@ -1405,11 +1412,11 @@ public class ServerPlayer extends Player implements ContainerListener {
         return this.respawnForced;
     }
 
-    public void setRespawnPosition(DimensionType param0, BlockPos param1, boolean param2, boolean param3) {
+    public void setRespawnPosition(ResourceKey<DimensionType> param0, BlockPos param1, boolean param2, boolean param3) {
         if (param1 != null) {
             boolean var0 = param1.equals(this.respawnPosition) && param0.equals(this.respawnDimension);
             if (param3 && !var0) {
-                this.sendMessage(new TranslatableComponent("block.minecraft.set_spawn"));
+                this.sendMessage(new TranslatableComponent("block.minecraft.set_spawn"), Util.NIL_UUID);
             }
 
             this.respawnPosition = param1;
@@ -1417,7 +1424,7 @@ public class ServerPlayer extends Player implements ContainerListener {
             this.respawnForced = param2;
         } else {
             this.respawnPosition = null;
-            this.respawnDimension = DimensionType.OVERWORLD;
+            this.respawnDimension = DimensionType.OVERWORLD_LOCATION;
             this.respawnForced = false;
         }
 

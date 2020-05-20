@@ -58,6 +58,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -485,16 +486,17 @@ public class Dolphin extends WaterAnimal {
                 this.stuck = false;
                 this.dolphin.getNavigation().stop();
                 BlockPos var1 = this.dolphin.blockPosition();
-                String var2 = (double)var0.random.nextFloat() >= 0.5 ? "Ocean_Ruin" : "Shipwreck";
+                StructureFeature<?> var2 = (double)var0.random.nextFloat() >= 0.5 ? StructureFeature.OCEAN_RUIN : StructureFeature.SHIPWRECK;
                 BlockPos var3 = var0.findNearestMapFeature(var2, var1, 50, false);
                 if (var3 == null) {
-                    BlockPos var4 = var0.findNearestMapFeature(var2.equals("Ocean_Ruin") ? "Shipwreck" : "Ocean_Ruin", var1, 50, false);
-                    if (var4 == null) {
+                    StructureFeature<?> var4 = var2.equals(StructureFeature.OCEAN_RUIN) ? StructureFeature.SHIPWRECK : StructureFeature.OCEAN_RUIN;
+                    BlockPos var5 = var0.findNearestMapFeature(var4, var1, 50, false);
+                    if (var5 == null) {
                         this.stuck = true;
                         return;
                     }
 
-                    this.dolphin.setTreasurePos(var4);
+                    this.dolphin.setTreasurePos(var5);
                 } else {
                     this.dolphin.setTreasurePos(var3);
                 }

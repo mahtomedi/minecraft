@@ -2,7 +2,6 @@ package net.minecraft.world.level.storage;
 
 import java.util.UUID;
 import net.minecraft.CrashReportCategory;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.border.WorldBorder;
@@ -47,10 +46,6 @@ public interface ServerLevelData extends WritableLevelData {
 
     void setClearWeatherTime(int var1);
 
-    CompoundTag getDimensionData();
-
-    void setDimensionData(CompoundTag var1);
-
     int getWanderingTraderSpawnDelay();
 
     void setWanderingTraderSpawnDelay(int var1);
@@ -76,4 +71,8 @@ public interface ServerLevelData extends WritableLevelData {
     void setGameType(GameType var1);
 
     TimerQueue<MinecraftServer> getScheduledEvents();
+
+    void setGameTime(long var1);
+
+    void setDayTime(long var1);
 }

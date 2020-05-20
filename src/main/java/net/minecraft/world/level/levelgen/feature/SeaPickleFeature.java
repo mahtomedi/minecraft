@@ -1,8 +1,7 @@
 package net.minecraft.world.level.levelgen.feature;
 
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Codec;
 import java.util.Random;
-import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
@@ -14,7 +13,7 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.configurations.CountFeatureConfiguration;
 
 public class SeaPickleFeature extends Feature<CountFeatureConfiguration> {
-    public SeaPickleFeature(Function<Dynamic<?>, ? extends CountFeatureConfiguration> param0) {
+    public SeaPickleFeature(Codec<CountFeatureConfiguration> param0) {
         super(param0);
     }
 

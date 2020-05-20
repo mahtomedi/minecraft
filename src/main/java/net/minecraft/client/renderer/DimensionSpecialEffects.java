@@ -1,8 +1,10 @@
 package net.minecraft.client.renderer;
 
-import com.google.common.collect.Maps;
-import java.util.Map;
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import javax.annotation.Nullable;
+import net.minecraft.Util;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.phys.Vec3;
@@ -11,7 +13,13 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class DimensionSpecialEffects {
-    private static final Map<DimensionType, DimensionSpecialEffects> EFFECTS = Maps.newHashMap();
+    private static final Object2ObjectMap<ResourceKey<DimensionType>, DimensionSpecialEffects> EFFECTS = Util.make(new Object2ObjectArrayMap<>(), param0 -> {
+        DimensionSpecialEffects.OverworldEffects var0 = new DimensionSpecialEffects.OverworldEffects();
+        param0.defaultReturnValue(var0);
+        param0.put(DimensionType.OVERWORLD_LOCATION, var0);
+        param0.put(DimensionType.NETHER_LOCATION, new DimensionSpecialEffects.NetherEffects());
+        param0.put(DimensionType.END_LOCATION, new DimensionSpecialEffects.EndEffects());
+    });
     private final float[] sunriseCol = new float[4];
     private final float cloudLevel;
     private final boolean hasGround;
@@ -23,8 +31,8 @@ public abstract class DimensionSpecialEffects {
         this.renderNormalSky = param2;
     }
 
-    public static DimensionSpecialEffects forType(DimensionType param0) {
-        return EFFECTS.getOrDefault(param0, EFFECTS.get(DimensionType.OVERWORLD));
+    public static DimensionSpecialEffects forType(@Nullable ResourceKey<DimensionType> param0) {
+        return EFFECTS.get(param0);
     }
 
     @Nullable
@@ -60,12 +68,6 @@ public abstract class DimensionSpecialEffects {
 
     public boolean renderNormalSky() {
         return this.renderNormalSky;
-    }
-
-    static {
-        EFFECTS.put(DimensionType.OVERWORLD, new DimensionSpecialEffects.OverworldEffects());
-        EFFECTS.put(DimensionType.NETHER, new DimensionSpecialEffects.NetherEffects());
-        EFFECTS.put(DimensionType.THE_END, new DimensionSpecialEffects.EndEffects());
     }
 
     @OnlyIn(Dist.CLIENT)

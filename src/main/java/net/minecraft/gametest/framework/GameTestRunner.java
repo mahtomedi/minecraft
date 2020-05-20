@@ -129,7 +129,7 @@ public class GameTestRunner {
     }
 
     private static void say(ServerLevel param0, ChatFormatting param1, String param2) {
-        param0.getPlayers(param0x -> true).forEach(param2x -> param2x.sendMessage(new TextComponent(param2).withStyle(param1)));
+        param0.getPlayers(param0x -> true).forEach(param2x -> param2x.sendMessage(new TextComponent(param2).withStyle(param1), Util.NIL_UUID));
     }
 
     public static void clearMarkers(ServerLevel param0) {

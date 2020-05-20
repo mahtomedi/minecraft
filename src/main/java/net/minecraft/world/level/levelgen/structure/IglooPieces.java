@@ -20,7 +20,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.StructurePieceType;
-import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockIgnoreProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
@@ -38,9 +37,7 @@ public class IglooPieces {
         STRUCTURE_LOCATION_IGLOO, BlockPos.ZERO, STRUCTURE_LOCATION_LADDER, new BlockPos(2, -3, 4), STRUCTURE_LOCATION_LABORATORY, new BlockPos(0, -3, -2)
     );
 
-    public static void addPieces(
-        StructureManager param0, BlockPos param1, Rotation param2, List<StructurePiece> param3, Random param4, NoneFeatureConfiguration param5
-    ) {
+    public static void addPieces(StructureManager param0, BlockPos param1, Rotation param2, List<StructurePiece> param3, Random param4) {
         if (param4.nextDouble() < 0.5) {
             int var0 = param4.nextInt(8) + 4;
             param3.add(new IglooPieces.IglooPiece(param0, STRUCTURE_LOCATION_LABORATORY, param1, param2, var0 * 3));

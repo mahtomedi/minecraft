@@ -1,15 +1,8 @@
 package net.minecraft.world.level.levelgen.feature.configurations;
 
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Codec;
 
 public class NoneFeatureConfiguration implements FeatureConfiguration {
-    @Override
-    public <T> Dynamic<T> serialize(DynamicOps<T> param0) {
-        return new Dynamic<>(param0, param0.emptyMap());
-    }
-
-    public static <T> NoneFeatureConfiguration deserialize(Dynamic<T> param0) {
-        return NONE;
-    }
+    public static final Codec<NoneFeatureConfiguration> CODEC = Codec.unit(() -> NoneFeatureConfiguration.INSTANCE);
+    public static final NoneFeatureConfiguration INSTANCE = new NoneFeatureConfiguration();
 }

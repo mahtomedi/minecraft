@@ -1,21 +1,24 @@
 package net.minecraft.core;
 
+import com.mojang.serialization.Lifecycle;
 import java.util.Random;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 
 public class DefaultedRegistry<T> extends MappedRegistry<T> {
     private final ResourceLocation defaultKey;
     private T defaultValue;
 
-    public DefaultedRegistry(String param0) {
+    public DefaultedRegistry(String param0, ResourceKey<Registry<T>> param1, Lifecycle param2) {
+        super(param1, param2);
         this.defaultKey = new ResourceLocation(param0);
     }
 
     @Override
-    public <V extends T> V registerMapping(int param0, ResourceLocation param1, V param2) {
-        if (this.defaultKey.equals(param1)) {
+    public <V extends T> V registerMapping(int param0, ResourceKey<T> param1, V param2) {
+        if (this.defaultKey.equals(param1.location())) {
             this.defaultValue = (T)param2;
         }
 

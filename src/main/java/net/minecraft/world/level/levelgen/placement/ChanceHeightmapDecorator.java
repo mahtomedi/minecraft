@@ -1,8 +1,7 @@
 package net.minecraft.world.level.levelgen.placement;
 
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Codec;
 import java.util.Random;
-import java.util.function.Function;
 import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelAccessor;
@@ -10,7 +9,7 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 
 public class ChanceHeightmapDecorator extends FeatureDecorator<ChanceDecoratorConfiguration> {
-    public ChanceHeightmapDecorator(Function<Dynamic<?>, ? extends ChanceDecoratorConfiguration> param0) {
+    public ChanceHeightmapDecorator(Codec<ChanceDecoratorConfiguration> param0) {
         super(param0);
     }
 

@@ -5,6 +5,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import java.util.Collection;
 import java.util.Collections;
+import net.minecraft.Util;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -40,7 +41,7 @@ public class GameModeCommand {
             param0.sendSuccess(new TranslatableComponent("commands.gamemode.success.self", var0), true);
         } else {
             if (param0.getLevel().getGameRules().getBoolean(GameRules.RULE_SENDCOMMANDFEEDBACK)) {
-                param1.sendMessage(new TranslatableComponent("gameMode.changed", var0));
+                param1.sendMessage(new TranslatableComponent("gameMode.changed", var0), Util.NIL_UUID);
             }
 
             param0.sendSuccess(new TranslatableComponent("commands.gamemode.success.other", param1.getDisplayName(), var0), true);

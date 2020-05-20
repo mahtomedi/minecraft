@@ -1,104 +1,245 @@
 package net.minecraft.world.level.dimension;
 
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.mojang.datafixers.util.Either;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.Lifecycle;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.io.File;
-import java.util.function.BiFunction;
-import javax.annotation.Nullable;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.OptionalLong;
+import java.util.Map.Entry;
 import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Serializable;
-import net.minecraft.world.level.Level;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.biome.BiomeZoomer;
 import net.minecraft.world.level.biome.FuzzyOffsetBiomeZoomer;
 import net.minecraft.world.level.biome.FuzzyOffsetConstantColumnBiomeZoomer;
-import net.minecraft.world.level.dimension.end.TheEndDimension;
+import net.minecraft.world.level.biome.MultiNoiseBiomeSource;
+import net.minecraft.world.level.biome.TheEndBiomeSource;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
+import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class DimensionType implements Serializable {
-    public static final DimensionType OVERWORLD = register(
-        "overworld", new DimensionType(1, "", "", NormalDimension::new, true, false, false, FuzzyOffsetConstantColumnBiomeZoomer.INSTANCE)
+public class DimensionType {
+    public static final Codec<ResourceKey<DimensionType>> RESOURCE_KEY_CODEC = ResourceLocation.CODEC
+        .xmap(ResourceKey.elementKey(Registry.DIMENSION_TYPE_REGISTRY), ResourceKey::location);
+    private static final Codec<DimensionType> DIRECT_CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    Codec.LONG
+                        .optionalFieldOf("fixed_time")
+                        .xmap(
+                            param0x -> param0x.map(OptionalLong::of).orElseGet(OptionalLong::empty),
+                            param0x -> param0x.isPresent() ? Optional.of(param0x.getAsLong()) : Optional.empty()
+                        )
+                        .forGetter(param0x -> param0x.fixedTime),
+                    Codec.BOOL.fieldOf("has_skylight").forGetter(DimensionType::hasSkyLight),
+                    Codec.BOOL.fieldOf("has_ceiling").forGetter(DimensionType::hasCeiling),
+                    Codec.BOOL.fieldOf("ultrawarm").forGetter(DimensionType::ultraWarm),
+                    Codec.BOOL.fieldOf("natural").forGetter(DimensionType::natural),
+                    Codec.BOOL.fieldOf("shrunk").forGetter(DimensionType::shrunk),
+                    Codec.FLOAT.fieldOf("ambient_light").forGetter(param0x -> param0x.ambientLight)
+                )
+                .apply(param0, DimensionType::new)
     );
-    public static final DimensionType NETHER = register(
-        "the_nether", new DimensionType(0, "_nether", "DIM-1", NetherDimension::new, false, true, true, FuzzyOffsetBiomeZoomer.INSTANCE)
+    public static final float[] MOON_BRIGHTNESS_PER_PHASE = new float[]{1.0F, 0.75F, 0.5F, 0.25F, 0.0F, 0.25F, 0.5F, 0.75F};
+    public static final ResourceKey<DimensionType> OVERWORLD_LOCATION = ResourceKey.create(Registry.DIMENSION_TYPE_REGISTRY, new ResourceLocation("overworld"));
+    public static final ResourceKey<DimensionType> NETHER_LOCATION = ResourceKey.create(Registry.DIMENSION_TYPE_REGISTRY, new ResourceLocation("the_nether"));
+    public static final ResourceKey<DimensionType> END_LOCATION = ResourceKey.create(Registry.DIMENSION_TYPE_REGISTRY, new ResourceLocation("the_end"));
+    private static final LinkedHashSet<ResourceKey<DimensionType>> BUILTIN_ORDER = Sets.newLinkedHashSet(
+        ImmutableList.of(OVERWORLD_LOCATION, NETHER_LOCATION, END_LOCATION)
     );
-    public static final DimensionType THE_END = register(
-        "the_end", new DimensionType(2, "_end", "DIM1", TheEndDimension::new, false, false, false, FuzzyOffsetBiomeZoomer.INSTANCE)
+    private static final DimensionType DEFAULT_OVERWORLD = new DimensionType(
+        "", OptionalLong.empty(), true, false, false, true, false, false, FuzzyOffsetConstantColumnBiomeZoomer.INSTANCE, Optional.of(OVERWORLD_LOCATION), 0.0F
     );
-    private final int id;
+    private static final DimensionType DEFAULT_NETHER = new DimensionType(
+        "_nether", OptionalLong.of(18000L), false, true, true, false, true, false, FuzzyOffsetBiomeZoomer.INSTANCE, Optional.of(NETHER_LOCATION), 0.1F
+    );
+    private static final DimensionType DEFAULT_END = new DimensionType(
+        "_end", OptionalLong.of(6000L), false, false, false, false, false, true, FuzzyOffsetBiomeZoomer.INSTANCE, Optional.of(END_LOCATION), 0.0F
+    );
+    private static final Map<ResourceKey<DimensionType>, DimensionType> BUILTIN = ImmutableMap.of(
+        OVERWORLD_LOCATION, DEFAULT_OVERWORLD, NETHER_LOCATION, DEFAULT_NETHER, END_LOCATION, DEFAULT_END
+    );
+    private static final Codec<DimensionType> BUILTIN_CODEC = RESOURCE_KEY_CODEC.flatXmap(
+            param0 -> Optional.ofNullable(BUILTIN.get(param0))
+                    .map(DataResult::success)
+                    .orElseGet(() -> DataResult.error("Unknown builtin dimension: " + param0)),
+            param0 -> param0.builtinKey.map(DataResult::success).orElseGet(() -> DataResult.error("Unknown builtin dimension: " + param0))
+        )
+        .stable();
+    public static final Codec<DimensionType> CODEC = Codec.either(BUILTIN_CODEC, DIRECT_CODEC)
+        .flatXmap(
+            param0 -> param0.map(param0x -> DataResult.success(param0x, Lifecycle.stable()), DataResult::success),
+            param0 -> param0.builtinKey.isPresent() ? DataResult.success(Either.left(param0), Lifecycle.stable()) : DataResult.success(Either.right(param0))
+        );
     private final String fileSuffix;
-    private final String folder;
-    private final BiFunction<Level, DimensionType, ? extends Dimension> factory;
+    private final OptionalLong fixedTime;
     private final boolean hasSkylight;
     private final boolean hasCeiling;
     private final boolean ultraWarm;
+    private final boolean natural;
+    private final boolean shrunk;
+    private final boolean createDragonFight;
     private final BiomeZoomer biomeZoomer;
+    private final Optional<ResourceKey<DimensionType>> builtinKey;
+    private final float ambientLight;
+    private final transient float[] brightnessRamp;
 
-    private static DimensionType register(String param0, DimensionType param1) {
-        return Registry.registerMapping(Registry.DIMENSION_TYPE, param1.id, param0, param1);
+    protected DimensionType(OptionalLong param0, boolean param1, boolean param2, boolean param3, boolean param4, boolean param5, float param6) {
+        this("", param0, param1, param2, param3, param4, param5, false, FuzzyOffsetBiomeZoomer.INSTANCE, Optional.empty(), param6);
     }
 
     protected DimensionType(
-        int param0,
-        String param1,
-        String param2,
-        BiFunction<Level, DimensionType, ? extends Dimension> param3,
+        String param0,
+        OptionalLong param1,
+        boolean param2,
+        boolean param3,
         boolean param4,
         boolean param5,
         boolean param6,
-        BiomeZoomer param7
+        boolean param7,
+        BiomeZoomer param8,
+        Optional<ResourceKey<DimensionType>> param9,
+        float param10
     ) {
-        this.id = param0;
-        this.fileSuffix = param1;
-        this.folder = param2;
-        this.factory = param3;
-        this.hasSkylight = param4;
-        this.hasCeiling = param5;
-        this.ultraWarm = param6;
-        this.biomeZoomer = param7;
+        this.fileSuffix = param0;
+        this.fixedTime = param1;
+        this.hasSkylight = param2;
+        this.hasCeiling = param3;
+        this.ultraWarm = param4;
+        this.natural = param5;
+        this.shrunk = param6;
+        this.createDragonFight = param7;
+        this.biomeZoomer = param8;
+        this.builtinKey = param9;
+        this.ambientLight = param10;
+        this.brightnessRamp = fillBrightnessRamp(param10);
     }
 
-    public static DimensionType of(Dynamic<?> param0) {
-        return Registry.DIMENSION_TYPE.get(new ResourceLocation(param0.asString("")));
+    private static float[] fillBrightnessRamp(float param0) {
+        float[] var0 = new float[16];
+
+        for(int var1 = 0; var1 <= 15; ++var1) {
+            float var2 = (float)var1 / 15.0F;
+            float var3 = var2 / (4.0F - 3.0F * var2);
+            var0[var1] = Mth.lerp(param0, var3, 1.0F);
+        }
+
+        return var0;
     }
 
-    public static Iterable<DimensionType> getAllTypes() {
-        return Registry.DIMENSION_TYPE;
+    @Deprecated
+    public static DataResult<ResourceKey<DimensionType>> parseLegacy(Dynamic<?> param0) {
+        DataResult<Number> var0 = param0.asNumber();
+        if (var0.result().equals(Optional.of(-1))) {
+            return DataResult.success(NETHER_LOCATION);
+        } else if (var0.result().equals(Optional.of(0))) {
+            return DataResult.success(OVERWORLD_LOCATION);
+        } else {
+            return var0.result().equals(Optional.of(1))
+                ? DataResult.success(END_LOCATION)
+                : ResourceLocation.CODEC.xmap(ResourceKey.elementKey(Registry.DIMENSION_TYPE_REGISTRY), ResourceKey::location).parse(param0);
+        }
     }
 
-    public int getId() {
-        return this.id + -1;
+    @OnlyIn(Dist.CLIENT)
+    public static RegistryAccess.RegistryHolder registerBuiltin(RegistryAccess.RegistryHolder param0) {
+        param0.registerDimension(OVERWORLD_LOCATION, DEFAULT_OVERWORLD);
+        param0.registerDimension(NETHER_LOCATION, DEFAULT_NETHER);
+        param0.registerDimension(END_LOCATION, DEFAULT_END);
+        return param0;
+    }
+
+    private static ChunkGenerator defaultEndGenerator(long param0) {
+        return new NoiseBasedChunkGenerator(new TheEndBiomeSource(param0), param0, NoiseGeneratorSettings.Preset.END.settings());
+    }
+
+    private static ChunkGenerator defaultNetherGenerator(long param0) {
+        return new NoiseBasedChunkGenerator(MultiNoiseBiomeSource.Preset.NETHER.biomeSource(param0), param0, NoiseGeneratorSettings.Preset.NETHER.settings());
+    }
+
+    public static LinkedHashMap<ResourceKey<DimensionType>, Pair<DimensionType, ChunkGenerator>> defaultDimensions(long param0) {
+        LinkedHashMap<ResourceKey<DimensionType>, Pair<DimensionType, ChunkGenerator>> var0 = Maps.newLinkedHashMap();
+        var0.put(NETHER_LOCATION, Pair.of(DEFAULT_NETHER, defaultNetherGenerator(param0)));
+        var0.put(END_LOCATION, Pair.of(DEFAULT_END, defaultEndGenerator(param0)));
+        return var0;
+    }
+
+    public static DimensionType defaultOverworld() {
+        return DEFAULT_OVERWORLD;
+    }
+
+    public static boolean stable(long param0, LinkedHashMap<ResourceKey<DimensionType>, Pair<DimensionType, ChunkGenerator>> param1) {
+        List<Entry<ResourceKey<DimensionType>, Pair<DimensionType, ChunkGenerator>>> var0 = Lists.newArrayList(param1.entrySet());
+        if (var0.size() != 3) {
+            return false;
+        } else {
+            Entry<ResourceKey<DimensionType>, Pair<DimensionType, ChunkGenerator>> var1 = var0.get(0);
+            Entry<ResourceKey<DimensionType>, Pair<DimensionType, ChunkGenerator>> var2 = var0.get(1);
+            Entry<ResourceKey<DimensionType>, Pair<DimensionType, ChunkGenerator>> var3 = var0.get(2);
+            if (var1.getKey() != OVERWORLD_LOCATION || var2.getKey() != NETHER_LOCATION || var3.getKey() != END_LOCATION) {
+                return false;
+            } else if (var1.getValue().getFirst() != DEFAULT_OVERWORLD
+                || var2.getValue().getFirst() != DEFAULT_NETHER
+                || var3.getValue().getFirst() != DEFAULT_END) {
+                return false;
+            } else if (var2.getValue().getSecond() instanceof NoiseBasedChunkGenerator && var3.getValue().getSecond() instanceof NoiseBasedChunkGenerator) {
+                NoiseBasedChunkGenerator var4 = (NoiseBasedChunkGenerator)var2.getValue().getSecond();
+                NoiseBasedChunkGenerator var5 = (NoiseBasedChunkGenerator)var3.getValue().getSecond();
+                if (!var4.stable(param0, NoiseGeneratorSettings.Preset.NETHER)) {
+                    return false;
+                } else if (!var5.stable(param0, NoiseGeneratorSettings.Preset.END)) {
+                    return false;
+                } else if (!(var4.getBiomeSource() instanceof MultiNoiseBiomeSource)) {
+                    return false;
+                } else {
+                    MultiNoiseBiomeSource var6 = (MultiNoiseBiomeSource)var4.getBiomeSource();
+                    if (!var6.stable(param0)) {
+                        return false;
+                    } else if (!(var5.getBiomeSource() instanceof TheEndBiomeSource)) {
+                        return false;
+                    } else {
+                        TheEndBiomeSource var7 = (TheEndBiomeSource)var5.getBiomeSource();
+                        return var7.stable(param0);
+                    }
+                }
+            } else {
+                return false;
+            }
+        }
     }
 
     public String getFileSuffix() {
         return this.fileSuffix;
     }
 
-    public File getStorageFolder(File param0) {
-        return this.folder.isEmpty() ? param0 : new File(param0, this.folder);
-    }
-
-    public Dimension create(Level param0) {
-        return this.factory.apply(param0, this);
-    }
-
-    @Override
-    public String toString() {
-        return getName(this).toString();
-    }
-
-    @Nullable
-    public static DimensionType getById(int param0) {
-        return Registry.DIMENSION_TYPE.byId(param0 - -1);
-    }
-
-    @Nullable
-    public static DimensionType getByName(ResourceLocation param0) {
-        return Registry.DIMENSION_TYPE.get(param0);
-    }
-
-    @Nullable
-    public static ResourceLocation getName(DimensionType param0) {
-        return Registry.DIMENSION_TYPE.getKey(param0);
+    public static File getStorageFolder(ResourceKey<?> param0, File param1) {
+        if (Objects.equals(param0, OVERWORLD_LOCATION)) {
+            return param1;
+        } else if (Objects.equals(param0, END_LOCATION)) {
+            return new File(param1, "DIM1");
+        } else {
+            return Objects.equals(param0, NETHER_LOCATION)
+                ? new File(param1, "DIM-1")
+                : new File(param1, "dimensions/" + param0.location().getNamespace() + "/" + param0.location().getPath());
+        }
     }
 
     public boolean hasSkyLight() {
@@ -113,12 +254,66 @@ public class DimensionType implements Serializable {
         return this.ultraWarm;
     }
 
+    public boolean natural() {
+        return this.natural;
+    }
+
+    public boolean shrunk() {
+        return this.shrunk;
+    }
+
+    public boolean createDragonFight() {
+        return this.createDragonFight;
+    }
+
     public BiomeZoomer getBiomeZoomer() {
         return this.biomeZoomer;
     }
 
-    @Override
-    public <T> T serialize(DynamicOps<T> param0) {
-        return param0.createString(Registry.DIMENSION_TYPE.getKey(this).toString());
+    public float timeOfDay(long param0) {
+        double var0 = Mth.frac((double)this.fixedTime.orElse(param0) / 24000.0 - 0.25);
+        double var1 = 0.5 - Math.cos(var0 * Math.PI) / 2.0;
+        return (float)(var0 * 2.0 + var1) / 3.0F;
+    }
+
+    public int moonPhase(long param0) {
+        return (int)(param0 / 24000L % 8L + 8L) % 8;
+    }
+
+    public float brightness(int param0) {
+        return this.brightnessRamp[param0];
+    }
+
+    public boolean isOverworld() {
+        return this == DEFAULT_OVERWORLD;
+    }
+
+    public boolean isNether() {
+        return this == DEFAULT_NETHER;
+    }
+
+    public boolean isEnd() {
+        return this == DEFAULT_END;
+    }
+
+    public static LinkedHashMap<ResourceKey<DimensionType>, Pair<DimensionType, ChunkGenerator>> sortMap(
+        Map<ResourceKey<DimensionType>, Pair<DimensionType, ChunkGenerator>> param0
+    ) {
+        LinkedHashMap<ResourceKey<DimensionType>, Pair<DimensionType, ChunkGenerator>> var0 = Maps.newLinkedHashMap();
+
+        for(ResourceKey<DimensionType> var1 : BUILTIN_ORDER) {
+            Pair<DimensionType, ChunkGenerator> var2 = param0.get(var1);
+            if (var2 != null) {
+                var0.put(var1, var2);
+            }
+        }
+
+        for(Entry<ResourceKey<DimensionType>, Pair<DimensionType, ChunkGenerator>> var3 : param0.entrySet()) {
+            if (!BUILTIN_ORDER.contains(var3.getKey())) {
+                var0.put(var3.getKey(), var3.getValue());
+            }
+        }
+
+        return var0;
     }
 }

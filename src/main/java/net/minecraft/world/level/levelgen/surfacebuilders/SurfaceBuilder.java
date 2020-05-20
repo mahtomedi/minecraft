@@ -1,8 +1,7 @@
 package net.minecraft.world.level.levelgen.surfacebuilders;
 
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Codec;
 import java.util.Random;
-import java.util.function.Function;
 import net.minecraft.core.Registry;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
@@ -52,58 +51,60 @@ public abstract class SurfaceBuilder<C extends SurfaceBuilderConfiguration> {
     public static final SurfaceBuilderBaseConfiguration CONFIG_WARPED_FOREST = new SurfaceBuilderBaseConfiguration(WARPED_NYLIUM, NETHERRACK, WARPED_WART_BLOCK);
     public static final SurfaceBuilderBaseConfiguration CONFIG_BASALT_DELTAS = new SurfaceBuilderBaseConfiguration(BLACKSTONE, BASALT, MAGMA);
     public static final SurfaceBuilder<SurfaceBuilderBaseConfiguration> DEFAULT = register(
-        "default", new DefaultSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize)
+        "default", new DefaultSurfaceBuilder(SurfaceBuilderBaseConfiguration.CODEC)
     );
     public static final SurfaceBuilder<SurfaceBuilderBaseConfiguration> MOUNTAIN = register(
-        "mountain", new MountainSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize)
+        "mountain", new MountainSurfaceBuilder(SurfaceBuilderBaseConfiguration.CODEC)
     );
     public static final SurfaceBuilder<SurfaceBuilderBaseConfiguration> SHATTERED_SAVANNA = register(
-        "shattered_savanna", new ShatteredSavanaSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize)
+        "shattered_savanna", new ShatteredSavanaSurfaceBuilder(SurfaceBuilderBaseConfiguration.CODEC)
     );
     public static final SurfaceBuilder<SurfaceBuilderBaseConfiguration> GRAVELLY_MOUNTAIN = register(
-        "gravelly_mountain", new GravellyMountainSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize)
+        "gravelly_mountain", new GravellyMountainSurfaceBuilder(SurfaceBuilderBaseConfiguration.CODEC)
     );
     public static final SurfaceBuilder<SurfaceBuilderBaseConfiguration> GIANT_TREE_TAIGA = register(
-        "giant_tree_taiga", new GiantTreeTaigaSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize)
+        "giant_tree_taiga", new GiantTreeTaigaSurfaceBuilder(SurfaceBuilderBaseConfiguration.CODEC)
     );
     public static final SurfaceBuilder<SurfaceBuilderBaseConfiguration> SWAMP = register(
-        "swamp", new SwampSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize)
+        "swamp", new SwampSurfaceBuilder(SurfaceBuilderBaseConfiguration.CODEC)
     );
     public static final SurfaceBuilder<SurfaceBuilderBaseConfiguration> BADLANDS = register(
-        "badlands", new BadlandsSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize)
+        "badlands", new BadlandsSurfaceBuilder(SurfaceBuilderBaseConfiguration.CODEC)
     );
     public static final SurfaceBuilder<SurfaceBuilderBaseConfiguration> WOODED_BADLANDS = register(
-        "wooded_badlands", new WoodedBadlandsSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize)
+        "wooded_badlands", new WoodedBadlandsSurfaceBuilder(SurfaceBuilderBaseConfiguration.CODEC)
     );
     public static final SurfaceBuilder<SurfaceBuilderBaseConfiguration> ERODED_BADLANDS = register(
-        "eroded_badlands", new ErodedBadlandsSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize)
+        "eroded_badlands", new ErodedBadlandsSurfaceBuilder(SurfaceBuilderBaseConfiguration.CODEC)
     );
     public static final SurfaceBuilder<SurfaceBuilderBaseConfiguration> FROZEN_OCEAN = register(
-        "frozen_ocean", new FrozenOceanSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize)
+        "frozen_ocean", new FrozenOceanSurfaceBuilder(SurfaceBuilderBaseConfiguration.CODEC)
     );
     public static final SurfaceBuilder<SurfaceBuilderBaseConfiguration> NETHER = register(
-        "nether", new NetherSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize)
+        "nether", new NetherSurfaceBuilder(SurfaceBuilderBaseConfiguration.CODEC)
     );
     public static final SurfaceBuilder<SurfaceBuilderBaseConfiguration> NETHER_FOREST = register(
-        "nether_forest", new NetherForestSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize)
+        "nether_forest", new NetherForestSurfaceBuilder(SurfaceBuilderBaseConfiguration.CODEC)
     );
     public static final SurfaceBuilder<SurfaceBuilderBaseConfiguration> SOUL_SAND_VALLEY = register(
-        "soul_sand_valley", new SoulSandValleySurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize)
+        "soul_sand_valley", new SoulSandValleySurfaceBuilder(SurfaceBuilderBaseConfiguration.CODEC)
     );
     public static final SurfaceBuilder<SurfaceBuilderBaseConfiguration> BASALT_DELTAS = register(
-        "basalt_deltas", new BasaltDeltasSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize)
+        "basalt_deltas", new BasaltDeltasSurfaceBuilder(SurfaceBuilderBaseConfiguration.CODEC)
     );
-    public static final SurfaceBuilder<SurfaceBuilderBaseConfiguration> NOPE = register(
-        "nope", new NopeSurfaceBuilder(SurfaceBuilderBaseConfiguration::deserialize)
-    );
-    private final Function<Dynamic<?>, ? extends C> configurationFactory;
+    public static final SurfaceBuilder<SurfaceBuilderBaseConfiguration> NOPE = register("nope", new NopeSurfaceBuilder(SurfaceBuilderBaseConfiguration.CODEC));
+    private final Codec<ConfiguredSurfaceBuilder<C>> configuredCodec;
 
     private static <C extends SurfaceBuilderConfiguration, F extends SurfaceBuilder<C>> F register(String param0, F param1) {
         return Registry.register(Registry.SURFACE_BUILDER, param0, param1);
     }
 
-    public SurfaceBuilder(Function<Dynamic<?>, ? extends C> param0) {
-        this.configurationFactory = param0;
+    public SurfaceBuilder(Codec<C> param0) {
+        this.configuredCodec = param0.fieldOf("config").xmap(param0x -> new ConfiguredSurfaceBuilder<>(this, param0x), param0x -> param0x.config).codec();
+    }
+
+    public Codec<ConfiguredSurfaceBuilder<C>> configuredCodec() {
+        return this.configuredCodec;
     }
 
     public abstract void apply(

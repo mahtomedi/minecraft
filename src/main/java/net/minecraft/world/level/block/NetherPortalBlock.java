@@ -53,7 +53,7 @@ public class NetherPortalBlock extends Block {
 
     @Override
     public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
-        if (param1.getDimension().isNaturalDimension()
+        if (param1.dimensionType().natural()
             && param1.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING)
             && param3.nextInt(2000) < param1.getDifficulty().getId()) {
             while(param1.getBlockState(param2).is(this)) {

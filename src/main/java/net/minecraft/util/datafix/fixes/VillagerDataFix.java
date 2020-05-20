@@ -3,9 +3,9 @@ package net.minecraft.util.datafix.fixes;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.DSL;
 import com.mojang.datafixers.DataFixUtils;
-import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.Typed;
 import com.mojang.datafixers.schemas.Schema;
+import com.mojang.serialization.Dynamic;
 
 public class VillagerDataFix extends NamedEntityFix {
     public VillagerDataFix(Schema param0, String param1) {
@@ -29,7 +29,7 @@ public class VillagerDataFix extends NamedEntityFix {
                             var0.createString("profession"),
                             var0.createString(upgradeData(var0.get("Profession").asInt(0), var0.get("Career").asInt(0))),
                             var0.createString("level"),
-                            DataFixUtils.orElse(var0.get("CareerLevel").get(), var0.createInt(1))
+                            DataFixUtils.orElse(var0.get("CareerLevel").result(), var0.createInt(1))
                         )
                     )
                 )

@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -137,9 +138,9 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
 
     @Nullable
     @Override
-    public Entity changeDimension(DimensionType param0) {
+    public Entity changeDimension(ResourceKey<DimensionType> param0) {
         Entity var0 = this.getOwner();
-        if (var0.dimension != param0) {
+        if (var0 != null && var0.level.dimension() != param0) {
             this.setOwner(null);
         }
 

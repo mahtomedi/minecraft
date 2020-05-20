@@ -3,7 +3,9 @@ package net.minecraft.server.commands;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import java.util.Collection;
+import java.util.UUID;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -33,13 +35,16 @@ public class MsgCommand {
     }
 
     private static int sendMessage(CommandSourceStack param0, Collection<ServerPlayer> param1, Component param2) {
-        for(ServerPlayer var0 : param1) {
-            var0.sendMessage(
+        UUID var0 = param0.getEntity() == null ? Util.NIL_UUID : param0.getEntity().getUUID();
+
+        for(ServerPlayer var1 : param1) {
+            var1.sendMessage(
                 new TranslatableComponent("commands.message.display.incoming", param0.getDisplayName(), param2)
-                    .withStyle(new ChatFormatting[]{ChatFormatting.GRAY, ChatFormatting.ITALIC})
+                    .withStyle(new ChatFormatting[]{ChatFormatting.GRAY, ChatFormatting.ITALIC}),
+                var0
             );
             param0.sendSuccess(
-                new TranslatableComponent("commands.message.display.outgoing", var0.getDisplayName(), param2)
+                new TranslatableComponent("commands.message.display.outgoing", var1.getDisplayName(), param2)
                     .withStyle(new ChatFormatting[]{ChatFormatting.GRAY, ChatFormatting.ITALIC}),
                 false
             );

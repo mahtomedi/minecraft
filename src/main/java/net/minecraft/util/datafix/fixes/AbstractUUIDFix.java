@@ -2,11 +2,11 @@ package net.minecraft.util.datafix.fixes;
 
 import com.mojang.datafixers.DSL;
 import com.mojang.datafixers.DataFix;
-import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.Typed;
 import com.mojang.datafixers.DSL.TypeReference;
 import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.Type;
+import com.mojang.serialization.Dynamic;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,7 +34,7 @@ public abstract class AbstractUUIDFix extends DataFix {
     }
 
     protected static Optional<Dynamic<?>> replaceUUIDMLTag(Dynamic<?> param0, String param1, String param2) {
-        return param0.get(param1).get().flatMap(AbstractUUIDFix::createUUIDFromML).map(param3 -> param0.remove(param1).set(param2, param3));
+        return param0.get(param1).result().flatMap(AbstractUUIDFix::createUUIDFromML).map(param3 -> param0.remove(param1).set(param2, param3));
     }
 
     protected static Optional<Dynamic<?>> replaceUUIDLeastMost(Dynamic<?> param0, String param1, String param2) {
@@ -44,7 +44,7 @@ public abstract class AbstractUUIDFix extends DataFix {
     }
 
     protected static Optional<Dynamic<?>> createUUIDFromString(Dynamic<?> param0, String param1) {
-        return param0.get(param1).get().flatMap(param1x -> {
+        return param0.get(param1).result().flatMap(param1x -> {
             String var0x = param1x.asString(null);
             if (var0x != null) {
                 try {

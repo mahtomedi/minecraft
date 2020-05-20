@@ -1,12 +1,10 @@
 package net.minecraft.world.entity;
 
-import com.mojang.datafixers.DataFixUtils;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -19,7 +17,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.Tag;
 import net.minecraft.util.Mth;
-import net.minecraft.util.datafix.DataFixers;
 import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.world.entity.ambient.Bat;
 import net.minecraft.world.entity.animal.Bee;
@@ -846,17 +843,7 @@ public class EntityType<T extends Entity> {
 
         public EntityType<T> build(String param0) {
             if (this.serialize) {
-                try {
-                    DataFixers.getDataFixer()
-                        .getSchema(DataFixUtils.makeKey(SharedConstants.getCurrentVersion().getWorldVersion()))
-                        .getChoiceType(References.ENTITY_TREE, param0);
-                } catch (IllegalArgumentException var3) {
-                    if (SharedConstants.IS_RUNNING_IN_IDE) {
-                        throw var3;
-                    }
-
-                    EntityType.LOGGER.warn("No data fixer registered for entity {}", param0);
-                }
+                Util.fetchChoiceType(References.ENTITY_TREE, param0);
             }
 
             return new EntityType<>(

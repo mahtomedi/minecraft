@@ -1,11 +1,18 @@
 package net.minecraft.world.level.levelgen.placement;
 
-import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.world.level.levelgen.feature.configurations.DecoratorConfiguration;
 
 public class DepthAverageConfigation implements DecoratorConfiguration {
+    public static final Codec<DepthAverageConfigation> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    Codec.INT.fieldOf("count").forGetter(param0x -> param0x.count),
+                    Codec.INT.fieldOf("baseline").forGetter(param0x -> param0x.baseline),
+                    Codec.INT.fieldOf("spread").forGetter(param0x -> param0x.spread)
+                )
+                .apply(param0, DepthAverageConfigation::new)
+    );
     public final int count;
     public final int baseline;
     public final int spread;
@@ -14,29 +21,5 @@ public class DepthAverageConfigation implements DecoratorConfiguration {
         this.count = param0;
         this.baseline = param1;
         this.spread = param2;
-    }
-
-    @Override
-    public <T> Dynamic<T> serialize(DynamicOps<T> param0) {
-        return new Dynamic<>(
-            param0,
-            param0.createMap(
-                ImmutableMap.of(
-                    param0.createString("count"),
-                    param0.createInt(this.count),
-                    param0.createString("baseline"),
-                    param0.createInt(this.baseline),
-                    param0.createString("spread"),
-                    param0.createInt(this.spread)
-                )
-            )
-        );
-    }
-
-    public static DepthAverageConfigation deserialize(Dynamic<?> param0) {
-        int var0 = param0.get("count").asInt(0);
-        int var1 = param0.get("baseline").asInt(0);
-        int var2 = param0.get("spread").asInt(0);
-        return new DepthAverageConfigation(var0, var1, var2);
     }
 }

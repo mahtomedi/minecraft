@@ -35,7 +35,7 @@ public class PoiManager extends SectionStorage<PoiSection> {
     private final LongSet loadedChunks = new LongOpenHashSet();
 
     public PoiManager(File param0, DataFixer param1, boolean param2) {
-        super(param0, PoiSection::serialize, PoiSection::new, PoiSection::new, param1, DataFixTypes.POI_CHUNK, param2);
+        super(param0, PoiSection::codec, PoiSection::new, param1, DataFixTypes.POI_CHUNK, param2);
         this.distanceTracker = new PoiManager.DistanceTracker();
     }
 

@@ -2,11 +2,11 @@ package net.minecraft.util.datafix.fixes;
 
 import com.mojang.datafixers.DSL;
 import com.mojang.datafixers.DataFix;
-import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.OpticFinder;
 import com.mojang.datafixers.TypeRewriteRule;
 import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.Type;
+import com.mojang.serialization.Dynamic;
 
 public class EntityPaintingItemFrameDirectionFix extends DataFix {
     private static final int[][] DIRECTIONS = new int[][]{{0, 0, 1}, {-1, 0, 0}, {0, 0, -1}, {1, 0, 0}};
@@ -16,16 +16,16 @@ public class EntityPaintingItemFrameDirectionFix extends DataFix {
     }
 
     private Dynamic<?> doFix(Dynamic<?> param0, boolean param1, boolean param2) {
-        if ((param1 || param2) && !param0.get("Facing").asNumber().isPresent()) {
+        if ((param1 || param2) && !param0.get("Facing").asNumber().result().isPresent()) {
             int var0;
-            if (param0.get("Direction").asNumber().isPresent()) {
+            if (param0.get("Direction").asNumber().result().isPresent()) {
                 var0 = param0.get("Direction").asByte((byte)0) % DIRECTIONS.length;
                 int[] var1 = DIRECTIONS[var0];
                 param0 = param0.set("TileX", param0.createInt(param0.get("TileX").asInt(0) + var1[0]));
                 param0 = param0.set("TileY", param0.createInt(param0.get("TileY").asInt(0) + var1[1]));
                 param0 = param0.set("TileZ", param0.createInt(param0.get("TileZ").asInt(0) + var1[2]));
                 param0 = param0.remove("Direction");
-                if (param2 && param0.get("ItemRotation").asNumber().isPresent()) {
+                if (param2 && param0.get("ItemRotation").asNumber().result().isPresent()) {
                     param0 = param0.set("ItemRotation", param0.createByte((byte)(param0.get("ItemRotation").asByte((byte)0) * 2)));
                 }
             } else {

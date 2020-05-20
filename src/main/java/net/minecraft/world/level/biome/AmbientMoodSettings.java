@@ -1,11 +1,22 @@
 package net.minecraft.world.level.biome;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class AmbientMoodSettings {
+    public static final Codec<AmbientMoodSettings> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    SoundEvent.CODEC.fieldOf("sound").forGetter(param0x -> param0x.soundEvent),
+                    Codec.INT.fieldOf("tick_delay").forGetter(param0x -> param0x.tickDelay),
+                    Codec.INT.fieldOf("block_search_extent").forGetter(param0x -> param0x.blockSearchExtent),
+                    Codec.DOUBLE.fieldOf("offset").forGetter(param0x -> param0x.soundPositionOffset)
+                )
+                .apply(param0, AmbientMoodSettings::new)
+    );
     public static final AmbientMoodSettings LEGACY_CAVE_SETTINGS = new AmbientMoodSettings(SoundEvents.AMBIENT_CAVE, 6000, 8, 2.0);
     private SoundEvent soundEvent;
     private int tickDelay;

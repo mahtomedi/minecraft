@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import net.minecraft.core.DefaultedRegistry;
 import net.minecraft.core.Registry;
-import net.minecraft.core.WritableRegistry;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.HashCache;
@@ -30,7 +29,7 @@ public class RegistryDumpReport implements DataProvider {
         DataProvider.save(GSON, param0, var0, var1);
     }
 
-    private static <T> JsonElement dumpRegistry(WritableRegistry<T> param0) {
+    private static <T> JsonElement dumpRegistry(Registry<T> param0) {
         JsonObject var0 = new JsonObject();
         if (param0 instanceof DefaultedRegistry) {
             ResourceLocation var1 = ((DefaultedRegistry)param0).getDefaultKey();

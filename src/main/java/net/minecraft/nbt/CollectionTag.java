@@ -12,4 +12,6 @@ public abstract class CollectionTag<T extends Tag> extends AbstractList<T> imple
     public abstract boolean setTag(int var1, Tag var2);
 
     public abstract boolean addTag(int var1, Tag var2);
+
+    public abstract byte getElementType();
 }

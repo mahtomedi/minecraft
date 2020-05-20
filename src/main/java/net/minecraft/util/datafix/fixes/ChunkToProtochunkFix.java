@@ -2,12 +2,14 @@ package net.minecraft.util.datafix.fixes;
 
 import com.mojang.datafixers.DSL;
 import com.mojang.datafixers.DataFix;
-import com.mojang.datafixers.Dynamic;
+import com.mojang.datafixers.DataFixUtils;
 import com.mojang.datafixers.OpticFinder;
 import com.mojang.datafixers.TypeRewriteRule;
-import com.mojang.datafixers.Typed;
 import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.Type;
+import com.mojang.serialization.Dynamic;
+import it.unimi.dsi.fastutil.shorts.ShortArrayList;
+import it.unimi.dsi.fastutil.shorts.ShortList;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
@@ -40,16 +42,16 @@ public class ChunkToProtochunkFix extends DataFix {
                         var3,
                         param2x -> {
                             Optional<? extends Stream<? extends Dynamic<?>>> var0x = param2x.getOptionalTyped(var6)
-                                .map(Typed::write)
-                                .flatMap(Dynamic::asStreamOpt);
+                                .flatMap(param0x -> param0x.write().result())
+                                .flatMap(param0x -> param0x.asStreamOpt().result());
                             Dynamic<?> var1x = param2x.get(DSL.remainderFinder());
                             boolean var2x = var1x.get("TerrainPopulated").asBoolean(false)
-                                && (!var1x.get("LightPopulated").asNumber().isPresent() || var1x.get("LightPopulated").asBoolean(false));
+                                && (!var1x.get("LightPopulated").asNumber().result().isPresent() || var1x.get("LightPopulated").asBoolean(false));
                             var1x = var1x.set("Status", var1x.createString(var2x ? "mobs_spawned" : "empty"));
                             var1x = var1x.set("hasLegacyStructureData", var1x.createBoolean(true));
                             Dynamic<?> var9;
                             if (var2x) {
-                                Optional<ByteBuffer> var3x = var1x.get("Biomes").asByteBufferOpt();
+                                Optional<ByteBuffer> var3x = var1x.get("Biomes").asByteBufferOpt().result();
                                 if (var3x.isPresent()) {
                                     ByteBuffer var7x = var3x.get();
                                     int[] var5x = new int[256];
@@ -64,26 +66,26 @@ public class ChunkToProtochunkFix extends DataFix {
                                 }
             
                                 Dynamic<?> var7 = var1x;
-                                List<Dynamic<?>> var8 = IntStream.range(0, 16)
-                                    .mapToObj(param1x -> var7.createList(Stream.empty()))
-                                    .collect(Collectors.toList());
+                                List<ShortList> var8 = IntStream.range(0, 16).mapToObj(param0x -> new ShortArrayList()).collect(Collectors.toList());
                                 if (var0x.isPresent()) {
-                                    var0x.get().forEach(param2xx -> {
-                                        int var0xx = param2xx.get("x").asInt(0);
-                                        int var1xx = param2xx.get("y").asInt(0);
-                                        int var2xx = param2xx.get("z").asInt(0);
+                                    var0x.get().forEach(param1x -> {
+                                        int var0xx = param1x.get("x").asInt(0);
+                                        int var1xx = param1x.get("y").asInt(0);
+                                        int var2xx = param1x.get("z").asInt(0);
                                         short var3xx = packOffsetCoordinates(var0xx, var1xx, var2xx);
-                                        var8.set(var1xx >> 4, var8.get(var1xx >> 4).merge(var7.createShort(var3xx)));
+                                        var8.get(var1xx >> 4).add(var3xx);
                                     });
-                                    var1x = var1x.set("ToBeTicked", var1x.createList(var8.stream()));
+                                    var1x = var1x.set(
+                                        "ToBeTicked", var1x.createList(var8.stream().map(param1x -> var7.createList(param1x.stream().map(var7::createShort))))
+                                    );
                                 }
             
-                                var9 = param2x.set(DSL.remainderFinder(), var1x).write();
+                                var9 = DataFixUtils.orElse(param2x.set(DSL.remainderFinder(), var1x).write().result(), var1x);
                             } else {
                                 var9 = var1x;
                             }
             
-                            return var3.readTyped(var9).getSecond().orElseThrow(() -> new IllegalStateException("Could not read the new chunk"));
+                            return var3.readTyped(var9).result().orElseThrow(() -> new IllegalStateException("Could not read the new chunk")).getFirst();
                         }
                     )
             ),

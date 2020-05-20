@@ -1,27 +1,32 @@
 package net.minecraft.world.level.levelgen.feature.blockplacers;
 
-import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class ColumnPlacer extends BlockPlacer {
+    public static final Codec<ColumnPlacer> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    Codec.INT.fieldOf("min_size").forGetter(param0x -> param0x.minSize),
+                    Codec.INT.fieldOf("extra_size").forGetter(param0x -> param0x.extraSize)
+                )
+                .apply(param0, ColumnPlacer::new)
+    );
     private final int minSize;
     private final int extraSize;
 
     public ColumnPlacer(int param0, int param1) {
-        super(BlockPlacerType.COLUMN_PLACER);
         this.minSize = param0;
         this.extraSize = param1;
     }
 
-    public <T> ColumnPlacer(Dynamic<T> param0) {
-        this(param0.get("min_size").asInt(1), param0.get("extra_size").asInt(2));
+    @Override
+    protected BlockPlacerType<?> type() {
+        return BlockPlacerType.COLUMN_PLACER;
     }
 
     @Override
@@ -34,23 +39,5 @@ public class ColumnPlacer extends BlockPlacer {
             var0.move(Direction.UP);
         }
 
-    }
-
-    @Override
-    public <T> T serialize(DynamicOps<T> param0) {
-        return new Dynamic<>(
-                param0,
-                param0.createMap(
-                    ImmutableMap.of(
-                        param0.createString("type"),
-                        param0.createString(Registry.BLOCK_PLACER_TYPES.getKey(this.type).toString()),
-                        param0.createString("min_size"),
-                        param0.createInt(this.minSize),
-                        param0.createString("extra_size"),
-                        param0.createInt(this.extraSize)
-                    )
-                )
-            )
-            .getValue();
     }
 }

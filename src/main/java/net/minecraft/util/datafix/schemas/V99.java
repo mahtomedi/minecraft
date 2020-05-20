@@ -3,11 +3,11 @@ package net.minecraft.util.datafix.schemas;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.DSL;
 import com.mojang.datafixers.DataFixUtils;
-import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.schemas.Schema;
-import com.mojang.datafixers.types.DynamicOps;
 import com.mojang.datafixers.types.templates.TypeTemplate;
 import com.mojang.datafixers.types.templates.Hook.HookFunction;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.DynamicOps;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -255,7 +255,7 @@ public class V99 extends Schema {
         );
         param0.registerType(true, References.BLOCK_ENTITY, () -> DSL.taggedChoiceLazy("id", DSL.string(), param2));
         param0.registerType(true, References.ENTITY_TREE, () -> DSL.optionalFields("Riding", References.ENTITY_TREE.in(param0), References.ENTITY.in(param0)));
-        param0.registerType(false, References.ENTITY_NAME, () -> DSL.constType(DSL.namespacedString()));
+        param0.registerType(false, References.ENTITY_NAME, () -> DSL.constType(NamespacedSchema.namespacedString()));
         param0.registerType(true, References.ENTITY, () -> DSL.taggedChoiceLazy("id", DSL.string(), param1));
         param0.registerType(
             true,
@@ -281,8 +281,8 @@ public class V99 extends Schema {
                 )
         );
         param0.registerType(false, References.OPTIONS, DSL::remainder);
-        param0.registerType(false, References.BLOCK_NAME, () -> DSL.or(DSL.constType(DSL.intType()), DSL.constType(DSL.namespacedString())));
-        param0.registerType(false, References.ITEM_NAME, () -> DSL.constType(DSL.namespacedString()));
+        param0.registerType(false, References.BLOCK_NAME, () -> DSL.or(DSL.constType(DSL.intType()), DSL.constType(NamespacedSchema.namespacedString())));
+        param0.registerType(false, References.ITEM_NAME, () -> DSL.constType(NamespacedSchema.namespacedString()));
         param0.registerType(false, References.STATS, DSL::remainder);
         param0.registerType(
             false,
@@ -304,6 +304,7 @@ public class V99 extends Schema {
         param0.registerType(false, References.TEAM, DSL::remainder);
         param0.registerType(true, References.UNTAGGED_SPAWNER, DSL::remainder);
         param0.registerType(false, References.POI_CHUNK, DSL::remainder);
+        param0.registerType(true, References.WORLD_GEN_SETTINGS, DSL::remainder);
     }
 
     protected static <T> T addNames(Dynamic<T> param0, Map<String, String> param1, String param2) {

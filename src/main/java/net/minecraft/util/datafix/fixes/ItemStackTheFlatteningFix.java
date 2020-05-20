@@ -5,18 +5,19 @@ import com.google.common.collect.Sets;
 import com.mojang.datafixers.DSL;
 import com.mojang.datafixers.DataFix;
 import com.mojang.datafixers.DataFixUtils;
-import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.OpticFinder;
 import com.mojang.datafixers.TypeRewriteRule;
 import com.mojang.datafixers.Typed;
 import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.Type;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Dynamic;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import net.minecraft.util.datafix.schemas.NamespacedSchema;
 
 public class ItemStackTheFlatteningFix extends DataFix {
     private static final Map<String, String> MAP = DataFixUtils.make(Maps.newHashMap(), param0 -> {
@@ -404,7 +405,7 @@ public class ItemStackTheFlatteningFix extends DataFix {
     @Override
     public TypeRewriteRule makeRule() {
         Type<?> var0 = this.getInputSchema().getType(References.ITEM_STACK);
-        OpticFinder<Pair<String, String>> var1 = DSL.fieldFinder("id", DSL.named(References.ITEM_NAME.typeName(), DSL.namespacedString()));
+        OpticFinder<Pair<String, String>> var1 = DSL.fieldFinder("id", DSL.named(References.ITEM_NAME.typeName(), NamespacedSchema.namespacedString()));
         OpticFinder<?> var2 = var0.findField("tag");
         return this.fixTypeEverywhereTyped("ItemInstanceTheFlatteningFix", var0, param2 -> {
             Optional<Pair<String, String>> var0x = param2.getOptional(var1);

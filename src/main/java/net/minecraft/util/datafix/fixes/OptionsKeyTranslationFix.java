@@ -27,7 +27,7 @@ public class OptionsKeyTranslationFix extends DataFix {
                                 }
         
                                 return Pair.of(param1x.getKey(), param1x.getValue());
-                            }).collect(Collectors.toMap(Pair::getFirst, Pair::getSecond)))).orElse(param0x)
+                            }).collect(Collectors.toMap(Pair::getFirst, Pair::getSecond)))).result().orElse(param0x)
                 )
         );
     }

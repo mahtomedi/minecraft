@@ -1,8 +1,7 @@
 package net.minecraft.world.level.levelgen.feature;
 
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Codec;
 import java.util.Random;
-import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
@@ -10,7 +9,7 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.configurations.RandomRandomFeatureConfiguration;
 
 public class RandomRandomFeature extends Feature<RandomRandomFeatureConfiguration> {
-    public RandomRandomFeature(Function<Dynamic<?>, ? extends RandomRandomFeatureConfiguration> param0) {
+    public RandomRandomFeature(Codec<RandomRandomFeatureConfiguration> param0) {
         super(param0);
     }
 

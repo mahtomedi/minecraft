@@ -1,14 +1,11 @@
 package net.minecraft.world.level.levelgen.feature.structures;
 
-import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
-import net.minecraft.util.Deserializer;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Rotation;
@@ -18,6 +15,10 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureMana
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
 public class ListPoolElement extends StructurePoolElement {
+    public static final Codec<ListPoolElement> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(StructurePoolElement.CODEC.listOf().fieldOf("elements").forGetter(param0x -> param0x.elements), projectionCodec())
+                .apply(param0, ListPoolElement::new)
+    );
     private final List<StructurePoolElement> elements;
 
     @Deprecated
@@ -32,17 +33,6 @@ public class ListPoolElement extends StructurePoolElement {
         } else {
             this.elements = param0;
             this.setProjectionOnEachElement(param1);
-        }
-    }
-
-    public ListPoolElement(Dynamic<?> param0) {
-        super(param0);
-        List<StructurePoolElement> var0 = param0.get("elements")
-            .asList(param0x -> Deserializer.deserialize(param0x, Registry.STRUCTURE_POOL_ELEMENT, "element_type", EmptyPoolElement.INSTANCE));
-        if (var0.isEmpty()) {
-            throw new IllegalArgumentException("Elements are empty");
-        } else {
-            this.elements = var0;
         }
     }
 
@@ -86,7 +76,7 @@ public class ListPoolElement extends StructurePoolElement {
     }
 
     @Override
-    public StructurePoolElementType getType() {
+    public StructurePoolElementType<?> getType() {
         return StructurePoolElementType.LIST;
     }
 
@@ -95,12 +85,6 @@ public class ListPoolElement extends StructurePoolElement {
         super.setProjection(param0);
         this.setProjectionOnEachElement(param0);
         return this;
-    }
-
-    @Override
-    public <T> Dynamic<T> getDynamic(DynamicOps<T> param0) {
-        T var0 = param0.createList(this.elements.stream().map(param1 -> param1.serialize(param0).getValue()));
-        return new Dynamic<>(param0, param0.createMap(ImmutableMap.of(param0.createString("elements"), var0)));
     }
 
     @Override

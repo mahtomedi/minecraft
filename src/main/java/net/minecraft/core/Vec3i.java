@@ -1,13 +1,21 @@
 package net.minecraft.core;
 
 import com.google.common.base.MoreObjects;
+import com.mojang.serialization.Codec;
+import java.util.stream.IntStream;
 import javax.annotation.concurrent.Immutable;
+import net.minecraft.Util;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @Immutable
 public class Vec3i implements Comparable<Vec3i> {
+    public static final Codec<Vec3i> CODEC = Codec.INT_STREAM
+        .comapFlatMap(
+            param0 -> Util.fixedSize(param0, 3).map(param0x -> new Vec3i(param0x[0], param0x[1], param0x[2])),
+            param0 -> IntStream.of(param0.getX(), param0.getY(), param0.getZ())
+        );
     public static final Vec3i ZERO = new Vec3i(0, 0, 0);
     private int x;
     private int y;

@@ -1,48 +1,30 @@
 package net.minecraft.world.entity.ai.behavior;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.DynamicOps;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 public class WeightedList<U> {
-    protected final List<WeightedList<U>.WeightedEntry<? extends U>> entries = Lists.newArrayList();
-    private final Random random;
-
-    public WeightedList(Random param0) {
-        this.random = param0;
-    }
+    protected final List<WeightedList.WeightedEntry<U>> entries;
+    private final Random random = new Random();
 
     public WeightedList() {
-        this(new Random());
+        this(Lists.newArrayList());
     }
 
-    public <T> WeightedList(Dynamic<T> param0, Function<Dynamic<T>, U> param1) {
-        this();
-        param0.asStream().forEach(param1x -> param1x.get("data").map(param2 -> {
-                U var0 = param1.apply(param2);
-                int var1x = param1x.get("weight").asInt(1);
-                return this.add(var0, var1x);
-            }));
+    private WeightedList(List<WeightedList.WeightedEntry<U>> param0) {
+        this.entries = param0;
     }
 
-    public <T> T serialize(DynamicOps<T> param0, Function<U, Dynamic<T>> param1) {
-        return param0.createList(
-            this.streamEntries()
-                .map(
-                    param2 -> param0.createMap(
-                            ImmutableMap.<T, T>builder()
-                                .put(param0.createString("data"), param1.apply(param2.getData()).getValue())
-                                .put(param0.createString("weight"), param0.createInt(param2.getWeight()))
-                                .build()
-                        )
-                )
-        );
+    public static <U> Codec<WeightedList<U>> codec(Codec<U> param0) {
+        return WeightedList.WeightedEntry.<U>codec(param0).listOf().xmap(WeightedList::new, param0x -> param0x.entries);
     }
 
     public WeightedList<U> add(U param0, int param1) {
@@ -60,12 +42,12 @@ public class WeightedList<U> {
         return this;
     }
 
-    public Stream<? extends U> stream() {
-        return this.entries.stream().map(WeightedList.WeightedEntry::getData);
+    public boolean isEmpty() {
+        return this.entries.isEmpty();
     }
 
-    public Stream<WeightedList<U>.WeightedEntry<? extends U>> streamEntries() {
-        return this.entries.stream();
+    public Stream<U> stream() {
+        return this.entries.stream().map(WeightedList.WeightedEntry::getData);
     }
 
     public U getOne(Random param0) {
@@ -77,14 +59,14 @@ public class WeightedList<U> {
         return "WeightedList[" + this.entries + "]";
     }
 
-    public class WeightedEntry<T> {
+    public static class WeightedEntry<T> {
         private final T data;
         private final int weight;
         private double randWeight;
 
-        private WeightedEntry(T param1, int param2) {
-            this.weight = param2;
-            this.data = param1;
+        private WeightedEntry(T param0, int param1) {
+            this.weight = param1;
+            this.data = param0;
         }
 
         private double getRandWeight() {
@@ -99,13 +81,29 @@ public class WeightedList<U> {
             return this.data;
         }
 
-        public int getWeight() {
-            return this.weight;
-        }
-
         @Override
         public String toString() {
             return "" + this.weight + ":" + this.data;
+        }
+
+        public static <E> Codec<WeightedList.WeightedEntry<E>> codec(final Codec<E> param0) {
+            return new Codec<WeightedList.WeightedEntry<E>>() {
+                @Override
+                public <T> DataResult<Pair<WeightedList.WeightedEntry<E>, T>> decode(DynamicOps<T> param0x, T param1) {
+                    Dynamic<T> var0 = new Dynamic<>(param0, param1);
+                    return var0.get("data")
+                        .flatMap(param0::parse)
+                        .map(param1x -> new WeightedList.WeightedEntry(param1x, var0.get("weight").asInt(1)))
+                        .map(param1x -> Pair.of(param1x, param0.empty()));
+                }
+
+                public <T> DataResult<T> encode(WeightedList.WeightedEntry<E> param0x, DynamicOps<T> param1, T param2) {
+                    return param1.mapBuilder()
+                        .add("weight", param1.createInt(param0.weight))
+                        .add("data", param0.encodeStart(param1, param0.data))
+                        .build(param2);
+                }
+            };
         }
     }
 }

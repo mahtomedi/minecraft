@@ -83,7 +83,7 @@ public class DedicatedServerProperties extends Settings<DedicatedServerPropertie
         this.entityBroadcastRangePercentage = this.get("entity-broadcast-range-percentage", param0x -> Mth.clamp(param0x, 10, 1000), 100);
         this.playerIdleTimeout = this.getMutable("player-idle-timeout", 0);
         this.whiteList = this.getMutable("white-list", false);
-        this.worldGenSettings = WorldGenSettings.read(param0);
+        this.worldGenSettings = WorldGenSettings.create(param0);
     }
 
     public static DedicatedServerProperties fromFile(Path param0) {

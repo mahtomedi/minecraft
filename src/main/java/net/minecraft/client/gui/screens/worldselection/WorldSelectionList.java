@@ -228,6 +228,12 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
                                 .withStyle(ChatFormatting.RED);
                             this.screen.setToolTip(this.minecraft.font.split(var7, 175));
                         }
+                    } else if (this.summary.experimental()) {
+                        GuiComponent.blit(param0, param3, param2, 96.0F, (float)var5, 32, 32, 256, 256);
+                        if (var4) {
+                            Component var8 = new TranslatableComponent("selectWorld.tooltip.experimental").withStyle(ChatFormatting.RED);
+                            this.screen.setToolTip(this.minecraft.font.split(var8, 175));
+                        }
                     } else if (this.summary.askToOpenWorld()) {
                         GuiComponent.blit(param0, param3, param2, 96.0F, (float)var5, 32, 32, 256, 256);
                         if (var4) {
@@ -280,22 +286,65 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
 
         public void joinWorld() {
             if (!this.summary.isLocked()) {
-                if (this.summary.shouldBackup() || this.summary.isOldCustomizedWorld()) {
-                    Component var0 = new TranslatableComponent("selectWorld.backupQuestion");
-                    Component var1 = new TranslatableComponent(
-                        "selectWorld.backupWarning", this.summary.getWorldVersionName(), SharedConstants.getCurrentVersion().getName()
-                    );
+                if (!this.summary.shouldBackup() && !this.summary.isOldCustomizedWorld() && !this.summary.experimental()) {
+                    if (this.summary.askToOpenWorld()) {
+                        this.minecraft
+                            .setScreen(
+                                new ConfirmScreen(
+                                    param0 -> {
+                                        if (param0) {
+                                            try {
+                                                this.loadWorld();
+                                            } catch (Exception var3) {
+                                                WorldSelectionList.LOGGER.error("Failure to open 'future world'", (Throwable)var3);
+                                                this.minecraft
+                                                    .setScreen(
+                                                        new AlertScreen(
+                                                            () -> this.minecraft.setScreen(this.screen),
+                                                            new TranslatableComponent("selectWorld.futureworld.error.title"),
+                                                            new TranslatableComponent("selectWorld.futureworld.error.text")
+                                                        )
+                                                    );
+                                            }
+                                        } else {
+                                            this.minecraft.setScreen(this.screen);
+                                        }
+            
+                                    },
+                                    new TranslatableComponent("selectWorld.versionQuestion"),
+                                    new TranslatableComponent(
+                                        "selectWorld.versionWarning",
+                                        this.summary.getWorldVersionName(),
+                                        new TranslatableComponent("selectWorld.versionJoinButton"),
+                                        CommonComponents.GUI_CANCEL
+                                    )
+                                )
+                            );
+                    } else {
+                        this.loadWorld();
+                    }
+                } else {
+                    Component var0;
+                    Component var1;
                     if (this.summary.isOldCustomizedWorld()) {
                         var0 = new TranslatableComponent("selectWorld.backupQuestion.customized");
                         var1 = new TranslatableComponent("selectWorld.backupWarning.customized");
+                    } else if (this.summary.experimental()) {
+                        var0 = new TranslatableComponent("selectWorld.backupQuestion.experimental");
+                        var1 = new TranslatableComponent("selectWorld.backupWarning.experimental");
+                    } else {
+                        var0 = new TranslatableComponent("selectWorld.backupQuestion");
+                        var1 = new TranslatableComponent(
+                            "selectWorld.backupWarning", this.summary.getWorldVersionName(), SharedConstants.getCurrentVersion().getName()
+                        );
                     }
 
                     this.minecraft.setScreen(new BackupConfirmScreen(this.screen, (param0, param1) -> {
                         if (param0) {
                             String var0x = this.summary.getLevelId();
 
-                            try (LevelStorageSource.LevelStorageAccess var2x = this.minecraft.getLevelSource().createAccess(var0x)) {
-                                EditWorldScreen.makeBackupAndShowToast(var2x);
+                            try (LevelStorageSource.LevelStorageAccess var1x = this.minecraft.getLevelSource().createAccess(var0x)) {
+                                EditWorldScreen.makeBackupAndShowToast(var1x);
                             } catch (IOException var17) {
                                 SystemToast.onWorldAccessFailure(this.minecraft, var0x);
                                 WorldSelectionList.LOGGER.error("Failed to backup level {}", var0x, var17);
@@ -304,41 +353,6 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
 
                         this.loadWorld();
                     }, var0, var1, false));
-                } else if (this.summary.askToOpenWorld()) {
-                    this.minecraft
-                        .setScreen(
-                            new ConfirmScreen(
-                                param0 -> {
-                                    if (param0) {
-                                        try {
-                                            this.loadWorld();
-                                        } catch (Exception var3) {
-                                            WorldSelectionList.LOGGER.error("Failure to open 'future world'", (Throwable)var3);
-                                            this.minecraft
-                                                .setScreen(
-                                                    new AlertScreen(
-                                                        () -> this.minecraft.setScreen(this.screen),
-                                                        new TranslatableComponent("selectWorld.futureworld.error.title"),
-                                                        new TranslatableComponent("selectWorld.futureworld.error.text")
-                                                    )
-                                                );
-                                        }
-                                    } else {
-                                        this.minecraft.setScreen(this.screen);
-                                    }
-            
-                                },
-                                new TranslatableComponent("selectWorld.versionQuestion"),
-                                new TranslatableComponent(
-                                    "selectWorld.versionWarning",
-                                    this.summary.getWorldVersionName(),
-                                    new TranslatableComponent("selectWorld.versionJoinButton"),
-                                    CommonComponents.GUI_CANCEL
-                                )
-                            )
-                        );
-                } else {
-                    this.loadWorld();
                 }
 
             }

@@ -2,6 +2,7 @@ package net.minecraft.world.item;
 
 import java.util.List;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
@@ -9,7 +10,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.dimension.end.EndDragonFight;
-import net.minecraft.world.level.dimension.end.TheEndDimension;
 import net.minecraft.world.phys.AABB;
 
 public class EndCrystalItem extends Item {
@@ -36,12 +36,12 @@ public class EndCrystalItem extends Item {
                 if (!var7.isEmpty()) {
                     return InteractionResult.FAIL;
                 } else {
-                    if (!var0.isClientSide) {
+                    if (var0 instanceof ServerLevel) {
                         EndCrystal var8 = new EndCrystal(var0, var4 + 0.5, var5, var6 + 0.5);
                         var8.setShowBottom(false);
                         var0.addFreshEntity(var8);
-                        if (var0.getDimension() instanceof TheEndDimension) {
-                            EndDragonFight var9 = ((TheEndDimension)var0.getDimension()).getDragonFight();
+                        EndDragonFight var9 = ((ServerLevel)var0).dragonFight();
+                        if (var9 != null) {
                             var9.tryRespawn();
                         }
                     }

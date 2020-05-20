@@ -1,7 +1,6 @@
 package net.minecraft.world.entity.ai.behavior;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Objects;
 import java.util.Optional;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
@@ -27,7 +26,7 @@ public class StrollToPoi extends Behavior<PathfinderMob> {
     protected boolean checkExtraStartConditions(ServerLevel param0, PathfinderMob param1) {
         Optional<GlobalPos> var0 = param1.getBrain().getMemory(this.memoryType);
         return var0.isPresent()
-            && Objects.equals(param0.dimensionType(), var0.get().dimension())
+            && param0.dimension() == var0.get().dimension()
             && var0.get().pos().closerThan(param1.position(), (double)this.maxDistanceFromPoi);
     }
 

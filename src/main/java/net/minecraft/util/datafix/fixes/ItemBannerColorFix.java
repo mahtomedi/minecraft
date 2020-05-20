@@ -2,16 +2,17 @@ package net.minecraft.util.datafix.fixes;
 
 import com.mojang.datafixers.DSL;
 import com.mojang.datafixers.DataFix;
-import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.OpticFinder;
 import com.mojang.datafixers.TypeRewriteRule;
 import com.mojang.datafixers.Typed;
 import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.Type;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Dynamic;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
+import net.minecraft.util.datafix.schemas.NamespacedSchema;
 
 public class ItemBannerColorFix extends DataFix {
     public ItemBannerColorFix(Schema param0, boolean param1) {
@@ -21,7 +22,7 @@ public class ItemBannerColorFix extends DataFix {
     @Override
     public TypeRewriteRule makeRule() {
         Type<?> var0 = this.getInputSchema().getType(References.ITEM_STACK);
-        OpticFinder<Pair<String, String>> var1 = DSL.fieldFinder("id", DSL.named(References.ITEM_NAME.typeName(), DSL.namespacedString()));
+        OpticFinder<Pair<String, String>> var1 = DSL.fieldFinder("id", DSL.named(References.ITEM_NAME.typeName(), NamespacedSchema.namespacedString()));
         OpticFinder<?> var2 = var0.findField("tag");
         OpticFinder<?> var3 = var2.type().findField("BlockEntityTag");
         return this.fixTypeEverywhereTyped(
@@ -39,9 +40,9 @@ public class ItemBannerColorFix extends DataFix {
                             Typed<?> var5 = (Typed)var4x.get();
                             Dynamic<?> var6 = var3x.get(DSL.remainderFinder());
                             Dynamic<?> var7 = var5.getOrCreate(DSL.remainderFinder());
-                            if (var7.get("Base").asNumber().isPresent()) {
+                            if (var7.get("Base").asNumber().result().isPresent()) {
                                 var1x = var1x.set("Damage", var1x.createShort((short)(var7.get("Base").asInt(0) & 15)));
-                                Optional<? extends Dynamic<?>> var8 = var6.get("display").get();
+                                Optional<? extends Dynamic<?>> var8 = var6.get("display").result();
                                 if (var8.isPresent()) {
                                     Dynamic<?> var9 = var8.get();
                                     if (Objects.equals(

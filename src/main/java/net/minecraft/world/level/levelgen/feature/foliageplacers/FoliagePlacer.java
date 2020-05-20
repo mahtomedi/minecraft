@@ -1,32 +1,41 @@
 package net.minecraft.world.level.levelgen.feature.foliageplacers;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMap.Builder;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.datafixers.Products.P4;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder.Instance;
+import com.mojang.serialization.codecs.RecordCodecBuilder.Mu;
 import java.util.Random;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
-import net.minecraft.util.Serializable;
 import net.minecraft.world.level.LevelSimulatedRW;
 import net.minecraft.world.level.levelgen.feature.TreeFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
 
-public abstract class FoliagePlacer implements Serializable {
-    private final int radius;
-    private final int radiusRandom;
-    private final int offset;
-    private final int offsetRandom;
-    private final FoliagePlacerType<?> type;
+public abstract class FoliagePlacer {
+    public static final Codec<FoliagePlacer> CODEC = Registry.FOLIAGE_PLACER_TYPES.dispatch(FoliagePlacer::type, FoliagePlacerType::codec);
+    protected final int radius;
+    protected final int radiusRandom;
+    protected final int offset;
+    protected final int offsetRandom;
 
-    public FoliagePlacer(int param0, int param1, int param2, int param3, FoliagePlacerType<?> param4) {
+    protected static <P extends FoliagePlacer> P4<Mu<P>, Integer, Integer, Integer, Integer> foliagePlacerParts(Instance<P> param0) {
+        return param0.group(
+            Codec.INT.fieldOf("radius").forGetter(param0x -> param0x.radius),
+            Codec.INT.fieldOf("radius_random").forGetter(param0x -> param0x.radiusRandom),
+            Codec.INT.fieldOf("offset").forGetter(param0x -> param0x.offset),
+            Codec.INT.fieldOf("offset_random").forGetter(param0x -> param0x.offsetRandom)
+        );
+    }
+
+    public FoliagePlacer(int param0, int param1, int param2, int param3) {
         this.radius = param0;
         this.radiusRandom = param1;
         this.offset = param2;
         this.offsetRandom = param3;
-        this.type = param4;
     }
+
+    protected abstract FoliagePlacerType<?> type();
 
     public void createFoliage(
         LevelSimulatedRW param0,
@@ -97,17 +106,6 @@ public abstract class FoliagePlacer implements Serializable {
             }
         }
 
-    }
-
-    @Override
-    public <T> T serialize(DynamicOps<T> param0) {
-        Builder<T, T> var0 = ImmutableMap.builder();
-        var0.put(param0.createString("type"), param0.createString(Registry.FOLIAGE_PLACER_TYPES.getKey(this.type).toString()))
-            .put(param0.createString("radius"), param0.createInt(this.radius))
-            .put(param0.createString("radius_random"), param0.createInt(this.radiusRandom))
-            .put(param0.createString("offset"), param0.createInt(this.offset))
-            .put(param0.createString("offset_random"), param0.createInt(this.offsetRandom));
-        return new Dynamic<>(param0, param0.createMap(var0.build())).getValue();
     }
 
     public static final class FoliageAttachment {

@@ -1,17 +1,25 @@
 package net.minecraft.world.level.levelgen.feature.configurations;
 
-import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.predicate.BlockPredicate;
 
 public class OreConfiguration implements FeatureConfiguration {
+    public static final Codec<OreConfiguration> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    OreConfiguration.Predicates.CODEC.fieldOf("target").forGetter(param0x -> param0x.target),
+                    BlockState.CODEC.fieldOf("state").forGetter(param0x -> param0x.state),
+                    Codec.INT.fieldOf("size").withDefault(0).forGetter(param0x -> param0x.size)
+                )
+                .apply(param0, OreConfiguration::new)
+    );
     public final OreConfiguration.Predicates target;
     public final int size;
     public final BlockState state;
@@ -22,31 +30,7 @@ public class OreConfiguration implements FeatureConfiguration {
         this.target = param0;
     }
 
-    @Override
-    public <T> Dynamic<T> serialize(DynamicOps<T> param0) {
-        return new Dynamic<>(
-            param0,
-            param0.createMap(
-                ImmutableMap.of(
-                    param0.createString("size"),
-                    param0.createInt(this.size),
-                    param0.createString("target"),
-                    param0.createString(this.target.getName()),
-                    param0.createString("state"),
-                    BlockState.serialize(param0, this.state).getValue()
-                )
-            )
-        );
-    }
-
-    public static OreConfiguration deserialize(Dynamic<?> param0) {
-        int var0 = param0.get("size").asInt(0);
-        OreConfiguration.Predicates var1 = OreConfiguration.Predicates.byName(param0.get("target").asString(""));
-        BlockState var2 = param0.get("state").map(BlockState::deserialize).orElse(Blocks.AIR.defaultBlockState());
-        return new OreConfiguration(var1, var2, var0);
-    }
-
-    public static enum Predicates {
+    public static enum Predicates implements StringRepresentable {
         NATURAL_STONE("natural_stone", param0 -> {
             if (param0 == null) {
                 return false;
@@ -54,8 +38,18 @@ public class OreConfiguration implements FeatureConfiguration {
                 return param0.is(Blocks.STONE) || param0.is(Blocks.GRANITE) || param0.is(Blocks.DIORITE) || param0.is(Blocks.ANDESITE);
             }
         }),
-        NETHERRACK("netherrack", new BlockPredicate(Blocks.NETHERRACK));
+        NETHERRACK("netherrack", new BlockPredicate(Blocks.NETHERRACK)),
+        NETHER_ORE_REPLACEABLES("nether_ore_replaceables", param0 -> {
+            if (param0 == null) {
+                return false;
+            } else {
+                return param0.is(Blocks.NETHERRACK) || param0.is(Blocks.BASALT) || param0.is(Blocks.BLACKSTONE);
+            }
+        });
 
+        public static final Codec<OreConfiguration.Predicates> CODEC = StringRepresentable.fromEnum(
+            OreConfiguration.Predicates::values, OreConfiguration.Predicates::byName
+        );
         private static final Map<String, OreConfiguration.Predicates> BY_NAME = Arrays.stream(values())
             .collect(Collectors.toMap(OreConfiguration.Predicates::getName, param0 -> param0));
         private final String name;
@@ -76,6 +70,11 @@ public class OreConfiguration implements FeatureConfiguration {
 
         public Predicate<BlockState> getPredicate() {
             return this.predicate;
+        }
+
+        @Override
+        public String getSerializedName() {
+            return this.name;
         }
     }
 }

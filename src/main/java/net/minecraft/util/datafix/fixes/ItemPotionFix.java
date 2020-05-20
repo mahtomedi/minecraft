@@ -3,15 +3,16 @@ package net.minecraft.util.datafix.fixes;
 import com.mojang.datafixers.DSL;
 import com.mojang.datafixers.DataFix;
 import com.mojang.datafixers.DataFixUtils;
-import com.mojang.datafixers.Dynamic;
 import com.mojang.datafixers.OpticFinder;
 import com.mojang.datafixers.TypeRewriteRule;
 import com.mojang.datafixers.Typed;
 import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.Type;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Dynamic;
 import java.util.Objects;
 import java.util.Optional;
+import net.minecraft.util.datafix.schemas.NamespacedSchema;
 
 public class ItemPotionFix extends DataFix {
     private static final String[] POTIONS = DataFixUtils.make(new String[128], param0 -> {
@@ -152,7 +153,7 @@ public class ItemPotionFix extends DataFix {
     @Override
     public TypeRewriteRule makeRule() {
         Type<?> var0 = this.getInputSchema().getType(References.ITEM_STACK);
-        OpticFinder<Pair<String, String>> var1 = DSL.fieldFinder("id", DSL.named(References.ITEM_NAME.typeName(), DSL.namespacedString()));
+        OpticFinder<Pair<String, String>> var1 = DSL.fieldFinder("id", DSL.named(References.ITEM_NAME.typeName(), NamespacedSchema.namespacedString()));
         OpticFinder<?> var2 = var0.findField("tag");
         return this.fixTypeEverywhereTyped("ItemPotionFix", var0, param2 -> {
             Optional<Pair<String, String>> var0x = param2.getOptional(var1);
@@ -163,7 +164,7 @@ public class ItemPotionFix extends DataFix {
                 if (var2x.isPresent()) {
                     Typed<?> var4 = param2;
                     Dynamic<?> var5 = var2x.get().get(DSL.remainderFinder());
-                    Optional<String> var6 = var5.get("Potion").asString();
+                    Optional<String> var6 = var5.get("Potion").asString().result();
                     if (!var6.isPresent()) {
                         String var7 = POTIONS[var3x & 127];
                         Typed<?> var8 = var2x.get().set(DSL.remainderFinder(), var5.set("Potion", var5.createString(var7 == null ? "minecraft:water" : var7)));

@@ -1,24 +1,24 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Codec;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.ChunkGeneratorSettings;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.configurations.RuinedPortalConfiguration;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -27,7 +27,7 @@ import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
-public class RuinedPortalFeature extends RandomScatteredFeature<RuinedPortalConfiguration> {
+public class RuinedPortalFeature extends StructureFeature<RuinedPortalConfiguration> {
     private static final String[] STRUCTURE_LOCATION_PORTALS = new String[]{
         "ruined_portal/portal_1",
         "ruined_portal/portal_2",
@@ -44,38 +44,13 @@ public class RuinedPortalFeature extends RandomScatteredFeature<RuinedPortalConf
         "ruined_portal/giant_portal_1", "ruined_portal/giant_portal_2", "ruined_portal/giant_portal_3"
     };
 
-    public RuinedPortalFeature(Function<Dynamic<?>, ? extends RuinedPortalConfiguration> param0) {
+    public RuinedPortalFeature(Codec<RuinedPortalConfiguration> param0) {
         super(param0);
     }
 
     @Override
-    public String getFeatureName() {
-        return "Ruined_Portal";
-    }
-
-    @Override
-    public int getLookupRange() {
-        return 3;
-    }
-
-    @Override
-    protected int getSpacing(ChunkGeneratorSettings param0) {
-        return param0.getRuinedPortalSpacing();
-    }
-
-    @Override
-    protected int getSeparation(ChunkGeneratorSettings param0) {
-        return param0.getRuinedPortalSeparation();
-    }
-
-    @Override
-    public StructureFeature.StructureStartFactory getStartFactory() {
+    public StructureFeature.StructureStartFactory<RuinedPortalConfiguration> getStartFactory() {
         return RuinedPortalFeature.FeatureStart::new;
-    }
-
-    @Override
-    protected int getRandomSalt(ChunkGeneratorSettings param0) {
-        return 34222645;
     }
 
     private static boolean isCold(BlockPos param0, Biome param1) {
@@ -116,21 +91,24 @@ public class RuinedPortalFeature extends RandomScatteredFeature<RuinedPortalConf
         Heightmap.Types var11 = param2 == RuinedPortalPiece.VerticalPlacement.ON_OCEAN_FLOOR
             ? Heightmap.Types.OCEAN_FLOOR_WG
             : Heightmap.Types.WORLD_SURFACE_WG;
+        BlockPos.MutableBlockPos var12 = new BlockPos.MutableBlockPos();
 
-        int var12;
-        for(var12 = var0; var12 > 15; --var12) {
-            int var13 = 0;
+        int var13;
+        for(var13 = var0; var13 > 15; --var13) {
+            int var14 = 0;
+            var12.set(0, var13, 0);
 
-            for(BlockGetter var14 : var10) {
-                if (var11.isOpaque().test(var14.getBlockState(new BlockPos(0, var12, 0)))) {
-                    if (++var13 == 3) {
-                        return var12;
+            for(BlockGetter var15 : var10) {
+                BlockState var16 = var15.getBlockState(var12);
+                if (var16 != null && var11.isOpaque().test(var16)) {
+                    if (++var14 == 3) {
+                        return var13;
                     }
                 }
             }
         }
 
-        return var12;
+        return var13;
     }
 
     private static int randomIntInclusive(Random param0, int param1, int param2) {
@@ -141,87 +119,83 @@ public class RuinedPortalFeature extends RandomScatteredFeature<RuinedPortalConf
         return param1 < param2 ? randomIntInclusive(param0, param1, param2) : param2;
     }
 
-    public static class FeatureStart extends StructureStart {
-        protected FeatureStart(StructureFeature<?> param0, int param1, int param2, BoundingBox param3, int param4, long param5) {
+    public static class FeatureStart extends StructureStart<RuinedPortalConfiguration> {
+        protected FeatureStart(StructureFeature<RuinedPortalConfiguration> param0, int param1, int param2, BoundingBox param3, int param4, long param5) {
             super(param0, param1, param2, param3, param4, param5);
         }
 
-        @Override
-        public void generatePieces(ChunkGenerator param0, StructureManager param1, int param2, int param3, Biome param4) {
-            RuinedPortalConfiguration var0 = param0.getStructureConfiguration(param4, Feature.RUINED_PORTAL);
-            if (var0 != null) {
-                RuinedPortalPiece.Properties var1 = new RuinedPortalPiece.Properties();
-                RuinedPortalPiece.VerticalPlacement var2;
-                if (var0.portalType == RuinedPortalFeature.Type.DESERT) {
-                    var2 = RuinedPortalPiece.VerticalPlacement.PARTLY_BURIED;
-                    var1.airPocket = false;
-                    var1.mossiness = 0.0F;
-                } else if (var0.portalType == RuinedPortalFeature.Type.JUNGLE) {
-                    var2 = RuinedPortalPiece.VerticalPlacement.ON_LAND_SURFACE;
-                    var1.airPocket = this.random.nextFloat() < 0.5F;
-                    var1.mossiness = 0.8F;
-                    var1.overgrown = true;
-                    var1.vines = true;
-                } else if (var0.portalType == RuinedPortalFeature.Type.SWAMP) {
-                    var2 = RuinedPortalPiece.VerticalPlacement.ON_OCEAN_FLOOR;
-                    var1.airPocket = false;
-                    var1.mossiness = 0.5F;
-                    var1.vines = true;
-                } else if (var0.portalType == RuinedPortalFeature.Type.MOUNTAIN) {
-                    boolean var5 = this.random.nextFloat() < 0.5F;
-                    var2 = var5 ? RuinedPortalPiece.VerticalPlacement.IN_MOUNTAIN : RuinedPortalPiece.VerticalPlacement.ON_LAND_SURFACE;
-                    var1.airPocket = var5 || this.random.nextFloat() < 0.5F;
-                } else if (var0.portalType == RuinedPortalFeature.Type.OCEAN) {
-                    var2 = RuinedPortalPiece.VerticalPlacement.ON_OCEAN_FLOOR;
-                    var1.airPocket = false;
-                    var1.mossiness = 0.8F;
-                } else if (var0.portalType == RuinedPortalFeature.Type.NETHER) {
-                    var2 = RuinedPortalPiece.VerticalPlacement.IN_NETHER;
-                    var1.airPocket = this.random.nextFloat() < 0.5F;
-                    var1.mossiness = 0.0F;
-                    var1.replaceWithBlackstone = true;
-                } else {
-                    boolean var9 = this.random.nextFloat() < 0.5F;
-                    var2 = var9 ? RuinedPortalPiece.VerticalPlacement.UNDERGROUND : RuinedPortalPiece.VerticalPlacement.ON_LAND_SURFACE;
-                    var1.airPocket = var9 || this.random.nextFloat() < 0.5F;
-                }
-
-                ResourceLocation var11;
-                if (this.random.nextFloat() < 0.05F) {
-                    var11 = new ResourceLocation(
-                        RuinedPortalFeature.STRUCTURE_LOCATION_GIANT_PORTALS[this.random.nextInt(RuinedPortalFeature.STRUCTURE_LOCATION_GIANT_PORTALS.length)]
-                    );
-                } else {
-                    var11 = new ResourceLocation(
-                        RuinedPortalFeature.STRUCTURE_LOCATION_PORTALS[this.random.nextInt(RuinedPortalFeature.STRUCTURE_LOCATION_PORTALS.length)]
-                    );
-                }
-
-                StructureTemplate var13 = param1.getOrCreate(var11);
-                Rotation var14 = Util.getRandom(Rotation.values(), this.random);
-                Mirror var15 = this.random.nextFloat() < 0.5F ? Mirror.NONE : Mirror.FRONT_BACK;
-                BlockPos var16 = new BlockPos(var13.getSize().getX() / 2, 0, var13.getSize().getZ() / 2);
-                BlockPos var17 = new ChunkPos(param2, param3).getWorldPosition();
-                BoundingBox var18 = var13.getBoundingBox(var17, var14, var16, var15);
-                Vec3i var19 = var18.getCenter();
-                int var20 = var19.getX();
-                int var21 = var19.getZ();
-                int var22 = param0.getBaseHeight(var20, var21, RuinedPortalPiece.getHeightMapType(var2)) - 1;
-                int var23 = RuinedPortalFeature.findSuitableY(this.random, param0, var2, var1.airPocket, var22, var18.getYSpan(), var18);
-                BlockPos var24 = new BlockPos(var17.getX(), var23, var17.getZ());
-                if (var0.portalType == RuinedPortalFeature.Type.MOUNTAIN
-                    || var0.portalType == RuinedPortalFeature.Type.OCEAN
-                    || var0.portalType == RuinedPortalFeature.Type.STANDARD) {
-                    var1.cold = RuinedPortalFeature.isCold(var24, param4);
-                }
-
-                this.pieces.add(new RuinedPortalPiece(var24, var2, var1, var11, var13, var14, var15, var16));
-                this.calculateBoundingBox();
+        public void generatePieces(ChunkGenerator param0, StructureManager param1, int param2, int param3, Biome param4, RuinedPortalConfiguration param5) {
+            RuinedPortalPiece.Properties var0 = new RuinedPortalPiece.Properties();
+            RuinedPortalPiece.VerticalPlacement var1;
+            if (param5.portalType == RuinedPortalFeature.Type.DESERT) {
+                var1 = RuinedPortalPiece.VerticalPlacement.PARTLY_BURIED;
+                var0.airPocket = false;
+                var0.mossiness = 0.0F;
+            } else if (param5.portalType == RuinedPortalFeature.Type.JUNGLE) {
+                var1 = RuinedPortalPiece.VerticalPlacement.ON_LAND_SURFACE;
+                var0.airPocket = this.random.nextFloat() < 0.5F;
+                var0.mossiness = 0.8F;
+                var0.overgrown = true;
+                var0.vines = true;
+            } else if (param5.portalType == RuinedPortalFeature.Type.SWAMP) {
+                var1 = RuinedPortalPiece.VerticalPlacement.ON_OCEAN_FLOOR;
+                var0.airPocket = false;
+                var0.mossiness = 0.5F;
+                var0.vines = true;
+            } else if (param5.portalType == RuinedPortalFeature.Type.MOUNTAIN) {
+                boolean var4 = this.random.nextFloat() < 0.5F;
+                var1 = var4 ? RuinedPortalPiece.VerticalPlacement.IN_MOUNTAIN : RuinedPortalPiece.VerticalPlacement.ON_LAND_SURFACE;
+                var0.airPocket = var4 || this.random.nextFloat() < 0.5F;
+            } else if (param5.portalType == RuinedPortalFeature.Type.OCEAN) {
+                var1 = RuinedPortalPiece.VerticalPlacement.ON_OCEAN_FLOOR;
+                var0.airPocket = false;
+                var0.mossiness = 0.8F;
+            } else if (param5.portalType == RuinedPortalFeature.Type.NETHER) {
+                var1 = RuinedPortalPiece.VerticalPlacement.IN_NETHER;
+                var0.airPocket = this.random.nextFloat() < 0.5F;
+                var0.mossiness = 0.0F;
+                var0.replaceWithBlackstone = true;
+            } else {
+                boolean var8 = this.random.nextFloat() < 0.5F;
+                var1 = var8 ? RuinedPortalPiece.VerticalPlacement.UNDERGROUND : RuinedPortalPiece.VerticalPlacement.ON_LAND_SURFACE;
+                var0.airPocket = var8 || this.random.nextFloat() < 0.5F;
             }
+
+            ResourceLocation var10;
+            if (this.random.nextFloat() < 0.05F) {
+                var10 = new ResourceLocation(
+                    RuinedPortalFeature.STRUCTURE_LOCATION_GIANT_PORTALS[this.random.nextInt(RuinedPortalFeature.STRUCTURE_LOCATION_GIANT_PORTALS.length)]
+                );
+            } else {
+                var10 = new ResourceLocation(
+                    RuinedPortalFeature.STRUCTURE_LOCATION_PORTALS[this.random.nextInt(RuinedPortalFeature.STRUCTURE_LOCATION_PORTALS.length)]
+                );
+            }
+
+            StructureTemplate var12 = param1.getOrCreate(var10);
+            Rotation var13 = Util.getRandom(Rotation.values(), this.random);
+            Mirror var14 = this.random.nextFloat() < 0.5F ? Mirror.NONE : Mirror.FRONT_BACK;
+            BlockPos var15 = new BlockPos(var12.getSize().getX() / 2, 0, var12.getSize().getZ() / 2);
+            BlockPos var16 = new ChunkPos(param2, param3).getWorldPosition();
+            BoundingBox var17 = var12.getBoundingBox(var16, var13, var15, var14);
+            Vec3i var18 = var17.getCenter();
+            int var19 = var18.getX();
+            int var20 = var18.getZ();
+            int var21 = param0.getBaseHeight(var19, var20, RuinedPortalPiece.getHeightMapType(var1)) - 1;
+            int var22 = RuinedPortalFeature.findSuitableY(this.random, param0, var1, var0.airPocket, var21, var17.getYSpan(), var17);
+            BlockPos var23 = new BlockPos(var16.getX(), var22, var16.getZ());
+            if (param5.portalType == RuinedPortalFeature.Type.MOUNTAIN
+                || param5.portalType == RuinedPortalFeature.Type.OCEAN
+                || param5.portalType == RuinedPortalFeature.Type.STANDARD) {
+                var0.cold = RuinedPortalFeature.isCold(var23, param4);
+            }
+
+            this.pieces.add(new RuinedPortalPiece(var23, var1, var0, var10, var12, var13, var14, var15));
+            this.calculateBoundingBox();
         }
     }
 
-    public static enum Type {
+    public static enum Type implements StringRepresentable {
         STANDARD("standard"),
         DESERT("desert"),
         JUNGLE("jungle"),
@@ -230,6 +204,9 @@ public class RuinedPortalFeature extends RandomScatteredFeature<RuinedPortalConf
         OCEAN("ocean"),
         NETHER("nether");
 
+        public static final Codec<RuinedPortalFeature.Type> CODEC = StringRepresentable.fromEnum(
+            RuinedPortalFeature.Type::values, RuinedPortalFeature.Type::byName
+        );
         private static final Map<String, RuinedPortalFeature.Type> BY_NAME = Arrays.stream(values())
             .collect(Collectors.toMap(RuinedPortalFeature.Type::getName, param0 -> param0));
         private final String name;
@@ -244,6 +221,11 @@ public class RuinedPortalFeature extends RandomScatteredFeature<RuinedPortalConf
 
         public static RuinedPortalFeature.Type byName(String param0) {
             return BY_NAME.get(param0);
+        }
+
+        @Override
+        public String getSerializedName() {
+            return this.name;
         }
     }
 }

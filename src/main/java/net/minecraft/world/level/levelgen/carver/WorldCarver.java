@@ -1,7 +1,7 @@
 package net.minecraft.world.level.levelgen.carver;
 
 import com.google.common.collect.ImmutableSet;
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Codec;
 import java.util.BitSet;
 import java.util.Random;
 import java.util.Set;
@@ -23,20 +23,16 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 
 public abstract class WorldCarver<C extends CarverConfiguration> {
-    public static final WorldCarver<ProbabilityFeatureConfiguration> CAVE = register(
-        "cave", new CaveWorldCarver(ProbabilityFeatureConfiguration::deserialize, 256)
-    );
+    public static final WorldCarver<ProbabilityFeatureConfiguration> CAVE = register("cave", new CaveWorldCarver(ProbabilityFeatureConfiguration.CODEC, 256));
     public static final WorldCarver<ProbabilityFeatureConfiguration> NETHER_CAVE = register(
-        "nether_cave", new NetherWorldCarver(ProbabilityFeatureConfiguration::deserialize)
+        "nether_cave", new NetherWorldCarver(ProbabilityFeatureConfiguration.CODEC)
     );
-    public static final WorldCarver<ProbabilityFeatureConfiguration> CANYON = register(
-        "canyon", new CanyonWorldCarver(ProbabilityFeatureConfiguration::deserialize)
-    );
+    public static final WorldCarver<ProbabilityFeatureConfiguration> CANYON = register("canyon", new CanyonWorldCarver(ProbabilityFeatureConfiguration.CODEC));
     public static final WorldCarver<ProbabilityFeatureConfiguration> UNDERWATER_CANYON = register(
-        "underwater_canyon", new UnderwaterCanyonWorldCarver(ProbabilityFeatureConfiguration::deserialize)
+        "underwater_canyon", new UnderwaterCanyonWorldCarver(ProbabilityFeatureConfiguration.CODEC)
     );
     public static final WorldCarver<ProbabilityFeatureConfiguration> UNDERWATER_CAVE = register(
-        "underwater_cave", new UnderwaterCaveWorldCarver(ProbabilityFeatureConfiguration::deserialize)
+        "underwater_cave", new UnderwaterCaveWorldCarver(ProbabilityFeatureConfiguration.CODEC)
     );
     protected static final BlockState AIR = Blocks.AIR.defaultBlockState();
     protected static final BlockState CAVE_AIR = Blocks.CAVE_AIR.defaultBlockState();
@@ -75,16 +71,20 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
         Blocks.PACKED_ICE
     );
     protected Set<Fluid> liquids = ImmutableSet.of(Fluids.WATER);
-    private final Function<Dynamic<?>, ? extends C> configurationFactory;
+    private final Codec<ConfiguredWorldCarver<C>> configuredCodec;
     protected final int genHeight;
 
     private static <C extends CarverConfiguration, F extends WorldCarver<C>> F register(String param0, F param1) {
         return Registry.register(Registry.CARVER, param0, param1);
     }
 
-    public WorldCarver(Function<Dynamic<?>, ? extends C> param0, int param1) {
-        this.configurationFactory = param0;
+    public WorldCarver(Codec<C> param0, int param1) {
         this.genHeight = param1;
+        this.configuredCodec = param0.fieldOf("config").xmap(param0x -> new ConfiguredWorldCarver<>(this, param0x), param0x -> param0x.config).codec();
+    }
+
+    public Codec<ConfiguredWorldCarver<C>> configuredCodec() {
+        return this.configuredCodec;
     }
 
     public int getRange() {

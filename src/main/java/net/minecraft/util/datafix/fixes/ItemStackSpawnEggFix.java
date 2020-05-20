@@ -13,6 +13,7 @@ import com.mojang.datafixers.util.Pair;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import net.minecraft.util.datafix.schemas.NamespacedSchema;
 
 public class ItemStackSpawnEggFix extends DataFix {
     private static final Map<String, String> MAP = DataFixUtils.make(Maps.newHashMap(), param0 -> {
@@ -70,8 +71,8 @@ public class ItemStackSpawnEggFix extends DataFix {
     @Override
     public TypeRewriteRule makeRule() {
         Type<?> var0 = this.getInputSchema().getType(References.ITEM_STACK);
-        OpticFinder<Pair<String, String>> var1 = DSL.fieldFinder("id", DSL.named(References.ITEM_NAME.typeName(), DSL.namespacedString()));
-        OpticFinder<String> var2 = DSL.fieldFinder("id", DSL.namespacedString());
+        OpticFinder<Pair<String, String>> var1 = DSL.fieldFinder("id", DSL.named(References.ITEM_NAME.typeName(), NamespacedSchema.namespacedString()));
+        OpticFinder<String> var2 = DSL.fieldFinder("id", NamespacedSchema.namespacedString());
         OpticFinder<?> var3 = var0.findField("tag");
         OpticFinder<?> var4 = var3.type().findField("EntityTag");
         return this.fixTypeEverywhereTyped("ItemInstanceSpawnEggFix", var0, param4 -> {

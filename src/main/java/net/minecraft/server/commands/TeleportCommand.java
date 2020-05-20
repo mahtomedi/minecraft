@@ -278,7 +278,6 @@ public class TeleportCommand {
                     param1.setYHeadRot(var2);
                 } else {
                     param1.unRide();
-                    param1.dimension = param2.dimensionType();
                     Entity var4 = param1;
                     param1 = param1.getType().create(param2);
                     if (param1 == null) {

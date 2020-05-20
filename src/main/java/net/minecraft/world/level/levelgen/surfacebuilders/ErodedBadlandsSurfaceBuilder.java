@@ -1,8 +1,7 @@
 package net.minecraft.world.level.levelgen.surfacebuilders;
 
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Codec;
 import java.util.Random;
-import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
@@ -15,7 +14,7 @@ public class ErodedBadlandsSurfaceBuilder extends BadlandsSurfaceBuilder {
     private static final BlockState ORANGE_TERRACOTTA = Blocks.ORANGE_TERRACOTTA.defaultBlockState();
     private static final BlockState TERRACOTTA = Blocks.TERRACOTTA.defaultBlockState();
 
-    public ErodedBadlandsSurfaceBuilder(Function<Dynamic<?>, ? extends SurfaceBuilderBaseConfiguration> param0) {
+    public ErodedBadlandsSurfaceBuilder(Codec<SurfaceBuilderBaseConfiguration> param0) {
         super(param0);
     }
 
