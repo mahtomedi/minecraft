@@ -67,6 +67,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.block.RespawnAnchorBlock;
 import net.minecraft.world.level.border.BorderChangeListener;
@@ -125,11 +126,9 @@ public abstract class PlayerList {
         String var3 = var2 == null ? var0.getName() : var2.getName();
         var1.add(var0);
         CompoundTag var4 = this.load(param1);
-        ResourceKey<DimensionType> var5 = var4 != null
-            ? DimensionType.parseLegacy(new Dynamic<>(NbtOps.INSTANCE, var4.get("Dimension")))
-                .resultOrPartial(LOGGER::error)
-                .orElse(DimensionType.OVERWORLD_LOCATION)
-            : DimensionType.OVERWORLD_LOCATION;
+        ResourceKey<Level> var5 = var4 != null
+            ? DimensionType.parseLegacy(new Dynamic<>(NbtOps.INSTANCE, var4.get("Dimension"))).resultOrPartial(LOGGER::error).orElse(Level.OVERWORLD)
+            : Level.OVERWORLD;
         ServerLevel var6 = this.server.getLevel(var5);
         param1.setLevel(var6);
         param1.gameMode.setLevel((ServerLevel)param1.level);
@@ -159,8 +158,10 @@ public abstract class PlayerList {
                 param1.gameMode.getGameModeForPlayer(),
                 BiomeManager.obfuscateSeed(var6.getSeed()),
                 var8.isHardcore(),
+                this.server.levelKeys(),
                 this.registryHolder,
-                var6.dimension().location(),
+                var6.dimensionTypeKey(),
+                var6.dimension(),
                 this.getMaxPlayers(),
                 this.viewDistance,
                 var12,
@@ -418,14 +419,15 @@ public abstract class PlayerList {
             var5.connection.disconnect(new TranslatableComponent("multiplayer.disconnect.duplicate_login"));
         }
 
-        ServerPlayerGameMode var6;
+        ServerLevel var6 = this.server.getLevel(Level.OVERWORLD);
+        ServerPlayerGameMode var7;
         if (this.server.isDemo()) {
-            var6 = new DemoMode(this.server.getLevel(DimensionType.OVERWORLD_LOCATION));
+            var7 = new DemoMode(var6);
         } else {
-            var6 = new ServerPlayerGameMode(this.server.getLevel(DimensionType.OVERWORLD_LOCATION));
+            var7 = new ServerPlayerGameMode(var6);
         }
 
-        return new ServerPlayer(this.server, this.server.getLevel(DimensionType.OVERWORLD_LOCATION), param0, var6);
+        return new ServerPlayer(this.server, var6, param0, var7);
     }
 
     public ServerPlayer respawn(ServerPlayer param0, boolean param1) {
@@ -440,7 +442,7 @@ public abstract class PlayerList {
             var2 = Optional.empty();
         }
 
-        ResourceKey<DimensionType> var4 = var2.isPresent() ? param0.getRespawnDimension() : DimensionType.OVERWORLD_LOCATION;
+        ResourceKey<Level> var4 = var2.isPresent() ? param0.getRespawnDimension() : Level.OVERWORLD;
         ServerLevel var5 = this.server.getLevel(var4);
         ServerPlayerGameMode var6;
         if (this.server.isDemo()) {
@@ -478,7 +480,8 @@ public abstract class PlayerList {
         var8.connection
             .send(
                 new ClientboundRespawnPacket(
-                    var8.level.dimension().location(),
+                    var8.level.dimensionTypeKey(),
+                    var8.level.dimension(),
                     BiomeManager.obfuscateSeed(var8.getLevel().getSeed()),
                     var8.gameMode.getGameModeForPlayer(),
                     var8.getLevel().isDebug(),
@@ -530,7 +533,7 @@ public abstract class PlayerList {
 
     }
 
-    public void broadcastAll(Packet<?> param0, ResourceKey<DimensionType> param1) {
+    public void broadcastAll(Packet<?> param0, ResourceKey<Level> param1) {
         for(int var0 = 0; var0 < this.players.size(); ++var0) {
             ServerPlayer var1 = this.players.get(var0);
             if (var1.level.dimension() == param1) {
@@ -642,9 +645,7 @@ public abstract class PlayerList {
         return null;
     }
 
-    public void broadcast(
-        @Nullable Player param0, double param1, double param2, double param3, double param4, ResourceKey<DimensionType> param5, Packet<?> param6
-    ) {
+    public void broadcast(@Nullable Player param0, double param1, double param2, double param3, double param4, ResourceKey<Level> param5, Packet<?> param6) {
         for(int var0 = 0; var0 < this.players.size(); ++var0) {
             ServerPlayer var1 = this.players.get(var0);
             if (var1 != param0 && var1.level.dimension() == param5) {
@@ -686,7 +687,7 @@ public abstract class PlayerList {
     }
 
     public void sendLevelInfo(ServerPlayer param0, ServerLevel param1) {
-        WorldBorder var0 = this.server.getLevel(DimensionType.OVERWORLD_LOCATION).getWorldBorder();
+        WorldBorder var0 = this.server.getLevel(Level.OVERWORLD).getWorldBorder();
         param0.connection.send(new ClientboundSetBorderPacket(var0, ClientboundSetBorderPacket.Type.INITIALIZE));
         param0.connection
             .send(new ClientboundSetTimePacket(param1.getGameTime(), param1.getDayTime(), param1.getGameRules().getBoolean(GameRules.RULE_DAYLIGHT)));
@@ -803,7 +804,7 @@ public abstract class PlayerList {
         if (var1 == null) {
             File var2 = this.server.getWorldPath(LevelResource.PLAYER_ADVANCEMENTS_DIR).toFile();
             File var3 = new File(var2, var0 + ".json");
-            var1 = new PlayerAdvancements(this.server, var3, param0);
+            var1 = new PlayerAdvancements(this.server.getFixerUpper(), this, this.server.getAdvancements(), var3, param0);
             this.advancements.put(var0, var1);
         }
 
@@ -838,7 +839,7 @@ public abstract class PlayerList {
 
     public void reloadResources() {
         for(PlayerAdvancements var0 : this.advancements.values()) {
-            var0.reload();
+            var0.reload(this.server.getAdvancements());
         }
 
         this.broadcastAll(new ClientboundUpdateTagsPacket(this.server.getTags()));

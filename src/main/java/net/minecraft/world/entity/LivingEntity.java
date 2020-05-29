@@ -2019,17 +2019,21 @@ public abstract class LivingEntity extends Entity {
             }
         }
 
-        this.animationSpeedOld = this.animationSpeed;
-        double var28 = this.getX() - this.xo;
-        double var29 = this.getZ() - this.zo;
-        double var30 = this instanceof FlyingAnimal ? this.getY() - this.yo : 0.0;
-        float var31 = Mth.sqrt(var28 * var28 + var30 * var30 + var29 * var29) * 4.0F;
-        if (var31 > 1.0F) {
-            var31 = 1.0F;
+        this.calculateEntityAnimation(this, this instanceof FlyingAnimal);
+    }
+
+    public void calculateEntityAnimation(LivingEntity param0, boolean param1) {
+        param0.animationSpeedOld = param0.animationSpeed;
+        double var0 = param0.getX() - param0.xo;
+        double var1 = param1 ? param0.getY() - param0.yo : 0.0;
+        double var2 = param0.getZ() - param0.zo;
+        float var3 = Mth.sqrt(var0 * var0 + var1 * var1 + var2 * var2) * 4.0F;
+        if (var3 > 1.0F) {
+            var3 = 1.0F;
         }
 
-        this.animationSpeed += (var31 - this.animationSpeed) * 0.4F;
-        this.animationPosition += this.animationSpeed;
+        param0.animationSpeed += (var3 - param0.animationSpeed) * 0.4F;
+        param0.animationPosition += param0.animationSpeed;
     }
 
     public Vec3 handleRelativeFrictionAndCalculateMovement(Vec3 param0, float param1) {
@@ -2340,10 +2344,11 @@ public abstract class LivingEntity extends Entity {
         if (this.jumping) {
             double var8 = this.getFluidHeight(FluidTags.WATER);
             boolean var9 = this.isInWater() && var8 > 0.0;
-            if (!var9 || this.onGround && !(var8 > 0.4)) {
+            double var10 = this.getFluidJumpThreshold();
+            if (!var9 || this.onGround && !(var8 > var10)) {
                 if (this.isInLava()) {
                     this.jumpInLiquid(FluidTags.LAVA);
-                } else if ((this.onGround || var9 && var8 <= 0.4) && this.noJumpDelay == 0) {
+                } else if ((this.onGround || var9 && var8 <= var10) && this.noJumpDelay == 0) {
                     this.jumpFromGround();
                     this.noJumpDelay = 10;
                 }
@@ -2359,13 +2364,13 @@ public abstract class LivingEntity extends Entity {
         this.xxa *= 0.98F;
         this.zza *= 0.98F;
         this.updateFallFlying();
-        AABB var10 = this.getBoundingBox();
+        AABB var11 = this.getBoundingBox();
         this.travel(new Vec3((double)this.xxa, (double)this.yya, (double)this.zza));
         this.level.getProfiler().pop();
         this.level.getProfiler().push("push");
         if (this.autoSpinAttackTicks > 0) {
             --this.autoSpinAttackTicks;
-            this.checkAutoSpinAttack(var10, this.getBoundingBox());
+            this.checkAutoSpinAttack(var11, this.getBoundingBox());
         }
 
         this.pushEntities();

@@ -36,7 +36,6 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.chat.Component;
@@ -54,6 +53,7 @@ import net.minecraft.network.protocol.game.ClientboundSetDefaultSpawnPositionPac
 import net.minecraft.network.protocol.game.ClientboundSoundEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.network.protocol.game.DebugPackets;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerScoreboard;
 import net.minecraft.server.level.progress.ChunkProgressListener;
@@ -173,18 +173,20 @@ public class ServerLevel extends Level implements WorldGenLevel {
         Executor param1,
         LevelStorageSource.LevelStorageAccess param2,
         ServerLevelData param3,
-        DimensionType param4,
-        ChunkProgressListener param5,
-        ChunkGenerator param6,
-        boolean param7,
-        long param8,
-        List<CustomSpawner> param9,
-        boolean param10
+        ResourceKey<Level> param4,
+        ResourceKey<DimensionType> param5,
+        DimensionType param6,
+        ChunkProgressListener param7,
+        ChunkGenerator param8,
+        boolean param9,
+        long param10,
+        List<CustomSpawner> param11,
+        boolean param12
     ) {
-        super(param3, param4, param0::getProfiler, false, param7, param8);
-        this.tickTime = param10;
+        super(param3, param4, param5, param6, param0::getProfiler, false, param9, param10);
+        this.tickTime = param12;
         this.server = param0;
-        this.customSpawners = param9;
+        this.customSpawners = param11;
         this.serverLevelData = param3;
         this.chunkSource = new ServerChunkCache(
             this,
@@ -192,11 +194,11 @@ public class ServerLevel extends Level implements WorldGenLevel {
             param0.getFixerUpper(),
             param0.getStructureManager(),
             param1,
-            param6,
+            param8,
             param0.getPlayerList().getViewDistance(),
             param0.forceSynchronousWrites(),
-            param5,
-            () -> param0.getLevel(DimensionType.OVERWORLD_LOCATION).getDataStorage()
+            param7,
+            () -> param0.getLevel(Level.OVERWORLD).getDataStorage()
         );
         this.portalForcer = new PortalForcer(this);
         this.updateSkyBrightness();
@@ -209,7 +211,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
 
         this.structureFeatureManager = new StructureFeatureManager(this, param0.getWorldData().worldGenSettings());
         if (this.dimensionType().createDragonFight()) {
-            this.dragonFight = new EndDragonFight(this, param0.getWorldData().endDragonFightData());
+            this.dragonFight = new EndDragonFight(this, param0.getWorldData().worldGenSettings().seed(), param0.getWorldData().endDragonFightData());
         } else {
             this.dragonFight = null;
         }
@@ -609,7 +611,9 @@ public class ServerLevel extends Level implements WorldGenLevel {
     }
 
     public void tickNonPassenger(Entity param0x) {
-        if (param0x instanceof Player || this.getChunkSource().isEntityTickingChunk(param0x)) {
+        if (!(param0x instanceof Player) && !this.getChunkSource().isEntityTickingChunk(param0x)) {
+            this.updateChunkPos(param0x);
+        } else {
             param0x.setPosAndOldPos(param0x.getX(), param0x.getY(), param0x.getZ());
             param0x.yRotO = param0x.yRot;
             param0x.xRotO = param0x.xRot;
@@ -659,23 +663,29 @@ public class ServerLevel extends Level implements WorldGenLevel {
     }
 
     public void updateChunkPos(Entity param0) {
-        this.getProfiler().push("chunkCheck");
-        int var0 = Mth.floor(param0.getX() / 16.0);
-        int var1 = Mth.floor(param0.getY() / 16.0);
-        int var2 = Mth.floor(param0.getZ() / 16.0);
-        if (!param0.inChunk || param0.xChunk != var0 || param0.yChunk != var1 || param0.zChunk != var2) {
-            if (param0.inChunk && this.hasChunk(param0.xChunk, param0.zChunk)) {
-                this.getChunk(param0.xChunk, param0.zChunk).removeEntity(param0, param0.yChunk);
+        if (param0.checkAndResetUpdateChunkPos()) {
+            this.getProfiler().push("chunkCheck");
+            int var0 = Mth.floor(param0.getX() / 16.0);
+            int var1 = Mth.floor(param0.getY() / 16.0);
+            int var2 = Mth.floor(param0.getZ() / 16.0);
+            if (!param0.inChunk || param0.xChunk != var0 || param0.yChunk != var1 || param0.zChunk != var2) {
+                if (param0.inChunk && this.hasChunk(param0.xChunk, param0.zChunk)) {
+                    this.getChunk(param0.xChunk, param0.zChunk).removeEntity(param0, param0.yChunk);
+                }
+
+                if (!param0.checkAndResetForcedChunkAdditionFlag() && !this.hasChunk(var0, var2)) {
+                    if (param0.inChunk) {
+                        LOGGER.warn("Entity {} left loaded chunk area", param0);
+                    }
+
+                    param0.inChunk = false;
+                } else {
+                    this.getChunk(var0, var2).addEntity(param0);
+                }
             }
 
-            if (!param0.checkAndResetTeleportedFlag() && !this.hasChunk(var0, var2)) {
-                param0.inChunk = false;
-            } else {
-                this.getChunk(var0, var2).addEntity(param0);
-            }
+            this.getProfiler().pop();
         }
-
-        this.getProfiler().pop();
     }
 
     @Override
@@ -1198,11 +1208,6 @@ public class ServerLevel extends Level implements WorldGenLevel {
         return this.noSave;
     }
 
-    @Override
-    public RegistryAccess registryAccess() {
-        return this.server.registryAccess();
-    }
-
     public DimensionDataStorage getDataStorage() {
         return this.getChunkSource().getDataStorage();
     }
@@ -1210,17 +1215,17 @@ public class ServerLevel extends Level implements WorldGenLevel {
     @Nullable
     @Override
     public MapItemSavedData getMapData(String param0) {
-        return this.getServer().getLevel(DimensionType.OVERWORLD_LOCATION).getDataStorage().get(() -> new MapItemSavedData(param0), param0);
+        return this.getServer().getLevel(Level.OVERWORLD).getDataStorage().get(() -> new MapItemSavedData(param0), param0);
     }
 
     @Override
     public void setMapData(MapItemSavedData param0) {
-        this.getServer().getLevel(DimensionType.OVERWORLD_LOCATION).getDataStorage().set(param0);
+        this.getServer().getLevel(Level.OVERWORLD).getDataStorage().set(param0);
     }
 
     @Override
     public int getFreeMapId() {
-        return this.getServer().getLevel(DimensionType.OVERWORLD_LOCATION).getDataStorage().computeIfAbsent(MapIndex::new, "idcounts").getFreeAuxValueForMap();
+        return this.getServer().getLevel(Level.OVERWORLD).getDataStorage().computeIfAbsent(MapIndex::new, "idcounts").getFreeAuxValueForMap();
     }
 
     public void setDefaultSpawnPos(BlockPos param0) {

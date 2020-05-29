@@ -26,6 +26,7 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
 import net.minecraft.client.server.IntegratedServer;
+import net.minecraft.server.Bootstrap;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
@@ -115,6 +116,9 @@ public class Main {
         String var48 = parseArgument(var24, var1);
         Integer var49 = parseArgument(var24, var2);
         CrashReport.preload();
+        Bootstrap.bootStrap();
+        Bootstrap.validate();
+        Util.startTimerHackThread();
         User var50 = new User(var10.value(var24), var46, var12.value(var24), var21.value(var24));
         GameConfig var51 = new GameConfig(
             new GameConfig.UserData(var50, var40, var41, var27),

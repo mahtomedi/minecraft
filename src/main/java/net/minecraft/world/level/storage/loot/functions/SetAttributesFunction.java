@@ -34,6 +34,11 @@ public class SetAttributesFunction extends LootItemConditionalFunction {
     }
 
     @Override
+    public LootItemFunctionType getType() {
+        return LootItemFunctions.SET_ATTRIBUTES;
+    }
+
+    @Override
     public ItemStack run(ItemStack param0, LootContext param1) {
         Random var0 = param1.getRandom();
 
@@ -168,10 +173,6 @@ public class SetAttributesFunction extends LootItemConditionalFunction {
     }
 
     public static class Serializer extends LootItemConditionalFunction.Serializer<SetAttributesFunction> {
-        public Serializer() {
-            super(new ResourceLocation("set_attributes"), SetAttributesFunction.class);
-        }
-
         public void serialize(JsonObject param0, SetAttributesFunction param1, JsonSerializationContext param2) {
             super.serialize(param0, param1, param2);
             JsonArray var0 = new JsonArray();

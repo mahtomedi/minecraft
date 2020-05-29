@@ -7,6 +7,7 @@ import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelSimulatedRW;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public class DarkOakFoliagePlacer extends FoliagePlacer {
     public static final Codec<DarkOakFoliagePlacer> CODEC = RecordCodecBuilder.create(
@@ -32,20 +33,21 @@ public class DarkOakFoliagePlacer extends FoliagePlacer {
         int param5,
         int param6,
         Set<BlockPos> param7,
-        int param8
+        int param8,
+        BoundingBox param9
     ) {
         BlockPos var0 = param4.foliagePos().above(param8);
         boolean var1 = param4.doubleTrunk();
         if (var1) {
-            this.placeLeavesRow(param0, param1, param2, var0, param6 + 2, param7, -1, var1);
-            this.placeLeavesRow(param0, param1, param2, var0, param6 + 3, param7, 0, var1);
-            this.placeLeavesRow(param0, param1, param2, var0, param6 + 2, param7, 1, var1);
+            this.placeLeavesRow(param0, param1, param2, var0, param6 + 2, param7, -1, var1, param9);
+            this.placeLeavesRow(param0, param1, param2, var0, param6 + 3, param7, 0, var1, param9);
+            this.placeLeavesRow(param0, param1, param2, var0, param6 + 2, param7, 1, var1, param9);
             if (param1.nextBoolean()) {
-                this.placeLeavesRow(param0, param1, param2, var0, param6, param7, 2, var1);
+                this.placeLeavesRow(param0, param1, param2, var0, param6, param7, 2, var1, param9);
             }
         } else {
-            this.placeLeavesRow(param0, param1, param2, var0, param6 + 2, param7, -1, var1);
-            this.placeLeavesRow(param0, param1, param2, var0, param6 + 1, param7, 0, var1);
+            this.placeLeavesRow(param0, param1, param2, var0, param6 + 2, param7, -1, var1, param9);
+            this.placeLeavesRow(param0, param1, param2, var0, param6 + 1, param7, 0, var1, param9);
         }
 
     }

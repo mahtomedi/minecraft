@@ -40,6 +40,7 @@ public abstract class AbstractFurnaceScreen<T extends AbstractFurnaceMenu> exten
             this.leftPos = this.recipeBookComponent.updateScreenPosition(this.widthTooNarrow, this.width, this.imageWidth);
             ((ImageButton)param0).setPosition(this.leftPos + 20, this.height / 2 - 49);
         }));
+        this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
     }
 
     @Override
@@ -62,12 +63,6 @@ public abstract class AbstractFurnaceScreen<T extends AbstractFurnaceMenu> exten
 
         this.renderTooltip(param0, param1, param2);
         this.recipeBookComponent.renderTooltip(param0, this.leftPos, this.topPos, param1, param2);
-    }
-
-    @Override
-    protected void renderLabels(PoseStack param0, int param1, int param2) {
-        this.font.draw(param0, this.title, (float)(this.imageWidth / 2 - this.font.width(this.title) / 2), 6.0F, 4210752);
-        this.font.draw(param0, this.inventory.getDisplayName(), 8.0F, (float)(this.imageHeight - 96 + 2), 4210752);
     }
 
     @Override

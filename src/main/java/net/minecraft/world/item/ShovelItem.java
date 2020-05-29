@@ -58,7 +58,7 @@ public class ShovelItem extends DiggerItem {
     }
 
     @Override
-    public boolean canDestroySpecial(BlockState param0) {
+    public boolean isCorrectToolForDrops(BlockState param0) {
         return param0.is(Blocks.SNOW) || param0.is(Blocks.SNOW_BLOCK);
     }
 
@@ -81,6 +81,7 @@ public class ShovelItem extends DiggerItem {
                     var0.levelEvent(null, 1009, var1, 0);
                 }
 
+                CampfireBlock.dowse(var0, var1, var2);
                 var5 = var2.setValue(CampfireBlock.LIT, Boolean.valueOf(false));
             }
 
@@ -92,7 +93,7 @@ public class ShovelItem extends DiggerItem {
                     }
                 }
 
-                return InteractionResult.SUCCESS;
+                return InteractionResult.sidedSuccess(var0.isClientSide);
             } else {
                 return InteractionResult.PASS;
             }

@@ -3,7 +3,7 @@ package net.minecraft.client.gui.screens.inventory;
 import java.util.Random;
 import net.minecraft.Util;
 import net.minecraft.client.gui.Font;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -88,7 +88,7 @@ public class EnchantmentNames {
         return INSTANCE;
     }
 
-    public MutableComponent getRandomName(Font param0, int param1) {
+    public FormattedText getRandomName(Font param0, int param1) {
         StringBuilder var0 = new StringBuilder();
         int var1 = this.random.nextInt(2) + 3;
 

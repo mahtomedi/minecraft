@@ -27,7 +27,7 @@ public class SnowyDirtBlock extends Block {
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext param0) {
-        BlockState var0 = param0.getLevel().getBlockState(param0.getClickedPos());
+        BlockState var0 = param0.getLevel().getBlockState(param0.getClickedPos().above());
         return this.defaultBlockState().setValue(SNOWY, Boolean.valueOf(var0.is(Blocks.SNOW_BLOCK) || var0.is(Blocks.SNOW)));
     }
 

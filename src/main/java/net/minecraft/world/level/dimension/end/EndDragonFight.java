@@ -79,37 +79,37 @@ public class EndDragonFight {
     private DragonRespawnAnimation respawnStage;
     private int respawnTime;
     private List<EndCrystal> respawnCrystals;
-    private boolean populateGateways;
 
-    public EndDragonFight(ServerLevel param0, CompoundTag param1) {
+    public EndDragonFight(ServerLevel param0, long param1, CompoundTag param2) {
         this.level = param0;
-        if (param1.contains("DragonKilled", 99)) {
-            if (param1.hasUUID("Dragon")) {
-                this.dragonUUID = param1.getUUID("Dragon");
+        if (param2.contains("DragonKilled", 99)) {
+            if (param2.hasUUID("Dragon")) {
+                this.dragonUUID = param2.getUUID("Dragon");
             }
 
-            this.dragonKilled = param1.getBoolean("DragonKilled");
-            this.previouslyKilled = param1.getBoolean("PreviouslyKilled");
-            if (param1.getBoolean("IsRespawning")) {
+            this.dragonKilled = param2.getBoolean("DragonKilled");
+            this.previouslyKilled = param2.getBoolean("PreviouslyKilled");
+            if (param2.getBoolean("IsRespawning")) {
                 this.respawnStage = DragonRespawnAnimation.START;
             }
 
-            if (param1.contains("ExitPortalLocation", 10)) {
-                this.portalLocation = NbtUtils.readBlockPos(param1.getCompound("ExitPortalLocation"));
+            if (param2.contains("ExitPortalLocation", 10)) {
+                this.portalLocation = NbtUtils.readBlockPos(param2.getCompound("ExitPortalLocation"));
             }
         } else {
             this.dragonKilled = true;
             this.previouslyKilled = true;
         }
 
-        if (param1.contains("Gateways", 9)) {
-            ListTag var0 = param1.getList("Gateways", 3);
+        if (param2.contains("Gateways", 9)) {
+            ListTag var0 = param2.getList("Gateways", 3);
 
             for(int var1 = 0; var1 < var0.size(); ++var1) {
                 this.gateways.add(var0.getInt(var1));
             }
         } else {
-            this.populateGateways = true;
+            this.gateways.addAll(ContiguousSet.create(Range.closedOpen(0, 20), DiscreteDomain.integers()));
+            Collections.shuffle(this.gateways, new Random(param1));
         }
 
         this.exitPortalPattern = BlockPatternBuilder.start()
@@ -374,12 +374,6 @@ public class EndDragonFight {
     }
 
     private void spawnNewGateway() {
-        if (this.populateGateways) {
-            this.populateGateways = false;
-            this.gateways.addAll(ContiguousSet.create(Range.closedOpen(0, 20), DiscreteDomain.integers()));
-            Collections.shuffle(this.gateways, new Random(this.level.getSeed()));
-        }
-
         if (!this.gateways.isEmpty()) {
             int var0 = this.gateways.remove(this.gateways.size() - 1);
             int var1 = Mth.floor(96.0 * Math.cos(2.0 * (-Math.PI + (Math.PI / 20) * (double)var0)));

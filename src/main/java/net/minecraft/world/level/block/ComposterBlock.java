@@ -217,10 +217,10 @@ public class ComposterBlock extends Block implements WorldlyContainerHolder {
                 }
             }
 
-            return InteractionResult.SUCCESS;
+            return InteractionResult.sidedSuccess(param1.isClientSide);
         } else if (var0 == 8) {
             extractProduce(param0, param1, param2);
-            return InteractionResult.SUCCESS;
+            return InteractionResult.sidedSuccess(param1.isClientSide);
         } else {
             return InteractionResult.PASS;
         }

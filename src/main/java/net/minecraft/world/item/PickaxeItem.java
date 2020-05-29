@@ -100,7 +100,7 @@ public class PickaxeItem extends DiggerItem {
     }
 
     @Override
-    public boolean canDestroySpecial(BlockState param0) {
+    public boolean isCorrectToolForDrops(BlockState param0) {
         int var0 = this.getTier().getLevel();
         if (param0.is(Blocks.OBSIDIAN)
             || param0.is(Blocks.CRYING_OBSIDIAN)

@@ -2,6 +2,7 @@ package net.minecraft.util.worldupdate;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -13,7 +14,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map.Entry;
 import java.util.concurrent.ThreadFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,9 +25,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.storage.ChunkStorage;
 import net.minecraft.world.level.chunk.storage.RegionFile;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.WorldData;
@@ -40,7 +40,7 @@ public class WorldUpgrader {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final ThreadFactory THREAD_FACTORY = new ThreadFactoryBuilder().setDaemon(true).build();
     private final String levelName;
-    private final ImmutableMap<ResourceKey<DimensionType>, DimensionType> dimensionTypes;
+    private final ImmutableSet<ResourceKey<Level>> dimensionTypes;
     private final boolean eraseCache;
     private final LevelStorageSource.LevelStorageAccess levelStorage;
     private final Thread thread;
@@ -51,23 +51,19 @@ public class WorldUpgrader {
     private volatile int totalChunks;
     private volatile int converted;
     private volatile int skipped;
-    private final Object2FloatMap<DimensionType> progressMap = Object2FloatMaps.synchronize(new Object2FloatOpenCustomHashMap<>(Util.identityStrategy()));
+    private final Object2FloatMap<ResourceKey<Level>> progressMap = Object2FloatMaps.synchronize(new Object2FloatOpenCustomHashMap<>(Util.identityStrategy()));
     private volatile Component status = new TranslatableComponent("optimizeWorld.stage.counting");
     private static final Pattern REGEX = Pattern.compile("^r\\.(-?[0-9]+)\\.(-?[0-9]+)\\.mca$");
     private final DimensionDataStorage overworldDataStorage;
 
     public WorldUpgrader(LevelStorageSource.LevelStorageAccess param0, DataFixer param1, WorldData param2, boolean param3) {
         this.levelName = param2.getLevelName();
-        this.dimensionTypes = param2.worldGenSettings()
-            .dimensions()
-            .entrySet()
-            .stream()
-            .collect(ImmutableMap.toImmutableMap(Entry::getKey, param0x -> param0x.getValue().getFirst()));
+        this.dimensionTypes = param2.worldGenSettings().dimensions().keySet().stream().collect(ImmutableSet.toImmutableSet());
         this.eraseCache = param3;
         this.dataFixer = param1;
         this.levelStorage = param0;
         param0.saveDataTag(param2);
-        this.overworldDataStorage = new DimensionDataStorage(new File(this.levelStorage.getDimensionPath(DimensionType.OVERWORLD_LOCATION), "data"), param1);
+        this.overworldDataStorage = new DimensionDataStorage(new File(this.levelStorage.getDimensionPath(Level.OVERWORLD), "data"), param1);
         this.thread = THREAD_FACTORY.newThread(this::work);
         this.thread.setUncaughtExceptionHandler((param0x, param1x) -> {
             LOGGER.error("Error upgrading world", param1x);
@@ -89,11 +85,11 @@ public class WorldUpgrader {
 
     private void work() {
         this.totalChunks = 0;
-        Builder<DimensionType, ListIterator<ChunkPos>> var0 = ImmutableMap.builder();
+        Builder<ResourceKey<Level>, ListIterator<ChunkPos>> var0 = ImmutableMap.builder();
 
-        for(Entry<ResourceKey<DimensionType>, DimensionType> var1 : this.dimensionTypes.entrySet()) {
-            List<ChunkPos> var2 = this.getAllChunkPos(var1.getKey());
-            var0.put(var1.getValue(), var2.listIterator());
+        for(ResourceKey<Level> var1 : this.dimensionTypes) {
+            List<ChunkPos> var2 = this.getAllChunkPos(var1);
+            var0.put(var1, var2.listIterator());
             this.totalChunks += var2.size();
         }
 
@@ -101,15 +97,15 @@ public class WorldUpgrader {
             this.finished = true;
         } else {
             float var3 = (float)this.totalChunks;
-            ImmutableMap<DimensionType, ListIterator<ChunkPos>> var4 = var0.build();
-            Builder<DimensionType, ChunkStorage> var5 = ImmutableMap.builder();
+            ImmutableMap<ResourceKey<Level>, ListIterator<ChunkPos>> var4 = var0.build();
+            Builder<ResourceKey<Level>, ChunkStorage> var5 = ImmutableMap.builder();
 
-            for(Entry<ResourceKey<DimensionType>, DimensionType> var6 : this.dimensionTypes.entrySet()) {
-                File var7 = this.levelStorage.getDimensionPath(var6.getKey());
-                var5.put(var6.getValue(), new ChunkStorage(new File(var7, "region"), this.dataFixer, true));
+            for(ResourceKey<Level> var6 : this.dimensionTypes) {
+                File var7 = this.levelStorage.getDimensionPath(var6);
+                var5.put(var6, new ChunkStorage(new File(var7, "region"), this.dataFixer, true));
             }
 
-            ImmutableMap<DimensionType, ChunkStorage> var8 = var5.build();
+            ImmutableMap<ResourceKey<Level>, ChunkStorage> var8 = var5.build();
             long var9 = Util.getMillis();
             this.status = new TranslatableComponent("optimizeWorld.stage.upgrading");
 
@@ -117,7 +113,7 @@ public class WorldUpgrader {
                 boolean var10 = false;
                 float var11 = 0.0F;
 
-                for(DimensionType var12 : this.dimensionTypes.values()) {
+                for(ResourceKey<Level> var12 : this.dimensionTypes) {
                     ListIterator<ChunkPos> var13 = var4.get(var12);
                     ChunkStorage var14 = var8.get(var12);
                     if (var13.hasNext()) {
@@ -196,7 +192,7 @@ public class WorldUpgrader {
         }
     }
 
-    private List<ChunkPos> getAllChunkPos(ResourceKey<DimensionType> param0) {
+    private List<ChunkPos> getAllChunkPos(ResourceKey<Level> param0) {
         File var0 = this.levelStorage.getDimensionPath(param0);
         File var1 = new File(var0, "region");
         File[] var2 = var1.listFiles((param0x, param1) -> param1.endsWith(".mca"));
@@ -234,12 +230,12 @@ public class WorldUpgrader {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public ImmutableMap<ResourceKey<DimensionType>, DimensionType> dimensionTypes() {
+    public ImmutableSet<ResourceKey<Level>> dimensionTypes() {
         return this.dimensionTypes;
     }
 
     @OnlyIn(Dist.CLIENT)
-    public float dimensionProgress(DimensionType param0) {
+    public float dimensionProgress(ResourceKey<Level> param0) {
         return this.progressMap.getFloat(param0);
     }
 

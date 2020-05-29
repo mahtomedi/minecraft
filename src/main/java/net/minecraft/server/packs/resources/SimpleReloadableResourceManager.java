@@ -14,6 +14,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.Pack;
 import net.minecraft.server.packs.PackType;
@@ -29,15 +30,16 @@ public class SimpleReloadableResourceManager implements ReloadableResourceManage
     private final List<PreparableReloadListener> listeners = Lists.newArrayList();
     private final List<PreparableReloadListener> recentlyRegistered = Lists.newArrayList();
     private final Set<String> namespaces = Sets.newLinkedHashSet();
+    private final List<Pack> packs = Lists.newArrayList();
     private final PackType type;
-    private final Thread mainThread;
 
-    public SimpleReloadableResourceManager(PackType param0, Thread param1) {
+    public SimpleReloadableResourceManager(PackType param0) {
         this.type = param0;
-        this.mainThread = param1;
     }
 
     public void add(Pack param0) {
+        this.packs.add(param0);
+
         for(String var0 : param0.getNamespaces(this.type)) {
             this.namespaces.add(var0);
             FallbackResourceManager var1 = this.namespacedPacks.get(var0);
@@ -100,12 +102,7 @@ public class SimpleReloadableResourceManager implements ReloadableResourceManage
     private void clear() {
         this.namespacedPacks.clear();
         this.namespaces.clear();
-    }
-
-    @Override
-    public CompletableFuture<Unit> reload(Executor param0, Executor param1, List<Pack> param2, CompletableFuture<Unit> param3) {
-        ReloadInstance var0 = this.createFullReload(param0, param1, param3, param2);
-        return var0.done();
+        this.packs.clear();
     }
 
     @Override
@@ -141,6 +138,12 @@ public class SimpleReloadableResourceManager implements ReloadableResourceManage
         }
 
         return this.createReload(param0, param1, this.listeners, param2);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public Stream<Pack> listPacks() {
+        return this.packs.stream();
     }
 
     static class FailingReloadInstance implements ReloadInstance {

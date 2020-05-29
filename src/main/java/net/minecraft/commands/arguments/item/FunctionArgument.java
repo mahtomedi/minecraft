@@ -66,7 +66,7 @@ public class FunctionArgument implements ArgumentType<FunctionArgument.Result> {
     }
 
     private static Tag<CommandFunction> getFunctionTag(CommandContext<CommandSourceStack> param0, ResourceLocation param1) throws CommandSyntaxException {
-        Tag<CommandFunction> var0 = param0.getSource().getServer().getFunctions().getTags().getTag(param1);
+        Tag<CommandFunction> var0 = param0.getSource().getServer().getFunctions().getTag(param1);
         if (var0 == null) {
             throw ERROR_UNKNOWN_TAG.create(param1.toString());
         } else {

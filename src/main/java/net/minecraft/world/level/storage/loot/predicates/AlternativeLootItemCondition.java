@@ -6,7 +6,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import java.util.List;
 import java.util.function.Predicate;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.ValidationContext;
@@ -18,6 +17,11 @@ public class AlternativeLootItemCondition implements LootItemCondition {
     private AlternativeLootItemCondition(LootItemCondition[] param0) {
         this.terms = param0;
         this.composedPredicate = LootItemConditions.orConditions(param0);
+    }
+
+    @Override
+    public LootItemConditionType getType() {
+        return LootItemConditions.ALTERNATIVE;
     }
 
     public final boolean test(LootContext param0) {
@@ -60,11 +64,7 @@ public class AlternativeLootItemCondition implements LootItemCondition {
         }
     }
 
-    public static class Serializer extends LootItemCondition.Serializer<AlternativeLootItemCondition> {
-        public Serializer() {
-            super(new ResourceLocation("alternative"), AlternativeLootItemCondition.class);
-        }
-
+    public static class Serializer implements net.minecraft.world.level.storage.loot.Serializer<AlternativeLootItemCondition> {
         public void serialize(JsonObject param0, AlternativeLootItemCondition param1, JsonSerializationContext param2) {
             param0.add("terms", param2.serialize(param1.terms));
         }

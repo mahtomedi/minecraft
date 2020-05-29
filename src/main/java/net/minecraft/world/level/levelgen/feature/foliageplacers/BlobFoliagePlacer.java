@@ -10,6 +10,7 @@ import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelSimulatedRW;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public class BlobFoliagePlacer extends FoliagePlacer {
     public static final Codec<BlobFoliagePlacer> CODEC = RecordCodecBuilder.create(param0 -> blobParts(param0).apply(param0, BlobFoliagePlacer::new));
@@ -43,11 +44,12 @@ public class BlobFoliagePlacer extends FoliagePlacer {
         int param5,
         int param6,
         Set<BlockPos> param7,
-        int param8
+        int param8,
+        BoundingBox param9
     ) {
         for(int var0 = param8; var0 >= param8 - param5; --var0) {
             int var1 = Math.max(param6 + param4.radiusOffset() - 1 - var0 / 2, 0);
-            this.placeLeavesRow(param0, param1, param2, param4.foliagePos(), var1, param7, var0, param4.doubleTrunk());
+            this.placeLeavesRow(param0, param1, param2, param4.foliagePos(), var1, param7, var0, param4.doubleTrunk(), param9);
         }
 
     }

@@ -4,29 +4,28 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Objects;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.Level;
 
 public final class GlobalPos {
     public static final Codec<GlobalPos> CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
-                    DimensionType.RESOURCE_KEY_CODEC.fieldOf("dimension").forGetter(GlobalPos::dimension),
-                    BlockPos.CODEC.fieldOf("pos").forGetter(GlobalPos::pos)
+                    Level.RESOURCE_KEY_CODEC.fieldOf("dimension").forGetter(GlobalPos::dimension), BlockPos.CODEC.fieldOf("pos").forGetter(GlobalPos::pos)
                 )
                 .apply(param0, GlobalPos::of)
     );
-    private final ResourceKey<DimensionType> dimension;
+    private final ResourceKey<Level> dimension;
     private final BlockPos pos;
 
-    private GlobalPos(ResourceKey<DimensionType> param0, BlockPos param1) {
+    private GlobalPos(ResourceKey<Level> param0, BlockPos param1) {
         this.dimension = param0;
         this.pos = param1;
     }
 
-    public static GlobalPos of(ResourceKey<DimensionType> param0, BlockPos param1) {
+    public static GlobalPos of(ResourceKey<Level> param0, BlockPos param1) {
         return new GlobalPos(param0, param1);
     }
 
-    public ResourceKey<DimensionType> dimension() {
+    public ResourceKey<Level> dimension() {
         return this.dimension;
     }
 

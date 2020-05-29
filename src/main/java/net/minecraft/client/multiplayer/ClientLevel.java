@@ -31,12 +31,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Cursor3D;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
@@ -97,19 +97,21 @@ public class ClientLevel extends Level {
     public ClientLevel(
         ClientPacketListener param0,
         ClientLevel.ClientLevelData param1,
-        DimensionType param2,
-        int param3,
-        Supplier<ProfilerFiller> param4,
-        LevelRenderer param5,
-        boolean param6,
-        long param7
+        ResourceKey<Level> param2,
+        ResourceKey<DimensionType> param3,
+        DimensionType param4,
+        int param5,
+        Supplier<ProfilerFiller> param6,
+        LevelRenderer param7,
+        boolean param8,
+        long param9
     ) {
-        super(param1, param2, param4, true, param6, param7);
-        this.chunkSource = new ClientChunkCache(this, param3);
+        super(param1, param2, param3, param4, param6, true, param8, param9);
+        this.chunkSource = new ClientChunkCache(this, param5);
         this.clientLevelData = param1;
         this.connection = param0;
-        this.levelRenderer = param5;
-        this.effects = DimensionSpecialEffects.forType(param0.registryAccess().dimensionTypes().getResourceKey(param2));
+        this.levelRenderer = param7;
+        this.effects = DimensionSpecialEffects.forType(param0.registryAccess().dimensionTypes().getResourceKey(param4));
         this.setDefaultSpawnPos(new BlockPos(8, 64, 8));
         this.updateSkyBrightness();
         this.prepareWeather();
@@ -199,7 +201,9 @@ public class ClientLevel extends Level {
     }
 
     public void tickNonPassenger(Entity param0) {
-        if (param0 instanceof Player || this.getChunkSource().isEntityTickingChunk(param0)) {
+        if (!(param0 instanceof Player) && !this.getChunkSource().isEntityTickingChunk(param0)) {
+            this.updateChunkPos(param0);
+        } else {
             param0.setPosAndOldPos(param0.getX(), param0.getY(), param0.getZ());
             param0.yRotO = param0.yRot;
             param0.xRotO = param0.xRot;
@@ -242,24 +246,30 @@ public class ClientLevel extends Level {
         }
     }
 
-    public void updateChunkPos(Entity param0) {
-        this.getProfiler().push("chunkCheck");
-        int var0 = Mth.floor(param0.getX() / 16.0);
-        int var1 = Mth.floor(param0.getY() / 16.0);
-        int var2 = Mth.floor(param0.getZ() / 16.0);
-        if (!param0.inChunk || param0.xChunk != var0 || param0.yChunk != var1 || param0.zChunk != var2) {
-            if (param0.inChunk && this.hasChunk(param0.xChunk, param0.zChunk)) {
-                this.getChunk(param0.xChunk, param0.zChunk).removeEntity(param0, param0.yChunk);
+    private void updateChunkPos(Entity param0) {
+        if (param0.checkAndResetUpdateChunkPos()) {
+            this.getProfiler().push("chunkCheck");
+            int var0 = Mth.floor(param0.getX() / 16.0);
+            int var1 = Mth.floor(param0.getY() / 16.0);
+            int var2 = Mth.floor(param0.getZ() / 16.0);
+            if (!param0.inChunk || param0.xChunk != var0 || param0.yChunk != var1 || param0.zChunk != var2) {
+                if (param0.inChunk && this.hasChunk(param0.xChunk, param0.zChunk)) {
+                    this.getChunk(param0.xChunk, param0.zChunk).removeEntity(param0, param0.yChunk);
+                }
+
+                if (!param0.checkAndResetForcedChunkAdditionFlag() && !this.hasChunk(var0, var2)) {
+                    if (param0.inChunk) {
+                        LOGGER.warn("Entity {} left loaded chunk area", param0);
+                    }
+
+                    param0.inChunk = false;
+                } else {
+                    this.getChunk(var0, var2).addEntity(param0);
+                }
             }
 
-            if (!param0.checkAndResetTeleportedFlag() && !this.hasChunk(var0, var2)) {
-                param0.inChunk = false;
-            } else {
-                this.getChunk(var0, var2).addEntity(param0);
-            }
+            this.getProfiler().pop();
         }
-
-        this.getProfiler().pop();
     }
 
     public void unload(LevelChunk param0) {
@@ -581,11 +591,6 @@ public class ClientLevel extends Level {
     @Override
     public TagManager getTagManager() {
         return this.connection.getTags();
-    }
-
-    @Override
-    public RegistryAccess registryAccess() {
-        return this.connection.registryAccess();
     }
 
     @Override

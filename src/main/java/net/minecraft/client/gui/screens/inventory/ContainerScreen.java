@@ -21,6 +21,7 @@ public class ContainerScreen extends AbstractContainerScreen<ChestMenu> implemen
         int var1 = 114;
         this.containerRows = param0.getRowCount();
         this.imageHeight = 114 + this.containerRows * 18;
+        this.inventoryLabelY = this.imageHeight - 94;
     }
 
     @Override
@@ -28,12 +29,6 @@ public class ContainerScreen extends AbstractContainerScreen<ChestMenu> implemen
         this.renderBackground(param0);
         super.render(param0, param1, param2, param3);
         this.renderTooltip(param0, param1, param2);
-    }
-
-    @Override
-    protected void renderLabels(PoseStack param0, int param1, int param2) {
-        this.font.draw(param0, this.title, 8.0F, 6.0F, 4210752);
-        this.font.draw(param0, this.inventory.getDisplayName(), 8.0F, (float)(this.imageHeight - 96 + 2), 4210752);
     }
 
     @Override

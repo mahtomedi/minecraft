@@ -30,7 +30,7 @@ public class DragonEggBlock extends FallingBlock {
     @Override
     public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
         this.teleport(param0, param1, param2);
-        return InteractionResult.SUCCESS;
+        return InteractionResult.sidedSuccess(param1.isClientSide);
     }
 
     @Override

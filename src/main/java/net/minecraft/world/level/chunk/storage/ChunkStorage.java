@@ -8,9 +8,10 @@ import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.structure.LegacyStructureDataHandler;
 import net.minecraft.world.level.storage.DimensionDataStorage;
 
@@ -25,7 +26,7 @@ public class ChunkStorage implements AutoCloseable {
         this.worker = new IOWorker(param0, param2, "chunk");
     }
 
-    public CompoundTag upgradeChunkTag(DimensionType param0, Supplier<DimensionDataStorage> param1, CompoundTag param2) {
+    public CompoundTag upgradeChunkTag(ResourceKey<Level> param0, Supplier<DimensionDataStorage> param1, CompoundTag param2) {
         int var0 = getVersion(param2);
         int var1 = 1493;
         if (var0 < 1493) {

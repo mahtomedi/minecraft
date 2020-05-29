@@ -22,8 +22,8 @@ import net.minecraft.client.gui.font.FontSet;
 import net.minecraft.client.gui.font.glyphs.BakedGlyph;
 import net.minecraft.client.gui.font.glyphs.EmptyGlyph;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.locale.Language;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
@@ -37,7 +37,6 @@ public class Font {
     public final int lineHeight = 9;
     public final Random random = new Random();
     private final Function<ResourceLocation, FontSet> fonts;
-    private boolean bidirectional;
     private final StringSplitter splitter;
 
     public Font(Function<ResourceLocation, FontSet> param0) {
@@ -50,20 +49,25 @@ public class Font {
     }
 
     public int drawShadow(PoseStack param0, String param1, float param2, float param3, int param4) {
-        return this.drawInternal(param1, param2, param3, param4, param0.last().pose(), true, this.bidirectional);
+        return this.drawInternal(param1, param2, param3, param4, param0.last().pose(), true, this.isBidirectional());
+    }
+
+    public int drawShadow(PoseStack param0, String param1, float param2, float param3, int param4, boolean param5) {
+        RenderSystem.enableAlphaTest();
+        return this.drawInternal(param1, param2, param3, param4, param0.last().pose(), true, param5);
     }
 
     public int draw(PoseStack param0, String param1, float param2, float param3, int param4) {
         RenderSystem.enableAlphaTest();
-        return this.drawInternal(param1, param2, param3, param4, param0.last().pose(), false, this.bidirectional);
+        return this.drawInternal(param1, param2, param3, param4, param0.last().pose(), false, this.isBidirectional());
     }
 
-    public int drawShadow(PoseStack param0, Component param1, float param2, float param3, int param4) {
+    public int drawShadow(PoseStack param0, FormattedText param1, float param2, float param3, int param4) {
         RenderSystem.enableAlphaTest();
         return this.drawInternal(param1, param2, param3, param4, param0.last().pose(), true);
     }
 
-    public int draw(PoseStack param0, Component param1, float param2, float param3, int param4) {
+    public int draw(PoseStack param0, FormattedText param1, float param2, float param3, int param4) {
         RenderSystem.enableAlphaTest();
         return this.drawInternal(param1, param2, param3, param4, param0.last().pose(), false);
     }
@@ -89,7 +93,7 @@ public class Font {
         }
     }
 
-    private int drawInternal(Component param0, float param1, float param2, int param3, Matrix4f param4, boolean param5) {
+    private int drawInternal(FormattedText param0, float param1, float param2, int param3, Matrix4f param4, boolean param5) {
         MultiBufferSource.BufferSource var0 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
         int var1 = this.drawInBatch(param0, param1, param2, param3, param5, param4, var0, false, 0, 15728880);
         var0.endBatch();
@@ -108,7 +112,7 @@ public class Font {
         int param8,
         int param9
     ) {
-        return this.drawInBatch(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, this.bidirectional);
+        return this.drawInBatch(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, this.isBidirectional());
     }
 
     public int drawInBatch(
@@ -128,7 +132,7 @@ public class Font {
     }
 
     public int drawInBatch(
-        Component param0,
+        FormattedText param0,
         float param1,
         float param2,
         int param3,
@@ -164,18 +168,18 @@ public class Font {
         }
 
         param3 = adjustColor(param3);
+        Matrix4f var0 = param5.copy();
         if (param4) {
             this.renderText(param0, param1, param2, param3, true, param5, param6, param7, param8, param9);
+            var0.translate(SHADOW_OFFSET);
         }
 
-        Matrix4f var0 = param5.copy();
-        var0.translate(SHADOW_OFFSET);
         param1 = this.renderText(param0, param1, param2, param3, false, var0, param6, param7, param8, param9);
         return (int)param1 + (param4 ? 1 : 0);
     }
 
     private int drawInternal(
-        Component param0,
+        FormattedText param0,
         float param1,
         float param2,
         int param3,
@@ -187,12 +191,12 @@ public class Font {
         int param9
     ) {
         param3 = adjustColor(param3);
+        Matrix4f var0 = param5.copy();
         if (param4) {
             this.renderText(param0, param1, param2, param3, true, param5, param6, param7, param8, param9);
+            var0.translate(SHADOW_OFFSET);
         }
 
-        Matrix4f var0 = param5.copy();
-        var0.translate(SHADOW_OFFSET);
         param1 = this.renderText(param0, param1, param2, param3, false, var0, param6, param7, param8, param9);
         return (int)param1 + (param4 ? 1 : 0);
     }
@@ -215,7 +219,7 @@ public class Font {
     }
 
     private float renderText(
-        Component param0,
+        FormattedText param0,
         float param1,
         float param2,
         int param3,
@@ -257,7 +261,7 @@ public class Font {
         return Mth.ceil(this.splitter.stringWidth(param0));
     }
 
-    public int width(Component param0) {
+    public int width(FormattedText param0) {
         return Mth.ceil(this.splitter.stringWidth(param0));
     }
 
@@ -269,14 +273,14 @@ public class Font {
         return this.splitter.plainHeadByWidth(param0, param1, Style.EMPTY);
     }
 
-    public MutableComponent substrByWidth(Component param0, int param1) {
+    public FormattedText substrByWidth(FormattedText param0, int param1) {
         return this.splitter.headByWidth(param0, param1, Style.EMPTY);
     }
 
-    public void drawWordWrap(Component param0, int param1, int param2, int param3, int param4) {
+    public void drawWordWrap(FormattedText param0, int param1, int param2, int param3, int param4) {
         Matrix4f var0 = Transformation.identity().getMatrix();
 
-        for(Component var1 : this.split(param0, param3)) {
+        for(FormattedText var1 : this.split(param0, param3)) {
             this.drawInternal(var1, (float)param1, (float)param2, param4, var0, false);
             param2 += 9;
         }
@@ -287,16 +291,12 @@ public class Font {
         return 9 * this.splitter.splitLines(param0, param1, Style.EMPTY).size();
     }
 
-    public void setBidirectional(boolean param0) {
-        this.bidirectional = param0;
-    }
-
-    public List<Component> split(Component param0, int param1) {
+    public List<FormattedText> split(FormattedText param0, int param1) {
         return this.splitter.splitLines(param0, param1, Style.EMPTY);
     }
 
     public boolean isBidirectional() {
-        return this.bidirectional;
+        return Language.getInstance().requiresReordering();
     }
 
     public StringSplitter getSplitter() {

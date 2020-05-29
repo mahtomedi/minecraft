@@ -7,6 +7,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -17,7 +18,7 @@ public class BackupConfirmScreen extends Screen {
     protected final BackupConfirmScreen.Listener listener;
     private final Component description;
     private final boolean promptForCacheErase;
-    private final List<Component> lines = Lists.newArrayList();
+    private final List<FormattedText> lines = Lists.newArrayList();
     private Checkbox eraseCache;
 
     public BackupConfirmScreen(Screen param0, BackupConfirmScreen.Listener param1, Component param2, Component param3, boolean param4) {
@@ -70,7 +71,7 @@ public class BackupConfirmScreen extends Screen {
         this.drawCenteredString(param0, this.font, this.title, this.width / 2, 50, 16777215);
         int var0 = 70;
 
-        for(Component var1 : this.lines) {
+        for(FormattedText var1 : this.lines) {
             this.drawCenteredString(param0, this.font, var1, this.width / 2, var0, 16777215);
             var0 += 9;
         }

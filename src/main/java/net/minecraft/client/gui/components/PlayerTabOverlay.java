@@ -16,6 +16,7 @@ import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.Mth;
@@ -102,20 +103,20 @@ public class PlayerTabOverlay extends GuiComponent {
         int var14 = param1 / 2 - (var13 * var8 + (var8 - 1) * 5) / 2;
         int var15 = 10;
         int var16 = var13 * var8 + (var8 - 1) * 5;
-        List<Component> var17 = null;
+        List<FormattedText> var17 = null;
         if (this.header != null) {
             var17 = this.minecraft.font.split(this.header, param1 - 50);
 
-            for(Component var18 : var17) {
+            for(FormattedText var18 : var17) {
                 var16 = Math.max(var16, this.minecraft.font.width(var18));
             }
         }
 
-        List<Component> var19 = null;
+        List<FormattedText> var19 = null;
         if (this.footer != null) {
             var19 = this.minecraft.font.split(this.footer, param1 - 50);
 
-            for(Component var20 : var19) {
+            for(FormattedText var20 : var19) {
                 var16 = Math.max(var16, this.minecraft.font.width(var20));
             }
         }
@@ -123,7 +124,7 @@ public class PlayerTabOverlay extends GuiComponent {
         if (var17 != null) {
             fill(param0, param1 / 2 - var16 / 2 - 1, var15 - 1, param1 / 2 + var16 / 2 + 1, var15 + var17.size() * 9, Integer.MIN_VALUE);
 
-            for(Component var21 : var17) {
+            for(FormattedText var21 : var17) {
                 int var22 = this.minecraft.font.width(var21);
                 this.minecraft.font.drawShadow(param0, var21, (float)(param1 / 2 - var22 / 2), (float)var15, -1);
                 var15 += 9;
@@ -185,7 +186,7 @@ public class PlayerTabOverlay extends GuiComponent {
             var15 += var7 * 9 + 1;
             fill(param0, param1 / 2 - var16 / 2 - 1, var15 - 1, param1 / 2 + var16 / 2 + 1, var15 + var19.size() * 9, Integer.MIN_VALUE);
 
-            for(Component var39 : var19) {
+            for(FormattedText var39 : var19) {
                 int var40 = this.minecraft.font.width(var39);
                 this.minecraft.font.drawShadow(param0, var39, (float)(param1 / 2 - var40 / 2), (float)var15, -1);
                 var15 += 9;

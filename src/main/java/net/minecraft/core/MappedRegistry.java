@@ -13,11 +13,14 @@ import java.util.Iterator;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
+import java.util.Map.Entry;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.CrudeIncrementalIntIdentityHashBiMap;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -64,14 +67,10 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
         return this.storage.inverse().get(param0);
     }
 
+    @OnlyIn(Dist.CLIENT)
     @Override
-    public ResourceKey<T> getResourceKey(T param0) {
-        ResourceKey<T> var0 = this.keyStorage.inverse().get(param0);
-        if (var0 == null) {
-            throw new IllegalStateException("Unregistered registry element: " + param0 + " in " + this);
-        } else {
-            return var0;
-        }
+    public Optional<ResourceKey<T>> getResourceKey(T param0) {
+        return Optional.ofNullable(this.keyStorage.inverse().get(param0));
     }
 
     @Override
@@ -80,6 +79,7 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
     }
 
     @Nullable
+    @OnlyIn(Dist.CLIENT)
     @Override
     public T get(@Nullable ResourceKey<T> param0) {
         return this.keyStorage.get(param0);
@@ -132,11 +132,6 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
     }
 
     @Override
-    public boolean containsKey(ResourceKey<T> param0) {
-        return this.keyStorage.containsKey(param0);
-    }
-
-    @Override
     public boolean containsId(int param0) {
         return this.map.contains(param0);
     }
@@ -156,8 +151,8 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
             }, param0x -> {
                 Builder<Pair<ResourceKey<T>, T>> var0x = ImmutableList.builder();
     
-                for(T var1x : param0x) {
-                    var0x.add(Pair.of(param0x.getResourceKey((T)var1x), var1x));
+                for(Entry<ResourceKey<T>, T> var1x : param0x.keyStorage.entrySet()) {
+                    var0x.add(Pair.of(var1x.getKey(), var1x.getValue()));
                 }
     
                 return var0x.build();

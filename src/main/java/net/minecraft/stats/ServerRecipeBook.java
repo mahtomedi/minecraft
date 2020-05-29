@@ -21,11 +21,6 @@ import org.apache.logging.log4j.Logger;
 
 public class ServerRecipeBook extends RecipeBook {
     private static final Logger LOGGER = LogManager.getLogger();
-    private final RecipeManager manager;
-
-    public ServerRecipeBook(RecipeManager param0) {
-        this.manager = param0;
-    }
 
     public int addRecipes(Collection<Recipe<?>> param0, ServerPlayer param1) {
         List<ResourceLocation> var0 = Lists.newArrayList();
@@ -99,7 +94,7 @@ public class ServerRecipeBook extends RecipeBook {
         return var0;
     }
 
-    public void fromNbt(CompoundTag param0) {
+    public void fromNbt(CompoundTag param0, RecipeManager param1) {
         this.guiOpen = param0.getBoolean("isGuiOpen");
         this.filteringCraftable = param0.getBoolean("isFilteringCraftable");
         this.furnaceGuiOpen = param0.getBoolean("isFurnaceGuiOpen");
@@ -109,24 +104,24 @@ public class ServerRecipeBook extends RecipeBook {
         this.smokerGuiOpen = param0.getBoolean("isSmokerGuiOpen");
         this.smokerFilteringCraftable = param0.getBoolean("isSmokerFilteringCraftable");
         ListTag var0 = param0.getList("recipes", 8);
-        this.loadRecipes(var0, this::add);
+        this.loadRecipes(var0, this::add, param1);
         ListTag var1 = param0.getList("toBeDisplayed", 8);
-        this.loadRecipes(var1, this::addHighlight);
+        this.loadRecipes(var1, this::addHighlight, param1);
     }
 
-    private void loadRecipes(ListTag param0, Consumer<Recipe<?>> param1) {
+    private void loadRecipes(ListTag param0, Consumer<Recipe<?>> param1, RecipeManager param2) {
         for(int var0 = 0; var0 < param0.size(); ++var0) {
             String var1 = param0.getString(var0);
 
             try {
                 ResourceLocation var2 = new ResourceLocation(var1);
-                Optional<? extends Recipe<?>> var3 = this.manager.byKey(var2);
+                Optional<? extends Recipe<?>> var3 = param2.byKey(var2);
                 if (!var3.isPresent()) {
                     LOGGER.error("Tried to load unrecognized recipe: {} removed now.", var2);
                 } else {
                     param1.accept(var3.get());
                 }
-            } catch (ResourceLocationException var7) {
+            } catch (ResourceLocationException var8) {
                 LOGGER.error("Tried to load improperly formatted recipe: {} removed now.", var1);
             }
         }

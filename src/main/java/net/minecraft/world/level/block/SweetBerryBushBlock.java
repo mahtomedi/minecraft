@@ -93,7 +93,7 @@ public class SweetBerryBushBlock extends BushBlock implements BonemealableBlock 
             popResource(param1, param2, new ItemStack(Items.SWEET_BERRIES, var2 + (var1 ? 1 : 0)));
             param1.playSound(null, param2, SoundEvents.SWEET_BERRY_BUSH_PICK_BERRIES, SoundSource.BLOCKS, 1.0F, 0.8F + param1.random.nextFloat() * 0.4F);
             param1.setBlock(param2, param0.setValue(AGE, Integer.valueOf(1)), 2);
-            return InteractionResult.SUCCESS;
+            return InteractionResult.sidedSuccess(param1.isClientSide);
         } else {
             return super.use(param0, param1, param2, param3, param4, param5);
         }

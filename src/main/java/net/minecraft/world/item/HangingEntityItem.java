@@ -35,7 +35,7 @@ public class HangingEntityItem extends Item {
                 var6 = new Painting(var5, var2, var1);
             } else {
                 if (this.type != EntityType.ITEM_FRAME) {
-                    return InteractionResult.SUCCESS;
+                    return InteractionResult.sidedSuccess(var5.isClientSide);
                 }
 
                 var6 = new ItemFrame(var5, var2, var1);
@@ -53,7 +53,7 @@ public class HangingEntityItem extends Item {
                 }
 
                 var4.shrink(1);
-                return InteractionResult.SUCCESS;
+                return InteractionResult.sidedSuccess(var5.isClientSide);
             } else {
                 return InteractionResult.CONSUME;
             }

@@ -15,6 +15,7 @@ import net.minecraft.client.model.BookModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -44,12 +45,6 @@ public class EnchantmentScreen extends AbstractContainerScreen<EnchantmentMenu> 
 
     public EnchantmentScreen(EnchantmentMenu param0, Inventory param1, Component param2) {
         super(param0, param1, param2);
-    }
-
-    @Override
-    protected void renderLabels(PoseStack param0, int param1, int param2) {
-        this.font.draw(param0, this.title, 12.0F, 5.0F, 4210752);
-        this.font.draw(param0, this.inventory.getDisplayName(), 8.0F, (float)(this.imageHeight - 96 + 2), 4210752);
     }
 
     @Override
@@ -153,7 +148,7 @@ public class EnchantmentScreen extends AbstractContainerScreen<EnchantmentMenu> 
             } else {
                 String var16 = "" + var15;
                 int var17 = 86 - this.font.width(var16);
-                Component var18 = EnchantmentNames.getInstance().getRandomName(this.font, var17);
+                FormattedText var18 = EnchantmentNames.getInstance().getRandomName(this.font, var17);
                 int var19 = 6839882;
                 if ((var11 < var12 + 1 || this.minecraft.player.experienceLevel < var15) && !this.minecraft.player.abilities.instabuild) {
                     this.blit(param0, var13, var1 + 14 + 19 * var12, 0, 185, 108, 19);

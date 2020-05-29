@@ -1,13 +1,13 @@
 package net.minecraft.world.level.block.entity;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.EntityTypeTags;
+import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -15,6 +15,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import org.apache.commons.lang3.mutable.MutableInt;
 
 public class BellBlockEntity extends BlockEntity implements TickableBlockEntity {
     private long lastRingTimestamp;
@@ -126,7 +127,7 @@ public class BellBlockEntity extends BlockEntity implements TickableBlockEntity 
     private void showBellParticles(Level param0) {
         if (param0.isClientSide) {
             BlockPos var0 = this.getBlockPos();
-            AtomicInteger var1 = new AtomicInteger(16700985);
+            MutableInt var1 = new MutableInt(16700985);
             int var2 = (int)this.nearbyEntities.stream().filter(param1 -> var0.closerThan(param1.position(), 48.0)).count();
             this.nearbyEntities
                 .stream()
@@ -143,11 +144,11 @@ public class BellBlockEntity extends BlockEntity implements TickableBlockEntity 
                         int var4x = Mth.clamp((var2 - 21) / -2, 3, 15);
         
                         for(int var5 = 0; var5 < var4x; ++var5) {
-                            var1.addAndGet(5);
-                            double var6 = (double)(var1.get() >> 16 & 0xFF) / 255.0;
-                            double var7 = (double)(var1.get() >> 8 & 0xFF) / 255.0;
-                            double var8 = (double)(var1.get() & 0xFF) / 255.0;
-                            param0.addParticle(ParticleTypes.ENTITY_EFFECT, var2x, (double)((float)var0.getY() + 0.5F), var3x, var6, var7, var8);
+                            int var6 = var1.addAndGet(5);
+                            double var7 = (double)FastColor.ARGB32.red(var6) / 255.0;
+                            double var8 = (double)FastColor.ARGB32.green(var6) / 255.0;
+                            double var9 = (double)FastColor.ARGB32.blue(var6) / 255.0;
+                            param0.addParticle(ParticleTypes.ENTITY_EFFECT, var2x, (double)((float)var0.getY() + 0.5F), var3x, var7, var8, var9);
                         }
         
                     }

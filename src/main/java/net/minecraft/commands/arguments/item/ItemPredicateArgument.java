@@ -17,6 +17,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.Tag;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -64,7 +65,7 @@ public class ItemPredicateArgument implements ArgumentType<ItemPredicateArgument
         } catch (CommandSyntaxException var6) {
         }
 
-        return var1.fillSuggestions(param1);
+        return var1.fillSuggestions(param1, ItemTags.getAllTags());
     }
 
     @Override

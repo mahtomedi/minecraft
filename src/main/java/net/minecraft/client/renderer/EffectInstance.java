@@ -14,6 +14,8 @@ import com.mojang.blaze3d.shaders.Program;
 import com.mojang.blaze3d.shaders.ProgramManager;
 import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.systems.RenderSystem;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -297,32 +299,33 @@ public class EffectInstance implements Effect, AutoCloseable {
 
     private void updateLocations() {
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
-        int var0 = 0;
+        IntList var0 = new IntArrayList();
 
-        for(int var1 = 0; var0 < this.samplerNames.size(); ++var1) {
-            String var2 = this.samplerNames.get(var0);
+        for(int var1 = 0; var1 < this.samplerNames.size(); ++var1) {
+            String var2 = this.samplerNames.get(var1);
             int var3 = Uniform.glGetUniformLocation(this.programId, var2);
             if (var3 == -1) {
-                LOGGER.warn("Shader {}could not find sampler named {} in the specified shader program.", this.name, var2);
+                LOGGER.warn("Shader {} could not find sampler named {} in the specified shader program.", this.name, var2);
                 this.samplerMap.remove(var2);
-                this.samplerNames.remove(var1);
-                --var1;
+                var0.add(var1);
             } else {
                 this.samplerLocations.add(var3);
             }
-
-            ++var0;
         }
 
-        for(Uniform var4 : this.uniforms) {
-            String var5 = var4.getName();
-            int var6 = Uniform.glGetUniformLocation(this.programId, var5);
-            if (var6 == -1) {
-                LOGGER.warn("Could not find uniform named {} in the specified shader program.", var5);
+        for(int var4 = var0.size() - 1; var4 >= 0; --var4) {
+            this.samplerNames.remove(var0.getInt(var4));
+        }
+
+        for(Uniform var5 : this.uniforms) {
+            String var6 = var5.getName();
+            int var7 = Uniform.glGetUniformLocation(this.programId, var6);
+            if (var7 == -1) {
+                LOGGER.warn("Could not find uniform named {} in the specified shader program.", var6);
             } else {
-                this.uniformLocations.add(var6);
-                var4.setLocation(var6);
-                this.uniformMap.put(var5, var4);
+                this.uniformLocations.add(var7);
+                var5.setLocation(var7);
+                this.uniformMap.put(var6, var5);
             }
         }
 

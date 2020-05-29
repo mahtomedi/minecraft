@@ -28,7 +28,7 @@ public class ValidateNearbyPoi extends Behavior<LivingEntity> {
     @Override
     protected boolean checkExtraStartConditions(ServerLevel param0, LivingEntity param1) {
         GlobalPos var0 = param1.getBrain().getMemory(this.memoryType).get();
-        return param0.dimension() == var0.dimension() && var0.pos().closerThan(param1.position(), 5.0);
+        return param0.dimension() == var0.dimension() && var0.pos().closerThan(param1.position(), 16.0);
     }
 
     @Override

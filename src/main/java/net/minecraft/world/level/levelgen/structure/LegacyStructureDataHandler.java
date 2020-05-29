@@ -14,8 +14,9 @@ import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.storage.DimensionDataStorage;
 
@@ -198,17 +199,17 @@ public class LegacyStructureDataHandler {
         }
     }
 
-    public static LegacyStructureDataHandler getLegacyStructureHandler(DimensionType param0, @Nullable DimensionDataStorage param1) {
-        if (param0.isOverworld()) {
+    public static LegacyStructureDataHandler getLegacyStructureHandler(ResourceKey<Level> param0, @Nullable DimensionDataStorage param1) {
+        if (param0 == Level.OVERWORLD) {
             return new LegacyStructureDataHandler(
                 param1,
                 ImmutableList.of("Monument", "Stronghold", "Village", "Mineshaft", "Temple", "Mansion"),
                 ImmutableList.of("Village", "Mineshaft", "Mansion", "Igloo", "Desert_Pyramid", "Jungle_Pyramid", "Swamp_Hut", "Stronghold", "Monument")
             );
-        } else if (param0.isNether()) {
+        } else if (param0 == Level.NETHER) {
             List<String> var0 = ImmutableList.of("Fortress");
             return new LegacyStructureDataHandler(param1, var0, var0);
-        } else if (param0.isEnd()) {
+        } else if (param0 == Level.END) {
             List<String> var1 = ImmutableList.of("EndCity");
             return new LegacyStructureDataHandler(param1, var1, var1);
         } else {

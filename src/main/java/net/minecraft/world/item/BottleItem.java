@@ -35,7 +35,7 @@ public class BottleItem extends Item {
             AreaEffectCloud var2 = var0.get(0);
             var2.setRadius(var2.getRadius() - 0.5F);
             param0.playSound(null, param1.getX(), param1.getY(), param1.getZ(), SoundEvents.BOTTLE_FILL_DRAGONBREATH, SoundSource.NEUTRAL, 1.0F, 1.0F);
-            return InteractionResultHolder.success(this.turnBottleIntoItem(var1, param1, new ItemStack(Items.DRAGON_BREATH)));
+            return InteractionResultHolder.sidedSuccess(this.turnBottleIntoItem(var1, param1, new ItemStack(Items.DRAGON_BREATH)), param0.isClientSide());
         } else {
             HitResult var3 = getPlayerPOVHitResult(param0, param1, ClipContext.Fluid.SOURCE_ONLY);
             if (var3.getType() == HitResult.Type.MISS) {
@@ -49,8 +49,8 @@ public class BottleItem extends Item {
 
                     if (param0.getFluidState(var4).is(FluidTags.WATER)) {
                         param0.playSound(param1, param1.getX(), param1.getY(), param1.getZ(), SoundEvents.BOTTLE_FILL, SoundSource.NEUTRAL, 1.0F, 1.0F);
-                        return InteractionResultHolder.success(
-                            this.turnBottleIntoItem(var1, param1, PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.WATER))
+                        return InteractionResultHolder.sidedSuccess(
+                            this.turnBottleIntoItem(var1, param1, PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.WATER)), param0.isClientSide()
                         );
                     }
                 }

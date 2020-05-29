@@ -32,6 +32,11 @@ public class ApplyBonusCount extends LootItemConditionalFunction {
     }
 
     @Override
+    public LootItemFunctionType getType() {
+        return LootItemFunctions.APPLY_BONUS;
+    }
+
+    @Override
     public Set<LootContextParam<?>> getReferencedContextParams() {
         return ImmutableSet.of(LootContextParams.TOOL);
     }
@@ -156,10 +161,6 @@ public class ApplyBonusCount extends LootItemConditionalFunction {
     }
 
     public static class Serializer extends LootItemConditionalFunction.Serializer<ApplyBonusCount> {
-        public Serializer() {
-            super(new ResourceLocation("apply_bonus"), ApplyBonusCount.class);
-        }
-
         public void serialize(JsonObject param0, ApplyBonusCount param1, JsonSerializationContext param2) {
             super.serialize(param0, param1, param2);
             param0.addProperty("enchantment", Registry.ENCHANTMENT.getKey(param1.enchantment).toString());

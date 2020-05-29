@@ -24,6 +24,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.OverworldBiomeSource;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -40,7 +41,7 @@ public class WorldGenSettings {
                         Codec.BOOL.fieldOf("generate_features").withDefault(true).stable().forGetter(WorldGenSettings::generateFeatures),
                         Codec.BOOL.fieldOf("bonus_chest").withDefault(false).stable().forGetter(WorldGenSettings::generateBonusChest),
                         Codec.unboundedMap(
-                                ResourceLocation.CODEC.xmap(ResourceKey.elementKey(Registry.DIMENSION_TYPE_REGISTRY), ResourceKey::location),
+                                ResourceLocation.CODEC.xmap(ResourceKey.elementKey(Registry.DIMENSION_REGISTRY), ResourceKey::location),
                                 Codec.mapPair(DimensionType.CODEC.fieldOf("type"), ChunkGenerator.CODEC.fieldOf("generator")).codec()
                             )
                             .xmap(DimensionType::sortMap, Function.identity())
@@ -62,7 +63,7 @@ public class WorldGenSettings {
     private final long seed;
     private final boolean generateFeatures;
     private final boolean generateBonusChest;
-    private final LinkedHashMap<ResourceKey<DimensionType>, Pair<DimensionType, ChunkGenerator>> dimensions;
+    private final LinkedHashMap<ResourceKey<Level>, Pair<DimensionType, ChunkGenerator>> dimensions;
     private final Optional<String> legacyCustomOptions;
 
     private DataResult<WorldGenSettings> guardExperimental() {
@@ -73,16 +74,12 @@ public class WorldGenSettings {
         return DimensionType.stable(this.seed, this.dimensions);
     }
 
-    public WorldGenSettings(long param0, boolean param1, boolean param2, LinkedHashMap<ResourceKey<DimensionType>, Pair<DimensionType, ChunkGenerator>> param3) {
+    public WorldGenSettings(long param0, boolean param1, boolean param2, LinkedHashMap<ResourceKey<Level>, Pair<DimensionType, ChunkGenerator>> param3) {
         this(param0, param1, param2, param3, Optional.empty());
     }
 
     private WorldGenSettings(
-        long param0,
-        boolean param1,
-        boolean param2,
-        LinkedHashMap<ResourceKey<DimensionType>, Pair<DimensionType, ChunkGenerator>> param3,
-        Optional<String> param4
+        long param0, boolean param1, boolean param2, LinkedHashMap<ResourceKey<Level>, Pair<DimensionType, ChunkGenerator>> param3, Optional<String> param4
     ) {
         this.seed = param0;
         this.generateFeatures = param1;
@@ -112,16 +109,16 @@ public class WorldGenSettings {
         return this.generateBonusChest;
     }
 
-    public static LinkedHashMap<ResourceKey<DimensionType>, Pair<DimensionType, ChunkGenerator>> withOverworld(
-        LinkedHashMap<ResourceKey<DimensionType>, Pair<DimensionType, ChunkGenerator>> param0, ChunkGenerator param1
+    public static LinkedHashMap<ResourceKey<Level>, Pair<DimensionType, ChunkGenerator>> withOverworld(
+        LinkedHashMap<ResourceKey<Level>, Pair<DimensionType, ChunkGenerator>> param0, ChunkGenerator param1
     ) {
-        LinkedHashMap<ResourceKey<DimensionType>, Pair<DimensionType, ChunkGenerator>> var0 = Maps.newLinkedHashMap();
+        LinkedHashMap<ResourceKey<Level>, Pair<DimensionType, ChunkGenerator>> var0 = Maps.newLinkedHashMap();
         Pair<DimensionType, ChunkGenerator> var1 = param0.get(DimensionType.OVERWORLD_LOCATION);
-        DimensionType var2 = var1 == null ? DimensionType.defaultOverworld() : var1.getFirst();
-        var0.put(DimensionType.OVERWORLD_LOCATION, Pair.of(var2, param1));
+        DimensionType var2 = var1 == null ? DimensionType.makeDefaultOverworld() : var1.getFirst();
+        var0.put(Level.OVERWORLD, Pair.of(var2, param1));
 
-        for(Entry<ResourceKey<DimensionType>, Pair<DimensionType, ChunkGenerator>> var3 : param0.entrySet()) {
-            if (!Objects.equals(var3.getKey(), DimensionType.OVERWORLD_LOCATION)) {
+        for(Entry<ResourceKey<Level>, Pair<DimensionType, ChunkGenerator>> var3 : param0.entrySet()) {
+            if (var3.getKey() != Level.OVERWORLD) {
                 var0.put(var3.getKey(), var3.getValue());
             }
         }
@@ -129,7 +126,7 @@ public class WorldGenSettings {
         return var0;
     }
 
-    public LinkedHashMap<ResourceKey<DimensionType>, Pair<DimensionType, ChunkGenerator>> dimensions() {
+    public LinkedHashMap<ResourceKey<Level>, Pair<DimensionType, ChunkGenerator>> dimensions() {
         return this.dimensions;
     }
 
@@ -188,7 +185,7 @@ public class WorldGenSettings {
             }
         }
 
-        LinkedHashMap<ResourceKey<DimensionType>, Pair<DimensionType, ChunkGenerator>> var9 = DimensionType.defaultDimensions(var6);
+        LinkedHashMap<ResourceKey<Level>, Pair<DimensionType, ChunkGenerator>> var9 = DimensionType.defaultDimensions(var6);
         switch(var5) {
             case "flat":
                 JsonObject var10 = !var0.isEmpty() ? GsonHelper.parse(var0) : new JsonObject();
@@ -214,12 +211,12 @@ public class WorldGenSettings {
     @OnlyIn(Dist.CLIENT)
     public WorldGenSettings withSeed(boolean param0, OptionalLong param1) {
         long var0 = param1.orElse(this.seed);
-        LinkedHashMap<ResourceKey<DimensionType>, Pair<DimensionType, ChunkGenerator>> var1;
+        LinkedHashMap<ResourceKey<Level>, Pair<DimensionType, ChunkGenerator>> var1;
         if (param1.isPresent()) {
             var1 = Maps.newLinkedHashMap();
             long var2 = param1.getAsLong();
 
-            for(Entry<ResourceKey<DimensionType>, Pair<DimensionType, ChunkGenerator>> var3 : this.dimensions.entrySet()) {
+            for(Entry<ResourceKey<Level>, Pair<DimensionType, ChunkGenerator>> var3 : this.dimensions.entrySet()) {
                 var1.put(var3.getKey(), Pair.of(var3.getValue().getFirst(), var3.getValue().getSecond().withSeed(var2)));
             }
         } else {

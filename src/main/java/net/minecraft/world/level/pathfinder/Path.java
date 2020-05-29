@@ -88,8 +88,12 @@ public class Path {
     }
 
     public Vec3i currentPos() {
-        Node var0 = this.nodes.get(this.index);
+        Node var0 = this.currentNode();
         return new Vec3i(var0.x, var0.y, var0.z);
+    }
+
+    public Node currentNode() {
+        return this.nodes.get(this.index);
     }
 
     public boolean sameAs(@Nullable Path param0) {

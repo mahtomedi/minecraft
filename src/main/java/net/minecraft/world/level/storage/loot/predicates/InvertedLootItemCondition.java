@@ -4,7 +4,6 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import java.util.Set;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.ValidationContext;
@@ -15,6 +14,11 @@ public class InvertedLootItemCondition implements LootItemCondition {
 
     private InvertedLootItemCondition(LootItemCondition param0) {
         this.term = param0;
+    }
+
+    @Override
+    public LootItemConditionType getType() {
+        return LootItemConditions.INVERTED;
     }
 
     public final boolean test(LootContext param0) {
@@ -37,11 +41,7 @@ public class InvertedLootItemCondition implements LootItemCondition {
         return () -> var0;
     }
 
-    public static class Serializer extends LootItemCondition.Serializer<InvertedLootItemCondition> {
-        public Serializer() {
-            super(new ResourceLocation("inverted"), InvertedLootItemCondition.class);
-        }
-
+    public static class Serializer implements net.minecraft.world.level.storage.loot.Serializer<InvertedLootItemCondition> {
         public void serialize(JsonObject param0, InvertedLootItemCondition param1, JsonSerializationContext param2) {
             param0.add("term", param2.serialize(param1.term));
         }

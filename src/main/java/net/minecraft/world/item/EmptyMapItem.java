@@ -24,13 +24,13 @@ public class EmptyMapItem extends ComplexItem {
         param1.awardStat(Stats.ITEM_USED.get(this));
         param1.playSound(SoundEvents.UI_CARTOGRAPHY_TABLE_TAKE_RESULT, 1.0F, 1.0F);
         if (var1.isEmpty()) {
-            return InteractionResultHolder.success(var0);
+            return InteractionResultHolder.sidedSuccess(var0, param0.isClientSide());
         } else {
             if (!param1.inventory.add(var0.copy())) {
                 param1.drop(var0, false);
             }
 
-            return InteractionResultHolder.success(var1);
+            return InteractionResultHolder.sidedSuccess(var1, param0.isClientSide());
         }
     }
 }

@@ -44,6 +44,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.realms.NarrationHelper;
@@ -794,7 +795,7 @@ public class RealmsMainScreen extends RealmsScreen {
         int var0 = this.popupX0();
         int var1 = this.popupY0();
         Component var2 = new TranslatableComponent("mco.selectServer.popup");
-        List<Component> var3 = this.font.split(var2, 100);
+        List<FormattedText> var3 = this.font.split(var2, 100);
         if (!this.showingPopup) {
             this.carouselIndex = 0;
             this.carouselTick = 0;
@@ -840,7 +841,7 @@ public class RealmsMainScreen extends RealmsScreen {
 
         int var7 = 0;
 
-        for(Component var8 : var3) {
+        for(FormattedText var8 : var3) {
             ++var7;
             int var9 = var1 + 10 * var7 - 3;
             this.font.draw(param0, var8, (float)(this.width / 2 + 52), (float)var9, 5000268);

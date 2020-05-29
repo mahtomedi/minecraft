@@ -5,7 +5,6 @@ import com.google.common.collect.Queues;
 import java.util.Deque;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicReference;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -25,6 +24,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -77,7 +77,7 @@ public class JigsawPlacement {
             var12.placing
                 .addLast(
                     new JigsawPlacement.PieceState(
-                        var3, new AtomicReference<>(Shapes.join(Shapes.create(var11), Shapes.create(AABB.of(var4)), BooleanOp.ONLY_FIRST)), var7 + 80, 0
+                        var3, new MutableObject<>(Shapes.join(Shapes.create(var11), Shapes.create(AABB.of(var4)), BooleanOp.ONLY_FIRST)), var7 + 80, 0
                     )
                 );
 
@@ -100,7 +100,7 @@ public class JigsawPlacement {
     ) {
         bootstrap();
         JigsawPlacement.Placer var0 = new JigsawPlacement.Placer(param1, param2, param3, param4, param5, param6);
-        var0.placing.addLast(new JigsawPlacement.PieceState(param0, new AtomicReference<>(Shapes.INFINITY), 0, 0));
+        var0.placing.addLast(new JigsawPlacement.PieceState(param0, new MutableObject<>(Shapes.INFINITY), 0, 0));
 
         while(!var0.placing.isEmpty()) {
             JigsawPlacement.PieceState var1 = var0.placing.removeFirst();
@@ -119,11 +119,11 @@ public class JigsawPlacement {
 
     static final class PieceState {
         private final PoolElementStructurePiece piece;
-        private final AtomicReference<VoxelShape> free;
+        private final MutableObject<VoxelShape> free;
         private final int boundsTop;
         private final int depth;
 
-        private PieceState(PoolElementStructurePiece param0, AtomicReference<VoxelShape> param1, int param2, int param3) {
+        private PieceState(PoolElementStructurePiece param0, MutableObject<VoxelShape> param1, int param2, int param3) {
             this.piece = param0;
             this.free = param1;
             this.boundsTop = param2;
@@ -156,13 +156,13 @@ public class JigsawPlacement {
             this.random = param5;
         }
 
-        private void tryPlacingChildren(PoolElementStructurePiece param0, AtomicReference<VoxelShape> param1, int param2, int param3, boolean param4) {
+        private void tryPlacingChildren(PoolElementStructurePiece param0, MutableObject<VoxelShape> param1, int param2, int param3, boolean param4) {
             StructurePoolElement var0 = param0.getElement();
             BlockPos var1 = param0.getPosition();
             Rotation var2 = param0.getRotation();
             StructureTemplatePool.Projection var3 = var0.getProjection();
             boolean var4 = var3 == StructureTemplatePool.Projection.RIGID;
-            AtomicReference<VoxelShape> var5 = new AtomicReference<>();
+            MutableObject<VoxelShape> var5 = new MutableObject<>();
             BoundingBox var6 = param0.getBoundingBox();
             int var7 = var6.y0;
 
@@ -177,13 +177,13 @@ public class JigsawPlacement {
                 StructureTemplatePool var15 = JigsawPlacement.POOLS.getPool(var14.getFallback());
                 if (var14 != StructureTemplatePool.INVALID && (var14.size() != 0 || var14 == StructureTemplatePool.EMPTY)) {
                     boolean var16 = var6.isInside(var11);
-                    AtomicReference<VoxelShape> var17;
+                    MutableObject<VoxelShape> var17;
                     int var18;
                     if (var16) {
                         var17 = var5;
                         var18 = var7;
-                        if (var5.get() == null) {
-                            var5.set(Shapes.create(AABB.of(var6)));
+                        if (var5.getValue() == null) {
+                            var5.setValue(Shapes.create(AABB.of(var6)));
                         }
                     } else {
                         var17 = param1;
@@ -252,8 +252,8 @@ public class JigsawPlacement {
                                         var40.y1 = var40.y0 + var42;
                                     }
 
-                                    if (!Shapes.joinIsNotEmpty(var17.get(), Shapes.create(AABB.of(var40).deflate(0.25)), BooleanOp.ONLY_SECOND)) {
-                                        var17.set(Shapes.joinUnoptimized(var17.get(), Shapes.create(AABB.of(var40)), BooleanOp.ONLY_FIRST));
+                                    if (!Shapes.joinIsNotEmpty(var17.getValue(), Shapes.create(AABB.of(var40).deflate(0.25)), BooleanOp.ONLY_SECOND)) {
+                                        var17.setValue(Shapes.joinUnoptimized(var17.getValue(), Shapes.create(AABB.of(var40)), BooleanOp.ONLY_FIRST));
                                         int var43 = param0.getGroundLevelDelta();
                                         int var44;
                                         if (var34) {

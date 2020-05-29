@@ -19,28 +19,25 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class StructureManager implements ResourceManagerReloadListener {
+public class StructureManager {
     private static final Logger LOGGER = LogManager.getLogger();
     private final Map<ResourceLocation, StructureTemplate> structureRepository = Maps.newHashMap();
     private final DataFixer fixerUpper;
-    private final MinecraftServer server;
+    private ResourceManager resourceManager;
     private final Path generatedDir;
 
-    public StructureManager(MinecraftServer param0, LevelStorageSource.LevelStorageAccess param1, DataFixer param2) {
-        this.server = param0;
+    public StructureManager(ResourceManager param0, LevelStorageSource.LevelStorageAccess param1, DataFixer param2) {
+        this.resourceManager = param0;
         this.fixerUpper = param2;
         this.generatedDir = param1.getLevelPath(LevelResource.GENERATED_DIR).normalize();
-        param0.getResources().registerReloadListener(this);
     }
 
     public StructureTemplate getOrCreate(ResourceLocation param0) {
@@ -61,8 +58,8 @@ public class StructureManager implements ResourceManagerReloadListener {
         });
     }
 
-    @Override
     public void onResourceManagerReload(ResourceManager param0) {
+        this.resourceManager = param0;
         this.structureRepository.clear();
     }
 
@@ -70,7 +67,7 @@ public class StructureManager implements ResourceManagerReloadListener {
     private StructureTemplate loadFromResource(ResourceLocation param0) {
         ResourceLocation var0 = new ResourceLocation(param0.getNamespace(), "structures/" + param0.getPath() + ".nbt");
 
-        try (Resource var1 = this.server.getResources().getResource(var0)) {
+        try (Resource var1 = this.resourceManager.getResource(var0)) {
             return this.readStructure(var1.getInputStream());
         } catch (FileNotFoundException var18) {
             return null;

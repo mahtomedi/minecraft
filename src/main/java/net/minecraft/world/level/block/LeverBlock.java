@@ -90,7 +90,7 @@ public class LeverBlock extends FaceAttachedHorizontalDirectionalBlock {
             BlockState var1 = this.pull(param0, param1, param2);
             float var2 = var1.getValue(POWERED) ? 0.6F : 0.5F;
             param1.playSound(null, param2, SoundEvents.LEVER_CLICK, SoundSource.BLOCKS, 0.3F, var2);
-            return InteractionResult.SUCCESS;
+            return InteractionResult.CONSUME;
         }
     }
 

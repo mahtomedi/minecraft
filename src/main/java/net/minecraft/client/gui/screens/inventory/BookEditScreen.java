@@ -539,61 +539,60 @@ public class BookEditScreen extends Screen {
         if (var0.isEmpty()) {
             return BookEditScreen.DisplayCache.EMPTY;
         } else {
-            String var1 = this.font.isBidirectional() ? this.font.bidirectionalShaping(var0) : var0;
-            int var2 = this.pageEdit.getCursorPos();
-            int var3 = this.pageEdit.getSelectionPos();
-            IntList var4 = new IntArrayList();
-            List<BookEditScreen.LineInfo> var5 = Lists.newArrayList();
-            MutableInt var6 = new MutableInt();
-            MutableBoolean var7 = new MutableBoolean();
-            StringSplitter var8 = this.font.getSplitter();
-            var8.splitLines(var1, 114, Style.EMPTY, true, (param5, param6, param7) -> {
-                int var0x = var6.getAndIncrement();
-                String var1x = var1.substring(param6, param7);
-                var7.setValue(var1x.endsWith("\n"));
+            int var1 = this.pageEdit.getCursorPos();
+            int var2 = this.pageEdit.getSelectionPos();
+            IntList var3 = new IntArrayList();
+            List<BookEditScreen.LineInfo> var4 = Lists.newArrayList();
+            MutableInt var5 = new MutableInt();
+            MutableBoolean var6 = new MutableBoolean();
+            StringSplitter var7 = this.font.getSplitter();
+            var7.splitLines(var0, 114, Style.EMPTY, true, (param5, param6, param7) -> {
+                int var0x = var5.getAndIncrement();
+                String var1x = var0.substring(param6, param7);
+                var6.setValue(var1x.endsWith("\n"));
                 String var2x = StringUtils.stripEnd(var1x, " \n");
                 int var3x = var0x * 9;
                 BookEditScreen.Pos2i var4x = this.convertLocalToScreen(new BookEditScreen.Pos2i(0, var3x));
-                var4.add(param6);
-                var5.add(new BookEditScreen.LineInfo(param5, var2x, var4x.x, var4x.y));
+                var3.add(param6);
+                var4.add(new BookEditScreen.LineInfo(param5, var2x, var4x.x, var4x.y));
             });
-            int[] var9 = var4.toIntArray();
-            boolean var10 = var2 == var1.length();
-            BookEditScreen.Pos2i var11;
-            if (var10 && var7.isTrue()) {
-                var11 = new BookEditScreen.Pos2i(0, var5.size() * 9);
+            int[] var8 = var3.toIntArray();
+            boolean var9 = var1 == var0.length();
+            BookEditScreen.Pos2i var10;
+            if (var9 && var6.isTrue()) {
+                var10 = new BookEditScreen.Pos2i(0, var4.size() * 9);
             } else {
-                int var12 = findLineFromPos(var9, var2);
-                int var13 = this.font.width(var1.substring(var9[var12], var2));
-                var11 = new BookEditScreen.Pos2i(var13, var12 * 9);
+                int var11 = findLineFromPos(var8, var1);
+                int var12 = this.font.width(var0.substring(var8[var11], var1));
+                var10 = new BookEditScreen.Pos2i(var12, var11 * 9);
             }
 
-            List<Rect2i> var15 = Lists.newArrayList();
-            if (var2 != var3) {
-                int var16 = Math.min(var2, var3);
-                int var17 = Math.max(var2, var3);
-                int var18 = findLineFromPos(var9, var16);
-                int var19 = findLineFromPos(var9, var17);
-                if (var18 == var19) {
-                    int var20 = var18 * 9;
-                    int var21 = var9[var18];
-                    var15.add(this.createPartialLineSelection(var1, var8, var16, var17, var20, var21));
+            List<Rect2i> var14 = Lists.newArrayList();
+            if (var1 != var2) {
+                int var15 = Math.min(var1, var2);
+                int var16 = Math.max(var1, var2);
+                int var17 = findLineFromPos(var8, var15);
+                int var18 = findLineFromPos(var8, var16);
+                if (var17 == var18) {
+                    int var19 = var17 * 9;
+                    int var20 = var8[var17];
+                    var14.add(this.createPartialLineSelection(var0, var7, var15, var16, var19, var20));
                 } else {
-                    int var22 = var18 + 1 > var9.length ? var1.length() : var9[var18 + 1];
-                    var15.add(this.createPartialLineSelection(var1, var8, var16, var22, var18 * 9, var9[var18]));
+                    int var21 = var17 + 1 > var8.length ? var0.length() : var8[var17 + 1];
+                    var14.add(this.createPartialLineSelection(var0, var7, var15, var21, var17 * 9, var8[var17]));
 
-                    for(int var23 = var18 + 1; var23 < var19; ++var23) {
-                        int var24 = var23 * 9;
-                        String var25 = var1.substring(var9[var23], var9[var23 + 1]);
-                        int var26 = (int)var8.stringWidth(var25);
-                        var15.add(this.createSelection(new BookEditScreen.Pos2i(0, var24), new BookEditScreen.Pos2i(var26, var24 + 9)));
+                    for(int var22 = var17 + 1; var22 < var18; ++var22) {
+                        int var23 = var22 * 9;
+                        String var24 = var0.substring(var8[var22], var8[var22 + 1]);
+                        int var25 = (int)var7.stringWidth(var24);
+                        var14.add(this.createSelection(new BookEditScreen.Pos2i(0, var23), new BookEditScreen.Pos2i(var25, var23 + 9)));
                     }
 
-                    var15.add(this.createPartialLineSelection(var1, var8, var9[var19], var17, var19 * 9, var9[var19]));
+                    var14.add(this.createPartialLineSelection(var0, var7, var8[var18], var16, var18 * 9, var8[var18]));
                 }
             }
 
-            return new BookEditScreen.DisplayCache(var1, var11, var10, var9, var5.toArray(new BookEditScreen.LineInfo[0]), var15.toArray(new Rect2i[0]));
+            return new BookEditScreen.DisplayCache(var0, var10, var9, var8, var4.toArray(new BookEditScreen.LineInfo[0]), var14.toArray(new Rect2i[0]));
         }
     }
 

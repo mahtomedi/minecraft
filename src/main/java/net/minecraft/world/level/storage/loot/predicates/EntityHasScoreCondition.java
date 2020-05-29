@@ -10,7 +10,6 @@ import com.google.gson.JsonSerializationContext;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.storage.loot.LootContext;
@@ -26,6 +25,11 @@ public class EntityHasScoreCondition implements LootItemCondition {
     private EntityHasScoreCondition(Map<String, RandomValueBounds> param0, LootContext.EntityTarget param1) {
         this.scores = ImmutableMap.copyOf(param0);
         this.entityTarget = param1;
+    }
+
+    @Override
+    public LootItemConditionType getType() {
+        return LootItemConditions.ENTITY_SCORES;
     }
 
     @Override
@@ -60,11 +64,7 @@ public class EntityHasScoreCondition implements LootItemCondition {
         }
     }
 
-    public static class Serializer extends LootItemCondition.Serializer<EntityHasScoreCondition> {
-        protected Serializer() {
-            super(new ResourceLocation("entity_scores"), EntityHasScoreCondition.class);
-        }
-
+    public static class Serializer implements net.minecraft.world.level.storage.loot.Serializer<EntityHasScoreCondition> {
         public void serialize(JsonObject param0, EntityHasScoreCondition param1, JsonSerializationContext param2) {
             JsonObject var0 = new JsonObject();
 

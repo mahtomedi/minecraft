@@ -26,7 +26,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -38,10 +37,11 @@ public class ItemEntity extends Entity {
     private int health = 5;
     private UUID thrower;
     private UUID owner;
-    public final float bobOffs = (float)(Math.random() * Math.PI * 2.0);
+    public final float bobOffs;
 
     public ItemEntity(EntityType<? extends ItemEntity> param0, Level param1) {
         super(param0, param1);
+        this.bobOffs = (float)(Math.random() * Math.PI * 2.0);
     }
 
     public ItemEntity(Level param0, double param1, double param2, double param3) {
@@ -54,6 +54,15 @@ public class ItemEntity extends Entity {
     public ItemEntity(Level param0, double param1, double param2, double param3, ItemStack param4) {
         this(param0, param1, param2, param3);
         this.setItem(param4);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private ItemEntity(ItemEntity param0) {
+        super(param0.getType(), param0.level);
+        this.setItem(param0.getItem().copy());
+        this.copyPosition(param0);
+        this.age = param0.age;
+        this.bobOffs = param0.bobOffs;
     }
 
     @Override
@@ -320,7 +329,7 @@ public class ItemEntity extends Entity {
 
     @Nullable
     @Override
-    public Entity changeDimension(ResourceKey<DimensionType> param0) {
+    public Entity changeDimension(ResourceKey<Level> param0) {
         Entity var0 = super.changeDimension(param0);
         if (!this.level.isClientSide && var0 instanceof ItemEntity) {
             ((ItemEntity)var0).mergeWithNeighbours();
@@ -406,5 +415,10 @@ public class ItemEntity extends Entity {
     @Override
     public Packet<?> getAddEntityPacket() {
         return new ClientboundAddEntityPacket(this);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public ItemEntity copy() {
+        return new ItemEntity(this);
     }
 }

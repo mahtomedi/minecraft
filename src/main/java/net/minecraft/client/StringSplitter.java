@@ -6,10 +6,8 @@ import java.util.ListIterator;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.mutable.MutableFloat;
@@ -36,7 +34,7 @@ public class StringSplitter {
         }
     }
 
-    public float stringWidth(Component param0) {
+    public float stringWidth(FormattedText param0) {
         MutableFloat var0 = new MutableFloat();
         StringDecomposer.iterateFormatted(param0, Style.EMPTY, (param1, param2, param3) -> {
             var0.add(this.widthProvider.getWidth(param3, param2));
@@ -71,41 +69,38 @@ public class StringSplitter {
     }
 
     @Nullable
-    public Component componentAtWidth(Component param0, int param1) {
+    public Style componentStyleAtWidth(FormattedText param0, int param1) {
         StringSplitter.WidthLimitedCharSink var0 = new StringSplitter.WidthLimitedCharSink((float)param1);
-        return param0.<Component>visit(
-                (param1x, param2) -> !StringDecomposer.iterateFormatted(param2, param1x, var0)
-                        ? Optional.of(new TextComponent(param2).setStyle(param1x))
-                        : Optional.empty(),
-                Style.EMPTY
+        return param0.<Style>visit(
+                (param1x, param2) -> StringDecomposer.iterateFormatted(param2, param1x, var0) ? Optional.empty() : Optional.of(param1x), Style.EMPTY
             )
             .orElse(null);
     }
 
-    public MutableComponent headByWidth(Component param0, int param1, Style param2) {
+    public FormattedText headByWidth(FormattedText param0, int param1, Style param2) {
         final StringSplitter.WidthLimitedCharSink var0 = new StringSplitter.WidthLimitedCharSink((float)param1);
-        return param0.visit(new Component.StyledContentConsumer<MutableComponent>() {
+        return param0.visit(new FormattedText.StyledContentConsumer<FormattedText>() {
             private final ComponentCollector collector = new ComponentCollector();
 
             @Override
-            public Optional<MutableComponent> accept(Style param0, String param1) {
+            public Optional<FormattedText> accept(Style param0, String param1) {
                 var0.resetPosition();
                 if (!StringDecomposer.iterateFormatted(param1, param0, var0)) {
                     String var0 = param1.substring(0, var0.getPosition());
                     if (!var0.isEmpty()) {
-                        this.collector.append(new TextComponent(var0).withStyle(param0));
+                        this.collector.append(FormattedText.of(var0, param0));
                     }
 
                     return Optional.of(this.collector.getResultOrEmpty());
                 } else {
                     if (!param1.isEmpty()) {
-                        this.collector.append(new TextComponent(param1).withStyle(param0));
+                        this.collector.append(FormattedText.of(param1, param0));
                     }
 
                     return Optional.empty();
                 }
             }
-        }, param2).orElseGet(param0::mutableCopy);
+        }, param2).orElse(param0);
     }
 
     public static int getWordPosition(String param0, int param1, int param2, boolean param3) {
@@ -171,16 +166,14 @@ public class StringSplitter {
 
     }
 
-    public List<Component> splitLines(String param0, int param1, Style param2) {
-        List<Component> var0 = Lists.newArrayList();
-        this.splitLines(
-            param0, param1, param2, false, (param2x, param3, param4) -> var0.add(new TextComponent(param0.substring(param3, param4)).setStyle(param2x))
-        );
+    public List<FormattedText> splitLines(String param0, int param1, Style param2) {
+        List<FormattedText> var0 = Lists.newArrayList();
+        this.splitLines(param0, param1, param2, false, (param2x, param3, param4) -> var0.add(FormattedText.of(param0.substring(param3, param4), param2x)));
         return var0;
     }
 
-    public List<Component> splitLines(Component param0, int param1, Style param2) {
-        List<Component> var0 = Lists.newArrayList();
+    public List<FormattedText> splitLines(FormattedText param0, int param1, Style param2) {
+        List<FormattedText> var0 = Lists.newArrayList();
         List<StringSplitter.LineComponent> var1 = Lists.newArrayList();
         param0.visit((param1x, param2x) -> {
             if (!param2x.isEmpty()) {
@@ -215,11 +208,11 @@ public class StringSplitter {
             }
         }
 
-        Component var13 = var2.getRemainder();
+        FormattedText var13 = var2.getRemainder();
         if (var13 != null) {
             var0.add(var13);
         } else if (var4) {
-            var0.add(new TextComponent("").withStyle(param2));
+            var0.add(FormattedText.EMPTY);
         }
 
         return var0;
@@ -239,7 +232,7 @@ public class StringSplitter {
             return this.flatParts.charAt(param0);
         }
 
-        public Component splitAt(int param0, int param1, Style param2) {
+        public FormattedText splitAt(int param0, int param1, Style param2) {
             ComponentCollector var0 = new ComponentCollector();
             ListIterator<StringSplitter.LineComponent> var1 = this.parts.listIterator();
             int var2 = param0;
@@ -251,13 +244,13 @@ public class StringSplitter {
                 int var6 = var5.length();
                 if (!var3) {
                     if (var2 > var6) {
-                        var0.append(var4.toComponent());
+                        var0.append(var4);
                         var1.remove();
                         var2 -= var6;
                     } else {
                         String var7 = var5.substring(0, var2);
                         if (!var7.isEmpty()) {
-                            var0.append(new TextComponent(var7).setStyle(var4.style));
+                            var0.append(FormattedText.of(var7, var4.style));
                         }
 
                         var2 += param1;
@@ -286,9 +279,9 @@ public class StringSplitter {
         }
 
         @Nullable
-        public Component getRemainder() {
+        public FormattedText getRemainder() {
             ComponentCollector var0 = new ComponentCollector();
-            this.parts.forEach(param1 -> var0.append(param1.toComponent()));
+            this.parts.forEach(var0::append);
             this.parts.clear();
             return var0.getResult();
         }
@@ -356,7 +349,7 @@ public class StringSplitter {
     }
 
     @OnlyIn(Dist.CLIENT)
-    static class LineComponent {
+    static class LineComponent implements FormattedText {
         private final String contents;
         private final Style style;
 
@@ -365,8 +358,14 @@ public class StringSplitter {
             this.style = param1;
         }
 
-        public MutableComponent toComponent() {
-            return new TextComponent(this.contents).setStyle(this.style);
+        @Override
+        public <T> Optional<T> visit(FormattedText.ContentConsumer<T> param0) {
+            return param0.accept(this.contents);
+        }
+
+        @Override
+        public <T> Optional<T> visit(FormattedText.StyledContentConsumer<T> param0, Style param1) {
+            return param0.accept(this.style.applyTo(param1), this.contents);
         }
     }
 

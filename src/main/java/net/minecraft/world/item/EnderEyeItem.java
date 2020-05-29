@@ -57,7 +57,7 @@ public class EnderEyeItem extends Item {
                 var0.globalLevelEvent(1038, var5.offset(1, 0, 1), 0);
             }
 
-            return InteractionResult.SUCCESS;
+            return InteractionResult.CONSUME;
         }
     }
 

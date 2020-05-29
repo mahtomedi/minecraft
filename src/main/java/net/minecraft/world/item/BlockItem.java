@@ -37,7 +37,7 @@ public class BlockItem extends Item {
     @Override
     public InteractionResult useOn(UseOnContext param0) {
         InteractionResult var0 = this.place(new BlockPlaceContext(param0));
-        return var0 != InteractionResult.SUCCESS && this.isEdible() ? this.use(param0.level, param0.player, param0.hand).getResult() : var0;
+        return !var0.consumesAction() && this.isEdible() ? this.use(param0.level, param0.player, param0.hand).getResult() : var0;
     }
 
     public InteractionResult place(BlockPlaceContext param0) {
@@ -72,7 +72,7 @@ public class BlockItem extends Item {
                     SoundType var8 = var6.getSoundType();
                     var3.playSound(var4, var2, this.getPlaceSound(var6), SoundSource.BLOCKS, (var8.getVolume() + 1.0F) / 2.0F, var8.getPitch() * 0.8F);
                     var5.shrink(1);
-                    return InteractionResult.SUCCESS;
+                    return InteractionResult.sidedSuccess(var3.isClientSide);
                 }
             }
         }

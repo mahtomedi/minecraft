@@ -150,8 +150,22 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
     private final Int2ObjectMap<BlockDestructionProgress> destroyingBlocks = new Int2ObjectOpenHashMap<>();
     private final Long2ObjectMap<SortedSet<BlockDestructionProgress>> destructionProgress = new Long2ObjectOpenHashMap<>();
     private final Map<BlockPos, SoundInstance> playingRecords = Maps.newHashMap();
+    @Nullable
     private RenderTarget entityTarget;
+    @Nullable
     private PostChain entityEffect;
+    @Nullable
+    private RenderTarget translucentTarget;
+    @Nullable
+    private RenderTarget itemEntityTarget;
+    @Nullable
+    private RenderTarget particlesTarget;
+    @Nullable
+    private RenderTarget weatherTarget;
+    @Nullable
+    private RenderTarget cloudsTarget;
+    @Nullable
+    private PostChain transparencyChain;
     private double lastCameraX = Double.MIN_VALUE;
     private double lastCameraY = Double.MIN_VALUE;
     private double lastCameraZ = Double.MIN_VALUE;
@@ -218,6 +232,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             int var4 = Mth.floor(param4);
             Tesselator var5 = Tesselator.getInstance();
             BufferBuilder var6 = var5.getBuilder();
+            RenderSystem.enableAlphaTest();
             RenderSystem.disableCull();
             RenderSystem.normal3f(0.0F, 1.0F, 0.0F);
             RenderSystem.enableBlend();
@@ -357,6 +372,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             RenderSystem.enableCull();
             RenderSystem.disableBlend();
             RenderSystem.defaultAlphaFunc();
+            RenderSystem.disableAlphaTest();
             param0.turnOffLightLayer();
         }
     }
@@ -428,6 +444,10 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             this.entityEffect.close();
         }
 
+        if (this.transparencyChain != null) {
+            this.transparencyChain.close();
+        }
+
     }
 
     @Override
@@ -437,6 +457,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         RenderSystem.texParameter(3553, 10243, 10497);
         RenderSystem.bindTexture(0);
         this.initOutline();
+        this.initTransparency();
     }
 
     public void initOutline() {
@@ -457,11 +478,35 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             this.entityEffect = null;
             this.entityTarget = null;
         } catch (JsonSyntaxException var4) {
-            LOGGER.warn("Failed to load shader: {}", var0, var4);
+            LOGGER.warn("Failed to parse shader: {}", var0, var4);
             this.entityEffect = null;
             this.entityTarget = null;
         }
 
+    }
+
+    private void initTransparency() {
+        if (this.transparencyChain != null) {
+            this.transparencyChain.close();
+        }
+
+        ResourceLocation var0 = new ResourceLocation("shaders/post/transparency.json");
+
+        try {
+            this.transparencyChain = new PostChain(
+                this.minecraft.getTextureManager(), this.minecraft.getResourceManager(), this.minecraft.getMainRenderTarget(), var0
+            );
+            this.transparencyChain.resize(this.minecraft.getWindow().getWidth(), this.minecraft.getWindow().getHeight());
+            this.translucentTarget = this.transparencyChain.getTempTarget("translucent");
+            this.itemEntityTarget = this.transparencyChain.getTempTarget("itemEntity");
+            this.particlesTarget = this.transparencyChain.getTempTarget("particles");
+            this.weatherTarget = this.transparencyChain.getTempTarget("weather");
+            this.cloudsTarget = this.transparencyChain.getTempTarget("clouds");
+        } catch (IOException var3) {
+            throw new LevelRenderer.TranparencyShaderException("Failed to load shader: " + var0, var3);
+        } catch (JsonSyntaxException var4) {
+            throw new LevelRenderer.TranparencyShaderException("Failed to parse shader: " + var0, var4);
+        }
     }
 
     public void doEntityOutline() {
@@ -664,6 +709,10 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         this.needsUpdate();
         if (this.entityEffect != null) {
             this.entityEffect.resize(param0, param1);
+        }
+
+        if (this.transparencyChain != null) {
+            this.transparencyChain.resize(param0, param1);
         }
 
     }
@@ -940,6 +989,12 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         this.renderedEntities = 0;
         this.culledEntities = 0;
         var0.popPush("entities");
+        if (this.itemEntityTarget != null) {
+            this.itemEntityTarget.clear(Minecraft.ON_OSX);
+            this.itemEntityTarget.copyDepthFrom(this.minecraft.getMainRenderTarget());
+            this.minecraft.getMainRenderTarget().bindWrite(false);
+        }
+
         if (this.shouldShowEntityOutlines()) {
             this.entityTarget.clear(Minecraft.ON_OSX);
             this.minecraft.getMainRenderTarget().bindWrite(false);
@@ -1079,11 +1134,12 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         RenderSystem.pushMatrix();
         RenderSystem.multMatrix(param0.last().pose());
         this.minecraft.debugRenderer.render(param0, var21, var2, var3, var4);
-        this.renderWorldBounds(param4);
         RenderSystem.popMatrix();
         var21.endBatch(Sheets.translucentCullBlockSheet());
         var21.endBatch(Sheets.bannerSheet());
         var21.endBatch(Sheets.shieldSheet());
+        var21.endBatch(RenderType.armorGlint());
+        var21.endBatch(RenderType.armorEntityGlint());
         var21.endBatch(RenderType.glint());
         var21.endBatch(RenderType.entityGlint());
         var21.endBatch(RenderType.waterMask());
@@ -1091,21 +1147,61 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         var21.endBatch(RenderType.lines());
         var21.endBatch();
         var0.popPush("translucent");
+        if (this.translucentTarget != null) {
+            this.translucentTarget.clear(Minecraft.ON_OSX);
+            this.translucentTarget.copyDepthFrom(this.minecraft.getMainRenderTarget());
+        }
+
         this.renderChunkLayer(RenderType.translucent(), param0, var2, var3, var4);
         var0.popPush("particles");
+        if (this.particlesTarget != null) {
+            this.particlesTarget.clear(Minecraft.ON_OSX);
+            this.particlesTarget.copyDepthFrom(this.minecraft.getMainRenderTarget());
+            RenderStateShard.PARTICLES_TARGET.setupRenderState();
+        }
+
         this.minecraft.particleEngine.render(param0, var21, param6, param4, param1);
+        if (this.particlesTarget != null) {
+            RenderStateShard.PARTICLES_TARGET.clearRenderState();
+        }
+
         RenderSystem.pushMatrix();
         RenderSystem.multMatrix(param0.last().pose());
         var0.popPush("cloudsLayers");
         if (this.minecraft.options.getCloudsType() != CloudStatus.OFF) {
             var0.popPush("clouds");
+            if (this.cloudsTarget != null) {
+                this.cloudsTarget.clear(Minecraft.ON_OSX);
+                RenderStateShard.CLOUDS_TARGET.setupRenderState();
+            }
+
             this.renderClouds(param0, param1, var2, var3, var4);
+            if (this.cloudsTarget != null) {
+                RenderStateShard.CLOUDS_TARGET.clearRenderState();
+            }
         }
 
-        RenderSystem.depthMask(false);
         var0.popPush("weather");
+        if (this.weatherTarget != null) {
+            this.weatherTarget.clear(Minecraft.ON_OSX);
+            RenderStateShard.WEATHER_TARGET.setupRenderState();
+        } else {
+            RenderSystem.depthMask(false);
+        }
+
         this.renderSnowAndRain(param6, param1, var2, var3, var4);
-        RenderSystem.depthMask(true);
+        this.renderWorldBounds(param4);
+        if (this.weatherTarget != null) {
+            RenderStateShard.WEATHER_TARGET.clearRenderState();
+        } else {
+            RenderSystem.depthMask(true);
+        }
+
+        if (this.transparencyChain != null) {
+            this.transparencyChain.process(param1);
+            this.minecraft.getMainRenderTarget().bindWrite(false);
+        }
+
         this.renderDebug(param4);
         RenderSystem.shadeModel(7424);
         RenderSystem.depthMask(true);
@@ -1588,7 +1684,12 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             RenderSystem.enableAlphaTest();
             RenderSystem.enableDepthTest();
             RenderSystem.defaultAlphaFunc();
-            RenderSystem.defaultBlendFunc();
+            RenderSystem.blendFuncSeparate(
+                GlStateManager.SourceFactor.SRC_ALPHA,
+                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+                GlStateManager.SourceFactor.ONE,
+                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA
+            );
             RenderSystem.enableFog();
             float var1 = 12.0F;
             float var2 = 4.0F;
@@ -1919,7 +2020,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                 GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO
             );
             this.textureManager.bind(FORCEFIELD_LOCATION);
-            RenderSystem.depthMask(false);
+            RenderSystem.depthMask(true);
             RenderSystem.pushMatrix();
             int var7 = var1.getStatus().getColor();
             float var8 = (float)(var7 >> 16 & 0xFF) / 255.0F;
@@ -2874,8 +2975,34 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         }
     }
 
+    @Nullable
     public RenderTarget entityTarget() {
         return this.entityTarget;
+    }
+
+    @Nullable
+    public RenderTarget getTranslucentTarget() {
+        return this.translucentTarget;
+    }
+
+    @Nullable
+    public RenderTarget getItemEntityTarget() {
+        return this.itemEntityTarget;
+    }
+
+    @Nullable
+    public RenderTarget getParticlesTarget() {
+        return this.particlesTarget;
+    }
+
+    @Nullable
+    public RenderTarget getWeatherTarget() {
+        return this.weatherTarget;
+    }
+
+    @Nullable
+    public RenderTarget getCloudsTarget() {
+        return this.cloudsTarget;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -2897,6 +3024,13 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
 
         public boolean hasDirection(Direction param0) {
             return (this.directions & 1 << param0.ordinal()) > 0;
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static class TranparencyShaderException extends RuntimeException {
+        public TranparencyShaderException(String param0, Throwable param1) {
+            super(param0, param1);
         }
     }
 }

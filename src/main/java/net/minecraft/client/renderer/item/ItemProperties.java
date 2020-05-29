@@ -26,7 +26,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -209,7 +208,7 @@ public class ItemProperties {
                     boolean var0 = param1.contains("LodestonePos");
                     boolean var1 = param1.contains("LodestoneDimension");
                     if (var0 && var1) {
-                        Optional<ResourceKey<DimensionType>> var2 = CompassItem.getLodestoneDimension(param1);
+                        Optional<ResourceKey<Level>> var2 = CompassItem.getLodestoneDimension(param1);
                         if (var2.isPresent() && param0.dimension() == var2.get()) {
                             return NbtUtils.readBlockPos(param1.getCompound("LodestonePos"));
                         }

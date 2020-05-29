@@ -11,23 +11,28 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BooleanSupplier;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import net.minecraft.CrashReport;
 import net.minecraft.DefaultUncaughtExceptionHandler;
+import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.dedicated.DedicatedServerProperties;
 import net.minecraft.server.dedicated.DedicatedServerSettings;
 import net.minecraft.server.level.progress.LoggerChunkProgressListener;
+import net.minecraft.server.packs.repository.PackRepository;
+import net.minecraft.server.packs.repository.UnopenedPack;
 import net.minecraft.server.players.GameProfileCache;
 import net.minecraft.util.Mth;
 import net.minecraft.util.datafix.DataFixers;
 import net.minecraft.util.worldupdate.WorldUpgrader;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.LevelSettings;
+import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.PrimaryLevelData;
 import net.minecraft.world.level.storage.WorldData;
@@ -45,17 +50,18 @@ public class Main {
         OptionSpec<Void> var4 = var0.accepts("bonusChest");
         OptionSpec<Void> var5 = var0.accepts("forceUpgrade");
         OptionSpec<Void> var6 = var0.accepts("eraseCache");
-        OptionSpec<Void> var7 = var0.accepts("help").forHelp();
-        OptionSpec<String> var8 = var0.accepts("singleplayer").withRequiredArg();
-        OptionSpec<String> var9 = var0.accepts("universe").withRequiredArg().defaultsTo(".");
-        OptionSpec<String> var10 = var0.accepts("world").withRequiredArg();
-        OptionSpec<Integer> var11 = var0.accepts("port").withRequiredArg().ofType(Integer.class).defaultsTo(-1);
-        OptionSpec<String> var12 = var0.accepts("serverId").withRequiredArg();
-        OptionSpec<String> var13 = var0.nonOptions();
+        OptionSpec<Void> var7 = var0.accepts("safeMode", "Loads level with vanilla datapack only");
+        OptionSpec<Void> var8 = var0.accepts("help").forHelp();
+        OptionSpec<String> var9 = var0.accepts("singleplayer").withRequiredArg();
+        OptionSpec<String> var10 = var0.accepts("universe").withRequiredArg().defaultsTo(".");
+        OptionSpec<String> var11 = var0.accepts("world").withRequiredArg();
+        OptionSpec<Integer> var12 = var0.accepts("port").withRequiredArg().ofType(Integer.class).defaultsTo(-1);
+        OptionSpec<String> var13 = var0.accepts("serverId").withRequiredArg();
+        OptionSpec<String> var14 = var0.nonOptions();
 
         try {
-            OptionSet var14 = var0.parse(param0);
-            if (var14.has(var7)) {
+            OptionSet var15 = var0.parse(param0);
+            if (var15.has(var8)) {
                 var0.printHelpOn(System.err);
                 return;
             }
@@ -63,78 +69,102 @@ public class Main {
             CrashReport.preload();
             Bootstrap.bootStrap();
             Bootstrap.validate();
-            Path var15 = Paths.get("server.properties");
-            DedicatedServerSettings var16 = new DedicatedServerSettings(var15);
-            var16.forceSave();
-            Path var17 = Paths.get("eula.txt");
-            Eula var18 = new Eula(var17);
-            if (var14.has(var2)) {
-                LOGGER.info("Initialized '{}' and '{}'", var15.toAbsolutePath(), var17.toAbsolutePath());
+            Util.startTimerHackThread();
+            Path var16 = Paths.get("server.properties");
+            DedicatedServerSettings var17 = new DedicatedServerSettings(var16);
+            var17.forceSave();
+            Path var18 = Paths.get("eula.txt");
+            Eula var19 = new Eula(var18);
+            if (var15.has(var2)) {
+                LOGGER.info("Initialized '{}' and '{}'", var16.toAbsolutePath(), var18.toAbsolutePath());
                 return;
             }
 
-            if (!var18.hasAgreedToEULA()) {
+            if (!var19.hasAgreedToEULA()) {
                 LOGGER.info("You need to agree to the EULA in order to run the server. Go to eula.txt for more info.");
                 return;
             }
 
-            File var19 = new File(var14.valueOf(var9));
-            YggdrasilAuthenticationService var20 = new YggdrasilAuthenticationService(Proxy.NO_PROXY, UUID.randomUUID().toString());
-            MinecraftSessionService var21 = var20.createMinecraftSessionService();
-            GameProfileRepository var22 = var20.createProfileRepository();
-            GameProfileCache var23 = new GameProfileCache(var22, new File(var19, MinecraftServer.USERID_CACHE_FILE.getName()));
-            String var24 = Optional.ofNullable(var14.valueOf(var10)).orElse(var16.getProperties().levelName);
-            LevelStorageSource var25 = LevelStorageSource.createDefault(var19.toPath());
-            LevelStorageSource.LevelStorageAccess var26 = var25.createAccess(var24);
-            MinecraftServer.convertFromRegionFormatIfNeeded(var26);
-            if (var14.has(var5)) {
-                forceUpgrade(var26, DataFixers.getDataFixer(), var14.has(var6), () -> true);
+            File var20 = new File(var15.valueOf(var10));
+            YggdrasilAuthenticationService var21 = new YggdrasilAuthenticationService(Proxy.NO_PROXY, UUID.randomUUID().toString());
+            MinecraftSessionService var22 = var21.createMinecraftSessionService();
+            GameProfileRepository var23 = var21.createProfileRepository();
+            GameProfileCache var24 = new GameProfileCache(var23, new File(var20, MinecraftServer.USERID_CACHE_FILE.getName()));
+            String var25 = Optional.ofNullable(var15.valueOf(var11)).orElse(var17.getProperties().levelName);
+            LevelStorageSource var26 = LevelStorageSource.createDefault(var20.toPath());
+            LevelStorageSource.LevelStorageAccess var27 = var26.createAccess(var25);
+            MinecraftServer.convertFromRegionFormatIfNeeded(var27);
+            if (var15.has(var5)) {
+                forceUpgrade(var27, DataFixers.getDataFixer(), var15.has(var6), () -> true);
             }
 
-            WorldData var27 = var26.getDataTag();
-            if (var27 == null) {
-                LevelSettings var28;
-                if (var14.has(var3)) {
-                    var28 = MinecraftServer.DEMO_SETTINGS;
+            WorldData var28 = var27.getDataTag();
+            if (var28 == null) {
+                LevelSettings var29;
+                if (var15.has(var3)) {
+                    var29 = MinecraftServer.DEMO_SETTINGS;
                 } else {
-                    DedicatedServerProperties var29 = var16.getProperties();
-                    var28 = new LevelSettings(
-                        var29.levelName,
-                        var29.gamemode,
-                        var29.hardcore,
-                        var29.difficulty,
+                    DedicatedServerProperties var30 = var17.getProperties();
+                    var29 = new LevelSettings(
+                        var30.levelName,
+                        var30.gamemode,
+                        var30.hardcore,
+                        var30.difficulty,
                         false,
                         new GameRules(),
-                        var14.has(var4) ? var29.worldGenSettings.withBonusChest() : var29.worldGenSettings
+                        var15.has(var4) ? var30.worldGenSettings.withBonusChest() : var30.worldGenSettings
                     );
                 }
 
-                var27 = new PrimaryLevelData(var28);
+                var28 = new PrimaryLevelData(var29);
             }
 
-            final DedicatedServer var31 = new DedicatedServer(
-                var26, var27, var16, DataFixers.getDataFixer(), var21, var22, var23, LoggerChunkProgressListener::new
+            boolean var32 = var15.has(var7);
+            if (var32) {
+                LOGGER.warn("Safe mode active, only vanilla datapack will be loaded");
+            }
+
+            PackRepository<UnopenedPack> var33 = MinecraftServer.createPackRepository(var27.getLevelPath(LevelResource.DATAPACK_DIR), var28, var32);
+            CompletableFuture<ServerResources> var34 = ServerResources.loadResources(
+                var33.openAllSelected(), true, var17.getProperties().functionPermissionLevel, Util.backgroundExecutor(), Runnable::run
             );
-            var31.setSingleplayerName(var14.valueOf(var8));
-            var31.setPort(var14.valueOf(var11));
-            var31.setDemo(var14.has(var3));
-            var31.setId(var14.valueOf(var12));
-            boolean var32 = !var14.has(var1) && !var14.valuesOf(var13).contains("nogui");
-            if (var32 && !GraphicsEnvironment.isHeadless()) {
-                var31.showGui();
+
+            ServerResources var35;
+            try {
+                var35 = var34.get();
+            } catch (Exception var371) {
+                LOGGER.warn(
+                    "Failed to load datapacks, can't proceed with server load. You can either fix your datapacks or reset to vanilla with --safeMode",
+                    (Throwable)var371
+                );
+                var33.close();
+                return;
             }
 
-            var31.forkAndRun();
-            Thread var33 = new Thread("Server Shutdown Thread") {
+            var35.updateGlobals();
+            final DedicatedServer var38 = new DedicatedServer(
+                var27, var33, var35, var28, var17, DataFixers.getDataFixer(), var22, var23, var24, LoggerChunkProgressListener::new
+            );
+            var38.setSingleplayerName(var15.valueOf(var9));
+            var38.setPort(var15.valueOf(var12));
+            var38.setDemo(var15.has(var3));
+            var38.setId(var15.valueOf(var13));
+            boolean var39 = !var15.has(var1) && !var15.valuesOf(var14).contains("nogui");
+            if (var39 && !GraphicsEnvironment.isHeadless()) {
+                var38.showGui();
+            }
+
+            var38.forkAndRun();
+            Thread var40 = new Thread("Server Shutdown Thread") {
                 @Override
                 public void run() {
-                    var31.halt(true);
+                    var38.halt(true);
                 }
             };
-            var33.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
-            Runtime.getRuntime().addShutdownHook(var33);
-        } catch (Exception var321) {
-            LOGGER.fatal("Failed to start the minecraft server", (Throwable)var321);
+            var40.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
+            Runtime.getRuntime().addShutdownHook(var40);
+        } catch (Exception var381) {
+            LOGGER.fatal("Failed to start the minecraft server", (Throwable)var381);
         }
 
     }

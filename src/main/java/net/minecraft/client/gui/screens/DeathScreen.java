@@ -9,6 +9,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
@@ -115,7 +116,7 @@ public class DeathScreen extends Screen {
             param0, this.font, I18n.get("deathScreen.score") + ": " + ChatFormatting.YELLOW + this.minecraft.player.getScore(), this.width / 2, 100, 16777215
         );
         if (this.causeOfDeath != null && param2 > 85 && param2 < 85 + 9) {
-            Component var0 = this.getClickedComponentAt(param1);
+            Style var0 = this.getClickedComponentStyleAt(param1);
             this.renderComponentHoverEffect(param0, var0, param1, param2);
         }
 
@@ -123,22 +124,22 @@ public class DeathScreen extends Screen {
     }
 
     @Nullable
-    public Component getClickedComponentAt(int param0) {
+    private Style getClickedComponentStyleAt(int param0) {
         if (this.causeOfDeath == null) {
             return null;
         } else {
             int var0 = this.minecraft.font.width(this.causeOfDeath);
             int var1 = this.width / 2 - var0 / 2;
             int var2 = this.width / 2 + var0 / 2;
-            return param0 >= var1 && param0 <= var2 ? this.minecraft.font.getSplitter().componentAtWidth(this.causeOfDeath, param0 - var1) : null;
+            return param0 >= var1 && param0 <= var2 ? this.minecraft.font.getSplitter().componentStyleAtWidth(this.causeOfDeath, param0 - var1) : null;
         }
     }
 
     @Override
     public boolean mouseClicked(double param0, double param1, int param2) {
         if (this.causeOfDeath != null && param1 > 85.0 && param1 < (double)(85 + 9)) {
-            Component var0 = this.getClickedComponentAt((int)param0);
-            if (var0 != null && var0.getStyle().getClickEvent() != null && var0.getStyle().getClickEvent().getAction() == ClickEvent.Action.OPEN_URL) {
+            Style var0 = this.getClickedComponentStyleAt((int)param0);
+            if (var0 != null && var0.getClickEvent() != null && var0.getClickEvent().getAction() == ClickEvent.Action.OPEN_URL) {
                 this.handleComponentClicked(var0);
                 return false;
             }

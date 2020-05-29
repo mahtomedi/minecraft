@@ -12,13 +12,13 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.util.ProgressListener;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.FixedBiomeSource;
 import net.minecraft.world.level.biome.OverworldBiomeSource;
 import net.minecraft.world.level.chunk.storage.OldChunkStorage;
 import net.minecraft.world.level.chunk.storage.RegionFile;
-import net.minecraft.world.level.dimension.DimensionType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -30,9 +30,9 @@ public class McRegionUpgrader {
         List<File> var0 = Lists.newArrayList();
         List<File> var1 = Lists.newArrayList();
         List<File> var2 = Lists.newArrayList();
-        File var3 = param0.getDimensionPath(DimensionType.OVERWORLD_LOCATION);
-        File var4 = param0.getDimensionPath(DimensionType.NETHER_LOCATION);
-        File var5 = param0.getDimensionPath(DimensionType.END_LOCATION);
+        File var3 = param0.getDimensionPath(Level.OVERWORLD);
+        File var4 = param0.getDimensionPath(Level.NETHER);
+        File var5 = param0.getDimensionPath(Level.END);
         LOGGER.info("Scanning folders...");
         addRegionFiles(var3, var0);
         if (var4.exists()) {

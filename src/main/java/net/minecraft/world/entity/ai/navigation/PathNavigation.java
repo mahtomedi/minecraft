@@ -214,10 +214,11 @@ public abstract class PathNavigation {
         Vec3 var0 = this.getTempMobPos();
         this.maxDistanceToWaypoint = this.mob.getBbWidth() > 0.75F ? this.mob.getBbWidth() / 2.0F : 0.75F - this.mob.getBbWidth() / 2.0F;
         Vec3i var1 = this.path.currentPos();
-        boolean var2 = Math.abs(this.mob.getX() - (double)((float)var1.getX() + 0.5F)) < (double)this.maxDistanceToWaypoint
-            && Math.abs(this.mob.getZ() - (double)((float)var1.getZ() + 0.5F)) < (double)this.maxDistanceToWaypoint
-            && Math.abs(this.mob.getY() - (double)var1.getY()) < 1.0;
-        if (var2 || this.shouldTargetNextNodeInDirection(var0)) {
+        double var2 = Math.abs(this.mob.getX() - (double)((float)var1.getX() + 0.5F));
+        double var3 = Math.abs(this.mob.getY() - (double)var1.getY());
+        double var4 = Math.abs(this.mob.getZ() - (double)((float)var1.getZ() + 0.5F));
+        boolean var5 = var2 < (double)this.maxDistanceToWaypoint && var4 < (double)this.maxDistanceToWaypoint && var3 < 1.0;
+        if (var5 || this.mob.canCutCorner(this.path.currentNode().type) && this.shouldTargetNextNodeInDirection(var0)) {
             this.path.setIndex(this.path.getIndex() + 1);
         }
 

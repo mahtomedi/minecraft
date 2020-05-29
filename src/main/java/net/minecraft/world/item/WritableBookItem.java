@@ -25,7 +25,9 @@ public class WritableBookItem extends Item {
         BlockPos var1 = param0.getClickedPos();
         BlockState var2 = var0.getBlockState(var1);
         if (var2.is(Blocks.LECTERN)) {
-            return LecternBlock.tryPlaceBook(var0, var1, var2, param0.getItemInHand()) ? InteractionResult.SUCCESS : InteractionResult.PASS;
+            return LecternBlock.tryPlaceBook(var0, var1, var2, param0.getItemInHand())
+                ? InteractionResult.sidedSuccess(var0.isClientSide)
+                : InteractionResult.PASS;
         } else {
             return InteractionResult.PASS;
         }
@@ -36,7 +38,7 @@ public class WritableBookItem extends Item {
         ItemStack var0 = param1.getItemInHand(param2);
         param1.openItemGui(var0, param2);
         param1.awardStat(Stats.ITEM_USED.get(this));
-        return InteractionResultHolder.success(var0);
+        return InteractionResultHolder.sidedSuccess(var0, param0.isClientSide());
     }
 
     public static boolean makeSureTagIsValid(@Nullable CompoundTag param0) {

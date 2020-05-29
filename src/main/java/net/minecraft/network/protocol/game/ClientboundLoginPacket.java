@@ -1,11 +1,16 @@
 package net.minecraft.network.protocol.game;
 
+import com.google.common.collect.Sets;
 import java.io.IOException;
+import java.util.Set;
+import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -14,8 +19,10 @@ public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> 
     private long seed;
     private boolean hardcore;
     private GameType gameType;
+    private Set<ResourceKey<Level>> levels;
     private RegistryAccess.RegistryHolder registryHolder;
-    private ResourceLocation dimension;
+    private ResourceKey<DimensionType> dimensionType;
+    private ResourceKey<Level> dimension;
     private int maxPlayers;
     private int chunkRadius;
     private boolean reducedDebugInfo;
@@ -31,27 +38,31 @@ public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> 
         GameType param1,
         long param2,
         boolean param3,
-        RegistryAccess.RegistryHolder param4,
-        ResourceLocation param5,
-        int param6,
-        int param7,
-        boolean param8,
-        boolean param9,
+        Set<ResourceKey<Level>> param4,
+        RegistryAccess.RegistryHolder param5,
+        ResourceKey<DimensionType> param6,
+        ResourceKey<Level> param7,
+        int param8,
+        int param9,
         boolean param10,
-        boolean param11
+        boolean param11,
+        boolean param12,
+        boolean param13
     ) {
         this.playerId = param0;
-        this.registryHolder = param4;
-        this.dimension = param5;
+        this.levels = param4;
+        this.registryHolder = param5;
+        this.dimensionType = param6;
+        this.dimension = param7;
         this.seed = param2;
         this.gameType = param1;
-        this.maxPlayers = param6;
+        this.maxPlayers = param8;
         this.hardcore = param3;
-        this.chunkRadius = param7;
-        this.reducedDebugInfo = param8;
-        this.showDeathScreen = param9;
-        this.isDebug = param10;
-        this.isFlat = param11;
+        this.chunkRadius = param9;
+        this.reducedDebugInfo = param10;
+        this.showDeathScreen = param11;
+        this.isDebug = param12;
+        this.isFlat = param13;
     }
 
     @Override
@@ -61,8 +72,16 @@ public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> 
         this.hardcore = (var0 & 8) == 8;
         var0 &= -9;
         this.gameType = GameType.byId(var0);
+        int var1 = param0.readVarInt();
+        this.levels = Sets.newHashSet();
+
+        for(int var2 = 0; var2 < var1; ++var2) {
+            this.levels.add(ResourceKey.create(Registry.DIMENSION_REGISTRY, param0.readResourceLocation()));
+        }
+
         this.registryHolder = param0.readWithCodec(RegistryAccess.RegistryHolder.CODEC);
-        this.dimension = param0.readResourceLocation();
+        this.dimensionType = ResourceKey.create(Registry.DIMENSION_TYPE_REGISTRY, param0.readResourceLocation());
+        this.dimension = ResourceKey.create(Registry.DIMENSION_REGISTRY, param0.readResourceLocation());
         this.seed = param0.readLong();
         this.maxPlayers = param0.readUnsignedByte();
         this.chunkRadius = param0.readVarInt();
@@ -81,8 +100,15 @@ public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> 
         }
 
         param0.writeByte(var0);
+        param0.writeVarInt(this.levels.size());
+
+        for(ResourceKey<Level> var1 : this.levels) {
+            param0.writeResourceLocation(var1.location());
+        }
+
         param0.writeWithCodec(RegistryAccess.RegistryHolder.CODEC, this.registryHolder);
-        param0.writeResourceLocation(this.dimension);
+        param0.writeResourceLocation(this.dimensionType.location());
+        param0.writeResourceLocation(this.dimension.location());
         param0.writeLong(this.seed);
         param0.writeByte(this.maxPlayers);
         param0.writeVarInt(this.chunkRadius);
@@ -117,12 +143,22 @@ public class ClientboundLoginPacket implements Packet<ClientGamePacketListener> 
     }
 
     @OnlyIn(Dist.CLIENT)
+    public Set<ResourceKey<Level>> levels() {
+        return this.levels;
+    }
+
+    @OnlyIn(Dist.CLIENT)
     public RegistryAccess registryAccess() {
         return this.registryHolder;
     }
 
     @OnlyIn(Dist.CLIENT)
-    public ResourceLocation getDimension() {
+    public ResourceKey<DimensionType> getDimensionType() {
+        return this.dimensionType;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public ResourceKey<Level> getDimension() {
         return this.dimension;
     }
 

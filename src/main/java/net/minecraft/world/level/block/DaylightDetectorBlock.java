@@ -76,7 +76,7 @@ public class DaylightDetectorBlock extends BaseEntityBlock {
                 BlockState var0 = param0.cycle(INVERTED);
                 param1.setBlock(param2, var0, 4);
                 updateSignalStrength(var0, param1, param2);
-                return InteractionResult.SUCCESS;
+                return InteractionResult.CONSUME;
             }
         } else {
             return super.use(param0, param1, param2, param3, param4, param5);

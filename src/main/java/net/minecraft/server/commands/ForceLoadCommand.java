@@ -15,7 +15,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ColumnPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.Level;
 
 public class ForceLoadCommand {
     private static final Dynamic2CommandExceptionType ERROR_TOO_MANY_CHUNKS = new Dynamic2CommandExceptionType(
@@ -99,7 +99,7 @@ public class ForceLoadCommand {
 
     private static int queryForceLoad(CommandSourceStack param0, ColumnPos param1) throws CommandSyntaxException {
         ChunkPos var0 = new ChunkPos(param1.x >> 4, param1.z >> 4);
-        ResourceKey<DimensionType> var1 = param0.getLevel().dimension();
+        ResourceKey<Level> var1 = param0.getLevel().dimension();
         boolean var2 = param0.getServer().getLevel(var1).getForcedChunks().contains(var0.toLong());
         if (var2) {
             param0.sendSuccess(new TranslatableComponent("commands.forceload.query.success", var0, var1.location()), false);
@@ -110,7 +110,7 @@ public class ForceLoadCommand {
     }
 
     private static int listForceLoad(CommandSourceStack param0) {
-        ResourceKey<DimensionType> var0 = param0.getLevel().dimension();
+        ResourceKey<Level> var0 = param0.getLevel().dimension();
         LongSet var1 = param0.getServer().getLevel(var0).getForcedChunks();
         int var2 = var1.size();
         if (var2 > 0) {
@@ -128,7 +128,7 @@ public class ForceLoadCommand {
     }
 
     private static int removeAll(CommandSourceStack param0) {
-        ResourceKey<DimensionType> var0 = param0.getLevel().dimension();
+        ResourceKey<Level> var0 = param0.getLevel().dimension();
         ServerLevel var1 = param0.getServer().getLevel(var0);
         LongSet var2 = var1.getForcedChunks();
         var2.forEach(param1 -> var1.setChunkForced(ChunkPos.getX(param1), ChunkPos.getZ(param1), false));
@@ -150,7 +150,7 @@ public class ForceLoadCommand {
             if (var8 > 256L) {
                 throw ERROR_TOO_MANY_CHUNKS.create(256, var8);
             } else {
-                ResourceKey<DimensionType> var9 = param0.getLevel().dimension();
+                ResourceKey<Level> var9 = param0.getLevel().dimension();
                 ServerLevel var10 = param0.getServer().getLevel(var9);
                 ChunkPos var11 = null;
                 int var12 = 0;

@@ -1,5 +1,7 @@
 package net.minecraft.tags;
 
+import java.util.Set;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -27,5 +29,9 @@ public class EntityTypeTags {
 
     public static TagCollection<EntityType<?>> getAllTags() {
         return HELPER.getAllTags();
+    }
+
+    public static Set<ResourceLocation> getMissingTags(TagCollection<EntityType<?>> param0) {
+        return HELPER.getMissingTags(param0);
     }
 }

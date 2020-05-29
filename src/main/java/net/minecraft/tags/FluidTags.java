@@ -1,5 +1,7 @@
 package net.minecraft.tags;
 
+import java.util.Set;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -24,5 +26,9 @@ public class FluidTags {
 
     public static TagCollection<Fluid> getAllTags() {
         return HELPER.getAllTags();
+    }
+
+    public static Set<ResourceLocation> getMissingTags(TagCollection<Fluid> param0) {
+        return HELPER.getMissingTags(param0);
     }
 }

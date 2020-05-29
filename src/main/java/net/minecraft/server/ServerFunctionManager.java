@@ -1,68 +1,35 @@
 package net.minecraft.server;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.mojang.brigadier.CommandDispatcher;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-import javax.annotation.Nullable;
 import net.minecraft.commands.CommandFunction;
-import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
-import net.minecraft.server.packs.resources.SimpleResource;
-import net.minecraft.tags.TagCollection;
+import net.minecraft.tags.Tag;
 import net.minecraft.world.level.GameRules;
-import net.minecraft.world.phys.Vec2;
-import net.minecraft.world.phys.Vec3;
-import org.apache.commons.io.IOUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
-public class ServerFunctionManager implements ResourceManagerReloadListener {
-    private static final Logger LOGGER = LogManager.getLogger();
+public class ServerFunctionManager {
     private static final ResourceLocation TICK_FUNCTION_TAG = new ResourceLocation("tick");
     private static final ResourceLocation LOAD_FUNCTION_TAG = new ResourceLocation("load");
-    public static final int PATH_PREFIX_LENGTH = "functions/".length();
-    public static final int PATH_SUFFIX_LENGTH = ".mcfunction".length();
     private final MinecraftServer server;
-    private final Map<ResourceLocation, CommandFunction> functions = Maps.newHashMap();
     private boolean isInFunction;
     private final ArrayDeque<ServerFunctionManager.QueuedCommand> commandQueue = new ArrayDeque<>();
     private final List<ServerFunctionManager.QueuedCommand> nestedCalls = Lists.newArrayList();
-    private final TagCollection<CommandFunction> tags = new TagCollection<>(this::get, "tags/functions", "function");
     private final List<CommandFunction> ticking = Lists.newArrayList();
     private boolean postReload;
+    private ServerFunctionLibrary library;
 
-    public ServerFunctionManager(MinecraftServer param0) {
+    public ServerFunctionManager(MinecraftServer param0, ServerFunctionLibrary param1) {
         this.server = param0;
-    }
-
-    public Optional<CommandFunction> get(ResourceLocation param0x) {
-        return Optional.ofNullable(this.functions.get(param0x));
-    }
-
-    public MinecraftServer getServer() {
-        return this.server;
+        this.library = param1;
     }
 
     public int getCommandLimit() {
         return this.server.getGameRules().getInt(GameRules.RULE_MAX_COMMAND_CHAIN_LENGTH);
-    }
-
-    public Map<ResourceLocation, CommandFunction> getFunctions() {
-        return this.functions;
     }
 
     public CommandDispatcher<CommandSourceStack> getDispatcher() {
@@ -70,25 +37,23 @@ public class ServerFunctionManager implements ResourceManagerReloadListener {
     }
 
     public void tick() {
-        this.server.getProfiler().push(TICK_FUNCTION_TAG::toString);
+        this.executeTagFunctions(this.ticking, TICK_FUNCTION_TAG);
+        if (this.postReload) {
+            this.postReload = false;
+            Collection<CommandFunction> var0 = this.library.getTags().getTagOrEmpty(LOAD_FUNCTION_TAG).getValues();
+            this.executeTagFunctions(var0, LOAD_FUNCTION_TAG);
+        }
 
-        for(CommandFunction var0 : this.ticking) {
+    }
+
+    private void executeTagFunctions(Collection<CommandFunction> param0, ResourceLocation param1) {
+        this.server.getProfiler().push(param1::toString);
+
+        for(CommandFunction var0 : param0) {
             this.execute(var0, this.getGameLoopSender());
         }
 
         this.server.getProfiler().pop();
-        if (this.postReload) {
-            this.postReload = false;
-            Collection<CommandFunction> var1 = this.getTags().getTagOrEmpty(LOAD_FUNCTION_TAG).getValues();
-            this.server.getProfiler().push(LOAD_FUNCTION_TAG::toString);
-
-            for(CommandFunction var2 : var1) {
-                this.execute(var2, this.getGameLoopSender());
-            }
-
-            this.server.getProfiler().pop();
-        }
-
     }
 
     public int execute(CommandFunction param0, CommandSourceStack param1) {
@@ -136,66 +101,31 @@ public class ServerFunctionManager implements ResourceManagerReloadListener {
         }
     }
 
-    @Override
-    public void onResourceManagerReload(ResourceManager param0) {
-        this.functions.clear();
+    public void replaceLibrary(ServerFunctionLibrary param0) {
+        this.library = param0;
         this.ticking.clear();
-        Collection<ResourceLocation> var0 = param0.listResources("functions", param0x -> param0x.endsWith(".mcfunction"));
-        List<CompletableFuture<CommandFunction>> var1 = Lists.newArrayList();
-
-        for(ResourceLocation var2 : var0) {
-            String var3 = var2.getPath();
-            ResourceLocation var4 = new ResourceLocation(var2.getNamespace(), var3.substring(PATH_PREFIX_LENGTH, var3.length() - PATH_SUFFIX_LENGTH));
-            var1.add(
-                CompletableFuture.<List<String>>supplyAsync(() -> readLinesAsync(param0, var2), SimpleResource.IO_EXECUTOR)
-                    .thenApplyAsync(param1 -> CommandFunction.fromLines(var4, this, param1), this.server.getBackgroundTaskExecutor())
-                    .handle((param1, param2) -> this.addFunction(param1, param2, var2))
-            );
-        }
-
-        CompletableFuture.allOf(var1.toArray(new CompletableFuture[0])).join();
-        if (!this.functions.isEmpty()) {
-            LOGGER.info("Loaded {} custom command functions", this.functions.size());
-        }
-
-        this.tags.load(this.tags.prepare(param0, this.server.getBackgroundTaskExecutor()).join());
-        this.ticking.addAll(this.tags.getTagOrEmpty(TICK_FUNCTION_TAG).getValues());
+        this.ticking.addAll(param0.getTags().getTagOrEmpty(TICK_FUNCTION_TAG).getValues());
         this.postReload = true;
-    }
-
-    @Nullable
-    private CommandFunction addFunction(CommandFunction param0, @Nullable Throwable param1, ResourceLocation param2) {
-        if (param1 != null) {
-            LOGGER.error("Couldn't load function at {}", param2, param1);
-            return null;
-        } else {
-            synchronized(this.functions) {
-                this.functions.put(param0.getId(), param0);
-                return param0;
-            }
-        }
-    }
-
-    private static List<String> readLinesAsync(ResourceManager param0, ResourceLocation param1) {
-        try (Resource var0 = param0.getResource(param1)) {
-            return IOUtils.readLines(var0.getInputStream(), StandardCharsets.UTF_8);
-        } catch (IOException var16) {
-            throw new CompletionException(var16);
-        }
     }
 
     public CommandSourceStack getGameLoopSender() {
         return this.server.createCommandSourceStack().withPermission(2).withSuppressedOutput();
     }
 
-    public CommandSourceStack getCompilationContext() {
-        return new CommandSourceStack(
-            CommandSource.NULL, Vec3.ZERO, Vec2.ZERO, null, this.server.getFunctionCompilationLevel(), "", TextComponent.EMPTY, this.server, null
-        );
+    public Optional<CommandFunction> get(ResourceLocation param0) {
+        return this.library.getFunction(param0);
     }
 
-    public TagCollection<CommandFunction> getTags() {
-        return this.tags;
+    public Tag<CommandFunction> getTag(ResourceLocation param0) {
+        return this.library.getTag(param0);
+    }
+
+    public Iterable<ResourceLocation> getFunctionNames() {
+        return this.library.getFunctions().keySet();
+    }
+
+    public Iterable<ResourceLocation> getTagNames() {
+        return this.library.getTags().getAvailableTags();
     }
 
     public static class QueuedCommand {

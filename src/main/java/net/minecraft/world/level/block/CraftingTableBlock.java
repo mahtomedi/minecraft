@@ -30,7 +30,7 @@ public class CraftingTableBlock extends Block {
         } else {
             param3.openMenu(param0.getMenuProvider(param1, param2));
             param3.awardStat(Stats.INTERACT_WITH_CRAFTING_TABLE);
-            return InteractionResult.SUCCESS;
+            return InteractionResult.CONSUME;
         }
     }
 

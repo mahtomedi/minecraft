@@ -36,7 +36,7 @@ public class SmithingTableBlock extends CraftingTableBlock {
         } else {
             param3.openMenu(param0.getMenuProvider(param1, param2));
             param3.awardStat(Stats.INTERACT_WITH_SMITHING_TABLE);
-            return InteractionResult.SUCCESS;
+            return InteractionResult.CONSUME;
         }
     }
 }

@@ -122,6 +122,7 @@ import net.minecraft.world.item.WritableBookItem;
 import net.minecraft.world.level.BaseCommandBlock;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CommandBlock;
@@ -131,7 +132,6 @@ import net.minecraft.world.level.block.entity.JigsawBlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.entity.StructureBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.StringUtils;
@@ -653,7 +653,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
             BlockEntity var1 = this.player.level.getBlockEntity(var0);
             if (var1 instanceof JigsawBlockEntity) {
                 JigsawBlockEntity var2 = (JigsawBlockEntity)var1;
-                var2.generate(this.server.getLevel(this.player.level.dimension()), param0.levels());
+                var2.generate(this.server.getLevel(this.player.level.dimension()), param0.levels(), param0.keepJigsaws());
             }
 
         }
@@ -964,7 +964,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
                 && var0.mayInteract(this.player, var4)) {
                 InteractionResult var6 = this.player.gameMode.useItemOn(this.player, var0, var2, var1, var3);
                 if (var5 == Direction.UP
-                    && var6 != InteractionResult.SUCCESS
+                    && !var6.consumesAction()
                     && var4.getY() >= this.server.getMaxBuildHeight() - 1
                     && wasBlockPlacementAttempt(this.player, var2)) {
                     Component var7 = new TranslatableComponent("build.tooHigh", this.server.getMaxBuildHeight()).withStyle(ChatFormatting.RED);
@@ -1223,7 +1223,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
                 if (this.player.wonGame) {
                     this.player.wonGame = false;
                     this.player = this.server.getPlayerList().respawn(this.player, true);
-                    CriteriaTriggers.CHANGED_DIMENSION.trigger(this.player, DimensionType.END_LOCATION, DimensionType.OVERWORLD_LOCATION);
+                    CriteriaTriggers.CHANGED_DIMENSION.trigger(this.player, Level.END, Level.OVERWORLD);
                 } else {
                     if (this.player.getHealth() > 0.0F) {
                         return;

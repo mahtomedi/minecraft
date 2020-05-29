@@ -1,6 +1,7 @@
 package net.minecraft.world.level;
 
 import com.google.common.collect.Lists;
+import com.mojang.serialization.Codec;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
@@ -16,11 +17,11 @@ import net.minecraft.ReportedException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.sounds.SoundEvent;
@@ -71,6 +72,11 @@ import org.apache.logging.log4j.Logger;
 
 public abstract class Level implements AutoCloseable, LevelAccessor {
     protected static final Logger LOGGER = LogManager.getLogger();
+    public static final Codec<ResourceKey<Level>> RESOURCE_KEY_CODEC = ResourceLocation.CODEC
+        .xmap(ResourceKey.elementKey(Registry.DIMENSION_REGISTRY), ResourceKey::location);
+    public static final ResourceKey<Level> OVERWORLD = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation("overworld"));
+    public static final ResourceKey<Level> NETHER = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation("the_nether"));
+    public static final ResourceKey<Level> END = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation("the_end"));
     private static final Direction[] DIRECTIONS = Direction.values();
     public final List<BlockEntity> blockEntityList = Lists.newArrayList();
     public final List<BlockEntity> tickableBlockEntities = Lists.newArrayList();
@@ -93,13 +99,26 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     protected boolean updatingBlockEntities;
     private final WorldBorder worldBorder;
     private final BiomeManager biomeManager;
+    private final ResourceKey<Level> dimension;
+    private final ResourceKey<DimensionType> dimensionTypeKey;
 
-    protected Level(WritableLevelData param0, DimensionType param1, Supplier<ProfilerFiller> param2, boolean param3, boolean param4, long param5) {
-        this.profiler = param2;
+    protected Level(
+        WritableLevelData param0,
+        ResourceKey<Level> param1,
+        ResourceKey<DimensionType> param2,
+        DimensionType param3,
+        Supplier<ProfilerFiller> param4,
+        boolean param5,
+        boolean param6,
+        long param7
+    ) {
+        this.profiler = param4;
         this.levelData = param0;
-        this.dimensionType = param1;
-        this.isClientSide = param3;
-        if (param1.shrunk()) {
+        this.dimensionType = param3;
+        this.dimension = param1;
+        this.dimensionTypeKey = param2;
+        this.isClientSide = param5;
+        if (param3.shrunk()) {
             this.worldBorder = new WorldBorder() {
                 @Override
                 public double getCenterX() {
@@ -116,8 +135,8 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         }
 
         this.thread = Thread.currentThread();
-        this.biomeManager = new BiomeManager(this, param5, param1.getBiomeZoomer());
-        this.isDebug = param4;
+        this.biomeManager = new BiomeManager(this, param7, param3.getBiomeZoomer());
+        this.isDebug = param6;
     }
 
     @Override
@@ -1166,8 +1185,12 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         return this.dimensionType;
     }
 
-    public ResourceKey<DimensionType> dimension() {
-        return this.registryAccess().dimensionTypes().getResourceKey(this.dimensionType);
+    public ResourceKey<DimensionType> dimensionTypeKey() {
+        return this.dimensionTypeKey;
+    }
+
+    public ResourceKey<Level> dimension() {
+        return this.dimension;
     }
 
     @Override
@@ -1210,6 +1233,4 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     public final boolean isDebug() {
         return this.isDebug;
     }
-
-    public abstract RegistryAccess registryAccess();
 }

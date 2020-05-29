@@ -109,7 +109,7 @@ public class ItemRenderer implements ResourceManagerReloadListener {
             param7.getTransforms().getTransform(param1).apply(param2, param3);
             param3.translate(-0.5, -0.5, -0.5);
             if (!param7.isCustomRenderer() && (param0.getItem() != Items.TRIDENT || var1)) {
-                RenderType var2 = ItemBlockRenderTypes.getRenderType(param0);
+                RenderType var2 = ItemBlockRenderTypes.getRenderType(param0, param1 != ItemTransforms.TransformType.GROUND);
                 VertexConsumer var3 = getFoilBuffer(param4, var2, true, param0.hasFoil());
                 this.renderModelLists(param7, param0, param5, param6, param3, var3);
             } else {

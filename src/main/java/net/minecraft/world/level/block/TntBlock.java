@@ -100,7 +100,7 @@ public class TntBlock extends Block {
                 }
             }
 
-            return InteractionResult.SUCCESS;
+            return InteractionResult.sidedSuccess(param1.isClientSide);
         }
     }
 

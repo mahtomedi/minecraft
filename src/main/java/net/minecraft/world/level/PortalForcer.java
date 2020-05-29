@@ -42,7 +42,7 @@ public class PortalForcer {
             Vec3 var4 = var2.speed;
             param0.setDeltaMovement(var4);
             param0.yRot = param1 + (float)var2.angle;
-            param0.forceMove(var3.x, var3.y, var3.z);
+            param0.moveTo(var3.x, var3.y, var3.z);
             return true;
         }
     }

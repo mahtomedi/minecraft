@@ -16,11 +16,14 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class SkullBlockEntity extends BlockEntity implements TickableBlockEntity {
+    @Nullable
+    private static GameProfileCache profileCache;
+    @Nullable
+    private static MinecraftSessionService sessionService;
+    @Nullable
     private GameProfile owner;
     private int mouthTickCount;
     private boolean isMovingMouth;
-    private static GameProfileCache profileCache;
-    private static MinecraftSessionService sessionService;
 
     public SkullBlockEntity() {
         super(BlockEntityType.SKULL);
@@ -106,7 +109,8 @@ public class SkullBlockEntity extends BlockEntity implements TickableBlockEntity
         this.setChanged();
     }
 
-    public static GameProfile updateGameprofile(GameProfile param0) {
+    @Nullable
+    public static GameProfile updateGameprofile(@Nullable GameProfile param0) {
         if (param0 != null && !StringUtil.isNullOrEmpty(param0.getName())) {
             if (param0.isComplete() && param0.getProperties().containsKey("textures")) {
                 return param0;

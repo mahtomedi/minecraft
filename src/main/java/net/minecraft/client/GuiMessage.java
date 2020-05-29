@@ -1,22 +1,22 @@
 package net.minecraft.client;
 
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class GuiMessage {
     private final int addedTime;
-    private final Component message;
+    private final FormattedText message;
     private final int id;
 
-    public GuiMessage(int param0, Component param1, int param2) {
+    public GuiMessage(int param0, FormattedText param1, int param2) {
         this.message = param1;
         this.addedTime = param0;
         this.id = param2;
     }
 
-    public Component getMessage() {
+    public FormattedText getMessage() {
         return this.message;
     }
 

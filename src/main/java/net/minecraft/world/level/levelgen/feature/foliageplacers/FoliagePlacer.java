@@ -11,6 +11,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.world.level.LevelSimulatedRW;
 import net.minecraft.world.level.levelgen.feature.TreeFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public abstract class FoliagePlacer {
     public static final Codec<FoliagePlacer> CODEC = Registry.FOLIAGE_PLACER_TYPES.dispatch(FoliagePlacer::type, FoliagePlacerType::codec);
@@ -45,9 +46,10 @@ public abstract class FoliagePlacer {
         FoliagePlacer.FoliageAttachment param4,
         int param5,
         int param6,
-        Set<BlockPos> param7
+        Set<BlockPos> param7,
+        BoundingBox param8
     ) {
-        this.createFoliage(param0, param1, param2, param3, param4, param5, param6, param7, this.offset(param1));
+        this.createFoliage(param0, param1, param2, param3, param4, param5, param6, param7, this.offset(param1), param8);
     }
 
     protected abstract void createFoliage(
@@ -59,7 +61,8 @@ public abstract class FoliagePlacer {
         int var6,
         int var7,
         Set<BlockPos> var8,
-        int var9
+        int var9,
+        BoundingBox var10
     );
 
     public abstract int foliageHeight(Random var1, int var2, TreeConfiguration var3);
@@ -89,7 +92,15 @@ public abstract class FoliagePlacer {
     }
 
     protected void placeLeavesRow(
-        LevelSimulatedRW param0, Random param1, TreeConfiguration param2, BlockPos param3, int param4, Set<BlockPos> param5, int param6, boolean param7
+        LevelSimulatedRW param0,
+        Random param1,
+        TreeConfiguration param2,
+        BlockPos param3,
+        int param4,
+        Set<BlockPos> param5,
+        int param6,
+        boolean param7,
+        BoundingBox param8
     ) {
         int var0 = param7 ? 1 : 0;
         BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos();
@@ -100,6 +111,7 @@ public abstract class FoliagePlacer {
                     var1.setWithOffset(param3, var2, param6, var3);
                     if (TreeFeature.validTreePos(param0, var1)) {
                         param0.setBlock(var1, param2.leavesProvider.getState(param1, var1), 19);
+                        param8.expand(new BoundingBox(var1, var1));
                         param5.add(var1.immutable());
                     }
                 }

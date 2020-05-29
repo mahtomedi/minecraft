@@ -2,7 +2,6 @@ package net.minecraft.world.level.levelgen.placement;
 
 import com.mojang.serialization.Codec;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
@@ -24,6 +23,7 @@ import net.minecraft.world.level.levelgen.placement.nether.FireDecorator;
 import net.minecraft.world.level.levelgen.placement.nether.LightGemChanceDecorator;
 import net.minecraft.world.level.levelgen.placement.nether.MagmaDecorator;
 import net.minecraft.world.level.levelgen.placement.nether.RandomCountRangeDecorator;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 
 public abstract class FeatureDecorator<DC extends DecoratorConfiguration> {
     public static final FeatureDecorator<NoneDecoratorConfiguration> NOPE = register("nope", new NopePlacementDecorator(NoneDecoratorConfiguration.CODEC));
@@ -155,12 +155,14 @@ public abstract class FeatureDecorator<DC extends DecoratorConfiguration> {
     protected <FC extends FeatureConfiguration, F extends Feature<FC>> boolean placeFeature(
         WorldGenLevel param0, StructureFeatureManager param1, ChunkGenerator param2, Random param3, BlockPos param4, DC param5, ConfiguredFeature<FC, F> param6
     ) {
-        AtomicBoolean var0 = new AtomicBoolean(false);
+        MutableBoolean var0 = new MutableBoolean();
         this.getPositions(param0, param2, param3, param5, param4).forEach(param6x -> {
-            boolean var0x = param6.place(param0, param1, param2, param3, param6x);
-            var0.set(var0.get() || var0x);
+            if (param6.place(param0, param1, param2, param3, param6x)) {
+                var0.setTrue();
+            }
+
         });
-        return var0.get();
+        return var0.isTrue();
     }
 
     public abstract Stream<BlockPos> getPositions(LevelAccessor var1, ChunkGenerator var2, Random var3, DC var4, BlockPos var5);

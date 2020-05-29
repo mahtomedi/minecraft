@@ -2,7 +2,7 @@ package net.minecraft.client;
 
 import java.util.Optional;
 import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.Unit;
 import net.minecraftforge.api.distmarker.Dist;
@@ -128,7 +128,7 @@ public class StringDecomposer {
         return true;
     }
 
-    public static boolean iterateFormatted(Component param0, Style param1, StringDecomposer.Output param2) {
+    public static boolean iterateFormatted(FormattedText param0, Style param1, StringDecomposer.Output param2) {
         return !param0.visit((param1x, param2x) -> iterateFormatted(param2x, 0, param1x, param2) ? Optional.empty() : STOP_ITERATION, param1).isPresent();
     }
 

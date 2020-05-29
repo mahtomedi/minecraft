@@ -45,7 +45,6 @@ public class MilkBucketItem extends Item {
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level param0, Player param1, InteractionHand param2) {
-        param1.startUsingItem(param2);
-        return InteractionResultHolder.success(param1.getItemInHand(param2));
+        return ItemUtils.useDrink(param0, param1, param2);
     }
 }

@@ -1,5 +1,6 @@
 package net.minecraft.client.gui;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
@@ -7,8 +8,9 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.math.Matrix4f;
+import java.util.function.BiConsumer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -114,7 +116,7 @@ public abstract class GuiComponent {
         param1.drawShadow(param0, param2, (float)(param3 - param1.width(param2) / 2), (float)param4, param5);
     }
 
-    public void drawCenteredString(PoseStack param0, Font param1, Component param2, int param3, int param4, int param5) {
+    public void drawCenteredString(PoseStack param0, Font param1, FormattedText param2, int param3, int param4, int param5) {
         param1.drawShadow(param0, param2, (float)(param3 - param1.width(param2) / 2), (float)param4, param5);
     }
 
@@ -122,8 +124,23 @@ public abstract class GuiComponent {
         param1.drawShadow(param0, param2, (float)param3, (float)param4, param5);
     }
 
-    public void drawString(PoseStack param0, Font param1, Component param2, int param3, int param4, int param5) {
+    public void drawString(PoseStack param0, Font param1, FormattedText param2, int param3, int param4, int param5) {
         param1.drawShadow(param0, param2, (float)param3, (float)param4, param5);
+    }
+
+    public void blitOutlineBlack(int param0, int param1, BiConsumer<Integer, Integer> param2) {
+        RenderSystem.blendFuncSeparate(
+            GlStateManager.SourceFactor.ZERO,
+            GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+            GlStateManager.SourceFactor.SRC_ALPHA,
+            GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA
+        );
+        param2.accept(param0 + 1, param1);
+        param2.accept(param0 - 1, param1);
+        param2.accept(param0, param1 + 1);
+        param2.accept(param0, param1 - 1);
+        RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+        param2.accept(param0, param1);
     }
 
     public static void blit(PoseStack param0, int param1, int param2, int param3, int param4, int param5, TextureAtlasSprite param6) {

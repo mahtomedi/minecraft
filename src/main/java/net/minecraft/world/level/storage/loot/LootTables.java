@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import java.util.Map;
 import java.util.Set;
 import net.minecraft.resources.ResourceLocation;
@@ -30,9 +29,9 @@ public class LootTables extends SimpleJsonResourceReloadListener {
         return this.tables.getOrDefault(param0, LootTable.EMPTY);
     }
 
-    protected void apply(Map<ResourceLocation, JsonObject> param0, ResourceManager param1, ProfilerFiller param2) {
+    protected void apply(Map<ResourceLocation, JsonElement> param0, ResourceManager param1, ProfilerFiller param2) {
         Builder<ResourceLocation, LootTable> var0 = ImmutableMap.builder();
-        JsonObject var1 = param0.remove(BuiltInLootTables.EMPTY);
+        JsonElement var1 = param0.remove(BuiltInLootTables.EMPTY);
         if (var1 != null) {
             LOGGER.warn("Datapack tried to redefine {} loot table, ignoring", BuiltInLootTables.EMPTY);
         }

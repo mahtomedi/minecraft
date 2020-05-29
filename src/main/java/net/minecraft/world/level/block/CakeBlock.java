@@ -47,7 +47,7 @@ public class CakeBlock extends Block {
     public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
         if (param1.isClientSide) {
             ItemStack var0 = param3.getItemInHand(param4);
-            if (this.eat(param1, param2, param0, param3) == InteractionResult.SUCCESS) {
+            if (this.eat(param1, param2, param0, param3).consumesAction()) {
                 return InteractionResult.SUCCESS;
             }
 

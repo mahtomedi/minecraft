@@ -6,7 +6,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import java.util.function.Consumer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.SerializationTags;
 import net.minecraft.tags.Tag;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.Item;
@@ -23,6 +23,11 @@ public class TagEntry extends LootPoolSingletonContainer {
         super(param2, param3, param4, param5);
         this.tag = param0;
         this.expand = param1;
+    }
+
+    @Override
+    public LootPoolEntryType getType() {
+        return LootPoolEntries.TAG;
     }
 
     @Override
@@ -57,13 +62,9 @@ public class TagEntry extends LootPoolSingletonContainer {
     }
 
     public static class Serializer extends LootPoolSingletonContainer.Serializer<TagEntry> {
-        public Serializer() {
-            super(new ResourceLocation("tag"), TagEntry.class);
-        }
-
-        public void serialize(JsonObject param0, TagEntry param1, JsonSerializationContext param2) {
-            super.serialize(param0, param1, param2);
-            param0.addProperty("name", ItemTags.getAllTags().getIdOrThrow(param1.tag).toString());
+        public void serializeCustom(JsonObject param0, TagEntry param1, JsonSerializationContext param2) {
+            super.serializeCustom(param0, param1, param2);
+            param0.addProperty("name", SerializationTags.getInstance().getItems().getIdOrThrow(param1.tag).toString());
             param0.addProperty("expand", param1.expand);
         }
 
@@ -71,7 +72,7 @@ public class TagEntry extends LootPoolSingletonContainer {
             JsonObject param0, JsonDeserializationContext param1, int param2, int param3, LootItemCondition[] param4, LootItemFunction[] param5
         ) {
             ResourceLocation var0 = new ResourceLocation(GsonHelper.getAsString(param0, "name"));
-            Tag<Item> var1 = ItemTags.getAllTags().getTag(var0);
+            Tag<Item> var1 = SerializationTags.getInstance().getItems().getTag(var0);
             if (var1 == null) {
                 throw new JsonParseException("Can't find tag: " + var0);
             } else {

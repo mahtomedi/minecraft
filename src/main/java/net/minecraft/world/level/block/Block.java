@@ -208,7 +208,11 @@ public class Block extends BlockBehaviour implements ItemLike {
 
     public static boolean canSupportCenter(LevelReader param0, BlockPos param1, Direction param2) {
         BlockState var0 = param0.getBlockState(param1);
-        return !Shapes.joinIsNotEmpty(var0.getBlockSupportShape(param0, param1).getFaceShape(param2), CENTER_SUPPORT_SHAPE, BooleanOp.ONLY_SECOND);
+        if (param2 == Direction.DOWN && var0.is(BlockTags.UNSTABLE_BOTTOM_CENTER)) {
+            return false;
+        } else {
+            return !Shapes.joinIsNotEmpty(var0.getBlockSupportShape(param0, param1).getFaceShape(param2), CENTER_SUPPORT_SHAPE, BooleanOp.ONLY_SECOND);
+        }
     }
 
     public static boolean isFaceSturdy(BlockState param0, BlockGetter param1, BlockPos param2, Direction param3) {

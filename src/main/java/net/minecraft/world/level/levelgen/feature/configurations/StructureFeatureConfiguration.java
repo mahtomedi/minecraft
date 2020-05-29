@@ -1,17 +1,24 @@
 package net.minecraft.world.level.levelgen.feature.configurations;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.function.Function;
+import net.minecraft.util.Codecs;
 
 public class StructureFeatureConfiguration {
-    public static final Codec<StructureFeatureConfiguration> CODEC = RecordCodecBuilder.create(
-        param0 -> param0.group(
-                    Codec.INT.fieldOf("spacing").forGetter(param0x -> param0x.spacing),
-                    Codec.INT.fieldOf("separation").forGetter(param0x -> param0x.separation),
-                    Codec.INT.fieldOf("salt").forGetter(param0x -> param0x.salt)
-                )
-                .apply(param0, StructureFeatureConfiguration::new)
-    );
+    public static final Codec<StructureFeatureConfiguration> CODEC = RecordCodecBuilder.<StructureFeatureConfiguration>create(
+            param0 -> param0.group(
+                        Codecs.intRange(0, 4096).fieldOf("spacing").forGetter(param0x -> param0x.spacing),
+                        Codecs.intRange(0, 4096).fieldOf("separation").forGetter(param0x -> param0x.separation),
+                        Codecs.intRange(0, Integer.MAX_VALUE).fieldOf("salt").forGetter(param0x -> param0x.salt)
+                    )
+                    .apply(param0, StructureFeatureConfiguration::new)
+        )
+        .comapFlatMap(
+            param0 -> param0.spacing <= param0.separation ? DataResult.error("Spacing has to be smaller than separation") : DataResult.success(param0),
+            Function.identity()
+        );
     private final int spacing;
     private final int separation;
     private final int salt;

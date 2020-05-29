@@ -7,6 +7,7 @@ import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelSimulatedRW;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public class AcaciaFoliagePlacer extends FoliagePlacer {
     public static final Codec<AcaciaFoliagePlacer> CODEC = RecordCodecBuilder.create(
@@ -32,13 +33,14 @@ public class AcaciaFoliagePlacer extends FoliagePlacer {
         int param5,
         int param6,
         Set<BlockPos> param7,
-        int param8
+        int param8,
+        BoundingBox param9
     ) {
         boolean var0 = param4.doubleTrunk();
         BlockPos var1 = param4.foliagePos().above(param8);
-        this.placeLeavesRow(param0, param1, param2, var1, param6 + param4.radiusOffset(), param7, -1 - param5, var0);
-        this.placeLeavesRow(param0, param1, param2, var1, param6 - 1, param7, -param5, var0);
-        this.placeLeavesRow(param0, param1, param2, var1, param6 + param4.radiusOffset() - 1, param7, 0, var0);
+        this.placeLeavesRow(param0, param1, param2, var1, param6 + param4.radiusOffset(), param7, -1 - param5, var0, param9);
+        this.placeLeavesRow(param0, param1, param2, var1, param6 - 1, param7, -param5, var0, param9);
+        this.placeLeavesRow(param0, param1, param2, var1, param6 + param4.radiusOffset() - 1, param7, 0, var0, param9);
     }
 
     @Override

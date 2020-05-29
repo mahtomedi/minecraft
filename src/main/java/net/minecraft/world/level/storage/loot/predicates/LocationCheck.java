@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import net.minecraft.advancements.critereon.LocationPredicate;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -14,9 +13,14 @@ public class LocationCheck implements LootItemCondition {
     private final LocationPredicate predicate;
     private final BlockPos offset;
 
-    public LocationCheck(LocationPredicate param0, BlockPos param1) {
+    private LocationCheck(LocationPredicate param0, BlockPos param1) {
         this.predicate = param0;
         this.offset = param1;
+    }
+
+    @Override
+    public LootItemConditionType getType() {
+        return LootItemConditions.LOCATION_CHECK;
     }
 
     public boolean test(LootContext param0) {
@@ -35,11 +39,7 @@ public class LocationCheck implements LootItemCondition {
         return () -> new LocationCheck(param0.build(), BlockPos.ZERO);
     }
 
-    public static class Serializer extends LootItemCondition.Serializer<LocationCheck> {
-        public Serializer() {
-            super(new ResourceLocation("location_check"), LocationCheck.class);
-        }
-
+    public static class Serializer implements net.minecraft.world.level.storage.loot.Serializer<LocationCheck> {
         public void serialize(JsonObject param0, LocationCheck param1, JsonSerializationContext param2) {
             param0.add("predicate", param1.predicate.serializeToJson());
             if (param1.offset.getX() != 0) {

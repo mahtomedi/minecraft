@@ -32,7 +32,7 @@ public class ShearsItem extends Item {
     }
 
     @Override
-    public boolean canDestroySpecial(BlockState param0) {
+    public boolean isCorrectToolForDrops(BlockState param0) {
         return param0.is(Blocks.COBWEB) || param0.is(Blocks.REDSTONE_WIRE) || param0.is(Blocks.TRIPWIRE);
     }
 

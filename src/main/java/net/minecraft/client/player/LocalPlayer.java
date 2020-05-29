@@ -117,12 +117,16 @@ public class LocalPlayer extends AbstractClientPlayer {
     private int waterVisionTime;
     private boolean showDeathScreen = true;
 
-    public LocalPlayer(Minecraft param0, ClientLevel param1, ClientPacketListener param2, StatsCounter param3, ClientRecipeBook param4) {
+    public LocalPlayer(
+        Minecraft param0, ClientLevel param1, ClientPacketListener param2, StatsCounter param3, ClientRecipeBook param4, boolean param5, boolean param6
+    ) {
         super(param1, param2.getLocalGameProfile());
+        this.minecraft = param0;
         this.connection = param2;
         this.stats = param3;
         this.recipeBook = param4;
-        this.minecraft = param0;
+        this.wasShiftKeyDown = param5;
+        this.wasSprinting = param6;
         this.ambientSoundHandlers.add(new UnderwaterAmbientSoundHandler(this, param0.getSoundManager()));
         this.ambientSoundHandlers.add(new BubbleColumnAmbientSoundHandler(this));
         this.ambientSoundHandlers.add(new BiomeAmbientSoundsHandler(this, param0.getSoundManager(), param1.getBiomeManager()));

@@ -7,6 +7,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -14,7 +15,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class AlertScreen extends Screen {
     private final Runnable callback;
     protected final Component text;
-    private final List<Component> lines = Lists.newArrayList();
+    private final List<FormattedText> lines = Lists.newArrayList();
     protected final Component okButton;
     private int delayTicker;
 
@@ -43,7 +44,7 @@ public class AlertScreen extends Screen {
         this.drawCenteredString(param0, this.font, this.title, this.width / 2, 70, 16777215);
         int var0 = 90;
 
-        for(Component var1 : this.lines) {
+        for(FormattedText var1 : this.lines) {
             this.drawCenteredString(param0, this.font, var1, this.width / 2, var0, 16777215);
             var0 += 9;
         }

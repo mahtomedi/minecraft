@@ -32,10 +32,9 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
     protected int x1;
     protected int x0;
     protected boolean centerListVertically = true;
-    protected int yDrag = -2;
     private double scrollAmount;
-    protected boolean renderSelection = true;
-    protected boolean renderHeader;
+    private boolean renderSelection = true;
+    private boolean renderHeader;
     protected int headerHeight;
     private boolean scrolling;
     private E selected;
@@ -49,6 +48,10 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
         this.itemHeight = param5;
         this.x0 = 0;
         this.x1 = param1;
+    }
+
+    public void setRenderSelection(boolean param0) {
+        this.renderSelection = param0;
     }
 
     protected void setRenderHeader(boolean param0, int param1) {
@@ -192,9 +195,32 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
         }
 
         this.renderList(param0, var5, var6, param1, param2, param3);
+        this.minecraft.getTextureManager().bind(GuiComponent.BACKGROUND_LOCATION);
+        RenderSystem.enableDepthTest();
+        RenderSystem.depthFunc(519);
+        float var7 = 32.0F;
+        int var8 = -100;
+        var3.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
+        var3.vertex((double)this.x0, (double)this.y0, -100.0).uv(0.0F, (float)this.y0 / 32.0F).color(64, 64, 64, 255).endVertex();
+        var3.vertex((double)(this.x0 + this.width), (double)this.y0, -100.0)
+            .uv((float)this.width / 32.0F, (float)this.y0 / 32.0F)
+            .color(64, 64, 64, 255)
+            .endVertex();
+        var3.vertex((double)(this.x0 + this.width), 0.0, -100.0).uv((float)this.width / 32.0F, 0.0F).color(64, 64, 64, 255).endVertex();
+        var3.vertex((double)this.x0, 0.0, -100.0).uv(0.0F, 0.0F).color(64, 64, 64, 255).endVertex();
+        var3.vertex((double)this.x0, (double)this.height, -100.0).uv(0.0F, (float)this.height / 32.0F).color(64, 64, 64, 255).endVertex();
+        var3.vertex((double)(this.x0 + this.width), (double)this.height, -100.0)
+            .uv((float)this.width / 32.0F, (float)this.height / 32.0F)
+            .color(64, 64, 64, 255)
+            .endVertex();
+        var3.vertex((double)(this.x0 + this.width), (double)this.y1, -100.0)
+            .uv((float)this.width / 32.0F, (float)this.y1 / 32.0F)
+            .color(64, 64, 64, 255)
+            .endVertex();
+        var3.vertex((double)this.x0, (double)this.y1, -100.0).uv(0.0F, (float)this.y1 / 32.0F).color(64, 64, 64, 255).endVertex();
+        var2.end();
+        RenderSystem.depthFunc(515);
         RenderSystem.disableDepthTest();
-        this.renderHoleBackground(0, this.y0, 255, 255);
-        this.renderHoleBackground(this.y1, this.height, 255, 255);
         RenderSystem.enableBlend();
         RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.SRC_ALPHA,
@@ -205,26 +231,24 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
         RenderSystem.disableAlphaTest();
         RenderSystem.shadeModel(7425);
         RenderSystem.disableTexture();
-        int var7 = 4;
+        int var9 = 4;
         var3.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
         var3.vertex((double)this.x0, (double)(this.y0 + 4), 0.0).uv(0.0F, 1.0F).color(0, 0, 0, 0).endVertex();
         var3.vertex((double)this.x1, (double)(this.y0 + 4), 0.0).uv(1.0F, 1.0F).color(0, 0, 0, 0).endVertex();
         var3.vertex((double)this.x1, (double)this.y0, 0.0).uv(1.0F, 0.0F).color(0, 0, 0, 255).endVertex();
         var3.vertex((double)this.x0, (double)this.y0, 0.0).uv(0.0F, 0.0F).color(0, 0, 0, 255).endVertex();
-        var2.end();
-        var3.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
         var3.vertex((double)this.x0, (double)this.y1, 0.0).uv(0.0F, 1.0F).color(0, 0, 0, 255).endVertex();
         var3.vertex((double)this.x1, (double)this.y1, 0.0).uv(1.0F, 1.0F).color(0, 0, 0, 255).endVertex();
         var3.vertex((double)this.x1, (double)(this.y1 - 4), 0.0).uv(1.0F, 0.0F).color(0, 0, 0, 0).endVertex();
         var3.vertex((double)this.x0, (double)(this.y1 - 4), 0.0).uv(0.0F, 0.0F).color(0, 0, 0, 0).endVertex();
         var2.end();
-        int var8 = this.getMaxScroll();
-        if (var8 > 0) {
-            int var9 = (int)((float)((this.y1 - this.y0) * (this.y1 - this.y0)) / (float)this.getMaxPosition());
-            var9 = Mth.clamp(var9, 32, this.y1 - this.y0 - 8);
-            int var10 = (int)this.getScrollAmount() * (this.y1 - this.y0 - var9) / var8 + this.y0;
-            if (var10 < this.y0) {
-                var10 = this.y0;
+        int var10 = this.getMaxScroll();
+        if (var10 > 0) {
+            int var11 = (int)((float)((this.y1 - this.y0) * (this.y1 - this.y0)) / (float)this.getMaxPosition());
+            var11 = Mth.clamp(var11, 32, this.y1 - this.y0 - 8);
+            int var12 = (int)this.getScrollAmount() * (this.y1 - this.y0 - var11) / var10 + this.y0;
+            if (var12 < this.y0) {
+                var12 = this.y0;
             }
 
             var3.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
@@ -232,18 +256,14 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
             var3.vertex((double)var1, (double)this.y1, 0.0).uv(1.0F, 1.0F).color(0, 0, 0, 255).endVertex();
             var3.vertex((double)var1, (double)this.y0, 0.0).uv(1.0F, 0.0F).color(0, 0, 0, 255).endVertex();
             var3.vertex((double)var0, (double)this.y0, 0.0).uv(0.0F, 0.0F).color(0, 0, 0, 255).endVertex();
-            var2.end();
-            var3.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
-            var3.vertex((double)var0, (double)(var10 + var9), 0.0).uv(0.0F, 1.0F).color(128, 128, 128, 255).endVertex();
-            var3.vertex((double)var1, (double)(var10 + var9), 0.0).uv(1.0F, 1.0F).color(128, 128, 128, 255).endVertex();
-            var3.vertex((double)var1, (double)var10, 0.0).uv(1.0F, 0.0F).color(128, 128, 128, 255).endVertex();
-            var3.vertex((double)var0, (double)var10, 0.0).uv(0.0F, 0.0F).color(128, 128, 128, 255).endVertex();
-            var2.end();
-            var3.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
-            var3.vertex((double)var0, (double)(var10 + var9 - 1), 0.0).uv(0.0F, 1.0F).color(192, 192, 192, 255).endVertex();
-            var3.vertex((double)(var1 - 1), (double)(var10 + var9 - 1), 0.0).uv(1.0F, 1.0F).color(192, 192, 192, 255).endVertex();
-            var3.vertex((double)(var1 - 1), (double)var10, 0.0).uv(1.0F, 0.0F).color(192, 192, 192, 255).endVertex();
-            var3.vertex((double)var0, (double)var10, 0.0).uv(0.0F, 0.0F).color(192, 192, 192, 255).endVertex();
+            var3.vertex((double)var0, (double)(var12 + var11), 0.0).uv(0.0F, 1.0F).color(128, 128, 128, 255).endVertex();
+            var3.vertex((double)var1, (double)(var12 + var11), 0.0).uv(1.0F, 1.0F).color(128, 128, 128, 255).endVertex();
+            var3.vertex((double)var1, (double)var12, 0.0).uv(1.0F, 0.0F).color(128, 128, 128, 255).endVertex();
+            var3.vertex((double)var0, (double)var12, 0.0).uv(0.0F, 0.0F).color(128, 128, 128, 255).endVertex();
+            var3.vertex((double)var0, (double)(var12 + var11 - 1), 0.0).uv(0.0F, 1.0F).color(192, 192, 192, 255).endVertex();
+            var3.vertex((double)(var1 - 1), (double)(var12 + var11 - 1), 0.0).uv(1.0F, 1.0F).color(192, 192, 192, 255).endVertex();
+            var3.vertex((double)(var1 - 1), (double)var12, 0.0).uv(1.0F, 0.0F).color(192, 192, 192, 255).endVertex();
+            var3.vertex((double)var0, (double)var12, 0.0).uv(0.0F, 0.0F).color(192, 192, 192, 255).endVertex();
             var2.end();
         }
 
@@ -274,7 +294,6 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
 
     private void scroll(int param0) {
         this.setScrollAmount(this.getScrollAmount() + (double)param0);
-        this.yDrag = -2;
     }
 
     public double getScrollAmount() {
@@ -458,26 +477,6 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
 
     protected boolean isFocused() {
         return false;
-    }
-
-    protected void renderHoleBackground(int param0, int param1, int param2, int param3) {
-        Tesselator var0 = Tesselator.getInstance();
-        BufferBuilder var1 = var0.getBuilder();
-        this.minecraft.getTextureManager().bind(GuiComponent.BACKGROUND_LOCATION);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        float var2 = 32.0F;
-        var1.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
-        var1.vertex((double)this.x0, (double)param1, 0.0).uv(0.0F, (float)param1 / 32.0F).color(64, 64, 64, param3).endVertex();
-        var1.vertex((double)(this.x0 + this.width), (double)param1, 0.0)
-            .uv((float)this.width / 32.0F, (float)param1 / 32.0F)
-            .color(64, 64, 64, param3)
-            .endVertex();
-        var1.vertex((double)(this.x0 + this.width), (double)param0, 0.0)
-            .uv((float)this.width / 32.0F, (float)param0 / 32.0F)
-            .color(64, 64, 64, param2)
-            .endVertex();
-        var1.vertex((double)this.x0, (double)param0, 0.0).uv(0.0F, (float)param0 / 32.0F).color(64, 64, 64, param2).endVertex();
-        var0.end();
     }
 
     protected E remove(int param0) {

@@ -276,18 +276,36 @@ public class ItemBlockRenderTypes {
         }
     }
 
-    public static RenderType getRenderType(BlockState param0) {
-        RenderType var0 = getChunkRenderType(param0);
-        return var0 == RenderType.translucent() ? Sheets.translucentCullBlockSheet() : Sheets.cutoutBlockSheet();
+    public static RenderType getMovingBlockRenderType(BlockState param0) {
+        Block var0 = param0.getBlock();
+        if (var0 instanceof LeavesBlock) {
+            return renderCutout ? RenderType.cutoutMipped() : RenderType.solid();
+        } else {
+            RenderType var1 = TYPE_BY_BLOCK.get(var0);
+            if (var1 != null) {
+                return var1 == RenderType.translucent() ? RenderType.translucentMovingBlock() : var1;
+            } else {
+                return RenderType.solid();
+            }
+        }
     }
 
-    public static RenderType getRenderType(ItemStack param0) {
+    public static RenderType getRenderType(BlockState param0, boolean param1) {
+        RenderType var0 = getChunkRenderType(param0);
+        if (var0 == RenderType.translucent()) {
+            return param1 ? Sheets.translucentCullBlockSheet() : Sheets.translucentItemSheet();
+        } else {
+            return Sheets.cutoutBlockSheet();
+        }
+    }
+
+    public static RenderType getRenderType(ItemStack param0, boolean param1) {
         Item var0 = param0.getItem();
         if (var0 instanceof BlockItem) {
             Block var1 = ((BlockItem)var0).getBlock();
-            return getRenderType(var1.defaultBlockState());
+            return getRenderType(var1.defaultBlockState(), param1);
         } else {
-            return Sheets.translucentCullBlockSheet();
+            return param1 ? Sheets.translucentCullBlockSheet() : Sheets.translucentItemSheet();
         }
     }
 

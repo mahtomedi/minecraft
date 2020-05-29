@@ -176,7 +176,7 @@ public final class ItemStack {
         } else {
             Item var3 = this.getItem();
             InteractionResult var4 = var3.useOn(param0);
-            if (var0 != null && var4 == InteractionResult.SUCCESS) {
+            if (var0 != null && var4.consumesAction()) {
                 var0.awardStat(Stats.ITEM_USED.get(var3));
             }
 
@@ -304,8 +304,8 @@ public final class ItemStack {
 
     }
 
-    public boolean canDestroySpecial(BlockState param0) {
-        return this.getItem().canDestroySpecial(param0);
+    public boolean isCorrectToolForDrops(BlockState param0) {
+        return this.getItem().isCorrectToolForDrops(param0);
     }
 
     public boolean interactEnemy(Player param0, LivingEntity param1, InteractionHand param2) {

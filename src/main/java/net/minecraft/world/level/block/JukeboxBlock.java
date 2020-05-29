@@ -34,7 +34,7 @@ public class JukeboxBlock extends BaseEntityBlock {
             this.dropRecording(param1, param2);
             param0 = param0.setValue(HAS_RECORD, Boolean.valueOf(false));
             param1.setBlock(param2, param0, 2);
-            return InteractionResult.SUCCESS;
+            return InteractionResult.sidedSuccess(param1.isClientSide);
         } else {
             return InteractionResult.PASS;
         }

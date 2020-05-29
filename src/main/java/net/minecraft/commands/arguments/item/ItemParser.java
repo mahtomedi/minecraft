@@ -9,7 +9,7 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 import javax.annotation.Nullable;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.core.Registry;
@@ -17,7 +17,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagCollection;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.state.properties.Property;
 
@@ -28,7 +28,9 @@ public class ItemParser {
     public static final DynamicCommandExceptionType ERROR_UNKNOWN_ITEM = new DynamicCommandExceptionType(
         param0 -> new TranslatableComponent("argument.item.id.invalid", param0)
     );
-    private static final Function<SuggestionsBuilder, CompletableFuture<Suggestions>> SUGGEST_NOTHING = SuggestionsBuilder::buildFuture;
+    private static final BiFunction<SuggestionsBuilder, TagCollection<Item>, CompletableFuture<Suggestions>> SUGGEST_NOTHING = (param0, param1) -> param0.buildFuture(
+            
+        );
     private final StringReader reader;
     private final boolean forTesting;
     private final Map<Property<?>, Comparable<?>> properties = Maps.newHashMap();
@@ -37,7 +39,7 @@ public class ItemParser {
     private CompoundTag nbt;
     private ResourceLocation tag = new ResourceLocation("");
     private int tagCursor;
-    private Function<SuggestionsBuilder, CompletableFuture<Suggestions>> suggestions = SUGGEST_NOTHING;
+    private BiFunction<SuggestionsBuilder, TagCollection<Item>, CompletableFuture<Suggestions>> suggestions = SUGGEST_NOTHING;
 
     public ItemParser(StringReader param0, boolean param1) {
         this.reader = param0;
@@ -98,7 +100,7 @@ public class ItemParser {
         return this;
     }
 
-    private CompletableFuture<Suggestions> suggestOpenNbt(SuggestionsBuilder param0) {
+    private CompletableFuture<Suggestions> suggestOpenNbt(SuggestionsBuilder param0, TagCollection<Item> param1) {
         if (param0.getRemaining().isEmpty()) {
             param0.suggest(String.valueOf('{'));
         }
@@ -106,19 +108,19 @@ public class ItemParser {
         return param0.buildFuture();
     }
 
-    private CompletableFuture<Suggestions> suggestTag(SuggestionsBuilder param0) {
-        return SharedSuggestionProvider.suggestResource(ItemTags.getAllTags().getAvailableTags(), param0.createOffset(this.tagCursor));
+    private CompletableFuture<Suggestions> suggestTag(SuggestionsBuilder param0, TagCollection<Item> param1) {
+        return SharedSuggestionProvider.suggestResource(param1.getAvailableTags(), param0.createOffset(this.tagCursor));
     }
 
-    private CompletableFuture<Suggestions> suggestItemIdOrTag(SuggestionsBuilder param0) {
+    private CompletableFuture<Suggestions> suggestItemIdOrTag(SuggestionsBuilder param0, TagCollection<Item> param1) {
         if (this.forTesting) {
-            SharedSuggestionProvider.suggestResource(ItemTags.getAllTags().getAvailableTags(), param0, String.valueOf('#'));
+            SharedSuggestionProvider.suggestResource(param1.getAvailableTags(), param0, String.valueOf('#'));
         }
 
         return SharedSuggestionProvider.suggestResource(Registry.ITEM.keySet(), param0);
     }
 
-    public CompletableFuture<Suggestions> fillSuggestions(SuggestionsBuilder param0) {
-        return this.suggestions.apply(param0.createOffset(this.reader.getCursor()));
+    public CompletableFuture<Suggestions> fillSuggestions(SuggestionsBuilder param0, TagCollection<Item> param1) {
+        return this.suggestions.apply(param0.createOffset(this.reader.getCursor()), param1);
     }
 }

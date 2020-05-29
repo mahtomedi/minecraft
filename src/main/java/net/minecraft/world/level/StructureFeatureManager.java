@@ -24,7 +24,7 @@ public class StructureFeatureManager {
     public Stream<? extends StructureStart<?>> startsForFeature(SectionPos param0, StructureFeature<?> param1) {
         return this.level
             .getChunk(param0.x(), param0.z(), ChunkStatus.STRUCTURE_REFERENCES)
-            .getReferencesForFeature(param1.getFeatureName())
+            .getReferencesForFeature(param1)
             .stream()
             .map(param0x -> SectionPos.of(new ChunkPos(param0x), 0))
             .map(param1x -> this.getStartForFeature(param1x, param1, this.level.getChunk(param1x.x(), param1x.z(), ChunkStatus.STRUCTURE_STARTS)))
@@ -33,15 +33,15 @@ public class StructureFeatureManager {
 
     @Nullable
     public StructureStart<?> getStartForFeature(SectionPos param0, StructureFeature<?> param1, FeatureAccess param2) {
-        return param2.getStartForFeature(param1.getFeatureName());
+        return param2.getStartForFeature(param1);
     }
 
     public void setStartForFeature(SectionPos param0, StructureFeature<?> param1, StructureStart<?> param2, FeatureAccess param3) {
-        param3.setStartForFeature(param1.getFeatureName(), param2);
+        param3.setStartForFeature(param1, param2);
     }
 
     public void addReferenceForFeature(SectionPos param0, StructureFeature<?> param1, long param2, FeatureAccess param3) {
-        param3.addReferenceForFeature(param1.getFeatureName(), param2);
+        param3.addReferenceForFeature(param1, param2);
     }
 
     public boolean shouldGenerateFeatures() {

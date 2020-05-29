@@ -1,79 +1,81 @@
 package net.minecraft.server.packs.repository;
 
 import com.google.common.base.Functions;
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import net.minecraft.server.packs.Pack;
 
 public class PackRepository<T extends UnopenedPack> implements AutoCloseable {
-    private final Set<RepositorySource> sources = Sets.newHashSet();
-    private final Map<String, T> available = Maps.newLinkedHashMap();
-    private final List<T> selected = Lists.newLinkedList();
+    private final Set<RepositorySource> sources;
+    private Map<String, T> available = ImmutableMap.of();
+    private List<T> selected = ImmutableList.of();
     private final UnopenedPack.UnopenedPackConstructor<T> constructor;
 
-    public PackRepository(UnopenedPack.UnopenedPackConstructor<T> param0) {
+    public PackRepository(UnopenedPack.UnopenedPackConstructor<T> param0, RepositorySource... param1) {
         this.constructor = param0;
+        this.sources = ImmutableSet.copyOf(param1);
     }
 
     public void reload() {
+        List<String> var0 = this.selected.stream().map(UnopenedPack::getId).collect(ImmutableList.toImmutableList());
         this.close();
-        Set<String> var0 = this.selected.stream().map(UnopenedPack::getId).collect(Collectors.toCollection(LinkedHashSet::new));
-        this.available.clear();
-        this.selected.clear();
+        this.available = this.discoverAvailable();
+        this.selected = this.rebuildSelected(var0);
+    }
+
+    private Map<String, T> discoverAvailable() {
+        Map<String, T> var0 = Maps.newTreeMap();
 
         for(RepositorySource var1 : this.sources) {
-            var1.loadPacks(this.available, this.constructor);
+            var1.loadPacks(var0, this.constructor);
         }
 
-        this.sortAvailable();
-        this.selected.addAll(var0.stream().map(this.available::get).filter(Objects::nonNull).collect(Collectors.toCollection(LinkedHashSet::new)));
+        return ImmutableMap.copyOf(var0);
+    }
 
-        for(T var2 : this.available.values()) {
-            if (var2.isRequired() && !this.selected.contains(var2)) {
-                var2.getDefaultPosition().insert(this.selected, var2, Functions.identity(), false);
+    public void setSelected(Collection<String> param0) {
+        this.selected = this.rebuildSelected(param0);
+    }
+
+    private List<T> rebuildSelected(Collection<String> param0) {
+        List<T> var0 = this.getAvailablePacks(param0).collect(Collectors.toList());
+
+        for(T var1 : this.available.values()) {
+            if (var1.isRequired() && !var0.contains(var1)) {
+                var1.getDefaultPosition().insert(var0, var1, Functions.identity(), false);
             }
         }
 
+        return ImmutableList.copyOf(var0);
     }
 
-    private void sortAvailable() {
-        List<Entry<String, T>> var0 = Lists.newArrayList(this.available.entrySet());
-        this.available.clear();
-        var0.stream().sorted(Entry.comparingByKey()).forEachOrdered(param0 -> param0.getKey());
+    private Stream<T> getAvailablePacks(Collection<String> param0) {
+        return param0.stream().map(this.available::get).filter(Objects::nonNull);
     }
 
-    public void setSelected(Collection<T> param0) {
-        this.selected.clear();
-        this.selected.addAll(param0);
-
-        for(T var0 : this.available.values()) {
-            if (var0.isRequired() && !this.selected.contains(var0)) {
-                var0.getDefaultPosition().insert(this.selected, var0, Functions.identity(), false);
-            }
-        }
-
+    public Collection<String> getAvailableIds() {
+        return this.available.keySet();
     }
 
-    public Collection<T> getAvailable() {
+    public Collection<T> getAvailablePacks() {
         return this.available.values();
     }
 
-    public Collection<T> getUnselected() {
-        Collection<T> var0 = Lists.newArrayList(this.available.values());
-        var0.removeAll(this.selected);
-        return var0;
+    public Collection<String> getSelectedIds() {
+        return this.selected.stream().map(UnopenedPack::getId).collect(ImmutableSet.toImmutableSet());
     }
 
-    public Collection<T> getSelected() {
+    public Collection<T> getSelectedPacks() {
         return this.selected;
     }
 
@@ -82,12 +84,16 @@ public class PackRepository<T extends UnopenedPack> implements AutoCloseable {
         return this.available.get(param0);
     }
 
-    public void addSource(RepositorySource param0) {
-        this.sources.add(param0);
-    }
-
     @Override
     public void close() {
         this.available.values().forEach(UnopenedPack::close);
+    }
+
+    public boolean isAvailable(String param0) {
+        return this.available.containsKey(param0);
+    }
+
+    public List<Pack> openAllSelected() {
+        return this.selected.stream().map(UnopenedPack::open).collect(ImmutableList.toImmutableList());
     }
 }

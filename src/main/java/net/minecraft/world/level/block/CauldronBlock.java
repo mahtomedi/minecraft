@@ -87,7 +87,7 @@ public class CauldronBlock extends Block {
                     param1.playSound(null, param2, SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
                 }
 
-                return InteractionResult.SUCCESS;
+                return InteractionResult.sidedSuccess(param1.isClientSide);
             } else if (var2 == Items.BUCKET) {
                 if (var1 == 3 && !param1.isClientSide) {
                     if (!param3.abilities.instabuild) {
@@ -104,7 +104,7 @@ public class CauldronBlock extends Block {
                     param1.playSound(null, param2, SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
                 }
 
-                return InteractionResult.SUCCESS;
+                return InteractionResult.sidedSuccess(param1.isClientSide);
             } else if (var2 == Items.GLASS_BOTTLE) {
                 if (var1 > 0 && !param1.isClientSide) {
                     if (!param3.abilities.instabuild) {
@@ -124,7 +124,7 @@ public class CauldronBlock extends Block {
                     this.setWaterLevel(param1, param2, param0, var1 - 1);
                 }
 
-                return InteractionResult.SUCCESS;
+                return InteractionResult.sidedSuccess(param1.isClientSide);
             } else if (var2 == Items.POTION && PotionUtils.getPotion(var0) == Potions.WATER) {
                 if (var1 < 3 && !param1.isClientSide) {
                     if (!param3.abilities.instabuild) {
@@ -140,7 +140,7 @@ public class CauldronBlock extends Block {
                     this.setWaterLevel(param1, param2, param0, var1 + 1);
                 }
 
-                return InteractionResult.SUCCESS;
+                return InteractionResult.sidedSuccess(param1.isClientSide);
             } else {
                 if (var1 > 0 && var2 instanceof DyeableLeatherItem) {
                     DyeableLeatherItem var5 = (DyeableLeatherItem)var2;
@@ -172,7 +172,7 @@ public class CauldronBlock extends Block {
                         }
                     }
 
-                    return InteractionResult.SUCCESS;
+                    return InteractionResult.sidedSuccess(param1.isClientSide);
                 } else if (var1 > 0 && var2 instanceof BlockItem) {
                     Block var7 = ((BlockItem)var2).getBlock();
                     if (var7 instanceof ShulkerBoxBlock && !param1.isClientSide()) {

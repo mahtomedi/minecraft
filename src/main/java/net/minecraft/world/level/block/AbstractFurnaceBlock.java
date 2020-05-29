@@ -37,7 +37,7 @@ public abstract class AbstractFurnaceBlock extends BaseEntityBlock {
             return InteractionResult.SUCCESS;
         } else {
             this.openContainer(param1, param2, param3);
-            return InteractionResult.SUCCESS;
+            return InteractionResult.CONSUME;
         }
     }
 

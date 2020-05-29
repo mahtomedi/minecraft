@@ -7,7 +7,6 @@ import com.google.gson.JsonSerializationContext;
 import java.util.Set;
 import net.minecraft.advancements.critereon.DamageSourcePredicate;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
@@ -19,6 +18,11 @@ public class DamageSourceCondition implements LootItemCondition {
 
     private DamageSourceCondition(DamageSourcePredicate param0) {
         this.predicate = param0;
+    }
+
+    @Override
+    public LootItemConditionType getType() {
+        return LootItemConditions.DAMAGE_SOURCE_PROPERTIES;
     }
 
     @Override
@@ -36,11 +40,7 @@ public class DamageSourceCondition implements LootItemCondition {
         return () -> new DamageSourceCondition(param0.build());
     }
 
-    public static class Serializer extends LootItemCondition.Serializer<DamageSourceCondition> {
-        protected Serializer() {
-            super(new ResourceLocation("damage_source_properties"), DamageSourceCondition.class);
-        }
-
+    public static class Serializer implements net.minecraft.world.level.storage.loot.Serializer<DamageSourceCondition> {
         public void serialize(JsonObject param0, DamageSourceCondition param1, JsonSerializationContext param2) {
             param0.add("predicate", param1.predicate.serializeToJson());
         }

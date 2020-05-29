@@ -17,8 +17,8 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -38,14 +38,14 @@ public class BookViewScreen extends Screen {
         }
 
         @Override
-        public Component getPageRaw(int param0) {
-            return TextComponent.EMPTY;
+        public FormattedText getPageRaw(int param0) {
+            return FormattedText.EMPTY;
         }
     };
     public static final ResourceLocation BOOK_LOCATION = new ResourceLocation("textures/gui/book.png");
     private BookViewScreen.BookAccess bookAccess;
     private int currentPage;
-    private List<Component> cachedPageComponents = Collections.emptyList();
+    private List<FormattedText> cachedPageComponents = Collections.emptyList();
     private int cachedPage = -1;
     private PageButton forwardButton;
     private PageButton backButton;
@@ -159,7 +159,7 @@ public class BookViewScreen extends Screen {
         this.blit(param0, var0, 2, 0, 0, 192, 192);
         String var2 = I18n.get("book.pageIndicator", this.currentPage + 1, Math.max(this.getNumPages(), 1));
         if (this.cachedPage != this.currentPage) {
-            Component var3 = this.bookAccess.getPage(this.currentPage);
+            FormattedText var3 = this.bookAccess.getPage(this.currentPage);
             this.cachedPageComponents = this.font.getSplitter().splitLines(var3, 114, Style.EMPTY);
         }
 
@@ -169,11 +169,11 @@ public class BookViewScreen extends Screen {
         int var5 = Math.min(128 / 9, this.cachedPageComponents.size());
 
         for(int var6 = 0; var6 < var5; ++var6) {
-            Component var7 = this.cachedPageComponents.get(var6);
+            FormattedText var7 = this.cachedPageComponents.get(var6);
             this.font.draw(param0, var7, (float)(var0 + 36), (float)(32 + var6 * 9), 0);
         }
 
-        Component var8 = this.getClickedComponentAt((double)param1, (double)param2);
+        Style var8 = this.getClickedComponentStyleAt((double)param1, (double)param2);
         if (var8 != null) {
             this.renderComponentHoverEffect(param0, var8, param1, param2);
         }
@@ -188,7 +188,7 @@ public class BookViewScreen extends Screen {
     @Override
     public boolean mouseClicked(double param0, double param1, int param2) {
         if (param2 == 0) {
-            Component var0 = this.getClickedComponentAt(param0, param1);
+            Style var0 = this.getClickedComponentStyleAt(param0, param1);
             if (var0 != null && this.handleComponentClicked(var0)) {
                 return true;
             }
@@ -198,8 +198,8 @@ public class BookViewScreen extends Screen {
     }
 
     @Override
-    public boolean handleComponentClicked(Component param0) {
-        ClickEvent var0 = param0.getStyle().getClickEvent();
+    public boolean handleComponentClicked(Style param0) {
+        ClickEvent var0 = param0.getClickEvent();
         if (var0 == null) {
             return false;
         } else if (var0.getAction() == ClickEvent.Action.CHANGE_PAGE) {
@@ -222,7 +222,7 @@ public class BookViewScreen extends Screen {
     }
 
     @Nullable
-    public Component getClickedComponentAt(double param0, double param1) {
+    public Style getClickedComponentStyleAt(double param0, double param1) {
         if (this.cachedPageComponents == null) {
             return null;
         } else {
@@ -233,8 +233,8 @@ public class BookViewScreen extends Screen {
                 if (var0 <= 114 && var1 < 9 * var2 + var2) {
                     int var3 = var1 / 9;
                     if (var3 >= 0 && var3 < this.cachedPageComponents.size()) {
-                        Component var4 = this.cachedPageComponents.get(var3);
-                        return this.minecraft.font.getSplitter().componentAtWidth(var4, var0);
+                        FormattedText var4 = this.cachedPageComponents.get(var3);
+                        return this.minecraft.font.getSplitter().componentStyleAtWidth(var4, var0);
                     } else {
                         return null;
                     }
@@ -262,10 +262,10 @@ public class BookViewScreen extends Screen {
     public interface BookAccess {
         int getPageCount();
 
-        Component getPageRaw(int var1);
+        FormattedText getPageRaw(int var1);
 
-        default Component getPage(int param0) {
-            return param0 >= 0 && param0 < this.getPageCount() ? this.getPageRaw(param0) : TextComponent.EMPTY;
+        default FormattedText getPage(int param0) {
+            return param0 >= 0 && param0 < this.getPageCount() ? this.getPageRaw(param0) : FormattedText.EMPTY;
         }
 
         static BookViewScreen.BookAccess fromItem(ItemStack param0) {
@@ -297,8 +297,8 @@ public class BookViewScreen extends Screen {
         }
 
         @Override
-        public Component getPageRaw(int param0) {
-            return new TextComponent(this.pages.get(param0));
+        public FormattedText getPageRaw(int param0) {
+            return FormattedText.of(this.pages.get(param0));
         }
     }
 
@@ -323,18 +323,18 @@ public class BookViewScreen extends Screen {
         }
 
         @Override
-        public Component getPageRaw(int param0) {
+        public FormattedText getPageRaw(int param0) {
             String var0 = this.pages.get(param0);
 
             try {
-                Component var1 = Component.Serializer.fromJson(var0);
+                FormattedText var1 = Component.Serializer.fromJson(var0);
                 if (var1 != null) {
                     return var1;
                 }
             } catch (Exception var4) {
             }
 
-            return new TextComponent(var0);
+            return FormattedText.of(var0);
         }
     }
 }

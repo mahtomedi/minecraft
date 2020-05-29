@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
 import net.minecraft.core.Registry;
+import net.minecraft.util.Codecs;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -12,7 +13,7 @@ public class CheckerboardColumnBiomeSource extends BiomeSource {
     public static final Codec<CheckerboardColumnBiomeSource> CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
                     Registry.BIOME.listOf().fieldOf("biomes").forGetter(param0x -> param0x.allowedBiomes),
-                    Codec.INT.fieldOf("scale").withDefault(2).forGetter(param0x -> param0x.size)
+                    Codecs.intRange(0, 62).fieldOf("scale").withDefault(2).forGetter(param0x -> param0x.size)
                 )
                 .apply(param0, CheckerboardColumnBiomeSource::new)
     );

@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableSet;
 import com.mojang.serialization.Codec;
 import java.util.BitSet;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -13,6 +12,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.feature.configurations.ProbabilityFeatureConfiguration;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 
 public class UnderwaterCaveWorldCarver extends CaveWorldCarver {
     public UnderwaterCaveWorldCarver(Codec<ProbabilityFeatureConfiguration> param0) {
@@ -80,7 +80,7 @@ public class UnderwaterCaveWorldCarver extends CaveWorldCarver {
         int param12,
         int param13,
         int param14,
-        AtomicBoolean param15
+        MutableBoolean param15
     ) {
         return carveBlock(this, param0, param2, param3, param4, param7, param8, param9, param10, param11, param12, param13, param14);
     }

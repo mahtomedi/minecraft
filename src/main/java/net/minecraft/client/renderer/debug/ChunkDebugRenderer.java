@@ -18,8 +18,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -87,7 +87,7 @@ public class ChunkDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
 
         private ChunkData(IntegratedServer param0, double param1, double param2) {
             ClientLevel param3 = ChunkDebugRenderer.this.minecraft.level;
-            ResourceKey<DimensionType> var0 = param3.dimension();
+            ResourceKey<Level> var0 = param3.dimension();
             int var1 = (int)param1 >> 4;
             int var2 = (int)param2 >> 4;
             Builder<ChunkPos, String> var3 = ImmutableMap.builder();

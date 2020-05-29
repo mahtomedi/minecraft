@@ -1,56 +1,43 @@
 package net.minecraft.world.level.storage.loot.functions;
 
-import com.google.common.collect.Maps;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
-import com.google.gson.JsonSyntaxException;
-import java.lang.reflect.Type;
-import java.util.Map;
 import java.util.function.BiFunction;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.loot.GsonAdapterFactory;
 import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.Serializer;
 
 public class LootItemFunctions {
-    private static final Map<ResourceLocation, LootItemFunction.Serializer<?>> FUNCTIONS_BY_NAME = Maps.newHashMap();
-    private static final Map<Class<? extends LootItemFunction>, LootItemFunction.Serializer<?>> FUNCTIONS_BY_CLASS = Maps.newHashMap();
     public static final BiFunction<ItemStack, LootContext, ItemStack> IDENTITY = (param0, param1) -> param0;
+    public static final LootItemFunctionType SET_COUNT = register("set_count", new SetItemCountFunction.Serializer());
+    public static final LootItemFunctionType ENCHANT_WITH_LEVELS = register("enchant_with_levels", new EnchantWithLevelsFunction.Serializer());
+    public static final LootItemFunctionType ENCHANT_RANDOMLY = register("enchant_randomly", new EnchantRandomlyFunction.Serializer());
+    public static final LootItemFunctionType SET_NBT = register("set_nbt", new SetNbtFunction.Serializer());
+    public static final LootItemFunctionType FURNACE_SMELT = register("furnace_smelt", new SmeltItemFunction.Serializer());
+    public static final LootItemFunctionType LOOTING_ENCHANT = register("looting_enchant", new LootingEnchantFunction.Serializer());
+    public static final LootItemFunctionType SET_DAMAGE = register("set_damage", new SetItemDamageFunction.Serializer());
+    public static final LootItemFunctionType SET_ATTRIBUTES = register("set_attributes", new SetAttributesFunction.Serializer());
+    public static final LootItemFunctionType SET_NAME = register("set_name", new SetNameFunction.Serializer());
+    public static final LootItemFunctionType EXPLORATION_MAP = register("exploration_map", new ExplorationMapFunction.Serializer());
+    public static final LootItemFunctionType SET_STEW_EFFECT = register("set_stew_effect", new SetStewEffectFunction.Serializer());
+    public static final LootItemFunctionType COPY_NAME = register("copy_name", new CopyNameFunction.Serializer());
+    public static final LootItemFunctionType SET_CONTENTS = register("set_contents", new SetContainerContents.Serializer());
+    public static final LootItemFunctionType LIMIT_COUNT = register("limit_count", new LimitCount.Serializer());
+    public static final LootItemFunctionType APPLY_BONUS = register("apply_bonus", new ApplyBonusCount.Serializer());
+    public static final LootItemFunctionType SET_LOOT_TABLE = register("set_loot_table", new SetContainerLootTable.Serializer());
+    public static final LootItemFunctionType EXPLOSION_DECAY = register("explosion_decay", new ApplyExplosionDecay.Serializer());
+    public static final LootItemFunctionType SET_LORE = register("set_lore", new SetLoreFunction.Serializer());
+    public static final LootItemFunctionType FILL_PLAYER_HEAD = register("fill_player_head", new FillPlayerHead.Serializer());
+    public static final LootItemFunctionType COPY_NBT = register("copy_nbt", new CopyNbtFunction.Serializer());
+    public static final LootItemFunctionType COPY_STATE = register("copy_state", new CopyBlockState.Serializer());
 
-    public static <T extends LootItemFunction> void register(LootItemFunction.Serializer<? extends T> param0) {
-        ResourceLocation var0 = param0.getName();
-        Class<T> var1 = param0.getFunctionClass();
-        if (FUNCTIONS_BY_NAME.containsKey(var0)) {
-            throw new IllegalArgumentException("Can't re-register item function name " + var0);
-        } else if (FUNCTIONS_BY_CLASS.containsKey(var1)) {
-            throw new IllegalArgumentException("Can't re-register item function class " + var1.getName());
-        } else {
-            FUNCTIONS_BY_NAME.put(var0, param0);
-            FUNCTIONS_BY_CLASS.put(var1, param0);
-        }
+    private static LootItemFunctionType register(String param0, Serializer<? extends LootItemFunction> param1) {
+        return Registry.register(Registry.LOOT_FUNCTION_TYPE, new ResourceLocation(param0), new LootItemFunctionType(param1));
     }
 
-    public static LootItemFunction.Serializer<?> getSerializer(ResourceLocation param0) {
-        LootItemFunction.Serializer<?> var0 = FUNCTIONS_BY_NAME.get(param0);
-        if (var0 == null) {
-            throw new IllegalArgumentException("Unknown loot item function '" + param0 + "'");
-        } else {
-            return var0;
-        }
-    }
-
-    public static <T extends LootItemFunction> LootItemFunction.Serializer<T> getSerializer(T param0) {
-        LootItemFunction.Serializer<T> var0 = (LootItemFunction.Serializer)FUNCTIONS_BY_CLASS.get(param0.getClass());
-        if (var0 == null) {
-            throw new IllegalArgumentException("Unknown loot item function " + param0);
-        } else {
-            return var0;
-        }
+    public static Object createGsonAdapter() {
+        return GsonAdapterFactory.builder(Registry.LOOT_FUNCTION_TYPE, "function", "function", LootItemFunction::getType).build();
     }
 
     public static BiFunction<ItemStack, LootContext, ItemStack> compose(BiFunction<ItemStack, LootContext, ItemStack>[] param0) {
@@ -71,54 +58,6 @@ public class LootItemFunctions {
 
                     return param1;
                 };
-        }
-    }
-
-    static {
-        register(new SetItemCountFunction.Serializer());
-        register(new EnchantWithLevelsFunction.Serializer());
-        register(new EnchantRandomlyFunction.Serializer());
-        register(new SetNbtFunction.Serializer());
-        register(new SmeltItemFunction.Serializer());
-        register(new LootingEnchantFunction.Serializer());
-        register(new SetItemDamageFunction.Serializer());
-        register(new SetAttributesFunction.Serializer());
-        register(new SetNameFunction.Serializer());
-        register(new ExplorationMapFunction.Serializer());
-        register(new SetStewEffectFunction.Serializer());
-        register(new CopyNameFunction.Serializer());
-        register(new SetContainerContents.Serializer());
-        register(new LimitCount.Serializer());
-        register(new ApplyBonusCount.Serializer());
-        register(new SetContainerLootTable.Serializer());
-        register(new ApplyExplosionDecay.Serializer());
-        register(new SetLoreFunction.Serializer());
-        register(new FillPlayerHead.Serializer());
-        register(new CopyNbtFunction.Serializer());
-        register(new CopyBlockState.Serializer());
-    }
-
-    public static class Serializer implements JsonDeserializer<LootItemFunction>, JsonSerializer<LootItemFunction> {
-        public LootItemFunction deserialize(JsonElement param0, Type param1, JsonDeserializationContext param2) throws JsonParseException {
-            JsonObject var0 = GsonHelper.convertToJsonObject(param0, "function");
-            ResourceLocation var1 = new ResourceLocation(GsonHelper.getAsString(var0, "function"));
-
-            LootItemFunction.Serializer<?> var2;
-            try {
-                var2 = LootItemFunctions.getSerializer(var1);
-            } catch (IllegalArgumentException var8) {
-                throw new JsonSyntaxException("Unknown function '" + var1 + "'");
-            }
-
-            return var2.deserialize(var0, param2);
-        }
-
-        public JsonElement serialize(LootItemFunction param0, Type param1, JsonSerializationContext param2) {
-            LootItemFunction.Serializer<LootItemFunction> var0 = LootItemFunctions.getSerializer(param0);
-            JsonObject var1 = new JsonObject();
-            var1.addProperty("function", var0.getName().toString());
-            var0.serialize(var1, param0, param2);
-            return var1;
         }
     }
 }

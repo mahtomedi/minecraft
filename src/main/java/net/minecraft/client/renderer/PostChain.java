@@ -143,25 +143,39 @@ public class PostChain implements AutoCloseable {
                         JsonObject var10 = GsonHelper.convertToJsonObject(var9, "auxtarget");
                         String var11 = GsonHelper.getAsString(var10, "name");
                         String var12 = GsonHelper.getAsString(var10, "id");
-                        RenderTarget var13 = this.getRenderTarget(var12);
-                        if (var13 == null) {
-                            ResourceLocation var14 = new ResourceLocation("textures/effect/" + var12 + ".png");
-                            Resource var15 = null;
+                        boolean var13;
+                        String var14;
+                        if (var12.endsWith(":depth")) {
+                            var13 = true;
+                            var14 = var12.substring(0, var12.lastIndexOf(58));
+                        } else {
+                            var13 = false;
+                            var14 = var12;
+                        }
 
-                            try {
-                                var15 = this.resourceManager.getResource(var14);
-                            } catch (FileNotFoundException var29) {
-                                throw new ChainedJsonException("Render target or texture '" + var12 + "' does not exist");
-                            } finally {
-                                IOUtils.closeQuietly((Closeable)var15);
+                        RenderTarget var17 = this.getRenderTarget(var14);
+                        if (var17 == null) {
+                            if (var13) {
+                                throw new ChainedJsonException("Render target '" + var14 + "' can't be used as depth buffer");
                             }
 
-                            param0.bind(var14);
-                            AbstractTexture var17 = param0.getTexture(var14);
-                            int var18 = GsonHelper.getAsInt(var10, "width");
-                            int var19 = GsonHelper.getAsInt(var10, "height");
-                            boolean var20x = GsonHelper.getAsBoolean(var10, "bilinear");
-                            if (var20x) {
+                            ResourceLocation var18 = new ResourceLocation("textures/effect/" + var14 + ".png");
+                            Resource var19 = null;
+
+                            try {
+                                var19 = this.resourceManager.getResource(var18);
+                            } catch (FileNotFoundException var311) {
+                                throw new ChainedJsonException("Render target or texture '" + var14 + "' does not exist");
+                            } finally {
+                                IOUtils.closeQuietly((Closeable)var19);
+                            }
+
+                            param0.bind(var18);
+                            AbstractTexture var21 = param0.getTexture(var18);
+                            int var22 = GsonHelper.getAsInt(var10, "width");
+                            int var23 = GsonHelper.getAsInt(var10, "height");
+                            boolean var24x = GsonHelper.getAsBoolean(var10, "bilinear");
+                            if (var24x) {
                                 RenderSystem.texParameter(3553, 10241, 9729);
                                 RenderSystem.texParameter(3553, 10240, 9729);
                             } else {
@@ -169,34 +183,36 @@ public class PostChain implements AutoCloseable {
                                 RenderSystem.texParameter(3553, 10240, 9728);
                             }
 
-                            var6.addAuxAsset(var11, var17.getId(), var18, var19);
+                            var6.addAuxAsset(var11, var21.getId(), var22, var23);
+                        } else if (var13) {
+                            var6.addAuxAsset(var11, var17.depthBufferId, var17.width, var17.height);
                         } else {
-                            var6.addAuxAsset(var11, var13, var13.width, var13.height);
+                            var6.addAuxAsset(var11, var17, var17.width, var17.height);
                         }
-                    } catch (Exception var31) {
-                        ChainedJsonException var22 = ChainedJsonException.forException(var31);
-                        var22.prependJsonKey("auxtargets[" + var8 + "]");
-                        throw var22;
+                    } catch (Exception var33) {
+                        ChainedJsonException var26 = ChainedJsonException.forException(var33);
+                        var26.prependJsonKey("auxtargets[" + var8 + "]");
+                        throw var26;
                     }
 
                     ++var8;
                 }
             }
 
-            JsonArray var23 = GsonHelper.getAsJsonArray(var0, "uniforms", null);
-            if (var23 != null) {
-                int var24 = 0;
+            JsonArray var27 = GsonHelper.getAsJsonArray(var0, "uniforms", null);
+            if (var27 != null) {
+                int var28 = 0;
 
-                for(JsonElement var25 : var23) {
+                for(JsonElement var29 : var27) {
                     try {
-                        this.parseUniformNode(var25);
-                    } catch (Exception var28) {
-                        ChainedJsonException var27 = ChainedJsonException.forException(var28);
-                        var27.prependJsonKey("uniforms[" + var24 + "]");
-                        throw var27;
+                        this.parseUniformNode(var29);
+                    } catch (Exception var301) {
+                        ChainedJsonException var31 = ChainedJsonException.forException(var301);
+                        var31.prependJsonKey("uniforms[" + var28 + "]");
+                        throw var31;
                     }
 
-                    ++var24;
+                    ++var28;
                 }
             }
 

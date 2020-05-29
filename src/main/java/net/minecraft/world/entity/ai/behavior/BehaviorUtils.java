@@ -3,6 +3,7 @@ package net.minecraft.world.entity.ai.behavior;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.SerializableUUID;
@@ -15,6 +16,7 @@ import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ProjectileWeaponItem;
@@ -131,5 +133,18 @@ public class BehaviorUtils {
     public static Optional<LivingEntity> getLivingEntityFromUUIDMemory(LivingEntity param0, MemoryModuleType<SerializableUUID> param1) {
         Optional<SerializableUUID> var0 = param0.getBrain().getMemory(param1);
         return var0.map(SerializableUUID::value).map(param1x -> (LivingEntity)((ServerLevel)param0.level).getEntity(param1x));
+    }
+
+    public static Stream<Villager> getNearbyVillagersWithCondition(Villager param0, Predicate<Villager> param1) {
+        return param0.getBrain()
+            .getMemory(MemoryModuleType.LIVING_ENTITIES)
+            .map(
+                param2 -> param2.stream()
+                        .filter(param1x -> param1x instanceof Villager && param1x != param0)
+                        .map(param0x -> (Villager)param0x)
+                        .filter(LivingEntity::isAlive)
+                        .filter(param1)
+            )
+            .orElseGet(Stream::empty);
     }
 }

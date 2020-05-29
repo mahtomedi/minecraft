@@ -12,6 +12,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.internal.Streams;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
+import com.mojang.datafixers.DataFixer;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.JsonOps;
 import java.io.File;
@@ -45,6 +46,7 @@ import net.minecraft.network.protocol.game.ClientboundSelectAdvancementsTabPacke
 import net.minecraft.network.protocol.game.ClientboundUpdateAdvancementsPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.PlayerList;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.GameRules;
 import org.apache.logging.log4j.LogManager;
@@ -59,7 +61,8 @@ public class PlayerAdvancements {
         .create();
     private static final TypeToken<Map<ResourceLocation, AdvancementProgress>> TYPE_TOKEN = new TypeToken<Map<ResourceLocation, AdvancementProgress>>() {
     };
-    private final MinecraftServer server;
+    private final DataFixer dataFixer;
+    private final PlayerList playerList;
     private final File file;
     private final Map<Advancement, AdvancementProgress> advancements = Maps.newLinkedHashMap();
     private final Set<Advancement> visible = Sets.newLinkedHashSet();
@@ -70,11 +73,12 @@ public class PlayerAdvancements {
     private Advancement lastSelectedTab;
     private boolean isFirstPacket = true;
 
-    public PlayerAdvancements(MinecraftServer param0, File param1, ServerPlayer param2) {
-        this.server = param0;
-        this.file = param1;
-        this.player = param2;
-        this.load();
+    public PlayerAdvancements(DataFixer param0, PlayerList param1, ServerAdvancementManager param2, File param3, ServerPlayer param4) {
+        this.dataFixer = param0;
+        this.playerList = param1;
+        this.file = param3;
+        this.player = param4;
+        this.load(param2);
     }
 
     public void setPlayer(ServerPlayer param0) {
@@ -88,7 +92,7 @@ public class PlayerAdvancements {
 
     }
 
-    public void reload() {
+    public void reload(ServerAdvancementManager param0) {
         this.stopListening();
         this.advancements.clear();
         this.visible.clear();
@@ -96,11 +100,11 @@ public class PlayerAdvancements {
         this.progressChanged.clear();
         this.isFirstPacket = true;
         this.lastSelectedTab = null;
-        this.load();
+        this.load(param0);
     }
 
-    private void registerListeners() {
-        for(Advancement var0 : this.server.getAdvancements().getAllAdvancements()) {
+    private void registerListeners(ServerAdvancementManager param0) {
+        for(Advancement var0 : param0.getAllAdvancements()) {
             this.registerListeners(var0);
         }
 
@@ -122,8 +126,8 @@ public class PlayerAdvancements {
 
     }
 
-    private void checkForAutomaticTriggers() {
-        for(Advancement var0 : this.server.getAdvancements().getAllAdvancements()) {
+    private void checkForAutomaticTriggers(ServerAdvancementManager param0) {
+        for(Advancement var0 : param0.getAllAdvancements()) {
             if (var0.getCriteria().isEmpty()) {
                 this.award(var0, "");
                 var0.getRewards().grant(this.player);
@@ -132,7 +136,7 @@ public class PlayerAdvancements {
 
     }
 
-    private void load() {
+    private void load(ServerAdvancementManager param0) {
         if (this.file.isFile()) {
             try (JsonReader var0 = new JsonReader(new StringReader(Files.toString(this.file, StandardCharsets.UTF_8)))) {
                 var0.setLenient(false);
@@ -141,8 +145,7 @@ public class PlayerAdvancements {
                     var1 = var1.set("DataVersion", var1.createInt(1343));
                 }
 
-                var1 = this.server
-                    .getFixerUpper()
+                var1 = this.dataFixer
                     .update(DataFixTypes.ADVANCEMENTS.getType(), var1, var1.get("DataVersion").asInt(0), SharedConstants.getCurrentVersion().getWorldVersion());
                 var1 = var1.remove("DataVersion");
                 Map<ResourceLocation, AdvancementProgress> var2 = GSON.getAdapter(TYPE_TOKEN).fromJsonTree(var1.getValue());
@@ -153,23 +156,23 @@ public class PlayerAdvancements {
                 Stream<Entry<ResourceLocation, AdvancementProgress>> var3 = var2.entrySet().stream().sorted(Comparator.comparing(Entry::getValue));
 
                 for(Entry<ResourceLocation, AdvancementProgress> var4 : var3.collect(Collectors.toList())) {
-                    Advancement var5 = this.server.getAdvancements().getAdvancement(var4.getKey());
+                    Advancement var5 = param0.getAdvancement(var4.getKey());
                     if (var5 == null) {
                         LOGGER.warn("Ignored advancement '{}' in progress file {} - it doesn't exist anymore?", var4.getKey(), this.file);
                     } else {
                         this.startProgress(var5, var4.getValue());
                     }
                 }
-            } catch (JsonParseException var20) {
-                LOGGER.error("Couldn't parse player advancements in {}", this.file, var20);
-            } catch (IOException var21) {
-                LOGGER.error("Couldn't access player advancements in {}", this.file, var21);
+            } catch (JsonParseException var21) {
+                LOGGER.error("Couldn't parse player advancements in {}", this.file, var21);
+            } catch (IOException var22) {
+                LOGGER.error("Couldn't access player advancements in {}", this.file, var22);
             }
         }
 
-        this.checkForAutomaticTriggers();
+        this.checkForAutomaticTriggers(param0);
         this.ensureAllVisible();
-        this.registerListeners();
+        this.registerListeners(param0);
     }
 
     public void save() {
@@ -213,8 +216,7 @@ public class PlayerAdvancements {
                 if (param0.getDisplay() != null
                     && param0.getDisplay().shouldAnnounceChat()
                     && this.player.level.getGameRules().getBoolean(GameRules.RULE_ANNOUNCE_ADVANCEMENTS)) {
-                    this.server
-                        .getPlayerList()
+                    this.playerList
                         .broadcastMessage(
                             new TranslatableComponent(
                                 "chat.type.advancement." + param0.getDisplay().getFrame().getName(), this.player.getDisplayName(), param0.getChatComponent()

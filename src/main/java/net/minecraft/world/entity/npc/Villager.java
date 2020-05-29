@@ -35,6 +35,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.Mth;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleContainer;
@@ -101,9 +102,11 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
     private long lastRestockGameTime;
     private int numberOfRestocksToday;
     private long lastRestockCheckDayTime;
+    private boolean assignProfessionWhenSpawned;
     private static final ImmutableList<MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(
         MemoryModuleType.HOME,
         MemoryModuleType.JOB_SITE,
+        MemoryModuleType.POTENTIAL_JOB_SITE,
         MemoryModuleType.MEETING_POINT,
         MemoryModuleType.LIVING_ENTITIES,
         MemoryModuleType.VISIBLE_LIVING_ENTITIES,
@@ -149,6 +152,8 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
         (param0, param1) -> param1 == PoiType.HOME,
         MemoryModuleType.JOB_SITE,
         (param0, param1) -> param0.getVillagerData().getProfession().getJobPoiType() == param1,
+        MemoryModuleType.POTENTIAL_JOB_SITE,
+        (param0, param1) -> PoiType.ALL_JOBS.test(param1),
         MemoryModuleType.MEETING_POINT,
         (param0, param1) -> param1 == PoiType.MEETING
     );
@@ -191,7 +196,6 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
 
     private void registerBrainGoals(Brain<Villager> param0) {
         VillagerProfession var0 = this.getVillagerData().getProfession();
-        float var1 = 0.5F;
         if (this.isBaby()) {
             param0.setSchedule(Schedule.VILLAGER_BABY);
             param0.addActivity(Activity.PLAY, VillagerGoalPackages.getPlayPackage(0.5F));
@@ -233,11 +237,19 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
         return Mob.createMobAttributes().add(Attributes.MOVEMENT_SPEED, 0.5).add(Attributes.FOLLOW_RANGE, 48.0);
     }
 
+    public boolean assignProfessionWhenSpawned() {
+        return this.assignProfessionWhenSpawned;
+    }
+
     @Override
     protected void customServerAiStep() {
         this.level.getProfiler().push("villagerBrain");
         this.getBrain().tick((ServerLevel)this.level, this);
         this.level.getProfiler().pop();
+        if (this.assignProfessionWhenSpawned) {
+            this.assignProfessionWhenSpawned = false;
+        }
+
         if (!this.isTrading() && this.updateMerchantTimer > 0) {
             --this.updateMerchantTimer;
             if (this.updateMerchantTimer <= 0) {
@@ -458,6 +470,10 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
         param0.putLong("LastRestock", this.lastRestockGameTime);
         param0.putLong("LastGossipDecay", this.lastGossipDecayTime);
         param0.putInt("RestocksToday", this.numberOfRestocksToday);
+        if (this.assignProfessionWhenSpawned) {
+            param0.putBoolean("AssignProfessionWhenSpawned", true);
+        }
+
     }
 
     @Override
@@ -490,6 +506,10 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
         }
 
         this.numberOfRestocksToday = param0.getInt("RestocksToday");
+        if (param0.contains("AssignProfessionWhenSpawned")) {
+            this.assignProfessionWhenSpawned = param0.getBoolean("AssignProfessionWhenSpawned");
+        }
+
     }
 
     @Override
@@ -708,6 +728,10 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
             this.setVillagerData(this.getVillagerData().setType(VillagerType.byBiome(param0.getBiome(this.blockPosition()))));
         }
 
+        if (param2 == MobSpawnType.STRUCTURE) {
+            this.assignProfessionWhenSpawned = true;
+        }
+
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
 
@@ -729,17 +753,27 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
 
     @Override
     public void thunderHit(LightningBolt param0) {
-        Witch var0 = EntityType.WITCH.create(this.level);
-        var0.moveTo(this.getX(), this.getY(), this.getZ(), this.yRot, this.xRot);
-        var0.finalizeSpawn(this.level, this.level.getCurrentDifficultyAt(var0.blockPosition()), MobSpawnType.CONVERSION, null, null);
-        var0.setNoAi(this.isNoAi());
-        if (this.hasCustomName()) {
-            var0.setCustomName(this.getCustomName());
-            var0.setCustomNameVisible(this.isCustomNameVisible());
+        if (this.level.getDifficulty() != Difficulty.PEACEFUL) {
+            LOGGER.info("Villager {} was struck by lightning {}.", this, param0);
+            Witch var0 = EntityType.WITCH.create(this.level);
+            var0.moveTo(this.getX(), this.getY(), this.getZ(), this.yRot, this.xRot);
+            var0.finalizeSpawn(this.level, this.level.getCurrentDifficultyAt(var0.blockPosition()), MobSpawnType.CONVERSION, null, null);
+            var0.setNoAi(this.isNoAi());
+            if (this.hasCustomName()) {
+                var0.setCustomName(this.getCustomName());
+                var0.setCustomNameVisible(this.isCustomNameVisible());
+            }
+
+            if (this.getVillagerXp() > 0) {
+                var0.setPersistenceRequired();
+            }
+
+            this.level.addFreshEntity(var0);
+            this.remove();
+        } else {
+            super.thunderHit(param0);
         }
 
-        this.level.addFreshEntity(var0);
-        this.remove();
     }
 
     @Override
@@ -937,6 +971,8 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
     public void startSleeping(BlockPos param0) {
         super.startSleeping(param0);
         this.brain.setMemory(MemoryModuleType.LAST_SLEPT, SerializableLong.of(this.level.getGameTime()));
+        this.brain.eraseMemory(MemoryModuleType.WALK_TARGET);
+        this.brain.eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
     }
 
     @Override

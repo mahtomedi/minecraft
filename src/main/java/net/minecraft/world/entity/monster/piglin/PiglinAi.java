@@ -6,6 +6,7 @@ import com.mojang.datafixers.util.Pair;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SerializableUUID;
@@ -104,7 +105,7 @@ public class PiglinAi {
                 new InteractWithDoor(),
                 new StopHoldingItemIfNoLongerAdmiring<>(),
                 new StartAdmiringItemIfSeen(120),
-                new StartCelebratingIfTargetDead(300),
+                new StartCelebratingIfTargetDead(300, PiglinAi::wantsToDance),
                 new StopBeingAngryIfTargetDead()
             )
         );
@@ -153,7 +154,8 @@ public class PiglinAi {
                 avoidRepellent(),
                 new SetEntityLookTarget(PiglinAi::isPlayerHoldingLovedItem, 14.0F),
                 new StartAttacking<Piglin>(Piglin::isAdult, PiglinAi::findNearestValidAttackTarget),
-                new GoToCelebrateLocation(2, 1.0F),
+                new RunIf<Piglin>(param0x -> !param0x.isDancing(), new GoToCelebrateLocation<>(2, 1.0F)),
+                new RunIf<Piglin>(Piglin::isDancing, new GoToCelebrateLocation<>(4, 0.6F)),
                 new RunOne(
                     ImmutableList.of(
                         Pair.of(new SetEntityLookTarget(EntityType.PIGLIN, 8.0F), 1),
@@ -245,15 +247,24 @@ public class PiglinAi {
         }
 
         param0.setAggressive(var0.hasMemoryValue(MemoryModuleType.ATTACK_TARGET));
-        if (!var0.hasMemoryValue(MemoryModuleType.RIDE_TARGET) && (param0.getVehicle() instanceof Hoglin || param0.getVehicle() instanceof Piglin)) {
+        if (!var0.hasMemoryValue(MemoryModuleType.RIDE_TARGET) && isBabyRidingBaby(param0)) {
             param0.stopRiding();
         }
 
-        if (param0.isPassenger() && seesPlayerHoldingWantedItem(param0)) {
-            param0.stopRiding();
-            param0.getBrain().eraseMemory(MemoryModuleType.RIDE_TARGET);
+        if (!var0.hasMemoryValue(MemoryModuleType.CELEBRATE_LOCATION)) {
+            var0.eraseMemory(MemoryModuleType.DANCING);
         }
 
+        param0.setDancing(var0.hasMemoryValue(MemoryModuleType.DANCING));
+    }
+
+    private static boolean isBabyRidingBaby(Piglin param0) {
+        if (!param0.isBaby()) {
+            return false;
+        } else {
+            Entity var0 = param0.getVehicle();
+            return var0 instanceof Piglin && ((Piglin)var0).isBaby() || var0 instanceof Hoglin && ((Hoglin)var0).isBaby();
+        }
     }
 
     protected static void pickUpItem(Piglin param0, ItemEntity param1) {
@@ -371,6 +382,14 @@ public class PiglinAi {
         );
     }
 
+    private static boolean wantsToDance(LivingEntity param0x, LivingEntity param1) {
+        if (param1.getType() != EntityType.HOGLIN) {
+            return false;
+        } else {
+            return new Random(param0x.level.getGameTime()).nextFloat() < 0.1F;
+        }
+    }
+
     protected static boolean wantsToPickup(Piglin param0, ItemStack param1) {
         Item var0 = param1.getItem();
         if (var0.is(ItemTags.PIGLIN_REPELLENTS)) {
@@ -461,6 +480,7 @@ public class PiglinAi {
 
             Brain<Piglin> var0 = param0.getBrain();
             var0.eraseMemory(MemoryModuleType.CELEBRATE_LOCATION);
+            var0.eraseMemory(MemoryModuleType.DANCING);
             var0.eraseMemory(MemoryModuleType.ADMIRING_ITEM);
             if (param1 instanceof Player) {
                 var0.setMemoryWithExpiry(MemoryModuleType.ADMIRING_DISABLED, true, 400L);
@@ -621,10 +641,6 @@ public class PiglinAi {
 
     protected static void dontKillAnyMoreHoglinsForAWhile(Piglin param0x) {
         param0x.getBrain().setMemoryWithExpiry(MemoryModuleType.HUNTED_RECENTLY, true, (long)TIME_BETWEEN_HUNTS.randomValue(param0x.level.random));
-    }
-
-    private static boolean seesPlayerHoldingWantedItem(Piglin param0) {
-        return param0.getBrain().hasMemoryValue(MemoryModuleType.NEAREST_PLAYER_HOLDING_WANTED_ITEM);
     }
 
     private static void eat(Piglin param0) {

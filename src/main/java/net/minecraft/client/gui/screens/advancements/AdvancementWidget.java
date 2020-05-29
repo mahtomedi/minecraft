@@ -12,6 +12,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.StringSplitter;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -25,9 +26,9 @@ public class AdvancementWidget extends GuiComponent {
     private final AdvancementTab tab;
     private final Advancement advancement;
     private final DisplayInfo display;
-    private final Component title;
+    private final FormattedText title;
     private final int width;
-    private final List<Component> description;
+    private final List<FormattedText> description;
     private final Minecraft minecraft;
     private AdvancementWidget parent;
     private final List<AdvancementWidget> children = Lists.newArrayList();
@@ -49,24 +50,24 @@ public class AdvancementWidget extends GuiComponent {
         int var3 = 29 + param1.font.width(this.title) + var2;
         this.description = this.findOptimalLines(param3.getDescription().mutableCopy().withStyle(param3.getFrame().getChatColor()), var3);
 
-        for(Component var4 : this.description) {
+        for(FormattedText var4 : this.description) {
             var3 = Math.max(var3, param1.font.width(var4));
         }
 
         this.width = var3 + 3 + 5;
     }
 
-    private static float getMaxWidth(StringSplitter param0, List<Component> param1) {
+    private static float getMaxWidth(StringSplitter param0, List<FormattedText> param1) {
         return (float)param1.stream().mapToDouble(param0::stringWidth).max().orElse(0.0);
     }
 
-    private List<Component> findOptimalLines(Component param0, int param1) {
+    private List<FormattedText> findOptimalLines(Component param0, int param1) {
         StringSplitter var0 = this.minecraft.font.getSplitter();
-        List<Component> var1 = null;
+        List<FormattedText> var1 = null;
         float var2 = Float.MAX_VALUE;
 
         for(int var3 : TEST_SPLIT_OFFSETS) {
-            List<Component> var4 = var0.splitLines(param0, param1 - var3, Style.EMPTY);
+            List<FormattedText> var4 = var0.splitLines(param0, param1 - var3, Style.EMPTY);
             float var5 = Math.abs(getMaxWidth(var0, var4) - (float)param1);
             if (var5 <= 10.0F) {
                 return var4;

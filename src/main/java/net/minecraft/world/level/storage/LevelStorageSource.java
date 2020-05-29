@@ -52,6 +52,7 @@ import net.minecraft.util.ProgressListener;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.util.datafix.DataFixers;
 import net.minecraft.util.datafix.fixes.References;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
@@ -267,7 +268,7 @@ public class LevelStorageSource {
             return this.resources.computeIfAbsent(param0, param0x -> this.levelPath.resolve(param0x.getId()));
         }
 
-        public File getDimensionPath(ResourceKey<DimensionType> param0) {
+        public File getDimensionPath(ResourceKey<Level> param0) {
             return DimensionType.getStorageFolder(param0, this.levelPath.toFile());
         }
 

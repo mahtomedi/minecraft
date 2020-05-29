@@ -31,7 +31,7 @@ public class ElytraItem extends Item implements Wearable {
         if (var2.isEmpty()) {
             param1.setItemSlot(var1, var0.copy());
             var0.setCount(0);
-            return InteractionResultHolder.success(var0);
+            return InteractionResultHolder.sidedSuccess(var0, param0.isClientSide());
         } else {
             return InteractionResultHolder.fail(var0);
         }

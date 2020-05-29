@@ -12,12 +12,16 @@ import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 public class DynamicLoot extends LootPoolSingletonContainer {
-    public static final ResourceLocation TYPE = new ResourceLocation("dynamic");
     private final ResourceLocation name;
 
     private DynamicLoot(ResourceLocation param0, int param1, int param2, LootItemCondition[] param3, LootItemFunction[] param4) {
         super(param1, param2, param3, param4);
         this.name = param0;
+    }
+
+    @Override
+    public LootPoolEntryType getType() {
+        return LootPoolEntries.DYNAMIC;
     }
 
     @Override
@@ -30,12 +34,8 @@ public class DynamicLoot extends LootPoolSingletonContainer {
     }
 
     public static class Serializer extends LootPoolSingletonContainer.Serializer<DynamicLoot> {
-        public Serializer() {
-            super(new ResourceLocation("dynamic"), DynamicLoot.class);
-        }
-
-        public void serialize(JsonObject param0, DynamicLoot param1, JsonSerializationContext param2) {
-            super.serialize(param0, param1, param2);
+        public void serializeCustom(JsonObject param0, DynamicLoot param1, JsonSerializationContext param2) {
+            super.serializeCustom(param0, param1, param2);
             param0.addProperty("name", param1.name.toString());
         }
 

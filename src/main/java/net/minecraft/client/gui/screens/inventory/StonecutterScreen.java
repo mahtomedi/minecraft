@@ -26,18 +26,13 @@ public class StonecutterScreen extends AbstractContainerScreen<StonecutterMenu> 
     public StonecutterScreen(StonecutterMenu param0, Inventory param1, Component param2) {
         super(param0, param1, param2);
         param0.registerUpdateListener(this::containerChanged);
+        --this.titleLabelY;
     }
 
     @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
         super.render(param0, param1, param2, param3);
         this.renderTooltip(param0, param1, param2);
-    }
-
-    @Override
-    protected void renderLabels(PoseStack param0, int param1, int param2) {
-        this.font.draw(param0, this.title, 8.0F, 4.0F, 4210752);
-        this.font.draw(param0, this.inventory.getDisplayName(), 8.0F, (float)(this.imageHeight - 94), 4210752);
     }
 
     @Override

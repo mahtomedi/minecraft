@@ -6,7 +6,6 @@ import java.util.BitSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Random;
-import java.util.Map.Entry;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
@@ -265,11 +264,10 @@ public abstract class ChunkGenerator {
             for(int var7 = var2 - 8; var7 <= var2 + 8; ++var7) {
                 long var8 = ChunkPos.asLong(var6, var7);
 
-                for(Entry<String, StructureStart<?>> var9 : param0.getChunk(var6, var7).getAllStarts().entrySet()) {
-                    StructureStart<?> var10 = var9.getValue();
-                    if (var10 != StructureStart.INVALID_START && var10.getBoundingBox().intersects(var3, var4, var3 + 15, var4 + 15)) {
-                        param1.addReferenceForFeature(var5, var10.getFeature(), var8, param2);
-                        DebugPackets.sendStructurePacket(param0, var10);
+                for(StructureStart<?> var9 : param0.getChunk(var6, var7).getAllStarts().values()) {
+                    if (var9 != StructureStart.INVALID_START && var9.getBoundingBox().intersects(var3, var4, var3 + 15, var4 + 15)) {
+                        param1.addReferenceForFeature(var5, var9.getFeature(), var8, param2);
+                        DebugPackets.sendStructurePacket(param0, var9);
                     }
                 }
             }

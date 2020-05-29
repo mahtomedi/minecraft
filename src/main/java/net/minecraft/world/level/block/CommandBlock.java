@@ -112,7 +112,7 @@ public class CommandBlock extends BaseEntityBlock {
         BlockEntity var0 = param1.getBlockEntity(param2);
         if (var0 instanceof CommandBlockEntity && param3.canUseGameMasterBlocks()) {
             param3.openCommandBlock((CommandBlockEntity)var0);
-            return InteractionResult.SUCCESS;
+            return InteractionResult.sidedSuccess(param1.isClientSide);
         } else {
             return InteractionResult.PASS;
         }

@@ -15,15 +15,14 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class TranslatableComponent extends BaseComponent implements ContextAwareComponent {
-    private static final Language DEFAULT_LANGUAGE = new Language();
     private static final Object[] NO_ARGS = new Object[0];
-    private static final Language LANGUAGE = Language.getInstance();
-    private static final TextComponent TEXT_PERCENT = new TextComponent("%");
-    private static final TextComponent TEXT_NULL = new TextComponent("null");
+    private static final FormattedText TEXT_PERCENT = FormattedText.of("%");
+    private static final FormattedText TEXT_NULL = FormattedText.of("null");
     private final String key;
     private final Object[] args;
-    private long decomposedLanguageTime = -1L;
-    private final List<Component> decomposedParts = Lists.newArrayList();
+    @Nullable
+    private Language decomposedWith;
+    private final List<FormattedText> decomposedParts = Lists.newArrayList();
     private static final Pattern FORMAT_PATTERN = Pattern.compile("%(?:(\\d+)\\$)?([A-Za-z%]|$)");
 
     public TranslatableComponent(String param0) {
@@ -36,24 +35,24 @@ public class TranslatableComponent extends BaseComponent implements ContextAware
         this.args = param1;
     }
 
-    private synchronized void decompose() {
-        long var0 = LANGUAGE.getLastUpdateTime();
-        if (var0 != this.decomposedLanguageTime) {
-            this.decomposedLanguageTime = var0;
+    private void decompose() {
+        Language var0 = Language.getInstance();
+        if (var0 != this.decomposedWith) {
+            this.decomposedWith = var0;
             this.decomposedParts.clear();
-            String var1 = LANGUAGE.getElement(this.key);
+            String var1 = var0.getOrDefault(this.key);
 
             try {
-                this.decomposeTemplate(var1);
-            } catch (TranslatableFormatException var5) {
+                this.decomposeTemplate(var0.reorder(var1, true), var0);
+            } catch (TranslatableFormatException var4) {
                 this.decomposedParts.clear();
-                this.decomposedParts.add(new TextComponent(var1));
+                this.decomposedParts.add(FormattedText.of(var1));
             }
 
         }
     }
 
-    private void decomposeTemplate(String param0) {
+    private void decomposeTemplate(String param0, Language param1) {
         Matcher var0 = FORMAT_PATTERN.matcher(param0);
 
         try {
@@ -70,7 +69,7 @@ public class TranslatableComponent extends BaseComponent implements ContextAware
                         throw new IllegalArgumentException();
                     }
 
-                    this.decomposedParts.add(new TextComponent(var5));
+                    this.decomposedParts.add(FormattedText.of(var5));
                 }
 
                 String var6 = var0.group(2);
@@ -85,7 +84,7 @@ public class TranslatableComponent extends BaseComponent implements ContextAware
                     String var8 = var0.group(1);
                     int var9 = var8 != null ? Integer.parseInt(var8) - 1 : var1++;
                     if (var9 < this.args.length) {
-                        this.decomposedParts.add(this.getComponent(var9));
+                        this.decomposedParts.add(this.getArgument(var9, param1));
                     }
                 }
             }
@@ -96,27 +95,24 @@ public class TranslatableComponent extends BaseComponent implements ContextAware
                     throw new IllegalArgumentException();
                 }
 
-                this.decomposedParts.add(new TextComponent(var10));
+                this.decomposedParts.add(FormattedText.of(var10));
             }
 
-        } catch (IllegalArgumentException var111) {
-            throw new TranslatableFormatException(this, var111);
+        } catch (IllegalArgumentException var12) {
+            throw new TranslatableFormatException(this, var12);
         }
     }
 
-    private Component getComponent(int param0) {
+    private FormattedText getArgument(int param0, Language param1) {
         if (param0 >= this.args.length) {
             throw new TranslatableFormatException(this, param0);
         } else {
             Object var0 = this.args[param0];
-            Component var1;
             if (var0 instanceof Component) {
-                var1 = (Component)var0;
+                return (Component)var0;
             } else {
-                var1 = var0 == null ? TEXT_NULL : new TextComponent(var0.toString());
+                return var0 == null ? TEXT_NULL : FormattedText.of(param1.reorder(var0.toString(), false));
             }
-
-            return var1;
         }
     }
 
@@ -126,10 +122,10 @@ public class TranslatableComponent extends BaseComponent implements ContextAware
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public <T> Optional<T> visitSelf(Component.StyledContentConsumer<T> param0, Style param1) {
+    public <T> Optional<T> visitSelf(FormattedText.StyledContentConsumer<T> param0, Style param1) {
         this.decompose();
 
-        for(Component var0 : this.decomposedParts) {
+        for(FormattedText var0 : this.decomposedParts) {
             Optional<T> var1 = var0.visit(param0, param1);
             if (var1.isPresent()) {
                 return var1;
@@ -140,10 +136,10 @@ public class TranslatableComponent extends BaseComponent implements ContextAware
     }
 
     @Override
-    public <T> Optional<T> visitSelf(Component.ContentConsumer<T> param0) {
+    public <T> Optional<T> visitSelf(FormattedText.ContentConsumer<T> param0) {
         this.decompose();
 
-        for(Component var0 : this.decomposedParts) {
+        for(FormattedText var0 : this.decomposedParts) {
             Optional<T> var1 = var0.visit(param0);
             if (var1.isPresent()) {
                 return var1;

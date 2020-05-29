@@ -250,7 +250,7 @@ public class ServerPlayerGameMode {
                 } else {
                     ItemStack var4 = this.player.getMainHandItem();
                     ItemStack var5 = var4.copy();
-                    boolean var6 = this.player.canDestroy(var0);
+                    boolean var6 = this.player.hasCorrectToolForDrops(var0);
                     var4.mineBlock(this.level, var0, param0, this.player);
                     if (var3 && var6) {
                         var2.playerDestroy(this.level, this.player, param0, var0, var1, var5);
@@ -315,11 +315,8 @@ public class ServerPlayerGameMode {
             ItemStack var5 = param2.copy();
             if (!var4) {
                 InteractionResult var6 = var1.use(param1, param0, param3, param4);
-                if (var6 == InteractionResult.SUCCESS) {
-                    CriteriaTriggers.ITEM_USED_ON_BLOCK.trigger(param0, var0, var5);
-                }
-
                 if (var6.consumesAction()) {
+                    CriteriaTriggers.ITEM_USED_ON_BLOCK.trigger(param0, var0, var5);
                     return var6;
                 }
             }
@@ -335,7 +332,7 @@ public class ServerPlayerGameMode {
                     var9 = param2.useOn(var7);
                 }
 
-                if (var9 == InteractionResult.SUCCESS) {
+                if (var9.consumesAction()) {
                     CriteriaTriggers.ITEM_USED_ON_BLOCK.trigger(param0, var0, var5);
                 }
 

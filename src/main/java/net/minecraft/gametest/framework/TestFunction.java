@@ -1,6 +1,7 @@
 package net.minecraft.gametest.framework;
 
 import java.util.function.Consumer;
+import net.minecraft.world.level.block.Rotation;
 
 public class TestFunction {
     private final String batchName;
@@ -10,6 +11,7 @@ public class TestFunction {
     private final Consumer<GameTestHelper> function;
     private final int maxTicks;
     private final long setupTicks;
+    private final Rotation rotation;
 
     public void run(GameTestHelper param0) {
         this.function.accept(param0);
@@ -42,5 +44,9 @@ public class TestFunction {
 
     public long getSetupTicks() {
         return this.setupTicks;
+    }
+
+    public Rotation getRotation() {
+        return this.rotation;
     }
 }

@@ -75,7 +75,7 @@ public class SwordItem extends TieredItem implements Vanishable {
     }
 
     @Override
-    public boolean canDestroySpecial(BlockState param0) {
+    public boolean isCorrectToolForDrops(BlockState param0) {
         return param0.is(Blocks.COBWEB);
     }
 

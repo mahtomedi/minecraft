@@ -6,7 +6,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import java.util.Set;
 import net.minecraft.advancements.critereon.EntityPredicate;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.storage.loot.LootContext;
@@ -21,6 +20,11 @@ public class LootItemEntityPropertyCondition implements LootItemCondition {
     private LootItemEntityPropertyCondition(EntityPredicate param0, LootContext.EntityTarget param1) {
         this.predicate = param0;
         this.entityTarget = param1;
+    }
+
+    @Override
+    public LootItemConditionType getType() {
+        return LootItemConditions.ENTITY_PROPERTIES;
     }
 
     @Override
@@ -46,11 +50,7 @@ public class LootItemEntityPropertyCondition implements LootItemCondition {
         return () -> new LootItemEntityPropertyCondition(param1, param0);
     }
 
-    public static class Serializer extends LootItemCondition.Serializer<LootItemEntityPropertyCondition> {
-        protected Serializer() {
-            super(new ResourceLocation("entity_properties"), LootItemEntityPropertyCondition.class);
-        }
-
+    public static class Serializer implements net.minecraft.world.level.storage.loot.Serializer<LootItemEntityPropertyCondition> {
         public void serialize(JsonObject param0, LootItemEntityPropertyCondition param1, JsonSerializationContext param2) {
             param0.add("predicate", param1.predicate.serializeToJson());
             param0.add("entity", param2.serialize(param1.entityTarget));

@@ -26,7 +26,6 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -173,6 +172,7 @@ public abstract class Entity implements CommandSource, Nameable {
     public int xChunk;
     public int yChunk;
     public int zChunk;
+    private boolean movedSinceLastChunkCheck;
     public long xp;
     public long yp;
     public long zp;
@@ -189,7 +189,7 @@ public abstract class Entity implements CommandSource, Nameable {
     protected String stringUUID = this.uuid.toString();
     protected boolean glowing;
     private final Set<String> tags = Sets.newHashSet();
-    private boolean teleported;
+    private boolean forceChunkAddition;
     private final double[] pistonDeltas = new double[]{0.0, 0.0, 0.0};
     private long pistonDeltasGameTime;
     private EntityDimensions dimensions;
@@ -977,7 +977,7 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     private void updateUnderWaterState() {
-        this.wasUnderWater = this.isUnderLiquid(FluidTags.WATER, true);
+        this.wasUnderWater = this.isUnderLiquid(FluidTags.WATER);
     }
 
     protected void doWaterSplashEffect() {
@@ -1052,22 +1052,7 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     public boolean isUnderLiquid(Tag<Fluid> param0) {
-        return this.isUnderLiquid(param0, false);
-    }
-
-    public boolean isUnderLiquid(Tag<Fluid> param0, boolean param1) {
-        if (this.getVehicle() instanceof Boat) {
-            return false;
-        } else {
-            double var0 = this.getEyeY();
-            BlockPos var1 = new BlockPos(this.getX(), var0, this.getZ());
-            if (param1 && !this.level.hasChunk(var1.getX() >> 4, var1.getZ() >> 4)) {
-                return false;
-            } else {
-                FluidState var2 = this.level.getFluidState(var1);
-                return var2.is(param0) && var0 < (double)((float)var1.getY() + var2.getHeight(this.level, var1) + 0.11111111F);
-            }
-        }
+        return (double)this.getEyeHeight() < this.getFluidHeight(param0);
     }
 
     public void setInLava() {
@@ -1120,6 +1105,10 @@ public abstract class Entity implements CommandSource, Nameable {
         this.xRot = Mth.clamp(param4, -90.0F, 90.0F) % 360.0F;
         this.yRotO = this.yRot;
         this.xRotO = this.xRot;
+    }
+
+    public void moveTo(double param0, double param1, double param2) {
+        this.moveTo(param0, param1, param2, this.yRot, this.xRot);
     }
 
     public void moveTo(BlockPos param0, float param1, float param2) {
@@ -1323,7 +1312,12 @@ public abstract class Entity implements CommandSource, Nameable {
 
     public CompoundTag saveWithoutId(CompoundTag param0) {
         try {
-            param0.put("Pos", this.newDoubleList(this.getX(), this.getY(), this.getZ()));
+            if (this.vehicle != null) {
+                param0.put("Pos", this.newDoubleList(this.vehicle.getX(), this.vehicle.getY(), this.vehicle.getZ()));
+            } else {
+                param0.put("Pos", this.newDoubleList(this.getX(), this.getY(), this.getZ()));
+            }
+
             Vec3 var0 = this.getDeltaMovement();
             param0.put("Motion", this.newDoubleList(var0.x, var0.y, var0.z));
             param0.put("Rotation", this.newFloatList(this.yRot, this.xRot));
@@ -1567,9 +1561,10 @@ public abstract class Entity implements CommandSource, Nameable {
         this.positionRider(param0, Entity::setPos);
     }
 
-    public void positionRider(Entity param0, Entity.MoveCallback param1) {
+    private void positionRider(Entity param0, Entity.MoveFunction param1) {
         if (this.hasPassenger(param0)) {
-            param1.accept(param0, this.getX(), this.getY() + this.getRideHeight() + param0.getRidingHeight(), this.getZ());
+            double var0 = this.getY() + this.getPassengersRidingOffset() + param0.getMyRidingOffset();
+            param1.accept(param0, this.getX(), var0, this.getZ());
         }
     }
 
@@ -1577,11 +1572,11 @@ public abstract class Entity implements CommandSource, Nameable {
     public void onPassengerTurned(Entity param0) {
     }
 
-    public double getRidingHeight() {
+    public double getMyRidingOffset() {
         return 0.0;
     }
 
-    public double getRideHeight() {
+    public double getPassengersRidingOffset() {
         return (double)this.dimensions.height * 0.75;
     }
 
@@ -1616,11 +1611,11 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     protected boolean canRide(Entity param0) {
-        return this.boardingCooldown <= 0;
+        return !this.isShiftKeyDown() && this.boardingCooldown <= 0;
     }
 
     protected boolean canEnterPose(Pose param0) {
-        return this.level.noCollision(this, this.getBoundingBoxForPose(param0));
+        return this.level.noCollision(this, this.getBoundingBoxForPose(param0).deflate(1.0E-7));
     }
 
     public void ejectPassengers() {
@@ -1630,13 +1625,17 @@ public abstract class Entity implements CommandSource, Nameable {
 
     }
 
-    public void stopRiding() {
+    public void removeVehicle() {
         if (this.vehicle != null) {
             Entity var0 = this.vehicle;
             this.vehicle = null;
             var0.removePassenger(this);
         }
 
+    }
+
+    public void stopRiding() {
+        this.removeVehicle();
     }
 
     protected void addPassenger(Entity param0) {
@@ -1734,7 +1733,7 @@ public abstract class Entity implements CommandSource, Nameable {
                     this.level.getProfiler().push("portal");
                     this.portalTime = var0;
                     this.changingDimensionDelay = this.getDimensionChangingDelay();
-                    ResourceKey<DimensionType> var1 = this.level.dimensionType().isNether() ? DimensionType.OVERWORLD_LOCATION : DimensionType.NETHER_LOCATION;
+                    ResourceKey<Level> var1 = this.level.dimensionType().isNether() ? Level.OVERWORLD : Level.NETHER;
                     this.changeDimension(var1);
                     this.level.getProfiler().pop();
                 }
@@ -2051,7 +2050,7 @@ public abstract class Entity implements CommandSource, Nameable {
             Locale.ROOT,
             "%s['%s'/%d, l='%s', x=%.2f, y=%.2f, z=%.2f]",
             this.getClass().getSimpleName(),
-            this.getName().getContents(),
+            this.getName().getString(),
             this.id,
             this.level == null ? "~NULL~" : this.level.toString(),
             this.getX(),
@@ -2087,11 +2086,11 @@ public abstract class Entity implements CommandSource, Nameable {
     }
 
     @Nullable
-    public Entity changeDimension(ResourceKey<DimensionType> param0) {
+    public Entity changeDimension(ResourceKey<Level> param0) {
         if (!this.level.isClientSide && !this.removed) {
             this.level.getProfiler().push("changeDimension");
             MinecraftServer var0 = this.getServer();
-            ResourceKey<DimensionType> var1 = this.level.dimension();
+            ResourceKey<Level> var1 = this.level.dimension();
             ServerLevel var2 = var0.getLevel(var1);
             ServerLevel var3 = var0.getLevel(param0);
             this.unRide();
@@ -2099,52 +2098,51 @@ public abstract class Entity implements CommandSource, Nameable {
             Vec3 var4 = this.getDeltaMovement();
             float var5 = 0.0F;
             BlockPos var6;
-            if (var1 == DimensionType.END_LOCATION && param0 == DimensionType.OVERWORLD_LOCATION) {
+            if (var1 == Level.END && param0 == Level.OVERWORLD) {
                 var6 = var3.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, var3.getSharedSpawnPos());
-            } else if (param0 == DimensionType.END_LOCATION) {
+            } else if (param0 == Level.END) {
                 var6 = ServerLevel.END_SPAWN_POINT;
             } else {
                 double var8 = this.getX();
                 double var9 = this.getZ();
-                Registry<DimensionType> var10 = var0.registryAccess().dimensionTypes();
-                DimensionType var11 = var10.get(var1);
-                DimensionType var12 = var10.get(param0);
-                double var13 = 8.0;
-                if (!var11.shrunk() && var12.shrunk()) {
+                DimensionType var10 = var2.dimensionType();
+                DimensionType var11 = var3.dimensionType();
+                double var12 = 8.0;
+                if (!var10.shrunk() && var11.shrunk()) {
                     var8 /= 8.0;
                     var9 /= 8.0;
-                } else if (var11.shrunk() && !var12.shrunk()) {
+                } else if (var10.shrunk() && !var11.shrunk()) {
                     var8 *= 8.0;
                     var9 *= 8.0;
                 }
 
-                double var14 = Math.min(-2.9999872E7, var3.getWorldBorder().getMinX() + 16.0);
-                double var15 = Math.min(-2.9999872E7, var3.getWorldBorder().getMinZ() + 16.0);
-                double var16 = Math.min(2.9999872E7, var3.getWorldBorder().getMaxX() - 16.0);
-                double var17 = Math.min(2.9999872E7, var3.getWorldBorder().getMaxZ() - 16.0);
-                var8 = Mth.clamp(var8, var14, var16);
-                var9 = Mth.clamp(var9, var15, var17);
-                Vec3 var18 = this.getPortalEntranceOffset();
+                double var13 = Math.min(-2.9999872E7, var3.getWorldBorder().getMinX() + 16.0);
+                double var14 = Math.min(-2.9999872E7, var3.getWorldBorder().getMinZ() + 16.0);
+                double var15 = Math.min(2.9999872E7, var3.getWorldBorder().getMaxX() - 16.0);
+                double var16 = Math.min(2.9999872E7, var3.getWorldBorder().getMaxZ() - 16.0);
+                var8 = Mth.clamp(var8, var13, var15);
+                var9 = Mth.clamp(var9, var14, var16);
+                Vec3 var17 = this.getPortalEntranceOffset();
                 var6 = new BlockPos(var8, this.getY(), var9);
-                BlockPattern.PortalInfo var20 = var3.getPortalForcer()
-                    .findPortal(var6, var4, this.getPortalEntranceForwards(), var18.x, var18.y, this instanceof Player);
-                if (var20 == null) {
+                BlockPattern.PortalInfo var19 = var3.getPortalForcer()
+                    .findPortal(var6, var4, this.getPortalEntranceForwards(), var17.x, var17.y, this instanceof Player);
+                if (var19 == null) {
                     return null;
                 }
 
-                var6 = new BlockPos(var20.pos);
-                var4 = var20.speed;
-                var5 = (float)var20.angle;
+                var6 = new BlockPos(var19.pos);
+                var4 = var19.speed;
+                var5 = (float)var19.angle;
             }
 
             this.level.getProfiler().popPush("reloading");
-            Entity var21 = this.getType().create(var3);
-            if (var21 != null) {
-                var21.restoreFrom(this);
-                var21.moveTo(var6, var21.yRot + var5, var21.xRot);
-                var21.setDeltaMovement(var4);
-                var3.addFromAnotherDimension(var21);
-                if (param0 == DimensionType.END_LOCATION) {
+            Entity var20 = this.getType().create(var3);
+            if (var20 != null) {
+                var20.restoreFrom(this);
+                var20.moveTo(var6, var20.yRot + var5, var20.xRot);
+                var20.setDeltaMovement(var4);
+                var3.addFromAnotherDimension(var20);
+                if (param0 == Level.END) {
                     ServerLevel.makeObsidianPlatform(var3);
                 }
             }
@@ -2154,7 +2152,7 @@ public abstract class Entity implements CommandSource, Nameable {
             var2.resetEmptyTime();
             var3.resetEmptyTime();
             this.level.getProfiler().pop();
-            return var21;
+            return var20;
         } else {
             return null;
         }
@@ -2280,8 +2278,12 @@ public abstract class Entity implements CommandSource, Nameable {
             this.moveTo(param0, param1, param2, this.yRot, this.xRot);
             this.getSelfAndPassengers().forEach(param1x -> {
                 var0.updateChunkPos(param1x);
-                param1x.teleported = true;
-                param1x.repositionDirectPassengers(Entity::forceMove);
+                param1x.forceChunkAddition = true;
+
+                for(Entity var0x : param1x.passengers) {
+                    param1x.positionRider(var0x, Entity::moveTo);
+                }
+
             });
         }
     }
@@ -2441,9 +2443,15 @@ public abstract class Entity implements CommandSource, Nameable {
         return false;
     }
 
-    public boolean checkAndResetTeleportedFlag() {
-        boolean var0 = this.teleported;
-        this.teleported = false;
+    public boolean checkAndResetForcedChunkAdditionFlag() {
+        boolean var0 = this.forceChunkAddition;
+        this.forceChunkAddition = false;
+        return var0;
+    }
+
+    public boolean checkAndResetUpdateChunkPos() {
+        boolean var0 = this.movedSinceLastChunkCheck;
+        this.movedSinceLastChunkCheck = false;
         return var0;
     }
 
@@ -2535,13 +2543,6 @@ public abstract class Entity implements CommandSource, Nameable {
         }
 
         return false;
-    }
-
-    public void repositionDirectPassengers(Entity.MoveCallback param0) {
-        for(Entity var0 : this.passengers) {
-            this.positionRider(var0, param0);
-        }
-
     }
 
     public boolean isControlledByLocalInstance() {
@@ -2696,6 +2697,10 @@ public abstract class Entity implements CommandSource, Nameable {
         return this.fluidHeight.getDouble(param0);
     }
 
+    public double getFluidJumpThreshold() {
+        return (double)this.getEyeHeight() < 0.4 ? 0.0 : 0.4;
+    }
+
     public final float getBbWidth() {
         return this.dimensions.width;
     }
@@ -2779,6 +2784,8 @@ public abstract class Entity implements CommandSource, Nameable {
             if (var0 != this.blockPosition.getX() || var1 != this.blockPosition.getY() || var2 != this.blockPosition.getZ()) {
                 this.blockPosition = new BlockPos(var0, var1, var2);
             }
+
+            this.movedSinceLastChunkCheck = true;
         }
 
     }
@@ -2786,12 +2793,8 @@ public abstract class Entity implements CommandSource, Nameable {
     public void checkDespawn() {
     }
 
-    public void forceMove(double param0, double param1, double param2) {
-        this.moveTo(param0, param1, param2, this.yRot, this.xRot);
-    }
-
     @FunctionalInterface
-    public interface MoveCallback {
+    public interface MoveFunction {
         void accept(Entity var1, double var2, double var4, double var6);
     }
 }

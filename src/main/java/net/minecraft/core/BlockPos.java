@@ -80,6 +80,10 @@ public class BlockPos extends Vec3i {
         return new BlockPos(getX(param0), getY(param0), getZ(param0));
     }
 
+    public long asLong() {
+        return asLong(this.getX(), this.getY(), this.getZ());
+    }
+
     public static long asLong(int param0, int param1, int param2) {
         long var0 = 0L;
         var0 |= ((long)param0 & PACKED_X_MASK) << X_OFFSET;
@@ -89,10 +93,6 @@ public class BlockPos extends Vec3i {
 
     public static long getFlatIndex(long param0) {
         return param0 & -16L;
-    }
-
-    public long asLong() {
-        return asLong(this.getX(), this.getY(), this.getZ());
     }
 
     public BlockPos offset(double param0, double param1, double param2) {

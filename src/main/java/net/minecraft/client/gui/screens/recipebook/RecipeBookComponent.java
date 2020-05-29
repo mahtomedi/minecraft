@@ -18,7 +18,7 @@ import net.minecraft.client.gui.components.StateSwitchingButton;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.resources.language.Language;
+import net.minecraft.client.resources.language.LanguageInfo;
 import net.minecraft.client.resources.language.LanguageManager;
 import net.minecraft.client.searchtree.SearchRegistry;
 import net.minecraft.network.chat.Component;
@@ -407,7 +407,7 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
     private void pirateSpeechForThePeople(String param0) {
         if ("excitedze".equals(param0)) {
             LanguageManager var0 = this.minecraft.getLanguageManager();
-            Language var1 = var0.getLanguage("en_pt");
+            LanguageInfo var1 = var0.getLanguage("en_pt");
             if (var0.getSelected().compareTo(var1) == 0) {
                 return;
             }
@@ -415,7 +415,6 @@ public class RecipeBookComponent extends GuiComponent implements Widget, GuiEven
             var0.setSelected(var1);
             this.minecraft.options.languageCode = var1.getCode();
             this.minecraft.reloadResourcePacks();
-            this.minecraft.font.setBidirectional(var0.isBidirectional());
             this.minecraft.options.save();
         }
 

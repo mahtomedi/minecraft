@@ -98,7 +98,7 @@ public abstract class ButtonBlock extends FaceAttachedHorizontalDirectionalBlock
         } else {
             this.press(param0, param1, param2);
             this.playSound(param3, param1, param2, true);
-            return InteractionResult.SUCCESS;
+            return InteractionResult.sidedSuccess(param1.isClientSide);
         }
     }
 

@@ -65,7 +65,7 @@ public class SpawnEggItem extends Item {
                     var5.setChanged();
                     var0.sendBlockUpdated(var2, var4, var4, 3);
                     var1.shrink(1);
-                    return InteractionResult.SUCCESS;
+                    return InteractionResult.CONSUME;
                 }
             }
 
@@ -81,7 +81,7 @@ public class SpawnEggItem extends Item {
                 var1.shrink(1);
             }
 
-            return InteractionResult.SUCCESS;
+            return InteractionResult.CONSUME;
         }
     }
 
@@ -108,7 +108,7 @@ public class SpawnEggItem extends Item {
                     }
 
                     param1.awardStat(Stats.ITEM_USED.get(this));
-                    return InteractionResultHolder.success(var0);
+                    return InteractionResultHolder.consume(var0);
                 }
             } else {
                 return InteractionResultHolder.fail(var0);

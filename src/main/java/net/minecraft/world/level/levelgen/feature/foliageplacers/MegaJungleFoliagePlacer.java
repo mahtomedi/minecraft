@@ -7,6 +7,7 @@ import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelSimulatedRW;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public class MegaJungleFoliagePlacer extends FoliagePlacer {
     public static final Codec<MegaJungleFoliagePlacer> CODEC = RecordCodecBuilder.create(
@@ -34,13 +35,14 @@ public class MegaJungleFoliagePlacer extends FoliagePlacer {
         int param5,
         int param6,
         Set<BlockPos> param7,
-        int param8
+        int param8,
+        BoundingBox param9
     ) {
         int var0 = param4.doubleTrunk() ? param5 : 1 + param1.nextInt(2);
 
         for(int var1 = param8; var1 >= param8 - var0; --var1) {
             int var2 = param6 + param4.radiusOffset() + 1 - var1;
-            this.placeLeavesRow(param0, param1, param2, param4.foliagePos(), var2, param7, var1, param4.doubleTrunk());
+            this.placeLeavesRow(param0, param1, param2, param4.foliagePos(), var2, param7, var1, param4.doubleTrunk(), param9);
         }
 
     }

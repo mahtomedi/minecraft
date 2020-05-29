@@ -55,7 +55,7 @@ public class Bootstrap {
         Language var0 = Language.getInstance();
         param0.forEach(param3 -> {
             String var0x = param1.apply(param3);
-            if (!var0.exists(var0x)) {
+            if (!var0.has(var0x)) {
                 param2.add(var0x);
             }
 
@@ -67,7 +67,7 @@ public class Bootstrap {
         GameRules.visitGameRuleTypes(new GameRules.GameRuleTypeVisitor() {
             @Override
             public <T extends GameRules.Value<T>> void visit(GameRules.Key<T> param0x, GameRules.Type<T> param1) {
-                if (!var0.exists(param0.getDescriptionId())) {
+                if (!var0.has(param0.getDescriptionId())) {
                     param0.add(param0.getId());
                 }
 

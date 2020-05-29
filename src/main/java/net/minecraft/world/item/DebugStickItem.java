@@ -48,7 +48,7 @@ public class DebugStickItem extends Item {
             this.handleInteraction(var0, var1.getBlockState(var2), var1, var2, true, param0.getItemInHand());
         }
 
-        return InteractionResult.SUCCESS;
+        return InteractionResult.sidedSuccess(var1.isClientSide);
     }
 
     private void handleInteraction(Player param0, BlockState param1, LevelAccessor param2, BlockPos param3, boolean param4, ItemStack param5) {

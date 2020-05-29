@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 import javax.annotation.Nullable;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.core.Registry;
@@ -22,8 +22,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagCollection;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -51,7 +51,9 @@ public class BlockStateParser {
     public static final SimpleCommandExceptionType ERROR_EXPECTED_END_OF_PROPERTIES = new SimpleCommandExceptionType(
         new TranslatableComponent("argument.block.property.unclosed")
     );
-    private static final Function<SuggestionsBuilder, CompletableFuture<Suggestions>> SUGGEST_NOTHING = SuggestionsBuilder::buildFuture;
+    private static final BiFunction<SuggestionsBuilder, TagCollection<Block>, CompletableFuture<Suggestions>> SUGGEST_NOTHING = (param0, param1) -> param0.buildFuture(
+            
+        );
     private final StringReader reader;
     private final boolean forTesting;
     private final Map<Property<?>, Comparable<?>> properties = Maps.newHashMap();
@@ -63,7 +65,7 @@ public class BlockStateParser {
     private CompoundTag nbt;
     private ResourceLocation tag = new ResourceLocation("");
     private int tagCursor;
-    private Function<SuggestionsBuilder, CompletableFuture<Suggestions>> suggestions = SUGGEST_NOTHING;
+    private BiFunction<SuggestionsBuilder, TagCollection<Block>, CompletableFuture<Suggestions>> suggestions = SUGGEST_NOTHING;
 
     public BlockStateParser(StringReader param0, boolean param1) {
         this.reader = param0;
@@ -115,23 +117,23 @@ public class BlockStateParser {
         return this;
     }
 
-    private CompletableFuture<Suggestions> suggestPropertyNameOrEnd(SuggestionsBuilder param0) {
+    private CompletableFuture<Suggestions> suggestPropertyNameOrEnd(SuggestionsBuilder param0, TagCollection<Block> param1) {
         if (param0.getRemaining().isEmpty()) {
             param0.suggest(String.valueOf(']'));
         }
 
-        return this.suggestPropertyName(param0);
+        return this.suggestPropertyName(param0, param1);
     }
 
-    private CompletableFuture<Suggestions> suggestVaguePropertyNameOrEnd(SuggestionsBuilder param0) {
+    private CompletableFuture<Suggestions> suggestVaguePropertyNameOrEnd(SuggestionsBuilder param0, TagCollection<Block> param1) {
         if (param0.getRemaining().isEmpty()) {
             param0.suggest(String.valueOf(']'));
         }
 
-        return this.suggestVaguePropertyName(param0);
+        return this.suggestVaguePropertyName(param0, param1);
     }
 
-    private CompletableFuture<Suggestions> suggestPropertyName(SuggestionsBuilder param0) {
+    private CompletableFuture<Suggestions> suggestPropertyName(SuggestionsBuilder param0, TagCollection<Block> param1) {
         String var0 = param0.getRemaining().toLowerCase(Locale.ROOT);
 
         for(Property<?> var1 : this.state.getProperties()) {
@@ -143,10 +145,10 @@ public class BlockStateParser {
         return param0.buildFuture();
     }
 
-    private CompletableFuture<Suggestions> suggestVaguePropertyName(SuggestionsBuilder param0) {
+    private CompletableFuture<Suggestions> suggestVaguePropertyName(SuggestionsBuilder param0, TagCollection<Block> param1) {
         String var0 = param0.getRemaining().toLowerCase(Locale.ROOT);
         if (this.tag != null && !this.tag.getPath().isEmpty()) {
-            Tag<Block> var1 = BlockTags.getAllTags().getTag(this.tag);
+            Tag<Block> var1 = param1.getTag(this.tag);
             if (var1 != null) {
                 for(Block var2 : var1.getValues()) {
                     for(Property<?> var3 : var2.getStateDefinition().getProperties()) {
@@ -161,20 +163,20 @@ public class BlockStateParser {
         return param0.buildFuture();
     }
 
-    private CompletableFuture<Suggestions> suggestOpenNbt(SuggestionsBuilder param0x) {
-        if (param0x.getRemaining().isEmpty() && this.hasBlockEntity()) {
+    private CompletableFuture<Suggestions> suggestOpenNbt(SuggestionsBuilder param0x, TagCollection<Block> param1) {
+        if (param0x.getRemaining().isEmpty() && this.hasBlockEntity(param1)) {
             param0x.suggest(String.valueOf('{'));
         }
 
         return param0x.buildFuture();
     }
 
-    private boolean hasBlockEntity() {
+    private boolean hasBlockEntity(TagCollection<Block> param0) {
         if (this.state != null) {
             return this.state.getBlock().isEntityBlock();
         } else {
             if (this.tag != null) {
-                Tag<Block> var0 = BlockTags.getAllTags().getTag(this.tag);
+                Tag<Block> var0 = param0.getTag(this.tag);
                 if (var0 != null) {
                     for(Block var1 : var0.getValues()) {
                         if (var1.isEntityBlock()) {
@@ -188,7 +190,7 @@ public class BlockStateParser {
         }
     }
 
-    private CompletableFuture<Suggestions> suggestEquals(SuggestionsBuilder param0) {
+    private CompletableFuture<Suggestions> suggestEquals(SuggestionsBuilder param0, TagCollection<Block> param1) {
         if (param0.getRemaining().isEmpty()) {
             param0.suggest(String.valueOf('='));
         }
@@ -196,7 +198,7 @@ public class BlockStateParser {
         return param0.buildFuture();
     }
 
-    private CompletableFuture<Suggestions> suggestNextPropertyOrEnd(SuggestionsBuilder param0) {
+    private CompletableFuture<Suggestions> suggestNextPropertyOrEnd(SuggestionsBuilder param0, TagCollection<Block> param1) {
         if (param0.getRemaining().isEmpty()) {
             param0.suggest(String.valueOf(']'));
         }
@@ -220,13 +222,13 @@ public class BlockStateParser {
         return param0;
     }
 
-    private CompletableFuture<Suggestions> suggestVaguePropertyValue(SuggestionsBuilder param0, String param1) {
+    private CompletableFuture<Suggestions> suggestVaguePropertyValue(SuggestionsBuilder param0, TagCollection<Block> param1, String param2) {
         boolean var0 = false;
         if (this.tag != null && !this.tag.getPath().isEmpty()) {
-            Tag<Block> var1 = BlockTags.getAllTags().getTag(this.tag);
+            Tag<Block> var1 = param1.getTag(this.tag);
             if (var1 != null) {
                 for(Block var2 : var1.getValues()) {
-                    Property<?> var3 = var2.getStateDefinition().getProperty(param1);
+                    Property<?> var3 = var2.getStateDefinition().getProperty(param2);
                     if (var3 != null) {
                         addSuggestions(param0, var3);
                     }
@@ -251,9 +253,9 @@ public class BlockStateParser {
         return param0.buildFuture();
     }
 
-    private CompletableFuture<Suggestions> suggestOpenVaguePropertiesOrNbt(SuggestionsBuilder param0x) {
+    private CompletableFuture<Suggestions> suggestOpenVaguePropertiesOrNbt(SuggestionsBuilder param0x, TagCollection<Block> param1) {
         if (param0x.getRemaining().isEmpty()) {
-            Tag<Block> var0 = BlockTags.getAllTags().getTag(this.tag);
+            Tag<Block> var0 = param1.getTag(this.tag);
             if (var0 != null) {
                 boolean var1 = false;
                 boolean var2 = false;
@@ -276,10 +278,10 @@ public class BlockStateParser {
             }
         }
 
-        return this.suggestTag(param0x);
+        return this.suggestTag(param0x, param1);
     }
 
-    private CompletableFuture<Suggestions> suggestOpenPropertiesOrNbt(SuggestionsBuilder param0x) {
+    private CompletableFuture<Suggestions> suggestOpenPropertiesOrNbt(SuggestionsBuilder param0x, TagCollection<Block> param1) {
         if (param0x.getRemaining().isEmpty()) {
             if (!this.state.getBlock().getStateDefinition().getProperties().isEmpty()) {
                 param0x.suggest(String.valueOf('['));
@@ -293,13 +295,13 @@ public class BlockStateParser {
         return param0x.buildFuture();
     }
 
-    private CompletableFuture<Suggestions> suggestTag(SuggestionsBuilder param0) {
-        return SharedSuggestionProvider.suggestResource(BlockTags.getAllTags().getAvailableTags(), param0.createOffset(this.tagCursor).add(param0));
+    private CompletableFuture<Suggestions> suggestTag(SuggestionsBuilder param0, TagCollection<Block> param1) {
+        return SharedSuggestionProvider.suggestResource(param1.getAvailableTags(), param0.createOffset(this.tagCursor).add(param0));
     }
 
-    private CompletableFuture<Suggestions> suggestBlockIdOrTag(SuggestionsBuilder param0x) {
+    private CompletableFuture<Suggestions> suggestBlockIdOrTag(SuggestionsBuilder param0x, TagCollection<Block> param1) {
         if (this.forTesting) {
-            SharedSuggestionProvider.suggestResource(BlockTags.getAllTags().getAvailableTags(), param0x, String.valueOf('#'));
+            SharedSuggestionProvider.suggestResource(param1.getAvailableTags(), param0x, String.valueOf('#'));
         }
 
         SharedSuggestionProvider.suggestResource(Registry.BLOCK.keySet(), param0x);
@@ -356,7 +358,7 @@ public class BlockStateParser {
 
             this.reader.skip();
             this.reader.skipWhitespace();
-            this.suggestions = param1 -> addSuggestions(param1, var2).buildFuture();
+            this.suggestions = (param1, param2) -> addSuggestions(param1, var2).buildFuture();
             int var3 = this.reader.getCursor();
             this.setValue(var2, this.reader.readString(), var3);
             this.suggestions = this::suggestNextPropertyOrEnd;
@@ -404,7 +406,7 @@ public class BlockStateParser {
 
             this.reader.skip();
             this.reader.skipWhitespace();
-            this.suggestions = param1 -> this.suggestVaguePropertyValue(param1, var2);
+            this.suggestions = (param1, param2) -> this.suggestVaguePropertyValue(param1, param2, var2);
             var0 = this.reader.getCursor();
             String var3 = this.reader.readString();
             this.vagueProperties.put(var2, var3);
@@ -476,8 +478,8 @@ public class BlockStateParser {
         param0.append(param1.getName((T)param2));
     }
 
-    public CompletableFuture<Suggestions> fillSuggestions(SuggestionsBuilder param0) {
-        return this.suggestions.apply(param0.createOffset(this.reader.getCursor()));
+    public CompletableFuture<Suggestions> fillSuggestions(SuggestionsBuilder param0, TagCollection<Block> param1) {
+        return this.suggestions.apply(param0.createOffset(this.reader.getCursor()), param1);
     }
 
     public Map<String, String> getVagueProperties() {

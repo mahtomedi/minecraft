@@ -77,7 +77,7 @@ public class AxeItem extends DiggerItem {
                 }
             }
 
-            return InteractionResult.SUCCESS;
+            return InteractionResult.sidedSuccess(var0.isClientSide);
         } else {
             return InteractionResult.PASS;
         }

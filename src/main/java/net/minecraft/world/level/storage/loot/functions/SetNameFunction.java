@@ -11,7 +11,6 @@ import javax.annotation.Nullable;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
@@ -31,6 +30,11 @@ public class SetNameFunction extends LootItemConditionalFunction {
         super(param0);
         this.name = param1;
         this.resolutionContext = param2;
+    }
+
+    @Override
+    public LootItemFunctionType getType() {
+        return LootItemFunctions.SET_NAME;
     }
 
     @Override
@@ -67,10 +71,6 @@ public class SetNameFunction extends LootItemConditionalFunction {
     }
 
     public static class Serializer extends LootItemConditionalFunction.Serializer<SetNameFunction> {
-        public Serializer() {
-            super(new ResourceLocation("set_name"), SetNameFunction.class);
-        }
-
         public void serialize(JsonObject param0, SetNameFunction param1, JsonSerializationContext param2) {
             super.serialize(param0, param1, param2);
             if (param1.name != null) {

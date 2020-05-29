@@ -3,7 +3,6 @@ package net.minecraft.network.protocol.game;
 import java.io.IOException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -16,9 +15,9 @@ public class ServerboundSignUpdatePacket implements Packet<ServerGamePacketListe
     }
 
     @OnlyIn(Dist.CLIENT)
-    public ServerboundSignUpdatePacket(BlockPos param0, Component param1, Component param2, Component param3, Component param4) {
+    public ServerboundSignUpdatePacket(BlockPos param0, String param1, String param2, String param3, String param4) {
         this.pos = param0;
-        this.lines = new String[]{param1.getString(), param2.getString(), param3.getString(), param4.getString()};
+        this.lines = new String[]{param1, param2, param3, param4};
     }
 
     @Override

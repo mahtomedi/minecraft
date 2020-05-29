@@ -39,6 +39,11 @@ public class EnchantRandomlyFunction extends LootItemConditionalFunction {
     }
 
     @Override
+    public LootItemFunctionType getType() {
+        return LootItemFunctions.ENCHANT_RANDOMLY;
+    }
+
+    @Override
     public ItemStack run(ItemStack param0, LootContext param1) {
         Random var0 = param1.getRandom();
         Enchantment var3;
@@ -97,10 +102,6 @@ public class EnchantRandomlyFunction extends LootItemConditionalFunction {
     }
 
     public static class Serializer extends LootItemConditionalFunction.Serializer<EnchantRandomlyFunction> {
-        public Serializer() {
-            super(new ResourceLocation("enchant_randomly"), EnchantRandomlyFunction.class);
-        }
-
         public void serialize(JsonObject param0, EnchantRandomlyFunction param1, JsonSerializationContext param2) {
             super.serialize(param0, param1, param2);
             if (!param1.enchantments.isEmpty()) {

@@ -26,7 +26,6 @@ import net.minecraft.world.level.block.state.BlockState;
 public class HarvestFarmland extends Behavior<Villager> {
     @Nullable
     private BlockPos aboveFarmlandPos;
-    private boolean canPlantStuff;
     private long nextOkStartTime;
     private int timeWorkedSoFar;
     private final List<BlockPos> validFarmlandAroundVillager = Lists.newArrayList();
@@ -50,7 +49,6 @@ public class HarvestFarmland extends Behavior<Villager> {
         } else if (param1.getVillagerData().getProfession() != VillagerProfession.FARMER) {
             return false;
         } else {
-            this.canPlantStuff = param1.hasFarmSeeds();
             BlockPos.MutableBlockPos var0 = param1.blockPosition().mutable();
             this.validFarmlandAroundVillager.clear();
 
@@ -66,7 +64,7 @@ public class HarvestFarmland extends Behavior<Villager> {
             }
 
             this.aboveFarmlandPos = this.getValidFarmland(param0);
-            return this.canPlantStuff && this.aboveFarmlandPos != null;
+            return this.aboveFarmlandPos != null;
         }
     }
 
@@ -81,7 +79,7 @@ public class HarvestFarmland extends Behavior<Villager> {
         BlockState var0 = param1.getBlockState(param0);
         Block var1 = var0.getBlock();
         Block var2 = param1.getBlockState(param0.below()).getBlock();
-        return var1 instanceof CropBlock && ((CropBlock)var1).isMaxAge(var0) || var0.isAir() && var2 instanceof FarmBlock && this.canPlantStuff;
+        return var1 instanceof CropBlock && ((CropBlock)var1).isMaxAge(var0) || var0.isAir() && var2 instanceof FarmBlock;
     }
 
     protected void start(ServerLevel param0, Villager param1, long param2) {
@@ -109,7 +107,7 @@ public class HarvestFarmland extends Behavior<Villager> {
                     param0.destroyBlock(this.aboveFarmlandPos, true, param1);
                 }
 
-                if (var0.isAir() && var2 instanceof FarmBlock && this.canPlantStuff) {
+                if (var0.isAir() && var2 instanceof FarmBlock && param1.hasFarmSeeds()) {
                     SimpleContainer var3 = param1.getInventory();
 
                     for(int var4 = 0; var4 < var3.getContainerSize(); ++var4) {

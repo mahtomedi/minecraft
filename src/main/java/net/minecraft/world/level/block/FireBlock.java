@@ -116,6 +116,7 @@ public class FireBlock extends BaseFireBlock {
 
     @Override
     public void tick(BlockState param0, ServerLevel param1, BlockPos param2, Random param3) {
+        param1.getBlockTicks().scheduleTick(param2, this, getFireTickDelay(param1.random));
         if (param1.getGameRules().getBoolean(GameRules.RULE_DOFIRETICK)) {
             if (!param0.canSurvive(param1, param2)) {
                 param1.removeBlock(param2, false);
@@ -134,7 +135,6 @@ public class FireBlock extends BaseFireBlock {
                 }
 
                 if (!var1) {
-                    param1.getBlockTicks().scheduleTick(param2, this, getFireTickDelay(param1.random));
                     if (!this.isValidFireLocation(param1, param2)) {
                         BlockPos var4 = param2.below();
                         if (!param1.getBlockState(var4).isFaceSturdy(param1, var4, Direction.UP) || var2 > 3) {

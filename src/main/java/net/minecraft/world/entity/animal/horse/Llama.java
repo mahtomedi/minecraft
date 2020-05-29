@@ -155,13 +155,15 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
             float var1 = Mth.sin(this.yBodyRot * (float) (Math.PI / 180.0));
             float var2 = 0.3F;
             param0.setPos(
-                this.getX() + (double)(0.3F * var1), this.getY() + this.getRideHeight() + param0.getRidingHeight(), this.getZ() - (double)(0.3F * var0)
+                this.getX() + (double)(0.3F * var1),
+                this.getY() + this.getPassengersRidingOffset() + param0.getMyRidingOffset(),
+                this.getZ() - (double)(0.3F * var0)
             );
         }
     }
 
     @Override
-    public double getRideHeight() {
+    public double getPassengersRidingOffset() {
         return (double)this.getBbHeight() * 0.67;
     }
 

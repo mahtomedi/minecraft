@@ -47,6 +47,7 @@ public class BasaltPillarFeature extends Feature<NoneFeatureConfiguration> {
             this.placeBaseHangOff(param0, param3, var1.setWithOffset(var0, Direction.SOUTH));
             this.placeBaseHangOff(param0, param3, var1.setWithOffset(var0, Direction.WEST));
             this.placeBaseHangOff(param0, param3, var1.setWithOffset(var0, Direction.EAST));
+            var0.move(Direction.DOWN);
             BlockPos.MutableBlockPos var6 = new BlockPos.MutableBlockPos();
 
             for(int var7 = -3; var7 < 4; ++var7) {

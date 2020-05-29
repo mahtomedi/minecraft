@@ -33,6 +33,11 @@ public class SetStewEffectFunction extends LootItemConditionalFunction {
     }
 
     @Override
+    public LootItemFunctionType getType() {
+        return LootItemFunctions.SET_STEW_EFFECT;
+    }
+
+    @Override
     public ItemStack run(ItemStack param0, LootContext param1) {
         if (param0.getItem() == Items.SUSPICIOUS_STEW && !this.effectDurationMap.isEmpty()) {
             Random var0 = param1.getRandom();
@@ -74,10 +79,6 @@ public class SetStewEffectFunction extends LootItemConditionalFunction {
     }
 
     public static class Serializer extends LootItemConditionalFunction.Serializer<SetStewEffectFunction> {
-        public Serializer() {
-            super(new ResourceLocation("set_stew_effect"), SetStewEffectFunction.class);
-        }
-
         public void serialize(JsonObject param0, SetStewEffectFunction param1, JsonSerializationContext param2) {
             super.serialize(param0, param1, param2);
             if (!param1.effectDurationMap.isEmpty()) {

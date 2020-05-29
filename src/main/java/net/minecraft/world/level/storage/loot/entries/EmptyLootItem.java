@@ -3,7 +3,6 @@ package net.minecraft.world.level.storage.loot.entries;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import java.util.function.Consumer;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
@@ -15,6 +14,11 @@ public class EmptyLootItem extends LootPoolSingletonContainer {
     }
 
     @Override
+    public LootPoolEntryType getType() {
+        return LootPoolEntries.EMPTY;
+    }
+
+    @Override
     public void createItemStack(Consumer<ItemStack> param0, LootContext param1) {
     }
 
@@ -23,11 +27,7 @@ public class EmptyLootItem extends LootPoolSingletonContainer {
     }
 
     public static class Serializer extends LootPoolSingletonContainer.Serializer<EmptyLootItem> {
-        public Serializer() {
-            super(new ResourceLocation("empty"), EmptyLootItem.class);
-        }
-
-        protected EmptyLootItem deserialize(
+        public EmptyLootItem deserialize(
             JsonObject param0, JsonDeserializationContext param1, int param2, int param3, LootItemCondition[] param4, LootItemFunction[] param5
         ) {
             return new EmptyLootItem(param2, param3, param4, param5);

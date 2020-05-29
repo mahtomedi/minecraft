@@ -78,25 +78,28 @@ public class LoadingOverlay extends Overlay {
             var6 = 1.0F;
         }
 
-        int var10 = (this.minecraft.getWindow().getGuiScaledWidth() - 322) / 2;
-        int var11 = (this.minecraft.getWindow().getGuiScaledHeight() + 161) / 4;
+        int var10 = (int)((double)this.minecraft.getWindow().getGuiScaledWidth() * 0.5);
+        int var11 = (int)((double)this.minecraft.getWindow().getGuiScaledHeight() * 0.5);
+        double var12 = Math.min((double)this.minecraft.getWindow().getGuiScaledWidth() * 0.75, (double)this.minecraft.getWindow().getGuiScaledHeight()) * 0.25;
+        int var13 = (int)(var12 * 0.5);
+        double var14 = var12 * 4.0;
+        int var15 = (int)(var14 * 0.5);
         this.minecraft.getTextureManager().bind(MOJANG_STUDIOS_LOGO_LOCATION);
         RenderSystem.enableBlend();
         RenderSystem.blendEquation(32774);
         RenderSystem.blendFunc(770, 1);
         RenderSystem.alphaFunc(516, 0.0F);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, var6);
-        float var12 = 0.0625F;
-        blit(param0, var10, var11, 161, 80, -0.0625F, 0.0F, 161, 80, 161, 161);
-        blit(param0, var10 + 161, var11, 161, 80, 0.0625F, 80.5F, 161, 80, 161, 161);
+        blit(param0, var10 - var15, var11 - var13, var15, (int)var12, -0.0625F, 0.0F, 120, 60, 120, 120);
+        blit(param0, var10, var11 - var13, var15, (int)var12, 0.0625F, 60.0F, 120, 60, 120, 120);
         RenderSystem.defaultBlendFunc();
         RenderSystem.defaultAlphaFunc();
         RenderSystem.disableBlend();
-        float var13 = this.reload.getActualProgress();
-        this.currentProgress = Mth.clamp(this.currentProgress * 0.95F + var13 * 0.050000012F, 0.0F, 1.0F);
+        int var16 = (int)((double)this.minecraft.getWindow().getGuiScaledHeight() * 0.8325);
+        float var17 = this.reload.getActualProgress();
+        this.currentProgress = Mth.clamp(this.currentProgress * 0.95F + var17 * 0.050000012F, 0.0F, 1.0F);
         if (var3 < 1.0F) {
-            int var14 = var1 * 648 / 801;
-            this.drawProgressBar(param0, var0 / 2 - 161, var14, var0 / 2 + 161, var14 + 12, 1.0F - Mth.clamp(var3, 0.0F, 1.0F));
+            this.drawProgressBar(param0, var0 / 2 - var15, var16 - 5, var0 / 2 + var15, var16 + 5, 1.0F - Mth.clamp(var3, 0.0F, 1.0F));
         }
 
         if (var3 >= 2.0F) {
@@ -107,8 +110,8 @@ public class LoadingOverlay extends Overlay {
             try {
                 this.reload.checkExceptions();
                 this.onFinish.accept(Optional.empty());
-            } catch (Throwable var17) {
-                this.onFinish.accept(Optional.of(var17));
+            } catch (Throwable var23) {
+                this.onFinish.accept(Optional.of(var23));
             }
 
             this.fadeOutStart = Util.getMillis();
@@ -123,8 +126,10 @@ public class LoadingOverlay extends Overlay {
         int var0 = Mth.ceil((float)(param3 - param1 - 2) * this.currentProgress);
         int var1 = Math.round(param5 * 255.0F);
         int var2 = FastColor.ARGB32.color(var1, 255, 255, 255);
-        fill(param0, param1, param2, param3, param4, var2);
-        fill(param0, param1 + 1, param2 + 1, param3 - 1, param4 - 1, BRAND_BACKGROUND_NO_ALPHA | var1 << 24);
+        fill(param0, param1, param2, param3, param2 + 1, var2);
+        fill(param0, param1, param4, param3, param4 - 1, var2);
+        fill(param0, param1, param2, param1 + 1, param4, var2);
+        fill(param0, param3, param2, param3 - 1, param4, var2);
         fill(param0, param1 + 2, param2 + 2, param1 + var0, param4 - 2, var2);
     }
 

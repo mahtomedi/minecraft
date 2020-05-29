@@ -6,8 +6,8 @@ import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.components.CommandSuggestions;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
@@ -138,7 +138,7 @@ public class ChatScreen extends Screen {
                     return true;
                 }
 
-                Component var1 = var0.getClickedComponentAt(param0, param1);
+                Style var1 = var0.getClickedComponentStyleAt(param0, param1);
                 if (var1 != null && this.handleComponentClicked(var1)) {
                     return true;
                 }
@@ -185,8 +185,8 @@ public class ChatScreen extends Screen {
         fill(param0, 2, this.height - 14, this.width - 2, this.height - 2, this.minecraft.options.getBackgroundColor(Integer.MIN_VALUE));
         this.input.render(param0, param1, param2, param3);
         this.commandSuggestions.render(param0, param1, param2);
-        Component var0 = this.minecraft.gui.getChat().getClickedComponentAt((double)param1, (double)param2);
-        if (var0 != null && var0.getStyle().getHoverEvent() != null) {
+        Style var0 = this.minecraft.gui.getChat().getClickedComponentStyleAt((double)param1, (double)param2);
+        if (var0 != null && var0.getHoverEvent() != null) {
             this.renderComponentHoverEffect(param0, var0, param1, param2);
         }
 

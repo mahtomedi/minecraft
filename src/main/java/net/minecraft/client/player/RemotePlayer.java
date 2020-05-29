@@ -37,16 +37,7 @@ public class RemotePlayer extends AbstractClientPlayer {
     @Override
     public void tick() {
         super.tick();
-        this.animationSpeedOld = this.animationSpeed;
-        double var0 = this.getX() - this.xo;
-        double var1 = this.getZ() - this.zo;
-        float var2 = Mth.sqrt(var0 * var0 + var1 * var1) * 4.0F;
-        if (var2 > 1.0F) {
-            var2 = 1.0F;
-        }
-
-        this.animationSpeed += (var2 - this.animationSpeed) * 0.4F;
-        this.animationPosition += this.animationSpeed;
+        this.calculateEntityAnimation(this, false);
     }
 
     @Override

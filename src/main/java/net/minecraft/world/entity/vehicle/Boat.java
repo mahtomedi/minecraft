@@ -19,6 +19,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -92,6 +93,11 @@ public class Boat extends Entity {
     }
 
     @Override
+    protected float getEyeHeight(Pose param0, EntityDimensions param1) {
+        return param1.height;
+    }
+
+    @Override
     protected boolean isMovementNoisy() {
         return false;
     }
@@ -125,7 +131,7 @@ public class Boat extends Entity {
     }
 
     @Override
-    public double getRideHeight() {
+    public double getPassengersRidingOffset() {
         return -0.1;
     }
 
@@ -652,7 +658,7 @@ public class Boat extends Entity {
     public void positionRider(Entity param0) {
         if (this.hasPassenger(param0)) {
             float var0 = 0.0F;
-            float var1 = (float)((this.removed ? 0.01F : this.getRideHeight()) + param0.getRidingHeight());
+            float var1 = (float)((this.removed ? 0.01F : this.getPassengersRidingOffset()) + param0.getMyRidingOffset());
             if (this.getPassengers().size() > 1) {
                 int var2 = this.getPassengers().indexOf(param0);
                 if (var2 == 0) {

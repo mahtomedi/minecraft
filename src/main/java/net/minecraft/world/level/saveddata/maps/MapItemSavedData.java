@@ -22,6 +22,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.MapItem;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.saveddata.SavedData;
@@ -32,7 +33,7 @@ public class MapItemSavedData extends SavedData {
     private static final Logger LOGGER = LogManager.getLogger();
     public int x;
     public int z;
-    public ResourceKey<DimensionType> dimension;
+    public ResourceKey<Level> dimension;
     public boolean trackingPosition;
     public boolean unlimitedTracking;
     public byte scale;
@@ -48,7 +49,7 @@ public class MapItemSavedData extends SavedData {
         super(param0);
     }
 
-    public void setProperties(int param0, int param1, int param2, boolean param3, boolean param4, ResourceKey<DimensionType> param5) {
+    public void setProperties(int param0, int param1, int param2, boolean param3, boolean param4, ResourceKey<Level> param5) {
         this.scale = (byte)param2;
         this.setOrigin((double)param0, (double)param1, this.scale);
         this.dimension = param5;
@@ -253,7 +254,7 @@ public class MapItemSavedData extends SavedData {
         if (var1 >= -63.0F && var2 >= -63.0F && var1 <= 63.0F && var2 <= 63.0F) {
             param5 += param5 < 0.0 ? -8.0 : 8.0;
             var6 = (byte)((int)(param5 * 16.0 / 360.0));
-            if (this.dimension == DimensionType.NETHER_LOCATION && param1 != null) {
+            if (this.dimension == Level.NETHER && param1 != null) {
                 int var7 = (int)(param1.getLevelData().getDayTime() / 10L);
                 var6 = (byte)(var7 * var7 * 34187121 + var7 * 121 >> 15 & 15);
             }

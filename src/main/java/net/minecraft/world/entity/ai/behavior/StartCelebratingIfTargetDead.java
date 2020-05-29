@@ -1,7 +1,7 @@
 package net.minecraft.world.entity.ai.behavior;
 
 import com.google.common.collect.ImmutableMap;
-import net.minecraft.core.BlockPos;
+import java.util.function.BiPredicate;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -9,8 +9,9 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 
 public class StartCelebratingIfTargetDead extends Behavior<LivingEntity> {
     private final int celebrateDuration;
+    private final BiPredicate<LivingEntity, LivingEntity> dancePredicate;
 
-    public StartCelebratingIfTargetDead(int param0) {
+    public StartCelebratingIfTargetDead(int param0, BiPredicate<LivingEntity, LivingEntity> param1) {
         super(
             ImmutableMap.of(
                 MemoryModuleType.ATTACK_TARGET,
@@ -18,10 +19,13 @@ public class StartCelebratingIfTargetDead extends Behavior<LivingEntity> {
                 MemoryModuleType.ANGRY_AT,
                 MemoryStatus.REGISTERED,
                 MemoryModuleType.CELEBRATE_LOCATION,
-                MemoryStatus.VALUE_ABSENT
+                MemoryStatus.VALUE_ABSENT,
+                MemoryModuleType.DANCING,
+                MemoryStatus.REGISTERED
             )
         );
         this.celebrateDuration = param0;
+        this.dancePredicate = param1;
     }
 
     @Override
@@ -31,10 +35,14 @@ public class StartCelebratingIfTargetDead extends Behavior<LivingEntity> {
 
     @Override
     protected void start(ServerLevel param0, LivingEntity param1, long param2) {
-        BlockPos var0 = this.getAttackTarget(param1).blockPosition();
+        LivingEntity var0 = this.getAttackTarget(param1);
+        if (this.dancePredicate.test(param1, var0)) {
+            param1.getBrain().setMemoryWithExpiry(MemoryModuleType.DANCING, true, (long)this.celebrateDuration);
+        }
+
+        param1.getBrain().setMemoryWithExpiry(MemoryModuleType.CELEBRATE_LOCATION, var0.blockPosition(), (long)this.celebrateDuration);
         param1.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);
         param1.getBrain().eraseMemory(MemoryModuleType.ANGRY_AT);
-        param1.getBrain().setMemoryWithExpiry(MemoryModuleType.CELEBRATE_LOCATION, var0, (long)this.celebrateDuration);
     }
 
     private LivingEntity getAttackTarget(LivingEntity param0) {

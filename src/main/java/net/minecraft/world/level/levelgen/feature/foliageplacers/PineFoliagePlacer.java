@@ -7,6 +7,7 @@ import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelSimulatedRW;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public class PineFoliagePlacer extends FoliagePlacer {
     public static final Codec<PineFoliagePlacer> CODEC = RecordCodecBuilder.create(
@@ -43,12 +44,13 @@ public class PineFoliagePlacer extends FoliagePlacer {
         int param5,
         int param6,
         Set<BlockPos> param7,
-        int param8
+        int param8,
+        BoundingBox param9
     ) {
         int var0 = 0;
 
         for(int var1 = param8; var1 >= param8 - param5; --var1) {
-            this.placeLeavesRow(param0, param1, param2, param4.foliagePos(), var0, param7, var1, param4.doubleTrunk());
+            this.placeLeavesRow(param0, param1, param2, param4.foliagePos(), var0, param7, var1, param4.doubleTrunk(), param9);
             if (var0 >= 1 && var1 == param8 - param5 + 1) {
                 --var0;
             } else if (var0 < param6 + param4.radiusOffset()) {

@@ -254,7 +254,7 @@ public class ChestBlock extends AbstractChestBlock<ChestBlockEntity> implements 
                 PiglinAi.angerNearbyPiglinsThatSee(param3);
             }
 
-            return InteractionResult.SUCCESS;
+            return InteractionResult.CONSUME;
         }
     }
 

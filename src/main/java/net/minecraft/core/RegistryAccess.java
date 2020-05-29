@@ -8,6 +8,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public interface RegistryAccess {
+    @OnlyIn(Dist.CLIENT)
     Registry<DimensionType> dimensionTypes();
 
     @OnlyIn(Dist.CLIENT)
@@ -36,6 +37,7 @@ public interface RegistryAccess {
             this.dimensionTypes.register(param0, param1);
         }
 
+        @OnlyIn(Dist.CLIENT)
         @Override
         public Registry<DimensionType> dimensionTypes() {
             return this.dimensionTypes;

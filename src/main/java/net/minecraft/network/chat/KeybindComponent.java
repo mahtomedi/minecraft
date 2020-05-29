@@ -29,13 +29,13 @@ public class KeybindComponent extends BaseComponent {
     }
 
     @Override
-    public <T> Optional<T> visitSelf(Component.ContentConsumer<T> param0) {
+    public <T> Optional<T> visitSelf(FormattedText.ContentConsumer<T> param0) {
         return this.getNestedComponent().visit(param0);
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public <T> Optional<T> visitSelf(Component.StyledContentConsumer<T> param0, Style param1) {
+    public <T> Optional<T> visitSelf(FormattedText.StyledContentConsumer<T> param0, Style param1) {
         return this.getNestedComponent().visit(param0, param1);
     }
 

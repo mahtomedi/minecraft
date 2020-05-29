@@ -440,6 +440,7 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
         double var4 = param2 - var1;
         double var5 = param3 - var2;
         WitherSkull var6 = new WitherSkull(this.level, this, var3, var4, var5);
+        var6.setOwner(this);
         if (param4) {
             var6.setDangerous(true);
         }

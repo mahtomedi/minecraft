@@ -20,7 +20,7 @@ public class WeightedList<U> {
     }
 
     private WeightedList(List<WeightedList.WeightedEntry<U>> param0) {
-        this.entries = param0;
+        this.entries = Lists.newArrayList(param0);
     }
 
     public static <U> Codec<WeightedList<U>> codec(Codec<U> param0) {

@@ -1,5 +1,6 @@
 package net.minecraft.world.level.levelgen.flat;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.serialization.Codec;
@@ -128,8 +129,8 @@ public class FlatLevelGeneratorSettings {
         ) {
         };
         if (this.addLakes) {
-            var1.addFeature(GenerationStep.Decoration.LOCAL_MODIFICATIONS, WATER_LAKE_COMPOSITE_FEATURE);
-            var1.addFeature(GenerationStep.Decoration.LOCAL_MODIFICATIONS, LAVA_LAKE_COMPOSITE_FEATURE);
+            var1.addFeature(GenerationStep.Decoration.LAKES, WATER_LAKE_COMPOSITE_FEATURE);
+            var1.addFeature(GenerationStep.Decoration.LAKES, LAVA_LAKE_COMPOSITE_FEATURE);
         }
 
         for(Entry<StructureFeature<?>, StructureFeatureConfiguration> var2 : this.structureSettings.structureConfig().entrySet()) {
@@ -180,10 +181,6 @@ public class FlatLevelGeneratorSettings {
         return this.layersInfo;
     }
 
-    public void addStructure(StructureFeature<?> param0) {
-        this.structureSettings.structureConfig().put(param0, StructureSettings.DEFAULTS.get(param0));
-    }
-
     public BlockState[] getLayers() {
         return this.layers;
     }
@@ -211,15 +208,16 @@ public class FlatLevelGeneratorSettings {
     }
 
     public static FlatLevelGeneratorSettings getDefault() {
-        FlatLevelGeneratorSettings var0 = new FlatLevelGeneratorSettings(
-            new StructureSettings(Optional.of(StructureSettings.DEFAULT_STRONGHOLD), Maps.newHashMap())
+        StructureSettings var0 = new StructureSettings(
+            Optional.of(StructureSettings.DEFAULT_STRONGHOLD),
+            Maps.newHashMap(ImmutableMap.of(StructureFeature.VILLAGE, StructureSettings.DEFAULTS.get(StructureFeature.VILLAGE)))
         );
-        var0.setBiome(Biomes.PLAINS);
-        var0.getLayersInfo().add(new FlatLayerInfo(1, Blocks.BEDROCK));
-        var0.getLayersInfo().add(new FlatLayerInfo(2, Blocks.DIRT));
-        var0.getLayersInfo().add(new FlatLayerInfo(1, Blocks.GRASS_BLOCK));
-        var0.updateLayers();
-        var0.addStructure(StructureFeature.VILLAGE);
-        return var0;
+        FlatLevelGeneratorSettings var1 = new FlatLevelGeneratorSettings(var0);
+        var1.setBiome(Biomes.PLAINS);
+        var1.getLayersInfo().add(new FlatLayerInfo(1, Blocks.BEDROCK));
+        var1.getLayersInfo().add(new FlatLayerInfo(2, Blocks.DIRT));
+        var1.getLayersInfo().add(new FlatLayerInfo(1, Blocks.GRASS_BLOCK));
+        var1.updateLayers();
+        return var1;
     }
 }

@@ -171,40 +171,14 @@ public class Inventory implements Container, Nameable {
 
     }
 
-    public int clearInventory(Predicate<ItemStack> param0, int param1) {
+    public int clearOrCountMatchingItems(Predicate<ItemStack> param0, int param1, Container param2) {
         int var0 = 0;
-
-        for(int var1 = 0; var1 < this.getContainerSize(); ++var1) {
-            ItemStack var2 = this.getItem(var1);
-            if (!var2.isEmpty() && param0.test(var2)) {
-                int var3 = param1 <= 0 ? var2.getCount() : Math.min(param1 - var0, var2.getCount());
-                var0 += var3;
-                if (param1 != 0) {
-                    var2.shrink(var3);
-                    if (var2.isEmpty()) {
-                        this.setItem(var1, ItemStack.EMPTY);
-                    }
-
-                    if (param1 > 0 && var0 >= param1) {
-                        return var0;
-                    }
-                }
-            }
-        }
-
-        if (!this.carried.isEmpty() && param0.test(this.carried)) {
-            int var4 = param1 <= 0 ? this.carried.getCount() : Math.min(param1 - var0, this.carried.getCount());
-            var0 += var4;
-            if (param1 != 0) {
-                this.carried.shrink(var4);
-                if (this.carried.isEmpty()) {
-                    this.carried = ItemStack.EMPTY;
-                }
-
-                if (param1 > 0 && var0 >= param1) {
-                    return var0;
-                }
-            }
+        boolean var1 = param1 == 0;
+        var0 += ContainerHelper.clearOrCountMatchingItems(this, param0, param1 - var0, var1);
+        var0 += ContainerHelper.clearOrCountMatchingItems(param2, param0, param1 - var0, var1);
+        var0 += ContainerHelper.clearOrCountMatchingItems(this.carried, param0, param1 - var0, var1);
+        if (this.carried.isEmpty()) {
+            this.carried = ItemStack.EMPTY;
         }
 
         return var0;
@@ -527,10 +501,6 @@ public class Inventory implements Container, Nameable {
     @Override
     public Component getName() {
         return new TranslatableComponent("container.inventory");
-    }
-
-    public boolean canDestroy(BlockState param0) {
-        return this.getItem(this.selected).canDestroySpecial(param0);
     }
 
     @OnlyIn(Dist.CLIENT)

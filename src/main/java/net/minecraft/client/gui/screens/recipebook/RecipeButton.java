@@ -1,12 +1,13 @@
 package net.minecraft.client.gui.screens.recipebook;
 
+import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -120,9 +121,9 @@ public class RecipeButton extends AbstractWidget {
         return var0.get(this.currentIndex);
     }
 
-    public List<Component> getTooltipText(Screen param0) {
+    public List<FormattedText> getTooltipText(Screen param0) {
         ItemStack var0 = this.getOrderedRecipes().get(this.currentIndex).getResultItem();
-        List<Component> var1 = param0.getTooltipFromItem(var0);
+        List<FormattedText> var1 = Lists.newArrayList(param0.getTooltipFromItem(var0));
         if (this.collection.getRecipes(this.book.isFilteringCraftable(this.menu)).size() > 1) {
             var1.add(new TranslatableComponent("gui.recipebook.moreRecipes"));
         }

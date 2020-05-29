@@ -30,7 +30,7 @@ import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -44,6 +44,8 @@ public abstract class AbstractVillager extends AgableMob implements Npc, Merchan
 
     public AbstractVillager(EntityType<? extends AbstractVillager> param0, Level param1) {
         super(param0, param1);
+        this.setPathfindingMalus(BlockPathTypes.DANGER_FIRE, 16.0F);
+        this.setPathfindingMalus(BlockPathTypes.DAMAGE_FIRE, -1.0F);
     }
 
     @Override
@@ -179,7 +181,7 @@ public abstract class AbstractVillager extends AgableMob implements Npc, Merchan
 
     @Nullable
     @Override
-    public Entity changeDimension(ResourceKey<DimensionType> param0) {
+    public Entity changeDimension(ResourceKey<Level> param0) {
         this.stopTrading();
         return super.changeDimension(param0);
     }

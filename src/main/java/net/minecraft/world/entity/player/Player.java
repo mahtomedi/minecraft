@@ -293,7 +293,7 @@ public abstract class Player extends LivingEntity {
     }
 
     protected boolean updateIsUnderwater() {
-        this.wasUnderwater = this.isUnderLiquid(FluidTags.WATER, true);
+        this.wasUnderwater = this.isUnderLiquid(FluidTags.WATER);
         return this.wasUnderwater;
     }
 
@@ -466,18 +466,10 @@ public abstract class Player extends LivingEntity {
             double var0 = this.getX();
             double var1 = this.getY();
             double var2 = this.getZ();
-            float var3 = this.yRot;
-            float var4 = this.xRot;
             super.rideTick();
             this.oBob = this.bob;
             this.bob = 0.0F;
             this.checkRidingStatistics(this.getX() - var0, this.getY() - var1, this.getZ() - var2);
-            if (this.getVehicle() instanceof Pig) {
-                this.xRot = var4;
-                this.yRot = var3;
-                this.yBodyRot = ((Pig)this.getVehicle()).yBodyRot;
-            }
-
         }
     }
 
@@ -765,8 +757,8 @@ public abstract class Player extends LivingEntity {
         return var0;
     }
 
-    public boolean canDestroy(BlockState param0) {
-        return param0.getMaterial().isAlwaysDestroyable() || this.inventory.canDestroy(param0);
+    public boolean hasCorrectToolForDrops(BlockState param0) {
+        return !param0.requiresCorrectToolForDrops() || this.inventory.getSelected().isCorrectToolForDrops(param0);
     }
 
     @Override
@@ -1018,7 +1010,7 @@ public abstract class Player extends LivingEntity {
     }
 
     @Override
-    public double getRidingHeight() {
+    public double getMyRidingOffset() {
         return -0.35;
     }
 
@@ -1474,7 +1466,7 @@ public abstract class Player extends LivingEntity {
                     this.awardStat(Stats.SWIM_ONE_CM, var0);
                     this.causeFoodExhaustion(0.01F * (float)var0 * 0.01F);
                 }
-            } else if (this.isUnderLiquid(FluidTags.WATER, true)) {
+            } else if (this.isUnderLiquid(FluidTags.WATER)) {
                 int var1 = Math.round(Mth.sqrt(param0 * param0 + param1 * param1 + param2 * param2) * 100.0F);
                 if (var1 > 0) {
                     this.awardStat(Stats.WALK_UNDER_WATER_ONE_CM, var1);

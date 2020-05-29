@@ -67,7 +67,7 @@ public class JigsawBlock extends Block implements EntityBlock {
         BlockEntity var0 = param1.getBlockEntity(param2);
         if (var0 instanceof JigsawBlockEntity && param3.canUseGameMasterBlocks()) {
             param3.openJigsawBlock((JigsawBlockEntity)var0);
-            return InteractionResult.SUCCESS;
+            return InteractionResult.sidedSuccess(param1.isClientSide);
         } else {
             return InteractionResult.PASS;
         }

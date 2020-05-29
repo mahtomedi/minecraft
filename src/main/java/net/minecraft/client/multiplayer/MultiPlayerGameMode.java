@@ -316,7 +316,11 @@ public class MultiPlayerGameMode {
     }
 
     public LocalPlayer createPlayer(ClientLevel param0, StatsCounter param1, ClientRecipeBook param2) {
-        return new LocalPlayer(this.minecraft, param0, this.connection, param1, param2);
+        return this.createPlayer(param0, param1, param2, false, false);
+    }
+
+    public LocalPlayer createPlayer(ClientLevel param0, StatsCounter param1, ClientRecipeBook param2, boolean param3, boolean param4) {
+        return new LocalPlayer(this.minecraft, param0, this.connection, param1, param2, param3, param4);
     }
 
     public void attack(Player param0, Entity param1) {
@@ -425,18 +429,19 @@ public class MultiPlayerGameMode {
 
     public void handleBlockBreakAck(ClientLevel param0, BlockPos param1, BlockState param2, ServerboundPlayerActionPacket.Action param3, boolean param4) {
         PosAndRot var0 = this.unAckedActions.remove(Pair.of(param1, param3));
-        if (var0 == null || !param4 || param3 != ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK && param0.getBlockState(param1) != param2) {
+        BlockState var1 = param0.getBlockState(param1);
+        if ((var0 == null || !param4 || param3 != ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK && var1 != param2) && var1 != param2) {
             param0.setKnownState(param1, param2);
             if (var0 != null) {
-                Vec3 var1 = var0.pos();
-                this.minecraft.player.absMoveTo(var1.x, var1.y, var1.z, var0.yRot(), var0.xRot());
+                Vec3 var2 = var0.pos();
+                this.minecraft.player.absMoveTo(var2.x, var2.y, var2.z, var0.yRot(), var0.xRot());
             }
         }
 
         while(this.unAckedActions.size() >= 50) {
-            Pair<BlockPos, ServerboundPlayerActionPacket.Action> var2 = this.unAckedActions.firstKey();
+            Pair<BlockPos, ServerboundPlayerActionPacket.Action> var3 = this.unAckedActions.firstKey();
             this.unAckedActions.removeFirst();
-            LOGGER.error("Too many unacked block actions, dropping " + var2);
+            LOGGER.error("Too many unacked block actions, dropping " + var3);
         }
 
     }

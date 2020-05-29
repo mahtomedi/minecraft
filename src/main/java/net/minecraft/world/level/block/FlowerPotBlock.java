@@ -69,7 +69,7 @@ public class FlowerPotBlock extends Block {
                 param1.setBlock(param2, Blocks.FLOWER_POT.defaultBlockState(), 3);
             }
 
-            return InteractionResult.SUCCESS;
+            return InteractionResult.sidedSuccess(param1.isClientSide);
         } else {
             return InteractionResult.CONSUME;
         }

@@ -34,7 +34,7 @@ public class FlintAndSteelItem extends Item {
                 param0.getItemInHand().hurtAndBreak(1, var0, param1 -> param1.broadcastBreakEvent(param0.getHand()));
             }
 
-            return InteractionResult.SUCCESS;
+            return InteractionResult.sidedSuccess(var1.isClientSide());
         } else {
             BlockPos var4 = var2.relative(param0.getClickedFace());
             if (canUse(var1.getBlockState(var4), var1, var4)) {
@@ -47,7 +47,7 @@ public class FlintAndSteelItem extends Item {
                     var6.hurtAndBreak(1, var0, param1 -> param1.broadcastBreakEvent(param0.getHand()));
                 }
 
-                return InteractionResult.SUCCESS;
+                return InteractionResult.sidedSuccess(var1.isClientSide());
             } else {
                 return InteractionResult.FAIL;
             }

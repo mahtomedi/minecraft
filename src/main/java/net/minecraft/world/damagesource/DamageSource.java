@@ -7,8 +7,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
+import net.minecraft.world.entity.projectile.Fireball;
 import net.minecraft.world.entity.projectile.FireworkRocketEntity;
+import net.minecraft.world.entity.projectile.WitherSkull;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.phys.Vec3;
 
@@ -73,10 +74,14 @@ public class DamageSource {
         return new IndirectEntityDamageSource("fireworks", param0, param1).setExplosion();
     }
 
-    public static DamageSource fireball(AbstractHurtingProjectile param0, @Nullable Entity param1) {
+    public static DamageSource fireball(Fireball param0, @Nullable Entity param1) {
         return param1 == null
             ? new IndirectEntityDamageSource("onFire", param0, param0).setIsFire().setProjectile()
             : new IndirectEntityDamageSource("fireball", param0, param1).setIsFire().setProjectile();
+    }
+
+    public static DamageSource witherSkull(WitherSkull param0, Entity param1) {
+        return new IndirectEntityDamageSource("witherSkull", param0, param1).setProjectile();
     }
 
     public static DamageSource thrown(Entity param0, @Nullable Entity param1) {
@@ -92,9 +97,7 @@ public class DamageSource {
     }
 
     public static DamageSource explosion(@Nullable Explosion param0) {
-        return param0 != null && param0.getSourceMob() != null
-            ? new EntityDamageSource("explosion.player", param0.getSourceMob()).setScalesWithDifficulty().setExplosion()
-            : new DamageSource("explosion").setScalesWithDifficulty().setExplosion();
+        return explosion(param0 != null ? param0.getSourceMob() : null);
     }
 
     public static DamageSource explosion(@Nullable LivingEntity param0) {

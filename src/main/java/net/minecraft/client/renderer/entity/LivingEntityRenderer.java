@@ -132,7 +132,7 @@ public abstract class LivingEntityRenderer<T extends LivingEntity, M extends Ent
     protected RenderType getRenderType(T param0, boolean param1, boolean param2, boolean param3) {
         ResourceLocation var0 = this.getTextureLocation(param0);
         if (param2) {
-            return RenderType.entityTranslucent(var0);
+            return RenderType.itemEntityTranslucentCull(var0);
         } else if (param1) {
             return this.model.renderType(var0);
         } else {

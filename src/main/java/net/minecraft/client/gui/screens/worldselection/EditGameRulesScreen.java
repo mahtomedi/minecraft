@@ -21,6 +21,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -35,7 +36,7 @@ public class EditGameRulesScreen extends Screen {
     private final Set<EditGameRulesScreen.RuleEntry> invalidEntries = Sets.newHashSet();
     private Button doneButton;
     @Nullable
-    private List<Component> tooltip;
+    private List<FormattedText> tooltip;
     private final GameRules gameRules;
 
     public EditGameRulesScreen(GameRules param0, Consumer<Optional<GameRules>> param1) {
@@ -82,7 +83,7 @@ public class EditGameRulesScreen extends Screen {
 
     }
 
-    private void setTooltip(@Nullable List<Component> param0) {
+    private void setTooltip(@Nullable List<FormattedText> param0) {
         this.tooltip = param0;
     }
 
@@ -105,7 +106,7 @@ public class EditGameRulesScreen extends Screen {
         private final Button checkbox;
         private final List<? extends GuiEventListener> children;
 
-        public BooleanRuleEntry(Component param1, List<Component> param2, final String param3, GameRules.BooleanValue param4) {
+        public BooleanRuleEntry(Component param1, List<FormattedText> param2, final String param3, GameRules.BooleanValue param4) {
             super(param2);
             this.checkbox = new Button(10, 5, 220, 20, this.getMessage(param1, param4.get()), param2x -> {
                 boolean var0 = !param4.get();
@@ -160,7 +161,7 @@ public class EditGameRulesScreen extends Screen {
     @FunctionalInterface
     @OnlyIn(Dist.CLIENT)
     interface EntryFactory<T extends GameRules.Value<T>> {
-        EditGameRulesScreen.RuleEntry create(Component var1, List<Component> var2, String var3, T var4);
+        EditGameRulesScreen.RuleEntry create(Component var1, List<FormattedText> var2, String var3, T var4);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -169,7 +170,7 @@ public class EditGameRulesScreen extends Screen {
         private final EditBox input;
         private final List<? extends GuiEventListener> children;
 
-        public IntegerRuleEntry(Component param1, List<Component> param2, String param3, GameRules.IntegerValue param4) {
+        public IntegerRuleEntry(Component param1, List<FormattedText> param2, String param3, GameRules.IntegerValue param4) {
             super(param2);
             this.label = param1;
             this.input = new EditBox(EditGameRulesScreen.this.minecraft.font, 10, 5, 42, 20, param1.mutableCopy().append("\n").append(param3).append("\n"));
@@ -204,9 +205,9 @@ public class EditGameRulesScreen extends Screen {
     @OnlyIn(Dist.CLIENT)
     public abstract class RuleEntry extends ContainerObjectSelectionList.Entry<EditGameRulesScreen.RuleEntry> {
         @Nullable
-        private final List<Component> tooltip;
+        private final List<FormattedText> tooltip;
 
-        public RuleEntry(@Nullable List<Component> param1) {
+        public RuleEntry(@Nullable List<FormattedText> param1) {
             this.tooltip = param1;
         }
     }
@@ -246,10 +247,10 @@ public class EditGameRulesScreen extends Screen {
                         String var3 = var2.serialize();
                         Component var4 = new TranslatableComponent("editGamerule.default", new TextComponent(var3)).withStyle(ChatFormatting.GRAY);
                         String var5 = param0.getDescriptionId() + ".description";
-                        List<Component> var8;
+                        List<FormattedText> var8;
                         String var9;
                         if (I18n.exists(var5)) {
-                            Builder<Component> var6 = ImmutableList.<Component>builder().add(var1);
+                            Builder<FormattedText> var6 = ImmutableList.<FormattedText>builder().add(var1);
                             Component var7 = new TranslatableComponent(var5);
                             EditGameRulesScreen.this.font.split(var7, 150).forEach(var6::add);
                             var8 = var6.add(var4).build();

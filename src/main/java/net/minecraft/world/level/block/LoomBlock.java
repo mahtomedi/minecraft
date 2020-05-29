@@ -31,7 +31,7 @@ public class LoomBlock extends HorizontalDirectionalBlock {
         } else {
             param3.openMenu(param0.getMenuProvider(param1, param2));
             param3.awardStat(Stats.INTERACT_WITH_LOOM);
-            return InteractionResult.SUCCESS;
+            return InteractionResult.CONSUME;
         }
     }
 

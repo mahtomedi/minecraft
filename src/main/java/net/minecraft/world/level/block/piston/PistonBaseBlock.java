@@ -283,9 +283,9 @@ public class PistonBaseBlock extends DirectionalBlock {
             }
 
             List<BlockPos> var8 = var1.getToDestroy();
-            int var9 = var3.size() + var8.size();
-            BlockState[] var10 = new BlockState[var9];
-            Direction var11 = param3 ? param2 : param2.getOpposite();
+            BlockState[] var9 = new BlockState[var3.size() + var8.size()];
+            Direction var10 = param3 ? param2 : param2.getOpposite();
+            int var11 = 0;
 
             for(int var12 = var8.size() - 1; var12 >= 0; --var12) {
                 BlockPos var13 = var8.get(var12);
@@ -293,19 +293,17 @@ public class PistonBaseBlock extends DirectionalBlock {
                 BlockEntity var15 = var14.getBlock().isEntityBlock() ? param0.getBlockEntity(var13) : null;
                 dropResources(var14, param0, var13, var15);
                 param0.setBlock(var13, Blocks.AIR.defaultBlockState(), 18);
-                --var9;
-                var10[var9] = var14;
+                var9[var11++] = var14;
             }
 
             for(int var16 = var3.size() - 1; var16 >= 0; --var16) {
                 BlockPos var17 = var3.get(var16);
                 BlockState var18 = param0.getBlockState(var17);
-                var17 = var17.relative(var11);
+                var17 = var17.relative(var10);
                 var2.remove(var17);
                 param0.setBlock(var17, Blocks.MOVING_PISTON.defaultBlockState().setValue(FACING, param2), 68);
                 param0.setBlockEntity(var17, MovingPistonBlock.newMovingBlockEntity(var4.get(var16), param2, param3, false));
-                --var9;
-                var10[var9] = var18;
+                var9[var11++] = var18;
             }
 
             if (param3) {
@@ -334,15 +332,17 @@ public class PistonBaseBlock extends DirectionalBlock {
                 var22.updateIndirectNeighbourShapes(param0, var25, 2);
             }
 
+            var11 = 0;
+
             for(int var27 = var8.size() - 1; var27 >= 0; --var27) {
-                BlockState var28 = var10[var9++];
+                BlockState var28 = var9[var11++];
                 BlockPos var29 = var8.get(var27);
                 var28.updateIndirectNeighbourShapes(param0, var29, 2);
                 param0.updateNeighborsAt(var29, var28.getBlock());
             }
 
             for(int var30 = var3.size() - 1; var30 >= 0; --var30) {
-                param0.updateNeighborsAt(var3.get(var30), var10[var9++].getBlock());
+                param0.updateNeighborsAt(var3.get(var30), var9[var11++].getBlock());
             }
 
             if (param3) {

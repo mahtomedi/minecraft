@@ -119,7 +119,7 @@ public class ComparatorBlock extends DiodeBlock implements EntityBlock {
             param1.playSound(param3, param2, SoundEvents.COMPARATOR_CLICK, SoundSource.BLOCKS, 0.3F, var0);
             param1.setBlock(param2, param0, 2);
             this.refreshOutputState(param1, param2, param0);
-            return InteractionResult.SUCCESS;
+            return InteractionResult.sidedSuccess(param1.isClientSide);
         }
     }
 

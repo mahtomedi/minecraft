@@ -64,7 +64,7 @@ public class PistonHeadRenderer extends BlockEntityRenderer<PistonMovingBlockEnt
     }
 
     private void renderBlock(BlockPos param0, BlockState param1, PoseStack param2, MultiBufferSource param3, Level param4, boolean param5, int param6) {
-        RenderType var0 = ItemBlockRenderTypes.getChunkRenderType(param1);
+        RenderType var0 = ItemBlockRenderTypes.getMovingBlockRenderType(param1);
         VertexConsumer var1 = param3.getBuffer(var0);
         this.blockRenderer
             .getModelRenderer()

@@ -9,6 +9,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -17,7 +18,7 @@ public class DisconnectedRealmsScreen extends RealmsScreen {
     private final String title;
     private final Component reason;
     @Nullable
-    private List<Component> lines;
+    private List<FormattedText> lines;
     private final Screen parent;
     private int textHeight;
 
@@ -58,7 +59,7 @@ public class DisconnectedRealmsScreen extends RealmsScreen {
         this.drawCenteredString(param0, this.font, this.title, this.width / 2, this.height / 2 - this.textHeight / 2 - 9 * 2, 11184810);
         int var0 = this.height / 2 - this.textHeight / 2;
         if (this.lines != null) {
-            for(Component var1 : this.lines) {
+            for(FormattedText var1 : this.lines) {
                 this.drawCenteredString(param0, this.font, var1, this.width / 2, var0, 16777215);
                 var0 += 9;
             }

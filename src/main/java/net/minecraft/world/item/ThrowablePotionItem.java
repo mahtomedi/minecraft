@@ -27,6 +27,6 @@ public class ThrowablePotionItem extends PotionItem {
             var0.shrink(1);
         }
 
-        return InteractionResultHolder.success(var0);
+        return InteractionResultHolder.sidedSuccess(var0, param0.isClientSide());
     }
 }

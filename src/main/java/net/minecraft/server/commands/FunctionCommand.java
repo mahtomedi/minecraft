@@ -14,8 +14,8 @@ import net.minecraft.server.ServerFunctionManager;
 public class FunctionCommand {
     public static final SuggestionProvider<CommandSourceStack> SUGGEST_FUNCTION = (param0, param1) -> {
         ServerFunctionManager var0 = param0.getSource().getServer().getFunctions();
-        SharedSuggestionProvider.suggestResource(var0.getTags().getAvailableTags(), param1, "#");
-        return SharedSuggestionProvider.suggestResource(var0.getFunctions().keySet(), param1);
+        SharedSuggestionProvider.suggestResource(var0.getTagNames(), param1, "#");
+        return SharedSuggestionProvider.suggestResource(var0.getFunctionNames(), param1);
     };
 
     public static void register(CommandDispatcher<CommandSourceStack> param0) {

@@ -743,16 +743,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
                     this.setIsJumping(false);
                 }
 
-                this.animationSpeedOld = this.animationSpeed;
-                double var9 = this.getX() - this.xo;
-                double var10 = this.getZ() - this.zo;
-                float var11 = Mth.sqrt(var9 * var9 + var10 * var10) * 4.0F;
-                if (var11 > 1.0F) {
-                    var11 = 1.0F;
-                }
-
-                this.animationSpeed += (var11 - this.animationSpeed) * 0.4F;
-                this.animationPosition += this.animationSpeed;
+                this.calculateEntityAnimation(this, false);
             } else {
                 this.flyingSpeed = 0.02F;
                 super.travel(param0);
@@ -936,7 +927,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
             float var4 = 0.15F * this.standAnimO;
             param0.setPos(
                 this.getX() + (double)(var3 * var1),
-                this.getY() + this.getRideHeight() + param0.getRidingHeight() + (double)var4,
+                this.getY() + this.getPassengersRidingOffset() + param0.getMyRidingOffset() + (double)var4,
                 this.getZ() - (double)(var3 * var2)
             );
             if (param0 instanceof LivingEntity) {

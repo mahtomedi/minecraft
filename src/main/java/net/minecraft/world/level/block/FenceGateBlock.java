@@ -135,7 +135,7 @@ public class FenceGateBlock extends HorizontalDirectionalBlock {
         }
 
         param1.levelEvent(param3, param0.getValue(OPEN) ? 1008 : 1014, param2, 0);
-        return InteractionResult.SUCCESS;
+        return InteractionResult.sidedSuccess(param1.isClientSide);
     }
 
     @Override

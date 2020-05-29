@@ -1,5 +1,9 @@
 package net.minecraft.world.level.pathfinder;
 
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
+import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import java.util.EnumSet;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -26,6 +30,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class WalkNodeEvaluator extends NodeEvaluator {
     protected float oldWaterCost;
+    private final Long2ObjectMap<BlockPathTypes> pathTypesByPosCache = new Long2ObjectOpenHashMap<>();
+    private final Object2BooleanMap<AABB> collisionCache = new Object2BooleanOpenHashMap<>();
 
     @Override
     public void prepare(PathNavigationRegion param0, Mob param1) {
@@ -36,6 +42,8 @@ public class WalkNodeEvaluator extends NodeEvaluator {
     @Override
     public void done() {
         this.mob.setPathfindingMalus(BlockPathTypes.WATER, this.oldWaterCost);
+        this.pathTypesByPosCache.clear();
+        this.collisionCache.clear();
         super.done();
     }
 
@@ -77,18 +85,24 @@ public class WalkNodeEvaluator extends NodeEvaluator {
         }
 
         BlockPos var4 = this.mob.blockPosition();
-        BlockPathTypes var5 = this.getBlockPathType(this.mob, var4.getX(), var1, var4.getZ());
+        BlockPathTypes var5 = this.getCachedBlockType(this.mob, var4.getX(), var1, var4.getZ());
         if (this.mob.getPathfindingMalus(var5) < 0.0F) {
             AABB var6 = this.mob.getBoundingBox();
             if (this.hasPositiveMalus(var0.set(var6.minX, (double)var1, var6.minZ))
                 || this.hasPositiveMalus(var0.set(var6.minX, (double)var1, var6.maxZ))
                 || this.hasPositiveMalus(var0.set(var6.maxX, (double)var1, var6.minZ))
                 || this.hasPositiveMalus(var0.set(var6.maxX, (double)var1, var6.maxZ))) {
-                return this.getNode(var0);
+                Node var7 = this.getNode(var0);
+                var7.type = this.getBlockPathType(this.mob, var7.asBlockPos());
+                var7.costMalus = this.mob.getPathfindingMalus(var7.type);
+                return var7;
             }
         }
 
-        return this.getNode(var4.getX(), var1, var4.getZ());
+        Node var8 = this.getNode(var4.getX(), var1, var4.getZ());
+        var8.type = this.getBlockPathType(this.mob, var8.asBlockPos());
+        var8.costMalus = this.mob.getPathfindingMalus(var8.type);
+        return var8;
     }
 
     private boolean hasPositiveMalus(BlockPos param0) {
@@ -105,9 +119,9 @@ public class WalkNodeEvaluator extends NodeEvaluator {
     public int getNeighbors(Node[] param0, Node param1) {
         int var0 = 0;
         int var1 = 0;
-        BlockPathTypes var2 = this.getBlockPathType(this.mob, param1.x, param1.y + 1, param1.z);
+        BlockPathTypes var2 = this.getCachedBlockType(this.mob, param1.x, param1.y + 1, param1.z);
         if (this.mob.getPathfindingMalus(var2) >= 0.0F) {
-            BlockPathTypes var3 = this.getBlockPathType(this.mob, param1.x, param1.y, param1.z);
+            BlockPathTypes var3 = this.getCachedBlockType(this.mob, param1.x, param1.y, param1.z);
             if (var3 == BlockPathTypes.STICKY_HONEY) {
                 var1 = 0;
             } else {
@@ -117,22 +131,22 @@ public class WalkNodeEvaluator extends NodeEvaluator {
 
         double var4 = getFloorLevel(this.level, new BlockPos(param1.x, param1.y, param1.z));
         Node var5 = this.getLandNode(param1.x, param1.y, param1.z + 1, var1, var4, Direction.SOUTH);
-        if (var5 != null && !var5.closed && var5.costMalus >= 0.0F) {
+        if (var5 != null && !var5.closed && (var5.costMalus >= 0.0F || param1.costMalus < 0.0F)) {
             param0[var0++] = var5;
         }
 
         Node var6 = this.getLandNode(param1.x - 1, param1.y, param1.z, var1, var4, Direction.WEST);
-        if (var6 != null && !var6.closed && var6.costMalus >= 0.0F) {
+        if (var6 != null && !var6.closed && (var6.costMalus >= 0.0F || param1.costMalus < 0.0F)) {
             param0[var0++] = var6;
         }
 
         Node var7 = this.getLandNode(param1.x + 1, param1.y, param1.z, var1, var4, Direction.EAST);
-        if (var7 != null && !var7.closed && var7.costMalus >= 0.0F) {
+        if (var7 != null && !var7.closed && (var7.costMalus >= 0.0F || param1.costMalus < 0.0F)) {
             param0[var0++] = var7;
         }
 
         Node var8 = this.getLandNode(param1.x, param1.y, param1.z - 1, var1, var4, Direction.NORTH);
-        if (var8 != null && !var8.closed && var8.costMalus >= 0.0F) {
+        if (var8 != null && !var8.closed && (var8.costMalus >= 0.0F || param1.costMalus < 0.0F)) {
             param0[var0++] = var8;
         }
 
@@ -185,7 +199,7 @@ public class WalkNodeEvaluator extends NodeEvaluator {
         if (var2 - param4 > 1.125) {
             return null;
         } else {
-            BlockPathTypes var3 = this.getBlockPathType(this.mob, param0, param1, param2);
+            BlockPathTypes var3 = this.getCachedBlockType(this.mob, param0, param1, param2);
             float var4 = this.mob.getPathfindingMalus(var3);
             double var5 = (double)this.mob.getBbWidth() / 2.0;
             if (var4 >= 0.0F) {
@@ -210,19 +224,19 @@ public class WalkNodeEvaluator extends NodeEvaluator {
                             (double)this.mob.getBbHeight() + getFloorLevel(this.level, var1.set((double)var0.x, (double)var0.y, (double)var0.z)) - 0.002,
                             var7 + var5
                         );
-                        if (!this.level.noCollision(this.mob, var8)) {
+                        if (this.hasCollisions(var8)) {
                             var0 = null;
                         }
                     }
                 }
 
                 if (var3 == BlockPathTypes.WATER && !this.canFloat()) {
-                    if (this.getBlockPathType(this.mob, param0, param1 - 1, param2) != BlockPathTypes.WATER) {
+                    if (this.getCachedBlockType(this.mob, param0, param1 - 1, param2) != BlockPathTypes.WATER) {
                         return var0;
                     }
 
                     while(param1 > 0) {
-                        var3 = this.getBlockPathType(this.mob, param0, --param1, param2);
+                        var3 = this.getCachedBlockType(this.mob, param0, --param1, param2);
                         if (var3 != BlockPathTypes.WATER) {
                             return var0;
                         }
@@ -242,12 +256,12 @@ public class WalkNodeEvaluator extends NodeEvaluator {
                         (double)((float)param1 + this.mob.getBbHeight()),
                         (double)param2 + var5 + 0.5
                     );
-                    if (!this.level.noCollision(this.mob, var9)) {
+                    if (this.hasCollisions(var9)) {
                         return null;
                     }
 
                     if (this.mob.getBbWidth() >= 1.0F) {
-                        BlockPathTypes var10 = this.getBlockPathType(this.mob, param0, param1 - 1, param2);
+                        BlockPathTypes var10 = this.getCachedBlockType(this.mob, param0, param1 - 1, param2);
                         if (var10 == BlockPathTypes.BLOCKED) {
                             var0 = this.getNode(param0, param1, param2);
                             var0.type = BlockPathTypes.WALKABLE;
@@ -274,7 +288,7 @@ public class WalkNodeEvaluator extends NodeEvaluator {
                             return var14;
                         }
 
-                        var3 = this.getBlockPathType(this.mob, param0, param1, param2);
+                        var3 = this.getCachedBlockType(this.mob, param0, param1, param2);
                         var4 = this.mob.getPathfindingMalus(var3);
                         if (var3 != BlockPathTypes.OPEN && var4 >= 0.0F) {
                             var0 = var14;
@@ -294,6 +308,10 @@ public class WalkNodeEvaluator extends NodeEvaluator {
                 return var0;
             }
         }
+    }
+
+    private boolean hasCollisions(AABB param0) {
+        return this.collisionCache.computeIfAbsent(param0, param1 -> !this.level.noCollision(this.mob, param0));
     }
 
     @Override
@@ -381,13 +399,26 @@ public class WalkNodeEvaluator extends NodeEvaluator {
     }
 
     private BlockPathTypes getBlockPathType(Mob param0, BlockPos param1) {
-        return this.getBlockPathType(param0, param1.getX(), param1.getY(), param1.getZ());
+        return this.getCachedBlockType(param0, param1.getX(), param1.getY(), param1.getZ());
     }
 
-    private BlockPathTypes getBlockPathType(Mob param0, int param1, int param2, int param3) {
-        return this.getBlockPathType(
-            this.level, param1, param2, param3, param0, this.entityWidth, this.entityHeight, this.entityDepth, this.canOpenDoors(), this.canPassDoors()
-        );
+    private BlockPathTypes getCachedBlockType(Mob param0, int param1, int param2, int param3) {
+        return this.pathTypesByPosCache
+            .computeIfAbsent(
+                BlockPos.asLong(param1, param2, param3),
+                param4 -> this.getBlockPathType(
+                        this.level,
+                        param1,
+                        param2,
+                        param3,
+                        param0,
+                        this.entityWidth,
+                        this.entityHeight,
+                        this.entityDepth,
+                        this.canOpenDoors(),
+                        this.canPassDoors()
+                    )
+            );
     }
 
     @Override
@@ -438,14 +469,18 @@ public class WalkNodeEvaluator extends NodeEvaluator {
             for(int var4 = -1; var4 <= 1; ++var4) {
                 for(int var5 = -1; var5 <= 1; ++var5) {
                     if (var3 != 0 || var5 != 0) {
-                        param1.set(var3 + var0, var4 + var1, var5 + var2);
+                        param1.set(var0 + var3, var1 + var4, var2 + var5);
                         BlockState var6 = param0.getBlockState(param1);
                         if (var6.is(Blocks.CACTUS)) {
-                            param2 = BlockPathTypes.DANGER_CACTUS;
-                        } else if (var6.is(Blocks.SWEET_BERRY_BUSH)) {
-                            param2 = BlockPathTypes.DANGER_OTHER;
-                        } else if (isBurningBlock(var6)) {
-                            param2 = BlockPathTypes.DANGER_FIRE;
+                            return BlockPathTypes.DANGER_CACTUS;
+                        }
+
+                        if (var6.is(Blocks.SWEET_BERRY_BUSH)) {
+                            return BlockPathTypes.DANGER_OTHER;
+                        }
+
+                        if (isBurningBlock(var6)) {
+                            return BlockPathTypes.DANGER_FIRE;
                         }
                     }
                 }

@@ -1,6 +1,7 @@
 package net.minecraft.world.entity.ai.behavior;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
 import it.unimi.dsi.fastutil.longs.Long2LongMap;
 import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
 import java.util.function.Predicate;
@@ -18,17 +19,33 @@ import net.minecraft.world.level.pathfinder.Path;
 
 public class AcquirePoi extends Behavior<PathfinderMob> {
     private final PoiType poiType;
-    private final MemoryModuleType<GlobalPos> memoryType;
+    private final MemoryModuleType<GlobalPos> memoryToAcquire;
     private final boolean onlyIfAdult;
     private long lastUpdate;
     private final Long2LongMap batchCache = new Long2LongOpenHashMap();
     private int triedCount;
 
-    public AcquirePoi(PoiType param0, MemoryModuleType<GlobalPos> param1, boolean param2) {
-        super(ImmutableMap.of(param1, MemoryStatus.VALUE_ABSENT));
+    public AcquirePoi(PoiType param0, MemoryModuleType<GlobalPos> param1, MemoryModuleType<GlobalPos> param2, boolean param3) {
+        super(constructEntryConditionMap(param1, param2));
         this.poiType = param0;
-        this.memoryType = param1;
-        this.onlyIfAdult = param2;
+        this.memoryToAcquire = param2;
+        this.onlyIfAdult = param3;
+    }
+
+    public AcquirePoi(PoiType param0, MemoryModuleType<GlobalPos> param1, boolean param2) {
+        this(param0, param1, param1, param2);
+    }
+
+    private static ImmutableMap<MemoryModuleType<?>, MemoryStatus> constructEntryConditionMap(
+        MemoryModuleType<GlobalPos> param0, MemoryModuleType<GlobalPos> param1
+    ) {
+        Builder<MemoryModuleType<?>, MemoryStatus> var0 = ImmutableMap.builder();
+        var0.put(param0, MemoryStatus.VALUE_ABSENT);
+        if (param1 != param0) {
+            var0.put(param1, MemoryStatus.VALUE_ABSENT);
+        }
+
+        return var0.build();
     }
 
     protected boolean checkExtraStartConditions(ServerLevel param0, PathfinderMob param1) {
@@ -60,7 +77,7 @@ public class AcquirePoi extends Behavior<PathfinderMob> {
             BlockPos var4 = var3.getTarget();
             var0.getType(var4).ifPresent(param4 -> {
                 var0.take(this.poiType.getPredicate(), param1x -> param1x.equals(var4), var4, 1);
-                param1.getBrain().setMemory(this.memoryType, GlobalPos.of(param0.dimension(), var4));
+                param1.getBrain().setMemory(this.memoryToAcquire, GlobalPos.of(param0.dimension(), var4));
                 DebugPackets.sendPoiTicketCountPacket(param0, var4);
             });
         } else if (this.triedCount < 5) {

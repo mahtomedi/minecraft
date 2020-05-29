@@ -73,7 +73,7 @@ public class ShulkerBoxBlock extends BaseEntityBlock {
         if (param1.isClientSide) {
             return InteractionResult.SUCCESS;
         } else if (param3.isSpectator()) {
-            return InteractionResult.SUCCESS;
+            return InteractionResult.CONSUME;
         } else {
             BlockEntity var0 = param1.getBlockEntity(param2);
             if (var0 instanceof ShulkerBoxBlockEntity) {
@@ -92,7 +92,7 @@ public class ShulkerBoxBlock extends BaseEntityBlock {
                     PiglinAi.angerNearbyPiglinsThatSee(param3);
                 }
 
-                return InteractionResult.SUCCESS;
+                return InteractionResult.CONSUME;
             } else {
                 return InteractionResult.PASS;
             }

@@ -17,10 +17,10 @@ import net.minecraft.core.Registry;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.Level;
 
-public class DimensionTypeArgument implements ArgumentType<ResourceLocation> {
-    private static final Collection<String> EXAMPLES = Stream.of(DimensionType.OVERWORLD_LOCATION, DimensionType.NETHER_LOCATION)
+public class DimensionArgument implements ArgumentType<ResourceLocation> {
+    private static final Collection<String> EXAMPLES = Stream.of(Level.OVERWORLD, Level.NETHER)
         .map(param0 -> param0.location().toString())
         .collect(Collectors.toList());
     private static final DynamicCommandExceptionType ERROR_INVALID_VALUE = new DynamicCommandExceptionType(
@@ -34,9 +34,7 @@ public class DimensionTypeArgument implements ArgumentType<ResourceLocation> {
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> param0, SuggestionsBuilder param1) {
         return param0.getSource() instanceof SharedSuggestionProvider
-            ? SharedSuggestionProvider.suggestResource(
-                ((SharedSuggestionProvider)param0.getSource()).registryAccess().dimensionTypes().keySet().stream(), param1
-            )
+            ? SharedSuggestionProvider.suggestResource(((SharedSuggestionProvider)param0.getSource()).levels().stream().map(ResourceKey::location), param1)
             : Suggestions.empty();
     }
 
@@ -45,14 +43,14 @@ public class DimensionTypeArgument implements ArgumentType<ResourceLocation> {
         return EXAMPLES;
     }
 
-    public static DimensionTypeArgument dimension() {
-        return new DimensionTypeArgument();
+    public static DimensionArgument dimension() {
+        return new DimensionArgument();
     }
 
-    public static ResourceKey<DimensionType> getDimension(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
+    public static ResourceKey<Level> getDimension(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
         ResourceLocation var0 = param0.getArgument(param1, ResourceLocation.class);
-        ResourceKey<DimensionType> var1 = ResourceKey.create(Registry.DIMENSION_TYPE_REGISTRY, var0);
-        if (!param0.getSource().getServer().registryAccess().dimensionTypes().containsKey(var1)) {
+        ResourceKey<Level> var1 = ResourceKey.create(Registry.DIMENSION_REGISTRY, var0);
+        if (param0.getSource().getServer().getLevel(var1) == null) {
             throw ERROR_INVALID_VALUE.create(var0);
         } else {
             return var1;

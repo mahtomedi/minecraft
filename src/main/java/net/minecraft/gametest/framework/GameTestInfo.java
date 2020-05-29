@@ -10,11 +10,13 @@ import java.util.Collection;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.StructureBlockEntity;
 
 public class GameTestInfo {
     private final TestFunction testFunction;
-    private BlockPos testPos;
+    @Nullable
+    private BlockPos structureBlockPos;
     private final ServerLevel level;
     private final Collection<GameTestListener> listeners = Lists.newArrayList();
     private final int timeoutTicks;
@@ -25,22 +27,19 @@ public class GameTestInfo {
     private boolean started = false;
     private final Stopwatch timer = Stopwatch.createUnstarted();
     private boolean done = false;
+    private final Rotation rotation;
     @Nullable
     private Throwable error;
 
-    public GameTestInfo(TestFunction param0, ServerLevel param1) {
+    public GameTestInfo(TestFunction param0, Rotation param1, ServerLevel param2) {
         this.testFunction = param0;
-        this.level = param1;
+        this.level = param2;
         this.timeoutTicks = param0.getMaxTicks();
+        this.rotation = param0.getRotation().getRotated(param1);
     }
 
-    public GameTestInfo(TestFunction param0, BlockPos param1, ServerLevel param2) {
-        this(param0, param2);
-        this.assignPosition(param1);
-    }
-
-    void assignPosition(BlockPos param0) {
-        this.testPos = param0;
+    void setStructureBlockPos(BlockPos param0) {
+        this.structureBlockPos = param0;
     }
 
     void startExecution() {
@@ -107,19 +106,8 @@ public class GameTestInfo {
         return this.testFunction.getTestName();
     }
 
-    public BlockPos getTestPos() {
-        return this.testPos;
-    }
-
-    @Nullable
-    public BlockPos getStructureSize() {
-        StructureBlockEntity var0 = this.getStructureBlockEntity();
-        return var0 == null ? null : var0.getStructureSize();
-    }
-
-    @Nullable
-    private StructureBlockEntity getStructureBlockEntity() {
-        return (StructureBlockEntity)this.level.getBlockEntity(this.testPos);
+    public BlockPos getStructureBlockPos() {
+        return this.structureBlockPos;
     }
 
     public ServerLevel getLevel() {
@@ -170,10 +158,11 @@ public class GameTestInfo {
         this.listeners.add(param0);
     }
 
-    public void spawnStructure(int param0) {
-        StructureBlockEntity var0 = StructureUtils.spawnStructure(this.testFunction.getStructureName(), this.testPos, param0, this.level, false);
+    public void spawnStructure(BlockPos param0, int param1) {
+        StructureBlockEntity var0 = StructureUtils.spawnStructure(this.getStructureName(), param0, this.getRotation(), param1, this.level, false);
+        this.setStructureBlockPos(var0.getBlockPos());
         var0.setStructureName(this.getTestName());
-        StructureUtils.addCommandBlockAndButtonToStartTest(this.testPos.offset(1, 0, -1), this.level);
+        StructureUtils.addCommandBlockAndButtonToStartTest(this.structureBlockPos, new BlockPos(1, 0, -1), this.getRotation(), this.level);
         this.listeners.forEach(param0x -> param0x.testStructureLoaded(this));
     }
 
@@ -187,5 +176,13 @@ public class GameTestInfo {
 
     public String getStructureName() {
         return this.testFunction.getStructureName();
+    }
+
+    public Rotation getRotation() {
+        return this.rotation;
+    }
+
+    public TestFunction getTestFunction() {
+        return this.testFunction;
     }
 }

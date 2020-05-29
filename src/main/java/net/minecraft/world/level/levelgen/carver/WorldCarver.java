@@ -5,7 +5,6 @@ import com.mojang.serialization.Codec;
 import java.util.BitSet;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -21,6 +20,7 @@ import net.minecraft.world.level.levelgen.feature.configurations.ProbabilityFeat
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 
 public abstract class WorldCarver<C extends CarverConfiguration> {
     public static final WorldCarver<ProbabilityFeatureConfiguration> CAVE = register("cave", new CaveWorldCarver(ProbabilityFeatureConfiguration.CODEC, 256));
@@ -134,7 +134,7 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
                         int var17 = var16 + param5 * 16;
                         double var18 = ((double)var17 + 0.5 - param8) / param9;
                         if (!(var15 * var15 + var18 * var18 >= 1.0)) {
-                            AtomicBoolean var19 = new AtomicBoolean(false);
+                            MutableBoolean var19 = new MutableBoolean(false);
 
                             for(int var20 = var6; var20 > var5; --var20) {
                                 double var21 = ((double)var20 - 0.5 - param7) / param10;
@@ -171,7 +171,7 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
         int param12,
         int param13,
         int param14,
-        AtomicBoolean param15
+        MutableBoolean param15
     ) {
         int var0 = param12 | param14 << 4 | param13 << 8;
         if (param2.get(var0)) {
@@ -182,7 +182,7 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
             BlockState var1 = param0.getBlockState(param4);
             BlockState var2 = param0.getBlockState(param5.setWithOffset(param4, Direction.UP));
             if (var1.is(Blocks.GRASS_BLOCK) || var1.is(Blocks.MYCELIUM)) {
-                param15.set(true);
+                param15.setTrue();
             }
 
             if (!this.canReplaceBlock(var1, var2)) {
@@ -192,7 +192,7 @@ public abstract class WorldCarver<C extends CarverConfiguration> {
                     param0.setBlockState(param4, LAVA.createLegacyBlock(), false);
                 } else {
                     param0.setBlockState(param4, CAVE_AIR, false);
-                    if (param15.get()) {
+                    if (param15.isTrue()) {
                         param6.setWithOffset(param4, Direction.DOWN);
                         if (param0.getBlockState(param6).is(Blocks.DIRT)) {
                             param0.setBlockState(param6, param1.apply(param4).getSurfaceBuilderConfig().getTopMaterial(), false);

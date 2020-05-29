@@ -144,7 +144,7 @@ public class TreeFeature extends Feature<TreeConfiguration> {
             }
 
             List<FoliagePlacer.FoliageAttachment> var19 = param6.trunkPlacer.placeTrunk(param0, param1, var13, var9, param3, param5, param6);
-            var19.forEach(param7 -> param6.foliagePlacer.createFoliage(param0, param1, param6, var13, param7, var1, var3, param4));
+            var19.forEach(param8 -> param6.foliagePlacer.createFoliage(param0, param1, param6, var13, param8, var1, var3, param4, param5));
             return true;
         }
     }

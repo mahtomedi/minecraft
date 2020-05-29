@@ -8,6 +8,11 @@ public class SequentialEntry extends CompositeEntryBase {
     }
 
     @Override
+    public LootPoolEntryType getType() {
+        return LootPoolEntries.SEQUENCE;
+    }
+
+    @Override
     protected ComposableEntryContainer compose(ComposableEntryContainer[] param0) {
         switch(param0.length) {
             case 0:

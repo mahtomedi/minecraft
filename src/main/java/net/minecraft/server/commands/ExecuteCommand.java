@@ -26,7 +26,7 @@ import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.commands.arguments.DimensionTypeArgument;
+import net.minecraft.commands.arguments.DimensionArgument;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.NbtPathArgument;
@@ -204,11 +204,11 @@ public class ExecuteCommand {
                 .then(
                     Commands.literal("in")
                         .then(
-                            Commands.argument("dimension", DimensionTypeArgument.dimension())
+                            Commands.argument("dimension", DimensionArgument.dimension())
                                 .redirect(
                                     var0,
                                     param0x -> param0x.getSource()
-                                            .withLevel(param0x.getSource().getServer().getLevel(DimensionTypeArgument.getDimension(param0x, "dimension")))
+                                            .withLevel(param0x.getSource().getServer().getLevel(DimensionArgument.getDimension(param0x, "dimension")))
                                 )
                         )
                 )

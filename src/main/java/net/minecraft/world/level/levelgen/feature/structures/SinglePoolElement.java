@@ -124,7 +124,7 @@ public class SinglePoolElement extends StructurePoolElement {
     ) {
         StructureTemplate var0 = this.getTemplate(param0);
         StructurePlaceSettings var1 = this.getSettings(param6, param7, param9);
-        if (!var0.placeInWorld(param1, param4, param5, var1, 18)) {
+        if (!var0.placeInWorld(param1, param4, param5, var1, param8, 18)) {
             return false;
         } else {
             for(StructureTemplate.StructureBlockInfo var3 : StructureTemplate.processBlockInfos(

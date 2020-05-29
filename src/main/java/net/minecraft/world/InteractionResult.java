@@ -13,4 +13,8 @@ public enum InteractionResult {
     public boolean shouldSwing() {
         return this == SUCCESS;
     }
+
+    public static InteractionResult sidedSuccess(boolean param0) {
+        return param0 ? SUCCESS : CONSUME;
+    }
 }

@@ -7,7 +7,6 @@ import com.google.common.collect.Streams;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import net.minecraft.ChatFormatting;
@@ -23,16 +22,20 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LecternBlock;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.StructureBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import org.apache.commons.lang3.mutable.MutableInt;
 
 public class GameTestRunner {
     public static TestReporter TEST_REPORTER = new LogTestReporter();
 
-    public static void runTest(GameTestInfo param0, GameTestTicker param1) {
+    public static void runTest(GameTestInfo param0, BlockPos param1, GameTestTicker param2) {
         param0.startExecution();
-        param1.add(param0);
+        param2.add(param0);
         param0.addListener(new GameTestListener() {
             @Override
             public void testStructureLoaded(GameTestInfo param0) {
@@ -46,17 +49,21 @@ public class GameTestRunner {
                 GameTestRunner.visualizeFailedTest(param0);
             }
         });
-        param0.spawnStructure(2);
+        param0.spawnStructure(param1, 2);
     }
 
-    public static Collection<GameTestInfo> runTestBatches(Collection<GameTestBatch> param0, BlockPos param1, ServerLevel param2, GameTestTicker param3) {
-        GameTestBatchRunner var0 = new GameTestBatchRunner(param0, param1, param2, param3);
+    public static Collection<GameTestInfo> runTestBatches(
+        Collection<GameTestBatch> param0, BlockPos param1, Rotation param2, ServerLevel param3, GameTestTicker param4, int param5
+    ) {
+        GameTestBatchRunner var0 = new GameTestBatchRunner(param0, param1, param2, param3, param4, param5);
         var0.start();
         return var0.getTestInfos();
     }
 
-    public static Collection<GameTestInfo> runTests(Collection<TestFunction> param0, BlockPos param1, ServerLevel param2, GameTestTicker param3) {
-        return runTestBatches(groupTestsIntoBatches(param0), param1, param2, param3);
+    public static Collection<GameTestInfo> runTests(
+        Collection<TestFunction> param0, BlockPos param1, Rotation param2, ServerLevel param3, GameTestTicker param4, int param5
+    ) {
+        return runTestBatches(groupTestsIntoBatches(param0), param1, param2, param3, param4, param5);
     }
 
     public static Collection<GameTestBatch> groupTestsIntoBatches(Collection<TestFunction> param0) {
@@ -69,15 +76,15 @@ public class GameTestRunner {
         return var0.keySet().stream().flatMap(param1 -> {
             Collection<TestFunction> var0x = var0.get(param1);
             Consumer<ServerLevel> var1x = GameTestRegistry.getBeforeBatchFunction(param1);
-            AtomicInteger var2 = new AtomicInteger();
+            MutableInt var2 = new MutableInt();
             return Streams.stream(Iterables.partition(var0x, 100)).map(param4 -> new GameTestBatch(param1 + ":" + var2.incrementAndGet(), var0x, var1x));
         }).collect(Collectors.toList());
     }
 
     private static void visualizeFailedTest(GameTestInfo param0) {
         Throwable var0 = param0.getError();
-        String var1 = param0.getTestName() + " failed! " + Util.describeError(var0);
-        say(param0.getLevel(), ChatFormatting.RED, var1);
+        String var1 = (param0.isRequired() ? "" : "(optional) ") + param0.getTestName() + " failed! " + Util.describeError(var0);
+        say(param0.getLevel(), param0.isRequired() ? ChatFormatting.RED : ChatFormatting.YELLOW, var1);
         if (var0 instanceof GameTestAssertPosException) {
             GameTestAssertPosException var2 = (GameTestAssertPosException)var0;
             showRedBox(param0.getLevel(), var2.getAbsolutePos(), var2.getMessageToShowAtBlock());
@@ -88,16 +95,17 @@ public class GameTestRunner {
 
     private static void spawnBeacon(GameTestInfo param0, Block param1) {
         ServerLevel var0 = param0.getLevel();
-        BlockPos var1 = param0.getTestPos();
-        BlockPos var2 = var1.offset(-1, -1, -1);
-        var0.setBlockAndUpdate(var2, Blocks.BEACON.defaultBlockState());
-        BlockPos var3 = var2.offset(0, 1, 0);
-        var0.setBlockAndUpdate(var3, param1.defaultBlockState());
+        BlockPos var1 = param0.getStructureBlockPos();
+        BlockPos var2 = new BlockPos(-1, -1, -1);
+        BlockPos var3 = StructureTemplate.transform(var1.offset(var2), Mirror.NONE, param0.getRotation(), var1);
+        var0.setBlockAndUpdate(var3, Blocks.BEACON.defaultBlockState().rotate(param0.getRotation()));
+        BlockPos var4 = var3.offset(0, 1, 0);
+        var0.setBlockAndUpdate(var4, param1.defaultBlockState());
 
-        for(int var4 = -1; var4 <= 1; ++var4) {
-            for(int var5 = -1; var5 <= 1; ++var5) {
-                BlockPos var6 = var2.offset(var4, -1, var5);
-                var0.setBlockAndUpdate(var6, Blocks.IRON_BLOCK.defaultBlockState());
+        for(int var5 = -1; var5 <= 1; ++var5) {
+            for(int var6 = -1; var6 <= 1; ++var6) {
+                BlockPos var7 = var3.offset(var5, -1, var6);
+                var0.setBlockAndUpdate(var7, Blocks.IRON_BLOCK.defaultBlockState());
             }
         }
 
@@ -105,12 +113,13 @@ public class GameTestRunner {
 
     private static void spawnLectern(GameTestInfo param0, String param1) {
         ServerLevel var0 = param0.getLevel();
-        BlockPos var1 = param0.getTestPos();
-        BlockPos var2 = var1.offset(-1, 1, -1);
-        var0.setBlockAndUpdate(var2, Blocks.LECTERN.defaultBlockState());
-        BlockState var3 = var0.getBlockState(var2);
-        ItemStack var4 = createBook(param0.getTestName(), param0.isRequired(), param1);
-        LecternBlock.tryPlaceBook(var0, var2, var3, var4);
+        BlockPos var1 = param0.getStructureBlockPos();
+        BlockPos var2 = new BlockPos(-1, 1, -1);
+        BlockPos var3 = StructureTemplate.transform(var1.offset(var2), Mirror.NONE, param0.getRotation(), var1);
+        var0.setBlockAndUpdate(var3, Blocks.LECTERN.defaultBlockState().rotate(param0.getRotation()));
+        BlockState var4 = var0.getBlockState(var3);
+        ItemStack var5 = createBook(param0.getTestName(), param0.isRequired(), param1);
+        LecternBlock.tryPlaceBook(var0, var3, var4, var5);
     }
 
     private static ItemStack createBook(String param0, boolean param1, String param2) {
@@ -147,7 +156,7 @@ public class GameTestRunner {
         BlockPos.betweenClosedStream(var0, var1).filter(param1x -> param0.getBlockState(param1x).is(Blocks.STRUCTURE_BLOCK)).forEach(param1x -> {
             StructureBlockEntity var0x = (StructureBlockEntity)param0.getBlockEntity(param1x);
             BlockPos var1x = var0x.getBlockPos();
-            BoundingBox var2x = StructureUtils.createStructureBoundingBox(var1x, var0x.getStructureSize(), 2);
+            BoundingBox var2x = StructureUtils.getStructureBoundingBox(var0x);
             StructureUtils.clearSpaceForStructure(var2x, var1x.getY(), param0);
         });
     }

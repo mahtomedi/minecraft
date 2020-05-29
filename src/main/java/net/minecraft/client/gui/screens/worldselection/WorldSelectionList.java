@@ -37,6 +37,7 @@ import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -216,7 +217,7 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
                 if (this.summary.isLocked()) {
                     GuiComponent.blit(param0, param3, param2, 96.0F, (float)var5, 32, 32, 256, 256);
                     if (var4) {
-                        Component var6 = new TranslatableComponent("selectWorld.locked").withStyle(ChatFormatting.RED);
+                        FormattedText var6 = new TranslatableComponent("selectWorld.locked").withStyle(ChatFormatting.RED);
                         this.screen.setToolTip(this.minecraft.font.split(var6, 175));
                     }
                 } else if (this.summary.markVersionInList()) {
@@ -224,7 +225,7 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.W
                     if (this.summary.isOldCustomizedWorld()) {
                         GuiComponent.blit(param0, param3, param2, 96.0F, (float)var5, 32, 32, 256, 256);
                         if (var4) {
-                            Component var7 = new TranslatableComponent("selectWorld.tooltip.unsupported", this.summary.getWorldVersionName())
+                            FormattedText var7 = new TranslatableComponent("selectWorld.tooltip.unsupported", this.summary.getWorldVersionName())
                                 .withStyle(ChatFormatting.RED);
                             this.screen.setToolTip(this.minecraft.font.split(var7, 175));
                         }

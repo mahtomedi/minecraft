@@ -42,24 +42,25 @@ public class ResourcePackSelectScreen extends OptionsSubScreen {
                 param0 -> Util.getPlatform().openFile(this.minecraft.getResourcePackDirectory())
             )
         );
-        this.addButton(new Button(this.width / 2 + 4, this.height - 48, 150, 20, CommonComponents.GUI_DONE, param0 -> {
+        PackRepository<UnopenedResourcePack> var0 = this.minecraft.getResourcePackRepository();
+        this.addButton(new Button(this.width / 2 + 4, this.height - 48, 150, 20, CommonComponents.GUI_DONE, param1 -> {
             if (this.changed) {
-                List<UnopenedResourcePack> var0x = Lists.newArrayList();
+                List<String> var0x = Lists.newArrayList();
 
                 for(ResourcePackList.ResourcePackEntry var1x : this.selectedResourcePackList.children()) {
-                    var0x.add(var1x.getResourcePack());
+                    var0x.add(var1x.getResourcePack().getId());
                 }
 
                 Collections.reverse(var0x);
-                this.minecraft.getResourcePackRepository().setSelected(var0x);
+                var0.setSelected(var0x);
                 this.options.resourcePacks.clear();
                 this.options.incompatibleResourcePacks.clear();
 
-                for(UnopenedResourcePack var6x : var0x) {
-                    if (!var6x.isFixedPosition()) {
-                        this.options.resourcePacks.add(var6x.getId());
-                        if (!var6x.getCompatibility().isCompatible()) {
-                            this.options.incompatibleResourcePacks.add(var6x.getId());
+                for(UnopenedResourcePack var2x : var0.getSelectedPacks()) {
+                    if (!var2x.isFixedPosition()) {
+                        this.options.resourcePacks.add(var2x.getId());
+                        if (!var2x.getCompatibility().isCompatible()) {
+                            this.options.incompatibleResourcePacks.add(var2x.getId());
                         }
                     }
                 }
@@ -72,19 +73,19 @@ public class ResourcePackSelectScreen extends OptionsSubScreen {
             }
 
         }));
-        AvailableResourcePackList var0 = this.availableResourcePackList;
-        SelectedResourcePackList var1 = this.selectedResourcePackList;
+        AvailableResourcePackList var1 = this.availableResourcePackList;
+        SelectedResourcePackList var2 = this.selectedResourcePackList;
         this.availableResourcePackList = new AvailableResourcePackList(this.minecraft, 200, this.height);
         this.availableResourcePackList.setLeftPos(this.width / 2 - 4 - 200);
-        if (var0 != null) {
-            this.availableResourcePackList.children().addAll(var0.children());
+        if (var1 != null) {
+            this.availableResourcePackList.children().addAll(var1.children());
         }
 
         this.children.add(this.availableResourcePackList);
         this.selectedResourcePackList = new SelectedResourcePackList(this.minecraft, 200, this.height);
         this.selectedResourcePackList.setLeftPos(this.width / 2 + 4);
-        if (var1 != null) {
-            var1.children().forEach(param0 -> {
+        if (var2 != null) {
+            var2.children().forEach(param0 -> {
                 this.selectedResourcePackList.children().add(param0);
                 param0.updateParentList(this.selectedResourcePackList);
             });
@@ -94,16 +95,15 @@ public class ResourcePackSelectScreen extends OptionsSubScreen {
         if (!this.changed) {
             this.availableResourcePackList.children().clear();
             this.selectedResourcePackList.children().clear();
-            PackRepository<UnopenedResourcePack> var2 = this.minecraft.getResourcePackRepository();
-            var2.reload();
-            List<UnopenedResourcePack> var3 = Lists.newArrayList(var2.getAvailable());
-            var3.removeAll(var2.getSelected());
+            var0.reload();
+            List<UnopenedResourcePack> var3 = Lists.newArrayList(var0.getAvailablePacks());
+            var3.removeAll(var0.getSelectedPacks());
 
             for(UnopenedResourcePack var4 : var3) {
                 this.availableResourcePackList.addResourcePackEntry(new ResourcePackList.ResourcePackEntry(this.availableResourcePackList, this, var4));
             }
 
-            for(UnopenedResourcePack var5 : Lists.reverse(Lists.newArrayList(var2.getSelected()))) {
+            for(UnopenedResourcePack var5 : Lists.reverse(Lists.newArrayList(var0.getSelectedPacks()))) {
                 this.selectedResourcePackList.addResourcePackEntry(new ResourcePackList.ResourcePackEntry(this.selectedResourcePackList, this, var5));
             }
         }

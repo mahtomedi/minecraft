@@ -6,7 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import java.util.Set;
 import java.util.Map.Entry;
-import net.minecraft.client.resources.language.Language;
+import net.minecraft.client.resources.language.LanguageInfo;
 import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
 import net.minecraft.util.GsonHelper;
 import net.minecraftforge.api.distmarker.Dist;
@@ -15,7 +15,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class LanguageMetadataSectionSerializer implements MetadataSectionSerializer<LanguageMetadataSection> {
     public LanguageMetadataSection fromJson(JsonObject param0) {
-        Set<Language> var0 = Sets.newHashSet();
+        Set<LanguageInfo> var0 = Sets.newHashSet();
 
         for(Entry<String, JsonElement> var1 : param0.entrySet()) {
             String var2 = var1.getKey();
@@ -35,7 +35,7 @@ public class LanguageMetadataSectionSerializer implements MetadataSectionSeriali
                 throw new JsonParseException("Invalid language->'" + var2 + "'->name: empty value");
             }
 
-            if (!var0.add(new Language(var2, var4, var5, var6))) {
+            if (!var0.add(new LanguageInfo(var2, var4, var5, var6))) {
                 throw new JsonParseException("Duplicate language->'" + var2 + "' defined");
             }
         }

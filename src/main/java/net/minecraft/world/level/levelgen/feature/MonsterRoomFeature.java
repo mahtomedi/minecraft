@@ -73,13 +73,14 @@ public class MonsterRoomFeature extends Feature<NoneFeatureConfiguration> {
                 for(int var17 = 3; var17 >= -1; --var17) {
                     for(int var18 = var7; var18 <= var8; ++var18) {
                         BlockPos var19 = param4.offset(var16, var17, var18);
+                        BlockState var20 = param0.getBlockState(var19);
                         if (var16 != var2 && var17 != -1 && var18 != var7 && var16 != var3 && var17 != 4 && var18 != var8) {
-                            if (!param0.getBlockState(var19).is(Blocks.CHEST)) {
+                            if (!var20.is(Blocks.CHEST) && !var20.is(Blocks.SPAWNER)) {
                                 param0.setBlock(var19, AIR, 2);
                             }
                         } else if (var19.getY() >= 0 && !param0.getBlockState(var19.below()).getMaterial().isSolid()) {
                             param0.setBlock(var19, AIR, 2);
-                        } else if (param0.getBlockState(var19).getMaterial().isSolid() && !param0.getBlockState(var19).is(Blocks.CHEST)) {
+                        } else if (var20.getMaterial().isSolid() && !var20.is(Blocks.CHEST)) {
                             if (var17 == -1 && param3.nextInt(4) != 0) {
                                 param0.setBlock(var19, Blocks.MOSSY_COBBLESTONE.defaultBlockState(), 2);
                             } else {
@@ -90,24 +91,24 @@ public class MonsterRoomFeature extends Feature<NoneFeatureConfiguration> {
                 }
             }
 
-            for(int var20 = 0; var20 < 2; ++var20) {
-                for(int var21 = 0; var21 < 3; ++var21) {
-                    int var22 = param4.getX() + param3.nextInt(var1 * 2 + 1) - var1;
-                    int var23 = param4.getY();
-                    int var24 = param4.getZ() + param3.nextInt(var6 * 2 + 1) - var6;
-                    BlockPos var25 = new BlockPos(var22, var23, var24);
-                    if (param0.isEmptyBlock(var25)) {
-                        int var26 = 0;
+            for(int var21 = 0; var21 < 2; ++var21) {
+                for(int var22 = 0; var22 < 3; ++var22) {
+                    int var23 = param4.getX() + param3.nextInt(var1 * 2 + 1) - var1;
+                    int var24 = param4.getY();
+                    int var25 = param4.getZ() + param3.nextInt(var6 * 2 + 1) - var6;
+                    BlockPos var26 = new BlockPos(var23, var24, var25);
+                    if (param0.isEmptyBlock(var26)) {
+                        int var27 = 0;
 
-                        for(Direction var27 : Direction.Plane.HORIZONTAL) {
-                            if (param0.getBlockState(var25.relative(var27)).getMaterial().isSolid()) {
-                                ++var26;
+                        for(Direction var28 : Direction.Plane.HORIZONTAL) {
+                            if (param0.getBlockState(var26.relative(var28)).getMaterial().isSolid()) {
+                                ++var27;
                             }
                         }
 
-                        if (var26 == 1) {
-                            param0.setBlock(var25, StructurePiece.reorient(param0, var25, Blocks.CHEST.defaultBlockState()), 2);
-                            RandomizableContainerBlockEntity.setLootTable(param0, param3, var25, BuiltInLootTables.SIMPLE_DUNGEON);
+                        if (var27 == 1) {
+                            param0.setBlock(var26, StructurePiece.reorient(param0, var26, Blocks.CHEST.defaultBlockState()), 2);
+                            RandomizableContainerBlockEntity.setLootTable(param0, param3, var26, BuiltInLootTables.SIMPLE_DUNGEON);
                             break;
                         }
                     }
@@ -115,9 +116,9 @@ public class MonsterRoomFeature extends Feature<NoneFeatureConfiguration> {
             }
 
             param0.setBlock(param4, Blocks.SPAWNER.defaultBlockState(), 2);
-            BlockEntity var28 = param0.getBlockEntity(param4);
-            if (var28 instanceof SpawnerBlockEntity) {
-                ((SpawnerBlockEntity)var28).getSpawner().setEntityId(this.randomEntityId(param3));
+            BlockEntity var29 = param0.getBlockEntity(param4);
+            if (var29 instanceof SpawnerBlockEntity) {
+                ((SpawnerBlockEntity)var29).getSpawner().setEntityId(this.randomEntityId(param3));
             } else {
                 LOGGER.error("Failed to fetch mob spawner entity at ({}, {}, {})", param4.getX(), param4.getY(), param4.getZ());
             }

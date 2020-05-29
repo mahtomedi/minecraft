@@ -7,16 +7,10 @@ import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 
 public class CustomBossEvents {
-    private final MinecraftServer server;
     private final Map<ResourceLocation, CustomBossEvent> events = Maps.newHashMap();
-
-    public CustomBossEvents(MinecraftServer param0) {
-        this.server = param0;
-    }
 
     @Nullable
     public CustomBossEvent get(ResourceLocation param0) {

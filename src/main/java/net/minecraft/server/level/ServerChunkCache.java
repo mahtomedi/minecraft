@@ -421,7 +421,21 @@ public class ServerChunkCache extends ChunkSource {
         int var1 = param0.getZ() >> 4;
         ChunkHolder var2 = this.getVisibleChunkIfPresent(ChunkPos.asLong(var0, var1));
         if (var2 != null) {
-            var2.blockChanged(param0.getX() & 15, param0.getY(), param0.getZ() & 15);
+            var2.blockChanged(this, param0.getX() & 15, param0.getY(), param0.getZ() & 15);
+        }
+
+    }
+
+    protected void notifyNeighborsOfLightChange(int param0, int param1) {
+        for(int var0 = -1; var0 <= 1; ++var0) {
+            for(int var1 = -1; var1 <= 1; ++var1) {
+                if (var0 != 0 || var1 != 0) {
+                    ChunkHolder var2 = this.getVisibleChunkIfPresent(ChunkPos.asLong(param0 + var0, param1 + var1));
+                    if (var2 != null) {
+                        var2.forceSendLight();
+                    }
+                }
+            }
         }
 
     }

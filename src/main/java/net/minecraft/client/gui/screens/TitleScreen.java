@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
@@ -290,7 +289,7 @@ public class TitleScreen extends Screen {
             this.minecraft.getTextureManager().bind(MINECRAFT_LOGO);
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, var4);
             if (this.minceraftEasterEgg) {
-                this.blitOutline(var2, 30, (param1x, param2x) -> {
+                this.blitOutlineBlack(var2, 30, (param1x, param2x) -> {
                     this.blit(param0, param1x + 0, param2x, 0, 0, 99, 44);
                     this.blit(param0, param1x + 99, param2x, 129, 0, 27, 44);
                     this.blit(param0, param1x + 99 + 26, param2x, 126, 0, 3, 44);
@@ -298,7 +297,7 @@ public class TitleScreen extends Screen {
                     this.blit(param0, param1x + 155, param2x, 0, 45, 155, 44);
                 });
             } else {
-                this.blitOutline(var2, 30, (param1x, param2x) -> {
+                this.blitOutlineBlack(var2, 30, (param1x, param2x) -> {
                     this.blit(param0, param1x + 0, param2x, 0, 0, 155, 44);
                     this.blit(param0, param1x + 155, param2x, 0, 45, 155, 44);
                 });
@@ -344,14 +343,6 @@ public class TitleScreen extends Screen {
             }
 
         }
-    }
-
-    private void blitOutline(int param0, int param1, BiConsumer<Integer, Integer> param2) {
-        param2.accept(param0 + 1, param1);
-        param2.accept(param0 - 1, param1);
-        param2.accept(param0, param1 + 1);
-        param2.accept(param0, param1 - 1);
-        param2.accept(param0, param1);
     }
 
     @Override

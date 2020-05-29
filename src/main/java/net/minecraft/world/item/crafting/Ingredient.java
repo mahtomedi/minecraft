@@ -20,7 +20,7 @@ import javax.annotation.Nullable;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.SerializationTags;
 import net.minecraft.tags.Tag;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.StackedContents;
@@ -170,7 +170,7 @@ public final class Ingredient implements Predicate<ItemStack> {
             return new Ingredient.ItemValue(new ItemStack(var1));
         } else if (param0.has("tag")) {
             ResourceLocation var2 = new ResourceLocation(GsonHelper.getAsString(param0, "tag"));
-            Tag<Item> var3 = ItemTags.getAllTags().getTag(var2);
+            Tag<Item> var3 = SerializationTags.getInstance().getItems().getTag(var2);
             if (var3 == null) {
                 throw new JsonSyntaxException("Unknown item tag '" + var2 + "'");
             } else {
@@ -222,7 +222,7 @@ public final class Ingredient implements Predicate<ItemStack> {
         @Override
         public JsonObject serialize() {
             JsonObject var0 = new JsonObject();
-            var0.addProperty("tag", ItemTags.getAllTags().getIdOrThrow(this.tag).toString());
+            var0.addProperty("tag", SerializationTags.getInstance().getItems().getIdOrThrow(this.tag).toString());
             return var0;
         }
     }

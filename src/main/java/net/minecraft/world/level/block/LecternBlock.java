@@ -255,7 +255,7 @@ public class LecternBlock extends BaseEntityBlock {
                 this.openScreen(param1, param2, param3);
             }
 
-            return InteractionResult.SUCCESS;
+            return InteractionResult.sidedSuccess(param1.isClientSide);
         } else {
             ItemStack var0 = param3.getItemInHand(param4);
             return !var0.isEmpty() && !var0.getItem().is(ItemTags.LECTERN_BOOKS) ? InteractionResult.CONSUME : InteractionResult.PASS;

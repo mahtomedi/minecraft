@@ -1,6 +1,7 @@
 package net.minecraft.locale;
 
-import com.google.common.collect.Maps;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -11,63 +12,80 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
-import net.minecraft.Util;
 import net.minecraft.util.GsonHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class Language {
+public abstract class Language {
     private static final Logger LOGGER = LogManager.getLogger();
-    private static final Pattern UNSUPPORTED_FORMAT_PATTERN = Pattern.compile("%(\\d+\\$)?[\\d\\.]*[df]");
-    private static final Language SINGLETON = new Language();
-    private final Map<String, String> storage = Maps.newHashMap();
-    private long lastUpdateTime;
+    private static final Gson GSON = new Gson();
+    private static final Pattern UNSUPPORTED_FORMAT_PATTERN = Pattern.compile("%(\\d+\\$)?[\\d.]*[df]");
+    private static volatile Language instance = loadDefault();
 
-    public Language() {
-        try (InputStream var0 = Language.class.getResourceAsStream("/assets/minecraft/lang/en_us.json")) {
-            JsonElement var1 = new Gson().fromJson(new InputStreamReader(var0, StandardCharsets.UTF_8), JsonElement.class);
-            JsonObject var2 = GsonHelper.convertToJsonObject(var1, "strings");
+    private static Language loadDefault() {
+        Builder<String, String> var0 = ImmutableMap.builder();
+        BiConsumer<String, String> var1 = var0::put;
 
-            for(Entry<String, JsonElement> var3 : var2.entrySet()) {
-                String var4 = UNSUPPORTED_FORMAT_PATTERN.matcher(GsonHelper.convertToString(var3.getValue(), var3.getKey())).replaceAll("%$1s");
-                this.storage.put(var3.getKey(), var4);
+        try (InputStream var2 = Language.class.getResourceAsStream("/assets/minecraft/lang/en_us.json")) {
+            loadFromJson(var2, var1);
+        } catch (JsonParseException | IOException var15) {
+            LOGGER.error("Couldn't read strings from /assets/minecraft/lang/en_us.json", (Throwable)var15);
+        }
+
+        final Map<String, String> var4 = var0.build();
+        return new Language() {
+            @Override
+            public String getOrDefault(String param0) {
+                return var4.getOrDefault(param0, param0);
             }
 
-            this.lastUpdateTime = Util.getMillis();
-        } catch (JsonParseException | IOException var18) {
-            LOGGER.error("Couldn't read strings from /assets/minecraft/lang/en_us.json", (Throwable)var18);
+            @Override
+            public boolean has(String param0) {
+                return var4.containsKey(param0);
+            }
+
+            @OnlyIn(Dist.CLIENT)
+            @Override
+            public boolean requiresReordering() {
+                return false;
+            }
+
+            @Override
+            public String reorder(String param0, boolean param1) {
+                return param0;
+            }
+        };
+    }
+
+    public static void loadFromJson(InputStream param0, BiConsumer<String, String> param1) {
+        JsonObject var0 = GSON.fromJson(new InputStreamReader(param0, StandardCharsets.UTF_8), JsonObject.class);
+
+        for(Entry<String, JsonElement> var1 : var0.entrySet()) {
+            String var2 = UNSUPPORTED_FORMAT_PATTERN.matcher(GsonHelper.convertToString(var1.getValue(), var1.getKey())).replaceAll("%$1s");
+            param1.accept(var1.getKey(), var2);
         }
 
     }
 
     public static Language getInstance() {
-        return SINGLETON;
+        return instance;
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static synchronized void forceData(Map<String, String> param0) {
-        SINGLETON.storage.clear();
-        SINGLETON.storage.putAll(param0);
-        SINGLETON.lastUpdateTime = Util.getMillis();
+    public static void inject(Language param0) {
+        instance = param0;
     }
 
-    public synchronized String getElement(String param0) {
-        return this.getProperty(param0);
-    }
+    public abstract String getOrDefault(String var1);
 
-    private String getProperty(String param0) {
-        String var0 = this.storage.get(param0);
-        return var0 == null ? param0 : var0;
-    }
+    public abstract boolean has(String var1);
 
-    public synchronized boolean exists(String param0) {
-        return this.storage.containsKey(param0);
-    }
+    @OnlyIn(Dist.CLIENT)
+    public abstract boolean requiresReordering();
 
-    public long getLastUpdateTime() {
-        return this.lastUpdateTime;
-    }
+    public abstract String reorder(String var1, boolean var2);
 }

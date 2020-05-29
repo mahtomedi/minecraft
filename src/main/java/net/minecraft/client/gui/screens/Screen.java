@@ -33,7 +33,9 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraftforge.api.distmarker.Dist;
@@ -122,15 +124,15 @@ public abstract class Screen extends AbstractContainerEventHandler implements Ti
         );
     }
 
-    public void renderTooltip(PoseStack param0, Component param1, int param2, int param3) {
+    public void renderTooltip(PoseStack param0, FormattedText param1, int param2, int param3) {
         this.renderTooltip(param0, Arrays.asList(param1), param2, param3);
     }
 
-    public void renderTooltip(PoseStack param0, List<Component> param1, int param2, int param3) {
+    public void renderTooltip(PoseStack param0, List<? extends FormattedText> param1, int param2, int param3) {
         if (!param1.isEmpty()) {
             int var0 = 0;
 
-            for(Component var1 : param1) {
+            for(FormattedText var1 : param1) {
                 int var2 = this.font.width(var1);
                 if (var2 > var0) {
                     var0 = var2;
@@ -153,24 +155,23 @@ public abstract class Screen extends AbstractContainerEventHandler implements Ti
             }
 
             param0.pushPose();
-            this.itemRenderer.blitOffset = 300.0F;
             int var7 = -267386864;
             int var8 = 1347420415;
             int var9 = 1344798847;
-            int var10 = 300;
+            int var10 = 400;
             Tesselator var11 = Tesselator.getInstance();
             BufferBuilder var12 = var11.getBuilder();
             var12.begin(7, DefaultVertexFormat.POSITION_COLOR);
             Matrix4f var13 = param0.last().pose();
-            fillGradient(var13, var12, var3 - 3, var4 - 4, var3 + var0 + 3, var4 - 3, 300, -267386864, -267386864);
-            fillGradient(var13, var12, var3 - 3, var4 + var6 + 3, var3 + var0 + 3, var4 + var6 + 4, 300, -267386864, -267386864);
-            fillGradient(var13, var12, var3 - 3, var4 - 3, var3 + var0 + 3, var4 + var6 + 3, 300, -267386864, -267386864);
-            fillGradient(var13, var12, var3 - 4, var4 - 3, var3 - 3, var4 + var6 + 3, 300, -267386864, -267386864);
-            fillGradient(var13, var12, var3 + var0 + 3, var4 - 3, var3 + var0 + 4, var4 + var6 + 3, 300, -267386864, -267386864);
-            fillGradient(var13, var12, var3 - 3, var4 - 3 + 1, var3 - 3 + 1, var4 + var6 + 3 - 1, 300, 1347420415, 1344798847);
-            fillGradient(var13, var12, var3 + var0 + 2, var4 - 3 + 1, var3 + var0 + 3, var4 + var6 + 3 - 1, 300, 1347420415, 1344798847);
-            fillGradient(var13, var12, var3 - 3, var4 - 3, var3 + var0 + 3, var4 - 3 + 1, 300, 1347420415, 1347420415);
-            fillGradient(var13, var12, var3 - 3, var4 + var6 + 2, var3 + var0 + 3, var4 + var6 + 3, 300, 1344798847, 1344798847);
+            fillGradient(var13, var12, var3 - 3, var4 - 4, var3 + var0 + 3, var4 - 3, 400, -267386864, -267386864);
+            fillGradient(var13, var12, var3 - 3, var4 + var6 + 3, var3 + var0 + 3, var4 + var6 + 4, 400, -267386864, -267386864);
+            fillGradient(var13, var12, var3 - 3, var4 - 3, var3 + var0 + 3, var4 + var6 + 3, 400, -267386864, -267386864);
+            fillGradient(var13, var12, var3 - 4, var4 - 3, var3 - 3, var4 + var6 + 3, 400, -267386864, -267386864);
+            fillGradient(var13, var12, var3 + var0 + 3, var4 - 3, var3 + var0 + 4, var4 + var6 + 3, 400, -267386864, -267386864);
+            fillGradient(var13, var12, var3 - 3, var4 - 3 + 1, var3 - 3 + 1, var4 + var6 + 3 - 1, 400, 1347420415, 1344798847);
+            fillGradient(var13, var12, var3 + var0 + 2, var4 - 3 + 1, var3 + var0 + 3, var4 + var6 + 3 - 1, 400, 1347420415, 1344798847);
+            fillGradient(var13, var12, var3 - 3, var4 - 3, var3 + var0 + 3, var4 - 3 + 1, 400, 1347420415, 1347420415);
+            fillGradient(var13, var12, var3 - 3, var4 + var6 + 2, var3 + var0 + 3, var4 + var6 + 3, 400, 1344798847, 1344798847);
             RenderSystem.enableDepthTest();
             RenderSystem.disableTexture();
             RenderSystem.enableBlend();
@@ -182,10 +183,10 @@ public abstract class Screen extends AbstractContainerEventHandler implements Ti
             RenderSystem.disableBlend();
             RenderSystem.enableTexture();
             MultiBufferSource.BufferSource var14 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-            param0.translate(0.0, 0.0, (double)this.itemRenderer.blitOffset);
+            param0.translate(0.0, 0.0, 400.0);
 
             for(int var15 = 0; var15 < param1.size(); ++var15) {
-                Component var16 = param1.get(var15);
+                FormattedText var16 = param1.get(var15);
                 if (var16 != null) {
                     this.font.drawInBatch(var16, (float)var3, (float)var4, -1, true, var13, var14, false, 0, 15728880);
                 }
@@ -199,13 +200,12 @@ public abstract class Screen extends AbstractContainerEventHandler implements Ti
 
             var14.endBatch();
             param0.popPose();
-            this.itemRenderer.blitOffset = 0.0F;
         }
     }
 
-    protected void renderComponentHoverEffect(PoseStack param0, @Nullable Component param1, int param2, int param3) {
-        if (param1 != null && param1.getStyle().getHoverEvent() != null) {
-            HoverEvent var0 = param1.getStyle().getHoverEvent();
+    protected void renderComponentHoverEffect(PoseStack param0, @Nullable Style param1, int param2, int param3) {
+        if (param1 != null && param1.getHoverEvent() != null) {
+            HoverEvent var0 = param1.getHoverEvent();
             HoverEvent.ItemStackInfo var1 = var0.getValue(HoverEvent.Action.SHOW_ITEM);
             if (var1 != null) {
                 this.renderTooltip(param0, var1.getItemStack(), param2, param3);
@@ -229,14 +229,14 @@ public abstract class Screen extends AbstractContainerEventHandler implements Ti
     protected void insertText(String param0, boolean param1) {
     }
 
-    public boolean handleComponentClicked(Component param0) {
+    public boolean handleComponentClicked(@Nullable Style param0) {
         if (param0 == null) {
             return false;
         } else {
-            ClickEvent var0 = param0.getStyle().getClickEvent();
+            ClickEvent var0 = param0.getClickEvent();
             if (hasShiftDown()) {
-                if (param0.getStyle().getInsertion() != null) {
-                    this.insertText(param0.getStyle().getInsertion(), false);
+                if (param0.getInsertion() != null) {
+                    this.insertText(param0.getInsertion(), false);
                 }
             } else if (var0 != null) {
                 if (var0.getAction() == ClickEvent.Action.OPEN_URL) {

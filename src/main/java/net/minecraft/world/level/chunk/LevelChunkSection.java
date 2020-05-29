@@ -1,5 +1,6 @@
 package net.minecraft.world.level.chunk;
 
+import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.FriendlyByteBuf;
@@ -153,7 +154,7 @@ public class LevelChunkSection {
         return 2 + this.states.getSerializedSize();
     }
 
-    public boolean maybeHas(BlockState param0) {
+    public boolean maybeHas(Predicate<BlockState> param0) {
         return this.states.maybeHas(param0);
     }
 }

@@ -129,7 +129,7 @@ public class HopperBlock extends BaseEntityBlock {
                 param3.awardStat(Stats.INSPECT_HOPPER);
             }
 
-            return InteractionResult.SUCCESS;
+            return InteractionResult.CONSUME;
         }
     }
 

@@ -26,6 +26,7 @@ import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.server.LanServer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -253,7 +254,7 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
             boolean var1 = this.serverData.protocol < SharedConstants.getCurrentVersion().getProtocolVersion();
             boolean var2 = var0 || var1;
             this.minecraft.font.draw(param0, this.serverData.name, (float)(param3 + 32 + 3), (float)(param2 + 1), 16777215);
-            List<Component> var3 = this.minecraft.font.split(this.serverData.motd, param4 - 32 - 2);
+            List<FormattedText> var3 = this.minecraft.font.split(this.serverData.motd, param4 - 32 - 2);
 
             for(int var4 = 0; var4 < Math.min(var3.size(), 2); ++var4) {
                 this.minecraft.font.draw(param0, var3.get(var4), (float)(param3 + 32 + 3), (float)(param2 + 12 + 9 * var4), 8421504);

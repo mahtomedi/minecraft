@@ -407,6 +407,25 @@ public class Util {
         }
     }
 
+    public static void startTimerHackThread() {
+        Thread var0 = new Thread("Timer hack thread") {
+            @Override
+            public void run() {
+                while(true) {
+                    try {
+                        Thread.sleep(2147483647L);
+                    } catch (InterruptedException var2) {
+                        Util.LOGGER.warn("Timer hack thread interrupted, that really should not happen");
+                        return;
+                    }
+                }
+            }
+        };
+        var0.setDaemon(true);
+        var0.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
+        var0.start();
+    }
+
     static enum IdentityStrategy implements Strategy<Object> {
         INSTANCE;
 

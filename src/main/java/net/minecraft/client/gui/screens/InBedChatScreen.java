@@ -33,7 +33,7 @@ public class InBedChatScreen extends ChatScreen {
         } else if (param0 == 257 || param0 == 335) {
             String var0 = this.input.getValue().trim();
             if (!var0.isEmpty()) {
-                this.minecraft.player.chat(var0);
+                this.sendMessage(var0);
             }
 
             this.input.setValue("");

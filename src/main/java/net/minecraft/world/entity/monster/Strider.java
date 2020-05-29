@@ -171,7 +171,7 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
     }
 
     @Override
-    public double getRideHeight() {
+    public double getPassengersRidingOffset() {
         float var0 = Math.min(0.25F, this.animationSpeed);
         float var1 = this.animationPosition;
         return (double)this.getBbHeight() - 0.2 + (double)(0.12F * Mth.cos(var1 * 1.5F) * 2.0F * var0);

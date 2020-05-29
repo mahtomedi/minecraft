@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
@@ -36,6 +37,7 @@ import net.minecraft.world.level.block.LiquidBlockContainer;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.material.FluidState;
@@ -187,16 +189,16 @@ public class StructureTemplate {
         return transform(param1, param0.getMirror(), param0.getRotation(), param0.getRotationPivot());
     }
 
-    public void placeInWorldChunk(LevelAccessor param0, BlockPos param1, StructurePlaceSettings param2) {
+    public void placeInWorldChunk(LevelAccessor param0, BlockPos param1, StructurePlaceSettings param2, Random param3) {
         param2.updateBoundingBoxFromChunkPos();
-        this.placeInWorld(param0, param1, param2);
+        this.placeInWorld(param0, param1, param2, param3);
     }
 
-    public void placeInWorld(LevelAccessor param0, BlockPos param1, StructurePlaceSettings param2) {
-        this.placeInWorld(param0, param1, param1, param2, 2);
+    public void placeInWorld(LevelAccessor param0, BlockPos param1, StructurePlaceSettings param2, Random param3) {
+        this.placeInWorld(param0, param1, param1, param2, param3, 2);
     }
 
-    public boolean placeInWorld(LevelAccessor param0, BlockPos param1, BlockPos param2, StructurePlaceSettings param3, int param4) {
+    public boolean placeInWorld(LevelAccessor param0, BlockPos param1, BlockPos param2, StructurePlaceSettings param3, Random param4, int param5) {
         if (this.palettes.isEmpty()) {
             return false;
         } else {
@@ -226,7 +228,7 @@ public class StructureTemplate {
                             param0.setBlock(var12, Blocks.BARRIER.defaultBlockState(), 20);
                         }
 
-                        if (param0.setBlock(var12, var14, param4)) {
+                        if (param0.setBlock(var12, var14, param5)) {
                             var4 = Math.min(var4, var12.getX());
                             var5 = Math.min(var5, var12.getY());
                             var6 = Math.min(var6, var12.getZ());
@@ -240,6 +242,10 @@ public class StructureTemplate {
                                     var11.nbt.putInt("x", var12.getX());
                                     var11.nbt.putInt("y", var12.getY());
                                     var11.nbt.putInt("z", var12.getZ());
+                                    if (var16 instanceof RandomizableContainerBlockEntity) {
+                                        var11.nbt.putLong("LootTable", param4.nextLong());
+                                    }
+
                                     var16.load(var11.state, var11.nbt);
                                     var16.mirror(param3.getMirror());
                                     var16.rotate(param3.getRotation());
@@ -301,7 +307,7 @@ public class StructureTemplate {
                             var28.setFull(var33.getX() - var29, var33.getY() - var30, var33.getZ() - var31, true, true);
                         }
 
-                        updateShapeAtEdge(param0, param4, var28, var29, var30, var31);
+                        updateShapeAtEdge(param0, param5, var28, var29, var30, var31);
                     }
 
                     for(Pair<BlockPos, CompoundTag> var34 : var3) {
@@ -310,7 +316,7 @@ public class StructureTemplate {
                             BlockState var36 = param0.getBlockState(var35);
                             BlockState var37 = Block.updateFromNeighbourShapes(var36, param0, var35);
                             if (var36 != var37) {
-                                param0.setBlock(var35, var37, param4 & -2 | 16);
+                                param0.setBlock(var35, var37, param5 & -2 | 16);
                             }
 
                             param0.blockUpdated(var35, var37.getBlock());
@@ -457,7 +463,7 @@ public class StructureTemplate {
         }
     }
 
-    private static Vec3 transform(Vec3 param0, Mirror param1, Rotation param2, BlockPos param3) {
+    public static Vec3 transform(Vec3 param0, Mirror param1, Rotation param2, BlockPos param3) {
         double var0 = param0.x;
         double var1 = param0.y;
         double var2 = param0.z;

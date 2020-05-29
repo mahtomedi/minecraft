@@ -1,5 +1,6 @@
 package net.minecraft.client.renderer.debug;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -138,10 +139,19 @@ public class BrainDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
 
     private void renderPoiInfo(BrainDebugRenderer.PoiInfo param0) {
         int var0 = 0;
-        if (this.getTicketHolderNames(param0).size() < 4) {
-            renderTextOverPoi("" + this.getTicketHolderNames(param0), param0, var0, -256);
+        Set<String> var1 = this.getTicketHolderNames(param0);
+        if (var1.size() < 4) {
+            renderTextOverPoi("Owners: " + var1, param0, var0, -256);
         } else {
-            renderTextOverPoi("" + this.getTicketHolderNames(param0).size() + " ticket holders", param0, var0, -256);
+            renderTextOverPoi("" + var1.size() + " ticket holders", param0, var0, -256);
+        }
+
+        ++var0;
+        Set<String> var2 = this.getPotentialTicketHolderNames(param0);
+        if (var2.size() < 4) {
+            renderTextOverPoi("Candidates: " + var2, param0, var0, -23296);
+        } else {
+            renderTextOverPoi("" + var2.size() + " potential owners", param0, var0, -23296);
         }
 
         renderTextOverPoi("Free tickets: " + param0.freeTicketCount, param0, ++var0, -256);
@@ -251,6 +261,10 @@ public class BrainDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
         return this.getTicketHolders(param0.pos).stream().map(DebugEntityNameGenerator::getEntityName).collect(Collectors.toSet());
     }
 
+    private Set<String> getPotentialTicketHolderNames(BrainDebugRenderer.PoiInfo param0) {
+        return this.getPotentialTicketHolders(param0.pos).stream().map(DebugEntityNameGenerator::getEntityName).collect(Collectors.toSet());
+    }
+
     private boolean isMobSelected(BrainDebugRenderer.BrainDump param0) {
         return Objects.equals(this.lastLookedAtUuid, param0.uuid);
     }
@@ -271,11 +285,20 @@ public class BrainDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
             .collect(Collectors.toSet());
     }
 
+    private Collection<UUID> getPotentialTicketHolders(BlockPos param0) {
+        return this.brainDumpsPerEntity
+            .values()
+            .stream()
+            .filter(param1 -> param1.hasPotentialPoi(param0))
+            .map(BrainDebugRenderer.BrainDump::getUuid)
+            .collect(Collectors.toSet());
+    }
+
     private Map<BlockPos, List<String>> getGhostPois() {
         Map<BlockPos, List<String>> var0 = Maps.newHashMap();
 
         for(BrainDebugRenderer.BrainDump var1 : this.brainDumpsPerEntity.values()) {
-            for(BlockPos var2 : var1.pois) {
+            for(BlockPos var2 : Iterables.concat(var1.pois, var1.potentialPois)) {
                 if (!this.pois.containsKey(var2)) {
                     List<String> var3 = var0.get(var2);
                     if (var3 == null) {
@@ -313,6 +336,7 @@ public class BrainDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
         public final List<String> memories = Lists.newArrayList();
         public final List<String> gossips = Lists.newArrayList();
         public final Set<BlockPos> pois = Sets.newHashSet();
+        public final Set<BlockPos> potentialPois = Sets.newHashSet();
 
         public BrainDump(
             UUID param0,
@@ -342,6 +366,10 @@ public class BrainDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
 
         private boolean hasPoi(BlockPos param0) {
             return this.pois.stream().anyMatch(param0::equals);
+        }
+
+        private boolean hasPotentialPoi(BlockPos param0) {
+            return this.potentialPois.contains(param0);
         }
 
         public UUID getUuid() {

@@ -7,6 +7,7 @@ import it.unimi.dsi.fastutil.shorts.ShortList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.EnumSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Map.Entry;
@@ -388,50 +389,56 @@ public class ChunkSerializer {
 
     }
 
-    private static CompoundTag packStructureData(ChunkPos param0, Map<String, StructureStart<?>> param1, Map<String, LongSet> param2) {
+    private static CompoundTag packStructureData(ChunkPos param0, Map<StructureFeature<?>, StructureStart<?>> param1, Map<StructureFeature<?>, LongSet> param2) {
         CompoundTag var0 = new CompoundTag();
         CompoundTag var1 = new CompoundTag();
 
-        for(Entry<String, StructureStart<?>> var2 : param1.entrySet()) {
-            var1.put(var2.getKey(), var2.getValue().createTag(param0.x, param0.z));
+        for(Entry<StructureFeature<?>, StructureStart<?>> var2 : param1.entrySet()) {
+            var1.put(var2.getKey().getFeatureName(), var2.getValue().createTag(param0.x, param0.z));
         }
 
         var0.put("Starts", var1);
         CompoundTag var3 = new CompoundTag();
 
-        for(Entry<String, LongSet> var4 : param2.entrySet()) {
-            var3.put(var4.getKey(), new LongArrayTag(var4.getValue()));
+        for(Entry<StructureFeature<?>, LongSet> var4 : param2.entrySet()) {
+            var3.put(var4.getKey().getFeatureName(), new LongArrayTag(var4.getValue()));
         }
 
         var0.put("References", var3);
         return var0;
     }
 
-    private static Map<String, StructureStart<?>> unpackStructureStart(StructureManager param0, CompoundTag param1, long param2) {
-        Map<String, StructureStart<?>> var0 = Maps.newHashMap();
+    private static Map<StructureFeature<?>, StructureStart<?>> unpackStructureStart(StructureManager param0, CompoundTag param1, long param2) {
+        Map<StructureFeature<?>, StructureStart<?>> var0 = Maps.newHashMap();
         CompoundTag var1 = param1.getCompound("Starts");
 
         for(String var2 : var1.getAllKeys()) {
-            var0.put(var2, StructureFeature.loadStaticStart(param0, var1.getCompound(var2), param2));
+            var0.put(
+                StructureFeature.STRUCTURES_REGISTRY.get(var2.toLowerCase(Locale.ROOT)),
+                StructureFeature.loadStaticStart(param0, var1.getCompound(var2), param2)
+            );
         }
 
         return var0;
     }
 
-    private static Map<String, LongSet> unpackStructureReferences(ChunkPos param0, CompoundTag param1) {
-        Map<String, LongSet> var0 = Maps.newHashMap();
+    private static Map<StructureFeature<?>, LongSet> unpackStructureReferences(ChunkPos param0, CompoundTag param1) {
+        Map<StructureFeature<?>, LongSet> var0 = Maps.newHashMap();
         CompoundTag var1 = param1.getCompound("References");
 
         for(String var2 : var1.getAllKeys()) {
-            var0.put(var2, new LongOpenHashSet(Arrays.stream(var1.getLongArray(var2)).filter(param2 -> {
-                ChunkPos var0x = new ChunkPos(param2);
-                if (var0x.getChessboardDistance(param0) > 8) {
-                    LOGGER.warn("Found invalid structure reference [ {} @ {} ] for chunk {}.", var2, var0x, param0);
-                    return false;
-                } else {
-                    return true;
-                }
-            }).toArray()));
+            var0.put(
+                StructureFeature.STRUCTURES_REGISTRY.get(var2.toLowerCase(Locale.ROOT)),
+                new LongOpenHashSet(Arrays.stream(var1.getLongArray(var2)).filter(param2 -> {
+                    ChunkPos var0x = new ChunkPos(param2);
+                    if (var0x.getChessboardDistance(param0) > 8) {
+                        LOGGER.warn("Found invalid structure reference [ {} @ {} ] for chunk {}.", var2, var0x, param0);
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }).toArray())
+            );
         }
 
         return var0;

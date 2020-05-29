@@ -13,6 +13,7 @@ import javax.annotation.Nullable;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.opengl.ARBFramebufferObject;
+import org.lwjgl.opengl.EXTFramebufferBlit;
 import org.lwjgl.opengl.EXTFramebufferObject;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
@@ -45,7 +46,7 @@ public class GlStateManager {
     private static final GlStateManager.StencilState STENCIL = new GlStateManager.StencilState();
     private static final FloatBuffer FLOAT_ARG_BUFFER = MemoryTracker.createFloatBuffer(4);
     private static int activeTexture;
-    private static final GlStateManager.TextureState[] TEXTURES = IntStream.range(0, 8)
+    private static final GlStateManager.TextureState[] TEXTURES = IntStream.range(0, 12)
         .mapToObj(param0 -> new GlStateManager.TextureState())
         .toArray(param0 -> new GlStateManager.TextureState[param0]);
     private static int shadeModel = 7425;
@@ -53,6 +54,7 @@ public class GlStateManager {
     private static final GlStateManager.ColorMask COLOR_MASK = new GlStateManager.ColorMask();
     private static final GlStateManager.Color COLOR = new GlStateManager.Color();
     private static GlStateManager.FboMode fboMode;
+    private static GlStateManager.FboBlitMode fboBlitMode;
 
     @Deprecated
     public static void _pushLightingAttributes() {
@@ -225,6 +227,14 @@ public class GlStateManager {
 
     public static String _init_fbo(GLCapabilities param0) {
         RenderSystem.assertThread(RenderSystem::isInInitPhase);
+        if (param0.OpenGL30) {
+            fboBlitMode = GlStateManager.FboBlitMode.BASE;
+        } else if (param0.GL_EXT_framebuffer_blit) {
+            fboBlitMode = GlStateManager.FboBlitMode.EXT;
+        } else {
+            fboBlitMode = GlStateManager.FboBlitMode.NONE;
+        }
+
         if (param0.OpenGL30) {
             fboMode = GlStateManager.FboMode.BASE;
             GlConst.GL_FRAMEBUFFER = 36160;
@@ -411,6 +421,11 @@ public class GlStateManager {
         GL15.glDeleteBuffers(param0);
     }
 
+    public static void _glCopyTexSubImage2D(int param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7) {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
+        GL20.glCopyTexSubImage2D(param0, param1, param2, param3, param4, param5, param6, param7);
+    }
+
     public static void _glBindFramebuffer(int param0, int param1) {
         RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
         switch(fboMode) {
@@ -426,32 +441,39 @@ public class GlStateManager {
 
     }
 
-    public static void _glBindRenderbuffer(int param0, int param1) {
+    public static int getFramebufferDepthTexture() {
         RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
         switch(fboMode) {
             case BASE:
-                GL30.glBindRenderbuffer(param0, param1);
+                if (GL30.glGetFramebufferAttachmentParameteri(36160, 36096, 36048) == 5890) {
+                    return GL30.glGetFramebufferAttachmentParameteri(36160, 36096, 36049);
+                }
                 break;
             case ARB:
-                ARBFramebufferObject.glBindRenderbuffer(param0, param1);
+                if (ARBFramebufferObject.glGetFramebufferAttachmentParameteri(36160, 36096, 36048) == 5890) {
+                    return ARBFramebufferObject.glGetFramebufferAttachmentParameteri(36160, 36096, 36049);
+                }
                 break;
             case EXT:
-                EXTFramebufferObject.glBindRenderbufferEXT(param0, param1);
+                if (EXTFramebufferObject.glGetFramebufferAttachmentParameteriEXT(36160, 36096, 36048) == 5890) {
+                    return EXTFramebufferObject.glGetFramebufferAttachmentParameteriEXT(36160, 36096, 36049);
+                }
         }
 
+        return 0;
     }
 
-    public static void _glDeleteRenderbuffers(int param0) {
+    public static void _glBlitFrameBuffer(
+        int param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9
+    ) {
         RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
-        switch(fboMode) {
+        switch(fboBlitMode) {
             case BASE:
-                GL30.glDeleteRenderbuffers(param0);
-                break;
-            case ARB:
-                ARBFramebufferObject.glDeleteRenderbuffers(param0);
+                GL30.glBlitFramebuffer(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9);
                 break;
             case EXT:
-                EXTFramebufferObject.glDeleteRenderbuffersEXT(param0);
+                EXTFramebufferBlit.glBlitFramebufferEXT(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9);
+            case NONE:
         }
 
     }
@@ -485,50 +507,6 @@ public class GlStateManager {
         }
     }
 
-    public static int glGenRenderbuffers() {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
-        switch(fboMode) {
-            case BASE:
-                return GL30.glGenRenderbuffers();
-            case ARB:
-                return ARBFramebufferObject.glGenRenderbuffers();
-            case EXT:
-                return EXTFramebufferObject.glGenRenderbuffersEXT();
-            default:
-                return -1;
-        }
-    }
-
-    public static void _glRenderbufferStorage(int param0, int param1, int param2, int param3) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
-        switch(fboMode) {
-            case BASE:
-                GL30.glRenderbufferStorage(param0, param1, param2, param3);
-                break;
-            case ARB:
-                ARBFramebufferObject.glRenderbufferStorage(param0, param1, param2, param3);
-                break;
-            case EXT:
-                EXTFramebufferObject.glRenderbufferStorageEXT(param0, param1, param2, param3);
-        }
-
-    }
-
-    public static void _glFramebufferRenderbuffer(int param0, int param1, int param2, int param3) {
-        RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
-        switch(fboMode) {
-            case BASE:
-                GL30.glFramebufferRenderbuffer(param0, param1, param2, param3);
-                break;
-            case ARB:
-                ARBFramebufferObject.glFramebufferRenderbuffer(param0, param1, param2, param3);
-                break;
-            case EXT:
-                EXTFramebufferObject.glFramebufferRenderbufferEXT(param0, param1, param2, param3);
-        }
-
-    }
-
     public static int glCheckFramebufferStatus(int param0) {
         RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
         switch(fboMode) {
@@ -556,6 +534,11 @@ public class GlStateManager {
                 EXTFramebufferObject.glFramebufferTexture2DEXT(param0, param1, param2, param3, param4);
         }
 
+    }
+
+    @Deprecated
+    public static int getActiveTextureName() {
+        return TEXTURES[activeTexture].binding;
     }
 
     public static void glActiveTexture(int param0) {
@@ -1291,6 +1274,10 @@ public class GlStateManager {
         return GL11.glGetInteger(param0);
     }
 
+    public static boolean supportsFramebufferBlit() {
+        return fboBlitMode != GlStateManager.FboBlitMode.NONE;
+    }
+
     @Deprecated
     @OnlyIn(Dist.CLIENT)
     static class AlphaState {
@@ -1447,6 +1434,13 @@ public class GlStateManager {
         private DestFactor(int param0) {
             this.value = param0;
         }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static enum FboBlitMode {
+        BASE,
+        EXT,
+        NONE;
     }
 
     @OnlyIn(Dist.CLIENT)

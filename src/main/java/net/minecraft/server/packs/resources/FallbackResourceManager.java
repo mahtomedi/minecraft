@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.Pack;
 import net.minecraft.server.packs.PackType;
@@ -129,6 +130,12 @@ public class FallbackResourceManager implements ResourceManager {
 
         Collections.sort(var0);
         return var0;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public Stream<Pack> listPacks() {
+        return this.fallbacks.stream();
     }
 
     static ResourceLocation getMetadataLocation(ResourceLocation param0) {

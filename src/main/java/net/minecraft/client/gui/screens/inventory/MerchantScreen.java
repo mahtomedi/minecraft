@@ -30,6 +30,7 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
     public MerchantScreen(MerchantMenu param0, Inventory param1, Component param2) {
         super(param0, param1, param2);
         this.imageWidth = 276;
+        this.inventoryLabelX = 107;
     }
 
     private void postButtonClick() {
@@ -61,24 +62,22 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
     @Override
     protected void renderLabels(PoseStack param0, int param1, int param2) {
         int var0 = this.menu.getTraderLevel();
-        int var1 = this.imageHeight - 94;
         if (var0 > 0 && var0 <= 5 && this.menu.showProgressBar()) {
-            String var2 = "- " + I18n.get("merchant.level." + var0);
-            int var3 = this.font.width(this.title);
-            int var4 = this.font.width(var2);
-            int var5 = var3 + var4 + 3;
-            int var6 = 49 + this.imageWidth / 2 - var5 / 2;
-            this.font.draw(param0, this.title, (float)var6, 6.0F, 4210752);
-            this.font.draw(param0, this.inventory.getDisplayName(), 107.0F, (float)var1, 4210752);
-            this.font.draw(param0, var2, (float)(var6 + var3 + 3), 6.0F, 4210752);
+            String var1 = "- " + I18n.get("merchant.level." + var0);
+            int var2 = this.font.width(this.title);
+            int var3 = this.font.width(var1);
+            int var4 = var2 + var3 + 3;
+            int var5 = 49 + this.imageWidth / 2 - var4 / 2;
+            this.font.draw(param0, this.title, (float)var5, 6.0F, 4210752);
+            this.font.draw(param0, var1, (float)(var5 + var2 + 3), 6.0F, 4210752);
         } else {
             this.font.draw(param0, this.title, (float)(49 + this.imageWidth / 2 - this.font.width(this.title) / 2), 6.0F, 4210752);
-            this.font.draw(param0, this.inventory.getDisplayName(), 107.0F, (float)var1, 4210752);
         }
 
-        String var7 = I18n.get("merchant.trades");
-        int var8 = this.font.width(var7);
-        this.font.draw(param0, var7, (float)(5 - var8 / 2 + 48), 6.0F, 4210752);
+        this.font.draw(param0, this.inventory.getDisplayName(), (float)this.inventoryLabelX, (float)this.inventoryLabelY, 4210752);
+        String var6 = I18n.get("merchant.trades");
+        int var7 = this.font.width(var6);
+        this.font.draw(param0, var6, (float)(5 - var7 / 2 + 48), 6.0F, 4210752);
     }
 
     @Override
@@ -114,7 +113,7 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
             int var2 = VillagerData.getMinXpPerLevel(var0);
             if (var1 >= var2 && VillagerData.canLevelUp(var0)) {
                 int var3 = 100;
-                float var4 = (float)(100 / (VillagerData.getMaxXpPerLevel(var0) - var2));
+                float var4 = 100.0F / (float)(VillagerData.getMaxXpPerLevel(var0) - var2);
                 int var5 = Math.min(Mth.floor(var4 * (float)(var1 - var2)), 100);
                 blit(param0, param1 + 136, param2 + 16, this.getBlitOffset(), 0.0F, 191.0F, var5 + 1, 5, 256, 512);
                 int var6 = this.menu.getFutureTraderXp();
@@ -173,12 +172,12 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
                     int var11 = var3 + 2;
                     this.renderAndDecorateCostA(param0, var8, var7, var4, var11);
                     if (!var9.isEmpty()) {
-                        this.itemRenderer.renderAndDecorateItem(var9, var1 + 5 + 35, var11);
+                        this.itemRenderer.renderAndDecorateFakeItem(var9, var1 + 5 + 35, var11);
                         this.itemRenderer.renderGuiItemDecorations(this.font, var9, var1 + 5 + 35, var11);
                     }
 
                     this.renderButtonArrows(param0, var6, var1, var11);
-                    this.itemRenderer.renderAndDecorateItem(var10, var1 + 5 + 68, var11);
+                    this.itemRenderer.renderAndDecorateFakeItem(var10, var1 + 5 + 68, var11);
                     this.itemRenderer.renderGuiItemDecorations(this.font, var10, var1 + 5 + 68, var11);
                     this.itemRenderer.blitOffset = 0.0F;
                     var3 += 20;
@@ -223,7 +222,7 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
     }
 
     private void renderAndDecorateCostA(PoseStack param0, ItemStack param1, ItemStack param2, int param3, int param4) {
-        this.itemRenderer.renderAndDecorateItem(param1, param3, param4);
+        this.itemRenderer.renderAndDecorateFakeItem(param1, param3, param4);
         if (param2.getCount() == param1.getCount()) {
             this.itemRenderer.renderGuiItemDecorations(this.font, param1, param3, param4);
         } else {

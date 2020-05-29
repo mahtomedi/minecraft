@@ -4,7 +4,6 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import java.util.function.Consumer;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.ValidationContext;
@@ -40,13 +39,17 @@ public abstract class CompositeEntryBase extends LootPoolEntryContainer {
         return !this.canRun(param0) ? false : this.composedChildren.expand(param0, param1);
     }
 
-    public static <T extends CompositeEntryBase> CompositeEntryBase.Serializer<T> createSerializer(
-        ResourceLocation param0, Class<T> param1, final CompositeEntryBase.CompositeEntryConstructor<T> param2
+    public static <T extends CompositeEntryBase> LootPoolEntryContainer.Serializer<T> createSerializer(
+        final CompositeEntryBase.CompositeEntryConstructor<T> param0
     ) {
-        return new CompositeEntryBase.Serializer<T>(param0, param1) {
-            @Override
-            protected T deserialize(JsonObject param0, JsonDeserializationContext param1, LootPoolEntryContainer[] param2x, LootItemCondition[] param3) {
-                return param2.create(param2, param3);
+        return new LootPoolEntryContainer.Serializer<T>() {
+            public void serializeCustom(JsonObject param0x, T param1, JsonSerializationContext param2) {
+                param0.add("children", param2.serialize(param1.children));
+            }
+
+            public final T deserializeCustom(JsonObject param0x, JsonDeserializationContext param1, LootItemCondition[] param2) {
+                LootPoolEntryContainer[] var0 = GsonHelper.getAsObject(param0, "children", param1, LootPoolEntryContainer[].class);
+                return param0.create(var0, param2);
             }
         };
     }
@@ -54,22 +57,5 @@ public abstract class CompositeEntryBase extends LootPoolEntryContainer {
     @FunctionalInterface
     public interface CompositeEntryConstructor<T extends CompositeEntryBase> {
         T create(LootPoolEntryContainer[] var1, LootItemCondition[] var2);
-    }
-
-    public abstract static class Serializer<T extends CompositeEntryBase> extends LootPoolEntryContainer.Serializer<T> {
-        public Serializer(ResourceLocation param0, Class<T> param1) {
-            super(param0, param1);
-        }
-
-        public void serialize(JsonObject param0, T param1, JsonSerializationContext param2) {
-            param0.add("children", param2.serialize(param1.children));
-        }
-
-        public final T deserialize(JsonObject param0, JsonDeserializationContext param1, LootItemCondition[] param2) {
-            LootPoolEntryContainer[] var0 = GsonHelper.getAsObject(param0, "children", param1, LootPoolEntryContainer[].class);
-            return this.deserialize(param0, param1, var0, param2);
-        }
-
-        protected abstract T deserialize(JsonObject var1, JsonDeserializationContext var2, LootPoolEntryContainer[] var3, LootItemCondition[] var4);
     }
 }

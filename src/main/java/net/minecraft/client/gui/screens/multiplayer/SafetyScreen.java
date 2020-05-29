@@ -10,6 +10,7 @@ import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -22,7 +23,7 @@ public class SafetyScreen extends Screen {
     private static final Component CHECK = new TranslatableComponent("multiplayerWarning.check");
     private static final Component NARRATION = TITLE.mutableCopy().append("\n").append(CONTENT);
     private Checkbox stopShowing;
-    private final List<Component> lines = Lists.newArrayList();
+    private final List<FormattedText> lines = Lists.newArrayList();
 
     public SafetyScreen(Screen param0) {
         super(NarratorChatListener.NO_TITLE);
@@ -61,7 +62,7 @@ public class SafetyScreen extends Screen {
         this.drawCenteredString(param0, this.font, TITLE, this.width / 2, 30, 16777215);
         int var0 = 70;
 
-        for(Component var1 : this.lines) {
+        for(FormattedText var1 : this.lines) {
             this.drawCenteredString(param0, this.font, var1, this.width / 2, var0, 16777215);
             var0 += 9;
         }

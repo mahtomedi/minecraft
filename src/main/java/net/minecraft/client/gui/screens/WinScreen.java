@@ -19,9 +19,8 @@ import java.util.Random;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.chat.NarratorChatListener;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraftforge.api.distmarker.Dist;
@@ -40,7 +39,7 @@ public class WinScreen extends Screen {
     private final boolean poem;
     private final Runnable onFinished;
     private float time;
-    private List<Component> lines;
+    private List<FormattedText> lines;
     private IntSet centeredLines;
     private int totalScrollLength;
     private float scrollSpeed = 0.5F;
@@ -105,13 +104,13 @@ public class WinScreen extends Screen {
                         }
 
                         this.lines.addAll(this.minecraft.font.getSplitter().splitLines(var5, 274, Style.EMPTY));
-                        this.lines.add(TextComponent.EMPTY);
+                        this.lines.add(FormattedText.EMPTY);
                     }
 
                     var2.close();
 
                     for(int var9 = 0; var9 < 8; ++var9) {
-                        this.lines.add(TextComponent.EMPTY);
+                        this.lines.add(FormattedText.EMPTY);
                     }
                 }
 
@@ -130,7 +129,7 @@ public class WinScreen extends Screen {
                         var13 = false;
                     }
 
-                    for(Component var16 : this.minecraft.font.getSplitter().splitLines(var12, 274, Style.EMPTY)) {
+                    for(FormattedText var16 : this.minecraft.font.getSplitter().splitLines(var12, 274, Style.EMPTY)) {
                         if (var13) {
                             this.centeredLines.add(this.lines.size());
                         }
@@ -138,7 +137,7 @@ public class WinScreen extends Screen {
                         this.lines.add(var16);
                     }
 
-                    this.lines.add(TextComponent.EMPTY);
+                    this.lines.add(FormattedText.EMPTY);
                 }
 
                 var10.close();
@@ -197,8 +196,12 @@ public class WinScreen extends Screen {
         this.minecraft.getTextureManager().bind(LOGO_LOCATION);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.enableAlphaTest();
-        this.blit(param0, var1, var2, 0, 0, 155, 44);
-        this.blit(param0, var1 + 155, var2, 0, 45, 155, 44);
+        RenderSystem.enableBlend();
+        this.blitOutlineBlack(var1, var2, (param1x, param2x) -> {
+            this.blit(param0, param1x + 0, param2x, 0, 0, 155, 44);
+            this.blit(param0, param1x + 155, param2x, 0, 45, 155, 44);
+        });
+        RenderSystem.disableBlend();
         this.minecraft.getTextureManager().bind(EDITION_LOCATION);
         blit(param0, var1 + 88, var2 + 37, 0.0F, 0.0F, 98, 14, 128, 16);
         RenderSystem.disableAlphaTest();
@@ -213,7 +216,7 @@ public class WinScreen extends Screen {
             }
 
             if ((float)var4 + var3 + 12.0F + 8.0F > 0.0F && (float)var4 + var3 < (float)this.height) {
-                Component var7 = this.lines.get(var5);
+                FormattedText var7 = this.lines.get(var5);
                 if (this.centeredLines.contains(var5)) {
                     this.font.drawShadow(param0, var7, (float)(var1 + (274 - this.font.width(var7)) / 2), (float)var4, 16777215);
                 } else {

@@ -8,7 +8,6 @@ import com.mojang.authlib.GameProfile;
 import java.util.Set;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -24,6 +23,11 @@ public class FillPlayerHead extends LootItemConditionalFunction {
     public FillPlayerHead(LootItemCondition[] param0, LootContext.EntityTarget param1) {
         super(param0);
         this.entityTarget = param1;
+    }
+
+    @Override
+    public LootItemFunctionType getType() {
+        return LootItemFunctions.FILL_PLAYER_HEAD;
     }
 
     @Override
@@ -45,10 +49,6 @@ public class FillPlayerHead extends LootItemConditionalFunction {
     }
 
     public static class Serializer extends LootItemConditionalFunction.Serializer<FillPlayerHead> {
-        public Serializer() {
-            super(new ResourceLocation("fill_player_head"), FillPlayerHead.class);
-        }
-
         public void serialize(JsonObject param0, FillPlayerHead param1, JsonSerializationContext param2) {
             super.serialize(param0, param1, param2);
             param0.add("entity", param2.serialize(param1.entityTarget));

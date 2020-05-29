@@ -101,28 +101,7 @@ public class IllagerModel<T extends AbstractIllager> extends ListModel<T> implem
 
         AbstractIllager.IllagerArmPose var0 = param0.getArmPose();
         if (var0 == AbstractIllager.IllagerArmPose.ATTACKING) {
-            float var1 = Mth.sin(this.attackTime * (float) Math.PI);
-            float var2 = Mth.sin((1.0F - (1.0F - this.attackTime) * (1.0F - this.attackTime)) * (float) Math.PI);
-            this.rightArm.zRot = 0.0F;
-            this.leftArm.zRot = 0.0F;
-            this.rightArm.yRot = (float) (Math.PI / 20);
-            this.leftArm.yRot = (float) (-Math.PI / 20);
-            if (param0.getMainArm() == HumanoidArm.RIGHT) {
-                this.rightArm.xRot = -1.8849558F + Mth.cos(param3 * 0.09F) * 0.15F;
-                this.leftArm.xRot = -0.0F + Mth.cos(param3 * 0.19F) * 0.5F;
-                this.rightArm.xRot += var1 * 2.2F - var2 * 0.4F;
-                this.leftArm.xRot += var1 * 1.2F - var2 * 0.4F;
-            } else {
-                this.rightArm.xRot = -0.0F + Mth.cos(param3 * 0.19F) * 0.5F;
-                this.leftArm.xRot = -1.8849558F + Mth.cos(param3 * 0.09F) * 0.15F;
-                this.rightArm.xRot += var1 * 1.2F - var2 * 0.4F;
-                this.leftArm.xRot += var1 * 2.2F - var2 * 0.4F;
-            }
-
-            this.rightArm.zRot += Mth.cos(param3 * 0.09F) * 0.05F + 0.05F;
-            this.leftArm.zRot -= Mth.cos(param3 * 0.09F) * 0.05F + 0.05F;
-            this.rightArm.xRot += Mth.sin(param3 * 0.067F) * 0.05F;
-            this.leftArm.xRot -= Mth.sin(param3 * 0.067F) * 0.05F;
+            AnimationUtils.swingWeaponDown(this.rightArm, this.leftArm, param0, this.attackTime, param3);
         } else if (var0 == AbstractIllager.IllagerArmPose.SPELLCASTING) {
             this.rightArm.z = 0.0F;
             this.rightArm.x = -5.0F;
@@ -157,10 +136,10 @@ public class IllagerModel<T extends AbstractIllager> extends ListModel<T> implem
             this.leftArm.yRot = 0.0F;
         }
 
-        boolean var3 = var0 == AbstractIllager.IllagerArmPose.CROSSED;
-        this.arms.visible = var3;
-        this.leftArm.visible = !var3;
-        this.rightArm.visible = !var3;
+        boolean var1 = var0 == AbstractIllager.IllagerArmPose.CROSSED;
+        this.arms.visible = var1;
+        this.leftArm.visible = !var1;
+        this.rightArm.visible = !var1;
     }
 
     private ModelPart getArm(HumanoidArm param0) {

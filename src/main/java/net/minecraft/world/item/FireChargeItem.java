@@ -38,7 +38,7 @@ public class FireChargeItem extends Item {
 
         if (var3) {
             param0.getItemInHand().shrink(1);
-            return InteractionResult.SUCCESS;
+            return InteractionResult.sidedSuccess(var0.isClientSide);
         } else {
             return InteractionResult.FAIL;
         }

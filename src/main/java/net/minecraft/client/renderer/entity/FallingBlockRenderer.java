@@ -40,7 +40,7 @@ public class FallingBlockRenderer extends EntityRenderer<FallingBlockEntity> {
                         var0,
                         var2,
                         param3,
-                        param4.getBuffer(ItemBlockRenderTypes.getChunkRenderType(var0)),
+                        param4.getBuffer(ItemBlockRenderTypes.getMovingBlockRenderType(var0)),
                         false,
                         new Random(),
                         var0.getSeed(param0.getStartPos()),

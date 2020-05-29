@@ -298,7 +298,7 @@ public abstract class BlockBehaviour {
         if (var0 == -1.0F) {
             return 0.0F;
         } else {
-            int var1 = param1.canDestroy(param0) ? 30 : 100;
+            int var1 = param1.hasCorrectToolForDrops(param0) ? 30 : 100;
             return param1.getDestroySpeed(param0) / var0 / (float)var1;
         }
     }
@@ -357,6 +357,7 @@ public abstract class BlockBehaviour {
         private final Material material;
         private final MaterialColor materialColor;
         private final float destroySpeed;
+        private final boolean requiresCorrectToolForDrops;
         private final boolean canOcclude;
         private final BlockBehaviour.StatePredicate isRedstoneConductor;
         private final BlockBehaviour.StatePredicate isSuffocating;
@@ -375,6 +376,7 @@ public abstract class BlockBehaviour {
             this.material = var0.material;
             this.materialColor = var0.materialColor.apply(this.asState());
             this.destroySpeed = var0.destroyTime;
+            this.requiresCorrectToolForDrops = var0.requiresCorrectToolForDrops;
             this.canOcclude = var0.canOcclude;
             this.isRedstoneConductor = var0.isRedstoneConductor;
             this.isSuffocating = var0.isSuffocating;
@@ -708,6 +710,10 @@ public abstract class BlockBehaviour {
 
         protected abstract BlockState asState();
 
+        public boolean requiresCorrectToolForDrops() {
+            return this.requiresCorrectToolForDrops;
+        }
+
         static final class Cache {
             private static final Direction[] DIRECTIONS = Direction.values();
             protected final boolean solidRender;
@@ -764,6 +770,7 @@ public abstract class BlockBehaviour {
         private ToIntFunction<BlockState> lightEmission = param0x -> 0;
         private float explosionResistance;
         private float destroyTime;
+        private boolean requiresCorrectToolForDrops;
         private boolean isRandomlyTicking;
         private float friction = 0.6F;
         private float speedFactor = 1.0F;
@@ -824,6 +831,7 @@ public abstract class BlockBehaviour {
             var0.dynamicShape = param0.properties.dynamicShape;
             var0.canOcclude = param0.properties.canOcclude;
             var0.isAir = param0.properties.isAir;
+            var0.requiresCorrectToolForDrops = param0.properties.requiresCorrectToolForDrops;
             return var0;
         }
 
@@ -930,6 +938,11 @@ public abstract class BlockBehaviour {
 
         public BlockBehaviour.Properties emissiveRendering(BlockBehaviour.StatePredicate param0) {
             this.emissiveRendering = param0;
+            return this;
+        }
+
+        public BlockBehaviour.Properties requiresCorrectToolForDrops() {
+            this.requiresCorrectToolForDrops = true;
             return this;
         }
     }

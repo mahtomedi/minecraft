@@ -45,7 +45,7 @@ public class PumpkinBlock extends StemGrownBlock {
                 var0.hurtAndBreak(1, param3, param1x -> param1x.broadcastBreakEvent(param4));
             }
 
-            return InteractionResult.SUCCESS;
+            return InteractionResult.sidedSuccess(param1.isClientSide);
         } else {
             return super.use(param0, param1, param2, param3, param4, param5);
         }

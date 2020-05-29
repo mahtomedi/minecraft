@@ -13,7 +13,7 @@ import javax.annotation.Nullable;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.SerializationTags;
 import net.minecraft.tags.Tag;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.EnchantedBookItem;
@@ -129,7 +129,7 @@ public class ItemPredicate {
                 Tag<Item> var6 = null;
                 if (var0.has("tag")) {
                     ResourceLocation var7 = new ResourceLocation(GsonHelper.getAsString(var0, "tag"));
-                    var6 = ItemTags.getAllTags().getTag(var7);
+                    var6 = SerializationTags.getInstance().getItems().getTag(var7);
                     if (var6 == null) {
                         throw new JsonSyntaxException("Unknown item tag '" + var7 + "'");
                     }
@@ -160,7 +160,7 @@ public class ItemPredicate {
             }
 
             if (this.tag != null) {
-                var0.addProperty("tag", ItemTags.getAllTags().getIdOrThrow(this.tag).toString());
+                var0.addProperty("tag", SerializationTags.getInstance().getItems().getIdOrThrow(this.tag).toString());
             }
 
             var0.add("count", this.count.serializeToJson());

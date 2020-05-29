@@ -97,7 +97,7 @@ public class EnchantmentTableBlock extends BaseEntityBlock {
             return InteractionResult.SUCCESS;
         } else {
             param3.openMenu(param0.getMenuProvider(param1, param2));
-            return InteractionResult.SUCCESS;
+            return InteractionResult.CONSUME;
         }
     }
 

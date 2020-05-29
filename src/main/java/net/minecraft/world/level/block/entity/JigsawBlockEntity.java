@@ -125,7 +125,7 @@ public class JigsawBlockEntity extends BlockEntity {
         return this.save(new CompoundTag());
     }
 
-    public void generate(ServerLevel param0, int param1) {
+    public void generate(ServerLevel param0, int param1, boolean param2) {
         ChunkGenerator var0 = param0.getChunkSource().getGenerator();
         StructureManager var1 = param0.getStructureManager();
         StructureFeatureManager var2 = param0.structureFeatureManager();
@@ -139,7 +139,7 @@ public class JigsawBlockEntity extends BlockEntity {
         JigsawPlacement.addPieces(var8, param1, JigsawBlockEntity.RuntimePiece::new, var0, var1, var5, var3);
 
         for(PoolElementStructurePiece var9 : var5) {
-            var9.place(param0, var2, var0, var3, BoundingBox.infinite(), var4, true);
+            var9.place(param0, var2, var0, var3, BoundingBox.infinite(), var4, param2);
         }
 
     }

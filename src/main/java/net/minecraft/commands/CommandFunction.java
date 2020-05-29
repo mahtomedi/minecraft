@@ -1,6 +1,7 @@
 package net.minecraft.commands;
 
 import com.google.common.collect.Lists;
+import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -28,12 +29,14 @@ public class CommandFunction {
         return this.entries;
     }
 
-    public static CommandFunction fromLines(ResourceLocation param0, ServerFunctionManager param1, List<String> param2) {
-        List<CommandFunction.Entry> var0 = Lists.newArrayListWithCapacity(param2.size());
+    public static CommandFunction fromLines(
+        ResourceLocation param0, CommandDispatcher<CommandSourceStack> param1, CommandSourceStack param2, List<String> param3
+    ) {
+        List<CommandFunction.Entry> var0 = Lists.newArrayListWithCapacity(param3.size());
 
-        for(int var1 = 0; var1 < param2.size(); ++var1) {
+        for(int var1 = 0; var1 < param3.size(); ++var1) {
             int var2 = var1 + 1;
-            String var3 = param2.get(var1).trim();
+            String var3 = param3.get(var1).trim();
             StringReader var4 = new StringReader(var3);
             if (var4.canRead() && var4.peek() != '#') {
                 if (var4.peek() == '/') {
@@ -51,14 +54,14 @@ public class CommandFunction {
                 }
 
                 try {
-                    ParseResults<CommandSourceStack> var6 = param1.getServer().getCommands().getDispatcher().parse(var4, param1.getCompilationContext());
+                    ParseResults<CommandSourceStack> var6 = param1.parse(var4, param2);
                     if (var6.getReader().canRead()) {
                         throw Commands.getParseException(var6);
                     }
 
                     var0.add(new CommandFunction.CommandEntry(var6));
-                } catch (CommandSyntaxException var9) {
-                    throw new IllegalArgumentException("Whilst parsing command on line " + var2 + ": " + var9.getMessage());
+                } catch (CommandSyntaxException var10) {
+                    throw new IllegalArgumentException("Whilst parsing command on line " + var2 + ": " + var10.getMessage());
                 }
             }
         }

@@ -12,9 +12,8 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.resources.model.Material;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SignBlock;
 import net.minecraft.world.level.block.StandingSignBlock;
@@ -70,9 +69,9 @@ public class SignRenderer extends BlockEntityRenderer<SignBlockEntity> {
         int var14 = 20;
 
         for(int var15 = 0; var15 < 4; ++var15) {
-            Component var16 = param0.getRenderMessage(var15, param1x -> {
-                List<Component> var0x = var6.getSplitter().splitLines(param1x, 90, Style.EMPTY);
-                return var0x.isEmpty() ? TextComponent.EMPTY : var0x.get(0);
+            FormattedText var16 = param0.getRenderMessage(var15, param1x -> {
+                List<FormattedText> var0x = var6.getSplitter().splitLines(param1x, 90, Style.EMPTY);
+                return var0x.isEmpty() ? FormattedText.EMPTY : var0x.get(0);
             });
             if (var16 != null) {
                 float var17 = (float)(-var6.width(var16) / 2);

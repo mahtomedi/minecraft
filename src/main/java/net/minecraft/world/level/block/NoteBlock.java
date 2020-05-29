@@ -78,7 +78,7 @@ public class NoteBlock extends Block {
             param1.setBlock(param2, param0, 3);
             this.playNote(param1, param2);
             param3.awardStat(Stats.TUNE_NOTEBLOCK);
-            return InteractionResult.SUCCESS;
+            return InteractionResult.CONSUME;
         }
     }
 

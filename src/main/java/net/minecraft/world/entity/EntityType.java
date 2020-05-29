@@ -675,6 +675,11 @@ public class EntityType<T extends Entity> {
         return this.description;
     }
 
+    @Override
+    public String toString() {
+        return this.getDescriptionId();
+    }
+
     public ResourceLocation getDefaultLootTable() {
         if (this.lootTable == null) {
             ResourceLocation var0 = Registry.ENTITY_TYPE.getKey(this);

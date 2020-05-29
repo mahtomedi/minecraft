@@ -1,37 +1,31 @@
 package net.minecraft.client;
 
+import com.google.common.collect.Lists;
+import java.util.List;
 import javax.annotation.Nullable;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ComponentCollector {
-    private boolean singleComponent = true;
-    @Nullable
-    private MutableComponent collector;
+    private final List<FormattedText> parts = Lists.newArrayList();
 
-    public void append(MutableComponent param0) {
-        if (this.collector == null) {
-            this.collector = param0;
+    public void append(FormattedText param0) {
+        this.parts.add(param0);
+    }
+
+    @Nullable
+    public FormattedText getResult() {
+        if (this.parts.isEmpty()) {
+            return null;
         } else {
-            if (this.singleComponent) {
-                this.collector = new TextComponent("").append(this.collector);
-                this.singleComponent = false;
-            }
-
-            this.collector.append(param0);
+            return this.parts.size() == 1 ? this.parts.get(0) : FormattedText.composite(this.parts);
         }
-
     }
 
-    @Nullable
-    public MutableComponent getResult() {
-        return this.collector;
-    }
-
-    public MutableComponent getResultOrEmpty() {
-        return (MutableComponent)(this.collector != null ? this.collector : new TextComponent(""));
+    public FormattedText getResultOrEmpty() {
+        FormattedText var0 = this.getResult();
+        return var0 != null ? var0 : FormattedText.EMPTY;
     }
 }

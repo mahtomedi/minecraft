@@ -83,10 +83,7 @@ public class PoiManager extends SectionStorage<PoiSection> {
     }
 
     public Optional<BlockPos> findClosest(Predicate<PoiType> param0, BlockPos param1, int param2, PoiManager.Occupancy param3) {
-        return this.getInRange(param0, param1, param2, param3)
-            .map(PoiRecord::getPos)
-            .sorted(Comparator.comparingDouble(param1x -> param1x.distSqr(param1)))
-            .findFirst();
+        return this.getInRange(param0, param1, param2, param3).map(PoiRecord::getPos).min(Comparator.comparingDouble(param1x -> param1x.distSqr(param1)));
     }
 
     public Optional<BlockPos> take(Predicate<PoiType> param0, Predicate<BlockPos> param1, BlockPos param2, int param3) {
@@ -166,7 +163,7 @@ public class PoiManager extends SectionStorage<PoiSection> {
     }
 
     private static boolean mayHavePoi(LevelChunkSection param0) {
-        return PoiType.allPoiStates().anyMatch(param0::maybeHas);
+        return param0.maybeHas(PoiType.ALL_STATES::contains);
     }
 
     private void updateFromSection(LevelChunkSection param0, SectionPos param1, BiConsumer<BlockPos, PoiType> param2) {

@@ -12,7 +12,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.TheEndPortalBlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -49,7 +48,7 @@ public class EndPortalBlock extends BaseEntityBlock {
                 param0.getShape(param1, param2),
                 BooleanOp.AND
             )) {
-            ResourceKey<DimensionType> var0 = param1.dimensionType().isEnd() ? DimensionType.OVERWORLD_LOCATION : DimensionType.END_LOCATION;
+            ResourceKey<Level> var0 = param1.dimensionType().isEnd() ? Level.OVERWORLD : Level.END;
             param3.changeDimension(var0);
         }
 

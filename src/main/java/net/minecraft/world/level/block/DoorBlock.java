@@ -107,7 +107,7 @@ public class DoorBlock extends Block {
             param0.setBlock(var1, Blocks.AIR.defaultBlockState(), 35);
             param0.levelEvent(param3, 2001, var1, Block.getId(var2));
             ItemStack var3 = param3.getMainHandItem();
-            if (!param0.isClientSide && !param3.isCreative() && param3.canDestroy(var2)) {
+            if (!param0.isClientSide && !param3.isCreative() && param3.hasCorrectToolForDrops(var2)) {
                 Block.dropResources(param2, param0, param1, null, param3, var3);
                 Block.dropResources(var2, param0, var1, null, param3, var3);
             }
@@ -208,7 +208,7 @@ public class DoorBlock extends Block {
             param0 = param0.cycle(OPEN);
             param1.setBlock(param2, param0, 10);
             param1.levelEvent(param3, param0.getValue(OPEN) ? this.getOpenSound() : this.getCloseSound(), param2, 0);
-            return InteractionResult.SUCCESS;
+            return InteractionResult.sidedSuccess(param1.isClientSide);
         }
     }
 

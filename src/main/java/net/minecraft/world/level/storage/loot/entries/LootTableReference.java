@@ -22,6 +22,11 @@ public class LootTableReference extends LootPoolSingletonContainer {
     }
 
     @Override
+    public LootPoolEntryType getType() {
+        return LootPoolEntries.REFERENCE;
+    }
+
+    @Override
     public void createItemStack(Consumer<ItemStack> param0, LootContext param1) {
         LootTable var0 = param1.getLootTable(this.name);
         var0.getRandomItemsRaw(param1, param0);
@@ -48,12 +53,8 @@ public class LootTableReference extends LootPoolSingletonContainer {
     }
 
     public static class Serializer extends LootPoolSingletonContainer.Serializer<LootTableReference> {
-        public Serializer() {
-            super(new ResourceLocation("loot_table"), LootTableReference.class);
-        }
-
-        public void serialize(JsonObject param0, LootTableReference param1, JsonSerializationContext param2) {
-            super.serialize(param0, param1, param2);
+        public void serializeCustom(JsonObject param0, LootTableReference param1, JsonSerializationContext param2) {
+            super.serializeCustom(param0, param1, param2);
             param0.addProperty("name", param1.name.toString());
         }
 

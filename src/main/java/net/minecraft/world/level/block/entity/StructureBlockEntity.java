@@ -187,6 +187,7 @@ public class StructureBlockEntity extends BlockEntity {
         this.author = param0.getName().getString();
     }
 
+    @OnlyIn(Dist.CLIENT)
     public BlockPos getStructurePos() {
         return this.structurePos;
     }
@@ -212,7 +213,6 @@ public class StructureBlockEntity extends BlockEntity {
         this.mirror = param0;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Rotation getRotation() {
         return this.rotation;
     }
@@ -457,7 +457,7 @@ public class StructureBlockEntity extends BlockEntity {
             }
 
             BlockPos var5 = var0.offset(this.structurePos);
-            param1.placeInWorldChunk(this.level, var5, var4);
+            param1.placeInWorldChunk(this.level, var5, var4, createRandom(this.seed));
             return true;
         }
     }

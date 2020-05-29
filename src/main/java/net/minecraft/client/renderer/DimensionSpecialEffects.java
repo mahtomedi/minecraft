@@ -2,6 +2,7 @@ package net.minecraft.client.renderer;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.resources.ResourceKey;
@@ -31,8 +32,8 @@ public abstract class DimensionSpecialEffects {
         this.renderNormalSky = param2;
     }
 
-    public static DimensionSpecialEffects forType(@Nullable ResourceKey<DimensionType> param0) {
-        return EFFECTS.get(param0);
+    public static DimensionSpecialEffects forType(Optional<ResourceKey<DimensionType>> param0) {
+        return EFFECTS.get(param0.orElse(DimensionType.OVERWORLD_LOCATION));
     }
 
     @Nullable

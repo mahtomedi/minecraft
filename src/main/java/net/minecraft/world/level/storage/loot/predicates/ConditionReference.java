@@ -14,8 +14,13 @@ public class ConditionReference implements LootItemCondition {
     private static final Logger LOGGER = LogManager.getLogger();
     private final ResourceLocation name;
 
-    public ConditionReference(ResourceLocation param0) {
+    private ConditionReference(ResourceLocation param0) {
         this.name = param0;
+    }
+
+    @Override
+    public LootItemConditionType getType() {
+        return LootItemConditions.REFERENCE;
     }
 
     @Override
@@ -51,11 +56,7 @@ public class ConditionReference implements LootItemCondition {
         }
     }
 
-    public static class Serializer extends LootItemCondition.Serializer<ConditionReference> {
-        protected Serializer() {
-            super(new ResourceLocation("reference"), ConditionReference.class);
-        }
-
+    public static class Serializer implements net.minecraft.world.level.storage.loot.Serializer<ConditionReference> {
         public void serialize(JsonObject param0, ConditionReference param1, JsonSerializationContext param2) {
             param0.addProperty("name", param1.name.toString());
         }

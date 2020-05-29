@@ -8,10 +8,8 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockPlaceContext;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -131,7 +129,7 @@ public abstract class BaseFireBlock extends Block {
 
     @Override
     public void entityInside(BlockState param0, Level param1, BlockPos param2, Entity param3) {
-        if (!param3.fireImmune() && (!(param3 instanceof LivingEntity) || !EnchantmentHelper.hasFrostWalker((LivingEntity)param3))) {
+        if (!param3.fireImmune()) {
             param3.setRemainingFireTicks(param3.getRemainingFireTicks() + 1);
             if (param3.getRemainingFireTicks() == 0) {
                 param3.setSecondsOnFire(8);

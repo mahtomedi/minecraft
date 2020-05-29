@@ -12,7 +12,7 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 
 public class NearestLivingEntitySensor extends Sensor<LivingEntity> {
-    private static final TargetingConditions TARGETING = new TargetingConditions().range(16.0).allowSameTeam().allowNonAttackable().allowUnseeable();
+    private static final TargetingConditions TARGETING = new TargetingConditions().range(16.0).allowSameTeam().allowNonAttackable();
 
     @Override
     protected void doTick(ServerLevel param0, LivingEntity param1) {
@@ -22,10 +22,7 @@ public class NearestLivingEntitySensor extends Sensor<LivingEntity> {
         var0.sort(Comparator.comparingDouble(param1::distanceToSqr));
         Brain<?> var1 = param1.getBrain();
         var1.setMemory(MemoryModuleType.LIVING_ENTITIES, var0);
-        var1.setMemory(
-            MemoryModuleType.VISIBLE_LIVING_ENTITIES,
-            var0.stream().filter(param1x -> TARGETING.test(param1, param1x)).filter(param1::canSee).collect(Collectors.toList())
-        );
+        var1.setMemory(MemoryModuleType.VISIBLE_LIVING_ENTITIES, var0.stream().filter(param1x -> TARGETING.test(param1, param1x)).collect(Collectors.toList()));
     }
 
     @Override

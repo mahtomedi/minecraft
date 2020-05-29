@@ -7,12 +7,12 @@ import java.util.stream.Collectors;
 import net.minecraft.util.StringRepresentable;
 
 public enum MobCategory implements StringRepresentable {
-    MONSTER("monster", 70, false, 128),
-    CREATURE("creature", 10, true),
-    AMBIENT("ambient", 15, true, 128),
-    WATER_CREATURE("water_creature", 5, true, 128),
-    WATER_AMBIENT("water_ambient", 20, true, 64),
-    MISC("misc", -1, true);
+    MONSTER("monster", 70, false, false, 128),
+    CREATURE("creature", 10, true, true, 128),
+    AMBIENT("ambient", 15, true, false, 128),
+    WATER_CREATURE("water_creature", 5, true, false, 128),
+    WATER_AMBIENT("water_ambient", 20, true, false, 64),
+    MISC("misc", -1, true, true, 128);
 
     public static final Codec<MobCategory> CODEC = StringRepresentable.fromEnum(MobCategory::values, MobCategory::byName);
     private static final Map<String, MobCategory> BY_NAME = Arrays.stream(values()).collect(Collectors.toMap(MobCategory::getName, param0 -> param0));
@@ -23,20 +23,12 @@ public enum MobCategory implements StringRepresentable {
     private final int noDespawnDistance = 32;
     private final int despawnDistance;
 
-    private MobCategory(String param0, int param1, boolean param2) {
+    private MobCategory(String param0, int param1, boolean param2, boolean param3, int param4) {
         this.name = param0;
         this.max = param1;
         this.isFriendly = param2;
-        this.isPersistent = true;
-        this.despawnDistance = Integer.MAX_VALUE;
-    }
-
-    private MobCategory(String param0, int param1, boolean param2, int param3) {
-        this.name = param0;
-        this.max = param1;
-        this.isFriendly = param2;
-        this.isPersistent = false;
-        this.despawnDistance = param3;
+        this.isPersistent = param3;
+        this.despawnDistance = param4;
     }
 
     public String getName() {

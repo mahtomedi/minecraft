@@ -2,13 +2,16 @@ package net.minecraft.world.level.levelgen.structure.templatesystem;
 
 import com.mojang.serialization.Codec;
 import java.util.Random;
-import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.SerializationTags;
 import net.minecraft.tags.Tag;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class TagMatchTest extends RuleTest {
-    public static final Codec<TagMatchTest> CODEC = Tag.codec(BlockTags::getAllTags).fieldOf("tag").xmap(TagMatchTest::new, param0 -> param0.tag).codec();
+    public static final Codec<TagMatchTest> CODEC = Tag.codec(SerializationTags.getInstance()::getBlocks)
+        .fieldOf("tag")
+        .xmap(TagMatchTest::new, param0 -> param0.tag)
+        .codec();
     private final Tag<Block> tag;
 
     public TagMatchTest(Tag<Block> param0) {

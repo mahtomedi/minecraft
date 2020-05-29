@@ -3,6 +3,7 @@ package net.minecraft.server;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import java.util.Collection;
@@ -32,7 +33,7 @@ public class ServerAdvancementManager extends SimpleJsonResourceReloadListener {
         this.predicateManager = param0;
     }
 
-    protected void apply(Map<ResourceLocation, JsonObject> param0, ResourceManager param1, ProfilerFiller param2) {
+    protected void apply(Map<ResourceLocation, JsonElement> param0, ResourceManager param1, ProfilerFiller param2) {
         Map<ResourceLocation, Advancement.Builder> var0 = Maps.newHashMap();
         param0.forEach((param1x, param2x) -> {
             try {

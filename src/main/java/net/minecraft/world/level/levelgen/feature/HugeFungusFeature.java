@@ -51,21 +51,24 @@ public class HugeFungusFeature extends Feature<HugeFungusConfiguration> {
 
             boolean var5 = !param5.planted && param3.nextFloat() < 0.06F;
             param0.setBlock(param4, Blocks.AIR.defaultBlockState(), 4);
-            this.placeHat(param0, param3, param5, var1, var3, var5);
             this.placeStem(param0, param3, param5, var1, var3, var5);
+            this.placeHat(param0, param3, param5, var1, var3, var5);
             return true;
         }
     }
 
-    public static boolean isReplaceablePlant(LevelAccessor param0, BlockPos param1) {
-        return param0.isStateAtPosition(param1, param0x -> {
-            Material var0x = param0x.getMaterial();
-            return var0x == Material.REPLACEABLE_PLANT;
-        });
-    }
-
-    private static boolean isReplaceable(LevelAccessor param0, BlockPos param1) {
-        return param0.getBlockState(param1).isAir() || !param0.getFluidState(param1).isEmpty() || isReplaceablePlant(param0, param1);
+    private static boolean isReplaceable(LevelAccessor param0, BlockPos param1, boolean param2) {
+        return param0.isStateAtPosition(
+            param1,
+            param1x -> {
+                Material var0x = param1x.getMaterial();
+                return param1x.isAir()
+                    || param1x.is(Blocks.WATER)
+                    || param1x.is(Blocks.LAVA)
+                    || var0x == Material.REPLACEABLE_PLANT
+                    || param2 && var0x == Material.PLANT;
+            }
+        );
     }
 
     private void placeStem(LevelAccessor param0, Random param1, HugeFungusConfiguration param2, BlockPos param3, int param4, boolean param5) {
@@ -79,7 +82,7 @@ public class HugeFungusFeature extends Feature<HugeFungusConfiguration> {
 
                 for(int var6 = 0; var6 < param4; ++var6) {
                     var0.setWithOffset(param3, var3, var6, var4);
-                    if (isReplaceable(param0, var0)) {
+                    if (isReplaceable(param0, var0, true)) {
                         if (param2.planted) {
                             if (!param0.getBlockState(var0.below()).isAir()) {
                                 param0.destroyBlock(var0, true);
@@ -124,7 +127,7 @@ public class HugeFungusFeature extends Feature<HugeFungusConfiguration> {
                     boolean var11 = var8 && var9;
                     boolean var12 = var4 < var3 + 3;
                     var0.setWithOffset(param3, var6, var4, var7);
-                    if (isReplaceable(param0, var0)) {
+                    if (isReplaceable(param0, var0, false)) {
                         if (param2.planted && !param0.getBlockState(var0.below()).isAir()) {
                             param0.destroyBlock(var0, true);
                         }

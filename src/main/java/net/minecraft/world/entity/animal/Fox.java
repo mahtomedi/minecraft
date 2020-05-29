@@ -310,7 +310,10 @@ public class Fox extends Animal {
             this.setAge(-24000);
         }
 
-        this.setTargetGoals();
+        if (param0 instanceof ServerLevel) {
+            this.setTargetGoals();
+        }
+
         this.populateDefaultEquipmentSlots(param1);
         return super.finalizeSpawn(param0, param1, param2, param3, param4);
     }
@@ -398,7 +401,10 @@ public class Fox extends Animal {
         this.setFoxType(Fox.Type.byName(param0.getString("Type")));
         this.setSitting(param0.getBoolean("Sitting"));
         this.setIsCrouching(param0.getBoolean("Crouching"));
-        this.setTargetGoals();
+        if (this.level instanceof ServerLevel) {
+            this.setTargetGoals();
+        }
+
     }
 
     public boolean isSitting() {

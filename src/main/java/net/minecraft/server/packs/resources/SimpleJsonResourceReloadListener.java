@@ -2,7 +2,7 @@ package net.minecraft.server.packs.resources;
 
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,7 +17,7 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public abstract class SimpleJsonResourceReloadListener extends SimplePreparableReloadListener<Map<ResourceLocation, JsonObject>> {
+public abstract class SimpleJsonResourceReloadListener extends SimplePreparableReloadListener<Map<ResourceLocation, JsonElement>> {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final int PATH_SUFFIX_LENGTH = ".json".length();
     private final Gson gson;
@@ -28,8 +28,8 @@ public abstract class SimpleJsonResourceReloadListener extends SimplePreparableR
         this.directory = param1;
     }
 
-    protected Map<ResourceLocation, JsonObject> prepare(ResourceManager param0, ProfilerFiller param1) {
-        Map<ResourceLocation, JsonObject> var0 = Maps.newHashMap();
+    protected Map<ResourceLocation, JsonElement> prepare(ResourceManager param0, ProfilerFiller param1) {
+        Map<ResourceLocation, JsonElement> var0 = Maps.newHashMap();
         int var1 = this.directory.length() + 1;
 
         for(ResourceLocation var2 : param0.listResources(this.directory, param0x -> param0x.endsWith(".json"))) {
@@ -41,9 +41,9 @@ public abstract class SimpleJsonResourceReloadListener extends SimplePreparableR
                 InputStream var6 = var5.getInputStream();
                 Reader var7 = new BufferedReader(new InputStreamReader(var6, StandardCharsets.UTF_8));
             ) {
-                JsonObject var8 = GsonHelper.fromJson(this.gson, var7, JsonObject.class);
+                JsonElement var8 = GsonHelper.fromJson(this.gson, var7, JsonElement.class);
                 if (var8 != null) {
-                    JsonObject var9 = var0.put(var4, var8);
+                    JsonElement var9 = var0.put(var4, var8);
                     if (var9 != null) {
                         throw new IllegalStateException("Duplicate data file ignored with ID " + var4);
                     }

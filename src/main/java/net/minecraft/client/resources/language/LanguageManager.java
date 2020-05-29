@@ -1,5 +1,6 @@
 package net.minecraft.client.resources.language;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -7,7 +8,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
+import java.util.stream.Stream;
 import net.minecraft.client.resources.metadata.language.LanguageMetadataSection;
+import net.minecraft.locale.Language;
 import net.minecraft.server.packs.Pack;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
@@ -19,64 +22,62 @@ import org.apache.logging.log4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class LanguageManager implements ResourceManagerReloadListener {
     private static final Logger LOGGER = LogManager.getLogger();
-    protected static final Locale LOCALE = new Locale();
+    private static final LanguageInfo DEFAULT_LANGUAGE = new LanguageInfo("en_us", "US", "English", false);
+    private Map<String, LanguageInfo> languages = ImmutableMap.of("en_us", DEFAULT_LANGUAGE);
     private String currentCode;
-    private final Map<String, Language> languages = Maps.newHashMap();
+    private LanguageInfo currentLanguage = DEFAULT_LANGUAGE;
 
     public LanguageManager(String param0) {
         this.currentCode = param0;
-        I18n.setLocale(LOCALE);
     }
 
-    public void reload(List<Pack> param0) {
-        this.languages.clear();
-
-        for(Pack var0 : param0) {
+    private static Map<String, LanguageInfo> extractLanguages(Stream<Pack> param0) {
+        Map<String, LanguageInfo> var0 = Maps.newHashMap();
+        param0.forEach(param1 -> {
             try {
-                LanguageMetadataSection var1 = var0.getMetadataSection(LanguageMetadataSection.SERIALIZER);
-                if (var1 != null) {
-                    for(Language var2 : var1.getLanguages()) {
-                        if (!this.languages.containsKey(var2.getCode())) {
-                            this.languages.put(var2.getCode(), var2);
-                        }
+                LanguageMetadataSection var0x = param1.getMetadataSection(LanguageMetadataSection.SERIALIZER);
+                if (var0x != null) {
+                    for(LanguageInfo var1x : var0x.getLanguages()) {
+                        var0.putIfAbsent(var1x.getCode(), var1x);
                     }
                 }
-            } catch (IOException | RuntimeException var7) {
-                LOGGER.warn("Unable to parse language metadata section of resourcepack: {}", var0.getName(), var7);
+            } catch (IOException | RuntimeException var5) {
+                LOGGER.warn("Unable to parse language metadata section of resourcepack: {}", param1.getName(), var5);
             }
-        }
 
+        });
+        return ImmutableMap.copyOf(var0);
     }
 
     @Override
     public void onResourceManagerReload(ResourceManager param0) {
-        List<String> var0 = Lists.newArrayList("en_us");
-        if (!"en_us".equals(this.currentCode)) {
-            var0.add(this.currentCode);
+        this.languages = extractLanguages(param0.listPacks());
+        LanguageInfo var0 = this.languages.getOrDefault("en_us", DEFAULT_LANGUAGE);
+        this.currentLanguage = this.languages.getOrDefault(this.currentCode, var0);
+        List<LanguageInfo> var1 = Lists.newArrayList(var0);
+        if (this.currentLanguage != var0) {
+            var1.add(this.currentLanguage);
         }
 
-        LOCALE.loadFrom(param0, var0);
-        net.minecraft.locale.Language.forceData(LOCALE.storage);
+        ClientLanguage var2 = ClientLanguage.loadFrom(param0, var1);
+        I18n.setLanguage(var2);
+        Language.inject(var2);
     }
 
-    public boolean isBidirectional() {
-        return this.getSelected() != null && this.getSelected().isBidirectional();
-    }
-
-    public void setSelected(Language param0) {
+    public void setSelected(LanguageInfo param0) {
         this.currentCode = param0.getCode();
+        this.currentLanguage = param0;
     }
 
-    public Language getSelected() {
-        String var0 = this.languages.containsKey(this.currentCode) ? this.currentCode : "en_us";
-        return this.languages.get(var0);
+    public LanguageInfo getSelected() {
+        return this.currentLanguage;
     }
 
-    public SortedSet<Language> getLanguages() {
+    public SortedSet<LanguageInfo> getLanguages() {
         return Sets.newTreeSet(this.languages.values());
     }
 
-    public Language getLanguage(String param0) {
+    public LanguageInfo getLanguage(String param0) {
         return this.languages.get(param0);
     }
 }

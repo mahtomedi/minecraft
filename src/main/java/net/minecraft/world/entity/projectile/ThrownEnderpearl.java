@@ -18,7 +18,6 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.TheEndGatewayBlockEntity;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -138,7 +137,7 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
 
     @Nullable
     @Override
-    public Entity changeDimension(ResourceKey<DimensionType> param0) {
+    public Entity changeDimension(ResourceKey<Level> param0) {
         Entity var0 = this.getOwner();
         if (var0 != null && var0.level.dimension() != param0) {
             this.setOwner(null);

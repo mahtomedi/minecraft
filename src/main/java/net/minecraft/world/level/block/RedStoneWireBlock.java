@@ -320,6 +320,7 @@ public class RedStoneWireBlock extends Block {
     @Override
     public void onPlace(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
         if (!param3.is(param0.getBlock()) && !param1.isClientSide) {
+            param1.setBlock(param2, this.getConnectionState(param1, this.defaultBlockState(), param2), 2);
             this.updatePowerStrength(param1, param2, param0);
 
             for(Direction var0 : Direction.Plane.VERTICAL) {
@@ -511,18 +512,22 @@ public class RedStoneWireBlock extends Block {
 
     @Override
     public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
-        if (isCross(param0) || isDot(param0)) {
-            BlockState var0 = isCross(param0) ? this.dotState : this.defaultBlockState();
-            var0 = var0.setValue(POWER, param0.getValue(POWER));
-            var0 = this.getConnectionState(param1, var0, param2);
-            if (var0 != param0) {
-                param1.setBlock(param2, var0, 3);
-                this.updatesOnShapeChange(param1, param2, param0, var0);
-                return InteractionResult.SUCCESS;
+        if (!param3.abilities.mayBuild) {
+            return InteractionResult.PASS;
+        } else {
+            if (isCross(param0) || isDot(param0)) {
+                BlockState var0 = isCross(param0) ? this.dotState : this.defaultBlockState();
+                var0 = var0.setValue(POWER, param0.getValue(POWER));
+                var0 = this.getConnectionState(param1, var0, param2);
+                if (var0 != param0) {
+                    param1.setBlock(param2, var0, 3);
+                    this.updatesOnShapeChange(param1, param2, param0, var0);
+                    return InteractionResult.SUCCESS;
+                }
             }
-        }
 
-        return InteractionResult.PASS;
+            return InteractionResult.PASS;
+        }
     }
 
     private void updatesOnShapeChange(Level param0, BlockPos param1, BlockState param2, BlockState param3) {

@@ -1,5 +1,7 @@
 package net.minecraft.tags;
 
+import java.util.Set;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -76,5 +78,9 @@ public class ItemTags {
 
     public static TagCollection<Item> getAllTags() {
         return HELPER.getAllTags();
+    }
+
+    public static Set<ResourceLocation> getMissingTags(TagCollection<Item> param0) {
+        return HELPER.getMissingTags(param0);
     }
 }

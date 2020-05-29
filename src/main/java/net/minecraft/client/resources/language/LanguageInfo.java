@@ -1,16 +1,17 @@
 package net.minecraft.client.resources.language;
 
+import com.mojang.bridge.game.Language;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class Language implements com.mojang.bridge.game.Language, Comparable<Language> {
+public class LanguageInfo implements Language, Comparable<LanguageInfo> {
     private final String code;
     private final String region;
     private final String name;
     private final boolean bidirectional;
 
-    public Language(String param0, String param1, String param2, boolean param3) {
+    public LanguageInfo(String param0, String param1, String param2, boolean param3) {
         this.code = param0;
         this.region = param1;
         this.name = param2;
@@ -46,7 +47,7 @@ public class Language implements com.mojang.bridge.game.Language, Comparable<Lan
         if (this == param0) {
             return true;
         } else {
-            return !(param0 instanceof Language) ? false : this.code.equals(((Language)param0).code);
+            return !(param0 instanceof LanguageInfo) ? false : this.code.equals(((LanguageInfo)param0).code);
         }
     }
 
@@ -55,7 +56,7 @@ public class Language implements com.mojang.bridge.game.Language, Comparable<Lan
         return this.code.hashCode();
     }
 
-    public int compareTo(Language param0) {
+    public int compareTo(LanguageInfo param0) {
         return this.code.compareTo(param0.code);
     }
 }

@@ -66,11 +66,7 @@ public class SignEditScreen extends Screen {
         this.minecraft.keyboardHandler.setSendRepeatsToGui(false);
         ClientPacketListener var0 = this.minecraft.getConnection();
         if (var0 != null) {
-            var0.send(
-                new ServerboundSignUpdatePacket(
-                    this.sign.getBlockPos(), this.sign.getMessage(0), this.sign.getMessage(1), this.sign.getMessage(2), this.sign.getMessage(3)
-                )
-            );
+            var0.send(new ServerboundSignUpdatePacket(this.sign.getBlockPos(), this.messages[0], this.messages[1], this.messages[2], this.messages[3]));
         }
 
         this.sign.setEditable(true);

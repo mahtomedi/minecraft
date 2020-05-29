@@ -6,7 +6,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -14,7 +14,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class SelectWorldScreen extends Screen {
     protected final Screen lastScreen;
-    private List<Component> toolTip;
+    private List<FormattedText> toolTip;
     private Button deleteButton;
     private Button selectButton;
     private Button renameButton;
@@ -130,7 +130,7 @@ public class SelectWorldScreen extends Screen {
 
     }
 
-    public void setToolTip(List<Component> param0) {
+    public void setToolTip(List<FormattedText> param0) {
         this.toolTip = param0;
     }
 

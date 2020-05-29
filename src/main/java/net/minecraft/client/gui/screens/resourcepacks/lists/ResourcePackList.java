@@ -12,6 +12,7 @@ import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.resourcepacks.ResourcePackSelectScreen;
 import net.minecraft.client.resources.UnopenedResourcePack;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -152,14 +153,16 @@ public abstract class ResourcePackList extends ObjectSelectionList<ResourcePackL
 
             int var5 = this.minecraft.font.width(var1);
             if (var5 > 157) {
-                Component var6 = this.minecraft.font.substrByWidth(var1, 157 - this.minecraft.font.width("...")).append("...");
+                FormattedText var6 = FormattedText.composite(
+                    this.minecraft.font.substrByWidth(var1, 157 - this.minecraft.font.width("...")), FormattedText.of("...")
+                );
                 this.minecraft.font.drawShadow(param0, var6, (float)(param3 + 32 + 2), (float)(param2 + 1), 16777215);
             } else {
                 this.minecraft.font.drawShadow(param0, var1, (float)(param3 + 32 + 2), (float)(param2 + 1), 16777215);
             }
 
             this.minecraft.font.drawShadow(param0, var1, (float)(param3 + 32 + 2), (float)(param2 + 1), 16777215);
-            List<Component> var7 = this.minecraft.font.split(var2, 157);
+            List<FormattedText> var7 = this.minecraft.font.split(var2, 157);
 
             for(int var8 = 0; var8 < 2 && var8 < var7.size(); ++var8) {
                 this.minecraft.font.drawShadow(param0, var7.get(var8), (float)(param3 + 32 + 2), (float)(param2 + 12 + 10 * var8), 8421504);

@@ -32,6 +32,6 @@ public class SnowballItem extends Item {
             var0.shrink(1);
         }
 
-        return InteractionResultHolder.success(var0);
+        return InteractionResultHolder.sidedSuccess(var0, param0.isClientSide());
     }
 }
