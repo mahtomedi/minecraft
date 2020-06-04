@@ -17,6 +17,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -96,6 +97,7 @@ public class Piglin extends Monster implements CrossbowAttackMob {
         MemoryModuleType.INTERACTION_TARGET,
         MemoryModuleType.PATH,
         MemoryModuleType.ANGRY_AT,
+        MemoryModuleType.UNIVERSAL_ANGER,
         MemoryModuleType.AVOID_TARGET,
         MemoryModuleType.ADMIRING_ITEM,
         MemoryModuleType.ADMIRING_DISABLED,
@@ -104,11 +106,12 @@ public class Piglin extends Monster implements CrossbowAttackMob {
         MemoryModuleType.HUNTED_RECENTLY,
         MemoryModuleType.NEAREST_VISIBLE_BABY_HOGLIN,
         MemoryModuleType.NEAREST_VISIBLE_BABY_PIGLIN,
-        MemoryModuleType.NEAREST_VISIBLE_WITHER_SKELETON,
+        MemoryModuleType.NEAREST_VISIBLE_NEMESIS,
         MemoryModuleType.NEAREST_VISIBLE_ZOMBIFIED,
         MemoryModuleType.RIDE_TARGET,
         MemoryModuleType.VISIBLE_ADULT_PIGLIN_COUNT,
         MemoryModuleType.VISIBLE_ADULT_HOGLIN_COUNT,
+        MemoryModuleType.NEAREST_VISIBLE_HUNTABLE_HOGLIN,
         MemoryModuleType.NEAREST_TARGETABLE_PLAYER_NOT_WEARING_GOLD,
         MemoryModuleType.NEAREST_PLAYER_HOLDING_WANTED_ITEM,
         MemoryModuleType.ATE_RECENTLY,
@@ -255,13 +258,15 @@ public class Piglin extends Monster implements CrossbowAttackMob {
     }
 
     @Override
-    public boolean mobInteract(Player param0, InteractionHand param1) {
-        if (super.mobInteract(param0, param1)) {
-            return true;
+    public InteractionResult mobInteract(Player param0, InteractionHand param1) {
+        InteractionResult var0 = super.mobInteract(param0, param1);
+        if (var0.consumesAction()) {
+            return var0;
         } else if (!this.level.isClientSide) {
             return PiglinAi.mobInteract(this, param0, param1);
         } else {
-            return PiglinAi.canAdmire(this, param0.getItemInHand(param1)) && this.getArmPose() != Piglin.PiglinArmPose.ADMIRING_ITEM;
+            boolean var1 = PiglinAi.canAdmire(this, param0.getItemInHand(param1)) && this.getArmPose() != Piglin.PiglinArmPose.ADMIRING_ITEM;
+            return var1 ? InteractionResult.SUCCESS : InteractionResult.PASS;
         }
     }
 

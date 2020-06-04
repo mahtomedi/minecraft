@@ -182,6 +182,10 @@ public class Brain<E extends LivingEntity> {
         return this.memories.get(param0).map(ExpirableValue::getValue);
     }
 
+    public <U> boolean isMemoryValue(MemoryModuleType<U> param0, U param1) {
+        return !this.hasMemoryValue(param0) ? false : this.getMemory(param0).filter(param1x -> param1x.equals(param1)).isPresent();
+    }
+
     public boolean checkMemory(MemoryModuleType<?> param0, MemoryStatus param1) {
         Optional<? extends ExpirableValue<?>> var0 = this.memories.get(param0);
         if (var0 == null) {

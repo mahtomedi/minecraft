@@ -1,6 +1,7 @@
 package net.minecraft.world.entity.animal;
 
 import java.util.Random;
+import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -9,7 +10,9 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.IntRange;
 import net.minecraft.util.Mth;
+import net.minecraft.util.TimeUtil;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgableMob;
@@ -19,6 +22,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.NeutralMob;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -43,11 +47,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class PolarBear extends Animal {
+public class PolarBear extends Animal implements NeutralMob {
     private static final EntityDataAccessor<Boolean> DATA_STANDING_ID = SynchedEntityData.defineId(PolarBear.class, EntityDataSerializers.BOOLEAN);
     private float clientSideStandAnimationO;
     private float clientSideStandAnimation;
     private int warningSoundTicks;
+    private static final IntRange PERSISTENT_ANGER_TIME = TimeUtil.rangeOfSeconds(20, 39);
+    private int remainingPersistentAngerTime;
+    private UUID persistentAngerTarget;
 
     public PolarBear(EntityType<? extends PolarBear> param0, Level param1) {
         super(param0, param1);
@@ -75,7 +82,8 @@ public class PolarBear extends Animal {
         this.goalSelector.addGoal(7, new RandomLookAroundGoal(this));
         this.targetSelector.addGoal(1, new PolarBear.PolarBearHurtByTargetGoal());
         this.targetSelector.addGoal(2, new PolarBear.PolarBearAttackPlayersGoal());
-        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Fox.class, 10, true, true, null));
+        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Player.class, 10, true, false, this::isAngryAt));
+        this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, Fox.class, 10, true, true, null));
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -93,6 +101,43 @@ public class PolarBear extends Animal {
         } else {
             return param1.getRawBrightness(param3, 0) > 8 && param1.getBlockState(param3.below()).is(Blocks.ICE);
         }
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag param0) {
+        super.readAdditionalSaveData(param0);
+        this.readPersistentAngerSaveData(this.level, param0);
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundTag param0) {
+        super.addAdditionalSaveData(param0);
+        this.addPersistentAngerSaveData(param0);
+    }
+
+    @Override
+    public void startPersistentAngerTimer() {
+        this.setRemainingPersistentAngerTime(PERSISTENT_ANGER_TIME.randomValue(this.random));
+    }
+
+    @Override
+    public void setRemainingPersistentAngerTime(int param0) {
+        this.remainingPersistentAngerTime = param0;
+    }
+
+    @Override
+    public int getRemainingPersistentAngerTime() {
+        return this.remainingPersistentAngerTime;
+    }
+
+    @Override
+    public void setPersistentAngerTarget(@Nullable UUID param0) {
+        this.persistentAngerTarget = param0;
+    }
+
+    @Override
+    public UUID getPersistentAngerTarget() {
+        return this.persistentAngerTarget;
     }
 
     @Override
@@ -147,6 +192,10 @@ public class PolarBear extends Animal {
 
         if (this.warningSoundTicks > 0) {
             --this.warningSoundTicks;
+        }
+
+        if (!this.level.isClientSide) {
+            this.updatePersistentAnger();
         }
 
     }

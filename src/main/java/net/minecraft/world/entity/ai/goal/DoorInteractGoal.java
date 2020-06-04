@@ -83,14 +83,14 @@ public abstract class DoorInteractGoal extends Goal {
     @Override
     public void start() {
         this.passed = false;
-        this.doorOpenDirX = (float)((double)((float)this.doorPos.getX() + 0.5F) - this.mob.getX());
-        this.doorOpenDirZ = (float)((double)((float)this.doorPos.getZ() + 0.5F) - this.mob.getZ());
+        this.doorOpenDirX = (float)((double)this.doorPos.getX() + 0.5 - this.mob.getX());
+        this.doorOpenDirZ = (float)((double)this.doorPos.getZ() + 0.5 - this.mob.getZ());
     }
 
     @Override
     public void tick() {
-        float var0 = (float)((double)((float)this.doorPos.getX() + 0.5F) - this.mob.getX());
-        float var1 = (float)((double)((float)this.doorPos.getZ() + 0.5F) - this.mob.getZ());
+        float var0 = (float)((double)this.doorPos.getX() + 0.5 - this.mob.getX());
+        float var1 = (float)((double)this.doorPos.getZ() + 0.5 - this.mob.getZ());
         float var2 = this.doorOpenDirX * var0 + this.doorOpenDirZ * var1;
         if (var2 < 0.0F) {
             this.passed = true;

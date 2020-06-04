@@ -8,18 +8,15 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.border.WorldBorder;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.timers.TimerQueue;
 
 public class DerivedLevelData implements ServerLevelData {
-    private final DimensionType dimensionType;
     private final WorldData worldData;
     private final ServerLevelData wrapped;
 
-    public DerivedLevelData(DimensionType param0, WorldData param1, ServerLevelData param2) {
-        this.dimensionType = param0;
-        this.worldData = param1;
-        this.wrapped = param2;
+    public DerivedLevelData(WorldData param0, ServerLevelData param1) {
+        this.worldData = param0;
+        this.wrapped = param1;
     }
 
     @Override

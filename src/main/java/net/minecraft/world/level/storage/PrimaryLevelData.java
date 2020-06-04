@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.serialization.Dynamic;
-import com.mojang.serialization.OptionalDynamic;
+import com.mojang.serialization.Lifecycle;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -14,6 +14,7 @@ import net.minecraft.CrashReportCategory;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SerializableUUID;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -21,9 +22,11 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.RegistryWriteOps;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.level.DataPackConfig;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LevelSettings;
@@ -39,6 +42,8 @@ import org.apache.logging.log4j.Logger;
 public class PrimaryLevelData implements ServerLevelData, WorldData {
     private static final Logger LOGGER = LogManager.getLogger();
     private LevelSettings settings;
+    private final WorldGenSettings worldGenSettings;
+    private final Lifecycle worldGenSettingsLifecycle;
     private int xSpawn;
     private int ySpawn;
     private int zSpawn;
@@ -59,8 +64,6 @@ public class PrimaryLevelData implements ServerLevelData, WorldData {
     private boolean initialized;
     private boolean difficultyLocked;
     private WorldBorder.Settings worldBorder;
-    private final Set<String> disabledDataPacks;
-    private final Set<String> enabledDataPacks;
     private CompoundTag endDragonFightData;
     @Nullable
     private CompoundTag customBossEvents;
@@ -95,16 +98,15 @@ public class PrimaryLevelData implements ServerLevelData, WorldData {
         int param19,
         @Nullable UUID param20,
         LinkedHashSet<String> param21,
-        LinkedHashSet<String> param22,
-        Set<String> param23,
-        TimerQueue<MinecraftServer> param24,
-        @Nullable CompoundTag param25,
-        CompoundTag param26,
-        LevelSettings param27
+        TimerQueue<MinecraftServer> param22,
+        @Nullable CompoundTag param23,
+        CompoundTag param24,
+        LevelSettings param25,
+        WorldGenSettings param26,
+        Lifecycle param27
     ) {
         this.fixerUpper = param0;
         this.wasModded = param3;
-        this.settings = param27;
         this.xSpawn = param4;
         this.ySpawn = param5;
         this.zSpawn = param6;
@@ -125,14 +127,15 @@ public class PrimaryLevelData implements ServerLevelData, WorldData {
         this.knownServerBrands = param21;
         this.loadedPlayerTag = param2;
         this.playerDataVersion = param1;
-        this.scheduledEvents = param24;
-        this.enabledDataPacks = param22;
-        this.disabledDataPacks = param23;
-        this.customBossEvents = param25;
-        this.endDragonFightData = param26;
+        this.scheduledEvents = param22;
+        this.customBossEvents = param23;
+        this.endDragonFightData = param24;
+        this.settings = param25;
+        this.worldGenSettings = param26;
+        this.worldGenSettingsLifecycle = param27;
     }
 
-    public PrimaryLevelData(LevelSettings param0) {
+    public PrimaryLevelData(LevelSettings param0, WorldGenSettings param1, Lifecycle param2) {
         this(
             null,
             SharedConstants.getCurrentVersion().getWorldVersion(),
@@ -156,21 +159,27 @@ public class PrimaryLevelData implements ServerLevelData, WorldData {
             0,
             null,
             Sets.newLinkedHashSet(),
-            Sets.newLinkedHashSet(),
-            Sets.newHashSet(),
             new TimerQueue<>(TimerCallbacks.SERVER_CALLBACKS),
             null,
             new CompoundTag(),
-            param0.copy()
+            param0.copy(),
+            param1,
+            param2
         );
     }
 
     public static PrimaryLevelData parse(
-        Dynamic<Tag> param0, DataFixer param1, int param2, @Nullable CompoundTag param3, LevelSettings param4, LevelVersion param5
+        Dynamic<Tag> param0,
+        DataFixer param1,
+        int param2,
+        @Nullable CompoundTag param3,
+        LevelSettings param4,
+        LevelVersion param5,
+        WorldGenSettings param6,
+        Lifecycle param7
     ) {
         long var0 = param0.get("Time").asLong(0L);
-        OptionalDynamic<?> var1 = param0.get("DataPacks");
-        CompoundTag var2 = param0.get("DragonFight")
+        CompoundTag var1 = param0.get("DragonFight")
             .result()
             .map(Dynamic::getValue)
             .orElseGet(() -> param0.get("DimensionData").get("1").get("DragonFight").orElseEmptyMap().getValue());
@@ -195,101 +204,84 @@ public class PrimaryLevelData implements ServerLevelData, WorldData {
             WorldBorder.Settings.read(param0, WorldBorder.DEFAULT_SETTINGS),
             param0.get("WanderingTraderSpawnDelay").asInt(0),
             param0.get("WanderingTraderSpawnChance").asInt(0),
-            param0.get("WanderingTraderId").read(SerializableUUID.CODEC).result().map(SerializableUUID::value).orElse(null),
+            param0.get("WanderingTraderId").read(SerializableUUID.CODEC).result().orElse(null),
             param0.get("ServerBrands")
                 .asStream()
                 .flatMap(param0x -> Util.toStream(param0x.asString().result()))
                 .collect(Collectors.toCollection(Sets::newLinkedHashSet)),
-            var1.get("Enabled")
-                .asStream()
-                .flatMap(param0x -> Util.toStream(param0x.asString().result()))
-                .collect(Collectors.toCollection(Sets::newLinkedHashSet)),
-            var1.get("Disabled").asStream().flatMap(param0x -> Util.toStream(param0x.asString().result())).collect(Collectors.toSet()),
             new TimerQueue<>(TimerCallbacks.SERVER_CALLBACKS, param0.get("ScheduledEvents").asStream()),
             (CompoundTag)param0.get("CustomBossEvents").orElseEmptyMap().getValue(),
-            var2,
-            param4
+            var1,
+            param4,
+            param6,
+            param7
         );
     }
 
     @Override
-    public CompoundTag createTag(@Nullable CompoundTag param0) {
+    public CompoundTag createTag(RegistryAccess param0, @Nullable CompoundTag param1) {
         this.updatePlayerTag();
-        if (param0 == null) {
-            param0 = this.loadedPlayerTag;
+        if (param1 == null) {
+            param1 = this.loadedPlayerTag;
         }
 
         CompoundTag var0 = new CompoundTag();
-        this.setTagData(var0, param0);
+        this.setTagData(param0, var0, param1);
         return var0;
     }
 
-    private void setTagData(CompoundTag param0, CompoundTag param1) {
+    private void setTagData(RegistryAccess param0, CompoundTag param1, @Nullable CompoundTag param2) {
         ListTag var0 = new ListTag();
         this.knownServerBrands.stream().map(StringTag::valueOf).forEach(var0::add);
-        param0.put("ServerBrands", var0);
-        param0.putBoolean("WasModded", this.wasModded);
+        param1.put("ServerBrands", var0);
+        param1.putBoolean("WasModded", this.wasModded);
         CompoundTag var1 = new CompoundTag();
         var1.putString("Name", SharedConstants.getCurrentVersion().getName());
         var1.putInt("Id", SharedConstants.getCurrentVersion().getWorldVersion());
         var1.putBoolean("Snapshot", !SharedConstants.getCurrentVersion().isStable());
-        param0.put("Version", var1);
-        param0.putInt("DataVersion", SharedConstants.getCurrentVersion().getWorldVersion());
+        param1.put("Version", var1);
+        param1.putInt("DataVersion", SharedConstants.getCurrentVersion().getWorldVersion());
+        RegistryWriteOps<Tag> var2 = RegistryWriteOps.create(NbtOps.INSTANCE, param0);
         WorldGenSettings.CODEC
-            .encodeStart(NbtOps.INSTANCE, this.settings.worldGenSettings())
+            .encodeStart(var2, this.worldGenSettings)
             .resultOrPartial(Util.prefix("WorldGenSettings: ", LOGGER::error))
-            .ifPresent(param1x -> param0.put("WorldGenSettings", param1x));
-        param0.putInt("GameType", this.settings.gameType().getId());
-        param0.putInt("SpawnX", this.xSpawn);
-        param0.putInt("SpawnY", this.ySpawn);
-        param0.putInt("SpawnZ", this.zSpawn);
-        param0.putLong("Time", this.gameTime);
-        param0.putLong("DayTime", this.dayTime);
-        param0.putLong("LastPlayed", Util.getEpochMillis());
-        param0.putString("LevelName", this.settings.levelName());
-        param0.putInt("version", 19133);
-        param0.putInt("clearWeatherTime", this.clearWeatherTime);
-        param0.putInt("rainTime", this.rainTime);
-        param0.putBoolean("raining", this.raining);
-        param0.putInt("thunderTime", this.thunderTime);
-        param0.putBoolean("thundering", this.thundering);
-        param0.putBoolean("hardcore", this.settings.hardcore());
-        param0.putBoolean("allowCommands", this.settings.allowCommands());
-        param0.putBoolean("initialized", this.initialized);
-        this.worldBorder.write(param0);
-        param0.putByte("Difficulty", (byte)this.settings.difficulty().getId());
-        param0.putBoolean("DifficultyLocked", this.difficultyLocked);
-        param0.put("GameRules", this.settings.gameRules().createTag());
-        param0.put("DragonFight", this.endDragonFightData);
-        if (param1 != null) {
-            param0.put("Player", param1);
+            .ifPresent(param1x -> param1.put("WorldGenSettings", param1x));
+        param1.putInt("GameType", this.settings.gameType().getId());
+        param1.putInt("SpawnX", this.xSpawn);
+        param1.putInt("SpawnY", this.ySpawn);
+        param1.putInt("SpawnZ", this.zSpawn);
+        param1.putLong("Time", this.gameTime);
+        param1.putLong("DayTime", this.dayTime);
+        param1.putLong("LastPlayed", Util.getEpochMillis());
+        param1.putString("LevelName", this.settings.levelName());
+        param1.putInt("version", 19133);
+        param1.putInt("clearWeatherTime", this.clearWeatherTime);
+        param1.putInt("rainTime", this.rainTime);
+        param1.putBoolean("raining", this.raining);
+        param1.putInt("thunderTime", this.thunderTime);
+        param1.putBoolean("thundering", this.thundering);
+        param1.putBoolean("hardcore", this.settings.hardcore());
+        param1.putBoolean("allowCommands", this.settings.allowCommands());
+        param1.putBoolean("initialized", this.initialized);
+        this.worldBorder.write(param1);
+        param1.putByte("Difficulty", (byte)this.settings.difficulty().getId());
+        param1.putBoolean("DifficultyLocked", this.difficultyLocked);
+        param1.put("GameRules", this.settings.gameRules().createTag());
+        param1.put("DragonFight", this.endDragonFightData);
+        if (param2 != null) {
+            param1.put("Player", param2);
         }
 
-        CompoundTag var2 = new CompoundTag();
-        ListTag var3 = new ListTag();
-
-        for(String var4 : this.enabledDataPacks) {
-            var3.add(StringTag.valueOf(var4));
-        }
-
-        var2.put("Enabled", var3);
-        ListTag var5 = new ListTag();
-
-        for(String var6 : this.disabledDataPacks) {
-            var5.add(StringTag.valueOf(var6));
-        }
-
-        var2.put("Disabled", var5);
-        param0.put("DataPacks", var2);
+        DataPackConfig.CODEC.encodeStart(NbtOps.INSTANCE, this.settings.getDataPackConfig()).result().ifPresent(param1x -> param1.put("DataPacks", param1x));
         if (this.customBossEvents != null) {
-            param0.put("CustomBossEvents", this.customBossEvents);
+            param1.put("CustomBossEvents", this.customBossEvents);
         }
 
-        param0.put("ScheduledEvents", this.scheduledEvents.store());
-        param0.putInt("WanderingTraderSpawnDelay", this.wanderingTraderSpawnDelay);
-        param0.putInt("WanderingTraderSpawnChance", this.wanderingTraderSpawnChance);
+        param1.put("ScheduledEvents", this.scheduledEvents.store());
+        param1.putInt("WanderingTraderSpawnDelay", this.wanderingTraderSpawnDelay);
+        param1.putInt("WanderingTraderSpawnChance", this.wanderingTraderSpawnChance);
         if (this.wanderingTraderId != null) {
-            param0.putUUID("WanderingTraderId", this.wanderingTraderId);
+            param1.putUUID("WanderingTraderId", this.wanderingTraderId);
         }
 
     }
@@ -511,7 +503,13 @@ public class PrimaryLevelData implements ServerLevelData, WorldData {
 
     @Override
     public WorldGenSettings worldGenSettings() {
-        return this.settings.worldGenSettings();
+        return this.worldGenSettings;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public Lifecycle worldGenSettingsLifecycle() {
+        return this.worldGenSettingsLifecycle;
     }
 
     @Override
@@ -525,13 +523,13 @@ public class PrimaryLevelData implements ServerLevelData, WorldData {
     }
 
     @Override
-    public Set<String> getDisabledDataPacks() {
-        return this.disabledDataPacks;
+    public DataPackConfig getDataPackConfig() {
+        return this.settings.getDataPackConfig();
     }
 
     @Override
-    public Set<String> getEnabledDataPacks() {
-        return this.enabledDataPacks;
+    public void setDataPackConfig(DataPackConfig param0) {
+        this.settings = this.settings.withDataPackConfig(param0);
     }
 
     @Nullable

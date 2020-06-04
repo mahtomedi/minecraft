@@ -16,6 +16,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
@@ -424,6 +426,13 @@ public class Util {
         var0.setDaemon(true);
         var0.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
         var0.start();
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static void copyBetweenDirs(Path param0, Path param1, Path param2) throws IOException {
+        Path var0 = param0.relativize(param2);
+        Path var1 = param1.resolve(var0);
+        Files.copy(param2, var1);
     }
 
     static enum IdentityStrategy implements Strategy<Object> {

@@ -1,6 +1,9 @@
 package net.minecraft.util;
 
+import com.google.common.base.Charsets;
 import java.io.IOException;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.file.AccessDeniedException;
@@ -14,6 +17,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class DirectoryLock implements AutoCloseable {
     private final FileChannel lockFile;
     private final FileLock lock;
+    private static final ByteBuffer DUMMY;
 
     public static DirectoryLock create(Path param0) throws IOException {
         Path var0 = param0.resolve("session.lock");
@@ -24,6 +28,8 @@ public class DirectoryLock implements AutoCloseable {
         FileChannel var1 = FileChannel.open(var0, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.DELETE_ON_CLOSE);
 
         try {
+            var1.write(DUMMY.duplicate());
+            var1.force(true);
             FileLock var2 = var1.tryLock();
             if (var2 == null) {
                 throw DirectoryLock.LockException.alreadyLocked(var0);
@@ -79,6 +85,13 @@ public class DirectoryLock implements AutoCloseable {
         } catch (NoSuchFileException var38) {
             return false;
         }
+    }
+
+    static {
+        byte[] var0 = "\u2603".getBytes(Charsets.UTF_8);
+        DUMMY = ByteBuffer.allocateDirect(var0.length);
+        DUMMY.put(var0);
+        ((Buffer)DUMMY).flip();
     }
 
     public static class LockException extends IOException {

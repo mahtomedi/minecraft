@@ -94,6 +94,7 @@ public class BedBlock extends HorizontalDirectionalBlock implements EntityBlock 
                 param1.explode(
                     null,
                     DamageSource.badRespawnPointExplosion(),
+                    null,
                     (double)param2.getX() + 0.5,
                     (double)param2.getY() + 0.5,
                     (double)param2.getZ() + 0.5,
@@ -282,19 +283,10 @@ public class BedBlock extends HorizontalDirectionalBlock implements EntityBlock 
                 if ((double)param2.getY() - var3 > 2.0) {
                     return Optional.empty();
                 } else {
-                    float var4 = param0.getWidth() / 2.0F;
-                    Vec3 var5 = new Vec3((double)var1.getX() + 0.5, var3, (double)var1.getZ() + 0.5);
-                    return param1.noCollision(
-                            new AABB(
-                                var5.x - (double)var4,
-                                var5.y,
-                                var5.z - (double)var4,
-                                var5.x + (double)var4,
-                                var5.y + (double)param0.getHeight(),
-                                var5.z + (double)var4
-                            )
-                        )
-                        ? Optional.of(var5)
+                    Vec3 var4 = new Vec3((double)var1.getX() + 0.5, var3, (double)var1.getZ() + 0.5);
+                    AABB var5 = param0.getAABB(var4.x, var4.y, var4.z);
+                    return param1.noCollision(var5) && param1.getBlockStates(var5.expandTowards(0.0, -0.2F, 0.0)).noneMatch(param0::isBlockDangerous)
+                        ? Optional.of(var4)
                         : Optional.empty();
                 }
             }

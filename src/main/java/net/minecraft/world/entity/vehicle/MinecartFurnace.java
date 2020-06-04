@@ -9,6 +9,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
@@ -117,7 +118,7 @@ public class MinecartFurnace extends AbstractMinecart {
     }
 
     @Override
-    public boolean interact(Player param0, InteractionHand param1) {
+    public InteractionResult interact(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
         if (INGREDIENT.test(var0) && this.fuel + 3600 <= 32000) {
             if (!param0.abilities.instabuild) {
@@ -132,7 +133,7 @@ public class MinecartFurnace extends AbstractMinecart {
             this.zPush = this.getZ() - param0.getZ();
         }
 
-        return true;
+        return InteractionResult.sidedSuccess(this.level.isClientSide);
     }
 
     @Override

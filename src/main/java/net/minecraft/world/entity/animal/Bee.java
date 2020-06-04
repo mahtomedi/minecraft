@@ -25,7 +25,9 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.Tag;
+import net.minecraft.util.IntRange;
 import net.minecraft.util.Mth;
+import net.minecraft.util.TimeUtil;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -37,6 +39,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobType;
+import net.minecraft.world.entity.NeutralMob;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -81,10 +84,11 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class Bee extends Animal implements FlyingAnimal {
+public class Bee extends Animal implements NeutralMob, FlyingAnimal {
     private static final EntityDataAccessor<Byte> DATA_FLAGS_ID = SynchedEntityData.defineId(Bee.class, EntityDataSerializers.BYTE);
-    private static final EntityDataAccessor<Integer> ANGER_TIME = SynchedEntityData.defineId(Bee.class, EntityDataSerializers.INT);
-    private UUID lastHurtByUUID;
+    private static final EntityDataAccessor<Integer> DATA_REMAINING_ANGER_TIME = SynchedEntityData.defineId(Bee.class, EntityDataSerializers.INT);
+    private static final IntRange PERSISTENT_ANGER_TIME = TimeUtil.rangeOfSeconds(20, 39);
+    private UUID persistentAngerTarget;
     private float rollAmount;
     private float rollAmountO;
     private int timeSinceSting;
@@ -116,7 +120,7 @@ public class Bee extends Animal implements FlyingAnimal {
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(DATA_FLAGS_ID, (byte)0);
-        this.entityData.define(ANGER_TIME, 0);
+        this.entityData.define(DATA_REMAINING_ANGER_TIME, 0);
     }
 
     @Override
@@ -161,11 +165,7 @@ public class Bee extends Animal implements FlyingAnimal {
         param0.putInt("TicksSincePollination", this.ticksWithoutNectarSinceExitingHive);
         param0.putInt("CannotEnterHiveTicks", this.stayOutOfHiveCountdown);
         param0.putInt("CropsGrownSincePollination", this.numCropsGrownSincePollination);
-        param0.putInt("Anger", this.getAngerTime());
-        if (this.lastHurtByUUID != null) {
-            param0.putUUID("HurtBy", this.lastHurtByUUID);
-        }
-
+        this.addPersistentAngerSaveData(param0);
     }
 
     @Override
@@ -183,20 +183,10 @@ public class Bee extends Animal implements FlyingAnimal {
         super.readAdditionalSaveData(param0);
         this.setHasNectar(param0.getBoolean("HasNectar"));
         this.setHasStung(param0.getBoolean("HasStung"));
-        this.setAngerTime(param0.getInt("Anger"));
         this.ticksWithoutNectarSinceExitingHive = param0.getInt("TicksSincePollination");
         this.stayOutOfHiveCountdown = param0.getInt("CannotEnterHiveTicks");
         this.numCropsGrownSincePollination = param0.getInt("CropsGrownSincePollination");
-        if (param0.hasUUID("HurtBy")) {
-            this.lastHurtByUUID = param0.getUUID("HurtBy");
-            Player var0 = this.level.getPlayerByUUID(this.lastHurtByUUID);
-            this.setLastHurtByMob(var0);
-            if (var0 != null) {
-                this.lastHurtByPlayer = var0;
-                this.lastHurtByPlayerTime = this.getLastHurtByMobTimestamp();
-            }
-        }
-
+        this.readPersistentAngerSaveData(this.level, param0);
     }
 
     @Override
@@ -318,15 +308,6 @@ public class Bee extends Animal implements FlyingAnimal {
     }
 
     @Override
-    public void setLastHurtByMob(@Nullable LivingEntity param0) {
-        super.setLastHurtByMob(param0);
-        if (param0 != null) {
-            this.lastHurtByUUID = param0.getUUID();
-        }
-
-    }
-
-    @Override
     protected void customServerAiStep() {
         boolean var0 = this.hasStung();
         if (this.isInWaterOrBubble()) {
@@ -346,15 +327,7 @@ public class Bee extends Animal implements FlyingAnimal {
             }
         }
 
-        if (this.isAngry()) {
-            int var1 = this.getAngerTime();
-            this.setAngerTime(var1 - 1);
-            LivingEntity var2 = this.getTarget();
-            if (var1 == 0 && var2 != null) {
-                this.makeAngry(var2);
-            }
-        }
-
+        this.updatePersistentAnger();
         if (!this.hasNectar()) {
             ++this.ticksWithoutNectarSinceExitingHive;
         }
@@ -374,16 +347,29 @@ public class Bee extends Animal implements FlyingAnimal {
         }
     }
 
-    public boolean isAngry() {
-        return this.getAngerTime() > 0;
+    @Override
+    public int getRemainingPersistentAngerTime() {
+        return this.entityData.get(DATA_REMAINING_ANGER_TIME);
     }
 
-    private int getAngerTime() {
-        return this.entityData.get(ANGER_TIME);
+    @Override
+    public void setRemainingPersistentAngerTime(int param0) {
+        this.entityData.set(DATA_REMAINING_ANGER_TIME, param0);
     }
 
-    private void setAngerTime(int param0) {
-        this.entityData.set(ANGER_TIME, param0);
+    @Override
+    public UUID getPersistentAngerTarget() {
+        return this.persistentAngerTarget;
+    }
+
+    @Override
+    public void setPersistentAngerTarget(@Nullable UUID param0) {
+        this.persistentAngerTarget = param0;
+    }
+
+    @Override
+    public void startPersistentAngerTimer() {
+        this.setRemainingPersistentAngerTime(PERSISTENT_ANGER_TIME.randomValue(this.random));
     }
 
     private boolean doesHiveHaveSpace(BlockPos param0) {
@@ -592,24 +578,14 @@ public class Bee extends Animal implements FlyingAnimal {
         this.resetNumCropsGrownSincePollination();
     }
 
-    public boolean makeAngry(Entity param0) {
-        this.setAngerTime(400 + this.random.nextInt(400));
-        if (param0 instanceof LivingEntity) {
-            this.setLastHurtByMob((LivingEntity)param0);
-        }
-
-        return true;
-    }
-
     @Override
     public boolean hurt(DamageSource param0, float param1) {
         if (this.isInvulnerableTo(param0)) {
             return false;
         } else {
             Entity var0 = param0.getEntity();
-            if (!this.level.isClientSide && var0 instanceof Player && !((Player)var0).isCreative() && this.canSee(var0) && !this.isNoAi()) {
+            if (!this.level.isClientSide) {
                 this.beePollinateGoal.stopPollinating();
-                this.makeAngry(var0);
             }
 
             return super.hurt(param0, param1);
@@ -667,7 +643,7 @@ public class Bee extends Animal implements FlyingAnimal {
 
     static class BeeBecomeAngryTargetGoal extends NearestAttackableTargetGoal<Player> {
         BeeBecomeAngryTargetGoal(Bee param0) {
-            super(param0, Player.class, true);
+            super(param0, Player.class, 10, true, false, param0::isAngryAt);
         }
 
         @Override
@@ -971,7 +947,7 @@ public class Bee extends Animal implements FlyingAnimal {
 
         @Override
         protected void alertOther(Mob param0, LivingEntity param1) {
-            if (param0 instanceof Bee && this.mob.canSee(param1) && ((Bee)param0).makeAngry(param1)) {
+            if (param0 instanceof Bee && this.mob.canSee(param1)) {
                 param0.setTarget(param1);
             }
 

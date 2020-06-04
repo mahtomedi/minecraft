@@ -100,9 +100,9 @@ public class LeavesBlock extends Block {
                 BlockPos var0 = param2.below();
                 BlockState var1 = param1.getBlockState(var0);
                 if (!var1.canOcclude() || !var1.isFaceSturdy(param1, var0, Direction.UP)) {
-                    double var2 = (double)((float)param2.getX() + param3.nextFloat());
+                    double var2 = (double)param2.getX() + param3.nextDouble();
                     double var3 = (double)param2.getY() - 0.05;
-                    double var4 = (double)((float)param2.getZ() + param3.nextFloat());
+                    double var4 = (double)param2.getZ() + param3.nextDouble();
                     param1.addParticle(ParticleTypes.DRIPPING_WATER, var2, var3, var4, 0.0, 0.0, 0.0);
                 }
             }

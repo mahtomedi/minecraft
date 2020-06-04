@@ -18,6 +18,7 @@ public class HoglinModel<T extends Mob & HoglinBase> extends AgeableListModel<T>
     private final ModelPart frontLeftLeg;
     private final ModelPart backRightLeg;
     private final ModelPart backLeftLeg;
+    private final ModelPart mane;
 
     public HoglinModel() {
         super(true, 8.0F, 6.0F, 1.9F, 2.0F, 24.0F);
@@ -26,10 +27,10 @@ public class HoglinModel<T extends Mob & HoglinBase> extends AgeableListModel<T>
         this.body = new ModelPart(this);
         this.body.setPos(0.0F, 7.0F, 0.0F);
         this.body.texOffs(1, 1).addBox(-8.0F, -7.0F, -13.0F, 16.0F, 14.0F, 26.0F);
-        ModelPart var0 = new ModelPart(this);
-        var0.setPos(0.0F, -14.0F, -7.0F);
-        var0.texOffs(90, 33).addBox(0.0F, 0.0F, -9.0F, 0.0F, 10.0F, 19.0F, 0.001F);
-        this.body.addChild(var0);
+        this.mane = new ModelPart(this);
+        this.mane.setPos(0.0F, -14.0F, -5.0F);
+        this.mane.texOffs(90, 33).addBox(0.0F, 0.0F, -9.0F, 0.0F, 10.0F, 19.0F, 0.001F);
+        this.body.addChild(this.mane);
         this.head = new ModelPart(this);
         this.head.setPos(0.0F, 2.0F, -12.0F);
         this.head.texOffs(61, 1).addBox(-7.0F, -3.0F, -19.0F, 14.0F, 6.0F, 19.0F);
@@ -43,17 +44,17 @@ public class HoglinModel<T extends Mob & HoglinBase> extends AgeableListModel<T>
         this.leftEar.texOffs(1, 6).addBox(0.0F, -1.0F, -2.0F, 6.0F, 1.0F, 4.0F);
         this.leftEar.zRot = (float) (Math.PI * 2.0 / 9.0);
         this.head.addChild(this.leftEar);
+        ModelPart var0 = new ModelPart(this);
+        var0.setPos(-7.0F, 2.0F, -12.0F);
+        var0.texOffs(1, 13).addBox(-1.0F, -11.0F, -1.0F, 2.0F, 11.0F, 2.0F);
+        this.head.addChild(var0);
         ModelPart var1 = new ModelPart(this);
-        var1.setPos(-7.0F, 2.0F, -12.0F);
+        var1.setPos(7.0F, 2.0F, -12.0F);
         var1.texOffs(1, 13).addBox(-1.0F, -11.0F, -1.0F, 2.0F, 11.0F, 2.0F);
         this.head.addChild(var1);
-        ModelPart var2 = new ModelPart(this);
-        var2.setPos(7.0F, 2.0F, -12.0F);
-        var2.texOffs(1, 13).addBox(-1.0F, -11.0F, -1.0F, 2.0F, 11.0F, 2.0F);
-        this.head.addChild(var2);
         this.head.xRot = 0.87266463F;
-        int var3 = 14;
-        int var4 = 11;
+        int var2 = 14;
+        int var3 = 11;
         this.frontRightLeg = new ModelPart(this);
         this.frontRightLeg.setPos(-4.0F, 10.0F, -8.5F);
         this.frontRightLeg.texOffs(66, 42).addBox(-3.0F, 0.0F, -3.0F, 6.0F, 14.0F, 6.0F);
@@ -85,6 +86,14 @@ public class HoglinModel<T extends Mob & HoglinBase> extends AgeableListModel<T>
         int var0 = param0.getAttackAnimationRemainingTicks();
         float var1 = 1.0F - (float)Mth.abs(10 - 2 * var0) / 10.0F;
         this.head.xRot = Mth.lerp(var1, 0.87266463F, (float) (-Math.PI / 9));
+        if (param0.isBaby()) {
+            this.head.y = Mth.lerp(var1, 2.0F, 5.0F);
+            this.mane.z = -3.0F;
+        } else {
+            this.head.y = 2.0F;
+            this.mane.z = -7.0F;
+        }
+
         float var2 = 1.2F;
         this.frontRightLeg.xRot = Mth.cos(param1) * 1.2F * param2;
         this.frontLeftLeg.xRot = Mth.cos(param1 + (float) Math.PI) * 1.2F * param2;

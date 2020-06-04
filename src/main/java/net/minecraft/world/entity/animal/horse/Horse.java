@@ -12,6 +12,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.Container;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgableMob;
 import net.minecraft.world.entity.EntityType;
@@ -25,7 +26,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.HorseArmorItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.SoundType;
@@ -181,54 +181,51 @@ public class Horse extends AbstractHorse {
     }
 
     @Override
-    public boolean mobInteract(Player param0, InteractionHand param1) {
+    public InteractionResult mobInteract(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
-        boolean var1 = !var0.isEmpty();
-        if (var1 && var0.getItem() instanceof SpawnEggItem) {
+        if (!this.isBaby()) {
+            if (this.isTamed() && param0.isSecondaryUseActive()) {
+                this.openInventory(param0);
+                return InteractionResult.sidedSuccess(this.level.isClientSide);
+            }
+
+            if (this.isVehicle()) {
+                return super.mobInteract(param0, param1);
+            }
+        }
+
+        if (!var0.isEmpty()) {
+            if (this.isFood(var0)) {
+                boolean var1 = this.handleEating(param0, var0);
+                if (!param0.abilities.instabuild) {
+                    var0.shrink(1);
+                }
+
+                return var1 ? InteractionResult.sidedSuccess(this.level.isClientSide) : InteractionResult.CONSUME;
+            }
+
+            InteractionResult var2 = var0.interactLivingEntity(param0, this, param1);
+            if (var2.consumesAction()) {
+                return var2;
+            }
+
+            if (!this.isTamed()) {
+                this.makeMad();
+                return InteractionResult.sidedSuccess(this.level.isClientSide);
+            }
+
+            boolean var3 = !this.isBaby() && !this.isSaddled() && var0.getItem() == Items.SADDLE;
+            if (this.isArmor(var0) || var3) {
+                this.openInventory(param0);
+                return InteractionResult.sidedSuccess(this.level.isClientSide);
+            }
+        }
+
+        if (this.isBaby()) {
             return super.mobInteract(param0, param1);
         } else {
-            if (!this.isBaby()) {
-                if (this.isTamed() && param0.isSecondaryUseActive()) {
-                    this.openInventory(param0);
-                    return true;
-                }
-
-                if (this.isVehicle()) {
-                    return super.mobInteract(param0, param1);
-                }
-            }
-
-            if (var1) {
-                if (this.handleEating(param0, var0)) {
-                    if (!param0.abilities.instabuild) {
-                        var0.shrink(1);
-                    }
-
-                    return true;
-                }
-
-                if (var0.interactEnemy(param0, this, param1)) {
-                    return true;
-                }
-
-                if (!this.isTamed()) {
-                    this.makeMad();
-                    return true;
-                }
-
-                boolean var2 = !this.isBaby() && !this.isSaddled() && var0.getItem() == Items.SADDLE;
-                if (this.isArmor(var0) || var2) {
-                    this.openInventory(param0);
-                    return true;
-                }
-            }
-
-            if (this.isBaby()) {
-                return super.mobInteract(param0, param1);
-            } else {
-                this.doPlayerRide(param0);
-                return true;
-            }
+            this.doPlayerRide(param0);
+            return InteractionResult.sidedSuccess(this.level.isClientSide);
         }
     }
 

@@ -1,6 +1,10 @@
 package net.minecraft.world.entity.ai.behavior;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.Optional;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
+import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
@@ -11,7 +15,7 @@ public class GoToPotentialJobSite extends Behavior<Villager> {
     final float speedModifier;
 
     public GoToPotentialJobSite(float param0) {
-        super(ImmutableMap.of(MemoryModuleType.POTENTIAL_JOB_SITE, MemoryStatus.VALUE_PRESENT));
+        super(ImmutableMap.of(MemoryModuleType.POTENTIAL_JOB_SITE, MemoryStatus.VALUE_PRESENT), 1200);
         this.speedModifier = param0;
     }
 
@@ -22,7 +26,21 @@ public class GoToPotentialJobSite extends Behavior<Villager> {
             .orElse(true);
     }
 
-    protected void start(ServerLevel param0, Villager param1, long param2) {
+    protected boolean canStillUse(ServerLevel param0, Villager param1, long param2) {
+        return param1.getBrain().hasMemoryValue(MemoryModuleType.POTENTIAL_JOB_SITE);
+    }
+
+    protected void tick(ServerLevel param0, Villager param1, long param2) {
         BehaviorUtils.setWalkAndLookTargetMemories(param1, param1.getBrain().getMemory(MemoryModuleType.POTENTIAL_JOB_SITE).get().pos(), this.speedModifier, 1);
+    }
+
+    protected void stop(ServerLevel param0, Villager param1, long param2) {
+        Optional<GlobalPos> var0 = param1.getBrain().getMemory(MemoryModuleType.POTENTIAL_JOB_SITE);
+        var0.ifPresent(param1x -> {
+            BlockPos var0x = param1x.pos();
+            param0.getPoiManager().release(var0x);
+            DebugPackets.sendPoiTicketCountPacket(param0, var0x);
+        });
+        param1.getBrain().eraseMemory(MemoryModuleType.POTENTIAL_JOB_SITE);
     }
 }

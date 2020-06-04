@@ -15,7 +15,13 @@ public interface ResourceManagerReloadListener extends PreparableReloadListener 
         Executor param4,
         Executor param5
     ) {
-        return param0.wait(Unit.INSTANCE).thenRunAsync(() -> this.onResourceManagerReload(param1), param5);
+        return param0.wait(Unit.INSTANCE).thenRunAsync(() -> {
+            param3.startTick();
+            param3.push("listener");
+            this.onResourceManagerReload(param1);
+            param3.pop();
+            param3.endTick();
+        }, param5);
     }
 
     void onResourceManagerReload(ResourceManager var1);

@@ -1,5 +1,6 @@
 package net.minecraft.world.level;
 
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -31,6 +32,16 @@ public interface LevelReader extends BlockAndTintGetter, CollisionGetter, BiomeM
 
     default Biome getBiome(BlockPos param0) {
         return this.getBiomeManager().getBiome(param0);
+    }
+
+    default Stream<BlockState> getBlockStatesIfLoaded(AABB param0) {
+        int var0 = Mth.floor(param0.minX);
+        int var1 = Mth.floor(param0.maxX);
+        int var2 = Mth.floor(param0.minY);
+        int var3 = Mth.floor(param0.maxY);
+        int var4 = Mth.floor(param0.minZ);
+        int var5 = Mth.floor(param0.maxZ);
+        return this.hasChunksAt(var0, var2, var4, var1, var3, var5) ? this.getBlockStates(param0) : Stream.empty();
     }
 
     @OnlyIn(Dist.CLIENT)

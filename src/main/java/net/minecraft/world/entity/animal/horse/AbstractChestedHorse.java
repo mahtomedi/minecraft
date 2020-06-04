@@ -7,13 +7,13 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 
@@ -133,58 +133,56 @@ public abstract class AbstractChestedHorse extends AbstractHorse {
     }
 
     @Override
-    public boolean mobInteract(Player param0, InteractionHand param1) {
+    public InteractionResult mobInteract(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
-        if (var0.getItem() instanceof SpawnEggItem) {
+        if (!this.isBaby()) {
+            if (this.isTamed() && param0.isSecondaryUseActive()) {
+                this.openInventory(param0);
+                return InteractionResult.sidedSuccess(this.level.isClientSide);
+            }
+
+            if (this.isVehicle()) {
+                return super.mobInteract(param0, param1);
+            }
+        }
+
+        if (!var0.isEmpty()) {
+            if (this.isFood(var0)) {
+                boolean var1 = this.handleEating(param0, var0);
+                if (!param0.abilities.instabuild) {
+                    var0.shrink(1);
+                }
+
+                return var1 ? InteractionResult.sidedSuccess(this.level.isClientSide) : InteractionResult.CONSUME;
+            }
+
+            if (!this.isTamed()) {
+                this.makeMad();
+                return InteractionResult.sidedSuccess(this.level.isClientSide);
+            }
+
+            if (!this.hasChest() && var0.getItem() == Blocks.CHEST.asItem()) {
+                this.setChest(true);
+                this.playChestEquipsSound();
+                if (!param0.abilities.instabuild) {
+                    var0.shrink(1);
+                }
+
+                this.createInventory();
+                return InteractionResult.sidedSuccess(this.level.isClientSide);
+            }
+
+            if (!this.isBaby() && !this.isSaddled() && var0.getItem() == Items.SADDLE) {
+                this.openInventory(param0);
+                return InteractionResult.sidedSuccess(this.level.isClientSide);
+            }
+        }
+
+        if (this.isBaby()) {
             return super.mobInteract(param0, param1);
         } else {
-            if (!this.isBaby()) {
-                if (this.isTamed() && param0.isSecondaryUseActive()) {
-                    this.openInventory(param0);
-                    return true;
-                }
-
-                if (this.isVehicle()) {
-                    return super.mobInteract(param0, param1);
-                }
-            }
-
-            if (!var0.isEmpty()) {
-                boolean var1 = this.handleEating(param0, var0);
-                if (!var1) {
-                    if (!this.isTamed()) {
-                        this.makeMad();
-                        return true;
-                    }
-
-                    if (!this.hasChest() && var0.getItem() == Blocks.CHEST.asItem()) {
-                        this.setChest(true);
-                        this.playChestEquipsSound();
-                        var1 = true;
-                        this.createInventory();
-                    }
-
-                    if (!this.isBaby() && !this.isSaddled() && var0.getItem() == Items.SADDLE) {
-                        this.openInventory(param0);
-                        return true;
-                    }
-                }
-
-                if (var1) {
-                    if (!param0.abilities.instabuild) {
-                        var0.shrink(1);
-                    }
-
-                    return true;
-                }
-            }
-
-            if (this.isBaby()) {
-                return super.mobInteract(param0, param1);
-            } else {
-                this.doPlayerRide(param0);
-                return true;
-            }
+            this.doPlayerRide(param0);
+            return InteractionResult.sidedSuccess(this.level.isClientSide);
         }
     }
 

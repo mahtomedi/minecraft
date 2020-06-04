@@ -60,9 +60,11 @@ public class WitherSkull extends AbstractHurtingProjectile {
         if (!this.level.isClientSide) {
             Entity var0 = param0.getEntity();
             Entity var1 = this.getOwner();
+            boolean var3;
             if (var1 instanceof LivingEntity) {
                 LivingEntity var2 = (LivingEntity)var1;
-                if (var0.hurt(DamageSource.witherSkull(this, var2), 8.0F)) {
+                var3 = var0.hurt(DamageSource.witherSkull(this, var2), 8.0F);
+                if (var3) {
                     if (var0.isAlive()) {
                         this.doEnchantDamageEffects(var2, var0);
                     } else {
@@ -70,19 +72,19 @@ public class WitherSkull extends AbstractHurtingProjectile {
                     }
                 }
             } else {
-                var0.hurt(DamageSource.MAGIC, 5.0F);
+                var3 = var0.hurt(DamageSource.MAGIC, 5.0F);
             }
 
-            if (var0 instanceof LivingEntity) {
-                int var3 = 0;
+            if (var3 && var0 instanceof LivingEntity) {
+                int var5 = 0;
                 if (this.level.getDifficulty() == Difficulty.NORMAL) {
-                    var3 = 10;
+                    var5 = 10;
                 } else if (this.level.getDifficulty() == Difficulty.HARD) {
-                    var3 = 40;
+                    var5 = 40;
                 }
 
-                if (var3 > 0) {
-                    ((LivingEntity)var0).addEffect(new MobEffectInstance(MobEffects.WITHER, 20 * var3, 1));
+                if (var5 > 0) {
+                    ((LivingEntity)var0).addEffect(new MobEffectInstance(MobEffects.WITHER, 20 * var5, 1));
                 }
             }
 

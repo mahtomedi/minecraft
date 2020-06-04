@@ -32,7 +32,7 @@ public class PoiSection {
         return RecordCodecBuilder.<PoiSection>create(
                 param1 -> param1.group(
                             RecordCodecBuilder.point(param0),
-                            Codec.BOOL.fieldOf("Valid").forGetter(param0x -> param0x.isValid),
+                            Codec.BOOL.optionalFieldOf("Valid", Boolean.valueOf(false)).forGetter(param0x -> param0x.isValid),
                             PoiRecord.codec(param0).listOf().fieldOf("Records").forGetter(param0x -> ImmutableList.copyOf(param0x.records.values()))
                         )
                         .apply(param1, PoiSection::new)

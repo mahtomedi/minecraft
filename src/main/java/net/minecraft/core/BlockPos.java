@@ -13,6 +13,7 @@ import net.minecraft.Util;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -305,6 +306,12 @@ public class BlockPos extends Vec3i {
             Math.max(param0.x0, param0.x1),
             Math.max(param0.y0, param0.y1),
             Math.max(param0.z0, param0.z1)
+        );
+    }
+
+    public static Stream<BlockPos> betweenClosedStream(AABB param0) {
+        return betweenClosedStream(
+            Mth.floor(param0.minX), Mth.floor(param0.minY), Mth.floor(param0.minZ), Mth.floor(param0.maxX), Mth.floor(param0.maxY), Mth.floor(param0.maxZ)
         );
     }
 

@@ -18,6 +18,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgableMob;
 import net.minecraft.world.entity.Entity;
@@ -53,7 +54,6 @@ import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -382,13 +382,15 @@ public class Cat extends TamableAnimal {
     }
 
     @Override
-    public boolean mobInteract(Player param0, InteractionHand param1) {
+    public InteractionResult mobInteract(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
         Item var1 = var0.getItem();
-        if (var0.getItem() instanceof SpawnEggItem) {
-            return super.mobInteract(param0, param1);
-        } else if (this.level.isClientSide) {
-            return this.isTame() && this.isOwnedBy(param0) || this.isFood(var0);
+        if (this.level.isClientSide) {
+            if (this.isTame() && this.isOwnedBy(param0)) {
+                return InteractionResult.SUCCESS;
+            } else {
+                return !this.isFood(var0) || !(this.getHealth() < this.getMaxHealth()) && this.isTame() ? InteractionResult.PASS : InteractionResult.SUCCESS;
+            }
         } else {
             if (this.isTame()) {
                 if (this.isOwnedBy(param0)) {
@@ -396,11 +398,11 @@ public class Cat extends TamableAnimal {
                         if (var1.isEdible() && this.isFood(var0) && this.getHealth() < this.getMaxHealth()) {
                             this.usePlayerItem(param0, var0);
                             this.heal((float)var1.getFoodProperties().getNutrition());
-                            return true;
+                            return InteractionResult.CONSUME;
                         }
 
-                        boolean var3 = super.mobInteract(param0, param1);
-                        if (!var3 || this.isBaby()) {
+                        InteractionResult var3 = super.mobInteract(param0, param1);
+                        if (!var3.consumesAction() || this.isBaby()) {
                             this.setOrderedToSit(!this.isOrderedToSit());
                         }
 
@@ -415,7 +417,7 @@ public class Cat extends TamableAnimal {
                         }
 
                         this.setPersistenceRequired();
-                        return true;
+                        return InteractionResult.CONSUME;
                     }
                 }
             } else if (this.isFood(var0)) {
@@ -429,11 +431,11 @@ public class Cat extends TamableAnimal {
                 }
 
                 this.setPersistenceRequired();
-                return true;
+                return InteractionResult.CONSUME;
             }
 
-            boolean var4 = super.mobInteract(param0, param1);
-            if (var4) {
+            InteractionResult var4 = super.mobInteract(param0, param1);
+            if (var4.consumesAction()) {
                 this.setPersistenceRequired();
             }
 
@@ -596,9 +598,9 @@ public class Cat extends TamableAnimal {
                     .addFreshEntity(
                         new ItemEntity(
                             this.cat.level,
-                            (double)((float)var1.getX() - Mth.sin(this.cat.yBodyRot * (float) (Math.PI / 180.0))),
+                            (double)var1.getX() - (double)Mth.sin(this.cat.yBodyRot * (float) (Math.PI / 180.0)),
                             (double)var1.getY(),
-                            (double)((float)var1.getZ() + Mth.cos(this.cat.yBodyRot * (float) (Math.PI / 180.0))),
+                            (double)var1.getZ() + (double)Mth.cos(this.cat.yBodyRot * (float) (Math.PI / 180.0)),
                             var5
                         )
                     );

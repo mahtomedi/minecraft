@@ -491,6 +491,7 @@ public class Biome {
         return this.downfall;
     }
 
+    @OnlyIn(Dist.CLIENT)
     public Component getName() {
         return new TranslatableComponent(this.getDescriptionId());
     }
@@ -738,7 +739,7 @@ public class Biome {
     public static class ClimateParameters {
         public static final Codec<Biome.ClimateParameters> CODEC = RecordCodecBuilder.create(
             param0 -> param0.group(
-                        Codec.FLOAT.fieldOf("temparature").forGetter(param0x -> param0x.temperature),
+                        Codec.FLOAT.fieldOf("temperature").forGetter(param0x -> param0x.temperature),
                         Codec.FLOAT.fieldOf("humidity").forGetter(param0x -> param0x.humidity),
                         Codec.FLOAT.fieldOf("altitude").forGetter(param0x -> param0x.altitude),
                         Codec.FLOAT.fieldOf("weirdness").forGetter(param0x -> param0x.weirdness),

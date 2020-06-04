@@ -33,7 +33,6 @@ import net.minecraft.server.ServerAdvancementManager;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.EntityTypeTags;
-import net.minecraft.tags.Tag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -302,26 +301,20 @@ public class EntitySelectorOptions {
 
                     if (param0.isTag()) {
                         ResourceLocation var2 = ResourceLocation.read(param0.getReader());
-                        Tag<EntityType<?>> var3 = EntityTypeTags.getAllTags().getTag(var2);
-                        if (var3 == null) {
-                            param0.getReader().setCursor(var0);
-                            throw ERROR_ENTITY_TYPE_INVALID.createWithContext(param0.getReader(), var2.toString());
-                        }
-
-                        param0.addPredicate(param2 -> var3.contains(param2.getType()) != var1);
+                        param0.addPredicate(param2 -> param2.getServer().getTags().getEntityTypes().getTagOrEmpty(var2).contains(param2.getType()) != var1);
                     } else {
-                        ResourceLocation var4 = ResourceLocation.read(param0.getReader());
-                        EntityType<?> var5 = Registry.ENTITY_TYPE.getOptional(var4).orElseThrow(() -> {
+                        ResourceLocation var3 = ResourceLocation.read(param0.getReader());
+                        EntityType<?> var4 = Registry.ENTITY_TYPE.getOptional(var3).orElseThrow(() -> {
                             param0.getReader().setCursor(var0);
-                            return ERROR_ENTITY_TYPE_INVALID.createWithContext(param0.getReader(), var4.toString());
+                            return ERROR_ENTITY_TYPE_INVALID.createWithContext(param0.getReader(), var3.toString());
                         });
-                        if (Objects.equals(EntityType.PLAYER, var5) && !var1) {
+                        if (Objects.equals(EntityType.PLAYER, var4) && !var1) {
                             param0.setIncludesEntities(false);
                         }
 
-                        param0.addPredicate(param2 -> Objects.equals(var5, param2.getType()) != var1);
+                        param0.addPredicate(param2 -> Objects.equals(var4, param2.getType()) != var1);
                         if (!var1) {
-                            param0.limitToType(var5);
+                            param0.limitToType(var4);
                         }
                     }
 

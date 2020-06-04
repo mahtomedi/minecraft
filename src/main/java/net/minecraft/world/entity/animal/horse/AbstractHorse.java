@@ -55,6 +55,7 @@ import net.minecraft.world.entity.vehicle.DismountHelper;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -74,6 +75,9 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
         .allowSameTeam()
         .allowUnseeable()
         .selector(PARENT_HORSE_SELECTOR);
+    private static final Ingredient FOOD_ITEMS = Ingredient.of(
+        Items.WHEAT, Items.SUGAR, Blocks.HAY_BLOCK.asItem(), Items.APPLE, Items.GOLDEN_CARROT, Items.GOLDEN_APPLE, Items.ENCHANTED_GOLDEN_APPLE
+    );
     private static final EntityDataAccessor<Byte> DATA_ID_FLAGS = SynchedEntityData.defineId(AbstractHorse.class, EntityDataSerializers.BYTE);
     private static final EntityDataAccessor<Optional<UUID>> DATA_ID_OWNER_UUID = SynchedEntityData.defineId(
         AbstractHorse.class, EntityDataSerializers.OPTIONAL_UUID
@@ -499,7 +503,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
 
     @Override
     public boolean isFood(ItemStack param0) {
-        return false;
+        return FOOD_ITEMS.test(param0);
     }
 
     private void moveTail() {
@@ -662,10 +666,12 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
     }
 
     public void makeMad() {
-        this.stand();
-        SoundEvent var0 = this.getAngrySound();
-        if (var0 != null) {
-            this.playSound(var0, this.getSoundVolume(), this.getVoicePitch());
+        if (!this.isStanding()) {
+            this.stand();
+            SoundEvent var0 = this.getAngrySound();
+            if (var0 != null) {
+                this.playSound(var0, this.getSoundVolume(), this.getVoicePitch());
+            }
         }
 
     }

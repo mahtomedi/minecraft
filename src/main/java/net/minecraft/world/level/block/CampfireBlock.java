@@ -157,9 +157,9 @@ public class CampfireBlock extends BaseEntityBlock implements SimpleWaterloggedB
         if (param0.getValue(LIT)) {
             if (param3.nextInt(10) == 0) {
                 param1.playLocalSound(
-                    (double)((float)param2.getX() + 0.5F),
-                    (double)((float)param2.getY() + 0.5F),
-                    (double)((float)param2.getZ() + 0.5F),
+                    (double)param2.getX() + 0.5,
+                    (double)param2.getY() + 0.5,
+                    (double)param2.getZ() + 0.5,
                     SoundEvents.CAMPFIRE_CRACKLE,
                     SoundSource.BLOCKS,
                     0.5F + param3.nextFloat(),
@@ -172,9 +172,9 @@ public class CampfireBlock extends BaseEntityBlock implements SimpleWaterloggedB
                 for(int var0 = 0; var0 < param3.nextInt(1) + 1; ++var0) {
                     param1.addParticle(
                         ParticleTypes.LAVA,
-                        (double)((float)param2.getX() + 0.5F),
-                        (double)((float)param2.getY() + 0.5F),
-                        (double)((float)param2.getZ() + 0.5F),
+                        (double)param2.getX() + 0.5,
+                        (double)param2.getY() + 0.5,
+                        (double)param2.getZ() + 0.5,
                         (double)(param3.nextFloat() / 2.0F),
                         5.0E-5,
                         (double)(param3.nextFloat() / 2.0F)

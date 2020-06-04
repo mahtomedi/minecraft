@@ -13,8 +13,8 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.global.LightningBolt;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -150,9 +150,10 @@ public class ThrownTrident extends AbstractArrow {
         if (this.level instanceof ServerLevel && this.level.isThundering() && EnchantmentHelper.hasChanneling(this.tridentItem)) {
             BlockPos var8 = var0.blockPosition();
             if (this.level.canSeeSky(var8)) {
-                LightningBolt var9 = new LightningBolt(this.level, (double)var8.getX() + 0.5, (double)var8.getY(), (double)var8.getZ() + 0.5, false);
+                LightningBolt var9 = EntityType.LIGHTNING_BOLT.create(this.level);
+                var9.moveTo(Vec3.atBottomCenterOf(var8));
                 var9.setCause(var3 instanceof ServerPlayer ? (ServerPlayer)var3 : null);
-                ((ServerLevel)this.level).addGlobalEntity(var9);
+                this.level.addFreshEntity(var9);
                 var5 = SoundEvents.TRIDENT_THUNDER;
                 var7 = 5.0F;
             }

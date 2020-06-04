@@ -19,6 +19,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -131,19 +132,22 @@ public class ZombieVillager extends Zombie implements VillagerDataHolder {
     }
 
     @Override
-    public boolean mobInteract(Player param0, InteractionHand param1) {
+    public InteractionResult mobInteract(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
-        if (var0.getItem() == Items.GOLDEN_APPLE && this.hasEffect(MobEffects.WEAKNESS)) {
-            if (!param0.abilities.instabuild) {
-                var0.shrink(1);
-            }
+        if (var0.getItem() == Items.GOLDEN_APPLE) {
+            if (this.hasEffect(MobEffects.WEAKNESS)) {
+                if (!param0.abilities.instabuild) {
+                    var0.shrink(1);
+                }
 
-            if (!this.level.isClientSide) {
-                this.startConverting(param0.getUUID(), this.random.nextInt(2401) + 3600);
-                param0.swing(param1, true);
-            }
+                if (!this.level.isClientSide) {
+                    this.startConverting(param0.getUUID(), this.random.nextInt(2401) + 3600);
+                }
 
-            return true;
+                return InteractionResult.SUCCESS;
+            } else {
+                return InteractionResult.CONSUME;
+            }
         } else {
             return super.mobInteract(param0, param1);
         }

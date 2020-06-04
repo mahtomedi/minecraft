@@ -3,25 +3,20 @@ package net.minecraft.client.gui.screens;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
-import javax.annotation.Nullable;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.level.LevelSettings;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class DatapackLoadFailureScreen extends Screen {
-    private final String levelId;
     private final List<FormattedText> lines = Lists.newArrayList();
-    @Nullable
-    private final LevelSettings levelSettings;
+    private final Runnable callback;
 
-    public DatapackLoadFailureScreen(String param0, @Nullable LevelSettings param1) {
+    public DatapackLoadFailureScreen(Runnable param0) {
         super(new TranslatableComponent("datapackFailure.title"));
-        this.levelId = param0;
-        this.levelSettings = param1;
+        this.callback = param0;
     }
 
     @Override
@@ -31,12 +26,7 @@ public class DatapackLoadFailureScreen extends Screen {
         this.lines.addAll(this.font.split(this.getTitle(), this.width - 50));
         this.addButton(
             new Button(
-                this.width / 2 - 155,
-                this.height / 6 + 96,
-                150,
-                20,
-                new TranslatableComponent("datapackFailure.safeMode"),
-                param0 -> this.minecraft.selectLevel(this.levelId, this.levelSettings, true)
+                this.width / 2 - 155, this.height / 6 + 96, 150, 20, new TranslatableComponent("datapackFailure.safeMode"), param0 -> this.callback.run()
             )
         );
         this.addButton(

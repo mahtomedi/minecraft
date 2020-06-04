@@ -63,7 +63,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.boss.EnderDragonPart;
-import net.minecraft.world.entity.global.LightningBolt;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameRules;
@@ -965,28 +964,26 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
 
     protected void addEntity(Entity param0) {
         if (!(param0 instanceof EnderDragonPart)) {
-            if (!(param0 instanceof LightningBolt)) {
-                EntityType<?> var0 = param0.getType();
-                int var1 = var0.clientTrackingRange() * 16;
-                int var2 = var0.updateInterval();
-                if (this.entityMap.containsKey(param0.getId())) {
-                    throw (IllegalStateException)Util.pauseInIde(new IllegalStateException("Entity is already tracked!"));
-                } else {
-                    ChunkMap.TrackedEntity var3 = new ChunkMap.TrackedEntity(param0, var1, var2, var0.trackDeltas());
-                    this.entityMap.put(param0.getId(), var3);
-                    var3.updatePlayers(this.level.players());
-                    if (param0 instanceof ServerPlayer) {
-                        ServerPlayer var4 = (ServerPlayer)param0;
-                        this.updatePlayerStatus(var4, true);
+            EntityType<?> var0 = param0.getType();
+            int var1 = var0.clientTrackingRange() * 16;
+            int var2 = var0.updateInterval();
+            if (this.entityMap.containsKey(param0.getId())) {
+                throw (IllegalStateException)Util.pauseInIde(new IllegalStateException("Entity is already tracked!"));
+            } else {
+                ChunkMap.TrackedEntity var3 = new ChunkMap.TrackedEntity(param0, var1, var2, var0.trackDeltas());
+                this.entityMap.put(param0.getId(), var3);
+                var3.updatePlayers(this.level.players());
+                if (param0 instanceof ServerPlayer) {
+                    ServerPlayer var4 = (ServerPlayer)param0;
+                    this.updatePlayerStatus(var4, true);
 
-                        for(ChunkMap.TrackedEntity var5 : this.entityMap.values()) {
-                            if (var5.entity != var4) {
-                                var5.updatePlayer(var4);
-                            }
+                    for(ChunkMap.TrackedEntity var5 : this.entityMap.values()) {
+                        if (var5.entity != var4) {
+                            var5.updatePlayer(var4);
                         }
                     }
-
                 }
+
             }
         }
     }

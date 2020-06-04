@@ -14,8 +14,6 @@ import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.monster.Blaze;
-import net.minecraft.world.entity.monster.EnderMan;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -37,7 +35,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
     _interface = ItemSupplier.class
 )
 public class ThrownPotion extends ThrowableItemProjectile implements ItemSupplier {
-    public static final Predicate<LivingEntity> WATER_SENSITIVE = ThrownPotion::isWaterSensitiveEntity;
+    public static final Predicate<LivingEntity> WATER_SENSITIVE = LivingEntity::isSensitiveToWater;
 
     public ThrownPotion(EntityType<? extends ThrownPotion> param0, Level param1) {
         super(param0, param1);
@@ -114,7 +112,7 @@ public class ThrownPotion extends ThrowableItemProjectile implements ItemSupplie
         if (!var1.isEmpty()) {
             for(LivingEntity var2 : var1) {
                 double var3 = this.distanceToSqr(var2);
-                if (var3 < 16.0 && isWaterSensitiveEntity(var2)) {
+                if (var3 < 16.0 && var2.isSensitiveToWater()) {
                     var2.hurt(DamageSource.indirectMagic(var2, this.getOwner()), 1.0F);
                 }
             }
@@ -192,9 +190,5 @@ public class ThrownPotion extends ThrowableItemProjectile implements ItemSupplie
             this.level.setBlockAndUpdate(param0, var0.setValue(CampfireBlock.LIT, Boolean.valueOf(false)));
         }
 
-    }
-
-    private static boolean isWaterSensitiveEntity(LivingEntity param0) {
-        return param0 instanceof EnderMan || param0 instanceof Blaze;
     }
 }

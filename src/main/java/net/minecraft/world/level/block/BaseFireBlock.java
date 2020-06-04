@@ -56,9 +56,9 @@ public abstract class BaseFireBlock extends Block {
     public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
         if (param3.nextInt(24) == 0) {
             param1.playLocalSound(
-                (double)((float)param2.getX() + 0.5F),
-                (double)((float)param2.getY() + 0.5F),
-                (double)((float)param2.getZ() + 0.5F),
+                (double)param2.getX() + 0.5,
+                (double)param2.getY() + 0.5,
+                (double)param2.getZ() + 0.5,
                 SoundEvents.FIRE_AMBIENT,
                 SoundSource.BLOCKS,
                 1.0F + param3.nextFloat(),

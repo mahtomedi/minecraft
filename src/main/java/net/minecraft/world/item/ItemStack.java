@@ -308,8 +308,8 @@ public final class ItemStack {
         return this.getItem().isCorrectToolForDrops(param0);
     }
 
-    public boolean interactEnemy(Player param0, LivingEntity param1, InteractionHand param2) {
-        return this.getItem().interactEnemy(this, param0, param1, param2);
+    public InteractionResult interactLivingEntity(Player param0, LivingEntity param1, InteractionHand param2) {
+        return this.getItem().interactLivingEntity(this, param0, param1, param2);
     }
 
     public ItemStack copy() {

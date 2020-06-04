@@ -14,12 +14,13 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.AgableMob;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.Shearable;
-import net.minecraft.world.entity.global.LightningBolt;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
@@ -73,10 +74,13 @@ public class MushroomCow extends Cow implements Shearable {
     }
 
     @Override
-    public boolean mobInteract(Player param0, InteractionHand param1) {
+    public InteractionResult mobInteract(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
-        if (var0.getItem() == Items.BOWL && !this.isBaby() && !param0.abilities.instabuild) {
-            var0.shrink(1);
+        if (var0.getItem() == Items.BOWL && !this.isBaby()) {
+            if (!param0.abilities.instabuild) {
+                var0.shrink(1);
+            }
+
             boolean var1 = false;
             ItemStack var2;
             if (this.effect != null) {
@@ -103,54 +107,54 @@ public class MushroomCow extends Cow implements Shearable {
             }
 
             this.playSound(var4, 1.0F, 1.0F);
-            return true;
+            return InteractionResult.sidedSuccess(this.level.isClientSide);
         } else if (var0.getItem() == Items.SHEARS && this.readyForShearing()) {
             this.shear(SoundSource.PLAYERS);
             if (!this.level.isClientSide) {
                 var0.hurtAndBreak(1, param0, param1x -> param1x.broadcastBreakEvent(param1));
             }
 
-            return true;
-        } else {
-            if (this.getMushroomType() == MushroomCow.MushroomType.BROWN && var0.getItem().is(ItemTags.SMALL_FLOWERS)) {
-                if (this.effect != null) {
-                    for(int var6 = 0; var6 < 2; ++var6) {
-                        this.level
-                            .addParticle(
-                                ParticleTypes.SMOKE,
-                                this.getX() + (double)(this.random.nextFloat() / 2.0F),
-                                this.getY(0.5),
-                                this.getZ() + (double)(this.random.nextFloat() / 2.0F),
-                                0.0,
-                                (double)(this.random.nextFloat() / 5.0F),
-                                0.0
-                            );
-                    }
-                } else {
-                    Pair<MobEffect, Integer> var7 = this.getEffectFromItemStack(var0);
-                    if (!param0.abilities.instabuild) {
-                        var0.shrink(1);
-                    }
-
-                    for(int var8 = 0; var8 < 4; ++var8) {
-                        this.level
-                            .addParticle(
-                                ParticleTypes.EFFECT,
-                                this.getX() + (double)(this.random.nextFloat() / 2.0F),
-                                this.getY(0.5),
-                                this.getZ() + (double)(this.random.nextFloat() / 2.0F),
-                                0.0,
-                                (double)(this.random.nextFloat() / 5.0F),
-                                0.0
-                            );
-                    }
-
-                    this.effect = var7.getLeft();
-                    this.effectDuration = var7.getRight();
-                    this.playSound(SoundEvents.MOOSHROOM_EAT, 2.0F, 1.0F);
+            return InteractionResult.sidedSuccess(this.level.isClientSide);
+        } else if (this.getMushroomType() == MushroomCow.MushroomType.BROWN && var0.getItem().is(ItemTags.SMALL_FLOWERS)) {
+            if (this.effect != null) {
+                for(int var6 = 0; var6 < 2; ++var6) {
+                    this.level
+                        .addParticle(
+                            ParticleTypes.SMOKE,
+                            this.getX() + this.random.nextDouble() / 2.0,
+                            this.getY(0.5),
+                            this.getZ() + this.random.nextDouble() / 2.0,
+                            0.0,
+                            this.random.nextDouble() / 5.0,
+                            0.0
+                        );
                 }
+            } else {
+                Pair<MobEffect, Integer> var7 = this.getEffectFromItemStack(var0);
+                if (!param0.abilities.instabuild) {
+                    var0.shrink(1);
+                }
+
+                for(int var8 = 0; var8 < 4; ++var8) {
+                    this.level
+                        .addParticle(
+                            ParticleTypes.EFFECT,
+                            this.getX() + this.random.nextDouble() / 2.0,
+                            this.getY(0.5),
+                            this.getZ() + this.random.nextDouble() / 2.0,
+                            0.0,
+                            this.random.nextDouble() / 5.0,
+                            0.0
+                        );
+                }
+
+                this.effect = var7.getLeft();
+                this.effectDuration = var7.getRight();
+                this.playSound(SoundEvents.MOOSHROOM_EAT, 2.0F, 1.0F);
             }
 
+            return InteractionResult.sidedSuccess(this.level.isClientSide);
+        } else {
             return super.mobInteract(param0, param1);
         }
     }

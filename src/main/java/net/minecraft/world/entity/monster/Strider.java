@@ -18,6 +18,7 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgableMob;
 import net.minecraft.world.entity.Entity;
@@ -348,12 +349,8 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
     }
 
     @Override
-    protected void customServerAiStep() {
-        if (this.isInWaterRainOrBubble()) {
-            this.hurt(DamageSource.DROWN, 1.0F);
-        }
-
-        super.customServerAiStep();
+    public boolean isSensitiveToWater() {
+        return true;
     }
 
     @Override
@@ -390,35 +387,36 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
     }
 
     @Override
-    public boolean mobInteract(Player param0, InteractionHand param1) {
+    public InteractionResult mobInteract(Player param0, InteractionHand param1) {
         boolean var0 = this.isFood(param0.getItemInHand(param1));
-        if (!super.mobInteract(param0, param1)) {
-            if (this.isSaddled() && !this.isVehicle() && !this.isBaby()) {
-                if (!this.level.isClientSide) {
-                    param0.startRiding(this);
+        if (!var0 && this.isSaddled() && !this.isVehicle()) {
+            if (!this.level.isClientSide) {
+                param0.startRiding(this);
+            }
+
+            return InteractionResult.sidedSuccess(this.level.isClientSide);
+        } else {
+            InteractionResult var1 = super.mobInteract(param0, param1);
+            if (!var1.consumesAction()) {
+                ItemStack var2 = param0.getItemInHand(param1);
+                return var2.getItem() == Items.SADDLE ? var2.interactLivingEntity(param0, this, param1) : InteractionResult.PASS;
+            } else {
+                if (var0 && !this.isSilent()) {
+                    this.level
+                        .playSound(
+                            null,
+                            this.getX(),
+                            this.getY(),
+                            this.getZ(),
+                            SoundEvents.STRIDER_EAT,
+                            this.getSoundSource(),
+                            1.0F,
+                            1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.2F
+                        );
                 }
 
-                return true;
-            } else {
-                ItemStack var1 = param0.getItemInHand(param1);
-                return var1.getItem() == Items.SADDLE && var1.interactEnemy(param0, this, param1);
+                return var1;
             }
-        } else {
-            if (var0 && !this.isSilent()) {
-                this.level
-                    .playSound(
-                        null,
-                        this.getX(),
-                        this.getY(),
-                        this.getZ(),
-                        SoundEvents.STRIDER_EAT,
-                        this.getSoundSource(),
-                        1.0F,
-                        1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.2F
-                    );
-            }
-
-            return false;
         }
     }
 

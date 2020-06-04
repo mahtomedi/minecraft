@@ -11,11 +11,11 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.monster.WitherSkeleton;
-import net.minecraft.world.entity.monster.Zoglin;
-import net.minecraft.world.entity.monster.ZombifiedPiglin;
 import net.minecraft.world.entity.monster.hoglin.Hoglin;
 import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.monster.piglin.PiglinAi;
@@ -27,7 +27,7 @@ public class PiglinSpecificSensor extends Sensor<LivingEntity> {
         return ImmutableSet.of(
             MemoryModuleType.VISIBLE_LIVING_ENTITIES,
             MemoryModuleType.LIVING_ENTITIES,
-            MemoryModuleType.NEAREST_VISIBLE_WITHER_SKELETON,
+            MemoryModuleType.NEAREST_VISIBLE_NEMESIS,
             MemoryModuleType.NEAREST_TARGETABLE_PLAYER_NOT_WEARING_GOLD,
             MemoryModuleType.NEAREST_PLAYER_HOLDING_WANTED_ITEM,
             MemoryModuleType.NEAREST_VISIBLE_HUNTABLE_HOGLIN,
@@ -44,7 +44,7 @@ public class PiglinSpecificSensor extends Sensor<LivingEntity> {
     protected void doTick(ServerLevel param0, LivingEntity param1) {
         Brain<?> var0 = param1.getBrain();
         var0.setMemory(MemoryModuleType.NEAREST_REPELLENT, findNearestRepellent(param0, param1));
-        Optional<WitherSkeleton> var1 = Optional.empty();
+        Optional<Mob> var1 = Optional.empty();
         Optional<Hoglin> var2 = Optional.empty();
         Optional<Hoglin> var3 = Optional.empty();
         Optional<Piglin> var4 = Optional.empty();
@@ -82,10 +82,12 @@ public class PiglinSpecificSensor extends Sensor<LivingEntity> {
                 if (!var7.isPresent() && !var15.isSpectator() && PiglinAi.isPlayerHoldingLovedItem(var15)) {
                     var7 = Optional.of(var15);
                 }
-            } else if (!var1.isPresent() && var12 instanceof WitherSkeleton) {
-                var1 = Optional.of((WitherSkeleton)var12);
-            } else if (!var5.isPresent() && (var12 instanceof ZombifiedPiglin || var12 instanceof Zoglin)) {
-                var5 = Optional.of(var12);
+            } else if (var1.isPresent() || !(var12 instanceof WitherSkeleton) && !(var12 instanceof WitherBoss)) {
+                if (!var5.isPresent() && PiglinAi.isZombified(var12.getType())) {
+                    var5 = Optional.of(var12);
+                }
+            } else {
+                var1 = Optional.of((Mob)var12);
             }
         }
 
@@ -95,7 +97,7 @@ public class PiglinSpecificSensor extends Sensor<LivingEntity> {
             }
         }
 
-        var0.setMemory(MemoryModuleType.NEAREST_VISIBLE_WITHER_SKELETON, var1);
+        var0.setMemory(MemoryModuleType.NEAREST_VISIBLE_NEMESIS, var1);
         var0.setMemory(MemoryModuleType.NEAREST_VISIBLE_HUNTABLE_HOGLIN, var2);
         var0.setMemory(MemoryModuleType.NEAREST_VISIBLE_BABY_HOGLIN, var3);
         var0.setMemory(MemoryModuleType.NEAREST_VISIBLE_BABY_PIGLIN, var4);

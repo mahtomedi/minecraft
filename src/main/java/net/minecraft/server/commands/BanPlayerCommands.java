@@ -23,7 +23,7 @@ public class BanPlayerCommands {
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
         param0.register(
             Commands.literal("ban")
-                .requires(param0x -> param0x.getServer().getPlayerList().getBans().isEnabled() && param0x.hasPermission(3))
+                .requires(param0x -> param0x.hasPermission(3))
                 .then(
                     Commands.argument("targets", GameProfileArgument.gameProfile())
                         .executes(param0x -> banPlayers(param0x.getSource(), GameProfileArgument.getGameProfiles(param0x, "targets"), null))

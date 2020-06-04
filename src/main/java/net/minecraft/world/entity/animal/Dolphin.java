@@ -20,6 +20,7 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -325,7 +326,7 @@ public class Dolphin extends WaterAnimal {
     }
 
     @Override
-    protected boolean mobInteract(Player param0, InteractionHand param1) {
+    protected InteractionResult mobInteract(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
         if (!var0.isEmpty() && var0.getItem().is(ItemTags.FISHES)) {
             if (!this.level.isClientSide) {
@@ -337,7 +338,7 @@ public class Dolphin extends WaterAnimal {
                 var0.shrink(1);
             }
 
-            return true;
+            return InteractionResult.sidedSuccess(this.level.isClientSide);
         } else {
             return super.mobInteract(param0, param1);
         }

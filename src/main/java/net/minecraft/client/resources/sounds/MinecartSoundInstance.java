@@ -19,9 +19,9 @@ public class MinecartSoundInstance extends AbstractTickableSoundInstance {
         this.looping = true;
         this.delay = 0;
         this.volume = 0.0F;
-        this.x = (float)param0.getX();
-        this.y = (float)param0.getY();
-        this.z = (float)param0.getZ();
+        this.x = (double)((float)param0.getX());
+        this.y = (double)((float)param0.getY());
+        this.z = (double)((float)param0.getZ());
     }
 
     @Override
@@ -39,9 +39,9 @@ public class MinecartSoundInstance extends AbstractTickableSoundInstance {
         if (this.minecart.removed) {
             this.stop();
         } else {
-            this.x = (float)this.minecart.getX();
-            this.y = (float)this.minecart.getY();
-            this.z = (float)this.minecart.getZ();
+            this.x = (double)((float)this.minecart.getX());
+            this.y = (double)((float)this.minecart.getY());
+            this.z = (double)((float)this.minecart.getZ());
             float var0 = Mth.sqrt(Entity.getHorizontalDistanceSqr(this.minecart.getDeltaMovement()));
             if ((double)var0 >= 0.01) {
                 this.pitch = Mth.clamp(this.pitch + 0.0025F, 0.0F, 1.0F);

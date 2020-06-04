@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import javax.annotation.Nullable;
-import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.particles.ParticleTypes;
@@ -21,13 +20,13 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.Tag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -523,14 +522,6 @@ public abstract class Mob extends LivingEntity {
             this.onItemPickup(param0);
             this.take(param0, var0.getCount());
             param0.remove();
-        }
-
-    }
-
-    protected void onItemPickup(ItemEntity param0) {
-        Player var0 = param0.getThrower() != null ? this.level.getPlayerByUUID(param0.getThrower()) : null;
-        if (var0 instanceof ServerPlayer) {
-            CriteriaTriggers.ITEM_PICKED_UP_BY_ENTITY.trigger((ServerPlayer)var0, param0.getItem(), this);
         }
 
     }
@@ -1057,23 +1048,48 @@ public abstract class Mob extends LivingEntity {
     }
 
     @Override
-    public final boolean interact(Player param0, InteractionHand param1) {
+    public final InteractionResult interact(Player param0, InteractionHand param1) {
         if (!this.isAlive()) {
-            return false;
+            return InteractionResult.PASS;
         } else if (this.getLeashHolder() == param0) {
             this.dropLeash(true, !param0.abilities.instabuild);
-            return true;
+            return InteractionResult.sidedSuccess(this.level.isClientSide);
         } else {
-            ItemStack var0 = param0.getItemInHand(param1);
-            if (var0.getItem() == Items.LEAD && this.canBeLeashed(param0)) {
-                this.setLeashedTo(param0, true);
-                var0.shrink(1);
-                return true;
-            } else if (var0.getItem() == Items.NAME_TAG) {
-                var0.interactEnemy(param0, this, param1);
-                return true;
+            InteractionResult var0 = this.checkAndHandleImportantInteractions(param0, param1);
+            if (var0.consumesAction()) {
+                return var0;
             } else {
-                return this.mobInteract(param0, param1) ? true : super.interact(param0, param1);
+                var0 = this.mobInteract(param0, param1);
+                return var0.consumesAction() ? var0 : super.interact(param0, param1);
+            }
+        }
+    }
+
+    private InteractionResult checkAndHandleImportantInteractions(Player param0, InteractionHand param1) {
+        ItemStack var0 = param0.getItemInHand(param1);
+        if (var0.getItem() == Items.LEAD && this.canBeLeashed(param0)) {
+            this.setLeashedTo(param0, true);
+            var0.shrink(1);
+            return InteractionResult.sidedSuccess(this.level.isClientSide);
+        } else {
+            if (var0.getItem() == Items.NAME_TAG) {
+                InteractionResult var1 = var0.interactLivingEntity(param0, this, param1);
+                if (var1.consumesAction()) {
+                    return var1;
+                }
+            }
+
+            if (var0.getItem() instanceof SpawnEggItem) {
+                if (!this.level.isClientSide) {
+                    SpawnEggItem var2 = (SpawnEggItem)var0.getItem();
+                    Optional<Mob> var3 = var2.spawnOffspringFromSpawnEgg(param0, this, this.getType(), this.level, this.position(), var0);
+                    var3.ifPresent(param1x -> this.onOffspringSpawnedFromEgg(param0, param1x));
+                    return var3.isPresent() ? InteractionResult.SUCCESS : InteractionResult.PASS;
+                } else {
+                    return InteractionResult.CONSUME;
+                }
+            } else {
+                return InteractionResult.PASS;
             }
         }
     }
@@ -1081,16 +1097,8 @@ public abstract class Mob extends LivingEntity {
     protected void onOffspringSpawnedFromEgg(Player param0, Mob param1) {
     }
 
-    protected boolean mobInteract(Player param0, InteractionHand param1) {
-        ItemStack var0 = param0.getItemInHand(param1);
-        Item var1 = var0.getItem();
-        if (!this.level.isClientSide && var1 instanceof SpawnEggItem) {
-            SpawnEggItem var2 = (SpawnEggItem)var1;
-            Optional<Mob> var3 = var2.spawnOffspringFromSpawnEgg(param0, this, this.getType(), this.level, this.position(), var0);
-            var3.ifPresent(param1x -> this.onOffspringSpawnedFromEgg(param0, param1x));
-        }
-
-        return false;
+    protected InteractionResult mobInteract(Player param0, InteractionHand param1) {
+        return InteractionResult.PASS;
     }
 
     public boolean isWithinRestriction() {

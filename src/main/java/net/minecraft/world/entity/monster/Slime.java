@@ -187,7 +187,7 @@ public class Slime extends Mob implements Enemy {
     @Override
     public void remove() {
         int var0 = this.getSize();
-        if (!this.level.isClientSide && var0 > 1 && this.getHealth() <= 0.0F) {
+        if (!this.level.isClientSide && var0 > 1 && this.isDeadOrDying()) {
             Component var1 = this.getCustomName();
             boolean var2 = this.isNoAi();
             float var3 = (float)var0 / 4.0F;

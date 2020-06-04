@@ -243,7 +243,7 @@ public class StructureTemplate {
                                     var11.nbt.putInt("y", var12.getY());
                                     var11.nbt.putInt("z", var12.getZ());
                                     if (var16 instanceof RandomizableContainerBlockEntity) {
-                                        var11.nbt.putLong("LootTable", param4.nextLong());
+                                        var11.nbt.putLong("LootTableSeed", param4.nextLong());
                                     }
 
                                     var16.load(var11.state, var11.nbt);

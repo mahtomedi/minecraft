@@ -1,41 +1,49 @@
 package net.minecraft.client.gui.components.toasts;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import java.util.Arrays;
+import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.apache.commons.lang3.text.WordUtils;
 
 @OnlyIn(Dist.CLIENT)
 public class SystemToast implements Toast {
     private final SystemToast.SystemToastIds id;
-    private String title;
-    private String[] messageLines;
+    private FormattedText title;
+    private List<FormattedText> messageLines;
     private long lastChanged;
     private boolean changed;
     private final int width;
 
     public SystemToast(SystemToast.SystemToastIds param0, Component param1, @Nullable Component param2) {
-        this(param0, param1, param2 == null ? new String[0] : new String[]{param2.getString()}, 160);
+        this(param0, param1, nullToEmpty(param2), 160);
     }
 
-    public static SystemToast multiline(SystemToast.SystemToastIds param0, Component param1, Component param2) {
-        String[] var0 = WordUtils.wrap(param2.getString(), 80).split("\n");
-        int var1 = Math.max(130, Arrays.stream(var0).mapToInt(param0x -> Minecraft.getInstance().font.width(param0x)).max().orElse(130));
-        return new SystemToast(param0, param1, var0, var1 + 30);
+    public static SystemToast multiline(Minecraft param0, SystemToast.SystemToastIds param1, Component param2, Component param3) {
+        Font var0 = param0.font;
+        List<FormattedText> var1 = var0.getSplitter().splitLines(param3, 200, Style.EMPTY);
+        int var2 = Math.max(200, var1.stream().mapToInt(var0::width).max().orElse(200));
+        return new SystemToast(param1, param2, var1, var2 + 30);
     }
 
-    private SystemToast(SystemToast.SystemToastIds param0, Component param1, String[] param2, int param3) {
+    private SystemToast(SystemToast.SystemToastIds param0, Component param1, List<FormattedText> param2, int param3) {
         this.id = param0;
-        this.title = param1.getString();
+        this.title = param1;
         this.messageLines = param2;
         this.width = param3;
+    }
+
+    private static ImmutableList<FormattedText> nullToEmpty(@Nullable Component param0) {
+        return param0 == null ? ImmutableList.of() : ImmutableList.of(param0);
     }
 
     @Override
@@ -54,10 +62,10 @@ public class SystemToast implements Toast {
         RenderSystem.color3f(1.0F, 1.0F, 1.0F);
         int var0 = this.width();
         int var1 = 12;
-        if (var0 == 160 && this.messageLines.length <= 1) {
+        if (var0 == 160 && this.messageLines.size() <= 1) {
             param1.blit(param0, 0, 0, 0, 64, var0, this.height());
         } else {
-            int var2 = this.height() + Math.max(0, this.messageLines.length - 1) * 12;
+            int var2 = this.height() + Math.max(0, this.messageLines.size() - 1) * 12;
             int var3 = 28;
             int var4 = Math.min(4, var2 - 28);
             this.renderBackgroundRow(param0, param1, var0, 0, 0, 28);
@@ -74,9 +82,8 @@ public class SystemToast implements Toast {
         } else {
             param1.getMinecraft().font.draw(param0, this.title, 18.0F, 7.0F, -256);
 
-            for(int var6 = 0; var6 < this.messageLines.length; ++var6) {
-                String var7 = this.messageLines[var6];
-                param1.getMinecraft().font.draw(param0, var7, 18.0F, (float)(18 + var6 * 12), -1);
+            for(int var6 = 0; var6 < this.messageLines.size(); ++var6) {
+                param1.getMinecraft().font.draw(param0, this.messageLines.get(var6), 18.0F, (float)(18 + var6 * 12), -1);
             }
         }
 
@@ -96,8 +103,8 @@ public class SystemToast implements Toast {
     }
 
     public void reset(Component param0, @Nullable Component param1) {
-        this.title = param0.getString();
-        this.messageLines = param1 == null ? new String[0] : new String[]{param1.getString()};
+        this.title = param0;
+        this.messageLines = nullToEmpty(param1);
         this.changed = true;
     }
 
@@ -137,6 +144,10 @@ public class SystemToast implements Toast {
         );
     }
 
+    public static void onPackCopyFailure(Minecraft param0, String param1) {
+        add(param0.getToasts(), SystemToast.SystemToastIds.PACK_COPY_FAILURE, new TranslatableComponent("pack.copyFailure"), new TextComponent(param1));
+    }
+
     @OnlyIn(Dist.CLIENT)
     public static enum SystemToastIds {
         TUTORIAL_HINT,
@@ -144,6 +155,7 @@ public class SystemToast implements Toast {
         WORLD_BACKUP,
         WORLD_GEN_SETTINGS_TRANSFER,
         PACK_LOAD_FAILURE,
-        WORLD_ACCESS_FAILURE;
+        WORLD_ACCESS_FAILURE,
+        PACK_COPY_FAILURE;
     }
 }

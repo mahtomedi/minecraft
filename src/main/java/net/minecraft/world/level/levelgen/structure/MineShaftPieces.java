@@ -308,9 +308,7 @@ public class MineShaftPieces {
             if (param1.isInside(var0) && param0.getBlockState(var0).isAir() && !param0.getBlockState(var0.below()).isAir()) {
                 BlockState var1 = Blocks.RAIL.defaultBlockState().setValue(RailBlock.SHAPE, param2.nextBoolean() ? RailShape.NORTH_SOUTH : RailShape.EAST_WEST);
                 this.placeBlock(param0, var1, param3, param4, param5, param1);
-                MinecartChest var2 = new MinecartChest(
-                    param0.getLevel(), (double)((float)var0.getX() + 0.5F), (double)((float)var0.getY() + 0.5F), (double)((float)var0.getZ() + 0.5F)
-                );
+                MinecartChest var2 = new MinecartChest(param0.getLevel(), (double)var0.getX() + 0.5, (double)var0.getY() + 0.5, (double)var0.getZ() + 0.5);
                 var2.setLootTable(param6, param2.nextLong());
                 param0.addFreshEntity(var2);
                 return true;

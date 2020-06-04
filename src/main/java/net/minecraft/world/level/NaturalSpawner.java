@@ -27,7 +27,6 @@ import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.NearestNeighborBiomeZoomer;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -146,11 +145,11 @@ public final class NaturalSpawner {
                     var7 += param1.random.nextInt(6) - param1.random.nextInt(6);
                     var8 += param1.random.nextInt(6) - param1.random.nextInt(6);
                     var4.set(var7, var2, var8);
-                    float var15 = (float)var7 + 0.5F;
-                    float var16 = (float)var8 + 0.5F;
-                    Player var17 = param1.getNearestPlayer((double)var15, (double)var2, (double)var16, -1.0, false);
+                    double var15 = (double)var7 + 0.5;
+                    double var16 = (double)var8 + 0.5;
+                    Player var17 = param1.getNearestPlayer(var15, (double)var2, var16, -1.0, false);
                     if (var17 != null) {
-                        double var18 = var17.distanceToSqr((double)var15, (double)var2, (double)var16);
+                        double var18 = var17.distanceToSqr(var15, (double)var2, var16);
                         if (isRightDistanceToPlayerAndSpawnPoint(param1, param2, var4, var18)) {
                             if (var10 == null) {
                                 var10 = getRandomSpawnMobAt(param1, var0, var1, param0, param1.random, var4);
@@ -167,7 +166,7 @@ public final class NaturalSpawner {
                                     return;
                                 }
 
-                                var19.moveTo((double)var15, (double)var2, (double)var16, param1.random.nextFloat() * 360.0F, 0.0F);
+                                var19.moveTo(var15, (double)var2, var16, param1.random.nextFloat() * 360.0F, 0.0F);
                                 if (isValidPositionForMob(param1, var19, var18)) {
                                     var11 = var19.finalizeSpawn(param1, param1.getCurrentDifficultyAt(var19.blockPosition()), MobSpawnType.NATURAL, var11, null);
                                     ++var5;
@@ -194,8 +193,7 @@ public final class NaturalSpawner {
     private static boolean isRightDistanceToPlayerAndSpawnPoint(ServerLevel param0, ChunkAccess param1, BlockPos.MutableBlockPos param2, double param3) {
         if (param3 <= 576.0) {
             return false;
-        } else if (param0.getSharedSpawnPos()
-            .closerThan(new Vec3((double)((float)param2.getX() + 0.5F), (double)param2.getY(), (double)((float)param2.getZ() + 0.5F)), 24.0)) {
+        } else if (param0.getSharedSpawnPos().closerThan(new Vec3((double)param2.getX() + 0.5, (double)param2.getY(), (double)param2.getZ() + 0.5), 24.0)) {
             return false;
         } else {
             ChunkPos var0 = new ChunkPos(param2);
@@ -224,7 +222,7 @@ public final class NaturalSpawner {
             } else if (!SpawnPlacements.checkSpawnRules(var0, param0, MobSpawnType.NATURAL, param5, param0.random)) {
                 return false;
             } else {
-                return param0.noCollision(var0.getAABB((double)((float)param5.getX() + 0.5F), (double)param5.getY(), (double)((float)param5.getZ() + 0.5F)));
+                return param0.noCollision(var0.getAABB((double)param5.getX() + 0.5, (double)param5.getY(), (double)param5.getZ() + 0.5));
             }
         } else {
             return false;
@@ -288,7 +286,7 @@ public final class NaturalSpawner {
         } else if (param2.is(BlockTags.PREVENT_MOB_SPAWNING_INSIDE)) {
             return false;
         } else {
-            return !param2.is(Blocks.WITHER_ROSE) || param4 == EntityType.WITHER_SKELETON;
+            return !param4.isBlockDangerous(param2);
         }
     }
 

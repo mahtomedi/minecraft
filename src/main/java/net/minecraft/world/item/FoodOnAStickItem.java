@@ -30,14 +30,13 @@ public class FoodOnAStickItem<T extends Entity & ItemSteerable> extends Item {
                 ItemSteerable var2 = (ItemSteerable)var1;
                 if (var2.boost()) {
                     var0.hurtAndBreak(this.consumeItemDamage, param1, param1x -> param1x.broadcastBreakEvent(param2));
-                    param1.swing(param2, true);
                     if (var0.isEmpty()) {
                         ItemStack var3 = new ItemStack(Items.FISHING_ROD);
                         var3.setTag(var0.getTag());
-                        return InteractionResultHolder.consume(var3);
+                        return InteractionResultHolder.success(var3);
                     }
 
-                    return InteractionResultHolder.consume(var0);
+                    return InteractionResultHolder.success(var0);
                 }
             }
 

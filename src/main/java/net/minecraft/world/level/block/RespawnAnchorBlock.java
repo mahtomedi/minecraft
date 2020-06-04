@@ -3,10 +3,12 @@ package net.minecraft.world.level.block;
 import java.util.Optional;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -16,7 +18,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.DefaultExplosionDamageCalculator;
 import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -24,6 +28,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -54,17 +59,7 @@ public class RespawnAnchorBlock extends Block {
             return InteractionResult.PASS;
         } else if (!canSetSpawn(param1)) {
             if (!param1.isClientSide) {
-                param1.removeBlock(param2, false);
-                param1.explode(
-                    null,
-                    DamageSource.badRespawnPointExplosion(),
-                    (double)param2.getX() + 0.5,
-                    (double)param2.getY() + 0.5,
-                    (double)param2.getZ() + 0.5,
-                    5.0F,
-                    true,
-                    Explosion.BlockInteraction.DESTROY
-                );
+                this.explode(param0, param1, param2);
             }
 
             return InteractionResult.sidedSuccess(param1.isClientSide);
@@ -97,6 +92,53 @@ public class RespawnAnchorBlock extends Block {
 
     private static boolean canBeCharged(BlockState param0) {
         return param0.getValue(CHARGE) < 4;
+    }
+
+    private static boolean isWaterThatWouldFlow(BlockPos param0, Level param1) {
+        FluidState var0 = param1.getFluidState(param0);
+        if (!var0.is(FluidTags.WATER)) {
+            return false;
+        } else if (var0.isSource()) {
+            return true;
+        } else {
+            float var1 = (float)var0.getAmount();
+            if (var1 < 2.0F) {
+                return false;
+            } else {
+                FluidState var2 = param1.getFluidState(param0.below());
+                return !var2.is(FluidTags.WATER);
+            }
+        }
+    }
+
+    private void explode(BlockState param0, Level param1, final BlockPos param2) {
+        param1.removeBlock(param2, false);
+        boolean var0 = Direction.Plane.HORIZONTAL.stream().map(param2::relative).anyMatch(param1x -> isWaterThatWouldFlow(param1x, param1));
+        final boolean var1 = var0 || param1.getFluidState(param2.above()).is(FluidTags.WATER);
+        ExplosionDamageCalculator var2 = new ExplosionDamageCalculator() {
+            @Override
+            public Optional<Float> getBlockExplosionResistance(Explosion param0, BlockGetter param1, BlockPos param2x, BlockState param3, FluidState param4) {
+                return param2.equals(param2) && var1
+                    ? Optional.of(Blocks.WATER.getExplosionResistance())
+                    : DefaultExplosionDamageCalculator.INSTANCE.getBlockExplosionResistance(param0, param1, param2, param3, param4);
+            }
+
+            @Override
+            public boolean shouldBlockExplode(Explosion param0, BlockGetter param1, BlockPos param2x, BlockState param3, float param4) {
+                return DefaultExplosionDamageCalculator.INSTANCE.shouldBlockExplode(param0, param1, param2, param3, param4);
+            }
+        };
+        param1.explode(
+            null,
+            DamageSource.badRespawnPointExplosion(),
+            var2,
+            (double)param2.getX() + 0.5,
+            (double)param2.getY() + 0.5,
+            (double)param2.getZ() + 0.5,
+            5.0F,
+            true,
+            Explosion.BlockInteraction.DESTROY
+        );
     }
 
     public static boolean canSetSpawn(Level param0) {
@@ -134,9 +176,9 @@ public class RespawnAnchorBlock extends Block {
                 );
             }
 
-            double var0 = (double)param2.getX() + 0.5 + (double)(0.5F - param3.nextFloat());
+            double var0 = (double)param2.getX() + 0.5 + (0.5 - param3.nextDouble());
             double var1 = (double)param2.getY() + 1.0;
-            double var2 = (double)param2.getZ() + 0.5 + (double)(0.5F - param3.nextFloat());
+            double var2 = (double)param2.getZ() + 0.5 + (0.5 - param3.nextDouble());
             double var3 = (double)param3.nextFloat() * 0.04;
             param1.addParticle(ParticleTypes.REVERSE_PORTAL, var0, var1, var2, 0.0, var3, 0.0);
         }

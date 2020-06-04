@@ -218,6 +218,8 @@ public class ItemBlockRenderTypes {
         param0.put(Blocks.POTTED_WARPED_FUNGUS, var1);
         param0.put(Blocks.POTTED_CRIMSON_ROOTS, var1);
         param0.put(Blocks.POTTED_WARPED_ROOTS, var1);
+        param0.put(Blocks.CRIMSON_DOOR, var1);
+        param0.put(Blocks.WARPED_DOOR, var1);
         RenderType var2 = RenderType.translucent();
         param0.put(Blocks.ICE, var2);
         param0.put(Blocks.NETHER_PORTAL, var2);

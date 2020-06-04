@@ -23,7 +23,7 @@ public class CommandsReport implements DataProvider {
     @Override
     public void run(HashCache param0) throws IOException {
         Path var0 = this.generator.getOutputFolder().resolve("reports/commands.json");
-        CommandDispatcher<CommandSourceStack> var1 = new Commands(true).getDispatcher();
+        CommandDispatcher<CommandSourceStack> var1 = new Commands(Commands.CommandSelection.ALL).getDispatcher();
         DataProvider.save(GSON, param0, ArgumentTypes.serializeNodeToJson(var1, var1.getRoot()), var0);
     }
 

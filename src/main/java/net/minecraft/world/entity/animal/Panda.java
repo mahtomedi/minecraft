@@ -19,6 +19,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgableMob;
 import net.minecraft.world.entity.Entity;
@@ -51,7 +52,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
@@ -608,15 +608,13 @@ public class Panda extends Animal {
     }
 
     @Override
-    public boolean mobInteract(Player param0, InteractionHand param1) {
+    public InteractionResult mobInteract(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
-        if (var0.getItem() instanceof SpawnEggItem) {
-            return super.mobInteract(param0, param1);
-        } else if (this.isScared()) {
-            return false;
+        if (this.isScared()) {
+            return InteractionResult.PASS;
         } else if (this.isOnBack()) {
             this.setOnBack(false);
-            return true;
+            return InteractionResult.sidedSuccess(this.level.isClientSide);
         } else if (this.isFood(var0)) {
             if (this.getTarget() != null) {
                 this.gotBamboo = true;
@@ -630,7 +628,7 @@ public class Panda extends Animal {
                 this.setInLove(param0);
             } else {
                 if (this.level.isClientSide || this.isSitting() || this.isInWater()) {
-                    return false;
+                    return InteractionResult.PASS;
                 }
 
                 this.tryToSit();
@@ -644,10 +642,9 @@ public class Panda extends Animal {
                 this.usePlayerItem(param0, var0);
             }
 
-            param0.swing(param1, true);
-            return true;
+            return InteractionResult.SUCCESS;
         } else {
-            return false;
+            return InteractionResult.PASS;
         }
     }
 

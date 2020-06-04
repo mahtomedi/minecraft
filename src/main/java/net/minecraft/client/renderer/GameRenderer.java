@@ -326,7 +326,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
                 var0 *= (double)Mth.lerp(param1, this.oldFov, this.fov);
             }
 
-            if (param0.getEntity() instanceof LivingEntity && ((LivingEntity)param0.getEntity()).getHealth() <= 0.0F) {
+            if (param0.getEntity() instanceof LivingEntity && ((LivingEntity)param0.getEntity()).isDeadOrDying()) {
                 float var1 = Math.min((float)((LivingEntity)param0.getEntity()).deathTime + param1, 20.0F);
                 var0 /= (double)((1.0F - 500.0F / (var1 + 500.0F)) * 2.0F + 1.0F);
             }
@@ -344,7 +344,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
         if (this.minecraft.getCameraEntity() instanceof LivingEntity) {
             LivingEntity var0 = (LivingEntity)this.minecraft.getCameraEntity();
             float var1 = (float)var0.hurtTime - param1;
-            if (var0.getHealth() <= 0.0F) {
+            if (var0.isDeadOrDying()) {
                 float var2 = Math.min((float)var0.deathTime + param1, 20.0F);
                 param0.mulPose(Vector3f.ZP.rotationDegrees(40.0F - 8000.0F / (var2 + 200.0F)));
             }

@@ -375,7 +375,7 @@ public class FriendlyByteBuf extends ByteBuf {
         float var4 = this.readFloat();
         boolean var5 = this.readBoolean();
         return new BlockHitResult(
-            new Vec3((double)((float)var0.getX() + var2), (double)((float)var0.getY() + var3), (double)((float)var0.getZ() + var4)), var1, var0, var5
+            new Vec3((double)var0.getX() + (double)var2, (double)var0.getY() + (double)var3, (double)var0.getZ() + (double)var4), var1, var0, var5
         );
     }
 

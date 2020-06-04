@@ -14,10 +14,7 @@ public class BanListCommands {
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
         param0.register(
             Commands.literal("banlist")
-                .requires(
-                    param0x -> (param0x.getServer().getPlayerList().getBans().isEnabled() || param0x.getServer().getPlayerList().getIpBans().isEnabled())
-                            && param0x.hasPermission(3)
-                )
+                .requires(param0x -> param0x.hasPermission(3))
                 .executes(param0x -> {
                     PlayerList var0x = param0x.getSource().getServer().getPlayerList();
                     return showList(param0x.getSource(), Lists.newArrayList(Iterables.concat(var0x.getBans().getEntries(), var0x.getIpBans().getEntries())));

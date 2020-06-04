@@ -100,20 +100,31 @@ public class ItemRenderer implements ResourceManagerReloadListener {
     ) {
         if (!param0.isEmpty()) {
             param3.pushPose();
-            boolean var0 = param1 == ItemTransforms.TransformType.GUI;
-            boolean var1 = var0 || param1 == ItemTransforms.TransformType.GROUND || param1 == ItemTransforms.TransformType.FIXED;
-            if (param0.getItem() == Items.TRIDENT && var1) {
+            boolean var0 = param1 == ItemTransforms.TransformType.GUI
+                || param1 == ItemTransforms.TransformType.GROUND
+                || param1 == ItemTransforms.TransformType.FIXED;
+            if (param0.getItem() == Items.TRIDENT && var0) {
                 param7 = this.itemModelShaper.getModelManager().getModel(new ModelResourceLocation("minecraft:trident#inventory"));
             }
 
             param7.getTransforms().getTransform(param1).apply(param2, param3);
             param3.translate(-0.5, -0.5, -0.5);
-            if (!param7.isCustomRenderer() && (param0.getItem() != Items.TRIDENT || var1)) {
-                RenderType var2 = ItemBlockRenderTypes.getRenderType(param0, param1 != ItemTransforms.TransformType.GROUND);
-                VertexConsumer var3 = getFoilBuffer(param4, var2, true, param0.hasFoil());
+            if (!param7.isCustomRenderer() && (param0.getItem() != Items.TRIDENT || var0)) {
+                boolean var1 = param1 == ItemTransforms.TransformType.GUI
+                    || param1 == ItemTransforms.TransformType.FIRST_PERSON_LEFT_HAND
+                    || param1 == ItemTransforms.TransformType.FIRST_PERSON_RIGHT_HAND
+                    || param1 == ItemTransforms.TransformType.FIXED;
+                RenderType var2 = ItemBlockRenderTypes.getRenderType(param0, var1);
+                VertexConsumer var3;
+                if (var1) {
+                    var3 = getFoilBufferDirect(param4, var2, true, param0.hasFoil());
+                } else {
+                    var3 = getFoilBuffer(param4, var2, true, param0.hasFoil());
+                }
+
                 this.renderModelLists(param7, param0, param5, param6, param3, var3);
             } else {
-                BlockEntityWithoutLevelRenderer.instance.renderByItem(param0, param3, param4, param5, param6);
+                BlockEntityWithoutLevelRenderer.instance.renderByItem(param0, param1, param3, param4, param5, param6);
             }
 
             param3.popPose();
@@ -129,6 +140,12 @@ public class ItemRenderer implements ResourceManagerReloadListener {
     public static VertexConsumer getFoilBuffer(MultiBufferSource param0, RenderType param1, boolean param2, boolean param3) {
         return param3
             ? VertexMultiConsumer.create(param0.getBuffer(param2 ? RenderType.glint() : RenderType.entityGlint()), param0.getBuffer(param1))
+            : param0.getBuffer(param1);
+    }
+
+    public static VertexConsumer getFoilBufferDirect(MultiBufferSource param0, RenderType param1, boolean param2, boolean param3) {
+        return param3
+            ? VertexMultiConsumer.create(param0.getBuffer(param2 ? RenderType.glintDirect() : RenderType.entityGlintDirect()), param0.getBuffer(param1))
             : param0.getBuffer(param1);
     }
 

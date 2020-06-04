@@ -3380,6 +3380,21 @@ public class RecipeProvider implements DataProvider {
         SingleItemRecipeBuilder.stonecutting(Ingredient.of(Blocks.POLISHED_BLACKSTONE_BRICKS), Blocks.POLISHED_BLACKSTONE_BRICK_WALL)
             .unlocks("has_polished_blackstone_bricks", has(Blocks.POLISHED_BLACKSTONE_BRICKS))
             .save(param0, "polished_blackstone_brick_wall_from_polished_blackstone_bricks_stonecutting");
+        netheriteSmithing(param0, Items.DIAMOND_CHESTPLATE, Items.NETHERITE_CHESTPLATE);
+        netheriteSmithing(param0, Items.DIAMOND_LEGGINGS, Items.NETHERITE_LEGGINGS);
+        netheriteSmithing(param0, Items.DIAMOND_HELMET, Items.NETHERITE_HELMET);
+        netheriteSmithing(param0, Items.DIAMOND_BOOTS, Items.NETHERITE_BOOTS);
+        netheriteSmithing(param0, Items.DIAMOND_SWORD, Items.NETHERITE_SWORD);
+        netheriteSmithing(param0, Items.DIAMOND_AXE, Items.NETHERITE_AXE);
+        netheriteSmithing(param0, Items.DIAMOND_PICKAXE, Items.NETHERITE_PICKAXE);
+        netheriteSmithing(param0, Items.DIAMOND_HOE, Items.NETHERITE_HOE);
+        netheriteSmithing(param0, Items.DIAMOND_SHOVEL, Items.NETHERITE_SHOVEL);
+    }
+
+    private static void netheriteSmithing(Consumer<FinishedRecipe> param0, Item param1, Item param2) {
+        UpgradeRecipeBuilder.smithing(Ingredient.of(param1), Ingredient.of(Items.NETHERITE_INGOT), param2)
+            .unlocks("has_netherite_ingot", has(Items.NETHERITE_INGOT))
+            .save(param0, Registry.ITEM.getKey(param2.asItem()).getPath() + "_smithing");
     }
 
     private static void planksFromLog(Consumer<FinishedRecipe> param0, ItemLike param1, Tag<Item> param2) {

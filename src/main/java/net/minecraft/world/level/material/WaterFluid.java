@@ -59,9 +59,9 @@ public abstract class WaterFluid extends FlowingFluid {
         } else if (param3.nextInt(10) == 0) {
             param0.addParticle(
                 ParticleTypes.UNDERWATER,
-                (double)param1.getX() + (double)param3.nextFloat(),
-                (double)param1.getY() + (double)param3.nextFloat(),
-                (double)param1.getZ() + (double)param3.nextFloat(),
+                (double)param1.getX() + param3.nextDouble(),
+                (double)param1.getY() + param3.nextDouble(),
+                (double)param1.getZ() + param3.nextDouble(),
                 0.0,
                 0.0,
                 0.0

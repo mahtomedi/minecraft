@@ -1,6 +1,5 @@
 package net.minecraft.client.multiplayer;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -45,7 +44,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.global.LightningBolt;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeManager;
@@ -76,7 +74,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ClientLevel extends Level {
-    private final List<Entity> globalEntities = Lists.newArrayList();
     private final Int2ObjectMap<Entity> entitiesById = new Int2ObjectOpenHashMap<>();
     private final ClientPacketListener connection;
     private final LevelRenderer levelRenderer;
@@ -153,49 +150,34 @@ public class ClientLevel extends Level {
     }
 
     public Iterable<Entity> entitiesForRendering() {
-        return Iterables.concat(this.entitiesById.values(), this.globalEntities);
+        return this.entitiesById.values();
     }
 
     public void tickEntities() {
         ProfilerFiller var0 = this.getProfiler();
         var0.push("entities");
-        var0.push("global");
+        ObjectIterator<Entry<Entity>> var1 = this.entitiesById.int2ObjectEntrySet().iterator();
 
-        for(int var1 = 0; var1 < this.globalEntities.size(); ++var1) {
-            Entity var2 = this.globalEntities.get(var1);
-            this.guardEntityTick(param0 -> {
-                ++param0.tickCount;
-                param0.tick();
-            }, var2);
-            if (var2.removed) {
-                this.globalEntities.remove(var1--);
-            }
-        }
-
-        var0.popPush("regular");
-        ObjectIterator<Entry<Entity>> var3 = this.entitiesById.int2ObjectEntrySet().iterator();
-
-        while(var3.hasNext()) {
-            Entry<Entity> var4 = var3.next();
-            Entity var5 = var4.getValue();
-            if (!var5.isPassenger()) {
+        while(var1.hasNext()) {
+            Entry<Entity> var2 = var1.next();
+            Entity var3 = var2.getValue();
+            if (!var3.isPassenger()) {
                 var0.push("tick");
-                if (!var5.removed) {
-                    this.guardEntityTick(this::tickNonPassenger, var5);
+                if (!var3.removed) {
+                    this.guardEntityTick(this::tickNonPassenger, var3);
                 }
 
                 var0.pop();
                 var0.push("remove");
-                if (var5.removed) {
-                    var3.remove();
-                    this.onEntityRemoved(var5);
+                if (var3.removed) {
+                    var1.remove();
+                    this.onEntityRemoved(var3);
                 }
 
                 var0.pop();
             }
         }
 
-        var0.pop();
         this.tickBlockEntities();
         var0.pop();
     }
@@ -292,10 +274,6 @@ public class ClientLevel extends Level {
 
     public int getEntityCount() {
         return this.entitiesById.size();
-    }
-
-    public void addLightning(LightningBolt param0) {
-        this.globalEntities.add(param0);
     }
 
     public void addPlayer(int param0, AbstractClientPlayer param1) {
@@ -410,9 +388,9 @@ public class ClientLevel extends Level {
                         if (param1x.canSpawn(this.random)) {
                             this.addParticle(
                                 param1x.getOptions(),
-                                (double)((float)param6.getX() + this.random.nextFloat()),
-                                (double)((float)param6.getY() + this.random.nextFloat()),
-                                (double)((float)param6.getZ() + this.random.nextFloat()),
+                                (double)param6.getX() + this.random.nextDouble(),
+                                (double)param6.getY() + this.random.nextDouble(),
+                                (double)param6.getZ() + this.random.nextDouble(),
                                 0.0,
                                 0.0,
                                 0.0
@@ -522,7 +500,7 @@ public class ClientLevel extends Level {
     @Override
     public void playLocalSound(double param0, double param1, double param2, SoundEvent param3, SoundSource param4, float param5, float param6, boolean param7) {
         double var0 = this.minecraft.gameRenderer.getMainCamera().getPosition().distanceToSqr(param0, param1, param2);
-        SimpleSoundInstance var1 = new SimpleSoundInstance(param3, param4, param5, param6, (float)param0, (float)param1, (float)param2);
+        SimpleSoundInstance var1 = new SimpleSoundInstance(param3, param4, param5, param6, param0, param1, param2);
         if (param7 && var0 > 100.0) {
             double var2 = Math.sqrt(var0) / 40.0;
             this.minecraft.getSoundManager().playDelayed(var1, (int)(var2 * 20.0));

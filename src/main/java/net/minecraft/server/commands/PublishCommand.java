@@ -19,7 +19,7 @@ public class PublishCommand {
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
         param0.register(
             Commands.literal("publish")
-                .requires(param0x -> param0x.getServer().isSingleplayer() && param0x.hasPermission(4))
+                .requires(param0x -> param0x.hasPermission(4))
                 .executes(param0x -> publish(param0x.getSource(), HttpUtil.getAvailablePort()))
                 .then(
                     Commands.argument("port", IntegerArgumentType.integer(0, 65535))

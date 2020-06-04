@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -51,7 +52,8 @@ public class Explosion {
     @Nullable
     private final Entity source;
     private final float radius;
-    private DamageSource damageSource;
+    private final DamageSource damageSource;
+    private final ExplosionDamageCalculator damageCalculator;
     private final List<BlockPos> toBlow = Lists.newArrayList();
     private final Map<Player, Vec3> hitPlayers = Maps.newHashMap();
 
@@ -76,18 +78,39 @@ public class Explosion {
         this.toBlow.addAll(param8);
     }
 
+    @OnlyIn(Dist.CLIENT)
     public Explosion(
         Level param0, @Nullable Entity param1, double param2, double param3, double param4, float param5, boolean param6, Explosion.BlockInteraction param7
     ) {
+        this(param0, param1, null, null, param2, param3, param4, param5, param6, param7);
+    }
+
+    public Explosion(
+        Level param0,
+        @Nullable Entity param1,
+        @Nullable DamageSource param2,
+        @Nullable ExplosionDamageCalculator param3,
+        double param4,
+        double param5,
+        double param6,
+        float param7,
+        boolean param8,
+        Explosion.BlockInteraction param9
+    ) {
         this.level = param0;
         this.source = param1;
-        this.radius = param5;
-        this.x = param2;
-        this.y = param3;
-        this.z = param4;
-        this.fire = param6;
-        this.blockInteraction = param7;
-        this.damageSource = DamageSource.explosion(this);
+        this.radius = param7;
+        this.x = param4;
+        this.y = param5;
+        this.z = param6;
+        this.fire = param8;
+        this.blockInteraction = param9;
+        this.damageSource = param2 == null ? DamageSource.explosion(this) : param2;
+        this.damageCalculator = param3 == null ? this.makeDamageCalculator(param1) : param3;
+    }
+
+    private ExplosionDamageCalculator makeDamageCalculator(@Nullable Entity param0) {
+        return (ExplosionDamageCalculator)(param0 == null ? DefaultExplosionDamageCalculator.INSTANCE : new EntityBasedExplosionDamageCalculator(param0));
     }
 
     public static float getSeenPercent(Vec3 param0, Entity param1) {
@@ -148,16 +171,12 @@ public class Explosion {
                             BlockPos var14 = new BlockPos(var10, var11, var12);
                             BlockState var15 = this.level.getBlockState(var14);
                             FluidState var16 = this.level.getFluidState(var14);
-                            if (!var15.isAir() || !var16.isEmpty()) {
-                                float var17 = Math.max(var15.getBlock().getExplosionResistance(), var16.getExplosionResistance());
-                                if (this.source != null) {
-                                    var17 = this.source.getBlockExplosionResistance(this, this.level, var14, var15, var16, var17);
-                                }
-
-                                var9 -= (var17 + 0.3F) * 0.3F;
+                            Optional<Float> var17 = this.damageCalculator.getBlockExplosionResistance(this, this.level, var14, var15, var16);
+                            if (var17.isPresent()) {
+                                var9 -= (var17.get() + 0.3F) * 0.3F;
                             }
 
-                            if (var9 > 0.0F && (this.source == null || this.source.shouldBlockExplode(this, this.level, var14, var15, var9))) {
+                            if (var9 > 0.0F && this.damageCalculator.shouldBlockExplode(this, this.level, var14, var15, var9)) {
                                 var0.add(var14);
                             }
 
@@ -309,10 +328,6 @@ public class Explosion {
 
     public DamageSource getDamageSource() {
         return this.damageSource;
-    }
-
-    public void setDamageSource(DamageSource param0) {
-        this.damageSource = param0;
     }
 
     public Map<Player, Vec3> getHitPlayers() {

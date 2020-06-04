@@ -21,9 +21,9 @@ public class MyceliumBlock extends SpreadingSnowyDirtBlock {
         if (param3.nextInt(10) == 0) {
             param1.addParticle(
                 ParticleTypes.MYCELIUM,
-                (double)param2.getX() + (double)param3.nextFloat(),
+                (double)param2.getX() + param3.nextDouble(),
                 (double)param2.getY() + 1.1,
-                (double)param2.getZ() + (double)param3.nextFloat(),
+                (double)param2.getZ() + param3.nextDouble(),
                 0.0,
                 0.0,
                 0.0

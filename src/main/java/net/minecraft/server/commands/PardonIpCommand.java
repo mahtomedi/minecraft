@@ -18,7 +18,7 @@ public class PardonIpCommand {
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
         param0.register(
             Commands.literal("pardon-ip")
-                .requires(param0x -> param0x.getServer().getPlayerList().getIpBans().isEnabled() && param0x.hasPermission(3))
+                .requires(param0x -> param0x.hasPermission(3))
                 .then(
                     Commands.argument("target", StringArgumentType.word())
                         .suggests(

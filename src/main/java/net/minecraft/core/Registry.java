@@ -55,6 +55,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.carver.WorldCarver;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
@@ -79,8 +80,6 @@ import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunctions;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditions;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -140,6 +139,7 @@ public abstract class Registry<T> implements Codec<T>, Keyable, IdMap<T> {
     public static final ResourceKey<Registry<LootItemConditionType>> LOOT_ITEM_REGISTRY = createRegistryKey("loot_condition_type");
     public static final ResourceKey<Registry<DimensionType>> DIMENSION_TYPE_REGISTRY = createRegistryKey("dimension_type");
     public static final ResourceKey<Registry<Level>> DIMENSION_REGISTRY = createRegistryKey("dimension");
+    public static final ResourceKey<Registry<LevelStem>> LEVEL_STEM_REGISTRY = createRegistryKey("dimension");
     public static final Registry<SoundEvent> SOUND_EVENT = registerSimple(SOUND_EVENT_REGISTRY, () -> SoundEvents.ITEM_PICKUP);
     public static final DefaultedRegistry<Fluid> FLUID = registerDefaulted(FLUID_REGISTRY, "empty", () -> Fluids.EMPTY);
     public static final Registry<MobEffect> MOB_EFFECT = registerSimple(MOB_EFFECT_REGISTRY, () -> MobEffects.LUCK);
@@ -260,6 +260,11 @@ public abstract class Registry<T> implements Codec<T>, Keyable, IdMap<T> {
     }
 
     @Override
+    public String toString() {
+        return "Registry[" + this.key + " (" + this.lifecycle + ")]";
+    }
+
+    @Override
     public <U> DataResult<Pair<T, U>> decode(DynamicOps<U> param0, U param1) {
         return param0.compressMaps()
             ? param0.getNumberValue(param1).flatMap(param0x -> {
@@ -301,13 +306,11 @@ public abstract class Registry<T> implements Codec<T>, Keyable, IdMap<T> {
     @Nullable
     public abstract ResourceLocation getKey(T var1);
 
-    @OnlyIn(Dist.CLIENT)
     public abstract Optional<ResourceKey<T>> getResourceKey(T var1);
 
     public abstract int getId(@Nullable T var1);
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     public abstract T get(@Nullable ResourceKey<T> var1);
 
     @Nullable

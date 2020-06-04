@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgableMob;
 import net.minecraft.world.entity.EntityType;
@@ -13,7 +14,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.Level;
 
 public class ZombieHorse extends AbstractHorse {
@@ -60,33 +60,32 @@ public class ZombieHorse extends AbstractHorse {
     }
 
     @Override
-    public boolean mobInteract(Player param0, InteractionHand param1) {
+    public InteractionResult mobInteract(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
-        if (var0.getItem() instanceof SpawnEggItem) {
-            return super.mobInteract(param0, param1);
-        } else if (!this.isTamed()) {
-            return false;
+        if (!this.isTamed()) {
+            return InteractionResult.PASS;
         } else if (this.isBaby()) {
             return super.mobInteract(param0, param1);
         } else if (param0.isSecondaryUseActive()) {
             this.openInventory(param0);
-            return true;
+            return InteractionResult.sidedSuccess(this.level.isClientSide);
         } else if (this.isVehicle()) {
             return super.mobInteract(param0, param1);
         } else {
             if (!var0.isEmpty()) {
-                if (!this.isSaddled() && var0.getItem() == Items.SADDLE) {
+                if (var0.getItem() == Items.SADDLE && !this.isSaddled()) {
                     this.openInventory(param0);
-                    return true;
+                    return InteractionResult.sidedSuccess(this.level.isClientSide);
                 }
 
-                if (var0.interactEnemy(param0, this, param1)) {
-                    return true;
+                InteractionResult var1 = var0.interactLivingEntity(param0, this, param1);
+                if (var1.consumesAction()) {
+                    return var1;
                 }
             }
 
             this.doPlayerRide(param0);
-            return true;
+            return InteractionResult.sidedSuccess(this.level.isClientSide);
         }
     }
 

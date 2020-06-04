@@ -2,11 +2,11 @@ package net.minecraft.world.entity.ai.behavior;
 
 import java.util.Comparator;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
-import net.minecraft.core.SerializableUUID;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -130,9 +130,9 @@ public class BehaviorUtils {
         return param0.distanceToSqr(var0) < param0.distanceToSqr(var1) ? param1 : param2;
     }
 
-    public static Optional<LivingEntity> getLivingEntityFromUUIDMemory(LivingEntity param0, MemoryModuleType<SerializableUUID> param1) {
-        Optional<SerializableUUID> var0 = param0.getBrain().getMemory(param1);
-        return var0.map(SerializableUUID::value).map(param1x -> (LivingEntity)((ServerLevel)param0.level).getEntity(param1x));
+    public static Optional<LivingEntity> getLivingEntityFromUUIDMemory(LivingEntity param0, MemoryModuleType<UUID> param1) {
+        Optional<UUID> var0 = param0.getBrain().getMemory(param1);
+        return var0.map(param1x -> (LivingEntity)((ServerLevel)param0.level).getEntity(param1x));
     }
 
     public static Stream<Villager> getNearbyVillagersWithCondition(Villager param0, Predicate<Villager> param1) {

@@ -94,7 +94,7 @@ public class BeehiveBlock extends BaseEntityBlock {
 
             for(Bee var3 : var0) {
                 if (var3.getTarget() == null) {
-                    var3.makeAngry(var1.get(param0.random.nextInt(var2)));
+                    var3.setTarget(var1.get(param0.random.nextInt(var2)));
                 }
             }
         }

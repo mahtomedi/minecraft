@@ -433,14 +433,14 @@ public class RedStoneWireBlock extends Block {
         if (!(param1.nextFloat() >= 0.2F * var0)) {
             float var1 = 0.4375F;
             float var2 = param6 + var0 * param1.nextFloat();
-            float var3 = 0.5F + 0.4375F * (float)param4.getStepX() + var2 * (float)param5.getStepX();
-            float var4 = 0.5F + 0.4375F * (float)param4.getStepY() + var2 * (float)param5.getStepY();
-            float var5 = 0.5F + 0.4375F * (float)param4.getStepZ() + var2 * (float)param5.getStepZ();
+            double var3 = 0.5 + (double)(0.4375F * (float)param4.getStepX()) + (double)(var2 * (float)param5.getStepX());
+            double var4 = 0.5 + (double)(0.4375F * (float)param4.getStepY()) + (double)(var2 * (float)param5.getStepY());
+            double var5 = 0.5 + (double)(0.4375F * (float)param4.getStepZ()) + (double)(var2 * (float)param5.getStepZ());
             param0.addParticle(
                 new DustParticleOptions(param3.x(), param3.y(), param3.z(), 1.0F),
-                (double)((float)param2.getX() + var3),
-                (double)((float)param2.getY() + var4),
-                (double)((float)param2.getZ() + var5),
+                (double)param2.getX() + var3,
+                (double)param2.getY() + var4,
+                (double)param2.getZ() + var5,
                 0.0,
                 0.0,
                 0.0

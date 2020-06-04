@@ -1,18 +1,28 @@
 package net.minecraft.client.gui.screens;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import com.mojang.blaze3d.vertex.PoseStack;
+import java.util.List;
+import java.util.Optional;
+import javax.annotation.Nullable;
 import net.minecraft.client.FullscreenResolutionProgressOption;
 import net.minecraft.client.Option;
 import net.minecraft.client.Options;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.OptionButton;
 import net.minecraft.client.gui.components.OptionsList;
 import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class VideoSettingsScreen extends OptionsSubScreen {
+    @Nullable
+    private List<FormattedText> tooltip;
     private OptionsList list;
     private static final Option[] OPTIONS = new Option[]{
         Option.GRAPHICS,
@@ -35,11 +45,11 @@ public class VideoSettingsScreen extends OptionsSubScreen {
 
     public VideoSettingsScreen(Screen param0, Options param1) {
         super(param0, param1, new TranslatableComponent("options.videoTitle"));
+        this.oldMipmaps = param1.mipmapLevels;
     }
 
     @Override
     protected void init() {
-        this.oldMipmaps = this.options.mipmapLevels;
         this.list = new OptionsList(this.minecraft, this.width, this.height, 32, this.height - 32, 25);
         this.list.addBig(new FullscreenResolutionProgressOption(this.minecraft.getWindow()));
         this.list.addBig(Option.BIOME_BLEND_RADIUS);
@@ -94,9 +104,24 @@ public class VideoSettingsScreen extends OptionsSubScreen {
 
     @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
+        this.tooltip = null;
+        Optional<AbstractWidget> var0 = this.list.getMouseOver((double)param1, (double)param2);
+        if (var0.isPresent() && var0.get() instanceof OptionButton) {
+            Optional<TranslatableComponent> var1 = ((OptionButton)var0.get()).getOption().getTooltip();
+            if (var1.isPresent()) {
+                Builder<FormattedText> var2 = ImmutableList.builder();
+                this.font.split(var1.get(), 200).forEach(var2::add);
+                this.tooltip = var2.build();
+            }
+        }
+
         this.renderBackground(param0);
         this.list.render(param0, param1, param2, param3);
         this.drawCenteredString(param0, this.font, this.title, this.width / 2, 5, 16777215);
         super.render(param0, param1, param2, param3);
+        if (this.tooltip != null) {
+            this.renderTooltip(param0, this.tooltip, param1, param2);
+        }
+
     }
 }

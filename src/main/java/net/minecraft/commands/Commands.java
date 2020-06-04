@@ -104,7 +104,7 @@ public class Commands {
     private static final Logger LOGGER = LogManager.getLogger();
     private final CommandDispatcher<CommandSourceStack> dispatcher = new CommandDispatcher<>();
 
-    public Commands(boolean param0) {
+    public Commands(Commands.CommandSelection param0) {
         AdvancementCommands.register(this.dispatcher);
         AttributeCommand.register(this.dispatcher);
         ExecuteCommand.register(this.dispatcher);
@@ -136,14 +136,13 @@ public class Commands {
         MsgCommand.register(this.dispatcher);
         ParticleCommand.register(this.dispatcher);
         PlaySoundCommand.register(this.dispatcher);
-        PublishCommand.register(this.dispatcher);
         ReloadCommand.register(this.dispatcher);
         RecipeCommand.register(this.dispatcher);
         ReplaceItemCommand.register(this.dispatcher);
         SayCommand.register(this.dispatcher);
         ScheduleCommand.register(this.dispatcher);
         ScoreboardCommand.register(this.dispatcher);
-        SeedCommand.register(this.dispatcher);
+        SeedCommand.register(this.dispatcher, param0 == Commands.CommandSelection.INTEGRATED);
         SetBlockCommand.register(this.dispatcher);
         SetSpawnCommand.register(this.dispatcher);
         SetWorldSpawnCommand.register(this.dispatcher);
@@ -165,7 +164,7 @@ public class Commands {
             TestCommand.register(this.dispatcher);
         }
 
-        if (param0) {
+        if (param0.includeDedicated) {
             BanIpCommands.register(this.dispatcher);
             BanListCommands.register(this.dispatcher);
             BanPlayerCommands.register(this.dispatcher);
@@ -179,6 +178,10 @@ public class Commands {
             SetPlayerIdleTimeoutCommand.register(this.dispatcher);
             StopCommand.register(this.dispatcher);
             WhitelistCommand.register(this.dispatcher);
+        }
+
+        if (param0.includeIntegrated) {
+            PublishCommand.register(this.dispatcher);
         }
 
         this.dispatcher
@@ -335,6 +338,20 @@ public class Commands {
             return param0.getContext().getRange().isEmpty()
                 ? CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownCommand().createWithContext(param0.getReader())
                 : CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownArgument().createWithContext(param0.getReader());
+        }
+    }
+
+    public static enum CommandSelection {
+        ALL(true, true),
+        DEDICATED(false, true),
+        INTEGRATED(true, false);
+
+        private final boolean includeIntegrated;
+        private final boolean includeDedicated;
+
+        private CommandSelection(boolean param0, boolean param1) {
+            this.includeIntegrated = param0;
+            this.includeDedicated = param1;
         }
     }
 

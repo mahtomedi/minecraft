@@ -117,7 +117,7 @@ public class EnderDragon extends Mob implements Enemy {
     }
 
     public double[] getLatencyPos(int param0, float param1) {
-        if (this.getHealth() <= 0.0F) {
+        if (this.isDeadOrDying()) {
             param1 = 0.0F;
         }
 
@@ -174,7 +174,7 @@ public class EnderDragon extends Mob implements Enemy {
         }
 
         this.oFlapTime = this.flapTime;
-        if (this.getHealth() <= 0.0F) {
+        if (this.isDeadOrDying()) {
             float var2 = (this.random.nextFloat() - 0.5F) * 8.0F;
             float var3 = (this.random.nextFloat() - 0.5F) * 4.0F;
             float var4 = (this.random.nextFloat() - 0.5F) * 8.0F;
@@ -485,7 +485,7 @@ public class EnderDragon extends Mob implements Enemy {
                 if (param1.getEntity() instanceof Player || param1.isExplosion()) {
                     float var0 = this.getHealth();
                     this.reallyHurt(param1, param2);
-                    if (this.getHealth() <= 0.0F && !this.phaseManager.getCurrentPhase().isSitting()) {
+                    if (this.isDeadOrDying() && !this.phaseManager.getCurrentPhase().isSitting()) {
                         this.setHealth(1.0F);
                         this.phaseManager.setPhase(EnderDragonPhase.DYING);
                     }

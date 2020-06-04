@@ -42,9 +42,9 @@ public class WitherRoseBlock extends FlowerBlock {
             if (param3.nextBoolean()) {
                 param1.addParticle(
                     ParticleTypes.SMOKE,
-                    var2 + (double)(param3.nextFloat() / 5.0F),
-                    (double)param2.getY() + (0.5 - (double)param3.nextFloat()),
-                    var3 + (double)(param3.nextFloat() / 5.0F),
+                    var2 + param3.nextDouble() / 5.0,
+                    (double)param2.getY() + (0.5 - param3.nextDouble()),
+                    var3 + param3.nextDouble() / 5.0,
                     0.0,
                     0.0,
                     0.0

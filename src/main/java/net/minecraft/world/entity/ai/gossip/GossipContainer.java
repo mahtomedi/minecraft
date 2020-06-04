@@ -80,7 +80,7 @@ public class GossipContainer {
         var0.forEach(param0x -> {
             int var0x = param0x.value - param0x.type.decayPerTransfer;
             if (var0x >= 2) {
-                this.getOrCreate(param0x.target.value()).entries.mergeInt(param0x.type, var0x, GossipContainer::mergeValuesForTransfer);
+                this.getOrCreate(param0x.target).entries.mergeInt(param0x.type, var0x, GossipContainer::mergeValuesForTransfer);
             }
 
         });
@@ -109,7 +109,7 @@ public class GossipContainer {
         param0.asStream()
             .map(GossipContainer.GossipEntry::load)
             .flatMap(param0x -> Util.toStream(param0x.result()))
-            .forEach(param0x -> this.getOrCreate(param0x.target.value()).entries.put(param0x.type, param0x.value));
+            .forEach(param0x -> this.getOrCreate(param0x.target).entries.put(param0x.type, param0x.value));
     }
 
     private static int mergeValuesForTransfer(int param0, int param1) {
@@ -177,15 +177,11 @@ public class GossipContainer {
     }
 
     static class GossipEntry {
-        public final SerializableUUID target;
+        public final UUID target;
         public final GossipType type;
         public final int value;
 
         public GossipEntry(UUID param0, GossipType param1, int param2) {
-            this(new SerializableUUID(param0), param1, param2);
-        }
-
-        public GossipEntry(SerializableUUID param0, GossipType param1, int param2) {
             this.target = param0;
             this.type = param1;
             this.value = param2;

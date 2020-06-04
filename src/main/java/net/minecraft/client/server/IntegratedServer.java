@@ -13,12 +13,13 @@ import net.minecraft.CrashReport;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.ClientBrandRetriever;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerResources;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.progress.ChunkProgressListenerFactory;
+import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackRepository;
-import net.minecraft.server.packs.repository.UnopenedPack;
 import net.minecraft.server.players.GameProfileCache;
 import net.minecraft.util.Crypt;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -41,22 +42,24 @@ public class IntegratedServer extends MinecraftServer {
     private UUID uuid;
 
     public IntegratedServer(
-        Minecraft param0,
-        LevelStorageSource.LevelStorageAccess param1,
-        PackRepository<UnopenedPack> param2,
-        ServerResources param3,
-        WorldData param4,
-        MinecraftSessionService param5,
-        GameProfileRepository param6,
-        GameProfileCache param7,
-        ChunkProgressListenerFactory param8
+        Thread param0,
+        Minecraft param1,
+        RegistryAccess.RegistryHolder param2,
+        LevelStorageSource.LevelStorageAccess param3,
+        PackRepository<Pack> param4,
+        ServerResources param5,
+        WorldData param6,
+        MinecraftSessionService param7,
+        GameProfileRepository param8,
+        GameProfileCache param9,
+        ChunkProgressListenerFactory param10
     ) {
-        super(param1, param4, param2, param0.getProxy(), param0.getFixerUpper(), param3, param5, param6, param7, param8);
-        this.setSingleplayerName(param0.getUser().getName());
-        this.setDemo(param0.isDemo());
+        super(param0, param2, param3, param6, param4, param1.getProxy(), param1.getFixerUpper(), param5, param7, param8, param9, param10);
+        this.setSingleplayerName(param1.getUser().getName());
+        this.setDemo(param1.isDemo());
         this.setMaxBuildHeight(256);
         this.setPlayerList(new IntegratedPlayerList(this, this.registryHolder, this.playerDataStorage));
-        this.minecraft = param0;
+        this.minecraft = param1;
     }
 
     @Override

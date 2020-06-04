@@ -26,6 +26,7 @@ public class ServerFunctionManager {
     public ServerFunctionManager(MinecraftServer param0, ServerFunctionLibrary param1) {
         this.server = param0;
         this.library = param1;
+        this.postReload(param1);
     }
 
     public int getCommandLimit() {
@@ -103,6 +104,10 @@ public class ServerFunctionManager {
 
     public void replaceLibrary(ServerFunctionLibrary param0) {
         this.library = param0;
+        this.postReload(param0);
+    }
+
+    private void postReload(ServerFunctionLibrary param0) {
         this.ticking.clear();
         this.ticking.addAll(param0.getTags().getTagOrEmpty(TICK_FUNCTION_TAG).getValues());
         this.postReload = true;

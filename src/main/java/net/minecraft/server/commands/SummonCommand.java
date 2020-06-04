@@ -18,7 +18,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.entity.global.LightningBolt;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
@@ -79,28 +78,21 @@ public class SummonCommand {
         } else {
             CompoundTag var1 = param3.copy();
             var1.putString("id", param1.toString());
-            if (EntityType.getKey(EntityType.LIGHTNING_BOLT).equals(param1)) {
-                LightningBolt var2 = new LightningBolt(param0.getLevel(), param2.x, param2.y, param2.z, false);
-                param0.getLevel().addGlobalEntity(var2);
-                param0.sendSuccess(new TranslatableComponent("commands.summon.success", var2.getDisplayName()), true);
-                return 1;
+            ServerLevel var2 = param0.getLevel();
+            Entity var3 = EntityType.loadEntityRecursive(var1, var2, param2x -> {
+                param2x.moveTo(param2.x, param2.y, param2.z, param2x.yRot, param2x.xRot);
+                return !var2.addWithUUID(param2x) ? null : param2x;
+            });
+            if (var3 == null) {
+                throw ERROR_FAILED.create();
             } else {
-                ServerLevel var3 = param0.getLevel();
-                Entity var4 = EntityType.loadEntityRecursive(var1, var3, param2x -> {
-                    param2x.moveTo(param2.x, param2.y, param2.z, param2x.yRot, param2x.xRot);
-                    return !var3.addWithUUID(param2x) ? null : param2x;
-                });
-                if (var4 == null) {
-                    throw ERROR_FAILED.create();
-                } else {
-                    if (param4 && var4 instanceof Mob) {
-                        ((Mob)var4)
-                            .finalizeSpawn(param0.getLevel(), param0.getLevel().getCurrentDifficultyAt(var4.blockPosition()), MobSpawnType.COMMAND, null, null);
-                    }
-
-                    param0.sendSuccess(new TranslatableComponent("commands.summon.success", var4.getDisplayName()), true);
-                    return 1;
+                if (param4 && var3 instanceof Mob) {
+                    ((Mob)var3)
+                        .finalizeSpawn(param0.getLevel(), param0.getLevel().getCurrentDifficultyAt(var3.blockPosition()), MobSpawnType.COMMAND, null, null);
                 }
+
+                param0.sendSuccess(new TranslatableComponent("commands.summon.success", var3.getDisplayName()), true);
+                return 1;
             }
         }
     }

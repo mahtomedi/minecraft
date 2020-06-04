@@ -57,12 +57,9 @@ public class EndPortalBlock extends BaseEntityBlock {
     @OnlyIn(Dist.CLIENT)
     @Override
     public void animateTick(BlockState param0, Level param1, BlockPos param2, Random param3) {
-        double var0 = (double)param2.getX() + (double)param3.nextFloat();
+        double var0 = (double)param2.getX() + param3.nextDouble();
         double var1 = (double)param2.getY() + 0.8;
-        double var2 = (double)param2.getZ() + (double)param3.nextFloat();
-        double var3 = 0.0;
-        double var4 = 0.0;
-        double var5 = 0.0;
+        double var2 = (double)param2.getZ() + param3.nextDouble();
         param1.addParticle(ParticleTypes.SMOKE, var0, var1, var2, 0.0, 0.0, 0.0);
     }
 

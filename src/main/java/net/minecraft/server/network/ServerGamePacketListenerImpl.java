@@ -9,7 +9,9 @@ import io.netty.util.concurrent.GenericFutureListener;
 import it.unimi.dsi.fastutil.ints.Int2ShortMap;
 import it.unimi.dsi.fastutil.ints.Int2ShortOpenHashMap;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.CrashReport;
@@ -131,9 +133,14 @@ import net.minecraft.world.level.block.entity.CommandBlockEntity;
 import net.minecraft.world.level.block.entity.JigsawBlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.entity.StructureBlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -364,15 +371,19 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
 
                 this.player.getLevel().getChunkSource().move(this.player);
                 this.player.checkMovementStatistics(this.player.getX() - var2, this.player.getY() - var3, this.player.getZ() - var4);
-                this.clientVehicleIsFloating = var11 >= -0.03125
-                    && !this.server.isFlightAllowed()
-                    && !var1.containsAnyBlocks(var0.getBoundingBox().inflate(0.0625).expandTowards(0.0, -0.55, 0.0));
+                this.clientVehicleIsFloating = var11 >= -0.03125 && !this.server.isFlightAllowed() && this.noBlocksAround(var0);
                 this.vehicleLastGoodX = var0.getX();
                 this.vehicleLastGoodY = var0.getY();
                 this.vehicleLastGoodZ = var0.getZ();
             }
 
         }
+    }
+
+    private boolean noBlocksAround(Entity param0) {
+        return param0.level
+            .getBlockStates(param0.getBoundingBox().inflate(0.0625).expandTowards(0.0, -0.55, 0.0))
+            .allMatch(BlockBehaviour.BlockStateBase::isAir);
     }
 
     @Override
@@ -811,7 +822,7 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
                                 }
                             }
 
-                            boolean var17 = this.isPlayerCollidingWithAnything(var0);
+                            AABB var17 = this.player.getBoundingBox();
                             var10 = var5 - this.lastGoodX;
                             var11 = var6 - this.lastGoodY;
                             var12 = var7 - this.lastGoodZ;
@@ -843,28 +854,26 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
                             }
 
                             this.player.absMoveTo(var5, var6, var7, var8, var9);
-                            if (!this.player.noPhysics && !this.player.isSleeping()) {
-                                boolean var20 = this.isPlayerCollidingWithAnything(var0);
-                                if (var17 && (var19 || !var20)) {
-                                    this.teleport(var1, var2, var3, var8, var9);
-                                    return;
-                                }
+                            if (this.player.noPhysics
+                                || this.player.isSleeping()
+                                || (!var19 || !var0.noCollision(this.player, var17)) && !this.isPlayerCollidingWithAnythingNew(var0, var17)) {
+                                this.clientIsFloating = var11 >= -0.03125
+                                    && this.player.gameMode.getGameModeForPlayer() != GameType.SPECTATOR
+                                    && !this.server.isFlightAllowed()
+                                    && !this.player.abilities.mayfly
+                                    && !this.player.hasEffect(MobEffects.LEVITATION)
+                                    && !this.player.isFallFlying()
+                                    && this.noBlocksAround(this.player);
+                                this.player.getLevel().getChunkSource().move(this.player);
+                                this.player.doCheckFallDamage(this.player.getY() - var4, param0.isOnGround());
+                                this.player.setOnGround(param0.isOnGround());
+                                this.player.checkMovementStatistics(this.player.getX() - var1, this.player.getY() - var2, this.player.getZ() - var3);
+                                this.lastGoodX = this.player.getX();
+                                this.lastGoodY = this.player.getY();
+                                this.lastGoodZ = this.player.getZ();
+                            } else {
+                                this.teleport(var1, var2, var3, var8, var9);
                             }
-
-                            this.clientIsFloating = var11 >= -0.03125
-                                && this.player.gameMode.getGameModeForPlayer() != GameType.SPECTATOR
-                                && !this.server.isFlightAllowed()
-                                && !this.player.abilities.mayfly
-                                && !this.player.hasEffect(MobEffects.LEVITATION)
-                                && !this.player.isFallFlying()
-                                && !var0.containsAnyBlocks(this.player.getBoundingBox().inflate(0.0625).expandTowards(0.0, -0.55, 0.0));
-                            this.player.getLevel().getChunkSource().move(this.player);
-                            this.player.doCheckFallDamage(this.player.getY() - var4, param0.isOnGround());
-                            this.player.setOnGround(param0.isOnGround());
-                            this.player.checkMovementStatistics(this.player.getX() - var1, this.player.getY() - var2, this.player.getZ() - var3);
-                            this.lastGoodX = this.player.getX();
-                            this.lastGoodY = this.player.getY();
-                            this.lastGoodZ = this.player.getZ();
                         }
                     }
                 }
@@ -872,8 +881,10 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
         }
     }
 
-    private boolean isPlayerCollidingWithAnything(LevelReader param0) {
-        return param0.noCollision(this.player, this.player.getBoundingBox().deflate(1.0E-5F));
+    private boolean isPlayerCollidingWithAnythingNew(LevelReader param0, AABB param1) {
+        Stream<VoxelShape> var0 = param0.getCollisions(this.player, this.player.getBoundingBox().deflate(1.0E-5F), param0x -> true);
+        VoxelShape var1 = Shapes.create(param1.deflate(1.0E-5F));
+        return var0.anyMatch(param1x -> !Shapes.joinIsNotEmpty(param1x, var1, BooleanOp.AND));
     }
 
     public void teleport(double param0, double param1, double param2, float param3, float param4) {
@@ -990,7 +1001,11 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
         ItemStack var2 = this.player.getItemInHand(var1);
         this.player.resetLastActionTime();
         if (!var2.isEmpty()) {
-            this.player.gameMode.useItem(this.player, var0, var2, var1);
+            InteractionResult var3 = this.player.gameMode.useItem(this.player, var0, var2, var1);
+            if (var3.shouldSwing()) {
+                this.player.swing(var1, true);
+            }
+
         }
     }
 
@@ -1190,15 +1205,12 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
         if (var1 != null) {
             double var2 = 36.0;
             if (this.player.distanceToSqr(var1) < 36.0) {
+                InteractionHand var3 = param0.getHand();
+                Optional<InteractionResult> var4 = Optional.empty();
                 if (param0.getAction() == ServerboundInteractPacket.Action.INTERACT) {
-                    InteractionHand var3 = param0.getHand();
-                    this.player.interactOn(var1, var3);
+                    var4 = Optional.of(this.player.interactOn(var1, var3));
                 } else if (param0.getAction() == ServerboundInteractPacket.Action.INTERACT_AT) {
-                    InteractionHand var4 = param0.getHand();
-                    InteractionResult var5 = var1.interactAt(this.player, param0.getLocation(), var4);
-                    if (var5.shouldSwing()) {
-                        this.player.swing(var4, true);
-                    }
+                    var4 = Optional.of(var1.interactAt(this.player, param0.getLocation(), var3));
                 } else if (param0.getAction() == ServerboundInteractPacket.Action.ATTACK) {
                     if (var1 instanceof ItemEntity || var1 instanceof ExperienceOrb || var1 instanceof AbstractArrow || var1 == this.player) {
                         this.disconnect(new TranslatableComponent("multiplayer.disconnect.invalid_entity_attacked"));
@@ -1207,6 +1219,10 @@ public class ServerGamePacketListenerImpl implements ServerGamePacketListener {
                     }
 
                     this.player.attack(var1);
+                }
+
+                if (var4.isPresent() && var4.get().shouldSwing()) {
+                    this.player.swing(var3, true);
                 }
             }
         }

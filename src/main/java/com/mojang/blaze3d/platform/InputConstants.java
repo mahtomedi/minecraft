@@ -20,6 +20,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWCharModsCallbackI;
 import org.lwjgl.glfw.GLFWCursorPosCallbackI;
+import org.lwjgl.glfw.GLFWDropCallbackI;
 import org.lwjgl.glfw.GLFWKeyCallbackI;
 import org.lwjgl.glfw.GLFWMouseButtonCallbackI;
 import org.lwjgl.glfw.GLFWScrollCallbackI;
@@ -59,10 +60,13 @@ public class InputConstants {
         GLFW.glfwSetCharModsCallback(param0, param2);
     }
 
-    public static void setupMouseCallbacks(long param0, GLFWCursorPosCallbackI param1, GLFWMouseButtonCallbackI param2, GLFWScrollCallbackI param3) {
+    public static void setupMouseCallbacks(
+        long param0, GLFWCursorPosCallbackI param1, GLFWMouseButtonCallbackI param2, GLFWScrollCallbackI param3, GLFWDropCallbackI param4
+    ) {
         GLFW.glfwSetCursorPosCallback(param0, param1);
         GLFW.glfwSetMouseButtonCallback(param0, param2);
         GLFW.glfwSetScrollCallback(param0, param3);
+        GLFW.glfwSetDropCallback(param0, param4);
     }
 
     public static void grabOrReleaseMouse(long param0, int param1, double param2, double param3) {

@@ -13,21 +13,21 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import net.minecraft.server.packs.Pack;
+import net.minecraft.server.packs.PackResources;
 
-public class PackRepository<T extends UnopenedPack> implements AutoCloseable {
+public class PackRepository<T extends Pack> implements AutoCloseable {
     private final Set<RepositorySource> sources;
     private Map<String, T> available = ImmutableMap.of();
     private List<T> selected = ImmutableList.of();
-    private final UnopenedPack.UnopenedPackConstructor<T> constructor;
+    private final Pack.PackConstructor<T> constructor;
 
-    public PackRepository(UnopenedPack.UnopenedPackConstructor<T> param0, RepositorySource... param1) {
+    public PackRepository(Pack.PackConstructor<T> param0, RepositorySource... param1) {
         this.constructor = param0;
         this.sources = ImmutableSet.copyOf(param1);
     }
 
     public void reload() {
-        List<String> var0 = this.selected.stream().map(UnopenedPack::getId).collect(ImmutableList.toImmutableList());
+        List<String> var0 = this.selected.stream().map(Pack::getId).collect(ImmutableList.toImmutableList());
         this.close();
         this.available = this.discoverAvailable();
         this.selected = this.rebuildSelected(var0);
@@ -37,7 +37,7 @@ public class PackRepository<T extends UnopenedPack> implements AutoCloseable {
         Map<String, T> var0 = Maps.newTreeMap();
 
         for(RepositorySource var1 : this.sources) {
-            var1.loadPacks(var0, this.constructor);
+            var1.loadPacks(param1 -> param1.getId(), this.constructor);
         }
 
         return ImmutableMap.copyOf(var0);
@@ -72,7 +72,7 @@ public class PackRepository<T extends UnopenedPack> implements AutoCloseable {
     }
 
     public Collection<String> getSelectedIds() {
-        return this.selected.stream().map(UnopenedPack::getId).collect(ImmutableSet.toImmutableSet());
+        return this.selected.stream().map(Pack::getId).collect(ImmutableSet.toImmutableSet());
     }
 
     public Collection<T> getSelectedPacks() {
@@ -86,14 +86,14 @@ public class PackRepository<T extends UnopenedPack> implements AutoCloseable {
 
     @Override
     public void close() {
-        this.available.values().forEach(UnopenedPack::close);
+        this.available.values().forEach(Pack::close);
     }
 
     public boolean isAvailable(String param0) {
         return this.available.containsKey(param0);
     }
 
-    public List<Pack> openAllSelected() {
-        return this.selected.stream().map(UnopenedPack::open).collect(ImmutableList.toImmutableList());
+    public List<PackResources> openAllSelected() {
+        return this.selected.stream().map(Pack::open).collect(ImmutableList.toImmutableList());
     }
 }

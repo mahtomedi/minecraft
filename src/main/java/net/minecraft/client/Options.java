@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
-import net.minecraft.client.resources.UnopenedResourcePack;
+import net.minecraft.client.resources.ResourcePack;
 import net.minecraft.client.tutorial.TutorialSteps;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
@@ -53,7 +53,7 @@ public class Options {
     public float entityDistanceScaling = 1.0F;
     public int framerateLimit = 120;
     public CloudStatus renderClouds = CloudStatus.FANCY;
-    public boolean fancyGraphics = true;
+    public GraphicsStatus graphicsMode = GraphicsStatus.FANCY;
     public AmbientOcclusionStatus ambientOcclusion = AmbientOcclusionStatus.MAX;
     public List<String> resourcePacks = Lists.newArrayList();
     public List<String> incompatibleResourcePacks = Lists.newArrayList();
@@ -239,6 +239,13 @@ public class Options {
             }
 
             CompoundTag var2 = this.dataFix(var0);
+            if (!var2.contains("graphicsMode") && var2.contains("fancyGraphics")) {
+                if ("true".equals(var2.getString("fancyGraphics"))) {
+                    this.graphicsMode = GraphicsStatus.FANCY;
+                } else {
+                    this.graphicsMode = GraphicsStatus.FAST;
+                }
+            }
 
             for(String var3 : var2.getAllKeys()) {
                 String var4 = var2.getString(var3);
@@ -359,8 +366,8 @@ public class Options {
                         this.difficulty = Difficulty.byId(Integer.parseInt(var4));
                     }
 
-                    if ("fancyGraphics".equals(var3)) {
-                        this.fancyGraphics = "true".equals(var4);
+                    if ("graphicsMode".equals(var3)) {
+                        this.graphicsMode = GraphicsStatus.byId(Integer.parseInt(var4));
                     }
 
                     if ("tutorialStep".equals(var3)) {
@@ -596,7 +603,7 @@ public class Options {
             var0.println("particles:" + this.particles.getId());
             var0.println("maxFps:" + this.framerateLimit);
             var0.println("difficulty:" + this.difficulty.getId());
-            var0.println("fancyGraphics:" + this.fancyGraphics);
+            var0.println("graphicsMode:" + this.graphicsMode.getId());
             var0.println("ao:" + this.ambientOcclusion.getId());
             var0.println("biomeBlendRadius:" + this.biomeBlendRadius);
             switch(this.renderClouds) {
@@ -720,13 +727,13 @@ public class Options {
         return this.useNativeTransport;
     }
 
-    public void loadSelectedResourcePacks(PackRepository<UnopenedResourcePack> param0) {
+    public void loadSelectedResourcePacks(PackRepository<ResourcePack> param0) {
         Set<String> var0 = Sets.newLinkedHashSet();
         Iterator<String> var1 = this.resourcePacks.iterator();
 
         while(var1.hasNext()) {
             String var2 = var1.next();
-            UnopenedResourcePack var3 = param0.getPack(var2);
+            ResourcePack var3 = param0.getPack(var2);
             if (var3 == null && !var2.startsWith("file/")) {
                 var3 = param0.getPack("file/" + var2);
             }

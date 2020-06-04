@@ -59,7 +59,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.Nameable;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.global.LightningBolt;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
@@ -574,7 +573,10 @@ public abstract class Entity implements CommandSource, Nameable {
 
             float var15 = this.getBlockSpeedFactor();
             this.setDeltaMovement(this.getDeltaMovement().multiply((double)var15, 1.0, (double)var15));
-            if (!this.level.containsFireBlock(this.getBoundingBox().deflate(0.001)) && this.remainingFireTicks <= 0) {
+            if (this.level
+                    .getBlockStatesIfLoaded(this.getBoundingBox().deflate(0.001))
+                    .noneMatch(param0x -> param0x.is(BlockTags.FIRE) || param0x.is(Blocks.LAVA))
+                && this.remainingFireTicks <= 0) {
                 this.remainingFireTicks = -this.getFireImmuneTicks();
             }
 
@@ -998,25 +1000,24 @@ public abstract class Entity implements CommandSource, Nameable {
         float var4 = (float)Mth.floor(this.getY());
 
         for(int var5 = 0; (float)var5 < 1.0F + this.dimensions.width * 20.0F; ++var5) {
-            float var6 = (this.random.nextFloat() * 2.0F - 1.0F) * this.dimensions.width;
-            float var7 = (this.random.nextFloat() * 2.0F - 1.0F) * this.dimensions.width;
+            double var6 = (this.random.nextDouble() * 2.0 - 1.0) * (double)this.dimensions.width;
+            double var7 = (this.random.nextDouble() * 2.0 - 1.0) * (double)this.dimensions.width;
             this.level
                 .addParticle(
                     ParticleTypes.BUBBLE,
-                    this.getX() + (double)var6,
+                    this.getX() + var6,
                     (double)(var4 + 1.0F),
-                    this.getZ() + (double)var7,
+                    this.getZ() + var7,
                     var2.x,
-                    var2.y - (double)(this.random.nextFloat() * 0.2F),
+                    var2.y - this.random.nextDouble() * 0.2F,
                     var2.z
                 );
         }
 
         for(int var8 = 0; (float)var8 < 1.0F + this.dimensions.width * 20.0F; ++var8) {
-            float var9 = (this.random.nextFloat() * 2.0F - 1.0F) * this.dimensions.width;
-            float var10 = (this.random.nextFloat() * 2.0F - 1.0F) * this.dimensions.width;
-            this.level
-                .addParticle(ParticleTypes.SPLASH, this.getX() + (double)var9, (double)(var4 + 1.0F), this.getZ() + (double)var10, var2.x, var2.y, var2.z);
+            double var9 = (this.random.nextDouble() * 2.0 - 1.0) * (double)this.dimensions.width;
+            double var10 = (this.random.nextDouble() * 2.0 - 1.0) * (double)this.dimensions.width;
+            this.level.addParticle(ParticleTypes.SPLASH, this.getX() + var9, (double)(var4 + 1.0F), this.getZ() + var10, var2.x, var2.y, var2.z);
         }
 
     }
@@ -1040,9 +1041,9 @@ public abstract class Entity implements CommandSource, Nameable {
             this.level
                 .addParticle(
                     new BlockParticleOption(ParticleTypes.BLOCK, var4),
-                    this.getX() + ((double)this.random.nextFloat() - 0.5) * (double)this.dimensions.width,
+                    this.getX() + (this.random.nextDouble() - 0.5) * (double)this.dimensions.width,
                     this.getY() + 0.1,
-                    this.getZ() + ((double)this.random.nextFloat() - 0.5) * (double)this.dimensions.width,
+                    this.getZ() + (this.random.nextDouble() - 0.5) * (double)this.dimensions.width,
                     var5.x * -4.0,
                     1.5,
                     var5.z * -4.0
@@ -1105,6 +1106,10 @@ public abstract class Entity implements CommandSource, Nameable {
         this.xRot = Mth.clamp(param4, -90.0F, 90.0F) % 360.0F;
         this.yRotO = this.yRot;
         this.xRotO = this.xRot;
+    }
+
+    public void moveTo(Vec3 param0) {
+        this.moveTo(param0.x, param0.y, param0.z);
     }
 
     public void moveTo(double param0, double param1, double param2) {
@@ -1540,8 +1545,8 @@ public abstract class Entity implements CommandSource, Nameable {
         }
     }
 
-    public boolean interact(Player param0, InteractionHand param1) {
-        return false;
+    public InteractionResult interact(Player param0, InteractionHand param1) {
+        return InteractionResult.PASS;
     }
 
     @Nullable

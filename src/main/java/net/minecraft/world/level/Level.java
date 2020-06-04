@@ -26,7 +26,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagManager;
 import net.minecraft.util.Mth;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -46,7 +45,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.TickableBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.predicate.BlockMaterialPredicate;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkSource;
@@ -57,7 +55,6 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.level.storage.WritableLevelData;
@@ -589,117 +586,28 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         }
     }
 
-    public boolean containsAnyBlocks(AABB param0) {
-        int var0 = Mth.floor(param0.minX);
-        int var1 = Mth.ceil(param0.maxX);
-        int var2 = Mth.floor(param0.minY);
-        int var3 = Mth.ceil(param0.maxY);
-        int var4 = Mth.floor(param0.minZ);
-        int var5 = Mth.ceil(param0.maxZ);
-        BlockPos.MutableBlockPos var6 = new BlockPos.MutableBlockPos();
-
-        for(int var7 = var0; var7 < var1; ++var7) {
-            for(int var8 = var2; var8 < var3; ++var8) {
-                for(int var9 = var4; var9 < var5; ++var9) {
-                    BlockState var10 = this.getBlockState(var6.set(var7, var8, var9));
-                    if (!var10.isAir()) {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
-    }
-
-    public boolean containsFireBlock(AABB param0) {
-        int var0 = Mth.floor(param0.minX);
-        int var1 = Mth.ceil(param0.maxX);
-        int var2 = Mth.floor(param0.minY);
-        int var3 = Mth.ceil(param0.maxY);
-        int var4 = Mth.floor(param0.minZ);
-        int var5 = Mth.ceil(param0.maxZ);
-        if (this.hasChunksAt(var0, var2, var4, var1, var3, var5)) {
-            BlockPos.MutableBlockPos var6 = new BlockPos.MutableBlockPos();
-
-            for(int var7 = var0; var7 < var1; ++var7) {
-                for(int var8 = var2; var8 < var3; ++var8) {
-                    for(int var9 = var4; var9 < var5; ++var9) {
-                        BlockState var10 = this.getBlockState(var6.set(var7, var8, var9));
-                        if (var10.is(BlockTags.FIRE) || var10.is(Blocks.LAVA)) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-
-        return false;
-    }
-
-    @Nullable
-    @OnlyIn(Dist.CLIENT)
-    public BlockState containsBlock(AABB param0, Block param1) {
-        int var0 = Mth.floor(param0.minX);
-        int var1 = Mth.ceil(param0.maxX);
-        int var2 = Mth.floor(param0.minY);
-        int var3 = Mth.ceil(param0.maxY);
-        int var4 = Mth.floor(param0.minZ);
-        int var5 = Mth.ceil(param0.maxZ);
-        if (this.hasChunksAt(var0, var2, var4, var1, var3, var5)) {
-            BlockPos.MutableBlockPos var6 = new BlockPos.MutableBlockPos();
-
-            for(int var7 = var0; var7 < var1; ++var7) {
-                for(int var8 = var2; var8 < var3; ++var8) {
-                    for(int var9 = var4; var9 < var5; ++var9) {
-                        BlockState var10 = this.getBlockState(var6.set(var7, var8, var9));
-                        if (var10.is(param1)) {
-                            return var10;
-                        }
-                    }
-                }
-            }
-        }
-
-        return null;
-    }
-
-    public boolean containsMaterial(AABB param0, Material param1) {
-        int var0 = Mth.floor(param0.minX);
-        int var1 = Mth.ceil(param0.maxX);
-        int var2 = Mth.floor(param0.minY);
-        int var3 = Mth.ceil(param0.maxY);
-        int var4 = Mth.floor(param0.minZ);
-        int var5 = Mth.ceil(param0.maxZ);
-        BlockMaterialPredicate var6 = BlockMaterialPredicate.forMaterial(param1);
-        return BlockPos.betweenClosedStream(var0, var2, var4, var1 - 1, var3 - 1, var5 - 1).anyMatch(param1x -> var6.test(this.getBlockState(param1x)));
-    }
-
     public Explosion explode(@Nullable Entity param0, double param1, double param2, double param3, float param4, Explosion.BlockInteraction param5) {
-        return this.explode(param0, null, param1, param2, param3, param4, false, param5);
+        return this.explode(param0, null, null, param1, param2, param3, param4, false, param5);
     }
 
     public Explosion explode(
         @Nullable Entity param0, double param1, double param2, double param3, float param4, boolean param5, Explosion.BlockInteraction param6
     ) {
-        return this.explode(param0, null, param1, param2, param3, param4, param5, param6);
+        return this.explode(param0, null, null, param1, param2, param3, param4, param5, param6);
     }
 
     public Explosion explode(
         @Nullable Entity param0,
         @Nullable DamageSource param1,
-        double param2,
+        @Nullable ExplosionDamageCalculator param2,
         double param3,
         double param4,
-        float param5,
-        boolean param6,
-        Explosion.BlockInteraction param7
+        double param5,
+        float param6,
+        boolean param7,
+        Explosion.BlockInteraction param8
     ) {
-        Explosion var0 = new Explosion(this, param0, param2, param3, param4, param5, param6, param7);
-        if (param1 != null) {
-            var0.setDamageSource(param1);
-        }
-
+        Explosion var0 = new Explosion(this, param0, param1, param2, param3, param4, param5, param6, param7, param8);
         var0.explode();
         var0.finalizeExplosion(true);
         return var0;

@@ -145,8 +145,8 @@ public class Item implements ItemLike {
         return false;
     }
 
-    public boolean interactEnemy(ItemStack param0, Player param1, LivingEntity param2, InteractionHand param3) {
-        return false;
+    public InteractionResult interactLivingEntity(ItemStack param0, Player param1, LivingEntity param2, InteractionHand param3) {
+        return InteractionResult.PASS;
     }
 
     @OnlyIn(Dist.CLIENT)

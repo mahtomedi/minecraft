@@ -9,6 +9,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgableMob;
 import net.minecraft.world.entity.EntityType;
@@ -100,7 +101,7 @@ public class WanderingTrader extends AbstractVillager {
     }
 
     @Override
-    public boolean mobInteract(Player param0, InteractionHand param1) {
+    public InteractionResult mobInteract(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
         if (var0.getItem() != Items.VILLAGER_SPAWN_EGG && this.isAlive() && !this.isTrading() && !this.isBaby()) {
             if (param1 == InteractionHand.MAIN_HAND) {
@@ -108,14 +109,14 @@ public class WanderingTrader extends AbstractVillager {
             }
 
             if (this.getOffers().isEmpty()) {
-                return super.mobInteract(param0, param1);
+                return InteractionResult.sidedSuccess(this.level.isClientSide);
             } else {
                 if (!this.level.isClientSide) {
                     this.setTradingPlayer(param0);
                     this.openTradingScreen(param0, this.getDisplayName(), 1);
                 }
 
-                return true;
+                return InteractionResult.sidedSuccess(this.level.isClientSide);
             }
         } else {
             return super.mobInteract(param0, param1);

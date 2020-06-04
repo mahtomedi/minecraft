@@ -3,7 +3,9 @@ package net.minecraft.core;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableList.Builder;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
+import com.google.common.collect.ImmutableMap.Builder;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Lifecycle;
@@ -16,11 +18,10 @@ import java.util.Set;
 import java.util.Map.Entry;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
+import net.minecraft.resources.RegistryDataPackCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.CrudeIncrementalIntIdentityHashBiMap;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,7 +30,8 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
     protected static final Logger LOGGER = LogManager.getLogger();
     protected final CrudeIncrementalIntIdentityHashBiMap<T> map = new CrudeIncrementalIntIdentityHashBiMap<>(256);
     protected final BiMap<ResourceLocation, T> storage = HashBiMap.create();
-    protected final BiMap<ResourceKey<T>, T> keyStorage = HashBiMap.create();
+    private final BiMap<ResourceKey<T>, T> keyStorage = HashBiMap.create();
+    private final Set<ResourceKey<T>> persistent = Sets.newIdentityHashSet();
     protected Object[] randomCache;
     private int nextId;
 
@@ -67,7 +69,6 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
         return this.storage.inverse().get(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public Optional<ResourceKey<T>> getResourceKey(T param0) {
         return Optional.ofNullable(this.keyStorage.inverse().get(param0));
@@ -79,7 +80,6 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
     }
 
     @Nullable
-    @OnlyIn(Dist.CLIENT)
     @Override
     public T get(@Nullable ResourceKey<T> param0) {
         return this.keyStorage.get(param0);
@@ -112,6 +112,10 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
         return Collections.unmodifiableSet(this.storage.keySet());
     }
 
+    public Set<Entry<ResourceKey<T>, T>> entrySet() {
+        return Collections.unmodifiableMap(this.keyStorage).entrySet();
+    }
+
     @Nullable
     public T getRandom(Random param0) {
         if (this.randomCache == null) {
@@ -136,7 +140,15 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
         return this.map.contains(param0);
     }
 
-    public static <T> Codec<MappedRegistry<T>> codec(ResourceKey<Registry<T>> param0, Lifecycle param1, Codec<T> param2) {
+    public boolean persistent(ResourceKey<T> param0) {
+        return this.persistent.contains(param0);
+    }
+
+    public void setPersistent(ResourceKey<T> param0) {
+        this.persistent.add(param0);
+    }
+
+    public static <T> Codec<MappedRegistry<T>> networkCodec(ResourceKey<Registry<T>> param0, Lifecycle param1, Codec<T> param2) {
         return Codec.mapPair(ResourceLocation.CODEC.xmap(ResourceKey.elementKey(param0), ResourceKey::location).fieldOf("key"), param2.fieldOf("element"))
             .codec()
             .listOf()
@@ -149,13 +161,32 @@ public class MappedRegistry<T> extends WritableRegistry<T> {
     
                 return var0x;
             }, param0x -> {
-                Builder<Pair<ResourceKey<T>, T>> var0x = ImmutableList.builder();
+                com.google.common.collect.ImmutableList.Builder<Pair<ResourceKey<T>, T>> var0x = ImmutableList.builder();
     
-                for(Entry<ResourceKey<T>, T> var1x : param0x.keyStorage.entrySet()) {
-                    var0x.add(Pair.of(var1x.getKey(), var1x.getValue()));
+                for(T var1x : param0x.map) {
+                    var0x.add(Pair.of(param0x.getResourceKey((T)var1x).get(), var1x));
                 }
     
                 return var0x.build();
             });
+    }
+
+    public static <T> Codec<MappedRegistry<T>> dataPackCodec(ResourceKey<Registry<T>> param0, Lifecycle param1, Codec<T> param2) {
+        return RegistryDataPackCodec.create(param0, param1, param2);
+    }
+
+    public static <T> Codec<MappedRegistry<T>> directCodec(ResourceKey<Registry<T>> param0, Lifecycle param1, Codec<T> param2) {
+        return Codec.unboundedMap(ResourceLocation.CODEC.xmap(ResourceKey.elementKey(param0), ResourceKey::location), param2).xmap(param2x -> {
+            MappedRegistry<T> var0x = new MappedRegistry<>(param0, param1);
+            param2x.forEach((param1x, param2xx) -> {
+                var0x.registerMapping(var0x.nextId, param1x, param2xx);
+                var0x.setPersistent(param1x);
+            });
+            return var0x;
+        }, param0x -> {
+            Builder<ResourceKey<T>, T> var0x = ImmutableMap.builder();
+            param0x.keyStorage.entrySet().stream().filter(param1x -> param0x.persistent(param1x.getKey())).forEach(var0x::put);
+            return var0x.build();
+        });
     }
 }

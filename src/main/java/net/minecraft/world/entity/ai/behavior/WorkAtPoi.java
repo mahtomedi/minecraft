@@ -3,7 +3,6 @@ package net.minecraft.world.entity.ai.behavior;
 import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.core.SerializableLong;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -31,7 +30,7 @@ public class WorkAtPoi extends Behavior<Villager> {
 
     protected void start(ServerLevel param0, Villager param1, long param2) {
         Brain<Villager> var0 = param1.getBrain();
-        var0.setMemory(MemoryModuleType.LAST_WORKED_AT_POI, SerializableLong.of(param2));
+        var0.setMemory(MemoryModuleType.LAST_WORKED_AT_POI, param2);
         var0.getMemory(MemoryModuleType.JOB_SITE).ifPresent(param1x -> var0.setMemory(MemoryModuleType.LOOK_TARGET, new BlockPosTracker(param1x.pos())));
         param1.playWorkSound();
         this.useWorkstation(param0, param1);

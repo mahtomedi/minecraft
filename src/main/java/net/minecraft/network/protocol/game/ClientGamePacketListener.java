@@ -7,8 +7,6 @@ public interface ClientGamePacketListener extends PacketListener {
 
     void handleAddExperienceOrb(ClientboundAddExperienceOrbPacket var1);
 
-    void handleAddGlobalEntity(ClientboundAddGlobalEntityPacket var1);
-
     void handleAddMob(ClientboundAddMobPacket var1);
 
     void handleAddObjective(ClientboundSetObjectivePacket var1);

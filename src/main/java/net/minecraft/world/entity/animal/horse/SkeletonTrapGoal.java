@@ -1,12 +1,11 @@
 package net.minecraft.world.entity.animal.horse;
 
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.ai.goal.Goal;
-import net.minecraft.world.entity.global.LightningBolt;
 import net.minecraft.world.entity.monster.Skeleton;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -30,15 +29,18 @@ public class SkeletonTrapGoal extends Goal {
         this.horse.setTrap(false);
         this.horse.setTamed(true);
         this.horse.setAge(0);
-        ((ServerLevel)this.horse.level).addGlobalEntity(new LightningBolt(this.horse.level, this.horse.getX(), this.horse.getY(), this.horse.getZ(), true));
-        Skeleton var1 = this.createSkeleton(var0, this.horse);
-        var1.startRiding(this.horse);
+        LightningBolt var1 = EntityType.LIGHTNING_BOLT.create(this.horse.level);
+        var1.moveTo(this.horse.getX(), this.horse.getY(), this.horse.getZ());
+        var1.setVisualOnly(true);
+        this.horse.level.addFreshEntity(var1);
+        Skeleton var2 = this.createSkeleton(var0, this.horse);
+        var2.startRiding(this.horse);
 
-        for(int var2 = 0; var2 < 3; ++var2) {
-            AbstractHorse var3 = this.createHorse(var0);
-            Skeleton var4 = this.createSkeleton(var0, var3);
-            var4.startRiding(var3);
-            var3.push(this.horse.getRandom().nextGaussian() * 0.5, 0.0, this.horse.getRandom().nextGaussian() * 0.5);
+        for(int var3 = 0; var3 < 3; ++var3) {
+            AbstractHorse var4 = this.createHorse(var0);
+            Skeleton var5 = this.createSkeleton(var0, var4);
+            var5.startRiding(var4);
+            var4.push(this.horse.getRandom().nextGaussian() * 0.5, 0.0, this.horse.getRandom().nextGaussian() * 0.5);
         }
 
     }

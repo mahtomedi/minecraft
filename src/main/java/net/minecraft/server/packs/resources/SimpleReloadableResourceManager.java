@@ -1,5 +1,6 @@
 package net.minecraft.server.packs.resources;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -16,7 +17,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.Pack;
+import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.util.Unit;
 import net.minecraftforge.api.distmarker.Dist;
@@ -30,14 +31,14 @@ public class SimpleReloadableResourceManager implements ReloadableResourceManage
     private final List<PreparableReloadListener> listeners = Lists.newArrayList();
     private final List<PreparableReloadListener> recentlyRegistered = Lists.newArrayList();
     private final Set<String> namespaces = Sets.newLinkedHashSet();
-    private final List<Pack> packs = Lists.newArrayList();
+    private final List<PackResources> packs = Lists.newArrayList();
     private final PackType type;
 
     public SimpleReloadableResourceManager(PackType param0) {
         this.type = param0;
     }
 
-    public void add(Pack param0) {
+    public void add(PackResources param0) {
         this.packs.add(param0);
 
         for(String var0 : param0.getNamespaces(this.type)) {
@@ -87,6 +88,12 @@ public class SimpleReloadableResourceManager implements ReloadableResourceManage
     }
 
     @Override
+    public Collection<ResourceLocation> listResources(ResourceLocation param0, Predicate<String> param1) {
+        ResourceManager var0 = this.namespacedPacks.get(param0.getNamespace());
+        return (Collection<ResourceLocation>)(var0 != null ? var0.listResources(param0.getPath(), param1) : ImmutableSet.of());
+    }
+
+    @Override
     public Collection<ResourceLocation> listResources(String param0, Predicate<String> param1) {
         Set<ResourceLocation> var0 = Sets.newHashSet();
 
@@ -102,7 +109,13 @@ public class SimpleReloadableResourceManager implements ReloadableResourceManage
     private void clear() {
         this.namespacedPacks.clear();
         this.namespaces.clear();
+        this.packs.forEach(PackResources::close);
         this.packs.clear();
+    }
+
+    @Override
+    public void close() {
+        this.clear();
     }
 
     @Override
@@ -124,11 +137,11 @@ public class SimpleReloadableResourceManager implements ReloadableResourceManage
     }
 
     @Override
-    public ReloadInstance createFullReload(Executor param0, Executor param1, CompletableFuture<Unit> param2, List<Pack> param3) {
+    public ReloadInstance createFullReload(Executor param0, Executor param1, CompletableFuture<Unit> param2, List<PackResources> param3) {
         this.clear();
-        LOGGER.info("Reloading ResourceManager: {}", param3.stream().map(Pack::getName).collect(Collectors.joining(", ")));
+        LOGGER.info("Reloading ResourceManager: {}", () -> param3.stream().map(PackResources::getName).collect(Collectors.joining(", ")));
 
-        for(Pack var0 : param3) {
+        for(PackResources var0 : param3) {
             try {
                 this.add(var0);
             } catch (Exception var8) {
@@ -142,7 +155,7 @@ public class SimpleReloadableResourceManager implements ReloadableResourceManage
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public Stream<Pack> listPacks() {
+    public Stream<PackResources> listPacks() {
         return this.packs.stream();
     }
 
@@ -187,15 +200,15 @@ public class SimpleReloadableResourceManager implements ReloadableResourceManage
     }
 
     public static class ResourcePackLoadingFailure extends RuntimeException {
-        private final Pack pack;
+        private final PackResources pack;
 
-        public ResourcePackLoadingFailure(Pack param0, Throwable param1) {
+        public ResourcePackLoadingFailure(PackResources param0, Throwable param1) {
             super(param0.getName(), param1);
             this.pack = param0;
         }
 
         @OnlyIn(Dist.CLIENT)
-        public Pack getPack() {
+        public PackResources getPack() {
             return this.pack;
         }
     }

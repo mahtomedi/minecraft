@@ -115,8 +115,6 @@ public abstract class PlayerList {
         this.registryHolder = param1;
         this.maxPlayers = param3;
         this.playerIo = param2;
-        this.getBans().setEnabled(true);
-        this.getIpBans().setEnabled(true);
     }
 
     public void placeNewPlayer(Connection param0, ServerPlayer param1) {

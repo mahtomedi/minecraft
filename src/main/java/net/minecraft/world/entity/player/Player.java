@@ -520,7 +520,7 @@ public abstract class Player extends LivingEntity {
 
         this.setSpeed((float)var0.getValue());
         float var2;
-        if (this.onGround && !(this.getHealth() <= 0.0F) && !this.isSwimming()) {
+        if (this.onGround && !this.isDeadOrDying() && !this.isSwimming()) {
             var2 = Math.min(0.1F, Mth.sqrt(getHorizontalDistanceSqr(this.getDeltaMovement())));
         } else {
             var2 = 0.0F;
@@ -842,7 +842,7 @@ public abstract class Player extends LivingEntity {
             return false;
         } else {
             this.noActionTime = 0;
-            if (this.getHealth() <= 0.0F) {
+            if (this.isDeadOrDying()) {
                 return false;
             } else {
                 this.removeEntitiesOnShoulder();
@@ -983,24 +983,26 @@ public abstract class Player extends LivingEntity {
         } else {
             ItemStack var0 = this.getItemInHand(param1);
             ItemStack var1 = var0.copy();
-            if (param0.interact(this, param1)) {
+            InteractionResult var2 = param0.interact(this, param1);
+            if (var2.consumesAction()) {
                 if (this.abilities.instabuild && var0 == this.getItemInHand(param1) && var0.getCount() < var1.getCount()) {
                     var0.setCount(var1.getCount());
                 }
 
-                return InteractionResult.SUCCESS;
+                return var2;
             } else {
                 if (!var0.isEmpty() && param0 instanceof LivingEntity) {
                     if (this.abilities.instabuild) {
                         var0 = var1;
                     }
 
-                    if (var0.interactEnemy(this, (LivingEntity)param0, param1)) {
+                    InteractionResult var3 = var0.interactLivingEntity(this, (LivingEntity)param0, param1);
+                    if (var3.consumesAction()) {
                         if (var0.isEmpty() && !this.abilities.instabuild) {
                             this.setItemInHand(param1, ItemStack.EMPTY);
                         }
 
-                        return InteractionResult.SUCCESS;
+                        return var3;
                     }
                 }
 
@@ -2065,6 +2067,11 @@ public abstract class Player extends LivingEntity {
         }
 
         return super.eat(param0, param1);
+    }
+
+    @Override
+    protected boolean shouldRemoveSoulSpeed(BlockState param0) {
+        return this.abilities.flying || super.shouldRemoveSoulSpeed(param0);
     }
 
     public static enum BedSleepingProblem {

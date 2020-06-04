@@ -25,7 +25,9 @@ public class RenderBuffers {
         put(param0, RenderType.armorGlint());
         put(param0, RenderType.armorEntityGlint());
         put(param0, RenderType.glint());
+        put(param0, RenderType.glintDirect());
         put(param0, RenderType.entityGlint());
+        put(param0, RenderType.entityGlintDirect());
         put(param0, RenderType.waterMask());
         ModelBakery.DESTROY_TYPES.forEach(param1 -> put(param0, param1));
     });

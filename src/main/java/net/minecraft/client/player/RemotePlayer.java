@@ -61,13 +61,13 @@ public class RemotePlayer extends AbstractClientPlayer {
         this.oBob = this.bob;
         this.updateSwingTime();
         float var4;
-        if (this.onGround && !(this.getHealth() <= 0.0F)) {
+        if (this.onGround && !this.isDeadOrDying()) {
             var4 = Math.min(0.1F, Mth.sqrt(getHorizontalDistanceSqr(this.getDeltaMovement())));
         } else {
             var4 = 0.0F;
         }
 
-        if (!this.onGround && !(this.getHealth() <= 0.0F)) {
+        if (!this.onGround && !this.isDeadOrDying()) {
             float var6 = (float)Math.atan(-this.getDeltaMovement().y * 0.2F) * 15.0F;
         } else {
             float var5 = 0.0F;

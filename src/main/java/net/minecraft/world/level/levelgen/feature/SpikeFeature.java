@@ -102,13 +102,7 @@ public class SpikeFeature extends Feature<SpikeConfiguration> {
         EndCrystal var15 = EntityType.END_CRYSTAL.create(param0.getLevel());
         var15.setBeamTarget(param2.getCrystalBeamTarget());
         var15.setInvulnerable(param2.isCrystalInvulnerable());
-        var15.moveTo(
-            (double)((float)param3.getCenterX() + 0.5F),
-            (double)(param3.getHeight() + 1),
-            (double)((float)param3.getCenterZ() + 0.5F),
-            param1.nextFloat() * 360.0F,
-            0.0F
-        );
+        var15.moveTo((double)param3.getCenterX() + 0.5, (double)(param3.getHeight() + 1), (double)param3.getCenterZ() + 0.5, param1.nextFloat() * 360.0F, 0.0F);
         param0.addFreshEntity(var15);
         this.setBlock(param0, new BlockPos(param3.getCenterX(), param3.getHeight(), param3.getCenterZ()), Blocks.BEDROCK.defaultBlockState());
     }

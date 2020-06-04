@@ -3,6 +3,7 @@ package net.minecraft.client.gui.components;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Option;
@@ -41,6 +42,18 @@ public class OptionsList extends ContainerObjectSelectionList<OptionsList.Entry>
     @Override
     protected int getScrollbarPosition() {
         return super.getScrollbarPosition() + 32;
+    }
+
+    public Optional<AbstractWidget> getMouseOver(double param0, double param1) {
+        for(OptionsList.Entry var0 : this.children()) {
+            for(AbstractWidget var1 : var0.children) {
+                if (var1.isMouseOver(param0, param1)) {
+                    return Optional.of(var1);
+                }
+            }
+        }
+
+        return Optional.empty();
     }
 
     @OnlyIn(Dist.CLIENT)

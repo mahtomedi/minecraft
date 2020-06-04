@@ -1,27 +1,35 @@
 package net.minecraft.client.gui.screens.worldselection;
 
+import com.google.common.collect.ImmutableSet;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.DataFixer;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenCustomHashMap;
+import javax.annotation.Nullable;
 import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
 import net.minecraft.util.worldupdate.WorldUpgrader;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.WorldData;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class OptimizeWorldScreen extends Screen {
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final Object2IntMap<ResourceKey<Level>> DIMENSION_COLORS = Util.make(new Object2IntOpenCustomHashMap<>(Util.identityStrategy()), param0 -> {
         param0.put(Level.OVERWORLD, -13408734);
         param0.put(Level.NETHER, -10075085);
@@ -31,15 +39,34 @@ public class OptimizeWorldScreen extends Screen {
     private final BooleanConsumer callback;
     private final WorldUpgrader upgrader;
 
-    public static OptimizeWorldScreen create(BooleanConsumer param0, DataFixer param1, LevelStorageSource.LevelStorageAccess param2, boolean param3) {
-        WorldData var0 = param2.getDataTag();
-        return new OptimizeWorldScreen(param0, param1, param2, var0, param3);
+    @Nullable
+    public static OptimizeWorldScreen create(
+        Minecraft param0, BooleanConsumer param1, DataFixer param2, LevelStorageSource.LevelStorageAccess param3, boolean param4
+    ) {
+        RegistryAccess.RegistryHolder var0 = RegistryAccess.builtin();
+
+        try (Minecraft.ServerStem var1 = param0.makeServerStem(var0, Minecraft::loadDataPacks, Minecraft::loadWorldData, false, param3)) {
+            WorldData var2 = var1.worldData();
+            param3.saveDataTag(var0, var2);
+            ImmutableSet<ResourceKey<Level>> var3 = var2.worldGenSettings().levels();
+            return new OptimizeWorldScreen(param1, param2, param3, var2.getLevelSettings(), param4, var3);
+        } catch (Exception var22) {
+            LOGGER.warn("Failed to load datapacks, can't optimize world", (Throwable)var22);
+            return null;
+        }
     }
 
-    private OptimizeWorldScreen(BooleanConsumer param0, DataFixer param1, LevelStorageSource.LevelStorageAccess param2, WorldData param3, boolean param4) {
-        super(new TranslatableComponent("optimizeWorld.title", param3.getLevelName()));
+    private OptimizeWorldScreen(
+        BooleanConsumer param0,
+        DataFixer param1,
+        LevelStorageSource.LevelStorageAccess param2,
+        LevelSettings param3,
+        boolean param4,
+        ImmutableSet<ResourceKey<Level>> param5
+    ) {
+        super(new TranslatableComponent("optimizeWorld.title", param3.levelName()));
         this.callback = param0;
-        this.upgrader = new WorldUpgrader(param2, param1, param3, param4);
+        this.upgrader = new WorldUpgrader(param2, param1, param5, param4);
     }
 
     @Override
@@ -85,7 +112,7 @@ public class OptimizeWorldScreen extends Screen {
             this.drawString(param0, this.font, I18n.get("optimizeWorld.info.total", this.upgrader.getTotalChunks()), var0, 40 + (9 + 3) * 2, 10526880);
             int var4 = 0;
 
-            for(ResourceKey<Level> var5 : this.upgrader.dimensionTypes()) {
+            for(ResourceKey<Level> var5 : this.upgrader.levels()) {
                 int var6 = Mth.floor(this.upgrader.dimensionProgress(var5) * (float)(var1 - var0));
                 fill(param0, var0 + var4, var2, var0 + var4 + var6, var3, DIMENSION_COLORS.getInt(var5));
                 var4 += var6;

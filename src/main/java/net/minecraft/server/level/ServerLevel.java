@@ -41,7 +41,6 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientboundAddGlobalEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockEventPacket;
 import net.minecraft.network.protocol.game.ClientboundEntityEventPacket;
@@ -70,6 +69,7 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
@@ -83,7 +83,6 @@ import net.minecraft.world.entity.animal.WaterAnimal;
 import net.minecraft.world.entity.animal.horse.SkeletonHorse;
 import net.minecraft.world.entity.boss.EnderDragonPart;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
-import net.minecraft.world.entity.global.LightningBolt;
 import net.minecraft.world.entity.npc.Npc;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raid;
@@ -93,6 +92,7 @@ import net.minecraft.world.level.BlockEventData;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.CustomSpawner;
 import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.ForcedChunksSavedData;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
@@ -139,7 +139,6 @@ import org.apache.logging.log4j.Logger;
 public class ServerLevel extends Level implements WorldGenLevel {
     public static final BlockPos END_SPAWN_POINT = new BlockPos(100, 50, 0);
     private static final Logger LOGGER = LogManager.getLogger();
-    private final List<Entity> globalEntities = Lists.newArrayList();
     private final Int2ObjectMap<Entity> entitiesById = new Int2ObjectLinkedOpenHashMap<>();
     private final Map<UUID, Entity> entitiesByUuid = Maps.newHashMap();
     private final Queue<Entity> toAddAfterTick = Queues.newArrayDeque();
@@ -360,78 +359,63 @@ public class ServerLevel extends Level implements WorldGenLevel {
                 this.dragonFight.tick();
             }
 
-            var0.push("global");
-
-            for(int var9 = 0; var9 < this.globalEntities.size(); ++var9) {
-                Entity var10 = this.globalEntities.get(var9);
-                this.guardEntityTick(param0x -> {
-                    ++param0x.tickCount;
-                    param0x.tick();
-                }, var10);
-                if (var10.removed) {
-                    this.globalEntities.remove(var9--);
-                }
-            }
-
-            var0.popPush("regular");
             this.tickingEntities = true;
-            ObjectIterator<Entry<Entity>> var11 = this.entitiesById.int2ObjectEntrySet().iterator();
+            ObjectIterator<Entry<Entity>> var9 = this.entitiesById.int2ObjectEntrySet().iterator();
 
-            label171:
+            label164:
             while(true) {
-                Entity var13;
+                Entity var11;
                 while(true) {
-                    if (!var11.hasNext()) {
+                    if (!var9.hasNext()) {
                         this.tickingEntities = false;
 
-                        Entity var15;
-                        while((var15 = this.toAddAfterTick.poll()) != null) {
-                            this.add(var15);
+                        Entity var13;
+                        while((var13 = this.toAddAfterTick.poll()) != null) {
+                            this.add(var13);
                         }
 
-                        var0.pop();
                         this.tickBlockEntities();
-                        break label171;
+                        break label164;
                     }
 
-                    Entry<Entity> var12 = var11.next();
-                    var13 = var12.getValue();
-                    Entity var14 = var13.getVehicle();
-                    if (!this.server.isSpawningAnimals() && (var13 instanceof Animal || var13 instanceof WaterAnimal)) {
-                        var13.remove();
+                    Entry<Entity> var10 = var9.next();
+                    var11 = var10.getValue();
+                    Entity var12 = var11.getVehicle();
+                    if (!this.server.isSpawningAnimals() && (var11 instanceof Animal || var11 instanceof WaterAnimal)) {
+                        var11.remove();
                     }
 
-                    if (!this.server.areNpcsEnabled() && var13 instanceof Npc) {
-                        var13.remove();
+                    if (!this.server.areNpcsEnabled() && var11 instanceof Npc) {
+                        var11.remove();
                     }
 
                     var0.push("checkDespawn");
-                    if (!var13.removed) {
-                        var13.checkDespawn();
+                    if (!var11.removed) {
+                        var11.checkDespawn();
                     }
 
                     var0.pop();
-                    if (var14 == null) {
+                    if (var12 == null) {
                         break;
                     }
 
-                    if (var14.removed || !var14.hasPassenger(var13)) {
-                        var13.stopRiding();
+                    if (var12.removed || !var12.hasPassenger(var11)) {
+                        var11.stopRiding();
                         break;
                     }
                 }
 
                 var0.push("tick");
-                if (!var13.removed && !(var13 instanceof EnderDragonPart)) {
-                    this.guardEntityTick(this::tickNonPassenger, var13);
+                if (!var11.removed && !(var11 instanceof EnderDragonPart)) {
+                    this.guardEntityTick(this::tickNonPassenger, var11);
                 }
 
                 var0.pop();
                 var0.push("remove");
-                if (var13.removed) {
-                    this.removeFromChunk(var13);
-                    var11.remove();
-                    this.onEntityRemoved(var13);
+                if (var11.removed) {
+                    this.removeFromChunk(var11);
+                    var9.remove();
+                    this.onEntityRemoved(var11);
                 }
 
                 var0.pop();
@@ -489,45 +473,48 @@ public class ServerLevel extends Level implements WorldGenLevel {
                     this.addFreshEntity(var8);
                 }
 
-                this.addGlobalEntity(new LightningBolt(this, (double)var5.getX() + 0.5, (double)var5.getY(), (double)var5.getZ() + 0.5, var7));
+                LightningBolt var9 = EntityType.LIGHTNING_BOLT.create(this);
+                var9.moveTo(Vec3.atBottomCenterOf(var5));
+                var9.setVisualOnly(var7);
+                this.addFreshEntity(var9);
             }
         }
 
         var4.popPush("iceandsnow");
         if (this.random.nextInt(16) == 0) {
-            BlockPos var9 = this.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, this.getBlockRandomPos(var2, 0, var3, 15));
-            BlockPos var10 = var9.below();
-            Biome var11 = this.getBiome(var9);
-            if (var11.shouldFreeze(this, var10)) {
-                this.setBlockAndUpdate(var10, Blocks.ICE.defaultBlockState());
+            BlockPos var10 = this.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, this.getBlockRandomPos(var2, 0, var3, 15));
+            BlockPos var11 = var10.below();
+            Biome var12 = this.getBiome(var10);
+            if (var12.shouldFreeze(this, var11)) {
+                this.setBlockAndUpdate(var11, Blocks.ICE.defaultBlockState());
             }
 
-            if (var1 && var11.shouldSnow(this, var9)) {
-                this.setBlockAndUpdate(var9, Blocks.SNOW.defaultBlockState());
+            if (var1 && var12.shouldSnow(this, var10)) {
+                this.setBlockAndUpdate(var10, Blocks.SNOW.defaultBlockState());
             }
 
-            if (var1 && this.getBiome(var10).getPrecipitation() == Biome.Precipitation.RAIN) {
-                this.getBlockState(var10).getBlock().handleRain(this, var10);
+            if (var1 && this.getBiome(var11).getPrecipitation() == Biome.Precipitation.RAIN) {
+                this.getBlockState(var11).getBlock().handleRain(this, var11);
             }
         }
 
         var4.popPush("tickBlocks");
         if (param1 > 0) {
-            for(LevelChunkSection var12 : param0.getSections()) {
-                if (var12 != LevelChunk.EMPTY_SECTION && var12.isRandomlyTicking()) {
-                    int var13 = var12.bottomBlockY();
+            for(LevelChunkSection var13 : param0.getSections()) {
+                if (var13 != LevelChunk.EMPTY_SECTION && var13.isRandomlyTicking()) {
+                    int var14 = var13.bottomBlockY();
 
-                    for(int var14 = 0; var14 < param1; ++var14) {
-                        BlockPos var15 = this.getBlockRandomPos(var2, var13, var3, 15);
+                    for(int var15 = 0; var15 < param1; ++var15) {
+                        BlockPos var16 = this.getBlockRandomPos(var2, var14, var3, 15);
                         var4.push("randomTick");
-                        BlockState var16 = var12.getBlockState(var15.getX() - var2, var15.getY() - var13, var15.getZ() - var3);
-                        if (var16.isRandomlyTicking()) {
-                            var16.randomTick(this, var15, this.random);
+                        BlockState var17 = var13.getBlockState(var16.getX() - var2, var16.getY() - var14, var16.getZ() - var3);
+                        if (var17.isRandomlyTicking()) {
+                            var17.randomTick(this, var16, this.random);
                         }
 
-                        FluidState var17 = var16.getFluidState();
-                        if (var17.isRandomlyTicking()) {
-                            var17.randomTick(this, var15, this.random);
+                        FluidState var18 = var17.getFluidState();
+                        if (var18.isRandomlyTicking()) {
+                            var18.randomTick(this, var16, this.random);
                         }
 
                         var4.pop();
@@ -935,13 +922,6 @@ public class ServerLevel extends Level implements WorldGenLevel {
         this.updateSleepingPlayerList();
     }
 
-    public void addGlobalEntity(LightningBolt param0) {
-        this.globalEntities.add(param0);
-        this.server
-            .getPlayerList()
-            .broadcast(null, param0.getX(), param0.getY(), param0.getZ(), 512.0, this.dimension(), new ClientboundAddGlobalEntityPacket(param0));
-    }
-
     @Override
     public void destroyBlockProgress(int param0, BlockPos param1, int param2) {
         for(ServerPlayer var0 : this.server.getPlayerList().getPlayers()) {
@@ -1037,27 +1017,24 @@ public class ServerLevel extends Level implements WorldGenLevel {
     public Explosion explode(
         @Nullable Entity param0,
         @Nullable DamageSource param1,
-        double param2,
+        @Nullable ExplosionDamageCalculator param2,
         double param3,
         double param4,
-        float param5,
-        boolean param6,
-        Explosion.BlockInteraction param7
+        double param5,
+        float param6,
+        boolean param7,
+        Explosion.BlockInteraction param8
     ) {
-        Explosion var0 = new Explosion(this, param0, param2, param3, param4, param5, param6, param7);
-        if (param1 != null) {
-            var0.setDamageSource(param1);
-        }
-
+        Explosion var0 = new Explosion(this, param0, param1, param2, param3, param4, param5, param6, param7, param8);
         var0.explode();
         var0.finalizeExplosion(false);
-        if (param7 == Explosion.BlockInteraction.NONE) {
+        if (param8 == Explosion.BlockInteraction.NONE) {
             var0.clearToBlow();
         }
 
         for(ServerPlayer var1 : this.players) {
-            if (var1.distanceToSqr(param2, param3, param4) < 4096.0) {
-                var1.connection.send(new ClientboundExplodePacket(param2, param3, param4, param5, var0.getToBlow(), var0.getHitPlayers().get(var1)));
+            if (var1.distanceToSqr(param3, param4, param5) < 4096.0) {
+                var1.connection.send(new ClientboundExplodePacket(param3, param4, param5, param6, var0.getToBlow(), var0.getHitPlayers().get(var1)));
             }
         }
 
@@ -1376,16 +1353,10 @@ public class ServerLevel extends Level implements WorldGenLevel {
             dumpEntities(var9, this.entitiesById.values());
         }
 
-        Path var10 = param0.resolve("global_entities.csv");
+        Path var10 = param0.resolve("block_entities.csv");
 
         try (Writer var11 = Files.newBufferedWriter(var10)) {
-            dumpEntities(var11, this.globalEntities);
-        }
-
-        Path var12 = param0.resolve("block_entities.csv");
-
-        try (Writer var13 = Files.newBufferedWriter(var12)) {
-            this.dumpBlockEntities(var13);
+            this.dumpBlockEntities(var11);
         }
 
     }

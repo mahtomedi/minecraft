@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.List;
 import net.minecraft.client.model.ShieldModel;
 import net.minecraft.client.model.TridentModel;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.blockentity.BannerRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.SkullBlockRenderer;
@@ -60,7 +61,7 @@ public class BlockEntityWithoutLevelRenderer {
     private final ShieldModel shieldModel = new ShieldModel();
     private final TridentModel tridentModel = new TridentModel();
 
-    public void renderByItem(ItemStack param0, PoseStack param1, MultiBufferSource param2, int param3, int param4) {
+    public void renderByItem(ItemStack param0, ItemTransforms.TransformType param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {
         Item var0 = param0.getItem();
         if (var0 instanceof BlockItem) {
             Block var1 = ((BlockItem)var0).getBlock();
@@ -71,14 +72,14 @@ public class BlockEntityWithoutLevelRenderer {
                     if (var3.contains("SkullOwner", 10)) {
                         var2 = NbtUtils.readGameProfile(var3.getCompound("SkullOwner"));
                     } else if (var3.contains("SkullOwner", 8) && !StringUtils.isBlank(var3.getString("SkullOwner"))) {
-                        GameProfile var151 = new GameProfile(null, var3.getString("SkullOwner"));
-                        var2 = SkullBlockEntity.updateGameprofile(var151);
+                        GameProfile var161 = new GameProfile(null, var3.getString("SkullOwner"));
+                        var2 = SkullBlockEntity.updateGameprofile(var161);
                         var3.remove("SkullOwner");
                         var3.put("SkullOwner", NbtUtils.writeGameProfile(new CompoundTag(), var2));
                     }
                 }
 
-                SkullBlockRenderer.renderSkull(null, 180.0F, ((AbstractSkullBlock)var1).getType(), var2, 0.0F, param1, param2, param3);
+                SkullBlockRenderer.renderSkull(null, 180.0F, ((AbstractSkullBlock)var1).getType(), var2, 0.0F, param2, param3, param4);
             } else {
                 BlockEntity var4;
                 if (var1 instanceof AbstractBannerBlock) {
@@ -108,33 +109,42 @@ public class BlockEntityWithoutLevelRenderer {
                     }
                 }
 
-                BlockEntityRenderDispatcher.instance.renderItem(var4, param1, param2, param3, param4);
+                BlockEntityRenderDispatcher.instance.renderItem(var4, param2, param3, param4, param5);
             }
         } else {
             if (var0 == Items.SHIELD) {
                 boolean var14 = param0.getTagElement("BlockEntityTag") != null;
-                param1.pushPose();
-                param1.scale(1.0F, -1.0F, -1.0F);
+                param2.pushPose();
+                param2.scale(1.0F, -1.0F, -1.0F);
                 Material var15 = var14 ? ModelBakery.SHIELD_BASE : ModelBakery.NO_PATTERN_SHIELD;
                 VertexConsumer var16 = var15.sprite()
-                    .wrap(ItemRenderer.getFoilBuffer(param2, this.shieldModel.renderType(var15.atlasLocation()), false, param0.hasFoil()));
-                this.shieldModel.handle().render(param1, var16, param3, param4, 1.0F, 1.0F, 1.0F, 1.0F);
+                    .wrap(ItemRenderer.getFoilBufferDirect(param3, this.shieldModel.renderType(var15.atlasLocation()), false, param0.hasFoil()));
+                this.shieldModel.handle().render(param2, var16, param4, param5, 1.0F, 1.0F, 1.0F, 1.0F);
                 if (var14) {
                     List<Pair<BannerPattern, DyeColor>> var17 = BannerBlockEntity.createPatterns(
                         ShieldItem.getColor(param0), BannerBlockEntity.getItemPatterns(param0)
                     );
-                    BannerRenderer.renderPatterns(param1, param2, param3, param4, this.shieldModel.plate(), var15, false, var17);
+                    BannerRenderer.renderPatterns(param2, param3, param4, param5, this.shieldModel.plate(), var15, false, var17);
                 } else {
-                    this.shieldModel.plate().render(param1, var16, param3, param4, 1.0F, 1.0F, 1.0F, 1.0F);
+                    this.shieldModel.plate().render(param2, var16, param4, param5, 1.0F, 1.0F, 1.0F, 1.0F);
                 }
 
-                param1.popPose();
+                param2.popPose();
             } else if (var0 == Items.TRIDENT) {
-                param1.pushPose();
-                param1.scale(1.0F, -1.0F, -1.0F);
-                VertexConsumer var18 = ItemRenderer.getFoilBuffer(param2, this.tridentModel.renderType(TridentModel.TEXTURE), false, param0.hasFoil());
-                this.tridentModel.renderToBuffer(param1, var18, param3, param4, 1.0F, 1.0F, 1.0F, 1.0F);
-                param1.popPose();
+                param2.pushPose();
+                param2.scale(1.0F, -1.0F, -1.0F);
+                VertexConsumer var19;
+                if (param1 != ItemTransforms.TransformType.GUI
+                    && param1 != ItemTransforms.TransformType.FIRST_PERSON_LEFT_HAND
+                    && param1 != ItemTransforms.TransformType.FIRST_PERSON_RIGHT_HAND
+                    && param1 != ItemTransforms.TransformType.FIXED) {
+                    var19 = ItemRenderer.getFoilBuffer(param3, this.tridentModel.renderType(TridentModel.TEXTURE), false, param0.hasFoil());
+                } else {
+                    var19 = ItemRenderer.getFoilBufferDirect(param3, this.tridentModel.renderType(TridentModel.TEXTURE), false, param0.hasFoil());
+                }
+
+                this.tridentModel.renderToBuffer(param2, var19, param4, param5, 1.0F, 1.0F, 1.0F, 1.0F);
+                param2.popPose();
             }
 
         }

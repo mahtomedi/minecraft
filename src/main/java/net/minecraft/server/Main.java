@@ -1,9 +1,11 @@
 package net.minecraft.server;
 
+import com.google.common.collect.ImmutableSet;
 import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.datafixers.DataFixer;
+import com.mojang.serialization.Lifecycle;
 import java.awt.GraphicsEnvironment;
 import java.io.File;
 import java.net.Proxy;
@@ -19,19 +21,31 @@ import joptsimple.OptionSpec;
 import net.minecraft.CrashReport;
 import net.minecraft.DefaultUncaughtExceptionHandler;
 import net.minecraft.Util;
+import net.minecraft.commands.Commands;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.RegistryReadOps;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.dedicated.DedicatedServerProperties;
 import net.minecraft.server.dedicated.DedicatedServerSettings;
 import net.minecraft.server.level.progress.LoggerChunkProgressListener;
+import net.minecraft.server.packs.repository.FolderRepositorySource;
+import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackRepository;
-import net.minecraft.server.packs.repository.UnopenedPack;
+import net.minecraft.server.packs.repository.PackSource;
+import net.minecraft.server.packs.repository.ServerPacksSource;
 import net.minecraft.server.players.GameProfileCache;
 import net.minecraft.util.Mth;
 import net.minecraft.util.datafix.DataFixers;
 import net.minecraft.util.worldupdate.WorldUpgrader;
+import net.minecraft.world.level.DataPackConfig;
 import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelSettings;
+import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.PrimaryLevelData;
@@ -94,108 +108,118 @@ public class Main {
             LevelStorageSource var26 = LevelStorageSource.createDefault(var20.toPath());
             LevelStorageSource.LevelStorageAccess var27 = var26.createAccess(var25);
             MinecraftServer.convertFromRegionFormatIfNeeded(var27);
-            if (var15.has(var5)) {
-                forceUpgrade(var27, DataFixers.getDataFixer(), var15.has(var6), () -> true);
-            }
-
-            WorldData var28 = var27.getDataTag();
-            if (var28 == null) {
-                LevelSettings var29;
-                if (var15.has(var3)) {
-                    var29 = MinecraftServer.DEMO_SETTINGS;
-                } else {
-                    DedicatedServerProperties var30 = var17.getProperties();
-                    var29 = new LevelSettings(
-                        var30.levelName,
-                        var30.gamemode,
-                        var30.hardcore,
-                        var30.difficulty,
-                        false,
-                        new GameRules(),
-                        var15.has(var4) ? var30.worldGenSettings.withBonusChest() : var30.worldGenSettings
-                    );
-                }
-
-                var28 = new PrimaryLevelData(var29);
-            }
-
-            boolean var32 = var15.has(var7);
-            if (var32) {
+            DataPackConfig var28 = var27.getDataPacks();
+            boolean var29 = var15.has(var7);
+            if (var29) {
                 LOGGER.warn("Safe mode active, only vanilla datapack will be loaded");
             }
 
-            PackRepository<UnopenedPack> var33 = MinecraftServer.createPackRepository(var27.getLevelPath(LevelResource.DATAPACK_DIR), var28, var32);
-            CompletableFuture<ServerResources> var34 = ServerResources.loadResources(
-                var33.openAllSelected(), true, var17.getProperties().functionPermissionLevel, Util.backgroundExecutor(), Runnable::run
+            PackRepository<Pack> var30 = new PackRepository<>(
+                Pack::new, new ServerPacksSource(), new FolderRepositorySource(var27.getLevelPath(LevelResource.DATAPACK_DIR).toFile(), PackSource.WORLD)
+            );
+            DataPackConfig var31 = MinecraftServer.configurePackRepository(var30, var28 == null ? DataPackConfig.DEFAULT : var28, var29);
+            CompletableFuture<ServerResources> var32 = ServerResources.loadResources(
+                var30.openAllSelected(),
+                Commands.CommandSelection.DEDICATED,
+                var17.getProperties().functionPermissionLevel,
+                Util.backgroundExecutor(),
+                Runnable::run
             );
 
-            ServerResources var35;
+            ServerResources var33;
             try {
-                var35 = var34.get();
-            } catch (Exception var371) {
+                var33 = var32.get();
+            } catch (Exception var41) {
                 LOGGER.warn(
                     "Failed to load datapacks, can't proceed with server load. You can either fix your datapacks or reset to vanilla with --safeMode",
-                    (Throwable)var371
+                    (Throwable)var41
                 );
-                var33.close();
+                var30.close();
                 return;
             }
 
-            var35.updateGlobals();
-            final DedicatedServer var38 = new DedicatedServer(
-                var27, var33, var35, var28, var17, DataFixers.getDataFixer(), var22, var23, var24, LoggerChunkProgressListener::new
-            );
-            var38.setSingleplayerName(var15.valueOf(var9));
-            var38.setPort(var15.valueOf(var12));
-            var38.setDemo(var15.has(var3));
-            var38.setId(var15.valueOf(var13));
-            boolean var39 = !var15.has(var1) && !var15.valuesOf(var14).contains("nogui");
-            if (var39 && !GraphicsEnvironment.isHeadless()) {
-                var38.showGui();
+            var33.updateGlobals();
+            RegistryAccess.RegistryHolder var36 = RegistryAccess.builtin();
+            RegistryReadOps<Tag> var37 = RegistryReadOps.create(NbtOps.INSTANCE, var33.getResourceManager(), var36);
+            WorldData var38 = var27.getDataTag(var37, var31);
+            if (var38 == null) {
+                LevelSettings var39;
+                WorldGenSettings var40;
+                if (var15.has(var3)) {
+                    var39 = MinecraftServer.DEMO_SETTINGS;
+                    var40 = WorldGenSettings.DEMO_SETTINGS;
+                } else {
+                    DedicatedServerProperties var41 = var17.getProperties();
+                    var39 = new LevelSettings(var41.levelName, var41.gamemode, var41.hardcore, var41.difficulty, false, new GameRules(), var31);
+                    var40 = var15.has(var4) ? var41.worldGenSettings.withBonusChest() : var41.worldGenSettings;
+                }
+
+                var38 = new PrimaryLevelData(var39, var40, Lifecycle.stable());
             }
 
-            var38.forkAndRun();
-            Thread var40 = new Thread("Server Shutdown Thread") {
+            if (var15.has(var5)) {
+                forceUpgrade(var27, DataFixers.getDataFixer(), var15.has(var6), () -> true, var38.worldGenSettings().levels());
+            }
+
+            var27.saveDataTag(var36, var38);
+            WorldData var44 = var38;
+            final DedicatedServer var45 = MinecraftServer.spin(
+                param16 -> {
+                    DedicatedServer var0x = new DedicatedServer(
+                        param16, var36, var27, var30, var33, var44, var17, DataFixers.getDataFixer(), var22, var23, var24, LoggerChunkProgressListener::new
+                    );
+                    var0x.setSingleplayerName(var15.valueOf(var9));
+                    var0x.setPort(var15.valueOf(var12));
+                    var0x.setDemo(var15.has(var3));
+                    var0x.setId(var15.valueOf(var13));
+                    boolean var1x = !var15.has(var1) && !var15.valuesOf(var14).contains("nogui");
+                    if (var1x && !GraphicsEnvironment.isHeadless()) {
+                        var0x.showGui();
+                    }
+    
+                    return var0x;
+                }
+            );
+            Thread var46 = new Thread("Server Shutdown Thread") {
                 @Override
                 public void run() {
-                    var38.halt(true);
+                    var45.halt(true);
                 }
             };
-            var40.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
-            Runtime.getRuntime().addShutdownHook(var40);
-        } catch (Exception var381) {
-            LOGGER.fatal("Failed to start the minecraft server", (Throwable)var381);
+            var46.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
+            Runtime.getRuntime().addShutdownHook(var46);
+        } catch (Exception var42) {
+            LOGGER.fatal("Failed to start the minecraft server", (Throwable)var42);
         }
 
     }
 
-    private static void forceUpgrade(LevelStorageSource.LevelStorageAccess param0, DataFixer param1, boolean param2, BooleanSupplier param3) {
+    private static void forceUpgrade(
+        LevelStorageSource.LevelStorageAccess param0, DataFixer param1, boolean param2, BooleanSupplier param3, ImmutableSet<ResourceKey<Level>> param4
+    ) {
         LOGGER.info("Forcing world upgrade!");
-        WorldData var0 = param0.getDataTag();
-        if (var0 != null) {
-            WorldUpgrader var1 = new WorldUpgrader(param0, param1, var0, param2);
-            Component var2 = null;
+        WorldUpgrader var0 = new WorldUpgrader(param0, param1, param4, param2);
+        Component var1 = null;
 
-            while(!var1.isFinished()) {
-                Component var3 = var1.getStatus();
-                if (var2 != var3) {
-                    var2 = var3;
-                    LOGGER.info(var1.getStatus().getString());
-                }
+        while(!var0.isFinished()) {
+            Component var2 = var0.getStatus();
+            if (var1 != var2) {
+                var1 = var2;
+                LOGGER.info(var0.getStatus().getString());
+            }
 
-                int var4 = var1.getTotalChunks();
-                if (var4 > 0) {
-                    int var5 = var1.getConverted() + var1.getSkipped();
-                    LOGGER.info("{}% completed ({} / {} chunks)...", Mth.floor((float)var5 / (float)var4 * 100.0F), var5, var4);
-                }
+            int var3 = var0.getTotalChunks();
+            if (var3 > 0) {
+                int var4 = var0.getConverted() + var0.getSkipped();
+                LOGGER.info("{}% completed ({} / {} chunks)...", Mth.floor((float)var4 / (float)var3 * 100.0F), var4, var3);
+            }
 
-                if (!param3.getAsBoolean()) {
-                    var1.cancel();
-                } else {
-                    try {
-                        Thread.sleep(1000L);
-                    } catch (InterruptedException var10) {
-                    }
+            if (!param3.getAsBoolean()) {
+                var0.cancel();
+            } else {
+                try {
+                    Thread.sleep(1000L);
+                } catch (InterruptedException var10) {
                 }
             }
         }

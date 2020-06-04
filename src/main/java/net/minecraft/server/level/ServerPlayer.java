@@ -84,6 +84,8 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.NeutralMob;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Monster;
@@ -126,7 +128,6 @@ import org.apache.logging.log4j.Logger;
 
 public class ServerPlayer extends Player implements ContainerListener {
     private static final Logger LOGGER = LogManager.getLogger();
-    private String language = "en_US";
     public ServerGamePacketListenerImpl connection;
     public final MinecraftServer server;
     public final ServerPlayerGameMode gameMode;
@@ -509,6 +510,10 @@ public class ServerPlayer extends Player implements ContainerListener {
         }
 
         this.removeEntitiesOnShoulder();
+        if (this.level.getGameRules().getBoolean(GameRules.RULE_FORGIVE_DEAD_PLAYERS)) {
+            this.tellNeutralMobsThatIDied();
+        }
+
         if (!this.isSpectator()) {
             this.dropAllDeathLoot(param0);
         }
@@ -528,6 +533,15 @@ public class ServerPlayer extends Player implements ContainerListener {
         this.clearFire();
         this.setSharedFlag(0, false);
         this.getCombatTracker().recheckStatus();
+    }
+
+    private void tellNeutralMobsThatIDied() {
+        AABB var0 = new AABB(this.blockPosition()).inflate(32.0, 10.0, 32.0);
+        this.level
+            .getLoadedEntitiesOfClass(Mob.class, var0)
+            .stream()
+            .filter(param0 -> param0 instanceof NeutralMob)
+            .forEach(param0 -> ((NeutralMob)param0).playerDied(this));
     }
 
     @Override
@@ -1248,7 +1262,6 @@ public class ServerPlayer extends Player implements ContainerListener {
     }
 
     public void updateOptions(ServerboundClientInformationPacket param0) {
-        this.language = param0.getLanguage();
         this.chatVisibility = param0.getChatVisibility();
         this.canChatColor = param0.getChatColors();
         this.getEntityData().set(DATA_PLAYER_MODE_CUSTOMISATION, (byte)param0.getModelCustomisation());

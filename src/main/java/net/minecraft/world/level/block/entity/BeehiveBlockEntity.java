@@ -71,7 +71,7 @@ public class BeehiveBlockEntity extends BlockEntity implements TickableBlockEnti
                     Bee var2 = (Bee)var1;
                     if (param0.position().distanceToSqr(var1.position()) <= 16.0) {
                         if (!this.isSedated()) {
-                            var2.makeAngry(param0);
+                            var2.setTarget(param0);
                         } else {
                             var2.setStayOutOfHiveCountdown(400);
                         }
@@ -176,20 +176,17 @@ public class BeehiveBlockEntity extends BlockEntity implements TickableBlockEnti
                                 }
                             }
 
-                            int var9 = param1.ticksInHive;
-                            var6.ageUp(var9);
-                            var6.setInLoveTime(Math.max(0, var6.getInLoveTime() - var9));
-                            var6.resetTicksWithoutNectarSinceExitingHive();
+                            this.setBeeReleaseData(param1.ticksInHive, var6);
                             if (param2 != null) {
                                 param2.add(var6);
                             }
 
-                            float var10 = var5.getBbWidth();
-                            double var11 = var4 ? 0.0 : 0.55 + (double)(var10 / 2.0F);
-                            double var12 = (double)var0.getX() + 0.5 + var11 * (double)var2.getStepX();
-                            double var13 = (double)var0.getY() + 0.5 - (double)(var5.getBbHeight() / 2.0F);
-                            double var14 = (double)var0.getZ() + 0.5 + var11 * (double)var2.getStepZ();
-                            var5.moveTo(var12, var13, var14, var5.yRot, var5.xRot);
+                            float var9 = var5.getBbWidth();
+                            double var10 = var4 ? 0.0 : 0.55 + (double)(var9 / 2.0F);
+                            double var11 = (double)var0.getX() + 0.5 + var10 * (double)var2.getStepX();
+                            double var12 = (double)var0.getY() + 0.5 - (double)(var5.getBbHeight() / 2.0F);
+                            double var13 = (double)var0.getZ() + 0.5 + var10 * (double)var2.getStepZ();
+                            var5.moveTo(var11, var12, var13, var5.yRot, var5.xRot);
                         }
 
                         this.level.playSound(null, var0, SoundEvents.BEEHIVE_EXIT, SoundSource.BLOCKS, 1.0F, 1.0F);
@@ -202,16 +199,28 @@ public class BeehiveBlockEntity extends BlockEntity implements TickableBlockEnti
         }
     }
 
+    private void setBeeReleaseData(int param0, Bee param1) {
+        int var0 = param1.getAge();
+        if (var0 < 0) {
+            param1.setAge(Math.min(0, var0 + param0));
+        } else if (var0 > 0) {
+            param1.setAge(Math.max(0, var0 - param0));
+        }
+
+        param1.setInLoveTime(Math.max(0, param1.getInLoveTime() - param0));
+        param1.resetTicksWithoutNectarSinceExitingHive();
+    }
+
     private boolean hasSavedFlowerPos() {
         return this.savedFlowerPos != null;
     }
 
     private void tickOccupants() {
         Iterator<BeehiveBlockEntity.BeeData> var0 = this.stored.iterator();
-        BlockState var1 = this.getBlockState();
 
-        while(var0.hasNext()) {
-            BeehiveBlockEntity.BeeData var2 = var0.next();
+        BeehiveBlockEntity.BeeData var2;
+        for(BlockState var1 = this.getBlockState(); var0.hasNext(); var2.ticksInHive++) {
+            var2 = var0.next();
             if (var2.ticksInHive > var2.minOccupationTicks) {
                 BeehiveBlockEntity.BeeReleaseStatus var3 = var2.entityData.getBoolean("HasNectar")
                     ? BeehiveBlockEntity.BeeReleaseStatus.HONEY_DELIVERED
@@ -219,8 +228,6 @@ public class BeehiveBlockEntity extends BlockEntity implements TickableBlockEnti
                 if (this.releaseOccupant(var1, var2, null, var3)) {
                     var0.remove();
                 }
-            } else {
-                var2.ticksInHive++;
             }
         }
 

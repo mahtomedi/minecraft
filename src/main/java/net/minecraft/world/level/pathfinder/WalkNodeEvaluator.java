@@ -26,6 +26,7 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class WalkNodeEvaluator extends NodeEvaluator {
@@ -120,57 +121,57 @@ public class WalkNodeEvaluator extends NodeEvaluator {
         int var0 = 0;
         int var1 = 0;
         BlockPathTypes var2 = this.getCachedBlockType(this.mob, param1.x, param1.y + 1, param1.z);
-        if (this.mob.getPathfindingMalus(var2) >= 0.0F) {
-            BlockPathTypes var3 = this.getCachedBlockType(this.mob, param1.x, param1.y, param1.z);
-            if (var3 == BlockPathTypes.STICKY_HONEY) {
-                var1 = 0;
-            } else {
-                var1 = Mth.floor(Math.max(1.0F, this.mob.maxUpStep));
-            }
+        BlockPathTypes var3 = this.getCachedBlockType(this.mob, param1.x, param1.y, param1.z);
+        if (this.mob.getPathfindingMalus(var2) >= 0.0F && var3 != BlockPathTypes.STICKY_HONEY) {
+            var1 = Mth.floor(Math.max(1.0F, this.mob.maxUpStep));
         }
 
         double var4 = getFloorLevel(this.level, new BlockPos(param1.x, param1.y, param1.z));
-        Node var5 = this.getLandNode(param1.x, param1.y, param1.z + 1, var1, var4, Direction.SOUTH);
-        if (var5 != null && !var5.closed && (var5.costMalus >= 0.0F || param1.costMalus < 0.0F)) {
+        Node var5 = this.getLandNode(param1.x, param1.y, param1.z + 1, var1, var4, Direction.SOUTH, var3);
+        if (this.isNeighborValid(var5, param1)) {
             param0[var0++] = var5;
         }
 
-        Node var6 = this.getLandNode(param1.x - 1, param1.y, param1.z, var1, var4, Direction.WEST);
-        if (var6 != null && !var6.closed && (var6.costMalus >= 0.0F || param1.costMalus < 0.0F)) {
+        Node var6 = this.getLandNode(param1.x - 1, param1.y, param1.z, var1, var4, Direction.WEST, var3);
+        if (this.isNeighborValid(var6, param1)) {
             param0[var0++] = var6;
         }
 
-        Node var7 = this.getLandNode(param1.x + 1, param1.y, param1.z, var1, var4, Direction.EAST);
-        if (var7 != null && !var7.closed && (var7.costMalus >= 0.0F || param1.costMalus < 0.0F)) {
+        Node var7 = this.getLandNode(param1.x + 1, param1.y, param1.z, var1, var4, Direction.EAST, var3);
+        if (this.isNeighborValid(var7, param1)) {
             param0[var0++] = var7;
         }
 
-        Node var8 = this.getLandNode(param1.x, param1.y, param1.z - 1, var1, var4, Direction.NORTH);
-        if (var8 != null && !var8.closed && (var8.costMalus >= 0.0F || param1.costMalus < 0.0F)) {
+        Node var8 = this.getLandNode(param1.x, param1.y, param1.z - 1, var1, var4, Direction.NORTH, var3);
+        if (this.isNeighborValid(var8, param1)) {
             param0[var0++] = var8;
         }
 
-        Node var9 = this.getLandNode(param1.x - 1, param1.y, param1.z - 1, var1, var4, Direction.NORTH);
+        Node var9 = this.getLandNode(param1.x - 1, param1.y, param1.z - 1, var1, var4, Direction.NORTH, var3);
         if (this.isDiagonalValid(param1, var6, var8, var9)) {
             param0[var0++] = var9;
         }
 
-        Node var10 = this.getLandNode(param1.x + 1, param1.y, param1.z - 1, var1, var4, Direction.NORTH);
+        Node var10 = this.getLandNode(param1.x + 1, param1.y, param1.z - 1, var1, var4, Direction.NORTH, var3);
         if (this.isDiagonalValid(param1, var7, var8, var10)) {
             param0[var0++] = var10;
         }
 
-        Node var11 = this.getLandNode(param1.x - 1, param1.y, param1.z + 1, var1, var4, Direction.SOUTH);
+        Node var11 = this.getLandNode(param1.x - 1, param1.y, param1.z + 1, var1, var4, Direction.SOUTH, var3);
         if (this.isDiagonalValid(param1, var6, var5, var11)) {
             param0[var0++] = var11;
         }
 
-        Node var12 = this.getLandNode(param1.x + 1, param1.y, param1.z + 1, var1, var4, Direction.SOUTH);
+        Node var12 = this.getLandNode(param1.x + 1, param1.y, param1.z + 1, var1, var4, Direction.SOUTH, var3);
         if (this.isDiagonalValid(param1, var7, var5, var12)) {
             param0[var0++] = var12;
         }
 
         return var0;
+    }
+
+    private boolean isNeighborValid(Node param0, Node param1) {
+        return param0 != null && !param0.closed && (param0.costMalus >= 0.0F || param1.costMalus < 0.0F);
     }
 
     private boolean isDiagonalValid(Node param0, @Nullable Node param1, @Nullable Node param2, @Nullable Node param3) {
@@ -179,10 +180,29 @@ public class WalkNodeEvaluator extends NodeEvaluator {
         } else if (param3.closed) {
             return false;
         } else if (param2.y <= param0.y && param1.y <= param0.y) {
-            return param3.costMalus >= 0.0F && (param2.y < param0.y || param2.costMalus >= 0.0F) && (param1.y < param0.y || param1.costMalus >= 0.0F);
+            boolean var0 = param2.type == BlockPathTypes.FENCE && param1.type == BlockPathTypes.FENCE && (double)this.mob.getBbWidth() < 0.5;
+            return param3.costMalus >= 0.0F
+                && (param2.y < param0.y || param2.costMalus >= 0.0F || var0)
+                && (param1.y < param0.y || param1.costMalus >= 0.0F || var0);
         } else {
             return false;
         }
+    }
+
+    private boolean canReachWithoutCollision(Node param0) {
+        Vec3 var0 = new Vec3((double)param0.x - this.mob.getX(), (double)param0.y - this.mob.getY(), (double)param0.z - this.mob.getZ());
+        AABB var1 = this.mob.getBoundingBox();
+        int var2 = Mth.ceil(var0.length() / var1.getSize());
+        var0 = var0.scale((double)(1.0F / (float)var2));
+
+        for(int var3 = 1; var3 <= var2; ++var3) {
+            var1 = var1.move(var0);
+            if (this.hasCollisions(var1)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public static double getFloorLevel(BlockGetter param0, BlockPos param1) {
@@ -192,7 +212,7 @@ public class WalkNodeEvaluator extends NodeEvaluator {
     }
 
     @Nullable
-    private Node getLandNode(int param0, int param1, int param2, int param3, double param4, Direction param5) {
+    private Node getLandNode(int param0, int param1, int param2, int param3, double param4, Direction param5, BlockPathTypes param6) {
         Node var0 = null;
         BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos();
         double var2 = getFloorLevel(this.level, var1.set(param0, param1, param2));
@@ -208,11 +228,19 @@ public class WalkNodeEvaluator extends NodeEvaluator {
                 var0.costMalus = Math.max(var0.costMalus, var4);
             }
 
+            if (param6 == BlockPathTypes.FENCE && var0 != null && var0.costMalus >= 0.0F && !this.canReachWithoutCollision(var0)) {
+                var0 = null;
+            }
+
             if (var3 == BlockPathTypes.WALKABLE) {
                 return var0;
             } else {
-                if ((var0 == null || var0.costMalus < 0.0F) && param3 > 0 && var3 != BlockPathTypes.FENCE && var3 != BlockPathTypes.TRAPDOOR) {
-                    var0 = this.getLandNode(param0, param1 + 1, param2, param3 - 1, param4, param5);
+                if ((var0 == null || var0.costMalus < 0.0F)
+                    && param3 > 0
+                    && var3 != BlockPathTypes.FENCE
+                    && var3 != BlockPathTypes.UNPASSABLE_RAIL
+                    && var3 != BlockPathTypes.TRAPDOOR) {
+                    var0 = this.getLandNode(param0, param1 + 1, param2, param3 - 1, param4, param5, param6);
                     if (var0 != null && (var0.type == BlockPathTypes.OPEN || var0.type == BlockPathTypes.WALKABLE) && this.mob.getBbWidth() < 1.0F) {
                         double var6 = (double)(param0 - param5.getStepX()) + 0.5;
                         double var7 = (double)(param2 - param5.getStepZ()) + 0.5;
@@ -305,6 +333,13 @@ public class WalkNodeEvaluator extends NodeEvaluator {
                     }
                 }
 
+                if (var3 == BlockPathTypes.FENCE) {
+                    var0 = this.getNode(param0, param1, param2);
+                    var0.closed = true;
+                    var0.type = var3;
+                    var0.costMalus = var3.getMalus();
+                }
+
                 return var0;
             }
         }
@@ -320,25 +355,26 @@ public class WalkNodeEvaluator extends NodeEvaluator {
     ) {
         EnumSet<BlockPathTypes> var0 = EnumSet.noneOf(BlockPathTypes.class);
         BlockPathTypes var1 = BlockPathTypes.BLOCKED;
-        double var2 = (double)param4.getBbWidth() / 2.0;
-        BlockPos var3 = param4.blockPosition();
-        var1 = this.getBlockPathTypes(param0, param1, param2, param3, param5, param6, param7, param8, param9, var0, var1, var3);
+        BlockPos var2 = param4.blockPosition();
+        var1 = this.getBlockPathTypes(param0, param1, param2, param3, param5, param6, param7, param8, param9, var0, var1, var2);
         if (var0.contains(BlockPathTypes.FENCE)) {
             return BlockPathTypes.FENCE;
+        } else if (var0.contains(BlockPathTypes.UNPASSABLE_RAIL)) {
+            return BlockPathTypes.UNPASSABLE_RAIL;
         } else {
-            BlockPathTypes var4 = BlockPathTypes.BLOCKED;
+            BlockPathTypes var3 = BlockPathTypes.BLOCKED;
 
-            for(BlockPathTypes var5 : var0) {
-                if (param4.getPathfindingMalus(var5) < 0.0F) {
-                    return var5;
+            for(BlockPathTypes var4 : var0) {
+                if (param4.getPathfindingMalus(var4) < 0.0F) {
+                    return var4;
                 }
 
-                if (param4.getPathfindingMalus(var5) >= param4.getPathfindingMalus(var4)) {
-                    var4 = var5;
+                if (param4.getPathfindingMalus(var4) >= param4.getPathfindingMalus(var3)) {
+                    var3 = var4;
                 }
             }
 
-            return var1 == BlockPathTypes.OPEN && param4.getPathfindingMalus(var4) == 0.0F ? BlockPathTypes.OPEN : var4;
+            return var1 == BlockPathTypes.OPEN && param4.getPathfindingMalus(var3) == 0.0F ? BlockPathTypes.OPEN : var3;
         }
     }
 
@@ -388,7 +424,7 @@ public class WalkNodeEvaluator extends NodeEvaluator {
         if (param4 == BlockPathTypes.RAIL
             && !(param0.getBlockState(param3).getBlock() instanceof BaseRailBlock)
             && !(param0.getBlockState(param3.below()).getBlock() instanceof BaseRailBlock)) {
-            param4 = BlockPathTypes.FENCE;
+            param4 = BlockPathTypes.UNPASSABLE_RAIL;
         }
 
         if (param4 == BlockPathTypes.LEAVES) {

@@ -10,7 +10,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class SimpleSoundInstance extends AbstractSoundInstance {
     public SimpleSoundInstance(SoundEvent param0, SoundSource param1, float param2, float param3, BlockPos param4) {
-        this(param0, param1, param2, param3, (float)param4.getX() + 0.5F, (float)param4.getY() + 0.5F, (float)param4.getZ() + 0.5F);
+        this(param0, param1, param2, param3, (double)param4.getX() + 0.5, (double)param4.getY() + 0.5, (double)param4.getZ() + 0.5);
     }
 
     public static SimpleSoundInstance forUI(SoundEvent param0, float param1) {
@@ -18,34 +18,30 @@ public class SimpleSoundInstance extends AbstractSoundInstance {
     }
 
     public static SimpleSoundInstance forUI(SoundEvent param0, float param1, float param2) {
-        return new SimpleSoundInstance(
-            param0.getLocation(), SoundSource.MASTER, param2, param1, false, 0, SoundInstance.Attenuation.NONE, 0.0F, 0.0F, 0.0F, true
-        );
+        return new SimpleSoundInstance(param0.getLocation(), SoundSource.MASTER, param2, param1, false, 0, SoundInstance.Attenuation.NONE, 0.0, 0.0, 0.0, true);
     }
 
     public static SimpleSoundInstance forMusic(SoundEvent param0) {
-        return new SimpleSoundInstance(param0.getLocation(), SoundSource.MUSIC, 1.0F, 1.0F, false, 0, SoundInstance.Attenuation.NONE, 0.0F, 0.0F, 0.0F, true);
+        return new SimpleSoundInstance(param0.getLocation(), SoundSource.MUSIC, 1.0F, 1.0F, false, 0, SoundInstance.Attenuation.NONE, 0.0, 0.0, 0.0, true);
     }
 
-    public static SimpleSoundInstance forRecord(SoundEvent param0, float param1, float param2, float param3) {
+    public static SimpleSoundInstance forRecord(SoundEvent param0, double param1, double param2, double param3) {
         return new SimpleSoundInstance(param0, SoundSource.RECORDS, 4.0F, 1.0F, false, 0, SoundInstance.Attenuation.LINEAR, param1, param2, param3);
     }
 
     public static SimpleSoundInstance forLocalAmbience(SoundEvent param0, float param1, float param2) {
-        return new SimpleSoundInstance(
-            param0.getLocation(), SoundSource.AMBIENT, param2, param1, false, 0, SoundInstance.Attenuation.NONE, 0.0F, 0.0F, 0.0F, true
-        );
+        return new SimpleSoundInstance(param0.getLocation(), SoundSource.AMBIENT, param2, param1, false, 0, SoundInstance.Attenuation.NONE, 0.0, 0.0, 0.0, true);
     }
 
     public static SimpleSoundInstance forAmbientAddition(SoundEvent param0) {
         return forLocalAmbience(param0, 1.0F, 1.0F);
     }
 
-    public static SimpleSoundInstance forAmbientMood(SoundEvent param0, float param1, float param2, float param3) {
+    public static SimpleSoundInstance forAmbientMood(SoundEvent param0, double param1, double param2, double param3) {
         return new SimpleSoundInstance(param0, SoundSource.AMBIENT, 1.0F, 1.0F, false, 0, SoundInstance.Attenuation.LINEAR, param1, param2, param3);
     }
 
-    public SimpleSoundInstance(SoundEvent param0, SoundSource param1, float param2, float param3, float param4, float param5, float param6) {
+    public SimpleSoundInstance(SoundEvent param0, SoundSource param1, float param2, float param3, double param4, double param5, double param6) {
         this(param0, param1, param2, param3, false, 0, SoundInstance.Attenuation.LINEAR, param4, param5, param6);
     }
 
@@ -57,9 +53,9 @@ public class SimpleSoundInstance extends AbstractSoundInstance {
         boolean param4,
         int param5,
         SoundInstance.Attenuation param6,
-        float param7,
-        float param8,
-        float param9
+        double param7,
+        double param8,
+        double param9
     ) {
         this(param0.getLocation(), param1, param2, param3, param4, param5, param6, param7, param8, param9, false);
     }
@@ -72,9 +68,9 @@ public class SimpleSoundInstance extends AbstractSoundInstance {
         boolean param4,
         int param5,
         SoundInstance.Attenuation param6,
-        float param7,
-        float param8,
-        float param9,
+        double param7,
+        double param8,
+        double param9,
         boolean param10
     ) {
         super(param0, param1);

@@ -485,6 +485,7 @@ public class LootCommand {
         LootContext var1 = new LootContext.Builder(var0.getLevel())
             .withParameter(LootContextParams.BLOCK_POS, param2)
             .withParameter(LootContextParams.TOOL, param3)
+            .withOptionalParameter(LootContextParams.THIS_ENTITY, var0.getEntity())
             .create(LootContextParamSets.FISHING);
         return drop(param0, param1, var1, param4);
     }

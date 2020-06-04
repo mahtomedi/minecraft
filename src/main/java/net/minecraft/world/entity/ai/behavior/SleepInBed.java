@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.core.SerializableLong;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.LivingEntity;
@@ -33,9 +32,9 @@ public class SleepInBed extends Behavior<LivingEntity> {
             if (param0.dimension() != var1.dimension()) {
                 return false;
             } else {
-                Optional<SerializableLong> var2 = var0.getMemory(MemoryModuleType.LAST_WOKEN);
+                Optional<Long> var2 = var0.getMemory(MemoryModuleType.LAST_WOKEN);
                 if (var2.isPresent()) {
-                    long var3 = param0.getGameTime() - var2.get().value();
+                    long var3 = param0.getGameTime() - var2.get();
                     if (var3 > 0L && var3 < 100L) {
                         return false;
                     }

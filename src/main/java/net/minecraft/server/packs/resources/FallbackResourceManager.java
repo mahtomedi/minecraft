@@ -11,11 +11,12 @@ import java.io.PrintStream;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.Pack;
+import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -24,7 +25,7 @@ import org.apache.logging.log4j.Logger;
 
 public class FallbackResourceManager implements ResourceManager {
     private static final Logger LOGGER = LogManager.getLogger();
-    protected final List<Pack> fallbacks = Lists.newArrayList();
+    protected final List<PackResources> fallbacks = Lists.newArrayList();
     private final PackType type;
     private final String namespace;
 
@@ -33,7 +34,7 @@ public class FallbackResourceManager implements ResourceManager {
         this.namespace = param1;
     }
 
-    public void add(Pack param0) {
+    public void add(PackResources param0) {
         this.fallbacks.add(param0);
     }
 
@@ -46,11 +47,11 @@ public class FallbackResourceManager implements ResourceManager {
     @Override
     public Resource getResource(ResourceLocation param0) throws IOException {
         this.validateLocation(param0);
-        Pack var0 = null;
+        PackResources var0 = null;
         ResourceLocation var1 = getMetadataLocation(param0);
 
         for(int var2 = this.fallbacks.size() - 1; var2 >= 0; --var2) {
-            Pack var3 = this.fallbacks.get(var2);
+            PackResources var3 = this.fallbacks.get(var2);
             if (var0 == null && var3.hasResource(this.type, var1)) {
                 var0 = var3;
             }
@@ -75,7 +76,7 @@ public class FallbackResourceManager implements ResourceManager {
             return false;
         } else {
             for(int var0 = this.fallbacks.size() - 1; var0 >= 0; --var0) {
-                Pack var1 = this.fallbacks.get(var0);
+                PackResources var1 = this.fallbacks.get(var0);
                 if (var1.hasResource(this.type, param0)) {
                     return true;
                 }
@@ -85,7 +86,7 @@ public class FallbackResourceManager implements ResourceManager {
         }
     }
 
-    protected InputStream getWrappedResource(ResourceLocation param0, Pack param1) throws IOException {
+    protected InputStream getWrappedResource(ResourceLocation param0, PackResources param1) throws IOException {
         InputStream var0 = param1.getResource(this.type, param0);
         return (InputStream)(LOGGER.isDebugEnabled() ? new FallbackResourceManager.LeakedResourceWarningInputStream(var0, param0, param1.getName()) : var0);
     }
@@ -106,7 +107,7 @@ public class FallbackResourceManager implements ResourceManager {
         List<Resource> var0 = Lists.newArrayList();
         ResourceLocation var1 = getMetadataLocation(param0);
 
-        for(Pack var2 : this.fallbacks) {
+        for(PackResources var2 : this.fallbacks) {
             if (var2.hasResource(this.type, param0)) {
                 InputStream var3 = var2.hasResource(this.type, var1) ? this.getWrappedResource(var1, var2) : null;
                 var0.add(new SimpleResource(var2.getName(), param0, this.getWrappedResource(param0, var2), var3));
@@ -121,10 +122,17 @@ public class FallbackResourceManager implements ResourceManager {
     }
 
     @Override
+    public Collection<ResourceLocation> listResources(ResourceLocation param0, Predicate<String> param1) {
+        return (Collection<ResourceLocation>)(Objects.equals(param0.getNamespace(), this.namespace)
+            ? this.listResources(param0.getPath(), param1)
+            : ImmutableSet.of());
+    }
+
+    @Override
     public Collection<ResourceLocation> listResources(String param0, Predicate<String> param1) {
         List<ResourceLocation> var0 = Lists.newArrayList();
 
-        for(Pack var1 : this.fallbacks) {
+        for(PackResources var1 : this.fallbacks) {
             var0.addAll(var1.getResources(this.type, this.namespace, param0, Integer.MAX_VALUE, param1));
         }
 
@@ -134,7 +142,7 @@ public class FallbackResourceManager implements ResourceManager {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public Stream<Pack> listPacks() {
+    public Stream<PackResources> listPacks() {
         return this.fallbacks.stream();
     }
 

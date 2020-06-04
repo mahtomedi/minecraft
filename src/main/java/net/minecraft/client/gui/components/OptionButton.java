@@ -13,4 +13,8 @@ public class OptionButton extends Button {
         super(param0, param1, param2, param3, param5, param6);
         this.option = param4;
     }
+
+    public Option getOption() {
+        return this.option;
+    }
 }

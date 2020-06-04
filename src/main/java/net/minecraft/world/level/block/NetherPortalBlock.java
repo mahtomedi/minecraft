@@ -126,9 +126,9 @@ public class NetherPortalBlock extends Block {
         }
 
         for(int var0 = 0; var0 < 4; ++var0) {
-            double var1 = (double)param2.getX() + (double)param3.nextFloat();
-            double var2 = (double)param2.getY() + (double)param3.nextFloat();
-            double var3 = (double)param2.getZ() + (double)param3.nextFloat();
+            double var1 = (double)param2.getX() + param3.nextDouble();
+            double var2 = (double)param2.getY() + param3.nextDouble();
+            double var3 = (double)param2.getZ() + param3.nextDouble();
             double var4 = ((double)param3.nextFloat() - 0.5) * 0.5;
             double var5 = ((double)param3.nextFloat() - 0.5) * 0.5;
             double var6 = ((double)param3.nextFloat() - 0.5) * 0.5;

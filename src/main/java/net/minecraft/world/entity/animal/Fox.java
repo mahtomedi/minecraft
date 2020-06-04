@@ -215,7 +215,7 @@ public class Fox extends Animal {
 
     @Override
     protected boolean isImmobile() {
-        return this.getHealth() <= 0.0F;
+        return this.isDeadOrDying();
     }
 
     private boolean canEat(ItemStack param0) {

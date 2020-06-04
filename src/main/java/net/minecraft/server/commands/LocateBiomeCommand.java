@@ -1,7 +1,6 @@
 package net.minecraft.server.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import net.minecraft.commands.CommandSourceStack;
@@ -29,23 +28,20 @@ public class LocateBiomeCommand {
                 .then(
                     Commands.argument("biome", ResourceLocationArgument.id())
                         .suggests(SuggestionProviders.AVAILABLE_BIOMES)
-                        .executes(param0x -> locateBiome(param0x.getSource(), getBiome(param0x, "biome")))
+                        .executes(param0x -> locateBiome(param0x.getSource(), param0x.getArgument("biome", ResourceLocation.class)))
                 )
         );
     }
 
-    private static int locateBiome(CommandSourceStack param0, Biome param1) throws CommandSyntaxException {
-        BlockPos var0 = new BlockPos(param0.getPosition());
-        BlockPos var1 = param0.getLevel().findNearestBiome(param1, var0, 6400, 8);
-        if (var1 == null) {
-            throw ERROR_BIOME_NOT_FOUND.create(param1.getName().getString());
+    private static int locateBiome(CommandSourceStack param0, ResourceLocation param1) throws CommandSyntaxException {
+        Biome var0 = Registry.BIOME.getOptional(param1).orElseThrow(() -> ERROR_INVALID_BIOME.create(param1));
+        BlockPos var1 = new BlockPos(param0.getPosition());
+        BlockPos var2 = param0.getLevel().findNearestBiome(var0, var1, 6400, 8);
+        String var3 = param1.toString();
+        if (var2 == null) {
+            throw ERROR_BIOME_NOT_FOUND.create(var3);
         } else {
-            return LocateCommand.showLocateResult(param0, param1.getName().getString(), var0, var1, "commands.locatebiome.success");
+            return LocateCommand.showLocateResult(param0, var3, var1, var2, "commands.locatebiome.success");
         }
-    }
-
-    private static Biome getBiome(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
-        ResourceLocation var0 = param0.getArgument(param1, ResourceLocation.class);
-        return Registry.BIOME.getOptional(var0).orElseThrow(() -> ERROR_INVALID_BIOME.create(var0));
     }
 }

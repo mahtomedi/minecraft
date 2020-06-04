@@ -1,6 +1,7 @@
 package net.minecraft.world.entity.vehicle;
 
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -15,17 +16,15 @@ public class Minecart extends AbstractMinecart {
     }
 
     @Override
-    public boolean interact(Player param0, InteractionHand param1) {
+    public InteractionResult interact(Player param0, InteractionHand param1) {
         if (param0.isSecondaryUseActive()) {
-            return false;
+            return InteractionResult.PASS;
         } else if (this.isVehicle()) {
-            return false;
+            return InteractionResult.PASS;
+        } else if (!this.level.isClientSide) {
+            return param0.startRiding(this) ? InteractionResult.CONSUME : InteractionResult.PASS;
         } else {
-            if (!this.level.isClientSide) {
-                param0.startRiding(this);
-            }
-
-            return true;
+            return InteractionResult.SUCCESS;
         }
     }
 

@@ -324,14 +324,14 @@ public class MapItemSavedData extends SavedData {
     }
 
     public void toggleBanner(LevelAccessor param0, BlockPos param1) {
-        float var0 = (float)param1.getX() + 0.5F;
-        float var1 = (float)param1.getZ() + 0.5F;
+        double var0 = (double)param1.getX() + 0.5;
+        double var1 = (double)param1.getZ() + 0.5;
         int var2 = 1 << this.scale;
-        float var3 = (var0 - (float)this.x) / (float)var2;
-        float var4 = (var1 - (float)this.z) / (float)var2;
+        double var3 = (var0 - (double)this.x) / (double)var2;
+        double var4 = (var1 - (double)this.z) / (double)var2;
         int var5 = 63;
         boolean var6 = false;
-        if (var3 >= -63.0F && var4 >= -63.0F && var3 <= 63.0F && var4 <= 63.0F) {
+        if (var3 >= -63.0 && var4 >= -63.0 && var3 <= 63.0 && var4 <= 63.0) {
             MapBanner var7 = MapBanner.fromWorld(param0, param1);
             if (var7 == null) {
                 return;
@@ -347,7 +347,7 @@ public class MapItemSavedData extends SavedData {
 
             if (var8) {
                 this.bannerMarkers.put(var7.getId(), var7);
-                this.addDecoration(var7.getDecoration(), param0, var7.getId(), (double)var0, (double)var1, 180.0, var7.getName());
+                this.addDecoration(var7.getDecoration(), param0, var7.getId(), var0, var1, 180.0, var7.getName());
                 var6 = true;
             }
 

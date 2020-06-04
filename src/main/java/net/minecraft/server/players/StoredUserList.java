@@ -27,18 +27,9 @@ public abstract class StoredUserList<K, V extends StoredUserEntry<K>> {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private final File file;
     private final Map<String, V> map = Maps.newHashMap();
-    private boolean enabled = true;
 
     public StoredUserList(File param0) {
         this.file = param0;
-    }
-
-    public boolean isEnabled() {
-        return this.enabled;
-    }
-
-    public void setEnabled(boolean param0) {
-        this.enabled = param0;
     }
 
     public File getFile() {

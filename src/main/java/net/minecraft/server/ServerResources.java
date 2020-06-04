@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import net.minecraft.commands.Commands;
-import net.minecraft.server.packs.Pack;
+import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -15,7 +15,7 @@ import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.storage.loot.LootTables;
 import net.minecraft.world.level.storage.loot.PredicateManager;
 
-public class ServerResources {
+public class ServerResources implements AutoCloseable {
     private static final CompletableFuture<Unit> DATA_RELOAD_INITIAL_TASK = CompletableFuture.completedFuture(Unit.INSTANCE);
     private final ReloadableResourceManager resources = new SimpleReloadableResourceManager(PackType.SERVER_DATA);
     private final Commands commands;
@@ -26,7 +26,7 @@ public class ServerResources {
     private final ServerAdvancementManager advancements = new ServerAdvancementManager(this.predicateManager);
     private final ServerFunctionLibrary functionLibrary;
 
-    public ServerResources(boolean param0, int param1) {
+    public ServerResources(Commands.CommandSelection param0, int param1) {
         this.commands = new Commands(param0);
         this.functionLibrary = new ServerFunctionLibrary(param1, this.commands.getDispatcher());
         this.resources.registerReloadListener(this.tags);
@@ -69,13 +69,25 @@ public class ServerResources {
         return this.resources;
     }
 
-    public static CompletableFuture<ServerResources> loadResources(List<Pack> param0, boolean param1, int param2, Executor param3, Executor param4) {
+    public static CompletableFuture<ServerResources> loadResources(
+        List<PackResources> param0, Commands.CommandSelection param1, int param2, Executor param3, Executor param4
+    ) {
         ServerResources var0 = new ServerResources(param1, param2);
         CompletableFuture<Unit> var1 = var0.resources.reload(param3, param4, param0, DATA_RELOAD_INITIAL_TASK);
-        return var1.thenApply(param1x -> var0);
+        return var1.whenComplete((param1x, param2x) -> {
+            if (param2x != null) {
+                var0.close();
+            }
+
+        }).thenApply(param1x -> var0);
     }
 
     public void updateGlobals() {
         this.tags.bindToGlobal();
+    }
+
+    @Override
+    public void close() {
+        this.resources.close();
     }
 }

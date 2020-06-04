@@ -43,6 +43,7 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
@@ -53,6 +54,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Llama extends AbstractChestedHorse implements RangedAttackMob {
+    private static final Ingredient FOOD_ITEMS = Ingredient.of(Items.WHEAT, Blocks.HAY_BLOCK.asItem());
     private static final EntityDataAccessor<Integer> DATA_STRENGTH_ID = SynchedEntityData.defineId(Llama.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_SWAG_ID = SynchedEntityData.defineId(Llama.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_VARIANT_ID = SynchedEntityData.defineId(Llama.class, EntityDataSerializers.INT);
@@ -173,6 +175,11 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
     }
 
     @Override
+    public boolean isFood(ItemStack param0) {
+        return FOOD_ITEMS.test(param0);
+    }
+
+    @Override
     protected boolean handleEating(Player param0, ItemStack param1) {
         int var0 = 0;
         int var1 = 0;
@@ -236,7 +243,7 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
 
     @Override
     protected boolean isImmobile() {
-        return this.getHealth() <= 0.0F || this.isEating();
+        return this.isDeadOrDying() || this.isEating();
     }
 
     @Nullable

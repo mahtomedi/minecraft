@@ -186,7 +186,7 @@ public class SoundEngine {
             } else {
                 float var1 = this.calculateVolume(var0);
                 float var2 = this.calculatePitch(var0);
-                Vec3 var3 = new Vec3((double)var0.getX(), (double)var0.getY(), (double)var0.getZ());
+                Vec3 var3 = new Vec3(var0.getX(), var0.getY(), var0.getZ());
                 ChannelAccess.ChannelHandle var4 = this.instanceToChannel.get(var0);
                 if (var4 != null) {
                     var4.execute(param3 -> {
@@ -298,7 +298,7 @@ public class SoundEngine {
                         if (var6x == 0.0F && !param0.canStartSilent()) {
                             LOGGER.debug(MARKER, "Skipped playing sound {}, volume was zero.", var2x.getLocation());
                         } else {
-                            Vec3 var10x = new Vec3((double)param0.getX(), (double)param0.getY(), (double)param0.getZ());
+                            Vec3 var10x = new Vec3(param0.getX(), param0.getY(), param0.getZ());
                             if (!this.listeners.isEmpty()) {
                                 boolean var11x = var9x
                                     || var8x == SoundInstance.Attenuation.NONE

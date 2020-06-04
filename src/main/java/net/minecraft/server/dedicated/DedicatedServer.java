@@ -27,6 +27,7 @@ import net.minecraft.Util;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.server.ConsoleInput;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerInterface;
@@ -34,8 +35,8 @@ import net.minecraft.server.ServerResources;
 import net.minecraft.server.gui.MinecraftServerGui;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.progress.ChunkProgressListenerFactory;
+import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackRepository;
-import net.minecraft.server.packs.repository.UnopenedPack;
 import net.minecraft.server.players.GameProfileCache;
 import net.minecraft.server.players.OldUsersConverter;
 import net.minecraft.server.rcon.RconConsoleSource;
@@ -69,19 +70,21 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface 
     private MinecraftServerGui gui;
 
     public DedicatedServer(
-        LevelStorageSource.LevelStorageAccess param0,
-        PackRepository<UnopenedPack> param1,
-        ServerResources param2,
-        WorldData param3,
-        DedicatedServerSettings param4,
-        DataFixer param5,
-        MinecraftSessionService param6,
-        GameProfileRepository param7,
-        GameProfileCache param8,
-        ChunkProgressListenerFactory param9
+        Thread param0,
+        RegistryAccess.RegistryHolder param1,
+        LevelStorageSource.LevelStorageAccess param2,
+        PackRepository<Pack> param3,
+        ServerResources param4,
+        WorldData param5,
+        DedicatedServerSettings param6,
+        DataFixer param7,
+        MinecraftSessionService param8,
+        GameProfileRepository param9,
+        GameProfileCache param10,
+        ChunkProgressListenerFactory param11
     ) {
-        super(param0, param3, param1, Proxy.NO_PROXY, param5, param2, param6, param7, param8, param9);
-        this.settings = param4;
+        super(param0, param1, param2, param5, param3, Proxy.NO_PROXY, param7, param4, param8, param9, param10, param11);
+        this.settings = param6;
         this.rconConsoleSource = new RconConsoleSource(this);
     }
 

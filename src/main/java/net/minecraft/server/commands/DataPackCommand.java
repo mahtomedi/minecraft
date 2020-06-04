@@ -15,8 +15,8 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackRepository;
-import net.minecraft.server.packs.repository.UnopenedPack;
 
 public class DataPackCommand {
     private static final DynamicCommandExceptionType ERROR_UNKNOWN_PACK = new DynamicCommandExceptionType(
@@ -31,9 +31,13 @@ public class DataPackCommand {
     private static final SuggestionProvider<CommandSourceStack> SELECTED_PACKS = (param0, param1) -> SharedSuggestionProvider.suggest(
             param0.getSource().getServer().getPackRepository().getSelectedIds().stream().map(StringArgumentType::escapeIfRequired), param1
         );
-    private static final SuggestionProvider<CommandSourceStack> AVAILABLE_PACKS = (param0, param1) -> SharedSuggestionProvider.suggest(
-            param0.getSource().getServer().getPackRepository().getAvailableIds().stream().map(StringArgumentType::escapeIfRequired), param1
+    private static final SuggestionProvider<CommandSourceStack> UNSELECTED_PACKS = (param0, param1) -> {
+        PackRepository<?> var0 = param0.getSource().getServer().getPackRepository();
+        Collection<String> var1 = var0.getSelectedIds();
+        return SharedSuggestionProvider.suggest(
+            var0.getAvailableIds().stream().filter(param1x -> !var1.contains(param1x)).map(StringArgumentType::escapeIfRequired), param1
         );
+    };
 
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
         param0.register(
@@ -43,7 +47,7 @@ public class DataPackCommand {
                     Commands.literal("enable")
                         .then(
                             Commands.argument("name", StringArgumentType.string())
-                                .suggests(AVAILABLE_PACKS)
+                                .suggests(UNSELECTED_PACKS)
                                 .executes(
                                     param0x -> enablePack(
                                             param0x.getSource(),
@@ -107,20 +111,20 @@ public class DataPackCommand {
         );
     }
 
-    private static int enablePack(CommandSourceStack param0, UnopenedPack param1, DataPackCommand.Inserter param2) throws CommandSyntaxException {
+    private static int enablePack(CommandSourceStack param0, Pack param1, DataPackCommand.Inserter param2) throws CommandSyntaxException {
         PackRepository<?> var0 = param0.getServer().getPackRepository();
-        List<UnopenedPack> var1 = Lists.newArrayList(var0.getSelectedPacks());
+        List<Pack> var1 = Lists.newArrayList(var0.getSelectedPacks());
         param2.apply(var1, param1);
         param0.sendSuccess(new TranslatableComponent("commands.datapack.enable.success", param1.getChatLink(true)), true);
-        ReloadCommand.reloadPacks(var1.stream().map(UnopenedPack::getId).collect(Collectors.toList()), param0);
+        ReloadCommand.reloadPacks(var1.stream().map(Pack::getId).collect(Collectors.toList()), param0);
         return var1.size();
     }
 
-    private static int disablePack(CommandSourceStack param0, UnopenedPack param1) {
+    private static int disablePack(CommandSourceStack param0, Pack param1) {
         PackRepository<?> var0 = param0.getServer().getPackRepository();
-        List<UnopenedPack> var1 = Lists.newArrayList(var0.getSelectedPacks());
+        List<Pack> var1 = Lists.newArrayList(var0.getSelectedPacks());
         var1.remove(param1);
-        ReloadCommand.reloadPacks(var1.stream().map(UnopenedPack::getId).collect(Collectors.toList()), param0);
+        ReloadCommand.reloadPacks(var1.stream().map(Pack::getId).collect(Collectors.toList()), param0);
         param0.sendSuccess(new TranslatableComponent("commands.datapack.disable.success", param1.getChatLink(true)), true);
         return var1.size();
     }
@@ -132,9 +136,9 @@ public class DataPackCommand {
     private static int listAvailablePacks(CommandSourceStack param0) {
         PackRepository<?> var0 = param0.getServer().getPackRepository();
         var0.reload();
-        Collection<? extends UnopenedPack> var1 = var0.getSelectedPacks();
-        Collection<? extends UnopenedPack> var2 = var0.getAvailablePacks();
-        List<UnopenedPack> var3 = var2.stream().filter(param1 -> !var1.contains(param1)).collect(Collectors.toList());
+        Collection<? extends Pack> var1 = var0.getSelectedPacks();
+        Collection<? extends Pack> var2 = var0.getAvailablePacks();
+        List<Pack> var3 = var2.stream().filter(param1 -> !var1.contains(param1)).collect(Collectors.toList());
         if (var3.isEmpty()) {
             param0.sendSuccess(new TranslatableComponent("commands.datapack.list.available.none"), false);
         } else {
@@ -152,7 +156,7 @@ public class DataPackCommand {
     private static int listEnabledPacks(CommandSourceStack param0) {
         PackRepository<?> var0 = param0.getServer().getPackRepository();
         var0.reload();
-        Collection<? extends UnopenedPack> var1 = var0.getSelectedPacks();
+        Collection<? extends Pack> var1 = var0.getSelectedPacks();
         if (var1.isEmpty()) {
             param0.sendSuccess(new TranslatableComponent("commands.datapack.list.enabled.none"), false);
         } else {
@@ -167,10 +171,10 @@ public class DataPackCommand {
         return var1.size();
     }
 
-    private static UnopenedPack getPack(CommandContext<CommandSourceStack> param0, String param1, boolean param2) throws CommandSyntaxException {
+    private static Pack getPack(CommandContext<CommandSourceStack> param0, String param1, boolean param2) throws CommandSyntaxException {
         String var0 = StringArgumentType.getString(param0, param1);
         PackRepository<?> var1 = param0.getSource().getServer().getPackRepository();
-        UnopenedPack var2 = var1.getPack(var0);
+        Pack var2 = var1.getPack(var0);
         if (var2 == null) {
             throw ERROR_UNKNOWN_PACK.create(var0);
         } else {
@@ -186,6 +190,6 @@ public class DataPackCommand {
     }
 
     interface Inserter {
-        void apply(List<UnopenedPack> var1, UnopenedPack var2) throws CommandSyntaxException;
+        void apply(List<Pack> var1, Pack var2) throws CommandSyntaxException;
     }
 }

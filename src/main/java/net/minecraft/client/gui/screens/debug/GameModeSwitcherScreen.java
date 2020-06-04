@@ -6,13 +6,13 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
 import java.util.Optional;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -27,6 +27,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class GameModeSwitcherScreen extends Screen {
     private static final ResourceLocation GAMEMODE_SWITCHER_LOCATION = new ResourceLocation("textures/gui/container/gamemode_switcher.png");
     private static final int ALL_SLOTS_WIDTH = GameModeSwitcherScreen.GameModeIcon.values().length * 30 - 5;
+    private static final Component SELECT_KEY = new TranslatableComponent(
+        "debug.gamemodes.select_next", new TranslatableComponent("debug.gamemodes.press_f4").withStyle(ChatFormatting.AQUA)
+    );
     private final Optional<GameModeSwitcherScreen.GameModeIcon> previousHovered;
     private Optional<GameModeSwitcherScreen.GameModeIcon> currentlyHovered = Optional.empty();
     private int firstMouseX;
@@ -66,34 +69,24 @@ public class GameModeSwitcherScreen extends Screen {
             super.render(param0, param1, param2, param3);
             this.currentlyHovered
                 .ifPresent(param1x -> this.drawCenteredString(param0, this.font, param1x.getName(), this.width / 2, this.height / 2 - 30 - 20, -1));
-            int var2 = this.font.width(I18n.get("debug.gamemodes.press_f4"));
-            this.drawKeyOption(param0, I18n.get("debug.gamemodes.press_f4"), I18n.get("debug.gamemodes.select_next"), 5, var2);
+            this.drawCenteredString(param0, this.font, SELECT_KEY, this.width / 2, this.height / 2 + 5, 16777215);
             if (!this.setFirstMousePos) {
                 this.firstMouseX = param1;
                 this.firstMouseY = param2;
                 this.setFirstMousePos = true;
             }
 
-            boolean var3 = this.firstMouseX == param1 && this.firstMouseY == param2;
+            boolean var2 = this.firstMouseX == param1 && this.firstMouseY == param2;
 
-            for(GameModeSwitcherScreen.GameModeSlot var4 : this.slots) {
-                var4.render(param0, param1, param2, param3);
-                this.currentlyHovered.ifPresent(param1x -> var4.setSelected(param1x == var4.icon));
-                if (!var3 && var4.isHovered()) {
-                    this.currentlyHovered = Optional.of(var4.icon);
+            for(GameModeSwitcherScreen.GameModeSlot var3 : this.slots) {
+                var3.render(param0, param1, param2, param3);
+                this.currentlyHovered.ifPresent(param1x -> var3.setSelected(param1x == var3.icon));
+                if (!var2 && var3.isHovered()) {
+                    this.currentlyHovered = Optional.of(var3.icon);
                 }
             }
 
         }
-    }
-
-    private void drawKeyOption(PoseStack param0, String param1, String param2, int param3, int param4) {
-        int var0 = 5636095;
-        int var1 = 16777215;
-        this.drawString(param0, this.font, "[", this.width / 2 - param4 - 18, this.height / 2 + param3, 5636095);
-        this.drawCenteredString(param0, this.font, param1, this.width / 2 - param4 / 2 - 10, this.height / 2 + param3, 5636095);
-        this.drawCenteredString(param0, this.font, "]", this.width / 2 - 5, this.height / 2 + param3, 5636095);
-        this.drawString(param0, this.font, param2, this.width / 2 + 5, this.height / 2 + param3, 16777215);
     }
 
     private void switchToHoveredGameMode() {

@@ -40,7 +40,6 @@ public class LevelVersion {
         return this.levelDataVersion;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public long lastPlayed() {
         return this.lastPlayed;
     }

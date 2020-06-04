@@ -11,7 +11,7 @@ import java.util.SortedSet;
 import java.util.stream.Stream;
 import net.minecraft.client.resources.metadata.language.LanguageMetadataSection;
 import net.minecraft.locale.Language;
-import net.minecraft.server.packs.Pack;
+import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraftforge.api.distmarker.Dist;
@@ -31,7 +31,7 @@ public class LanguageManager implements ResourceManagerReloadListener {
         this.currentCode = param0;
     }
 
-    private static Map<String, LanguageInfo> extractLanguages(Stream<Pack> param0) {
+    private static Map<String, LanguageInfo> extractLanguages(Stream<PackResources> param0) {
         Map<String, LanguageInfo> var0 = Maps.newHashMap();
         param0.forEach(param1 -> {
             try {

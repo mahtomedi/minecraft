@@ -130,7 +130,7 @@ public class BoneMealItem extends Item {
         if (!var0.isAir()) {
             double var1 = 0.5;
             double var2;
-            if (!var0.getFluidState().isEmpty()) {
+            if (var0.is(Blocks.WATER)) {
                 param2 *= 3;
                 var2 = 1.0;
                 var1 = 3.0;

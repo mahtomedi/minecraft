@@ -1,6 +1,5 @@
 package net.minecraft.world.level.storage;
 
-import com.mojang.serialization.Lifecycle;
 import java.io.File;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
@@ -12,12 +11,10 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LevelSettings;
-import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.StringUtils;
 
-@OnlyIn(Dist.CLIENT)
 public class LevelSummary implements Comparable<LevelSummary> {
     private final LevelSettings settings;
     private final LevelVersion levelVersion;
@@ -25,36 +22,40 @@ public class LevelSummary implements Comparable<LevelSummary> {
     private final boolean requiresConversion;
     private final boolean locked;
     private final File icon;
-    private final Lifecycle lifecycle;
     @Nullable
+    @OnlyIn(Dist.CLIENT)
     private Component info;
 
-    public LevelSummary(LevelSettings param0, LevelVersion param1, String param2, boolean param3, boolean param4, File param5, Lifecycle param6) {
+    public LevelSummary(LevelSettings param0, LevelVersion param1, String param2, boolean param3, boolean param4, File param5) {
         this.settings = param0;
         this.levelVersion = param1;
         this.levelId = param2;
         this.locked = param4;
         this.icon = param5;
         this.requiresConversion = param3;
-        this.lifecycle = param6;
     }
 
+    @OnlyIn(Dist.CLIENT)
     public String getLevelId() {
         return this.levelId;
     }
 
+    @OnlyIn(Dist.CLIENT)
     public String getLevelName() {
         return StringUtils.isEmpty(this.settings.levelName()) ? this.levelId : this.settings.levelName();
     }
 
+    @OnlyIn(Dist.CLIENT)
     public File getIcon() {
         return this.icon;
     }
 
+    @OnlyIn(Dist.CLIENT)
     public boolean isRequiresConversion() {
         return this.requiresConversion;
     }
 
+    @OnlyIn(Dist.CLIENT)
     public long getLastPlayed() {
         return this.levelVersion.lastPlayed();
     }
@@ -67,56 +68,53 @@ public class LevelSummary implements Comparable<LevelSummary> {
         }
     }
 
+    @OnlyIn(Dist.CLIENT)
     public GameType getGameMode() {
         return this.settings.gameType();
     }
 
+    @OnlyIn(Dist.CLIENT)
     public boolean isHardcore() {
         return this.settings.hardcore();
     }
 
+    @OnlyIn(Dist.CLIENT)
     public boolean hasCheats() {
         return this.settings.allowCommands();
     }
 
+    @OnlyIn(Dist.CLIENT)
     public MutableComponent getWorldVersionName() {
         return (MutableComponent)(StringUtil.isNullOrEmpty(this.levelVersion.minecraftVersionName())
             ? new TranslatableComponent("selectWorld.versionUnknown")
             : new TextComponent(this.levelVersion.minecraftVersionName()));
     }
 
-    public boolean markVersionInList() {
-        return this.askToOpenWorld()
-            || !SharedConstants.getCurrentVersion().isStable() && !this.levelVersion.snapshot()
-            || this.shouldBackup()
-            || this.isOldCustomizedWorld()
-            || this.experimental();
+    public LevelVersion levelVersion() {
+        return this.levelVersion;
     }
 
+    @OnlyIn(Dist.CLIENT)
+    public boolean markVersionInList() {
+        return this.askToOpenWorld() || !SharedConstants.getCurrentVersion().isStable() && !this.levelVersion.snapshot() || this.shouldBackup();
+    }
+
+    @OnlyIn(Dist.CLIENT)
     public boolean askToOpenWorld() {
         return this.levelVersion.minecraftVersion() > SharedConstants.getCurrentVersion().getWorldVersion();
     }
 
-    public boolean isOldCustomizedWorld() {
-        return this.settings.worldGenSettings().isOldCustomizedWorld() && this.levelVersion.minecraftVersion() < 1466;
-    }
-
-    protected WorldGenSettings worldGenSettings() {
-        return this.settings.worldGenSettings();
-    }
-
-    public boolean experimental() {
-        return this.lifecycle != Lifecycle.stable();
-    }
-
+    @OnlyIn(Dist.CLIENT)
     public boolean shouldBackup() {
         return this.levelVersion.minecraftVersion() < SharedConstants.getCurrentVersion().getWorldVersion();
     }
 
+    @OnlyIn(Dist.CLIENT)
     public boolean isLocked() {
         return this.locked;
     }
 
+    @OnlyIn(Dist.CLIENT)
     public Component getInfo() {
         if (this.info == null) {
             this.info = this.createInfo();
@@ -125,6 +123,7 @@ public class LevelSummary implements Comparable<LevelSummary> {
         return this.info;
     }
 
+    @OnlyIn(Dist.CLIENT)
     private Component createInfo() {
         if (this.isLocked()) {
             return new TranslatableComponent("selectWorld.locked").withStyle(ChatFormatting.RED);

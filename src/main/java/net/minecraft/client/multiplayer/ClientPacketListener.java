@@ -88,7 +88,6 @@ import net.minecraft.network.protocol.PacketUtils;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundAddExperienceOrbPacket;
-import net.minecraft.network.protocol.game.ClientboundAddGlobalEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundAddMobPacket;
 import net.minecraft.network.protocol.game.ClientboundAddPaintingPacket;
 import net.minecraft.network.protocol.game.ClientboundAddPlayerPacket;
@@ -188,6 +187,7 @@ import net.minecraft.realms.DisconnectedRealmsScreen;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stat;
@@ -207,6 +207,7 @@ import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ExperienceOrb;
+import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -221,7 +222,6 @@ import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.decoration.LeashFenceKnotEntity;
 import net.minecraft.world.entity.decoration.Painting;
-import net.minecraft.world.entity.global.LightningBolt;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.item.PrimedTnt;
@@ -498,18 +498,21 @@ public class ClientPacketListener implements ClientGamePacketListener {
             var4 = new FallingBlockEntity(this.level, var0, var1, var2, Block.stateById(param0.getData()));
         } else if (var3 == EntityType.AREA_EFFECT_CLOUD) {
             var4 = new AreaEffectCloud(this.level, var0, var1, var2);
+        } else if (var3 == EntityType.LIGHTNING_BOLT) {
+            var4 = new LightningBolt(EntityType.LIGHTNING_BOLT, this.level);
+            var4.moveTo(var0, var1, var2);
         } else {
             var4 = null;
         }
 
         if (var4 != null) {
-            int var44 = param0.getId();
+            int var45 = param0.getId();
             var4.setPacketCoordinates(var0, var1, var2);
             var4.xRot = (float)(param0.getxRot() * 360) / 256.0F;
             var4.yRot = (float)(param0.getyRot() * 360) / 256.0F;
-            var4.setId(var44);
+            var4.setId(var45);
             var4.setUUID(param0.getUUID());
-            this.level.putNonPlayerEntity(var44, var4);
+            this.level.putNonPlayerEntity(var45, var4);
             if (var4 instanceof AbstractMinecart) {
                 this.minecraft.getSoundManager().play(new MinecartSoundInstance((AbstractMinecart)var4));
             }
@@ -529,23 +532,6 @@ public class ClientPacketListener implements ClientGamePacketListener {
         var3.xRot = 0.0F;
         var3.setId(param0.getId());
         this.level.putNonPlayerEntity(param0.getId(), var3);
-    }
-
-    @Override
-    public void handleAddGlobalEntity(ClientboundAddGlobalEntityPacket param0) {
-        PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        double var0 = param0.getX();
-        double var1 = param0.getY();
-        double var2 = param0.getZ();
-        if (param0.getType() == 1) {
-            LightningBolt var3 = new LightningBolt(this.level, var0, var1, var2, false);
-            var3.setPacketCoordinates(var0, var1, var2);
-            var3.yRot = 0.0F;
-            var3.xRot = 0.0F;
-            var3.setId(param0.getId());
-            this.level.addLightning(var3);
-        }
-
     }
 
     @Override
@@ -1723,9 +1709,9 @@ public class ClientPacketListener implements ClientGamePacketListener {
                     false,
                     0,
                     SoundInstance.Attenuation.LINEAR,
-                    (float)param0.getX(),
-                    (float)param0.getY(),
-                    (float)param0.getZ(),
+                    param0.getX(),
+                    param0.getY(),
+                    param0.getZ(),
                     false
                 )
             );
@@ -1743,7 +1729,7 @@ public class ClientPacketListener implements ClientGamePacketListener {
                     File var4 = new File(var3, var2);
                     if (var4.isFile()) {
                         this.send(ServerboundResourcePackPacket.Action.ACCEPTED);
-                        CompletableFuture<?> var5 = this.minecraft.getClientPackSource().setServerPack(var4);
+                        CompletableFuture<?> var5 = this.minecraft.getClientPackSource().setServerPack(var4, PackSource.WORLD);
                         this.downloadCallback(var5);
                         return;
                     }

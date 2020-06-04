@@ -22,14 +22,16 @@ import net.minecraft.client.renderer.CubeMap;
 import net.minecraft.client.renderer.PanoramaRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.realms.RealmsBridge;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.level.storage.LevelStorageSource;
-import net.minecraft.world.level.storage.WorldData;
+import net.minecraft.world.level.storage.LevelSummary;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
@@ -213,7 +215,7 @@ public class TitleScreen extends Screen {
                 200,
                 20,
                 new TranslatableComponent("menu.playdemo"),
-                param0x -> this.minecraft.selectLevel("Demo_World", MinecraftServer.DEMO_SETTINGS)
+                param0x -> this.minecraft.createLevel("Demo_World", MinecraftServer.DEMO_SETTINGS, RegistryAccess.builtin(), WorldGenSettings.DEMO_SETTINGS)
             )
         );
         this.resetDemoButton = this.addButton(
@@ -227,7 +229,7 @@ public class TitleScreen extends Screen {
                     LevelStorageSource var0x = this.minecraft.getLevelSource();
         
                     try (LevelStorageSource.LevelStorageAccess var3x = var0x.createAccess("Demo_World")) {
-                        WorldData var2x = var3x.getDataTag();
+                        LevelSummary var2x = var3x.getSummary();
                         if (var2x != null) {
                             this.minecraft
                                 .setScreen(
@@ -250,7 +252,7 @@ public class TitleScreen extends Screen {
         );
 
         try (LevelStorageSource.LevelStorageAccess var0 = this.minecraft.getLevelSource().createAccess("Demo_World")) {
-            WorldData var1 = var0.getDataTag();
+            LevelSummary var1 = var0.getSummary();
             if (var1 == null) {
                 this.resetDemoButton.active = false;
             }

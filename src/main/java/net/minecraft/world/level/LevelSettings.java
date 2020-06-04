@@ -2,7 +2,6 @@ package net.minecraft.world.level;
 
 import com.mojang.serialization.Dynamic;
 import net.minecraft.world.Difficulty;
-import net.minecraft.world.level.levelgen.WorldGenSettings;
 
 public final class LevelSettings {
     private final String levelName;
@@ -11,19 +10,19 @@ public final class LevelSettings {
     private final Difficulty difficulty;
     private final boolean allowCommands;
     private final GameRules gameRules;
-    private final WorldGenSettings worldGenSettings;
+    private final DataPackConfig dataPackConfig;
 
-    public LevelSettings(String param0, GameType param1, boolean param2, Difficulty param3, boolean param4, GameRules param5, WorldGenSettings param6) {
+    public LevelSettings(String param0, GameType param1, boolean param2, Difficulty param3, boolean param4, GameRules param5, DataPackConfig param6) {
         this.levelName = param0;
         this.gameType = param1;
         this.hardcore = param2;
         this.difficulty = param3;
         this.allowCommands = param4;
         this.gameRules = param5;
-        this.worldGenSettings = param6;
+        this.dataPackConfig = param6;
     }
 
-    public static LevelSettings parse(Dynamic<?> param0, WorldGenSettings param1) {
+    public static LevelSettings parse(Dynamic<?> param0, DataPackConfig param1) {
         GameType var0 = GameType.byId(param0.get("GameType").asInt(0));
         return new LevelSettings(
             param0.get("LevelName").asString(""),
@@ -60,21 +59,23 @@ public final class LevelSettings {
         return this.gameRules;
     }
 
-    public WorldGenSettings worldGenSettings() {
-        return this.worldGenSettings;
+    public DataPackConfig getDataPackConfig() {
+        return this.dataPackConfig;
     }
 
     public LevelSettings withGameType(GameType param0) {
-        return new LevelSettings(this.levelName, param0, this.hardcore, this.difficulty, this.allowCommands, this.gameRules, this.worldGenSettings);
+        return new LevelSettings(this.levelName, param0, this.hardcore, this.difficulty, this.allowCommands, this.gameRules, this.dataPackConfig);
     }
 
     public LevelSettings withDifficulty(Difficulty param0) {
-        return new LevelSettings(this.levelName, this.gameType, this.hardcore, param0, this.allowCommands, this.gameRules, this.worldGenSettings);
+        return new LevelSettings(this.levelName, this.gameType, this.hardcore, param0, this.allowCommands, this.gameRules, this.dataPackConfig);
+    }
+
+    public LevelSettings withDataPackConfig(DataPackConfig param0) {
+        return new LevelSettings(this.levelName, this.gameType, this.hardcore, this.difficulty, this.allowCommands, this.gameRules, param0);
     }
 
     public LevelSettings copy() {
-        return new LevelSettings(
-            this.levelName, this.gameType, this.hardcore, this.difficulty, this.allowCommands, this.gameRules.copy(), this.worldGenSettings
-        );
+        return new LevelSettings(this.levelName, this.gameType, this.hardcore, this.difficulty, this.allowCommands, this.gameRules.copy(), this.dataPackConfig);
     }
 }
