@@ -105,6 +105,7 @@ public class WorldGenSettings {
         LevelStem var1 = param0.get(LevelStem.OVERWORLD);
         DimensionType var2 = var1 == null ? DimensionType.defaultOverworld() : var1.type();
         var0.register(LevelStem.OVERWORLD, new LevelStem(() -> var2, param1));
+        var0.setPersistent(LevelStem.OVERWORLD);
 
         for(Entry<ResourceKey<LevelStem>, LevelStem> var3 : param0.entrySet()) {
             ResourceKey<LevelStem> var4 = var3.getKey();

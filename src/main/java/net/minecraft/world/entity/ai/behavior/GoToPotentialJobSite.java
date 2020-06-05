@@ -8,6 +8,7 @@ import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
+import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.schedule.Activity;
 
@@ -38,7 +39,11 @@ public class GoToPotentialJobSite extends Behavior<Villager> {
         Optional<GlobalPos> var0 = param1.getBrain().getMemory(MemoryModuleType.POTENTIAL_JOB_SITE);
         var0.ifPresent(param1x -> {
             BlockPos var0x = param1x.pos();
-            param0.getPoiManager().release(var0x);
+            PoiManager var1x = param0.getServer().getLevel(param1x.dimension()).getPoiManager();
+            if (var1x.exists(var0x, param0x -> true)) {
+                var1x.release(var0x);
+            }
+
             DebugPackets.sendPoiTicketCountPacket(param0, var0x);
         });
         param1.getBrain().eraseMemory(MemoryModuleType.POTENTIAL_JOB_SITE);
